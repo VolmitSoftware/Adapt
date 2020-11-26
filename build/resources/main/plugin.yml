@@ -1,0 +1,4 @@
+name: Adapt
+main: com.volmit.adapt.Adapt
+version: 1.0
+api-version: 1.16

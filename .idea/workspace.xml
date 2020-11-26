@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3c36a23b-784e-44d3-9784-5695f1c82478" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="Adapt" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Enum" />
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2020.2.1\plugins\maven\lib\maven3" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="1khlp5yq0LpkaJpibtbxALzN84s" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="dart.analysis.tool.window.visible" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/main/java/com/volmit/adapt/effect" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="show.migrate.to.gradle.popup" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\effect" />
+      <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\util" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.volmit.adapt.content.skill" />
+      <recent name="com.volmit.adapt.world" />
+      <recent name="com.volmit.adapt.util" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\util" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Adapt [buildRelease]" type="GradleRunConfiguration" factoryName="Gradle" nameIsGenerated="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="buildRelease" />
+          </list>
+        </option>
+        <option name="vmOptions" value="" />
+      </ExternalSystemSettings>
+      <GradleScriptDebugEnabled>true</GradleScriptDebugEnabled>
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3c36a23b-784e-44d3-9784-5695f1c82478" name="Default Changelist" comment="" />
+      <created>1606160883395</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1606160883395</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="410" y="171" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1606241199368">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="410" y="171" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606241199368" />
+    <state x="718" y="163" key="#com.intellij.ide.util.MemberChooser" timestamp="1606337600307">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="718" y="163" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606337600307" />
+    <state x="445" y="434" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1606337879866">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="445" y="434" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606337879866" />
+    <state x="357" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1606325549863">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="357" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606325549863" />
+    <state x="687" y="221" key="FileChooserDialogImpl" timestamp="1606318198009">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="687" y="221" key="FileChooserDialogImpl/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606318198009" />
+    <state width="662" height="556" key="GridCell.Tab.0.bottom" timestamp="1606339848493">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state width="662" height="556" key="GridCell.Tab.0.bottom/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339848493" />
+    <state width="662" height="556" key="GridCell.Tab.0.center" timestamp="1606339848492">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state width="662" height="556" key="GridCell.Tab.0.center/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339848492" />
+    <state width="662" height="556" key="GridCell.Tab.0.left" timestamp="1606339848492">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state width="662" height="556" key="GridCell.Tab.0.left/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339848492" />
+    <state width="662" height="556" key="GridCell.Tab.0.right" timestamp="1606339848493">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state width="662" height="556" key="GridCell.Tab.0.right/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339848493" />
+    <state x="598" y="193" width="723" height="664" key="find.popup" timestamp="1606329454652">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="598" y="193" width="723" height="664" key="find.popup/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606329454652" />
+    <state x="645" y="239" key="refactoring.ChangeSignatureDialog" timestamp="1606336650751">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="645" y="239" key="refactoring.ChangeSignatureDialog/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606336650751" />
+    <state x="532" y="239" key="run.anything.popup" timestamp="1606238856517">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="532" y="239" key="run.anything.popup/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606238856517" />
+    <state x="539" y="15" width="840" height="1034" key="search.everywhere.popup" timestamp="1606339783484">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="539" y="15" width="840" height="1034" key="search.everywhere.popup/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339783484" />
+  </component>
+</project>
