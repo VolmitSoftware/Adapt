@@ -15,7 +15,7 @@ public class SkillSeaborne extends SimpleSkill {
         setColor(C.BLUE);
         setBarColor(BarColor.BLUE);
         setBarStyle(BarStyle.SEGMENTED_6);
-        setInterval(3100);
+        setInterval(1320);
     }
 
     @EventHandler
@@ -23,7 +23,7 @@ public class SkillSeaborne extends SimpleSkill {
     {
         if(e.getPlayer().isSwimming() && e.getTo().getWorld().equals(e.getFrom().getWorld()) && e.getTo().distanceSquared(e.getFrom()) > 0)
         {
-            xp(e.getPlayer(), 1);
+            xp(e.getPlayer(), 1.77);
         }
     }
 
@@ -33,7 +33,7 @@ public class SkillSeaborne extends SimpleSkill {
         {
             if(i.isSwimming() || i.getRemainingAir() < i.getMaximumAir())
             {
-                xp(i, 96);
+                xp(i, 9.7);
             }
         }
     }

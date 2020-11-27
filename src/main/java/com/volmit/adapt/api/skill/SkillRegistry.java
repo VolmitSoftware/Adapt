@@ -41,7 +41,8 @@ public class SkillRegistry extends TickedObject
     public void registerSkill(Class<? extends Skill> skill)
     {
         try {
-            skills.put(skill.getName(), skill.getConstructor().newInstance());
+            Skill sk = skill.getConstructor().newInstance();
+            skills.put(sk.getName(), sk);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }

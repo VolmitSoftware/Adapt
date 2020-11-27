@@ -1,15 +1,12 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.api.skill.SkillLine;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.M;
-import com.volmit.adapt.util.RNG;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.inventory.FurnaceSmeltEvent;
 
 public class SkillCrafting extends SimpleSkill {
     public SkillCrafting() {
@@ -22,8 +19,13 @@ public class SkillCrafting extends SimpleSkill {
     @EventHandler
     public void on(CraftItemEvent e)
     {
-        xp((Player)e.getWhoClicked(), 35);
-        dropXP(e.getWhoClicked().getLocation(), RNG.r.i(31, 67));
+        xp((Player)e.getWhoClicked(), 37);
+    }
+
+    @EventHandler
+    public void on(FurnaceSmeltEvent e)
+    {
+        xp(e.getBlock().getLocation(), 120, 16, 1000);
     }
 
     @Override

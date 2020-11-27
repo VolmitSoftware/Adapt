@@ -23,14 +23,14 @@ public class SkillAirborne extends SimpleSkill {
     {
         if(e.getFrom().getWorld().equals(e.getTo().getWorld()) && e.getTo().distanceSquared(e.getFrom()) > 0)
         {
-            if(e.getPlayer().getFallDistance() > 0)
+            if(e.getPlayer().getFallDistance() > 3)
             {
-                xp(e.getPlayer(), Math.min(e.getPlayer().getFallDistance(), 0.6));
+                xp(e.getPlayer(), Math.min(e.getPlayer().getFallDistance() * 3.5, 0.6));
             }
 
             if(e.getPlayer().isFlying() || e.getPlayer().isGliding())
             {
-                xp(e.getPlayer(), 1.85);
+                xp(e.getPlayer(), 3.85);
             }
         }
     }

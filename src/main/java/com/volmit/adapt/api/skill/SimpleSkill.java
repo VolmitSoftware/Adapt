@@ -13,6 +13,7 @@ public abstract class SimpleSkill extends TickedObject implements Skill{
     private String name;
     private C color;
     private BarColor barColor;
+    private double minXp;
     private BarStyle barStyle;
 
     public SimpleSkill(String name)
@@ -21,6 +22,8 @@ public abstract class SimpleSkill extends TickedObject implements Skill{
         setColor(C.WHITE);
         setBarColor(BarColor.WHITE);
         setBarStyle(BarStyle.SOLID);
+        setName(name);
+        setMinXp(100);
     }
 
     @Override

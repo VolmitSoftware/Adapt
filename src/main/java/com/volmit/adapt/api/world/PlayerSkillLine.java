@@ -1,19 +1,20 @@
 package com.volmit.adapt.api.world;
 
-import com.volmit.adapt.api.skill.SkillLine;
+import com.volmit.adapt.api.notification.Notifier;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bukkit.entity.Player;
 
 import java.util.concurrent.TimeUnit;
 
 @Data
 @NoArgsConstructor
 public class PlayerSkillLine {
-    private transient String line = "";
+    private String line = "";
     private double xp = 0;
     private double lastXP = 0;
     private long knowledge = 0;
@@ -24,10 +25,11 @@ public class PlayerSkillLine {
     private long last = M.ms();
     private KList<XPMultiplier> multipliers = new KList<>();
 
-    public void giveXP(double xp) {
+    public void giveXP(Notifier p, double xp) {
         freshness -= xp * 0.001;
         this.xp += multiplier * xp;
         last = M.ms();
+        p.notifyXP(line, xp);
     }
 
     public boolean hasEarnedWithin(long ms)
@@ -43,7 +45,6 @@ public class PlayerSkillLine {
             lastXP = xp;
             lastLevel = (int) Math.floor(XP.getLevelForXp(getXp()));
             p.getData().addWisdom();
-            p.notifyWisdom(line);
             boost(0.25, (int) TimeUnit.HOURS.toMillis(1));
         }
 
@@ -99,9 +100,8 @@ public class PlayerSkillLine {
         {
             double earned = xp - lastXP;
 
-            if(earned > SkillLine.valueOf(line.toUpperCase()).getMinxp())
+            if(earned > p.getServer().getSkillRegistry().getSkill(line).getMinXp())
             {
-                p.notifyEarn(earned, line);
                 lastXP = xp;
             }
         }
@@ -110,7 +110,6 @@ public class PlayerSkillLine {
         {
             if(lastLevel < getLevel())
             {
-                p.notifyLevelUp(getLevel(), getLevel() - lastLevel, line);
                 lastLevel = getLevel();
             }
         }

@@ -3,6 +3,7 @@ package com.volmit.adapt.api.xp;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class XP {
@@ -13,7 +14,12 @@ public class XP {
 
     public static void xp(AdaptPlayer p, Skill skill, double xp)
     {
-        p.getSkillLine(skill.getName()).giveXP(xp);
+        p.getSkillLine(skill.getName()).giveXP(p.getNot(), xp);
+    }
+
+    public static void spatialXP(Location l, Skill skill, double xp, int rad, long duration)
+    {
+        Adapt.instance.getAdaptServer().offer(new SpatialXP(l, skill, xp, rad, duration));
     }
 
     public static void wisdom(Player p, long k)

@@ -19,7 +19,7 @@ public class SkillAgility extends SimpleSkill {
     {
         if(e.getPlayer().isSprinting() && e.getFrom().getWorld().equals(e.getTo().getWorld()) && e.getTo().distanceSquared(e.getFrom()) > 0)
         {
-            xp(e.getPlayer(), 1);
+            xp(e.getPlayer(), 1.9);
         }
     }
 

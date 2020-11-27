@@ -1,5 +1,6 @@
 package com.volmit.adapt.api.world;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import lombok.Data;
@@ -37,14 +38,24 @@ public class PlayerData {
     {
         synchronized (skillLines)
         {
-            PlayerSkillLine s = skillLines.get(skillLine);
-
-            if(s != null)
+            try
             {
-                return s;
+                PlayerSkillLine s = skillLines.get(skillLine);
+
+                if(s != null)
+                {
+                    return s;
+                }
             }
 
-            s = new PlayerSkillLine();
+            catch(Throwable e)
+            {
+                e.printStackTrace();
+                Adapt.error("Failed to get skill line " + skillLine);
+            }
+
+            PlayerSkillLine s = new PlayerSkillLine();
+            s.setLine(skillLine);
             skillLines.put(skillLine, s);
             return s;
         }

@@ -2,7 +2,12 @@ package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.api.tick.TickedObject;
+import com.volmit.adapt.api.xp.SpatialXP;
+import com.volmit.adapt.api.xp.XP;
+import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
+import com.volmit.adapt.util.M;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,11 +19,14 @@ import java.util.UUID;
 
 public class AdaptServer extends TickedObject {
     private final KMap<Player, AdaptPlayer> players;
+    private final KList<SpatialXP> spatialTickets;
+    @Getter
     private SkillRegistry skillRegistry;
 
     public AdaptServer()
     {
         super("core", UUID.randomUUID().toString(), 1000);
+        spatialTickets = new KList<>();
         players = new KMap<>();
         try {
             skillRegistry = new SkillRegistry();
@@ -29,6 +37,45 @@ public class AdaptServer extends TickedObject {
         for(Player i : Bukkit.getServer().getOnlinePlayers())
         {
             join(i);
+        }
+    }
+
+    public void offer(SpatialXP xp)
+    {
+        spatialTickets.add(xp);
+    }
+
+    public void takeSpatial(AdaptPlayer p)
+    {
+        SpatialXP x = spatialTickets.getRandom();
+
+        if(x == null)
+        {
+            return;
+        }
+
+        if(M.ms() > x.getMs())
+        {
+            spatialTickets.remove(x);
+            return;
+        }
+
+        if(p.getPlayer().getWorld().equals(x.getLocation().getWorld()))
+        {
+            double c = p.getPlayer().getLocation().distanceSquared(x.getLocation());
+            if(c < x.getRadius() * x.getRadius())
+            {
+                double xp = x.getXp() / (3D);
+                x.setXp(x.getXp() - xp);
+
+                if(x.getXp() < 10)
+                {
+                    xp += x.getXp();
+                    spatialTickets.remove(x);
+                }
+
+                XP.xp(p, x.getSkill(), xp);
+            }
         }
     }
 
@@ -73,7 +120,16 @@ public class AdaptServer extends TickedObject {
 
     @Override
     public void onTick() {
-
+        synchronized (spatialTickets)
+        {
+            for(int i = 0; i < spatialTickets.size(); i++)
+            {
+                if(M.ms() > spatialTickets.get(i).getMs())
+                {
+                    spatialTickets.remove(i);
+                }
+            }
+        }
     }
 
     public AdaptPlayer getPlayer(Player p) {

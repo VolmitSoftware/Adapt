@@ -11,6 +11,7 @@ java.sourceCompatibility = JavaVersion.VERSION_1_8
 String finalJarName = project.name + "-" + project.version;
 String finalJarPath = jar.archiveFile.get().getAsFile().getParentFile().getParentFile().getParentFile().getAbsolutePath() + "\\release\\" + project.version + "\\" + finalJarName + ".jar";
 String debugpath = "C:\\Users\\cyberpwn\\Documents\\development\\server\\plugins\\Adapt.jar";
+String debugmacpath = "/Users/cyberpwn/Documents/development/server/plugins/Adapt.jar";
 
 shadowJar {
     zip64 true
@@ -18,7 +19,7 @@ shadowJar {
     project.configurations.implementation.canBeResolved = true
     project.configurations.runtime.canBeResolved = true
     project.configurations.compile.canBeResolved = true
-    archiveFileName = debugpath
+    archiveFileName = debugmacpath
 }
 
 task buildRelease {

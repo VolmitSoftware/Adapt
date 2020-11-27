@@ -15,7 +15,7 @@ public class SkillStealth extends SimpleSkill {
         setColor(C.BLACK);
         setBarColor(BarColor.WHITE);
         setBarStyle(BarStyle.SEGMENTED_20);
-        setInterval(3000);
+        setInterval(1000);
     }
 
     @EventHandler
@@ -23,7 +23,7 @@ public class SkillStealth extends SimpleSkill {
     {
         if(e.getPlayer().isSneaking() && e.getTo().getWorld().equals(e.getFrom().getWorld()) && e.getTo().distanceSquared(e.getFrom()) > 0)
         {
-            xp(e.getPlayer(), 1);
+            xp(e.getPlayer(), 1.64);
         }
     }
 
@@ -33,7 +33,7 @@ public class SkillStealth extends SimpleSkill {
         {
             if(i.isSneaking())
             {
-                xp(i, 96);
+                xp(i, 11.28);
             }
         }
     }

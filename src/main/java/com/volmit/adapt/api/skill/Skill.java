@@ -4,9 +4,11 @@ import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
@@ -23,18 +25,7 @@ public interface Skill extends Ticked
 
     public default String getDisplayName()
     {
-        return C.RESET + "" + C.BOLD + getColor().toString() + getName();
-    }
-
-    public default void dropXP(Location l, int xp)
-    {
-        ExperienceOrb e = (ExperienceOrb) l.getWorld().spawnEntity(l, EntityType.EXPERIENCE_ORB);
-        e.setCustomName("+ " + C.UNDERLINE + C.WHITE + Form.f(xp)+ C.RESET + " " + getDisplayName());
-        e.setGlowing(true);
-        e.setGravity(false);
-        e.setExperience(0);
-        e.setPortalCooldown(10000);
-        e.setCustomNameVisible(true);
+        return C.RESET + "" + C.BOLD + getColor().toString() + Form.capitalize(getName());
     }
 
     public default String getDisplayName(int level)
@@ -47,6 +38,11 @@ public interface Skill extends Ticked
         XP.xp(p, this, xp);
     }
 
+    public default void xp(Location at, double xp, int rad, long duration)
+    {
+        XP.spatialXP(at, this, xp, rad, duration);
+    }
+
     public default void knowledge(Player p, long k)
     {
         XP.knowledge(p, this, k);
@@ -56,4 +52,12 @@ public interface Skill extends Ticked
     {
         XP.wisdom(p, w);
     }
+
+
+    public default BossBar newBossBar()
+    {
+        return Bukkit.createBossBar(getDisplayName(), getBarColor(), getBarStyle());
+    }
+
+    public double getMinXp();
 }

@@ -5,7 +5,10 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.VolmitPlugin;
 import com.volmit.adapt.api.world.AdaptServer;
 import lombok.Getter;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 
@@ -22,6 +25,11 @@ public class Adapt extends VolmitPlugin
     {
         super();
         instance = this;
+    }
+
+    public static void actionbar(Player p, String msg)
+    {
+        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(msg));
     }
 
     public File getJarFile()
