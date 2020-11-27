@@ -38,7 +38,7 @@ public class SkillAxes extends SimpleSkill {
     @EventHandler
     public void on(BlockBreakEvent e)
     {
-        if(isPickaxe(e.getPlayer().getInventory().getItemInMainHand()))
+        if(isAxe(e.getPlayer().getInventory().getItemInMainHand()))
         {
             double v = getValue(e.getBlock().getType());
 
@@ -70,12 +70,6 @@ public class SkillAxes extends SimpleSkill {
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers())
-        {
-            if(isAxe(i.getInventory().getItemInMainHand()))
-            {
-                xp(i, 4.28);
-            }
-        }
+
     }
 }

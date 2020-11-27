@@ -35,12 +35,6 @@ public class SkillSwords extends SimpleSkill {
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers())
-        {
-            if(isSword(i.getInventory().getItemInMainHand()))
-            {
-                xp(i, 4.28);
-            }
-        }
+
     }
 }

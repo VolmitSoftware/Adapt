@@ -36,12 +36,6 @@ public class SkillUnarmed extends SimpleSkill {
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers())
-        {
-            if(!isMelee(i.getInventory().getItemInMainHand()))
-            {
-                xp(i, 3.58);
-            }
-        }
+
     }
 }

@@ -23,66 +23,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3c36a23b-784e-44d3-9784-5695f1c82478" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/Adapt.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/xp/SpatialXP.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAxes.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillMining.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillSwords.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillUnarmed.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.3/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.3/executionHistory/executionHistory.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.3/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.3/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.3/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.3/fileHashes/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.3/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.3/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.3/javaCompile/classAnalysis.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.3/javaCompile/classAnalysis.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.3/javaCompile/javaCompile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.3/javaCompile/javaCompile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.3/javaCompile/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.3/javaCompile/taskHistory.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/md5-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/sha1-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/Adapt.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/Adapt.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/skill/SimpleSkill.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/skill/SimpleSkill.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/skill/Skill.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/skill/Skill.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/skill/SkillLine$S.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/skill/SkillLine.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/skill/SkillRegistry.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/skill/SkillRegistry.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/world/AdaptComponent.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/world/AdaptComponent.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/world/AdaptPlayer.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/world/AdaptPlayer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/world/AdaptServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/world/AdaptServer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/world/Notifier.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/world/PlayerData.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/world/PlayerData.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/world/PlayerSkillLine.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/world/PlayerSkillLine.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/xp/XP.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/api/xp/XP.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/content/skill/SkillAgility.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/content/skill/SkillAgility.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/content/skill/SkillAirborne.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/content/skill/SkillAirborne.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/content/skill/SkillCrafting.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/content/skill/SkillCrafting.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/content/skill/SkillSeaborne.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/content/skill/SkillSeaborne.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/content/skill/SkillStealth.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/content/skill/SkillStealth.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/util/IO.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/com/volmit/adapt/util/IO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/tmp/shadowJar/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/shadowJar/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/Adapt.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/Adapt.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/skill/SimpleSkill.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/skill/SimpleSkill.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/skill/Skill.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/skill/Skill.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/skill/SkillLine.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/skill/SkillRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/skill/SkillRegistry.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/world/AdaptComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/world/AdaptComponent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/world/AdaptPlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/world/AdaptPlayer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/world/AdaptServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/world/AdaptServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/world/Notifier.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/notification/Notifier.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/world/PlayerData.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/world/PlayerData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/world/PlayerSkillLine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/world/PlayerSkillLine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/xp/XP.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/xp/XP.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAgility.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAgility.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAirborne.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAirborne.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillCrafting.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillCrafting.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillSeaborne.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillSeaborne.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillStealth.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillStealth.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAxes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAxes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillSwords.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillSwords.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillUnarmed.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillUnarmed.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -230,25 +174,25 @@
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="687" y="221" key="FileChooserDialogImpl/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606318198009" />
-    <state width="1398" height="245" key="GridCell.Tab.0.bottom" timestamp="1606489012462">
+    <state width="1398" height="245" key="GridCell.Tab.0.bottom" timestamp="1606493803854">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state width="1398" height="245" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1606489012462" />
+    <state width="1398" height="245" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1606493803854" />
     <state width="662" height="556" key="GridCell.Tab.0.bottom/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339848493" />
-    <state width="1398" height="245" key="GridCell.Tab.0.center" timestamp="1606489012459">
+    <state width="1398" height="245" key="GridCell.Tab.0.center" timestamp="1606493803853">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state width="1398" height="245" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1606489012459" />
+    <state width="1398" height="245" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1606493803853" />
     <state width="662" height="556" key="GridCell.Tab.0.center/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339848492" />
-    <state width="1398" height="245" key="GridCell.Tab.0.left" timestamp="1606489012458">
+    <state width="1398" height="245" key="GridCell.Tab.0.left" timestamp="1606493803851">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state width="1398" height="245" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1606489012458" />
+    <state width="1398" height="245" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1606493803851" />
     <state width="662" height="556" key="GridCell.Tab.0.left/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339848492" />
-    <state width="1398" height="245" key="GridCell.Tab.0.right" timestamp="1606489012461">
+    <state width="1398" height="245" key="GridCell.Tab.0.right" timestamp="1606493803853">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state width="1398" height="245" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1606489012461" />
+    <state width="1398" height="245" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1606493803853" />
     <state width="662" height="556" key="GridCell.Tab.0.right/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339848493" />
     <state x="598" y="193" width="723" height="664" key="find.popup" timestamp="1606329454652">
       <screen x="0" y="0" width="1920" height="1050" />
