@@ -19,7 +19,7 @@ shadowJar {
     project.configurations.implementation.canBeResolved = true
     project.configurations.runtime.canBeResolved = true
     project.configurations.compile.canBeResolved = true
-    archiveFileName = debugmacpath
+    archiveFileName = debugpath
 }
 
 task buildRelease {
