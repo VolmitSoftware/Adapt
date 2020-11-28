@@ -8,6 +8,7 @@ import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.*;
 import lombok.Data;
 import lombok.SneakyThrows;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
@@ -25,7 +26,10 @@ public class AdaptPlayer extends TickedObject {
     private ChronoLatch barlatch;
     private ChronoLatch updatelatch;
     private Notifier not;
+    private RollingSequence speed;
     private KMap<String, BossBar> bars;
+    private long lastloc;
+    private Location lastpos;
 
     public AdaptPlayer(Player p) {
         super("players", p.getUniqueId().toString(), 50);
@@ -36,6 +40,8 @@ public class AdaptPlayer extends TickedObject {
         barlatch = new ChronoLatch(125);
         savelatch = new ChronoLatch(60000);
         not = new Notifier(p);
+        speed = new RollingSequence(7);
+        lastloc = M.ms();
     }
 
     public boolean isBusy()
@@ -98,6 +104,21 @@ public class AdaptPlayer extends TickedObject {
         }
 
         getServer().takeSpatial(this);
+
+        Location at = player.getLocation();
+
+        if(lastpos != null)
+        {
+            speed.put(lastpos.distance(at) / ((double)(M.ms() - lastloc)/50D));
+        }
+
+        lastpos = at.clone();
+        lastloc = M.ms();
+    }
+
+    public double getSpeed()
+    {
+        return speed.getAverage();
     }
 
     public void tickBars()

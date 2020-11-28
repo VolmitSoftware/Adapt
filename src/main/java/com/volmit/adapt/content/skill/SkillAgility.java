@@ -1,30 +1,33 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.content.adaptation.AgilityWindUp;
 import com.volmit.adapt.util.C;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 public class SkillAgility extends SimpleSkill {
     public SkillAgility() {
         super("agility");
         setColor(C.GREEN);
         setBarColor(BarColor.GREEN);
-        setInterval(3500);
-    }
-
-    @EventHandler
-    public void on(PlayerMoveEvent e)
-    {
-        if(e.getPlayer().isSprinting() && e.getFrom().getWorld().equals(e.getTo().getWorld()) && e.getTo().distanceSquared(e.getFrom()) > 0)
-        {
-            xp(e.getPlayer(), 1.9);
-        }
+        setInterval(1100);
+        registerAdaptation(new AgilityWindUp());
     }
 
     @Override
     public void onTick() {
-
+        for(Player i : Bukkit.getOnlinePlayers())
+        {
+            if(i.isSprinting())
+            {
+                xp(i, 11.9);
+            }
+        }
     }
 }

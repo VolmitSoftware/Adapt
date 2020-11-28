@@ -1,9 +1,11 @@
 package com.volmit.adapt.api.world;
 
+import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.notification.Notifier;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.util.KList;
+import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +25,7 @@ public class PlayerSkillLine {
     private double rfreshness = 1D;
     private int lastLevel = 0;
     private long last = M.ms();
+    private KMap<String, PlayerAdaptation> adaptations = new KMap<>();
     private KList<XPMultiplier> multipliers = new KList<>();
 
     public void giveXP(Notifier p, double xp) {
@@ -35,6 +38,36 @@ public class PlayerSkillLine {
     public boolean hasEarnedWithin(long ms)
     {
         return M.ms() - last < ms;
+    }
+
+    public PlayerAdaptation getAdaptation(String id)
+    {
+        return adaptations.get(id);
+    }
+
+    public int getAdaptationLevel(String id)
+    {
+        PlayerAdaptation a = getAdaptation(id);
+
+        if(a == null)
+        {
+            return 0;
+        }
+
+        return a.getLevel();
+    }
+
+    public void setAdaptation(Adaptation a, int level)
+    {
+        if(level <= 1)
+        {
+            adaptations.remove(a.getName());
+        }
+
+        PlayerAdaptation v = new PlayerAdaptation();
+        v.setId(a.getName());
+        v.setLevel(Math.min(level, a.getMaxLevel()));
+        adaptations.put(a.getName(), v);
     }
 
     public void update(AdaptPlayer p, String line)
@@ -96,22 +129,22 @@ public class PlayerSkillLine {
 
         multiplier = m;
 
-        if(!p.isBusy())
-        {
-            double earned = xp - lastXP;
+        double earned = xp - lastXP;
 
-            if(earned > p.getServer().getSkillRegistry().getSkill(line).getMinXp())
-            {
-                lastXP = xp;
-            }
+        if(earned > p.getServer().getSkillRegistry().getSkill(line).getMinXp())
+        {
+            lastXP = xp;
         }
 
-        if(!p.isBusy())
+        if(lastLevel < getLevel())
         {
-            if(lastLevel < getLevel())
+            for(int i = lastLevel; i < getLevel(); i++)
             {
-                lastLevel = getLevel();
+                giveKnowledge((i / 13) + 1);
+                p.getPlayer().sendMessage("Knowledge for " + line + " is now " + getKnowledge());
             }
+
+            lastLevel = getLevel();
         }
     }
 
@@ -162,5 +195,15 @@ public class PlayerSkillLine {
 
     public void boost(double v, int i) {
         multipliers.add(new XPMultiplier(v, i));
+    }
+
+    public boolean spendKnowledge(int c) {
+        if(getKnowledge() >= c)
+        {
+            setKnowledge(getKnowledge() - c);
+            return true;
+        }
+
+        return false;
     }
 }

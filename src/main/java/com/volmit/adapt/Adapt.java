@@ -2,6 +2,7 @@ package com.volmit.adapt;
 
 import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.VolmitPlugin;
 import com.volmit.adapt.api.world.AdaptServer;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class Adapt extends VolmitPlugin
     {
         super();
         instance = this;
+
     }
 
     public static void actionbar(Player p, String msg)

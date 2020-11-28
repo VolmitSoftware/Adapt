@@ -1,8 +1,11 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.content.adaptation.StealthSnatch;
+import com.volmit.adapt.content.adaptation.StealthSpeed;
 import com.volmit.adapt.util.C;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
@@ -12,21 +15,14 @@ import org.bukkit.event.player.PlayerMoveEvent;
 public class SkillStealth extends SimpleSkill {
     public SkillStealth() {
         super("stealth");
-        setColor(C.BLACK);
+        setColor(C.DARK_GRAY);
         setBarColor(BarColor.WHITE);
         setBarStyle(BarStyle.SEGMENTED_20);
-        setInterval(1000);
-    }
-
-    @EventHandler
-    public void on(PlayerMoveEvent e)
-    {
-        if(e.getPlayer().isSneaking()
-                && !e.getPlayer().isSwimming() && !e.getPlayer().isSprinting() && !e.getPlayer().isFlying() && !e.getPlayer().isGliding()
-                && e.getTo().getWorld().equals(e.getFrom().getWorld()) && e.getTo().distanceSquared(e.getFrom()) > 0)
-        {
-            xp(e.getPlayer(), 1.94);
-        }
+        setInterval(1400);
+        setIcon(Material.WITHER_ROSE);
+        setDescription("The art of the unseen. Walk in the shadows.");
+        registerAdaptation(new StealthSpeed());
+        registerAdaptation(new StealthSnatch());
     }
 
     @Override
@@ -35,7 +31,7 @@ public class SkillStealth extends SimpleSkill {
         {
             if(i.isSneaking() && !i.isSwimming() && !i.isSprinting() && !i.isFlying() && !i.isGliding())
             {
-                xp(i, 13.48);
+                xp(i, 15.48);
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.volmit.adapt.api.tick;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.BurstExecutor;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;

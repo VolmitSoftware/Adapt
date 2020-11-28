@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
+import com.volmit.adapt.content.adaptation.DiscoveryUnity;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
@@ -36,6 +37,7 @@ public class SkillDiscovery extends SimpleSkill {
         setColor(C.DARK_BLUE);
         setBarColor(BarColor.BLUE);
         setInterval(500);
+        registerAdaptation(new DiscoveryUnity());
     }
 
     @EventHandler

@@ -15,28 +15,17 @@ public class SkillAirborne extends SimpleSkill {
         setColor(C.BLUE);
         setBarColor(BarColor.BLUE);
         setBarStyle(BarStyle.SEGMENTED_6);
-        setInterval(3600);
-    }
-
-    @EventHandler
-    public void on(PlayerMoveEvent e)
-    {
-        if(e.getFrom().getWorld().equals(e.getTo().getWorld()) && e.getTo().distanceSquared(e.getFrom()) > 0)
-        {
-            if(e.getPlayer().getFallDistance() > 3)
-            {
-                xp(e.getPlayer(), Math.min(e.getPlayer().getFallDistance() * 3.5, 0.6));
-            }
-
-            if(e.getPlayer().isFlying() || e.getPlayer().isGliding())
-            {
-                xp(e.getPlayer(), 3.85);
-            }
-        }
+        setInterval(1280);
     }
 
     @Override
     public void onTick() {
-
+        for(Player i : Bukkit.getOnlinePlayers())
+        {
+            if(i.isFlying() || i.isGliding())
+            {
+                xp(i, 27);
+            }
+        }
     }
 }
