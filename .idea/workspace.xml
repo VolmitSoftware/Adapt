@@ -94,7 +94,8 @@
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\effect" />
       <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\util" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -102,8 +103,7 @@
       <recent name="com.volmit.adapt.world" />
       <recent name="com.volmit.adapt.util" />
     </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\effect" />
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\util" />
     </key>
   </component>
@@ -166,38 +166,38 @@
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="445" y="434" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606337879866" />
-    <state x="357" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1606325549863">
+    <state x="357" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1606519368022">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state x="357" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606325549863" />
+    <state x="357" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606519368022" />
     <state x="687" y="221" key="FileChooserDialogImpl" timestamp="1606318198009">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="687" y="221" key="FileChooserDialogImpl/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606318198009" />
-    <state width="1398" height="245" key="GridCell.Tab.0.bottom" timestamp="1606493803854">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state width="1398" height="245" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1606493803854" />
-    <state width="662" height="556" key="GridCell.Tab.0.bottom/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339848493" />
-    <state width="1398" height="245" key="GridCell.Tab.0.center" timestamp="1606493803853">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state width="1398" height="245" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1606493803853" />
-    <state width="662" height="556" key="GridCell.Tab.0.center/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339848492" />
-    <state width="1398" height="245" key="GridCell.Tab.0.left" timestamp="1606493803851">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state width="1398" height="245" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1606493803851" />
-    <state width="662" height="556" key="GridCell.Tab.0.left/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339848492" />
-    <state width="1398" height="245" key="GridCell.Tab.0.right" timestamp="1606493803853">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state width="1398" height="245" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1606493803853" />
-    <state width="662" height="556" key="GridCell.Tab.0.right/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606339848493" />
-    <state x="598" y="193" width="723" height="664" key="find.popup" timestamp="1606329454652">
+    <state width="662" height="556" key="GridCell.Tab.0.bottom" timestamp="1606521414943">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state x="598" y="193" width="723" height="664" key="find.popup/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606329454652" />
+    <state width="1398" height="245" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1606493803854" />
+    <state width="662" height="556" key="GridCell.Tab.0.bottom/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606521414943" />
+    <state width="662" height="556" key="GridCell.Tab.0.center" timestamp="1606521414943">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state width="1398" height="245" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1606493803853" />
+    <state width="662" height="556" key="GridCell.Tab.0.center/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606521414943" />
+    <state width="662" height="556" key="GridCell.Tab.0.left" timestamp="1606521414942">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state width="1398" height="245" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1606493803851" />
+    <state width="662" height="556" key="GridCell.Tab.0.left/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606521414942" />
+    <state width="662" height="556" key="GridCell.Tab.0.right" timestamp="1606521414943">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state width="1398" height="245" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1606493803853" />
+    <state width="662" height="556" key="GridCell.Tab.0.right/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606521414943" />
+    <state x="598" y="193" width="723" height="664" key="find.popup" timestamp="1606520016697">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="598" y="193" width="723" height="664" key="find.popup/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606520016697" />
     <state width="600" height="428" key="javadoc.popup" timestamp="1606487471183">
       <screen x="0" y="0" width="1440" height="900" />
     </state>

@@ -53,15 +53,15 @@ public class SkillAxes extends SimpleSkill {
 
         if(type.name().endsWith("_LOG") || type.name().endsWith("_WOOD"))
         {
-            value += 3.67;
+            value += 9.67;
         }
         if(type.name().endsWith("_PLANKS"))
         {
-            value += 1.67;
+            value += 4.67;
         }
         if(type.name().endsWith("_LEAVES"))
         {
-            value += 2.11;
+            value += 3.11;
         }
 
         return value;

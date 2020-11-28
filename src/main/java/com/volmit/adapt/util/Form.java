@@ -23,6 +23,7 @@ public class Form
 	private static final String NAMES[] = new String[] {"Thousand", "Million", "Billion", "Trillion", "Quadrillion", "Quintillion", "Sextillion", "Septillion", "Octillion", "Nonillion", "Decillion", "Undecillion", "Duodecillion", "Tredecillion", "Quattuordecillion", "Quindecillion", "Sexdecillion", "Septendecillion", "Octodecillion", "Novemdecillion", "Vigintillion",};
 	private static final BigInteger THOUSAND = BigInteger.valueOf(1000);
 	private static final NavigableMap<BigInteger, String> MAP;
+	private static final LinkedHashMap<String, Integer> roman_numerals = new LinkedHashMap<String, Integer>();
 
 	static
 	{
@@ -31,6 +32,20 @@ public class Form
 		{
 			MAP.put(THOUSAND.pow(i + 1), NAMES[i]);
 		}
+
+		roman_numerals.put("M", 1000);
+		roman_numerals.put("CM", 900);
+		roman_numerals.put("D", 500);
+		roman_numerals.put("CD", 400);
+		roman_numerals.put("C", 100);
+		roman_numerals.put("XC", 90);
+		roman_numerals.put("L", 50);
+		roman_numerals.put("XL", 40);
+		roman_numerals.put("X", 10);
+		roman_numerals.put("IX", 9);
+		roman_numerals.put("V", 5);
+		roman_numerals.put("IV", 4);
+		roman_numerals.put("I", 1);
 	}
 
 	private static void instantiate()
@@ -1423,21 +1438,6 @@ public class Form
 	 */
 	public static String toRoman(int num)
 	{
-		LinkedHashMap<String, Integer> roman_numerals = new LinkedHashMap<String, Integer>();
-
-		roman_numerals.put("M", 1000);
-		roman_numerals.put("CM", 900);
-		roman_numerals.put("D", 500);
-		roman_numerals.put("CD", 400);
-		roman_numerals.put("C", 100);
-		roman_numerals.put("XC", 90);
-		roman_numerals.put("L", 50);
-		roman_numerals.put("XL", 40);
-		roman_numerals.put("X", 10);
-		roman_numerals.put("IX", 9);
-		roman_numerals.put("V", 5);
-		roman_numerals.put("IV", 4);
-		roman_numerals.put("I", 1);
 
 		String res = "";
 

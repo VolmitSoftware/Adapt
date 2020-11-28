@@ -65,7 +65,8 @@ public class AdaptServer extends TickedObject {
             double c = p.getPlayer().getLocation().distanceSquared(x.getLocation());
             if(c < x.getRadius() * x.getRadius())
             {
-                double xp = x.getXp() / (3D);
+                double distl = M.lerpInverse(0, x.getRadius() * x.getRadius(), c);
+                double xp = x.getXp() / (1.5D * ((distl*9) + 1));
                 x.setXp(x.getXp() - xp);
 
                 if(x.getXp() < 10)

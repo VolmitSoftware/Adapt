@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillMining extends SimpleSkill {
     public SkillMining() {
-        super("axes");
+        super("mining");
         setColor(C.YELLOW);
         setBarColor(BarColor.YELLOW);
         setInterval(2750);

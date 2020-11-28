@@ -21,9 +21,11 @@ public class SkillStealth extends SimpleSkill {
     @EventHandler
     public void on(PlayerMoveEvent e)
     {
-        if(e.getPlayer().isSneaking() && e.getTo().getWorld().equals(e.getFrom().getWorld()) && e.getTo().distanceSquared(e.getFrom()) > 0)
+        if(e.getPlayer().isSneaking()
+                && !e.getPlayer().isSwimming() && !e.getPlayer().isSprinting() && !e.getPlayer().isFlying() && !e.getPlayer().isGliding()
+                && e.getTo().getWorld().equals(e.getFrom().getWorld()) && e.getTo().distanceSquared(e.getFrom()) > 0)
         {
-            xp(e.getPlayer(), 1.64);
+            xp(e.getPlayer(), 1.94);
         }
     }
 
@@ -31,9 +33,9 @@ public class SkillStealth extends SimpleSkill {
     public void onTick() {
         for(Player i : Bukkit.getOnlinePlayers())
         {
-            if(i.isSneaking())
+            if(i.isSneaking() && !i.isSwimming() && !i.isSprinting() && !i.isFlying() && !i.isGliding())
             {
-                xp(i, 11.28);
+                xp(i, 13.48);
             }
         }
     }
