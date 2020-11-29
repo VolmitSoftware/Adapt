@@ -1,6 +1,9 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -14,6 +17,12 @@ public class StealthSpeed extends SimpleAdaptation {
         setDescription("Move faster while sneaking");
         setIcon(Material.MUSHROOM_STEW);
         setBaseCost(2);
+        setInterval(2000);
+    }
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " Sneak Speed");
     }
 
     @EventHandler
@@ -25,7 +34,7 @@ public class StealthSpeed extends SimpleAdaptation {
         {
             return;
         }
-        AttributeModifier mod = new AttributeModifier("adapt-sneak-speed", factor*1.25, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+        AttributeModifier mod = new AttributeModifier("adapt-sneak-speed", getSpeed(factor), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
         if(e.isSneaking())
         {
             e.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(mod);
@@ -41,6 +50,10 @@ public class StealthSpeed extends SimpleAdaptation {
                 }
             }
         }
+    }
+
+    private double getSpeed(double factor) {
+        return factor*1.25;
     }
 
     @Override

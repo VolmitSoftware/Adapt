@@ -3,10 +3,7 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
 import com.volmit.adapt.content.adaptation.DiscoveryUnity;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.KList;
-import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.*;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -66,15 +63,16 @@ public class SkillDiscovery extends SimpleSkill {
     {
         if(e.getClickedBlock() != null)
         {
-           seeBlock(e.getPlayer(), e.getClickedBlock().getBlockData());
+           seeBlock(e.getPlayer(), e.getClickedBlock().getBlockData(), e.getClickedBlock().getLocation());
         }
     }
 
-    public void seeBlock(Player p, BlockData bd) {
+    public void seeBlock(Player p, BlockData bd, Location l) {
         Discovery<String> d = getPlayer(p).getData().getSeenBlocks();
         if (d.isNewDiscovery(bd.getAsString()))
         {
             xp(p, 25 + (d.getPower() * 33));
+            p.spawnParticle(Particle.TOTEM, l.clone().add(0.5, 0.5, 0.5), 9, 0, 0, 0, 0.3);
         }
 
         seeItem(p, bd.getMaterial());
@@ -185,7 +183,7 @@ public class SkillDiscovery extends SimpleSkill {
             try
             {
                 Block b = i.getTargetBlockExact(5, FluidCollisionMode.NEVER);
-                seeBlock(i, b.getBlockData());
+                seeBlock(i, b.getBlockData(), b.getLocation());
                 seeBiome(i, b.getBiome());
             }
 

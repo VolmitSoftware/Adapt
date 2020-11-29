@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.content.adaptation.UnarmedPower;
 import com.volmit.adapt.content.adaptation.UnarmedSuckerPunch;
 import com.volmit.adapt.util.C;
 import org.bukkit.Bukkit;
@@ -19,6 +20,7 @@ public class SkillUnarmed extends SimpleSkill {
         setBarColor(BarColor.YELLOW);
         setInterval(2570);
         registerAdaptation(new UnarmedSuckerPunch());
+        registerAdaptation(new UnarmedPower());
     }
 
     @EventHandler

@@ -3,6 +3,9 @@ package com.volmit.adapt.content.adaptation;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.xp.XP;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -14,10 +17,15 @@ import org.bukkit.event.player.PlayerExpChangeEvent;
 public class DiscoveryUnity extends SimpleAdaptation {
     public DiscoveryUnity() {
         super("unity");
-        setDescription("Collecting XP Orbs adds xp to a random skill.");
+        setDescription("Collecting Experience Orbs adds XP to skills that have recently earned XP.");
         setIcon(Material.REDSTONE);
         setBaseCost(4);
-        setMaxLevel(9);
+        setMaxLevel(7);
+    }
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + " XP " + C.GRAY + " Per Orb");
     }
 
     @EventHandler
@@ -25,8 +33,13 @@ public class DiscoveryUnity extends SimpleAdaptation {
     {
         if(e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {
             e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.9f);
-            XP.xp(e.getPlayer(), getServer().getSkillRegistry().getSkill(getPlayer(e.getPlayer()).getData().getSkillLines().v().getRandom().getLine()), e.getAmount() * 125 * getLevelPercent(e.getPlayer()));
+
+            getPlayer(e.getPlayer()).giveXPToRecents(getPlayer(e.getPlayer()), getXPGained(getLevelPercent(e.getPlayer()), e.getAmount()), 10000);
         }
+    }
+
+    private double getXPGained(double factor, int amount) {
+        return amount * 125 * factor;
     }
 
     @Override

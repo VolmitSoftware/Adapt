@@ -94,18 +94,18 @@
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\effect" />
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\util" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.volmit.adapt.content.adaptation" />
-      <recent name="com.volmit.adapt.content.gui" />
       <recent name="com.volmit.adapt.content.skill" />
+      <recent name="com.volmit.adapt.content.gui" />
       <recent name="com.volmit.adapt.world" />
       <recent name="com.volmit.adapt.util" />
     </key>
-    <key name="MoveFile.RECENT_KEYS">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\effect" />
       <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\util" />
     </key>
   </component>
@@ -159,11 +159,11 @@
     </state>
     <state x="308" y="147" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1440.900@0.0.1440.900" timestamp="1606422830007" />
     <state x="410" y="171" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606241199368" />
-    <state x="718" y="163" key="#com.intellij.ide.util.MemberChooser" timestamp="1606544469825">
+    <state x="718" y="163" key="#com.intellij.ide.util.MemberChooser" timestamp="1606620799341">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="539" y="140" key="#com.intellij.ide.util.MemberChooser/0.0.1440.900@0.0.1440.900" timestamp="1606434052780" />
-    <state x="718" y="163" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606544469825" />
+    <state x="718" y="163" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606620799341" />
     <state x="445" y="434" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1606337879866">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
@@ -176,26 +176,30 @@
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="687" y="221" key="FileChooserDialogImpl/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606318198009" />
-    <state width="662" height="556" key="GridCell.Tab.0.bottom" timestamp="1606557398127">
+    <state width="662" height="556" key="GridCell.Tab.0.bottom" timestamp="1606636043200">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state width="1398" height="245" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1606493803854" />
-    <state width="662" height="556" key="GridCell.Tab.0.bottom/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606557398127" />
-    <state width="662" height="556" key="GridCell.Tab.0.center" timestamp="1606557398127">
+    <state width="662" height="556" key="GridCell.Tab.0.bottom/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606636043200" />
+    <state width="662" height="556" key="GridCell.Tab.0.center" timestamp="1606636043200">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state width="1398" height="245" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1606493803853" />
-    <state width="662" height="556" key="GridCell.Tab.0.center/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606557398127" />
-    <state width="662" height="556" key="GridCell.Tab.0.left" timestamp="1606557398127">
+    <state width="662" height="556" key="GridCell.Tab.0.center/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606636043200" />
+    <state width="662" height="556" key="GridCell.Tab.0.left" timestamp="1606636043200">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state width="1398" height="245" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1606493803851" />
-    <state width="662" height="556" key="GridCell.Tab.0.left/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606557398127" />
-    <state width="662" height="556" key="GridCell.Tab.0.right" timestamp="1606557398127">
+    <state width="662" height="556" key="GridCell.Tab.0.left/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606636043200" />
+    <state width="662" height="556" key="GridCell.Tab.0.right" timestamp="1606636043200">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state width="1398" height="245" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1606493803853" />
-    <state width="662" height="556" key="GridCell.Tab.0.right/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606557398127" />
+    <state width="662" height="556" key="GridCell.Tab.0.right/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606636043200" />
+    <state x="425" y="38" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1606621363538">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="425" y="38" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606621363538" />
     <state x="598" y="193" width="723" height="664" key="find.popup" timestamp="1606541036017">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>

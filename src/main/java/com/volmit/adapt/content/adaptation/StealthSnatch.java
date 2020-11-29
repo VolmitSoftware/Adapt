@@ -2,10 +2,7 @@ package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.xp.XP;
-import com.volmit.adapt.util.Inventories;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
-import com.volmit.adapt.util.V;
+import com.volmit.adapt.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -24,8 +21,14 @@ public class StealthSnatch extends SimpleAdaptation {
         super("snatch");
         setDescription("Snatch items instantly while sneaking!");
         setIcon(Material.CHEST_MINECART);
-        setBaseCost(3);
+        setBaseCost(4);
         setInterval(50);
+        setMaxLevel(3);
+    }
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "+ " + Form.f(getRange(getLevelPercent(level)), 1) + " Snatch Radius");
     }
 
     @EventHandler
@@ -47,7 +50,7 @@ public class StealthSnatch extends SimpleAdaptation {
 
         if(!player.isDead())
         {
-            double range = factor * 3.5;
+            double range = getRange(factor);
 
             for(Entity j : player.getWorld().getNearbyEntities(player.getLocation(), range, range /1.5, range))
             {
@@ -71,6 +74,7 @@ public class StealthSnatch extends SimpleAdaptation {
                             player.getInventory().addItem(is);
                             sendCollected(player, (Item) j);
                             j.remove();
+                            getSkill().xp(player, 1.27);
 
                             int id = j.getEntityId();
 
@@ -80,6 +84,10 @@ public class StealthSnatch extends SimpleAdaptation {
                 }
             }
         }
+    }
+
+    private double getRange(double factor) {
+        return factor * 3.38;
     }
 
     public void sendCollected(Player plr, Item item)

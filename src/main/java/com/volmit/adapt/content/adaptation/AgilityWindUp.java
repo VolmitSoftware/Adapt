@@ -27,10 +27,26 @@ public class AgilityWindUp extends SimpleAdaptation {
         setInterval(50);
     }
 
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "+ " + Form.pc(getWindupSpeed(getLevelPercent(level)), 0) + C.GRAY + " Max Speed");
+        v.addLore(C.YELLOW + "* "+ Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + " Windup Time");
+    }
+
     @EventHandler
     public void on(PlayerQuitEvent e)
     {
         ticksRunning.remove(e.getPlayer());
+    }
+
+    private double getWindupTicks(double factor)
+    {
+        return M.lerp(180, 60, factor);
+    }
+
+    private double getWindupSpeed(double factor)
+    {
+        return 0.22 + (factor * 0.225);
     }
 
     @Override
@@ -64,29 +80,17 @@ public class AgilityWindUp extends SimpleAdaptation {
                 }
 
                 double factor = getLevelPercent(i);
-                double ticksToMax = M.lerp(180, 60, factor);
+                double ticksToMax = getWindupTicks(factor);
+                double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
+                double speedIncrease = M.lerp(0, getWindupSpeed(factor), progress);
 
-                if(tr == ticksToMax)
-                {
-                    i.getWorld().playSound(i.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1f, 0.01f);
-                    i.getWorld().spawnParticle(Particle.FLASH, i.getLocation(), 1);
-                }
-
-                double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), factor > 0.8 ? 1.25 : 1);
-                double speedIncrease = M.lerp(0, 0.22 + (factor * 0.225), progress);
-
-
-                if(progress < 0.9)
-                {
-                    i.getWorld().playSound(i.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, (float) (0.1f * (1d - progress)), (float) 1f + ((float) (progress * 1f)));
-                }
 
                 if(M.r(0.2 * progress))
                 {
                     i.getWorld().spawnParticle(Particle.LAVA, i.getLocation(), 1);
                 }
 
-                if(M.r(0.35 * progress))
+                if(M.r(0.25 * progress))
                 {
                     i.getWorld().spawnParticle(Particle.FLAME, i.getLocation(), 1, 0, 0, 0, 0);
                 }

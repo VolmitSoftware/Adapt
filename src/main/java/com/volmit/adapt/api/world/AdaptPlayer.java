@@ -157,4 +157,14 @@ public class AdaptPlayer extends TickedObject {
             }
         }
     }
+
+    public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {
+        for(PlayerSkillLine i : p.getData().getSkillLines().v())
+        {
+            if(M.ms() - i.getLast() < ms)
+            {
+                i.giveXP(null, xpGained);
+            }
+        }
+    }
 }

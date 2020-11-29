@@ -9,9 +9,15 @@ import com.volmit.adapt.util.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.ItemMergeEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public interface Adaptation extends Ticked {
     public int getMaxLevel();
+
+    public void addStats(int level, Element v);
 
     public int getBaseCost();
 
@@ -25,6 +31,34 @@ public interface Adaptation extends Ticked {
 
     public String getName();
 
+    public default void damageHand(Player p, int damage)
+    {
+        ItemStack is = p.getInventory().getItemInMainHand();
+
+        if(is == null || !is.hasItemMeta())
+        {
+            return;
+        }
+
+        ItemMeta im = is.getItemMeta();
+        if(im.isUnbreakable())
+        {
+            return;
+        }
+        Damageable dm = (Damageable) im;
+        dm.setDamage(dm.getDamage() + damage);
+
+        if(dm.getDamage() > is.getType().getMaxDurability())
+        {
+            p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
+            return;
+        }
+
+        is.setItemMeta(im);
+        p.getInventory().setItemInMainHand(is);
+    }
+
     public default int getLevel(Player p)
     {
         return getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
@@ -33,6 +67,11 @@ public interface Adaptation extends Ticked {
     public default double getLevelPercent(Player p)
     {
         return Math.min(Math.max(0, M.lerpInverse(0, getMaxLevel(), getLevel(p))), 1);
+    }
+
+    public default double getLevelPercent(int p)
+    {
+        return Math.min(Math.max(0, M.lerpInverse(0, getMaxLevel(), p)), 1);
     }
 
     public default int getCostFor(int level)
@@ -95,13 +134,15 @@ public interface Adaptation extends Ticked {
         {
             o = 3;
         }
+
         if(getMaxLevel() ==5 || getMaxLevel() == 6)
         {
             o = 2;
         }
+
         if(getMaxLevel() ==7 || getMaxLevel() == 8)
         {
-            o = 2;
+            o = 1;
         }
 
         int mylevel = getPlayer(player).getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
@@ -113,11 +154,12 @@ public interface Adaptation extends Ticked {
             int row = 1;
             int c = getCostFor(i, mylevel);
             int lvl = i;
-            w.setElement(pos, row, new UIElement("lp-" + i + "g")
+            Element de = new UIElement("lp-" + i + "g")
                     .setMaterial(new MaterialBlock(getIcon()))
                     .setName(getDisplayName(i))
                     .setEnchanted(mylevel >= lvl)
-                    .addLore("" + C.WHITE + c + C.GRAY + " Knowledge Cost")
+                    .addLore(C.GRAY + getDescription())
+                    .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " Knowledge Cost"))
                     .addLore(mylevel >= lvl ? (C.GREEN + "Already Learned") : (k >= c ?( C.BLUE + "Click to Learn " + getDisplayName(i)) : (C.RED + "(You only have " + C.WHITE + k + C.RED + " Knowledge)")))
                     .onLeftClick((e) -> {
                         if(mylevel >= lvl)
@@ -150,7 +192,10 @@ public interface Adaptation extends Ticked {
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
 
                         }
-                    }));
+                    });
+            de.addLore(" ");
+            addStats(lvl, de);
+            w.setElement(pos, row, de);
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);

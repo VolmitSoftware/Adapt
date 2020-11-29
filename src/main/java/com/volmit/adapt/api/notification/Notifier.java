@@ -40,6 +40,12 @@ public class Notifier extends TickedObject
 
         lastValue += value;
         lastInstance = M.ms();
+
+        if(isBusy())
+        {
+            return;
+        }
+
         Skill sk = getServer().getSkillRegistry().getSkill(line);
         Adapt.actionbar(target, sk.getDisplayName() + C.RESET + C.GRAY + " +" + C.WHITE + C.UNDERLINE + Form.f((int)lastValue) + C.RESET + C.GRAY + "XP");
     }

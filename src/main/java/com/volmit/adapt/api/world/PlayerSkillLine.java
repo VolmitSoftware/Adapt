@@ -2,6 +2,8 @@ package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.notification.Notifier;
+import com.volmit.adapt.api.notification.SoundNotification;
+import com.volmit.adapt.api.notification.TitleNotification;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.util.KList;
@@ -9,6 +11,7 @@ import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.concurrent.TimeUnit;
@@ -31,8 +34,12 @@ public class PlayerSkillLine {
     public void giveXP(Notifier p, double xp) {
         freshness -= xp * 0.001;
         this.xp += multiplier * xp;
-        last = M.ms();
-        p.notifyXP(line, xp);
+
+        if(p != null)
+        {
+            last = M.ms();
+            p.notifyXP(line, xp);
+        }
     }
 
     public boolean hasEarnedWithin(long ms)
@@ -141,10 +148,24 @@ public class PlayerSkillLine {
             for(int i = lastLevel; i < getLevel(); i++)
             {
                 giveKnowledge((i / 13) + 1);
-                p.getPlayer().sendMessage("Knowledge for " + line + " is now " + getKnowledge());
             }
 
             lastLevel = getLevel();
+
+            if(getLevel() >= 5)
+            {
+                p.getNot().queue(SoundNotification.builder()
+                        .sound(Sound.BLOCK_END_PORTAL_FRAME_FILL)
+                        .volume(1f)
+                        .pitch(0.25f)
+                        .build(), TitleNotification.builder()
+                        .in(250)
+                        .stay(250)
+                        .out(750)
+                        .title("")
+                        .subtitle(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
+                        .build());
+            }
         }
     }
 
