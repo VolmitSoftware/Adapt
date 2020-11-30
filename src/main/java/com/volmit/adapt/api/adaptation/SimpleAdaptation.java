@@ -11,7 +11,9 @@ import java.util.UUID;
 @Data
 public abstract class SimpleAdaptation extends TickedObject implements Adaptation {
     private int maxLevel;
+    private int initialCost;
     private int baseCost;
+    private double costFactor;
     private Skill skill;
     private String description;
     private Material icon;
@@ -21,8 +23,10 @@ public abstract class SimpleAdaptation extends TickedObject implements Adaptatio
     {
         super("adaptations", UUID.randomUUID() + "-" + name, 1000);
         setMaxLevel(5);
+        setCostFactor(0.35);
         setBaseCost(3);
         setIcon(Material.PAPER);
+        setInitialCost(1);
         setDescription("No Description Provided");
         this.name = name;
     }

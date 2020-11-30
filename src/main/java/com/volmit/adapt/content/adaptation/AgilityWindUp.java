@@ -21,9 +21,11 @@ public class AgilityWindUp extends SimpleAdaptation {
 
     public AgilityWindUp() {
         super("wind-up");
-        setDescription("Get faster the longer you run straight!");
+        setDescription("Get faster the longer you sprint!");
         setIcon(Material.POWERED_RAIL);
-        setBaseCost(3);
+        setBaseCost(2);
+        setCostFactor(0.65);
+        setInitialCost(8);
         setInterval(50);
     }
 
@@ -59,6 +61,12 @@ public class AgilityWindUp extends SimpleAdaptation {
                 {
                     i.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(j);
                 }
+            }
+
+            if(i.isSwimming() || i.isFlying() || i.isGliding() || i.isSneaking())
+            {
+                ticksRunning.remove(i);
+                return;
             }
 
             if(i.isSprinting() && getLevel(i) > 0)

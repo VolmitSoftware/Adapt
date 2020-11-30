@@ -1,8 +1,11 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.content.adaptation.SeaborneGills;
+import com.volmit.adapt.content.adaptation.SeaborneOxygen;
 import com.volmit.adapt.util.C;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
@@ -16,6 +19,9 @@ public class SkillSeaborne extends SimpleSkill {
         setBarColor(BarColor.BLUE);
         setBarStyle(BarStyle.SEGMENTED_6);
         setInterval(2120);
+        setIcon(Material.TRIDENT);
+        registerAdaptation(new SeaborneGills());
+        registerAdaptation(new SeaborneOxygen());
     }
 
     @Override

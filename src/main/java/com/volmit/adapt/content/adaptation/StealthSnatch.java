@@ -24,6 +24,8 @@ public class StealthSnatch extends SimpleAdaptation {
         setBaseCost(4);
         setInterval(50);
         setMaxLevel(3);
+        setInitialCost(12);
+        setCostFactor(0.125);
     }
 
     @Override

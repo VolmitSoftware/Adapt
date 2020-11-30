@@ -17,6 +17,7 @@ public class SkillAgility extends SimpleSkill {
         setColor(C.GREEN);
         setBarColor(BarColor.GREEN);
         setInterval(1100);
+        setIcon(Material.FEATHER);
         registerAdaptation(new AgilityWindUp());
     }
 

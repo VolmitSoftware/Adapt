@@ -23,8 +23,10 @@ public class AxesChop extends SimpleAdaptation {
         super("chop");
         setDescription("Chop down trees by right clicking the base log!");
         setIcon(Material.IRON_AXE);
-        setBaseCost(5);
+        setBaseCost(3);
+        setCostFactor(0.75);
         setMaxLevel(3);
+        setInitialCost(5);
         setInterval(5000);
     }
 

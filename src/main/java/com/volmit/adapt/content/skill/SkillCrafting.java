@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.util.C;
+import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,6 +15,7 @@ public class SkillCrafting extends SimpleSkill {
         setColor(C.YELLOW);
         setBarColor(BarColor.YELLOW);
         setInterval(3700);
+        setIcon(Material.CRAFTING_TABLE);
     }
 
     @EventHandler

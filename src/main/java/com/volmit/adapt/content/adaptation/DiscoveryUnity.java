@@ -19,7 +19,9 @@ public class DiscoveryUnity extends SimpleAdaptation {
         super("unity");
         setDescription("Collecting Experience Orbs adds XP to skills that have recently earned XP.");
         setIcon(Material.REDSTONE);
-        setBaseCost(4);
+        setBaseCost(2);
+        setInitialCost(10);
+        setCostFactor(0.3);
         setMaxLevel(7);
     }
 

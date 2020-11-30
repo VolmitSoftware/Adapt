@@ -18,6 +18,8 @@ public class UnarmedPower extends SimpleAdaptation {
         setIcon(Material.LEATHER_HELMET);
         setBaseCost(3);
         setMaxLevel(7);
+        setInitialCost(6);
+        setCostFactor(0.425);
     }
 
     @Override

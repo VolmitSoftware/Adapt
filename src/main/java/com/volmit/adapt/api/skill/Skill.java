@@ -83,7 +83,6 @@ public interface Skill extends Ticked {
                 return new UIElement("bg").setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE));
             }
         });
-        w.setResolution(WindowResolution.W9_H6);
 
         int ind = 0;
 
@@ -97,6 +96,7 @@ public interface Skill extends Ticked {
                     .setName(i.getDisplayName(lvl))
                     .addLore(C.GRAY + i.getDescription())
                     .addLore(lvl == 0 ? (C.DARK_GRAY + "Not Learned") : (C.GRAY + "Level " + C.WHITE + Form.toRoman(lvl)))
+                    .setProgress(1D)
                     .onLeftClick((e) -> {
                         w.close();
                         i.openGui(player);

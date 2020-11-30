@@ -23,6 +23,8 @@ public class RangedForce extends SimpleAdaptation {
         setBaseCost(2);
         setMaxLevel(7);
         setInterval(5000);
+        setInitialCost(5);
+        setCostFactor(0.225);
     }
 
     @Override

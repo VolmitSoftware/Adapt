@@ -247,6 +247,11 @@ public class UIElement implements Element
 	@Override
 	public short getEffectiveDurability()
 	{
+		if(progress == 1D)
+		{
+			return 0;
+		}
+
 		if(getMaterial().getMaterial().getMaxDurability() == 0)
 		{
 			return 0;

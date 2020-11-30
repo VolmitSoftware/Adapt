@@ -6,6 +6,7 @@ import com.volmit.adapt.content.adaptation.UnarmedPower;
 import com.volmit.adapt.content.adaptation.UnarmedSuckerPunch;
 import com.volmit.adapt.util.C;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,6 +22,7 @@ public class SkillUnarmed extends SimpleSkill {
         setInterval(2570);
         registerAdaptation(new UnarmedSuckerPunch());
         registerAdaptation(new UnarmedPower());
+        setIcon(Material.FIRE_CHARGE);
     }
 
     @EventHandler

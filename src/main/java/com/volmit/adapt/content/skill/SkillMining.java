@@ -18,6 +18,7 @@ public class SkillMining extends SimpleSkill {
         setColor(C.YELLOW);
         setBarColor(BarColor.YELLOW);
         setInterval(2750);
+        setIcon(Material.NETHERITE_PICKAXE);
     }
 
     @EventHandler

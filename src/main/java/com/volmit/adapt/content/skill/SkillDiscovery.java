@@ -34,6 +34,7 @@ public class SkillDiscovery extends SimpleSkill {
         setColor(C.DARK_BLUE);
         setBarColor(BarColor.BLUE);
         setInterval(500);
+        setIcon(Material.FILLED_MAP);
         registerAdaptation(new DiscoveryUnity());
     }
 

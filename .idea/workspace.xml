@@ -22,11 +22,38 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3c36a23b-784e-44d3-9784-5695f1c82478" name="Default Changelist" comment="">
+    <list default="true" id="3c36a23b-784e-44d3-9784-5695f1c82478" name="Default Changelist" comment="FFF">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/HunterAdrenaline.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/SeaborneGills.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/SeaborneOxygen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/adaptation/Adaptation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/adaptation/Adaptation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/adaptation/SimpleAdaptation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/adaptation/SimpleAdaptation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/skill/Skill.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/api/skill/Skill.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/AgilityWindUp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/AgilityWindUp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/AxesChop.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/AxesChop.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/DiscoveryUnity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/DiscoveryUnity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/RangedForce.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/RangedForce.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/RangedPiercing.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/RangedPiercing.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/StealthSnatch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/StealthSnatch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/StealthSpeed.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/StealthSpeed.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/SwordsMachete.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/SwordsMachete.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/UnarmedPower.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/UnarmedPower.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/UnarmedSuckerPunch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/adaptation/UnarmedSuckerPunch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/gui/SkillsGui.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/gui/SkillsGui.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAgility.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAgility.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAirborne.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAirborne.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAxes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillAxes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillCrafting.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillCrafting.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillDiscovery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillDiscovery.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillHunter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillHunter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillMining.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillMining.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillRanged.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillRanged.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillSeaborne.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillSeaborne.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillSwords.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillSwords.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillUnarmed.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/content/skill/SkillUnarmed.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/util/UIElement.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/volmit/adapt/util/UIElement.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,12 +118,11 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="dart.analysis.tool.window.visible" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.CommitDialog" />
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\effect" />
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\util" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -106,7 +132,8 @@
       <recent name="com.volmit.adapt.world" />
       <recent name="com.volmit.adapt.util" />
     </key>
-    <key name="MoveFile.RECENT_KEYS">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\effect" />
       <recent name="C:\Users\cyberpwn\Documents\development\workspace\Adapt\src\main\java\com\volmit\adapt\util" />
     </key>
   </component>
@@ -140,6 +167,21 @@
       <option name="presentableId" value="Default" />
       <updated>1606160883395</updated>
     </task>
+    <task id="LOCAL-00001" summary="FFF">
+      <created>1606704915406</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1606704915406</updated>
+    </task>
+    <task id="LOCAL-00002" summary="FFF">
+      <created>1606705287731</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1606705287731</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -154,6 +196,14 @@
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="FFF" />
+    <option name="LAST_COMMIT_MESSAGE" value="FFF" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
+  </component>
   <component name="WindowStateProjectService">
     <state x="522" y="87" key="#Plugins" timestamp="1606704862639">
       <screen x="0" y="0" width="1920" height="1050" />
@@ -164,11 +214,11 @@
     </state>
     <state x="308" y="147" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1440.900@0.0.1440.900" timestamp="1606422830007" />
     <state x="410" y="171" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606241199368" />
-    <state x="718" y="163" key="#com.intellij.ide.util.MemberChooser" timestamp="1606620799341">
+    <state x="718" y="163" key="#com.intellij.ide.util.MemberChooser" timestamp="1606710340016">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="539" y="140" key="#com.intellij.ide.util.MemberChooser/0.0.1440.900@0.0.1440.900" timestamp="1606434052780" />
-    <state x="718" y="163" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606620799341" />
+    <state x="718" y="163" key="#com.intellij.ide.util.MemberChooser/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606710340016" />
     <state x="445" y="434" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1606337879866">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
@@ -177,38 +227,42 @@
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="357" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606519368022" />
-    <state x="687" y="221" key="FileChooserDialogImpl" timestamp="1606318198009">
+    <state x="687" y="221" key="FileChooserDialogImpl" timestamp="1606705157290">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state x="687" y="221" key="FileChooserDialogImpl/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606318198009" />
-    <state width="662" height="556" key="GridCell.Tab.0.bottom" timestamp="1606693862702">
+    <state x="687" y="221" key="FileChooserDialogImpl/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606705157290" />
+    <state width="662" height="556" key="GridCell.Tab.0.bottom" timestamp="1606712855722">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state width="1398" height="245" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1606493803854" />
-    <state width="662" height="556" key="GridCell.Tab.0.bottom/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606693862702" />
-    <state width="662" height="556" key="GridCell.Tab.0.center" timestamp="1606693862702">
+    <state width="662" height="556" key="GridCell.Tab.0.bottom/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606712855722" />
+    <state width="662" height="556" key="GridCell.Tab.0.center" timestamp="1606712855722">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state width="1398" height="245" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1606493803853" />
-    <state width="662" height="556" key="GridCell.Tab.0.center/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606693862702" />
-    <state width="662" height="556" key="GridCell.Tab.0.left" timestamp="1606693862702">
+    <state width="662" height="556" key="GridCell.Tab.0.center/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606712855722" />
+    <state width="662" height="556" key="GridCell.Tab.0.left" timestamp="1606712855722">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state width="1398" height="245" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1606493803851" />
-    <state width="662" height="556" key="GridCell.Tab.0.left/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606693862702" />
-    <state width="662" height="556" key="GridCell.Tab.0.right" timestamp="1606693862702">
+    <state width="662" height="556" key="GridCell.Tab.0.left/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606712855722" />
+    <state width="662" height="556" key="GridCell.Tab.0.right" timestamp="1606712855722">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state width="1398" height="245" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1606493803853" />
-    <state width="662" height="556" key="GridCell.Tab.0.right/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606693862702" />
+    <state width="662" height="556" key="GridCell.Tab.0.right/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606712855722" />
+    <state x="351" y="83" key="SettingsEditor" timestamp="1606705251872">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="351" y="83" key="SettingsEditor/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606705251872" />
     <state x="425" y="38" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1606621363538">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="425" y="38" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606621363538" />
-    <state x="598" y="193" width="723" height="664" key="find.popup" timestamp="1606541036017">
+    <state x="598" y="193" width="723" height="664" key="find.popup" timestamp="1606712528967">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
-    <state x="598" y="193" width="723" height="664" key="find.popup/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606541036017" />
+    <state x="598" y="193" width="723" height="664" key="find.popup/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606712528967" />
     <state width="600" height="428" key="javadoc.popup" timestamp="1606487471183">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
@@ -221,10 +275,10 @@
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="532" y="239" key="run.anything.popup/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606238856517" />
-    <state x="539" y="15" width="840" height="1034" key="search.everywhere.popup" timestamp="1606704688484">
+    <state x="539" y="15" width="840" height="1034" key="search.everywhere.popup" timestamp="1606708526280">
       <screen x="0" y="0" width="1920" height="1050" />
     </state>
     <state x="404" y="13" width="670" height="887" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1606426565680" />
-    <state x="539" y="15" width="840" height="1034" key="search.everywhere.popup/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606704688484" />
+    <state x="539" y="15" width="840" height="1034" key="search.everywhere.popup/1920.0.1920.1050/-1920.0.1920.1050/0.0.1920.1050@0.0.1920.1050" timestamp="1606708526280" />
   </component>
 </project>

@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.content.adaptation.HunterAdrenaline;
 import com.volmit.adapt.util.C;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
@@ -22,6 +23,8 @@ public class SkillHunter extends SimpleSkill {
         setColor(C.RED);
         setBarColor(BarColor.RED);
         setInterval(4150);
+        setIcon(Material.BONE);
+        registerAdaptation(new HunterAdrenaline());
     }
 
     @EventHandler

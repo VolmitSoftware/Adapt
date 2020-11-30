@@ -20,6 +20,8 @@ public class UnarmedSuckerPunch extends SimpleAdaptation {
         setDescription("Sprint punches, but more deadly.");
         setIcon(Material.OBSIDIAN);
         setBaseCost(2);
+        setInitialCost(4);
+        setCostFactor(0.225);
     }
 
     @Override

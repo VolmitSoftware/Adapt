@@ -3,6 +3,7 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.util.C;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
@@ -15,6 +16,7 @@ public class SkillAirborne extends SimpleSkill {
         setColor(C.BLUE);
         setBarColor(BarColor.BLUE);
         setBarStyle(BarStyle.SEGMENTED_6);
+        setIcon(Material.ELYTRA);
         setInterval(1280);
     }
 

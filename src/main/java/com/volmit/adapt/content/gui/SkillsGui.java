@@ -19,9 +19,9 @@ public class SkillsGui {
             }
         });
 
-        w.setResolution(WindowResolution.W9_H6);
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         int ind = 0;
+
         for(PlayerSkillLine i : a.getData().getSkillLines().v())
         {
             int pos = w.getPosition(ind);
@@ -30,6 +30,7 @@ public class SkillsGui {
             w.setElement(pos, row, new UIElement("skill-" + sk.getName())
                     .setMaterial(new MaterialBlock(sk.getIcon()))
                     .setName(sk.getDisplayName(i.getLevel()))
+                    .setProgress(1D)
                     .addLore(C.ITALIC + "" + C.GRAY + sk.getDescription())
                     .addLore(C.UNDERLINE + "" + C.WHITE + i.getKnowledge() + C.RESET + " " + C.GRAY + "Knowledge")
                     .onLeftClick((e) -> {

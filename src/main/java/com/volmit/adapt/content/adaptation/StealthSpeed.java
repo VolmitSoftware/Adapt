@@ -18,6 +18,8 @@ public class StealthSpeed extends SimpleAdaptation {
         setIcon(Material.MUSHROOM_STEW);
         setBaseCost(2);
         setInterval(2000);
+        setInitialCost(5);
+        setCostFactor(0.6);
     }
 
     @Override

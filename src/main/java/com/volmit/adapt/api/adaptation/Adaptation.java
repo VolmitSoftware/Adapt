@@ -31,6 +31,8 @@ public interface Adaptation extends Ticked {
 
     public String getName();
 
+    public int getInitialCost();
+
     public default void damageHand(Player p, int damage)
     {
         ItemStack is = p.getInventory().getItemInMainHand();
@@ -76,8 +78,10 @@ public interface Adaptation extends Ticked {
 
     public default int getCostFor(int level)
     {
-        return (int) (Math.max(1, getBaseCost() + (getBaseCost() * (level * 0.45))));
+        return (int) (Math.max(1, getBaseCost() + (getBaseCost() * (level * getCostFactor())))) + (level == 1 ? getInitialCost() : 0);
     }
+
+    double getCostFactor();
 
     public default int getCostFor(int level, int myLevel)
     {
@@ -158,6 +162,7 @@ public interface Adaptation extends Ticked {
                     .setMaterial(new MaterialBlock(getIcon()))
                     .setName(getDisplayName(i))
                     .setEnchanted(mylevel >= lvl)
+                    .setProgress(1D)
                     .addLore(C.GRAY + getDescription())
                     .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " Knowledge Cost"))
                     .addLore(mylevel >= lvl ? (C.GREEN + "Already Learned") : (k >= c ?( C.BLUE + "Click to Learn " + getDisplayName(i)) : (C.RED + "(You only have " + C.WHITE + k + C.RED + " Knowledge)")))

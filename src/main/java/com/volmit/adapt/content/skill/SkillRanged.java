@@ -6,6 +6,7 @@ import com.volmit.adapt.content.adaptation.RangedForce;
 import com.volmit.adapt.content.adaptation.RangedPiercing;
 import com.volmit.adapt.util.C;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -21,6 +22,7 @@ public class SkillRanged extends SimpleSkill {
         setInterval(3000);
         registerAdaptation(new RangedForce());
         registerAdaptation(new RangedPiercing());
+        setIcon(Material.CROSSBOW);
     }
 
     @EventHandler

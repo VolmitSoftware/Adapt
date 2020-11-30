@@ -20,6 +20,8 @@ public class RangedPiercing extends SimpleAdaptation {
         setBaseCost(3);
         setMaxLevel(3);
         setInterval(5000);
+        setInitialCost(8);
+        setCostFactor(0.5);
     }
 
     @Override

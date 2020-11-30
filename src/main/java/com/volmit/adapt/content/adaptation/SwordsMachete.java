@@ -23,8 +23,10 @@ public class SwordsMachete extends SimpleAdaptation {
         setDescription("Cut through foliage with ease!");
         setIcon(Material.IRON_SWORD);
         setBaseCost(4);
-        setMaxLevel(5);
+        setMaxLevel(3);
         setInterval(5234);
+        setInitialCost(7);
+        setCostFactor(0.225);
     }
 
     @Override
