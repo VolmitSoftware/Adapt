@@ -32,6 +32,29 @@ public class XP {
         }
     }
 
+    public static void xpSilent(Player p, Skill skill, double xp)
+    {
+        xpSilent(Adapt.instance.getAdaptServer().getPlayer(p), skill, xp);
+    }
+
+    public static void xpSilent(AdaptPlayer p, Skill skill, double xp)
+    {
+        p.getSkillLine(skill.getName()).giveXP(null, xp);
+
+        for(PlayerSkillLine i : p.getData().getSkillLines().v())
+        {
+            if(i.getLine().equals(skill.getName()))
+            {
+                continue;
+            }
+
+            if(M.ms() - i.getLast() < 7700)
+            {
+                i.giveXP(null, xp * 0.125);
+            }
+        }
+    }
+
     public static void spatialXP(Location l, Skill skill, double xp, int rad, long duration)
     {
         Adapt.instance.getAdaptServer().offer(new SpatialXP(l, skill, xp, rad, duration));

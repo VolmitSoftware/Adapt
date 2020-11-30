@@ -38,7 +38,15 @@ public class KList<T> extends ArrayList<T> implements List<T>
 		add(e);
 	}
 
-	public int indexOfAddIfNeeded(T v)
+    public KList(Iterator<T> iterator) {
+		super();
+		while(iterator.hasNext())
+		{
+			add(iterator.next());
+		}
+    }
+
+    public int indexOfAddIfNeeded(T v)
 	{
 		addIfMissing(v);
 		return indexOf(v);

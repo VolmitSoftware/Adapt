@@ -23,7 +23,7 @@ public class AgilityWindUp extends SimpleAdaptation {
         super("wind-up");
         setDescription("Get faster the longer you run straight!");
         setIcon(Material.POWERED_RAIL);
-        setBaseCost(2);
+        setBaseCost(3);
         setInterval(50);
     }
 

@@ -14,6 +14,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.io.IOException;
@@ -35,6 +36,14 @@ public class SkillRegistry extends TickedObject
             {
                 registerSkill((Class<? extends Skill>) i);
             }
+        }
+    }
+
+    @EventHandler
+    public void on(PlayerExpChangeEvent e)
+    {
+        if(e.getAmount() > 0) {
+            getPlayer(e.getPlayer()).boostXPToRecents(getPlayer(e.getPlayer()),0.03, 10000);
         }
     }
 

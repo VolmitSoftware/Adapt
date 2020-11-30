@@ -24,7 +24,7 @@ public class SkillAirborne extends SimpleSkill {
         {
             if(i.isFlying() || i.isGliding())
             {
-                xp(i, 27);
+                xpSilent(i, 27);
             }
         }
     }

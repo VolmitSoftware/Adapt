@@ -31,7 +31,7 @@ public class SkillStealth extends SimpleSkill {
         {
             if(i.isSneaking() && !i.isSwimming() && !i.isSprinting() && !i.isFlying() && !i.isGliding())
             {
-                xp(i, 15.48);
+                xpSilent(i, 15.48);
             }
         }
     }

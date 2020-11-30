@@ -23,8 +23,8 @@ public class AxesChop extends SimpleAdaptation {
         super("chop");
         setDescription("Chop down trees by right clicking the base log!");
         setIcon(Material.IRON_AXE);
-        setBaseCost(2);
-        setMaxLevel(7);
+        setBaseCost(5);
+        setMaxLevel(3);
         setInterval(5000);
     }
 
@@ -128,6 +128,9 @@ public class AxesChop extends SimpleAdaptation {
             case STRIPPED_JUNGLE_WOOD:
             case STRIPPED_OAK_WOOD:
             case STRIPPED_SPRUCE_WOOD:
+            case MUSHROOM_STEM:
+            case BROWN_MUSHROOM_BLOCK:
+            case RED_MUSHROOM_BLOCK:
                 return true;
         }
 

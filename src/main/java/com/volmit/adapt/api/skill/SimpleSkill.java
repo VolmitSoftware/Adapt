@@ -15,7 +15,7 @@ import java.util.regex.MatchResult;
 
 @Data
 public abstract class SimpleSkill extends TickedObject implements Skill{
-    private String name;
+    private final String name;
     private C color;
     private BarColor barColor;
     private double minXp;
@@ -31,7 +31,7 @@ public abstract class SimpleSkill extends TickedObject implements Skill{
         setColor(C.WHITE);
         setBarColor(BarColor.WHITE);
         setBarStyle(BarStyle.SOLID);
-        setName(name);
+        this.name = name;
         setIcon(Material.BOOK);
         setDescription("No Description Provided");
         setMinXp(100);

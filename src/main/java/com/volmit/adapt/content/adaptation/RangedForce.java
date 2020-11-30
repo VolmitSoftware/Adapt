@@ -46,7 +46,7 @@ public class RangedForce extends SimpleAdaptation {
             {
                 double factor = getLevelPercent(p);
                 e.getEntity().setVelocity(e.getEntity().getVelocity().clone().multiply(1 + getSpeed(factor)));
-                e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 0.5f + ((float)factor * 0.25f), 1.25f + (float)(factor/2f));
+                e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_SNOWBALL_THROW, 0.5f + ((float)factor * 0.25f), 0.7f + (float)(factor/2f));
             }
         }
     }

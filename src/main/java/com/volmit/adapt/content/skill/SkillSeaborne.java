@@ -24,7 +24,7 @@ public class SkillSeaborne extends SimpleSkill {
         {
             if(i.isSwimming() || i.getRemainingAir() < i.getMaximumAir())
             {
-                xp(i, 19.7);
+                xpSilent(i, 19.7);
             }
         }
     }

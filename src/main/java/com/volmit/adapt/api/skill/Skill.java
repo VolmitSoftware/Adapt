@@ -48,6 +48,10 @@ public interface Skill extends Ticked {
         XP.xp(p, this, xp);
     }
 
+    public default void xpSilent(Player p, double xp) {
+        XP.xpSilent(p, this, xp);
+    }
+
     public default void xp(Location at, double xp, int rad, long duration) {
         XP.spatialXP(at, this, xp, rad, duration);
     }

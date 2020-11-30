@@ -176,10 +176,10 @@ public interface Adaptation extends Ticked {
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
                                 w.close();
-                                player.sendTitle("", C.GRAY + "Learned " + getDisplayName(lvl), 3, 9, 16);
+                                player.sendTitle("", C.GRAY + "Learned " + getDisplayName(lvl), 1, 5, 11);
                                 J.s(() -> {
                                     openGui(player);
-                                }, 27);
+                                }, 14);
                             }
 
                             else{
@@ -199,7 +199,7 @@ public interface Adaptation extends Ticked {
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()));
+        w.setTitle(getDisplayName(a.getSkillLine(getSkill().getName()).getLevel()));
         w.onClosed((vv) -> {
             J.s(() -> {
                 player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);

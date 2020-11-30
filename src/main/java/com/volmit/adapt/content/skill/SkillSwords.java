@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.content.adaptation.SwordsMachete;
 import com.volmit.adapt.util.C;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -16,6 +17,7 @@ public class SkillSwords extends SimpleSkill {
         setColor(C.YELLOW);
         setBarColor(BarColor.YELLOW);
         setInterval(2150);
+        registerAdaptation(new SwordsMachete());
     }
 
     @EventHandler

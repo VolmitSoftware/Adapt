@@ -1,6 +1,7 @@
 package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.util.KMap;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,8 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.EntityType;
 import org.bukkit.potion.PotionEffectType;
+
+import javax.management.RuntimeErrorException;
 
 @Data
 @NoArgsConstructor
@@ -42,6 +45,12 @@ public class PlayerData {
 
     public PlayerSkillLine getSkillLine(String skillLine)
     {
+        if(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skillLine) == null)
+        {
+            Adapt.error("Incorrect usage of getSkillLine(). MUST BE A SKILL. See below.");
+            throw new RuntimeException();
+        }
+
         synchronized (skillLines)
         {
             try
