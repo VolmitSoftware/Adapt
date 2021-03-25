@@ -10,3 +10,11 @@
 .gradle/6.3/javaCompile/
 
 .gradle/buildOutputCleanup/
+
+.idea/
+
+release/
+
+build/
+
+.DS_Store
