@@ -165,7 +165,7 @@ public interface Adaptation extends Ticked {
                     .setProgress(1D)
                     .addLore(C.GRAY + getDescription())
                     .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " Knowledge Cost"))
-                    .addLore(mylevel >= lvl ? (C.GREEN + "Already Learned") : (k >= c ?( C.BLUE + "Click to Learn " + getDisplayName(i)) : (C.RED + "(You only have " + C.WHITE + k + C.RED + " Knowledge)")))
+                    .addLore(mylevel >= lvl ? (C.GREEN + "Already Learned") : (k >= c ?( C.BLUE + "Click to Learn " + getDisplayName(i)) : (k == 0 ?(C.RED + "(You don't have any Knowledge)") : (C.RED + "(You only have " + C.WHITE + k + C.RED + " Knowledge)"))))
                     .onLeftClick((e) -> {
                         if(mylevel >= lvl)
                         {
