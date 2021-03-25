@@ -8,6 +8,7 @@ import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.*;
 import lombok.Data;
 import lombok.SneakyThrows;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.boss.BossBar;
@@ -57,7 +58,7 @@ public class AdaptPlayer extends TickedObject {
     @SneakyThrows
     private void save()
     {
-        IO.writeAll(new File("data/players/" + player.getUniqueId() + ".json"),  new JSONObject(new Gson().toJson(data)).toString(4));
+        IO.writeAll(new File(Bukkit.getServer().getPluginManager().getPlugin(Adapt.instance.getName()).getDataFolder() + File.separator + "data" + File.separator + "players" + File.separator + player.getUniqueId() + ".json"),  new JSONObject(new Gson().toJson(data)).toString(4));
     }
 
     @Override
@@ -68,7 +69,7 @@ public class AdaptPlayer extends TickedObject {
     }
 
     private PlayerData loadPlayerData() {
-        File f = new File("data/players/" + player.getUniqueId() + ".json");
+        File f = new File(Bukkit.getServer().getPluginManager().getPlugin(Adapt.instance.getName()).getDataFolder() + File.separator + "data" + File.separator + "players" + File.separator + player.getUniqueId() + ".json");
 
         if(f.exists())
         {
