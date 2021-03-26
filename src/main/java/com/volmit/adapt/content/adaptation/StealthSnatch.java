@@ -1,13 +1,10 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -16,7 +13,7 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class StealthSnatch extends SimpleAdaptation {
-    private KList<Integer> holds = new KList<Integer>();
+    private final KList<Integer> holds = new KList<>();
     public StealthSnatch() {
         super("snatch");
         setDescription("Snatch items instantly while sneaking!");
@@ -96,16 +93,14 @@ public class StealthSnatch extends SimpleAdaptation {
     {
         try
         {
-            Entity collected = item;
-            Entity collector = plr;
             String nmstag = Bukkit.getServer().getClass().getCanonicalName().split("\\Q.\\E")[3];
             Class<?> c = Class.forName("net.minecraft.server." + nmstag + ".PacketPlayOutCollect");
             Class<?> p = Class.forName("net.minecraft.server." + nmstag + ".EntityPlayer");
             Class<?> pk = Class.forName("net.minecraft.server." + nmstag + ".Packet");
             Object v = c.getConstructor().newInstance();
-            new V(v).set("a", collected.getEntityId());
-            new V(v).set("b", collector.getEntityId());
-            new V(v).set("c", ((Item)collected).getItemStack().getAmount());
+            new V(v).set("a", item.getEntityId());
+            new V(v).set("b", plr.getEntityId());
+            new V(v).set("c", item.getItemStack().getAmount());
 
             for(Entity i : plr.getWorld().getNearbyEntities(plr.getLocation(), 8, 8, 8))
             {

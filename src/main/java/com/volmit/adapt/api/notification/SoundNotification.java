@@ -9,15 +9,15 @@ import org.bukkit.entity.Player;
 public class SoundNotification implements Notification
 {
     @Builder.Default
-    private long isolation = 0;
+    private final long isolation = 0;
     @Builder.Default
-    private long predelay = 0;
+    private final long predelay = 0;
     @Builder.Default
-    private Sound sound = Sound.BLOCK_LEVER_CLICK;
+    private final Sound sound = Sound.BLOCK_LEVER_CLICK;
     @Builder.Default
-    private float volume = 1F;
+    private final float volume = 1F;
     @Builder.Default
-    private float pitch = 1F;
+    private final float pitch = 1F;
 
     public SoundNotification withXP(double xp)
     {
@@ -27,7 +27,7 @@ public class SoundNotification implements Notification
         pitch -= sig / 6.6;
         pitch = pitch < 0.1 ? (float) 0.1 : pitch;
         double vp = sig / 5;
-        vp = vp > 0.8 ? 0.8 : vp;
+        vp = Math.min(vp, 0.8);
         volume += vp;
         pitch = pitch < 0.1 ? (float) 0.1 : pitch;
 
@@ -47,8 +47,6 @@ public class SoundNotification implements Notification
 
     public void play(Player p)
     {
-        J.s(() -> {
-            p.playSound(p.getLocation(), sound, volume, pitch);
-        });
+        J.s(() -> p.playSound(p.getLocation(), sound, volume, pitch));
     }
 }

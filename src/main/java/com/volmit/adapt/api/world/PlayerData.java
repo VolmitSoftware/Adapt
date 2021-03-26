@@ -16,7 +16,7 @@ import javax.management.RuntimeErrorException;
 @Data
 @NoArgsConstructor
 public class PlayerData {
-    private KMap<String, PlayerSkillLine> skillLines = new KMap<>();
+    private final KMap<String, PlayerSkillLine> skillLines = new KMap<>();
     private String last = "none";
     private Discovery<Biome> seenBiomes = new Discovery<>();
     private Discovery<EntityType> seenMobs = new Discovery<>();

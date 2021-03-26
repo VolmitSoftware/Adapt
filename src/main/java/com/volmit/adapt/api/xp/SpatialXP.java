@@ -1,12 +1,9 @@
 package com.volmit.adapt.api.xp;
 
 import com.volmit.adapt.api.skill.Skill;
-import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.M;
 import lombok.Data;
 import org.bukkit.Location;
-
-import java.util.UUID;
 
 @Data
 public class SpatialXP {

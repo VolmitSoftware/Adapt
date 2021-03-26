@@ -5,47 +5,47 @@ import com.volmit.adapt.util.M;
 
 public interface Ticked extends AdaptComponent
 {
-    public default void retick()
+    default void retick()
     {
         burst(1);
     }
 
-    public default void skip()
+    default void skip()
     {
         skip(1);
     }
 
-    public void unregister();
+    void unregister();
 
-    public boolean isBursting();
+    boolean isBursting();
 
-    public boolean isSkipping();
+    boolean isSkipping();
 
-    public void stopBursting();
+    void stopBursting();
 
-    public void stopSkipping();
+    void stopSkipping();
 
-    public long getTickCount();
+    long getTickCount();
 
-    public long getAge();
+    long getAge();
 
-    public void burst(int ticks);
+    void burst(int ticks);
 
-    public void skip(int ticks);
+    void skip(int ticks);
 
-    public long getLastTick();
+    long getLastTick();
 
-    public long getInterval();
+    long getInterval();
 
-    public void setInterval(long ms);
+    void setInterval(long ms);
 
-    public void tick();
+    void tick();
 
-    public String getGroup();
+    String getGroup();
 
-    public String getId();
+    String getId();
 
-    public default boolean shouldTick()
+    default boolean shouldTick()
     {
         return M.ms() - getLastTick() > getInterval();
     }

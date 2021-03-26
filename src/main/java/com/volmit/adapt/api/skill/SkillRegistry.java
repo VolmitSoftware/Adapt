@@ -23,7 +23,7 @@ import java.util.UUID;
 
 public class SkillRegistry extends TickedObject
 {
-    private KMap<String, Skill> skills = new KMap<>();
+    private final KMap<String, Skill> skills = new KMap<>();
 
     public SkillRegistry() throws IOException {
         super("registry", UUID.randomUUID() + "-sk", 1250);

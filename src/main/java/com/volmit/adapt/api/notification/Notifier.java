@@ -1,7 +1,6 @@
 package com.volmit.adapt.api.notification;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.api.notification.Notification;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.C;
@@ -14,7 +13,7 @@ public class Notifier extends TickedObject
 {
     private int busyTicks;
     private int delayTicks;
-    private KList<Notification> queue;
+    private final KList<Notification> queue;
     private final Player target;
     private double lastValue;
     private String lastSkill;

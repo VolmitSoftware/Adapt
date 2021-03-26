@@ -12,7 +12,6 @@ import com.volmit.adapt.util.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
 import java.util.concurrent.TimeUnit;
 
@@ -111,7 +110,7 @@ public class PlayerSkillLine {
             rfreshness += (freshness - rfreshness) * 0.265;
         }
 
-        double m = 1D * rfreshness;
+        double m = rfreshness;
 
         for(XPMultiplier i : multipliers.copy())
         {

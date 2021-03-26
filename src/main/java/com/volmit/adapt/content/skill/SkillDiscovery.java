@@ -188,7 +188,7 @@ public class SkillDiscovery extends SimpleSkill {
                 seeBiome(i, b.getBiome());
             }
 
-            catch(Throwable e)
+            catch(Throwable ignored)
             {
 
             }

@@ -4,40 +4,38 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public interface Adaptation extends Ticked {
-    public int getMaxLevel();
+    int getMaxLevel();
 
-    public void addStats(int level, Element v);
+    void addStats(int level, Element v);
 
-    public int getBaseCost();
+    int getBaseCost();
 
-    public String getDescription();
+    String getDescription();
 
-    public Material getIcon();
+    Material getIcon();
 
-    public void setSkill(Skill skill);
+    void setSkill(Skill skill);
 
-    public Skill getSkill();
+    Skill getSkill();
 
-    public String getName();
+    String getName();
 
-    public int getInitialCost();
+    int getInitialCost();
 
-    public default void damageHand(Player p, int damage)
+    default void damageHand(Player p, int damage)
     {
         ItemStack is = p.getInventory().getItemInMainHand();
 
-        if(is == null || !is.hasItemMeta())
+        if(!is.hasItemMeta())
         {
             return;
         }
@@ -61,29 +59,29 @@ public interface Adaptation extends Ticked {
         p.getInventory().setItemInMainHand(is);
     }
 
-    public default int getLevel(Player p)
+    default int getLevel(Player p)
     {
         return getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
     }
 
-    public default double getLevelPercent(Player p)
+    default double getLevelPercent(Player p)
     {
         return Math.min(Math.max(0, M.lerpInverse(0, getMaxLevel(), getLevel(p))), 1);
     }
 
-    public default double getLevelPercent(int p)
+    default double getLevelPercent(int p)
     {
         return Math.min(Math.max(0, M.lerpInverse(0, getMaxLevel(), p)), 1);
     }
 
-    public default int getCostFor(int level)
+    default int getCostFor(int level)
     {
         return (int) (Math.max(1, getBaseCost() + (getBaseCost() * (level * getCostFactor())))) + (level == 1 ? getInitialCost() : 0);
     }
 
     double getCostFactor();
 
-    public default int getCostFor(int level, int myLevel)
+    default int getCostFor(int level, int myLevel)
     {
         if(myLevel >= level)
         {
@@ -101,11 +99,11 @@ public interface Adaptation extends Ticked {
     }
 
 
-    public default String getDisplayName() {
+    default String getDisplayName() {
         return C.RESET + "" + C.BOLD + getSkill().getColor().toString() + Form.capitalizeWords(getName().replaceAll("\\Q-\\E", " "));
     }
 
-    public default String getDisplayName(int level) {
+    default String getDisplayName(int level) {
         if(level >= 1)
         {
             return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + Form.toRoman(level) + C.RESET;
@@ -114,18 +112,13 @@ public interface Adaptation extends Ticked {
         return getDisplayName();
     }
 
-    public default void openGui(Player player)
+    default void openGui(Player player)
     {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
         Window w = new UIWindow(player);
-        w.setDecorator(new WindowDecorator() {
-            @Override
-            public Element onDecorateBackground(Window window, int position, int row) {
-                return new UIElement("bg").setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE));
-            }
-        });
+        w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE)));
         w.setResolution(WindowResolution.W9_H6);
         int o = 0;
 
@@ -182,9 +175,7 @@ public interface Adaptation extends Ticked {
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
                                 w.close();
                                 player.sendTitle("", C.GRAY + "Learned " + getDisplayName(lvl), 1, 5, 11);
-                                J.s(() -> {
-                                    openGui(player);
-                                }, 14);
+                                J.s(() -> openGui(player), 14);
                             }
 
                             else{
@@ -205,14 +196,12 @@ public interface Adaptation extends Ticked {
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         w.setTitle(getDisplayName(a.getSkillLine(getSkill().getName()).getLevel()));
-        w.onClosed((vv) -> {
-            J.s(() -> {
-                player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-                player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
-                player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
-                getSkill().openGui(player);
-            });
-        });
+        w.onClosed((vv) -> J.s(() -> {
+            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
+            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
+            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
+            getSkill().openGui(player);
+        }));
         w.open();
     }
 

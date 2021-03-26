@@ -5,19 +5,14 @@ import com.volmit.adapt.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.inventory.ItemStack;
 
 public class AgilityWindUp extends SimpleAdaptation {
-    private KMap<Player, Integer> ticksRunning = new KMap<>();
+    private final KMap<Player, Integer> ticksRunning = new KMap<>();
 
     public AgilityWindUp() {
         super("wind-up");

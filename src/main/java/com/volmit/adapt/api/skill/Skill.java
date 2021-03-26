@@ -4,7 +4,6 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.*;
@@ -15,74 +14,67 @@ import org.bukkit.Sound;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 
 public interface Skill extends Ticked {
-    public String getName();
+    String getName();
 
-    public Material getIcon();
+    Material getIcon();
 
-    public String getDescription();
+    String getDescription();
 
-    public void registerAdaptation(Adaptation a);
+    void registerAdaptation(Adaptation a);
 
-    public KList<Adaptation> getAdaptations();
+    KList<Adaptation> getAdaptations();
 
-    public C getColor();
+    C getColor();
 
-    public BarColor getBarColor();
+    BarColor getBarColor();
 
-    public BarStyle getBarStyle();
+    BarStyle getBarStyle();
 
-    public default String getDisplayName() {
+    default String getDisplayName() {
         return C.RESET + "" + C.BOLD + getColor().toString() + Form.capitalize(getName());
     }
 
-    public default String getDisplayName(int level) {
+    default String getDisplayName(int level) {
         return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
     }
 
-    public default void xp(Player p, double xp) {
+    default void xp(Player p, double xp) {
         XP.xp(p, this, xp);
     }
 
-    public default void xpSilent(Player p, double xp) {
+    default void xpSilent(Player p, double xp) {
         XP.xpSilent(p, this, xp);
     }
 
-    public default void xp(Location at, double xp, int rad, long duration) {
+    default void xp(Location at, double xp, int rad, long duration) {
         XP.spatialXP(at, this, xp, rad, duration);
     }
 
-    public default void knowledge(Player p, long k) {
+    default void knowledge(Player p, long k) {
         XP.knowledge(p, this, k);
     }
 
-    public default void wisdom(Player p, long w) {
+    default void wisdom(Player p, long w) {
         XP.wisdom(p, w);
     }
 
 
-    public default BossBar newBossBar() {
+    default BossBar newBossBar() {
         return Bukkit.createBossBar(getDisplayName(), getBarColor(), getBarStyle());
     }
 
-    public double getMinXp();
+    double getMinXp();
 
-    public default void openGui(Player player)
+    default void openGui(Player player)
     {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
         Window w = new UIWindow(player);
-        w.setDecorator(new WindowDecorator() {
-            @Override
-            public Element onDecorateBackground(Window window, int position, int row) {
-                return new UIElement("bg").setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE));
-            }
-        });
+        w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE)));
 
         int ind = 0;
 
@@ -106,15 +98,13 @@ public interface Skill extends Ticked {
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()));
-        w.onClosed((vv) -> {
-            J.s(() -> {
-                player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-                player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
-                player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
+        w.onClosed((vv) -> J.s(() -> {
+            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
+            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
+            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
 
-                SkillsGui.open(player);
-            });
-        });
+            SkillsGui.open(player);
+        }));
         w.open();
     }
 }

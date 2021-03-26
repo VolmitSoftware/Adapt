@@ -7,12 +7,9 @@ import com.volmit.adapt.util.Form;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 public class UnarmedSuckerPunch extends SimpleAdaptation {
     public UnarmedSuckerPunch() {

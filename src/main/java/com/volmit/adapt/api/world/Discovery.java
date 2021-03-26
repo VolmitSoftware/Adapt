@@ -5,7 +5,7 @@ import lombok.Getter;
 
 public class Discovery<T> {
     @Getter
-    private KList<T> seen = new KList<>();
+    private final KList<T> seen = new KList<>();
 
     public boolean isNewDiscovery(T t)
     {

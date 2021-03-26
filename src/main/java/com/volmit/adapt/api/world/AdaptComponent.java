@@ -6,32 +6,32 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public interface AdaptComponent {
-    public default AdaptServer getServer()
+    default AdaptServer getServer()
     {
         return  Adapt.instance.getAdaptServer();
     }
 
-    public default AdaptPlayer getPlayer(Player p)
+    default AdaptPlayer getPlayer(Player p)
     {
         return getServer().getPlayer(p);
     }
 
-    public default boolean isItem(ItemStack is)
+    default boolean isItem(ItemStack is)
     {
         return is != null && !is.getType().equals(Material.AIR);
     }
 
-    public default boolean isTool(ItemStack is)
+    default boolean isTool(ItemStack is)
     {
         return isAxe(is) || isPickaxe(is)|| isHoe(is) || isShovel(is) || isSword(is);
     }
 
-    public default boolean isMelee(ItemStack is)
+    default boolean isMelee(ItemStack is)
     {
         return isTool(is);
     }
 
-    public default boolean isRanged(ItemStack it)
+    default boolean isRanged(ItemStack it)
     {
         if(isItem(it))
         {
@@ -48,7 +48,7 @@ public interface AdaptComponent {
         return false;
     }
 
-    public default boolean isSword(ItemStack it) {
+    default boolean isSword(ItemStack it) {
         if(isItem(it))
         {
             switch(it.getType())
@@ -68,7 +68,7 @@ public interface AdaptComponent {
         return false;
     }
 
-    public default boolean isAxe(ItemStack it) {
+    default boolean isAxe(ItemStack it) {
         if(isItem(it))
         {
             switch(it.getType())
@@ -88,7 +88,7 @@ public interface AdaptComponent {
         return false;
     }
 
-    public default boolean isPickaxe(ItemStack it) {
+    default boolean isPickaxe(ItemStack it) {
         if(isItem(it))
         {
             switch(it.getType())
@@ -108,7 +108,7 @@ public interface AdaptComponent {
         return false;
     }
 
-    public default boolean isShovel(ItemStack it) {
+    default boolean isShovel(ItemStack it) {
         if(isItem(it))
         {
             switch(it.getType())
@@ -128,7 +128,7 @@ public interface AdaptComponent {
         return false;
     }
 
-    public default boolean isBoots(ItemStack it) {
+    default boolean isBoots(ItemStack it) {
         if(isItem(it))
         {
             switch(it.getType())
@@ -148,7 +148,7 @@ public interface AdaptComponent {
         return false;
     }
 
-    public default boolean isHelmet(ItemStack it) {
+    default boolean isHelmet(ItemStack it) {
         if(isItem(it))
         {
             switch(it.getType())
@@ -169,7 +169,7 @@ public interface AdaptComponent {
         return false;
     }
 
-    public default boolean isLeggings(ItemStack it) {
+    default boolean isLeggings(ItemStack it) {
         if(isItem(it))
         {
             switch(it.getType())
@@ -189,7 +189,7 @@ public interface AdaptComponent {
         return false;
     }
 
-    public default boolean isChestplate(ItemStack it) {
+    default boolean isChestplate(ItemStack it) {
         if(isItem(it))
         {
             switch(it.getType())
@@ -209,7 +209,7 @@ public interface AdaptComponent {
         return false;
     }
 
-    public default boolean isHoe(ItemStack it) {
+    default boolean isHoe(ItemStack it) {
         if(isItem(it))
         {
             switch(it.getType())

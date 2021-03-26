@@ -5,14 +5,13 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 public class RangedPiercing extends SimpleAdaptation {
-    private KList<Integer> holds = new KList<Integer>();
+    private final KList<Integer> holds = new KList<>();
     public RangedPiercing() {
         super("piercing");
         setDescription("Adds Piercing to projectiles! Shoot through things!");

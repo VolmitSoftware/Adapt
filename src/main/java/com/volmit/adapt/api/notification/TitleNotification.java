@@ -6,15 +6,15 @@ import org.bukkit.entity.Player;
 @Builder
 public class TitleNotification implements Notification{
     @Builder.Default
-    private long in = 250;
+    private final long in = 250;
     @Builder.Default
-    private long stay = 1450;
+    private final long stay = 1450;
     @Builder.Default
-    private long out = 750;
+    private final long out = 750;
     @Builder.Default
-    private String title = "";
+    private final String title = "";
     @Builder.Default
-    private String subtitle = "";
+    private final String subtitle = "";
 
     @Override
     public long getTotalDuration() {

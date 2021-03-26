@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import xyz.xenondevs.particle.ParticleEffect;
 
 public class SwordsMachete extends SimpleAdaptation {
-    private KList<Integer> holds = new KList<Integer>();
+    private final KList<Integer> holds = new KList<>();
 
     public SwordsMachete() {
         super("machete");
@@ -62,8 +62,8 @@ public class SwordsMachete extends SimpleAdaptation {
                         return;
                     }
 
-                    for (Block i : new KList<Block>(c.iterator())) {
-                        if (M.r((double) (getLevelPercent(lvl) * 2.8) / (i.getLocation().distanceSquared(ctr)))) {
+                    for (Block i : new KList<>(c.iterator())) {
+                        if (M.r((getLevelPercent(lvl) * 2.8) / (i.getLocation().distanceSquared(ctr)))) {
                             if (i.getType().equals(Material.TALL_GRASS)
                                     || i.getType().equals(Material.CACTUS)
                                     || i.getType().equals(Material.SUGAR_CANE)

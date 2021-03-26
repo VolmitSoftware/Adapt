@@ -6,18 +6,12 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.ItemMergeEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.Wood;
 
 public class AxesChop extends SimpleAdaptation {
-    private KList<Integer> holds = new KList<Integer>();
+    private final KList<Integer> holds = new KList<>();
 
     public AxesChop() {
         super("chop");

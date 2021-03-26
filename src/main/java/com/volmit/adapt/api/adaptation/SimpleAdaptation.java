@@ -3,7 +3,6 @@ package com.volmit.adapt.api.adaptation;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
 import lombok.Data;
-import lombok.Getter;
 import org.bukkit.Material;
 
 import java.util.UUID;

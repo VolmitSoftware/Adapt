@@ -1,6 +1,5 @@
 package com.volmit.adapt.api.tick;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.BurstExecutor;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
@@ -43,7 +42,7 @@ public class Ticker
         }
     }
 
-    private int tick()
+    private void tick()
     {
         ticking = true;
         AtomicInteger tc = new AtomicInteger(0);
@@ -101,6 +100,6 @@ public class Ticker
 
         ticking = false;
 
-        return tc.get();
+        tc.get();
     }
 }

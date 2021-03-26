@@ -10,12 +10,8 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.io.File;
 
@@ -78,7 +74,7 @@ public class AdaptPlayer extends TickedObject {
                 return new Gson().fromJson(IO.readAll(f), PlayerData.class);
             }
 
-            catch (Throwable e)
+            catch (Throwable ignored)
             {
 
             }
