@@ -103,9 +103,9 @@ public class SeaborneGills extends SimpleAdaptation {
                 {
                    J.s(() -> {
                        i.setExhaustion(i.getExhaustion() + 0.07f);
-                       i.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 0));
-                       i.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 20, 0));
-                       i.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20, 0));
+                       i.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 0));
+                       i.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 40, 0));
+                       i.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 40, 0));
                    });
                 }
 
