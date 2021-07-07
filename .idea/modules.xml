@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Adapt.iml" filepath="$PROJECT_DIR$/.idea/Adapt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Adapt.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Adapt.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Adapt.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Adapt.test.iml" />
+    </modules>
+  </component>
+</project>

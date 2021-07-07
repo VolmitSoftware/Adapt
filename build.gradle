@@ -7,29 +7,32 @@ plugins {
 group 'com.volmit'
 version '1.0'
 
-java.sourceCompatibility = JavaVersion.VERSION_1_8
-String finalJarName = project.name + "-" + project.version;
-String finalJarPath = jar.archiveFile.get().getAsFile().getParentFile().getParentFile().getParentFile().getAbsolutePath() + "\\release\\" + project.version + "\\" + finalJarName + ".jar";
+// ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
+// ==============================================================
+registerCustomOutputTask('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins');
+registerCustomOutputTask('Psycho', 'D://Dan/MinecraftDevelopment/server/plugins');
+registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins');
+// ==============================================================
 
-shadowJar {
-    zip64 true
-    minimize()
-    project.configurations.implementation.canBeResolved = true
-    project.configurations.runtime.canBeResolved = true
-    project.configurations.compile.canBeResolved = true
-    archiveFileName = finalJarPath
-}
-
-task buildRelease {
-    group 'Adapt'
-    dependsOn 'shadowJar'
+def registerCustomOutputTask(name, path) {
+    tasks.register('build' + name, Copy) {
+        group('development')
+        outputs.upToDateWhen{false}
+        dependsOn ':shadowJar'
+        from(file('build/libs/Adapt-' + version + '-all.jar'))
+        into(file(path))
+        rename { String fileName ->
+            fileName.replace('Adapt-' + version + '-all.jar', "Adapt.jar")
+        }
+    }
 }
 
 repositories {
-    mavenCentral()
     maven {
-        url 'http://repo.volmit.com/repository/volmit/'
+        allowInsecureProtocol true
+        url "http://archive.arcane.art/repository/arcane"
     }
+    mavenLocal()
 }
 
 dependencies {
