@@ -5,6 +5,7 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.HunterAdrenaline;
 import com.volmit.adapt.util.C;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Player;
@@ -48,9 +49,10 @@ public class SkillHunter extends SimpleSkill {
     @EventHandler
     public void on(EntityDeathEvent e)
     {
-        if(e.getEntity().getKiller() != null && e.getEntity().getKiller() instanceof Player)
+        if(e.getEntity().getKiller() != null && e.getEntity().getKiller() != null)
         {
-            xp(e.getEntity().getLocation(), e.getEntity().getMaxHealth() * 9, 18, 3000);
+            xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 3, 18, 3000);
+            xp(e.getEntity().getKiller(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 6);
         }
     }
 

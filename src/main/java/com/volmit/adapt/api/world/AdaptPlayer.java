@@ -160,9 +160,17 @@ public class AdaptPlayer extends TickedObject {
         {
             if(M.ms() - i.getLast() < ms)
             {
-                i.giveXP(null, xpGained);
+                i.giveXP(not, xpGained);
             }
         }
+    }
+
+    public void giveXPToRandom(AdaptPlayer p, double xpGained) {
+        p.getData().getSkillLines().v().getRandom().giveXP(null, xpGained);
+    }
+
+    public void boostXPToRandom(AdaptPlayer p, double boost, int ms) {
+        p.getData().getSkillLines().v().getRandom().boost(boost, ms);
     }
 
     public void boostXPToRecents(AdaptPlayer p, double boost, int ms) {

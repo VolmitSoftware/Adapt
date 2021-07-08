@@ -86,7 +86,7 @@ public interface Skill extends Ticked {
             w.setElement(pos, row, new UIElement("ada-" + i.getName())
                     .setMaterial(new MaterialBlock(i.getIcon()))
                     .setName(i.getDisplayName(lvl))
-                    .addLore(C.GRAY + i.getDescription())
+                    .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
                     .addLore(lvl == 0 ? (C.DARK_GRAY + "Not Learned") : (C.GRAY + "Level " + C.WHITE + Form.toRoman(lvl)))
                     .setProgress(1D)
                     .onLeftClick((e) -> {

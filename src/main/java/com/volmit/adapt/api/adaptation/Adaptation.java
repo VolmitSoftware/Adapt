@@ -59,6 +59,34 @@ public interface Adaptation extends Ticked {
         p.getInventory().setItemInMainHand(is);
     }
 
+    default void damageOffHand(Player p, int damage)
+    {
+        ItemStack is = p.getInventory().getItemInOffHand();
+
+        if(!is.hasItemMeta())
+        {
+            return;
+        }
+
+        ItemMeta im = is.getItemMeta();
+        if(im.isUnbreakable())
+        {
+            return;
+        }
+        Damageable dm = (Damageable) im;
+        dm.setDamage(dm.getDamage() + damage);
+
+        if(dm.getDamage() > is.getType().getMaxDurability())
+        {
+            p.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
+            return;
+        }
+
+        is.setItemMeta(im);
+        p.getInventory().setItemInOffHand(is);
+    }
+
     default int getLevel(Player p)
     {
         return getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
@@ -156,7 +184,7 @@ public interface Adaptation extends Ticked {
                     .setName(getDisplayName(i))
                     .setEnchanted(mylevel >= lvl)
                     .setProgress(1D)
-                    .addLore(C.GRAY + getDescription())
+                    .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
                     .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " Knowledge Cost"))
                     .addLore(mylevel >= lvl ? (C.GREEN + "Already Learned") : (k >= c ?( C.BLUE + "Click to Learn " + getDisplayName(i)) : (k == 0 ?(C.RED + "(You don't have any Knowledge)") : (C.RED + "(You only have " + C.WHITE + k + C.RED + " Knowledge)"))))
                     .onLeftClick((e) -> {

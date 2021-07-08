@@ -173,6 +173,12 @@ public class UIElement implements Element
 	@Override
 	public Element addLore(String loreLine)
 	{
+		if(loreLine.contains("\n"))
+		{
+			getLore().add(loreLine.split("\\Q\n\\E"));
+			return this;
+		}
+
 		getLore().add(loreLine);
 		return this;
 	}

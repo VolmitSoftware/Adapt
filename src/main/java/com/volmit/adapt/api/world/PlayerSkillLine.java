@@ -1,11 +1,13 @@
 package com.volmit.adapt.api.world;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.notification.Notifier;
 import com.volmit.adapt.api.notification.SoundNotification;
 import com.volmit.adapt.api.notification.TitleNotification;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
+import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
@@ -154,15 +156,21 @@ public class PlayerSkillLine {
             if(getLevel() >= 5)
             {
                 p.getNot().queue(SoundNotification.builder()
-                        .sound(Sound.BLOCK_END_PORTAL_FRAME_FILL)
-                        .volume(1f)
-                        .pitch(0.25f)
-                        .build(), TitleNotification.builder()
-                        .in(250)
-                        .stay(250)
-                        .out(750)
-                        .title("")
-                        .subtitle(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
+                            .sound(Sound.BLOCK_BEACON_POWER_SELECT)
+                            .volume(0.7f)
+                            .pitch(1.35f)
+                        .build(),
+                        SoundNotification.builder()
+                            .sound(Sound.BLOCK_BAMBOO_HIT)
+                            .volume(1f)
+                            .pitch(0.65f)
+                        .build(),
+                        TitleNotification.builder()
+                            .in(250)
+                            .stay(250)
+                            .out(750)
+                            .title("")
+                            .subtitle(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
                         .build());
             }
         }
@@ -215,6 +223,7 @@ public class PlayerSkillLine {
 
     public void boost(double v, int i) {
         multipliers.add(new XPMultiplier(v, i));
+        Adapt.info(getLine() + " Multiplier: " + Form.pc(v, 1) + " for " + Form.duration(i));
     }
 
     public boolean spendKnowledge(int c) {

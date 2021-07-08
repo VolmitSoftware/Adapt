@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerExpChangeEvent;
 public class DiscoveryUnity extends SimpleAdaptation {
     public DiscoveryUnity() {
         super("unity");
-        setDescription("Collecting Experience Orbs adds XP to skills that have recently earned XP.");
+        setDescription("Collecting Experience Orbs adds XP to random skills.");
         setIcon(Material.REDSTONE);
         setBaseCost(2);
         setInitialCost(10);
@@ -31,7 +31,8 @@ public class DiscoveryUnity extends SimpleAdaptation {
         if(e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {
             e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.9f);
 
-            getPlayer(e.getPlayer()).giveXPToRecents(getPlayer(e.getPlayer()), getXPGained(getLevelPercent(e.getPlayer()), e.getAmount()), 10000);
+            getPlayer(e.getPlayer()).boostXPToRandom(getPlayer(e.getPlayer()),e.getAmount() / 100D, 30000);
+            getPlayer(e.getPlayer()).giveXPToRandom(getPlayer(e.getPlayer()), getXPGained(getLevelPercent(e.getPlayer()), e.getAmount()));
         }
     }
 

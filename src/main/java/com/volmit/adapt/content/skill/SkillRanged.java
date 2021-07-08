@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.AgilityWindUp;
+import com.volmit.adapt.content.adaptation.RangedArrowRecovery;
 import com.volmit.adapt.content.adaptation.RangedForce;
 import com.volmit.adapt.content.adaptation.RangedPiercing;
 import com.volmit.adapt.util.C;
@@ -22,6 +23,7 @@ public class SkillRanged extends SimpleSkill {
         setInterval(3000);
         registerAdaptation(new RangedForce());
         registerAdaptation(new RangedPiercing());
+        registerAdaptation(new RangedArrowRecovery());
         setIcon(Material.CROSSBOW);
     }
 

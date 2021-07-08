@@ -19,10 +19,7 @@ import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
@@ -57,6 +54,13 @@ public class SkillDiscovery extends SimpleSkill {
         {
             seeItem((Player) e.getEntity(), e.getItem().getItemStack());
         }
+    }
+
+    @EventHandler
+    public void on(PlayerItemConsumeEvent e)
+    {
+        seeItem(e.getPlayer(), e.getItem());
+        seeFood(e.getPlayer(), e.getItem().getType());
     }
 
     @EventHandler
@@ -96,6 +100,15 @@ public class SkillDiscovery extends SimpleSkill {
         for(Enchantment i : m.keySet())
         {
             seeEnchant(p, i, m.get(i));
+        }
+    }
+
+    public void seeFood(Player p, Material bd)
+    {
+        Discovery<Material> d = getPlayer(p).getData().getSeenFoods();
+        if (d.isNewDiscovery(bd))
+        {
+            xp(p, 10 + (d.getPower() * 45));
         }
     }
 

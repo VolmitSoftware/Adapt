@@ -154,6 +154,11 @@ public class Form
 		return wrap(s, len, (String) null, true);
 	}
 
+	public static String wrapWordsPrefixed(String s, String prefix, int len)
+	{
+		return wrapPrefixed(s, prefix, len, (String) null, true);
+	}
+
 	/**
 	 * Wrap words
 	 *
@@ -172,6 +177,11 @@ public class Form
 		return wrap(s, len, newLineSep, soft, " ");
 	}
 
+	public static String wrapPrefixed(String s, String pref, int len, String newLineSep, boolean soft)
+	{
+		return pref + wrapPrefixed(s, pref, len, newLineSep, soft, " ").replaceAll("\\Q\n\\E", "\n" + pref);
+	}
+
 	/**
 	 * Wrap words
 	 *
@@ -188,6 +198,99 @@ public class Form
 	 * @return the wrapped string
 	 */
 	public static String wrap(String s, int len, String newLineSep, boolean soft, String regex)
+	{
+		if(s == null)
+		{
+			return null;
+		}
+
+		else
+		{
+			if(newLineSep == null)
+			{
+				newLineSep = "\n";
+			}
+
+			if(len < 1)
+			{
+				len = 1;
+			}
+
+			if(regex.trim().equals(""))
+			{
+				regex = " ";
+			}
+
+			Pattern arg4 = Pattern.compile(regex);
+			int arg5 = s.length();
+			int arg6 = 0;
+			StringBuilder arg7 = new StringBuilder(arg5 + 32);
+
+			while(arg6 < arg5)
+			{
+				int arg8 = -1;
+				Matcher arg9 = arg4.matcher(s.substring(arg6, Math.min(arg6 + len + 1, arg5)));
+				if(arg9.find())
+				{
+					if(arg9.start() == 0)
+					{
+						arg6 += arg9.end();
+						continue;
+					}
+
+					arg8 = arg9.start();
+				}
+
+				if(arg5 - arg6 <= len)
+				{
+					break;
+				}
+
+				while(arg9.find())
+				{
+					arg8 = arg9.start() + arg6;
+				}
+
+				if(arg8 >= arg6)
+				{
+					arg7.append(s.substring(arg6, arg8));
+					arg7.append(newLineSep);
+					arg6 = arg8 + 1;
+				}
+				else if(soft)
+				{
+					arg7.append(s.substring(arg6, len + arg6));
+					arg7.append(newLineSep);
+					arg6 += len;
+				}
+				else
+				{
+					arg9 = arg4.matcher(s.substring(arg6 + len));
+					if(arg9.find())
+					{
+						arg8 = arg9.start() + arg6 + len;
+					}
+
+					if(arg8 >= 0)
+					{
+						arg7.append(s.substring(arg6, arg8));
+						arg7.append(newLineSep);
+						arg6 = arg8 + 1;
+					}
+					else
+					{
+						arg7.append(s.substring(arg6));
+						arg6 = arg5;
+					}
+				}
+			}
+
+			arg7.append(s.substring(arg6));
+			return arg7.toString();
+		}
+	}
+
+	public static String wrapPrefixed(String s, String pref, int len, String newLineSep, boolean soft, String regex)
 	{
 		if(s == null)
 		{
