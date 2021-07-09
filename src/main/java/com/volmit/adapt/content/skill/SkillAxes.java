@@ -3,6 +3,7 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.AxesChop;
+import com.volmit.adapt.content.adaptation.AxesGroundSmash;
 import com.volmit.adapt.util.C;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
@@ -19,6 +20,7 @@ public class SkillAxes extends SimpleSkill {
         setBarColor(BarColor.YELLOW);
         setInterval(2150);
         setIcon(Material.GOLDEN_AXE);
+        registerAdaptation(new AxesGroundSmash());
         registerAdaptation(new AxesChop());
     }
 

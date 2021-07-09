@@ -48,6 +48,11 @@ public class UnarmedSuckerPunch extends SimpleAdaptation {
                 return;
             }
 
+            if(isTool(p.getInventory().getItemInMainHand()))
+            {
+                return;
+            }
+
             e.setDamage(e.getDamage() * factor * 1.25 * (getPlayer(p).getSpeed() * 11.7 * factor));
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.8f);
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.BLOCK_BASALT_BREAK, 1f, 0.6f);

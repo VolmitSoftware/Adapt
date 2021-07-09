@@ -9,16 +9,32 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class SkillMining extends SimpleSkill {
-    public SkillMining() {
-        super("mining");
-        setColor(C.YELLOW);
-        setBarColor(BarColor.YELLOW);
+public class SkillPickaxes extends SimpleSkill {
+    public SkillPickaxes() {
+        super("pickaxes");
+        setColor(C.DARK_GRAY);
+        setBarColor(BarColor.WHITE);
         setInterval(2750);
         setIcon(Material.NETHERITE_PICKAXE);
+    }
+
+    @EventHandler
+    public void on(EntityDamageByEntityEvent e)
+    {
+        if(e.getDamager() instanceof Player)
+        {
+            AdaptPlayer a = getPlayer((Player) e.getDamager());
+            ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
+
+            if(isPickaxe(hand))
+            {
+                xp(a.getPlayer(), 13.26 * e.getDamage());
+            }
+        }
     }
 
     @EventHandler
@@ -39,35 +55,35 @@ public class SkillMining extends SimpleSkill {
         switch(type)
         {
             case COAL_ORE:
-                value += 10;
+                value += 101;
                 break;
             case IRON_ORE:
-                value += 25;
+                value += 251;
                 break;
             case GOLD_ORE:
-                value += 65;
+                value += 651;
                 break;
             case LAPIS_ORE:
-                value += 85;
+                value += 851;
                 break;
             case DIAMOND_ORE:
-                value += 145;
+                value += 1451;
                 break;
             case EMERALD_ORE:
-                value += 167;
+                value += 780;
                 break;
             case NETHER_GOLD_ORE:
-                value += 78;
+                value += 781;
                 break;
             case NETHER_QUARTZ_ORE:
-                value += 11;
+                value += 111;
                 break;
             case REDSTONE_ORE:
-                value += 28;
+                value += 281;
                 break;
         }
 
-        return value;
+        return value * 0.45;
     }
 
     @Override

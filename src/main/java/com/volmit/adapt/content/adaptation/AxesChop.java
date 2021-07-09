@@ -51,7 +51,7 @@ public class AxesChop extends SimpleAdaptation {
 
                 for(int i = 0; i < getLevel(e.getPlayer()); i++)
                 {
-                    if(breakStuff(e.getClickedBlock(), 5 * getLevel(e.getPlayer())))
+                    if(breakStuff(e.getClickedBlock(), getRange(getLevel(e.getPlayer()))))
                     {
                         getSkill().xp(e.getPlayer(), 37);
                         e.getPlayer().setCooldown(e.getPlayer().getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(e.getPlayer())));
@@ -60,6 +60,10 @@ public class AxesChop extends SimpleAdaptation {
                 }
             }
         }
+    }
+
+    private int getRange(int level) {
+        return level * 5;
     }
 
     private int getCooldownTime(double levelPercent) {

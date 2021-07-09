@@ -44,22 +44,32 @@ public class HerbalismReplant extends SimpleAdaptation {
     @EventHandler
     public void on(PlayerInteractEvent e)
     {
+        if(e.getClickedBlock() == null)
+        {
+            return;
+        }
+
+        if(!(e.getClickedBlock().getBlockData() instanceof Ageable))
+        {
+            return;
+        }
+
         int lvl = getLevel(e.getPlayer());
 
         if(lvl > 0)
         {
-            ItemStack left = e.getPlayer().getInventory().getItemInMainHand();
-            ItemStack right = e.getPlayer().getInventory().getItemInOffHand();
+            ItemStack right = e.getPlayer().getInventory().getItemInMainHand();
+            ItemStack left = e.getPlayer().getInventory().getItemInOffHand();
 
             if(isTool(left) && isHoe(left) && !e.getPlayer().hasCooldown(left.getType()))
             {
-                damageHand(e.getPlayer(), 1);
+                damageOffHand(e.getPlayer(), 1 + ((lvl - 1) * 7));
                 e.getPlayer().setCooldown(left.getType(), getCooldown(getLevelPercent(e.getPlayer()), getLevel(e.getPlayer())));
             }
 
             else if(isTool(right) && isHoe(right) && !e.getPlayer().hasCooldown(right.getType()))
             {
-                damageOffHand(e.getPlayer(), 1);
+                damageHand(e.getPlayer(), 1 + ((lvl - 1) * 7));
                 e.getPlayer().setCooldown(right.getType(), getCooldown(getLevelPercent(e.getPlayer()), getLevel(e.getPlayer())));
             }
 

@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.HerbalismGrowthAura;
+import com.volmit.adapt.content.adaptation.HerbalismHungryShield;
 import com.volmit.adapt.content.adaptation.HerbalismReplant;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
@@ -28,6 +29,7 @@ public class SkillHerbalism extends SimpleSkill {
         setIcon(Material.WHEAT);
         registerAdaptation(new HerbalismGrowthAura());
         registerAdaptation(new HerbalismReplant());
+        registerAdaptation(new HerbalismHungryShield());
     }
 
     @EventHandler

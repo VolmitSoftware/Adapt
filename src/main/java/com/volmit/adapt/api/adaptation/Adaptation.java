@@ -34,17 +34,18 @@ public interface Adaptation extends Ticked {
     default void damageHand(Player p, int damage)
     {
         ItemStack is = p.getInventory().getItemInMainHand();
+        ItemMeta im = is.getItemMeta();
 
-        if(!is.hasItemMeta())
+        if(im == null)
         {
             return;
         }
 
-        ItemMeta im = is.getItemMeta();
         if(im.isUnbreakable())
         {
             return;
         }
+
         Damageable dm = (Damageable) im;
         dm.setDamage(dm.getDamage() + damage);
 
@@ -62,17 +63,18 @@ public interface Adaptation extends Ticked {
     default void damageOffHand(Player p, int damage)
     {
         ItemStack is = p.getInventory().getItemInOffHand();
+        ItemMeta im = is.getItemMeta();
 
-        if(!is.hasItemMeta())
+        if(im == null)
         {
             return;
         }
 
-        ItemMeta im = is.getItemMeta();
         if(im.isUnbreakable())
         {
             return;
         }
+
         Damageable dm = (Damageable) im;
         dm.setDamage(dm.getDamage() + damage);
 
@@ -116,6 +118,7 @@ public interface Adaptation extends Ticked {
             return 0;
         }
 
+
         int c = 0;
 
         for(int i = myLevel+1; i <= level; i++)
@@ -126,6 +129,22 @@ public interface Adaptation extends Ticked {
         return c;
     }
 
+    default int getRefundCostFor(int level, int myLevel)
+    {
+        if(myLevel <= level)
+        {
+            return 0;
+        }
+
+        int c = 0;
+
+        for(int i = level+1; i <= myLevel; i++)
+        {
+            c+= getCostFor(i);
+        }
+
+        return c;
+    }
 
     default String getDisplayName() {
         return C.RESET + "" + C.BOLD + getSkill().getColor().toString() + Form.capitalizeWords(getName().replaceAll("\\Q-\\E", " "));
@@ -178,6 +197,7 @@ public interface Adaptation extends Ticked {
             int pos = w.getPosition(i-1+o);
             int row = 1;
             int c = getCostFor(i, mylevel);
+            int rc = getRefundCostFor(i-1, mylevel);
             int lvl = i;
             Element de = new UIElement("lp-" + i + "g")
                     .setMaterial(new MaterialBlock(getIcon()))
@@ -186,11 +206,17 @@ public interface Adaptation extends Ticked {
                     .setProgress(1D)
                     .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
                     .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " Knowledge Cost"))
-                    .addLore(mylevel >= lvl ? (C.GREEN + "Already Learned") : (k >= c ?( C.BLUE + "Click to Learn " + getDisplayName(i)) : (k == 0 ?(C.RED + "(You don't have any Knowledge)") : (C.RED + "(You only have " + C.WHITE + k + C.RED + " Knowledge)"))))
+                    .addLore(mylevel >= lvl ? (C.GREEN + "Already Learned " + C.GRAY + "Click to Unlearn & Refund " + C.GREEN + rc + " Knowlege") : (k >= c ?( C.BLUE + "Click to Learn " + getDisplayName(i)) : (k == 0 ?(C.RED + "(You don't have any Knowledge)") : (C.RED + "(You only have " + C.WHITE + k + C.RED + " Knowledge)"))))
                     .onLeftClick((e) -> {
-                        if(mylevel >= lvl)
-                        {
-                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+                        if(mylevel >= lvl) {
+                            getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(c);
+
+                            getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl - 1);
+                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
+                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
+                            w.close();
+                            player.sendTitle("", C.GRAY + "Unlearned " + getDisplayName(mylevel), 1, 5, 11);
+                            J.s(() -> openGui(player), 14);
                             return;
                         }
 
@@ -199,8 +225,10 @@ public interface Adaptation extends Ticked {
                             if(getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c))
                             {
                                 getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
-                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
+                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
+                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
+                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
                                 w.close();
                                 player.sendTitle("", C.GRAY + "Learned " + getDisplayName(lvl), 1, 5, 11);
                                 J.s(() -> openGui(player), 14);
