@@ -19,7 +19,7 @@ public class SkillArchitect extends SimpleSkill {
     @EventHandler
     public void on(BlockPlaceEvent e)
     {
-        xp(e.getPlayer(), 5);
+        xp(e.getPlayer(), 15);
     }
 
     @Override

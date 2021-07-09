@@ -1,9 +1,7 @@
 package com.volmit.adapt.api.tick;
 
-import com.volmit.adapt.util.BurstExecutor;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
-import com.volmit.adapt.util.MultiBurst;
+import com.volmit.adapt.util.*;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Ticker
@@ -99,7 +97,6 @@ public class Ticker
        }
 
         ticking = false;
-
         tc.get();
     }
 }
