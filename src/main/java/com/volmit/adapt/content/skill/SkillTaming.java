@@ -1,9 +1,6 @@
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.api.skill.Skill;
-import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.content.adaptation.TamingDamage;
 import com.volmit.adapt.content.adaptation.TamingHealthBoost;
 import com.volmit.adapt.content.adaptation.TamingHealthRegeneration;
@@ -15,8 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 
 public class SkillTaming extends SimpleSkill {
@@ -48,29 +43,8 @@ public class SkillTaming extends SimpleSkill {
                 ((Tameable) e.getDamager()).getOwner() instanceof Player)
         {
             Player owner = (Player) ((Tameable) e.getDamager()).getOwner();
-            xp(owner, e.getDamage() * 6.85);
+            xp(owner, e.getDamage() * 12.85);
         }
-    }
-
-    @EventHandler
-    public void on(EntityDeathEvent e)
-    {
-        EntityDamageEvent ed = e.getEntity().getLastDamageCause();
-
-        if(ed != null && ed instanceof EntityDamageByEntityEvent)
-        {
-            EntityDamageByEntityEvent ede = (EntityDamageByEntityEvent) ed;
-
-            if(ede.getDamager() instanceof Tameable &&
-                    ((Tameable) ede.getDamager()).isTamed() &&
-                    ((Tameable) ede.getDamager()).getOwner() instanceof Player)
-            {
-                Player owner = (Player) ((Tameable) ede.getDamager()).getOwner();
-                xp(owner, e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 8.85);
-                XP.xp(owner, Adapt.instance.getAdaptServer().getSkillRegistry().getSkill("Hunter"), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 4.85);
-            }
-        }
-
     }
 
     @Override
