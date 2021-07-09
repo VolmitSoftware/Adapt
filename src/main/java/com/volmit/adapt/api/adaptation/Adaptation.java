@@ -159,6 +159,15 @@ public interface Adaptation extends Ticked {
         return getDisplayName();
     }
 
+    default String getDisplayNameNoRoman(int level) {
+        if(level >= 1)
+        {
+            return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
+        }
+
+        return getDisplayName();
+    }
+
     default void openGui(Player player)
     {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
@@ -209,8 +218,7 @@ public interface Adaptation extends Ticked {
                     .addLore(mylevel >= lvl ? (C.GREEN + "Already Learned " + C.GRAY + "Click to Unlearn & Refund " + C.GREEN + rc + " Knowlege") : (k >= c ?( C.BLUE + "Click to Learn " + getDisplayName(i)) : (k == 0 ?(C.RED + "(You don't have any Knowledge)") : (C.RED + "(You only have " + C.WHITE + k + C.RED + " Knowledge)"))))
                     .onLeftClick((e) -> {
                         if(mylevel >= lvl) {
-                            getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(c);
-
+                            getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(rc);
                             getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl - 1);
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
@@ -251,7 +259,7 @@ public interface Adaptation extends Ticked {
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle(getDisplayName(a.getSkillLine(getSkill().getName()).getLevel()));
+        w.setTitle( getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " Knowledge");
         w.onClosed((vv) -> J.s(() -> {
             player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
             player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
