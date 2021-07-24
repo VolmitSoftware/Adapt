@@ -14,6 +14,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import xyz.xenondevs.particle.ParticleEffect;
 
+import java.util.Collection;
 import java.util.UUID;
 
 public class TamingHealthRegeneration extends SimpleAdaptation {
@@ -73,25 +74,31 @@ public class TamingHealthRegeneration extends SimpleAdaptation {
 
         for(World i : Bukkit.getServer().getWorlds())
         {
-            for(Tameable j : i.getEntitiesByClass(Tameable.class))
-            {
-                if(lastDamage.containsKey(j.getUniqueId()))
-                {
-                    continue;
-                }
+            J.s(() -> {
+                Collection<Tameable> gl =  i.getEntitiesByClass(Tameable.class);
 
-                double mh = j.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-                if(j.isTamed() && j.getOwner() instanceof Player && j.getHealth() < mh) {
-                    Player p = (Player) j.getOwner();
-                    int level = getLevel(p);
-
-                    if(level > 0)
+                J.a(() -> {
+                    for(Tameable j : gl)
                     {
-                        j.setHealth(Math.min(j.getHealth() + getRegenSpeed(level), mh));
-                        ParticleEffect.HEART.display(j.getLocation().clone().add(0, 1, 0), 0.55f,0.37f,0.55f,0.3f, level, null);
+                        if(lastDamage.containsKey(j.getUniqueId()))
+                        {
+                            continue;
+                        }
+
+                        double mh = j.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+                        if(j.isTamed() && j.getOwner() instanceof Player && j.getHealth() < mh) {
+                            Player p = (Player) j.getOwner();
+                            int level = getLevel(p);
+
+                            if(level > 0)
+                            {
+                                J.s(() -> j.setHealth(Math.min(j.getHealth() + getRegenSpeed(level), mh)));
+                                ParticleEffect.HEART.display(j.getLocation().clone().add(0, 1, 0), 0.55f,0.37f,0.55f,0.3f, level, null);
+                            }
+                        }
                     }
-                }
-            }
+                });
+            });
         }
     }
 }

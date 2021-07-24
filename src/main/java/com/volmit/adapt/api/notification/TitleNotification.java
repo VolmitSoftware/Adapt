@@ -12,9 +12,9 @@ public class TitleNotification implements Notification{
     @Builder.Default
     private final long out = 750;
     @Builder.Default
-    private final String title = "";
+    private final String title = " ";
     @Builder.Default
-    private final String subtitle = "";
+    private final String subtitle = " ";
 
     @Override
     public long getTotalDuration() {
