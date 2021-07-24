@@ -106,7 +106,10 @@ public class AdaptPlayer extends TickedObject {
 
         if(lastpos != null)
         {
-            speed.put(lastpos.distance(at) / ((double)(M.ms() - lastloc)/50D));
+            if(lastpos.getWorld().equals(at.getWorld()))
+            {
+                speed.put(lastpos.distance(at) / ((double)(M.ms() - lastloc)/50D));
+            }
         }
 
         lastpos = at.clone();
