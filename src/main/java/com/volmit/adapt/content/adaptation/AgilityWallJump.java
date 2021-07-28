@@ -7,6 +7,8 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -73,11 +75,6 @@ public class AgilityWallJump extends SimpleAdaptation {
                 continue;
             }
 
-            Double v = airjumps.get(i);
-            v = v == null ? 0 : v;
-            v = (getMaxJumps(level)+0.25) - v;
-            i.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(C.RED + Form.f(v, 2)));
-
             Double j = airjumps.get(i);
 
             if(j != null && j-0.25 >= getMaxJumps(level))
@@ -88,6 +85,8 @@ public class AgilityWallJump extends SimpleAdaptation {
 
             if(i.isFlying() || !i.isSneaking() || i.getFallDistance() < 0.3)
             {
+                boolean jumped = false;
+
                 if(!i.hasGravity() && i.getFallDistance() > 0.45 && canStick(i))
                 {
                     j = j == null ? 0 : j;
@@ -95,18 +94,31 @@ public class AgilityWallJump extends SimpleAdaptation {
 
                     if(j-0.25 <= getMaxJumps(level))
                     {
+                        jumped = true;
                         i.setVelocity(i.getVelocity().setY(getJumpHeight(level)));
+                        i.getLocation().getWorld().playSound(i.getLocation(), Sound.BLOCK_GILDED_BLACKSTONE_STEP, 1f, 0.7f);
+                        J.s(() ->                         i.getWorld().spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, i.getLocation(), 7, 0, -1, 0, 0.075));
                     }
 
                     airjumps.put(i, j);
                 }
 
-                i.setGravity(true);
+                if(!jumped && !i.hasGravity())
+                {
+                    i.setGravity(true);
+                    i.getLocation().getWorld().playSound(i.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.439f);
+                }
                 continue;
             }
 
             if(canStick(i))
             {
+                if(i.hasGravity())
+                {
+                    i.getLocation().getWorld().playSound(i.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
+                    i.getLocation().getWorld().playSound(i.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
+                }
+
                 i.setGravity(false);
                 Vector c = i.getVelocity();
                 i.setVelocity(i.getVelocity().setY((c.getY() * 0.35)-0.0025));
@@ -146,7 +158,7 @@ public class AgilityWallJump extends SimpleAdaptation {
 
         for(Block i : pb)
         {
-            if(i.getBlockData().getMaterial().isSolid() && i.getBlockData().getMaterial().isOccluding())
+            if(i.getBlockData().getMaterial().isSolid())
             {
                 Vector velocity = p.getVelocity();
                 Vector shift = p.getLocation().subtract(i.getLocation().clone().add(0.5, 0.5, 0.5)).toVector();
