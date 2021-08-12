@@ -5,7 +5,6 @@ import com.volmit.adapt.util.C;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 
 public class SkillEnchanting extends SimpleSkill {

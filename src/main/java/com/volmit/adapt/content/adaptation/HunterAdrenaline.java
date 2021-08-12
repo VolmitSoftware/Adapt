@@ -26,7 +26,7 @@ public class HunterAdrenaline extends SimpleAdaptation {
     }
 
     private double getDamage(int level) {
-        return ((getLevelPercent(level) * 0.43) + 0.07);
+        return ((getLevelPercent(level) * 0.26) + 0.07);
     }
 
     @EventHandler

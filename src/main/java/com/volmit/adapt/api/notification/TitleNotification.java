@@ -1,5 +1,6 @@
 package com.volmit.adapt.api.notification;
 
+import com.volmit.adapt.util.C;
 import lombok.Builder;
 import org.bukkit.entity.Player;
 
@@ -23,6 +24,6 @@ public class TitleNotification implements Notification{
 
     @Override
     public void play(Player p) {
-        p.sendTitle(title, subtitle, (int)(in / 50D), (int)(stay / 50D), (int)(out / 50D));
+        p.sendTitle(title.isEmpty() ? " " : title, subtitle, (int)(in / 50D), (int)(stay / 50D), (int)(out / 50D));
     }
 }
