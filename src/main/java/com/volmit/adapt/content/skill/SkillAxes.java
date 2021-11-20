@@ -18,7 +18,7 @@ public class SkillAxes extends SimpleSkill {
         super("axes");
         setColor(C.YELLOW);
         setBarColor(BarColor.YELLOW);
-        setInterval(2150);
+        setInterval(20150);
         setIcon(Material.GOLDEN_AXE);
         registerAdaptation(new AxesGroundSmash());
         registerAdaptation(new AxesChop());
@@ -45,7 +45,6 @@ public class SkillAxes extends SimpleSkill {
         if(isAxe(e.getPlayer().getInventory().getItemInMainHand()))
         {
             double v = getValue(e.getBlock().getType());
-
             xp(e.getPlayer(), v);
         }
     }

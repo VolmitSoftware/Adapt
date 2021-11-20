@@ -69,15 +69,13 @@ public class HerbalismGrowthAura extends SimpleAdaptation {
                                 p.spawnParticle(Particle.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 9, 0.3, 0.3, 0.3, 0.9);
                             });
                         }
-
-
                     }
                 }
             }
 
             catch(Throwable e)
             {
-
+                e.printStackTrace();
             }
         }
     }
