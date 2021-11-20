@@ -18,3 +18,5 @@ release/
 build/
 
 .DS_Store
+
+.gradle/
