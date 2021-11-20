@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.content.adaptation.AgilitySuperJump;
 import com.volmit.adapt.content.adaptation.AgilityWallJump;
 import com.volmit.adapt.content.adaptation.AgilityWindUp;
 import com.volmit.adapt.util.C;
@@ -18,6 +19,7 @@ public class SkillAgility extends SimpleSkill {
         setIcon(Material.FEATHER);
         registerAdaptation(new AgilityWindUp());
         registerAdaptation(new AgilityWallJump());
+        registerAdaptation(new AgilitySuperJump());
     }
 
     @Override
