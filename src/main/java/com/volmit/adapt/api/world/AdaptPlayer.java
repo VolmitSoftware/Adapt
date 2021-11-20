@@ -62,6 +62,7 @@ public class AdaptPlayer extends TickedObject {
     {
         super.unregister();
         save();
+        bars.values().forEach(i -> i.removePlayer(player));
     }
 
     private PlayerData loadPlayerData() {
