@@ -67,7 +67,7 @@ public class StealthSnatch extends SimpleAdaptation {
 
                             if(player.isSneaking())
                             {
-                                player.getWorld().playSound(player.getLocation(), Sound.ITEM_SWEET_BERRIES_PICK_FROM_BUSH, 1f, (float) (1.0 + (Math.random() / 3)));
+                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (Math.random() / 3)));
                             }
 
                             player.getInventory().addItem(is);
@@ -114,7 +114,7 @@ public class StealthSnatch extends SimpleAdaptation {
 
         catch(Throwable e)
         {
-            e.printStackTrace();
+
         }
     }
 
