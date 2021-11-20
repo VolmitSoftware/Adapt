@@ -34,6 +34,13 @@ public class PlayerData {
     {
         for(String i : skillLines.k())
         {
+            if(getSkillLine(i) == null)
+            {
+                skillLines.remove(i);
+                Adapt.warn("Removed unknown skill line '" + i + "' from " + p.getPlayer().getName());
+                continue;
+            }
+
             if(getSkillLine(i).getXp() == 0 && getSkillLine(i).getKnowledge() == 0)
             {
                 skillLines.remove(i);
@@ -48,8 +55,7 @@ public class PlayerData {
     {
         if(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skillLine) == null)
         {
-            Adapt.error("Incorrect usage of getSkillLine(). MUST BE A SKILL. See below.");
-            throw new RuntimeException();
+            return null;
         }
 
         synchronized (skillLines)
