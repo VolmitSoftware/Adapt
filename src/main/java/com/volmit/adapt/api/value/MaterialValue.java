@@ -40,37 +40,22 @@ import java.util.stream.Collectors;
 @Getter
 public class MaterialValue {
     private static MaterialValue valueCache = null;
-    private static int hc = -1;
     private KMap<Material, Double> value = new KMap<>();
     private static final KMap<Material, Double> valueMultipliers = new KMap<>();
-    private static ChronoLatch saveLatch = new ChronoLatch(60000);
 
-    public static void lazySave()
-    {
-        if(saveLatch.flip())
-        {
-            save();
-        }
-    }
 
     public static void save()
     {
         if(valueCache == null)
         {
-            Adapt.warn("NULL?");
             return;
         }
 
-        if(hc != valueCache.hashCode())
-        {
-            File l = Adapt.instance.getDataFile("data", "value-cache.json");
-            try {
-                IO.writeAll(l, new JSONObject(new Gson().toJson(valueCache)).toString(4));
-                Adapt.info("Saved Value Cache");
-                hc = valueCache.hashCode();
-            } catch(IOException e) {
-                e.printStackTrace();
-            }
+        File l = Adapt.instance.getDataFile("data", "value-cache.json");
+        try {
+            IO.writeAll(l, new JSONObject(new Gson().toJson(valueCache)).toString(4));
+        } catch(IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -98,8 +83,6 @@ public class MaterialValue {
                 e.printStackTrace();
                 valueCache = new MaterialValue();
             }
-
-            hc = valueCache.hashCode();
         }
 
         return valueCache;
@@ -163,7 +146,6 @@ public class MaterialValue {
         if(recipes.isEmpty())
         {
             get().value.put(m, v * getMultiplier(m));
-            lazySave();
         }
 
         else
@@ -196,7 +178,6 @@ public class MaterialValue {
             v += AdaptConfig.get().getValue().getMarkupAddative();
             v *= AdaptConfig.get().getValue().getMarkupMultiplier();
             get().value.put(m, v);
-            lazySave();
         }
 
         return get().value.get(m);
