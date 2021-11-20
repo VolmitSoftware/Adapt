@@ -46,11 +46,6 @@ public class Adapt extends VolmitPlugin
     public void start() {
         ticker = new Ticker();
         adaptServer = new AdaptServer();
-
-        J.ar(() -> {
-            Material mat = Material.values()[RNG.r.i(Material.values().length-1)];
-            Adapt.info(mat.name() + ": " + MaterialValue.getValue(mat));
-        }, 5);
     }
 
     @Override

@@ -304,7 +304,5 @@ public class MaterialValue {
 
             }
         });
-
-        debugValue(Material.ANVIL);
     }
 }
