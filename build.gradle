@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id "io.freefair.lombok" version "5.3.0"
+    id "io.freefair.lombok" version "6.1.0"
     id "com.github.johnrengelman.shadow" version "6.0.0"
 }
 
@@ -28,10 +28,7 @@ def registerCustomOutputTask(name, path) {
 }
 
 repositories {
-    maven {
-        allowInsecureProtocol true
-        url "http://archive.arcane.art/repository/arcane"
-    }
+    maven { url "https://dl.cloudsmith.io/public/arcane/archive/maven/" }
     mavenLocal()
 }
 
