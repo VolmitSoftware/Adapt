@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
     id 'java'
     id "io.freefair.lombok" version "6.1.0"
@@ -9,20 +11,37 @@ version '1.0'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ==============================================================
-registerCustomOutputTask('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins');
-registerCustomOutputTask('Psycho', 'D://Dan/MinecraftDevelopment/server/plugins');
-registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins');
+registerCustomOutputTaskWindows('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins');
+registerCustomOutputTaskWindows('Psycho', 'D://Dan/MinecraftDevelopment/server/plugins');
+registerCustomOutputTaskWindows('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins');
 // ==============================================================
 
-def registerCustomOutputTask(name, path) {
-    tasks.register('build' + name, Copy) {
-        group('development')
-        outputs.upToDateWhen{false}
-        dependsOn ':shadowJar'
-        from(file('build/libs/Adapt-' + version + '-all.jar'))
-        into(file(path))
-        rename { String fileName ->
-            fileName.replace('Adapt-' + version + '-all.jar', "Adapt.jar")
+def registerCustomOutputTaskWindows(name, path) {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        tasks.register('build' + name, Copy) {
+            group('development')
+            outputs.upToDateWhen{false}
+            dependsOn ':shadowJar'
+            from(file('build/libs/Adapt-' + version + '-all.jar'))
+            into(file(path))
+            rename { String fileName ->
+                fileName.replace('Adapt-' + version + '-all.jar', "Adapt.jar")
+            }
+        }
+    }
+}
+
+def registerCustomOutputTaskNix(name, path) {
+    if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+        tasks.register('build' + name, Copy) {
+            group('development')
+            outputs.upToDateWhen{false}
+            dependsOn ':shadowJar'
+            from(file('build/libs/Adapt-' + version + '-all.jar'))
+            into(file(path))
+            rename { String fileName ->
+                fileName.replace('Adapt-' + version + '-all.jar', "Adapt.jar")
+            }
         }
     }
 }

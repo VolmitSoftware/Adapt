@@ -1,14 +1,20 @@
 package com.volmit.adapt.api.value;
 
+import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.value.MaterialCount;
 import com.volmit.adapt.api.value.MaterialRecipe;
+import com.volmit.adapt.util.ChronoLatch;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.IO;
+import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.KSet;
 import com.volmit.adapt.util.PrecisionStopwatch;
+import com.volmit.adapt.util.RollingSequence;
+import lombok.Getter;
 import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -24,37 +30,82 @@ import org.bukkit.inventory.SmithingRecipe;
 import org.bukkit.inventory.StonecutterInventory;
 import org.bukkit.inventory.StonecuttingRecipe;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
+@Getter
 public class MaterialValue {
-    private static final KMap<Material, Double> value = new KMap<>();
+    private static MaterialValue valueCache = null;
+    private static int hc = -1;
+    private KMap<Material, Double> value = new KMap<>();
     private static final KMap<Material, Double> valueMultipliers = new KMap<>();
+    private static ChronoLatch saveLatch = new ChronoLatch(60000);
 
-    public static void computeValue()
+    public static void lazySave()
     {
-        AdaptConfig.get().getValue().getValueMutlipliers().forEach((k,v) -> {
-            try
-            {
-                Material m = Material.valueOf(k.toUpperCase());
+        if(saveLatch.flip())
+        {
+            save();
+        }
+    }
 
-                if(m != null)
-                {
-                    valueMultipliers.put(m, v);
+    public static void save()
+    {
+        if(valueCache == null)
+        {
+            Adapt.warn("NULL?");
+            return;
+        }
+
+        if(hc != valueCache.hashCode())
+        {
+            File l = Adapt.instance.getDataFile("data", "value-cache.json");
+            try {
+                IO.writeAll(l, new JSONObject(new Gson().toJson(valueCache)).toString(4));
+                Adapt.info("Saved Value Cache");
+                hc = valueCache.hashCode();
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static MaterialValue get()
+    {
+        if(valueCache == null)
+        {
+            MaterialValue dummy = new MaterialValue();
+            File l = Adapt.instance.getDataFile("data", "value-cache.json");
+
+            if(!l.exists())
+            {
+                try {
+                    IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
+                } catch(IOException e) {
+                    e.printStackTrace();
+                    valueCache = dummy;
+                    return dummy;
                 }
             }
 
-            catch(Throwable e)
-            {
-
+            try {
+                valueCache = new Gson().fromJson(IO.readAll(l), MaterialValue.class);
+            } catch(IOException e) {
+                e.printStackTrace();
+                valueCache = new MaterialValue();
             }
-        });
 
-        debugValue(Material.ANVIL);
+            hc = valueCache.hashCode();
+        }
+
+        return valueCache;
     }
 
-    private static void debugValue(Material m)
+    public static void debugValue(Material m)
     {
         debugValue(m, 0, 1, new KSet<>());
     }
@@ -93,7 +144,6 @@ public class MaterialValue {
         return d == null ? 1 : d;
     }
 
-
     public static double getValue(Material m)
     {
         return getValue(m, new KSet<>());
@@ -101,9 +151,9 @@ public class MaterialValue {
 
     public static double getValue(Material m, KSet<MaterialRecipe> ignore)
     {
-        if(value.containsKey(m))
+        if(get().value.containsKey(m))
         {
-            return value.get(m);
+            return get().value.get(m);
         }
 
         double v = AdaptConfig.get().getValue().getBaseValue();
@@ -112,11 +162,13 @@ public class MaterialValue {
 
         if(recipes.isEmpty())
         {
-            value.put(m, v * getMultiplier(m));
+            get().value.put(m, v * getMultiplier(m));
+            lazySave();
         }
 
         else
         {
+            KList<Double> d = new KList<>();
             for(MaterialRecipe i : recipes)
             {
                 if(ignore.contains(i))
@@ -133,15 +185,21 @@ public class MaterialValue {
                     vx += getValue(j.getMaterial(), ignore);
                 }
 
-                v = Math.max(vx / i.getOutput().getAmount(), v);
+                d.add(vx / i.getOutput().getAmount());
+            }
+
+            if(d.size() > 0)
+            {
+                v += d.stream().mapToDouble(i -> i).average().getAsDouble();
             }
 
             v += AdaptConfig.get().getValue().getMarkupAddative();
             v *= AdaptConfig.get().getValue().getMarkupMultiplier();
-            value.put(m, v);
+            get().value.put(m, v);
+            lazySave();
         }
 
-        return value.get(m);
+        return get().value.get(m);
     }
 
     private static KList<MaterialRecipe> getRecipes(Material mat)
@@ -245,5 +303,27 @@ public class MaterialValue {
        }
 
         return null;
+    }
+
+    static
+    {
+        AdaptConfig.get().getValue().getValueMutlipliers().forEach((k,v) -> {
+            try
+            {
+                Material m = Material.valueOf(k.toUpperCase());
+
+                if(m != null)
+                {
+                    valueMultipliers.put(m, v);
+                }
+            }
+
+            catch(Throwable e)
+            {
+
+            }
+        });
+
+        debugValue(Material.ANVIL);
     }
 }
