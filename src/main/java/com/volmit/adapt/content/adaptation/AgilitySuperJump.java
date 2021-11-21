@@ -32,17 +32,16 @@ public class AgilitySuperJump extends SimpleAdaptation {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc((getJumpHeight(level)), 0) + C.GRAY + " Max Additional Blocks");
-        v.addLore(C.YELLOW + "* 1 Second" + C.GRAY + " Windup Time");
+        v.addLore(C.GREEN + "+ " + (1+(0.5 *level))  + C.GRAY + " Max Additional Blocks");
+        v.addLore(C.YELLOW + "* 1 Complete Jump From Floor" + C.GRAY + " *kinda buggy* ");
     }
 
     @Override
     public void onTick() {
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.isSneaking() && getLevel(p) > 0) {
-
-                int level = getLevel(p);
                 Vector velocity = p.getVelocity();
+
                 if (velocity.getY() > 0) {
                     double jumpVelocity = 0.41999998688697815; // Default jump velocity 0.333f is the alt, not sure why the height is 0.333f as a result of this randomly...
                     PotionEffect jumpPotion = p.getPotionEffect(PotionEffectType.JUMP);
@@ -50,11 +49,11 @@ public class AgilitySuperJump extends SimpleAdaptation {
                     if (jumpPotion != null) { // potion Garbage
                         jumpVelocity += (double) ((float) jumpPotion.getAmplifier() + 1) * 0.1F;
                     }
+
                     if (p.getLocation().getBlock().getType() != Material.LADDER && Double.compare(velocity.getY(), jumpVelocity) == 0) {
                         p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_LAVA_POP, 1.25f, 0.100f);
-                        p.setVelocity(p.getVelocity().setY(getJumpHeight(level)));
+                        p.setVelocity(p.getVelocity().setY(getJumpHeight(getLevel(p))));
                     }
-
                 }
             }
             // the rest
