@@ -46,14 +46,46 @@ def registerCustomOutputTaskNix(name, path) {
     }
 }
 
+/**
+ * Configure Iris for shading
+ */
+shadowJar {
+    minimize()
+    append("plugin.yml")
+    relocate 'io.papermc.lib', 'com.volmit.iris.util.paper'
+    relocate 'net.kyori', 'com.volmit.iris.util.kyori'
+    dependencies {
+        include(dependency('io.papermc:paperlib'))
+        include(dependency('net.kyori:'))
+        include(dependency('xyz.xenondevs:'))
+    }
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 60, 'minutes'
+    resolutionStrategy.cacheDynamicVersionsFor 60, 'minutes'
+}
+
 repositories {
     maven { url "https://dl.cloudsmith.io/public/arcane/archive/maven/" }
     mavenLocal()
+    mavenCentral()
 }
 
 dependencies {
-    implementation 'org.spigotmc:spigot-api:1.16.1-R0.1-SNAPSHOT'
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'xyz.xenondevs:particle:1.5.1'
+    // Provided or Classpath
+    implementation 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
+    implementation 'org.bukkit.craftbukkit:1.17.1:1.17.1'
+
+    // Shaded
+    implementation 'io.papermc:paperlib:1.0.5'
+    implementation "net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT"
+    implementation "net.kyori:adventure-platform-bukkit:4.0.0"
+    implementation 'net.kyori:adventure-api:4.9.3'
+    implementation 'xyz.xenondevs:particle:1.6.6'
+
+    // Dynamically Loaded
     implementation 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'com.google.code.gson:gson:2.8.9'
 }

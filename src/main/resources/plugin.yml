@@ -1,4 +1,8 @@
 name: Adapt
 main: com.volmit.adapt.Adapt
 version: 1.0
-api-version: 1.16
+api-version: 1.17
+libraries:
+  - com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2
+  - org.apache.commons:commons-lang3:3.12.0
+  - com.google.code.gson:gson:2.8.9
