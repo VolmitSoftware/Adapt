@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.volmit.adapt.Adapt;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
@@ -468,7 +469,7 @@ public final class AdvancementManager {
 				}
 			}
 		}
-		
+
 		for(Player player : getPlayers()) {
 			//Packet
 			PacketPlayOutAdvancements packet = new PacketPlayOutAdvancements(false, advancementsList.get(player), remove, progressList.get(player));
