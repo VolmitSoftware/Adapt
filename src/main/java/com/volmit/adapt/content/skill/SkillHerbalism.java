@@ -22,7 +22,7 @@ import org.bukkit.event.player.PlayerShearEntityEvent;
 
 public class SkillHerbalism extends SimpleSkill {
     public SkillHerbalism() {
-        super("herbalism");
+        super("herbalism", "\u2698");
         setColor(C.GREEN);
         setBarColor(BarColor.GREEN);
         setInterval(3700);

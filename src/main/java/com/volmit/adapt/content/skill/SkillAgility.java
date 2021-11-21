@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 public class SkillAgility extends SimpleSkill {
     public SkillAgility() {
-        super("agility");
+        super("agility", "\u21C9");
         setColor(C.GREEN);
         setBarColor(BarColor.GREEN);
         setInterval(1100);

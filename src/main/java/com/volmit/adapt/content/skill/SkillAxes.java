@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillAxes extends SimpleSkill {
     public SkillAxes() {
-        super("axes");
+        super("axes", "\u2725");
         setColor(C.YELLOW);
         setBarColor(BarColor.YELLOW);
         setInterval(20150);
@@ -49,8 +49,8 @@ public class SkillAxes extends SimpleSkill {
         }
     }
 
-    private double getValue(Material type) {
-        double value = 0;
+    public double getValue(Material type) {
+        double value = super.getValue(type) * 0.125;
         value += Math.min(9, type.getHardness());
         value += Math.min(10, type.getBlastResistance());
 

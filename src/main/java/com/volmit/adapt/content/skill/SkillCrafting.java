@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillCrafting extends SimpleSkill {
     public SkillCrafting() {
-        super("crafting");
+        super("crafting", "\u2756");
         setColor(C.YELLOW);
         setBarColor(BarColor.YELLOW);
         setInterval(3700);

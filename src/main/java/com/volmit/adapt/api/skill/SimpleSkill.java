@@ -12,8 +12,9 @@ import org.bukkit.boss.BarStyle;
 import java.util.UUID;
 
 @Data
-public abstract class SimpleSkill extends TickedObject implements Skill{
+public abstract class SimpleSkill extends TickedObject implements Skill {
     private final String name;
+    private final String emojiName;
     private C color;
     private BarColor barColor;
     private double minXp;
@@ -22,9 +23,10 @@ public abstract class SimpleSkill extends TickedObject implements Skill{
     private Material icon;
     private KList<Adaptation> adaptations;
 
-    public SimpleSkill(String name)
+    public SimpleSkill(String name, String emojiName)
     {
         super("skill", UUID.randomUUID() + "-skill-" + name, 50);
+        this.emojiName = emojiName;
         adaptations = new KList<>();
         setColor(C.WHITE);
         setBarColor(BarColor.WHITE);

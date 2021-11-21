@@ -17,7 +17,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 public class SkillRanged extends SimpleSkill {
     public SkillRanged() {
-        super("ranged");
+        super("ranged", "\uD83C\uDFF9");
         setColor(C.DARK_GREEN);
         setBarColor(BarColor.GREEN);
         setInterval(3000);

@@ -16,9 +16,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillPickaxes extends SimpleSkill {
     public SkillPickaxes() {
-        super("pickaxes");
-        setColor(C.DARK_GRAY);
-        setBarColor(BarColor.WHITE);
+        super("pickaxes", "\u26CF");
+        setColor(C.GOLD);
+        setBarColor(BarColor.YELLOW);
         setInterval(2750);
         setIcon(Material.NETHERITE_PICKAXE);
     }
@@ -49,8 +49,8 @@ public class SkillPickaxes extends SimpleSkill {
         }
     }
 
-    private double getValue(Material type) {
-        double value = 0;
+    public double getValue(Material type) {
+        double value = super.getValue(type) * 0.125;
         value += Math.min(9, type.getHardness());
         value += Math.min(10, type.getBlastResistance());
         switch(type)

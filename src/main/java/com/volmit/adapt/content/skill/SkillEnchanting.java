@@ -9,7 +9,7 @@ import org.bukkit.event.enchantment.EnchantItemEvent;
 
 public class SkillEnchanting extends SimpleSkill {
     public SkillEnchanting() {
-        super("enchanting");
+        super("enchanting", "\u269C");
         setColor(C.LIGHT_PURPLE);
         setBarColor(BarColor.PURPLE);
         setInterval(3700);

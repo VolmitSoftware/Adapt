@@ -11,10 +11,4 @@ public class Discovery<T> {
     {
         return seen.addIfMissing(t);
     }
-
-    public double getPower()
-    {
-        double s = seen.size();
-        return (s*0.15);
-    }
 }

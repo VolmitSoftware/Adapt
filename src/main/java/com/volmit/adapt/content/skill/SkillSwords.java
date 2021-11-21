@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillSwords extends SimpleSkill {
     public SkillSwords() {
-        super("swords");
+        super("swords", "\u2694");
         setColor(C.YELLOW);
         setBarColor(BarColor.YELLOW);
         setInterval(2150);

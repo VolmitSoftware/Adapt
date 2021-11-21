@@ -14,7 +14,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class SkillStealth extends SimpleSkill {
     public SkillStealth() {
-        super("stealth");
+        super("stealth", "\u2720");
         setColor(C.DARK_GRAY);
         setBarColor(BarColor.WHITE);
         setBarStyle(BarStyle.SEGMENTED_20);

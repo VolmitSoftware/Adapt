@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 public class SkillSeaborne extends SimpleSkill {
     public SkillSeaborne() {
-        super("seaborne");
+        super("seaborne", "\uD83C\uDF0A");
         setColor(C.BLUE);
         setBarColor(BarColor.BLUE);
         setBarStyle(BarStyle.SEGMENTED_6);

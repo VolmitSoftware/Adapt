@@ -43,6 +43,13 @@ public class AdaptConfig
             f.put(Material.CARROT.name(), 1.25D);
             f.put(Material.FLINT.name(), 1.35D);
             f.put(Material.IRON_ORE.name(), 1.75D);
+            f.put(Material.DIAMOND_ORE.name(), 10D);
+            f.put(Material.GOLD_ORE.name(), 7D);
+            f.put(Material.LAPIS_ORE.name(), 9D);
+            f.put(Material.COAL_ORE.name(), 1.35D);
+            f.put(Material.REDSTONE_ORE.name(), 5D);
+            f.put(Material.NETHER_GOLD_ORE.name(), 8.5D);
+            f.put(Material.NETHER_QUARTZ_ORE.name(), 1.11D);
             return f;
         }
     }

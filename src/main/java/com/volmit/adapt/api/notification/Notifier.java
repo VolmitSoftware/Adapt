@@ -6,6 +6,7 @@ import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
+import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import org.bukkit.entity.Player;
 
@@ -15,29 +16,29 @@ public class Notifier extends TickedObject
     private int delayTicks;
     private final KList<Notification> queue;
     private final Player target;
-    private double lastValue;
-    private String lastSkill;
+    private KMap<String, Long> lastSkills;
+    private KMap<String, Double> lastSkillValues;
     private long lastInstance;
 
     public Notifier(Player target)
     {
         super("notifications", target.getUniqueId().toString() + "-notify", 97);
         queue = new KList<>();
+        lastSkills = new KMap<>();
+        lastSkillValues = new KMap<>();
         this.target = target;
-        lastValue = 0;
-        lastSkill = "";
         lastInstance = 0;
     }
 
     public void notifyXP(String line, double value)
     {
-        if(M.ms() - lastInstance > 3100 || !lastSkill.equals(line))
+        if(!lastSkills.containsKey(line))
         {
-            lastSkill = line;
-            lastValue = 0;
+            lastSkillValues.put(line, 0d);
         }
 
-        lastValue += value;
+        lastSkills.put(line, M.ms());
+        lastSkillValues.put(line, lastSkillValues.get(line) + value);
         lastInstance = M.ms();
 
         if(isBusy())
@@ -45,8 +46,15 @@ public class Notifier extends TickedObject
             return;
         }
 
-        Skill sk = getServer().getSkillRegistry().getSkill(line);
-        Adapt.actionbar(target, sk.getDisplayName() + C.RESET + C.GRAY + " +" + C.WHITE + C.UNDERLINE + Form.f((int)lastValue) + C.RESET + C.GRAY + "XP");
+        StringBuilder sb = new StringBuilder();
+
+        for(String i : lastSkills.keySet())
+        {
+            Skill sk = getServer().getSkillRegistry().getSkill(i);
+            sb.append((i.equals(line) ? sk.getDisplayName() : sk.getShortName()) + C.RESET + C.GRAY + " +" + C.WHITE + (line.equals(i) ? C.UNDERLINE : "") + Form.f(lastSkillValues.get(i).intValue()) + C.RESET + C.GRAY + "XP ");
+        }
+
+        Adapt.actionbar(target, sb.toString());
     }
 
     public void queue(Notification... f)
@@ -61,6 +69,15 @@ public class Notifier extends TickedObject
 
     @Override
     public void onTick() {
+        for(String i : lastSkills.k())
+        {
+            if(M.ms() - lastSkills.get(i) > 5000 || (lastInstance > 3100 && M.ms() - lastSkills.get(i) > 3100))
+            {
+                lastSkills.remove(i);
+                lastSkillValues.remove(i);
+            }
+        }
+
         if(busyTicks > 6)
         {
             busyTicks = 6;

@@ -132,7 +132,7 @@ public class MaterialValue {
         return getValue(m, new KSet<>());
     }
 
-    public static double getValue(Material m, KSet<MaterialRecipe> ignore)
+    private static double getValue(Material m, KSet<MaterialRecipe> ignore)
     {
         if(get().value.containsKey(m))
         {

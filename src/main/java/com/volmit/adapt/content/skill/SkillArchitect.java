@@ -9,7 +9,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 public class SkillArchitect extends SimpleSkill {
     public SkillArchitect() {
-        super("architect");
+        super("architect", "\u2B27");
         setColor(C.AQUA);
         setBarColor(BarColor.BLUE);
         setInterval(3700);
@@ -19,7 +19,7 @@ public class SkillArchitect extends SimpleSkill {
     @EventHandler
     public void on(BlockPlaceEvent e)
     {
-        xp(e.getPlayer(), 15);
+        xp(e.getPlayer(), 3 + getValue(e.getBlock()));
     }
 
     @Override

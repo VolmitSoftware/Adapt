@@ -14,7 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class SkillHunter extends SimpleSkill {
     public SkillHunter() {
-        super("hunter");
+        super("hunter", "\u2620");
         setColor(C.RED);
         setBarColor(BarColor.RED);
         setInterval(4150);

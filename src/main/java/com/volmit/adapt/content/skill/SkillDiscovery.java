@@ -24,8 +24,8 @@ import java.util.Map;
 
 public class SkillDiscovery extends SimpleSkill {
     public SkillDiscovery() {
-        super("discovery");
-        setColor(C.DARK_BLUE);
+        super("discovery", "\u269B");
+        setColor(C.AQUA);
         setBarColor(BarColor.BLUE);
         setInterval(500);
         setIcon(Material.FILLED_MAP);
@@ -73,7 +73,7 @@ public class SkillDiscovery extends SimpleSkill {
         Discovery<String> d = getPlayer(p).getData().getSeenBlocks();
         if (d.isNewDiscovery(bd.getAsString()))
         {
-            xp(p, 25 + (d.getPower() * 33));
+            xp(p, 3 + (getValue(bd) / 3));
             p.spawnParticle(Particle.TOTEM, l.clone().add(0.5, 0.5, 0.5), 9, 0, 0, 0, 0.3);
         }
 
@@ -85,7 +85,7 @@ public class SkillDiscovery extends SimpleSkill {
         Discovery<Material> d = getPlayer(p).getData().getSeenItems();
         if (d.isNewDiscovery(bd))
         {
-            xp(p, 10 + (d.getPower() * 45));
+            xp(p, 10 + getValue(bd));
         }
     }
 
@@ -105,7 +105,7 @@ public class SkillDiscovery extends SimpleSkill {
         Discovery<Material> d = getPlayer(p).getData().getSeenFoods();
         if (d.isNewDiscovery(bd))
         {
-            xp(p, 10 + (d.getPower() * 45));
+            xp(p, 25);
         }
     }
 
@@ -114,7 +114,7 @@ public class SkillDiscovery extends SimpleSkill {
         Discovery<EntityType> d = getPlayer(p).getData().getSeenMobs();
         if (d.isNewDiscovery(bd.getType()))
         {
-            xp(p, 25 + (d.getPower() * 250));
+            xp(p, 25);
         }
 
         if(bd instanceof Player)
@@ -136,7 +136,7 @@ public class SkillDiscovery extends SimpleSkill {
         Discovery<String> d = getPlayer(p).getData().getSeenPeople();
         if (d.isNewDiscovery(bd.getUniqueId().toString()))
         {
-            xp(p, 125 + (d.getPower() * 25));
+            xp(p, 125);
         }
     }
 
@@ -145,7 +145,7 @@ public class SkillDiscovery extends SimpleSkill {
         Discovery<String> d = getPlayer(p).getData().getSeenEnchants();
         if (d.isNewDiscovery(bd.getName() + " " + Form.toRoman(level)))
         {
-            xp(p, (5 + (d.getPower() * 40)) + Math.min(250, level * 52));
+            xp(p, 5 + Math.min(250, level * 52));
         }
     }
 
@@ -154,7 +154,7 @@ public class SkillDiscovery extends SimpleSkill {
         Discovery<String> d = getPlayer(p).getData().getSeenWorlds();
         if (d.isNewDiscovery(world.getName() + "-" + world.getSeed()))
         {
-            xp(p, (100 + (d.getPower() * 100)));
+            xp(p, (100));
         }
 
         seeEnvironment(p, world.getEnvironment());
@@ -165,7 +165,7 @@ public class SkillDiscovery extends SimpleSkill {
         Discovery<World.Environment> d = getPlayer(p).getData().getSeenEnvironments();
         if (d.isNewDiscovery(world))
         {
-            xp(p, (250 + (d.getPower() * 150)));
+            xp(p, (250));
         }
     }
 
@@ -174,7 +174,7 @@ public class SkillDiscovery extends SimpleSkill {
         Discovery<String> d = getPlayer(p).getData().getSeenPotionEffects();
         if (d.isNewDiscovery(e.getType().getName() + " " + Form.toRoman(e.getAmplifier()).trim()))
         {
-            xp(p, (15 + (d.getPower() * 36)));
+            xp(p, (36));
         }
     }
 
@@ -183,7 +183,7 @@ public class SkillDiscovery extends SimpleSkill {
         Discovery<Biome> d = getPlayer(p).getData().getSeenBiomes();
         if (d.isNewDiscovery(e))
         {
-            xp(p, (15 + (d.getPower() * 36)));
+            xp(p, (15));
         }
     }
 

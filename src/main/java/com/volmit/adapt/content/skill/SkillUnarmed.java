@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillUnarmed extends SimpleSkill {
     public SkillUnarmed() {
-        super("unarmed");
+        super("unarmed", "\u269C");
         setColor(C.YELLOW);
         setBarColor(BarColor.YELLOW);
         setInterval(2570);
