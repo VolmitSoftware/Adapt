@@ -20,23 +20,19 @@ public class AdaptPlayer extends TickedObject {
     private final Player player;
     private final PlayerData data;
     private ChronoLatch savelatch;
-    private ChronoLatch barlatch;
     private ChronoLatch updatelatch;
     private Notifier not;
     private RollingSequence speed;
-    private KMap<String, BossBar> bars;
     private long lastloc;
     private Location lastpos;
 
     public AdaptPlayer(Player p) {
         super("players", p.getUniqueId().toString(), 50);
         this.player = p;
-        bars = new KMap<>();
         data = loadPlayerData();
         updatelatch = new ChronoLatch(1000);
-        barlatch = new ChronoLatch(125);
         savelatch = new ChronoLatch(60000);
-        not = new Notifier(p);
+        not = new Notifier(this);
         speed = new RollingSequence(7);
         lastloc = M.ms();
     }
@@ -62,7 +58,6 @@ public class AdaptPlayer extends TickedObject {
     {
         super.unregister();
         save();
-        bars.values().forEach(i -> i.removePlayer(player));
     }
 
     private PlayerData loadPlayerData() {
@@ -96,11 +91,6 @@ public class AdaptPlayer extends TickedObject {
             save();
         }
 
-        if(barlatch.flip())
-        {
-            tickBars();
-        }
-
         getServer().takeSpatial(this);
 
         Location at = player.getLocation();
@@ -120,43 +110,6 @@ public class AdaptPlayer extends TickedObject {
     public double getSpeed()
     {
         return speed.getAverage();
-    }
-
-    public void tickBars()
-    {
-        for(PlayerSkillLine ps : getData().getSkillLines().v())
-        {
-            Skill s = getServer().getSkillRegistry().getSkill(ps.getLine());
-
-            if(s == null)
-            {
-                Adapt.warn("No Skill for " + ps.getLine());
-                continue;
-            }
-
-            if(ps.hasEarnedWithin(3500))
-            {
-                if(!bars.containsKey(s.getName()))
-                {
-                    BossBar bb = s.newBossBar();
-                    bars.put(s.getName(), bb);
-                    bb.addPlayer(getPlayer());
-                }
-
-                bars.get(s.getName()).setProgress(ps.getLevelProgress());
-                bars.get(s.getName()).setTitle(s.getDisplayName() + C.RESET + " " + ps.getLevel() + (ps.getMultiplier() != 1D ? (" (" +(ps.getMultiplier()-1D < 0 ? "" : "+") + Form.pc(ps.getMultiplier()-1D, 0) + ")") : ""));
-            }
-
-            else
-            {
-                if(bars.containsKey(s.getName()))
-                {
-                    BossBar b = bars.remove(s.getName());
-                    b.removeAll();
-                    b.setVisible(false);
-                }
-            }
-        }
     }
 
     public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {
