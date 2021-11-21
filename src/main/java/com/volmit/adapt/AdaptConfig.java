@@ -17,6 +17,7 @@ public class AdaptConfig
     private static AdaptConfig config = null;
 
     private ValueConfig value = new ValueConfig();
+    private boolean verbose = false;
 
     @Getter
     public static class ValueConfig

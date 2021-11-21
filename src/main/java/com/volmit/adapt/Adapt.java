@@ -67,7 +67,10 @@ public class Adapt extends VolmitPlugin
 
     public static void verbose(String string)
     {
-        msg(C.GRAY + string);
+        if(AdaptConfig.get().isVerbose())
+        {
+            msg(C.LIGHT_PURPLE + string);
+        }
     }
 
     public static void msg(String string)
