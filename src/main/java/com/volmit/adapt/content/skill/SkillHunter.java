@@ -6,6 +6,7 @@ import com.volmit.adapt.util.C;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarColor;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -40,8 +41,9 @@ public class SkillHunter extends SimpleSkill {
     @EventHandler
     public void on(EntityDeathEvent e) {
         if(e.getEntity().getKiller() != null && e.getEntity().getKiller() != null) {
-            xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 3, 18, 3000);
-            xp(e.getEntity().getKiller(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 6);
+            double mult = e.getEntity().getType().equals(EntityType.CREEPER) ? 6 : 1;
+            xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 3 * mult, 18, 3000);
+            xp(e.getEntity().getKiller(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 6 * mult);
         }
     }
 
