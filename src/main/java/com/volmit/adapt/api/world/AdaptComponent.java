@@ -1,7 +1,9 @@
 package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.util.ParticleEffect;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -227,5 +229,13 @@ public interface AdaptComponent {
         }
 
         return false;
+    }
+
+    default boolean isOre(BlockData b)
+    {
+        return switch(b.getMaterial()) {
+            case COPPER_ORE,DEEPSLATE_COPPER_ORE, COAL_ORE, GOLD_ORE, IRON_ORE, DIAMOND_ORE, LAPIS_ORE, EMERALD_ORE, NETHER_QUARTZ_ORE, NETHER_GOLD_ORE, REDSTONE_ORE, DEEPSLATE_COAL_ORE, DEEPSLATE_IRON_ORE, DEEPSLATE_GOLD_ORE, DEEPSLATE_LAPIS_ORE, DEEPSLATE_DIAMOND_ORE, DEEPSLATE_EMERALD_ORE, DEEPSLATE_REDSTONE_ORE -> true;
+            default -> false;
+        };
     }
 }
