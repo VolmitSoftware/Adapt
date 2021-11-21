@@ -49,17 +49,17 @@ def registerCustomOutputTaskNix(name, path) {
 /**
  * Configure Iris for shading
  */
-shadowJar {
-    minimize()
-    append("plugin.yml")
-    relocate 'io.papermc.lib', 'com.volmit.iris.util.paper'
-    relocate 'net.kyori', 'com.volmit.iris.util.kyori'
-    dependencies {
-        include(dependency('io.papermc:paperlib'))
-        include(dependency('net.kyori:'))
-        include(dependency('xyz.xenondevs:'))
-    }
-}
+//shadowJar {
+//    minimize()
+//    append("plugin.yml")
+//    relocate 'io.papermc.lib', 'com.volmit.iris.util.paper'
+//    relocate 'net.kyori', 'com.volmit.iris.util.kyori'
+//    dependencies {
+//        include(dependency('io.papermc:paperlib'))
+//        include(dependency('net.kyori:'))
+//        include(dependency('xyz.xenondevs:'))
+//    }
+//}
 
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 60, 'minutes'
