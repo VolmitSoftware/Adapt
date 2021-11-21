@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.OtherworldAura;
+import com.volmit.adapt.content.adaptation.OtherworldRing;
 import com.volmit.adapt.content.adaptation.OtherworldStorage;
 import com.volmit.adapt.util.C;
 import org.bukkit.Material;
@@ -17,6 +18,7 @@ public class SkillOtherworld extends SimpleSkill {
         setIcon(Material.ENDER_PEARL);
         registerAdaptation(new OtherworldAura());
         registerAdaptation(new OtherworldStorage());
+        registerAdaptation(new OtherworldRing());
     }
 
     @Override

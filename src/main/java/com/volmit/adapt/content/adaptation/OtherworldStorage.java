@@ -20,7 +20,7 @@ import java.util.Random;
 public class OtherworldStorage extends SimpleAdaptation {
     public OtherworldStorage() {
         super("other-storage");
-        setDescription("Reach into the void... Ohh Shiny!");
+        setDescription("Glimpse into the void");
         setIcon(Material.ENDER_CHEST);
         setBaseCost(25);
         setCostFactor(0.5);
