@@ -1,12 +1,16 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KMap;
+import com.volmit.adapt.util.M;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
@@ -34,22 +38,18 @@ public class TamingHealthRegeneration extends SimpleAdaptation {
     }
 
     @EventHandler
-    public void on(EntityDamageByEntityEvent e)
-    {
-        if(e.getEntity() instanceof Tameable)
-        {
+    public void on(EntityDamageByEntityEvent e) {
+        if(e.getEntity() instanceof Tameable) {
             lastDamage.put(e.getEntity().getUniqueId(), M.ms());
         }
 
-        if(e.getEntity() instanceof Tameable)
-        {
+        if(e.getEntity() instanceof Tameable) {
             lastDamage.put(e.getDamager().getUniqueId(), M.ms());
         }
     }
 
     @EventHandler
-    public void on(EntityDeathEvent e)
-    {
+    public void on(EntityDeathEvent e) {
         lastDamage.remove(e.getEntity().getUniqueId());
     }
 
@@ -64,24 +64,19 @@ public class TamingHealthRegeneration extends SimpleAdaptation {
 
     @Override
     public void onTick() {
-        for (UUID i : lastDamage.k())
-        {
-            if(M.ms() - lastDamage.get(i) > 10000)
-            {
+        for(UUID i : lastDamage.k()) {
+            if(M.ms() - lastDamage.get(i) > 10000) {
                 lastDamage.remove(i);
             }
         }
 
-        for(World i : Bukkit.getServer().getWorlds())
-        {
+        for(World i : Bukkit.getServer().getWorlds()) {
             J.s(() -> {
-                Collection<Tameable> gl =  i.getEntitiesByClass(Tameable.class);
+                Collection<Tameable> gl = i.getEntitiesByClass(Tameable.class);
 
                 J.a(() -> {
-                    for(Tameable j : gl)
-                    {
-                        if(lastDamage.containsKey(j.getUniqueId()))
-                        {
+                    for(Tameable j : gl) {
+                        if(lastDamage.containsKey(j.getUniqueId())) {
                             continue;
                         }
 
@@ -90,10 +85,9 @@ public class TamingHealthRegeneration extends SimpleAdaptation {
                             Player p = (Player) j.getOwner();
                             int level = getLevel(p);
 
-                            if(level > 0)
-                            {
+                            if(level > 0) {
                                 J.s(() -> j.setHealth(Math.min(j.getHealth() + getRegenSpeed(level), mh)));
-                                ParticleEffect.HEART.display(j.getLocation().clone().add(0, 1, 0), 0.55f,0.37f,0.55f,0.3f, level, null);
+                                ParticleEffect.HEART.display(j.getLocation().clone().add(0, 1, 0), 0.55f, 0.37f, 0.55f, 0.3f, level, null);
                             }
                         }
                     }

@@ -1,18 +1,18 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
-import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.Ageable;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.KList;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.util.Vector;
 
 public class HerbalismHungryShield extends SimpleAdaptation {
     private final KList<Integer> holds = new KList<>();
+
     public HerbalismHungryShield() {
         super("hungry-shield");
         setDescription("Take damage to your hunger before your health");
@@ -29,8 +29,7 @@ public class HerbalismHungryShield extends SimpleAdaptation {
 
     }
 
-    private double getEffectiveness(double factor)
-    {
+    private double getEffectiveness(double factor) {
         return Math.min(0.9, factor * factor + (0.09));
     }
 
@@ -42,20 +41,15 @@ public class HerbalismHungryShield extends SimpleAdaptation {
 
     @EventHandler
     public void on(EntityDamageEvent e) {
-        if(e.getEntity() instanceof Player && getLevel((Player) e.getEntity()) > 0)
-        {
+        if(e.getEntity() instanceof Player && getLevel((Player) e.getEntity()) > 0) {
             double f = getEffectiveness(getLevelPercent((Player) e.getEntity()));
             double h = e.getDamage() * f;
             double d = e.getDamage() - h;
             Player p = (Player) e.getEntity();
 
-            if(p.getFoodLevel() >= h)
-            {
+            if(p.getFoodLevel() >= h) {
                 p.setFoodLevel((int) (p.getFoodLevel() - h));
-            }
-
-            else
-            {
+            } else {
                 h -= p.getFoodLevel();
                 p.setFoodLevel(0);
                 d += h;

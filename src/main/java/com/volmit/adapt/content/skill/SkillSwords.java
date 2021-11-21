@@ -4,7 +4,6 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.SwordsMachete;
 import com.volmit.adapt.util.C;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
@@ -23,15 +22,12 @@ public class SkillSwords extends SimpleSkill {
     }
 
     @EventHandler
-    public void on(EntityDamageByEntityEvent e)
-    {
-        if(e.getDamager() instanceof Player)
-        {
+    public void on(EntityDamageByEntityEvent e) {
+        if(e.getDamager() instanceof Player) {
             AdaptPlayer a = getPlayer((Player) e.getDamager());
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
-            if(isSword(hand))
-            {
+            if(isSword(hand)) {
                 xp(a.getPlayer(), 13.26 * e.getDamage());
             }
         }

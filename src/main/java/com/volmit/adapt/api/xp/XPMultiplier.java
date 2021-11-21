@@ -6,13 +6,11 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Data
-public class XPMultiplier
-{
+public class XPMultiplier {
     private double multiplier = 0D;
     private long goodFor = M.ms() + 10000;
 
-    public XPMultiplier(double percentChange, long duration)
-    {
+    public XPMultiplier(double percentChange, long duration) {
         this.multiplier = percentChange;
         this.goodFor = M.ms() + duration;
     }

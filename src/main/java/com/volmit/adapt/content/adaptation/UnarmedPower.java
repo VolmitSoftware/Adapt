@@ -26,14 +26,12 @@ public class UnarmedPower extends SimpleAdaptation {
     }
 
     @EventHandler
-    public void on(EntityDamageByEntityEvent e)
-    {
+    public void on(EntityDamageByEntityEvent e) {
         if(e.getDamager() instanceof Player) {
             Player p = (Player) e.getDamager();
             double factor = getLevelPercent(p);
 
-            if(factor <= 0)
-            {
+            if(factor <= 0) {
                 return;
             }
 

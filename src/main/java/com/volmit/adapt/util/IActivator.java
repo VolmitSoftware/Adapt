@@ -1,6 +1,5 @@
 package com.volmit.adapt.util;
 
-public interface IActivator
-{
+public interface IActivator {
 
 }

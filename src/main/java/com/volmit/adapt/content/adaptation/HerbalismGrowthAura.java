@@ -1,22 +1,25 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
-import org.bukkit.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KList;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
-import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
-import xyz.xenondevs.particle.ParticleEffect;
 
 public class HerbalismGrowthAura extends SimpleAdaptation {
     private final KList<Integer> holds = new KList<>();
+
     public HerbalismGrowthAura() {
         super("growth-aura");
         setDescription("Grow nature around you in an aura");
@@ -28,13 +31,11 @@ public class HerbalismGrowthAura extends SimpleAdaptation {
         setCostFactor(0.325);
     }
 
-    private double getRadius(double factor)
-    {
+    private double getRadius(double factor) {
         return factor * 8;
     }
 
-    private double getStrength(double factor)
-    {
+    private double getStrength(double factor) {
         return Math.pow(factor, 1.77);
     }
 
@@ -46,22 +47,17 @@ public class HerbalismGrowthAura extends SimpleAdaptation {
 
     @Override
     public void onTick() {
-        for(Player p : Bukkit.getOnlinePlayers())
-        {
-            try
-            {
-                if(getLevel(p) > 0 && Math.random() < getStrength(getLevelPercent(p)))
-                {
+        for(Player p : Bukkit.getOnlinePlayers()) {
+            try {
+                if(getLevel(p) > 0 && Math.random() < getStrength(getLevelPercent(p))) {
                     double rad = getRadius(getLevelPercent(p));
                     double strength = getStrength(getLevelPercent(p));
                     double angle = Math.toRadians(Math.random() * 360);
                     Location m = p.getLocation().clone().add(new Vector(Math.sin(angle), 0, Math.cos(angle)).multiply(Math.random() * rad));
                     Block a = m.getWorld().getHighestBlockAt(m).getRelative(BlockFace.UP);
-                    if(a.getBlockData() instanceof Ageable)
-                    {
+                    if(a.getBlockData() instanceof Ageable) {
                         Ageable ab = (Ageable) a.getBlockData();
-                        if(ab.getMaximumAge() > ab.getAge())
-                        {
+                        if(ab.getMaximumAge() > ab.getAge()) {
                             J.s(() -> {
                                 ab.setAge(ab.getAge() + 1);
                                 a.setBlockData(ab, true);
@@ -71,10 +67,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation {
                         }
                     }
                 }
-            }
-
-            catch(Throwable e)
-            {
+            } catch(Throwable e) {
                 e.printStackTrace();
             }
         }

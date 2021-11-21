@@ -23,10 +23,8 @@ public class SkillSeaborne extends SimpleSkill {
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers())
-        {
-            if(i.isSwimming() || i.getRemainingAir() < i.getMaximumAir())
-            {
+        for(Player i : Bukkit.getOnlinePlayers()) {
+            if(i.isSwimming() || i.getRemainingAir() < i.getMaximumAir()) {
                 xpSilent(i, 19.7);
             }
         }

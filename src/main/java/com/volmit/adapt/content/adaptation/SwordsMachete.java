@@ -1,7 +1,14 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Cuboid;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KList;
+import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.RNG;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -42,11 +49,11 @@ public class SwordsMachete extends SimpleAdaptation {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-        if (e.getHand() != null && e.getHand().equals(EquipmentSlot.HAND) && e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+        if(e.getHand() != null && e.getHand().equals(EquipmentSlot.HAND) && e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
             int dmg = 0;
             ItemStack is = e.getItem();
-            if (isSword(is)) {
-                if (!e.getPlayer().hasCooldown(is.getType()) && getLevel(e.getPlayer()) > 0) {
+            if(isSword(is)) {
+                if(!e.getPlayer().hasCooldown(is.getType()) && getLevel(e.getPlayer()) > 0) {
                     Location ctr = e.getPlayer().getEyeLocation().clone().add(e.getPlayer().getLocation().getDirection().clone().multiply(2.25)).add(0, -0.5, 0);
 
                     int lvl = getLevel(e.getPlayer());
@@ -58,53 +65,53 @@ public class SwordsMachete extends SimpleAdaptation {
                     c = c.expand(Cuboid.CuboidDirection.East, (int) Math.round(getRadius(lvl)));
                     c = c.expand(Cuboid.CuboidDirection.West, (int) Math.round(getRadius(lvl)));
 
-                    if (dmg > 0) {
+                    if(dmg > 0) {
                         return;
                     }
 
-                    for (Block i : new KList<>(c.iterator())) {
-                        if (M.r((getLevelPercent(lvl) * 2.8) / (i.getLocation().distanceSquared(ctr)))) {
-                            if (i.getType().equals(Material.TALL_GRASS)
-                                    || i.getType().equals(Material.CACTUS)
-                                    || i.getType().equals(Material.SUGAR_CANE)
-                                    || i.getType().equals(Material.CARROT)
-                                    || i.getType().equals(Material.POTATO)
-                                    || i.getType().equals(Material.NETHER_WART)
-                                    || i.getType().equals(Material.GRASS)
-                                    || i.getType().equals(Material.FERN)
-                                    || i.getType().equals(Material.LARGE_FERN)
-                                    || i.getType().equals(Material.VINE)
-                                    || i.getType().equals(Material.ROSE_BUSH)
-                                    || i.getType().equals(Material.WITHER_ROSE)
-                                    || i.getType().equals(Material.ACACIA_LEAVES)
-                                    || i.getType().equals(Material.BIRCH_LEAVES)
-                                    || i.getType().equals(Material.DARK_OAK_LEAVES)
-                                    || i.getType().equals(Material.JUNGLE_LEAVES)
-                                    || i.getType().equals(Material.OAK_LEAVES)
-                                    || i.getType().equals(Material.SPRUCE_LEAVES)
-                                    || i.getType().equals(Material.BROWN_MUSHROOM)
-                                    || i.getType().equals(Material.RED_MUSHROOM)
-                                    || i.getType().equals(Material.DEAD_BUSH)
-                                    || i.getType().equals(Material.DANDELION)
-                                    || i.getType().equals(Material.TALL_SEAGRASS)
-                                    || i.getType().equals(Material.SEAGRASS)
-                                    || i.getType().equals(Material.WHITE_TULIP)
-                                    || i.getType().equals(Material.RED_TULIP)
-                                    || i.getType().equals(Material.PINK_TULIP)
-                                    || i.getType().equals(Material.ORANGE_TULIP)
-                                    || i.getType().equals(Material.LILY_OF_THE_VALLEY)
-                                    || i.getType().equals(Material.ALLIUM)
-                                    || i.getType().equals(Material.AZURE_BLUET)
-                                    || i.getType().equals(Material.SUNFLOWER)
-                                    || i.getType().equals(Material.CORNFLOWER)
-                                    || i.getType().equals(Material.CHORUS_FLOWER)
-                                    || i.getType().equals(Material.BAMBOO)
+                    for(Block i : new KList<>(c.iterator())) {
+                        if(M.r((getLevelPercent(lvl) * 2.8) / (i.getLocation().distanceSquared(ctr)))) {
+                            if(i.getType().equals(Material.TALL_GRASS)
+                                || i.getType().equals(Material.CACTUS)
+                                || i.getType().equals(Material.SUGAR_CANE)
+                                || i.getType().equals(Material.CARROT)
+                                || i.getType().equals(Material.POTATO)
+                                || i.getType().equals(Material.NETHER_WART)
+                                || i.getType().equals(Material.GRASS)
+                                || i.getType().equals(Material.FERN)
+                                || i.getType().equals(Material.LARGE_FERN)
+                                || i.getType().equals(Material.VINE)
+                                || i.getType().equals(Material.ROSE_BUSH)
+                                || i.getType().equals(Material.WITHER_ROSE)
+                                || i.getType().equals(Material.ACACIA_LEAVES)
+                                || i.getType().equals(Material.BIRCH_LEAVES)
+                                || i.getType().equals(Material.DARK_OAK_LEAVES)
+                                || i.getType().equals(Material.JUNGLE_LEAVES)
+                                || i.getType().equals(Material.OAK_LEAVES)
+                                || i.getType().equals(Material.SPRUCE_LEAVES)
+                                || i.getType().equals(Material.BROWN_MUSHROOM)
+                                || i.getType().equals(Material.RED_MUSHROOM)
+                                || i.getType().equals(Material.DEAD_BUSH)
+                                || i.getType().equals(Material.DANDELION)
+                                || i.getType().equals(Material.TALL_SEAGRASS)
+                                || i.getType().equals(Material.SEAGRASS)
+                                || i.getType().equals(Material.WHITE_TULIP)
+                                || i.getType().equals(Material.RED_TULIP)
+                                || i.getType().equals(Material.PINK_TULIP)
+                                || i.getType().equals(Material.ORANGE_TULIP)
+                                || i.getType().equals(Material.LILY_OF_THE_VALLEY)
+                                || i.getType().equals(Material.ALLIUM)
+                                || i.getType().equals(Material.AZURE_BLUET)
+                                || i.getType().equals(Material.SUNFLOWER)
+                                || i.getType().equals(Material.CORNFLOWER)
+                                || i.getType().equals(Material.CHORUS_FLOWER)
+                                || i.getType().equals(Material.BAMBOO)
 
                             ) {
                                 BlockBreakEvent ee = new BlockBreakEvent(i, e.getPlayer());
                                 Bukkit.getPluginManager().callEvent(ee);
 
-                                if (!ee.isCancelled()) {
+                                if(!ee.isCancelled()) {
                                     dmg += 1;
                                     J.s(() -> {
                                         i.breakNaturally();
@@ -115,7 +122,7 @@ public class SwordsMachete extends SimpleAdaptation {
                         }
                     }
 
-                    if (dmg > 0) {
+                    if(dmg > 0) {
                         e.getPlayer().setCooldown(is.getType(), getCooldownTime(getLevelPercent(lvl)));
                         ParticleEffect.SWEEP_ATTACK.display(e.getPlayer().getEyeLocation().clone().add(e.getPlayer().getLocation().getDirection().clone().multiply(1.25)).add(0, -0.5, 0), 0f, 0f, 0f, 0.1f, 1, null);
                         e.getPlayer().getWorld().playSound(e.getPlayer().getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (Math.random() / 2) + 0.65f);

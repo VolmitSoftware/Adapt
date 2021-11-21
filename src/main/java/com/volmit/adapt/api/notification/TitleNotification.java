@@ -1,14 +1,12 @@
 package com.volmit.adapt.api.notification;
 
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.util.C;
 import lombok.Builder;
 import lombok.Data;
-import org.bukkit.entity.Player;
 
 @Data
 @Builder
-public class TitleNotification implements Notification{
+public class TitleNotification implements Notification {
     @Builder.Default
     private final long in = 250;
     @Builder.Default
@@ -34,6 +32,6 @@ public class TitleNotification implements Notification{
 
     @Override
     public void play(AdaptPlayer p) {
-        p.getPlayer().sendTitle(title.isEmpty() ? " " : title, subtitle, (int)(in / 50D), (int)(stay / 50D), (int)(out / 50D));
+        p.getPlayer().sendTitle(title.isEmpty() ? " " : title, subtitle, (int) (in / 50D), (int) (stay / 50D), (int) (out / 50D));
     }
 }

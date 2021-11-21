@@ -30,20 +30,17 @@ public class HunterAdrenaline extends SimpleAdaptation {
     }
 
     @EventHandler
-    public void on(EntityDamageByEntityEvent e)
-    {
-        if(e.getDamager() instanceof Player && (getLevel((Player) e.getDamager()) > 0))
-        {
+    public void on(EntityDamageByEntityEvent e) {
+        if(e.getDamager() instanceof Player && (getLevel((Player) e.getDamager()) > 0)) {
             double damageMax = getDamage(getLevel((Player) e.getDamager()));
             double hpp = ((Player) e.getDamager()).getHealth() / ((Player) e.getDamager()).getMaxHealth();
 
-            if(hpp >=1)
-            {
+            if(hpp >= 1) {
                 return;
             }
 
             damageMax *= (1D - hpp);
-            e.setDamage(e.getDamage() * (damageMax+1D));
+            e.setDamage(e.getDamage() * (damageMax + 1D));
         }
     }
 

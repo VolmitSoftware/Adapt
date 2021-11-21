@@ -5,12 +5,10 @@ import com.volmit.adapt.util.J;
 import lombok.Builder;
 import lombok.Data;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
 @Data
 @Builder
-public class SoundNotification implements Notification
-{
+public class SoundNotification implements Notification {
     @Builder.Default
     private final long isolation = 0;
     @Builder.Default
@@ -24,8 +22,7 @@ public class SoundNotification implements Notification
     @Builder.Default
     private final String group = "default";
 
-    public SoundNotification withXP(double xp)
-    {
+    public SoundNotification withXP(double xp) {
         double sig = xp / 1000D;
         float pitch = this.pitch;
         float volume = this.volume;
@@ -37,12 +34,12 @@ public class SoundNotification implements Notification
         pitch = pitch < 0.1 ? (float) 0.1 : pitch;
 
         return SoundNotification.builder()
-                .sound(sound)
-                .isolation(isolation)
-                .predelay(predelay)
-                .volume(volume)
-                .pitch(pitch)
-                .build();
+            .sound(sound)
+            .isolation(isolation)
+            .predelay(predelay)
+            .volume(volume)
+            .pitch(pitch)
+            .build();
     }
 
     @Override
@@ -55,8 +52,7 @@ public class SoundNotification implements Notification
         return group;
     }
 
-    public void play(AdaptPlayer p)
-    {
+    public void play(AdaptPlayer p) {
         J.s(() -> p.getPlayer().playSound(p.getPlayer().getLocation(), sound, volume, pitch));
     }
 }

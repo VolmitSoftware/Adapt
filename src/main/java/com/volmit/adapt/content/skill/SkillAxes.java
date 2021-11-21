@@ -25,25 +25,20 @@ public class SkillAxes extends SimpleSkill {
     }
 
     @EventHandler
-    public void on(EntityDamageByEntityEvent e)
-    {
-        if(e.getDamager() instanceof Player)
-        {
+    public void on(EntityDamageByEntityEvent e) {
+        if(e.getDamager() instanceof Player) {
             AdaptPlayer a = getPlayer((Player) e.getDamager());
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
-            if(isAxe(hand))
-            {
+            if(isAxe(hand)) {
                 xp(a.getPlayer(), 13.26 * e.getDamage());
             }
         }
     }
 
     @EventHandler
-    public void on(BlockBreakEvent e)
-    {
-        if(isAxe(e.getPlayer().getInventory().getItemInMainHand()))
-        {
+    public void on(BlockBreakEvent e) {
+        if(isAxe(e.getPlayer().getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
             xp(e.getPlayer(), v);
         }
@@ -54,16 +49,13 @@ public class SkillAxes extends SimpleSkill {
         value += Math.min(9, type.getHardness());
         value += Math.min(10, type.getBlastResistance());
 
-        if(type.name().endsWith("_LOG") || type.name().endsWith("_WOOD"))
-        {
+        if(type.name().endsWith("_LOG") || type.name().endsWith("_WOOD")) {
             value += 9.67;
         }
-        if(type.name().endsWith("_PLANKS"))
-        {
+        if(type.name().endsWith("_PLANKS")) {
             value += 4.67;
         }
-        if(type.name().endsWith("_LEAVES"))
-        {
+        if(type.name().endsWith("_LEAVES")) {
             value += 3.11;
         }
 

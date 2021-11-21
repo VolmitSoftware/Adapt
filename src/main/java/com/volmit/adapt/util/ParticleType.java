@@ -128,7 +128,7 @@ public enum ParticleType {
     }
 
     public String getLegacyName() {
-        if (!hasLegacyName()) {
+        if(!hasLegacyName()) {
             throw new IllegalStateException("Particle " + name() + " don't have legacy name");
         }
         return legacyName;
@@ -143,7 +143,7 @@ public enum ParticleType {
     }
 
     public Class<?> getDataType() {
-        switch (this) {
+        switch(this) {
             case ITEM_CRACK:
                 return ItemStack.class;
             case BLOCK_CRACK:
@@ -161,13 +161,13 @@ public enum ParticleType {
     public static ParticleType getParticle(String particleName) {
         try {
             return ParticleType.valueOf(particleName.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            for (ParticleType particle : values()) {
-                if (particle.getName().equalsIgnoreCase(particleName)) {
+        } catch(IllegalArgumentException e) {
+            for(ParticleType particle : values()) {
+                if(particle.getName().equalsIgnoreCase(particleName)) {
                     return particle;
                 }
 
-                if (particle.hasLegacyName() && particle.getLegacyName().equalsIgnoreCase(particleName)) {
+                if(particle.hasLegacyName() && particle.getLegacyName().equalsIgnoreCase(particleName)) {
                     return particle;
                 }
             }

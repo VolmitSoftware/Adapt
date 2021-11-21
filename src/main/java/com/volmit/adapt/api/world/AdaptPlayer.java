@@ -3,14 +3,16 @@ package com.volmit.adapt.api.world;
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.notification.Notifier;
-import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.ChronoLatch;
+import com.volmit.adapt.util.IO;
+import com.volmit.adapt.util.JSONObject;
+import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.RollingSequence;
 import lombok.Data;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 
 import java.io.File;
@@ -37,25 +39,21 @@ public class AdaptPlayer extends TickedObject {
         lastloc = M.ms();
     }
 
-    public boolean isBusy()
-    {
+    public boolean isBusy() {
         return not.isBusy();
     }
 
-    public PlayerSkillLine getSkillLine(String l)
-    {
+    public PlayerSkillLine getSkillLine(String l) {
         return getData().getSkillLine(l);
     }
 
     @SneakyThrows
-    private void save()
-    {
-        IO.writeAll(new File(Bukkit.getServer().getPluginManager().getPlugin(Adapt.instance.getName()).getDataFolder() + File.separator + "data" + File.separator + "players" + File.separator + player.getUniqueId() + ".json"),  new JSONObject(new Gson().toJson(data)).toString(4));
+    private void save() {
+        IO.writeAll(new File(Bukkit.getServer().getPluginManager().getPlugin(Adapt.instance.getName()).getDataFolder() + File.separator + "data" + File.separator + "players" + File.separator + player.getUniqueId() + ".json"), new JSONObject(new Gson().toJson(data)).toString(4));
     }
 
     @Override
-    public void unregister()
-    {
+    public void unregister() {
         super.unregister();
         save();
     }
@@ -63,15 +61,10 @@ public class AdaptPlayer extends TickedObject {
     private PlayerData loadPlayerData() {
         File f = new File(Bukkit.getServer().getPluginManager().getPlugin(Adapt.instance.getName()).getDataFolder() + File.separator + "data" + File.separator + "players" + File.separator + player.getUniqueId() + ".json");
 
-        if(f.exists())
-        {
-            try
-            {
+        if(f.exists()) {
+            try {
                 return new Gson().fromJson(IO.readAll(f), PlayerData.class);
-            }
-
-            catch (Throwable ignored)
-            {
+            } catch(Throwable ignored) {
 
             }
         }
@@ -81,13 +74,11 @@ public class AdaptPlayer extends TickedObject {
 
     @Override
     public void onTick() {
-        if(updatelatch.flip())
-        {
+        if(updatelatch.flip()) {
             getData().update(this);
         }
 
-        if(savelatch.flip())
-        {
+        if(savelatch.flip()) {
             save();
         }
 
@@ -95,11 +86,9 @@ public class AdaptPlayer extends TickedObject {
 
         Location at = player.getLocation();
 
-        if(lastpos != null)
-        {
-            if(lastpos.getWorld().equals(at.getWorld()))
-            {
-                speed.put(lastpos.distance(at) / ((double)(M.ms() - lastloc)/50D));
+        if(lastpos != null) {
+            if(lastpos.getWorld().equals(at.getWorld())) {
+                speed.put(lastpos.distance(at) / ((double) (M.ms() - lastloc) / 50D));
             }
         }
 
@@ -107,16 +96,13 @@ public class AdaptPlayer extends TickedObject {
         lastloc = M.ms();
     }
 
-    public double getSpeed()
-    {
+    public double getSpeed() {
         return speed.getAverage();
     }
 
     public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {
-        for(PlayerSkillLine i : p.getData().getSkillLines().v())
-        {
-            if(M.ms() - i.getLast() < ms)
-            {
+        for(PlayerSkillLine i : p.getData().getSkillLines().v()) {
+            if(M.ms() - i.getLast() < ms) {
                 i.giveXP(not, xpGained);
             }
         }
@@ -131,10 +117,8 @@ public class AdaptPlayer extends TickedObject {
     }
 
     public void boostXPToRecents(AdaptPlayer p, double boost, int ms) {
-        for(PlayerSkillLine i : p.getData().getSkillLines().v())
-        {
-            if(M.ms() - i.getLast() < ms)
-            {
+        for(PlayerSkillLine i : p.getData().getSkillLines().v()) {
+            if(M.ms() - i.getLast() < ms) {
                 i.boost(boost, ms);
             }
         }

@@ -28,8 +28,13 @@ public class OtherworldAura extends SimpleAdaptation {
         setInterval(25);
     }
 
-    private double getPhasePercent(int level) {return 0.10 + (0.05 * level);}
-    private int maxPhaseBlocks(int level) {return (int) Math.floor(5 + (10 * level));}
+    private double getPhasePercent(int level) {
+        return 0.10 + (0.05 * level);
+    }
+
+    private int maxPhaseBlocks(int level) {
+        return (int) Math.floor(5 + (10 * level));
+    }
 
     @Override
     public void addStats(int level, Element v) {
@@ -42,11 +47,11 @@ public class OtherworldAura extends SimpleAdaptation {
 
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent e) {
-        if (e.getEntity() instanceof Player p && getLevel((Player) e.getEntity()) > 0) {
-            if (getLevel(p) > 0) {
+        if(e.getEntity() instanceof Player p && getLevel((Player) e.getEntity()) > 0) {
+            if(getLevel(p) > 0) {
                 Random r = new Random();
                 double dd = r.nextDouble();
-                if (dd <= getPhasePercent(getLevel(p))) {
+                if(dd <= getPhasePercent(getLevel(p))) {
 
                     int x = (int) p.getLocation().getX() + (r.nextBoolean() ? 2 + r.nextInt(maxPhaseBlocks(getLevel(p))) : -(2 + r.nextInt(maxPhaseBlocks(p.getLevel()))));
                     int z = (int) p.getLocation().getZ() + (r.nextBoolean() ? 2 + r.nextInt(maxPhaseBlocks(getLevel(p))) : -(2 + r.nextInt(maxPhaseBlocks(p.getLevel()))));

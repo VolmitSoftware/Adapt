@@ -5,29 +5,18 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.M;
-import com.volmit.adapt.util.ParticleEffect;
-import com.volmit.adapt.util.RNG;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Collection;
-import java.util.UUID;
 
 public class PickaxesChisel extends SimpleAdaptation {
     public PickaxesChisel() {
@@ -40,6 +29,7 @@ public class PickaxesChisel extends SimpleAdaptation {
         setInterval(8276);
         setCostFactor(0.4);
     }
+
     private int getCooldownTime(double levelPercent) {
         return 5;
     }
@@ -47,6 +37,7 @@ public class PickaxesChisel extends SimpleAdaptation {
     private double getDropChance(double levelPercent) {
         return ((levelPercent) * 0.22) + 0.07;
     }
+
     private double getBreakChance(double levelPercent) {
         return 0.25;
     }
@@ -62,20 +53,16 @@ public class PickaxesChisel extends SimpleAdaptation {
     }
 
     @EventHandler
-    public void on(PlayerInteractEvent e)
-    {
-        if(e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(e.getPlayer().getInventory().getItemInMainHand()) && getLevel(e.getPlayer()) > 0)
-        {
-            if(e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) > 0)
-            {
+    public void on(PlayerInteractEvent e) {
+        if(e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(e.getPlayer().getInventory().getItemInMainHand()) && getLevel(e.getPlayer()) > 0) {
+            if(e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) > 0) {
                 return;
             }
 
             BlockCanBuildEvent can = new BlockCanBuildEvent(e.getClickedBlock(), e.getPlayer(), e.getClickedBlock().getBlockData(), true);
             Bukkit.getServer().getPluginManager().callEvent(can);
 
-            if(can.isBuildable())
-            {
+            if(can.isBuildable()) {
                 BlockData b = e.getClickedBlock().getBlockData();
                 if(isOre(b)) {
                     e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f);
@@ -93,25 +80,20 @@ public class PickaxesChisel extends SimpleAdaptation {
                         e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
                         e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
                         e.getClickedBlock().getWorld().dropItemNaturally(c.clone().subtract(e.getPlayer().getLocation().getDirection().clone().multiply(0.1)), is);
-                    } else
-                    {
+                    } else {
                         e.getClickedBlock().getWorld().spawnParticle(Particle.ITEM_CRACK, c, 3, 0.01, 0.01, 0.01, 0.1, is);
 
-                    e.getClickedBlock().getWorld().spawnParticle(Particle.BLOCK_CRACK, c, 9, 0.1, 0.1, 0.1, e.getClickedBlock().getBlockData());
+                        e.getClickedBlock().getWorld().spawnParticle(Particle.BLOCK_CRACK, c, 9, 0.1, 0.1, 0.1, e.getClickedBlock().getBlockData());
                     }
 
-                    if(M.r(getBreakChance(getLevelPercent(e.getPlayer()))))
-                    {
+                    if(M.r(getBreakChance(getLevelPercent(e.getPlayer())))) {
                         e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_BASALT_BREAK, 1.25f, 0.4f);
                         e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.887f);
 
                         e.getClickedBlock().breakNaturally(e.getPlayer().getInventory().getItemInMainHand());
                     }
                 }
-            }
-
-            else
-            {
+            } else {
                 Adapt.verbose("Cancelled (Region?)");
             }
         }
@@ -119,13 +101,13 @@ public class PickaxesChisel extends SimpleAdaptation {
 
     private ItemStack getDropFor(BlockData b) {
         return switch(b.getMaterial()) {
-            case COAL_ORE,DEEPSLATE_COAL_ORE -> new ItemStack(Material.COAL);
+            case COAL_ORE, DEEPSLATE_COAL_ORE -> new ItemStack(Material.COAL);
             case COPPER_ORE, DEEPSLATE_COPPER_ORE -> new ItemStack(Material.RAW_COPPER);
-            case GOLD_ORE,DEEPSLATE_GOLD_ORE, NETHER_GOLD_ORE -> new ItemStack(Material.RAW_GOLD);
-            case IRON_ORE,DEEPSLATE_IRON_ORE -> new ItemStack(Material.RAW_IRON);
-            case DIAMOND_ORE,DEEPSLATE_DIAMOND_ORE -> new ItemStack(Material.DIAMOND);
-            case LAPIS_ORE,DEEPSLATE_LAPIS_ORE -> new ItemStack(Material.LAPIS_LAZULI);
-            case EMERALD_ORE,DEEPSLATE_EMERALD_ORE -> new ItemStack(Material.EMERALD);
+            case GOLD_ORE, DEEPSLATE_GOLD_ORE, NETHER_GOLD_ORE -> new ItemStack(Material.RAW_GOLD);
+            case IRON_ORE, DEEPSLATE_IRON_ORE -> new ItemStack(Material.RAW_IRON);
+            case DIAMOND_ORE, DEEPSLATE_DIAMOND_ORE -> new ItemStack(Material.DIAMOND);
+            case LAPIS_ORE, DEEPSLATE_LAPIS_ORE -> new ItemStack(Material.LAPIS_LAZULI);
+            case EMERALD_ORE, DEEPSLATE_EMERALD_ORE -> new ItemStack(Material.EMERALD);
             case NETHER_QUARTZ_ORE -> new ItemStack(Material.QUARTZ);
             case REDSTONE_ORE -> new ItemStack(Material.REDSTONE);
 

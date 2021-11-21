@@ -7,7 +7,14 @@ import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.content.gui.SkillsGui;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KList;
+import com.volmit.adapt.util.MaterialBlock;
+import com.volmit.adapt.util.UIElement;
+import com.volmit.adapt.util.UIWindow;
+import com.volmit.adapt.util.Window;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,23 +46,19 @@ public interface Skill extends Ticked {
 
     BarStyle getBarStyle();
 
-    default double getValue(Material material)
-    {
+    default double getValue(Material material) {
         return MaterialValue.getValue(material);
     }
 
-    default double getValue(BlockData block)
-    {
+    default double getValue(BlockData block) {
         return MaterialValue.getValue(block.getMaterial());
     }
 
-    default double getValue(ItemStack f)
-    {
+    default double getValue(ItemStack f) {
         return MaterialValue.getValue(f.getType());
     }
 
-    default double getValue(Block block)
-    {
+    default double getValue(Block block) {
         return MaterialValue.getValue(block.getType());
     }
 
@@ -98,8 +101,7 @@ public interface Skill extends Ticked {
 
     double getMinXp();
 
-    default void openGui(Player player)
-    {
+    default void openGui(Player player) {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
@@ -108,8 +110,7 @@ public interface Skill extends Ticked {
 
         int ind = 0;
 
-        for(Adaptation i : getAdaptations())
-        {
+        for(Adaptation i : getAdaptations()) {
             int pos = w.getPosition(ind);
             int row = w.getRow(ind);
             int lvl = getPlayer(player).getData().getSkillLine(getName()).getAdaptationLevel(i.getName());

@@ -18,8 +18,7 @@ public abstract class SimpleAdaptation extends TickedObject implements Adaptatio
     private Material icon;
     private String name;
 
-    public SimpleAdaptation(String name)
-    {
+    public SimpleAdaptation(String name) {
         super("adaptations", UUID.randomUUID() + "-" + name, 1000);
         setMaxLevel(5);
         setCostFactor(0.35);

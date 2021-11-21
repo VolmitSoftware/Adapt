@@ -1,6 +1,5 @@
 package com.volmit.adapt.util;
 
-public interface NastyRunnable
-{
-	public void run() throws Throwable;
+public interface NastyRunnable {
+    void run() throws Throwable;
 }

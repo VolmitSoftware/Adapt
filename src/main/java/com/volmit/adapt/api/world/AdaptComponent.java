@@ -1,44 +1,35 @@
 package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.util.ParticleEffect;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public interface AdaptComponent {
-    default AdaptServer getServer()
-    {
-        return  Adapt.instance.getAdaptServer();
+    default AdaptServer getServer() {
+        return Adapt.instance.getAdaptServer();
     }
 
-    default AdaptPlayer getPlayer(Player p)
-    {
+    default AdaptPlayer getPlayer(Player p) {
         return getServer().getPlayer(p);
     }
 
-    default boolean isItem(ItemStack is)
-    {
+    default boolean isItem(ItemStack is) {
         return is != null && !is.getType().equals(Material.AIR);
     }
 
-    default boolean isTool(ItemStack is)
-    {
-        return isAxe(is) || isPickaxe(is)|| isHoe(is) || isShovel(is) || isSword(is);
+    default boolean isTool(ItemStack is) {
+        return isAxe(is) || isPickaxe(is) || isHoe(is) || isShovel(is) || isSword(is);
     }
 
-    default boolean isMelee(ItemStack is)
-    {
+    default boolean isMelee(ItemStack is) {
         return isTool(is);
     }
 
-    default boolean isRanged(ItemStack it)
-    {
-        if(isItem(it))
-        {
-            switch(it.getType())
-            {
+    default boolean isRanged(ItemStack it) {
+        if(isItem(it)) {
+            switch(it.getType()) {
                 case BOW:
                 case CROSSBOW:
                     return true;
@@ -51,10 +42,8 @@ public interface AdaptComponent {
     }
 
     default boolean isSword(ItemStack it) {
-        if(isItem(it))
-        {
-            switch(it.getType())
-            {
+        if(isItem(it)) {
+            switch(it.getType()) {
                 case DIAMOND_SWORD:
                 case GOLDEN_SWORD:
                 case IRON_SWORD:
@@ -71,10 +60,8 @@ public interface AdaptComponent {
     }
 
     default boolean isAxe(ItemStack it) {
-        if(isItem(it))
-        {
-            switch(it.getType())
-            {
+        if(isItem(it)) {
+            switch(it.getType()) {
                 case DIAMOND_AXE:
                 case GOLDEN_AXE:
                 case IRON_AXE:
@@ -91,10 +78,8 @@ public interface AdaptComponent {
     }
 
     default boolean isPickaxe(ItemStack it) {
-        if(isItem(it))
-        {
-            switch(it.getType())
-            {
+        if(isItem(it)) {
+            switch(it.getType()) {
                 case DIAMOND_PICKAXE:
                 case GOLDEN_PICKAXE:
                 case IRON_PICKAXE:
@@ -111,10 +96,8 @@ public interface AdaptComponent {
     }
 
     default boolean isShovel(ItemStack it) {
-        if(isItem(it))
-        {
-            switch(it.getType())
-            {
+        if(isItem(it)) {
+            switch(it.getType()) {
                 case DIAMOND_SHOVEL:
                 case GOLDEN_SHOVEL:
                 case IRON_SHOVEL:
@@ -131,10 +114,8 @@ public interface AdaptComponent {
     }
 
     default boolean isBoots(ItemStack it) {
-        if(isItem(it))
-        {
-            switch(it.getType())
-            {
+        if(isItem(it)) {
+            switch(it.getType()) {
                 case DIAMOND_BOOTS:
                 case GOLDEN_BOOTS:
                 case IRON_BOOTS:
@@ -151,10 +132,8 @@ public interface AdaptComponent {
     }
 
     default boolean isHelmet(ItemStack it) {
-        if(isItem(it))
-        {
-            switch(it.getType())
-            {
+        if(isItem(it)) {
+            switch(it.getType()) {
                 case CHAINMAIL_HELMET:
                 case DIAMOND_HELMET:
                 case GOLDEN_HELMET:
@@ -172,10 +151,8 @@ public interface AdaptComponent {
     }
 
     default boolean isLeggings(ItemStack it) {
-        if(isItem(it))
-        {
-            switch(it.getType())
-            {
+        if(isItem(it)) {
+            switch(it.getType()) {
                 case DIAMOND_LEGGINGS:
                 case GOLDEN_LEGGINGS:
                 case IRON_LEGGINGS:
@@ -192,10 +169,8 @@ public interface AdaptComponent {
     }
 
     default boolean isChestplate(ItemStack it) {
-        if(isItem(it))
-        {
-            switch(it.getType())
-            {
+        if(isItem(it)) {
+            switch(it.getType()) {
                 case DIAMOND_CHESTPLATE:
                 case GOLDEN_CHESTPLATE:
                 case IRON_CHESTPLATE:
@@ -212,10 +187,8 @@ public interface AdaptComponent {
     }
 
     default boolean isHoe(ItemStack it) {
-        if(isItem(it))
-        {
-            switch(it.getType())
-            {
+        if(isItem(it)) {
+            switch(it.getType()) {
                 case DIAMOND_HOE:
                 case GOLDEN_HOE:
                 case IRON_HOE:
@@ -231,10 +204,9 @@ public interface AdaptComponent {
         return false;
     }
 
-    default boolean isOre(BlockData b)
-    {
+    default boolean isOre(BlockData b) {
         return switch(b.getMaterial()) {
-            case COPPER_ORE,DEEPSLATE_COPPER_ORE, COAL_ORE, GOLD_ORE, IRON_ORE, DIAMOND_ORE, LAPIS_ORE, EMERALD_ORE, NETHER_QUARTZ_ORE, NETHER_GOLD_ORE, REDSTONE_ORE, DEEPSLATE_COAL_ORE, DEEPSLATE_IRON_ORE, DEEPSLATE_GOLD_ORE, DEEPSLATE_LAPIS_ORE, DEEPSLATE_DIAMOND_ORE, DEEPSLATE_EMERALD_ORE, DEEPSLATE_REDSTONE_ORE -> true;
+            case COPPER_ORE, DEEPSLATE_COPPER_ORE, COAL_ORE, GOLD_ORE, IRON_ORE, DIAMOND_ORE, LAPIS_ORE, EMERALD_ORE, NETHER_QUARTZ_ORE, NETHER_GOLD_ORE, REDSTONE_ORE, DEEPSLATE_COAL_ORE, DEEPSLATE_IRON_ORE, DEEPSLATE_GOLD_ORE, DEEPSLATE_LAPIS_ORE, DEEPSLATE_DIAMOND_ORE, DEEPSLATE_EMERALD_ORE, DEEPSLATE_REDSTONE_ORE -> true;
             default -> false;
         };
     }

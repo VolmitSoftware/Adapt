@@ -32,24 +32,20 @@ public class UnarmedSuckerPunch extends SimpleAdaptation {
     }
 
     @EventHandler
-    public void on(EntityDamageByEntityEvent e)
-    {
+    public void on(EntityDamageByEntityEvent e) {
         if(e.getDamager() instanceof Player) {
             Player p = (Player) e.getDamager();
             double factor = getLevelPercent(p);
 
-            if (!p.isSprinting())
-            {
+            if(!p.isSprinting()) {
                 return;
             }
 
-            if(factor <= 0)
-            {
+            if(factor <= 0) {
                 return;
             }
 
-            if(isTool(p.getInventory().getItemInMainHand()))
-            {
+            if(isTool(p.getInventory().getItemInMainHand())) {
                 return;
             }
 
@@ -57,8 +53,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation {
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.8f);
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.BLOCK_BASALT_BREAK, 1f, 0.6f);
             getSkill().xp(p, 6.221 * e.getDamage());
-            if(e.getDamage() > 5)
-            {
+            if(e.getDamage() > 5) {
                 getSkill().xp(p, 0.42 * e.getDamage());
                 e.getEntity().getWorld().spawnParticle(Particle.FLASH, e.getEntity().getLocation(), 1);
             }

@@ -34,62 +34,50 @@ public class SkillHerbalism extends SimpleSkill {
     }
 
     @EventHandler
-    public void on(PlayerItemConsumeEvent e)
-    {
+    public void on(PlayerItemConsumeEvent e) {
         xp(e.getPlayer(), 125);
     }
 
     @EventHandler
-    public void on(PlayerShearEntityEvent e)
-    {
+    public void on(PlayerShearEntityEvent e) {
         xp(e.getPlayer(), 95);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void on(PlayerHarvestBlockEvent e)
-    {
-        if(e.isCancelled())
-        {
+    public void on(PlayerHarvestBlockEvent e) {
+        if(e.isCancelled()) {
             return;
         }
 
-        if(e.getHarvestedBlock().getBlockData() instanceof Ageable)
-        {
+        if(e.getHarvestedBlock().getBlockData() instanceof Ageable) {
             xp(e.getPlayer(), 32 * (((Ageable) e.getHarvestedBlock().getBlockData()).getAge()));
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void on(BlockPlaceEvent e)
-    {
-        if(e.getBlock().getBlockData() instanceof Ageable)
-        {
+    public void on(BlockPlaceEvent e) {
+        if(e.getBlock().getBlockData() instanceof Ageable) {
             xp(e.getPlayer(), 3);
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void on(PlayerInteractEvent e)
-    {
-        if(e.useItemInHand().equals(Event.Result.DENY))
-        {
+    public void on(PlayerInteractEvent e) {
+        if(e.useItemInHand().equals(Event.Result.DENY)) {
             return;
         }
 
-        if(e.getClickedBlock() == null)
-        {
+        if(e.getClickedBlock() == null) {
             return;
         }
 
-        if(e.getClickedBlock().getType().equals(Material.COMPOSTER))
-        {
-            Levelled c = ((Levelled)e.getClickedBlock().getBlockData());
+        if(e.getClickedBlock().getType().equals(Material.COMPOSTER)) {
+            Levelled c = ((Levelled) e.getClickedBlock().getBlockData());
             int ol = c.getLevel();
 
             J.s(() -> {
-                int nl = ((Levelled)e.getClickedBlock().getBlockData()).getLevel();
-                if(nl > ol || (ol > 0 && nl == 0))
-                {
+                int nl = ((Levelled) e.getClickedBlock().getBlockData()).getLevel();
+                if(nl > ol || (ol > 0 && nl == 0)) {
                     xp(e.getPlayer(), 51 + (nl * 3) + (nl == 0 ? 250 : 5));
                 }
             });
@@ -97,15 +85,12 @@ public class SkillHerbalism extends SimpleSkill {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void on(BlockBreakEvent e)
-    {
-        if(e.getBlock().getType().equals(Material.CACTUS))
-        {
+    public void on(BlockBreakEvent e) {
+        if(e.getBlock().getType().equals(Material.CACTUS)) {
             return;
         }
 
-        if(e.getBlock().getBlockData() instanceof Ageable)
-        {
+        if(e.getBlock().getBlockData() instanceof Ageable) {
             xp(e.getPlayer(), 32 * (((Ageable) e.getBlock().getBlockData()).getAge()));
         }
     }

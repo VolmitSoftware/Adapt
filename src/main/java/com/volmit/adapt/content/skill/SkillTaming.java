@@ -28,21 +28,17 @@ public class SkillTaming extends SimpleSkill {
     }
 
     @EventHandler
-    public void on(EntityTameEvent e)
-    {
-        if(e.getOwner() instanceof Player)
-        {
+    public void on(EntityTameEvent e) {
+        if(e.getOwner() instanceof Player) {
             xp((Player) e.getOwner(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 63);
         }
     }
 
     @EventHandler
-    public void on(EntityDamageByEntityEvent e)
-    {
+    public void on(EntityDamageByEntityEvent e) {
         if(e.getDamager() instanceof Tameable &&
-                ((Tameable) e.getDamager()).isTamed() &&
-                ((Tameable) e.getDamager()).getOwner() instanceof Player)
-        {
+            ((Tameable) e.getDamager()).isTamed() &&
+            ((Tameable) e.getDamager()).getOwner() instanceof Player) {
             Player owner = (Player) ((Tameable) e.getDamager()).getOwner();
             xp(owner, e.getDamage() * 12.85);
         }

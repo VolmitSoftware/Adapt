@@ -6,11 +6,10 @@ import lombok.Getter;
 @DontObfuscate
 @Getter
 @Builder
-public class BoardSettings
-{
-	@DontObfuscate
-	private BoardProvider boardProvider;
+public class BoardSettings {
+    @DontObfuscate
+    private BoardProvider boardProvider;
 
-	@DontObfuscate
-	private ScoreDirection scoreDirection;
+    @DontObfuscate
+    private ScoreDirection scoreDirection;
 }

@@ -25,10 +25,8 @@ public class SkillAgility extends SimpleSkill {
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers())
-        {
-            if(i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking())
-            {
+        for(Player i : Bukkit.getOnlinePlayers()) {
+            if(i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
                 xpSilent(i, 11.9);
             }
         }

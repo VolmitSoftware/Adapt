@@ -1,13 +1,13 @@
 package com.volmit.adapt.util;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
+
 @Retention(RUNTIME)
-@Target({ FIELD })
+@Target({FIELD})
 public @interface DependsOn {
-	String[] value();
+    String[] value();
 }

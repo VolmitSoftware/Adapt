@@ -1,6 +1,5 @@
 package com.volmit.adapt.util;
 
-public interface NastyFuture<R>
-{
-	public R run() throws Throwable;
+public interface NastyFuture<R> {
+    R run() throws Throwable;
 }

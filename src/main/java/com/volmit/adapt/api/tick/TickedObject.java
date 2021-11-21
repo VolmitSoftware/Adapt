@@ -21,28 +21,23 @@ public abstract class TickedObject implements Ticked, Listener {
     private final String group;
     private final String id;
 
-    public TickedObject()
-    {
+    public TickedObject() {
         this("null");
     }
 
-    public TickedObject(String group, String id)
-    {
+    public TickedObject(String group, String id) {
         this(group, id, 1000);
     }
 
-    public TickedObject(String group)
-    {
+    public TickedObject(String group) {
         this(group, UUID.randomUUID().toString(), 1000);
     }
 
-    public TickedObject(String group, long interval)
-    {
+    public TickedObject(String group, long interval) {
         this(group, UUID.randomUUID().toString(), interval);
     }
 
-    public TickedObject(String group, String id, long interval)
-    {
+    public TickedObject(String group, String id, long interval) {
         this.group = group;
         this.id = id;
         this.die = new AtomicBoolean(false);
@@ -57,15 +52,13 @@ public abstract class TickedObject implements Ticked, Listener {
         Adapt.instance.registerListener(this);
     }
 
-    public void dieAfter(int ticks)
-    {
+    public void dieAfter(int ticks) {
         dieIn.set(ticks);
         die.set(true);
     }
 
     @Override
-    public void unregister()
-    {
+    public void unregister() {
         Adapt.instance.getTicker().unregister(this);
         Adapt.instance.unregisterListener(this);
     }
@@ -77,8 +70,7 @@ public abstract class TickedObject implements Ticked, Listener {
 
     @Override
     public long getInterval() {
-        if(burst.get() > 0)
-        {
+        if(burst.get() > 0) {
             return 0;
         }
 
@@ -92,13 +84,11 @@ public abstract class TickedObject implements Ticked, Listener {
 
     @Override
     public void tick() {
-        if(skip.getAndDecrement() > 0)
-        {
+        if(skip.getAndDecrement() > 0) {
             return;
         }
 
-        if(die.get() && dieIn.decrementAndGet() <= 0)
-        {
+        if(die.get() && dieIn.decrementAndGet() <= 0) {
             unregister();
             return;
         }
@@ -131,15 +121,13 @@ public abstract class TickedObject implements Ticked, Listener {
     }
 
     @Override
-    public boolean isBursting()
-    {
+    public boolean isBursting() {
         return burst.get() > 0;
     }
 
     @Override
     public void burst(int ticks) {
-        if(burst.get() < 0)
-        {
+        if(burst.get() < 0) {
             burst.set(ticks);
             return;
         }
@@ -164,8 +152,7 @@ public abstract class TickedObject implements Ticked, Listener {
 
     @Override
     public void skip(int ticks) {
-        if(skip.get() < 0)
-        {
+        if(skip.get() < 0) {
             skip.set(ticks);
             return;
         }

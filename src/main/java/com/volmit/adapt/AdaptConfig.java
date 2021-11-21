@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.KMap;
-import lombok.Data;
 import lombok.Getter;
 import org.bukkit.Material;
 
@@ -12,20 +11,18 @@ import java.io.File;
 import java.io.IOException;
 
 @Getter
-public class AdaptConfig
-{
+public class AdaptConfig {
     private static AdaptConfig config = null;
 
-    private ValueConfig value = new ValueConfig();
-    private boolean verbose = false;
+    private final ValueConfig value = new ValueConfig();
+    private final boolean verbose = false;
 
     @Getter
-    public static class ValueConfig
-    {
-        private double baseValue = 1;
-        private double markupMultiplier = 1.25;
-        private double markupAddative = 3;
-        private KMap<String, Double> valueMutlipliers = defaultValueMultipliers();
+    public static class ValueConfig {
+        private final double baseValue = 1;
+        private final double markupMultiplier = 1.25;
+        private final double markupAddative = 3;
+        private final KMap<String, Double> valueMutlipliers = defaultValueMultipliers();
 
 
         private KMap<String, Double> defaultValueMultipliers() {
@@ -55,15 +52,12 @@ public class AdaptConfig
         }
     }
 
-    public static AdaptConfig get()
-    {
-        if(config == null)
-        {
+    public static AdaptConfig get() {
+        if(config == null) {
             AdaptConfig dummy = new AdaptConfig();
             File l = Adapt.instance.getDataFile("config.json");
 
-            if(!l.exists())
-            {
+            if(!l.exists()) {
                 try {
                     IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
                 } catch(IOException e) {

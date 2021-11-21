@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 
 public class SeaborneOxygen extends SimpleAdaptation {
     private final KList<Integer> holds = new KList<>();
+
     public SeaborneOxygen() {
         super("oxygen");
         setDescription("Hold more oxygen!");
@@ -27,23 +28,19 @@ public class SeaborneOxygen extends SimpleAdaptation {
         v.addLore(C.GREEN + "+ " + Form.pc(getAirBoost(level), 0) + C.GRAY + " Oxygen");
     }
 
-    public int getRealMaxAir(int level)
-    {
+    public int getRealMaxAir(int level) {
         return (int) ((getAirBoost(level) * 300) + 300);
     }
 
-    public double getAirBoost(int level)
-    {
+    public double getAirBoost(int level) {
         return getLevelPercent(level) * 4.55;
     }
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers())
-        {
-            if(getLevel(i) > 0)
-            {
-               i.setMaximumAir(getRealMaxAir(getLevel(i)));
+        for(Player i : Bukkit.getOnlinePlayers()) {
+            if(getLevel(i) > 0) {
+                i.setMaximumAir(getRealMaxAir(getLevel(i)));
             }
         }
     }

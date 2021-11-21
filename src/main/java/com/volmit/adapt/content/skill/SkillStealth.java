@@ -9,8 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerMoveEvent;
 
 public class SkillStealth extends SimpleSkill {
     public SkillStealth() {
@@ -27,10 +25,8 @@ public class SkillStealth extends SimpleSkill {
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers())
-        {
-            if(i.isSneaking() && !i.isSwimming() && !i.isSprinting() && !i.isFlying() && !i.isGliding())
-            {
+        for(Player i : Bukkit.getOnlinePlayers()) {
+            if(i.isSneaking() && !i.isSwimming() && !i.isSprinting() && !i.isFlying() && !i.isGliding()) {
                 xpSilent(i, 15.48);
             }
         }

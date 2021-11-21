@@ -1,12 +1,19 @@
 package com.volmit.adapt.api.adaptation;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.util.*;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.MaterialBlock;
+import com.volmit.adapt.util.UIElement;
+import com.volmit.adapt.util.UIWindow;
+import com.volmit.adapt.util.Window;
+import com.volmit.adapt.util.WindowResolution;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -33,26 +40,22 @@ public interface Adaptation extends Ticked {
 
     int getInitialCost();
 
-    default void damageHand(Player p, int damage)
-    {
+    default void damageHand(Player p, int damage) {
         ItemStack is = p.getInventory().getItemInMainHand();
         ItemMeta im = is.getItemMeta();
 
-        if(im == null)
-        {
+        if(im == null) {
             return;
         }
 
-        if(im.isUnbreakable())
-        {
+        if(im.isUnbreakable()) {
             return;
         }
 
         Damageable dm = (Damageable) im;
         dm.setDamage(dm.getDamage() + damage);
 
-        if(dm.getDamage() > is.getType().getMaxDurability())
-        {
+        if(dm.getDamage() > is.getType().getMaxDurability()) {
             p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
             p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
             return;
@@ -62,26 +65,22 @@ public interface Adaptation extends Ticked {
         p.getInventory().setItemInMainHand(is);
     }
 
-    default void damageOffHand(Player p, int damage)
-    {
+    default void damageOffHand(Player p, int damage) {
         ItemStack is = p.getInventory().getItemInOffHand();
         ItemMeta im = is.getItemMeta();
 
-        if(im == null)
-        {
+        if(im == null) {
             return;
         }
 
-        if(im.isUnbreakable())
-        {
+        if(im.isUnbreakable()) {
             return;
         }
 
         Damageable dm = (Damageable) im;
         dm.setDamage(dm.getDamage() + damage);
 
-        if(dm.getDamage() > is.getType().getMaxDurability())
-        {
+        if(dm.getDamage() > is.getType().getMaxDurability()) {
             p.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
             p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
             return;
@@ -91,58 +90,48 @@ public interface Adaptation extends Ticked {
         p.getInventory().setItemInOffHand(is);
     }
 
-    default int getLevel(Player p)
-    {
+    default int getLevel(Player p) {
         return getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
     }
 
-    default double getLevelPercent(Player p)
-    {
+    default double getLevelPercent(Player p) {
         return Math.min(Math.max(0, M.lerpInverse(0, getMaxLevel(), getLevel(p))), 1);
     }
 
-    default double getLevelPercent(int p)
-    {
+    default double getLevelPercent(int p) {
         return Math.min(Math.max(0, M.lerpInverse(0, getMaxLevel(), p)), 1);
     }
 
-    default int getCostFor(int level)
-    {
+    default int getCostFor(int level) {
         return (int) (Math.max(1, getBaseCost() + (getBaseCost() * (level * getCostFactor())))) + (level == 1 ? getInitialCost() : 0);
     }
 
     double getCostFactor();
 
-    default int getCostFor(int level, int myLevel)
-    {
-        if(myLevel >= level)
-        {
+    default int getCostFor(int level, int myLevel) {
+        if(myLevel >= level) {
             return 0;
         }
 
 
         int c = 0;
 
-        for(int i = myLevel+1; i <= level; i++)
-        {
-            c+= getCostFor(i);
+        for(int i = myLevel + 1; i <= level; i++) {
+            c += getCostFor(i);
         }
 
         return c;
     }
 
-    default int getRefundCostFor(int level, int myLevel)
-    {
-        if(myLevel <= level)
-        {
+    default int getRefundCostFor(int level, int myLevel) {
+        if(myLevel <= level) {
             return 0;
         }
 
         int c = 0;
 
-        for(int i = level+1; i <= myLevel; i++)
-        {
-            c+= getCostFor(i);
+        for(int i = level + 1; i <= myLevel; i++) {
+            c += getCostFor(i);
         }
 
         return c;
@@ -153,8 +142,7 @@ public interface Adaptation extends Ticked {
     }
 
     default String getDisplayName(int level) {
-        if(level >= 1)
-        {
+        if(level >= 1) {
             return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + Form.toRoman(level) + C.RESET;
         }
 
@@ -162,16 +150,14 @@ public interface Adaptation extends Ticked {
     }
 
     default String getDisplayNameNoRoman(int level) {
-        if(level >= 1)
-        {
+        if(level >= 1) {
             return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
         }
 
         return getDisplayName();
     }
 
-    default void openGui(Player player)
-    {
+    default void openGui(Player player) {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
@@ -180,88 +166,77 @@ public interface Adaptation extends Ticked {
         w.setResolution(WindowResolution.W9_H6);
         int o = 0;
 
-        if(getMaxLevel() == 1 || getMaxLevel() == 2)
-        {
+        if(getMaxLevel() == 1 || getMaxLevel() == 2) {
             o = 4;
         }
 
-        if(getMaxLevel() == 3 || getMaxLevel() == 4)
-        {
+        if(getMaxLevel() == 3 || getMaxLevel() == 4) {
             o = 3;
         }
 
-        if(getMaxLevel() ==5 || getMaxLevel() == 6)
-        {
+        if(getMaxLevel() == 5 || getMaxLevel() == 6) {
             o = 2;
         }
 
-        if(getMaxLevel() ==7 || getMaxLevel() == 8)
-        {
+        if(getMaxLevel() == 7 || getMaxLevel() == 8) {
             o = 1;
         }
 
         int mylevel = getPlayer(player).getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
 
         long k = getPlayer(player).getData().getSkillLine(getSkill().getName()).getKnowledge();
-        for(int i = 1; i <= getMaxLevel(); i++)
-        {
-            int pos = w.getPosition(i-1+o);
+        for(int i = 1; i <= getMaxLevel(); i++) {
+            int pos = w.getPosition(i - 1 + o);
             int row = 1;
             int c = getCostFor(i, mylevel);
-            int rc = getRefundCostFor(i-1, mylevel);
+            int rc = getRefundCostFor(i - 1, mylevel);
             int lvl = i;
             Element de = new UIElement("lp-" + i + "g")
-                    .setMaterial(new MaterialBlock(getIcon()))
-                    .setName(getDisplayName(i))
-                    .setEnchanted(mylevel >= lvl)
-                    .setProgress(1D)
-                    .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
-                    .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " Knowledge Cost"))
-                    .addLore(mylevel >= lvl ? (C.GREEN + "Already Learned " + C.GRAY + "Click to Unlearn & Refund " + C.GREEN + rc + " Knowlege") : (k >= c ?( C.BLUE + "Click to Learn " + getDisplayName(i)) : (k == 0 ?(C.RED + "(You don't have any Knowledge)") : (C.RED + "(You only have " + C.WHITE + k + C.RED + " Knowledge)"))))
-                    .onLeftClick((e) -> {
-                        if(mylevel >= lvl) {
-                            getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(rc);
-                            getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl - 1);
-                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
-                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
+                .setMaterial(new MaterialBlock(getIcon()))
+                .setName(getDisplayName(i))
+                .setEnchanted(mylevel >= lvl)
+                .setProgress(1D)
+                .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
+                .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " Knowledge Cost"))
+                .addLore(mylevel >= lvl ? (C.GREEN + "Already Learned " + C.GRAY + "Click to Unlearn & Refund " + C.GREEN + rc + " Knowlege") : (k >= c ? (C.BLUE + "Click to Learn " + getDisplayName(i)) : (k == 0 ? (C.RED + "(You don't have any Knowledge)") : (C.RED + "(You only have " + C.WHITE + k + C.RED + " Knowledge)"))))
+                .onLeftClick((e) -> {
+                    if(mylevel >= lvl) {
+                        getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(rc);
+                        getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl - 1);
+                        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
+                        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
+                        w.close();
+                        player.sendTitle(" ", C.GRAY + "Unlearned " + getDisplayName(mylevel), 1, 5, 11);
+                        J.s(() -> openGui(player), 14);
+                        return;
+                    }
+
+                    if(k >= c) {
+                        if(getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c)) {
+                            getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
+                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
+                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
+                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
+                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
                             w.close();
-                            player.sendTitle(" ", C.GRAY + "Unlearned " + getDisplayName(mylevel), 1, 5, 11);
+                            player.sendTitle(" ", C.GRAY + "Learned " + getDisplayName(lvl), 1, 5, 11);
                             J.s(() -> openGui(player), 14);
-                            return;
-                        }
-
-                        if(k >= c)
-                        {
-                            if(getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c))
-                            {
-                                getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
-                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
-                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
-                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
-                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
-                                w.close();
-                                player.sendTitle(" ", C.GRAY + "Learned " + getDisplayName(lvl), 1, 5, 11);
-                                J.s(() -> openGui(player), 14);
-                            }
-
-                            else{
-                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
-
-                            }
-                        }
-                        else
-                        {
+                        } else {
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
 
                         }
-                    });
+                    } else {
+                        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+
+                    }
+                });
             de.addLore(" ");
             addStats(lvl, de);
             w.setElement(pos, row, de);
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle( getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " Knowledge");
+        w.setTitle(getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " Knowledge");
         w.onClosed((vv) -> J.s(() -> {
             player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
             player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);

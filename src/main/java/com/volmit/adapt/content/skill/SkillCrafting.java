@@ -23,11 +23,10 @@ public class SkillCrafting extends SimpleSkill {
     }
 
     @EventHandler
-    public void on(CraftItemEvent e)
-    {
+    public void on(CraftItemEvent e) {
         ItemStack test = e.getRecipe().getResult().clone();
         int recipeAmount = e.getInventory().getResult().getAmount();
-        switch (e.getClick()) {
+        switch(e.getClick()) {
             case NUMBER_KEY:
                 if(e.getWhoClicked().getInventory().getItem(e.getHotbarButton()) != null) {
                     recipeAmount = 0;
@@ -50,8 +49,7 @@ public class SkillCrafting extends SimpleSkill {
 
                 int maxCraftable = getMaxCraftAmount(e.getInventory());
                 int capacity = fits(test, e.getView().getBottomInventory());
-                if(capacity < maxCraftable)
-                {
+                if(capacity < maxCraftable) {
                     maxCraftable = ((capacity + recipeAmount - 1) / recipeAmount) * recipeAmount;
                 }
 
@@ -60,9 +58,8 @@ public class SkillCrafting extends SimpleSkill {
             default:
         }
 
-        if(test != null && recipeAmount > 0)
-        {
-            xp((Player)e.getWhoClicked(), recipeAmount * getValue(test));
+        if(test != null && recipeAmount > 0) {
+            xp((Player) e.getWhoClicked(), recipeAmount * getValue(test));
         }
     }
 
@@ -70,28 +67,25 @@ public class SkillCrafting extends SimpleSkill {
         ItemStack[] contents = inv.getContents();
         int result = 0;
 
-        for (ItemStack is : contents)
-            if (is == null)
+        for(ItemStack is : contents)
+            if(is == null)
                 result += stack.getMaxStackSize();
-            else if (is.isSimilar(stack))
+            else if(is.isSimilar(stack))
                 result += Math.max(stack.getMaxStackSize() - is.getAmount(), 0);
 
         return result;
     }
 
     private int getMaxCraftAmount(CraftingInventory inv) {
-        if (inv.getResult() == null)
-        {
+        if(inv.getResult() == null) {
             return 0;
         }
 
         int resultCount = inv.getResult().getAmount();
         int materialCount = Integer.MAX_VALUE;
 
-        for (ItemStack is : inv.getMatrix())
-        {
-            if (is != null && is.getAmount() < materialCount)
-            {
+        for(ItemStack is : inv.getMatrix()) {
+            if(is != null && is.getAmount() < materialCount) {
                 materialCount = is.getAmount();
             }
         }
@@ -100,9 +94,8 @@ public class SkillCrafting extends SimpleSkill {
     }
 
     @EventHandler
-    public void on(FurnaceSmeltEvent e)
-    {
-        xp(e.getBlock().getLocation(), 24 + (getValue(e.getResult())* 4), 16, 1000);
+    public void on(FurnaceSmeltEvent e) {
+        xp(e.getBlock().getLocation(), 24 + (getValue(e.getResult()) * 4), 16, 1000);
     }
 
     @Override

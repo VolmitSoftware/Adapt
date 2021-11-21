@@ -12,6 +12,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 public class RangedPiercing extends SimpleAdaptation {
     private final KList<Integer> holds = new KList<>();
+
     public RangedPiercing() {
         super("piercing");
         setDescription("Adds Piercing to projectiles! Shoot through things!");
@@ -29,17 +30,13 @@ public class RangedPiercing extends SimpleAdaptation {
     }
 
     @EventHandler
-    public void on(ProjectileLaunchEvent e)
-    {
-        if(e.getEntity().getShooter() instanceof Player)
-        {
-            if(e.getEntity() instanceof AbstractArrow)
-            {
-                Player p = ((Player)e.getEntity().getShooter());
+    public void on(ProjectileLaunchEvent e) {
+        if(e.getEntity().getShooter() instanceof Player) {
+            if(e.getEntity() instanceof AbstractArrow) {
+                Player p = ((Player) e.getEntity().getShooter());
 
-                if(getLevel(p) > 0)
-                {
-                    ((AbstractArrow)e.getEntity()).setPierceLevel(((AbstractArrow)e.getEntity()).getPierceLevel() + getLevel(p));
+                if(getLevel(p) > 0) {
+                    ((AbstractArrow) e.getEntity()).setPierceLevel(((AbstractArrow) e.getEntity()).getPierceLevel() + getLevel(p));
                 }
             }
         }

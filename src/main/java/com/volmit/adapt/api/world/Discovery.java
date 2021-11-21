@@ -7,8 +7,7 @@ public class Discovery<T> {
     @Getter
     private final KList<T> seen = new KList<>();
 
-    public boolean isNewDiscovery(T t)
-    {
+    public boolean isNewDiscovery(T t) {
         return seen.addIfMissing(t);
     }
 }

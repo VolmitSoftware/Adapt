@@ -1,7 +1,11 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Impulse;
+import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -24,30 +28,26 @@ public class AxesGroundSmash extends SimpleAdaptation {
     }
 
     @EventHandler
-    public void on(EntityDamageByEntityEvent e)
-    {
-        if(e.getDamager() instanceof Player && getLevel((Player) e.getDamager()) > 0 && ((Player) e.getDamager()).isSneaking())
-        {
-            if(!isAxe(((Player) e.getDamager()).getInventory().getItemInMainHand()))
-            {
+    public void on(EntityDamageByEntityEvent e) {
+        if(e.getDamager() instanceof Player && getLevel((Player) e.getDamager()) > 0 && ((Player) e.getDamager()).isSneaking()) {
+            if(!isAxe(((Player) e.getDamager()).getInventory().getItemInMainHand())) {
                 return;
             }
 
             double f = getLevelPercent((Player) e.getDamager());
 
-            if(((Player) e.getDamager()).hasCooldown(((Player) e.getDamager()).getInventory().getItemInMainHand().getType()))
-            {
+            if(((Player) e.getDamager()).hasCooldown(((Player) e.getDamager()).getInventory().getItemInMainHand().getType())) {
                 return;
             }
 
             ((Player) e.getDamager()).setCooldown(((Player) e.getDamager()).getInventory().getItemInMainHand().getType(), getCooldownTime(f));
             new Impulse(getRadius(f))
-                    .damage(getDamage(f), getFalloffDamage(f))
-                    .force(getForce(f))
-                    .punch(e.getEntity().getLocation());
-            e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.HOSTILE,0.6f, 0.4f);
-            e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.HOSTILE,0.5f, 0.1f);
-            e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_TURTLE_EGG_CRACK, SoundCategory.HOSTILE,1f, 0.4f);
+                .damage(getDamage(f), getFalloffDamage(f))
+                .force(getForce(f))
+                .punch(e.getEntity().getLocation());
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.HOSTILE, 0.6f, 0.4f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.HOSTILE, 0.5f, 0.1f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_TURTLE_EGG_CRACK, SoundCategory.HOSTILE, 1f, 0.4f);
 
         }
     }
@@ -61,28 +61,23 @@ public class AxesGroundSmash extends SimpleAdaptation {
         v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " Smash Cooldown");
     }
 
-    public int getCooldownTime(double factor)
-    {
+    public int getCooldownTime(double factor) {
         return (int) (((1D - factor) * 225) + 80);
     }
 
-    public double getRadius(double factor)
-    {
+    public double getRadius(double factor) {
         return 6 * factor;
     }
 
-    public double getDamage(double factor)
-    {
+    public double getDamage(double factor) {
         return 8 * factor;
     }
 
-    public double getForce(double factor)
-    {
+    public double getForce(double factor) {
         return (1.15 * factor) + 0.27;
     }
 
-    public double getFalloffDamage(double factor)
-    {
+    public double getFalloffDamage(double factor) {
         return 3 * factor;
     }
 

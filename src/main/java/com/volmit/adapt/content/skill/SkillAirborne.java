@@ -21,10 +21,8 @@ public class SkillAirborne extends SimpleSkill {
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers())
-        {
-            if(i.isFlying() || i.isGliding())
-            {
+        for(Player i : Bukkit.getOnlinePlayers()) {
+            if(i.isFlying() || i.isGliding()) {
                 xpSilent(i, 27);
             }
         }

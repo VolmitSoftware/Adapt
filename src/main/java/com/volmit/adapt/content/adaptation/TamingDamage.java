@@ -43,19 +43,19 @@ public class TamingDamage extends SimpleAdaptation {
 
     @Override
     public void onTick() {
-        for(World i : Bukkit.getServer().getWorlds())
-        {
+        for(World i : Bukkit.getServer().getWorlds()) {
             J.s(() -> {
-                Collection<Tameable> gl =  i.getEntitiesByClass(Tameable.class);
+                Collection<Tameable> gl = i.getEntitiesByClass(Tameable.class);
 
                 J.a(() -> {
                     for(Tameable j : gl) {
-                        if (j.isTamed() && j.getOwner() instanceof Player) {
+                        if(j.isTamed() && j.getOwner() instanceof Player) {
                             Player p = (Player) j.getOwner();
                             update(j, getLevel(p));
                         }
                     }
-                    });});
+                });
+            });
         }
     }
 
@@ -63,8 +63,7 @@ public class TamingDamage extends SimpleAdaptation {
         AttributeModifier mod = new AttributeModifier(attUUID, attid, getDamageBoost(level), AttributeModifier.Operation.ADD_SCALAR);
         j.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier(mod);
 
-        if(level > 0)
-        {
+        if(level > 0) {
             j.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(mod);
         }
     }

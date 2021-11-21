@@ -1,7 +1,11 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.KList;
+import com.volmit.adapt.util.RNG;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -32,12 +36,9 @@ public class AxesChop extends SimpleAdaptation {
     }
 
     @EventHandler
-    public void on(PlayerInteractEvent e)
-    {
-        if(e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(e.getPlayer().getInventory().getItemInMainHand()) && getLevel(e.getPlayer()) > 0)
-        {
-            if(e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) > 0)
-            {
+    public void on(PlayerInteractEvent e) {
+        if(e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(e.getPlayer().getInventory().getItemInMainHand()) && getLevel(e.getPlayer()) > 0) {
+            if(e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) > 0) {
                 e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_AXE_STRIP, 0.2f, (1.5f + RNG.r.f(0.5f)));
                 getSkill().xp(e.getPlayer(), 2.25);
 
@@ -45,14 +46,11 @@ public class AxesChop extends SimpleAdaptation {
             }
 
             BlockData b = e.getClickedBlock().getBlockData();
-            if(isLog(b))
-            {
+            if(isLog(b)) {
                 e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
 
-                for(int i = 0; i < getLevel(e.getPlayer()); i++)
-                {
-                    if(breakStuff(e.getClickedBlock(), getRange(getLevel(e.getPlayer()))))
-                    {
+                for(int i = 0; i < getLevel(e.getPlayer()); i++) {
+                    if(breakStuff(e.getClickedBlock(), getRange(getLevel(e.getPlayer())))) {
                         getSkill().xp(e.getPlayer(), 37);
                         e.getPlayer().setCooldown(e.getPlayer().getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(e.getPlayer())));
                         damageHand(e.getPlayer(), getDamagePerBlock(getLevelPercent(e.getPlayer())));
@@ -76,21 +74,16 @@ public class AxesChop extends SimpleAdaptation {
 
     private boolean breakStuff(Block b, int power) {
         Block last = b;
-        for(int i = b.getY(); i < power+b.getY(); i++)
-        {
+        for(int i = b.getY(); i < power + b.getY(); i++) {
             Block bb = b.getWorld().getBlockAt(b.getX(), i, b.getZ());
-            if(isLog(bb.getBlockData()))
-            {
+            if(isLog(bb.getBlockData())) {
                 last = bb;
-            }
-
-            else {
+            } else {
                 break;
             }
         }
 
-        if(!isLog(last.getBlockData()))
-        {
+        if(!isLog(last.getBlockData())) {
             return false;
         }
 
@@ -100,10 +93,8 @@ public class AxesChop extends SimpleAdaptation {
         return true;
     }
 
-    private boolean isLog(BlockData b)
-    {
-        switch(b.getMaterial())
-        {
+    private boolean isLog(BlockData b) {
+        switch(b.getMaterial()) {
             case ACACIA_LOG:
             case BIRCH_LOG:
             case DARK_OAK_LOG:

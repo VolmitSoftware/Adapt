@@ -5,11 +5,10 @@ package com.volmit.adapt.util;
  * @since 5/31/2018
  */
 @DontObfuscate
-public enum ScoreDirection
-{
-	@DontObfuscate
-	UP,
-	
-	@DontObfuscate
-	DOWN
+public enum ScoreDirection {
+    @DontObfuscate
+    UP,
+
+    @DontObfuscate
+    DOWN
 }

@@ -3,15 +3,12 @@ package com.volmit.adapt.api.tick;
 import com.volmit.adapt.api.world.AdaptComponent;
 import com.volmit.adapt.util.M;
 
-public interface Ticked extends AdaptComponent
-{
-    default void retick()
-    {
+public interface Ticked extends AdaptComponent {
+    default void retick() {
         burst(1);
     }
 
-    default void skip()
-    {
+    default void skip() {
         skip(1);
     }
 
@@ -45,8 +42,7 @@ public interface Ticked extends AdaptComponent
 
     String getId();
 
-    default boolean shouldTick()
-    {
+    default boolean shouldTick() {
         return M.ms() - getLastTick() > getInterval();
     }
 }

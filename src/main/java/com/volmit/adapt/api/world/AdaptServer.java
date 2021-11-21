@@ -1,6 +1,5 @@
 package com.volmit.adapt.api.world;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.xp.SpatialXP;
@@ -24,54 +23,45 @@ public class AdaptServer extends TickedObject {
     @Getter
     private SkillRegistry skillRegistry;
 
-    public AdaptServer()
-    {
+    public AdaptServer() {
         super("core", UUID.randomUUID().toString(), 1000);
         spatialTickets = new KList<>();
         players = new KMap<>();
         try {
             skillRegistry = new SkillRegistry();
-        } catch (IOException e) {
+        } catch(IOException e) {
             e.printStackTrace();
         }
 
-        for(Player i : Bukkit.getServer().getOnlinePlayers())
-        {
+        for(Player i : Bukkit.getServer().getOnlinePlayers()) {
             join(i);
         }
     }
 
-    public void offer(SpatialXP xp)
-    {
+    public void offer(SpatialXP xp) {
         spatialTickets.add(xp);
     }
 
-    public void takeSpatial(AdaptPlayer p)
-    {
+    public void takeSpatial(AdaptPlayer p) {
         SpatialXP x = spatialTickets.getRandom();
 
-        if(x == null)
-        {
+        if(x == null) {
             return;
         }
 
-        if(M.ms() > x.getMs())
-        {
+        if(M.ms() > x.getMs()) {
             spatialTickets.remove(x);
             return;
         }
 
-        if(p.getPlayer().getWorld().equals(x.getLocation().getWorld()))
-        {
+        if(p.getPlayer().getWorld().equals(x.getLocation().getWorld())) {
             double c = p.getPlayer().getLocation().distanceSquared(x.getLocation());
-            if(c < x.getRadius() * x.getRadius())
-            {
+            if(c < x.getRadius() * x.getRadius()) {
                 double distl = M.lerpInverse(0, x.getRadius() * x.getRadius(), c);
-                double xp = x.getXp() / (1.5D * ((distl*9) + 1));
+                double xp = x.getXp() / (1.5D * ((distl * 9) + 1));
                 x.setXp(x.getXp() - xp);
 
-                if(x.getXp() < 10)
-                {
+                if(x.getXp() < 10) {
                     xp += x.getXp();
                     spatialTickets.remove(x);
                 }
@@ -81,27 +71,21 @@ public class AdaptServer extends TickedObject {
         }
     }
 
-    public void join(Player p)
-    {
-        if(!players.containsKey(p))
-        {
+    public void join(Player p) {
+        if(!players.containsKey(p)) {
             players.put(p, new AdaptPlayer(p));
         }
     }
 
-    public void quit(Player p)
-    {
-        if(players.containsKey(p))
-        {
+    public void quit(Player p) {
+        if(players.containsKey(p)) {
             players.remove(p).unregister();
         }
     }
 
     @Override
-    public void unregister()
-    {
-        for(Player i : players.k())
-        {
+    public void unregister() {
+        for(Player i : players.k()) {
             quit(i);
         }
         skillRegistry.unregister();
@@ -109,25 +93,20 @@ public class AdaptServer extends TickedObject {
     }
 
     @EventHandler
-    public void on(PlayerJoinEvent e)
-    {
+    public void on(PlayerJoinEvent e) {
         join(e.getPlayer());
     }
 
     @EventHandler
-    public void on(PlayerQuitEvent e)
-    {
+    public void on(PlayerQuitEvent e) {
         quit(e.getPlayer());
     }
 
     @Override
     public void onTick() {
-        synchronized (spatialTickets)
-        {
-            for(int i = 0; i < spatialTickets.size(); i++)
-            {
-                if(M.ms() > spatialTickets.get(i).getMs())
-                {
+        synchronized(spatialTickets) {
+            for(int i = 0; i < spatialTickets.size(); i++) {
+                if(M.ms() > spatialTickets.get(i).getMs()) {
                     spatialTickets.remove(i);
                 }
             }

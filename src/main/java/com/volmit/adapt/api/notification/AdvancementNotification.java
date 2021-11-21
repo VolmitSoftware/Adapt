@@ -1,26 +1,18 @@
 package com.volmit.adapt.api.notification;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.RNG;
 import eu.endercentral.crazy_advancements.Advancement;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import eu.endercentral.crazy_advancements.NameKey;
-import eu.endercentral.crazy_advancements.manager.AdvancementManager;
 import lombok.Builder;
 import lombok.Data;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-
-import java.util.UUID;
 
 @Data
 @Builder
-public class AdvancementNotification implements Notification{
+public class AdvancementNotification implements Notification {
     @Builder.Default
     private final Material icon = Material.DIAMOND;
     @Builder.Default
@@ -49,10 +41,8 @@ public class AdvancementNotification implements Notification{
         a.displayToast(p.getPlayer());
     }
 
-    public String buildTitle()
-    {
-        if(description.trim().isEmpty())
-        {
+    public String buildTitle() {
+        if(description.trim().isEmpty()) {
             return title;
         }
 

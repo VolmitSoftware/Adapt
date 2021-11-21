@@ -23,8 +23,7 @@ public abstract class SimpleSkill extends TickedObject implements Skill {
     private Material icon;
     private KList<Adaptation> adaptations;
 
-    public SimpleSkill(String name, String emojiName)
-    {
+    public SimpleSkill(String name, String emojiName) {
         super("skill", UUID.randomUUID() + "-skill-" + name, 50);
         this.emojiName = emojiName;
         adaptations = new KList<>();
@@ -44,8 +43,7 @@ public abstract class SimpleSkill extends TickedObject implements Skill {
     }
 
     @Override
-    public void unregister()
-    {
+    public void unregister() {
         adaptations.forEach(Adaptation::unregister);
     }
 

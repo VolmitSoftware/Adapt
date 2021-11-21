@@ -18,8 +18,7 @@ public class SkillEnchanting extends SimpleSkill {
     }
 
     @EventHandler
-    public void on(EnchantItemEvent e)
-    {
+    public void on(EnchantItemEvent e) {
         xp(e.getEnchanter(), 680 * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());
     }
 

@@ -1,6 +1,5 @@
 package com.volmit.adapt.api.world;
 
-public class AdaptPlayerTracker
-{
+public class AdaptPlayerTracker {
 
 }

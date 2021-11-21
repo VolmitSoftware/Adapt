@@ -1,17 +1,17 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.J;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -43,20 +43,19 @@ public class TamingHealthBoost extends SimpleAdaptation {
 
     @Override
     public void onTick() {
-        for(World i : Bukkit.getServer().getWorlds())
-        {
+        for(World i : Bukkit.getServer().getWorlds()) {
             J.s(() -> {
-                Collection<Tameable> gl =  i.getEntitiesByClass(Tameable.class);
+                Collection<Tameable> gl = i.getEntitiesByClass(Tameable.class);
 
                 J.a(() -> {
-                    for(Tameable j : gl)
-                    {
+                    for(Tameable j : gl) {
                         if(j.isTamed() && j.getOwner() instanceof Player) {
                             Player p = (Player) j.getOwner();
                             update(j, getLevel(p));
                         }
                     }
-                });});
+                });
+            });
         }
     }
 
@@ -64,8 +63,7 @@ public class TamingHealthBoost extends SimpleAdaptation {
         AttributeModifier mod = new AttributeModifier(attUUID, attid, getHealthBoost(level), AttributeModifier.Operation.ADD_SCALAR);
         j.getAttribute(Attribute.GENERIC_MAX_HEALTH).removeModifier(mod);
 
-        if(level > 0)
-        {
+        if(level > 0) {
             j.getAttribute(Attribute.GENERIC_MAX_HEALTH).addModifier(mod);
         }
     }

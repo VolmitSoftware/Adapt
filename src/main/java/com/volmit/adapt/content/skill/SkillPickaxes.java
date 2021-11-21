@@ -23,25 +23,20 @@ public class SkillPickaxes extends SimpleSkill {
     }
 
     @EventHandler
-    public void on(EntityDamageByEntityEvent e)
-    {
-        if(e.getDamager() instanceof Player)
-        {
+    public void on(EntityDamageByEntityEvent e) {
+        if(e.getDamager() instanceof Player) {
             AdaptPlayer a = getPlayer((Player) e.getDamager());
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
-            if(isPickaxe(hand))
-            {
+            if(isPickaxe(hand)) {
                 xp(a.getPlayer(), 13.26 * e.getDamage());
             }
         }
     }
 
     @EventHandler
-    public void on(BlockBreakEvent e)
-    {
-        if(isPickaxe(e.getPlayer().getInventory().getItemInMainHand()))
-        {
+    public void on(BlockBreakEvent e) {
+        if(isPickaxe(e.getPlayer().getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
 
             xp(e.getPlayer(), v);
@@ -52,8 +47,7 @@ public class SkillPickaxes extends SimpleSkill {
         double value = super.getValue(type) * 0.125;
         value += Math.min(9, type.getHardness());
         value += Math.min(10, type.getBlastResistance());
-        switch(type)
-        {
+        switch(type) {
             case COAL_ORE:
                 value += 101;
                 break;
