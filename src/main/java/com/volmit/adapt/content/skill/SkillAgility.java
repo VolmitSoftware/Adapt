@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 public class SkillAgility extends SimpleSkill {
     public SkillAgility() {
         super("agility", "\u21C9");
+        setDescription("Increase the quality of movement in this mortal plane");
         setColor(C.GREEN);
         setBarColor(BarColor.GREEN);
         setInterval(1100);
