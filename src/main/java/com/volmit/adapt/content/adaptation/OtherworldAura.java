@@ -38,7 +38,7 @@ public class OtherworldAura extends SimpleAdaptation {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getPhasePercent(level)) + C.GRAY + " Max Additional Blocks");
+        v.addLore(C.GREEN + "+ " + Form.pc(getPhasePercent(level)) + C.GRAY + " Max Phase Percent");
         v.addLore(C.GREEN + "+ " + maxPhaseBlocks(level) + C.GRAY + " Max Phase Blocks");
         v.addLore(C.YELLOW + "~ This can be controlled if you practice...");
         v.addLore(C.RED + "- YOU WILL NOT ALWAYS BE IN THE BEST PLACE...");
@@ -58,8 +58,6 @@ public class OtherworldAura extends SimpleAdaptation {
 
                     int y = p.getWorld().getHighestBlockYAt(x, z) + 1;
                     Location rLoc = new Location(p.getWorld(), x, y, z, p.getLocation().getYaw(), p.getLocation().getPitch());
-                    p.teleport(rLoc);
-
                     p.teleport(rLoc); // Vwoop
                     p.getLocation().getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f, 0.100f);
                     p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 20, 1));
