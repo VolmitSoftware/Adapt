@@ -81,7 +81,6 @@ public class AgilityWindUp extends SimpleAdaptation {
                 double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
                 double speedIncrease = M.lerp(0, getWindupSpeed(factor), progress);
 
-
                 if(M.r(0.2 * progress)) {
                     i.getWorld().spawnParticle(Particle.LAVA, i.getLocation(), 1);
                 }

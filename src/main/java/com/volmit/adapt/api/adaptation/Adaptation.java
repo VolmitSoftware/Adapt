@@ -20,6 +20,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public interface Adaptation extends Ticked {
     int getMaxLevel();
@@ -39,6 +41,21 @@ public interface Adaptation extends Ticked {
     String getName();
 
     int getInitialCost();
+
+    default void removePotion(Player p, PotionEffectType type)
+    {
+        p.removePotionEffect(type);
+    }
+
+    default void potion(Player p, PotionEffectType type, int power, int duration)
+    {
+        p.addPotionEffect(new PotionEffect(type, power, duration, true, false, false));
+    }
+
+    default boolean hasAdaptation(Player p)
+    {
+        return getLevel(p) > 0;
+    }
 
     default void damageHand(Player p, int damage) {
         ItemStack is = p.getInventory().getItemInMainHand();
