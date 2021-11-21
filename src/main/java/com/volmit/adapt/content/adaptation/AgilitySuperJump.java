@@ -81,7 +81,7 @@ public class AgilitySuperJump extends SimpleAdaptation {
                 double jumpVelocity = 0.4;
                 PotionEffect jumpPotion = p.getPotionEffect(PotionEffectType.JUMP);
 
-                if(jumpPotion != null) { 
+                if(jumpPotion != null) {
                     jumpVelocity += (double) ((float) jumpPotion.getAmplifier() + 1) * 0.1F;
                 }
 
