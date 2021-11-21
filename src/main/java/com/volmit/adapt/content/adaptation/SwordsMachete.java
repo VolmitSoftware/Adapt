@@ -42,7 +42,7 @@ public class SwordsMachete extends SimpleAdaptation {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-        if (e.getHand().equals(EquipmentSlot.HAND) && e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+        if (e.getHand() != null && e.getHand().equals(EquipmentSlot.HAND) && e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
             int dmg = 0;
             ItemStack is = e.getItem();
             if (isSword(is)) {
