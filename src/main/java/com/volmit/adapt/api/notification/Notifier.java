@@ -85,14 +85,7 @@ public class Notifier extends TickedObject
 
     @Override
     public void onTick() {
-        for(String i : lastSkills.k())
-        {
-            if(M.ms() - lastSkills.get(i) > 10000 || (M.ms() - lastInstance > 3100 && M.ms() - lastSkills.get(i) > 3100))
-            {
-                lastSkills.remove(i);
-                lastSkillValues.remove(i);
-            }
-        }
+        cleanupSkills();
 
         if(busyTicks > 6)
         {
@@ -120,6 +113,12 @@ public class Notifier extends TickedObject
             delayTicks = 0;
         }
 
+
+        if(!isBusy())
+        {
+            cleanupStackedNotifications();
+        }
+
         Notification n = queue.pop();
 
         if(n == null)
@@ -129,5 +128,33 @@ public class Notifier extends TickedObject
 
         delayTicks += (n.getTotalDuration()/50D) + 1;
         n.play(target);
+    }
+
+    private void cleanupStackedNotifications() {
+        if(queue.size() <= 2)
+        {
+            return;
+        }
+
+        KMap<String, Notification> nfs = new KMap<>();
+
+        for(Notification i : queue)
+        {
+            nfs.put(i.getClass().getSimpleName() + i.getGroup(), i);
+        }
+
+        queue.clear();
+        queue.addAll(nfs.values());
+    }
+
+    private void cleanupSkills() {
+        for(String i : lastSkills.k())
+        {
+            if(M.ms() - lastSkills.get(i) > 10000 || (M.ms() - lastInstance > 3100 && M.ms() - lastSkills.get(i) > 3100))
+            {
+                lastSkills.remove(i);
+                lastSkillValues.remove(i);
+            }
+        }
     }
 }
