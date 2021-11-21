@@ -97,7 +97,12 @@ public class PhantomInventory implements PhantomInventoryWrapper
 	{
 		return i.firstEmpty();
 	}
-	
+
+	@Override
+	public boolean isEmpty() {
+		return i.isEmpty();
+	}
+
 	@Override
 	public ItemStack[] getContents()
 	{
