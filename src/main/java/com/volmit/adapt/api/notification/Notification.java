@@ -1,5 +1,6 @@
 package com.volmit.adapt.api.notification;
 
+import com.volmit.adapt.api.world.AdaptPlayer;
 import org.bukkit.entity.Player;
 
 public interface Notification {
@@ -7,7 +8,7 @@ public interface Notification {
 
     long getTotalDuration();
 
-    void play(Player p);
+    void play(AdaptPlayer p);
 
     default String getGroup()
     {

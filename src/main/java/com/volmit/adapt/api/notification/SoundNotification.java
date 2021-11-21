@@ -1,10 +1,13 @@
 package com.volmit.adapt.api.notification;
 
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.J;
 import lombok.Builder;
+import lombok.Data;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+@Data
 @Builder
 public class SoundNotification implements Notification
 {
@@ -52,8 +55,8 @@ public class SoundNotification implements Notification
         return group;
     }
 
-    public void play(Player p)
+    public void play(AdaptPlayer p)
     {
-        J.s(() -> p.playSound(p.getLocation(), sound, volume, pitch));
+        J.s(() -> p.getPlayer().playSound(p.getPlayer().getLocation(), sound, volume, pitch));
     }
 }

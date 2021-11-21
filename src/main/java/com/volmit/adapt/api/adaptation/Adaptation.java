@@ -1,10 +1,12 @@
 package com.volmit.adapt.api.adaptation;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.*;
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

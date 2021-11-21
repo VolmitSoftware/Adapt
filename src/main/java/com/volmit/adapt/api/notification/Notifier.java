@@ -3,37 +3,49 @@ package com.volmit.adapt.api.notification;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.ChronoLatch;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.manager.AdvancementManager;
+import lombok.Data;
+import net.minecraft.advancements.AdvancementFrameType;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+@Data
 public class Notifier extends TickedObject
 {
-    private int busyTicks;
-    private int delayTicks;
     private final KList<Notification> queue;
-    private final Player target;
+    private final AdaptPlayer target;
     private final KMap<String, Long> lastSkills;
     private final KMap<String, Double> lastSkillValues;
+    private final AdvancementManager advancementManager;
+    private int busyTicks;
+    private int delayTicks;
     private long lastInstance;
 
-    public Notifier(Player target)
+    public Notifier(AdaptPlayer target)
     {
-        super("notifications", target.getUniqueId().toString() + "-notify", 97);
+        super("notifications", target.getPlayer().getUniqueId().toString() + "-notify", 97);
         queue = new KList<>();
         lastSkills = new KMap<>();
         lastSkillValues = new KMap<>();
         this.target = target;
         lastInstance = 0;
+        this.advancementManager = new AdvancementManager(target.getPlayer());
+        getAdvancementManager().setAnnounceAdvancementMessages(false);
     }
 
     public void notifyXP(String line, double value)
     {
         try
-        {if(!lastSkills.containsKey(line))
+        {
+            if(!lastSkills.containsKey(line))
         {
             lastSkillValues.put(line, 0d);
         }
@@ -64,7 +76,7 @@ public class Notifier extends TickedObject
                 lastSkillValues.remove(s);
             }
 
-            Adapt.actionbar(target, sb.toString());
+            Adapt.actionbar(target.getPlayer(), sb.toString());
         }
 
         catch(Throwable e)
@@ -127,6 +139,7 @@ public class Notifier extends TickedObject
         }
 
         delayTicks += (n.getTotalDuration()/50D) + 1;
+        Adapt.verbose("Playing Notification " + n + " --> " + System.identityHashCode(this));
         n.play(target);
     }
 
