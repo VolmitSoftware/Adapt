@@ -16,8 +16,8 @@ public class Notifier extends TickedObject
     private int delayTicks;
     private final KList<Notification> queue;
     private final Player target;
-    private KMap<String, Long> lastSkills;
-    private KMap<String, Double> lastSkillValues;
+    private final KMap<String, Long> lastSkills;
+    private final KMap<String, Double> lastSkillValues;
     private long lastInstance;
 
     public Notifier(Player target)
@@ -48,7 +48,13 @@ public class Notifier extends TickedObject
             for(String i : lastSkills.sortKNumber().reverse())
             {
                 Skill sk = getServer().getSkillRegistry().getSkill(i);
-                sb.append((i.equals(line) ? sk.getDisplayName() : sk.getShortName()) + C.RESET + C.GRAY + " +" + C.WHITE + (line.equals(i) ? C.UNDERLINE : "") + Form.f(lastSkillValues.get(i).intValue()) + C.RESET + C.GRAY + "XP ");
+                sb.append(i.equals(line) ? sk.getDisplayName() : sk.getShortName())
+                    .append(C.RESET).append(C.GRAY)
+                    .append(" +").append(C.WHITE)
+                    .append(line.equals(i) ? C.UNDERLINE : "")
+                    .append(Form.f(lastSkillValues.get(i).intValue()))
+                    .append(C.RESET).append(C.GRAY)
+                    .append("XP ");
             }
 
             while(lastSkills.size() > 5)
@@ -59,7 +65,6 @@ public class Notifier extends TickedObject
             }
 
             Adapt.actionbar(target, sb.toString());
-
         }
 
         catch(Throwable e)

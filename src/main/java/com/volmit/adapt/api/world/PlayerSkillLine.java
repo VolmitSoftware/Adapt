@@ -151,28 +151,33 @@ public class PlayerSkillLine {
                 giveKnowledge((i / 13) + 1);
             }
 
-            lastLevel = getLevel();
+            notifyLevel(p);
+        }
+    }
 
-            if(getLevel() >= 5)
-            {
-                p.getNot().queue(SoundNotification.builder()
-                            .sound(Sound.BLOCK_BEACON_POWER_SELECT)
-                            .volume(0.7f)
-                            .pitch(1.35f)
-                        .build(),
-                        SoundNotification.builder()
-                            .sound(Sound.BLOCK_BAMBOO_HIT)
-                            .volume(1f)
-                            .pitch(0.65f)
-                        .build(),
-                        TitleNotification.builder()
-                            .in(250)
-                            .stay(250)
-                            .out(750)
-                            .title("")
-                            .subtitle(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
-                        .build());
-            }
+    private void notifyLevel(AdaptPlayer p) {
+        if(getLevel() >= 5 && getLevel() % 5 == 0)
+        {
+            p.getNot().queue(SoundNotification.builder()
+                    .sound(Sound.BLOCK_BEACON_POWER_SELECT)
+                    .volume(0.7f)
+                    .pitch(1.35f)
+                    .group("lvl" + getLine())
+                    .build(),
+                SoundNotification.builder()
+                    .sound(Sound.BLOCK_BAMBOO_HIT)
+                    .volume(1f)
+                    .pitch(0.65f)
+                    .group("lvl" + getLine())
+                    .build(),
+                TitleNotification.builder()
+                    .in(250)
+                    .stay(250)
+                    .out(750)
+                    .group("lvl" + getLine())
+                    .title("")
+                    .subtitle(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
+                    .build());
         }
     }
 

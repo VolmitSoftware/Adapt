@@ -18,6 +18,8 @@ public class SoundNotification implements Notification
     private final float volume = 1F;
     @Builder.Default
     private final float pitch = 1F;
+    @Builder.Default
+    private final String group = "default";
 
     public SoundNotification withXP(double xp)
     {
@@ -43,6 +45,11 @@ public class SoundNotification implements Notification
     @Override
     public long getTotalDuration() {
         return isolation;
+    }
+
+    @Override
+    public String getGroup() {
+        return group;
     }
 
     public void play(Player p)

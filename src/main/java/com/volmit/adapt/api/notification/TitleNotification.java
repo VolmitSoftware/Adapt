@@ -16,10 +16,17 @@ public class TitleNotification implements Notification{
     private final String title = " ";
     @Builder.Default
     private final String subtitle = " ";
+    @Builder.Default
+    private final String group = "default";
 
     @Override
     public long getTotalDuration() {
         return in + out + stay;
+    }
+
+    @Override
+    public String getGroup() {
+        return group;
     }
 
     @Override
