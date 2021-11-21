@@ -101,7 +101,7 @@ public class SkillCrafting extends SimpleSkill {
     @EventHandler
     public void on(FurnaceSmeltEvent e)
     {
-        xp(e.getBlock().getLocation(), 7 + getValue(e.getResult()), 16, 1000);
+        xp(e.getBlock().getLocation(), 24 + (getValue(e.getResult())* 4), 16, 1000);
     }
 
     @Override
