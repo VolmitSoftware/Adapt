@@ -2,15 +2,13 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.content.adaptation.PickaxesChisel;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.RNG;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -21,6 +19,7 @@ public class SkillPickaxes extends SimpleSkill {
         setBarColor(BarColor.YELLOW);
         setInterval(2750);
         setIcon(Material.NETHERITE_PICKAXE);
+        registerAdaptation(new PickaxesChisel());
     }
 
     @EventHandler
@@ -82,9 +81,30 @@ public class SkillPickaxes extends SimpleSkill {
             case REDSTONE_ORE:
                 value += 281;
                 break;
+            case DEEPSLATE_COAL_ORE:
+                value += 201;
+                break;
+            case DEEPSLATE_IRON_ORE:
+                value += 351;
+                break;
+            case DEEPSLATE_GOLD_ORE:
+                value += 751;
+                break;
+            case DEEPSLATE_LAPIS_ORE:
+                value += 951;
+                break;
+            case DEEPSLATE_DIAMOND_ORE:
+                value += 1551;
+                break;
+            case DEEPSLATE_EMERALD_ORE:
+                value += 880;
+                break;
+            case DEEPSLATE_REDSTONE_ORE:
+                value += 381;
+                break;
         }
 
-        return value * 0.45;
+        return value * 0.48;
     }
 
     @Override
