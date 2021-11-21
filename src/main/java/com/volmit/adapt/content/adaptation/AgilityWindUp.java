@@ -67,10 +67,8 @@ public class AgilityWindUp extends SimpleAdaptation {
             if(i.isSprinting() && getLevel(i) > 0)
             {
                 ticksRunning.compute(i, (k,v) -> {
-                    if(v == null)
-                    {
-                        return 1;
-                    }
+                    if(v == null) {
+                    return 1;}
 
                     return v+1;
                 });

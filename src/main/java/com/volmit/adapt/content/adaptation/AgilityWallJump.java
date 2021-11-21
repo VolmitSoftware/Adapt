@@ -96,7 +96,6 @@ public class AgilityWallJump extends SimpleAdaptation {
                     {
                         jumped = true;
                         i.setVelocity(i.getVelocity().setY(getJumpHeight(level)));
-                        i.getLocation().getWorld().playSound(i.getLocation(), Sound.BLOCK_GILDED_BLACKSTONE_STEP, 1f, 0.7f);
                         J.s(() ->                         i.getWorld().spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, i.getLocation(), 7, 0, -1, 0, 0.075));
                     }
 
