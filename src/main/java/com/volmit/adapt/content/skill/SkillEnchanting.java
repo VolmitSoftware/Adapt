@@ -11,6 +11,7 @@ public class SkillEnchanting extends SimpleSkill {
     public SkillEnchanting() {
         super("enchanting", "\u269C");
         setColor(C.LIGHT_PURPLE);
+        setDescription("Very few can bind magic to reality");
         setBarColor(BarColor.PURPLE);
         setInterval(3700);
         setIcon(Material.KNOWLEDGE_BOOK);

@@ -17,6 +17,7 @@ import org.bukkit.event.entity.EntityTameEvent;
 public class SkillTaming extends SimpleSkill {
     public SkillTaming() {
         super("taming", "\u2665");
+        setDescription("The parrots and the bees... and you?");
         setColor(C.GOLD);
         setBarColor(BarColor.YELLOW);
         setInterval(3700);

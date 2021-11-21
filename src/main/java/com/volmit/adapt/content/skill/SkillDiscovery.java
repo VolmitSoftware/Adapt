@@ -26,6 +26,8 @@ public class SkillDiscovery extends SimpleSkill {
     public SkillDiscovery() {
         super("discovery", "\u269B");
         setColor(C.AQUA);
+        setDescription("Perception of the world, is the key to understanding");
+
         setBarColor(BarColor.BLUE);
         setInterval(500);
         setIcon(Material.FILLED_MAP);

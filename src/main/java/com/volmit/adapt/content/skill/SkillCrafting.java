@@ -16,6 +16,7 @@ public class SkillCrafting extends SimpleSkill {
     public SkillCrafting() {
         super("crafting", "\u2756");
         setColor(C.YELLOW);
+        setDescription("Crafting is its own reward");
         setBarColor(BarColor.YELLOW);
         setInterval(3700);
         setIcon(Material.CRAFTING_TABLE);

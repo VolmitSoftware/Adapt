@@ -15,7 +15,6 @@ import org.bukkit.util.Vector;
 
 
 public class AgilitySuperJump extends SimpleAdaptation {
-
     public AgilitySuperJump() {
         super("super-jump");
         setDescription("Exceptional Height Advantage");
@@ -39,7 +38,6 @@ public class AgilitySuperJump extends SimpleAdaptation {
 
     @Override
     public void onTick() {
-
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.isSneaking() && getLevel(p) > 0) {
 
@@ -66,4 +64,3 @@ public class AgilitySuperJump extends SimpleAdaptation {
         }
     }
 }
-

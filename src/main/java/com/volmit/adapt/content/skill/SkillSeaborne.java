@@ -13,6 +13,7 @@ public class SkillSeaborne extends SimpleSkill {
     public SkillSeaborne() {
         super("seaborne", "\uD83C\uDF0A");
         setColor(C.BLUE);
+        setDescription("Will the wonders of the water");
         setBarColor(BarColor.BLUE);
         setBarStyle(BarStyle.SEGMENTED_6);
         setInterval(2120);

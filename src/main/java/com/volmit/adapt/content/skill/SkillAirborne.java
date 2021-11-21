@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 public class SkillAirborne extends SimpleSkill {
     public SkillAirborne() {
         super("airborne", "\u2708");
+        setDescription("The wind and sky are malleable illusions");
         setColor(C.BLUE);
         setBarColor(BarColor.BLUE);
         setBarStyle(BarStyle.SEGMENTED_6);

@@ -18,6 +18,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 public class SkillRanged extends SimpleSkill {
     public SkillRanged() {
         super("ranged", "\uD83C\uDFF9");
+        setDescription("When distance is your only alternative");
         setColor(C.DARK_GREEN);
         setBarColor(BarColor.GREEN);
         setInterval(3000);
