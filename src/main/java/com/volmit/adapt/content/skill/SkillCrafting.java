@@ -59,7 +59,10 @@ public class SkillCrafting extends SimpleSkill {
             default:
         }
 
-        xp((Player)e.getWhoClicked(), recipeAmount);
+        if(test != null && recipeAmount > 0)
+        {
+            xp((Player)e.getWhoClicked(), recipeAmount * getValue(test));
+        }
     }
 
     private int fits(ItemStack stack, Inventory inv) {
@@ -98,7 +101,7 @@ public class SkillCrafting extends SimpleSkill {
     @EventHandler
     public void on(FurnaceSmeltEvent e)
     {
-        xp(e.getBlock().getLocation(), 120, 16, 1000);
+        xp(e.getBlock().getLocation(), 7 + getValue(e.getResult()), 16, 1000);
     }
 
     @Override

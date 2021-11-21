@@ -32,29 +32,40 @@ public class Notifier extends TickedObject
 
     public void notifyXP(String line, double value)
     {
-        if(!lastSkills.containsKey(line))
+        try
+        {if(!lastSkills.containsKey(line))
         {
             lastSkillValues.put(line, 0d);
         }
 
-        lastSkills.put(line, M.ms());
-        lastSkillValues.put(line, lastSkillValues.get(line) + value);
-        lastInstance = M.ms();
+            lastSkills.put(line, M.ms());
+            lastSkillValues.put(line, lastSkillValues.get(line) + value);
+            lastInstance = M.ms();
 
-        if(isBusy())
-        {
-            return;
+
+            StringBuilder sb = new StringBuilder();
+
+            for(String i : lastSkills.sortKNumber().reverse())
+            {
+                Skill sk = getServer().getSkillRegistry().getSkill(i);
+                sb.append((i.equals(line) ? sk.getDisplayName() : sk.getShortName()) + C.RESET + C.GRAY + " +" + C.WHITE + (line.equals(i) ? C.UNDERLINE : "") + Form.f(lastSkillValues.get(i).intValue()) + C.RESET + C.GRAY + "XP ");
+            }
+
+            while(lastSkills.size() > 5)
+            {
+                String s = lastSkills.sortKNumber().reverse().get(0);
+                lastSkills.remove(s);
+                lastSkillValues.remove(s);
+            }
+
+            Adapt.actionbar(target, sb.toString());
+
         }
 
-        StringBuilder sb = new StringBuilder();
-
-        for(String i : lastSkills.keySet())
+        catch(Throwable e)
         {
-            Skill sk = getServer().getSkillRegistry().getSkill(i);
-            sb.append((i.equals(line) ? sk.getDisplayName() : sk.getShortName()) + C.RESET + C.GRAY + " +" + C.WHITE + (line.equals(i) ? C.UNDERLINE : "") + Form.f(lastSkillValues.get(i).intValue()) + C.RESET + C.GRAY + "XP ");
+            e.printStackTrace();
         }
-
-        Adapt.actionbar(target, sb.toString());
     }
 
     public void queue(Notification... f)
@@ -71,7 +82,7 @@ public class Notifier extends TickedObject
     public void onTick() {
         for(String i : lastSkills.k())
         {
-            if(M.ms() - lastSkills.get(i) > 5000 || (lastInstance > 3100 && M.ms() - lastSkills.get(i) > 3100))
+            if(M.ms() - lastSkills.get(i) > 10000 || (M.ms() - lastInstance > 3100 && M.ms() - lastSkills.get(i) > 3100))
             {
                 lastSkills.remove(i);
                 lastSkillValues.remove(i);

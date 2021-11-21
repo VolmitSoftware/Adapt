@@ -223,7 +223,6 @@ public class PlayerSkillLine {
 
     public void boost(double v, int i) {
         multipliers.add(new XPMultiplier(v, i));
-        Adapt.info(getLine() + " Multiplier: " + Form.pc(v, 1) + " for " + Form.duration(i));
     }
 
     public boolean spendKnowledge(int c) {

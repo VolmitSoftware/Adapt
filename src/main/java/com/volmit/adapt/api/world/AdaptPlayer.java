@@ -170,7 +170,7 @@ public class AdaptPlayer extends TickedObject {
     }
 
     public void giveXPToRandom(AdaptPlayer p, double xpGained) {
-        p.getData().getSkillLines().v().getRandom().giveXP(null, xpGained);
+        p.getData().getSkillLines().v().getRandom().giveXP(p.getNot(), xpGained);
     }
 
     public void boostXPToRandom(AdaptPlayer p, double boost, int ms) {
