@@ -12,7 +12,7 @@ version '1.0'
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ==============================================================
 registerCustomOutputTaskWindows('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins');
-registerCustomOutputTaskWindows('Psycho', 'D://Dan/MinecraftDevelopment/server/plugins');
+registerCustomOutputTaskWindows('Psycho', 'D://Dan/MinecraftDevelopment/Server/plugins');
 registerCustomOutputTaskWindows('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins');
 // ==============================================================
 
