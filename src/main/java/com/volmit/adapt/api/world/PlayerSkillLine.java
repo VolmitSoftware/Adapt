@@ -2,15 +2,18 @@ package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.Adaptation;
+import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.notification.Notifier;
 import com.volmit.adapt.api.notification.SoundNotification;
 import com.volmit.adapt.api.notification.TitleNotification;
+import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Sound;
@@ -146,17 +149,20 @@ public class PlayerSkillLine {
 
         if(lastLevel < getLevel())
         {
+            long kb = getKnowledge();
             for(int i = lastLevel; i < getLevel(); i++)
             {
                 giveKnowledge((i / 13) + 1);
             }
 
-            notifyLevel(p);
+            notifyLevel(p, getKnowledge() - kb);
+            lastLevel = getLevel();
         }
     }
 
-    private void notifyLevel(AdaptPlayer p) {
-        if(getLevel() >= 5 && getLevel() % 5 == 0)
+    private void notifyLevel(AdaptPlayer p, long kn) {
+        Skill s = p.getServer().getSkillRegistry().getSkill(getLine());
+        if(getLevel() % 5 == 0 && getLevel() >= 5)
         {
             p.getNot().queue(SoundNotification.builder()
                     .sound(Sound.BLOCK_BEACON_POWER_SELECT)
@@ -179,6 +185,19 @@ public class PlayerSkillLine {
                     .subtitle(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
                     .build());
         }
+
+        if(getLevel() >= 5)
+        {
+            p.getNot().queue(AdvancementNotification.builder()
+                .frameType(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .icon(s.getIcon())
+                .title(s.getDisplayName(getLevel()))
+                .description(getKnowledge() + "" + s.getColor() + " Knowledge")
+                .group("lvl"+getLine())
+                .build());
+        }
+
+        lastLevel = (int) Math.floor(XP.getLevelForXp(getXp()));
     }
 
     public void giveKnowledge(long points)

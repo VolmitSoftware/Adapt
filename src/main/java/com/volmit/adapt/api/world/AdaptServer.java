@@ -1,5 +1,6 @@
 package com.volmit.adapt.api.world;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.xp.SpatialXP;
