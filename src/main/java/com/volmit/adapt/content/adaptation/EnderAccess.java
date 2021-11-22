@@ -48,7 +48,7 @@ public class EnderAccess extends SimpleAdaptation {
 
 
     @EventHandler
-    public void onPlayerClicks(PlayerInteractEvent e) {  // THIS IS THE INITAL CREATOR
+    public void on(PlayerInteractEvent e) {  // THIS IS THE INITAL CREATOR
         if (getLevel(e.getPlayer()) > 0) {
             Player p = e.getPlayer();
 
