@@ -20,7 +20,7 @@ import java.util.Random;
 public class EnderStorage extends SimpleAdaptation {
     public EnderStorage() {
         super("ender-storage");
-        setDescription("Glimpse into the void");
+        setDescription("Open an enderchest by thinking");
         setIcon(Material.ENDER_CHEST);
         setBaseCost(0);
         setCostFactor(0);
@@ -46,7 +46,7 @@ public class EnderStorage extends SimpleAdaptation {
     public void on(PlayerInteractEvent e) {
         if (hasAdaptation(e.getPlayer())
                 && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
-                && (e.getAction().equals(Action.RIGHT_CLICK_AIR)|| e.getAction().equals(Action.LEFT_CLICK_AIR)) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+                && (e.getAction().equals(Action.RIGHT_CLICK_AIR)|| e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
             Player p = e.getPlayer();
             p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 45, 1000));
             p.openInventory(e.getPlayer().getEnderChest());
@@ -54,18 +54,6 @@ public class EnderStorage extends SimpleAdaptation {
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 5.35f, 0.10f);
 
-
-            // OLD CONSUME CODE
-//            Random r = new Random();
-//            double rand = r.nextDouble();
-//            if (rand >= getConsumePercent(getLevel(p))) {
-//
-//                if (p.getInventory().getItemInMainHand().getAmount() == 1) {
-//                    p.getInventory().setItemInMainHand(null);
-//                } else {
-//                    p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
-//                }
-//            }
 
         }
     }
