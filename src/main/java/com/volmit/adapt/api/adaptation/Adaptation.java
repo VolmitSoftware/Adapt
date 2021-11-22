@@ -1,6 +1,7 @@
 package com.volmit.adapt.api.adaptation;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -23,7 +24,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public interface Adaptation extends Ticked {
+public interface Adaptation extends Ticked, Component {
     int getMaxLevel();
 
     void addStats(int level, Element v);

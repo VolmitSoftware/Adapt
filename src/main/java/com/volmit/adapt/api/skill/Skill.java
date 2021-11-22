@@ -1,6 +1,7 @@
 package com.volmit.adapt.api.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.tick.Ticked;
@@ -9,6 +10,7 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
@@ -28,7 +30,7 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public interface Skill extends Ticked {
+public interface Skill extends Ticked, Component {
     String getName();
 
     String getEmojiName();
