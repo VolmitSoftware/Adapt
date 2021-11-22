@@ -28,17 +28,6 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data>
 
     @Override
     public Class<Data> getType() {
-        // Get the data into a neat little package
-        BoundEnderPearl.Data data = BoundEnderPearl.Data.at(player.getLocation());
-
-        // Our data is now hidden in this item
-        ItemStack stack = BoundEnderPearl.io.withData(data);
-
-        // Read back our hidden package
-        BoundEnderPearl.Data readme = BoundEnderPearl.io.getData(stack);
-
-        readme.location(); // bukkit location
-
         return BoundEnderPearl.Data.class;
     }
 
