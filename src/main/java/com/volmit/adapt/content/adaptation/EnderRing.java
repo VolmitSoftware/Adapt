@@ -11,13 +11,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.Objects;
+import java.util.Random;
 
 
-public class OtherworldSphere extends SimpleAdaptation {
-    public OtherworldSphere() {
-        super("other-sphere");
+public class EnderRing extends SimpleAdaptation {
+    public EnderRing() {
+        super("ender-ring");
         setDescription("THIS DOES NOTHING; AND IS JUST A PROOF OF CONCEPT FOR LATER USE");
-        setIcon(Material.CRYING_OBSIDIAN);
+        setIcon(Material.OBSIDIAN);
         setBaseCost(10);
         setCostFactor(0.5);
         setMaxLevel(5);

@@ -16,9 +16,9 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.Random;
 
 
-public class OtherworldAura extends SimpleAdaptation {
-    public OtherworldAura() {
-        super("other-aura");
+public class EnderAura extends SimpleAdaptation {
+    public EnderAura() {
+        super("ender-aura");
         setDescription("Passive & instantaneous non-telegraphed teleportation");
         setIcon(Material.ENDER_EYE);
         setBaseCost(10);

@@ -17,16 +17,16 @@ import java.util.Objects;
 import java.util.Random;
 
 
-public class OtherworldStorage extends SimpleAdaptation {
-    public OtherworldStorage() {
-        super("other-storage");
+public class EnderStorage extends SimpleAdaptation {
+    public EnderStorage() {
+        super("ender-storage");
         setDescription("Glimpse into the void");
         setIcon(Material.ENDER_CHEST);
-        setBaseCost(25);
-        setCostFactor(0.5);
-        setMaxLevel(5);
-        setInitialCost(0);
-        setInterval(2);
+        setBaseCost(0);
+        setCostFactor(0);
+        setMaxLevel(1);
+        setInitialCost(10);
+        setInterval(0);
     }
 
     private double getConsumePercent(int level) {
@@ -37,15 +37,15 @@ public class OtherworldStorage extends SimpleAdaptation {
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Form.pc(getConsumePercent(level)) + C.GRAY + " Chance to Resist Consumption");
-        v.addLore(C.ITALIC + "*left click an Enderperal to use*");
+        v.addLore(C.ITALIC + "*Click an Enderchest in your hand to open (Just dont place)*");
     }
 
 
     @EventHandler
     public void onPlayerClicks(PlayerInteractEvent e) {
         if (getLevel(e.getPlayer()) > 0
-                && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)
-                && (e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
+                && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
+                && (e.getAction().equals(Action.RIGHT_CLICK_AIR)|| e.getAction().equals(Action.LEFT_CLICK_AIR)) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
             Player p = e.getPlayer();
             p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 45, 1000));
             p.openInventory(e.getPlayer().getEnderChest());
@@ -54,16 +54,17 @@ public class OtherworldStorage extends SimpleAdaptation {
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 5.35f, 0.10f);
 
 
-            Random r = new Random();
-            double rand = r.nextDouble();
-            if (rand >= getConsumePercent(getLevel(p))) {
-
-                if (p.getInventory().getItemInMainHand().getAmount() == 1) {
-                    p.getInventory().setItemInMainHand(null);
-                } else {
-                    p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
-                }
-            }
+            // OLD CONSUME CODE
+//            Random r = new Random();
+//            double rand = r.nextDouble();
+//            if (rand >= getConsumePercent(getLevel(p))) {
+//
+//                if (p.getInventory().getItemInMainHand().getAmount() == 1) {
+//                    p.getInventory().setItemInMainHand(null);
+//                } else {
+//                    p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+//                }
+//            }
 
         }
     }

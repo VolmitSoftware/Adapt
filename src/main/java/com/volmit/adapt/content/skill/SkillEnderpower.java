@@ -1,24 +1,24 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.content.adaptation.OtherworldAura;
-import com.volmit.adapt.content.adaptation.OtherworldRing;
-import com.volmit.adapt.content.adaptation.OtherworldStorage;
+import com.volmit.adapt.content.adaptation.*;
 import com.volmit.adapt.util.C;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 
-public class SkillOtherworld extends SimpleSkill {
-    public SkillOtherworld() {
-        super("otherworld", "\u21C9");
+public class SkillEnderpower extends SimpleSkill {
+    public SkillEnderpower() {
+        super("enderpower", "\u21C9");
         setDescription("Reality is your playground");
         setColor(C.DARK_PURPLE);
         setBarColor(BarColor.PURPLE);
         setInterval(1100);
         setIcon(Material.ENDER_PEARL);
-        registerAdaptation(new OtherworldAura());
-        registerAdaptation(new OtherworldStorage());
-        registerAdaptation(new OtherworldRing());
+        registerAdaptation(new EnderAura());
+        registerAdaptation(new EnderAccess());
+        registerAdaptation(new EnderStorage());
+        registerAdaptation(new EnderSphere());
+        registerAdaptation(new EnderRing());
     }
 
     @Override
