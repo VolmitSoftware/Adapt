@@ -152,11 +152,6 @@ public class EnderAccess extends SimpleAdaptation {
     }
 
 
-    public static String removeLastChars(String str, int chars) {
-        return str.substring(0, str.length() - chars);
-    }
-
-
     @Override
     public void onTick() {
 
