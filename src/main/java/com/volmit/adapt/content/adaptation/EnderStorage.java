@@ -41,9 +41,10 @@ public class EnderStorage extends SimpleAdaptation {
     }
 
 
-    @EventHandler
-    public void onPlayerClicks(PlayerInteractEvent e) {
-        if (getLevel(e.getPlayer()) > 0
+    // UNABLE TO TEST ANYTHING BECAUSE CLICKING CAUSES THIS TO FIRE
+    // @EventHandler
+    public void on(PlayerInteractEvent e) {
+        if (hasAdaptation(e.getPlayer())
                 && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
                 && (e.getAction().equals(Action.RIGHT_CLICK_AIR)|| e.getAction().equals(Action.LEFT_CLICK_AIR)) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
             Player p = e.getPlayer();

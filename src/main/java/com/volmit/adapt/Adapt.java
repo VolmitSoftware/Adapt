@@ -1,5 +1,6 @@
 package com.volmit.adapt;
 
+import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptServer;
@@ -44,6 +45,7 @@ public class Adapt extends VolmitPlugin {
     public void stop() {
         adaptServer.unregister();
         MaterialValue.save();
+        WorldData.stop();
     }
 
     @Override

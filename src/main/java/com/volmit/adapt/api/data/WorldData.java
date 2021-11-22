@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.cyberpwn.spatial.mantle.Mantle;
+import org.cyberpwn.spatial.matter.SpatialMatter;
 
 public class WorldData extends TickedObject
 {
@@ -75,8 +76,18 @@ public class WorldData extends TickedObject
         mantle.trim(60_000);
     }
 
+    public static void stop()
+    {
+        mantles.v().forEach(WorldData::unregister);
+    }
+
     public static WorldData of(World world)
     {
         return mantles.computeIfAbsent(world, WorldData::new);
+    }
+
+    static
+    {
+        SpatialMatter.registerSliceType(new Earnings.EarningsMatter());
     }
 }
