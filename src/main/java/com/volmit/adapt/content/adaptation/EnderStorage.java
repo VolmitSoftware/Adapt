@@ -41,7 +41,7 @@ public class EnderStorage extends SimpleAdaptation {
     }
 
 
-    // UNABLE TO TEST ANYTHING BECAUSE CLICKING CAUSES THIS TO FIRE
+    // TODO: UNABLE TO TEST ANYTHING BECAUSE CLICKING CAUSES THIS TO FIRE
     // @EventHandler
     public void on(PlayerInteractEvent e) {
         if (hasAdaptation(e.getPlayer())

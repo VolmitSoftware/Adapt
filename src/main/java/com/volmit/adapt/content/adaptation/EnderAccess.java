@@ -39,8 +39,8 @@ public class EnderAccess extends SimpleAdaptation {
         v.addLore(C.ITALIC + "*Click an Enderchest in your hand to open (Just dont place)*");
     }
 
-
-    @EventHandler
+    // TODO: UNABLE TO TEST ANYTHING BECAUSE CLICKING CAUSES THIS TO FIRE
+    // @EventHandler
     public void onPlayerClicks(PlayerInteractEvent e) {
         if (getLevel(e.getPlayer()) > 0
                 && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
