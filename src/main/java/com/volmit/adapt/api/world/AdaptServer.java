@@ -74,6 +74,7 @@ public class AdaptServer extends TickedObject {
     public void join(Player p) {
         if(!players.containsKey(p)) {
             players.put(p, new AdaptPlayer(p));
+            players.get(p).loggedIn();
         }
     }
 

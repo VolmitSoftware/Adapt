@@ -36,7 +36,7 @@ public class DiscoveryUnity extends SimpleAdaptation {
     }
 
     private double getXPGained(double factor, int amount) {
-        return amount * 125 * factor;
+        return amount * 32 * factor;
     }
 
     @Override

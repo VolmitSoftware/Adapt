@@ -1,13 +1,18 @@
 package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.xp.XPMultiplier;
+import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
+import com.volmit.adapt.util.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.EntityType;
+
+import java.util.concurrent.TimeUnit;
 
 @Data
 @NoArgsConstructor
@@ -24,9 +29,36 @@ public class PlayerData {
     private Discovery<World.Environment> seenEnvironments = new Discovery<>();
     private Discovery<String> seenPotionEffects = new Discovery<>();
     private Discovery<String> seenBlocks = new Discovery<>();
+    private KList<XPMultiplier> multipliers = new KList<>();
     private long wisdom = 0;
+    private double multiplier = 0;
+    private long lastLogin = 0;
+
+    public void globalXPMultiplier(double v, int duration) {
+        multipliers.add(new XPMultiplier(v, duration));
+    }
 
     public void update(AdaptPlayer p) {
+        double m = 1;
+        for(XPMultiplier i : multipliers.copy()) {
+            if(i.isExpired()) {
+                multipliers.remove(i);
+                continue;
+            }
+
+            m += i.getMultiplier();
+        }
+
+        if(m <= 0) {
+            m = 0.01;
+        }
+
+        if(m > 1000) {
+            m = 1000;
+        }
+
+        multiplier = m;
+
         for(String i : skillLines.k()) {
             if(getSkillLine(i) == null) {
                 skillLines.remove(i);
@@ -39,7 +71,7 @@ public class PlayerData {
                 continue;
             }
 
-            getSkillLine(i).update(p, i);
+            getSkillLine(i).update(p, i, this);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.volmit.adapt.api.world;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.notification.Notifier;
@@ -8,6 +9,7 @@ import com.volmit.adapt.api.notification.TitleNotification;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
+import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
@@ -35,7 +37,8 @@ public class PlayerSkillLine {
 
     public void giveXP(Notifier p, double xp) {
         freshness -= xp * 0.001;
-        this.xp += multiplier * xp;
+        xp = multiplier * xp;
+        this.xp += xp;
 
         if(p != null) {
             last = M.ms();
@@ -72,7 +75,12 @@ public class PlayerSkillLine {
         adaptations.put(a.getName(), v);
     }
 
-    public void update(AdaptPlayer p, String line) {
+    public Skill getRawSkill(AdaptPlayer p)
+    {
+        return p.getServer().getSkillRegistry().getSkill(line);
+    }
+
+    public void update(AdaptPlayer p, String line, PlayerData data) {
         if(!p.isBusy() && getXp() > XP.getXpForLevel(100)) {
             xp = getXp() - XP.getXpForLevel(100);
             lastXP = xp;
@@ -119,7 +127,7 @@ public class PlayerSkillLine {
             m = 1000;
         }
 
-        multiplier = m;
+        multiplier = m * data.getMultiplier();
 
         double earned = xp - lastXP;
 
@@ -136,6 +144,11 @@ public class PlayerSkillLine {
             notifyLevel(p, getKnowledge() - kb);
             lastLevel = getLevel();
         }
+    }
+
+    private static double diff(long a, long b)
+    {
+        return Math.abs(a - b / (double)(a == 0 ? 1 : a));
     }
 
     private void notifyLevel(AdaptPlayer p, long kn) {
