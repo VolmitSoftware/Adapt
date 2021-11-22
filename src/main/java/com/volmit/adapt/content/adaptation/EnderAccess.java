@@ -2,6 +2,7 @@ package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import org.bukkit.*;
@@ -14,9 +15,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,10 +39,10 @@ public class EnderAccess extends SimpleAdaptation {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + "1: Shift Left-Click a container with an Enderpearl to link");
-        v.addLore(C.ITALIC + "2: Right-Click the Resonating pearl to access the inventory");
-        v.addLore(C.ITALIC + "3: Shift Right-Click the air to unbind the pearl");
-//        v.addLore(C.RED + "ONE TIME USE");
+        v.addLore(C.ITALIC + "1: Sneak Left-Click a container with an Enderpearl to link");
+        v.addLore(C.ITALIC + "2: Click the Resonating pearl to access remote inventory");
+        v.addLore(C.ITALIC + "3: Sneak Click the air to unbind the pearl");
+        v.addLore(C.RED + "[ SNEAK-CLICKING A BLOCK WILL THROW IT ]");
     }
 
 
@@ -52,41 +51,31 @@ public class EnderAccess extends SimpleAdaptation {
         if (getLevel(e.getPlayer()) > 0) {
             Player p = e.getPlayer();
 
-
             // ------------------------------------------------------------------------
             // ------------------------------BIND THE PEARL----------------------------
             // ------------------------------------------------------------------------
-
             if (e.getAction() == Action.LEFT_CLICK_BLOCK
                     && e.getPlayer().isSneaking()
-                    && e.getClickedBlock().getType() == Material.CHEST
+                    && (e.getClickedBlock() == null  || e.getClickedBlock().getBlockData().getMaterial().equals(Material.CHEST) )
                     && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)) {
+                Adapt.info("Attempting to bind EnderPeral");
+                ItemStack item = BoundEnderPearl.withData(e.getClickedBlock());
+                item.addUnsafeEnchantment(Enchantment.BINDING_CURSE, 1);
 
-                ItemStack ep = new ItemStack(Material.ENDER_PEARL, 1);
-                ep.addUnsafeEnchantment(Enchantment.BINDING_CURSE, 1);
 
-                List<String> locList = Arrays.asList( // Ill fix later / Bad checking
-                        "Resonating to...",
-                        "World: " + Objects.requireNonNull(e.getClickedBlock().getLocation().getWorld()).getName(),
-                        "X: " + e.getClickedBlock().getLocation().getBlockX(),
-                        "Y: " + e.getClickedBlock().getLocation().getBlockY(),
-                        "Z: " + e.getClickedBlock().getLocation().getBlockZ());
-                ItemMeta im = ep.getItemMeta(); // Make meta
-                if (im != null) {
-                    im.setLore(locList);
-
-                }
-
-                ep.setItemMeta(im); // Save Meta
                 p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1.35f, 0.100f); // Not sure why i need to do this NONNULL here only
                 p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 3.35f, 0.500f);
                 if (p.getInventory().getItemInMainHand().getAmount() == 1) {
                     p.getInventory().setItemInMainHand(null);
+                    p.getInventory().addItem(item);
+                    p.updateInventory();
+
                 } else {
                     p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+                    p.getInventory().addItem(item);
+
                 }
                 p.updateInventory();
-                p.getPlayer().getInventory().addItem(ep);
 
             }
             // ------------------------------------------------------------------------
@@ -94,26 +83,17 @@ public class EnderAccess extends SimpleAdaptation {
             // ------------------------------------------------------------------------
 
             if (!e.getPlayer().isSneaking()
-                    && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
+                    && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK)
                     && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)
-                    && e.getPlayer().getInventory().getItemInMainHand().getItemMeta() != null
-                    && e.getPlayer().getInventory().getItemInMainHand().getItemMeta().getLore() != null
-                    && e.getPlayer().getInventory().getItemInMainHand().getItemMeta().getLore().get(0).equals("Resonating to...")) {
+                    && BoundEnderPearl.getChest(e.getPlayer().getInventory().getItemInMainHand()) != null) {
                 e.setCancelled(true);
+                Adapt.info("Using EnderPeral");
 
-
-                List<String> itemMeta = e.getPlayer().getInventory().getItemInMainHand().getItemMeta().getLore();
                 p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1.35f, 0.100f); // Not sure why i need to do this NONNULL here only
                 p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_LODESTONE_PLACE, 1.35f, 0.100f);
 
-
-                World w = Bukkit.getWorld(itemMeta.get(1).split(": ", 2)[1]);
-                double x = Double.parseDouble(itemMeta.get(2).split(": ", 2)[1]);
-                double y = Double.parseDouble(itemMeta.get(3).split(": ", 2)[1]);
-                double z = Double.parseDouble(itemMeta.get(4).split(": ", 2)[1]);
-
-                Location loc = new Location(w, x, y, z);
-                Block chest = loc.getWorld().getBlockAt(loc);
+                Block bc = BoundEnderPearl.getChest(e.getPlayer().getInventory().getItemInMainHand());
+                Block chest = bc.getWorld().getBlockAt(bc.getLocation());
 
                 if (chest.getState() instanceof InventoryHolder holder) {
                     Inventory inventory = holder.getInventory();
@@ -128,26 +108,22 @@ public class EnderAccess extends SimpleAdaptation {
 
             //TODO FIX WHEN RIGHTCLICKING A BLOCK IT TOSSES
             if (e.getPlayer().isSneaking()
-                    && (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK)
+                    && (e.getClickedBlock() == null  || !e.getClickedBlock().getBlockData().getMaterial().equals(Material.CHEST) )
+                    && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_AIR)
                     && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)
-                    && (e.getClickedBlock() == null || e.getClickedBlock().getType() != Material.CHEST)
-                    && e.getPlayer().getInventory().getItemInMainHand().getItemMeta() != null
-                    && e.getPlayer().getInventory().getItemInMainHand().getItemMeta().getLore() != null
-                    && e.getPlayer().getInventory().getItemInMainHand().getItemMeta().getLore().get(0).equals("Resonating to...")) {
+                    && e.getPlayer().getInventory().getItemInMainHand().getItemMeta() != null) {
 
-                Adapt.info("MADE IT HERE");
+                Adapt.info("Reset EnderPeral");
 
                 if (p.getInventory().getItemInMainHand().getAmount() == 1) {
+                    p.getInventory().setItemInMainHand(null);
                     p.getInventory().setItemInMainHand(new ItemStack(Material.ENDER_PEARL, 1));
+                    p.updateInventory();
                 } else {
                     p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
                     p.getInventory().addItem(new ItemStack(Material.ENDER_PEARL, 1));
                 }
-
-                e.setCancelled(true);
-
             }
-            p.updateInventory();
         }
     }
 
