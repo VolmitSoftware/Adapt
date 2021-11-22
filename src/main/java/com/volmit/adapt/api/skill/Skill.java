@@ -2,6 +2,7 @@ package com.volmit.adapt.api.skill;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.Adaptation;
+import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -45,6 +46,16 @@ public interface Skill extends Ticked {
     BarColor getBarColor();
 
     BarStyle getBarStyle();
+
+    default double blockXP(Block block, double xp)
+    {
+        return Math.round(xp * getBlockMultiplier(block));
+    }
+
+    default double getBlockMultiplier(Block block)
+    {
+        return WorldData.of(block.getWorld()).reportEarnings(block);
+    }
 
     default double getValue(Material material) {
         return MaterialValue.getValue(material);

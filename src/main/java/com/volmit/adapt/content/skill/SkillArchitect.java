@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.J;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.event.EventHandler;
@@ -19,7 +20,7 @@ public class SkillArchitect extends SimpleSkill {
 
     @EventHandler
     public void on(BlockPlaceEvent e) {
-        xp(e.getPlayer(), 3 + getValue(e.getBlock()));
+        J.a(() -> xp(e.getPlayer(), blockXP(e.getBlock(), 3 + getValue(e.getBlock()))));
     }
 
     @Override

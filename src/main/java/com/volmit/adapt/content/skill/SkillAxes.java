@@ -5,6 +5,7 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.AxesChop;
 import com.volmit.adapt.content.adaptation.AxesGroundSmash;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.J;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
@@ -40,7 +41,7 @@ public class SkillAxes extends SimpleSkill {
     public void on(BlockBreakEvent e) {
         if(isAxe(e.getPlayer().getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
-            xp(e.getPlayer(), v);
+            J.a(() -> xp(e.getPlayer(), blockXP(e.getBlock(), v)));
         }
     }
 

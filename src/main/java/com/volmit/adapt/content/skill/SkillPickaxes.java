@@ -4,6 +4,7 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.PickaxesChisel;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.J;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
@@ -39,7 +40,7 @@ public class SkillPickaxes extends SimpleSkill {
         if(isPickaxe(e.getPlayer().getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
 
-            xp(e.getPlayer(), v);
+            J.a(() -> xp(e.getPlayer(), blockXP(e.getBlock(), v)));
         }
     }
 
