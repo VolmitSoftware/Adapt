@@ -13,6 +13,7 @@ version '1.0'
 // ==============================================================
 registerCustomOutputTaskWindows('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins');
 registerCustomOutputTaskWindows('Psycho', 'D://Dan/MinecraftDevelopment/Server/plugins');
+registerCustomOutputTaskWindows('PsychoPortable', 'C://Users/brian/Desktop//Remote GIT//RemoteDevServer/plugins');
 registerCustomOutputTaskWindows('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins');
 // ==============================================================
 
