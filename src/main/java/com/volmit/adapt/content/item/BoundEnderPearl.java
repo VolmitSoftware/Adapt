@@ -1,0 +1,74 @@
+package com.volmit.adapt.content.item;
+
+import com.volmit.adapt.api.item.DataItem;
+import com.volmit.adapt.util.C;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.craftbukkit.libs.org.eclipse.aether.version.VersionRange;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.List;
+
+@AllArgsConstructor
+@Data
+public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data>
+{
+    public static BoundEnderPearl io = new BoundEnderPearl();
+
+    @Override
+    public Material getMaterial() {
+        return Material.ENDER_PEARL;
+    }
+
+    @Override
+    public Class<Data> getType() {
+        // Get the data into a neat little package
+        BoundEnderPearl.Data data = BoundEnderPearl.Data.at(player.getLocation());
+
+        // Our data is now hidden in this item
+        ItemStack stack = BoundEnderPearl.io.withData(data);
+
+        // Read back our hidden package
+        BoundEnderPearl.Data readme = BoundEnderPearl.io.getData(stack);
+
+        readme.location(); // bukkit location
+
+        return BoundEnderPearl.Data.class;
+    }
+
+    @Override
+    public void applyLore(Data data, List<String> lore) {
+        lore.add(C.LIGHT_PURPLE + "Right Click " + C.GRAY + " to access the bound Inventory");
+        lore.add(C.LIGHT_PURPLE + "Shift + Left Click " + C.GRAY + " to unbind");
+    }
+
+    @Override
+    public void applyMeta(Data data, ItemMeta meta) {
+        meta.addEnchant(Enchantment.DURABILITY, 10, true);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+    }
+
+    @AllArgsConstructor
+    @lombok.Data
+    public static class Data
+    {
+        private final String w;
+        private final int[] c;
+
+        public static BoundEnderPearl.Data at(Location l)
+        {
+            return new BoundEnderPearl.Data(l.getWorld().getName(), new int[]{l.getBlockX(), l.getBlockY(), l.getBlockZ()});
+        }
+
+        public Location location()
+        {
+            return new Location(Bukkit.getWorld(w), c[0], c[1], c[2]);
+        }
+    }
+}

@@ -4,6 +4,7 @@ import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptServer;
+import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.VolmitPlugin;
 import lombok.Getter;
