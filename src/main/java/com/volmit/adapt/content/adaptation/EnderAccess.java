@@ -58,7 +58,6 @@ public class EnderAccess extends SimpleAdaptation {
                     && e.getPlayer().isSneaking()
                     && (e.getClickedBlock() == null  || e.getClickedBlock().getBlockData().getMaterial().equals(Material.CHEST) )
                     && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)) {
-                Adapt.info("Attempting to bind EnderPeral");
                 ItemStack item = BoundEnderPearl.withData(e.getClickedBlock());
                 item.addUnsafeEnchantment(Enchantment.BINDING_CURSE, 1);
 
@@ -76,6 +75,7 @@ public class EnderAccess extends SimpleAdaptation {
 
                 }
                 p.updateInventory();
+                Adapt.info("Bound Enderpearl to : " + e.getClickedBlock().getLocation());
 
             }
             // ------------------------------------------------------------------------
@@ -112,8 +112,6 @@ public class EnderAccess extends SimpleAdaptation {
                     && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_AIR)
                     && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)
                     && e.getPlayer().getInventory().getItemInMainHand().getItemMeta() != null) {
-
-                Adapt.info("Reset EnderPeral");
 
                 if (p.getInventory().getItemInMainHand().getAmount() == 1) {
                     p.getInventory().setItemInMainHand(null);
