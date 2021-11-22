@@ -1,6 +1,8 @@
 package com.volmit.adapt.util;
 
 import com.google.gson.Gson;
+import com.volmit.adapt.Adapt;
+import org.bukkit.ChatColor;
 
 public class DirtyString
 {
@@ -18,19 +20,20 @@ public class DirtyString
 
     public static boolean has(String data)
     {
+        if(!HiddenStringUtils.hasHiddenString(data))
+        {
+            Adapt.info("Not has in " + data.replaceAll("\\Q"+ ChatColor.COLOR_CHAR+"\\E", "&"));        }
         return HiddenStringUtils.hasHiddenString(data);
     }
 
     public static String write(String data)
     {
-        String c = LZString.compress(data);
-        data = c.length() < data.length() ? "!" + c : data;
-
         return HiddenStringUtils.encodeString(data);
     }
 
     public static String read(String data)
     {
-        return HiddenStringUtils.extractHiddenString(data.startsWith("!") ? LZString.decompress(data.substring(1)) : data);
+        return HiddenStringUtils.extractHiddenString(data);
     }
 }
+

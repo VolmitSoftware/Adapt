@@ -43,7 +43,7 @@ public class J {
         try {
             return r.run();
         } catch(Throwable e) {
-
+            e.printStackTrace();
         }
 
         return onError;

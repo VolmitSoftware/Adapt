@@ -1,19 +1,41 @@
 package com.volmit.adapt.api.item;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import com.volmit.adapt.Adapt;
+import com.volmit.adapt.util.BukkitGson;
 import com.volmit.adapt.util.DirtyString;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.JSONTokener;
 import com.volmit.adapt.util.KList;
+import com.volmit.adapt.util.KMap;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataHolder;
+import org.bukkit.persistence.PersistentDataType;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 public interface DataItem<T> {
-    Gson _gson = new Gson();
-
     Material getMaterial();
 
     Class<T> getType();
@@ -29,13 +51,18 @@ public interface DataItem<T> {
 
     default T getData(ItemStack stack)
     {
-        return J.attemptResult(() -> stack != null
+        if(stack != null
             && stack.getType().equals(getMaterial())
-            && stack.getItemMeta() != null && stack.getItemMeta().getLore() != null
-            && stack.getItemMeta().getLore().size() > 0
-            && DirtyString.has(stack.getItemMeta().getLore().get(0))
-            ? DirtyString.fromJson(stack.getItemMeta().getLore().get(0), getType())
-            : null, null);
+            && stack.getItemMeta() != null)
+        {
+           String r = stack.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING);
+           if(r != null)
+           {
+               return BukkitGson.gson.fromJson(r, getType());
+           }
+        }
+
+        return null;
     }
 
     default void setData(ItemStack item, T t)
@@ -47,13 +74,17 @@ public interface DataItem<T> {
     {
         ItemStack item = blank();
         ItemMeta meta = item.getItemMeta();
+
+        if(meta == null)
+        {
+            return null;
+        }
+
         applyMeta(t, meta);
         KList<String> lore = new KList<>();
-        KList<String> ladd = new KList<>();
-        lore.add(DirtyString.write(t));
-        applyLore(t, ladd);
-        lore.addAll(ladd);
+        applyLore(t, lore);
         meta.setLore(lore);
+        meta.getPersistentDataContainer().set(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING, BukkitGson.gson.toJson(t));
         item.setItemMeta(meta);
         return item;
     }

@@ -7,6 +7,7 @@ import lombok.Data;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.libs.org.eclipse.aether.version.VersionRange;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -33,31 +34,40 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data>
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.LIGHT_PURPLE + "Right Click " + C.GRAY + " to access the bound Inventory");
-        lore.add(C.LIGHT_PURPLE + "Shift + Left Click " + C.GRAY + " to unbind");
+        lore.add(C.LIGHT_PURPLE + "Right Click " + C.GRAY + "to access the bound Inventory");
+        lore.add(C.LIGHT_PURPLE + "Shift + Left Click " + C.GRAY + "to unbind");
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
-        meta.addEnchant(Enchantment.DURABILITY, 10, true);
+        meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+    }
+
+    public static Block getChest(ItemStack stack)
+    {
+        return io.getData(stack).getChest();
+    }
+
+    public static void setData(ItemStack item, Block t)
+    {
+        io.setData(item, new Data(t));
+    }
+
+    public static ItemStack withData(Block t)
+    {
+        return io.withData(new Data(t));
     }
 
     @AllArgsConstructor
     @lombok.Data
     public static class Data
     {
-        private final String w;
-        private final int[] c;
+        private Block chest;
 
-        public static BoundEnderPearl.Data at(Location l)
+        public static BoundEnderPearl.Data at(Block l)
         {
-            return new BoundEnderPearl.Data(l.getWorld().getName(), new int[]{l.getBlockX(), l.getBlockY(), l.getBlockZ()});
-        }
-
-        public Location location()
-        {
-            return new Location(Bukkit.getWorld(w), c[0], c[1], c[2]);
+            return new BoundEnderPearl.Data(l);
         }
     }
 }

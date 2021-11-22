@@ -6,21 +6,26 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.content.gui.SkillsGui;
+import com.volmit.adapt.util.BukkitGson;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.JarScanner;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -50,58 +55,71 @@ public class SkillRegistry extends TickedObject {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-        if(!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.BOOKSHELF))
+        if(!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.BOOKSHELF) && (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR) || !e.getPlayer().getInventory().getItemInMainHand().getType().isBlock()) &&
+            (e.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.AIR) || !e.getPlayer().getInventory().getItemInOffHand().getType().isBlock()))
         {
-            if(e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENCHANTED_BOOK))
-            {
-                if(e.getPlayer().hasCooldown(Material.ENCHANTED_BOOK))
-                {
-                    return;
-                }
+                e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 0.72f);
+                e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
+                SkillsGui.open(e.getPlayer());
+                e.getPlayer().getWorld().spawnParticle(Particle.CRIT_MAGIC, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 25, 0, 0, 0, 1.1);
+                e.getPlayer().getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
+        }
 
-                e.getPlayer().sendMessage("   ");
+        if(e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.LECTERN))
+        {
+            ItemStack it = e.getPlayer().getInventory().getItemInMainHand();
+
+            if(it.getItemMeta() != null && !it.getItemMeta().getPersistentDataContainer().getKeys().isEmpty())
+            {
+                e.setCancelled(true);
+                playDebug(e.getPlayer());
+                it.getItemMeta().getPersistentDataContainer().getKeys().forEach(k -> Bukkit.getServer().getConsoleSender().sendMessage(k + " = " + it.getItemMeta().getPersistentDataContainer().getOrDefault(k, PersistentDataType.STRING, "Not a String")));
+            }
+        }
+
+        if(e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.OBSERVER))
+        {
+            ItemStack it = e.getPlayer().getInventory().getItemInMainHand();
+            
+            if(it.getType().equals(Material.EXPERIENCE_BOTTLE))
+            {
+                e.setCancelled(true);
+                Bukkit.getServer().getConsoleSender().sendMessage("   ");
                 e.getPlayer().setCooldown(Material.ENCHANTED_BOOK, 3);
                 AdaptPlayer a = getPlayer(e.getPlayer());
-                e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.BLOCK_BELL_RESONATE, 1f, 0.6f);
-                e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1f, 0.1f);
-                e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.6f);
-                e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.2f);
+                playDebug(e.getPlayer());
 
                 String xv = a.getData().getMultiplier()-1d > 0 ? "+" + Form.pc(a.getData().getMultiplier() - 1D) : Form.pc(a.getData().getMultiplier() - 1D);
-                e.getPlayer().sendMessage("Global" + C.GRAY + ": " + C.GREEN + xv);
+                Bukkit.getServer().getConsoleSender().sendMessage("Global" + C.GRAY + ": " + C.GREEN + xv);
 
                 for(XPMultiplier i : a.getData().getMultipliers())
                 {
                     String vv = i.getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier()) : Form.pc(i.getMultiplier());
-                    e.getPlayer().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
+                    Bukkit.getServer().getConsoleSender().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
                 }
 
                 for(PlayerSkillLine i : a.getData().getSkillLines().v())
                 {
                     Skill s = i.getRawSkill(a);
                     String v = i.getMultiplier()-a.getData().getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier() - a.getData().getMultiplier()) : Form.pc(i.getMultiplier() - a.getData().getMultiplier());
-                    e.getPlayer().sendMessage("  "+ s.getDisplayName() + C.GRAY + ": " + s.getColor() + v);
+                    Bukkit.getServer().getConsoleSender().sendMessage("  "+ s.getDisplayName() + C.GRAY + ": " + s.getColor() + v);
 
                     for(XPMultiplier j : i.getMultipliers())
                     {
                         String vv = j.getMultiplier() > 0 ? "+" + Form.pc(j.getMultiplier()) : Form.pc(j.getMultiplier());
-                        e.getPlayer().sendMessage("  " + s.getShortName() + C.GRAY + " " + vv + " for " + Form.duration(j.getGoodFor() - M.ms(), 0));
+                        Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getShortName() + C.GRAY + " " + vv + " for " + Form.duration(j.getGoodFor() - M.ms(), 0));
                     }
                 }
-
-            }
-
-            else if((e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR) || !e.getPlayer().getInventory().getItemInMainHand().getType().isBlock()) &&
-                    (e.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.AIR) || !e.getPlayer().getInventory().getItemInOffHand().getType().isBlock())) {
-                e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 0.72f);
-                e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
-                SkillsGui.open(e.getPlayer());
-                e.getPlayer().getWorld().spawnParticle(Particle.CRIT_MAGIC, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 25, 0, 0, 0, 1.1);
-                e.getPlayer().getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
             }
         }
+    }
 
-
+    private void playDebug(Player p) {
+        p.playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 1f, 0.6f);
+        p.playSound(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1f, 0.1f);
+        p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.6f);
+        p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.2f);
+        
     }
 
     public Skill getSkill(String i) {
