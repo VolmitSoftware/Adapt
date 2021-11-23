@@ -67,9 +67,9 @@ public class EnderAccess extends SimpleAdaptation {
             // ------------------------------BIND THE PEARL----------------------------
             // ------------------------------------------------------------------------
             if (e.getAction() == Action.LEFT_CLICK_BLOCK
-                    && e.getPlayer().isSneaking()
+                    && p.isSneaking()
                     && (e.getClickedBlock() == null  || e.getClickedBlock().getBlockData().getMaterial().equals(Material.CHEST) )
-                    && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)) {
+                    && p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)) {
                 ItemStack item = BoundEnderPearl.withData(e.getClickedBlock());
                 item.addUnsafeEnchantment(Enchantment.BINDING_CURSE, 1);
 
@@ -94,10 +94,10 @@ public class EnderAccess extends SimpleAdaptation {
             // ------------------------------USING THE PEARL --------------------------
             // ------------------------------------------------------------------------
 
-            if (!e.getPlayer().isSneaking()
+            if (!p.isSneaking()
                     && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK)
-                    && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)
-                    && BoundEnderPearl.getChest(e.getPlayer().getInventory().getItemInMainHand()) != null) {
+                    && p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)
+                    && BoundEnderPearl.getChest(p.getInventory().getItemInMainHand()) != null) {
                 e.setCancelled(true);
                 Adapt.info("Using EnderPeral");
 
