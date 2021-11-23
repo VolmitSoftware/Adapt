@@ -5,6 +5,7 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.*;
 import com.volmit.adapt.content.adaptation.experimental.RiftAura;
 import com.volmit.adapt.content.adaptation.RiftGate;
+import com.volmit.adapt.content.adaptation.experimental.RiftDoor;
 import com.volmit.adapt.content.adaptation.experimental.RiftSphere;
 import com.volmit.adapt.content.adaptation.experimental.RiftStorage;
 import com.volmit.adapt.util.C;
@@ -42,6 +43,7 @@ public class SkillRift extends SimpleSkill {
         registerAdaptation(new RiftStorage());
         registerAdaptation(new RiftSphere());
         registerAdaptation(new RiftGate());
+        registerAdaptation(new RiftDoor());
     }
 
     @EventHandler
