@@ -1,20 +1,16 @@
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.*;
 import com.volmit.adapt.content.adaptation.experimental.RiftAura;
-import com.volmit.adapt.content.adaptation.experimental.RiftGate;
+import com.volmit.adapt.content.adaptation.RiftGate;
 import com.volmit.adapt.content.adaptation.experimental.RiftSphere;
 import com.volmit.adapt.content.adaptation.experimental.RiftStorage;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.AdvancementVisibility;
-import eu.endercentral.crazy_advancements.events.AdvancementGrantEvent;
 
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;

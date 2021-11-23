@@ -1,4 +1,4 @@
-package com.volmit.adapt.content.adaptation.experimental;
+package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
@@ -20,9 +20,10 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Objects;
 
-
 public class RiftGate extends SimpleAdaptation {
 
+
+    //TODO: ADD RECIPE OR CONSUMPTION COST
     public RiftGate() {
         super("rift-gate");
         setDescription("Move through the void");
