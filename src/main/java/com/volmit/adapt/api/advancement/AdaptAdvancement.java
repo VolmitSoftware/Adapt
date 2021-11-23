@@ -77,7 +77,7 @@ public class AdaptAdvancement
         {
             for(AdaptAdvancement i : children)
             {
-                aa.addAll(i.toAdvancements(a, ind++, depth + 1));
+                aa.addAll(i.toAdvancements(a, aa.size(), depth + 1));
             }
         }
 

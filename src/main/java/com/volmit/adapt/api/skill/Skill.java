@@ -54,6 +54,11 @@ public interface Skill extends Ticked, Component {
 
     default void checkStatTrackers(AdaptPlayer player)
     {
+        if(!player.getAdvancementHandler().isReady())
+        {
+            return;
+        }
+
         PlayerData d = player.getData();
 
         for(AdaptStatTracker i : getStatTrackers())

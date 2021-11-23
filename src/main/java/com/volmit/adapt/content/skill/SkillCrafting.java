@@ -7,6 +7,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KList;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
@@ -117,6 +118,9 @@ public class SkillCrafting extends SimpleSkill {
 
     @Override
     public void onTick() {
-
+        for(Player i : Bukkit.getOnlinePlayers())
+        {
+            checkStatTrackers(getPlayer(i));
+        }
     }
 }

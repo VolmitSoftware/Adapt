@@ -20,6 +20,7 @@ public class AdvancementHandler
     private AdaptPlayer player;
     private KMap<Skill, AdaptAdvancement> roots;
     private KMap<String, Advancement> real;
+    private boolean ready;
 
     public AdvancementHandler(AdaptPlayer player)
     {
@@ -28,6 +29,7 @@ public class AdvancementHandler
         getManager().setAnnounceAdvancementMessages(false);
         roots = new KMap<>();
         real = new KMap<>();
+        ready = false;
     }
 
     public void activate()
@@ -56,6 +58,8 @@ public class AdvancementHandler
                 }
 
                 unlockExisting(aa);
+
+                J.s(() -> ready = true, 40);
             }
         }, 20);
     }
