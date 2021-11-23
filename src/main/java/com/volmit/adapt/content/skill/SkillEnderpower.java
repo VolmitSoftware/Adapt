@@ -11,7 +11,6 @@ public class SkillEnderpower extends SimpleSkill {
         super("enderpower", "\u21C9");
         setDescription("Reality is your playground");
         setColor(C.DARK_PURPLE);
-        setBarColor(BarColor.PURPLE);
         setInterval(1100);
         setIcon(Material.ENDER_PEARL);
         registerAdaptation(new EnderAura());

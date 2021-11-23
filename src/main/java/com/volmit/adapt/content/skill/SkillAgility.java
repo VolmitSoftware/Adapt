@@ -15,7 +15,6 @@ public class SkillAgility extends SimpleSkill {
         super("agility", "\u21C9");
         setDescription("Movement is futile, overcome obstacles");
         setColor(C.GREEN);
-        setBarColor(BarColor.GREEN);
         setInterval(1100);
         setIcon(Material.FEATHER);
         registerAdaptation(new AgilityWindUp());

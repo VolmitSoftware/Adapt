@@ -13,8 +13,6 @@ public class SkillAirborne extends SimpleSkill {
         super("airborne", "\u2708");
         setDescription("The wind and sky are malleable illusions");
         setColor(C.BLUE);
-        setBarColor(BarColor.BLUE);
-        setBarStyle(BarStyle.SEGMENTED_6);
         setIcon(Material.ELYTRA);
         setInterval(1280);
     }

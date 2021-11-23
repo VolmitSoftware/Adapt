@@ -18,7 +18,6 @@ public class SkillHunter extends SimpleSkill {
         super("hunter", "\u2620");
         setColor(C.RED);
         setDescription("Better to be the hunter than the hunted");
-        setBarColor(BarColor.RED);
         setInterval(4150);
         setIcon(Material.BONE);
         registerAdaptation(new HunterAdrenaline());

@@ -14,8 +14,6 @@ public class SkillStealth extends SimpleSkill {
     public SkillStealth() {
         super("stealth", "\u2720");
         setColor(C.DARK_GRAY);
-        setBarColor(BarColor.WHITE);
-        setBarStyle(BarStyle.SEGMENTED_20);
         setInterval(1400);
         setIcon(Material.WITHER_ROSE);
         setDescription("The art of the unseen. Walk in the shadows.");

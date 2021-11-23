@@ -24,7 +24,6 @@ public class SkillHerbalism extends SimpleSkill {
     public SkillHerbalism() {
         super("herbalism", "\u2698");
         setColor(C.GREEN);
-        setBarColor(BarColor.GREEN);
         setInterval(3700);
         setDescription("Sticks and stones don't break your bones");
         setIcon(Material.WHEAT);

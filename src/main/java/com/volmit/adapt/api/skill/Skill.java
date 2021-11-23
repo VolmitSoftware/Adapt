@@ -45,10 +45,6 @@ public interface Skill extends Ticked, Component {
 
     C getColor();
 
-    BarColor getBarColor();
-
-    BarStyle getBarStyle();
-
     double getMinXp();
 
     default String getDisplayName() {

@@ -17,7 +17,6 @@ public class SkillUnarmed extends SimpleSkill {
         super("unarmed", "\u269C");
         setColor(C.YELLOW);
         setDescription("Without a weapon is not without strength");
-        setBarColor(BarColor.YELLOW);
         setInterval(2570);
         registerAdaptation(new UnarmedSuckerPunch());
         registerAdaptation(new UnarmedPower());

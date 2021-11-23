@@ -18,7 +18,6 @@ public class SkillAxes extends SimpleSkill {
     public SkillAxes() {
         super("axes", "\u2725");
         setColor(C.YELLOW);
-        setBarColor(BarColor.YELLOW);
         setInterval(20150);
         setIcon(Material.GOLDEN_AXE);
         registerAdaptation(new AxesGroundSmash());

@@ -18,7 +18,6 @@ public class SkillRanged extends SimpleSkill {
         super("ranged", "\uD83C\uDFF9");
         setDescription("When distance is your only alternative");
         setColor(C.DARK_GREEN);
-        setBarColor(BarColor.GREEN);
         setInterval(3000);
         registerAdaptation(new RangedForce());
         registerAdaptation(new RangedPiercing());

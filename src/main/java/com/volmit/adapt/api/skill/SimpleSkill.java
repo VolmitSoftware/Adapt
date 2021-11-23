@@ -16,9 +16,7 @@ public abstract class SimpleSkill extends TickedObject implements Skill {
     private final String name;
     private final String emojiName;
     private C color;
-    private BarColor barColor;
     private double minXp;
-    private BarStyle barStyle;
     private String description;
     private Material icon;
     private KList<Adaptation> adaptations;
@@ -28,8 +26,6 @@ public abstract class SimpleSkill extends TickedObject implements Skill {
         this.emojiName = emojiName;
         adaptations = new KList<>();
         setColor(C.WHITE);
-        setBarColor(BarColor.WHITE);
-        setBarStyle(BarStyle.SOLID);
         this.name = name;
         setIcon(Material.BOOK);
         setDescription("No Description Provided");

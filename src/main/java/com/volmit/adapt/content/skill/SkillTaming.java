@@ -19,7 +19,6 @@ public class SkillTaming extends SimpleSkill {
         super("taming", "\u2665");
         setDescription("The parrots and the bees... and you?");
         setColor(C.GOLD);
-        setBarColor(BarColor.YELLOW);
         setInterval(3700);
         setIcon(Material.LEAD);
         registerAdaptation(new TamingHealthBoost());

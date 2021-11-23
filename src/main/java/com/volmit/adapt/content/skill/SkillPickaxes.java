@@ -17,7 +17,6 @@ public class SkillPickaxes extends SimpleSkill {
     public SkillPickaxes() {
         super("pickaxes", "\u26CF");
         setColor(C.GOLD);
-        setBarColor(BarColor.YELLOW);
         setInterval(2750);
         setIcon(Material.NETHERITE_PICKAXE);
         registerAdaptation(new PickaxesChisel());

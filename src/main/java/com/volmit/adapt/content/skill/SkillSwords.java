@@ -15,7 +15,6 @@ public class SkillSwords extends SimpleSkill {
     public SkillSwords() {
         super("swords", "\u2694");
         setColor(C.YELLOW);
-        setBarColor(BarColor.YELLOW);
         setInterval(2150);
         setIcon(Material.DIAMOND_SWORD);
         registerAdaptation(new SwordsMachete());

@@ -13,7 +13,6 @@ public class SkillArchitect extends SimpleSkill {
         super("architect", "\u2B27");
         setColor(C.AQUA);
         setDescription("Structures of reality are yours to control");
-        setBarColor(BarColor.BLUE);
         setInterval(3700);
         setIcon(Material.IRON_BARS);
     }
