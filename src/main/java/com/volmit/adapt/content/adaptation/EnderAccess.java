@@ -50,99 +50,112 @@ public class EnderAccess extends SimpleAdaptation {
     @EventHandler
     public void on(PlayerInteractEvent e)
     {
-        if(!hasAdaptation(e.getPlayer()))
+        Player p = e.getPlayer();
+        ItemStack hand = p.getInventory().getItemInMainHand();
+        Block block = e.getClickedBlock();
+
+        if(!hasAdaptation(p) || !hand.getType().equals(Material.ENDER_PEARL))
         {
             return;
         }
 
-
-    }
-
-    //@EventHandler
-    public void old(PlayerInteractEvent e) {  // THIS IS THE INITAL CREATOR
-        if (getLevel(e.getPlayer()) > 0) {
-            Player p = e.getPlayer();
-
-            // ------------------------------------------------------------------------
-            // ------------------------------BIND THE PEARL----------------------------
-            // ------------------------------------------------------------------------
-            if (e.getAction() == Action.LEFT_CLICK_BLOCK
-                    && p.isSneaking()
-                    && (e.getClickedBlock() == null  || e.getClickedBlock().getBlockData().getMaterial().equals(Material.CHEST) )
-                    && p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)) {
-                ItemStack item = BoundEnderPearl.withData(e.getClickedBlock());
-                item.addUnsafeEnchantment(Enchantment.BINDING_CURSE, 1);
-
-
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1.35f, 0.100f); // Not sure why i need to do this NONNULL here only
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 3.35f, 0.500f);
-                if (p.getInventory().getItemInMainHand().getAmount() == 1) {
-                    p.getInventory().setItemInMainHand(null);
-                    p.getInventory().addItem(item);
-                    p.updateInventory();
-
-                } else {
-                    p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
-                    p.getInventory().addItem(item);
-
+        switch(e.getAction())
+        {
+            case LEFT_CLICK_BLOCK,RIGHT_CLICK_BLOCK -> {
+                if(p.isSneaking() && isStorage(block.getBlockData()))
+                {
+                    linkPearl(p, block);
+                    e.setCancelled(true);
                 }
-                p.updateInventory();
-                Adapt.info("Bound Enderpearl to : " + e.getClickedBlock().getLocation());
 
-            }
-            // ------------------------------------------------------------------------
-            // ------------------------------USING THE PEARL --------------------------
-            // ------------------------------------------------------------------------
-
-            if (!p.isSneaking()
-                    && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK)
-                    && p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)
-                    && BoundEnderPearl.getChest(p.getInventory().getItemInMainHand()) != null) {
-                e.setCancelled(true);
-                Adapt.info("Using EnderPeral");
-
-                Objects.requireNonNull(p.getLocation().getWorld()).playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1.34f, 0.100f); // Not sure why i need to do this NONNULL here only
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 5.35f, 0.10f);
-                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 45, 1000));
-                
-                Block bc = BoundEnderPearl.getChest(e.getPlayer().getInventory().getItemInMainHand());
-                Block chest = bc.getWorld().getBlockAt(bc.getLocation());
-
-                if (chest.getState() instanceof InventoryHolder holder) {
-                    Inventory inventory = holder.getInventory();
-                    e.getPlayer().openInventory(inventory);
+                else if(isBound(hand) && !p.isSneaking())
+                {
+                    openPearl(p);
+                    e.setCancelled(true);
                 }
-                p.updateInventory();
             }
-
-            // ------------------------------------------------------------------------
-            // ------------------------------RESET THE PEARL --------------------------
-            // ------------------------------------------------------------------------
-
-            //TODO FIX WHEN RIGHTCLICKING A BLOCK IT TOSSES
-            if (e.getPlayer().isSneaking()
-                    && (e.getClickedBlock() == null  || !e.getClickedBlock().getBlockData().getMaterial().equals(Material.CHEST) )
-                    && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_AIR)
-                    && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_PEARL)
-                    && e.getPlayer().getInventory().getItemInMainHand().getItemMeta() != null) {
-
-                if (p.getInventory().getItemInMainHand().getAmount() == 1) {
-                    p.getInventory().setItemInMainHand(null);
-                    p.getInventory().setItemInMainHand(new ItemStack(Material.ENDER_PEARL, 1));
-                    p.updateInventory();
-                } else {
-                    p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
-                    p.getInventory().addItem(new ItemStack(Material.ENDER_PEARL, 1));
+            case RIGHT_CLICK_AIR -> {
+                if(isBound(hand))
+                {
+                    openPearl(p);
+                    e.setCancelled(true);
+                }
+            }
+            case LEFT_CLICK_AIR -> {
+                if(p.isSneaking() && isBound(hand))
+                {
+                    unlinkPearl(p);
+                    e.setCancelled(true);
                 }
             }
         }
     }
 
+    /**
+     *
+     * @param p
+     * @param block
+     */
+    private void linkPearl(Player p, Block block) {
+        ItemStack hand = p.getInventory().getItemInMainHand();
+
+        if(hand.getAmount() == 1)
+        {
+            BoundEnderPearl.setData(hand, block);
+        }
+
+        else
+        {
+            hand.setAmount(hand.getAmount() - 1);
+            ItemStack pearl = BoundEnderPearl.withData(block);
+            p.getInventory().addItem(pearl).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+        }
+    }
+
+    /**
+     *
+     * @param p
+     * @param block
+     */
+    private void unlinkPearl(Player p) {
+        ItemStack hand = p.getInventory().getItemInMainHand();
+
+        if(hand.getAmount() > 1)
+        {
+            hand.setAmount(hand.getAmount() - 1);
+        }
+
+        else
+        {
+            p.getInventory().setItemInMainHand(null);
+        }
+
+        ItemStack pearl = new ItemStack(Material.ENDER_PEARL);
+        p.getInventory().addItem(pearl).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
+    }
+
+    /**
+     * Try to open the inventory linked to the player's pearl in-hand
+     * @param p the player
+     */
+    private void openPearl(Player p) {
+        Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
+
+        if (b != null && b.getState() instanceof InventoryHolder holder) {
+            p.openInventory(holder.getInventory());
+            p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
+            p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 5.35f, 0.10f);
+            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 45, 1000));
+        }
+    }
+
+    private boolean isBound(ItemStack stack)
+    {
+        return stack.getType().equals(Material.ENDER_PEARL) && BoundEnderPearl.getBlock(stack) != null;
+    }
 
     @Override
     public void onTick() {
 
     }
-
 }

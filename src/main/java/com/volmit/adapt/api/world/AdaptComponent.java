@@ -236,6 +236,8 @@ public interface AdaptComponent {
                 BARREL,
                 DISPENSER,
                 DROPPER,
+                FURNACE,
+                BLAST_FURNACE,
                 HOPPER -> true;
             default -> false;
         };
