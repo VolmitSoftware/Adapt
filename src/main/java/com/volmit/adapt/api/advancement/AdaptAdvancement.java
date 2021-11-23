@@ -28,7 +28,7 @@ public class AdaptAdvancement
     @Builder.Default
     private AdvancementDisplay.AdvancementFrame frame = AdvancementDisplay.AdvancementFrame.TASK;
     @Builder.Default
-    private boolean toast = true;
+    private boolean toast = false;
     @Builder.Default
     private boolean announce = false;
     @Builder.Default
@@ -37,6 +37,11 @@ public class AdaptAdvancement
     private String key = "root";
     @Singular
     private List<AdaptAdvancement> children;
+
+    public Advancement toAdvancement()
+    {
+        return toAdvancement(null, 0, 0);
+    }
 
     public Advancement toAdvancement(Advancement parent, int index, int depth)
     {

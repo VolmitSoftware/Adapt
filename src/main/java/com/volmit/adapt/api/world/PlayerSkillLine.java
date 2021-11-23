@@ -81,6 +81,19 @@ public class PlayerSkillLine {
     }
 
     public void update(AdaptPlayer p, String line, PlayerData data) {
+        if(!p.getData().isGranted("skill_" +line))
+        {
+            p.getAdvancementHandler().grant("skill_" +line);
+        }
+
+        for(String i : getAdaptations().k())
+        {
+            if(!p.getData().isGranted("adaptation_" + i))
+            {
+                p.getAdvancementHandler().grant("adaptation_" + i);
+            }
+        }
+
         if(!p.isBusy() && getXp() > XP.getXpForLevel(100)) {
             xp = getXp() - XP.getXpForLevel(100);
             lastXP = xp;

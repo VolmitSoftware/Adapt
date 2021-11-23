@@ -42,9 +42,8 @@ public abstract class SimpleAdaptation extends TickedObject implements Adaptatio
             .title(getDisplayName())
             .description(getDescription() + ". Unlock this Adaptation by right clicking a bookshelf.")
             .icon(getIcon())
-            .toast(true)
             .children(a)
-            .visibility(AdvancementVisibility.ALWAYS)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build();
     }
 }

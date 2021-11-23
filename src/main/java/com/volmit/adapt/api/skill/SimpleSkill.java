@@ -55,9 +55,8 @@ public abstract class SimpleSkill extends TickedObject implements Skill {
             .title(getDisplayName())
             .description(getDescription())
             .icon(getIcon())
-            .toast(false)
             .children(a)
-            .visibility(AdvancementVisibility.ALWAYS)
+            .visibility(AdvancementVisibility.HIDDEN)
             .build();
     }
 

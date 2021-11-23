@@ -19,6 +19,7 @@ public class AdvancementHandler
     private AdvancementManager manager;
     private AdaptPlayer player;
     private KMap<Skill, AdaptAdvancement> roots;
+    private KMap<String, Advancement> real;
 
     public AdvancementHandler(AdaptPlayer player)
     {
@@ -26,14 +27,14 @@ public class AdvancementHandler
         this.manager = new AdvancementManager(player.getPlayer());
         getManager().setAnnounceAdvancementMessages(false);
         roots = new KMap<>();
+        real = new KMap<>();
     }
 
     public void activate()
     {
-        J.a(() -> {
-            getManager().addPlayer(player.getPlayer());
+        J.s(() -> {
             removeAllAdvancements();
-            Adapt.info("Activate");
+
             for(Skill i : player.getServer().getSkillRegistry().getSkills())
             {
                 AdaptAdvancement aa = i.buildAdvancements();
@@ -41,18 +42,55 @@ public class AdvancementHandler
 
                 for(Advancement j : aa.toAdvancements().reverse())
                 {
-                    J.s(() -> getManager().addAdvancement(j));
+                    real.put(j.getName().getKey(), j);
+                    Adapt.info(j.getName().getKey());
+                    try
+                    {
+                        getManager().addAdvancement(j);
+                    }
+
+                    catch(Throwable e)
+                    {
+                        Adapt.error("Failed to register advancement " + j.getName().getKey());
+                        e.printStackTrace();
+                    }
                 }
+
+                unlockExisting(aa);
             }
         }, 20);
     }
 
-    private void dumb()
+    public void grant(String key, boolean toast)
     {
-        AdvancementDisplay d = new AdvancementDisplay(Material.EMERALD, "Adapt", "Adapt Stuff", AdvancementDisplay.AdvancementFrame.TASK, false, false, AdvancementVisibility.ALWAYS);
-        d.setBackgroundTexture("minecraft:textures/block/deepslate_tiles.png");
-        Advancement root = new Advancement(null, new NameKey("adapt", "root"), d);
-        getManager().addAdvancement(root);
+        getPlayer().getData().ensureGranted(key);
+        J.s(() -> getManager().grantAdvancement(player.getPlayer(), real.get(key)), 5);
+        Adapt.info("Advancement Granted " + key);
+
+        if(toast)
+        {
+            real.get(key).displayToast(getPlayer().getPlayer());
+        }
+    }
+
+    public void grant(String key)
+    {
+        grant(key, true);
+    }
+
+    private void unlockExisting(AdaptAdvancement aa) {
+        if(aa.getChildren() != null)
+        {
+            for(AdaptAdvancement i : aa.getChildren())
+            {
+                unlockExisting(i);
+            }
+        }
+
+        if(getPlayer().getData().isGranted(aa.getKey()))
+        {
+            J.s(() -> grant(aa.getKey(), false), 20);
+        }
     }
 
     public void deactivate()

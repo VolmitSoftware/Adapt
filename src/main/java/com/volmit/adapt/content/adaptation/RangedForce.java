@@ -6,10 +6,16 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 public class RangedForce extends SimpleAdaptation {
@@ -27,17 +33,40 @@ public class RangedForce extends SimpleAdaptation {
     }
 
     @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
-    @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " Projectile Speed");
     }
 
     private double getSpeed(double factor) {
         return (factor * 1.135);
+    }
+
+    @EventHandler
+    public void on(EntityDamageByEntityEvent e) {
+        if(e.getDamager() instanceof Projectile r && r.getShooter() instanceof Player p && hasAdaptation(p) && !getPlayer(p).getData().isGranted("challenge_force_30"))
+        {
+            Location a = e.getEntity().getLocation().clone();
+            Location b = p.getLocation().clone();
+            a.setY(0);
+            b.setY(0);
+
+            if(a.distanceSquared(b) > 10)
+            {
+                getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
+            }
+        }
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+        advancements.add(AdaptAdvancement.builder()
+                .icon(Material.SPECTRAL_ARROW)
+                .key("challenge_force_30")
+                .title("Long Shot")
+                .description("Land a shot from over 30 blocks away!")
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build());
     }
 
     @EventHandler
