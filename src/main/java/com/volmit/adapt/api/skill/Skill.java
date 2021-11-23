@@ -49,31 +49,7 @@ public interface Skill extends Ticked, Component {
 
     BarStyle getBarStyle();
 
-    default double blockXP(Block block, double xp)
-    {
-        return Math.round(xp * getBlockMultiplier(block));
-    }
-
-    default double getBlockMultiplier(Block block)
-    {
-        return WorldData.of(block.getWorld()).reportEarnings(block);
-    }
-
-    default double getValue(Material material) {
-        return MaterialValue.getValue(material);
-    }
-
-    default double getValue(BlockData block) {
-        return MaterialValue.getValue(block.getMaterial());
-    }
-
-    default double getValue(ItemStack f) {
-        return MaterialValue.getValue(f.getType());
-    }
-
-    default double getValue(Block block) {
-        return MaterialValue.getValue(block.getType());
-    }
+    double getMinXp();
 
     default String getDisplayName() {
         return C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName() + " " + Form.capitalize(getName());
@@ -102,17 +78,6 @@ public interface Skill extends Ticked, Component {
     default void knowledge(Player p, long k) {
         XP.knowledge(p, this, k);
     }
-
-    default void wisdom(Player p, long w) {
-        XP.wisdom(p, w);
-    }
-
-
-    default BossBar newBossBar() {
-        return Bukkit.createBossBar(getDisplayName(), getBarColor(), getBarStyle());
-    }
-
-    double getMinXp();
 
     default void openGui(Player player) {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);

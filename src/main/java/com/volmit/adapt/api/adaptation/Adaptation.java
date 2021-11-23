@@ -43,69 +43,11 @@ public interface Adaptation extends Ticked, Component {
 
     int getInitialCost();
 
-    default void removePotion(Player p, PotionEffectType type)
-    {
-        p.removePotionEffect(type);
-    }
-
-    default void potion(Player p, PotionEffectType type, int power, int duration)
-    {
-        p.addPotionEffect(new PotionEffect(type, power, duration, true, false, false));
-    }
+    double getCostFactor();
 
     default boolean hasAdaptation(Player p)
     {
         return getLevel(p) > 0;
-    }
-
-    default void damageHand(Player p, int damage) {
-        ItemStack is = p.getInventory().getItemInMainHand();
-        ItemMeta im = is.getItemMeta();
-
-        if(im == null) {
-            return;
-        }
-
-        if(im.isUnbreakable()) {
-            return;
-        }
-
-        Damageable dm = (Damageable) im;
-        dm.setDamage(dm.getDamage() + damage);
-
-        if(dm.getDamage() > is.getType().getMaxDurability()) {
-            p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
-            return;
-        }
-
-        is.setItemMeta(im);
-        p.getInventory().setItemInMainHand(is);
-    }
-
-    default void damageOffHand(Player p, int damage) {
-        ItemStack is = p.getInventory().getItemInOffHand();
-        ItemMeta im = is.getItemMeta();
-
-        if(im == null) {
-            return;
-        }
-
-        if(im.isUnbreakable()) {
-            return;
-        }
-
-        Damageable dm = (Damageable) im;
-        dm.setDamage(dm.getDamage() + damage);
-
-        if(dm.getDamage() > is.getType().getMaxDurability()) {
-            p.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
-            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
-            return;
-        }
-
-        is.setItemMeta(im);
-        p.getInventory().setItemInOffHand(is);
     }
 
     default int getLevel(Player p) {
@@ -123,8 +65,6 @@ public interface Adaptation extends Ticked, Component {
     default int getCostFor(int level) {
         return (int) (Math.max(1, getBaseCost() + (getBaseCost() * (level * getCostFactor())))) + (level == 1 ? getInitialCost() : 0);
     }
-
-    double getCostFactor();
 
     default int getCostFor(int level, int myLevel) {
         if(myLevel >= level) {

@@ -50,7 +50,12 @@ public class EnderAccess extends SimpleAdaptation {
     @EventHandler
     public void on(PlayerInteractEvent e)
     {
-        
+        if(!hasAdaptation(e.getPlayer()))
+        {
+            return;
+        }
+
+
     }
 
     //@EventHandler
