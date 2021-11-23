@@ -4,6 +4,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
+import com.volmit.adapt.util.KSet;
 import com.volmit.adapt.util.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class PlayerData {
     private final KMap<String, PlayerSkillLine> skillLines = new KMap<>();
     private String last = "none";
+    private KSet<String> advancements = new KSet<>();
     private Discovery<Biome> seenBiomes = new Discovery<>();
     private Discovery<EntityType> seenMobs = new Discovery<>();
     private Discovery<Material> seenFoods = new Discovery<>();
@@ -36,6 +38,16 @@ public class PlayerData {
 
     public void globalXPMultiplier(double v, int duration) {
         multipliers.add(new XPMultiplier(v, duration));
+    }
+
+    public boolean isGranted(String advancement)
+    {
+        return advancements.contains(advancement);
+    }
+
+    public void ensureGranted(String advancement)
+    {
+        advancements.add(advancement);
     }
 
     public void update(AdaptPlayer p) {

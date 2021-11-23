@@ -1,6 +1,10 @@
 package com.volmit.adapt.api.world;
 
+import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KMap;
 import eu.endercentral.crazy_advancements.Advancement;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
@@ -14,17 +18,32 @@ public class AdvancementHandler
 {
     private AdvancementManager manager;
     private AdaptPlayer player;
+    private KMap<Skill, AdaptAdvancement> roots;
 
     public AdvancementHandler(AdaptPlayer player)
     {
         this.player = player;
         this.manager = new AdvancementManager(player.getPlayer());
+        getManager().setAnnounceAdvancementMessages(false);
+        roots = new KMap<>();
     }
 
     public void activate()
     {
-        J.s(() -> {
+        J.a(() -> {
+            getManager().addPlayer(player.getPlayer());
             removeAllAdvancements();
+            Adapt.info("Activate");
+            for(Skill i : player.getServer().getSkillRegistry().getSkills())
+            {
+                AdaptAdvancement aa = i.buildAdvancements();
+                roots.put(i, aa);
+
+                for(Advancement j : aa.toAdvancements().reverse())
+                {
+                    J.s(() -> getManager().addAdvancement(j));
+                }
+            }
         }, 20);
     }
 

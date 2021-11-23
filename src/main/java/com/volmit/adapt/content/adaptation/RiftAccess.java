@@ -8,6 +8,8 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -44,6 +46,7 @@ public class RiftAccess extends SimpleAdaptation {
     public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
 
     }
+
     private double getConsumePercent(int level) {
         return 0.15 + (0.15 * level);
     }

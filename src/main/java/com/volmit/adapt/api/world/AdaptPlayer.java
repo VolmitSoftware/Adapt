@@ -51,6 +51,7 @@ public class AdaptPlayer extends TickedObject {
         advancementHandler = new AdvancementHandler(this);
         speed = new RollingSequence(7);
         lastloc = M.ms();
+        getAdvancementHandler().activate();
     }
 
     public boolean isBusy() {
@@ -156,10 +157,9 @@ public class AdaptPlayer extends TickedObject {
                 .title(first ? "Welcome!" : "Welcome Back!")
                 .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " XP for " + C.AQUA + Form.duration(boostTime, 0))
             .build());
-        getAdvancementHandler().activate();
     }
 
     public boolean hasSkill(Skill s) {
-        return getData().getSkillLines().containsKey(s.getId()) && getData().getSkillLines().get(s.getId()).getXp() > 1;
+        return getData().getSkillLines().containsKey(s.getName()) && getData().getSkillLines().get(s.getId()).getXp() > 1;
     }
 }

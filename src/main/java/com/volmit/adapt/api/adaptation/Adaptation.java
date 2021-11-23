@@ -29,6 +29,8 @@ import org.bukkit.potion.PotionEffectType;
 public interface Adaptation extends Ticked, Component {
     int getMaxLevel();
 
+    AdaptAdvancement buildAdvancements();
+
     void addStats(int level, Element v);
 
     int getBaseCost();

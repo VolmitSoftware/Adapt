@@ -32,6 +32,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public interface Skill extends Ticked, Component {
+    AdaptAdvancement buildAdvancements();
+
     String getName();
 
     String getEmojiName();
@@ -39,6 +41,8 @@ public interface Skill extends Ticked, Component {
     Material getIcon();
 
     String getDescription();
+
+    String getAdvancementBackground();
 
     void registerAdaptation(Adaptation a);
 

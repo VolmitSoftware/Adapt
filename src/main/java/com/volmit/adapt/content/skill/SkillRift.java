@@ -12,6 +12,8 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import eu.endercentral.crazy_advancements.events.AdvancementGrantEvent;
 
 import net.minecraft.world.entity.boss.enderdragon.EntityEnderDragon;

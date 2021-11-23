@@ -1,6 +1,7 @@
 package com.volmit.adapt.api.advancement;
 
 import com.volmit.adapt.util.KList;
+import com.volmit.adapt.util.RNG;
 import eu.endercentral.crazy_advancements.Advancement;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
@@ -37,13 +38,46 @@ public class AdaptAdvancement
     @Singular
     private List<AdaptAdvancement> children;
 
-    public Advancement toAdvancement(Advancement parent)
+    public Advancement toAdvancement(Advancement parent, int index, int depth)
     {
-        return new Advancement(parent, new NameKey("adapt", getKey()), new AdvancementDisplay(getIcon(), getTitle(), getDescription(), getFrame(), isToast(), isAnnounce(), getVisibility()));
+        if(children == null)
+        {
+            children = new KList<>();
+        }
+
+        AdvancementDisplay d = new AdvancementDisplay(getIcon(), getTitle(), getDescription(), getFrame(), isToast(), isAnnounce(), getVisibility());
+
+        if(background != null)
+        {
+            d.setBackgroundTexture(getBackground());
+        }
+
+        d.setX(1f + depth);
+        d.setY(1f + index);
+
+        return new Advancement(parent, new NameKey("adapt", getKey()), d);
     }
 
-    public Advancement toAdvancement()
+    public KList<Advancement> toAdvancements()
     {
-        return toAdvancement(null);
+        return toAdvancements(null, 0,0);
+    }
+
+    public KList<Advancement> toAdvancements(Advancement p, int index, int depth)
+    {
+        KList<Advancement> aa = new KList<>();
+        Advancement a = toAdvancement(p, index, depth);
+        int ind = 0;
+        if(children != null && !children.isEmpty())
+        {
+            for(AdaptAdvancement i : children)
+            {
+                aa.addAll(i.toAdvancements(a, ind++, depth + 1));
+            }
+        }
+
+        aa.add(a);
+
+        return aa;
     }
 }
