@@ -32,7 +32,7 @@ public class RiftAccess extends SimpleAdaptation {
         setBaseCost(0);
         setCostFactor(0);
         setMaxLevel(1);
-        setInitialCost(10);
+        setInitialCost(15);
         setInterval(50);
     }
 

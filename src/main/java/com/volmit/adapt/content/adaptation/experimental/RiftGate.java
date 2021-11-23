@@ -30,7 +30,7 @@ public class RiftGate extends SimpleAdaptation {
         setBaseCost(0);
         setCostFactor(0);
         setMaxLevel(1);
-        setInitialCost(10);
+        setInitialCost(30);
         setInterval(50);
     }
 
@@ -94,6 +94,7 @@ public class RiftGate extends SimpleAdaptation {
         Location l = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
         ItemStack hand = p.getInventory().getItemInMainHand();
 
+        getSkill().xp(p , 75);
         if (hand.getAmount() > 1) { // consume the hand
             hand.setAmount(hand.getAmount() - 1);
         } else {

@@ -23,11 +23,11 @@ public class RiftAura extends SimpleAdaptation {
         super("rift-aura");
         setDescription("Passive & instantaneous non-telegraphed teleportation");
         setIcon(Material.ENDER_EYE);
-        setBaseCost(10);
-        setCostFactor(0.5);
-        setMaxLevel(5);
-        setInitialCost(5);
-        setInterval(9333);
+        setBaseCost(0);
+        setCostFactor(0);
+        setMaxLevel(1);
+        setInitialCost(25);
+        setInterval(9540);
     }
 
     private double getPhasePercent(int level) {
@@ -59,6 +59,7 @@ public class RiftAura extends SimpleAdaptation {
                 Random r = new Random();
                 double dd = r.nextDouble();
                 if(dd <= getPhasePercent(getLevel(p))) {
+                    getSkill().xp(p , 10);
 
                     int x = (int) p.getLocation().getX() + (r.nextBoolean() ? 2 + r.nextInt(maxPhaseBlocks(getLevel(p))) : -(2 + r.nextInt(maxPhaseBlocks(p.getLevel()))));
                     int z = (int) p.getLocation().getZ() + (r.nextBoolean() ? 2 + r.nextInt(maxPhaseBlocks(getLevel(p))) : -(2 + r.nextInt(maxPhaseBlocks(p.getLevel()))));
