@@ -1,9 +1,11 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
@@ -23,6 +25,11 @@ public class DiscoveryUnity extends SimpleAdaptation {
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + " XP " + C.GRAY + " Per Orb");
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
     }
 
     @EventHandler

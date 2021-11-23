@@ -1,10 +1,12 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -167,5 +169,10 @@ public class AgilityWallJump extends SimpleAdaptation {
             p.getLocation().getBlock().getRelative(BlockFace.EAST).getRelative(BlockFace.UP),
             p.getLocation().getBlock().getRelative(BlockFace.WEST).getRelative(BlockFace.UP),
         };
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
     }
 }

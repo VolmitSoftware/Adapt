@@ -1,9 +1,11 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -26,6 +28,11 @@ public class StealthSpeed extends SimpleAdaptation {
         v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " Sneak Speed");
     }
 
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
+    }
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
         double factor = getLevelPercent(e.getPlayer());

@@ -1,9 +1,11 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
@@ -28,6 +30,11 @@ public class RangedArrowRecovery extends SimpleAdaptation {
         setInterval(5000);
         setInitialCost(6);
         setCostFactor(0.725);
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
     }
 
     private double getChance(double factor) {

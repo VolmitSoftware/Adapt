@@ -2,9 +2,11 @@ package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.M;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -52,6 +54,11 @@ public class PickaxesChisel extends SimpleAdaptation {
         v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " Tool Wear");
     }
 
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
+    }
     @EventHandler
     public void on(PlayerInteractEvent e) {
         if(e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(e.getPlayer().getInventory().getItemInMainHand()) && getLevel(e.getPlayer()) > 0) {

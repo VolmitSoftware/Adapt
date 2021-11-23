@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -21,6 +22,11 @@ public class SeaborneOxygen extends SimpleAdaptation {
         setInterval(3750);
         setInitialCost(5);
         setCostFactor(0.525);
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
     }
 
     @Override

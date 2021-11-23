@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Cuboid;
 import com.volmit.adapt.util.Element;
@@ -34,6 +35,11 @@ public class SwordsMachete extends SimpleAdaptation {
         setInterval(5234);
         setInitialCost(7);
         setCostFactor(0.225);
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
     }
 
     @Override

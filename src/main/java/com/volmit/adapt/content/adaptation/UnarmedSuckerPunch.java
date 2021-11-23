@@ -1,9 +1,11 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -29,6 +31,11 @@ public class UnarmedSuckerPunch extends SimpleAdaptation {
         v.addLore(C.GREEN + "+ " + Form.pc(d, 0) + C.GRAY + " Damage");
 
         v.addLore(C.BLUE + "Damage increases by with your speed while punching");
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
     }
 
     @EventHandler

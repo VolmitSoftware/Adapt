@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.KList;
@@ -22,6 +23,11 @@ public class RangedPiercing extends SimpleAdaptation {
         setInterval(5000);
         setInitialCost(8);
         setCostFactor(0.5);
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
     }
 
     @Override

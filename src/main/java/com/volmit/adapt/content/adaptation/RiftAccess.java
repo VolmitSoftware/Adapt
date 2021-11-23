@@ -2,6 +2,7 @@ package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -38,6 +39,11 @@ public class RiftAccess extends SimpleAdaptation {
         setInterval(50);
     }
 
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
+    }
     private double getConsumePercent(int level) {
         return 0.15 + (0.15 * level);
     }

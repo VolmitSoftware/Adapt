@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.Cuboid;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
@@ -28,6 +29,11 @@ public class HerbalismReplant extends SimpleAdaptation {
         setInterval(6000);
         setInitialCost(4);
         setCostFactor(2.325);
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
     }
 
     private int getCooldown(double factor, int level) {
