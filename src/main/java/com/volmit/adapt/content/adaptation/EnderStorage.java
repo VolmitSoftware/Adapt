@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -20,7 +21,7 @@ import java.util.Random;
 public class EnderStorage extends SimpleAdaptation {
     public EnderStorage() {
         super("ender-storage");
-        setDescription("Open an enderchest by thinking");
+        setDescription("Open an enderchest by clicking");
         setIcon(Material.ENDER_CHEST);
         setBaseCost(0);
         setCostFactor(0);
@@ -41,12 +42,14 @@ public class EnderStorage extends SimpleAdaptation {
     }
 
 
-    // TODO: UNABLE TO TEST ANYTHING BECAUSE CLICKING CAUSES THIS TO FIRE
-    // @EventHandler
+    @EventHandler
     public void on(PlayerInteractEvent e) {
-        if (hasAdaptation(e.getPlayer())
-                && e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
-                && (e.getAction().equals(Action.RIGHT_CLICK_AIR)|| e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
+        if (getLevel(e.getPlayer()) >0 ){
+            if(e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
+                && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
+                || e.getAction().equals(Action.LEFT_CLICK_AIR)
+                || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
+            Adapt.info("Opened Enderchest");
             Player p = e.getPlayer();
             p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 45, 1000));
             p.openInventory(e.getPlayer().getEnderChest());
@@ -54,7 +57,7 @@ public class EnderStorage extends SimpleAdaptation {
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 5.35f, 0.10f);
 
-
+        }
         }
     }
 
