@@ -10,6 +10,9 @@ import lombok.Data;
 import lombok.Singular;
 import org.bukkit.Material;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Builder
 @Data
 public class AdaptAdvancement
@@ -32,8 +35,7 @@ public class AdaptAdvancement
     @Builder.Default
     private String key = "root";
     @Singular
-    @Builder.Default
-    private KList<AdaptAdvancement> children = new KList<>();
+    private List<AdaptAdvancement> children;
 
     public Advancement toAdvancement(Advancement parent)
     {

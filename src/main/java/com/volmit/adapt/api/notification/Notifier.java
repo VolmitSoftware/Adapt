@@ -29,8 +29,8 @@ public class Notifier extends TickedObject {
         lastSkillValues = new KMap<>();
         this.target = target;
         lastInstance = 0;
-        this.advancementManager = new AdvancementManager(target.getPlayer());
-        getAdvancementManager().setAnnounceAdvancementMessages(false);
+        //this.advancementManager = new AdvancementManager(target.getPlayer());
+        //getAdvancementManager().setAnnounceAdvancementMessages(false);
     }
 
     public void notifyXP(String line, double value) {
