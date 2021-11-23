@@ -47,9 +47,14 @@ public class EnderAccess extends SimpleAdaptation {
         v.addLore(C.RED + "[ SNEAK-CLICKING A BLOCK WILL THROW IT ]");
     }
 
-
     @EventHandler
-    public void on(PlayerInteractEvent e) {  // THIS IS THE INITAL CREATOR
+    public void on(PlayerInteractEvent e)
+    {
+        
+    }
+
+    //@EventHandler
+    public void old(PlayerInteractEvent e) {  // THIS IS THE INITAL CREATOR
         if (getLevel(e.getPlayer()) > 0) {
             Player p = e.getPlayer();
 
