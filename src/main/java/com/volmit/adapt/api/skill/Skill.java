@@ -3,6 +3,7 @@ package com.volmit.adapt.api.skill;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.adaptation.Adaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.value.MaterialValue;
@@ -46,6 +47,8 @@ public interface Skill extends Ticked, Component {
     C getColor();
 
     double getMinXp();
+
+    void onRegisterAdvancements(KList<AdaptAdvancement> advancements);
 
     default String getDisplayName() {
         return C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName() + " " + Form.capitalize(getName());

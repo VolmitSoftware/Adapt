@@ -1,8 +1,10 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.SeaborneOxygen;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.KList;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
@@ -26,5 +28,10 @@ public class SkillSeaborne extends SimpleSkill {
                 xpSilent(i, 19.7);
             }
         }
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
     }
 }

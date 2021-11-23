@@ -18,7 +18,6 @@ public class Notifier extends TickedObject {
     private final AdaptPlayer target;
     private final KMap<String, Long> lastSkills;
     private final KMap<String, Double> lastSkillValues;
-    private final AdvancementManager advancementManager;
     private int busyTicks;
     private int delayTicks;
     private long lastInstance;

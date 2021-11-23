@@ -1,11 +1,13 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.HerbalismGrowthAura;
 import com.volmit.adapt.content.adaptation.HerbalismHungryShield;
 import com.volmit.adapt.content.adaptation.HerbalismReplant;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Levelled;
@@ -96,6 +98,11 @@ public class SkillHerbalism extends SimpleSkill {
 
     @Override
     public void onTick() {
+
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
 
     }
 }

@@ -2,6 +2,7 @@ package com.volmit.adapt.api.adaptation;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.Component;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -9,6 +10,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.MaterialBlock;
 import com.volmit.adapt.util.UIElement;
@@ -44,6 +46,8 @@ public interface Adaptation extends Ticked, Component {
     int getInitialCost();
 
     double getCostFactor();
+
+    void onRegisterAdvancements(KList<AdaptAdvancement> advancements);
 
     default boolean hasAdaptation(Player p)
     {

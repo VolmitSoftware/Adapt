@@ -1,10 +1,12 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.RangedArrowRecovery;
 import com.volmit.adapt.content.adaptation.RangedForce;
 import com.volmit.adapt.content.adaptation.RangedPiercing;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
@@ -43,6 +45,11 @@ public class SkillRanged extends SimpleSkill {
 
     @Override
     public void onTick() {
+
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
 
     }
 }

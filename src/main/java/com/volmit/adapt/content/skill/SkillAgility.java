@@ -1,10 +1,12 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.AgilitySuperJump;
 import com.volmit.adapt.content.adaptation.AgilityWallJump;
 import com.volmit.adapt.content.adaptation.AgilityWindUp;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.KList;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
@@ -29,5 +31,10 @@ public class SkillAgility extends SimpleSkill {
                 xpSilent(i, 11.9);
             }
         }
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
     }
 }

@@ -36,6 +36,7 @@ public class AdaptPlayer extends TickedObject {
     private ChronoLatch savelatch;
     private ChronoLatch updatelatch;
     private Notifier not;
+    private AdvancementHandler advancementHandler;
     private RollingSequence speed;
     private long lastloc;
     private Location lastpos;
@@ -47,9 +48,9 @@ public class AdaptPlayer extends TickedObject {
         updatelatch = new ChronoLatch(1000);
         savelatch = new ChronoLatch(60000);
         not = new Notifier(this);
+        advancementHandler = new AdvancementHandler(this);
         speed = new RollingSequence(7);
         lastloc = M.ms();
-        J.s(() -> setupAdvancements(), 20);
     }
 
     public boolean isBusy() {
@@ -68,7 +69,7 @@ public class AdaptPlayer extends TickedObject {
     @Override
     public void unregister() {
         super.unregister();
-        loggedOut();
+        getAdvancementHandler().deactivate();
         save();
     }
 
@@ -138,11 +139,6 @@ public class AdaptPlayer extends TickedObject {
         }
     }
 
-    public void loggedOut()
-    {
-        unloadAdvancements();
-    }
-
     public void loggedIn() {
         long timeGone = M.ms() - getData().getLastLogin();
         boolean first = getData().getLastLogin() == 0;
@@ -160,23 +156,7 @@ public class AdaptPlayer extends TickedObject {
                 .title(first ? "Welcome!" : "Welcome Back!")
                 .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " XP for " + C.AQUA + Form.duration(boostTime, 0))
             .build());
-    }
-
-    private void unloadAdvancements()
-    {
-        for(Advancement i : getNot().getAdvancementManager().getAdvancements())
-        {
-            getNot().getAdvancementManager().removeAdvancement(i);
-        }
-    }
-
-    private void setupAdvancements() {
-        unloadAdvancements();
-        AdvancementDisplay d = new AdvancementDisplay(Material.EMERALD, "Adapt", "Adapt Stuff", AdvancementDisplay.AdvancementFrame.TASK, false, false, AdvancementVisibility.ALWAYS);
-        d.setBackgroundTexture("minecraft:textures/block/deepslate_tiles.png");
-        Advancement root = new Advancement(null, new NameKey("adapt", "root"), d);
-        getNot().getAdvancementManager().addAdvancement(root);
-        getPlayer().sendMessage("?");
+        getAdvancementHandler().activate();
     }
 
     public boolean hasSkill(Skill s) {
