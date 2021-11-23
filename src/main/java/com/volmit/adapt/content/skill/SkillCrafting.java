@@ -2,8 +2,11 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KList;
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
@@ -20,7 +23,16 @@ public class SkillCrafting extends SimpleSkill {
         setColor(C.YELLOW);
         setDescription("Crafting is its own reward");
         setInterval(3700);
-        setIcon(Material.CRAFTING_TABLE);
+        setIcon(Material.STRING);
+        registerAdvancement(AdaptAdvancement.builder()
+            .icon(Material.BRICK)
+            .key("challenge_craft_3k")
+            .title("MacGyver Man")
+            .description("Craft over 3,000 items")
+            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_3k").goal(3000).stat("crafted.items").reward(4750).build());
     }
 
     @EventHandler

@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.AgilitySuperJump;
 import com.volmit.adapt.content.adaptation.AgilityWallJump;
 import com.volmit.adapt.content.adaptation.AgilityWindUp;
@@ -28,12 +29,31 @@ public class SkillAgility extends SimpleSkill {
         registerAdaptation(new AgilitySuperJump());
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.LEATHER_BOOTS)
-            .key("challenge_walk_1k")
-            .title("Walk a walk!")
+            .key("challenge_move_1k")
+            .title("Gotta Move!")
             .description("Walk over 1 Kilometer (1,000 blocks)")
             .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .child(AdaptAdvancement.builder()
+                .icon(Material.IRON_BOOTS)
+                .key("challenge_sprint_5k")
+                .title("Sprint a 5K!")
+                .description("Sprint over 5,000 Blocks!")
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build())
+            .child(AdaptAdvancement.builder()
+                .icon(Material.GOLDEN_BOOTS)
+                .key("challenge_sprint_marathon")
+                .title("Sprint a Marathon!")
+                .description("Sprint over 42,195 Blocks!")
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build())
             .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_move_1k").goal(1000).stat("move").reward(500).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_5k").goal(5000).stat("move").reward(2000).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_marathon").goal(42195).stat("move").reward(6500).build());
     }
 
     @EventHandler
@@ -68,6 +88,7 @@ public class SkillAgility extends SimpleSkill {
     @Override
     public void onTick() {
         for(Player i : Bukkit.getOnlinePlayers()) {
+            checkStatTrackers(getPlayer(i));
             if(i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
                 xpSilent(i, 11.9);
             }
