@@ -1,8 +1,10 @@
 package com.volmit.adapt.content.adaptation.experimental;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.KList;
 import lombok.SneakyThrows;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -44,6 +46,11 @@ public class RiftRing extends SimpleAdaptation {
         v.addLore(C.RED + "- ");
     }
 
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
+    }
+
 
     @SneakyThrows
     @EventHandler
@@ -69,7 +76,7 @@ public class RiftRing extends SimpleAdaptation {
                 pcd = pcd - 20;
                 d = d - 0.04;
                 y=y*1.07;
-                Thread.sleep(5);
+                Thread.sleep(250);
             }
             vfxLevelUp(p);
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);

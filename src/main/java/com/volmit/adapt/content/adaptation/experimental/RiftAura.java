@@ -1,9 +1,11 @@
 package com.volmit.adapt.content.adaptation.experimental;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.KList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -42,6 +44,11 @@ public class RiftAura extends SimpleAdaptation {
         v.addLore(C.GREEN + "+ " + maxPhaseBlocks(level) + C.GRAY + " Max Phase Blocks");
         v.addLore(C.YELLOW + "~ This can be controlled if you practice...");
         v.addLore(C.RED + "- YOU WILL NOT ALWAYS BE IN THE BEST PLACE...");
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
     }
 
 

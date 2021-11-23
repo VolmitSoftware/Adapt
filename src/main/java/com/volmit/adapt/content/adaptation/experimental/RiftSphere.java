@@ -1,8 +1,10 @@
 package com.volmit.adapt.content.adaptation.experimental;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.KList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -42,6 +44,11 @@ public class RiftSphere extends SimpleAdaptation {
         v.addLore(C.GREEN + "+ ");
         v.addLore(C.YELLOW + "~ ");
         v.addLore(C.RED + "- ");
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+
     }
 
 
