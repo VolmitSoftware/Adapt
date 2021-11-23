@@ -1,4 +1,4 @@
-package com.volmit.adapt.content.adaptation;
+package com.volmit.adapt.content.adaptation.experimental;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;

@@ -2,9 +2,12 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.*;
+import com.volmit.adapt.content.adaptation.experimental.EnderAura;
+import com.volmit.adapt.content.adaptation.experimental.EnderRing;
+import com.volmit.adapt.content.adaptation.experimental.EnderSphere;
+import com.volmit.adapt.content.adaptation.experimental.EnderStorage;
 import com.volmit.adapt.util.C;
 import org.bukkit.Material;
-import org.bukkit.boss.BarColor;
 
 public class SkillEnderpower extends SimpleSkill {
     public SkillEnderpower() {
