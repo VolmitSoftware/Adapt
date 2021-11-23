@@ -27,7 +27,7 @@ public class EnderStorage extends SimpleAdaptation {
         setCostFactor(0);
         setMaxLevel(1);
         setInitialCost(10);
-        setInterval(0);
+        setInterval(9248);
     }
 
     private double getConsumePercent(int level) {

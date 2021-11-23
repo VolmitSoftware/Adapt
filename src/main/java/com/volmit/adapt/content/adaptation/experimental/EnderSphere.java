@@ -22,7 +22,7 @@ public class EnderSphere extends SimpleAdaptation {
         setCostFactor(0.5);
         setMaxLevel(5);
         setInitialCost(5);
-        setInterval(25);
+        setInterval(9826);
     }
 
     private double getPhasePercent(int level) {
