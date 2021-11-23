@@ -45,7 +45,7 @@ public class PickaxesChisel extends SimpleAdaptation {
     }
 
     private int getDamagePerBlock(double levelPercent) {
-        return (int) (1 + (4 * ((1D - levelPercent)))) + 2;
+        return (int) (1 + (2 * ((1D - levelPercent))));
     }
 
     @Override
