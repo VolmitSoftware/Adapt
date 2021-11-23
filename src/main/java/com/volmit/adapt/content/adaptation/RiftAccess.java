@@ -116,8 +116,8 @@ public class RiftAccess extends SimpleAdaptation {
 
         if (b != null && b.getState() instanceof InventoryHolder holder) {
             activeViews.add(p.openInventory(holder.getInventory()));
-            p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
-            p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.10f);
+            p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 100f, 0.10f);
+            p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 100f, 0.10f);
             p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 25, 1, true, false, false));
         }
     }
