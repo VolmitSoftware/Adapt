@@ -13,6 +13,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -44,9 +45,14 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data>
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
     }
 
-    public static Block getChest(ItemStack stack)
+    public static @Nullable Block getChest(ItemStack stack)
     {
-        return io.getData(stack).getChest();
+        if (io.getData(stack) != null){
+            return io.getData(stack).getChest();
+
+        }else {
+            return null;
+        }
     }
 
     public static void setData(ItemStack item, Block t)
