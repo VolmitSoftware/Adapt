@@ -20,7 +20,7 @@ import java.util.Random;
 
 public class RiftAura extends SimpleAdaptation {
     public RiftAura() {
-        super("ender-aura");
+        super("rift-aura");
         setDescription("Passive & instantaneous non-telegraphed teleportation");
         setIcon(Material.ENDER_EYE);
         setBaseCost(10);

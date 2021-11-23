@@ -17,7 +17,7 @@ import java.util.Objects;
 
 public class RiftSphere extends SimpleAdaptation {
     public RiftSphere() {
-        super("ender-sphere");
+        super("rift-sphere");
         setDescription("THIS DOES NOTHING; AND IS JUST A PROOF OF CONCEPT FOR LATER USE");
         setIcon(Material.CRYING_OBSIDIAN);
         setBaseCost(10);
@@ -27,9 +27,6 @@ public class RiftSphere extends SimpleAdaptation {
         setInterval(9826);
     }
 
-    private double getPhasePercent(int level) {
-        return 0.10 + (0.05 * level);
-    }
 
     private int getPoints(int level) {
         return 5 + (10 * level);

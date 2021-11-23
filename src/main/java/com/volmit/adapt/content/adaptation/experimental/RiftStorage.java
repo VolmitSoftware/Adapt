@@ -16,13 +16,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Objects;
-import java.util.Random;
-
 
 public class RiftStorage extends SimpleAdaptation {
     public RiftStorage() {
-        super("ender-storage");
+        super("rift-storage");
         setDescription("Open an enderchest by clicking");
         setIcon(Material.ENDER_CHEST);
         setBaseCost(0);
@@ -51,20 +48,18 @@ public class RiftStorage extends SimpleAdaptation {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-        if (getLevel(e.getPlayer()) >0 ){
-            if(e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
-                && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
-                || e.getAction().equals(Action.LEFT_CLICK_AIR)
-                || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
-            Adapt.info("Opened Enderchest");
-            Player p = e.getPlayer();
+        if (getLevel(e.getPlayer()) > 0) {
+            if (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
+                    && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
+                    || e.getAction().equals(Action.LEFT_CLICK_AIR)
+                    || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
+                Adapt.info("Opened Enderchest");
+                Player p = e.getPlayer();
 
-            Objects.requireNonNull(p.getLocation().getWorld()).playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1.35f, 0.100f); // Not sure why i need to do this NONNULL here only
-            p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
-            p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 5.35f, 0.10f);
-            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 45, 1000));
-            p.openInventory(e.getPlayer().getEnderChest());
-
+                p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
+                p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.10f);
+                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 35, 1, true, false, false));
+                p.openInventory(e.getPlayer().getEnderChest());
 
 
             }

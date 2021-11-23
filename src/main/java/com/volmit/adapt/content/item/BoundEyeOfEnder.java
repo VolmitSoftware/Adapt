@@ -4,6 +4,7 @@ import com.volmit.adapt.api.item.DataItem;
 import com.volmit.adapt.util.C;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -15,54 +16,54 @@ import java.util.List;
 
 @AllArgsConstructor
 @Data
-public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
-    public static BoundEnderPearl io = new BoundEnderPearl();
+public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
+    public static BoundEyeOfEnder io = new BoundEyeOfEnder();
 
     @Override
     public Material getMaterial() {
-        return Material.ENDER_PEARL;
+        return Material.ENDER_EYE;
     }
 
     @Override
     public Class<Data> getType() {
-        return BoundEnderPearl.Data.class;
+        return BoundEyeOfEnder.Data.class;
     }
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.LIGHT_PURPLE + "Right Click " + C.GRAY + "to access the bound Inventory");
-        lore.add(C.LIGHT_PURPLE + "Shift + Left Click " + C.GRAY + "to unbind");
+        lore.add(C.LIGHT_PURPLE + "Right Click " + C.GRAY + "to consume, and teleport");
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+        meta.setDisplayName("Temporal SyncPearl");
     }
 
-    public static Block getBlock(ItemStack stack) {
+    public static Location getLocation(ItemStack stack) {
         if (io.getData(stack) != null) {
-            return io.getData(stack).getBlock();
+            return io.getData(stack).getLocation();
         }
 
         return null;
     }
 
-    public static void setData(ItemStack item, Block t) {
+    public static void setData(ItemStack item, Location t) {
         io.setData(item, new Data(t));
     }
 
-    public static ItemStack withData(Block t) {
+    public static ItemStack withData(Location t) {
         return io.withData(new Data(t));
     }
 
     @AllArgsConstructor
     @lombok.Data
     public static class Data {
-        private Block block;
+        private Location location;
 
-        public static BoundEnderPearl.Data at(Block l) {
-            return new BoundEnderPearl.Data(l);
+        public static BoundEyeOfEnder.Data at(Location l) {
+            return new BoundEyeOfEnder.Data(l);
         }
     }
 }

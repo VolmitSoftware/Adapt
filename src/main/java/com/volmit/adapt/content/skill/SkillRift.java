@@ -5,7 +5,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.*;
 import com.volmit.adapt.content.adaptation.experimental.RiftAura;
-import com.volmit.adapt.content.adaptation.experimental.RiftRing;
+import com.volmit.adapt.content.adaptation.experimental.RiftGate;
 import com.volmit.adapt.content.adaptation.experimental.RiftSphere;
 import com.volmit.adapt.content.adaptation.experimental.RiftStorage;
 import com.volmit.adapt.util.C;
@@ -16,9 +16,6 @@ import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import eu.endercentral.crazy_advancements.events.AdvancementGrantEvent;
 
-import net.minecraft.world.entity.boss.enderdragon.EntityEnderDragon;
-import net.minecraft.world.entity.monster.EntityEnderman;
-import net.minecraft.world.entity.monster.EntityEndermite;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EnderCrystal;
@@ -48,7 +45,7 @@ public class SkillRift extends SimpleSkill {
         registerAdaptation(new RiftAccess());
         registerAdaptation(new RiftStorage());
         registerAdaptation(new RiftSphere());
-        registerAdaptation(new RiftRing());
+        registerAdaptation(new RiftGate());
     }
 
     @EventHandler
