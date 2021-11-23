@@ -31,13 +31,15 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
     @Override
     public void applyLore(Data data, List<String> lore) {
         lore.add(C.LIGHT_PURPLE + "Right Click " + C.GRAY + "to access the bound Inventory");
-        lore.add(C.LIGHT_PURPLE + "Shift + Left Click " + C.GRAY + "to unbind");
+        lore.add(C.LIGHT_PURPLE + "Shift + Left Click " + C.GRAY + "to bind/unbind");
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+        meta.setDisplayName("Reliquary Portkey");
+
     }
 
     public static Block getBlock(ItemStack stack) {

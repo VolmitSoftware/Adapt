@@ -92,6 +92,13 @@ public class RiftGate extends SimpleAdaptation {
 
     private void openEye(Player p) {
         Location l = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
+        ItemStack hand = p.getInventory().getItemInMainHand();
+
+        if (hand.getAmount() > 1) { // consume the hand
+            hand.setAmount(hand.getAmount() - 1);
+        } else {
+            p.getInventory().setItemInMainHand(null);
+        }
 
         // port animation
 

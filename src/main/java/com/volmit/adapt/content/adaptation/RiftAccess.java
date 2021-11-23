@@ -42,9 +42,6 @@ public class RiftAccess extends SimpleAdaptation {
 
     }
 
-    private double getConsumePercent(int level) {
-        return 0.15 + (0.15 * level);
-    }
 
     @Override
     public void addStats(int level, Element v) {
@@ -121,7 +118,7 @@ public class RiftAccess extends SimpleAdaptation {
             activeViews.add(p.openInventory(holder.getInventory()));
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.10f);
-            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 35, 1, true, false, false));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 25, 1, true, false, false));
         }
     }
 
@@ -135,12 +132,15 @@ public class RiftAccess extends SimpleAdaptation {
             for (int ii = activeViews.size() - 1; ii >= 0; ii--) {
                 InventoryView i = activeViews.get(ii);
 
+
                 if (i.getPlayer().getOpenInventory().equals(i)) {
                     if (i.getTopInventory().getLocation() == null || !isStorage(i.getTopInventory().getLocation().getBlock().getBlockData())) {
                         i.getPlayer().closeInventory();
+                        i.getPlayer().removePotionEffect(PotionEffectType.BLINDNESS);
                         activeViews.remove(ii);
                     }
                 } else {
+                    i.getPlayer().removePotionEffect(PotionEffectType.BLINDNESS);
                     activeViews.remove(ii);
                 }
             }
