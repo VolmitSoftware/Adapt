@@ -45,14 +45,13 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data>
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
     }
 
-    public static Block getChest(ItemStack stack)
+    public static Block getBlock(ItemStack stack)
     {
         if (io.getData(stack) != null){
-            return io.getData(stack).getChest();
-
-        }else {
-            return null;
+            return io.getData(stack).getBlock();
         }
+
+        return null;
     }
 
     public static void setData(ItemStack item, Block t)
@@ -69,7 +68,7 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data>
     @lombok.Data
     public static class Data
     {
-        private Block chest;
+        private Block block;
 
         public static BoundEnderPearl.Data at(Block l)
         {
