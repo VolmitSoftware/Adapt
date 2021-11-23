@@ -51,13 +51,16 @@ public class EnderStorage extends SimpleAdaptation {
                 || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
             Adapt.info("Opened Enderchest");
             Player p = e.getPlayer();
-            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 45, 1000));
-            p.openInventory(e.getPlayer().getEnderChest());
+
             Objects.requireNonNull(p.getLocation().getWorld()).playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1.35f, 0.100f); // Not sure why i need to do this NONNULL here only
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 5.35f, 0.10f);
+            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 45, 1000));
+            p.openInventory(e.getPlayer().getEnderChest());
 
-        }
+
+
+            }
         }
     }
 

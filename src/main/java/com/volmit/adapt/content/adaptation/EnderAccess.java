@@ -15,6 +15,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
 import java.util.Objects;
@@ -89,9 +91,11 @@ public class EnderAccess extends SimpleAdaptation {
                 e.setCancelled(true);
                 Adapt.info("Using EnderPeral");
 
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1.35f, 0.100f); // Not sure why i need to do this NONNULL here only
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_LODESTONE_PLACE, 1.35f, 0.100f);
-
+                Objects.requireNonNull(p.getLocation().getWorld()).playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1.34f, 0.100f); // Not sure why i need to do this NONNULL here only
+                p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
+                p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 5.35f, 0.10f);
+                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 45, 1000));
+                
                 Block bc = BoundEnderPearl.getChest(e.getPlayer().getInventory().getItemInMainHand());
                 Block chest = bc.getWorld().getBlockAt(bc.getLocation());
 
