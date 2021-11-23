@@ -37,7 +37,7 @@ public class SkillRanged extends SimpleSkill {
         if(e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
             Player p = ((Player) ((Projectile) e.getDamager()).getShooter());
 
-            xp(p, (3.125 * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * 1.7));
+            xp(p, e.getEntity().getLocation(),(3.125 * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * 1.7));
         }
     }
 

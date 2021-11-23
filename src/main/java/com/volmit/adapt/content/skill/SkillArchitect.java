@@ -19,7 +19,7 @@ public class SkillArchitect extends SimpleSkill {
 
     @EventHandler
     public void on(BlockPlaceEvent e) {
-        J.a(() -> xp(e.getPlayer(), blockXP(e.getBlock(), 3 + getValue(e.getBlock()))));
+        J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), 3 + getValue(e.getBlock()))));
     }
 
     @Override

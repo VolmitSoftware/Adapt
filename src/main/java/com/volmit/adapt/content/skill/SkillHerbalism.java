@@ -39,7 +39,7 @@ public class SkillHerbalism extends SimpleSkill {
 
     @EventHandler
     public void on(PlayerShearEntityEvent e) {
-        xp(e.getPlayer(), 95);
+        xp(e.getPlayer(), e.getEntity().getLocation(), 95);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -49,14 +49,14 @@ public class SkillHerbalism extends SimpleSkill {
         }
 
         if(e.getHarvestedBlock().getBlockData() instanceof Ageable) {
-            xp(e.getPlayer(), 32 * (((Ageable) e.getHarvestedBlock().getBlockData()).getAge()));
+            xp(e.getPlayer(),e.getHarvestedBlock().getLocation().clone().add(0.5, 0.5, 0.5), 32 * (((Ageable) e.getHarvestedBlock().getBlockData()).getAge()));
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPlaceEvent e) {
         if(e.getBlock().getBlockData() instanceof Ageable) {
-            xp(e.getPlayer(), 3);
+            xp(e.getPlayer(),e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), 3);
         }
     }
 
@@ -77,7 +77,7 @@ public class SkillHerbalism extends SimpleSkill {
             J.s(() -> {
                 int nl = ((Levelled) e.getClickedBlock().getBlockData()).getLevel();
                 if(nl > ol || (ol > 0 && nl == 0)) {
-                    xp(e.getPlayer(), 51 + (nl * 3) + (nl == 0 ? 250 : 5));
+                    xp(e.getPlayer(),e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), 51 + (nl * 3) + (nl == 0 ? 250 : 5));
                 }
             });
         }
@@ -90,7 +90,7 @@ public class SkillHerbalism extends SimpleSkill {
         }
 
         if(e.getBlock().getBlockData() instanceof Ageable) {
-            xp(e.getPlayer(), 32 * (((Ageable) e.getBlock().getBlockData()).getAge()));
+            xp(e.getPlayer(),e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), 32 * (((Ageable) e.getBlock().getBlockData()).getAge()));
         }
     }
 

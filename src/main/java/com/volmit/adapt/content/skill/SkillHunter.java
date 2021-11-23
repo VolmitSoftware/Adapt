@@ -42,7 +42,7 @@ public class SkillHunter extends SimpleSkill {
         if(e.getEntity().getKiller() != null && e.getEntity().getKiller() != null) {
             double mult = e.getEntity().getType().equals(EntityType.CREEPER) ? 6 : 1;
             xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 3 * mult, 18, 3000);
-            xp(e.getEntity().getKiller(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 6 * mult);
+            xp(e.getEntity().getKiller(),e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 6 * mult);
         }
     }
 

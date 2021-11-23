@@ -27,7 +27,7 @@ public class SkillSwords extends SimpleSkill {
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
             if(isSword(hand)) {
-                xp(a.getPlayer(), 13.26 * e.getDamage());
+                xp(a.getPlayer(), e.getEntity().getLocation(), 13.26 * e.getDamage());
             }
         }
     }

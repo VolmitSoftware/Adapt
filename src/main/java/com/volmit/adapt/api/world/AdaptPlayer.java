@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.notification.Notifier;
+import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
+import com.volmit.adapt.content.skill.SkillRift;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.ChronoLatch;
 import com.volmit.adapt.util.Form;
@@ -145,5 +147,9 @@ public class AdaptPlayer extends TickedObject {
                 .title(first ? "Welcome!" : "Welcome Back!")
                 .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " XP for " + C.AQUA + Form.duration(boostTime, 0))
             .build());
+    }
+
+    public boolean hasSkill(Skill s) {
+        return getData().getSkillLines().containsKey(s.getId()) && getData().getSkillLines().get(s.getId()).getXp() > 1;
     }
 }

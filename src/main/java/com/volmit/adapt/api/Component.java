@@ -3,7 +3,9 @@ package com.volmit.adapt.api;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.xp.XP;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -14,6 +16,7 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 public interface Component
 {
@@ -56,6 +59,30 @@ public interface Component
 
     default double getValue(Block block) {
         return MaterialValue.getValue(block.getType());
+    }
+
+    default void vfxZuck(Location from, Location to)
+    {
+        Vector v = from.clone().subtract(to).toVector();
+        double l = v.length();
+        v.normalize();
+        from.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, to, 1,6, 6, 6,0.6);
+    }
+
+    default void vfxLevelUp(Player p)
+    {
+        p.spawnParticle(Particle.ENCHANTMENT_TABLE, p.getLocation().clone().add(0, 1.7, 0), 200,0.1, 0.1, 0.1,12.1);
+        p.spawnParticle(Particle.ENCHANTMENT_TABLE, p.getLocation().clone().add(0, 1.7, 0), 200,3, 3, 3,0.1);
+    }
+
+    default void vfxXP(Player p, Location l, int amt)
+    {
+        p.spawnParticle(Particle.ENCHANTMENT_TABLE, l, Math.min(amt / 10, 20),0.5, 0.5, 0.5,1);
+    }
+
+    default void vfxXP(Location l)
+    {
+        l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l.add(0, 1.7, 0), 3,0.1, 0.1, 0.1,3);
     }
 
     default void damageHand(Player p, int damage) {

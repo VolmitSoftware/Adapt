@@ -60,7 +60,15 @@ public interface Skill extends Ticked, Component {
     }
 
     default void xp(Player p, double xp) {
+        xp(p, p.getLocation(), xp);
+    }
+
+    default void xp(Player p, Location at, double xp) {
         XP.xp(p, this, xp);
+        if(xp > 50)
+        {
+            vfxXP(p, at, (int)xp);
+        }
     }
 
     default void xpSilent(Player p, double xp) {
@@ -69,6 +77,7 @@ public interface Skill extends Ticked, Component {
 
     default void xp(Location at, double xp, int rad, long duration) {
         XP.spatialXP(at, this, xp, rad, duration);
+        vfxXP(at);
     }
 
     default void knowledge(Player p, long k) {
