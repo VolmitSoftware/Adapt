@@ -36,13 +36,6 @@ public class RiftAccess extends SimpleAdaptation {
         setInterval(50);
     }
 
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
-
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.ITALIC + "1: Sneak Left-Click a container with an Enderpearl to link");

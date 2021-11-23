@@ -34,11 +34,6 @@ public class TamingHealthBoost extends SimpleAdaptation {
         setCostFactor(0.4);
     }
 
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Form.pc(getHealthBoost(level), 0) + C.GRAY + " Max Health");

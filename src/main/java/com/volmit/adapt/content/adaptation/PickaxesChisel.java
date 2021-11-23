@@ -54,11 +54,6 @@ public class PickaxesChisel extends SimpleAdaptation {
         v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " Tool Wear");
     }
 
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
     @EventHandler
     public void on(PlayerInteractEvent e) {
         if(e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(e.getPlayer().getInventory().getItemInMainHand()) && getLevel(e.getPlayer()) > 0) {

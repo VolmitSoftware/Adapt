@@ -31,9 +31,4 @@ public class SkillStealth extends SimpleSkill {
             }
         }
     }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
 }

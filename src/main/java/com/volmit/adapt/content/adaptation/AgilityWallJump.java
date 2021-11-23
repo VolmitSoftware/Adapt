@@ -170,9 +170,4 @@ public class AgilityWallJump extends SimpleAdaptation {
             p.getLocation().getBlock().getRelative(BlockFace.WEST).getRelative(BlockFace.UP),
         };
     }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
 }

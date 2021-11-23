@@ -41,9 +41,4 @@ public class SkillUnarmed extends SimpleSkill {
     public void onTick() {
 
     }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
 }

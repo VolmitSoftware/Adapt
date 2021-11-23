@@ -27,11 +27,6 @@ public class HunterAdrenaline extends SimpleAdaptation {
         v.addLore(C.GREEN + "+ " + Form.pc(getDamage(level), 0) + C.GRAY + " Max Damage");
     }
 
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
     private double getDamage(int level) {
         return ((getLevelPercent(level) * 0.26) + 0.07);
     }

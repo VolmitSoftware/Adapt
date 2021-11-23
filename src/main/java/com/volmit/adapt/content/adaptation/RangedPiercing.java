@@ -26,11 +26,6 @@ public class RangedPiercing extends SimpleAdaptation {
     }
 
     @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
-    @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + level + C.GRAY + " Piercing");
     }

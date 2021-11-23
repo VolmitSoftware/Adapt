@@ -39,11 +39,6 @@ public class TamingHealthRegeneration extends SimpleAdaptation {
         setCostFactor(0.4);
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
         if(e.getEntity() instanceof Tameable) {

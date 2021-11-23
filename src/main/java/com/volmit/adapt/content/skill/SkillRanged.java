@@ -54,9 +54,4 @@ public class SkillRanged extends SimpleSkill {
     public void onTick() {
 
     }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
 }

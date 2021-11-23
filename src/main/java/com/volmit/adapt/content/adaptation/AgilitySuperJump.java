@@ -112,9 +112,4 @@ public class AgilitySuperJump extends SimpleAdaptation {
     public void onTick() {
 
     }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
 }

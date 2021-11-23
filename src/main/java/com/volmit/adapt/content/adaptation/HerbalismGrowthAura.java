@@ -32,11 +32,6 @@ public class HerbalismGrowthAura extends SimpleAdaptation {
         setCostFactor(0.325);
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
     private double getRadius(double factor) {
         return factor * 8;
     }

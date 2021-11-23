@@ -107,9 +107,4 @@ public class SkillCrafting extends SimpleSkill {
     public void onTick() {
 
     }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
 }

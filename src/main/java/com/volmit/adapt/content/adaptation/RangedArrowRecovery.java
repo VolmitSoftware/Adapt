@@ -32,11 +32,6 @@ public class RangedArrowRecovery extends SimpleAdaptation {
         setCostFactor(0.725);
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
     private double getChance(double factor) {
         return factor;
     }

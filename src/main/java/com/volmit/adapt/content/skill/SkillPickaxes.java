@@ -110,9 +110,4 @@ public class SkillPickaxes extends SimpleSkill {
     public void onTick() {
 
     }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
 }

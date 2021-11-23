@@ -28,11 +28,6 @@ public class StealthSpeed extends SimpleAdaptation {
         v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " Sneak Speed");
     }
 
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
         double factor = getLevelPercent(e.getPlayer());

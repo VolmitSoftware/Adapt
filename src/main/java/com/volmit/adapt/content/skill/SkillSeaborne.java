@@ -29,9 +29,4 @@ public class SkillSeaborne extends SimpleSkill {
             }
         }
     }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
 }

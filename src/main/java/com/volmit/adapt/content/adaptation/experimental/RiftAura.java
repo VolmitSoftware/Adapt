@@ -46,12 +46,6 @@ public class RiftAura extends SimpleAdaptation {
         v.addLore(C.RED + "- YOU WILL NOT ALWAYS BE IN THE BEST PLACE...");
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
-
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent e) {
         if(e.getEntity() instanceof Player p && getLevel((Player) e.getEntity()) > 0) {

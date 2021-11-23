@@ -25,11 +25,6 @@ public class SeaborneOxygen extends SimpleAdaptation {
     }
 
     @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
-    @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Form.pc(getAirBoost(level), 0) + C.GRAY + " Oxygen");
     }

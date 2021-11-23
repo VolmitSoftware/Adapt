@@ -30,11 +30,6 @@ public class HerbalismHungryShield extends SimpleAdaptation {
 
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
     private double getEffectiveness(double factor) {
         return Math.min(0.9, factor * factor + (0.09));
     }

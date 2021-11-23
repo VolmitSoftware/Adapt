@@ -35,11 +35,6 @@ public class TamingDamage extends SimpleAdaptation {
     }
 
     @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
-    @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Form.pc(getDamageBoost(level), 0) + C.GRAY + " Increased Damage");
     }

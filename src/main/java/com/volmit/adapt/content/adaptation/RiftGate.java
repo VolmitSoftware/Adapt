@@ -36,11 +36,6 @@ public class RiftGate extends SimpleAdaptation {
     }
 
     @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-    }
-
-
-    @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "Right-Click to recall to a location");
         v.addLore(C.ITALIC + "5s delay, " + C.RED + "you can die in this");

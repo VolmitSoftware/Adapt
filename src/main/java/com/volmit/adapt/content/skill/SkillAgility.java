@@ -26,6 +26,14 @@ public class SkillAgility extends SimpleSkill {
         registerAdaptation(new AgilityWindUp());
         registerAdaptation(new AgilityWallJump());
         registerAdaptation(new AgilitySuperJump());
+        registerAdvancement(AdaptAdvancement.builder()
+            .icon(Material.LEATHER_BOOTS)
+            .key("challenge_walk_1k")
+            .title("Walk a walk!")
+            .description("Walk over 1 Kilometer (1,000 blocks)")
+            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build());
     }
 
     @EventHandler
@@ -64,17 +72,5 @@ public class SkillAgility extends SimpleSkill {
                 xpSilent(i, 11.9);
             }
         }
-    }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-        advancements.add(AdaptAdvancement.builder()
-            .icon(Material.LEATHER_BOOTS)
-            .key("challenge_walk_1k")
-            .title("Walk a walk!")
-            .description("Walk over 1 Kilometer (1,000 blocks)")
-            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build());
     }
 }

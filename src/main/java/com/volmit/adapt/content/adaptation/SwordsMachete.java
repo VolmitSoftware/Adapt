@@ -38,11 +38,6 @@ public class SwordsMachete extends SimpleAdaptation {
     }
 
     @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
-    @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + " Slash Radius");
         v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " Chop Cooldown");

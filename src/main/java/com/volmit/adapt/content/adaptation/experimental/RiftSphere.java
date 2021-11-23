@@ -43,12 +43,6 @@ public class RiftSphere extends SimpleAdaptation {
         v.addLore(C.RED + "- ");
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
-
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
 

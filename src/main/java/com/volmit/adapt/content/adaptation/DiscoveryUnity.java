@@ -27,11 +27,6 @@ public class DiscoveryUnity extends SimpleAdaptation {
         v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + " XP " + C.GRAY + " Per Orb");
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
     @EventHandler
     public void on(PlayerExpChangeEvent e) {
         if(e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {

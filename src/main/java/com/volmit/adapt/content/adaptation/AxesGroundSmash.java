@@ -28,11 +28,6 @@ public class AxesGroundSmash extends SimpleAdaptation {
         setInterval(5000);
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
         if(e.getDamager() instanceof Player && getLevel((Player) e.getDamager()) > 0 && ((Player) e.getDamager()).isSneaking()) {

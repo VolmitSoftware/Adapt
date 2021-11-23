@@ -34,11 +34,6 @@ public class StealthSnatch extends SimpleAdaptation {
     }
 
     @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
-    @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Form.f(getRange(getLevelPercent(level)), 1) + " Snatch Radius");
     }

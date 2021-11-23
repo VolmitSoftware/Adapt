@@ -27,11 +27,6 @@ public class UnarmedPower extends SimpleAdaptation {
         v.addLore(C.GREEN + "+ " + Form.pc(getUnarmedDamage(level), 0) + C.GRAY + " Damage");
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
         if(e.getDamager() instanceof Player) {

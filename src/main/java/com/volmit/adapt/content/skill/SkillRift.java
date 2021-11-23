@@ -117,17 +117,10 @@ public class SkillRift extends SimpleSkill {
 
     @Override
     public void onTick() {
-        for(Player i : lasttp.k())
-        {
-            if(M.ms() - lasttp.get(i) > 60000)
-            {
+        for(Player i : lasttp.k()) {
+            if(M.ms() - lasttp.get(i) > 60000) {
                 lasttp.remove(i);
             }
         }
-    }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
     }
 }

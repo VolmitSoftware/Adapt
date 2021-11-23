@@ -31,11 +31,6 @@ public class HerbalismReplant extends SimpleAdaptation {
         setCostFactor(2.325);
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
     private int getCooldown(double factor, int level) {
         if(level == 1) {
             return 2;

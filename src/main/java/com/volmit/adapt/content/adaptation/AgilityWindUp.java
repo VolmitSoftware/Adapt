@@ -36,11 +36,6 @@ public class AgilityWindUp extends SimpleAdaptation {
         v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + " Windup Time");
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
     @EventHandler
     public void on(PlayerQuitEvent e) {
         ticksRunning.remove(e.getPlayer());

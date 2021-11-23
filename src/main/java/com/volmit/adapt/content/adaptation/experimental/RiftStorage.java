@@ -40,12 +40,6 @@ public class RiftStorage extends SimpleAdaptation {
         v.addLore(C.ITALIC + "*Click an Enderchest in your hand to open (Just dont place)*");
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
-
     @EventHandler
     public void on(PlayerInteractEvent e) {
         if (getLevel(e.getPlayer()) > 0) {

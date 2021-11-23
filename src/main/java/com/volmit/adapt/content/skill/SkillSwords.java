@@ -39,9 +39,4 @@ public class SkillSwords extends SimpleSkill {
     public void onTick() {
 
     }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
 }

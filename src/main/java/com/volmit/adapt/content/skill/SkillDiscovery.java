@@ -179,9 +179,4 @@ public class SkillDiscovery extends SimpleSkill {
             }
         }
     }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
 }

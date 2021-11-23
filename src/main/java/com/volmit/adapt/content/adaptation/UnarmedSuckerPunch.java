@@ -33,11 +33,6 @@ public class UnarmedSuckerPunch extends SimpleAdaptation {
         v.addLore(C.BLUE + "Damage increases by with your speed while punching");
     }
 
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
-    }
-
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
         if(e.getDamager() instanceof Player) {
