@@ -5,6 +5,8 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KList;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -14,6 +16,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -21,8 +24,9 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.List;
 import java.util.Objects;
 
-
 public class EnderAccess extends SimpleAdaptation {
+    private KList<InventoryView> activeViews = new KList<>();
+
     public EnderAccess() {
         super("ender-access");
         setDescription("Pull from the void");
@@ -31,7 +35,7 @@ public class EnderAccess extends SimpleAdaptation {
         setCostFactor(0);
         setMaxLevel(1);
         setInitialCost(10);
-        setInterval(0);
+        setInterval(50);
     }
 
     private double getConsumePercent(int level) {
@@ -91,11 +95,6 @@ public class EnderAccess extends SimpleAdaptation {
         }
     }
 
-    /**
-     *
-     * @param p
-     * @param block
-     */
     private void linkPearl(Player p, Block block) {
         ItemStack hand = p.getInventory().getItemInMainHand();
 
@@ -112,11 +111,6 @@ public class EnderAccess extends SimpleAdaptation {
         }
     }
 
-    /**
-     *
-     * @param p
-     * @param block
-     */
     private void unlinkPearl(Player p) {
         ItemStack hand = p.getInventory().getItemInMainHand();
 
@@ -134,15 +128,11 @@ public class EnderAccess extends SimpleAdaptation {
         p.getInventory().addItem(pearl).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
     }
 
-    /**
-     * Try to open the inventory linked to the player's pearl in-hand
-     * @param p the player
-     */
     private void openPearl(Player p) {
         Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
 
         if (b != null && b.getState() instanceof InventoryHolder holder) {
-            p.openInventory(holder.getInventory());
+            activeViews.add(p.openInventory(holder.getInventory()));
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 5.35f, 0.10f);
             p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 45, 1000));
@@ -156,6 +146,25 @@ public class EnderAccess extends SimpleAdaptation {
 
     @Override
     public void onTick() {
+        J.s(() -> {
+            for(int ii = activeViews.size() - 1; ii >= 0; ii--)
+            {
+                InventoryView i = activeViews.get(ii);
 
+                if(i.getPlayer().getOpenInventory().equals(i))
+                {
+                    if(i.getTopInventory().getLocation() == null || !isStorage(i.getTopInventory().getLocation().getBlock().getBlockData()))
+                    {
+                        i.getPlayer().closeInventory();
+                        activeViews.remove(ii);
+                    }
+                }
+
+                else
+                {
+                    activeViews.remove(ii);
+                }
+            }
+        });
     }
 }

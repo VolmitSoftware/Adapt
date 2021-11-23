@@ -9,10 +9,10 @@ import com.volmit.adapt.content.adaptation.experimental.EnderStorage;
 import com.volmit.adapt.util.C;
 import org.bukkit.Material;
 
-public class SkillEnderpower extends SimpleSkill {
-    public SkillEnderpower() {
-        super("enderpower", "\u21C9");
-        setDescription("Reality is your playground");
+public class SkillRift extends SimpleSkill {
+    public SkillRift() {
+        super("rift", "\u21C9");
+        setDescription("Dimensional magic");
         setColor(C.DARK_PURPLE);
         setInterval(1100);
         setIcon(Material.ENDER_PEARL);
