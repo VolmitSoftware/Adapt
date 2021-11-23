@@ -45,7 +45,7 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data>
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
     }
 
-    public static @Nullable Block getChest(ItemStack stack)
+    public static Block getChest(ItemStack stack)
     {
         if (io.getData(stack) != null){
             return io.getData(stack).getChest();
