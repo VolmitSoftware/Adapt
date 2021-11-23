@@ -15,6 +15,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
+import java.util.Locale;
+
 public class SkillRanged extends SimpleSkill {
     public SkillRanged() {
         super("ranged", "\uD83C\uDFF9");
@@ -32,6 +34,7 @@ public class SkillRanged extends SimpleSkill {
         if(e.getEntity().getShooter() instanceof Player) {
             xp(((Player) e.getEntity().getShooter()), 7);
             getPlayer(((Player) e.getEntity().getShooter())).getData().addStat("ranged.shotsfired", 1);
+            getPlayer(((Player) e.getEntity().getShooter())).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
         }
     }
 
@@ -41,6 +44,8 @@ public class SkillRanged extends SimpleSkill {
             Player p = ((Player) ((Projectile) e.getDamager()).getShooter());
             getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
             getPlayer(p).getData().addStat("ranged.distance",e.getEntity().getLocation().distance(p.getLocation()));
+            getPlayer(p).getData().addStat("ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
+            getPlayer(p).getData().addStat("ranged.distance." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getEntity().getLocation().distance(p.getLocation()));
             xp(p, e.getEntity().getLocation(),(3.125 * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * 1.7));
         }
     }

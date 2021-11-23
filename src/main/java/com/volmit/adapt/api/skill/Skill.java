@@ -8,6 +8,8 @@ import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.AdaptStatTracker;
+import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.C;
@@ -45,6 +47,24 @@ public interface Skill extends Ticked, Component {
     String getAdvancementBackground();
 
     void registerAdaptation(Adaptation a);
+
+    void registerStatTracker(AdaptStatTracker tracker);
+
+    KList<AdaptStatTracker> getStatTrackers();
+
+    default void checkStatTrackers(AdaptPlayer player)
+    {
+        PlayerData d = player.getData();
+
+        for(AdaptStatTracker i : getStatTrackers())
+        {
+            if(!d.isGranted(i.getAdvancement()) && d.getStat(i.getStat()) >= i.getGoal())
+            {
+                player.getAdvancementHandler().grant(i.getAdvancement());
+                xp(player.getPlayer(), i.getReward());
+            }
+        }
+    }
 
     KList<Adaptation> getAdaptations();
 

@@ -30,6 +30,14 @@ public class RangedForce extends SimpleAdaptation {
         setInterval(5000);
         setInitialCost(5);
         setCostFactor(0.225);
+        registerAdvancement(AdaptAdvancement.builder()
+            .icon(Material.SPECTRAL_ARROW)
+            .key("challenge_force_30")
+            .title("Long Shot")
+            .description("Land a shot from over 30 blocks away!")
+            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build());
     }
 
     @Override
@@ -56,18 +64,6 @@ public class RangedForce extends SimpleAdaptation {
                 getSkill().xp(p, 2000);
             }
         }
-    }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-        advancements.add(AdaptAdvancement.builder()
-                .icon(Material.SPECTRAL_ARROW)
-                .key("challenge_force_30")
-                .title("Long Shot")
-                .description("Land a shot from over 30 blocks away!")
-                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build());
     }
 
     @EventHandler

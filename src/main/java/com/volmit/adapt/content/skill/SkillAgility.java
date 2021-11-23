@@ -7,6 +7,8 @@ import com.volmit.adapt.content.adaptation.AgilityWallJump;
 import com.volmit.adapt.content.adaptation.AgilityWindUp;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KList;
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
@@ -66,6 +68,13 @@ public class SkillAgility extends SimpleSkill {
 
     @Override
     public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-
+        advancements.add(AdaptAdvancement.builder()
+            .icon(Material.LEATHER_BOOTS)
+            .key("challenge_walk_1k")
+            .title("Walk a walk!")
+            .description("Walk over 1 Kilometer (1,000 blocks)")
+            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build());
     }
 }
