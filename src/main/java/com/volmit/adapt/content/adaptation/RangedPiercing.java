@@ -33,11 +33,11 @@ public class RangedPiercing extends SimpleAdaptation {
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
         if(e.getEntity().getShooter() instanceof Player) {
-            if(e.getEntity() instanceof AbstractArrow) {
+            if(e.getEntity() instanceof AbstractArrow a) {
                 Player p = ((Player) e.getEntity().getShooter());
 
                 if(getLevel(p) > 0) {
-                    ((AbstractArrow) e.getEntity()).setPierceLevel(((AbstractArrow) e.getEntity()).getPierceLevel() + getLevel(p));
+                    a.setPierceLevel(((AbstractArrow) e.getEntity()).getPierceLevel() + getLevel(p));
                 }
             }
         }

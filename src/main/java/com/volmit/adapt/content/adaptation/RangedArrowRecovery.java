@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
@@ -7,7 +8,10 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
+import com.volmit.adapt.util.M;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -15,7 +19,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
+import javax.naming.Name;
 import java.util.UUID;
 
 public class RangedArrowRecovery extends SimpleAdaptation {
@@ -47,14 +53,31 @@ public class RangedArrowRecovery extends SimpleAdaptation {
             Player p = ((Player) ((Projectile) e.getDamager()).getShooter());
 
             if(getLevel(p) > 0) {
-                if(e.getDamager() instanceof Arrow && Math.random() < getChance(getLevelPercent(p))) {
-                    arrows.compute(e.getEntity().getUniqueId(), (k, v) -> {
-                        if(v == null) {
-                            return 1;
-                        }
+                if(e.getDamager() instanceof Arrow a && Math.random() < getChance(getLevelPercent(p))) {
+                    int hits = 0;
 
-                        return v + 1;
-                    });
+                    if(a.getPierceLevel() > 0)
+                    {
+                        NamespacedKey k = new NamespacedKey(Adapt.instance, "arrow-hits");
+                        hits = a.getPersistentDataContainer().getOrDefault(k, PersistentDataType.INTEGER, 0);
+                        a.getPersistentDataContainer().set(k, PersistentDataType.INTEGER, hits + 1);
+                    }
+
+                    if(hits + 1 >= a.getPierceLevel())
+                    {
+                        arrows.compute(e.getEntity().getUniqueId(), (k, v) -> {
+                            if(v == null) {
+                                return 1;
+                            }
+
+                            return v + 1;
+                        });
+
+                        if(hits > 1)
+                        {
+                            a.remove();
+                        }
+                    }
                 }
             }
         }
