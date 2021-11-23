@@ -2,10 +2,10 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.*;
-import com.volmit.adapt.content.adaptation.experimental.EnderAura;
-import com.volmit.adapt.content.adaptation.experimental.EnderRing;
-import com.volmit.adapt.content.adaptation.experimental.EnderSphere;
-import com.volmit.adapt.content.adaptation.experimental.EnderStorage;
+import com.volmit.adapt.content.adaptation.experimental.RiftAura;
+import com.volmit.adapt.content.adaptation.experimental.RiftRing;
+import com.volmit.adapt.content.adaptation.experimental.RiftSphere;
+import com.volmit.adapt.content.adaptation.experimental.RiftStorage;
 import com.volmit.adapt.util.C;
 import org.bukkit.Material;
 
@@ -16,11 +16,11 @@ public class SkillRift extends SimpleSkill {
         setColor(C.DARK_PURPLE);
         setInterval(1100);
         setIcon(Material.ENDER_PEARL);
-        registerAdaptation(new EnderAura());
-        registerAdaptation(new EnderAccess());
-        registerAdaptation(new EnderStorage());
-        registerAdaptation(new EnderSphere());
-        registerAdaptation(new EnderRing());
+        registerAdaptation(new RiftAura());
+        registerAdaptation(new RiftAccess());
+        registerAdaptation(new RiftStorage());
+        registerAdaptation(new RiftSphere());
+        registerAdaptation(new RiftRing());
     }
 
     @Override

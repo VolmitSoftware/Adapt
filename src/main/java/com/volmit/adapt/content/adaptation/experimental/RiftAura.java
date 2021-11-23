@@ -16,8 +16,8 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.Random;
 
 
-public class EnderAura extends SimpleAdaptation {
-    public EnderAura() {
+public class RiftAura extends SimpleAdaptation {
+    public RiftAura() {
         super("ender-aura");
         setDescription("Passive & instantaneous non-telegraphed teleportation");
         setIcon(Material.ENDER_EYE);

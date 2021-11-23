@@ -24,10 +24,10 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.List;
 import java.util.Objects;
 
-public class EnderAccess extends SimpleAdaptation {
+public class RiftAccess extends SimpleAdaptation {
     private KList<InventoryView> activeViews = new KList<>();
 
-    public EnderAccess() {
+    public RiftAccess() {
         super("ender-access");
         setDescription("Pull from the void");
         setIcon(Material.NETHER_STAR);

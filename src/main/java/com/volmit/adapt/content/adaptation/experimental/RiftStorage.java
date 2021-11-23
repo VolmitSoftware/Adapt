@@ -18,8 +18,8 @@ import java.util.Objects;
 import java.util.Random;
 
 
-public class EnderStorage extends SimpleAdaptation {
-    public EnderStorage() {
+public class RiftStorage extends SimpleAdaptation {
+    public RiftStorage() {
         super("ender-storage");
         setDescription("Open an enderchest by clicking");
         setIcon(Material.ENDER_CHEST);
