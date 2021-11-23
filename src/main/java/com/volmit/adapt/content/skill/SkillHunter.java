@@ -29,6 +29,7 @@ public class SkillHunter extends SimpleSkill {
     public void on(BlockBreakEvent e) {
         if(e.getBlock().getType().equals(Material.TURTLE_EGG)) {
             xp(e.getBlock().getLocation(), 125, 9, 1000);
+            getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
         }
     }
 
@@ -36,6 +37,7 @@ public class SkillHunter extends SimpleSkill {
     public void on(PlayerInteractEvent e) {
         if(e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
             xp(e.getClickedBlock().getLocation(), 125, 9, 1000);
+            getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
         }
     }
 
@@ -45,6 +47,7 @@ public class SkillHunter extends SimpleSkill {
             double mult = e.getEntity().getType().equals(EntityType.CREEPER) ? 6 : 1;
             xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 3 * mult, 18, 3000);
             xp(e.getEntity().getKiller(),e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 6 * mult);
+            getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
         }
     }
 

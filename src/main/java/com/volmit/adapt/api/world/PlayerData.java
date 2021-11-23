@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 @NoArgsConstructor
 public class PlayerData {
     private final KMap<String, PlayerSkillLine> skillLines = new KMap<>();
+    private KMap<String, Double> stats = new KMap<>();
     private String last = "none";
     private KSet<String> advancements = new KSet<>();
     private Discovery<Biome> seenBiomes = new Discovery<>();
@@ -48,6 +49,25 @@ public class PlayerData {
     public void ensureGranted(String advancement)
     {
         advancements.add(advancement);
+    }
+
+    public double getStat(String key)
+    {
+        Double d = stats.get(key);
+        return d == null ? 0 : d;
+    }
+
+    public void addStat(String key, double amt)
+    {
+        if(!stats.containsKey(key))
+        {
+            stats.put(key, amt);
+        }
+
+        else
+        {
+            stats.put(key, stats.get(key) + amt);
+        }
     }
 
     public void update(AdaptPlayer p) {

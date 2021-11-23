@@ -31,11 +31,13 @@ public class SkillAxes extends SimpleSkill {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player) {
+        if(e.getDamager() instanceof Player p) {
             AdaptPlayer a = getPlayer((Player) e.getDamager());
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
             if(isAxe(hand)) {
+                getPlayer(p).getData().addStat("axes.swings", 1);
+                getPlayer(p).getData().addStat("axes.damage", e.getDamage());
                 xp(a.getPlayer(), e.getEntity().getLocation(),13.26 * e.getDamage());
             }
         }
@@ -45,6 +47,8 @@ public class SkillAxes extends SimpleSkill {
     public void on(BlockBreakEvent e) {
         if(isAxe(e.getPlayer().getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
+            getPlayer(e.getPlayer()).getData().addStat("axes.blocks.broken", 1);
+            getPlayer(e.getPlayer()).getData().addStat("axes.blocks.value", getValue(e.getBlock().getBlockData()));
             J.a(() -> xp(e.getPlayer(),e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
         }
     }

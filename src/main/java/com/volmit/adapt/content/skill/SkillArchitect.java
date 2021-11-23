@@ -8,6 +8,7 @@ import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 public class SkillArchitect extends SimpleSkill {
@@ -21,7 +22,15 @@ public class SkillArchitect extends SimpleSkill {
 
     @EventHandler
     public void on(BlockPlaceEvent e) {
-        J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), 3 + getValue(e.getBlock()))));
+        double v = getValue(e.getBlock());
+        J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), 3 + v)));
+        getPlayer(e.getPlayer()).getData().addStat("blocks.placed", 1);
+        getPlayer(e.getPlayer()).getData().addStat("blocks.placed.value", v);
+    }
+
+    @EventHandler
+    public void on(BlockBreakEvent e) {
+        getPlayer(e.getPlayer()).getData().addStat("blocks.broken", 1);
     }
 
     @Override

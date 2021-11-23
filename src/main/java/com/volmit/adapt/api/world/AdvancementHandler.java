@@ -43,7 +43,6 @@ public class AdvancementHandler
                 for(Advancement j : aa.toAdvancements().reverse())
                 {
                     real.put(j.getName().getKey(), j);
-                    Adapt.info(j.getName().getKey());
                     try
                     {
                         getManager().addAdvancement(j);
@@ -65,7 +64,6 @@ public class AdvancementHandler
     {
         getPlayer().getData().ensureGranted(key);
         J.s(() -> getManager().grantAdvancement(player.getPlayer(), real.get(key)), 5);
-        Adapt.info("Advancement Granted " + key);
 
         if(toast)
         {

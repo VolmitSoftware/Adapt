@@ -60,7 +60,11 @@ public class SkillCrafting extends SimpleSkill {
         }
 
         if(test != null && recipeAmount > 0) {
-            xp((Player) e.getWhoClicked(), recipeAmount * getValue(test));
+
+            double v = recipeAmount * getValue(test);
+            getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.items", recipeAmount);
+            getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.value", v);
+            xp((Player) e.getWhoClicked(), v);
         }
     }
 

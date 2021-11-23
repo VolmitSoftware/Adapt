@@ -53,6 +53,7 @@ public class RangedForce extends SimpleAdaptation {
             if(a.distanceSquared(b) > 10)
             {
                 getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
+                getSkill().xp(p, 2000);
             }
         }
     }

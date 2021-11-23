@@ -32,6 +32,8 @@ public class SkillPickaxes extends SimpleSkill {
 
             if(isPickaxe(hand)) {
                 xp(a.getPlayer(),e.getEntity().getLocation(), 13.26 * e.getDamage());
+                getPlayer(a.getPlayer()).getData().addStat("pickaxes.swings", 1);
+                getPlayer(a.getPlayer()).getData().addStat("pickaxes.damage", e.getDamage());
             }
         }
     }
@@ -40,7 +42,8 @@ public class SkillPickaxes extends SimpleSkill {
     public void on(BlockBreakEvent e) {
         if(isPickaxe(e.getPlayer().getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
-
+            getPlayer(e.getPlayer()).getData().addStat("pickaxes.blocks.broken", 1);
+            getPlayer(e.getPlayer()).getData().addStat("pickaxes.blocks.value", getValue(e.getBlock().getBlockData()));
             J.a(() -> xp(e.getPlayer(),e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
         }
     }

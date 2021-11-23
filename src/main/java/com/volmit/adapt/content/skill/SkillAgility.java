@@ -11,17 +11,48 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerMoveEvent;
 
 public class SkillAgility extends SimpleSkill {
     public SkillAgility() {
         super("agility", "\u21C9");
         setDescription("Movement is futile, overcome obstacles");
         setColor(C.GREEN);
-        setInterval(1100);
+        setInterval(975);
         setIcon(Material.FEATHER);
         registerAdaptation(new AgilityWindUp());
         registerAdaptation(new AgilityWallJump());
         registerAdaptation(new AgilitySuperJump());
+    }
+
+    @EventHandler
+    public void on(PlayerMoveEvent e)
+    {
+        if(e.getFrom().getWorld().equals(e.getTo().getWorld()))
+        {
+            double d = e.getFrom().distance(e.getTo());
+            getPlayer(e.getPlayer()).getData().addStat("move", d);
+            if(e.getPlayer().isSneaking())
+            {
+                getPlayer(e.getPlayer()).getData().addStat("move.sneak", d);
+            }
+
+            else if(e.getPlayer().isFlying())
+            {
+                getPlayer(e.getPlayer()).getData().addStat("move.fly", d);
+            }
+
+            else if(e.getPlayer().isSwimming())
+            {
+                getPlayer(e.getPlayer()).getData().addStat("move.swim", d);
+            }
+
+            else if(e.getPlayer().isSprinting())
+            {
+                getPlayer(e.getPlayer()).getData().addStat("move.sprint", d);
+            }
+        }
     }
 
     @Override
