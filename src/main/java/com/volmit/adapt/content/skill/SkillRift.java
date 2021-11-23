@@ -72,7 +72,6 @@ public class SkillRift extends SimpleSkill {
     @EventHandler
     public void on(EntityDamageByEntityEvent e)
     {
-        Adapt.info(e.getEntity() + " -> " + e.getDamager());
         if(e.getEntity() instanceof Enderman && e.getDamager() instanceof Player p)
         {
             xp(p, 4 * Math.min(e.getDamage(),((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
