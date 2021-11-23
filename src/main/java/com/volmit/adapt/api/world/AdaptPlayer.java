@@ -11,13 +11,19 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.ChronoLatch;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.IO;
+import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.RollingSequence;
+import eu.endercentral.crazy_advancements.Advancement;
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import eu.endercentral.crazy_advancements.NameKey;
 import lombok.Data;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.io.File;
@@ -43,6 +49,7 @@ public class AdaptPlayer extends TickedObject {
         not = new Notifier(this);
         speed = new RollingSequence(7);
         lastloc = M.ms();
+        J.s(() -> setupAdvancements(), 20);
     }
 
     public boolean isBusy() {
@@ -61,6 +68,7 @@ public class AdaptPlayer extends TickedObject {
     @Override
     public void unregister() {
         super.unregister();
+        loggedOut();
         save();
     }
 
@@ -130,6 +138,11 @@ public class AdaptPlayer extends TickedObject {
         }
     }
 
+    public void loggedOut()
+    {
+        unloadAdvancements();
+    }
+
     public void loggedIn() {
         long timeGone = M.ms() - getData().getLastLogin();
         boolean first = getData().getLastLogin() == 0;
@@ -147,6 +160,23 @@ public class AdaptPlayer extends TickedObject {
                 .title(first ? "Welcome!" : "Welcome Back!")
                 .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " XP for " + C.AQUA + Form.duration(boostTime, 0))
             .build());
+    }
+
+    private void unloadAdvancements()
+    {
+        for(Advancement i : getNot().getAdvancementManager().getAdvancements())
+        {
+            getNot().getAdvancementManager().removeAdvancement(i);
+        }
+    }
+
+    private void setupAdvancements() {
+        unloadAdvancements();
+        AdvancementDisplay d = new AdvancementDisplay(Material.EMERALD, "Adapt", "Adapt Stuff", AdvancementDisplay.AdvancementFrame.TASK, false, false, AdvancementVisibility.ALWAYS);
+        d.setBackgroundTexture("minecraft:textures/block/deepslate_tiles.png");
+        Advancement root = new Advancement(null, new NameKey("adapt", "root"), d);
+        getNot().getAdvancementManager().addAdvancement(root);
+        getPlayer().sendMessage("?");
     }
 
     public boolean hasSkill(Skill s) {
