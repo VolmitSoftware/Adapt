@@ -1,14 +1,12 @@
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.RangedArrowRecovery;
 import com.volmit.adapt.content.adaptation.RangedForce;
+import com.volmit.adapt.content.adaptation.RangedLungeShot;
 import com.volmit.adapt.content.adaptation.RangedPiercing;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
-import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -26,6 +24,7 @@ public class SkillRanged extends SimpleSkill {
         registerAdaptation(new RangedForce());
         registerAdaptation(new RangedPiercing());
         registerAdaptation(new RangedArrowRecovery());
+        registerAdaptation(new RangedLungeShot());
         setIcon(Material.CROSSBOW);
     }
 
