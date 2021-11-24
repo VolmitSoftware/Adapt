@@ -84,7 +84,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
                 }
             }
         } catch(Throwable e) {
-            e.printStackTrace();
+
         }
 
         return config;

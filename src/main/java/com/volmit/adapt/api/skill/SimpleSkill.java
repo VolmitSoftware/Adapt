@@ -9,6 +9,7 @@ import com.volmit.adapt.api.world.AdaptRecipe;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.IO;
+import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.KList;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
@@ -51,6 +52,11 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         setDescription("No Description Provided");
         setMinXp(100);
         setAdvancementBackground("minecraft:textures/block/deepslate_tiles.png");
+
+        J.a(() -> {
+            J.attempt(this::getConfig);
+            getAdaptations().forEach(i -> J.attempt(i::getConfig));
+        }, 1);
     }
 
     @Override
@@ -90,7 +96,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
                 }
             }
         } catch(Throwable e) {
-            e.printStackTrace();
+
         }
 
         return config;
