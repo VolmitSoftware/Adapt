@@ -25,6 +25,7 @@ public class RiftSphere extends SimpleAdaptation<RiftSphere.Config> {
         setMaxLevel(5);
         setInitialCost(5);
         setInterval(9826);
+        registerConfiguration(Config.class);
     }
 
 

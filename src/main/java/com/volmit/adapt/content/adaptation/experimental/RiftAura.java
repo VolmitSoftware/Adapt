@@ -28,6 +28,7 @@ public class RiftAura extends SimpleAdaptation<RiftAura.Config> {
         setMaxLevel(1);
         setInitialCost(25);
         setInterval(9540);
+        registerConfiguration(Config.class);
     }
 
     private double getPhasePercent(int level) {

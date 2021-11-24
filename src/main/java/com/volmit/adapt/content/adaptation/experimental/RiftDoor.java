@@ -32,6 +32,7 @@ public class RiftDoor extends SimpleAdaptation<RiftDoor.Config> {
         setMaxLevel(1);
         setInitialCost(25);
         setInterval(100);
+        registerConfiguration(Config.class);
     }
 
     @Override

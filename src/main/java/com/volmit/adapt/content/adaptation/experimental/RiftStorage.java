@@ -27,6 +27,7 @@ public class RiftStorage extends SimpleAdaptation<RiftStorage.Config> {
         setMaxLevel(1);
         setInitialCost(10);
         setInterval(9248);
+        registerConfiguration(Config.class);
     }
 
     private double getConsumePercent(int level) {
