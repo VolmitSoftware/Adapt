@@ -7,6 +7,22 @@ import com.volmit.adapt.api.world.AdaptRecipe;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.content.gui.SkillsGui;
+import com.volmit.adapt.content.skill.SkillAgility;
+import com.volmit.adapt.content.skill.SkillArchitect;
+import com.volmit.adapt.content.skill.SkillAxes;
+import com.volmit.adapt.content.skill.SkillCrafting;
+import com.volmit.adapt.content.skill.SkillDiscovery;
+import com.volmit.adapt.content.skill.SkillEnchanting;
+import com.volmit.adapt.content.skill.SkillHerbalism;
+import com.volmit.adapt.content.skill.SkillHunter;
+import com.volmit.adapt.content.skill.SkillPickaxes;
+import com.volmit.adapt.content.skill.SkillRanged;
+import com.volmit.adapt.content.skill.SkillRift;
+import com.volmit.adapt.content.skill.SkillSeaborne;
+import com.volmit.adapt.content.skill.SkillStealth;
+import com.volmit.adapt.content.skill.SkillSwords;
+import com.volmit.adapt.content.skill.SkillTaming;
+import com.volmit.adapt.content.skill.SkillUnarmed;
 import com.volmit.adapt.util.BukkitGson;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
@@ -37,14 +53,22 @@ public class SkillRegistry extends TickedObject {
 
     public SkillRegistry() throws IOException {
         super("registry", UUID.randomUUID() + "-sk", 1250);
-        JarScanner js = new JarScanner(Adapt.instance.getJarFile(), "com.volmit.adapt.content.skill");
-        js.scan();
-
-        for(Class<?> i : js.getClasses()) {
-            if(i.isAssignableFrom(Skill.class) || Skill.class.isAssignableFrom(i)) {
-                registerSkill((Class<? extends Skill>) i);
-            }
-        }
+        registerSkill(SkillAgility.class);
+        registerSkill(SkillArchitect.class);
+        registerSkill(SkillAxes.class);
+        registerSkill(SkillCrafting.class);
+        registerSkill(SkillDiscovery.class);
+        registerSkill(SkillEnchanting.class);
+        registerSkill(SkillHerbalism.class);
+        registerSkill(SkillHunter.class);
+        registerSkill(SkillPickaxes.class);
+        registerSkill(SkillRanged.class);
+        registerSkill(SkillRift.class);
+        registerSkill(SkillSeaborne.class);
+        registerSkill(SkillStealth.class);
+        registerSkill(SkillSwords.class);
+        registerSkill(SkillTaming.class);
+        registerSkill(SkillUnarmed.class);
     }
 
     @EventHandler
