@@ -48,6 +48,8 @@ public interface AdaptRecipe
 
     boolean is(Recipe recipe);
 
+    void unregister();
+
     @Builder
     @Data
     class Shapeless implements AdaptRecipe
@@ -72,6 +74,13 @@ public interface AdaptRecipe
         @Override
         public boolean is(Recipe recipe) {
             return recipe instanceof ShapelessRecipe s && s.getKey().equals(getNSKey());
+        }
+
+
+        @Override
+        public void unregister() {
+            Bukkit.getServer().removeRecipe(getNSKey());
+            Adapt.verbose("Unregistered Shapeless Crafting Recipe " + getKey());
         }
     }
 
@@ -103,6 +112,12 @@ public interface AdaptRecipe
         public boolean is(Recipe recipe) {
             return recipe instanceof ShapedRecipe s && s.getKey().equals(getNSKey());
         }
+
+        @Override
+        public void unregister() {
+            Bukkit.getServer().removeRecipe(getNSKey());
+            Adapt.verbose("Unregistered Shaped Crafting Recipe " + getKey());
+        }
     }
 
     @Builder
@@ -128,6 +143,12 @@ public interface AdaptRecipe
         @Override
         public boolean is(Recipe recipe) {
             return recipe instanceof SmithingRecipe s && s.getKey().equals(getNSKey());
+        }
+
+        @Override
+        public void unregister() {
+            Bukkit.getServer().removeRecipe(getNSKey());
+            Adapt.verbose("Unregistered Smithing Table Recipe " + getKey());
         }
     }
 }

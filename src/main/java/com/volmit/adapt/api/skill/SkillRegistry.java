@@ -141,6 +141,12 @@ public class SkillRegistry extends TickedObject {
         }
     }
 
+    private void unregisterRecipes(Skill s)
+    {
+        s.getRecipes().forEach(AdaptRecipe::unregister);
+        s.getAdaptations().forEach(i -> i.getRecipes().forEach(AdaptRecipe::unregister));
+    }
+
     private void registerRecipes(Skill s) {
         s.getRecipes().forEach(AdaptRecipe::register);
         s.getAdaptations().forEach(i -> i.getRecipes().forEach(AdaptRecipe::register));
@@ -150,6 +156,7 @@ public class SkillRegistry extends TickedObject {
     public void unregister() {
         for(Skill i : skills.v()) {
             i.unregister();
+            unregisterRecipes(i);
         }
     }
 
