@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.content.adaptation.EnchantingQuickEnchant;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
@@ -16,6 +17,7 @@ public class SkillEnchanting extends SimpleSkill {
         setDescription("Very few can bind magic to reality");
         setInterval(3700);
         setIcon(Material.KNOWLEDGE_BOOK);
+        registerAdaptation(new EnchantingQuickEnchant());
     }
 
     @EventHandler
