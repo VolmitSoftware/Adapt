@@ -35,7 +35,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
             .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_3k").goal(3000).stat("crafted.items").reward(4750).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_3k").goal(3000).stat("crafted.items").reward(getConfig().challengeCraft3kReward).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -76,10 +76,10 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
         if(test != null && recipeAmount > 0 && !e.isCancelled()) {
 
-            double v = recipeAmount * getValue(test);
+            double v = recipeAmount * getValue(test) * getConfig().craftingValueXPMultiplier;
             getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.items", recipeAmount);
             getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.value", v);
-            xp((Player) e.getWhoClicked(), v);
+            xp((Player) e.getWhoClicked(), v + getConfig().baseCraftingXP);
         }
     }
 
@@ -115,7 +115,10 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @EventHandler
     public void on(FurnaceSmeltEvent e) {
-        xp(e.getBlock().getLocation(), 24 + (getValue(e.getResult()) * 4), 16, 1000);
+        xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP +
+            (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier),
+            getConfig().furnaceXPRadius,
+            getConfig().furnaceXPDuration);
     }
 
     @Override
@@ -125,6 +128,13 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         }
     }
 
-    protected static class Config {
+    protected static class Config {public Config(){}
+        double furnaceBaseXP = 24;
+        double furnaceValueXPMultiplier = 4;
+        int furnaceXPRadius = 32;
+        long furnaceXPDuration = 10000;
+        double craftingValueXPMultiplier = 1;
+        double baseCraftingXP = 1;
+        double challengeCraft3kReward = 4750;
     }
 }

@@ -30,7 +30,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
             .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1k).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
     }
 
     @EventHandler
@@ -54,7 +54,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     }
 
     protected static class Config { public Config(){}
-        double challengePlace1k = 1750;
+        double challengePlace1kReward = 1750;
         double xpValueMultiplier = 1;
         double xpBase = 3;
     }
