@@ -3,6 +3,7 @@ package com.volmit.adapt.api.skill;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.AdaptRecipe;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.content.gui.SkillsGui;
@@ -134,9 +135,15 @@ public class SkillRegistry extends TickedObject {
         try {
             Skill sk = skill.getConstructor().newInstance();
             skills.put(sk.getName(), sk);
+            registerRecipes(sk);
         } catch(InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }
+    }
+
+    private void registerRecipes(Skill s) {
+        s.getRecipes().forEach(AdaptRecipe::register);
+        s.getAdaptations().forEach(i -> i.getRecipes().forEach(AdaptRecipe::register));
     }
 
     @Override
