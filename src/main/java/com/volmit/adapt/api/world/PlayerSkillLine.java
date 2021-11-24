@@ -1,6 +1,5 @@
 package com.volmit.adapt.api.world;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.notification.Notifier;
@@ -9,7 +8,6 @@ import com.volmit.adapt.api.notification.TitleNotification;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
-import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
@@ -75,21 +73,17 @@ public class PlayerSkillLine {
         adaptations.put(a.getName(), v);
     }
 
-    public Skill getRawSkill(AdaptPlayer p)
-    {
+    public Skill getRawSkill(AdaptPlayer p) {
         return p.getServer().getSkillRegistry().getSkill(line);
     }
 
     public void update(AdaptPlayer p, String line, PlayerData data) {
-        if(!p.getData().isGranted("skill_" +line))
-        {
-            p.getAdvancementHandler().grant("skill_" +line);
+        if(!p.getData().isGranted("skill_" + line)) {
+            p.getAdvancementHandler().grant("skill_" + line);
         }
 
-        for(String i : getAdaptations().k())
-        {
-            if(!p.getData().isGranted("adaptation_" + i))
-            {
+        for(String i : getAdaptations().k()) {
+            if(!p.getData().isGranted("adaptation_" + i)) {
                 p.getAdvancementHandler().grant("adaptation_" + i);
             }
         }
@@ -159,9 +153,8 @@ public class PlayerSkillLine {
         }
     }
 
-    private static double diff(long a, long b)
-    {
-        return Math.abs(a - b / (double)(a == 0 ? 1 : a));
+    private static double diff(long a, long b) {
+        return Math.abs(a - b / (double) (a == 0 ? 1 : a));
     }
 
     private void notifyLevel(AdaptPlayer p, long kn) {

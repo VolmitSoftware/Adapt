@@ -1,12 +1,10 @@
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
 import com.volmit.adapt.content.adaptation.DiscoveryUnity;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.KList;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
@@ -16,7 +14,6 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.boss.BarColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -181,5 +178,6 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         }
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

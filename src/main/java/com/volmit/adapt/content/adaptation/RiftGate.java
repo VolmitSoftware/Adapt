@@ -1,12 +1,10 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.content.item.BoundEyeOfEnder;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -49,31 +47,31 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         ItemStack hand = p.getInventory().getItemInMainHand();
         Location location = null;
 
-        if (e.getClickedBlock() == null) {
+        if(e.getClickedBlock() == null) {
             location = e.getPlayer().getLocation();
 
         } else {
             location = new Location(e.getClickedBlock().getLocation().getWorld(),
-                    e.getClickedBlock().getLocation().getX() + 0.5,
-                    e.getClickedBlock().getLocation().getY()+1,
-                    e.getClickedBlock().getLocation().getZ()+0.5);
+                e.getClickedBlock().getLocation().getX() + 0.5,
+                e.getClickedBlock().getLocation().getY() + 1,
+                e.getClickedBlock().getLocation().getZ() + 0.5);
         }
 
-        if (!hasAdaptation(p) || (!hand.getType().equals(Material.ENDER_EYE) && !isBound(hand))) {
+        if(!hasAdaptation(p) || (!hand.getType().equals(Material.ENDER_EYE) && !isBound(hand))) {
             return;
         }
         e.setCancelled(true);
 
-        switch (e.getAction()) {
+        switch(e.getAction()) {
             case LEFT_CLICK_BLOCK -> {
-                if (p.isSneaking()) {
+                if(p.isSneaking()) {
                     linkEye(p, location);
                 }
             }
             case LEFT_CLICK_AIR -> {
-                if (p.isSneaking() && isBound(hand)) {
+                if(p.isSneaking() && isBound(hand)) {
                     unlinkEye(p);
-                } else if (p.isSneaking() && !isBound(hand)) {
+                } else if(p.isSneaking() && !isBound(hand)) {
                     linkEye(p, location);
                 }
             }
@@ -91,8 +89,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         Location l = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
         ItemStack hand = p.getInventory().getItemInMainHand();
 
-        getSkill().xp(p , 75);
-        if (hand.getAmount() > 1) { // consume the hand
+        getSkill().xp(p, 75);
+        if(hand.getAmount() > 1) { // consume the hand
             hand.setAmount(hand.getAmount() - 1);
         } else {
             p.getInventory().setItemInMainHand(null);
@@ -108,8 +106,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             double d = 2;
             double pcd = 1000;
             double y = 0.1;
-            while (pcd > 0) {
-                for (int i = 0; i < 360; i += 360 / 25) {
+            while(pcd > 0) {
+                for(int i = 0; i < 360; i += 360 / 25) {
 
                     double angle = (i * Math.PI / 180);
                     double x = d * Math.cos(angle);
@@ -137,11 +135,10 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     }
 
 
-
     private void unlinkEye(Player p) {
         ItemStack hand = p.getInventory().getItemInMainHand();
 
-        if (hand.getAmount() > 1) {
+        if(hand.getAmount() > 1) {
             hand.setAmount(hand.getAmount() - 1);
         } else {
             p.getInventory().setItemInMainHand(null);
@@ -154,7 +151,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     private void linkEye(Player p, Location location) {
         ItemStack hand = p.getInventory().getItemInMainHand();
 
-        if (hand.getAmount() == 1) {
+        if(hand.getAmount() == 1) {
             BoundEyeOfEnder.setData(hand, location);
         } else {
             hand.setAmount(hand.getAmount() - 1);
@@ -168,5 +165,6 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     public void onTick() {
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

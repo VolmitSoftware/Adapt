@@ -35,7 +35,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)),0) + C.GRAY + " Speed");
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " Speed");
     }
 
     @EventHandler
@@ -45,17 +45,15 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
                 Player p = ((Player) e.getEntity().getShooter());
 
                 if(hasAdaptation(p)) {
-                    if(!p.isOnGround())
-                    {
+                    if(!p.isOnGround()) {
                         Vector velocity = p.getPlayer().getLocation().getDirection().normalize().multiply(getSpeed(getLevelPercent(p)));
                         p.setVelocity(p.getVelocity().subtract(velocity));
                         p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_TURTLE, 1f, 0.75f);
                         p.getWorld().playSound(p.getLocation(), Sound.ITEM_CROSSBOW_SHOOT, 1f, 1.95f);
 
-                        for(int i = 0; i < 9; i++)
-                        {
+                        for(int i = 0; i < 9; i++) {
                             Vector v = velocity.clone().add(Vector.getRandom().subtract(Vector.getRandom()).multiply(0.3)).normalize();
-                            p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().clone().add(0,1,0), 0, v.getX(), v.getY(), v.getZ(), 0.2);
+                            p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().clone().add(0, 1, 0), 0, v.getX(), v.getY(), v.getZ(), 0.2);
                         }
                     }
                 }
@@ -68,5 +66,6 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

@@ -4,18 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
-import lombok.AllArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
@@ -31,8 +26,8 @@ public class BukkitGson {
             a.add(truncate(data.getX(), 1));
             a.add(truncate(data.getY(), 1));
             a.add(truncate(data.getZ(), 1));
-            a.add((int)data.getYaw());
-            a.add((int)data.getPitch());
+            a.add((int) data.getYaw());
+            a.add((int) data.getPitch());
             return a;
         })
         .registerTypeAdapter(Location.class, (JsonDeserializer<Location>) (j, type, d) -> {
@@ -76,18 +71,15 @@ public class BukkitGson {
         .create();
 
     private static double truncate(double d, int p) {
-        if((int) d == d)
-        {
+        if((int) d == d) {
             return d;
         }
 
         return Double.parseDouble(Form.f(d, p));
     }
 
-    private static double truncate(float d, int p)
-    {
-        if((int) d == d)
-        {
+    private static double truncate(float d, int p) {
+        if((int) d == d) {
             return d;
         }
 

@@ -5,8 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class AdaptStatTracker
-{
+public class AdaptStatTracker {
     private String stat;
     private double goal;
     private double reward;

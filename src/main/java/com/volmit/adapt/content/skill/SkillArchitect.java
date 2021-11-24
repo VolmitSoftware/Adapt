@@ -5,12 +5,10 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -50,11 +48,11 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers())
-        {
+        for(Player i : Bukkit.getOnlinePlayers()) {
             checkStatTrackers(getPlayer(i));
         }
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

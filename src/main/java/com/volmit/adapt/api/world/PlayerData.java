@@ -5,15 +5,12 @@ import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.KSet;
-import com.volmit.adapt.util.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.EntityType;
-
-import java.util.concurrent.TimeUnit;
 
 @Data
 @NoArgsConstructor
@@ -41,31 +38,23 @@ public class PlayerData {
         multipliers.add(new XPMultiplier(v, duration));
     }
 
-    public boolean isGranted(String advancement)
-    {
+    public boolean isGranted(String advancement) {
         return advancements.contains(advancement);
     }
 
-    public void ensureGranted(String advancement)
-    {
+    public void ensureGranted(String advancement) {
         advancements.add(advancement);
     }
 
-    public double getStat(String key)
-    {
+    public double getStat(String key) {
         Double d = stats.get(key);
         return d == null ? 0 : d;
     }
 
-    public void addStat(String key, double amt)
-    {
-        if(!stats.containsKey(key))
-        {
+    public void addStat(String key, double amt) {
+        if(!stats.containsKey(key)) {
             stats.put(key, amt);
-        }
-
-        else
-        {
+        } else {
             stats.put(key, stats.get(key) + amt);
         }
     }

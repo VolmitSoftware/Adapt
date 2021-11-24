@@ -1,12 +1,9 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
-import com.volmit.adapt.content.adaptation.experimental.RiftDoor;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import org.bukkit.Bukkit;
@@ -100,5 +97,6 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         }
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

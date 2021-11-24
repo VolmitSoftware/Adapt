@@ -8,16 +8,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-
-import java.util.Objects;
 
 public class RiftDoor extends SimpleAdaptation<RiftDoor.Config> {
 
@@ -49,26 +42,26 @@ public class RiftDoor extends SimpleAdaptation<RiftDoor.Config> {
         ItemStack hand = p.getInventory().getItemInMainHand();
         Location location = null;
 
-        if (e.getClickedBlock() == null) {
+        if(e.getClickedBlock() == null) {
             location = e.getPlayer().getLocation();
 
         } else {
             location = new Location(e.getClickedBlock().getLocation().getWorld(),
-                    e.getClickedBlock().getLocation().getX() + 0.5,
-                    e.getClickedBlock().getLocation().getY() + 1,
-                    e.getClickedBlock().getLocation().getZ() + 0.5);
+                e.getClickedBlock().getLocation().getX() + 0.5,
+                e.getClickedBlock().getLocation().getY() + 1,
+                e.getClickedBlock().getLocation().getZ() + 0.5);
         }
 
-        if (!hasAdaptation(p) || (!hand.getType().equals(Material.ENDER_EYE))) {
+        if(!hasAdaptation(p) || (!hand.getType().equals(Material.ENDER_EYE))) {
             return;
         }
         e.setCancelled(true);
 
-        switch (e.getAction()) {
+        switch(e.getAction()) {
             case LEFT_CLICK_BLOCK, LEFT_CLICK_AIR -> {
-                if (p.isSneaking() && isBound(hand)) { // pop portal open
+                if(p.isSneaking() && isBound(hand)) { // pop portal open
                     openEye(p, hand, location);
-                } else if (p.isSneaking() && !isBound(hand)) {// Start portal process
+                } else if(p.isSneaking() && !isBound(hand)) {// Start portal process
                     linkEye(p, location);
 
                 }
@@ -84,7 +77,7 @@ public class RiftDoor extends SimpleAdaptation<RiftDoor.Config> {
         Location l2 = location;
 
         getSkill().xp(p, 75); // xp time
-        if (hand.getAmount() > 1) { // consume the hand
+        if(hand.getAmount() > 1) { // consume the hand
             hand.setAmount(hand.getAmount() - 1);
         } else {
             p.getInventory().setItemInMainHand(null);
@@ -113,7 +106,7 @@ public class RiftDoor extends SimpleAdaptation<RiftDoor.Config> {
         ItemStack eye = BoundDoor.withData(location);
 
 
-        if (hand.getAmount() == 1) {
+        if(hand.getAmount() == 1) {
             BoundDoor.setData(hand, location);
         } else {
             hand.setAmount(hand.getAmount() - 1);
@@ -126,5 +119,6 @@ public class RiftDoor extends SimpleAdaptation<RiftDoor.Config> {
     public void onTick() {
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

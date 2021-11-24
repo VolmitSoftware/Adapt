@@ -1,14 +1,10 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
-import com.volmit.adapt.content.adaptation.experimental.RiftDoor;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -17,16 +13,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 
 public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> {
-    private KMap<Player, Long> lastJump = new KMap<>();
+    private final KMap<Player, Long> lastJump = new KMap<>();
 
     public AgilitySuperJump() {
         super("super-jump");
@@ -51,10 +45,8 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     }
 
     @EventHandler
-    public void on(PlayerToggleSneakEvent e)
-    {
-        if(!hasAdaptation(e.getPlayer()))
-        {
+    public void on(PlayerToggleSneakEvent e) {
+        if(!hasAdaptation(e.getPlayer())) {
             return;
         }
 
@@ -64,14 +56,12 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     }
 
     @EventHandler
-    public void on(PlayerQuitEvent e)
-    {
+    public void on(PlayerQuitEvent e) {
         lastJump.remove(e.getPlayer());
     }
 
     @EventHandler
-    public void on(PlayerMoveEvent e)
-    {
+    public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
 
         if(p.isSwimming() || p.isFlying() || p.isGliding() || p.isSprinting()) {
@@ -89,13 +79,9 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
                     jumpVelocity += (double) ((float) jumpPotion.getAmplifier() + 1) * 0.1F;
                 }
 
-                if(lastJump.get(p) != null && M.ms() - lastJump.get(p) < 1000)
-                {
+                if(lastJump.get(p) != null && M.ms() - lastJump.get(p) < 1000) {
                     return;
-                }
-
-                else if(lastJump.get(p) != null && M.ms() - lastJump.get(p) > 1500)
-                {
+                } else if(lastJump.get(p) != null && M.ms() - lastJump.get(p) > 1500) {
                     lastJump.remove(p);
                 }
 
@@ -115,5 +101,6 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

@@ -1,7 +1,6 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.Cuboid;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
@@ -124,5 +123,6 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

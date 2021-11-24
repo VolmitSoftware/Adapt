@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.volmit.adapt.Adapt;
 import eu.endercentral.crazy_advancements.Advancement;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import eu.endercentral.crazy_advancements.CrazyAdvancements;
@@ -483,8 +482,7 @@ public final class AdvancementManager {
         for(Player player : getPlayers()) {
             //Packet
 
-            if(advancementsList.get(player) == null)
-            {
+            if(advancementsList.get(player) == null) {
                 continue;
             }
 

@@ -9,7 +9,6 @@ import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
-import eu.endercentral.crazy_advancements.manager.AdvancementManager;
 import lombok.Data;
 
 @Data

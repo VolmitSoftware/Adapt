@@ -1,14 +1,11 @@
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.PickaxesChisel;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
-import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -32,7 +29,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
             if(isPickaxe(hand)) {
-                xp(a.getPlayer(),e.getEntity().getLocation(), 13.26 * e.getDamage());
+                xp(a.getPlayer(), e.getEntity().getLocation(), 13.26 * e.getDamage());
                 getPlayer(a.getPlayer()).getData().addStat("pickaxes.swings", 1);
                 getPlayer(a.getPlayer()).getData().addStat("pickaxes.damage", e.getDamage());
             }
@@ -45,7 +42,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
             double v = getValue(e.getBlock().getType());
             getPlayer(e.getPlayer()).getData().addStat("pickaxes.blocks.broken", 1);
             getPlayer(e.getPlayer()).getData().addStat("pickaxes.blocks.value", getValue(e.getBlock().getBlockData()));
-            J.a(() -> xp(e.getPlayer(),e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
+            J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
         }
     }
 
@@ -112,5 +109,6 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

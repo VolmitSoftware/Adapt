@@ -1,10 +1,8 @@
 package com.volmit.adapt.content.adaptation.experimental;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.KList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -47,10 +45,10 @@ public class RiftSphere extends SimpleAdaptation<RiftSphere.Config> {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
 
-        if (getLevel(e.getPlayer()) > 0) {
+        if(getLevel(e.getPlayer()) > 0) {
             Player p = e.getPlayer();
             int points = getPoints(getLevel(p)); //amount of points to be generated
-            for (int i = 0; i < 360; i += 360 / points) {
+            for(int i = 0; i < 360; i += 360 / points) {
                 double angle = (i * Math.PI / 180);
                 double x = getRange(getLevel(p)) * Math.cos(angle);
                 double z = getRange(getLevel(p)) * Math.sin(angle);
@@ -70,5 +68,6 @@ public class RiftSphere extends SimpleAdaptation<RiftSphere.Config> {
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

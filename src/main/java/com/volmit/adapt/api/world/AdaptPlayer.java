@@ -6,24 +6,17 @@ import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.notification.Notifier;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
-import com.volmit.adapt.content.skill.SkillRift;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.ChronoLatch;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.IO;
-import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.RollingSequence;
-import eu.endercentral.crazy_advancements.Advancement;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.AdvancementVisibility;
-import eu.endercentral.crazy_advancements.NameKey;
 import lombok.Data;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.io.File;
@@ -146,16 +139,15 @@ public class AdaptPlayer extends TickedObject {
         getData().setLastLogin(M.ms());
         long boostTime = (long) Math.min(timeGone / 12D, TimeUnit.HOURS.toMillis(1));
 
-        if(boostTime < TimeUnit.MINUTES.toMillis(5))
-        {
+        if(boostTime < TimeUnit.MINUTES.toMillis(5)) {
             return;
         }
 
-        double boostAmount = M.lerp(0.1, 0.25, (double)boostTime / (double)TimeUnit.HOURS.toMillis(1));
+        double boostAmount = M.lerp(0.1, 0.25, (double) boostTime / (double) TimeUnit.HOURS.toMillis(1));
         getData().globalXPMultiplier(boostAmount, (int) boostTime);
         getNot().queue(AdvancementNotification.builder()
-                .title(first ? "Welcome!" : "Welcome Back!")
-                .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " XP for " + C.AQUA + Form.duration(boostTime, 0))
+            .title(first ? "Welcome!" : "Welcome Back!")
+            .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " XP for " + C.AQUA + Form.duration(boostTime, 0))
             .build());
     }
 

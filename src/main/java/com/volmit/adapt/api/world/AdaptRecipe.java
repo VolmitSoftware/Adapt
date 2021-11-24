@@ -2,7 +2,6 @@ package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.recipe.MaterialChar;
-import com.volmit.adapt.api.value.MaterialCount;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -18,29 +17,24 @@ import org.bukkit.inventory.SmithingRecipe;
 
 import java.util.List;
 
-public interface AdaptRecipe
-{
+public interface AdaptRecipe {
     ItemStack getResult();
 
     String getKey();
 
-    default NamespacedKey getNSKey()
-    {
+    default NamespacedKey getNSKey() {
         return new NamespacedKey(Adapt.instance, getKey());
     }
 
-    static Shapeless.ShapelessBuilder shapeless()
-    {
+    static Shapeless.ShapelessBuilder shapeless() {
         return Shapeless.builder();
     }
 
-    static Shaped.ShapedBuilder shaped()
-    {
+    static Shaped.ShapedBuilder shaped() {
         return Shaped.builder();
     }
 
-    static Smithing.SmithingBuilder smithing()
-    {
+    static Smithing.SmithingBuilder smithing() {
         return Smithing.builder();
     }
 
@@ -52,19 +46,18 @@ public interface AdaptRecipe
 
     @Builder
     @Data
-    class Shapeless implements AdaptRecipe
-    {
+    class Shapeless implements AdaptRecipe {
         private String key;
         private ItemStack result;
         @Singular
         private List<Material> ingredients;
+
         @Override
         public ItemStack getResult() {
             return null;
         }
 
-        public void register()
-        {
+        public void register() {
             ShapelessRecipe s = new ShapelessRecipe(new NamespacedKey(Adapt.instance, getKey()), result);
             ingredients.forEach(s::addIngredient);
             Bukkit.getServer().addRecipe(s);
@@ -86,21 +79,20 @@ public interface AdaptRecipe
 
     @Builder
     @Data
-    class Shaped implements AdaptRecipe
-    {
+    class Shaped implements AdaptRecipe {
         private String key;
         private ItemStack result;
         @Singular
         private List<MaterialChar> ingredients;
         @Singular
         private List<String> shapes;
+
         @Override
         public ItemStack getResult() {
             return null;
         }
 
-        public void register()
-        {
+        public void register() {
             ShapedRecipe s = new ShapedRecipe(new NamespacedKey(Adapt.instance, getKey()), result);
             s.shape(shapes.toArray(new String[0]));
             ingredients.forEach(i -> s.setIngredient(i.getCharacter(), i.getMaterial()));
@@ -122,19 +114,18 @@ public interface AdaptRecipe
 
     @Builder
     @Data
-    class Smithing implements AdaptRecipe
-    {
+    class Smithing implements AdaptRecipe {
         private String key;
         private ItemStack result;
         private Material base;
         private Material addition;
+
         @Override
         public ItemStack getResult() {
             return null;
         }
 
-        public void register()
-        {
+        public void register() {
             SmithingRecipe s = new SmithingRecipe(new NamespacedKey(Adapt.instance, getKey()), result, new RecipeChoice.ExactChoice(new ItemStack(base)), new RecipeChoice.ExactChoice(new ItemStack(addition)));
             Bukkit.getServer().addRecipe(s);
             Adapt.verbose("Registered Smithing Table Recipe " + s.getKey());

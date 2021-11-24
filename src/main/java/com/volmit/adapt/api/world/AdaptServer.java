@@ -11,20 +11,14 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
-import eu.endercentral.crazy_advancements.Advancement;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.AdvancementVisibility;
-import eu.endercentral.crazy_advancements.NameKey;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.Recipe;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -116,16 +110,11 @@ public class AdaptServer extends TickedObject {
     }
 
     @EventHandler
-    public void on(CraftItemEvent e)
-    {
-        if(e.getWhoClicked() instanceof Player p)
-        {
-            for(Skill i : getSkillRegistry().getSkills())
-            {
-                for(Adaptation j : i.getAdaptations())
-                {
-                    if(j.isAdaptationRecipe(e.getRecipe()) && !j.hasAdaptation(p))
-                    {
+    public void on(CraftItemEvent e) {
+        if(e.getWhoClicked() instanceof Player p) {
+            for(Skill i : getSkillRegistry().getSkills()) {
+                for(Adaptation j : i.getAdaptations()) {
+                    if(j.isAdaptationRecipe(e.getRecipe()) && !j.hasAdaptation(p)) {
                         Adapt.actionbar(p, C.RED + "Requires " + j.getDisplayName() + C.RED + " from " + i.getDisplayName());
                         p.playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.5f, 1.8f);
                         e.setCancelled(true);

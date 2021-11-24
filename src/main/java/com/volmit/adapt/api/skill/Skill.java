@@ -4,9 +4,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
-import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.tick.Ticked;
-import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptRecipe;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -14,7 +12,6 @@ import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
@@ -22,17 +19,10 @@ import com.volmit.adapt.util.MaterialBlock;
 import com.volmit.adapt.util.UIElement;
 import com.volmit.adapt.util.UIWindow;
 import com.volmit.adapt.util.Window;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public interface Skill<T> extends Ticked, Component {
     AdaptAdvancement buildAdvancements();
@@ -61,19 +51,15 @@ public interface Skill<T> extends Ticked, Component {
 
     KList<AdaptStatTracker> getStatTrackers();
 
-    default void checkStatTrackers(AdaptPlayer player)
-    {
-        if(!player.getAdvancementHandler().isReady())
-        {
+    default void checkStatTrackers(AdaptPlayer player) {
+        if(!player.getAdvancementHandler().isReady()) {
             return;
         }
 
         PlayerData d = player.getData();
 
-        for(AdaptStatTracker i : getStatTrackers())
-        {
-            if(!d.isGranted(i.getAdvancement()) && d.getStat(i.getStat()) >= i.getGoal())
-            {
+        for(AdaptStatTracker i : getStatTrackers()) {
+            if(!d.isGranted(i.getAdvancement()) && d.getStat(i.getStat()) >= i.getGoal()) {
                 player.getAdvancementHandler().grant(i.getAdvancement());
                 xp(player.getPlayer(), i.getReward());
             }
@@ -106,9 +92,8 @@ public interface Skill<T> extends Ticked, Component {
 
     default void xp(Player p, Location at, double xp) {
         XP.xp(p, this, xp);
-        if(xp > 50)
-        {
-            vfxXP(p, at, (int)xp);
+        if(xp > 50) {
+            vfxXP(p, at, (int) xp);
         }
     }
 

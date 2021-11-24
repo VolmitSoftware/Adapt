@@ -4,18 +4,13 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.AbstractArrow;
-import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -23,7 +18,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.Vector;
 
 public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnchant.Config> {
     private final KList<Integer> holds = new KList<>();
@@ -56,8 +50,8 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
             && e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR)
             && e.getClick().equals(ClickType.LEFT)
             && (e.getSlotType().equals(InventoryType.SlotType.CONTAINER)
-                || e.getSlotType().equals(InventoryType.SlotType.ARMOR)
-                || e.getSlotType().equals(InventoryType.SlotType.QUICKBAR))
+            || e.getSlotType().equals(InventoryType.SlotType.ARMOR)
+            || e.getSlotType().equals(InventoryType.SlotType.QUICKBAR))
             && e.getCursor() != null
             && e.getCurrentItem() != null
             && e.getCursor().getType().equals(Material.ENCHANTED_BOOK)
@@ -69,22 +63,19 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
             ItemStack item = e.getCurrentItem();
             ItemStack book = e.getCursor();
             KMap<Enchantment, Integer> itemEnchants = new KMap<>(item.getType().equals(Material.ENCHANTED_BOOK)
-                ? ((EnchantmentStorageMeta)item.getItemMeta()).getStoredEnchants()
+                ? ((EnchantmentStorageMeta) item.getItemMeta()).getStoredEnchants()
                 : item.getEnchantments());
             KMap<Enchantment, Integer> bookEnchants = new KMap<>(eb.getStoredEnchants());
             KMap<Enchantment, Integer> newEnchants = itemEnchants.copy();
             KMap<Enchantment, Integer> addEnchants = new KMap<>();
             int power = itemEnchants.values().stream().mapToInt(i -> i).sum();
 
-            if(bookEnchants.isEmpty())
-            {
+            if(bookEnchants.isEmpty()) {
                 return;
             }
 
-            for(Enchantment i : bookEnchants.k())
-            {
-                if(itemEnchants.containsKey(i))
-                {
+            for(Enchantment i : bookEnchants.k()) {
+                if(itemEnchants.containsKey(i)) {
                     continue;
                 }
 
@@ -94,29 +85,23 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
                 bookEnchants.remove(i);
             }
 
-            if(power > getTotalLevelCount(getLevel(p)))
-            {
+            if(power > getTotalLevelCount(getLevel(p))) {
                 Adapt.actionbar(p, C.RED + "Cannot Enchant an item with more than " + getTotalLevelCount(getLevel(p)) + " power");
                 p.playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.7f);
                 return;
             }
 
-            if(!itemEnchants.equals(newEnchants))
-            {
+            if(!itemEnchants.equals(newEnchants)) {
                 ItemMeta im = item.getItemMeta();
 
-                if(im instanceof EnchantmentStorageMeta sm)
-                {
+                if(im instanceof EnchantmentStorageMeta sm) {
                     sm.getStoredEnchants().keySet().forEach(sm::removeStoredEnchant);
-                    newEnchants.forEach((ec,l) -> sm.addStoredEnchant(ec, l, true));
+                    newEnchants.forEach((ec, l) -> sm.addStoredEnchant(ec, l, true));
                     p.sendMessage("---");
-                    sm.getStoredEnchants().forEach((k,v) -> p.sendMessage(k.getKey().getKey() + " " + v));
-                }
-
-                else
-                {
+                    sm.getStoredEnchants().forEach((k, v) -> p.sendMessage(k.getKey().getKey() + " " + v));
+                } else {
                     im.getEnchants().keySet().forEach(im::removeEnchant);
-                    newEnchants.forEach((ec,l) -> im.addEnchant(ec, l, true));
+                    newEnchants.forEach((ec, l) -> im.addEnchant(ec, l, true));
                 }
 
                 item.setItemMeta(im);
@@ -126,15 +111,11 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
                 p.playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_TILES_BREAK, 0.5f, 0.7f);
                 getSkill().xp(p, 320 * addEnchants.values().stream().mapToInt((i) -> i).sum());
 
-                if(bookEnchants.isEmpty())
-                {
+                if(bookEnchants.isEmpty()) {
                     e.setCursor(null);
-                }
-
-                else if(!eb.getStoredEnchants().equals(bookEnchants))
-                {
+                } else if(!eb.getStoredEnchants().equals(bookEnchants)) {
                     eb.getStoredEnchants().keySet().forEach(eb::removeStoredEnchant);
-                    bookEnchants.forEach((ec,l) -> eb.addStoredEnchant(ec, l, true));
+                    bookEnchants.forEach((ec, l) -> eb.addStoredEnchant(ec, l, true));
                     book.setItemMeta(eb);
                     e.setCursor(book);
                 }
@@ -147,5 +128,6 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

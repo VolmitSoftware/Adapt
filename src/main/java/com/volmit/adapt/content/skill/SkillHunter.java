@@ -1,13 +1,10 @@
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.HunterAdrenaline;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.boss.BarColor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
@@ -47,7 +44,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         if(e.getEntity().getKiller() != null && e.getEntity().getKiller() != null) {
             double mult = e.getEntity().getType().equals(EntityType.CREEPER) ? 6 : 1;
             xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 3 * mult, 18, 3000);
-            xp(e.getEntity().getKiller(),e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 6 * mult);
+            xp(e.getEntity().getKiller(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 6 * mult);
             getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
         }
     }
@@ -57,5 +54,6 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

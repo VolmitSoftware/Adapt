@@ -1,11 +1,9 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
@@ -47,5 +45,6 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 public class IO {

@@ -8,13 +8,11 @@ import com.volmit.adapt.content.adaptation.HerbalismHungryShield;
 import com.volmit.adapt.content.adaptation.HerbalismReplant;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import org.bukkit.Material;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Levelled;
-import org.bukkit.boss.BarColor;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -93,14 +91,14 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
         if(e.getHarvestedBlock().getBlockData() instanceof Ageable) {
             getPlayer(e.getPlayer()).getData().addStat("harvest.blocks", 1);
-            xp(e.getPlayer(),e.getHarvestedBlock().getLocation().clone().add(0.5, 0.5, 0.5), 32 * (((Ageable) e.getHarvestedBlock().getBlockData()).getAge()));
+            xp(e.getPlayer(), e.getHarvestedBlock().getLocation().clone().add(0.5, 0.5, 0.5), 32 * (((Ageable) e.getHarvestedBlock().getBlockData()).getAge()));
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPlaceEvent e) {
         if(e.getBlock().getBlockData() instanceof Ageable) {
-            xp(e.getPlayer(),e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), 3);
+            xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), 3);
             getPlayer(e.getPlayer()).getData().addStat("harvest.planted", 1);
         }
     }
@@ -122,7 +120,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
             J.s(() -> {
                 int nl = ((Levelled) e.getClickedBlock().getBlockData()).getLevel();
                 if(nl > ol || (ol > 0 && nl == 0)) {
-                    xp(e.getPlayer(),e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), 51 + (nl * 3) + (nl == 0 ? 250 : 5));
+                    xp(e.getPlayer(), e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), 51 + (nl * 3) + (nl == 0 ? 250 : 5));
                     getPlayer(e.getPlayer()).getData().addStat("harvest.composted", 1);
                 }
             });
@@ -136,7 +134,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         }
 
         if(e.getBlock().getBlockData() instanceof Ageable) {
-            xp(e.getPlayer(),e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), 32 * (((Ageable) e.getBlock().getBlockData()).getAge()));
+            xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), 32 * (((Ageable) e.getBlock().getBlockData()).getAge()));
             getPlayer(e.getPlayer()).getData().addStat("harvest.blocks", 1);
         }
     }
@@ -146,5 +144,6 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

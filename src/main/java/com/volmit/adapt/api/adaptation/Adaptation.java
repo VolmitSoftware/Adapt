@@ -21,12 +21,7 @@ import com.volmit.adapt.util.WindowResolution;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 public interface Adaptation<T> extends Ticked, Component {
     int getMaxLevel();
@@ -61,8 +56,7 @@ public interface Adaptation<T> extends Ticked, Component {
 
     void onRegisterAdvancements(KList<AdaptAdvancement> advancements);
 
-    default boolean hasAdaptation(Player p)
-    {
+    default boolean hasAdaptation(Player p) {
         return getLevel(p) > 0;
     }
 
@@ -220,12 +214,9 @@ public interface Adaptation<T> extends Ticked, Component {
         w.open();
     }
 
-    default boolean isAdaptationRecipe(Recipe recipe)
-    {
-        for(AdaptRecipe i : getRecipes())
-        {
-            if(i.is(recipe))
-            {
+    default boolean isAdaptationRecipe(Recipe recipe) {
+        for(AdaptRecipe i : getRecipes()) {
+            if(i.is(recipe)) {
                 return true;
             }
         }

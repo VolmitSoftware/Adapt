@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -32,7 +31,8 @@ public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
     @Override
     public void applyLore(Data data, List<String> lore) {
         lore.add(C.LIGHT_PURPLE + "Right Click " + C.GRAY + "to consume and teleport");
-        lore.add(C.LIGHT_PURPLE + "Shift + Left Click " + C.GRAY + "to bind/unbind");    }
+        lore.add(C.LIGHT_PURPLE + "Shift + Left Click " + C.GRAY + "to bind/unbind");
+    }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
@@ -42,7 +42,7 @@ public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
     }
 
     public static Location getLocation(ItemStack stack) {
-        if (io.getData(stack) != null) {
+        if(io.getData(stack) != null) {
             return io.getData(stack).getLocation();
         }
 

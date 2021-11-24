@@ -52,14 +52,15 @@ import java.util.zip.GZIPInputStream;
 /**
  * <p>
  * This class reads <strong>NBT</strong>, or
- * <strong>Named Binary Tag</strong> streams, and produces an object graph of subclasses of the <code>Tag</code> object.</p>
+ * <strong>Named Binary Tag</strong> streams, and produces an object graph of subclasses of the <code>Tag</code>
+ * object.</p>
  *
  * <p>
- * The NBT format was created by Markus Persson, and the specification may be found at <a href="http://www.minecraft.net/docs/NBT.txt">
+ * The NBT format was created by Markus Persson, and the specification may be found at <a
+ * href="http://www.minecraft.net/docs/NBT.txt">
  * http://www.minecraft.net/docs/NBT.txt</a>.</p>
  *
  * @author Graham Edgecombe
- *
  */
 public final class NBTInputStream implements Closeable {
 
@@ -70,7 +71,9 @@ public final class NBTInputStream implements Closeable {
 
     /**
      * Create a new <code>NBTInputStream</code>, which will source its data from the specified input stream.
-     * @param is The output stream
+     *
+     * @param is
+     *     The output stream
      */
     public NBTInputStream(DataInputStream is) {
         this.is = is;
@@ -80,8 +83,10 @@ public final class NBTInputStream implements Closeable {
      * Creates a new <code>NBTInputStream</code>, which will source its data from the specified input stream.
      * The stream will be decompressed using GZIP.
      *
-     * @param is The input stream.
-     * @throws IOException if an I/O error occurs.
+     * @param is
+     *     The input stream.
+     * @throws IOException
+     *     if an I/O error occurs.
      */
     public NBTInputStream(InputStream is) throws IOException {
         this.is = new DataInputStream(new GZIPInputStream(is));
@@ -91,7 +96,8 @@ public final class NBTInputStream implements Closeable {
      * Reads an NBT tag from the stream.
      *
      * @return The tag that was read.
-     * @throws IOException if an I/O error occurs.
+     * @throws IOException
+     *     if an I/O error occurs.
      */
     public Tag readTag() throws IOException {
         return readTag(0);
@@ -100,9 +106,11 @@ public final class NBTInputStream implements Closeable {
     /**
      * Reads an NBT from the stream.
      *
-     * @param depth The depth of this tag.
+     * @param depth
+     *     The depth of this tag.
      * @return The tag that was read.
-     * @throws IOException if an I/O error occurs.
+     * @throws IOException
+     *     if an I/O error occurs.
      */
     private Tag readTag(int depth) throws IOException {
         int type = is.readByte() & 0xFF;
@@ -123,11 +131,15 @@ public final class NBTInputStream implements Closeable {
     /**
      * Reads the payload of a tag, given the name and type.
      *
-     * @param type The type.
-     * @param name The name.
-     * @param depth The depth.
+     * @param type
+     *     The type.
+     * @param name
+     *     The name.
+     * @param depth
+     *     The depth.
      * @return The tag.
-     * @throws IOException if an I/O error occurs.
+     * @throws IOException
+     *     if an I/O error occurs.
      */
     private Tag readTagPayload(int type, String name, int depth) throws IOException {
         switch(type) {

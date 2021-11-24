@@ -2,11 +2,9 @@ package com.volmit.adapt.content.adaptation.experimental;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -43,11 +41,11 @@ public class RiftStorage extends SimpleAdaptation<RiftStorage.Config> {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-        if (getLevel(e.getPlayer()) > 0) {
-            if (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
-                    && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
-                    || e.getAction().equals(Action.LEFT_CLICK_AIR)
-                    || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
+        if(getLevel(e.getPlayer()) > 0) {
+            if(e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
+                && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
+                || e.getAction().equals(Action.LEFT_CLICK_AIR)
+                || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
                 Adapt.info("Opened Enderchest");
                 Player p = e.getPlayer();
 
@@ -67,5 +65,6 @@ public class RiftStorage extends SimpleAdaptation<RiftStorage.Config> {
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

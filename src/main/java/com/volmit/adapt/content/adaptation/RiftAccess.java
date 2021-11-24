@@ -1,15 +1,11 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.AdvancementVisibility;
-import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -23,7 +19,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
-    private KList<InventoryView> activeViews = new KList<>();
+    private final KList<InventoryView> activeViews = new KList<>();
 
     public RiftAccess() {
         super("rift-access");
@@ -51,28 +47,28 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         ItemStack hand = p.getInventory().getItemInMainHand();
         Block block = e.getClickedBlock();
 
-        if (!hasAdaptation(p) || !hand.getType().equals(Material.ENDER_PEARL)) {
+        if(!hasAdaptation(p) || !hand.getType().equals(Material.ENDER_PEARL)) {
             return;
         }
 
-        switch (e.getAction()) {
+        switch(e.getAction()) {
             case LEFT_CLICK_BLOCK, RIGHT_CLICK_BLOCK -> {
-                if (p.isSneaking() && isStorage(block.getBlockData())) {
+                if(p.isSneaking() && isStorage(block.getBlockData())) {
                     linkPearl(p, block);
                     e.setCancelled(true);
-                } else if (isBound(hand) && !p.isSneaking()) {
+                } else if(isBound(hand) && !p.isSneaking()) {
                     openPearl(p);
                     e.setCancelled(true);
                 }
             }
             case RIGHT_CLICK_AIR -> {
-                if (isBound(hand)) {
+                if(isBound(hand)) {
                     openPearl(p);
                     e.setCancelled(true);
                 }
             }
             case LEFT_CLICK_AIR -> {
-                if (p.isSneaking() && isBound(hand)) {
+                if(p.isSneaking() && isBound(hand)) {
                     unlinkPearl(p);
                     e.setCancelled(true);
                 }
@@ -83,7 +79,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     private void linkPearl(Player p, Block block) {
         ItemStack hand = p.getInventory().getItemInMainHand();
 
-        if (hand.getAmount() == 1) {
+        if(hand.getAmount() == 1) {
             BoundEnderPearl.setData(hand, block);
         } else {
             hand.setAmount(hand.getAmount() - 1);
@@ -95,7 +91,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     private void unlinkPearl(Player p) {
         ItemStack hand = p.getInventory().getItemInMainHand();
 
-        if (hand.getAmount() > 1) {
+        if(hand.getAmount() > 1) {
             hand.setAmount(hand.getAmount() - 1);
         } else {
             p.getInventory().setItemInMainHand(null);
@@ -108,7 +104,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     private void openPearl(Player p) {
         Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
 
-        if (b != null && b.getState() instanceof InventoryHolder holder) {
+        if(b != null && b.getState() instanceof InventoryHolder holder) {
             activeViews.add(p.openInventory(holder.getInventory()));
             p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 100f, 0.10f);
             p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 100f, 0.10f);
@@ -123,12 +119,12 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     @Override
     public void onTick() {
         J.s(() -> {
-            for (int ii = activeViews.size() - 1; ii >= 0; ii--) {
+            for(int ii = activeViews.size() - 1; ii >= 0; ii--) {
                 InventoryView i = activeViews.get(ii);
 
 
-                if (i.getPlayer().getOpenInventory().equals(i)) {
-                    if (i.getTopInventory().getLocation() == null || !isStorage(i.getTopInventory().getLocation().getBlock().getBlockData())) {
+                if(i.getPlayer().getOpenInventory().equals(i)) {
+                    if(i.getTopInventory().getLocation() == null || !isStorage(i.getTopInventory().getLocation().getBlock().getBlockData())) {
                         i.getPlayer().closeInventory();
                         i.getPlayer().removePotionEffect(PotionEffectType.BLINDNESS);
                         activeViews.remove(ii);
@@ -141,5 +137,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         });
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

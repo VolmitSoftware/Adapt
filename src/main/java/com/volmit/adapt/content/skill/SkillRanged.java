@@ -43,10 +43,10 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         if(e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
             Player p = ((Player) ((Projectile) e.getDamager()).getShooter());
             getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
-            getPlayer(p).getData().addStat("ranged.distance",e.getEntity().getLocation().distance(p.getLocation()));
+            getPlayer(p).getData().addStat("ranged.distance", e.getEntity().getLocation().distance(p.getLocation()));
             getPlayer(p).getData().addStat("ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
             getPlayer(p).getData().addStat("ranged.distance." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getEntity().getLocation().distance(p.getLocation()));
-            xp(p, e.getEntity().getLocation(),(3.125 * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * 1.7));
+            xp(p, e.getEntity().getLocation(), (3.125 * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * 1.7));
         }
     }
 
@@ -55,5 +55,6 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

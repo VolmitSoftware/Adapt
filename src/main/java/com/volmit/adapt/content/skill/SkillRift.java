@@ -1,18 +1,15 @@
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.content.adaptation.*;
-import com.volmit.adapt.content.adaptation.experimental.RiftAura;
+import com.volmit.adapt.content.adaptation.RiftAccess;
 import com.volmit.adapt.content.adaptation.RiftGate;
+import com.volmit.adapt.content.adaptation.experimental.RiftAura;
 import com.volmit.adapt.content.adaptation.experimental.RiftDoor;
 import com.volmit.adapt.content.adaptation.experimental.RiftSphere;
 import com.volmit.adapt.content.adaptation.experimental.RiftStorage;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
-
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EnderCrystal;
@@ -30,7 +27,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class SkillRift extends SimpleSkill<SkillRift.Config> {
-    private KMap<Player, Long> lasttp = new KMap<>();
+    private final KMap<Player, Long> lasttp = new KMap<>();
 
     public SkillRift() {
         super("rift", "\u274D");
@@ -48,73 +45,57 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     }
 
     @EventHandler
-    public void on(PlayerTeleportEvent e)
-    {
-        if(getPlayer(e.getPlayer()).hasSkill(this) && e.getFrom().getWorld() != e.getTo().getWorld())
-        {
+    public void on(PlayerTeleportEvent e) {
+        if(getPlayer(e.getPlayer()).hasSkill(this) && e.getFrom().getWorld() != e.getTo().getWorld()) {
             xpSilent(e.getPlayer(), 1000);
         }
     }
 
     @EventHandler
-    public void on(ProjectileLaunchEvent e)
-    {
-        if(e.getEntity() instanceof EnderPearl && e.getEntity().getShooter() instanceof Player p)
-        {
+    public void on(ProjectileLaunchEvent e) {
+        if(e.getEntity() instanceof EnderPearl && e.getEntity().getShooter() instanceof Player p) {
             xp(p, 50);
         }
     }
 
     @EventHandler
-    public void on(EntityDamageByEntityEvent e)
-    {
-        if(e.getEntity() instanceof Enderman && e.getDamager() instanceof Player p)
-        {
-            xp(p, 4 * Math.min(e.getDamage(),((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+    public void on(EntityDamageByEntityEvent e) {
+        if(e.getEntity() instanceof Enderman && e.getDamager() instanceof Player p) {
+            xp(p, 4 * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
-        if(e.getEntity() instanceof Endermite && e.getDamager() instanceof Player p)
-        {
-            xp(p, 2 * Math.min(e.getDamage(),((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+        if(e.getEntity() instanceof Endermite && e.getDamager() instanceof Player p) {
+            xp(p, 2 * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
-        if(e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Player p)
-        {
-            xp(p, 4 * Math.min(e.getDamage(),((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+        if(e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Player p) {
+            xp(p, 4 * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
-        if(e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Player p)
-        {
+        if(e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Player p) {
             xp(p, 250);
         }
 
-        if(e.getEntity() instanceof Enderman && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p)
-        {
-            xp(p, 4 * Math.min(e.getDamage(),((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+        if(e.getEntity() instanceof Enderman && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
+            xp(p, 4 * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
-        if(e.getEntity() instanceof Endermite && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p)
-        {
-            xp(p, 2 * Math.min(e.getDamage(),((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+        if(e.getEntity() instanceof Endermite && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
+            xp(p, 2 * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
-        if(e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p)
-        {
-            xp(p, 4 * Math.min(e.getDamage(),((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+        if(e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
+            xp(p, 4 * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
-        if(e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p)
-        {
+        if(e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
             xp(p, 250);
         }
     }
 
     @EventHandler
-    public void on(EntityDeathEvent e)
-    {
-        if(e.getEntity() instanceof EnderCrystal && e.getEntity().getKiller() != null)
-        {
+    public void on(EntityDeathEvent e) {
+        if(e.getEntity() instanceof EnderCrystal && e.getEntity().getKiller() != null) {
             xp(e.getEntity().getKiller(), 350);
         }
     }
 
     @EventHandler
-    public void on(PlayerQuitEvent e)
-    {
+    public void on(PlayerQuitEvent e) {
         lasttp.remove(e.getPlayer());
     }
 
@@ -127,5 +108,6 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         }
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

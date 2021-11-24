@@ -5,13 +5,10 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.SeaborneOxygen;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.KList;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
 
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
@@ -44,5 +41,6 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         }
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

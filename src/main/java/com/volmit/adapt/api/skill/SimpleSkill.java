@@ -2,7 +2,6 @@ package com.volmit.adapt.api.skill;
 
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.tick.TickedObject;
@@ -13,16 +12,12 @@ import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.KList;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
-import io.papermc.lib.PaperLib;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = false)
@@ -70,8 +65,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
     @Override
     public T getConfig() {
-        try
-        {
+        try {
             if(config == null) {
                 T dummy = getConfigurationClass().getConstructor().newInstance();
                 File l = Adapt.instance.getDataFile("adapt", "skills", getName() + ".json");
@@ -95,23 +89,18 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
                     return config;
                 }
             }
-        }
-
-        catch(Throwable e)
-        {
+        } catch(Throwable e) {
             e.printStackTrace();
         }
 
         return config;
     }
 
-    public void registerRecipe(AdaptRecipe r)
-    {
+    public void registerRecipe(AdaptRecipe r) {
         recipes.add(r);
     }
 
-    public void registerAdvancement(AdaptAdvancement a)
-    {
+    public void registerAdvancement(AdaptAdvancement a) {
         cachedAdvancements.add(a);
     }
 
@@ -120,13 +109,11 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         advancements.addAll(cachedAdvancements);
     }
 
-    public AdaptAdvancement buildAdvancements()
-    {
+    public AdaptAdvancement buildAdvancements() {
         KList<AdaptAdvancement> a = new KList<>();
         onRegisterAdvancements(a);
 
-        for(Adaptation i : getAdaptations())
-        {
+        for(Adaptation i : getAdaptations()) {
             a.add(i.buildAdvancements());
         }
 

@@ -43,7 +43,7 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
     }
 
     public static Block getBlock(ItemStack stack) {
-        if (io.getData(stack) != null) {
+        if(io.getData(stack) != null) {
             return io.getData(stack).getBlock();
         }
 

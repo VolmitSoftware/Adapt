@@ -1,23 +1,17 @@
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.AxesChop;
 import com.volmit.adapt.content.adaptation.AxesGroundSmash;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 
 public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     public SkillAxes() {
@@ -39,7 +33,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             if(isAxe(hand)) {
                 getPlayer(p).getData().addStat("axes.swings", 1);
                 getPlayer(p).getData().addStat("axes.damage", e.getDamage());
-                xp(a.getPlayer(), e.getEntity().getLocation(),13.26 * e.getDamage());
+                xp(a.getPlayer(), e.getEntity().getLocation(), 13.26 * e.getDamage());
             }
         }
     }
@@ -50,7 +44,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             double v = getValue(e.getBlock().getType());
             getPlayer(e.getPlayer()).getData().addStat("axes.blocks.broken", 1);
             getPlayer(e.getPlayer()).getData().addStat("axes.blocks.value", getValue(e.getBlock().getBlockData()));
-            J.a(() -> xp(e.getPlayer(),e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
+            J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
         }
     }
 
@@ -78,5 +72,6 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

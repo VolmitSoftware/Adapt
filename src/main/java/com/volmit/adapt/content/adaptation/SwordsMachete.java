@@ -1,7 +1,6 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Cuboid;
 import com.volmit.adapt.util.Element;
@@ -149,5 +148,6 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

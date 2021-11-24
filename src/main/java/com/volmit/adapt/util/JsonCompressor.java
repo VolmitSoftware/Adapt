@@ -5,41 +5,41 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 /**
- * A compressor for small JSON strings. 
+ * A compressor for small JSON strings.
  *
  * <p>For very small strings, normal compression algorithms start to fail.
- * Strings shorter than 150-200 bytes might actually increase in size 
+ * Strings shorter than 150-200 bytes might actually increase in size
  * if run through GZip or Zip compression.</p>
  *
- * <p>JsonCompress was created to increase the amount of data that could 
- * be stored on NFC tags. NFC storage is so small that traditional 
+ * <p>JsonCompress was created to increase the amount of data that could
+ * be stored on NFC tags. NFC storage is so small that traditional
  * compression methods can't be used effectively.</p>
  *
- * <p>Many NFC tags come with just 144 bytes of storage. Typically, some 
+ * <p>Many NFC tags come with just 144 bytes of storage. Typically, some
  * of this space will need to be reserved for overhead storage:</p>
- * 
+ *
  * <ul>
  * <li>The tag id (7 bytes)</li>
- * <li>The AAR record -- if you want the tag to launch a custom 
+ * <li>The AAR record -- if you want the tag to launch a custom
  *     Android app (about 40 bytes)</li>
  * <li>Other record headers (around 6 bytes)</li>
  * </ul>
  *
- * <p>This means that you typically have under 100 bytes of storage 
- * available. This means that many developers have to switch to a 
- * custom, binary format. Unfortunately, this fixes the data schema 
+ * <p>This means that you typically have under 100 bytes of storage
+ * available. This means that many developers have to switch to a
+ * custom, binary format. Unfortunately, this fixes the data schema
  * in the code, which reduces flexibility.</p>
- * 
- * <p>By using compressed JSON, you can get similar storage capacities to 
+ *
+ * <p>By using compressed JSON, you can get similar storage capacities to
  * custom binary formats, plus the schema is defined in the data itself.
- * This allows you to create a heterogeneous set of tags which have data 
+ * This allows you to create a heterogeneous set of tags which have data
  * relevant to a context.</p>
  *
- * <p>Plus, JSON is typically far easier to deal with in code, than other 
+ * <p>Plus, JSON is typically far easier to deal with in code, than other
  * formats.</p>
- * 
+ *
  * <p>Example code to compress a JSON string:</p>
- * 
+ *
  * <pre><code>JsonCompressor compressor = new JsonCompressor();
  * String s1 = "{\n"+
  *     "   \"type\":\"record\",\n"+
@@ -51,15 +51,15 @@ import java.util.zip.Inflater;
  *     "   \"stereo\":\"false\"\n"+
  *     "}\n";
  * byte[] compressedBytes = compressor.compressJson(s);</code></pre>
- * 
+ *
  * <p>To expand the data, just call the expandJson method:</p>
- * 
+ *
  * <code>String expanded = compressor.expandJson(compressedBytes);</code>
  *
  * @author David Griffiths
  */
 public class JsonCompressor {
-    private static String escapeChar = ";";
+    private static final String escapeChar = ";";
     private final static int ESCAPED_UPPERCASE = 0x01;
     private final static int USE_PROTOTYPE = 0x04;
     private String prototypeCompact;
@@ -71,28 +71,30 @@ public class JsonCompressor {
     }
 
     /**
-     * Construct a compressor for JSON strings that are similar to the given 
-     * prototype {@link String}. For example, the prototype might have the 
+     * Construct a compressor for JSON strings that are similar to the given
+     * prototype {@link String}. For example, the prototype might have the
      * same JSON structure, key names and typical values.
-     * 
-     * Compressed data that is produced can only be expanded again by 
-     * compressors with the same prototype. Providing a prototype may produce 
+     * <p>
+     * Compressed data that is produced can only be expanded again by
+     * compressors with the same prototype. Providing a prototype may produce
      * significantly greater compression.
-     * 
-     * @param prototype An example JSON string that is similar to the strings
-     *                  that will be compressed. 
+     *
+     * @param prototype
+     *     An example JSON string that is similar to the strings
+     *     that will be compressed.
      */
     public JsonCompressor(String prototype) {
-        if (prototype != null) {
+        if(prototype != null) {
             prototypeCompact = compact(prototype);
         }
     }
 
     /**
      * Compress a JSON string into a compacted byte-array.
-     * 
-     * @param json  A string in JSON format.
-     * @return      a compacted byte-array.
+     *
+     * @param json
+     *     A string in JSON format.
+     * @return a compacted byte-array.
      */
     public byte[] compressJson(String json) {
         int options = 0;
@@ -104,21 +106,21 @@ public class JsonCompressor {
         byte[] compressEscapedCase = compress6AndDec(upperTickedString.getBytes());
         byte[] compressUnescapedCase = pack(walkFormat.getBytes(), 7);
         byte[] deflated = null;
-        if (prototypeCompact != null) {
+        if(prototypeCompact != null) {
             deflated = deflateWithPrototype(upperTickedString);
         }
-        if ((deflated != null) && (deflated.length < compressEscapedCase.length)) {
+        if((deflated != null) && (deflated.length < compressEscapedCase.length)) {
             compress = deflated;
             options = options | ESCAPED_UPPERCASE;
             options = options | USE_PROTOTYPE;
-        } else if (compressEscapedCase.length < compressUnescapedCase.length) {
+        } else if(compressEscapedCase.length < compressUnescapedCase.length) {
             compress = compressEscapedCase;
             options = options | ESCAPED_UPPERCASE;
         } else {
             compress = compressUnescapedCase;
         }
         byte[] bytesWithOptions = new byte[compress.length + 1];
-        bytesWithOptions[0] = (byte)options;
+        bytesWithOptions[0] = (byte) options;
         System.arraycopy(compress, 0, bytesWithOptions, 1, compress.length);
         return bytesWithOptions;
     }
@@ -126,21 +128,22 @@ public class JsonCompressor {
     /**
      * Expand a compacted byte-array, back into a JSON string. The JSON
      * string will no longer include any extraneous whitespace from the
-     * original string, and the object keys might be in a different 
+     * original string, and the object keys might be in a different
      * order.
-     * 
-     * @param bytesWithOptions  A compacted byte-array generated by
-     *                          <a href="#compressJson">compressJson</a>
-     * @return                  A re-constructed JSON string.
+     *
+     * @param bytesWithOptions
+     *     A compacted byte-array generated by
+     *     <a href="#compressJson">compressJson</a>
+     * @return A re-constructed JSON string.
      */
     public String expandJson(byte[] bytesWithOptions) {
         int options = bytesWithOptions[0];
         byte[] bytes = new byte[bytesWithOptions.length - 1];
         System.arraycopy(bytesWithOptions, 1, bytes, 0, bytesWithOptions.length - 1);
         String expandedString;
-        if ((options & ESCAPED_UPPERCASE) != 0) {
-            if ((options & USE_PROTOTYPE) != 0) {
-                if (prototypeCompact == null) {
+        if((options & ESCAPED_UPPERCASE) != 0) {
+            if((options & USE_PROTOTYPE) != 0) {
+                if(prototypeCompact == null) {
                     throw new RuntimeException("Unable to expand. Do not have the prototype.");
                 }
                 expandedString = inflateWithPrototype(bytes);
@@ -149,7 +152,7 @@ public class JsonCompressor {
             }
             expandedString = Dictionary.lengthen(expandedString);
             expandedString = expandedString.toLowerCase();
-            for (char a : "abcdefghijklmnopqrstuvwxyz".toCharArray()) {
+            for(char a : "abcdefghijklmnopqrstuvwxyz".toCharArray()) {
                 expandedString = expandedString.replaceAll(escapeChar + a, ("" + a).toUpperCase());
             }
         } else {
@@ -159,7 +162,7 @@ public class JsonCompressor {
     }
 
     void incrementEach(byte[] bytes, int inc) {
-        for (int i = 0; i < bytes.length; i++) {
+        for(int i = 0; i < bytes.length; i++) {
             bytes[i] += inc;
         }
     }
@@ -179,67 +182,65 @@ public class JsonCompressor {
         byte[] resultBytes = new byte[sourceBytes.length * 8 / bits];
         int offset = 0;
         int mask = 0;
-        if (bits == 6) {
+        if(bits == 6) {
             mask = 0x3f;
-        } else if (bits == 7) {
+        } else if(bits == 7) {
             mask = 0x7f;
         } else {
             throw new RuntimeException("Can only unpack 6 or 7 bits");
         }
         int indent = 8 - bits;
-        for (int i = 0; i < resultBytes.length; i++) {
+        for(int i = 0; i < resultBytes.length; i++) {
             int into = offset & 0x7;
             int byteNo = offset >> 3;
             int source = 0xff & sourceBytes[byteNo];
-            if (into == 0) {
+            if(into == 0) {
                 // We're starting on a byte boundary
-                resultBytes[i] = (byte)(source >> indent);
-            }
-            else if (into <= indent) {
+                resultBytes[i] = (byte) (source >> indent);
+            } else if(into <= indent) {
                 // We're completely inside a byte boundary
-                resultBytes[i] = (byte)(mask & source);
+                resultBytes[i] = (byte) (mask & source);
             } else {
                 // We're crossing a byte boundary
-                byte firstByte = (byte)(mask & (source << (into - indent)));
-                byte secondByte = (byte)((0xff & sourceBytes[byteNo + 1]) >> (16 - bits - into));
-                resultBytes[i] = (byte)(firstByte | secondByte);
+                byte firstByte = (byte) (mask & (source << (into - indent)));
+                byte secondByte = (byte) ((0xff & sourceBytes[byteNo + 1]) >> (16 - bits - into));
+                resultBytes[i] = (byte) (firstByte | secondByte);
             }
             offset += bits;
         }
-        if ((resultBytes.length > 0) && (resultBytes[resultBytes.length - 1] == 0)) {
+        if((resultBytes.length > 0) && (resultBytes[resultBytes.length - 1] == 0)) {
             byte[] trimmed = new byte[resultBytes.length - 1];
             System.arraycopy(resultBytes, 0, trimmed, 0, trimmed.length);
             resultBytes = trimmed;
         }
         return resultBytes;
     }
-    
+
     byte[] pack(byte[] sourceBytes, int bits) {
         int resultLength = sourceBytes.length * bits / 8;
-        if (resultLength * 8 < sourceBytes.length * bits) {
+        if(resultLength * 8 < sourceBytes.length * bits) {
             resultLength++;
         }
         byte[] resultBytes = new byte[resultLength];
         int offset = 0;
-        for (int i = 0; i < resultBytes.length; i++) {
+        for(int i = 0; i < resultBytes.length; i++) {
             resultBytes[i] = 0;
         }
         int indent = 8 - bits;
-        for (int i = 0; i < sourceBytes.length; i++) {
+        for(int i = 0; i < sourceBytes.length; i++) {
             byte source = sourceBytes[i];
             int into = offset & 0x7;
             int byteNo = offset >> 3;
-            if (into == 0) {
+            if(into == 0) {
                 // We're starting on a byte boundary
-                resultBytes[byteNo] = (byte)(0xff & (source << indent));
-            }
-            else if (into <= indent) {
+                resultBytes[byteNo] = (byte) (0xff & (source << indent));
+            } else if(into <= indent) {
                 // We're completely inside a byte boundary
                 resultBytes[byteNo] |= source;
             } else {
                 // We're crossing a byte boundary
                 resultBytes[byteNo] |= source >> (into - indent);
-                resultBytes[byteNo + 1] = (byte)(0xff & (source << (16 - bits - into)));
+                resultBytes[byteNo + 1] = (byte) (0xff & (source << (16 - bits - into)));
             }
             offset = offset + bits;
         }
@@ -268,7 +269,7 @@ public class JsonCompressor {
             inflater.inflate(result);
             inflater.setDictionary(prototypeCompact.getBytes());
             resultLength = inflater.inflate(result);
-            if (resultLength == result.length) {
+            if(resultLength == result.length) {
                 throw new RuntimeException("Unable to expand. Too little space");
             }
         } catch(DataFormatException dfe) {
@@ -296,73 +297,73 @@ public class JsonCompressor {
         StringBuilder sb = new StringBuilder();
         char[] chars = s.toCharArray();
         boolean inString = false;
-        for (int i = 0; i < chars.length; i++) {
+        for(int i = 0; i < chars.length; i++) {
             char c = chars[i];
-            if (c == '"') {
+            if(c == '"') {
                 inString = !inString;
                 continue;
             }
-            if ((c == '>') && inString) {
+            if((c == '>') && inString) {
                 sb.append(";>");
                 continue;
             }
-            if ((c == '+') && inString) {
+            if((c == '+') && inString) {
                 sb.append(";+");
                 continue;
             }
-            if ((c == '^') && inString) {
+            if((c == '^') && inString) {
                 sb.append(";^");
                 continue;
             }
-            if ((c == '*') && inString) {
+            if((c == '*') && inString) {
                 sb.append(";*");
                 continue;
             }
-            if ((c == '<') && inString) {
+            if((c == '<') && inString) {
                 sb.append(";<");
                 continue;
             }
-            if ((c == ';') && inString) {
+            if((c == ';') && inString) {
                 sb.append(";;");
                 continue;
             }
-            if ((c == ' ') && !inString) {
+            if((c == ' ') && !inString) {
                 continue;
             }
-            if ((c == '\n') && !inString) {
+            if((c == '\n') && !inString) {
                 continue;
             }
-            if ((c == '}') && !inString) {
+            if((c == '}') && !inString) {
                 sb.append('^');
                 continue;
             }
-            if ((c == ']') && !inString) {
+            if((c == ']') && !inString) {
                 sb.append('^');
                 continue;
             }
-            if ((c == '{') && !inString) {
+            if((c == '{') && !inString) {
                 sb.append('+');
                 continue;
             }
-            if ((c == '[') && !inString) {
+            if((c == '[') && !inString) {
                 sb.append('*');
                 continue;
             }
-            if ((c == ',') && !inString) {
+            if((c == ',') && !inString) {
                 sb.append('>');
                 continue;
             }
-            if ((c == ':') && !inString) {
+            if((c == ':') && !inString) {
                 sb.append('>');
                 continue;
             }
             sb.append(c);
         }
         String s1 = sb.toString();
-        if (s1.startsWith("+")) {
-            s1 = s1.substring(1, s1.length());
+        if(s1.startsWith("+")) {
+            s1 = s1.substring(1);
         }
-        while (s1.endsWith("^")) {
+        while(s1.endsWith("^")) {
             s1 = s1.substring(0, s1.length() - 1);
         }
         return s1;
@@ -370,16 +371,17 @@ public class JsonCompressor {
 
     String aWalk;
     int pos = 0;
+
     String unwalkFormat(String walk) {
         aWalk = walk;
-        if (!aWalk.startsWith("*")) {
+        if(!aWalk.startsWith("*")) {
             aWalk = "+" + aWalk + "^";
         }
         pos = 0;
         Object jsonObject = null;
         try {
             jsonObject = readWalk();
-        } catch (JSONException e) {
+        } catch(JSONException e) {
             throw new RuntimeException("Can't parse walk", e);
         }
         return jsonObject.toString();
@@ -387,11 +389,11 @@ public class JsonCompressor {
 
     Object readWalk() throws JSONException {
         char c = aWalk.charAt(pos);
-        if (c == '+') {
+        if(c == '+') {
             pos++;
             return readMap();
         }
-        if (c == '*') {
+        if(c == '*') {
             pos++;
             return readArray();
         }
@@ -401,19 +403,19 @@ public class JsonCompressor {
     JSONObject readMap() throws JSONException {
         char c = aWalk.charAt(pos);
         JSONObject result = new JSONObject();
-        while ((pos < aWalk.length()) && (c != '^')) {
+        while((pos < aWalk.length()) && (c != '^')) {
             String key = readString();
             c = aWalk.charAt(++pos);
-            if (c == '>') {
+            if(c == '>') {
                 pos++;
             }
             Object value = readWalk();
             result.put(key, value);
-            if (pos == aWalk.length() - 1) {
+            if(pos == aWalk.length() - 1) {
                 break;
             }
             c = aWalk.charAt(++pos);
-            if (c == '>') {
+            if(c == '>') {
                 pos++;
             }
         }
@@ -423,14 +425,14 @@ public class JsonCompressor {
     JSONArray readArray() throws JSONException {
         char c = aWalk.charAt(pos);
         JSONArray result = new JSONArray();
-        while ((pos < aWalk.length()) && (c != '^')) {
+        while((pos < aWalk.length()) && (c != '^')) {
             Object value = readWalk();
             result.put(value);
-            if (pos == aWalk.length() - 1) {
+            if(pos == aWalk.length() - 1) {
                 break;
             }
             c = aWalk.charAt(++pos);
-            if (c == '>') {
+            if(c == '>') {
                 pos++;
             }
         }
@@ -442,15 +444,15 @@ public class JsonCompressor {
         char c = aWalk.charAt(pos);
         int start = pos;
         boolean escaped = false;
-        while (escaped || ((c != '^') && (c != '>') && (c != '+') && (c != '*'))) {
+        while(escaped || ((c != '^') && (c != '>') && (c != '+') && (c != '*'))) {
             boolean atEscape = (c == escapeChar.charAt(0));
-            if (!escaped && atEscape) {
+            if(!escaped && atEscape) {
                 escaped = true;
             } else {
                 escaped = false;
                 sb.append(c);
             }
-            if (pos == aWalk.length() - 1) {
+            if(pos == aWalk.length() - 1) {
                 pos++;
                 break;
             }

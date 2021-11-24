@@ -15,7 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
@@ -52,15 +51,13 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Projectile r && r.getShooter() instanceof Player p && hasAdaptation(p) && !getPlayer(p).getData().isGranted("challenge_force_30"))
-        {
+        if(e.getDamager() instanceof Projectile r && r.getShooter() instanceof Player p && hasAdaptation(p) && !getPlayer(p).getData().isGranted("challenge_force_30")) {
             Location a = e.getEntity().getLocation().clone();
             Location b = p.getLocation().clone();
             a.setY(0);
             b.setY(0);
 
-            if(a.distanceSquared(b) > 10)
-            {
+            if(a.distanceSquared(b) > 10) {
                 getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
                 getSkill().xp(p, 2000);
             }
@@ -85,5 +82,6 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

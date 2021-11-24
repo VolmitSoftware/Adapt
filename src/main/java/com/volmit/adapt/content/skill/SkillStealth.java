@@ -6,13 +6,10 @@ import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.StealthSnatch;
 import com.volmit.adapt.content.adaptation.StealthSpeed;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.KList;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
 
 public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
@@ -45,5 +42,6 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         }
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

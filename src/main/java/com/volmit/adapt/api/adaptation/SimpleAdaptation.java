@@ -59,8 +59,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
 
     @Override
     public T getConfig() {
-        try
-        {
+        try {
             if(config == null) {
                 T dummy = getConfigurationClass().getConstructor().newInstance();
                 File l = Adapt.instance.getDataFile("adapt", "adaptations", getName() + ".json");
@@ -84,23 +83,18 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
                     return config;
                 }
             }
-        }
-
-        catch(Throwable e)
-        {
+        } catch(Throwable e) {
             e.printStackTrace();
         }
 
         return config;
     }
 
-    public void registerRecipe(AdaptRecipe r)
-    {
+    public void registerRecipe(AdaptRecipe r) {
         recipes.add(r);
     }
 
-    public void registerAdvancement(AdaptAdvancement a)
-    {
+    public void registerAdvancement(AdaptAdvancement a) {
         cachedAdvancements.add(a);
     }
 
@@ -109,8 +103,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         advancements.addAll(cachedAdvancements);
     }
 
-    public AdaptAdvancement buildAdvancements()
-    {
+    public AdaptAdvancement buildAdvancements() {
         KList<AdaptAdvancement> a = new KList<>();
         onRegisterAdvancements(a);
 

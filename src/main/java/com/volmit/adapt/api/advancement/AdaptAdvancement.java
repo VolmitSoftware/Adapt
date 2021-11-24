@@ -1,7 +1,6 @@
 package com.volmit.adapt.api.advancement;
 
 import com.volmit.adapt.util.KList;
-import com.volmit.adapt.util.RNG;
 import eu.endercentral.crazy_advancements.Advancement;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
@@ -11,13 +10,11 @@ import lombok.Data;
 import lombok.Singular;
 import org.bukkit.Material;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Builder
 @Data
-public class AdaptAdvancement
-{
+public class AdaptAdvancement {
     private String background;
     @Builder.Default
     private Material icon = Material.EMERALD;
@@ -38,22 +35,18 @@ public class AdaptAdvancement
     @Singular
     private List<AdaptAdvancement> children;
 
-    public Advancement toAdvancement()
-    {
+    public Advancement toAdvancement() {
         return toAdvancement(null, 0, 0);
     }
 
-    public Advancement toAdvancement(Advancement parent, int index, int depth)
-    {
-        if(children == null)
-        {
+    public Advancement toAdvancement(Advancement parent, int index, int depth) {
+        if(children == null) {
             children = new KList<>();
         }
 
         AdvancementDisplay d = new AdvancementDisplay(getIcon(), getTitle(), getDescription(), getFrame(), isToast(), isAnnounce(), getVisibility());
 
-        if(background != null)
-        {
+        if(background != null) {
             d.setBackgroundTexture(getBackground());
         }
 
@@ -63,20 +56,16 @@ public class AdaptAdvancement
         return new Advancement(parent, new NameKey("adapt", getKey()), d);
     }
 
-    public KList<Advancement> toAdvancements()
-    {
-        return toAdvancements(null, 0,0);
+    public KList<Advancement> toAdvancements() {
+        return toAdvancements(null, 0, 0);
     }
 
-    public KList<Advancement> toAdvancements(Advancement p, int index, int depth)
-    {
+    public KList<Advancement> toAdvancements(Advancement p, int index, int depth) {
         KList<Advancement> aa = new KList<>();
         Advancement a = toAdvancement(p, index, depth);
         int ind = 0;
-        if(children != null && !children.isEmpty())
-        {
-            for(AdaptAdvancement i : children)
-            {
+        if(children != null && !children.isEmpty()) {
+            for(AdaptAdvancement i : children) {
                 aa.addAll(i.toAdvancements(a, aa.size(), depth + 1));
             }
         }

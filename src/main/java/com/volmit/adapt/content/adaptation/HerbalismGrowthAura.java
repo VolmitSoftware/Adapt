@@ -1,8 +1,6 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
-import com.volmit.adapt.api.world.AdaptRecipe;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -17,7 +15,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Config> {
@@ -77,5 +74,6 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         }
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }

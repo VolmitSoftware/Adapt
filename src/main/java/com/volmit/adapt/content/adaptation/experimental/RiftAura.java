@@ -1,11 +1,9 @@
 package com.volmit.adapt.content.adaptation.experimental;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.KList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -54,7 +52,7 @@ public class RiftAura extends SimpleAdaptation<RiftAura.Config> {
                 Random r = new Random();
                 double dd = r.nextDouble();
                 if(dd <= getPhasePercent(getLevel(p))) {
-                    getSkill().xp(p , 10);
+                    getSkill().xp(p, 10);
 
                     int x = (int) p.getLocation().getX() + (r.nextBoolean() ? 2 + r.nextInt(maxPhaseBlocks(getLevel(p))) : -(2 + r.nextInt(maxPhaseBlocks(p.getLevel()))));
                     int z = (int) p.getLocation().getZ() + (r.nextBoolean() ? 2 + r.nextInt(maxPhaseBlocks(getLevel(p))) : -(2 + r.nextInt(maxPhaseBlocks(p.getLevel()))));
@@ -76,5 +74,6 @@ public class RiftAura extends SimpleAdaptation<RiftAura.Config> {
 
     }
 
-    protected static class Config{}
+    protected static class Config {
+    }
 }
