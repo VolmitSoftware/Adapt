@@ -17,6 +17,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 public class HerbalismGrowthAura extends SimpleAdaptation {
@@ -31,6 +32,12 @@ public class HerbalismGrowthAura extends SimpleAdaptation {
         setInterval(875);
         setInitialCost(12);
         setCostFactor(0.325);
+        registerRecipe(AdaptRecipe.shapeless()
+            .key("test_rec")
+            .ingredient(Material.DIAMOND)
+            .ingredient(Material.DIAMOND)
+            .result(new ItemStack(Material.DIAMOND, 2))
+            .build());
     }
 
     private double getRadius(double factor) {

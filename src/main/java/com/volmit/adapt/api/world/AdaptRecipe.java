@@ -61,11 +61,6 @@ public interface AdaptRecipe
             return null;
         }
 
-        @Override
-        public String getKey() {
-            return null;
-        }
-
         public void register()
         {
             ShapelessRecipe s = new ShapelessRecipe(new NamespacedKey(Adapt.instance, getKey()), result);
@@ -95,11 +90,6 @@ public interface AdaptRecipe
             return null;
         }
 
-        @Override
-        public String getKey() {
-            return null;
-        }
-
         public void register()
         {
             ShapedRecipe s = new ShapedRecipe(new NamespacedKey(Adapt.instance, getKey()), result);
@@ -125,11 +115,6 @@ public interface AdaptRecipe
         private Material addition;
         @Override
         public ItemStack getResult() {
-            return null;
-        }
-
-        @Override
-        public String getKey() {
             return null;
         }
 
