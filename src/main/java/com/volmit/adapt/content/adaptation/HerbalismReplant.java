@@ -104,6 +104,9 @@ public class HerbalismReplant extends SimpleAdaptation {
             aa.setAge(0);
             J.s(() -> b.setBlockData(aa, true));
 
+            getPlayer(p).getData().addStat("harvest.blocks", 1);
+            getPlayer(p).getData().addStat("harvest.planted", 1);
+
             if(M.r(1D / (double) getLevel(p))) {
                 p.getWorld().playSound(b.getLocation(), Sound.ITEM_CROP_PLANT, 1f, 0.7f);
             }
