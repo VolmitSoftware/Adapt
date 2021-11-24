@@ -18,6 +18,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     public SkillAgility() {
         super("agility", "\u21C9");
+        registerConfiguration(Config.class);
         setDescription("Movement is futile, overcome obstacles");
         setColor(C.GREEN);
         setInterval(975);
@@ -25,7 +26,6 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         registerAdaptation(new AgilityWindUp());
         registerAdaptation(new AgilityWallJump());
         registerAdaptation(new AgilitySuperJump());
-        registerConfiguration(Config.class);
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.LEATHER_BOOTS)
             .key("challenge_move_1k")
@@ -50,9 +50,9 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build())
             .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_move_1k").goal(1000).stat("move").reward(500).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_5k").goal(5000).stat("move").reward(2000).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_marathon").goal(42195).stat("move").reward(6500).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_move_1k").goal(1000).stat("move").reward(getConfig().challengeMove1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_5k").goal(5000).stat("move").reward(getConfig().challengeSprint5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_marathon").goal(42195).stat("move").reward(getConfig().challengeSprintMarathonReward).build());
     }
 
     @EventHandler
@@ -77,11 +77,15 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         for(Player i : Bukkit.getOnlinePlayers()) {
             checkStatTrackers(getPlayer(i));
             if(i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
-                xpSilent(i, 11.9);
+                xpSilent(i, getConfig().sprintXpPassive);
             }
         }
     }
 
     protected static class Config {
+        double challengeMove1kReward = 500;
+        double challengeSprint5kReward = 2000;
+        double challengeSprintMarathonReward = 6500;
+        double sprintXpPassive = 11.9;
     }
 }

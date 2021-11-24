@@ -75,5 +75,6 @@ public class RiftAura extends SimpleAdaptation<RiftAura.Config> {
     }
 
     protected static class Config {
+
     }
 }
