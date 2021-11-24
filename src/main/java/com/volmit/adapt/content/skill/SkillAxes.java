@@ -16,10 +16,10 @@ import org.bukkit.inventory.ItemStack;
 public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     public SkillAxes() {
         super("axes", "\u2725");
+        registerConfiguration(Config.class);
         setColor(C.YELLOW);
         setInterval(5251);
         setIcon(Material.GOLDEN_AXE);
-        registerConfiguration(Config.class);
         registerAdaptation(new AxesGroundSmash());
         registerAdaptation(new AxesChop());
     }
@@ -33,7 +33,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             if(isAxe(hand)) {
                 getPlayer(p).getData().addStat("axes.swings", 1);
                 getPlayer(p).getData().addStat("axes.damage", e.getDamage());
-                xp(a.getPlayer(), e.getEntity().getLocation(), 13.26 * e.getDamage());
+                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
             }
         }
     }
@@ -49,18 +49,15 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     }
 
     public double getValue(Material type) {
-        double value = super.getValue(type) * 0.125;
-        value += Math.min(9, type.getHardness());
-        value += Math.min(10, type.getBlastResistance());
+        double value = super.getValue(type) * getConfig().valueXPMultiplier;
+        value += Math.min(getConfig().maxHardnessBonus, type.getHardness());
+        value += Math.min(getConfig().maxBlastResistanceBonus, type.getBlastResistance());
 
         if(type.name().endsWith("_LOG") || type.name().endsWith("_WOOD")) {
-            value += 9.67;
-        }
-        if(type.name().endsWith("_PLANKS")) {
-            value += 4.67;
+            value += getConfig().logOrWoodXPMultiplier;
         }
         if(type.name().endsWith("_LEAVES")) {
-            value += 3.11;
+            value += getConfig().leavesMultiplier;
         }
 
         return value;
@@ -72,6 +69,12 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     }
 
-    protected static class Config {
+    protected static class Config {public Config(){}
+        double maxHardnessBonus = 9;
+        double maxBlastResistanceBonus = 10;
+        double logOrWoodXPMultiplier = 9.67;
+        double leavesMultiplier = 3.11;
+        double valueXPMultiplier = 0.225;
+        double axeDamageXPMultiplier = 13.26;
     }
 }
