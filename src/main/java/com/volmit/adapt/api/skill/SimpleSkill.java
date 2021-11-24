@@ -3,6 +3,7 @@ package com.volmit.adapt.api.skill;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.tick.TickedObject;
+import com.volmit.adapt.api.world.AdaptRecipe;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KList;
@@ -17,6 +18,7 @@ import org.bukkit.boss.BarStyle;
 import java.util.List;
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 public abstract class SimpleSkill extends TickedObject implements Skill {
     private final String name;
@@ -30,10 +32,12 @@ public abstract class SimpleSkill extends TickedObject implements Skill {
     private KList<AdaptStatTracker> statTrackers;
     private KList<AdaptAdvancement> cachedAdvancements;
     private String advancementBackground;
+    private KList<AdaptRecipe> recipes;
 
     public SimpleSkill(String name, String emojiName) {
         super("skill", UUID.randomUUID() + "-skill-" + name, 50);
         statTrackers = new KList<>();
+        recipes = new KList<>();
         cachedAdvancements = new KList<>();
         this.emojiName = emojiName;
         adaptations = new KList<>();
@@ -43,6 +47,11 @@ public abstract class SimpleSkill extends TickedObject implements Skill {
         setDescription("No Description Provided");
         setMinXp(100);
         setAdvancementBackground("minecraft:textures/block/deepslate_tiles.png");
+    }
+
+    public void registerRecipe(AdaptRecipe r)
+    {
+        recipes.add(r);
     }
 
     public void registerAdvancement(AdaptAdvancement a)

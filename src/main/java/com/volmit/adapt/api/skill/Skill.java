@@ -8,6 +8,7 @@ import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.AdaptRecipe;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.xp.XP;
@@ -43,6 +44,8 @@ public interface Skill extends Ticked, Component {
     Material getIcon();
 
     String getDescription();
+
+    KList<AdaptRecipe> getRecipes();
 
     String getAdvancementBackground();
 
