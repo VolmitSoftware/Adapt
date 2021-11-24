@@ -20,8 +20,6 @@ public class AdaptConfig {
     @Getter
     public static class ValueConfig {
         private final double baseValue = 1;
-        private final double markupMultiplier = 1.25;
-        private final double markupAddative = 3;
         private final KMap<String, Double> valueMutlipliers = defaultValueMultipliers();
 
 

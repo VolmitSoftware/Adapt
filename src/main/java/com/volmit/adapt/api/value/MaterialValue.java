@@ -141,8 +141,6 @@ public class MaterialValue {
                 v += d.stream().mapToDouble(i -> i).average().getAsDouble();
             }
 
-            v += AdaptConfig.get().getValue().getMarkupAddative();
-            v *= AdaptConfig.get().getValue().getMarkupMultiplier();
             get().value.put(m, v);
         }
 
