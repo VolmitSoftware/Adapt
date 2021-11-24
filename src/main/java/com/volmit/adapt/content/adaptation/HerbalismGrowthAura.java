@@ -31,9 +31,6 @@ public class HerbalismGrowthAura extends SimpleAdaptation {
         setInterval(875);
         setInitialCost(12);
         setCostFactor(0.325);
-        registerRecipe(AdaptRecipe.shapeless()
-            .
-            .build());
     }
 
     private double getRadius(double factor) {
