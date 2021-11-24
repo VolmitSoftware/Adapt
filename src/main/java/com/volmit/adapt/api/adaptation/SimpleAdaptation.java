@@ -3,13 +3,16 @@ package com.volmit.adapt.api.adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
+import com.volmit.adapt.api.world.AdaptRecipe;
 import com.volmit.adapt.util.KList;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
 
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 public abstract class SimpleAdaptation extends TickedObject implements Adaptation {
     private int maxLevel;
@@ -21,10 +24,12 @@ public abstract class SimpleAdaptation extends TickedObject implements Adaptatio
     private Material icon;
     private String name;
     private KList<AdaptAdvancement> cachedAdvancements;
+    private KList<AdaptRecipe> recipes;
 
     public SimpleAdaptation(String name) {
         super("adaptations", UUID.randomUUID() + "-" + name, 1000);
         cachedAdvancements = new KList<>();
+        recipes = new KList<>();
         setMaxLevel(5);
         setCostFactor(0.35);
         setBaseCost(3);
@@ -32,6 +37,11 @@ public abstract class SimpleAdaptation extends TickedObject implements Adaptatio
         setInitialCost(1);
         setDescription("No Description Provided");
         this.name = name;
+    }
+
+    public void registerRecipe(AdaptRecipe r)
+    {
+        recipes.add(r);
     }
 
     public void registerAdvancement(AdaptAdvancement a)
