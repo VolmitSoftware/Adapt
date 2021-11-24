@@ -82,7 +82,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         }
     }
 
-    protected static class Config {
+    protected static class Config { public Config(){}
         double challengeMove1kReward = 500;
         double challengeSprint5kReward = 2000;
         double challengeSprintMarathonReward = 6500;
