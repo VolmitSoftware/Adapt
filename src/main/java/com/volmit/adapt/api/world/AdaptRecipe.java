@@ -24,6 +24,11 @@ public interface AdaptRecipe
 
     String getKey();
 
+    default NamespacedKey getNSKey()
+    {
+        return new NamespacedKey(Adapt.instance, getKey());
+    }
+
     static Shapeless.ShapelessBuilder shapeless()
     {
         return Shapeless.builder();
@@ -41,10 +46,13 @@ public interface AdaptRecipe
 
     void register();
 
+    boolean is(Recipe recipe);
+
     @Builder
     @Data
     class Shapeless implements AdaptRecipe
     {
+        private String key;
         private ItemStack result;
         @Singular
         private List<Material> ingredients;
@@ -65,12 +73,18 @@ public interface AdaptRecipe
             Bukkit.getServer().addRecipe(s);
             Adapt.verbose("Registered Shapeless Crafting Recipe " + s.getKey());
         }
+
+        @Override
+        public boolean is(Recipe recipe) {
+            return recipe instanceof ShapelessRecipe s && s.getKey().equals(getNSKey());
+        }
     }
 
     @Builder
     @Data
     class Shaped implements AdaptRecipe
     {
+        private String key;
         private ItemStack result;
         @Singular
         private List<MaterialChar> ingredients;
@@ -94,12 +108,18 @@ public interface AdaptRecipe
             Bukkit.getServer().addRecipe(s);
             Adapt.verbose("Registered Shaped Crafting Recipe " + s.getKey());
         }
+
+        @Override
+        public boolean is(Recipe recipe) {
+            return recipe instanceof ShapedRecipe s && s.getKey().equals(getNSKey());
+        }
     }
 
     @Builder
     @Data
     class Smithing implements AdaptRecipe
     {
+        private String key;
         private ItemStack result;
         private Material base;
         private Material addition;
@@ -118,6 +138,11 @@ public interface AdaptRecipe
             SmithingRecipe s = new SmithingRecipe(new NamespacedKey(Adapt.instance, getKey()), result, new RecipeChoice.ExactChoice(new ItemStack(base)), new RecipeChoice.ExactChoice(new ItemStack(addition)));
             Bukkit.getServer().addRecipe(s);
             Adapt.verbose("Registered Smithing Table Recipe " + s.getKey());
+        }
+
+        @Override
+        public boolean is(Recipe recipe) {
+            return recipe instanceof SmithingRecipe s && s.getKey().equals(getNSKey());
         }
     }
 }

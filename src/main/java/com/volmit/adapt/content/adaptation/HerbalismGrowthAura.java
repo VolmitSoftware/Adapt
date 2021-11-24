@@ -2,6 +2,7 @@ package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.world.AdaptRecipe;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -30,6 +31,9 @@ public class HerbalismGrowthAura extends SimpleAdaptation {
         setInterval(875);
         setInitialCost(12);
         setCostFactor(0.325);
+        registerRecipe(AdaptRecipe.shapeless()
+            .
+            .build());
     }
 
     private double getRadius(double factor) {
