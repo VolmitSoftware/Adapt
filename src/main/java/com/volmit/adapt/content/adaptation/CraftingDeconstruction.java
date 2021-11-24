@@ -88,6 +88,7 @@ public class CraftingDeconstruction extends SimpleAdaptation {
         }
 
         int v = 0;
+        int outa = 1;
         ItemStack sel = null;
 
         if(sr instanceof ShapelessRecipe r)
@@ -98,6 +99,7 @@ public class CraftingDeconstruction extends SimpleAdaptation {
                 {
                     v = i.getAmount() * forStuff.getAmount();
                     sel = i;
+                    outa = r.getResult().getAmount();
                 }
             }
         }
@@ -130,6 +132,7 @@ public class CraftingDeconstruction extends SimpleAdaptation {
                 {
                     v = i.getAmount() * forStuff.getAmount();
                     sel = i;
+                    outa = r.getResult().getAmount();
                 }
             }
         }
@@ -138,7 +141,7 @@ public class CraftingDeconstruction extends SimpleAdaptation {
         {
             sel = sel.clone();
 
-            int a = (sel.getAmount() * forStuff.getAmount()) / 2;
+            int a = ((sel.getAmount() * forStuff.getAmount()) / outa) / 2;
 
             if(a > sel.getMaxStackSize())
             {
@@ -165,6 +168,17 @@ public class CraftingDeconstruction extends SimpleAdaptation {
 
     @EventHandler
     public void on(InventoryClickEvent e) {
+        if(e.getView().getTopInventory().getType().equals(InventoryType.SMITHING))
+        {
+            SmithingInventory s = (SmithingInventory) e.getView().getTopInventory();
+            J.s(() -> {
+                if(s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null)
+                {
+                    s.setResult(getDeconstructionOffering(s.getItem(0)));
+                }
+            });
+        }
+
         if(e.getClickedInventory().getType().equals(InventoryType.SMITHING))
         {
             SmithingInventory s = (SmithingInventory) e.getClickedInventory();
@@ -187,12 +201,11 @@ public class CraftingDeconstruction extends SimpleAdaptation {
                     if(offering != null)
                     {
                         s.setItem(1, damage(s.getItem(1), s.getItem(0).getAmount()));
+                        e.setCursor(offering);
+                        e.getClickedInventory().setItem(0, null);
+                        e.getWhoClicked().getWorld().playSound(e.getClickedInventory().getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
+                        e.getWhoClicked().getWorld().playSound(e.getClickedInventory().getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
                     }
-
-                    e.setCursor(offering);
-                    e.getClickedInventory().setItem(0, null);
-                    e.getWhoClicked().getWorld().playSound(e.getClickedInventory().getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
-                    e.getWhoClicked().getWorld().playSound(e.getClickedInventory().getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
                 }
             }
         }
