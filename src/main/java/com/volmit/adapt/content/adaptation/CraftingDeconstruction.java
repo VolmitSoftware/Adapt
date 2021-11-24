@@ -205,6 +205,7 @@ public class CraftingDeconstruction extends SimpleAdaptation {
                         e.getClickedInventory().setItem(0, null);
                         e.getWhoClicked().getWorld().playSound(e.getClickedInventory().getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
                         e.getWhoClicked().getWorld().playSound(e.getClickedInventory().getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
+                        getSkill().xp((Player)e.getWhoClicked(), getValue(offering));
                     }
                 }
             }
