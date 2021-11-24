@@ -2,12 +2,15 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.HerbalismGrowthAura;
 import com.volmit.adapt.content.adaptation.HerbalismHungryShield;
 import com.volmit.adapt.content.adaptation.HerbalismReplant;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import org.bukkit.Material;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Levelled;
@@ -32,11 +35,48 @@ public class SkillHerbalism extends SimpleSkill {
         registerAdaptation(new HerbalismGrowthAura());
         registerAdaptation(new HerbalismReplant());
         registerAdaptation(new HerbalismHungryShield());
+        registerAdvancement(AdaptAdvancement.builder()
+            .icon(Material.COOKED_BEEF)
+            .key("challenge_eat_100")
+            .title("So much to eat!")
+            .description("Eat over 100 Items!")
+            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .child(AdaptAdvancement.builder()
+                .icon(Material.COOKED_BEEF)
+                .key("challenge_eat_1000")
+                .title("Unquenchable Hunger!")
+                .description("Eat over 1,000 Items!")
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build())
+            .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_100").goal(100).stat("food.eaten").reward(1250).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_1000").goal(1000).stat("food.eaten").reward(6250).build());
+        registerAdvancement(AdaptAdvancement.builder()
+            .icon(Material.COOKED_BEEF)
+            .key("challenge_harvest_100")
+            .title("Full Harvest")
+            .description("Harvest over 100 crops!")
+            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .child(AdaptAdvancement.builder()
+                .icon(Material.COOKED_BEEF)
+                .key("challenge_harvest_1000")
+                .title("Grand Harvest")
+                .description("Harvest 1,000 crops!")
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build())
+            .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_100").goal(100).stat("harvest.blocks").reward(1250).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(6250).build());
     }
 
     @EventHandler
     public void on(PlayerItemConsumeEvent e) {
         xp(e.getPlayer(), 125);
+        getPlayer(e.getPlayer()).getData().addStat("food.eaten", 1);
     }
 
     @EventHandler
