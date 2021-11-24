@@ -3,6 +3,7 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
+import com.volmit.adapt.content.adaptation.CraftingDeconstruction;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KList;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
@@ -25,6 +26,7 @@ public class SkillCrafting extends SimpleSkill {
         setDescription("Crafting is its own reward");
         setInterval(3700);
         setIcon(Material.STRING);
+        registerAdaptation(new CraftingDeconstruction());
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.BRICK)
             .key("challenge_craft_3k")

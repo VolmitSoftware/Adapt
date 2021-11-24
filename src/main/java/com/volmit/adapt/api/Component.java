@@ -24,6 +24,59 @@ public interface Component
         XP.wisdom(p, w);
     }
 
+    /**
+     * Attempts to "damage" an item.
+     * 1. If the item is null, null is returned
+     * 2. If the item doesnt have durability, (damage) amount will be consumed from the stack, null will be returned if more consumed than amount
+     * 3. If the item has durability, the damage will be consuemd and return the item affected, OR null if it broke
+     * @param item the item (tool)
+     * @param damage the damage to cause
+     * @return the damaged item or null if destroyed
+     */
+    default ItemStack damage(ItemStack item, int damage) {
+        if(item == null)
+        {
+            return null;
+        }
+
+        if(item.getItemMeta() == null)
+        {
+            if(item.getAmount() == 1)
+            {
+                return null;
+            }
+
+            item = item.clone();
+            item.setAmount(item.getAmount() - 1);
+            return item;
+        }
+
+        if(item.getItemMeta() instanceof Damageable d)
+        {
+            if(d.getDamage() + 1 > item.getType().getMaxDurability())
+            {
+                return null;
+            }
+
+            d.setDamage(d.getDamage() + 1);
+            item = item.clone();
+            item.setItemMeta(d);
+            return item;
+        }
+
+        else
+        {
+            if(item.getAmount() == 1)
+            {
+                return null;
+            }
+
+            item = item.clone();
+            item.setAmount(item.getAmount() - 1);
+
+            return item;
+        }
+    }
 
     default void removePotion(Player p, PotionEffectType type)
     {
