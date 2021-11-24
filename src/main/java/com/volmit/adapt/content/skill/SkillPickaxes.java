@@ -20,6 +20,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         super("pickaxes", "\u26CF");
         setColor(C.GOLD);
         setInterval(2750);
+        registerConfiguration(Config.class);
         setIcon(Material.NETHERITE_PICKAXE);
         registerAdaptation(new PickaxesChisel());
     }

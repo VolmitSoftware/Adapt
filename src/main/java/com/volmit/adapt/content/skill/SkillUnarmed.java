@@ -20,6 +20,7 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         setColor(C.YELLOW);
         setDescription("Without a weapon is not without strength");
         setInterval(2570);
+        registerConfiguration(Config.class);
         registerAdaptation(new UnarmedSuckerPunch());
         registerAdaptation(new UnarmedPower());
         setIcon(Material.FIRE_CHARGE);

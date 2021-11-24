@@ -19,6 +19,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     public SkillHunter() {
         super("hunter", "\u2620");
         setColor(C.RED);
+        registerConfiguration(Config.class);
         setDescription("Better to be the hunter than the hunted");
         setInterval(4150);
         setIcon(Material.BONE);

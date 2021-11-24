@@ -27,6 +27,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         registerAdaptation(new AgilityWindUp());
         registerAdaptation(new AgilityWallJump());
         registerAdaptation(new AgilitySuperJump());
+        registerConfiguration(Config.class);
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.LEATHER_BOOTS)
             .key("challenge_move_1k")

@@ -2,6 +2,7 @@ package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.content.adaptation.experimental.RiftDoor;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
@@ -39,6 +40,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
         setInterval(5000);
         setInitialCost(8);
         setCostFactor(1.355);
+        registerConfiguration(Config.class);
     }
 
     @Override

@@ -30,6 +30,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         super("herbalism", "\u2698");
         setColor(C.GREEN);
         setInterval(3700);
+        registerConfiguration(Config.class);
         setDescription("Sticks and stones don't break your bones");
         setIcon(Material.WHEAT);
         registerAdaptation(new HerbalismGrowthAura());

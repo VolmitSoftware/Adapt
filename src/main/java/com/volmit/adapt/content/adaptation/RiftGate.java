@@ -33,6 +33,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         setMaxLevel(1);
         setInitialCost(30);
         setInterval(50);
+        registerConfiguration(Config.class);
     }
 
     @Override

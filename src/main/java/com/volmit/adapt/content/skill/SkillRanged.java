@@ -21,6 +21,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         setDescription("When distance is your only alternative");
         setColor(C.DARK_GREEN);
         setInterval(3000);
+        registerConfiguration(Config.class);
         registerAdaptation(new RangedForce());
         registerAdaptation(new RangedPiercing());
         registerAdaptation(new RangedArrowRecovery());

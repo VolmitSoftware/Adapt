@@ -32,6 +32,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
         setInitialCost(3);
         setInterval(4750);
         setCostFactor(0.4);
+        registerConfiguration(Config.class);
     }
 
     @Override

@@ -20,6 +20,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
         setMaxLevel(5);
         setInitialCost(8);
         setCostFactor(0.4);
+        registerConfiguration(Config.class);
     }
 
     @Override

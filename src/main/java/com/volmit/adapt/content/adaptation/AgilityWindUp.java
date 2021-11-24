@@ -2,6 +2,7 @@ package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.content.adaptation.experimental.RiftDoor;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -28,6 +29,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         setCostFactor(0.65);
         setInitialCost(8);
         setInterval(50);
+        registerConfiguration(Config.class);
     }
 
     @Override

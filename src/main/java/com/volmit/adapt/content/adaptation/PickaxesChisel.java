@@ -30,6 +30,7 @@ public class PickaxesChisel extends SimpleAdaptation<PickaxesChisel.Config> {
         setInitialCost(5);
         setInterval(8276);
         setCostFactor(0.4);
+        registerConfiguration(Config.class);
     }
 
     private int getCooldownTime(double levelPercent) {

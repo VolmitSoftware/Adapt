@@ -37,6 +37,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
         setInitialCost(8);
         setInterval(1000);
         setCostFactor(0.4);
+        registerConfiguration(Config.class);
     }
 
     @EventHandler

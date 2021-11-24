@@ -23,6 +23,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
         setInterval(875);
         setInitialCost(14);
         setCostFactor(0.925);
+        registerConfiguration(Config.class);
     }
 
     @Override

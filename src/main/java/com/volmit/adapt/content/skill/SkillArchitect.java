@@ -23,6 +23,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         setDescription("Structures of reality are yours to control");
         setInterval(3700);
         setIcon(Material.IRON_BARS);
+        registerConfiguration(Config.class);
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.BRICK)
             .key("challenge_place_1k")

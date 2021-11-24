@@ -20,6 +20,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         super("stealth", "\u2720");
         setColor(C.DARK_GRAY);
         setInterval(1412);
+        registerConfiguration(Config.class);
         setIcon(Material.WITHER_ROSE);
         setDescription("The art of the unseen. Walk in the shadows.");
         registerAdaptation(new StealthSpeed());

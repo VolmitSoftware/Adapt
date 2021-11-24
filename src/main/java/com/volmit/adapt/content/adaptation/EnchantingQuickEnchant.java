@@ -37,6 +37,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         setInterval(5000);
         setInitialCost(8);
         setCostFactor(1.355);
+        registerConfiguration(Config.class);
     }
 
     private int getTotalLevelCount(int level) {

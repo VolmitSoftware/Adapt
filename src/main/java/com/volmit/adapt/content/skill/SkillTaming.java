@@ -22,6 +22,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         setDescription("The parrots and the bees... and you?");
         setColor(C.GOLD);
         setInterval(3700);
+        registerConfiguration(Config.class);
         setIcon(Material.LEAD);
         registerAdaptation(new TamingHealthBoost());
         registerAdaptation(new TamingDamage());

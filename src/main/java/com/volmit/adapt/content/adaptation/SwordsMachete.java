@@ -35,6 +35,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
         setInterval(5234);
         setInitialCost(7);
         setCostFactor(0.225);
+        registerConfiguration(Config.class);
     }
 
     @Override

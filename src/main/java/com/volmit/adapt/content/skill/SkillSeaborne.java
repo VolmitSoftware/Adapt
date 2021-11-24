@@ -20,6 +20,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         setColor(C.BLUE);
         setDescription("Will the wonders of the water");
         setInterval(2120);
+        registerConfiguration(Config.class);
         setIcon(Material.TRIDENT);
         registerAdaptation(new SeaborneOxygen());
         registerAdvancement(AdaptAdvancement.builder()

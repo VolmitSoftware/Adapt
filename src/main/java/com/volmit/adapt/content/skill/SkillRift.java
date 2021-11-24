@@ -37,6 +37,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         setDescription("Dimensional magic");
         setColor(C.DARK_PURPLE);
         setInterval(1154);
+        registerConfiguration(Config.class);
         setIcon(Material.ENDER_EYE);
         registerAdaptation(new RiftAura());
         registerAdaptation(new RiftAccess());

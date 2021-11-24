@@ -20,6 +20,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
         setMaxLevel(7);
         setInitialCost(6);
         setCostFactor(0.425);
+        registerConfiguration(Config.class);
     }
 
     @Override

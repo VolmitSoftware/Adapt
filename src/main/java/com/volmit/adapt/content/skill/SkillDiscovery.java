@@ -40,6 +40,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         setDescription("Perception of the world, is the key to understanding");
         setInterval(500);
         setIcon(Material.FILLED_MAP);
+        registerConfiguration(Config.class);
         registerAdaptation(new DiscoveryUnity());
     }
 

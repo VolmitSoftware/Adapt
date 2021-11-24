@@ -32,6 +32,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
         setInitialCost(5);
         setInterval(4750);
         setCostFactor(0.4);
+        registerConfiguration(Config.class);
     }
 
     @Override

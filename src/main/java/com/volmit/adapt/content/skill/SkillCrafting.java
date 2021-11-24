@@ -26,6 +26,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         setColor(C.YELLOW);
         setDescription("Crafting is its own reward");
         setInterval(3700);
+        registerConfiguration(Config.class);
         setIcon(Material.STRING);
         registerAdaptation(new CraftingDeconstruction());
         registerAdvancement(AdaptAdvancement.builder()

@@ -23,6 +23,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
         setInterval(5000);
         setInitialCost(8);
         setCostFactor(0.5);
+        registerConfiguration(Config.class);
     }
 
     @Override

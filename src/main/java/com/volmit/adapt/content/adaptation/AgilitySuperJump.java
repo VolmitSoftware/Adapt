@@ -2,6 +2,7 @@ package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.content.adaptation.experimental.RiftDoor;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.KList;
@@ -36,6 +37,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
         setMaxLevel(5);
         setInitialCost(5);
         setInterval(9344);
+        registerConfiguration(Config.class);
     }
 
     private double getJumpHeight(int level) {

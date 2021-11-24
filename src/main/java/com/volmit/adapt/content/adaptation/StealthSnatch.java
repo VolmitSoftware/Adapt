@@ -31,6 +31,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         setMaxLevel(3);
         setInitialCost(12);
         setCostFactor(0.125);
+        registerConfiguration(Config.class);
     }
 
     @Override

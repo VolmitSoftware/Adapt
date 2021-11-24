@@ -26,6 +26,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
         setInterval(5000);
         setInitialCost(8);
         setCostFactor(0.5);
+        registerConfiguration(Config.class);
     }
 
     private double getSpeed(double factor) {

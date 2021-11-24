@@ -30,6 +30,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         setInterval(5000);
         setInitialCost(5);
         setCostFactor(0.225);
+        registerConfiguration(Config.class);
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.SPECTRAL_ARROW)
             .key("challenge_force_30")

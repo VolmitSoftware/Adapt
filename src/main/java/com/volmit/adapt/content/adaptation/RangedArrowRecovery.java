@@ -36,6 +36,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         setInterval(5000);
         setInitialCost(6);
         setCostFactor(0.725);
+        registerConfiguration(Config.class);
     }
 
     private double getChance(double factor) {

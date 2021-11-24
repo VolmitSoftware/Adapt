@@ -21,6 +21,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         setBaseCost(2);
         setInitialCost(4);
         setCostFactor(0.225);
+        registerConfiguration(Config.class);
     }
 
     @Override

@@ -29,6 +29,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
         setInterval(6000);
         setInitialCost(4);
         setCostFactor(2.325);
+        registerConfiguration(Config.class);
     }
 
     private int getCooldown(double factor, int level) {

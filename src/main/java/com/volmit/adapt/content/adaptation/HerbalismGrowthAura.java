@@ -32,6 +32,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         setInterval(875);
         setInitialCost(12);
         setCostFactor(0.325);
+        registerConfiguration(Config.class);
     }
 
     private double getRadius(double factor) {

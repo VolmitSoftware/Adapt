@@ -21,6 +21,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         setInterval(2000);
         setInitialCost(5);
         setCostFactor(0.6);
+        registerConfiguration(Config.class);
     }
 
     @Override

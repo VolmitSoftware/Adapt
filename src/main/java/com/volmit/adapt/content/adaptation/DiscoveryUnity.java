@@ -20,6 +20,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
         setInitialCost(10);
         setCostFactor(0.3);
         setMaxLevel(7);
+        registerConfiguration(Config.class);
     }
 
     @Override

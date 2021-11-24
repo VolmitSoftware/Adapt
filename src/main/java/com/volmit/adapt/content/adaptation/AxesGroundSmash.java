@@ -2,6 +2,7 @@ package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.content.adaptation.experimental.RiftDoor;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -26,6 +27,7 @@ public class AxesGroundSmash extends SimpleAdaptation<AxesGroundSmash.Config> {
         setMaxLevel(5);
         setInitialCost(8);
         setInterval(5000);
+        registerConfiguration(Config.class);
     }
 
     @EventHandler

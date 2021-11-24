@@ -25,6 +25,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         setColor(C.YELLOW);
         setInterval(5251);
         setIcon(Material.GOLDEN_AXE);
+        registerConfiguration(Config.class);
         registerAdaptation(new AxesGroundSmash());
         registerAdaptation(new AxesChop());
     }
