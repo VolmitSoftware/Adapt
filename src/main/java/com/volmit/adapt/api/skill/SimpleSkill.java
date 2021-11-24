@@ -30,7 +30,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     private String description;
     private Material icon;
     @EqualsAndHashCode.Exclude
-    private KList<Adaptation> adaptations;
+    private KList<Adaptation<?>> adaptations;
     private KList<AdaptStatTracker> statTrackers;
     private KList<AdaptAdvancement> cachedAdvancements;
     private String advancementBackground;
@@ -113,7 +113,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         KList<AdaptAdvancement> a = new KList<>();
         onRegisterAdvancements(a);
 
-        for(Adaptation i : getAdaptations()) {
+        for(Adaptation<?> i : getAdaptations()) {
             a.add(i.buildAdvancements());
         }
 
@@ -139,7 +139,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     @Override
-    public void registerAdaptation(Adaptation a) {
+    public void registerAdaptation(Adaptation<?> a) {
         a.setSkill(this);
         adaptations.add(a);
     }

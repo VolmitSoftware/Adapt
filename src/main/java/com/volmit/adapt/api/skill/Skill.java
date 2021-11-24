@@ -45,7 +45,7 @@ public interface Skill<T> extends Ticked, Component {
 
     String getAdvancementBackground();
 
-    void registerAdaptation(Adaptation a);
+    void registerAdaptation(Adaptation<?> a);
 
     void registerStatTracker(AdaptStatTracker tracker);
 
@@ -66,7 +66,7 @@ public interface Skill<T> extends Ticked, Component {
         }
     }
 
-    KList<Adaptation> getAdaptations();
+    KList<Adaptation<?>> getAdaptations();
 
     C getColor();
 

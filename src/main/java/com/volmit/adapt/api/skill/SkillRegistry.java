@@ -45,7 +45,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 
 public class SkillRegistry extends TickedObject {
-    private final KMap<String, Skill> skills = new KMap<>();
+    private final KMap<String, Skill<?>> skills = new KMap<>();
 
     public SkillRegistry() throws IOException {
         super("registry", UUID.randomUUID() + "-sk", 1250);
@@ -114,7 +114,7 @@ public class SkillRegistry extends TickedObject {
                 }
 
                 for(PlayerSkillLine i : a.getData().getSkillLines().v()) {
-                    Skill s = i.getRawSkill(a);
+                    Skill<?> s = i.getRawSkill(a);
                     String v = i.getMultiplier() - a.getData().getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier() - a.getData().getMultiplier()) : Form.pc(i.getMultiplier() - a.getData().getMultiplier());
                     Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getDisplayName() + C.GRAY + ": " + s.getColor() + v);
 
@@ -135,17 +135,17 @@ public class SkillRegistry extends TickedObject {
 
     }
 
-    public Skill getSkill(String i) {
+    public Skill<?> getSkill(String i) {
         return skills.get(i);
     }
 
-    public KList<Skill> getSkills() {
+    public KList<Skill<?>> getSkills() {
         return skills.v();
     }
 
-    public void registerSkill(Class<? extends Skill> skill) {
+    public void registerSkill(Class<? extends Skill<?>> skill) {
         try {
-            Skill sk = skill.getConstructor().newInstance();
+            Skill<?> sk = skill.getConstructor().newInstance();
             skills.put(sk.getName(), sk);
             registerRecipes(sk);
         } catch(InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -153,19 +153,19 @@ public class SkillRegistry extends TickedObject {
         }
     }
 
-    private void unregisterRecipes(Skill s) {
+    private void unregisterRecipes(Skill<?> s) {
         s.getRecipes().forEach(AdaptRecipe::unregister);
         s.getAdaptations().forEach(i -> i.getRecipes().forEach(AdaptRecipe::unregister));
     }
 
-    private void registerRecipes(Skill s) {
+    private void registerRecipes(Skill<?> s) {
         s.getRecipes().forEach(AdaptRecipe::register);
         s.getAdaptations().forEach(i -> i.getRecipes().forEach(AdaptRecipe::register));
     }
 
     @Override
     public void unregister() {
-        for(Skill i : skills.v()) {
+        for(Skill<?> i : skills.v()) {
             i.unregister();
             unregisterRecipes(i);
         }

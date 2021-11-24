@@ -112,8 +112,8 @@ public class AdaptServer extends TickedObject {
     @EventHandler
     public void on(CraftItemEvent e) {
         if(e.getWhoClicked() instanceof Player p) {
-            for(Skill i : getSkillRegistry().getSkills()) {
-                for(Adaptation j : i.getAdaptations()) {
+            for(Skill<?> i : getSkillRegistry().getSkills()) {
+                for(Adaptation<?> j : i.getAdaptations()) {
                     if(j.isAdaptationRecipe(e.getRecipe()) && !j.hasAdaptation(p)) {
                         Adapt.actionbar(p, C.RED + "Requires " + j.getDisplayName() + C.RED + " from " + i.getDisplayName());
                         p.playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.5f, 1.8f);
