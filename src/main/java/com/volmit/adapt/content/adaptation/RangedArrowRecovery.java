@@ -24,7 +24,7 @@ import org.bukkit.persistence.PersistentDataType;
 import javax.naming.Name;
 import java.util.UUID;
 
-public class RangedArrowRecovery extends SimpleAdaptation {
+public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Config> {
     private final KMap<UUID, Integer> arrows = new KMap<>();
 
     public RangedArrowRecovery() {
@@ -96,4 +96,6 @@ public class RangedArrowRecovery extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

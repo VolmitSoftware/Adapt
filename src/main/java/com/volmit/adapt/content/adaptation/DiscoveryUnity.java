@@ -11,7 +11,7 @@ import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 
-public class DiscoveryUnity extends SimpleAdaptation {
+public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     public DiscoveryUnity() {
         super("unity");
         setDescription("Collecting Experience Orbs adds XP to random skills.");
@@ -45,4 +45,6 @@ public class DiscoveryUnity extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

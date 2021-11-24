@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-public class HerbalismHungryShield extends SimpleAdaptation {
+public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShield.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public HerbalismHungryShield() {
@@ -59,4 +59,6 @@ public class HerbalismHungryShield extends SimpleAdaptation {
             e.setDamage(d);
         }
     }
+
+    protected static class Config{}
 }

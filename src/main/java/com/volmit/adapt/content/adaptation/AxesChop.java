@@ -15,7 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class AxesChop extends SimpleAdaptation {
+public class AxesChop extends SimpleAdaptation<AxesChop.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public AxesChop() {
@@ -133,4 +133,6 @@ public class AxesChop extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

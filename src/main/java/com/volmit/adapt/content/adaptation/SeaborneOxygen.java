@@ -10,7 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-public class SeaborneOxygen extends SimpleAdaptation {
+public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public SeaborneOxygen() {
@@ -45,4 +45,6 @@ public class SeaborneOxygen extends SimpleAdaptation {
             }
         }
     }
+
+    protected static class Config{}
 }

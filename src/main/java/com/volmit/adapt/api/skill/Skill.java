@@ -34,8 +34,14 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public interface Skill extends Ticked, Component {
+public interface Skill<T> extends Ticked, Component {
     AdaptAdvancement buildAdvancements();
+
+    Class<T> getConfigurationClass();
+
+    void registerConfiguration(Class<T> type);
+
+    T getConfig();
 
     String getName();
 

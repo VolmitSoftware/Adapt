@@ -20,7 +20,7 @@ import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class PickaxesChisel extends SimpleAdaptation {
+public class PickaxesChisel extends SimpleAdaptation<PickaxesChisel.Config> {
     public PickaxesChisel() {
         super("chisel");
         setDescription("Right Click Ores to Chisel more ore out of them, at a severe durability cost.");
@@ -121,4 +121,6 @@ public class PickaxesChisel extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

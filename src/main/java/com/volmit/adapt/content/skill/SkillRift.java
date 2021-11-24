@@ -29,7 +29,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-public class SkillRift extends SimpleSkill {
+public class SkillRift extends SimpleSkill<SkillRift.Config> {
     private KMap<Player, Long> lasttp = new KMap<>();
 
     public SkillRift() {
@@ -125,4 +125,6 @@ public class SkillRift extends SimpleSkill {
             }
         }
     }
+
+    protected static class Config{}
 }

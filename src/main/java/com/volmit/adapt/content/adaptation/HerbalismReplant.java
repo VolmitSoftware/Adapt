@@ -17,7 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class HerbalismReplant extends SimpleAdaptation {
+public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public HerbalismReplant() {
@@ -122,4 +122,6 @@ public class HerbalismReplant extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

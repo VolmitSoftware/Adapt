@@ -20,7 +20,7 @@ import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-public class SkillCrafting extends SimpleSkill {
+public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     public SkillCrafting() {
         super("crafting", "\u2756");
         setColor(C.YELLOW);
@@ -126,4 +126,6 @@ public class SkillCrafting extends SimpleSkill {
             checkStatTrackers(getPlayer(i));
         }
     }
+
+    protected static class Config{}
 }

@@ -1,20 +1,26 @@
 package com.volmit.adapt.api.adaptation;
 
+import com.google.gson.Gson;
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptRecipe;
+import com.volmit.adapt.util.IO;
+import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.KList;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
-public abstract class SimpleAdaptation extends TickedObject implements Adaptation {
+public abstract class SimpleAdaptation<T> extends TickedObject implements Adaptation<T> {
     private int maxLevel;
     private int initialCost;
     private int baseCost;
@@ -25,6 +31,8 @@ public abstract class SimpleAdaptation extends TickedObject implements Adaptatio
     private String name;
     private KList<AdaptAdvancement> cachedAdvancements;
     private KList<AdaptRecipe> recipes;
+    private Class<T> configType;
+    private T config;
 
     public SimpleAdaptation(String name) {
         super("adaptations", UUID.randomUUID() + "-" + name, 1000);
@@ -37,6 +45,53 @@ public abstract class SimpleAdaptation extends TickedObject implements Adaptatio
         setInitialCost(1);
         setDescription("No Description Provided");
         this.name = name;
+    }
+
+    @Override
+    public Class<T> getConfigurationClass() {
+        return configType;
+    }
+
+    @Override
+    public void registerConfiguration(Class<T> type) {
+        this.configType = type;
+    }
+
+    @Override
+    public T getConfig() {
+        try
+        {
+            if(config == null) {
+                T dummy = getConfigurationClass().getConstructor().newInstance();
+                File l = Adapt.instance.getDataFile("adapt", "adaptations", getName() + ".json");
+
+                if(!l.exists()) {
+                    try {
+                        IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                        config = dummy;
+                        return config;
+                    }
+                }
+
+                try {
+                    config = new Gson().fromJson(IO.readAll(l), getConfigurationClass());
+                    IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
+                } catch(IOException e) {
+                    e.printStackTrace();
+                    config = dummy;
+                    return config;
+                }
+            }
+        }
+
+        catch(Throwable e)
+        {
+            e.printStackTrace();
+        }
+
+        return config;
     }
 
     public void registerRecipe(AdaptRecipe r)

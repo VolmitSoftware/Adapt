@@ -15,7 +15,7 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
 
-public class SkillStealth extends SimpleSkill {
+public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     public SkillStealth() {
         super("stealth", "\u2720");
         setColor(C.DARK_GRAY);
@@ -43,4 +43,6 @@ public class SkillStealth extends SimpleSkill {
             }
         }
     }
+
+    protected static class Config{}
 }

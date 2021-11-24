@@ -24,7 +24,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 
-public class AgilitySuperJump extends SimpleAdaptation {
+public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> {
     private KMap<Player, Long> lastJump = new KMap<>();
 
     public AgilitySuperJump() {
@@ -112,4 +112,6 @@ public class AgilitySuperJump extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

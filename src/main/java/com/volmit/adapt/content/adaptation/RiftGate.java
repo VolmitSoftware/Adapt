@@ -20,7 +20,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Objects;
 
-public class RiftGate extends SimpleAdaptation {
+public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
 
     //TODO: ADD RECIPE OR CONSUMPTION COST
@@ -166,4 +166,6 @@ public class RiftGate extends SimpleAdaptation {
     @Override
     public void onTick() {
     }
+
+    protected static class Config{}
 }

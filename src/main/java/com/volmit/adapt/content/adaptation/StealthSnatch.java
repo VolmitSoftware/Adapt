@@ -19,7 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class StealthSnatch extends SimpleAdaptation {
+public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public StealthSnatch() {
@@ -118,4 +118,6 @@ public class StealthSnatch extends SimpleAdaptation {
             }
         }
     }
+
+    protected static class Config{}
 }

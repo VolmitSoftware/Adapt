@@ -20,7 +20,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
-public class AgilityWallJump extends SimpleAdaptation {
+public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     private final KMap<Player, Double> airjumps = new KMap<>();
 
     public AgilityWallJump() {
@@ -170,4 +170,6 @@ public class AgilityWallJump extends SimpleAdaptation {
             p.getLocation().getBlock().getRelative(BlockFace.WEST).getRelative(BlockFace.UP),
         };
     }
+
+    protected static class Config{}
 }

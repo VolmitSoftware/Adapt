@@ -22,7 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public class RiftAccess extends SimpleAdaptation {
+public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     private KList<InventoryView> activeViews = new KList<>();
 
     public RiftAccess() {
@@ -139,4 +139,6 @@ public class RiftAccess extends SimpleAdaptation {
             }
         });
     }
+
+    protected static class Config{}
 }

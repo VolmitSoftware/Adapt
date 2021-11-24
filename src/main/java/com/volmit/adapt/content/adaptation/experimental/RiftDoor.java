@@ -19,7 +19,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Objects;
 
-public class RiftDoor extends SimpleAdaptation {
+public class RiftDoor extends SimpleAdaptation<RiftDoor.Config> {
 
 
     //TODO: ADD RECIPE OR CONSUMPTION COST
@@ -124,4 +124,6 @@ public class RiftDoor extends SimpleAdaptation {
     @Override
     public void onTick() {
     }
+
+    protected static class Config{}
 }

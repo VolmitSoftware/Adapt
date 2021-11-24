@@ -15,7 +15,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class SkillHunter extends SimpleSkill {
+public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     public SkillHunter() {
         super("hunter", "\u2620");
         setColor(C.RED);
@@ -55,4 +55,6 @@ public class SkillHunter extends SimpleSkill {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

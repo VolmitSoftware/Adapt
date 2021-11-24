@@ -14,7 +14,7 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
 
-public class SkillSeaborne extends SimpleSkill {
+public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     public SkillSeaborne() {
         super("seaborne", "\uD83C\uDF0A");
         setColor(C.BLUE);
@@ -42,4 +42,6 @@ public class SkillSeaborne extends SimpleSkill {
             }
         }
     }
+
+    protected static class Config{}
 }

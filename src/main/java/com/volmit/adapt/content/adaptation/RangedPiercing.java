@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-public class RangedPiercing extends SimpleAdaptation {
+public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public RangedPiercing() {
@@ -47,4 +47,6 @@ public class RangedPiercing extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

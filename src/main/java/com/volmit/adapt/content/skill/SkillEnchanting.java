@@ -10,7 +10,7 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 
-public class SkillEnchanting extends SimpleSkill {
+public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
     public SkillEnchanting() {
         super("enchanting", "\u269C");
         setColor(C.LIGHT_PURPLE);
@@ -32,4 +32,6 @@ public class SkillEnchanting extends SimpleSkill {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

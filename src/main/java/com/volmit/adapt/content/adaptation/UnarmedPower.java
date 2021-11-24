@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-public class UnarmedPower extends SimpleAdaptation {
+public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     public UnarmedPower() {
         super("power-of-the-fist");
         setDescription("Improved Unarmed Damage");
@@ -51,4 +51,6 @@ public class UnarmedPower extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

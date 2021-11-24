@@ -25,7 +25,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 
-public class SkillHerbalism extends SimpleSkill {
+public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     public SkillHerbalism() {
         super("herbalism", "\u2698");
         setColor(C.GREEN);
@@ -144,4 +144,6 @@ public class SkillHerbalism extends SimpleSkill {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

@@ -16,7 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 
-public class SkillTaming extends SimpleSkill {
+public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     public SkillTaming() {
         super("taming", "\u2665");
         setDescription("The parrots and the bees... and you?");
@@ -49,4 +49,6 @@ public class SkillTaming extends SimpleSkill {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

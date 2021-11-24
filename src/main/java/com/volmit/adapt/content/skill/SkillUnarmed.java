@@ -14,7 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class SkillUnarmed extends SimpleSkill {
+public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     public SkillUnarmed() {
         super("unarmed", "\u269C");
         setColor(C.YELLOW);
@@ -41,4 +41,6 @@ public class SkillUnarmed extends SimpleSkill {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

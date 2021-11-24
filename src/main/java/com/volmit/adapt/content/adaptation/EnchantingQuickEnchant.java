@@ -25,7 +25,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
-public class EnchantingQuickEnchant extends SimpleAdaptation {
+public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnchant.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public EnchantingQuickEnchant() {
@@ -145,4 +145,6 @@ public class EnchantingQuickEnchant extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

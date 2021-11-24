@@ -20,7 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-public class HerbalismGrowthAura extends SimpleAdaptation {
+public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public HerbalismGrowthAura() {
@@ -75,4 +75,6 @@ public class HerbalismGrowthAura extends SimpleAdaptation {
             }
         }
     }
+
+    protected static class Config{}
 }

@@ -33,7 +33,7 @@ import org.bukkit.potion.PotionEffect;
 
 import java.util.Map;
 
-public class SkillDiscovery extends SimpleSkill {
+public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public SkillDiscovery() {
         super("discovery", "\u269B");
         setColor(C.AQUA);
@@ -179,4 +179,6 @@ public class SkillDiscovery extends SimpleSkill {
             }
         }
     }
+
+    protected static class Config{}
 }

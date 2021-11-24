@@ -18,7 +18,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.Random;
 
 
-public class RiftAura extends SimpleAdaptation {
+public class RiftAura extends SimpleAdaptation<RiftAura.Config> {
     public RiftAura() {
         super("rift-aura");
         setDescription("Passive & instantaneous non-telegraphed teleportation");
@@ -74,4 +74,6 @@ public class RiftAura extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

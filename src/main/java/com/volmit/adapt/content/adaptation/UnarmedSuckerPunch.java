@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-public class UnarmedSuckerPunch extends SimpleAdaptation {
+public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Config> {
     public UnarmedSuckerPunch() {
         super("sucker-punch");
         setDescription("Sprint punches, but more deadly.");
@@ -66,4 +66,6 @@ public class UnarmedSuckerPunch extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

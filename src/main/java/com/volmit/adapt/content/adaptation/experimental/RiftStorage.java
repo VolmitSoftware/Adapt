@@ -17,7 +17,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 
-public class RiftStorage extends SimpleAdaptation {
+public class RiftStorage extends SimpleAdaptation<RiftStorage.Config> {
     public RiftStorage() {
         super("rift-storage");
         setDescription("Open an enderchest by clicking");
@@ -65,4 +65,6 @@ public class RiftStorage extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

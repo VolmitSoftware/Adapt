@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-public class AxesGroundSmash extends SimpleAdaptation {
+public class AxesGroundSmash extends SimpleAdaptation<AxesGroundSmash.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public AxesGroundSmash() {
@@ -86,4 +86,6 @@ public class AxesGroundSmash extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

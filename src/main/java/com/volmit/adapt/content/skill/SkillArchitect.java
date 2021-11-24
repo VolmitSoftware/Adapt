@@ -16,7 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-public class SkillArchitect extends SimpleSkill {
+public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     public SkillArchitect() {
         super("architect", "\u2B27");
         setColor(C.AQUA);
@@ -54,4 +54,6 @@ public class SkillArchitect extends SimpleSkill {
             checkStatTrackers(getPlayer(i));
         }
     }
+
+    protected static class Config{}
 }

@@ -28,8 +28,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public interface Adaptation extends Ticked, Component {
+public interface Adaptation<T> extends Ticked, Component {
     int getMaxLevel();
+
+    Class<T> getConfigurationClass();
+
+    void registerConfiguration(Class<T> type);
+
+    T getConfig();
 
     AdaptAdvancement buildAdvancements();
 

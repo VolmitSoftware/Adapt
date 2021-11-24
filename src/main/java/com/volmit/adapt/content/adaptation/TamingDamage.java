@@ -18,7 +18,7 @@ import org.bukkit.entity.Tameable;
 import java.util.Collection;
 import java.util.UUID;
 
-public class TamingDamage extends SimpleAdaptation {
+public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     private final UUID attUUID = UUID.nameUUIDFromBytes("tame-damage-boost".getBytes());
     private final String attid = "att-tame-damage-boost";
 
@@ -69,4 +69,6 @@ public class TamingDamage extends SimpleAdaptation {
             j.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(mod);
         }
     }
+
+    protected static class Config{}
 }

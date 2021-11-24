@@ -12,7 +12,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
-public class StealthSpeed extends SimpleAdaptation {
+public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     public StealthSpeed() {
         super("sneak-speed");
         setDescription("Move faster while sneaking");
@@ -55,4 +55,6 @@ public class StealthSpeed extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

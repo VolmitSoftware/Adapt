@@ -21,7 +21,6 @@ public class AdaptConfig {
         private final double baseValue = 1;
         private final KMap<String, Double> valueMutlipliers = defaultValueMultipliers();
 
-
         private KMap<String, Double> defaultValueMultipliers() {
             KMap<String, Double> f = new KMap<>();
             f.put(Material.BLAZE_ROD.name(), 50D);
@@ -52,7 +51,8 @@ public class AdaptConfig {
     public static AdaptConfig get() {
         if(config == null) {
             AdaptConfig dummy = new AdaptConfig();
-            File l = Adapt.instance.getDataFile("config.json");
+            File l = Adapt.instance.getDataFile("adapt", "adapt.json");
+
 
             if(!l.exists()) {
                 try {
@@ -66,6 +66,7 @@ public class AdaptConfig {
 
             try {
                 config = new Gson().fromJson(IO.readAll(l), AdaptConfig.class);
+                IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
             } catch(IOException e) {
                 e.printStackTrace();
                 config = new AdaptConfig();

@@ -14,7 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.util.Vector;
 
-public class RangedLungeShot extends SimpleAdaptation {
+public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public RangedLungeShot() {
@@ -66,4 +66,6 @@ public class RangedLungeShot extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

@@ -17,7 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class AgilityWindUp extends SimpleAdaptation {
+public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     private final KMap<Player, Integer> ticksRunning = new KMap<>();
 
     public AgilityWindUp() {
@@ -97,4 +97,6 @@ public class AgilityWindUp extends SimpleAdaptation {
             }
         }
     }
+
+    protected static class Config{}
 }

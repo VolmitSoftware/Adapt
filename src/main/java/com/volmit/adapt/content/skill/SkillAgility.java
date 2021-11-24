@@ -17,7 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-public class SkillAgility extends SimpleSkill {
+public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     public SkillAgility() {
         super("agility", "\u21C9");
         setDescription("Movement is futile, overcome obstacles");
@@ -94,4 +94,6 @@ public class SkillAgility extends SimpleSkill {
             }
         }
     }
+
+    protected static class Config{}
 }

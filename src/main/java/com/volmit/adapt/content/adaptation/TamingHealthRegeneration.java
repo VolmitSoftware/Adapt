@@ -23,7 +23,7 @@ import xyz.xenondevs.particle.ParticleEffect;
 import java.util.Collection;
 import java.util.UUID;
 
-public class TamingHealthRegeneration extends SimpleAdaptation {
+public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegeneration.Config> {
     private final UUID attUUID = UUID.nameUUIDFromBytes("health-boost".getBytes());
     private final String attid = "att-health-boost";
     private final KMap<UUID, Long> lastDamage = new KMap<>();
@@ -97,4 +97,6 @@ public class TamingHealthRegeneration extends SimpleAdaptation {
             });
         }
     }
+
+    protected static class Config{}
 }

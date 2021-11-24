@@ -18,7 +18,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-public class RangedForce extends SimpleAdaptation {
+public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public RangedForce() {
@@ -83,4 +83,6 @@ public class RangedForce extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

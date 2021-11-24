@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-public class HunterAdrenaline extends SimpleAdaptation {
+public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> {
     public HunterAdrenaline() {
         super("adrenaline");
         setDescription("Deal more damage the lower health you are (Melee)");
@@ -50,4 +50,6 @@ public class HunterAdrenaline extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

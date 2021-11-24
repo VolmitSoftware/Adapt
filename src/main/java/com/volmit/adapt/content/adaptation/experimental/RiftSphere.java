@@ -15,7 +15,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import java.util.Objects;
 
 
-public class RiftSphere extends SimpleAdaptation {
+public class RiftSphere extends SimpleAdaptation<RiftSphere.Config> {
     public RiftSphere() {
         super("rift-sphere");
         setDescription("THIS DOES NOTHING; AND IS JUST A PROOF OF CONCEPT FOR LATER USE");
@@ -68,4 +68,6 @@ public class RiftSphere extends SimpleAdaptation {
 
 
     }
+
+    protected static class Config{}
 }

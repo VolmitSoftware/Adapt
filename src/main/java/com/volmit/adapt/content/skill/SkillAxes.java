@@ -19,7 +19,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-public class SkillAxes extends SimpleSkill {
+public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     public SkillAxes() {
         super("axes", "\u2725");
         setColor(C.YELLOW);
@@ -76,4 +76,6 @@ public class SkillAxes extends SimpleSkill {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

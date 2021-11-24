@@ -1,11 +1,16 @@
 package com.volmit.adapt.api.skill;
 
+import com.google.gson.Gson;
+import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptRecipe;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.IO;
+import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.KList;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import io.papermc.lib.PaperLib;
@@ -15,12 +20,14 @@ import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
-public abstract class SimpleSkill extends TickedObject implements Skill {
+public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     private final String name;
     private final String emojiName;
     private C color;
@@ -33,6 +40,8 @@ public abstract class SimpleSkill extends TickedObject implements Skill {
     private KList<AdaptAdvancement> cachedAdvancements;
     private String advancementBackground;
     private KList<AdaptRecipe> recipes;
+    private Class<T> configType;
+    private T config;
 
     public SimpleSkill(String name, String emojiName) {
         super("skill", UUID.randomUUID() + "-skill-" + name, 50);
@@ -47,6 +56,53 @@ public abstract class SimpleSkill extends TickedObject implements Skill {
         setDescription("No Description Provided");
         setMinXp(100);
         setAdvancementBackground("minecraft:textures/block/deepslate_tiles.png");
+    }
+
+    @Override
+    public Class<T> getConfigurationClass() {
+        return configType;
+    }
+
+    @Override
+    public void registerConfiguration(Class<T> type) {
+        this.configType = type;
+    }
+
+    @Override
+    public T getConfig() {
+        try
+        {
+            if(config == null) {
+                T dummy = getConfigurationClass().getConstructor().newInstance();
+                File l = Adapt.instance.getDataFile("adapt", "skills", getName() + ".json");
+
+                if(!l.exists()) {
+                    try {
+                        IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                        config = dummy;
+                        return config;
+                    }
+                }
+
+                try {
+                    config = new Gson().fromJson(IO.readAll(l), getConfigurationClass());
+                    IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
+                } catch(IOException e) {
+                    e.printStackTrace();
+                    config = dummy;
+                    return config;
+                }
+            }
+        }
+
+        catch(Throwable e)
+        {
+            e.printStackTrace();
+        }
+
+        return config;
     }
 
     public void registerRecipe(AdaptRecipe r)

@@ -27,7 +27,7 @@ import org.bukkit.inventory.SmithingRecipe;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class CraftingDeconstruction extends SimpleAdaptation {
+public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruction.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public CraftingDeconstruction() {
@@ -226,4 +226,6 @@ public class CraftingDeconstruction extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

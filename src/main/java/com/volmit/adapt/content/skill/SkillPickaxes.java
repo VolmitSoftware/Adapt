@@ -15,7 +15,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class SkillPickaxes extends SimpleSkill {
+public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     public SkillPickaxes() {
         super("pickaxes", "\u26CF");
         setColor(C.GOLD);
@@ -110,4 +110,6 @@ public class SkillPickaxes extends SimpleSkill {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

@@ -23,7 +23,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import xyz.xenondevs.particle.ParticleEffect;
 
-public class SwordsMachete extends SimpleAdaptation {
+public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public SwordsMachete() {
@@ -147,4 +147,6 @@ public class SwordsMachete extends SimpleAdaptation {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

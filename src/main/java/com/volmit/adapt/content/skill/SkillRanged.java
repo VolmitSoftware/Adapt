@@ -15,7 +15,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 import java.util.Locale;
 
-public class SkillRanged extends SimpleSkill {
+public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     public SkillRanged() {
         super("ranged", "\uD83C\uDFF9");
         setDescription("When distance is your only alternative");
@@ -53,4 +53,6 @@ public class SkillRanged extends SimpleSkill {
     public void onTick() {
 
     }
+
+    protected static class Config{}
 }

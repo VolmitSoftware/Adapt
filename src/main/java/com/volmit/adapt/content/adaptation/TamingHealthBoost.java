@@ -18,7 +18,7 @@ import org.bukkit.entity.Tameable;
 import java.util.Collection;
 import java.util.UUID;
 
-public class TamingHealthBoost extends SimpleAdaptation {
+public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config> {
     private final UUID attUUID = UUID.nameUUIDFromBytes("health-boost".getBytes());
     private final String attid = "att-health-boost";
 
@@ -69,4 +69,6 @@ public class TamingHealthBoost extends SimpleAdaptation {
             j.getAttribute(Attribute.GENERIC_MAX_HEALTH).addModifier(mod);
         }
     }
+
+    protected static class Config{}
 }
