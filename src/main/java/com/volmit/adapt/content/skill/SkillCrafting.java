@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.inventory.CraftingInventory;
@@ -38,7 +39,7 @@ public class SkillCrafting extends SimpleSkill {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_3k").goal(3000).stat("crafted.items").reward(4750).build());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(CraftItemEvent e) {
         ItemStack test = e.getRecipe().getResult().clone();
         int recipeAmount = e.getInventory().getResult().getAmount();
@@ -74,7 +75,7 @@ public class SkillCrafting extends SimpleSkill {
             default:
         }
 
-        if(test != null && recipeAmount > 0) {
+        if(test != null && recipeAmount > 0 && !e.isCancelled()) {
 
             double v = recipeAmount * getValue(test);
             getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.items", recipeAmount);
