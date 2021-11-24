@@ -17,11 +17,11 @@ import org.bukkit.event.block.BlockPlaceEvent;
 public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     public SkillArchitect() {
         super("architect", "\u2B27");
+        registerConfiguration(Config.class);
         setColor(C.AQUA);
         setDescription("Structures of reality are yours to control");
         setInterval(3700);
         setIcon(Material.IRON_BARS);
-        registerConfiguration(Config.class);
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.BRICK)
             .key("challenge_place_1k")
@@ -30,13 +30,13 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
             .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(1750).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1k).build());
     }
 
     @EventHandler
     public void on(BlockPlaceEvent e) {
-        double v = getValue(e.getBlock());
-        J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), 3 + v)));
+        double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
+        J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));
         getPlayer(e.getPlayer()).getData().addStat("blocks.placed", 1);
         getPlayer(e.getPlayer()).getData().addStat("blocks.placed.value", v);
     }
@@ -53,6 +53,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         }
     }
 
-    protected static class Config {
+    protected static class Config { public Config(){}
+        double challengePlace1k = 1750;
+        double xpValueMultiplier = 1;
+        double xpBase = 3;
     }
 }
