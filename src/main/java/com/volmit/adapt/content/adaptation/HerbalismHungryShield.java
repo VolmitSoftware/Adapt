@@ -31,7 +31,7 @@ public class HerbalismHungryShield extends SimpleAdaptation {
     }
 
     private double getEffectiveness(double factor) {
-        return Math.min(0.9, factor * factor + (0.09));
+        return Math.min(0.5, factor * factor + (0.09));
     }
 
     @Override
