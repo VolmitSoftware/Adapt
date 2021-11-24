@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
+import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.content.adaptation.DiscoveryUnity;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
@@ -33,11 +34,11 @@ import java.util.Map;
 public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public SkillDiscovery() {
         super("discovery", "\u269B");
+        registerConfiguration(Config.class);
         setColor(C.AQUA);
         setDescription("Perception of the world, is the key to understanding");
         setInterval(500);
         setIcon(Material.FILLED_MAP);
-        registerConfiguration(Config.class);
         registerAdaptation(new DiscoveryUnity());
     }
 
@@ -74,7 +75,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public void seeBlock(Player p, BlockData bd, Location l) {
         Discovery<String> d = getPlayer(p).getData().getSeenBlocks();
         if(d.isNewDiscovery(bd.getAsString())) {
-            xp(p, 3 + (getValue(bd) / 3));
+            xp(p, getConfig().discoverBlockBaseXP + (getValue(bd) * getConfig().discoverBlockValueXPMultiplier));
             p.spawnParticle(Particle.TOTEM, l.clone().add(0.5, 0.5, 0.5), 9, 0, 0, 0, 0.3);
         }
 
@@ -84,7 +85,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public void seeItem(Player p, Material bd) {
         Discovery<Material> d = getPlayer(p).getData().getSeenItems();
         if(d.isNewDiscovery(bd)) {
-            xp(p, 10 + getValue(bd));
+            xp(p, getConfig().discoverItemBaseXP + (getValue(bd) * getConfig().discoverItemValueXPMultiplier));
         }
     }
 
@@ -100,14 +101,14 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public void seeFood(Player p, Material bd) {
         Discovery<Material> d = getPlayer(p).getData().getSeenFoods();
         if(d.isNewDiscovery(bd)) {
-            xp(p, 25);
+            xp(p, getConfig().discoverFoodTypeXP);
         }
     }
 
     public void seeEntity(Player p, Entity bd) {
         Discovery<EntityType> d = getPlayer(p).getData().getSeenMobs();
         if(d.isNewDiscovery(bd.getType())) {
-            xp(p, 25);
+            xp(p, getConfig().discoverEntityTypeXP);
         }
 
         if(bd instanceof Player) {
@@ -124,21 +125,21 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public void seePlayer(Player p, Player bd) {
         Discovery<String> d = getPlayer(p).getData().getSeenPeople();
         if(d.isNewDiscovery(bd.getUniqueId().toString())) {
-            xp(p, 125);
+            xp(p, getConfig().discoverPlayerXP);
         }
     }
 
     public void seeEnchant(Player p, Enchantment bd, int level) {
         Discovery<String> d = getPlayer(p).getData().getSeenEnchants();
         if(d.isNewDiscovery(bd.getName() + " " + Form.toRoman(level))) {
-            xp(p, 5 + Math.min(250, level * 52));
+            xp(p, getConfig().discoverEnchantBaseXP + Math.min(getConfig().discoverEnchantMaxXP, level * getConfig().discoverEnchantLevelXPMultiplier));
         }
     }
 
     public void seeWorld(Player p, World world) {
         Discovery<String> d = getPlayer(p).getData().getSeenWorlds();
         if(d.isNewDiscovery(world.getName() + "-" + world.getSeed())) {
-            xp(p, (100));
+            xp(p, getConfig().discoverWorldXP);
         }
 
         seeEnvironment(p, world.getEnvironment());
@@ -147,21 +148,21 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public void seeEnvironment(Player p, World.Environment world) {
         Discovery<World.Environment> d = getPlayer(p).getData().getSeenEnvironments();
         if(d.isNewDiscovery(world)) {
-            xp(p, (250));
+            xp(p, getConfig().discoverEnvironmentXP);
         }
     }
 
     public void seePotionEffect(Player p, PotionEffect e) {
         Discovery<String> d = getPlayer(p).getData().getSeenPotionEffects();
         if(d.isNewDiscovery(e.getType().getName() + " " + Form.toRoman(e.getAmplifier()).trim())) {
-            xp(p, (36));
+            xp(p, getConfig().discoverPotionXP);
         }
     }
 
     public void seeBiome(Player p, Biome e) {
         Discovery<Biome> d = getPlayer(p).getData().getSeenBiomes();
         if(d.isNewDiscovery(e)) {
-            xp(p, (15));
+            xp(p, getConfig().discoverBiomeXP);
         }
     }
 
@@ -178,6 +179,20 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         }
     }
 
-    protected static class Config {
+    protected static class Config { public Config(){}
+        double discoverBiomeXP = 15;
+        double discoverPotionXP = 36;
+        double discoverEntityTypeXP = 125;
+        double discoverFoodTypeXP = 75;
+        double discoverPlayerXP = 125;
+        double discoverEnvironmentXP = 750;
+        double discoverWorldXP = 750;
+        double discoverEnchantMaxXP = 250;
+        double discoverEnchantLevelXPMultiplier = 52;
+        double discoverEnchantBaseXP = 5;
+        double discoverItemBaseXP = 10;
+        double discoverItemValueXPMultiplier = 1;
+        double discoverBlockBaseXP = 3;
+        double discoverBlockValueXPMultiplier = 0.333;
     }
 }
