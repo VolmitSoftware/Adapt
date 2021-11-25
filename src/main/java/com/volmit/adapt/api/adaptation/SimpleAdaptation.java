@@ -7,6 +7,7 @@ import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptRecipe;
 import com.volmit.adapt.util.IO;
+import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.KList;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
@@ -45,6 +46,13 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         setInitialCost(1);
         setDescription("No Description Provided");
         this.name = name;
+
+        J.a(() -> {
+            if(!isEnabled())
+            {
+                unregister();
+            }
+        });
     }
 
     @Override

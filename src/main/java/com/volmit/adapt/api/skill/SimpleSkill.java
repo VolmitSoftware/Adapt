@@ -146,6 +146,11 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
     @Override
     public void registerAdaptation(Adaptation<?> a) {
+        if(!a.isEnabled())
+        {
+            return;
+        }
+
         a.setSkill(this);
         adaptations.add(a);
     }
