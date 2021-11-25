@@ -10,11 +10,13 @@ import com.volmit.adapt.content.adaptation.experimental.RiftStorage;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.EnderSignal;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Endermite;
 import org.bukkit.entity.Player;
@@ -31,10 +33,10 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     public SkillRift() {
         super("rift", "\u274D");
+        registerConfiguration(Config.class);
         setDescription("Dimensional magic");
         setColor(C.DARK_PURPLE);
         setInterval(1154);
-        registerConfiguration(Config.class);
         setIcon(Material.ENDER_EYE);
         registerAdaptation(new RiftAura());
         registerAdaptation(new RiftAccess());
@@ -46,51 +48,55 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler
     public void on(PlayerTeleportEvent e) {
-        if(getPlayer(e.getPlayer()).hasSkill(this) && e.getFrom().getWorld() != e.getTo().getWorld()) {
-            xpSilent(e.getPlayer(), 1000);
+        if(getPlayer(e.getPlayer()).hasSkill(this) && e.getFrom().getWorld() != e.getTo().getWorld() && !lasttp.containsKey(e.getPlayer())) {
+            xpSilent(e.getPlayer(), getConfig().teleportXP);
+            lasttp.put(e.getPlayer(), M.ms());
         }
     }
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
         if(e.getEntity() instanceof EnderPearl && e.getEntity().getShooter() instanceof Player p) {
-            xp(p, 50);
+            xp(p, getConfig().throwEnderpearlXP);
+        }
+        else if(e.getEntity() instanceof EnderSignal && e.getEntity().getShooter() instanceof Player p) {
+            xp(p, getConfig().throwEnderEyeXP);
         }
     }
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
         if(e.getEntity() instanceof Enderman && e.getDamager() instanceof Player p) {
-            xp(p, 4 * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+            xp(p, getConfig().damageEndermanXPMultiplier * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if(e.getEntity() instanceof Endermite && e.getDamager() instanceof Player p) {
-            xp(p, 2 * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+            xp(p, getConfig().damageEndermiteXPMultiplier * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if(e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Player p) {
-            xp(p, 4 * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+            xp(p, getConfig().damageEnderdragonXPMultiplier * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if(e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Player p) {
-            xp(p, 250);
+            xp(p, getConfig().damageEndCrystalXP);
         }
 
         if(e.getEntity() instanceof Enderman && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-            xp(p, 4 * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+            xp(p, getConfig().damageEndermanXPMultiplier * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if(e.getEntity() instanceof Endermite && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-            xp(p, 2 * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+            xp(p, getConfig().damageEndermiteXPMultiplier * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if(e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-            xp(p, 4 * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+            xp(p, getConfig().damageEnderdragonXPMultiplier * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if(e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-            xp(p, 250);
+            xp(p, getConfig().damageEndCrystalXP);
         }
     }
 
     @EventHandler
     public void on(EntityDeathEvent e) {
         if(e.getEntity() instanceof EnderCrystal && e.getEntity().getKiller() != null) {
-            xp(e.getEntity().getKiller(), 350);
+            xp(e.getEntity().getKiller(), getConfig().destroyEndCrystalXP);
         }
     }
 
@@ -102,12 +108,22 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     @Override
     public void onTick() {
         for(Player i : lasttp.k()) {
-            if(M.ms() - lasttp.get(i) > 60000) {
+            if(M.ms() - lasttp.get(i) > getConfig().teleportXPCooldown) {
                 lasttp.remove(i);
             }
         }
     }
 
+    @NoArgsConstructor
     protected static class Config {
+        double destroyEndCrystalXP = 350;
+        double damageEndCrystalXP = 350;
+        double damageEndermanXPMultiplier = 4;
+        double damageEndermiteXPMultiplier = 2;
+        double damageEnderdragonXPMultiplier = 4;
+        double throwEnderpearlXP = 75;
+        double throwEnderEyeXP = 45;
+        double teleportXP = 1000;
+        double teleportXPCooldown = 60000;
     }
 }
