@@ -27,19 +27,19 @@ import org.bukkit.inventory.Recipe;
 public interface Adaptation<T> extends Ticked, Component {
     int getMaxLevel();
 
-    default <T> T getStorage(Player p, String key, T defaultValue)
+    default <F> F getStorage(Player p, String key, F defaultValue)
     {
         PlayerData data = getPlayer(p).getData();
         if(data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName()))
         {
             Object o = data.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getStorage().get(key);
-            return o == null ? defaultValue : (T) o;
+            return o == null ? defaultValue : (F) o;
         }
 
         return defaultValue;
     }
 
-    default <T> T getStorage(Player p, String key)
+    default <F> F getStorage(Player p, String key)
     {
         return getStorage(p, key, null);
     }
@@ -124,9 +124,9 @@ public interface Adaptation<T> extends Ticked, Component {
 
     Material getIcon();
 
-    void setSkill(Skill skill);
+    void setSkill(Skill<?> skill);
 
-    Skill getSkill();
+    Skill<?> getSkill();
 
     String getName();
 

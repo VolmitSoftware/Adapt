@@ -26,7 +26,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     private int initialCost;
     private int baseCost;
     private double costFactor;
-    private Skill skill;
+    private Skill<?> skill;
     private String description;
     private Material icon;
     private String name;
