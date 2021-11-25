@@ -3,6 +3,7 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.HunterAdrenaline;
 import com.volmit.adapt.util.C;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
@@ -26,7 +27,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     @EventHandler
     public void on(BlockBreakEvent e) {
         if(e.getBlock().getType().equals(Material.TURTLE_EGG)) {
-            xp(e.getBlock().getLocation(), 125, 9, 1000);
+            xp(e.getBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
             getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
         }
     }
@@ -34,7 +35,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         if(e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
-            xp(e.getClickedBlock().getLocation(), 125, 9, 1000);
+            xp(e.getClickedBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().killSpatialRadius,  getConfig().killSpatialDuration);
             getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
         }
     }
@@ -42,9 +43,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     @EventHandler
     public void on(EntityDeathEvent e) {
         if(e.getEntity().getKiller() != null && e.getEntity().getKiller() != null) {
-            double mult = e.getEntity().getType().equals(EntityType.CREEPER) ? 6 : 1;
-            xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 3 * mult, 18, 3000);
-            xp(e.getEntity().getKiller(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 6 * mult);
+            double cmult = e.getEntity().getType().equals(EntityType.CREEPER) ? getConfig().creeperKillMultiplier : 1;
+            xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
+            xp(e.getEntity().getKiller(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult);
             getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
         }
     }
@@ -54,6 +55,15 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     }
 
+    @NoArgsConstructor
     protected static class Config {
+        double turtleEggKillXP = 125;
+        int turtleEggSpatialRadius = 24;
+        long turtleEggSpatialDuration = 15000;
+        double creeperKillMultiplier = 4;
+        double killMaxHealthSpatialXPMultiplier = 3;
+        double killMaxHealthXPMultiplier = 6;
+        int killSpatialRadius = 24;
+        long killSpatialDuration = 15000;
     }
 }
