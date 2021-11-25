@@ -30,6 +30,7 @@ public class PlayerSkillLine {
     private double rfreshness = 1D;
     private int lastLevel = 0;
     private long last = M.ms();
+    private KMap<String, Object> storage = new KMap<>();
     private KMap<String, PlayerAdaptation> adaptations = new KMap<>();
     private KList<XPMultiplier> multipliers = new KList<>();
 

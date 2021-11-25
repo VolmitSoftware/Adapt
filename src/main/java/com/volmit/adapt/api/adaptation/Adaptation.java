@@ -7,6 +7,7 @@ import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptRecipe;
+import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -25,6 +26,85 @@ import org.bukkit.inventory.Recipe;
 
 public interface Adaptation<T> extends Ticked, Component {
     int getMaxLevel();
+
+    default <T> T getStorage(Player p, String key, T defaultValue)
+    {
+        PlayerData data = getPlayer(p).getData();
+        if(data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName()))
+        {
+            Object o = data.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getStorage().get(key);
+            return o == null ? defaultValue : (T) o;
+        }
+
+        return defaultValue;
+    }
+
+    default <T> T getStorage(Player p, String key)
+    {
+        return getStorage(p, key, null);
+    }
+
+    default boolean setStorage(Player p, String key, Object value)
+    {
+        PlayerData data = getPlayer(p).getData();
+        if(data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName()))
+        {
+            data.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getStorage().put(key, value);
+            return true;
+        }
+
+        return false;
+    }
+
+    default String getStorageString(Player p, String key, String defaultValue)
+    {
+        return getStorage(p, key, defaultValue);
+    }
+
+    default String getStorageString(Player p, String key)
+    {
+        return getStorage(p, key);
+    }
+
+    default Integer getStorageInt(Player p, String key, Integer defaultValue)
+    {
+        return getStorage(p, key, defaultValue);
+    }
+
+    default Integer getStorageInt(Player p, String key)
+    {
+        return getStorage(p, key);
+    }
+
+    default Double getStorageDouble(Player p, String key, Double defaultValue)
+    {
+        return getStorage(p, key, defaultValue);
+    }
+
+    default Double getStorageDouble(Player p, String key)
+    {
+        return getStorage(p, key);
+    }
+
+    default Boolean getStorageBoolean(Player p, String key, Boolean defaultValue)
+    {
+        return getStorage(p, key, defaultValue);
+    }
+
+    default Boolean getStorageBoolean(Player p, String key)
+    {
+        return getStorage(p, key);
+    }
+
+    default Long getStorageLong(Player p, String key, Long defaultValue)
+    {
+        return getStorage(p, key, defaultValue);
+    }
+
+    default Long getStorageLong(Player p, String key)
+    {
+        return getStorage(p, key);
+    }
 
     Class<T> getConfigurationClass();
 
