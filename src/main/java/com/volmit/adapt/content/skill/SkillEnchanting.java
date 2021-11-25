@@ -3,6 +3,7 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.EnchantingQuickEnchant;
 import com.volmit.adapt.util.C;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.enchantment.EnchantItemEvent;
@@ -20,7 +21,7 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
 
     @EventHandler
     public void on(EnchantItemEvent e) {
-        xp(e.getEnchanter(), 680 * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());
+        xp(e.getEnchanter(), getConfig().enchantPowerXPMultiplier * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());
         getPlayer(e.getEnchanter()).getData().addStat("enchanted.items", 1);
         getPlayer(e.getEnchanter()).getData().addStat("enchanted.power", e.getEnchantsToAdd().values().stream().mapToInt(i -> i).sum());
         getPlayer(e.getEnchanter()).getData().addStat("enchanted.levels.spent", e.getExpLevelCost());
@@ -31,6 +32,8 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
 
     }
 
+    @NoArgsConstructor
     protected static class Config {
+        double enchantPowerXPMultiplier = 680;
     }
 }
