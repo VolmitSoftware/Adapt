@@ -4,6 +4,7 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.SwordsMachete;
 import com.volmit.adapt.util.C;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,9 +14,9 @@ import org.bukkit.inventory.ItemStack;
 public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     public SkillSwords() {
         super("swords", "\u2694");
+        registerConfiguration(Config.class);
         setColor(C.YELLOW);
         setInterval(2150);
-        registerConfiguration(Config.class);
         setIcon(Material.DIAMOND_SWORD);
         registerAdaptation(new SwordsMachete());
     }
@@ -27,7 +28,7 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
             if(isSword(hand)) {
-                xp(a.getPlayer(), e.getEntity().getLocation(), 13.26 * e.getDamage());
+                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
             }
         }
     }
@@ -37,6 +38,8 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
 
     }
 
+    @NoArgsConstructor
     protected static class Config {
+        double damageXPMultiplier = 13.26;
     }
 }
