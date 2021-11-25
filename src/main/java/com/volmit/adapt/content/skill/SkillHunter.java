@@ -16,8 +16,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     public SkillHunter() {
         super("hunter", "\u2620");
-        setColor(C.RED);
         registerConfiguration(Config.class);
+        setColor(C.RED);
         setDescription("Better to be the hunter than the hunted");
         setInterval(4150);
         setIcon(Material.BONE);

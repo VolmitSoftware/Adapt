@@ -11,10 +11,10 @@ import org.bukkit.event.enchantment.EnchantItemEvent;
 public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
     public SkillEnchanting() {
         super("enchanting", "\u269C");
+        registerConfiguration(Config.class);
         setColor(C.LIGHT_PURPLE);
         setDescription("Very few can bind magic to reality");
         setInterval(3700);
-        registerConfiguration(Config.class);
         setIcon(Material.KNOWLEDGE_BOOK);
         registerAdaptation(new EnchantingQuickEnchant());
     }

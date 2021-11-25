@@ -27,9 +27,9 @@ import org.bukkit.event.player.PlayerShearEntityEvent;
 public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     public SkillHerbalism() {
         super("herbalism", "\u2698");
+        registerConfiguration(Config.class);
         setColor(C.GREEN);
         setInterval(3700);
-        registerConfiguration(Config.class);
         setDescription("Sticks and stones don't break your bones");
         setIcon(Material.WHEAT);
         registerAdaptation(new HerbalismGrowthAura());
