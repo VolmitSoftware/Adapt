@@ -5,6 +5,7 @@ import com.volmit.adapt.content.adaptation.TamingDamage;
 import com.volmit.adapt.content.adaptation.TamingHealthBoost;
 import com.volmit.adapt.content.adaptation.TamingHealthRegeneration;
 import com.volmit.adapt.util.C;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
@@ -16,10 +17,10 @@ import org.bukkit.event.entity.EntityTameEvent;
 public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     public SkillTaming() {
         super("taming", "\u2665");
+        registerConfiguration(Config.class);
         setDescription("The parrots and the bees... and you?");
         setColor(C.GOLD);
         setInterval(3700);
-        registerConfiguration(Config.class);
         setIcon(Material.LEAD);
         registerAdaptation(new TamingHealthBoost());
         registerAdaptation(new TamingDamage());
@@ -29,7 +30,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     @EventHandler
     public void on(EntityTameEvent e) {
         if(e.getOwner() instanceof Player) {
-            xp((Player) e.getOwner(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * 63);
+            xp((Player) e.getOwner(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().tameHealthXPMultiplier);
         }
     }
 
@@ -39,7 +40,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
             ((Tameable) e.getDamager()).isTamed() &&
             ((Tameable) e.getDamager()).getOwner() instanceof Player) {
             Player owner = (Player) ((Tameable) e.getDamager()).getOwner();
-            xp(owner, e.getEntity().getLocation(), e.getDamage() * 12.85);
+            xp(owner, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
         }
     }
 
@@ -48,6 +49,9 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     }
 
+    @NoArgsConstructor
     protected static class Config {
+        double tameHealthXPMultiplier = 63;
+        double tameDamageXPMultiplier = 9.85;
     }
 }
