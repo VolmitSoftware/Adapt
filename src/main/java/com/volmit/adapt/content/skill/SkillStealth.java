@@ -8,6 +8,7 @@ import com.volmit.adapt.content.adaptation.StealthSpeed;
 import com.volmit.adapt.util.C;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -15,9 +16,9 @@ import org.bukkit.entity.Player;
 public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     public SkillStealth() {
         super("stealth", "\u2720");
+        registerConfiguration(Config.class);
         setColor(C.DARK_GRAY);
         setInterval(1412);
-        registerConfiguration(Config.class);
         setIcon(Material.WITHER_ROSE);
         setDescription("The art of the unseen. Walk in the shadows.");
         registerAdaptation(new StealthSpeed());
@@ -30,18 +31,21 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
             .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sneak_1k").goal(1000).stat("move.sneak").reward(750).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sneak_1k").goal(1000).stat("move.sneak").reward(getConfig().challengeSneak1kReward).build());
     }
 
     @Override
     public void onTick() {
         for(Player i : Bukkit.getOnlinePlayers()) {
             if(i.isSneaking() && !i.isSwimming() && !i.isSprinting() && !i.isFlying() && !i.isGliding()) {
-                xpSilent(i, 15.48);
+                xpSilent(i, getConfig().sneakXP);
             }
         }
     }
 
+    @NoArgsConstructor
     protected static class Config {
+        double challengeSneak1kReward = 750;
+        double sneakXP = 15.48;
     }
 }
