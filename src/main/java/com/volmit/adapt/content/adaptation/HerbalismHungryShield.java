@@ -16,6 +16,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
 
     public HerbalismHungryShield() {
         super("hungry-shield");
+        registerConfiguration(Config.class);
         setDescription("Take damage to your hunger before your health");
         setIcon(Material.APPLE);
         setBaseCost(7);
@@ -23,7 +24,6 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
         setInterval(875);
         setInitialCost(14);
         setCostFactor(0.925);
-        registerConfiguration(Config.class);
     }
 
     @Override

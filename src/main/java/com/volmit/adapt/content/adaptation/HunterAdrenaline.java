@@ -13,13 +13,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> {
     public HunterAdrenaline() {
         super("adrenaline");
+        registerConfiguration(Config.class);
         setDescription("Deal more damage the lower health you are (Melee)");
         setIcon(Material.LEATHER_HELMET);
         setBaseCost(4);
         setMaxLevel(5);
         setInitialCost(8);
         setCostFactor(0.4);
-        registerConfiguration(Config.class);
     }
 
     @Override

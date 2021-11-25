@@ -24,6 +24,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
     public TamingHealthBoost() {
         super("tame-health-boost");
+        registerConfiguration(Config.class);
         setDescription("Increase your tamed animal health.");
         setIcon(Material.COOKED_BEEF);
         setBaseCost(6);
@@ -31,7 +32,6 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
         setInitialCost(3);
         setInterval(4750);
         setCostFactor(0.4);
-        registerConfiguration(Config.class);
     }
 
     @Override

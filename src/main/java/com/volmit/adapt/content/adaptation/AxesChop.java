@@ -20,6 +20,7 @@ public class AxesChop extends SimpleAdaptation<AxesChop.Config> {
 
     public AxesChop() {
         super("chop");
+        registerConfiguration(Config.class);
         setDescription("Chop down trees by right clicking the base log!");
         setIcon(Material.IRON_AXE);
         setBaseCost(3);
@@ -27,7 +28,6 @@ public class AxesChop extends SimpleAdaptation<AxesChop.Config> {
         setMaxLevel(3);
         setInitialCost(5);
         setInterval(5000);
-        registerConfiguration(Config.class);
     }
 
     @Override

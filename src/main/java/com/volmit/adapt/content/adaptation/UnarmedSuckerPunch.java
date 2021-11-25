@@ -15,12 +15,12 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Config> {
     public UnarmedSuckerPunch() {
         super("sucker-punch");
+        registerConfiguration(Config.class);
         setDescription("Sprint punches, but more deadly.");
         setIcon(Material.OBSIDIAN);
         setBaseCost(2);
         setInitialCost(4);
         setCostFactor(0.225);
-        registerConfiguration(Config.class);
     }
 
     @Override

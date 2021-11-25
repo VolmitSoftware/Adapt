@@ -16,6 +16,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
     public RangedPiercing() {
         super("piercing");
+        registerConfiguration(Config.class);
         setDescription("Adds Piercing to projectiles! Shoot through things!");
         setIcon(Material.SHEARS);
         setBaseCost(3);
@@ -23,7 +24,6 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
         setInterval(5000);
         setInitialCost(8);
         setCostFactor(0.5);
-        registerConfiguration(Config.class);
     }
 
     @Override

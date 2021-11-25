@@ -25,6 +25,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
     public CraftingDeconstruction() {
         super("deconstruction");
+        registerConfiguration(Config.class);
         setDescription("Deconstruct blocks & items into salvageable base components");
         setIcon(Material.SHEARS);
         setBaseCost(9);
@@ -32,7 +33,6 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
         setInterval(5000);
         setInitialCost(8);
         setCostFactor(1.355);
-        registerConfiguration(Config.class);
     }
 
     @Override

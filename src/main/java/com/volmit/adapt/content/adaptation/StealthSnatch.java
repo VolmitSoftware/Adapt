@@ -24,6 +24,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
     public StealthSnatch() {
         super("snatch");
+        registerConfiguration(Config.class);
         setDescription("Snatch items instantly while sneaking!");
         setIcon(Material.CHEST_MINECART);
         setBaseCost(4);
@@ -31,7 +32,6 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         setMaxLevel(3);
         setInitialCost(12);
         setCostFactor(0.125);
-        registerConfiguration(Config.class);
     }
 
     @Override

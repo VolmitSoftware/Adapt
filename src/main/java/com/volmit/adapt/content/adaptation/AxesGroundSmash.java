@@ -19,6 +19,7 @@ public class AxesGroundSmash extends SimpleAdaptation<AxesGroundSmash.Config> {
 
     public AxesGroundSmash() {
         super("ground-smash");
+        registerConfiguration(Config.class);
         setDescription("Jump, then crouch and smash all nearby enemies.");
         setIcon(Material.NETHERITE_AXE);
         setBaseCost(6);
@@ -26,7 +27,6 @@ public class AxesGroundSmash extends SimpleAdaptation<AxesGroundSmash.Config> {
         setMaxLevel(5);
         setInitialCost(8);
         setInterval(5000);
-        registerConfiguration(Config.class);
     }
 
     @EventHandler

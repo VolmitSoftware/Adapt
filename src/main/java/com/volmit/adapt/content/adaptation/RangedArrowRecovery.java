@@ -25,6 +25,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
 
     public RangedArrowRecovery() {
         super("arrow-recovery");
+        registerConfiguration(Config.class);
         setDescription("Recover Arrows after you have killed an enemy.");
         setIcon(Material.TIPPED_ARROW);
         setBaseCost(3);
@@ -32,7 +33,6 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         setInterval(5000);
         setInitialCost(6);
         setCostFactor(0.725);
-        registerConfiguration(Config.class);
     }
 
     private double getChance(double factor) {

@@ -14,13 +14,13 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     public StealthSpeed() {
         super("sneak-speed");
+        registerConfiguration(Config.class);
         setDescription("Move faster while sneaking");
         setIcon(Material.MUSHROOM_STEW);
         setBaseCost(2);
         setInterval(2000);
         setInitialCost(5);
         setCostFactor(0.6);
-        registerConfiguration(Config.class);
     }
 
     @Override

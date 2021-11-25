@@ -22,6 +22,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
     public HerbalismReplant() {
         super("replant");
+        registerConfiguration(Config.class);
         setDescription("Right click a crop with a hoe to harvast & replant it.");
         setIcon(Material.PUMPKIN_SEEDS);
         setBaseCost(6);
@@ -29,7 +30,6 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
         setInterval(6000);
         setInitialCost(4);
         setCostFactor(2.325);
-        registerConfiguration(Config.class);
     }
 
     private int getCooldown(double factor, int level) {

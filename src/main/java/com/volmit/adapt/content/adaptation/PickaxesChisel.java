@@ -22,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 public class PickaxesChisel extends SimpleAdaptation<PickaxesChisel.Config> {
     public PickaxesChisel() {
         super("chisel");
+        registerConfiguration(Config.class);
         setDescription("Right Click Ores to Chisel more ore out of them, at a severe durability cost.");
         setIcon(Material.IRON_NUGGET);
         setBaseCost(6);
@@ -29,7 +30,6 @@ public class PickaxesChisel extends SimpleAdaptation<PickaxesChisel.Config> {
         setInitialCost(5);
         setInterval(8276);
         setCostFactor(0.4);
-        registerConfiguration(Config.class);
     }
 
     private int getCooldownTime(double levelPercent) {

@@ -15,6 +15,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
 
     public SeaborneOxygen() {
         super("oxygen");
+        registerConfiguration(Config.class);
         setDescription("Hold more oxygen!");
         setIcon(Material.GLASS_PANE);
         setBaseCost(3);
@@ -22,7 +23,6 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
         setInterval(3750);
         setInitialCost(5);
         setCostFactor(0.525);
-        registerConfiguration(Config.class);
     }
 
     @Override

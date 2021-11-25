@@ -23,6 +23,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
     public HerbalismGrowthAura() {
         super("growth-aura");
+        registerConfiguration(Config.class);
         setDescription("Grow nature around you in an aura");
         setIcon(Material.BONE_MEAL);
         setBaseCost(8);
@@ -30,7 +31,6 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         setInterval(875);
         setInitialCost(12);
         setCostFactor(0.325);
-        registerConfiguration(Config.class);
     }
 
     private double getRadius(double factor) {

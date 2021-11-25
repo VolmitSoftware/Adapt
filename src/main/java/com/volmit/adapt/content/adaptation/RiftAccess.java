@@ -24,6 +24,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     public RiftAccess() {
         super("rift-access");
+        registerConfiguration(Config.class);
         setDescription("Pull from the void");
         setIcon(Material.NETHER_STAR);
         setBaseCost(0);
@@ -31,7 +32,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         setMaxLevel(1);
         setInitialCost(15);
         setInterval(50);
-        registerConfiguration(Config.class);
     }
 
     @Override

@@ -28,6 +28,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 
     public SwordsMachete() {
         super("machete");
+        registerConfiguration(Config.class);
         setDescription("Cut through foliage with ease!");
         setIcon(Material.IRON_SWORD);
         setBaseCost(4);
@@ -35,7 +36,6 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
         setInterval(5234);
         setInitialCost(7);
         setCostFactor(0.225);
-        registerConfiguration(Config.class);
     }
 
     @Override

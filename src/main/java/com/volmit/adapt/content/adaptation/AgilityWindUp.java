@@ -21,13 +21,13 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
 
     public AgilityWindUp() {
         super("wind-up");
+        registerConfiguration(Config.class);
         setDescription("Get faster the longer you sprint!");
         setIcon(Material.POWERED_RAIL);
         setBaseCost(2);
         setCostFactor(0.65);
         setInitialCost(8);
         setInterval(50);
-        registerConfiguration(Config.class);
     }
 
     @Override

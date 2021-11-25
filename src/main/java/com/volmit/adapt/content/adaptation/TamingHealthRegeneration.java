@@ -29,6 +29,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
     public TamingHealthRegeneration() {
         super("tame-health-regeneration");
+        registerConfiguration(Config.class);
         setDescription("Increase your tamed animal health.");
         setIcon(Material.GOLDEN_APPLE);
         setBaseCost(7);
@@ -36,7 +37,6 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
         setInitialCost(8);
         setInterval(1000);
         setCostFactor(0.4);
-        registerConfiguration(Config.class);
     }
 
     @EventHandler

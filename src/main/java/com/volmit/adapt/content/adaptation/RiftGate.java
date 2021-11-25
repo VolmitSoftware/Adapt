@@ -20,11 +20,9 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.Objects;
 
 public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
-
-
-    //TODO: ADD RECIPE OR CONSUMPTION COST
     public RiftGate() {
         super("rift-gate");
+        registerConfiguration(Config.class);
         setDescription("Move through the void");
         setIcon(Material.END_PORTAL_FRAME);
         setBaseCost(0);
@@ -32,7 +30,6 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         setMaxLevel(1);
         setInitialCost(30);
         setInterval(50);
-        registerConfiguration(Config.class);
     }
 
     @Override

@@ -23,6 +23,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     public AgilityWallJump() {
         super("wall-jump");
+        registerConfiguration(Config.class);
         setDescription("Hold shift while mid-air against a wall to wall latch & jump!");
         setIcon(Material.LADDER);
         setBaseCost(2);
@@ -30,7 +31,6 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
         setMaxLevel(5);
         setInitialCost(8);
         setInterval(50);
-        registerConfiguration(Config.class);
     }
 
     @Override
