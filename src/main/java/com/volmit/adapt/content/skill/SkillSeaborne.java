@@ -7,6 +7,7 @@ import com.volmit.adapt.content.adaptation.SeaborneOxygen;
 import com.volmit.adapt.util.C;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,10 +15,10 @@ import org.bukkit.entity.Player;
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     public SkillSeaborne() {
         super("seaborne", "\uD83C\uDF0A");
+        registerConfiguration(Config.class);
         setColor(C.BLUE);
         setDescription("Will the wonders of the water");
         setInterval(2120);
-        registerConfiguration(Config.class);
         setIcon(Material.TRIDENT);
         registerAdaptation(new SeaborneOxygen());
         registerAdvancement(AdaptAdvancement.builder()
@@ -28,7 +29,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_1nm").goal(1852).stat("move.swim").reward(750).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_1nm").goal(1852).stat("move.swim").reward(getConfig().challengeSwim1nmReward).build());
     }
 
     @Override
@@ -36,11 +37,14 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         for(Player i : Bukkit.getOnlinePlayers()) {
             if(i.isSwimming() || i.getRemainingAir() < i.getMaximumAir()) {
                 checkStatTrackers(getPlayer(i));
-                xpSilent(i, 19.7);
+                xpSilent(i, getConfig().swimXP);
             }
         }
     }
 
+    @NoArgsConstructor
     protected static class Config {
+        double challengeSwim1nmReward = 750;
+        double swimXP = 19.7;
     }
 }
