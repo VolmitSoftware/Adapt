@@ -30,6 +30,7 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
 
     @Override
     public void applyLore(Data data, List<String> lore) {
+        lore.add(C.UNDERLINE + "Portkey");
         lore.add(C.LIGHT_PURPLE + "Right Click " + C.GRAY + "to access the bound Inventory");
         lore.add(C.LIGHT_PURPLE + "Shift + Left Click " + C.GRAY + "to bind/unbind");
     }
