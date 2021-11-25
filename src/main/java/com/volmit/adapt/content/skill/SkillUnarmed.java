@@ -5,6 +5,7 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.UnarmedPower;
 import com.volmit.adapt.content.adaptation.UnarmedSuckerPunch;
 import com.volmit.adapt.util.C;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,10 +15,10 @@ import org.bukkit.inventory.ItemStack;
 public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     public SkillUnarmed() {
         super("unarmed", "\u269C");
+        registerConfiguration(Config.class);
         setColor(C.YELLOW);
         setDescription("Without a weapon is not without strength");
         setInterval(2570);
-        registerConfiguration(Config.class);
         registerAdaptation(new UnarmedSuckerPunch());
         registerAdaptation(new UnarmedPower());
         setIcon(Material.FIRE_CHARGE);
@@ -30,7 +31,7 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
             if(!isMelee(hand)) {
-                xp(a.getPlayer(), e.getEntity().getLocation(), 13.26 * e.getDamage());
+                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
             }
         }
     }
@@ -40,6 +41,8 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
 
     }
 
+    @NoArgsConstructor
     protected static class Config {
+        double damageXPMultiplier = 11.44;
     }
 }
