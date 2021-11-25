@@ -10,6 +10,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Levelled;
@@ -50,8 +51,8 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build())
             .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_100").goal(100).stat("food.eaten").reward(1250).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_1000").goal(1000).stat("food.eaten").reward(6250).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_100").goal(100).stat("food.eaten").reward(getConfig().challengeEat100Reward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_1000").goal(1000).stat("food.eaten").reward(getConfig().challengeEat1kReward).build());
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.COOKED_BEEF)
             .key("challenge_harvest_100")
@@ -68,19 +69,19 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build())
             .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_100").goal(100).stat("harvest.blocks").reward(1250).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(6250).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_100").goal(100).stat("harvest.blocks").reward(getConfig().challengeHarvest100Reward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(getConfig().challengeHarvest1kReward).build());
     }
 
     @EventHandler
     public void on(PlayerItemConsumeEvent e) {
-        xp(e.getPlayer(), 125);
+        xp(e.getPlayer(), getConfig().foodConsumeXP);
         getPlayer(e.getPlayer()).getData().addStat("food.eaten", 1);
     }
 
     @EventHandler
     public void on(PlayerShearEntityEvent e) {
-        xp(e.getPlayer(), e.getEntity().getLocation(), 95);
+        xp(e.getPlayer(), e.getEntity().getLocation(), getConfig().shearXP);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -91,14 +92,14 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
         if(e.getHarvestedBlock().getBlockData() instanceof Ageable) {
             getPlayer(e.getPlayer()).getData().addStat("harvest.blocks", 1);
-            xp(e.getPlayer(), e.getHarvestedBlock().getLocation().clone().add(0.5, 0.5, 0.5), 32 * (((Ageable) e.getHarvestedBlock().getBlockData()).getAge()));
+            xp(e.getPlayer(), e.getHarvestedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * (((Ageable) e.getHarvestedBlock().getBlockData()).getAge()));
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPlaceEvent e) {
         if(e.getBlock().getBlockData() instanceof Ageable) {
-            xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), 3);
+            xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().plantCropSeedsXP);
             getPlayer(e.getPlayer()).getData().addStat("harvest.planted", 1);
         }
     }
@@ -120,7 +121,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
             J.s(() -> {
                 int nl = ((Levelled) e.getClickedBlock().getBlockData()).getLevel();
                 if(nl > ol || (ol > 0 && nl == 0)) {
-                    xp(e.getPlayer(), e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), 51 + (nl * 3) + (nl == 0 ? 250 : 5));
+                    xp(e.getPlayer(), e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().composterBaseXP + (nl * getConfig().composterLevelXPMultiplier) + (nl == 0 ? getConfig().composterNonZeroLevelBonus : 5));
                     getPlayer(e.getPlayer()).getData().addStat("harvest.composted", 1);
                 }
             });
@@ -134,7 +135,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         }
 
         if(e.getBlock().getBlockData() instanceof Ageable) {
-            xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), 32 * (((Ageable) e.getBlock().getBlockData()).getAge()));
+            xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * (((Ageable) e.getBlock().getBlockData()).getAge()));
             getPlayer(e.getPlayer()).getData().addStat("harvest.blocks", 1);
         }
     }
@@ -144,6 +145,18 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     }
 
+    @NoArgsConstructor
     protected static class Config {
+        double foodConsumeXP = 125;
+        double shearXP = 95;
+        double harvestPerAgeXP = 35;
+        double plantCropSeedsXP = 4;
+        double composterBaseXP = 51;
+        double composterLevelXPMultiplier = 3;
+        double composterNonZeroLevelBonus = 250;
+        double challengeEat100Reward = 1250;
+        double challengeEat1kReward = 6250;
+        double challengeHarvest100Reward = 1250;
+        double challengeHarvest1kReward = 6250;
     }
 }
