@@ -114,8 +114,14 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         }
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double destroyEndCrystalXP = 350;
         double damageEndCrystalXP = 350;
         double damageEndermanXPMultiplier = 4;

@@ -27,7 +27,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     @EventHandler
     public void on(BlockBreakEvent e) {
         if(e.getBlock().getType().equals(Material.TURTLE_EGG)) {
-            xp(e.getBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
+            xp(e.getBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
             getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
         }
     }
@@ -35,7 +35,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         if(e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
-            xp(e.getClickedBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().killSpatialRadius,  getConfig().killSpatialDuration);
+            xp(e.getClickedBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius,  getConfig().turtleEggSpatialDuration);
             getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
         }
     }
@@ -55,8 +55,14 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double turtleEggKillXP = 125;
         int turtleEggSpatialRadius = 24;
         long turtleEggSpatialDuration = 15000;

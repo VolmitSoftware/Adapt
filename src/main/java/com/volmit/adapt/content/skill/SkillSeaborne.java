@@ -42,8 +42,14 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         }
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double challengeSwim1nmReward = 750;
         double swimXP = 19.7;
     }

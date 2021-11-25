@@ -83,8 +83,14 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         }
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double challengeMove1kReward = 500;
         double challengeSprint5kReward = 2000;
         double challengeSprintMarathonReward = 6500;

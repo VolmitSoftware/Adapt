@@ -49,8 +49,14 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double tameHealthXPMultiplier = 63;
         double tameDamageXPMultiplier = 9.85;
     }

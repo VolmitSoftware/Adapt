@@ -145,8 +145,14 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double foodConsumeXP = 125;
         double shearXP = 95;
         double harvestPerAgeXP = 35;

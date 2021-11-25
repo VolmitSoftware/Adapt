@@ -38,8 +38,14 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
 
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double damageXPMultiplier = 13.26;
     }
 }

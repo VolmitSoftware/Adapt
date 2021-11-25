@@ -43,8 +43,14 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         }
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double challengeSneak1kReward = 750;
         double sneakXP = 15.48;
     }

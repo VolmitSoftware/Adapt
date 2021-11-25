@@ -70,8 +70,14 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double maxHardnessBonus = 9;
         double maxBlastResistanceBonus = 10;
         double logOrWoodXPMultiplier = 9.67;

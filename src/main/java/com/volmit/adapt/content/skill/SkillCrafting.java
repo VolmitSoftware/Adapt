@@ -129,8 +129,14 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         }
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double furnaceBaseXP = 24;
         double furnaceValueXPMultiplier = 4;
         int furnaceXPRadius = 32;

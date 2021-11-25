@@ -32,8 +32,14 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
 
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double enchantPowerXPMultiplier = 680;
     }
 }

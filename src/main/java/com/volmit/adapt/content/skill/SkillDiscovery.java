@@ -180,8 +180,14 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         }
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double discoverBiomeXP = 15;
         double discoverPotionXP = 36;
         double discoverEntityTypeXP = 125;

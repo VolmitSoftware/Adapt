@@ -54,8 +54,14 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         }
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double challengePlace1kReward = 1750;
         double xpValueMultiplier = 1;
         double xpBase = 3;

@@ -6,6 +6,7 @@ import com.volmit.adapt.content.adaptation.PickaxesChisel;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -81,8 +82,15 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     }
 
-    @AllArgsConstructor
+
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
         double damageXPMultiplier = 13.26;
         double blockValueMultiplier = 0.125;
         double maxHardnessBonus = 9;
