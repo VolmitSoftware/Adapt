@@ -5,6 +5,7 @@ import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Metrics;
 import com.volmit.adapt.util.VolmitPlugin;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatMessageType;
@@ -13,6 +14,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Adapt extends VolmitPlugin {
     public static Adapt instance;
@@ -39,6 +42,14 @@ public class Adapt extends VolmitPlugin {
     public void start() {
         ticker = new Ticker();
         adaptServer = new AdaptServer();
+        setupMetrics();
+    }
+
+    private void setupMetrics() {
+        if(AdaptConfig.get().isMetrics())
+        {
+            new Metrics(this, 13412);
+        }
     }
 
     @Override

@@ -10,17 +10,19 @@ import org.bukkit.Material;
 import java.io.File;
 import java.io.IOException;
 
+@SuppressWarnings("ALL")
 @Getter
 public class AdaptConfig {
     private static AdaptConfig config = null;
 
-    private final ValueConfig value = new ValueConfig();
-    private final boolean verbose = false;
+    private ValueConfig value = new ValueConfig();
+    private boolean verbose = false;
+    private boolean metrics = true;
 
     @Getter
     public static class ValueConfig {
-        private final double baseValue = 1;
-        private final KMap<String, Double> valueMutlipliers = defaultValueMultipliers();
+        private double baseValue = 1;
+        private KMap<String, Double> valueMutlipliers = defaultValueMultipliers();
 
         private KMap<String, Double> defaultValueMultipliers() {
             KMap<String, Double> f = new KMap<>();
