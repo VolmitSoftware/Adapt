@@ -52,7 +52,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
             {
                 unregister();
             }
-        });
+        }, 1);
     }
 
     @Override
