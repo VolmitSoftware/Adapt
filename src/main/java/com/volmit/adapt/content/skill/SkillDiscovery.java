@@ -6,6 +6,7 @@ import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.content.adaptation.DiscoveryUnity;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
+import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
@@ -179,7 +180,8 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         }
     }
 
-    protected static class Config { public Config(){}
+    @NoArgsConstructor
+    protected static class Config {
         double discoverBiomeXP = 15;
         double discoverPotionXP = 36;
         double discoverEntityTypeXP = 125;

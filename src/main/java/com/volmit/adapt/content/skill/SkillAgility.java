@@ -9,6 +9,7 @@ import com.volmit.adapt.content.adaptation.AgilityWindUp;
 import com.volmit.adapt.util.C;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -82,7 +83,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         }
     }
 
-    protected static class Config { public Config(){}
+    @NoArgsConstructor
+    protected static class Config {
         double challengeMove1kReward = 500;
         double challengeSprint5kReward = 2000;
         double challengeSprintMarathonReward = 6500;

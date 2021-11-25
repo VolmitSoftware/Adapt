@@ -6,6 +6,7 @@ import com.volmit.adapt.content.adaptation.AxesChop;
 import com.volmit.adapt.content.adaptation.AxesGroundSmash;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -69,7 +70,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     }
 
-    protected static class Config {public Config(){}
+    @NoArgsConstructor
+    protected static class Config {
         double maxHardnessBonus = 9;
         double maxBlastResistanceBonus = 10;
         double logOrWoodXPMultiplier = 9.67;

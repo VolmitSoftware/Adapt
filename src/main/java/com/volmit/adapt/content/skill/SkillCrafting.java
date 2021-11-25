@@ -7,6 +7,7 @@ import com.volmit.adapt.content.adaptation.CraftingDeconstruction;
 import com.volmit.adapt.util.C;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -128,7 +129,8 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         }
     }
 
-    protected static class Config {public Config(){}
+    @NoArgsConstructor
+    protected static class Config {
         double furnaceBaseXP = 24;
         double furnaceValueXPMultiplier = 4;
         int furnaceXPRadius = 32;

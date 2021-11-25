@@ -7,6 +7,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -53,7 +54,8 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         }
     }
 
-    protected static class Config { public Config(){}
+    @NoArgsConstructor
+    protected static class Config {
         double challengePlace1kReward = 1750;
         double xpValueMultiplier = 1;
         double xpBase = 3;
