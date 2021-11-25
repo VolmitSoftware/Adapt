@@ -3,8 +3,10 @@ package com.volmit.adapt.content.adaptation;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -24,24 +26,24 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
 
     public AgilitySuperJump() {
         super("super-jump");
+        registerConfiguration(Config.class);
         setDescription("Exceptional Height Advantage");
         setIcon(Material.LEATHER_BOOTS);
-        setBaseCost(2);
-        setCostFactor(0.55);
-        setMaxLevel(5);
-        setInitialCost(5);
+        setBaseCost(getConfig().baseCost);
+        setCostFactor(getConfig().costFactor);
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
         setInterval(9344);
-        registerConfiguration(Config.class);
     }
 
     private double getJumpHeight(int level) {
-        return 0.43 + (0.07 * level);
+        return getConfig().baseJumpMultiplier + (getConfig().jumpLevelMultiplier * level);
     }
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + (1 + (0.5 * level)) + C.GRAY + " Max Additional Blocks");
-        v.addLore(C.YELLOW + "* 1 Complete Jump From Floor" + C.GRAY + " *kinda buggy* ");
+        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + " Jump Height");
+        v.addLore(C.LIGHT_PURPLE + "* Sneak + Jump to Super Jump!");
     }
 
     @EventHandler
@@ -101,6 +103,13 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
 
     }
 
+    @NoArgsConstructor
     protected static class Config {
+        int baseCost = 2;
+        double costFactor = 0.55;
+        int maxLevel = 3;
+        int initialCost = 5;
+        double baseJumpMultiplier = 0.21;
+        double jumpLevelMultiplier = 0.27;
     }
 }
