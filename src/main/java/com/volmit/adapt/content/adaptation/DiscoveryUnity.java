@@ -4,6 +4,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
@@ -45,6 +46,13 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
     }
 }

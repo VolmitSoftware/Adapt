@@ -6,6 +6,7 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Impulse;
 import com.volmit.adapt.util.KList;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -87,6 +88,13 @@ public class AxesGroundSmash extends SimpleAdaptation<AxesGroundSmash.Config> {
 
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
     }
 }

@@ -6,6 +6,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -137,6 +138,13 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         });
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
     }
 }

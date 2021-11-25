@@ -30,6 +30,8 @@ public interface Adaptation<T> extends Ticked, Component {
 
     void registerConfiguration(Class<T> type);
 
+    boolean isEnabled();
+
     T getConfig();
 
     AdaptAdvancement buildAdvancements();

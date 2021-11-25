@@ -9,6 +9,7 @@ import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.RNG;
+import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -148,6 +149,13 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
     }
 }

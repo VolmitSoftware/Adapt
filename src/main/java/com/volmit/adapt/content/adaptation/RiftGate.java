@@ -5,6 +5,7 @@ import com.volmit.adapt.content.item.BoundEyeOfEnder;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
+import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -165,6 +166,13 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     public void onTick() {
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
     }
 }

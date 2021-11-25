@@ -4,6 +4,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -74,7 +75,13 @@ public class RiftAura extends SimpleAdaptation<RiftAura.Config> {
 
     }
 
-    protected static class Config {
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
 
+    @NoArgsConstructor
+    protected static class Config {
+        boolean enabled = true;
     }
 }

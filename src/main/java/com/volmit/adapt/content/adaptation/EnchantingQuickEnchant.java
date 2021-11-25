@@ -6,6 +6,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
@@ -128,6 +129,13 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
 
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
     }
 }

@@ -8,6 +8,7 @@ import com.volmit.adapt.util.Inventories;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.V;
+import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -119,6 +120,13 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         }
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
     }
 }

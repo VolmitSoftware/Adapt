@@ -6,6 +6,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KMap;
+import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Arrow;
@@ -90,6 +91,13 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
 
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    @NoArgsConstructor
     protected static class Config {
+        boolean enabled = true;
     }
 }
