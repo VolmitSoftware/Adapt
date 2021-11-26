@@ -22,10 +22,10 @@ public class AxesGroundSmash extends SimpleAdaptation<AxesGroundSmash.Config> {
         registerConfiguration(Config.class);
         setDescription("Jump, then crouch and smash all nearby enemies.");
         setIcon(Material.NETHERITE_AXE);
-        setBaseCost(6);
-        setCostFactor(0.75);
-        setMaxLevel(5);
-        setInitialCost(8);
+        setBaseCost(getConfig().baseCost);
+        setCostFactor(getConfig().costFactor);
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
         setInterval(5000);
     }
 
@@ -64,23 +64,23 @@ public class AxesGroundSmash extends SimpleAdaptation<AxesGroundSmash.Config> {
     }
 
     public int getCooldownTime(double factor) {
-        return (int) (((1D - factor) * 225) + 80);
+        return (int) (((1D - factor) * getConfig().cooldownTicksInverseLevelMultiplier) + getConfig().cooldownTicksBase);
     }
 
     public double getRadius(double factor) {
-        return 6 * factor;
+        return getConfig().radiusLevelFactorMultiplier * factor;
     }
 
     public double getDamage(double factor) {
-        return 8 * factor;
+        return getConfig().damageLevelFactorMultiplier * factor;
     }
 
     public double getForce(double factor) {
-        return (1.15 * factor) + 0.27;
+        return (getConfig().forceFactorMultiplier * factor) + getConfig().forceBase;
     }
 
     public double getFalloffDamage(double factor) {
-        return 3 * factor;
+        return getConfig().falloffFactor * factor;
     }
 
     @Override
@@ -96,5 +96,16 @@ public class AxesGroundSmash extends SimpleAdaptation<AxesGroundSmash.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 6;
+        double costFactor = 0.75;
+        int maxLevel = 5;
+        int initialCost = 8;
+        double falloffFactor = 3;
+        double radiusLevelFactorMultiplier = 8;
+        double damageLevelFactorMultiplier = 8;
+        double forceFactorMultiplier = 1.15;
+        double forceBase = 0.27;
+        double cooldownTicksBase = 80;
+        double cooldownTicksInverseLevelMultiplier = 225;
     }
 }
