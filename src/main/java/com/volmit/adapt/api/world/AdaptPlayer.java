@@ -14,14 +14,17 @@ import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.RollingSequence;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+@EqualsAndHashCode(callSuper = false)
 @Data
 public class AdaptPlayer extends TickedObject {
     private final Player player;
@@ -33,6 +36,7 @@ public class AdaptPlayer extends TickedObject {
     private AdvancementHandler advancementHandler;
     private RollingSequence speed;
     private long lastloc;
+    private Vector velocity;
     private Location lastpos;
 
     public AdaptPlayer(Player p) {
@@ -47,6 +51,7 @@ public class AdaptPlayer extends TickedObject {
         speed = new RollingSequence(7);
         lastloc = M.ms();
         getAdvancementHandler().activate();
+        velocity = new Vector();
     }
 
     public boolean isBusy() {
@@ -99,7 +104,14 @@ public class AdaptPlayer extends TickedObject {
 
         if(lastpos != null) {
             if(lastpos.getWorld().equals(at.getWorld())) {
-                speed.put(lastpos.distance(at) / ((double) (M.ms() - lastloc) / 50D));
+                if(lastpos.distanceSquared(at) <= 7 * 7)
+                {
+                    speed.put(lastpos.distance(at) / ((double) (M.ms() - lastloc) / 50D));
+                    velocity = velocity.clone().add(at.clone().subtract(lastpos).toVector()).multiply(0.5);
+                    velocity.setX(Math.abs(velocity.getX()) < 0.01 ? 0 : velocity.getX());
+                    velocity.setY(Math.abs(velocity.getY()) < 0.01 ? 0 : velocity.getY());
+                    velocity.setZ(Math.abs(velocity.getZ()) < 0.01 ? 0 : velocity.getZ());
+                }
             }
         }
 
