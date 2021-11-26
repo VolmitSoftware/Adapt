@@ -1,7 +1,6 @@
-package com.volmit.adapt.api.world;
+package com.volmit.adapt.api.recipe;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.api.recipe.MaterialChar;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;

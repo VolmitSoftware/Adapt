@@ -6,7 +6,7 @@ import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.api.world.AdaptRecipe;
+import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.xp.XP;
