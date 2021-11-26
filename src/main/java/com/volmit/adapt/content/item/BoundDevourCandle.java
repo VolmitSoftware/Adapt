@@ -2,6 +2,7 @@ package com.volmit.adapt.content.item;
 
 import com.volmit.adapt.api.item.DataItem;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.RNG;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Material;
@@ -56,13 +57,17 @@ public class BoundDevourCandle implements DataItem<BoundDevourCandle.Data> {
         return io.withData(new Data(t));
     }
 
-    @AllArgsConstructor
     @lombok.Data
     public static class Data {
+        public Data(Block block){
+            this.block = block;
+        }
         private Block block;
+        private long d = RNG.r.lmax();
 
         public static BoundDevourCandle.Data at(Block l) {
             return new BoundDevourCandle.Data(l);
         }
     }
+
 }

@@ -1,7 +1,8 @@
-package com.volmit.adapt.content.adaptation.rift;
+package com.volmit.adapt.content.adaptation.rift.experimental;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.content.Enchantments;
 import com.volmit.adapt.content.item.BoundDevourCandle;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class RiftDevour extends SimpleAdaptation<RiftDevour.Config> {
     public RiftDevour() {
@@ -26,7 +28,7 @@ public class RiftDevour extends SimpleAdaptation<RiftDevour.Config> {
         setInitialCost(30);
         setInterval(50);
         registerRecipe(AdaptRecipe.shapeless()
-                .key("rift-gate")
+                .key("rift-devour")
                 .ingredient(Material.BLACK_CANDLE)
                 .ingredient(Material.NETHERITE_SCRAP)
                 .result(BoundDevourCandle.io.withData(new BoundDevourCandle.Data(null)))
@@ -47,7 +49,7 @@ public class RiftDevour extends SimpleAdaptation<RiftDevour.Config> {
         Block block = e.getClickedBlock();
 
 
-        if(!hasAdaptation(p) || (!hand.getType().equals(Material.BLACK_CANDLE) && !isBound(hand))) {
+        if (!hasAdaptation(p) || (!hand.getType().equals(Material.BLACK_CANDLE) && !isBound(hand))) {
             return;
         }
         e.setCancelled(true);
@@ -58,46 +60,39 @@ public class RiftDevour extends SimpleAdaptation<RiftDevour.Config> {
                     if (p.isSneaking()) { // Binding (Sneak Container)
                         linkCandle(p, block);
                     } else if (!p.isSneaking()) {
-                        activateCandle(p);
+                        toggleCandle(p);
                     }
                 } else if (!isStorage(block.getBlockData())) {
                     if (p.isSneaking()) { //(Sneak NOT Container)
-                        p.sendMessage(C.LIGHT_PURPLE + "That's not a container");
+                        p.sendMessage(C.LIGHT_PURPLE + "That's not a container i can consume from");
                     } else if (!p.isSneaking() && isBound(hand)) {
-                        activateCandle(p);
+                        toggleCandle(p);
                     }
-
                 }
                 e.setCancelled(true);
 
             }
             case RIGHT_CLICK_AIR, LEFT_CLICK_AIR -> {
-                if (isBound(hand)) {
-                    activateCandle(p);
-                }
                 e.setCancelled(true);
-
             }
         }
-
     }
 
 
-    private void activateCandle(Player p) {
-        p.sendMessage("Container Toggled");
-        ItemStack hand = p.getInventory().getItemInMainHand();
+    private void toggleCandle(Player p) {
+        ItemMeta hand = p.getInventory().getItemInMainHand().getItemMeta();
 
-        getSkill().xp(p, 75);
-        if(hand.getAmount() > 1) { // consume the hand
-            hand.setAmount(hand.getAmount() - 1);
+        if (hand.getEnchants().get(Enchantments.BOUND) == null) {
+            hand.addEnchant(Enchantments.BOUND, 0, true);
+            p.sendMessage("AGGRANDIZED THE HUNGER");//move
+            p.playSound(p.getLocation(), Sound.BLOCK_FIRE_AMBIENT, 100f, 0.1f);
+            p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_BURN, 100f, 0.1f);
         } else {
-            p.getInventory().setItemInMainHand(null);
+            hand.removeEnchant(Enchantments.BOUND);
+            p.sendMessage("SILENCED THE HUNGER");//move
+            p.playSound(p.getLocation(), Sound.BLOCK_CANDLE_EXTINGUISH, 100f, 0.1f);
+            p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_DEATH, 100f, 0.1f);
         }
-
-        p.playSound(p.getLocation(), Sound.BLOCK_LODESTONE_PLACE, 100f, 0.1f);
-        p.playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 100f, 0.1f);
-
-        // port animation
 
     }
 
@@ -109,7 +104,7 @@ public class RiftDevour extends SimpleAdaptation<RiftDevour.Config> {
     private void linkCandle(Player p, Block block) {
         ItemStack hand = p.getInventory().getItemInMainHand();
 
-        if(hand.getAmount() == 1) {
+        if (hand.getAmount() == 1) {
             BoundDevourCandle.setData(hand, block);
         } else {
             hand.setAmount(hand.getAmount() - 1);
