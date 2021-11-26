@@ -1,6 +1,8 @@
 package com.volmit.adapt.content.adaptation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.content.item.BoundEyeOfEnder;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -30,6 +32,13 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         setMaxLevel(1);
         setInitialCost(30);
         setInterval(50);
+        registerRecipe(AdaptRecipe.shapeless()
+                .key("rift-gate")
+                .ingredient(Material.ENDER_PEARL)
+                .ingredient(Material.EMERALD)
+                .ingredient(Material.AMETHYST_SHARD)
+                .result(BoundEyeOfEnder.io.withData(new BoundEyeOfEnder.Data(null)))
+                .build());
     }
 
     @Override
