@@ -31,11 +31,11 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
         registerConfiguration(Config.class);
         setDescription("Cut through foliage with ease!");
         setIcon(Material.IRON_SWORD);
-        setBaseCost(4);
-        setMaxLevel(3);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
         setInterval(5234);
-        setInitialCost(7);
-        setCostFactor(0.225);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     }
 
     public double getRadius(int level) {
-        return (getLevelPercent(level) * 2.36) + 0.6;
+        return (getLevelPercent(level) * getConfig().radiusFactor) + getConfig().radiusBase;
     }
 
     @EventHandler
@@ -137,11 +137,11 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     }
 
     private int getCooldownTime(double levelPercent) {
-        return ((int) ((1D - levelPercent) * 35)) + 7;
+        return (int) (((int) ((1D - levelPercent) * getConfig().cooldownTicksSlowest)) + getConfig().cooldownTicksBase);
     }
 
     private int getDamagePerBlock(double levelPercent) {
-        return (int) (1 + (5 * ((1D - levelPercent))));
+        return (int) (getConfig().toolDamageBase + (getConfig().toolDamageInverseLevelFactor * ((1D - levelPercent))));
     }
 
     @Override
@@ -157,5 +157,15 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 4;
+        int maxLevel = 3;
+        int initialCost = 7;
+        double costFactor = 0.225;
+        double radiusBase = 0.6;
+        double radiusFactor = 2.36;
+        double cooldownTicksBase = 7;
+        double cooldownTicksSlowest = 35;
+        double toolDamageBase = 1;
+        double toolDamageInverseLevelFactor = 5;
     }
 }
