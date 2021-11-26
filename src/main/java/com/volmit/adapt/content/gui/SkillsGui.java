@@ -20,7 +20,7 @@ public class SkillsGui {
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         int ind = 0;
 
-        for(PlayerSkillLine i : a.getData().getSkillLines().v()) {
+        for(PlayerSkillLine i : a.getData().getSkillLines().sortV()) {
             int pos = w.getPosition(ind);
             int row = w.getRow(ind);
             Skill sk = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(i.getLine());
