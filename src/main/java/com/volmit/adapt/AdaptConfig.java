@@ -1,6 +1,7 @@
 package com.volmit.adapt;
 
 import com.google.gson.Gson;
+import com.volmit.adapt.api.xp.Curves;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.KMap;
@@ -14,10 +15,10 @@ import java.io.IOException;
 @Getter
 public class AdaptConfig {
     private static AdaptConfig config = null;
-
     private ValueConfig value = new ValueConfig();
     private boolean verbose = false;
     private boolean metrics = true;
+    private Curves xpCurve = Curves.XL3L7;
 
     @Getter
     public static class ValueConfig {

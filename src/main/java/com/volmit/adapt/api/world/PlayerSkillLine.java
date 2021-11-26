@@ -1,6 +1,7 @@
 package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.api.adaptation.Adaptation;
+import com.volmit.adapt.api.notification.ActionBarNotification;
 import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.notification.Notifier;
 import com.volmit.adapt.api.notification.SoundNotification;
@@ -147,9 +148,10 @@ public class PlayerSkillLine {
             long kb = getKnowledge();
             for(int i = lastLevel; i < getLevel(); i++) {
                 giveKnowledge((i / 13) + 1);
+                p.getData().giveMasterXp((i / 7D) * 100);
             }
 
-            notifyLevel(p, getKnowledge() - kb);
+            notifyLevel(p, getLevel());
             lastLevel = getLevel();
         }
     }
@@ -158,39 +160,50 @@ public class PlayerSkillLine {
         return Math.abs(a - b / (double) (a == 0 ? 1 : a));
     }
 
-    private void notifyLevel(AdaptPlayer p, long kn) {
+    private void notifyLevel(AdaptPlayer p, double lvl) {
         Skill s = p.getServer().getSkillRegistry().getSkill(getLine());
-        if(getLevel() % 5 == 0 && getLevel() >= 5) {
+        if(lvl % 10 == 0)
+        {
             p.getNot().queue(SoundNotification.builder()
-                    .sound(Sound.BLOCK_BEACON_POWER_SELECT)
-                    .volume(0.7f)
-                    .pitch(1.35f)
+                .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
+                .volume(1f)
+                .pitch(1.35f)
+                .group("lvl" + getLine())
+                .build(),SoundNotification.builder()
+                .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
+                .volume(1f)
+                .pitch(0.75f)
+                .group("lvl" + getLine())
+                .build(),TitleNotification.builder()
+                .in(250)
+                .stay(1450)
+                .out(2250)
+                .group("lvl" + getLine())
+                .title("")
+                .subtitle(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
+                .build());
+        }
+
+        else
+        {
+            p.getNot().queue(
+                SoundNotification.builder()
+                    .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK)
+                    .volume(1f)
+                    .pitch(1.74f)
                     .group("lvl" + getLine())
                     .build(),
                 SoundNotification.builder()
-                    .sound(Sound.BLOCK_BAMBOO_HIT)
+                    .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
                     .volume(1f)
-                    .pitch(0.65f)
+                    .pitch(0.74f)
                     .group("lvl" + getLine())
                     .build(),
-                TitleNotification.builder()
-                    .in(250)
-                    .stay(250)
-                    .out(750)
+                ActionBarNotification.builder()
+                    .duration(2500)
                     .group("lvl" + getLine())
-                    .title("")
-                    .subtitle(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
+                    .title(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
                     .build());
-        }
-
-        if(getLevel() >= 5) {
-            p.getNot().queue(AdvancementNotification.builder()
-                .frameType(AdvancementDisplay.AdvancementFrame.CHALLENGE)
-                .icon(s.getIcon())
-                .title(s.getDisplayName(getLevel()))
-                .description(getKnowledge() + "" + s.getColor() + " Knowledge")
-                .group("lvl" + getLine())
-                .build());
         }
 
         lastLevel = (int) Math.floor(XP.getLevelForXp(getXp()));
