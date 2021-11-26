@@ -19,11 +19,11 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
         registerConfiguration(Config.class);
         setDescription("Adds Piercing to projectiles! Shoot through things!");
         setIcon(Material.SHEARS);
-        setBaseCost(3);
-        setMaxLevel(3);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
         setInterval(5000);
-        setInitialCost(8);
-        setCostFactor(0.5);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
     }
 
     @Override
@@ -57,5 +57,9 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 3;
+        int maxLevel = 5;
+        int initialCost = 8;
+        double costFactor = 0.5;
     }
 }
