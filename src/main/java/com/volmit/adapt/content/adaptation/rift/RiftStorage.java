@@ -18,7 +18,7 @@ import org.bukkit.potion.PotionEffectType;
 
 public class RiftStorage extends SimpleAdaptation<RiftStorage.Config> {
     public RiftStorage() {
-        super("rift-storage");
+        super("storage");
         setDescription("Open an enderchest by clicking");
         setIcon(Material.ENDER_CHEST);
         setBaseCost(0);
@@ -29,14 +29,8 @@ public class RiftStorage extends SimpleAdaptation<RiftStorage.Config> {
         registerConfiguration(Config.class);
     }
 
-    private double getConsumePercent(int level) {
-        return 0.15 + (0.15 * level);
-    }
-
-
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getConsumePercent(level)) + C.GRAY + " Chance to Resist Consumption");
         v.addLore(C.ITALIC + "*Click an Enderchest in your hand to open (Just dont place)*");
     }
 
@@ -59,7 +53,6 @@ public class RiftStorage extends SimpleAdaptation<RiftStorage.Config> {
             }
         }
     }
-
 
     @Override
     public void onTick() {
