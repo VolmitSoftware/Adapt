@@ -26,6 +26,8 @@ public class Notifier extends TickedObject {
         queue = new KList<>();
         lastSkills = new KMap<>();
         lastSkillValues = new KMap<>();
+        busyTicks = 0;
+        delayTicks = 0;
         this.target = target;
         lastInstance = 0;
     }
@@ -116,18 +118,7 @@ public class Notifier extends TickedObject {
     }
 
     private void cleanupStackedNotifications() {
-        if(queue.size() <= 2) {
-            return;
-        }
 
-        KMap<String, Notification> nfs = new KMap<>();
-
-        for(Notification i : queue) {
-            nfs.put(i.getClass().getSimpleName() + i.getGroup(), i);
-        }
-
-        queue.clear();
-        queue.addAll(nfs.values());
     }
 
     private void cleanupSkills() {
