@@ -59,10 +59,6 @@ public interface AdaptRecipe {
         return Furnace.builder();
     }
 
-    static Merchant.MerchantBuilder merchant() {
-        return Merchant.builder();
-    }
-
     static Campfire.CampfireBuilder campfire() {
         return Campfire.builder();
     }
@@ -201,47 +197,6 @@ public interface AdaptRecipe {
         public void unregister() {
             Bukkit.getServer().removeRecipe(getNSKey());
             Adapt.verbose("Unregistered Blast Furnace Recipe " + getKey());
-        }
-    }
-
-    @Builder
-    @Data
-    class Merchant implements AdaptRecipe {
-        private String key;
-        private ItemStack result;
-        @Singular
-        private List<ItemStack> ingredients;
-        private float priceMultiplier = 1f;
-        private int villagerXp = 1;
-        private int uses = 1;
-        private int maxUses = 1;
-
-        @Override
-        public ItemStack getResult() {
-            return null;
-        }
-
-        private MerchantRecipe build()
-        {
-            MerchantRecipe s = new MerchantRecipe(result, uses, maxUses, true, villagerXp, priceMultiplier);
-            ingredients.forEach(s::addIngredient);
-            return s;
-        }
-
-        public void register() {
-            Bukkit.getServer().addRecipe(build());
-            Adapt.verbose("Registered Merchant Recipe " + getKey());
-        }
-
-        @Override
-        public boolean is(Recipe recipe) {
-            return recipe instanceof MerchantRecipe s && recipe.equals(build());
-        }
-
-
-        @Override
-        public void unregister() {
-            Adapt.verbose("Unable to unregister merchant recipes? " + getKey());
         }
     }
 
