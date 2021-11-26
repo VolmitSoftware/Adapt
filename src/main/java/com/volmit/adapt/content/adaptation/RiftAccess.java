@@ -1,6 +1,5 @@
 package com.volmit.adapt.content.adaptation;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.world.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundEnderPearl;
@@ -12,20 +11,15 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     private final KList<InventoryView> activeViews = new KList<>();
@@ -43,9 +37,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         registerRecipe(AdaptRecipe.shapeless()
                 .key("rift-access")
                 .ingredient(Material.ENDER_PEARL)
-                .ingredient(Material.EMERALD)
+                .ingredient(Material.DIAMOND)
                 .ingredient(Material.CHEST)
-                .result(itemDefaultItem()) // Null but still a container with lore
+                .result(BoundEnderPearl.io.withData(new BoundEnderPearl.Data(null)))
                 .build());
     }
 
@@ -75,9 +69,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                         openPearl(p);
                     }
                     e.setCancelled(true);
-                } else if (!isStorage(block.getBlockData())){
+                } else if (!isStorage(block.getBlockData())) {
                     if (p.isSneaking()) { //(Sneak NOT Container)
-                        p.sendMessage(C.LIGHT_PURPLE +"That's not a container");
+                        p.sendMessage(C.LIGHT_PURPLE + "That's not a container");
                     } else if (!p.isSneaking() && isBound(hand)) {
                         openPearl(p);
                     }
@@ -122,22 +116,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     private boolean isBound(ItemStack stack) {
         return BoundEnderPearl.getBlock(stack) != null;
-    }
-
-    private static ItemStack itemDefaultItem() {
-        List<String> lore = new ArrayList<>();
-        ItemStack itemStack = new ItemStack(Material.ENDER_PEARL);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        lore.add(C.UNDERLINE + "Portkey");
-        lore.add(C.LIGHT_PURPLE + "Click " + C.GRAY + "to access the BOUND Inventory");
-        lore.add(C.LIGHT_PURPLE + "Shift + Click " + C.GRAY + "to bind/unbind");
-        itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        itemMeta.setDisplayName("Reliquary Portkey");
-
-        itemMeta.setLore(lore);
-        itemStack.setItemMeta(itemMeta);
-
-        return itemStack;
     }
 
     @Override
