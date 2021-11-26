@@ -13,6 +13,7 @@ import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.SmithingRecipe;
+import org.bukkit.inventory.StonecuttingRecipe;
 
 import java.util.List;
 
@@ -35,6 +36,10 @@ public interface AdaptRecipe {
 
     static Smithing.SmithingBuilder smithing() {
         return Smithing.builder();
+    }
+
+    static Stonecutter.StonecutterBuilder stonecutter() {
+        return Stonecutter.builder();
     }
 
     void register();
@@ -73,6 +78,37 @@ public interface AdaptRecipe {
         public void unregister() {
             Bukkit.getServer().removeRecipe(getNSKey());
             Adapt.verbose("Unregistered Shapeless Crafting Recipe " + getKey());
+        }
+    }
+
+    @Builder
+    @Data
+    class Stonecutter implements AdaptRecipe {
+        private String key;
+        private ItemStack result;
+        private Material ingredient;
+
+        @Override
+        public ItemStack getResult() {
+            return null;
+        }
+
+        public void register() {
+            StonecuttingRecipe s = new StonecuttingRecipe(new NamespacedKey(Adapt.instance, getKey()), result, ingredient);
+            Bukkit.getServer().addRecipe(s);
+            Adapt.verbose("Registered Stone Cutter Recipe " + s.getKey());
+        }
+
+        @Override
+        public boolean is(Recipe recipe) {
+            return recipe instanceof StonecuttingRecipe s && s.getKey().equals(getNSKey());
+        }
+
+
+        @Override
+        public void unregister() {
+            Bukkit.getServer().removeRecipe(getNSKey());
+            Adapt.verbose("Unregistered Stone Cutter Recipe " + getKey());
         }
     }
 
