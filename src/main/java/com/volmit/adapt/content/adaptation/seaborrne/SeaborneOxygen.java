@@ -18,11 +18,11 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
         registerConfiguration(Config.class);
         setDescription("Hold more oxygen!");
         setIcon(Material.GLASS_PANE);
-        setBaseCost(3);
-        setMaxLevel(5);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
         setInterval(3750);
-        setInitialCost(5);
-        setCostFactor(0.525);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     }
 
     public double getAirBoost(int level) {
-        return getLevelPercent(level) * 4.55;
+        return getLevelPercent(level) * getConfig().airFactor;
     }
 
     @Override
@@ -55,5 +55,10 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 3;
+        int maxLevel = 5;
+        int initialCost = 5;
+        double costFactor = 0.525;
+        double airFactor = 4.55;
     }
 }
