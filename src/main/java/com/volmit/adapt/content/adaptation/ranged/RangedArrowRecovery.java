@@ -28,15 +28,15 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         registerConfiguration(Config.class);
         setDescription("Recover Arrows after you have killed an enemy.");
         setIcon(Material.TIPPED_ARROW);
-        setBaseCost(3);
-        setMaxLevel(3);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
         setInterval(5000);
-        setInitialCost(6);
-        setCostFactor(0.725);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
     }
 
     private double getChance(double factor) {
-        return factor;
+        return factor * getConfig().chanceFactor;
     }
 
     @Override
@@ -99,5 +99,10 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 3;
+        int maxLevel = 3;
+        int initialCost = 6;
+        double costFactor = 0.725;
+        double chanceFactor = 1;
     }
 }
