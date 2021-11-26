@@ -1,12 +1,12 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.content.adaptation.RiftAccess;
-import com.volmit.adapt.content.adaptation.RiftGate;
-import com.volmit.adapt.content.adaptation.experimental.RiftAura;
-import com.volmit.adapt.content.adaptation.experimental.RiftDoor;
-import com.volmit.adapt.content.adaptation.experimental.RiftSphere;
-import com.volmit.adapt.content.adaptation.experimental.RiftStorage;
+import com.volmit.adapt.content.adaptation.rift.RiftAccess;
+import com.volmit.adapt.content.adaptation.rift.RiftGate;
+import com.volmit.adapt.content.adaptation.rift.experimental.RiftAura;
+import com.volmit.adapt.content.adaptation.rift.experimental.RiftDoor;
+import com.volmit.adapt.content.adaptation.rift.experimental.RiftSphere;
+import com.volmit.adapt.content.adaptation.rift.experimental.RiftStorage;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;

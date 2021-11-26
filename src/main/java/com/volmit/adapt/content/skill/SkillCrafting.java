@@ -3,7 +3,7 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
-import com.volmit.adapt.content.adaptation.CraftingDeconstruction;
+import com.volmit.adapt.content.adaptation.crafting.CraftingDeconstruction;
 import com.volmit.adapt.util.C;
 import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import eu.endercentral.crazy_advancements.AdvancementVisibility;

@@ -1,9 +1,9 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.content.adaptation.TamingDamage;
-import com.volmit.adapt.content.adaptation.TamingHealthBoost;
-import com.volmit.adapt.content.adaptation.TamingHealthRegeneration;
+import com.volmit.adapt.content.adaptation.taming.TamingDamage;
+import com.volmit.adapt.content.adaptation.taming.TamingHealthBoost;
+import com.volmit.adapt.content.adaptation.taming.TamingHealthRegeneration;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;

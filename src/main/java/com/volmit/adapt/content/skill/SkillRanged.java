@@ -1,10 +1,10 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.content.adaptation.RangedArrowRecovery;
-import com.volmit.adapt.content.adaptation.RangedForce;
-import com.volmit.adapt.content.adaptation.RangedLungeShot;
-import com.volmit.adapt.content.adaptation.RangedPiercing;
+import com.volmit.adapt.content.adaptation.ranged.RangedArrowRecovery;
+import com.volmit.adapt.content.adaptation.ranged.RangedForce;
+import com.volmit.adapt.content.adaptation.ranged.RangedLungeShot;
+import com.volmit.adapt.content.adaptation.ranged.RangedPiercing;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;

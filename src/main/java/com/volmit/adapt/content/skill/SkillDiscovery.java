@@ -2,8 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
-import com.volmit.adapt.api.xp.XP;
-import com.volmit.adapt.content.adaptation.DiscoveryUnity;
+import com.volmit.adapt.content.adaptation.discovery.DiscoveryUnity;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import lombok.NoArgsConstructor;

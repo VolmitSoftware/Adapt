@@ -2,8 +2,8 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.content.adaptation.AxesChop;
-import com.volmit.adapt.content.adaptation.AxesGroundSmash;
+import com.volmit.adapt.content.adaptation.axe.AxesChop;
+import com.volmit.adapt.content.adaptation.axe.AxesGroundSmash;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;

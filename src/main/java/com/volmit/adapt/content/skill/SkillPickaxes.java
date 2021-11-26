@@ -2,10 +2,9 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.content.adaptation.PickaxesChisel;
+import com.volmit.adapt.content.adaptation.pickaxe.PickaxesChisel;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
