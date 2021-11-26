@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundEnderPearl;
@@ -57,7 +58,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         ItemMeta handMeta = hand.getItemMeta();
         Block block = e.getClickedBlock();
 
-        if (!hasAdaptation(p) || !hand.hasItemMeta() || handMeta.getLore().get(0).equalsIgnoreCase("portkey")) {
+        if (!hasAdaptation(p) || !hand.hasItemMeta() || !handMeta.getLore().get(0).equals(C.UNDERLINE + "Portkey")) {
             return;
         }
         switch (e.getAction()) {
@@ -68,7 +69,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                     } else if (!p.isSneaking()) {
                         openPearl(p);
                     }
-                    e.setCancelled(true);
                 } else if (!isStorage(block.getBlockData())) {
                     if (p.isSneaking()) { //(Sneak NOT Container)
                         p.sendMessage(C.LIGHT_PURPLE + "That's not a container");
@@ -76,8 +76,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                         openPearl(p);
                     }
 
-                    e.setCancelled(true);
                 }
+                e.setCancelled(true);
+
             }
             case RIGHT_CLICK_AIR, LEFT_CLICK_AIR -> {
                 if (isBound(hand)) {
@@ -110,7 +111,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
             activeViews.add(p.openInventory(holder.getInventory()));
             p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 100f, 0.10f);
             p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 100f, 0.10f);
-            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 25, 1, true, false, false));
         }
     }
 
