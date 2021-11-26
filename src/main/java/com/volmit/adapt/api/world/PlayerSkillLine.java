@@ -9,6 +9,7 @@ import com.volmit.adapt.api.notification.TitleNotification;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
+import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
@@ -151,7 +152,7 @@ public class PlayerSkillLine {
                 p.getData().giveMasterXp((i / 7D) * 100);
             }
 
-            notifyLevel(p, getLevel());
+            notifyLevel(p, getLevel(), getKnowledge());
             lastLevel = getLevel();
         }
     }
@@ -160,7 +161,7 @@ public class PlayerSkillLine {
         return Math.abs(a - b / (double) (a == 0 ? 1 : a));
     }
 
-    private void notifyLevel(AdaptPlayer p, double lvl) {
+    private void notifyLevel(AdaptPlayer p, double lvl, long kn) {
         Skill s = p.getServer().getSkillRegistry().getSkill(getLine());
         if(lvl % 10 == 0)
         {
@@ -186,7 +187,7 @@ public class PlayerSkillLine {
 
         else
         {
-            p.getNot().queue(
+            p.getActionBarNotifier().queue(
                 SoundNotification.builder()
                     .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK)
                     .volume(1f)
@@ -200,11 +201,18 @@ public class PlayerSkillLine {
                     .group("lvl" + getLine())
                     .build(),
                 ActionBarNotification.builder()
-                    .duration(2500)
+                    .duration(450)
                     .group("lvl" + getLine())
                     .title(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
                     .build());
         }
+
+        p.getActionBarNotifier().queue(
+            ActionBarNotification.builder()
+                .duration(450)
+                .group("know" + getLine())
+                .title(kn+ " " + p.getServer().getSkillRegistry().getSkill(getLine()).getShortName() + " Knowledge")
+                .build());
 
         lastLevel = (int) Math.floor(XP.getLevelForXp(getXp()));
     }

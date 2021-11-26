@@ -29,6 +29,7 @@ public class AdaptPlayer extends TickedObject {
     private ChronoLatch savelatch;
     private ChronoLatch updatelatch;
     private Notifier not;
+    private Notifier actionBarNotifier;
     private AdvancementHandler advancementHandler;
     private RollingSequence speed;
     private long lastloc;
@@ -41,6 +42,7 @@ public class AdaptPlayer extends TickedObject {
         updatelatch = new ChronoLatch(1000);
         savelatch = new ChronoLatch(60000);
         not = new Notifier(this);
+        actionBarNotifier = new Notifier(this);
         advancementHandler = new AdvancementHandler(this);
         speed = new RollingSequence(7);
         lastloc = M.ms();

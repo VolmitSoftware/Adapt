@@ -62,7 +62,12 @@ public class Notifier extends TickedObject {
                 lastSkillValues.remove(s);
             }
 
-            Adapt.actionbar(target.getPlayer(), sb.toString());
+            target.getActionBarNotifier().queue(ActionBarNotification.builder()
+                    .duration(0)
+                    .maxTTL(M.ms() + 100)
+                    .title(sb.toString())
+                    .group("xp")
+                .build());
         } catch(Throwable e) {
             e.printStackTrace();
         }

@@ -17,7 +17,7 @@ public enum Curves {
     L16K(resolved(level -> level * 16000D, xp -> xp / 16000D)),
     SKYRIM(new SkyrimNewtonCurve()),
     WOW(new WOWNewtonCurve()),
-    XL3L7(level -> ((1337 * level) + Math.pow(level * 0.69, Math.PI)) / 1.337);
+    XL3L7(level -> ((1337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137);
 
     @Getter
     private final NewtonCurve curve;
