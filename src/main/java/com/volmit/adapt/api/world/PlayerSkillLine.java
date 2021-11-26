@@ -183,6 +183,13 @@ public class PlayerSkillLine {
                 .title("")
                 .subtitle(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
                 .build());
+            p.getActionBarNotifier().queue(
+                ActionBarNotification.builder()
+                    .duration(450)
+                    .group("know" + getLine())
+                    .title(kn+ " " + p.getServer().getSkillRegistry().getSkill(getLine()).getShortName() + " Knowledge")
+                    .build());
+
         }
 
         else
@@ -206,13 +213,6 @@ public class PlayerSkillLine {
                     .title(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
                     .build());
         }
-
-        p.getActionBarNotifier().queue(
-            ActionBarNotification.builder()
-                .duration(450)
-                .group("know" + getLine())
-                .title(kn+ " " + p.getServer().getSkillRegistry().getSkill(getLine()).getShortName() + " Knowledge")
-                .build());
 
         lastLevel = (int) Math.floor(XP.getLevelForXp(getXp()));
     }
