@@ -25,27 +25,27 @@ public class PickaxesChisel extends SimpleAdaptation<PickaxesChisel.Config> {
         registerConfiguration(Config.class);
         setDescription("Right Click Ores to Chisel more ore out of them, at a severe durability cost.");
         setIcon(Material.IRON_NUGGET);
-        setBaseCost(6);
-        setMaxLevel(7);
-        setInitialCost(5);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
         setInterval(8276);
-        setCostFactor(0.4);
+        setCostFactor(getConfig().costFactor);
     }
 
     private int getCooldownTime(double levelPercent) {
-        return 5;
+        return getConfig().cooldownTime;
     }
 
     private double getDropChance(double levelPercent) {
-        return ((levelPercent) * 0.22) + 0.07;
+        return ((levelPercent) * getConfig().dropChanceFactor) + getConfig().dropChanceBase;
     }
 
     private double getBreakChance(double levelPercent) {
-        return 0.25;
+        return getConfig().breakChance;
     }
 
     private int getDamagePerBlock(double levelPercent) {
-        return (int) (1 + (2 * ((1D - levelPercent))));
+        return (int) (getConfig().damagePerBlockBase + (getConfig().damageFactorInverseMultiplier * ((1D - levelPercent))));
     }
 
     @Override
@@ -130,5 +130,15 @@ public class PickaxesChisel extends SimpleAdaptation<PickaxesChisel.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 6;
+        int maxLevel = 7;
+        int initialCost = 5;
+        double costFactor = 0.4;
+        int cooldownTime = 5;
+        double dropChanceBase = 0.07;
+        double dropChanceFactor = 0.22;
+        double breakChance = 0.25;
+        double damagePerBlockBase = 1;
+        double damageFactorInverseMultiplier = 2;
     }
 }
