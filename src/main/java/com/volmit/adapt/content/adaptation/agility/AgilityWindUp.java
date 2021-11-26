@@ -24,9 +24,9 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         registerConfiguration(Config.class);
         setDescription("Get faster the longer you sprint!");
         setIcon(Material.POWERED_RAIL);
-        setBaseCost(2);
-        setCostFactor(0.65);
-        setInitialCost(8);
+        setBaseCost(getConfig().baseCost);
+        setCostFactor(getConfig().costFactor);
+        setInitialCost(getConfig().initialCost);
         setInterval(50);
     }
 
@@ -42,11 +42,11 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     }
 
     private double getWindupTicks(double factor) {
-        return M.lerp(180, 60, factor);
+        return M.lerp(getConfig().windupTicksSlowest, getConfig().windupTicksFastest, factor);
     }
 
     private double getWindupSpeed(double factor) {
-        return 0.22 + (factor * 0.225);
+        return getConfig().windupSpeedBase + (factor * getConfig().windupSpeedLevelMultiplier);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
             }
         }
     }
-
+    
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;
@@ -106,5 +106,13 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 2;
+        double costFactor = 0.65;
+        int initialCost = 8;
+        double windupTicksSlowest = 180;
+        double windupTicksFastest = 60;
+        double windupSpeedBase = 0.22;
+        double windupSpeedLevelMultiplier = 0.225;
     }
+
 }
