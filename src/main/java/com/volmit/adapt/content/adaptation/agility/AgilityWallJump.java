@@ -26,10 +26,10 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
         registerConfiguration(Config.class);
         setDescription("Hold shift while mid-air against a wall to wall latch & jump!");
         setIcon(Material.LADDER);
-        setBaseCost(2);
-        setCostFactor(0.65);
-        setMaxLevel(5);
-        setInitialCost(8);
+        setBaseCost(getConfig().baseCost);
+        setCostFactor(getConfig().costFactor);
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
         setInterval(50);
     }
 
@@ -45,11 +45,11 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     }
 
     private int getMaxJumps(int level) {
-        return level + (level / 2);
+        return (int) (level + (level / getConfig().maxJumpsLevelBonusDivisor));
     }
 
     private double getJumpHeight(int level) {
-        return 0.625 + (getLevelPercent(level) * 0.225);
+        return getConfig().jumpHeightBase + (getLevelPercent(level) * getConfig().jumpHeightBonusLevelMultiplier);
     }
 
     @EventHandler
@@ -178,6 +178,12 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-
+        int baseCost = 2;
+        double costFactor = 0.65;
+        int maxLevel = 5;
+        int initialCost = 8;
+        double maxJumpsLevelBonusDivisor = 2;
+        double jumpHeightBase = 0.625;
+        double jumpHeightBonusLevelMultiplier = 0.225;
     }
 }
