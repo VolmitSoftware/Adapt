@@ -1,4 +1,4 @@
-package com.volmit.adapt.content.adaptation.rift.experimental;
+package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
