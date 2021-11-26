@@ -28,15 +28,15 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         registerConfiguration(Config.class);
         setDescription("Enchant items by clicking enchant books directly on them.");
         setIcon(Material.WRITABLE_BOOK);
-        setBaseCost(6);
-        setMaxLevel(7);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
         setInterval(5000);
-        setInitialCost(8);
-        setCostFactor(1.355);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
     }
 
     private int getTotalLevelCount(int level) {
-        return level + (level > 4 ? level / 3 : 0);
+        return level + (level > getConfig().maxPowerBonusLimit ? level / getConfig().maxPowerBonus1PerLevels : 0);
     }
 
     @Override
@@ -137,5 +137,11 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 6;
+        int maxLevel = 7;
+        int initialCost = 8;
+        double costFactor = 1.355;
+        int maxPowerBonusLimit = 4;
+        int maxPowerBonus1PerLevels = 3;
     }
 }
