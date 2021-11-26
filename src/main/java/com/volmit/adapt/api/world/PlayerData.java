@@ -23,6 +23,7 @@ public class PlayerData {
     private Discovery<EntityType> seenMobs = new Discovery<>();
     private Discovery<Material> seenFoods = new Discovery<>();
     private Discovery<Material> seenItems = new Discovery<>();
+    private Discovery<String> seenRecipes = new Discovery<>();
     private Discovery<String> seenEnchants = new Discovery<>();
     private Discovery<String> seenWorlds = new Discovery<>();
     private Discovery<String> seenPeople = new Discovery<>();

@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
@@ -22,11 +23,14 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.Map;
@@ -56,6 +60,27 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public void on(EntityPickupItemEvent e) {
         if(e.getEntity() instanceof Player) {
             seeItem((Player) e.getEntity(), e.getItem().getItemStack());
+        }
+    }
+
+    @EventHandler
+    public void on(CraftItemEvent e) {
+
+        if(e.getWhoClicked() instanceof Player p) {
+            try
+            {
+                NamespacedKey key = (NamespacedKey) Recipe.class.getDeclaredMethod("getKey()").invoke(e.getRecipe());
+
+                if(key != null)
+                {
+                    seeRecipe(p, key.toString());
+                }
+            }
+
+            catch(Throwable ignored)
+            {
+
+            }
         }
     }
 
@@ -95,6 +120,13 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
         for(Enchantment i : m.keySet()) {
             seeEnchant(p, i, m.get(i));
+        }
+    }
+
+    public void seeRecipe(Player p, String key) {
+        Discovery<String> d = getPlayer(p).getData().getSeenRecipes();
+        if(d.isNewDiscovery(key)) {
+            xp(p, getConfig().discoverRecipeBaseXP);
         }
     }
 
@@ -198,6 +230,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         double discoverEnchantLevelXPMultiplier = 52;
         double discoverEnchantBaseXP = 5;
         double discoverItemBaseXP = 10;
+        double discoverRecipeBaseXP = 15;
         double discoverItemValueXPMultiplier = 1;
         double discoverBlockBaseXP = 3;
         double discoverBlockValueXPMultiplier = 0.333;
