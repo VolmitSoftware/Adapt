@@ -23,10 +23,15 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         setCostFactor(0.225);
     }
 
+    private double getDamage(double f)
+    {
+        return 0.2 + (f * 0.55);
+    }
+
     @Override
     public void addStats(int level, Element v) {
         double f = getLevelPercent(level);
-        double d = f * 1.25 * (0.125 * 11.7 * f);
+        double d = getDamage(f);
 
         v.addLore(C.GREEN + "+ " + Form.pc(d, 0) + C.GRAY + " Damage");
 
@@ -51,7 +56,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
                 return;
             }
 
-            e.setDamage(e.getDamage() * factor * 1.25 * (getPlayer(p).getSpeed() * 11.7 * factor));
+            e.setDamage(e.getDamage() * getDamage(factor));
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.8f);
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.BLOCK_BASALT_BREAK, 1f, 0.6f);
             getSkill().xp(p, 6.221 * e.getDamage());
