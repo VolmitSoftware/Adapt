@@ -27,11 +27,11 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         registerConfiguration(Config.class);
         setDescription("Snatch items instantly while sneaking!");
         setIcon(Material.CHEST_MINECART);
-        setBaseCost(4);
+        setBaseCost(getConfig().baseCost);
         setInterval(50);
-        setMaxLevel(3);
-        setInitialCost(12);
-        setCostFactor(0.125);
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
                             int id = j.getEntityId();
 
-                            J.s(() -> holds.remove(new Integer(id)));
+                            J.s(() -> holds.remove(Integer.valueOf(id)));
                         }
                     }
                 }
@@ -86,7 +86,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     }
 
     private double getRange(double factor) {
-        return factor * 3.38;
+        return factor * getConfig().radiusFactor;
     }
 
     public void sendCollected(Player plr, Item item) {
@@ -128,5 +128,10 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 4;
+        int maxLevel = 3;
+        int initialCost = 12;
+        double costFactor = 0.125;
+        double radiusFactor = 3.38;
     }
 }
