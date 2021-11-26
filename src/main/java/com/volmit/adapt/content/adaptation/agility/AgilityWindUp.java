@@ -97,7 +97,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
             }
         }
     }
-    
+
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;

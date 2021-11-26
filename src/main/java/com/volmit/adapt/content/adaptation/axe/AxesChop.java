@@ -23,10 +23,10 @@ public class AxesChop extends SimpleAdaptation<AxesChop.Config> {
         registerConfiguration(Config.class);
         setDescription("Chop down trees by right clicking the base log!");
         setIcon(Material.IRON_AXE);
-        setBaseCost(3);
-        setCostFactor(0.75);
-        setMaxLevel(3);
-        setInitialCost(5);
+        setBaseCost(getConfig().baseCost);
+        setCostFactor(getConfig().costFactor);
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
         setInterval(5000);
     }
 
@@ -63,15 +63,15 @@ public class AxesChop extends SimpleAdaptation<AxesChop.Config> {
     }
 
     private int getRange(int level) {
-        return level * 5;
+        return level * getConfig().rangeLevelMultiplier;
     }
 
     private int getCooldownTime(double levelPercent) {
-        return (int) (15 + (16 * ((1D - levelPercent))));
+        return (int) (getConfig().cooldownTicksBase + (getConfig().cooldownTicksInverseLevelMultiplier * ((1D - levelPercent))));
     }
 
     private int getDamagePerBlock(double levelPercent) {
-        return (int) (1 + (4 * ((1D - levelPercent))));
+        return (int) (getConfig().damagePerBlockBase + (getConfig().damagePerBlockInverseLevelMultiplier * ((1D - levelPercent))));
     }
 
     private boolean breakStuff(Block b, int power) {
@@ -143,5 +143,14 @@ public class AxesChop extends SimpleAdaptation<AxesChop.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 3;
+        double costFactor = 0.75;
+        int maxLevel = 3;
+        int initialCost = 5;
+        int rangeLevelMultiplier = 5;
+        double cooldownTicksBase = 15;
+        double cooldownTicksInverseLevelMultiplier = 16;
+        double damagePerBlockBase = 1;
+        double damagePerBlockInverseLevelMultiplier = 4;
     }
 }
