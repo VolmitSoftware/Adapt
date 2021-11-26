@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.BlastingRecipe;
+import org.bukkit.inventory.CampfireRecipe;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
@@ -60,6 +61,10 @@ public interface AdaptRecipe {
 
     static Merchant.MerchantBuilder merchant() {
         return Merchant.builder();
+    }
+
+    static Campfire.CampfireBuilder campfire() {
+        return Campfire.builder();
     }
 
     void register();
@@ -131,6 +136,38 @@ public interface AdaptRecipe {
         public void unregister() {
             Bukkit.getServer().removeRecipe(getNSKey());
             Adapt.verbose("Unregistered Furnace Recipe " + getKey());
+        }
+    }
+
+    @Builder
+    @Data
+    class Campfire implements AdaptRecipe {
+        private String key;
+        private ItemStack result;
+        private Material ingredient;
+        private float experience = 1;
+        private int cookTime = 20;
+
+        @Override
+        public ItemStack getResult() {
+            return null;
+        }
+
+        public void register() {
+            CampfireRecipe s = new CampfireRecipe(new NamespacedKey(Adapt.instance, getKey()), result, ingredient, experience, cookTime);
+            Bukkit.getServer().addRecipe(s);
+            Adapt.verbose("Registered Campfire Recipe " + s.getKey());
+        }
+
+        @Override
+        public boolean is(Recipe recipe) {
+            return recipe instanceof CampfireRecipe s && s.getKey().equals(getNSKey());
+        }
+
+        @Override
+        public void unregister() {
+            Bukkit.getServer().removeRecipe(getNSKey());
+            Adapt.verbose("Unregistered Campfire Recipe " + getKey());
         }
     }
 
