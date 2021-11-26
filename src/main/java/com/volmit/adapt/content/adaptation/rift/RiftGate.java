@@ -17,6 +17,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import java.util.Objects;
 
@@ -113,14 +114,12 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             double pcd = 1000;
             double y = 0.1;
             while(pcd > 0) {
-                for(int i = 0; i < 360; i += 360 / 25) {
-
-                    double angle = (i * Math.PI / 180);
-                    double x = d * Math.cos(angle);
-                    double z = d * Math.sin(angle);
-                    Location loc = p.getLocation().add(x, y, z);
-                    Objects.requireNonNull(p.getLocation().getWorld()).spawnParticle(Particle.ASH, loc, 1, 0, 0, 0, 0);
+                for(int i = 0; i < 16; i++)
+                {
+                    p.getWorld().spawnParticle(Particle.ASH, p.getLocation().clone()
+                        .add(Vector.getRandom().subtract(Vector.getRandom()).setY(y).normalize().multiply(d)), 1, 0, 0, 0, 0);
                 }
+
                 pcd = pcd - 20;
                 d = d - 0.04;
                 y = y * 1.07;
