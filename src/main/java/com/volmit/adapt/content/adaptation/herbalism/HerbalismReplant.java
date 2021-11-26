@@ -25,23 +25,23 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
         registerConfiguration(Config.class);
         setDescription("Right click a crop with a hoe to harvast & replant it.");
         setIcon(Material.PUMPKIN_SEEDS);
-        setBaseCost(6);
-        setMaxLevel(3);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
         setInterval(6000);
-        setInitialCost(4);
-        setCostFactor(2.325);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
     }
 
     private int getCooldown(double factor, int level) {
         if(level == 1) {
-            return 2;
+            return (int) getConfig().cooldownLvl1;
         }
 
-        return (int) (30 - (30D * factor)) + 20;
+        return (int) ((getConfig().baseCooldown - (getConfig().cooldownFactor * factor)) + getConfig().bonusCooldown);
     }
 
     private float getRadius(int lvl) {
-        return lvl - 1;
+        return lvl - getConfig().radiusSub;
     }
 
     @EventHandler
@@ -132,5 +132,14 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 6;
+        int maxLevel = 3;
+        int initialCost = 4;
+        double costFactor = 2.325;
+        double cooldownLvl1 = 2;
+        double baseCooldown = 30;
+        double cooldownFactor = 30;
+        double bonusCooldown = 20;
+        int radiusSub = 1;
     }
 }
