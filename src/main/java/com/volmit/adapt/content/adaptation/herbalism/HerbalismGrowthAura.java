@@ -26,19 +26,19 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         registerConfiguration(Config.class);
         setDescription("Grow nature around you in an aura");
         setIcon(Material.BONE_MEAL);
-        setBaseCost(8);
-        setMaxLevel(3);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
         setInterval(875);
-        setInitialCost(12);
-        setCostFactor(0.325);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
     }
 
     private double getRadius(double factor) {
-        return factor * 8;
+        return factor * getConfig().radiusFactor;
     }
 
     private double getStrength(double factor) {
-        return Math.pow(factor, 1.77);
+        return Math.pow(factor, getConfig().strengthExponent);
     }
 
     @Override
@@ -83,5 +83,11 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 8;
+        int maxLevel = 3;
+        int initialCost = 12;
+        double costFactor = 0.325;
+        double radiusFactor = 8;
+        double strengthExponent = 1.77;
     }
 }
