@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.rift.RiftAccess;
+import com.volmit.adapt.content.adaptation.rift.RiftBlink;
 import com.volmit.adapt.content.adaptation.rift.RiftGate;
 import com.volmit.adapt.content.adaptation.rift.RiftStorage;
 import com.volmit.adapt.util.C;
@@ -38,6 +39,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         registerAdaptation(new RiftAccess());
         registerAdaptation(new RiftStorage());
         registerAdaptation(new RiftGate());
+        registerAdaptation(new RiftBlink());
     }
 
     @EventHandler

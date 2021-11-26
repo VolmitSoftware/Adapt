@@ -43,8 +43,9 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "Right-Click to recall to a location");
-        v.addLore(C.ITALIC + "5s delay, " + C.RED + "you can die in this");
+        v.addLore(C.YELLOW + "CRAFTING: Emerald + Amethyst shard + Ender PEarl");
+        v.addLore(C.RED + "Read before using!");
+        v.addLore(C.ITALIC + "5s delay, " + C.UNDERLINE + "you can die in this");
     }
 
 
