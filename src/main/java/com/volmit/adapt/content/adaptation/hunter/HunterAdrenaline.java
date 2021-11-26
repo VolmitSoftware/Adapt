@@ -16,10 +16,10 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
         registerConfiguration(Config.class);
         setDescription("Deal more damage the lower health you are (Melee)");
         setIcon(Material.LEATHER_HELMET);
-        setBaseCost(4);
-        setMaxLevel(5);
-        setInitialCost(8);
-        setCostFactor(0.4);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
     }
 
     private double getDamage(int level) {
-        return ((getLevelPercent(level) * 0.26) + 0.07);
+        return ((getLevelPercent(level) * getConfig().damageFactor) + getConfig().damageBase);
     }
 
     @EventHandler
@@ -59,5 +59,11 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 4;
+        int maxLevel = 5;
+        int initialCost = 8;
+        double costFactor = 0.4;
+        double damageBase = 0.12;
+        double damageFactor = 0.21;
     }
 }
