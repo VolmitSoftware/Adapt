@@ -17,10 +17,10 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         registerConfiguration(Config.class);
         setDescription("Move faster while sneaking");
         setIcon(Material.MUSHROOM_STEW);
-        setBaseCost(2);
+        setBaseCost(getConfig().baseCost);
         setInterval(2000);
-        setInitialCost(5);
-        setCostFactor(0.6);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     }
 
     private double getSpeed(double factor) {
-        return factor * 1.25;
+        return factor * getConfig().factor;
     }
 
     @Override
@@ -64,5 +64,9 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 2;
+        int initialCost = 5;
+        double costFactor = 0.6;
+        double factor = 1.25;
     }
 }
