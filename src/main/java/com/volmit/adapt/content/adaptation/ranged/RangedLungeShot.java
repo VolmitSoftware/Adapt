@@ -23,15 +23,15 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
         registerConfiguration(Config.class);
         setDescription("360 NO SCOPE");
         setIcon(Material.FEATHER);
-        setBaseCost(3);
-        setMaxLevel(3);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
         setInterval(5000);
-        setInitialCost(8);
-        setCostFactor(0.5);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
     }
 
     private double getSpeed(double factor) {
-        return (factor * 0.935);
+        return (factor * getConfig().factor);
     }
 
     @Override
@@ -75,5 +75,10 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 3;
+        int maxLevel = 3;
+        int initialCost = 8;
+        double costFactor = 0.5;
+        double factor = 0.935;
     }
 }
