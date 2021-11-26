@@ -7,12 +7,16 @@ import lombok.Singular;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.BlastingRecipe;
+import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.SmithingRecipe;
+import org.bukkit.inventory.SmokingRecipe;
 import org.bukkit.inventory.StonecuttingRecipe;
 
 import java.util.List;
@@ -42,11 +46,167 @@ public interface AdaptRecipe {
         return Stonecutter.builder();
     }
 
+    static Smoker.SmokerBuilder smoker() {
+        return Smoker.builder();
+    }
+
+    static Blast.BlastBuilder blast() {
+        return Blast.builder();
+    }
+
+    static Furnace.FurnaceBuilder furnace() {
+        return Furnace.builder();
+    }
+
+    static Merchant.MerchantBuilder merchant() {
+        return Merchant.builder();
+    }
+
     void register();
 
     boolean is(Recipe recipe);
 
     void unregister();
+
+    @Builder
+    @Data
+    class Smoker implements AdaptRecipe {
+        private String key;
+        private ItemStack result;
+        private Material ingredient;
+        private float experience = 1;
+        private int cookTime = 20;
+
+        @Override
+        public ItemStack getResult() {
+            return null;
+        }
+
+        public void register() {
+            SmokingRecipe s = new SmokingRecipe(new NamespacedKey(Adapt.instance, getKey()), result, ingredient, experience, cookTime);
+            Bukkit.getServer().addRecipe(s);
+            Adapt.verbose("Registered Smoker Recipe " + s.getKey());
+        }
+
+        @Override
+        public boolean is(Recipe recipe) {
+            return recipe instanceof SmokingRecipe s && s.getKey().equals(getNSKey());
+        }
+
+
+        @Override
+        public void unregister() {
+            Bukkit.getServer().removeRecipe(getNSKey());
+            Adapt.verbose("Unregistered Smoker Recipe " + getKey());
+        }
+    }
+
+    @Builder
+    @Data
+    class Furnace implements AdaptRecipe {
+        private String key;
+        private ItemStack result;
+        private Material ingredient;
+        private float experience = 1;
+        private int cookTime = 20;
+
+        @Override
+        public ItemStack getResult() {
+            return null;
+        }
+
+        public void register() {
+            FurnaceRecipe s = new FurnaceRecipe(new NamespacedKey(Adapt.instance, getKey()), result, ingredient, experience, cookTime);
+            Bukkit.getServer().addRecipe(s);
+            Adapt.verbose("Registered Furnace Recipe " + s.getKey());
+        }
+
+        @Override
+        public boolean is(Recipe recipe) {
+            return recipe instanceof FurnaceRecipe s && s.getKey().equals(getNSKey());
+        }
+
+
+        @Override
+        public void unregister() {
+            Bukkit.getServer().removeRecipe(getNSKey());
+            Adapt.verbose("Unregistered Furnace Recipe " + getKey());
+        }
+    }
+
+    @Builder
+    @Data
+    class Blast implements AdaptRecipe {
+        private String key;
+        private ItemStack result;
+        private Material ingredient;
+        private float experience = 1;
+        private int cookTime = 20;
+
+        @Override
+        public ItemStack getResult() {
+            return null;
+        }
+
+        public void register() {
+            BlastingRecipe s = new BlastingRecipe(new NamespacedKey(Adapt.instance, getKey()), result, ingredient, experience, cookTime);
+            Bukkit.getServer().addRecipe(s);
+            Adapt.verbose("Registered Blast Furnace Recipe " + s.getKey());
+        }
+
+        @Override
+        public boolean is(Recipe recipe) {
+            return recipe instanceof BlastingRecipe s && s.getKey().equals(getNSKey());
+        }
+
+
+        @Override
+        public void unregister() {
+            Bukkit.getServer().removeRecipe(getNSKey());
+            Adapt.verbose("Unregistered Blast Furnace Recipe " + getKey());
+        }
+    }
+
+    @Builder
+    @Data
+    class Merchant implements AdaptRecipe {
+        private String key;
+        private ItemStack result;
+        @Singular
+        private List<ItemStack> ingredients;
+        private float priceMultiplier = 1f;
+        private int villagerXp = 1;
+        private int uses = 1;
+        private int maxUses = 1;
+
+        @Override
+        public ItemStack getResult() {
+            return null;
+        }
+
+        private MerchantRecipe build()
+        {
+            MerchantRecipe s = new MerchantRecipe(result, uses, maxUses, true, villagerXp, priceMultiplier);
+            ingredients.forEach(s::addIngredient);
+            return s;
+        }
+
+        public void register() {
+            Bukkit.getServer().addRecipe(build());
+            Adapt.verbose("Registered Merchant Recipe " + getKey());
+        }
+
+        @Override
+        public boolean is(Recipe recipe) {
+            return recipe instanceof MerchantRecipe s && recipe.equals(build());
+        }
+
+
+        @Override
+        public void unregister() {
+            Adapt.verbose("Unable to unregister merchant recipes? " + getKey());
+        }
+    }
 
     @Builder
     @Data
