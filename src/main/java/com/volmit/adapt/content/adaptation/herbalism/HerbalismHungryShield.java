@@ -19,11 +19,11 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
         registerConfiguration(Config.class);
         setDescription("Take damage to your hunger before your health");
         setIcon(Material.APPLE);
-        setBaseCost(7);
-        setMaxLevel(5);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
         setInterval(875);
-        setInitialCost(14);
-        setCostFactor(0.925);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
     }
 
     private double getEffectiveness(double factor) {
-        return Math.min(0.5, factor * factor + (0.09));
+        return Math.min(getConfig().maxEffectiveness, factor * factor + getConfig().effectivenessBase);
     }
 
     @Override
@@ -69,5 +69,11 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 7;
+        int maxLevel = 5;
+        int initialCost = 14;
+        double costFactor = 0.925;
+        double effectivenessBase = 0.09;
+        double maxEffectiveness = 0.5;
     }
 }
