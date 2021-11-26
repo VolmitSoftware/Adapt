@@ -26,11 +26,11 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         registerConfiguration(Config.class);
         setDescription("Shoot projectiles further, faster!");
         setIcon(Material.ARROW);
-        setBaseCost(2);
-        setMaxLevel(7);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
         setInterval(5000);
-        setInitialCost(5);
-        setCostFactor(0.225);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.SPECTRAL_ARROW)
             .key("challenge_force_30")
@@ -47,7 +47,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
     }
 
     private double getSpeed(double factor) {
-        return (factor * 1.135);
+        return (factor * getConfig().speedFactor);
     }
 
     @EventHandler
@@ -60,7 +60,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
             if(a.distanceSquared(b) > 10) {
                 getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
-                getSkill().xp(p, 2000);
+                getSkill().xp(p, getConfig().challengeRewardLongShotReward);
             }
         }
     }
@@ -91,5 +91,11 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 2;
+        int maxLevel = 7;
+        int initialCost = 5;
+        double costFactor = 0.225;
+        double challengeRewardLongShotReward = 2000;
+        double speedFactor = 1.135;
     }
 }
