@@ -16,10 +16,10 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
         registerConfiguration(Config.class);
         setDescription("Collecting Experience Orbs adds XP to random skills.");
         setIcon(Material.REDSTONE);
-        setBaseCost(2);
-        setInitialCost(10);
-        setCostFactor(0.3);
-        setMaxLevel(7);
+        setBaseCost(getConfig().baseCost);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
+        setMaxLevel(getConfig().maxLevel);
     }
 
     @Override
@@ -32,13 +32,13 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
         if(e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {
             e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.9f);
 
-            getPlayer(e.getPlayer()).boostXPToRandom(getPlayer(e.getPlayer()), e.getAmount() / 100D, 30000);
+            getPlayer(e.getPlayer()).boostXPToRandom(getPlayer(e.getPlayer()), e.getAmount() * getConfig().xpBoostMultiplier, getConfig().xpBoostDuration);
             getPlayer(e.getPlayer()).giveXPToRandom(getPlayer(e.getPlayer()), getXPGained(getLevelPercent(e.getPlayer()), e.getAmount()));
         }
     }
 
     private double getXPGained(double factor, int amount) {
-        return amount * 32 * factor;
+        return amount * getConfig().xpGainedMultiplier * factor;
     }
 
     @Override
@@ -54,5 +54,12 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 2;
+        int initialCost = 3;
+        double costFactor = 0.3;
+        int maxLevel = 7;
+        double xpGainedMultiplier = 8;
+        double xpBoostMultiplier = 0.01;
+        int xpBoostDuration = 15000;
     }
 }
