@@ -32,11 +32,11 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
         registerConfiguration(Config.class);
         setDescription("Increase your tamed animal health.");
         setIcon(Material.GOLDEN_APPLE);
-        setBaseCost(7);
-        setMaxLevel(3);
-        setInitialCost(8);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
         setInterval(1000);
-        setCostFactor(0.4);
+        setCostFactor(getConfig().costFactor);
     }
 
     @EventHandler
@@ -61,7 +61,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
     }
 
     private double getRegenSpeed(int level) {
-        return ((getLevelPercent(level) * (getLevelPercent(level)) * 5) + 1);
+        return ((getLevelPercent(level) * (getLevelPercent(level)) * getConfig().regenFactor) + getConfig().regenBase);
     }
 
     @Override
@@ -106,5 +106,11 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 7;
+        int maxLevel = 3;
+        int initialCost = 8;
+        double costFactor = 0.4;
+        double regenFactor = 5;
+        double regenBase = 1;
     }
 }
