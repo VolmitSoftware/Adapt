@@ -16,10 +16,20 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
         registerConfiguration(Config.class);
         setDescription("Improved Unarmed Damage");
         setIcon(Material.LEATHER_HELMET);
-        setBaseCost(3);
-        setMaxLevel(7);
-        setInitialCost(6);
-        setCostFactor(0.425);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
+    }
+
+    @NoArgsConstructor
+    protected static class Config {
+        boolean enabled = true;
+        int baseCost = 3;
+        int maxLevel = 7;
+        int initialCost = 6;
+        double costFactor = 0.425;
+        double damageFactor = 2.57;
     }
 
     @Override
@@ -44,7 +54,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     }
 
     private double getUnarmedDamage(int level) {
-        return getLevelPercent(level) * 2.57;
+        return getLevelPercent(level) * getConfig().damageFactor;
     }
 
     @Override
@@ -55,10 +65,5 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;
-    }
-
-    @NoArgsConstructor
-    protected static class Config {
-        boolean enabled = true;
     }
 }
