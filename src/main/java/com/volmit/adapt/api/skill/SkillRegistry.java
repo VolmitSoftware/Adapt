@@ -9,9 +9,11 @@ import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.skill.SkillAgility;
 import com.volmit.adapt.content.skill.SkillArchitect;
 import com.volmit.adapt.content.skill.SkillAxes;
+import com.volmit.adapt.content.skill.SkillBrewing;
 import com.volmit.adapt.content.skill.SkillCrafting;
 import com.volmit.adapt.content.skill.SkillDiscovery;
 import com.volmit.adapt.content.skill.SkillEnchanting;
+import com.volmit.adapt.content.skill.SkillExcavation;
 import com.volmit.adapt.content.skill.SkillHerbalism;
 import com.volmit.adapt.content.skill.SkillHunter;
 import com.volmit.adapt.content.skill.SkillPickaxes;
@@ -65,6 +67,8 @@ public class SkillRegistry extends TickedObject {
         registerSkill(SkillSwords.class);
         registerSkill(SkillTaming.class);
         registerSkill(SkillUnarmed.class);
+        registerSkill(SkillExcavation.class);
+        registerSkill(SkillBrewing.class);
     }
 
     @EventHandler

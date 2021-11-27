@@ -23,6 +23,7 @@ import org.bukkit.event.player.PlayerHarvestBlockEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
+import org.bukkit.inventory.meta.PotionMeta;
 
 public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     public SkillHerbalism() {
@@ -75,6 +76,11 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler
     public void on(PlayerItemConsumeEvent e) {
+        if(e.getItem().getItemMeta() instanceof PotionMeta o)
+        {
+            return;
+        }
+
         xp(e.getPlayer(), getConfig().foodConsumeXP);
         getPlayer(e.getPlayer()).getData().addStat("food.eaten", 1);
     }
