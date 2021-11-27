@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.util.Vector;
@@ -18,7 +20,6 @@ import org.bukkit.util.Vector;
 
 public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     private final KMap<Player, Long> lastJump = new KMap<>();
-
 
     public RiftBlink() {
         super("rift-blink");
@@ -33,14 +34,24 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     }
 
     private double getBlinkDistance(int level) {
-        return 5 + (level);
+        return getConfig().baseDistance + (getLevelPercent(level) * getConfig().distanceFactor);
     }
 
+    private int getCooldownDuration(int level)
+    {
+        return 2000;
+    }
 
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " Blocks on blink");
         v.addLore(C.ITALIC + "Double tap Jump (like flying) to activate it");
+    }
+
+
+    @EventHandler
+    public void on(PlayerQuitEvent e) {
+        lastJump.remove(e.getPlayer());
     }
 
     @EventHandler
@@ -50,34 +61,46 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             return;
         }
 
-        if (lastJump.get(p) != null && M.ms() - lastJump.get(p) < 2000) {
+        if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
             p.setAllowFlight(false);
             return;
-        } else if (lastJump.get(p) != null && M.ms() - lastJump.get(p) > 3500) {
-            lastJump.remove(p);
         }
 
 
         if (hasAdaptation(e.getPlayer()) && p.isSprinting()) {
             lastJump.put(p, M.ms());
             e.setCancelled(true);
-            Location loc = p.getLocation();
+            Location loc = p.getLocation().clone();
             Vector dir = loc.getDirection();
-
-            dir.multiply(getBlinkDistance(getLevel(p)));
+            double dist = getBlinkDistance(getLevel(p));
+            dir.multiply(dist);
             loc.add(dir);
+
+            while(!isSafe(loc) && dist-- > 0)
+            {
+                loc.add(0, 1, 0);
+            }
+
+            if(!isSafe(loc))
+            {
+                p.setAllowFlight(false);
+                return;
+            }
+
             p.teleport(loc);
             p.setAllowFlight(false);
             p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f, 1.0f);
-
-
         }
+    }
+
+    public boolean isSafe(Location l)
+    {
+        return l.getBlock().getType().isSolid() && !l.getBlock().getRelative(BlockFace.UP).getType().isSolid()&& !l.getBlock().getRelative(BlockFace.UP).getRelative(BlockFace.UP).getType().isSolid();
     }
 
     @EventHandler
     public void on(PlayerToggleSprintEvent e) {
         Player p = e.getPlayer();
-
 
         if (hasAdaptation(e.getPlayer()) && !e.getPlayer().isSprinting()) {// Are sprinting
             p.sendMessage("Toggled on");
@@ -86,7 +109,6 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             p.sendMessage("Toggled off");
             p.setAllowFlight(false);
         }
-
     }
 
 
@@ -108,6 +130,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         double costFactor = 1;
         int maxLevel = 5;
         int initialCost = 5;
-
+        double baseDistance = 5;
+        double distanceFactor = 5;
     }
 }
