@@ -33,8 +33,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         double damageFactor = 0.55;
     }
 
-    private double getDamage(double f)
-    {
+    private double getDamage(double f) {
         return getConfig().baseDamage + (f * getConfig().damageFactor);
     }
 

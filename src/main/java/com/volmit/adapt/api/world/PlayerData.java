@@ -37,8 +37,7 @@ public class PlayerData {
     private double masterXp = 0;
     private double lastMasterXp = 0;
 
-    public void giveMasterXp(double xp)
-    {
+    public void giveMasterXp(double xp) {
         masterXp += xp;
     }
 

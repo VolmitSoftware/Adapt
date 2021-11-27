@@ -104,8 +104,7 @@ public class AdaptPlayer extends TickedObject {
 
         if(lastpos != null) {
             if(lastpos.getWorld().equals(at.getWorld())) {
-                if(lastpos.distanceSquared(at) <= 7 * 7)
-                {
+                if(lastpos.distanceSquared(at) <= 7 * 7) {
                     speed.put(lastpos.distance(at) / ((double) (M.ms() - lastloc) / 50D));
                     velocity = velocity.clone().add(at.clone().subtract(lastpos).toVector()).multiply(0.5);
                     velocity.setX(Math.abs(velocity.getX()) < 0.01 ? 0 : velocity.getX());

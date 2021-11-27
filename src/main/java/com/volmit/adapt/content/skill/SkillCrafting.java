@@ -117,7 +117,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     @EventHandler
     public void on(FurnaceSmeltEvent e) {
         xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP +
-            (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier),
+                (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier),
             getConfig().furnaceXPRadius,
             getConfig().furnaceXPDuration);
     }

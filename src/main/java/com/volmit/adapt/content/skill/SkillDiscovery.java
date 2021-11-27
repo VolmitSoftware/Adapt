@@ -30,7 +30,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.Map;
@@ -67,18 +66,13 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public void on(CraftItemEvent e) {
 
         if(e.getWhoClicked() instanceof Player p) {
-            try
-            {
+            try {
                 NamespacedKey key = (NamespacedKey) Recipe.class.getDeclaredMethod("getKey()").invoke(e.getRecipe());
 
-                if(key != null)
-                {
+                if(key != null) {
                     seeRecipe(p, key.toString());
                 }
-            }
-
-            catch(Throwable ignored)
-            {
+            } catch(Throwable ignored) {
 
             }
         }

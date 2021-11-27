@@ -3,9 +3,9 @@ package com.volmit.adapt.api.adaptation;
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
-import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.JSONObject;
@@ -48,8 +48,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         this.name = name;
 
         J.a(() -> {
-            if(!isEnabled())
-            {
+            if(!isEnabled()) {
                 unregister();
             }
         }, 1);

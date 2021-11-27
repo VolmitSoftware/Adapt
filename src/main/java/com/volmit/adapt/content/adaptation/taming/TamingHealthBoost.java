@@ -40,7 +40,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     }
 
     private double getHealthBoost(int level) {
-        return ((getLevelPercent(level) *getConfig().healthBoostFactor) + getConfig().healthBoostBase);
+        return ((getLevelPercent(level) * getConfig().healthBoostFactor) + getConfig().healthBoostBase);
     }
 
     @Override

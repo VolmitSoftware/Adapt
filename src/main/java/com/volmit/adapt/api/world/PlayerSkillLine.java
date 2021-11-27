@@ -2,18 +2,15 @@ package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.notification.ActionBarNotification;
-import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.notification.Notifier;
 import com.volmit.adapt.api.notification.SoundNotification;
 import com.volmit.adapt.api.notification.TitleNotification;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Sound;
@@ -163,19 +160,18 @@ public class PlayerSkillLine {
 
     private void notifyLevel(AdaptPlayer p, double lvl, long kn) {
         Skill s = p.getServer().getSkillRegistry().getSkill(getLine());
-        if(lvl % 10 == 0)
-        {
+        if(lvl % 10 == 0) {
             p.getNot().queue(SoundNotification.builder()
                 .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
                 .volume(1f)
                 .pitch(1.35f)
                 .group("lvl" + getLine())
-                .build(),SoundNotification.builder()
+                .build(), SoundNotification.builder()
                 .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
                 .volume(1f)
                 .pitch(0.75f)
                 .group("lvl" + getLine())
-                .build(),TitleNotification.builder()
+                .build(), TitleNotification.builder()
                 .in(250)
                 .stay(1450)
                 .out(2250)
@@ -187,13 +183,10 @@ public class PlayerSkillLine {
                 ActionBarNotification.builder()
                     .duration(450)
                     .group("know" + getLine())
-                    .title(kn+ " " + p.getServer().getSkillRegistry().getSkill(getLine()).getShortName() + " Knowledge")
+                    .title(kn + " " + p.getServer().getSkillRegistry().getSkill(getLine()).getShortName() + " Knowledge")
                     .build());
 
-        }
-
-        else
-        {
+        } else {
             p.getActionBarNotifier().queue(
                 SoundNotification.builder()
                     .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK)

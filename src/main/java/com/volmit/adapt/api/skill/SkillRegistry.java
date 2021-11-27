@@ -1,8 +1,8 @@
 package com.volmit.adapt.api.skill;
 
+import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.content.gui.SkillsGui;
@@ -147,8 +147,7 @@ public class SkillRegistry extends TickedObject {
         try {
             Skill<?> sk = skill.getConstructor().newInstance();
 
-            if(!sk.isEnabled())
-            {
+            if(!sk.isEnabled()) {
                 return;
             }
 

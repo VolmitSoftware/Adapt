@@ -19,8 +19,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.Objects;
-
 public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     public RiftGate() {
         super("rift-gate");
@@ -33,11 +31,11 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         setInitialCost(30);
         setInterval(50);
         registerRecipe(AdaptRecipe.shapeless()
-                .key("rift-gate")
-                .ingredient(Material.ENDER_PEARL)
-                .ingredient(Material.AMETHYST_SHARD)
-                .result(BoundEyeOfEnder.io.withData(new BoundEyeOfEnder.Data(null)))
-                .build());
+            .key("rift-gate")
+            .ingredient(Material.ENDER_PEARL)
+            .ingredient(Material.AMETHYST_SHARD)
+            .result(BoundEyeOfEnder.io.withData(new BoundEyeOfEnder.Data(null)))
+            .build());
     }
 
     @Override
@@ -114,8 +112,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             double pcd = 1000;
             double y = 0.1;
             while(pcd > 0) {
-                for(int i = 0; i < 16; i++)
-                {
+                for(int i = 0; i < 16; i++) {
                     p.getWorld().spawnParticle(Particle.ASH, p.getLocation().clone()
                         .add(Vector.getRandom().subtract(Vector.getRandom()).setY(y).normalize().multiply(d)), 1, 0, 0, 0, 0);
                 }

@@ -14,8 +14,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Adapt extends VolmitPlugin {
     public static Adapt instance;
@@ -46,8 +44,7 @@ public class Adapt extends VolmitPlugin {
     }
 
     private void setupMetrics() {
-        if(AdaptConfig.get().isMetrics())
-        {
+        if(AdaptConfig.get().isMetrics()) {
             new Metrics(this, 13412);
         }
     }

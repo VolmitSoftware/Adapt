@@ -33,11 +33,11 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         setInitialCost(getConfig().initialCost);
         setInterval(50);
         registerRecipe(AdaptRecipe.shapeless()
-                .key("rift-access")
-                .ingredient(Material.ENDER_PEARL)
-                .ingredient(Material.COMPASS)
-                .result(BoundEnderPearl.io.withData(new BoundEnderPearl.Data(null)))
-                .build());
+            .key("rift-access")
+            .ingredient(Material.ENDER_PEARL)
+            .ingredient(Material.COMPASS)
+            .result(BoundEnderPearl.io.withData(new BoundEnderPearl.Data(null)))
+            .build());
     }
 
     @NoArgsConstructor
@@ -63,21 +63,21 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         Block block = e.getClickedBlock();
 
 
-        if (!hasAdaptation(p) || !hand.hasItemMeta() || !handMeta.getLore().get(0).equals(C.UNDERLINE + "Portkey")) {
+        if(!hasAdaptation(p) || !hand.hasItemMeta() || !handMeta.getLore().get(0).equals(C.UNDERLINE + "Portkey")) {
             return;
         }
-        switch (e.getAction()) {
+        switch(e.getAction()) {
             case LEFT_CLICK_BLOCK, RIGHT_CLICK_BLOCK -> {
-                if (isStorage(block.getBlockData())) { // Ensure its a container
-                    if (p.isSneaking()) { // Binding (Sneak Container)
+                if(isStorage(block.getBlockData())) { // Ensure its a container
+                    if(p.isSneaking()) { // Binding (Sneak Container)
                         linkPearl(p, block);
-                    } else if (!p.isSneaking()) {
+                    } else if(!p.isSneaking()) {
                         openPearl(p);
                     }
-                } else if (!isStorage(block.getBlockData())) {
-                    if (p.isSneaking()) { //(Sneak NOT Container)
+                } else if(!isStorage(block.getBlockData())) {
+                    if(p.isSneaking()) { //(Sneak NOT Container)
                         p.sendMessage(C.LIGHT_PURPLE + "That's not a container");
-                    } else if (!p.isSneaking() && isBound(hand)) {
+                    } else if(!p.isSneaking() && isBound(hand)) {
                         openPearl(p);
                     }
 
@@ -86,7 +86,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
             }
             case RIGHT_CLICK_AIR, LEFT_CLICK_AIR -> {
-                if (isBound(hand)) {
+                if(isBound(hand)) {
                     openPearl(p);
                 }
                 e.setCancelled(true);
@@ -98,7 +98,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     private void linkPearl(Player p, Block block) {
         ItemStack hand = p.getInventory().getItemInMainHand();
 
-        if (hand.getAmount() == 1) {
+        if(hand.getAmount() == 1) {
             BoundEnderPearl.setData(hand, block);
         } else {
             hand.setAmount(hand.getAmount() - 1);
@@ -110,7 +110,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     private void openPearl(Player p) {
         Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
 
-        if (b != null && b.getState() instanceof InventoryHolder holder) {
+        if(b != null && b.getState() instanceof InventoryHolder holder) {
             activeViews.add(p.openInventory(holder.getInventory()));
             p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 100f, 0.10f);
             p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 100f, 0.10f);
@@ -124,11 +124,11 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     @Override
     public void onTick() {
         J.s(() -> {
-            for (int ii = activeViews.size() - 1; ii >= 0; ii--) {
+            for(int ii = activeViews.size() - 1; ii >= 0; ii--) {
                 InventoryView i = activeViews.get(ii);
 
-                if (i.getPlayer().getOpenInventory().equals(i)) {
-                    if (i.getTopInventory().getLocation() == null || !isStorage(i.getTopInventory().getLocation().getBlock().getBlockData())) {
+                if(i.getPlayer().getOpenInventory().equals(i)) {
+                    if(i.getTopInventory().getLocation() == null || !isStorage(i.getTopInventory().getLocation().getBlock().getBlockData())) {
                         i.getPlayer().closeInventory();
                         i.getPlayer().removePotionEffect(PotionEffectType.BLINDNESS);
                         activeViews.remove(ii);

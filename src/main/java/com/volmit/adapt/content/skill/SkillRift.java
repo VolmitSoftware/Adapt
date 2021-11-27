@@ -54,8 +54,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     public void on(ProjectileLaunchEvent e) {
         if(e.getEntity() instanceof EnderPearl && e.getEntity().getShooter() instanceof Player p) {
             xp(p, getConfig().throwEnderpearlXP);
-        }
-        else if(e.getEntity() instanceof EnderSignal && e.getEntity().getShooter() instanceof Player p) {
+        } else if(e.getEntity() instanceof EnderSignal && e.getEntity().getShooter() instanceof Player p) {
             xp(p, getConfig().throwEnderEyeXP);
         }
     }

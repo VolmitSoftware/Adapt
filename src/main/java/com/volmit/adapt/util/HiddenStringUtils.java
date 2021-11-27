@@ -2,7 +2,6 @@ package com.volmit.adapt.util;
 
 import org.bukkit.ChatColor;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public class HiddenStringUtils {

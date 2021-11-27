@@ -3,10 +3,10 @@ package com.volmit.adapt.api.adaptation;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -27,11 +27,9 @@ import org.bukkit.inventory.Recipe;
 public interface Adaptation<T> extends Ticked, Component {
     int getMaxLevel();
 
-    default <F> F getStorage(Player p, String key, F defaultValue)
-    {
+    default <F> F getStorage(Player p, String key, F defaultValue) {
         PlayerData data = getPlayer(p).getData();
-        if(data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName()))
-        {
+        if(data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName())) {
             Object o = data.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getStorage().get(key);
             return o == null ? defaultValue : (F) o;
         }
@@ -39,16 +37,13 @@ public interface Adaptation<T> extends Ticked, Component {
         return defaultValue;
     }
 
-    default <F> F getStorage(Player p, String key)
-    {
+    default <F> F getStorage(Player p, String key) {
         return getStorage(p, key, null);
     }
 
-    default boolean setStorage(Player p, String key, Object value)
-    {
+    default boolean setStorage(Player p, String key, Object value) {
         PlayerData data = getPlayer(p).getData();
-        if(data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName()))
-        {
+        if(data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName())) {
             data.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getStorage().put(key, value);
             return true;
         }
@@ -56,53 +51,43 @@ public interface Adaptation<T> extends Ticked, Component {
         return false;
     }
 
-    default String getStorageString(Player p, String key, String defaultValue)
-    {
+    default String getStorageString(Player p, String key, String defaultValue) {
         return getStorage(p, key, defaultValue);
     }
 
-    default String getStorageString(Player p, String key)
-    {
+    default String getStorageString(Player p, String key) {
         return getStorage(p, key);
     }
 
-    default Integer getStorageInt(Player p, String key, Integer defaultValue)
-    {
+    default Integer getStorageInt(Player p, String key, Integer defaultValue) {
         return getStorage(p, key, defaultValue);
     }
 
-    default Integer getStorageInt(Player p, String key)
-    {
+    default Integer getStorageInt(Player p, String key) {
         return getStorage(p, key);
     }
 
-    default Double getStorageDouble(Player p, String key, Double defaultValue)
-    {
+    default Double getStorageDouble(Player p, String key, Double defaultValue) {
         return getStorage(p, key, defaultValue);
     }
 
-    default Double getStorageDouble(Player p, String key)
-    {
+    default Double getStorageDouble(Player p, String key) {
         return getStorage(p, key);
     }
 
-    default Boolean getStorageBoolean(Player p, String key, Boolean defaultValue)
-    {
+    default Boolean getStorageBoolean(Player p, String key, Boolean defaultValue) {
         return getStorage(p, key, defaultValue);
     }
 
-    default Boolean getStorageBoolean(Player p, String key)
-    {
+    default Boolean getStorageBoolean(Player p, String key) {
         return getStorage(p, key);
     }
 
-    default Long getStorageLong(Player p, String key, Long defaultValue)
-    {
+    default Long getStorageLong(Player p, String key, Long defaultValue) {
         return getStorage(p, key, defaultValue);
     }
 
-    default Long getStorageLong(Player p, String key)
-    {
+    default Long getStorageLong(Player p, String key) {
         return getStorage(p, key);
     }
 

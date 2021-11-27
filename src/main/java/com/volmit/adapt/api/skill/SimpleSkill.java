@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
-import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.IO;
@@ -146,8 +146,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
     @Override
     public void registerAdaptation(Adaptation<?> a) {
-        if(!a.isEnabled())
-        {
+        if(!a.isEnabled()) {
             return;
         }
 

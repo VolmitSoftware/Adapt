@@ -26,8 +26,7 @@ public abstract class PotionItem implements DataItem<PotionItem.Data> {
 
     @lombok.Data
     @NoArgsConstructor
-    public static class Data
-    {
+    public static class Data {
         private PotionEffectType type;
         private int power;
     }

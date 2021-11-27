@@ -22,8 +22,7 @@ public enum Curves {
     @Getter
     private final NewtonCurve curve;
 
-    private static NewtonCurve resolved(NewtonCurve c, NewtonCurve inverse)
-    {
+    private static NewtonCurve resolved(NewtonCurve c, NewtonCurve inverse) {
         return new ResolvedNewtonCurve() {
             @Override
             public double getLevelForXP(double xp) {
@@ -37,8 +36,7 @@ public enum Curves {
         };
     }
 
-    Curves(NewtonCurve curve)
-    {
+    Curves(NewtonCurve curve) {
         this.curve = curve;
     }
 }

@@ -35,7 +35,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         if(e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
-            xp(e.getClickedBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius,  getConfig().turtleEggSpatialDuration);
+            xp(e.getClickedBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
             getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
         }
     }

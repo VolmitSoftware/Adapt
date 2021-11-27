@@ -37,8 +37,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         return getConfig().baseDistance + (getLevelPercent(level) * getConfig().distanceFactor);
     }
 
-    private int getCooldownDuration(int level)
-    {
+    private int getCooldownDuration(int level) {
         return 2000;
     }
 
@@ -57,17 +56,17 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     @EventHandler
     public void on(PlayerToggleFlightEvent e) { // not trying to do this :(
         Player p = e.getPlayer();
-        if (!hasAdaptation(e.getPlayer())) {
+        if(!hasAdaptation(e.getPlayer())) {
             return;
         }
 
-        if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
+        if(lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
             p.setAllowFlight(false);
             return;
         }
 
 
-        if (hasAdaptation(e.getPlayer()) && p.isSprinting()) {
+        if(hasAdaptation(e.getPlayer()) && p.isSprinting()) {
             lastJump.put(p, M.ms());
             e.setCancelled(true);
             Location loc = p.getLocation().clone();
@@ -78,13 +77,11 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             double cd = dist * 2;
             loc.subtract(0, dist, 0);
 
-            while(!isSafe(loc) && cd-- > 0)
-            {
+            while(!isSafe(loc) && cd-- > 0) {
                 loc.add(0, 1, 0);
             }
 
-            if(!isSafe(loc))
-            {
+            if(!isSafe(loc)) {
                 p.setAllowFlight(false);
                 p.getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
                 return;
@@ -96,19 +93,18 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         }
     }
 
-    public boolean isSafe(Location l)
-    {
-        return l.getBlock().getType().isSolid() && !l.getBlock().getRelative(BlockFace.UP).getType().isSolid()&& !l.getBlock().getRelative(BlockFace.UP).getRelative(BlockFace.UP).getType().isSolid();
+    public boolean isSafe(Location l) {
+        return l.getBlock().getType().isSolid() && !l.getBlock().getRelative(BlockFace.UP).getType().isSolid() && !l.getBlock().getRelative(BlockFace.UP).getRelative(BlockFace.UP).getType().isSolid();
     }
 
     @EventHandler
     public void on(PlayerToggleSprintEvent e) {
         Player p = e.getPlayer();
 
-        if (hasAdaptation(e.getPlayer()) && !e.getPlayer().isSprinting()) {// Are sprinting
+        if(hasAdaptation(e.getPlayer()) && !e.getPlayer().isSprinting()) {// Are sprinting
             p.sendMessage("Toggled on");
             p.setAllowFlight(true);
-        } else if (hasAdaptation(e.getPlayer()) && e.getPlayer().isSprinting()) {
+        } else if(hasAdaptation(e.getPlayer()) && e.getPlayer().isSprinting()) {
             p.sendMessage("Toggled off");
             p.setAllowFlight(false);
         }
