@@ -75,8 +75,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             double dist = getBlinkDistance(getLevel(p));
             dir.multiply(dist);
             loc.add(dir);
+            double cd = dist * 2;
+            loc.subtract(0, dist, 0);
 
-            while(!isSafe(loc) && dist-- > 0)
+            while(!isSafe(loc) && cd-- > 0)
             {
                 loc.add(0, 1, 0);
             }
@@ -84,6 +86,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             if(!isSafe(loc))
             {
                 p.setAllowFlight(false);
+                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
                 return;
             }
 
@@ -121,7 +124,6 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     public boolean isEnabled() {
         return getConfig().enabled;
     }
-
 
     @NoArgsConstructor
     protected static class Config {
