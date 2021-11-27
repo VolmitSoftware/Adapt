@@ -6,6 +6,7 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -56,17 +57,23 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     @EventHandler
     public void on(PlayerToggleFlightEvent e) { // not trying to do this :(
         Player p = e.getPlayer();
-        if(!hasAdaptation(e.getPlayer())) {
+        if(p.isSneaking() || p.isFlying() || !p.getGameMode().equals(GameMode.SURVIVAL)){
+
+        }
+
+        if (!hasAdaptation(e.getPlayer()) || p.getGameMode().equals(GameMode.CREATIVE)) {
+            return;
+        } else {
+            e.setCancelled(true);
+        }
+
+        if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
             return;
         }
 
-        if(lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
-            p.setAllowFlight(false);
-            return;
-        }
 
 
-        if(hasAdaptation(e.getPlayer()) && p.isSprinting()) {
+        if (hasAdaptation(e.getPlayer()) && p.isSprinting()) {
             lastJump.put(p, M.ms());
             e.setCancelled(true);
             Location loc = p.getLocation().clone();
@@ -77,18 +84,18 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             double cd = dist * 2;
             loc.subtract(0, dist, 0);
 
-            while(!isSafe(loc) && cd-- > 0) {
+            while (!isSafe(loc) && cd-- > 0) {
                 loc.add(0, 1, 0);
             }
 
-            if(!isSafe(loc)) {
-                p.setAllowFlight(false);
+            if (!isSafe(loc)) {
                 p.getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
                 return;
             }
-
-            p.teleport(loc);
-            p.setAllowFlight(false);
+            vfxLevelUp(p);
+            p.teleport(loc.add(0, 1, 0));
+            p.damage(2);
+            vfxLevelUp(p);
             p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f, 1.0f);
         }
     }
@@ -101,11 +108,13 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     public void on(PlayerToggleSprintEvent e) {
         Player p = e.getPlayer();
 
-        if(hasAdaptation(e.getPlayer()) && !e.getPlayer().isSprinting()) {// Are sprinting
-            p.sendMessage("Toggled on");
+        if(p.getGameMode().equals(GameMode.CREATIVE)){
+            return;
+        }
+
+        if (hasAdaptation(e.getPlayer()) && !e.getPlayer().isSprinting()) {// Are sprinting
             p.setAllowFlight(true);
-        } else if(hasAdaptation(e.getPlayer()) && e.getPlayer().isSprinting()) {
-            p.sendMessage("Toggled off");
+        } else if (hasAdaptation(e.getPlayer()) && e.getPlayer().isSprinting()) {
             p.setAllowFlight(false);
         }
     }
