@@ -27,11 +27,11 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
         registerConfiguration(Config.class);
         setDescription("Increase your tamed animal health.");
         setIcon(Material.FLINT);
-        setBaseCost(6);
-        setMaxLevel(5);
-        setInitialCost(5);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
         setInterval(4750);
-        setCostFactor(0.4);
+        setCostFactor(getConfig().costFactor);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     }
 
     private double getDamageBoost(int level) {
-        return ((getLevelPercent(level) * 0.65) + 0.08);
+        return ((getLevelPercent(level) * getConfig().damageFactor) + getConfig().baseDamage);
     }
 
     @Override
@@ -78,5 +78,11 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 6;
+        int maxLevel = 5;
+        int initialCost = 5;
+        double costFactor = 0.4;
+        double baseDamage = 0.08;
+        double damageFactor = 0.65;
     }
 }
