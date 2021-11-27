@@ -147,7 +147,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
             });
         }
 
-        if(e.getClickedInventory().getType().equals(InventoryType.SMITHING)) {
+        if(e.getClickedInventory() != null && e.getClickedInventory().getType().equals(InventoryType.SMITHING)) {
             SmithingInventory s = (SmithingInventory) e.getClickedInventory();
             if(e.getSlotType().equals(InventoryType.SlotType.CRAFTING)) {
                 J.s(() -> {

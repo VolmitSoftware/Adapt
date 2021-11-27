@@ -1,5 +1,6 @@
 package com.volmit.adapt.api.world;
 
+import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.skill.Skill;
@@ -8,6 +9,7 @@ import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.xp.SpatialXP;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
@@ -20,6 +22,7 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -133,6 +136,26 @@ public class AdaptServer extends TickedObject {
                 }
             }
         }
+    }
+
+    public PlayerData peekData(UUID player)
+    {
+        if(Bukkit.getPlayer(player) != null)
+        {
+            return getPlayer(Bukkit.getPlayer(player)).getData();
+        }
+
+        File f = new File(Bukkit.getServer().getPluginManager().getPlugin(Adapt.instance.getName()).getDataFolder() + File.separator + "data" + File.separator + "players" + File.separator + player + ".json");
+
+        if(f.exists()) {
+            try {
+                return new Gson().fromJson(IO.readAll(f), PlayerData.class);
+            } catch(Throwable ignored) {
+
+            }
+        }
+
+        return new PlayerData();
     }
 
     public AdaptPlayer getPlayer(Player p) {

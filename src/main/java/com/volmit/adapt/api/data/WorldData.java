@@ -5,6 +5,7 @@ import com.volmit.adapt.api.data.unit.Earnings;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KMap;
+import lombok.Getter;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -16,6 +17,7 @@ import org.cyberpwn.spatial.matter.SpatialMatter;
 public class WorldData extends TickedObject {
     private static final KMap<World, WorldData> mantles = new KMap<>();
     private final World world;
+    @Getter
     private final Mantle mantle;
 
     public WorldData(World world) {

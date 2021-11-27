@@ -14,6 +14,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -70,6 +72,32 @@ public interface Component {
 
             return item;
         }
+    }
+
+    default PotionEffect getRawPotionEffect(ItemStack is)
+    {
+        if(is != null && is.getItemMeta() != null && is.getItemMeta() instanceof PotionMeta p && p.getBasePotionData().getType().getEffectType() != null)
+        {
+            boolean l = is.getType().equals(Material.LINGERING_POTION);
+            boolean x = p.getBasePotionData().isExtended();
+            boolean u = p.getBasePotionData().isUpgraded();
+            int e = x ? l ? 2400 : 9600 : l ? 900 : 3600;
+            int g = u ? l ? 440 : 1800 : e;
+            int t = x ? l ? 1200 : 4800 : l ? 440 : 1800;
+            int h = u ? l ? 100 : 420 : x ? l ? 440 : 1800 : l ? 220 : 900;
+            return new PotionEffect(p.getBasePotionData().getType().getEffectType(), switch(p.getBasePotionData().getType()) {
+                case NIGHT_VISION, INVISIBILITY, FIRE_RESISTANCE, WATER_BREATHING -> e;
+                case JUMP, SPEED, STRENGTH -> g;
+                case SLOWNESS -> u ? l ? 100 : 400 : t;
+                case POISON, REGEN -> h;
+                case WEAKNESS, SLOW_FALLING -> t;
+                case LUCK -> l ? 1500 : 6000;
+                case TURTLE_MASTER -> u ? l ? 100 : 400 : x ? l ? 200 : 800 : l ? 100 : 400;
+                default -> 0;
+            }, p.getBasePotionData().isUpgraded() ? 2 : 1);
+        }
+
+        return null;
     }
 
     default void removePotion(Player p, PotionEffectType type) {

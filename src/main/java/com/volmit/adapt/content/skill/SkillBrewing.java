@@ -1,15 +1,30 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.content.adaptation.brewing.BrewingLongLasting;
 import com.volmit.adapt.util.C;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.cyberpwn.spatial.matter.MatterSlice;
+import org.cyberpwn.spatial.matter.SpatialMatter;
+import org.cyberpwn.spatial.matter.slices.IntMatter;
+import org.cyberpwn.spatial.matter.slices.RawMatter;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.UUID;
 
 public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     public SkillBrewing() {
@@ -18,6 +33,8 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         setColor(C.LIGHT_PURPLE);
         setInterval(5251);
         setIcon(Material.LINGERING_POTION);
+        registerAdaptation(new BrewingLongLasting());
+        SpatialMatter.registerSliceType(new BrewingStandOwnerMatter());
     }
 
     @EventHandler
@@ -40,6 +57,24 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         }
     }
 
+    @EventHandler
+    public void on(BlockPlaceEvent e)
+    {
+        if(e.getBlock().getType().equals(Material.BREWING_STAND))
+        {
+            WorldData.of(e.getBlock().getWorld()).getMantle().set(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), new BrewingStandOwner(e.getPlayer().getUniqueId()));
+        }
+    }
+
+    @EventHandler
+    public void on(BlockBreakEvent e)
+    {
+        if(e.getBlock().getType().equals(Material.BREWING_STAND))
+        {
+            WorldData.of(e.getBlock().getWorld()).getMantle().remove(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);
+        }
+    }
+
     @Override
     public void onTick() {
 
@@ -54,6 +89,36 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     protected static class Config {
         boolean enabled = true;
         double splashXP = 115;
-        double splashMultiplier = 8;;
+        double splashMultiplier = 0.25;
+    }
+
+    @AllArgsConstructor
+    @Data
+    public static class BrewingStandOwner {
+        private UUID owner;
+    }
+
+    public static class BrewingStandOwnerMatter extends RawMatter<BrewingStandOwner> {
+
+        public BrewingStandOwnerMatter(int w, int h, int d)
+        {
+            super(w,h,d,BrewingStandOwner.class);
+        }
+
+        public BrewingStandOwnerMatter()
+        {
+            this(1,1,1);
+        }
+
+        @Override
+        public void writeNode(BrewingStandOwner brewingStandOwner, DataOutputStream dataOutputStream) throws IOException {
+            dataOutputStream.writeLong(brewingStandOwner.getOwner().getMostSignificantBits());
+            dataOutputStream.writeLong(brewingStandOwner.getOwner().getLeastSignificantBits());
+        }
+
+        @Override
+        public BrewingStandOwner readNode(DataInputStream dataInputStream) throws IOException {
+            return new BrewingStandOwner(new UUID(dataInputStream.readLong(), dataInputStream.readLong()));
+        }
     }
 }
