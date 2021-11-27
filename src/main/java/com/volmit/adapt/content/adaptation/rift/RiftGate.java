@@ -35,7 +35,6 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         registerRecipe(AdaptRecipe.shapeless()
                 .key("rift-gate")
                 .ingredient(Material.ENDER_PEARL)
-                .ingredient(Material.EMERALD)
                 .ingredient(Material.AMETHYST_SHARD)
                 .result(BoundEyeOfEnder.io.withData(new BoundEyeOfEnder.Data(null)))
                 .build());

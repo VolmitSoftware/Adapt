@@ -28,21 +28,25 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         registerConfiguration(Config.class);
         setDescription("Pull from the void");
         setIcon(Material.NETHER_STAR);
-        setBaseCost(0);
-        setCostFactor(0);
-        setMaxLevel(1);
-        setInitialCost(15);
+        setBaseCost(getConfig().baseCost);
+        setCostFactor(getConfig().costFactor);
+        setInitialCost(getConfig().initialCost);
         setInterval(50);
         registerRecipe(AdaptRecipe.shapeless()
                 .key("rift-access")
                 .ingredient(Material.ENDER_PEARL)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.CHEST)
+                .ingredient(Material.COMPASS)
                 .result(BoundEnderPearl.io.withData(new BoundEnderPearl.Data(null)))
                 .build());
     }
 
-
+    @NoArgsConstructor
+    protected static class Config {
+        boolean enabled = true;
+        int baseCost = 3;
+        double costFactor = 0.2;
+        int initialCost = 15;
+    }
 
     @Override
     public void addStats(int level, Element v) {
@@ -89,7 +93,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
             }
         }
-
     }
 
     private void linkPearl(Player p, Block block) {
@@ -103,7 +106,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
             p.getInventory().addItem(pearl).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
         }
     }
-
 
     private void openPearl(Player p) {
         Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
@@ -142,10 +144,5 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;
-    }
-
-    @NoArgsConstructor
-    protected static class Config {
-        boolean enabled = true;
     }
 }
