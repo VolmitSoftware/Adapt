@@ -115,7 +115,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
         double costFactor = 0.55;
         int maxLevel = 3;
         int initialCost = 5;
-        double baseJumpMultiplier = 0.21;
-        double jumpLevelMultiplier = 0.27;
+        double baseJumpMultiplier = 0.23;
+        double jumpLevelMultiplier = 0.23;
     }
 }

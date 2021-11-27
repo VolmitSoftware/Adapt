@@ -140,7 +140,7 @@ public interface Component {
     }
 
     default void vfxLevelUp(Player p) {
-        p.spawnParticle(Particle.REVERSE_PORTAL, p.getLocation().clone().add(0, 1.7, 0), 200, 0.1, 0.1, 0.1, 6.1);
+        p.spawnParticle(Particle.REVERSE_PORTAL, p.getLocation().clone().add(0, 1.7, 0), 100, 0.1, 0.1, 0.1, 4.1);
     }
 
     default void vfxXP(Player p, Location l, int amt) {
