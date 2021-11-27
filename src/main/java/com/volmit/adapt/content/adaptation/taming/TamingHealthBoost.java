@@ -27,11 +27,11 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
         registerConfiguration(Config.class);
         setDescription("Increase your tamed animal health.");
         setIcon(Material.COOKED_BEEF);
-        setBaseCost(6);
-        setMaxLevel(5);
-        setInitialCost(3);
+        setBaseCost(getConfig().baseCost);
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
         setInterval(4750);
-        setCostFactor(0.4);
+        setCostFactor(getConfig().costFactor);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     }
 
     private double getHealthBoost(int level) {
-        return ((getLevelPercent(level) * 2.5) + 0.57);
+        return ((getLevelPercent(level) *getConfig().healthBoostFactor) + getConfig().healthBoostBase);
     }
 
     @Override
@@ -78,5 +78,11 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        int baseCost = 6;
+        int maxLevel = 5;
+        int initialCost = 3;
+        double costFactor = 0.4;
+        double healthBoostFactor = 2.5;
+        double healthBoostBase = 0.57;
     }
 }
