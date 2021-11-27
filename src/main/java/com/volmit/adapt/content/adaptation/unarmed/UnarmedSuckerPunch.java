@@ -18,14 +18,24 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         registerConfiguration(Config.class);
         setDescription("Sprint punches, but more deadly.");
         setIcon(Material.OBSIDIAN);
-        setBaseCost(2);
-        setInitialCost(4);
-        setCostFactor(0.225);
+        setBaseCost(getConfig().baseCost);
+        setInitialCost(getConfig().initialCost);
+        setCostFactor(getConfig().costFactor);
+    }
+
+    @NoArgsConstructor
+    protected static class Config {
+        boolean enabled = true;
+        int baseCost = 2;
+        int initialCost = 4;
+        double costFactor = 0.225;
+        double baseDamage = 0.2;
+        double damageFactor = 0.55;
     }
 
     private double getDamage(double f)
     {
-        return 0.2 + (f * 0.55);
+        return getConfig().baseDamage + (f * getConfig().damageFactor);
     }
 
     @Override
@@ -75,10 +85,5 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;
-    }
-
-    @NoArgsConstructor
-    protected static class Config {
-        boolean enabled = true;
     }
 }
