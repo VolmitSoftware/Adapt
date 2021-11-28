@@ -3,12 +3,11 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.content.adaptation.brewing.BrewingLongLasting;
+import com.volmit.adapt.content.adaptation.brewing.BrewingLingering;
+import com.volmit.adapt.content.adaptation.brewing.BrewingSuperHeated;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.content.matter.BrewingStandOwnerMatter;
 import com.volmit.adapt.util.C;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -19,7 +18,6 @@ import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.cyberpwn.spatial.matter.SpatialMatter;
-import java.util.UUID;
 
 public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     public SkillBrewing() {
@@ -28,7 +26,8 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         setColor(C.LIGHT_PURPLE);
         setInterval(5251);
         setIcon(Material.LINGERING_POTION);
-        registerAdaptation(new BrewingLongLasting());
+        registerAdaptation(new BrewingLingering());
+        registerAdaptation(new BrewingSuperHeated());
         SpatialMatter.registerSliceType(new BrewingStandOwnerMatter());
     }
 

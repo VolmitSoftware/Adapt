@@ -3,45 +3,30 @@ package com.volmit.adapt.content.adaptation.brewing;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.data.WorldData;
-import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
-import com.volmit.adapt.content.matter.BrewingStandOwnerMatter;
-import com.volmit.adapt.content.skill.SkillBrewing;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
-import com.volmit.adapt.util.RNG;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.BrewEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-public class BrewingLongLasting extends SimpleAdaptation<BrewingLongLasting.Config> {
-    private final KList<Integer> holds = new KList<>();
-
-    public BrewingLongLasting() {
-        super("lasting");
+public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> {
+    public BrewingLingering() {
+        super("lingering");
         registerConfiguration(Config.class);
         setDescription("Brewed potions last longer!");
         setIcon(Material.CLOCK);
@@ -60,25 +45,6 @@ public class BrewingLongLasting extends SimpleAdaptation<BrewingLongLasting.Conf
     public double getPercentBoost(double factor)
     {
         return 1 + ((factor * factor * getConfig().durationMultiplierFactor) + getConfig().baseDurationMultiplier);
-    }
-
-
-    @EventHandler
-    public void on(InventoryClickEvent e)
-    {
-        if(e.getClickedInventory() != null && e.getClickedInventory().getType().equals(InventoryType.BREWING))
-        {
-            Block at = e.getClickedInventory().getLocation().getBlock();
-
-            BrewingStand b = (BrewingStand) at.getState();
-
-            if(b.getBrewingTime() > 2)
-            {
-                b.setBrewingTime(2);
-
-                b.update();
-            }
-        }
     }
 
     @EventHandler
