@@ -50,7 +50,7 @@ public class WorldData extends TickedObject {
 
     public void unregister() {
         super.unregister();
-        J.a(mantle::close);
+        mantle.close();
         mantles.remove(world);
     }
 

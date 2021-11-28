@@ -94,7 +94,7 @@ public interface Component {
                 case LUCK -> l ? 1500 : 6000;
                 case TURTLE_MASTER -> u ? l ? 100 : 400 : x ? l ? 200 : 800 : l ? 100 : 400;
                 default -> 0;
-            }, p.getBasePotionData().isUpgraded() ? 2 : 1);
+            }, p.getBasePotionData().isUpgraded() ? 1 : 0);
         }
 
         return null;
