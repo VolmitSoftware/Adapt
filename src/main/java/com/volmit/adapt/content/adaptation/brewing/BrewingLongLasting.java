@@ -1,25 +1,32 @@
 package com.volmit.adapt.content.adaptation.brewing;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerData;
+import com.volmit.adapt.content.matter.BrewingStandOwner;
+import com.volmit.adapt.content.matter.BrewingStandOwnerMatter;
 import com.volmit.adapt.content.skill.SkillBrewing;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.RNG;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.BrewingStand;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -47,12 +54,31 @@ public class BrewingLongLasting extends SimpleAdaptation<BrewingLongLasting.Conf
 
     public double getDurationBoost(double factor)
     {
-        return (getConfig().durationBoostFactor * factor) + getConfig().baseDurationBoost;
+        return (getConfig().durationBoostFactorTicks * factor) + getConfig().baseDurationBoostTicks;
     }
 
     public double getPercentBoost(double factor)
     {
-        return (factor * factor * getConfig().durationMultiplierFactor) + getConfig().baseDurationMultiplier;
+        return 1 + ((factor * factor * getConfig().durationMultiplierFactor) + getConfig().baseDurationMultiplier);
+    }
+
+
+    @EventHandler
+    public void on(InventoryClickEvent e)
+    {
+        if(e.getClickedInventory() != null && e.getClickedInventory().getType().equals(InventoryType.BREWING))
+        {
+            Block at = e.getClickedInventory().getLocation().getBlock();
+
+            BrewingStand b = (BrewingStand) at.getState();
+
+            if(b.getBrewingTime() > 2)
+            {
+                b.setBrewingTime(2);
+
+                b.update();
+            }
+        }
     }
 
     @EventHandler
@@ -60,48 +86,69 @@ public class BrewingLongLasting extends SimpleAdaptation<BrewingLongLasting.Conf
     {
         if(e.getBlock().getType().equals(Material.BREWING_STAND))
         {
-            SkillBrewing.BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).getMantle().get(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), SkillBrewing.BrewingStandOwner.class);
+            BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).getMantle().get(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);
 
             if(owner != null)
             {
-                PlayerData data = null;
-                for(int i = 2; i < e.getContents().getStorageContents().length; i++)
-                {
-                    ItemStack is = e.getContents().getStorageContents()[i];
-
-                    if(is != null && is.getItemMeta() != null && is.getItemMeta() instanceof PotionMeta p)
+                J.s(() -> {
+                    PlayerData data = null;
+                    ItemStack[] c = ((BrewingStand)e.getBlock().getState()).getInventory().getStorageContents();
+                    boolean ef = false;
+                    for(int i = 0; i < c.length; i++)
                     {
-                        data = data == null ? getServer().peekData(owner.getOwner()) : data;
+                        ItemStack is = c[i];
 
-                        if(data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLine(getSkill().getName()).getAdaptations().containsKey(getName()))
+                        if(is != null && is.getItemMeta() != null && is.getItemMeta() instanceof PotionMeta p)
                         {
-                            PlayerAdaptation a = data.getSkillLine(getSkill().getName()).getAdaptations().get(getName());
+                            is = is.clone();
+                            data = data == null ? getServer().peekData(owner.getOwner()) : data;
 
-                            if(a.getLevel() > 0)
+                            if(data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLine(getSkill().getName()).getAdaptations().containsKey(getName()))
                             {
-                                double factor = getLevelPercent(a.getLevel());
-                                enhance(factor, is, p);
+                                PlayerAdaptation a = data.getSkillLine(getSkill().getName()).getAdaptations().get(getName());
+
+                                if(a.getLevel() > 0)
+                                {
+                                    double factor = getLevelPercent(a.getLevel());
+                                    ef = enhance(factor, is, p) || ef;
+                                    c[i] = is;
+                                }
                             }
                         }
                     }
-                }
+
+                    if(ef)
+                    {
+                        ((BrewingStand)e.getBlock().getState()).getInventory().setStorageContents(c);
+                        e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 0.75f);
+                        e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 1.75f);
+                    }
+                });
+            }
+
+            else
+            {
+                Adapt.info("No Owner");
             }
         }
     }
 
-    private void enhance(double factor, ItemStack is, PotionMeta p) {
-        if(p.getBasePotionData() != null && !p.getBasePotionData().getType().isInstant())
-        {
+    private boolean enhance(double factor, ItemStack is, PotionMeta p) {
+        if(!p.getBasePotionData().getType().isInstant()) {
             PotionEffect effect = getRawPotionEffect(is);
 
-            if(effect != null)
-            {
-                p.addCustomEffect(new PotionEffect(effect.getType(), (int) (getDurationBoost(factor) + (effect.getDuration() * getPercentBoost(factor))), effect.getAmplifier()), true);
-                List<String> lore = p.getLore();
-                lore = lore != null ? lore : new ArrayList<>();
+            if(effect != null) {
+                p.addCustomEffect(new PotionEffect(effect.getType(),
+
+                    (int) (getDurationBoost(factor) + (effect.getDuration() * getPercentBoost(factor))),
+
+                    effect.getAmplifier()), true);
                 is.setItemMeta(p);
+                return true;
             }
         }
+
+        return false;
     }
 
     @Override
@@ -127,8 +174,8 @@ public class BrewingLongLasting extends SimpleAdaptation<BrewingLongLasting.Conf
         double costFactor = 0.75;
         int maxLevel = 5;
         int initialCost = 5;
-        double baseDurationBoost = 5000;
-        double durationBoostFactor = 10000;
+        double baseDurationBoostTicks = 100;
+        double durationBoostFactorTicks = 500;
         double durationMultiplierFactor = 0.45;
         double baseDurationMultiplier = 0.05;
     }
