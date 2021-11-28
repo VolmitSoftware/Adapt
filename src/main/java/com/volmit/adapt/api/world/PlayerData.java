@@ -1,13 +1,20 @@
 package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
+import com.volmit.adapt.api.notification.ActionBarNotification;
+import com.volmit.adapt.api.notification.SoundNotification;
+import com.volmit.adapt.api.notification.TitleNotification;
+import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
+import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.KSet;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.EntityType;
@@ -101,6 +108,78 @@ public class PlayerData {
 
             getSkillLine(i).update(p, i, this);
         }
+
+        int oldLevel = (int) XP.getLevelForXp(getLastMasterXp());
+        int level = (int) XP.getLevelForXp(getMasterXp());
+
+        if(oldLevel != level)
+        {
+            setLastMasterXp(getMasterXp());
+            p.getNot().queue(SoundNotification.builder()
+                    .sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE)
+                    .volume(1f)
+                    .pitch(0.54f)
+                    .group("lvl")
+                    .build(),
+                SoundNotification.builder()
+                    .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+                    .volume(1f)
+                    .pitch(0.44f)
+                    .group("lvl")
+                    .build(),
+                SoundNotification.builder()
+                    .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+                    .volume(1f)
+                    .pitch(0.74f)
+                    .group("lvl")
+                    .build(),
+                SoundNotification.builder()
+                    .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+                    .volume(1f)
+                    .pitch(1.34f)
+                    .group("lvl")
+                    .build(),
+                TitleNotification.builder()
+                    .in(250)
+                    .stay(1450)
+                    .out(2250)
+                    .group("lvl")
+                    .title("")
+                    .subtitle(C.GOLD + "Level " + level)
+                .build());
+            p.getActionBarNotifier().queue(
+                ActionBarNotification.builder()
+                    .duration(450)
+                    .group("power")
+                    .title(C.GOLD + "" + (level * AdaptConfig.get().getPowerPerLevel()) + C.GRAY + "Maximum Ability Power")
+                    .build());
+
+        }
+    }
+
+    public int getAvailablePower()
+    {
+        return getMaxPower() - getUsedPower();
+    }
+
+    public boolean hasPowerAvailable()
+    {
+        return hasPowerAvailable(1);
+    }
+
+    public boolean hasPowerAvailable(int amount)
+    {
+        return getAvailablePower() >= amount;
+    }
+
+    public int getUsedPower()
+    {
+        return getSkillLines().values().stream().mapToInt(i -> i.getAdaptations().values().stream().mapToInt(PlayerAdaptation::getLevel).sum()).sum();
+    }
+
+    public int getMaxPower()
+    {
+        return (int) (XP.getLevelForXp(getMasterXp()) * AdaptConfig.get().getPowerPerLevel());
     }
 
     public PlayerSkillLine getSkillLine(String skillLine) {

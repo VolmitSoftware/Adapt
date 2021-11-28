@@ -19,6 +19,9 @@ public class AdaptConfig {
     private boolean verbose = false;
     private boolean metrics = true;
     private Curves xpCurve = Curves.XL3L7;
+    private double playerXpPerSkillLevelUpBase = 400;
+    private double playerXpPerSkillLevelUpLevelMultiplier = 32;
+    private double powerPerLevel = 0.62;
 
     @Getter
     public static class ValueConfig {

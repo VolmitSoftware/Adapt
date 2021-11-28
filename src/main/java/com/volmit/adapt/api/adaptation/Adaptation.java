@@ -143,6 +143,11 @@ public interface Adaptation<T> extends Ticked, Component {
         return (int) (Math.max(1, getBaseCost() + (getBaseCost() * (level * getCostFactor())))) + (level == 1 ? getInitialCost() : 0);
     }
 
+    default int getPowerCostFor(int level, int myLevel)
+    {
+        return level - myLevel;
+    }
+
     default int getCostFor(int level, int myLevel) {
         if(myLevel >= level) {
             return 0;
@@ -225,6 +230,7 @@ public interface Adaptation<T> extends Ticked, Component {
             int row = 1;
             int c = getCostFor(i, mylevel);
             int rc = getRefundCostFor(i - 1, mylevel);
+            int pc = getPowerCostFor(i, mylevel);
             int lvl = i;
             Element de = new UIElement("lp-" + i + "g")
                 .setMaterial(new MaterialBlock(getIcon()))
@@ -234,6 +240,7 @@ public interface Adaptation<T> extends Ticked, Component {
                 .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
                 .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " Knowledge Cost"))
                 .addLore(mylevel >= lvl ? (C.GREEN + "Already Learned " + C.GRAY + "Click to Unlearn & Refund " + C.GREEN + rc + " Knowlege") : (k >= c ? (C.BLUE + "Click to Learn " + getDisplayName(i)) : (k == 0 ? (C.RED + "(You don't have any Knowledge)") : (C.RED + "(You only have " + C.WHITE + k + C.RED + " Knowledge)"))))
+                .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc)  ? C.GREEN + "" + lvl + " Power" : mylevel >= lvl ?  C.GREEN + "" + lvl + " Power" :  C.RED + "Not enough power! Each Ability Level costs 1 power. \n" + C.RED + "Level up skills to increase your max power.")
                 .onLeftClick((e) -> {
                     if(mylevel >= lvl) {
                         getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(rc);
@@ -246,7 +253,7 @@ public interface Adaptation<T> extends Ticked, Component {
                         return;
                     }
 
-                    if(k >= c) {
+                    if(k >= c && getPlayer(player).getData().hasPowerAvailable(pc)) {
                         if(getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c)) {
                             getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
@@ -262,7 +269,6 @@ public interface Adaptation<T> extends Ticked, Component {
                         }
                     } else {
                         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
-
                     }
                 });
             de.addLore(" ");

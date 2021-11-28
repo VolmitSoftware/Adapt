@@ -4,7 +4,9 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerSkillLine;
+import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.MaterialBlock;
 import com.volmit.adapt.util.UIElement;
 import com.volmit.adapt.util.UIWindow;
@@ -33,7 +35,7 @@ public class SkillsGui {
                 .onLeftClick((e) -> sk.openGui(player)));
             ind++;
         }
-        w.setTitle("Skills");
+        w.setTitle("Level " + (int)XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " Power Used)");
         w.open();
     }
 }

@@ -1,5 +1,6 @@
 package com.volmit.adapt.api.world;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.notification.ActionBarNotification;
 import com.volmit.adapt.api.notification.Notifier;
@@ -146,7 +147,7 @@ public class PlayerSkillLine {
             long kb = getKnowledge();
             for(int i = lastLevel; i < getLevel(); i++) {
                 giveKnowledge((i / 13) + 1);
-                p.getData().giveMasterXp((i / 7D) * 100);
+                p.getData().giveMasterXp((i * AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier()) + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
             }
 
             notifyLevel(p, getLevel(), getKnowledge());
