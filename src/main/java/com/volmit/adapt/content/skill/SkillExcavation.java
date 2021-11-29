@@ -37,7 +37,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
-        if(isAxe(e.getPlayer().getInventory().getItemInMainHand())) {
+        if(isShovel(e.getPlayer().getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
             getPlayer(e.getPlayer()).getData().addStat("excavation.blocks.broken", 1);
             getPlayer(e.getPlayer()).getData().addStat("excavation.blocks.value", getValue(e.getBlock().getBlockData()));

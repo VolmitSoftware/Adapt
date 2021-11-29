@@ -29,13 +29,10 @@ public interface AdaptComponent {
 
     default boolean isRanged(ItemStack it) {
         if(isItem(it)) {
-            switch(it.getType()) {
-                case BOW:
-                case CROSSBOW:
-                    return true;
-                default:
-                    return false;
-            }
+            return switch(it.getType()) {
+                case BOW, CROSSBOW -> true;
+                default -> false;
+            };
         }
 
         return false;
@@ -43,17 +40,10 @@ public interface AdaptComponent {
 
     default boolean isSword(ItemStack it) {
         if(isItem(it)) {
-            switch(it.getType()) {
-                case DIAMOND_SWORD:
-                case GOLDEN_SWORD:
-                case IRON_SWORD:
-                case NETHERITE_SWORD:
-                case STONE_SWORD:
-                case WOODEN_SWORD:
-                    return true;
-                default:
-                    return false;
-            }
+            return switch(it.getType()) {
+                case DIAMOND_SWORD, GOLDEN_SWORD, IRON_SWORD, NETHERITE_SWORD, STONE_SWORD, WOODEN_SWORD -> true;
+                default -> false;
+            };
         }
 
         return false;
@@ -61,17 +51,10 @@ public interface AdaptComponent {
 
     default boolean isAxe(ItemStack it) {
         if(isItem(it)) {
-            switch(it.getType()) {
-                case DIAMOND_AXE:
-                case GOLDEN_AXE:
-                case IRON_AXE:
-                case NETHERITE_AXE:
-                case STONE_AXE:
-                case WOODEN_AXE:
-                    return true;
-                default:
-                    return false;
-            }
+            return switch(it.getType()) {
+                case DIAMOND_AXE, GOLDEN_AXE, IRON_AXE, NETHERITE_AXE, STONE_AXE, WOODEN_AXE -> true;
+                default -> false;
+            };
         }
 
         return false;
@@ -79,17 +62,10 @@ public interface AdaptComponent {
 
     default boolean isPickaxe(ItemStack it) {
         if(isItem(it)) {
-            switch(it.getType()) {
-                case DIAMOND_PICKAXE:
-                case GOLDEN_PICKAXE:
-                case IRON_PICKAXE:
-                case NETHERITE_PICKAXE:
-                case STONE_PICKAXE:
-                case WOODEN_PICKAXE:
-                    return true;
-                default:
-                    return false;
-            }
+            return switch(it.getType()) {
+                case DIAMOND_PICKAXE, GOLDEN_PICKAXE, IRON_PICKAXE, NETHERITE_PICKAXE, STONE_PICKAXE, WOODEN_PICKAXE -> true;
+                default -> false;
+            };
         }
 
         return false;
@@ -97,17 +73,10 @@ public interface AdaptComponent {
 
     default boolean isShovel(ItemStack it) {
         if(isItem(it)) {
-            switch(it.getType()) {
-                case DIAMOND_SHOVEL:
-                case GOLDEN_SHOVEL:
-                case IRON_SHOVEL:
-                case NETHERITE_SHOVEL:
-                case STONE_SHOVEL:
-                case WOODEN_SHOVEL:
-                    return true;
-                default:
-                    return false;
-            }
+            return switch(it.getType()) {
+                case DIAMOND_SHOVEL, GOLDEN_SHOVEL, IRON_SHOVEL, NETHERITE_SHOVEL, STONE_SHOVEL, WOODEN_SHOVEL -> true;
+                default -> false;
+            };
         }
 
         return false;
@@ -115,17 +84,10 @@ public interface AdaptComponent {
 
     default boolean isBoots(ItemStack it) {
         if(isItem(it)) {
-            switch(it.getType()) {
-                case DIAMOND_BOOTS:
-                case GOLDEN_BOOTS:
-                case IRON_BOOTS:
-                case NETHERITE_BOOTS:
-                case CHAINMAIL_BOOTS:
-                case LEATHER_BOOTS:
-                    return true;
-                default:
-                    return false;
-            }
+            return switch(it.getType()) {
+                case DIAMOND_BOOTS, GOLDEN_BOOTS, IRON_BOOTS, NETHERITE_BOOTS, CHAINMAIL_BOOTS, LEATHER_BOOTS -> true;
+                default -> false;
+            };
         }
 
         return false;
@@ -133,18 +95,10 @@ public interface AdaptComponent {
 
     default boolean isHelmet(ItemStack it) {
         if(isItem(it)) {
-            switch(it.getType()) {
-                case CHAINMAIL_HELMET:
-                case DIAMOND_HELMET:
-                case GOLDEN_HELMET:
-                case IRON_HELMET:
-                case LEATHER_HELMET:
-                case NETHERITE_HELMET:
-                case TURTLE_HELMET:
-                    return true;
-                default:
-                    return false;
-            }
+            return switch(it.getType()) {
+                case CHAINMAIL_HELMET, DIAMOND_HELMET, GOLDEN_HELMET, IRON_HELMET, LEATHER_HELMET, NETHERITE_HELMET, TURTLE_HELMET -> true;
+                default -> false;
+            };
         }
 
         return false;
@@ -152,17 +106,10 @@ public interface AdaptComponent {
 
     default boolean isLeggings(ItemStack it) {
         if(isItem(it)) {
-            switch(it.getType()) {
-                case DIAMOND_LEGGINGS:
-                case GOLDEN_LEGGINGS:
-                case IRON_LEGGINGS:
-                case NETHERITE_LEGGINGS:
-                case CHAINMAIL_LEGGINGS:
-                case LEATHER_LEGGINGS:
-                    return true;
-                default:
-                    return false;
-            }
+            return switch(it.getType()) {
+                case DIAMOND_LEGGINGS, GOLDEN_LEGGINGS, IRON_LEGGINGS, NETHERITE_LEGGINGS, CHAINMAIL_LEGGINGS, LEATHER_LEGGINGS -> true;
+                default -> false;
+            };
         }
 
         return false;
@@ -170,17 +117,10 @@ public interface AdaptComponent {
 
     default boolean isChestplate(ItemStack it) {
         if(isItem(it)) {
-            switch(it.getType()) {
-                case DIAMOND_CHESTPLATE:
-                case GOLDEN_CHESTPLATE:
-                case IRON_CHESTPLATE:
-                case NETHERITE_CHESTPLATE:
-                case CHAINMAIL_CHESTPLATE:
-                case LEATHER_CHESTPLATE:
-                    return true;
-                default:
-                    return false;
-            }
+            return switch(it.getType()) {
+                case DIAMOND_CHESTPLATE, GOLDEN_CHESTPLATE, IRON_CHESTPLATE, NETHERITE_CHESTPLATE, CHAINMAIL_CHESTPLATE, LEATHER_CHESTPLATE -> true;
+                default -> false;
+            };
         }
 
         return false;
@@ -188,17 +128,10 @@ public interface AdaptComponent {
 
     default boolean isHoe(ItemStack it) {
         if(isItem(it)) {
-            switch(it.getType()) {
-                case DIAMOND_HOE:
-                case GOLDEN_HOE:
-                case IRON_HOE:
-                case NETHERITE_HOE:
-                case STONE_HOE:
-                case WOODEN_HOE:
-                    return true;
-                default:
-                    return false;
-            }
+            return switch(it.getType()) {
+                case DIAMOND_HOE, GOLDEN_HOE, IRON_HOE, NETHERITE_HOE, STONE_HOE, WOODEN_HOE -> true;
+                default -> false;
+            };
         }
 
         return false;
