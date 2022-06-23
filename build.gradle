@@ -1,60 +1,102 @@
-import org.apache.tools.ant.taskdefs.condition.Os
+/*
+ * Adapt is Copyright (c) 2021 Arcane Arts (Volmit Software)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 plugins {
     id 'java'
-    id "io.freefair.lombok" version "6.1.0"
-    id "com.github.johnrengelman.shadow" version "7.0.0"
+    id 'java-library'
+    id "io.freefair.lombok" version "6.3.0"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "de.undercouch.download" version "5.0.1"
 }
 
-group 'com.volmit'
-version '1.0'
+
+version '1.0-1.19' // Needs to be version specific
+def nmsVersion = "1.19"
+def apiVersion = '1.19'
+def spigotJarVersion = '1.19-R0.1-SNAPSHOT'
+def name = getRootProject().getName() // Defined in settings.gradle
+def main = 'com.volmit.adapt.Adapt'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
-// ==============================================================
-registerCustomOutputTaskWindows('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins');
-registerCustomOutputTaskWindows('Psycho', 'D://Dan/MinecraftDevelopment/Server/plugins');
-registerCustomOutputTaskWindows('PsychoPortable', 'C://Users/brian/Desktop//Remote GIT//RemoteDevServer/plugins');
-registerCustomOutputTaskWindows('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins');
+// ======================== WINDOWS =============================
+registerCustomOutputTask('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins')
+registerCustomOutputTask('Psycho', 'D://Dan/MinecraftDevelopment/server/plugins')
+registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins')
+registerCustomOutputTask('Coco', 'D://Documents/MC/plugins')
+registerCustomOutputTask('Strange', 'D://Servers/1.17 Test Server/plugins')
+registerCustomOutputTask('Vatuu', 'D://Minecraft/Servers/1.19/plugins')
+// ========================== UNIX ==============================
+registerCustomOutputTaskUnix('CyberpwnLT', '/Users/danielmills/development/server/plugins')
+registerCustomOutputTaskUnix('PsychoLT', '/Users/brianfopiano/Desktop/REMOTES/RemoteMinecraft/plugins')
 // ==============================================================
 
-def registerCustomOutputTaskWindows(name, path) {
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        tasks.register('build' + name, Copy) {
-            group('development')
-            outputs.upToDateWhen{false}
-            dependsOn ':shadowJar'
-            from(file('build/libs/Adapt-' + version + '-all.jar'))
-            into(file(path))
-            rename { String fileName ->
-                fileName.replace('Adapt-' + version + '-all.jar', "Adapt.jar")
-            }
-        }
+/**
+ * Gradle is weird sometimes, we need to delete the plugin yml from the build folder to actually filter properly.
+ */
+file(jar.archiveFile.get().getAsFile().getParentFile().getParentFile().getParentFile().getAbsolutePath() + '/build/resources/main/plugin.yml').delete()
+
+/**
+ * Expand properties into plugin yml
+ */
+
+processResources {
+    filesMatching('**/plugin.yml') {
+        expand(
+                'name': name.toString(),
+                'version': version.toString(),
+                'main': main.toString(),
+                'apiversion': apiVersion.toString()
+        )
     }
 }
 
-def registerCustomOutputTaskNix(name, path) {
-    if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
-        tasks.register('build' + name, Copy) {
-            group('development')
-            outputs.upToDateWhen{false}
-            dependsOn ':shadowJar'
-            from(file('build/libs/Adapt-' + version + '-all.jar'))
-            into(file(path))
-            rename { String fileName ->
-                fileName.replace('Adapt-' + version + '-all.jar', "Adapt.jar")
-            }
+repositories {
+    mavenLocal {
+        content {
+            includeGroup("org.bukkit")
+            includeGroup("org.spigotmc")
         }
     }
+    maven { url "https://dl.cloudsmith.io/public/arcane/archive/maven/" }
+    maven { url "https://maven.enginehub.org/repo/" }
+    mavenCentral()
+    mavenLocal()
+    maven { url "https://jitpack.io"}
 }
 
 /**
- * Configure Iris for shading
+ * We need parameter meta for the decree command system
+ */
+compileJava {
+    options.compilerArgs << '-parameters'
+}
+
+/**
+ * Configure Adapt for shading
+ */
+
+/**
+ * Configure Adapt for shading
  */
 shadowJar {
     minimize()
     append("plugin.yml")
-    relocate 'io.papermc.lib', 'com.volmit.iris.util.paper'
-    relocate 'net.kyori', 'com.volmit.iris.util.kyori'
+    relocate 'io.papermc.lib', 'com.volmit.adapt.util.paper'
+    relocate 'net.kyori', 'com.volmit.adapt.util.kyori'
     dependencies {
         include(dependency('io.papermc:paperlib'))
         include(dependency('net.kyori:'))
@@ -68,22 +110,23 @@ configurations.all {
     resolutionStrategy.cacheDynamicVersionsFor 60, 'minutes'
 }
 
-repositories {
-    maven { url "https://dl.cloudsmith.io/public/arcane/archive/maven/" }
-    mavenLocal()
-    mavenCentral()
-}
+
 
 dependencies {
     // Provided or Classpath
-    implementation 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
-    implementation 'org.bukkit.craftbukkit:1.17.1:1.17.1'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    implementation 'org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT'
+    implementation 'me.clip:placeholderapi:2.11.1'
+    implementation 'io.th0rgal:oraxen:1.94.0'
+    implementation 'org.bukkit:craftbukkit:1.19-R0.1-SNAPSHOT:remapped-mojang'
+    implementation 'com.github.LoneDev6:api-itemsadder:3.1.0b'
 
     // Shaded
     implementation 'io.papermc:paperlib:1.0.5'
-    implementation "net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT"
-    implementation "net.kyori:adventure-platform-bukkit:4.0.0"
-    implementation 'net.kyori:adventure-api:4.9.3'
+    implementation "net.kyori:adventure-text-minimessage:4.11.0"
+    implementation 'net.kyori:adventure-platform-bukkit:4.1.0'
+    implementation 'net.kyori:adventure-api:4.11.0'
     implementation 'xyz.xenondevs:particle:1.6.6'
     implementation 'org.cyberpwn:Spatial:21.11.11'
 
@@ -91,4 +134,176 @@ dependencies {
     implementation 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'com.google.code.gson:gson:2.8.9'
+}
+
+if (JavaVersion.current().toString() != "17") {
+    System.err.println()
+    System.err.println("=========================================================================================================")
+    System.err.println("You must run gradle on Java 17. You are using " + JavaVersion.current())
+    System.err.println()
+    System.err.println("=== For IDEs ===")
+    System.err.println("1. Configure the project for Java 17")
+    System.err.println("2. Configure the bundled gradle to use Java 17 in settings")
+    System.err.println()
+    System.err.println("=== For Command Line (gradlew) ===")
+    System.err.println("1. Install JDK 17 from https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html")
+    System.err.println("2. Set JAVA_HOME environment variable to the new jdk installation folder such as C:\\Program Files\\Java\\jdk-17.0.1")
+    System.err.println("3. Open a new command prompt window to get the new environment variables if need be.")
+    System.err.println("=========================================================================================================")
+    System.err.println()
+    System.exit(69);
+}
+
+
+def buildToolsJar = new File(buildDir, "buildtools/BuildTools.jar");
+def specialSourceJar = new File(buildDir, "specialsource/SpecialSource.jar");
+def buildToolsFolder = new File(buildDir, "buildtools");
+def specialSourceFolder = new File(buildDir, "specialsource");
+def buildToolsHint = new File(buildDir, "buildtools/craftbukkit-" + nmsVersion + ".jar");
+def outputShadeJar = new File(buildDir, "libs/Adapt-" + version + "-all.jar");
+def ssiJar = new File(buildDir, "specialsource/Adapt-" + version + "-all.jar");
+def ssobfJar = new File(buildDir, "specialsource/Adapt-" + version + "-rmo.jar");
+def ssJar = new File(buildDir, "specialsource/Adapt-" + version + "-rma.jar");
+def homePath = System.properties['user.home']
+def m2 = new File(homePath + "/.m2/repository")
+def m2s = m2.getAbsolutePath();
+
+// ======================== Building Mapped Jars =============================
+task downloadBuildtools(type: Download) {
+    group "remapping"
+    src 'https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar'
+    dest buildToolsJar
+    onlyIf {
+        !buildToolsJar.exists()
+    }
+}
+
+task downloadSpecialSource(type: Download) {
+    group "remapping"
+    src 'https://repo.maven.apache.org/maven2/net/md-5/SpecialSource/1.10.0/SpecialSource-1.10.0-shaded.jar'
+    dest specialSourceJar
+    onlyIf {
+        !specialSourceJar.exists()
+    }
+}
+
+task executeBuildTools(dependsOn: downloadBuildtools, type: JavaExec)
+{
+    group "remapping"
+    classpath = files(buildToolsJar)
+    workingDir = buildToolsFolder
+    args = [
+            "--rev",
+            nmsVersion,
+            "--compile",
+            "craftbukkit",
+            "--remap"
+    ]
+    onlyIf {
+        !buildToolsHint.exists()
+    }
+}
+
+task copyBuildToSpecialSource(type: Copy)
+{
+    group "remapping"
+    from outputShadeJar
+    into specialSourceFolder
+    dependsOn(downloadSpecialSource, shadowJar)
+}
+
+task specialSourceRemapObfuscate(type: JavaExec)
+{
+    group "remapping"
+    dependsOn(copyBuildToSpecialSource, downloadSpecialSource, shadowJar)
+    workingDir = specialSourceFolder
+    classpath = files(specialSourceJar,
+            new File(m2s + "/org/spigotmc/spigot/" + spigotJarVersion + "/spigot-" + spigotJarVersion + "-remapped-mojang.jar"))
+    mainClass = "net.md_5.specialsource.SpecialSource"
+    args = [
+            "--live",
+            "-i",
+            ssiJar.getName(),
+            "-o",
+            ssobfJar.getName(),
+            "-m",
+            m2s + "/org/spigotmc/minecraft-server/" + spigotJarVersion + "/minecraft-server-" + spigotJarVersion + "-maps-mojang.txt",
+            "--reverse",
+    ]
+}
+
+task specialSourceRemap(type: JavaExec)
+{
+    group "remapping"
+    dependsOn(specialSourceRemapObfuscate)
+    workingDir = specialSourceFolder
+    classpath = files(specialSourceJar,
+            new File(m2s + "/org/spigotmc/spigot/" + spigotJarVersion + "/spigot-" + spigotJarVersion + "-remapped-obf.jar"))
+    mainClass = "net.md_5.specialsource.SpecialSource"
+    args = [
+            "--live",
+            "-i",
+            ssobfJar.getName(),
+            "-o",
+            ssJar.getName(),
+            "-m",
+            m2s + "/org/spigotmc/minecraft-server/" + spigotJarVersion + "/minecraft-server-" + spigotJarVersion + "-maps-spigot.csrg"
+    ]
+}
+
+tasks.compileJava.dependsOn(executeBuildTools)
+
+compileJava {
+    options.encoding = "UTF-8"
+}
+
+task setup()
+{
+    group("adapt")
+    dependsOn(clean, executeBuildTools)
+}
+
+task adapt(type: Copy)
+{
+    group "adapt"
+    from ssJar
+    into buildDir
+    rename { String fileName ->
+        fileName.replace('Adapt-' + version + '-rma.jar', "Adapt-" + version + ".jar")
+    }
+    dependsOn(specialSourceRemap)
+}
+
+def registerCustomOutputTask(name, path) {
+    if (!System.properties['os.name'].toLowerCase().contains('windows')) {
+        return;
+    }
+
+    tasks.register('build' + name, Copy) {
+        group('development')
+        outputs.upToDateWhen { false }
+        dependsOn(adapt)
+        from(new File(buildDir, "Adapt-" + version + ".jar"))
+        into(file(path))
+        rename { String fileName ->
+            fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
+        }
+    }
+}
+
+def registerCustomOutputTaskUnix(name, path) {
+    if (System.properties['os.name'].toLowerCase().contains('windows')) {
+        return;
+    }
+
+    tasks.register('build' + name, Copy) {
+        group('development')
+        outputs.upToDateWhen { false }
+        dependsOn(adapt)
+        from(new File(buildDir, "Adapt-" + version + ".jar"))
+        into(file(path))
+        rename { String fileName ->
+            fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
+        }
+    }
 }
