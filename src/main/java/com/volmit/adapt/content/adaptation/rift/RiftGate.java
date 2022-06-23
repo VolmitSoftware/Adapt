@@ -19,6 +19,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+
 public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     public RiftGate() {
         super("rift-gate");
@@ -33,7 +34,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         registerRecipe(AdaptRecipe.shapeless()
             .key("rift-gate")
             .ingredient(Material.ENDER_PEARL)
-            .ingredient(Material.AMETHYST_SHARD)
+                .ingredient(Material.AMETHYST_SHARD)
+                .ingredient(Material.EMERALD)
             .result(BoundEyeOfEnder.io.withData(new BoundEyeOfEnder.Data(null)))
             .build());
     }
@@ -90,6 +92,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     }
 
 
+
     private void openEye(Player p) {
         Location l = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
         ItemStack hand = p.getInventory().getItemInMainHand();
@@ -103,8 +106,9 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
         // port animation
 
-        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 1, true, false, false));
-        p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 80, 0, true, false, false));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 85, 0));
+//        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
         p.playSound(l, Sound.BLOCK_LODESTONE_PLACE, 100f, 0.1f);
         p.playSound(l, Sound.BLOCK_BELL_RESONATE, 100f, 0.1f);
         J.a(() -> {
@@ -125,9 +129,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             vfxLevelUp(p);
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
 
-            J.s(() -> {
-                p.teleport(l);
-            });
+            J.s(() -> p.teleport(l));
         });
 
     }

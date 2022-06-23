@@ -72,8 +72,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         }
 
 
-
         if (hasAdaptation(e.getPlayer()) && p.isSprinting()) {
+
             lastJump.put(p, M.ms());
             e.setCancelled(true);
             Location loc = p.getLocation().clone();
@@ -94,9 +94,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             }
             vfxLevelUp(p);
             p.teleport(loc.add(0, 1, 0));
-            p.damage(2);
+            p.setSprinting(true);
+            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 1.0f);
             vfxLevelUp(p);
-            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f, 1.0f);
+
         }
     }
 
@@ -137,7 +138,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         double costFactor = 1;
         int maxLevel = 5;
         int initialCost = 5;
-        double baseDistance = 5;
+        double baseDistance = 6;
         double distanceFactor = 5;
     }
 }
