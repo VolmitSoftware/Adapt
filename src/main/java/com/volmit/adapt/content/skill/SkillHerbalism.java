@@ -37,11 +37,11 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         registerAdaptation(new HerbalismReplant());
         registerAdaptation(new HerbalismHungryShield());
 
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_100").goal(100).stat("food.eaten").reward(getConfig().challengeEat100Reward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_1000").goal(1000).stat("food.eaten").reward(getConfig().challengeEat1kReward).build());
-
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_100").goal(100).stat("harvest.blocks").reward(getConfig().challengeHarvest100Reward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(getConfig().challengeHarvest1kReward).build());
+//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_100").goal(100).stat("food.eaten").reward(getConfig().challengeEat100Reward).build());
+//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_1000").goal(1000).stat("food.eaten").reward(getConfig().challengeEat1kReward).build());
+//
+//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_100").goal(100).stat("harvest.blocks").reward(getConfig().challengeHarvest100Reward).build());
+//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(getConfig().challengeHarvest1kReward).build());
     }
 
     @EventHandler
@@ -136,9 +136,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         double composterBaseXP = 51;
         double composterLevelXPMultiplier = 3;
         double composterNonZeroLevelBonus = 250;
-        double challengeEat100Reward = 1250;
-        double challengeEat1kReward = 6250;
-        double challengeHarvest100Reward = 1250;
-        double challengeHarvest1kReward = 6250;
+//        double challengeEat100Reward = 1250;
+//        double challengeEat1kReward = 6250;
+//        double challengeHarvest100Reward = 1250;
+//        double challengeHarvest1kReward = 6250;
     }
 }

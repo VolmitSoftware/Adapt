@@ -45,8 +45,6 @@ public interface Skill<T> extends Ticked, Component {
 
     KList<AdaptRecipe> getRecipes();
 
-    String getAdvancementBackground();
-
     void registerAdaptation(Adaptation<?> a);
 
     void registerStatTracker(AdaptStatTracker tracker);

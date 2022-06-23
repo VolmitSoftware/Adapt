@@ -27,7 +27,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         setInterval(3700);
         setIcon(Material.STRING);
         registerAdaptation(new CraftingDeconstruction());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_3k").goal(3000).stat("crafted.items").reward(getConfig().challengeCraft3kReward).build());
+//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_3k").goal(3000).stat("crafted.items").reward(getConfig().challengeCraft3kReward).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -134,6 +134,6 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         long furnaceXPDuration = 10000;
         double craftingValueXPMultiplier = 1;
         double baseCraftingXP = 1;
-        double challengeCraft3kReward = 4750;
+//        double challengeCraft3kReward = 4750;
     }
 }

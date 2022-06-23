@@ -23,7 +23,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         registerAdaptation(new StealthSpeed());
         registerAdaptation(new StealthSnatch());
 
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sneak_1k").goal(1000).stat("move.sneak").reward(getConfig().challengeSneak1kReward).build());
+//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sneak_1k").goal(1000).stat("move.sneak").reward(getConfig().challengeSneak1kReward).build());
     }
 
     @Override
@@ -43,7 +43,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double challengeSneak1kReward = 750;
+//        double challengeSneak1kReward = 750;
         double sneakXP = 15.48;
     }
 }

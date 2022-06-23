@@ -7,7 +7,6 @@ import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.advancement.AdvancementDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -21,7 +20,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         setDescription("Structures of reality are yours to control");
         setInterval(3700);
         setIcon(Material.IRON_BARS);
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
+//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
     }
 
     @EventHandler
@@ -52,7 +51,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double challengePlace1kReward = 1750;
+//        double challengePlace1kReward = 1750;
         double xpValueMultiplier = 1;
         double xpBase = 3;
     }

@@ -19,7 +19,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         setIcon(Material.TRIDENT);
         registerAdaptation(new SeaborneOxygen());
 
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_1nm").goal(1852).stat("move.swim").reward(getConfig().challengeSwim1nmReward).build());
+//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_1nm").goal(1852).stat("move.swim").reward(getConfig().challengeSwim1nmReward).build());
     }
 
     @Override
@@ -40,7 +40,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double challengeSwim1nmReward = 750;
+//        double challengeSwim1nmReward = 750;
         double swimXP = 19.7;
     }
 }
