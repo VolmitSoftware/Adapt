@@ -3,7 +3,6 @@ package com.volmit.adapt.api.skill;
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.Adaptation;
-import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -12,7 +11,6 @@ import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.KList;
-import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
@@ -33,7 +31,6 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     @EqualsAndHashCode.Exclude
     private KList<Adaptation<?>> adaptations;
     private KList<AdaptStatTracker> statTrackers;
-    private KList<AdaptAdvancement> cachedAdvancements;
     private String advancementBackground;
     private KList<AdaptRecipe> recipes;
     private Class<T> configType;
@@ -43,7 +40,6 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         super("skill", UUID.randomUUID() + "-skill-" + name, 50);
         statTrackers = new KList<>();
         recipes = new KList<>();
-        cachedAdvancements = new KList<>();
         this.emojiName = emojiName;
         adaptations = new KList<>();
         setColor(C.WHITE);
@@ -106,33 +102,6 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         recipes.add(r);
     }
 
-    public void registerAdvancement(AdaptAdvancement a) {
-        cachedAdvancements.add(a);
-    }
-
-    @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
-        advancements.addAll(cachedAdvancements);
-    }
-
-    public AdaptAdvancement buildAdvancements() {
-        KList<AdaptAdvancement> a = new KList<>();
-        onRegisterAdvancements(a);
-
-        for(Adaptation<?> i : getAdaptations()) {
-            a.add(i.buildAdvancements());
-        }
-
-        return AdaptAdvancement.builder()
-            .background(getAdvancementBackground())
-            .key("skill_" + getName())
-            .title(getDisplayName())
-            .description(getDescription())
-            .icon(getIcon())
-            .children(a)
-            .visibility(AdvancementVisibility.HIDDEN)
-            .build();
-    }
 
     @Override
     public void registerStatTracker(AdaptStatTracker tracker) {
