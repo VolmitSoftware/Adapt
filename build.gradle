@@ -151,22 +151,22 @@ if (JavaVersion.current().toString() != "17") {
     System.err.println("3. Open a new command prompt window to get the new environment variables if need be.")
     System.err.println("=========================================================================================================")
     System.err.println()
-    System.exit(69);
+    System.exit(69)
 }
 
 
-def buildToolsJar = new File(buildDir, "buildtools/BuildTools.jar");
-def specialSourceJar = new File(buildDir, "specialsource/SpecialSource.jar");
-def buildToolsFolder = new File(buildDir, "buildtools");
-def specialSourceFolder = new File(buildDir, "specialsource");
-def buildToolsHint = new File(buildDir, "buildtools/craftbukkit-" + nmsVersion + ".jar");
-def outputShadeJar = new File(buildDir, "libs/Adapt-" + version + "-all.jar");
-def ssiJar = new File(buildDir, "specialsource/Adapt-" + version + "-all.jar");
-def ssobfJar = new File(buildDir, "specialsource/Adapt-" + version + "-rmo.jar");
-def ssJar = new File(buildDir, "specialsource/Adapt-" + version + "-rma.jar");
+def buildToolsJar = new File(buildDir, "buildtools/BuildTools.jar")
+def specialSourceJar = new File(buildDir, "specialsource/SpecialSource.jar")
+def buildToolsFolder = new File(buildDir, "buildtools")
+def specialSourceFolder = new File(buildDir, "specialsource")
+def buildToolsHint = new File(buildDir, "buildtools/craftbukkit-" + nmsVersion + ".jar")
+def outputShadeJar = new File(buildDir, "libs/Adapt-" + version + "-all.jar")
+def ssiJar = new File(buildDir, "specialsource/Adapt-" + version + "-all.jar")
+def ssobfJar = new File(buildDir, "specialsource/Adapt-" + version + "-rmo.jar")
+def ssJar = new File(buildDir, "specialsource/Adapt-" + version + "-rma.jar")
 def homePath = System.properties['user.home']
 def m2 = new File(homePath + "/.m2/repository")
-def m2s = m2.getAbsolutePath();
+def m2s = m2.getAbsolutePath()
 
 // ======================== Building Mapped Jars =============================
 task downloadBuildtools(type: Download) {
@@ -276,7 +276,7 @@ task adapt(type: Copy)
 
 def registerCustomOutputTask(name, path) {
     if (!System.properties['os.name'].toLowerCase().contains('windows')) {
-        return;
+        return
     }
 
     tasks.register('build' + name, Copy) {
@@ -293,7 +293,7 @@ def registerCustomOutputTask(name, path) {
 
 def registerCustomOutputTaskUnix(name, path) {
     if (System.properties['os.name'].toLowerCase().contains('windows')) {
-        return;
+        return
     }
 
     tasks.register('build' + name, Copy) {
