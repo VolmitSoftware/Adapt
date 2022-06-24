@@ -30,6 +30,7 @@ public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
 
     @Override
     public void applyLore(Data data, List<String> lore) {
+        lore.add(C.WHITE + "Ocular Anchor");
         lore.add(C.LIGHT_PURPLE + "Right Click " + C.GRAY + "to consume and teleport");
         lore.add(C.LIGHT_PURPLE + "Shift + Left Click " + C.GRAY + "to bind/unbind");
     }
@@ -37,7 +38,7 @@ public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE);
         meta.setDisplayName("Ocular Anchor");
     }
 

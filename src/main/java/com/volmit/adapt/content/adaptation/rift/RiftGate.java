@@ -14,6 +14,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -52,7 +53,16 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
+        if(hand.getItemMeta() == null || !hasAdaptation(p) ) {
+            return;
+        }
+        if (!hand.getItemMeta().getLore().contains("Ocular Anchor") && !hand.getType().equals(Material.ENDER_EYE)) {
+            return;
+        }
+        p.sendMessage("333");
+
         Location location = null;
+
 
         if(e.getClickedBlock() == null) {
             location = e.getPlayer().getLocation();
@@ -63,14 +73,14 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
                 e.getClickedBlock().getLocation().getY() + 1,
                 e.getClickedBlock().getLocation().getZ() + 0.5);
         }
+        p.sendMessage("2");
 
-        if(!hasAdaptation(p) || (!hand.getType().equals(Material.ENDER_EYE) || !isBound(hand))) {
-            return;
-        }
+
         e.setCancelled(true);
 
         switch(e.getAction()) {
             case LEFT_CLICK_BLOCK -> {
+                p.sendMessage("1");
                 if(p.isSneaking()) {
                     linkEye(p, location);
                 }
@@ -105,7 +115,6 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         }
 
 
-//        p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 85, 10, true, false, false));
         p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
         p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
         p.playSound(l, Sound.BLOCK_LODESTONE_PLACE, 100f, 0.1f);
