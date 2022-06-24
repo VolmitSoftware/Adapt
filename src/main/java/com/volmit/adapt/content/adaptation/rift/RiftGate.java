@@ -64,7 +64,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
                 e.getClickedBlock().getLocation().getZ() + 0.5);
         }
 
-        if(!hasAdaptation(p) || (!hand.getType().equals(Material.ENDER_EYE) && !isBound(hand))) {
+        if(!hasAdaptation(p) || (!hand.getType().equals(Material.ENDER_EYE) || !isBound(hand))) {
             return;
         }
         e.setCancelled(true);
@@ -104,10 +104,9 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             p.getInventory().setItemInMainHand(null);
         }
 
-        // port animation
 
-        p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 85, 0));
-//        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
+//        p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 85, 10, true, false, false));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
         p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
         p.playSound(l, Sound.BLOCK_LODESTONE_PLACE, 100f, 0.1f);
         p.playSound(l, Sound.BLOCK_BELL_RESONATE, 100f, 0.1f);
@@ -135,7 +134,11 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     }
 
     private boolean isBound(ItemStack stack) {
-        return stack.getType().equals(Material.ENDER_EYE) && BoundEyeOfEnder.getLocation(stack) != null;
+        if (stack.getType().equals(Material.ENDER_EYE) && BoundEyeOfEnder.getLocation(stack) != null) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 

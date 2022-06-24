@@ -1,10 +1,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.content.adaptation.rift.RiftAccess;
-import com.volmit.adapt.content.adaptation.rift.RiftBlink;
-import com.volmit.adapt.content.adaptation.rift.RiftGate;
-import com.volmit.adapt.content.adaptation.rift.RiftStorage;
+import com.volmit.adapt.content.adaptation.rift.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
@@ -36,10 +33,12 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         setColor(C.DARK_PURPLE);
         setInterval(1154);
         setIcon(Material.ENDER_EYE);
+        registerAdaptation(new RiftResist());
         registerAdaptation(new RiftAccess());
-        registerAdaptation(new RiftStorage());
+        registerAdaptation(new RiftEnderchest());
         registerAdaptation(new RiftGate());
         registerAdaptation(new RiftBlink());
+        registerAdaptation(new RiftAstralKey());
     }
 
     @EventHandler

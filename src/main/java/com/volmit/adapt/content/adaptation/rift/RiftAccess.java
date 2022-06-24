@@ -67,6 +67,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         if(!hasAdaptation(p) || !hand.hasItemMeta() || !handMeta.getLore().get(0).equals(C.UNDERLINE + "Portkey")) {
             return;
         }
+
         switch(e.getAction()) {
             case LEFT_CLICK_BLOCK, RIGHT_CLICK_BLOCK -> {
                 if(isStorage(block.getBlockData())) { // Ensure its a container

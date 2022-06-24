@@ -15,30 +15,33 @@ import java.util.List;
 
 @AllArgsConstructor
 @Data
-public class BoundDoor implements DataItem<BoundDoor.Data> {
-    public static BoundDoor io = new BoundDoor();
+public class BoundRiftKey implements DataItem<BoundRiftKey.Data> {
+    public static BoundRiftKey io = new BoundRiftKey();
 
     @Override
     public Material getMaterial() {
-        return Material.ENDER_EYE;
+        return Material.TRIPWIRE_HOOK;
     }
 
     @Override
     public Class<Data> getType() {
-        return BoundDoor.Data.class;
+        return BoundRiftKey.Data.class;
     }
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.LIGHT_PURPLE + "Right Click " + C.GRAY + "to consume and teleport");
-        lore.add(C.LIGHT_PURPLE + "Shift + Left Click " + C.GRAY + "to bind/unbind");
+        lore.add(0, C.LIGHT_PURPLE + "You know what  " + C.GRAY + "to do");
+        lore.add(1, "null");
+        lore.add(2, "null");
+        lore.add(3, "Astral Key");
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName("Ocular Anchor");
+        meta.setDisplayName("Astral Key");
+
     }
 
     public static Location getLocation(ItemStack stack) {
@@ -51,7 +54,7 @@ public class BoundDoor implements DataItem<BoundDoor.Data> {
 
 
     public static void setData(ItemStack item, Location t) {
-        io.setData(item, new BoundDoor.Data(t));
+        io.setData(item, new BoundRiftKey.Data(t));
     }
 
 
@@ -63,9 +66,8 @@ public class BoundDoor implements DataItem<BoundDoor.Data> {
     @lombok.Data
     public static class Data {
         private Location location;
-
-        public static BoundDoor.Data at(Location l) {
-            return new BoundDoor.Data(l);
+        public static BoundRiftKey.Data at(Location l) {
+            return new BoundRiftKey.Data(l);
         }
     }
 }

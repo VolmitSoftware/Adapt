@@ -41,6 +41,7 @@ public interface DataItem<T> {
         item.setItemMeta(withData(t).getItemMeta());
     }
 
+
     default ItemStack withData(T t) {
         ItemStack item = blank();
         ItemMeta meta = item.getItemMeta();

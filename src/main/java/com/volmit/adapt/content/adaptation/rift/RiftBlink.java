@@ -1,10 +1,7 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.KMap;
-import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -13,6 +10,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
@@ -45,7 +43,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " Blocks on blink");
-        v.addLore(C.ITALIC + "Double tap Jump (like flying) to activate it");
+        v.addLore(C.ITALIC + "While Sprinting: Double tap Jump to " + C.DARK_PURPLE + "Blink");
     }
 
 
@@ -57,11 +55,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     @EventHandler
     public void on(PlayerToggleFlightEvent e) { // not trying to do this :(
         Player p = e.getPlayer();
-        if(p.isSneaking() || p.isFlying() || !p.getGameMode().equals(GameMode.SURVIVAL)){
-
-        }
-
-        if (!hasAdaptation(e.getPlayer()) || p.getGameMode().equals(GameMode.CREATIVE)) {
+        if (!hasAdaptation(e.getPlayer()) || !p.getGameMode().equals(GameMode.SURVIVAL)) {
             return;
         } else {
             e.setCancelled(true);
@@ -75,7 +69,6 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         if (hasAdaptation(e.getPlayer()) && p.isSprinting()) {
 
             lastJump.put(p, M.ms());
-            e.setCancelled(true);
             Location loc = p.getLocation().clone();
             Vector dir = loc.getDirection();
             double dist = getBlinkDistance(getLevel(p));
@@ -93,8 +86,14 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                 return;
             }
             vfxLevelUp(p);
+            Vector v = p.getVelocity().clone().multiply(3);
+
             p.teleport(loc.add(0, 1, 0));
-            p.setSprinting(true);
+            J.a(() -> {
+                try {Thread.sleep(15);} catch (InterruptedException ex) {throw new RuntimeException(ex);}
+                p.setVelocity(v);
+            });
+
             p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 1.0f);
             vfxLevelUp(p);
 
@@ -106,16 +105,15 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     }
 
     @EventHandler
-    public void on(PlayerToggleSprintEvent e) {
+    public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-
-        if(p.getGameMode().equals(GameMode.CREATIVE)){
+        if(hasAdaptation(e.getPlayer()) && !p.getGameMode().equals(GameMode.SURVIVAL)){
             return;
         }
 
-        if (hasAdaptation(e.getPlayer()) && !e.getPlayer().isSprinting()) {// Are sprinting
+        if (e.getPlayer().getFallDistance() < 4.5 && e.getPlayer().isSprinting()) {
             p.setAllowFlight(true);
-        } else if (hasAdaptation(e.getPlayer()) && e.getPlayer().isSprinting()) {
+        } else {
             p.setAllowFlight(false);
         }
     }

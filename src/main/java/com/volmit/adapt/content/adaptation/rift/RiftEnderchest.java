@@ -1,6 +1,5 @@
 package com.volmit.adapt.content.adaptation.rift;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -15,9 +14,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 
-public class RiftStorage extends SimpleAdaptation<RiftStorage.Config> {
-    public RiftStorage() {
-        super("storage");
+public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
+    public RiftEnderchest() {
+        super("rift-enderchest");
         setDescription("Open an enderchest by clicking");
         setIcon(Material.ENDER_CHEST);
         setBaseCost(0);
@@ -40,7 +39,6 @@ public class RiftStorage extends SimpleAdaptation<RiftStorage.Config> {
                 && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
                 || e.getAction().equals(Action.LEFT_CLICK_AIR)
                 || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
-                Adapt.info("Opened Enderchest");
                 Player p = e.getPlayer();
 
                 p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
