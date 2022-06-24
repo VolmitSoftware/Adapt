@@ -3,18 +3,18 @@ package com.volmit.adapt.content.adaptation.rift;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
-import org.bukkit.event.player.PlayerToggleSprintEvent;
+
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
 
 public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
@@ -53,7 +53,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     }
 
     @EventHandler
-    public void on(PlayerToggleFlightEvent e) { // not trying to do this :(
+    public void on(PlayerToggleFlightEvent e) {
         Player p = e.getPlayer();
         if (!hasAdaptation(e.getPlayer()) || !p.getGameMode().equals(GameMode.SURVIVAL)) {
             return;
@@ -70,6 +70,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
             lastJump.put(p, M.ms());
             Location loc = p.getLocation().clone();
+            Location locOG = p.getLocation().clone();
             Vector dir = loc.getDirection();
             double dist = getBlinkDistance(getLevel(p));
             dir.multiply(dist);
@@ -89,6 +90,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             Vector v = p.getVelocity().clone().multiply(3);
 
             p.teleport(loc.add(0, 1, 0));
+            particleLine(locOG, loc, Particle.END_ROD, 50, 4, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
+
             J.a(() -> {
                 try {Thread.sleep(15);} catch (InterruptedException ex) {throw new RuntimeException(ex);}
                 p.setVelocity(v);
@@ -117,6 +120,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             p.setAllowFlight(false);
         }
     }
+
 
 
     @Override

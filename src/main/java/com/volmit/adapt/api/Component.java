@@ -20,6 +20,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
+import java.util.function.Predicate;
+
 public interface Component {
     default void wisdom(Player p, long w) {
         XP.wisdom(p, w);
@@ -137,6 +140,24 @@ public interface Component {
         double l = v.length();
         v.normalize();
         from.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, to, 1, 6, 6, 6, 0.6);
+    }
+
+    default void particleLine(Location start, Location end, Particle particle, int pointsPerLine, int particleCount, double offsetX, double offsetY, double offsetZ, double extra, @Nullable Double data, boolean forceDisplay,
+                                       @Nullable Predicate<Location> operationPerPoint) {
+        double d = start.distance(end) / pointsPerLine;
+        for (int i = 0; i < pointsPerLine; i++) {
+            Location l = start.clone();
+            Vector direction = end.toVector().subtract(start.toVector()).normalize();
+            Vector v = direction.multiply(i * d);
+            l.add(v.getX(), v.getY(), v.getZ());
+            if (operationPerPoint == null) {
+                start.getWorld().spawnParticle(particle, l, particleCount, offsetX, offsetY, offsetZ, extra, data, forceDisplay);
+                continue;
+            }
+            if (operationPerPoint.test(l)) {
+                start.getWorld().spawnParticle(particle, l, particleCount, offsetX, offsetY, offsetZ, extra, data, forceDisplay);
+            }
+        }
     }
 
     default void vfxLevelUp(Player p) {

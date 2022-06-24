@@ -8,7 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.Action;
+
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -39,17 +39,42 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
-        if (!hasAdaptation(p) && hand.getData() != null) {
+        if (!hasAdaptation(p)) {
             return;
         }
-        if (hand.getData().getItemType().toString().toLowerCase().contains("ender")  && (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK))) {
 
-            if (!e.getPlayer().hasCooldown(Material.ENDER_PEARL) && (hand.getData().getItemType().equals(Material.ENDER_PEARL) || hand.getData().getItemType().equals(Material.ENDER_EYE) || hand.getData().getItemType().equals(Material.ENDERMAN_SPAWN_EGG) || hand.getData().getItemType().equals(Material.ENDERMITE_SPAWN_EGG))) {
-                p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 0.01f);
-                p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 80, 10, true, false, false));
+        switch(e.getAction()) {
+            case RIGHT_CLICK_AIR -> {
+                switch (hand.getType()){
+                    case ENDER_EYE, ENDER_PEARL -> {
+                        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
+                        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1000f, 0.01f);
+                        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1000f, 0.01f);
+                        p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 80, 10, true, false, false));
+                    }
+                }
+            }
+            case RIGHT_CLICK_BLOCK -> {
+                switch (e.getClickedBlock().getType()){
+                    case ENDER_CHEST -> {
+                        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
+                        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1000f, 0.01f);
+                        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1000f, 0.01f);
+                        p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 80, 1, true, false, false));
+                    }
+                }
+                switch (hand.getType()){
+                    case ENDER_EYE, ENDER_PEARL -> {
+                        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
+                        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1000f, 0.01f);
+                        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1000f, 0.01f);
+                        p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 80, 10, true, false, false));
+                    }
+                }
             }
         }
+
+
     }
 
 

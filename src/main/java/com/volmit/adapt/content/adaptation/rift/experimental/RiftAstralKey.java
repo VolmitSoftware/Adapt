@@ -1,8 +1,7 @@
-package com.volmit.adapt.content.adaptation.rift;
+package com.volmit.adapt.content.adaptation.rift.experimental;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
-import com.volmit.adapt.content.item.BoundEyeOfEnder;
 import com.volmit.adapt.content.item.BoundRiftKey;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;

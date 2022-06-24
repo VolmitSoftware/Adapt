@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.rift.*;
+import com.volmit.adapt.content.adaptation.rift.experimental.RiftAstralKey;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
@@ -38,12 +39,11 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         registerAdaptation(new RiftEnderchest());
         registerAdaptation(new RiftGate());
         registerAdaptation(new RiftBlink());
-        registerAdaptation(new RiftAstralKey());
     }
 
     @EventHandler
     public void on(PlayerTeleportEvent e) {
-        if(getPlayer(e.getPlayer()).hasSkill(this) && e.getFrom().getWorld() != e.getTo().getWorld() && !lasttp.containsKey(e.getPlayer())) {
+        if(getPlayer(e.getPlayer()).hasSkill(this) && e.getFrom().getWorld() != e.getPlayer().getWorld() && !lasttp.containsKey(e.getPlayer())) {
             xpSilent(e.getPlayer(), getConfig().teleportXP);
             lasttp.put(e.getPlayer(), M.ms());
         }
