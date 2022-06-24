@@ -6,7 +6,6 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.MaterialBlock;
 import com.volmit.adapt.util.UIElement;
 import com.volmit.adapt.util.UIWindow;
@@ -25,7 +24,7 @@ public class SkillsGui {
         for(PlayerSkillLine i : a.getData().getSkillLines().sortV()) {
             int pos = w.getPosition(ind);
             int row = w.getRow(ind);
-            Skill sk = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(i.getLine());
+            Skill<?> sk = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(i.getLine());
             w.setElement(pos, row, new UIElement("skill-" + sk.getName())
                 .setMaterial(new MaterialBlock(sk.getIcon()))
                 .setName(sk.getDisplayName(i.getLevel()))

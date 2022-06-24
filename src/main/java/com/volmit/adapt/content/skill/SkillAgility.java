@@ -68,6 +68,6 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
 //        double challengeMove1kReward = 500;
 //        double challengeSprint5kReward = 2000;
 //        double challengeSprintMarathonReward = 6500;
-        double sprintXpPassive = 1;
+        double sprintXpPassive = 1.25;
     }
 }

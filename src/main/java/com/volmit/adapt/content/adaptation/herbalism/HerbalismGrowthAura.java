@@ -61,7 +61,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                         Ageable ab = (Ageable) a.getBlockData();
                         if(ab.getMaximumAge() > ab.getAge()) {
                             J.s(() -> {
-                                ab.setAge(ab.getAge() + 1);
+                                ab.setAge(ab.getMaximumAge());
                                 a.setBlockData(ab, true);
                                 a.getWorld().playSound(a.getLocation(), Sound.ITEM_CROP_PLANT, 1f, 1.25f);
                                 p.spawnParticle(Particle.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 9, 0.3, 0.3, 0.3, 0.9);
@@ -87,7 +87,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         int maxLevel = 3;
         int initialCost = 12;
         double costFactor = 0.325;
-        double radiusFactor = 8;
-        double strengthExponent = 1.77;
+        double radiusFactor = 9;
+        double strengthExponent = 5.77;
     }
 }

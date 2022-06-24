@@ -10,11 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
-
 import org.bukkit.util.Vector;
-
-import javax.annotation.Nullable;
-import java.util.function.Predicate;
 
 
 public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
@@ -42,7 +38,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " Blocks on blink");
+        v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " Blocks on blink (2x Vertical)");
         v.addLore(C.ITALIC + "While Sprinting: Double tap Jump to " + C.DARK_PURPLE + "Blink");
     }
 
@@ -55,51 +51,55 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     @EventHandler
     public void on(PlayerToggleFlightEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(e.getPlayer()) || !p.getGameMode().equals(GameMode.SURVIVAL)) {
-            return;
-        } else {
+        if (hasAdaptation(e.getPlayer()) && p.getGameMode().equals(GameMode.SURVIVAL)) {
             e.setCancelled(true);
-        }
-
-        if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
-            return;
-        }
 
 
-        if (hasAdaptation(e.getPlayer()) && p.isSprinting()) {
-
-            lastJump.put(p, M.ms());
-            Location loc = p.getLocation().clone();
-            Location locOG = p.getLocation().clone();
-            Vector dir = loc.getDirection();
-            double dist = getBlinkDistance(getLevel(p));
-            dir.multiply(dist);
-            loc.add(dir);
-            double cd = dist * 2;
-            loc.subtract(0, dist, 0);
-
-            while (!isSafe(loc) && cd-- > 0) {
-                loc.add(0, 1, 0);
-            }
-
-            if (!isSafe(loc)) {
-                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
+            if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
                 return;
             }
-            vfxLevelUp(p);
-            Vector v = p.getVelocity().clone().multiply(3);
 
-            p.teleport(loc.add(0, 1, 0));
-            particleLine(locOG, loc, Particle.END_ROD, 50, 4, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
 
-            J.a(() -> {
-                try {Thread.sleep(15);} catch (InterruptedException ex) {throw new RuntimeException(ex);}
-                p.setVelocity(v);
-            });
+            if (hasAdaptation(e.getPlayer()) && p.isSprinting()) {
 
-            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 1.0f);
-            vfxLevelUp(p);
+                lastJump.put(p, M.ms());
+                Location loc = p.getLocation().clone();
+                Location locOG = p.getLocation().clone();
+                Vector dir = loc.getDirection();
+                p.sendMessage(getBlinkDistance(getLevel(p)) + "");
+                double dist = getBlinkDistance(getLevel(p));
+                dir.multiply(dist);
+                loc.add(dir);
+                double cd = dist * 2;
+                loc.subtract(0, dist, 0);
 
+                while (!isSafe(loc) && cd-- > 0) {
+                    loc.add(0, 1, 0);
+                }
+
+                if (!isSafe(loc)) {
+                    p.getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
+                    return;
+                }
+                vfxLevelUp(p);
+                Vector v = p.getVelocity().clone().multiply(3);
+
+                p.teleport(loc.add(0, 1, 0));
+                particleLine(locOG, loc, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
+
+                J.a(() -> {
+                    try {
+                        Thread.sleep(15);
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    p.setVelocity(v);
+                });
+
+                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 1.0f);
+                vfxLevelUp(p);
+
+            }
         }
     }
 
@@ -110,17 +110,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     @EventHandler
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-        if(hasAdaptation(e.getPlayer()) && !p.getGameMode().equals(GameMode.SURVIVAL)){
-            return;
-        }
-
-        if (e.getPlayer().getFallDistance() < 4.5 && e.getPlayer().isSprinting()) {
-            p.setAllowFlight(true);
-        } else {
-            p.setAllowFlight(false);
+        if (hasAdaptation(e.getPlayer()) && p.getGameMode().equals(GameMode.SURVIVAL)) {
+            p.setAllowFlight(e.getPlayer().getFallDistance() < 4.5 && e.getPlayer().isSprinting());
         }
     }
-
 
 
     @Override

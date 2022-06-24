@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.content.adaptation.enchanting.EnchantingLapisReturn;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingQuickEnchant;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         setInterval(3700);
         setIcon(Material.KNOWLEDGE_BOOK);
         registerAdaptation(new EnchantingQuickEnchant());
+        registerAdaptation(new EnchantingLapisReturn());
     }
 
     @EventHandler
@@ -40,6 +42,6 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double enchantPowerXPMultiplier = 680;
+        double enchantPowerXPMultiplier = 250;
     }
 }

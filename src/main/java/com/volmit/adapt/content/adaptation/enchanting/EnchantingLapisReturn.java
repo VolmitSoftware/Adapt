@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisReturn.Config> {
 
@@ -23,13 +24,9 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         setCostFactor(getConfig().costFactor);
     }
 
-    private int getTotalLevelCount(int level) {
-        return level + (level > getConfig().maxPowerBonusLimit ? level / getConfig().maxPowerBonus1PerLevels : 0);
-    }
-
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getTotalLevelCount(level) + C.GRAY + " Max Combined Levels");
+        v.addLore(C.GREEN + "For every level, it increases the cost of \nenchanting, by 1, but can return upwards of 3 Lapis");
     }
 
     @EventHandler
@@ -38,8 +35,15 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         if (!hasAdaptation(p)) {
             return;
         }
-
         int xp = e.getExpLevelCost();
+        xp = xp + getLevel(p); // Add a level for each enchant
+        e.setExpLevelCost(xp);
+        int lapis = (int) (Math.random() * 1);
+        p.sendMessage(lapis + ": Pre");
+        lapis =  lapis + (int) (Math.random() * (getLevel(p) +1));
+        p.sendMessage(lapis + ": Post");
+        p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, lapis));
+
 
     }
 
@@ -56,11 +60,9 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        int baseCost = 6;
+        int baseCost = 1;
         int maxLevel = 7;
-        int initialCost = 8;
-        double costFactor = 1.355;
-        int maxPowerBonusLimit = 4;
-        int maxPowerBonus1PerLevels = 3;
+        int initialCost = 2;
+        double costFactor = 1.25;
     }
 }
