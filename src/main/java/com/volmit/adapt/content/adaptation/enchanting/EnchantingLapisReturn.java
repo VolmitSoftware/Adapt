@@ -39,9 +39,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         xp = xp + getLevel(p); // Add a level for each enchant
         e.setExpLevelCost(xp);
         int lapis = (int) (Math.random() * 1);
-        p.sendMessage(lapis + ": Pre");
         lapis =  lapis + (int) (Math.random() * (getLevel(p) +1));
-        p.sendMessage(lapis + ": Post");
         p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, lapis));
 
 

@@ -66,7 +66,6 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                 Location loc = p.getLocation().clone();
                 Location locOG = p.getLocation().clone();
                 Vector dir = loc.getDirection();
-                p.sendMessage(getBlinkDistance(getLevel(p)) + "");
                 double dist = getBlinkDistance(getLevel(p));
                 dir.multiply(dist);
                 loc.add(dir);

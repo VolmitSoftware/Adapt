@@ -59,7 +59,6 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         if (!hand.getItemMeta().getLore().contains("Ocular Anchor") && !hand.getType().equals(Material.ENDER_EYE)) {
             return;
         }
-        p.sendMessage("333");
 
         Location location = null;
 
@@ -73,14 +72,12 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
                 e.getClickedBlock().getLocation().getY() + 1,
                 e.getClickedBlock().getLocation().getZ() + 0.5);
         }
-        p.sendMessage("2");
 
 
         e.setCancelled(true);
 
         switch(e.getAction()) {
             case LEFT_CLICK_BLOCK -> {
-                p.sendMessage("1");
                 if(p.isSneaking()) {
                     linkEye(p, location);
                 }
