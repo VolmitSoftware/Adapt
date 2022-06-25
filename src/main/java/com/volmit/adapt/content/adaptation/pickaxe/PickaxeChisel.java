@@ -19,9 +19,9 @@ import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class PickaxesChisel extends SimpleAdaptation<PickaxesChisel.Config> {
-    public PickaxesChisel() {
-        super("chisel");
+public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
+    public PickaxeChisel() {
+        super("pickaxes-chisel");
         registerConfiguration(Config.class);
         setDescription("Right Click Ores to Chisel more ore out of them, at a severe durability cost.");
         setIcon(Material.IRON_NUGGET);

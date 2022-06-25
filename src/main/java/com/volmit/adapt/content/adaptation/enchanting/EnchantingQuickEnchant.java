@@ -24,7 +24,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
     private final KList<Integer> holds = new KList<>();
 
     public EnchantingQuickEnchant() {
-        super("quick-enchant");
+        super("enchanting-quick-enchant");
         registerConfiguration(Config.class);
         setDescription("Enchant items by clicking enchant books directly on them.");
         setIcon(Material.WRITABLE_BOOK);

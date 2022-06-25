@@ -59,12 +59,16 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        if(!hasAdaptation(p)) {
+            return;
+        }
+
         ItemStack hand = p.getInventory().getItemInMainHand();
         ItemMeta handMeta = hand.getItemMeta();
         Block block = e.getClickedBlock();
 
 
-        if(!hasAdaptation(p) || !hand.hasItemMeta() || !handMeta.getLore().get(0).equals(C.UNDERLINE + "Portkey")) {
+        if(handMeta == null || handMeta.getLore() == null ||!hand.hasItemMeta() || !handMeta.getLore().get(0).equals(C.UNDERLINE + "Portkey")) {
             return;
         }
 

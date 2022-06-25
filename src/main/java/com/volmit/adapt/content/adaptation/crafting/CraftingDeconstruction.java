@@ -24,7 +24,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
     private final KList<Integer> holds = new KList<>();
 
     public CraftingDeconstruction() {
-        super("deconstruction");
+        super("crafting-deconstruction");
         registerConfiguration(Config.class);
         setDescription("Deconstruct blocks & items into salvageable base components");
         setIcon(Material.SHEARS);

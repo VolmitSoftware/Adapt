@@ -12,7 +12,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     public UnarmedPower() {
-        super("power-of-the-fist");
+        super("unarmed-power");
         registerConfiguration(Config.class);
         setDescription("Improved Unarmed Damage");
         setIcon(Material.LEATHER_HELMET);

@@ -1,7 +1,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.api.world.AdaptStatTracker;
+import com.volmit.adapt.content.adaptation.architect.ArchitectVeinminer;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         setColor(C.AQUA);
         setDescription("Structures of reality are yours to control");
         setInterval(3700);
-        setIcon(Material.IRON_BARS);
+        setIcon(Material.STONE);
+        registerAdaptation(new ArchitectVeinminer());
+
 //        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
     }
 

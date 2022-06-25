@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerExpChangeEvent;
 
 public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     public DiscoveryUnity() {
-        super("unity");
+        super("discovery-unity");
         registerConfiguration(Config.class);
         setDescription("Collecting Experience Orbs adds XP to random skills.");
         setIcon(Material.REDSTONE);

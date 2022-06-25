@@ -21,9 +21,9 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     private final KList<Integer> holds = new KList<>();
 
     public HerbalismReplant() {
-        super("replant");
+        super("herbalism-replant");
         registerConfiguration(Config.class);
-        setDescription("Right click a crop with a hoe to harvast & replant it.");
+        setDescription("Right click a crop with a hoe to harvest & replant it.");
         setIcon(Material.PUMPKIN_SEEDS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -123,7 +123,6 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     public void onTick() {
 
     }
-
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;

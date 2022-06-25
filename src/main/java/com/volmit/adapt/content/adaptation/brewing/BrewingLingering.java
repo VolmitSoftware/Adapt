@@ -10,23 +10,19 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.BrewEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 
 public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> {
     public BrewingLingering() {
-        super("lingering");
+        super("brewing-lingering");
         registerConfiguration(Config.class);
         setDescription("Brewed potions last longer!");
         setIcon(Material.CLOCK);

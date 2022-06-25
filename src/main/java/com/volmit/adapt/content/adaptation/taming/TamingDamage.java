@@ -23,7 +23,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
 
     public TamingDamage() {
-        super("tame-damage-boost");
+        super("tame-damage");
         registerConfiguration(Config.class);
         setDescription("Increase your tamed animal health.");
         setIcon(Material.FLINT);

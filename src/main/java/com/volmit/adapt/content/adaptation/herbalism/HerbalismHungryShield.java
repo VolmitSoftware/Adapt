@@ -15,7 +15,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
     private final KList<Integer> holds = new KList<>();
 
     public HerbalismHungryShield() {
-        super("hungry-shield");
+        super("herbalism-hungry-shield");
         registerConfiguration(Config.class);
         setDescription("Take damage to your hunger before your health");
         setIcon(Material.APPLE);

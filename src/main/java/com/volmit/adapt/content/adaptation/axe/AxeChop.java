@@ -15,11 +15,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class AxesChop extends SimpleAdaptation<AxesChop.Config> {
+public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     private final KList<Integer> holds = new KList<>();
 
-    public AxesChop() {
-        super("chop");
+    public AxeChop() {
+        super("axe-chop");
         registerConfiguration(Config.class);
         setDescription("Chop down trees by right clicking the base log!");
         setIcon(Material.IRON_AXE);

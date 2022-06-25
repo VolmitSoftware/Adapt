@@ -20,7 +20,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     private final KMap<Player, Integer> ticksRunning = new KMap<>();
 
     public AgilityWindUp() {
-        super("wind-up");
+        super("agility-wind-up");
         registerConfiguration(Config.class);
         setDescription("Get faster the longer you sprint!");
         setIcon(Material.POWERED_RAIL);

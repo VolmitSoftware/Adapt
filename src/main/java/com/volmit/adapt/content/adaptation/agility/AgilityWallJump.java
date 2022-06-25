@@ -22,7 +22,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     private final KMap<Player, Double> airjumps = new KMap<>();
 
     public AgilityWallJump() {
-        super("wall-jump");
+        super("agility-wall-jump");
         registerConfiguration(Config.class);
         setDescription("Hold shift while mid-air against a wall to wall latch & jump!");
         setIcon(Material.LADDER);

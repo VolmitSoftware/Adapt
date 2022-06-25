@@ -24,7 +24,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     private final KMap<UUID, Integer> arrows = new KMap<>();
 
     public RangedArrowRecovery() {
-        super("arrow-recovery");
+        super("ranged-arrow-recovery");
         registerConfiguration(Config.class);
         setDescription("Recover Arrows after you have killed an enemy.");
         setIcon(Material.TIPPED_ARROW);

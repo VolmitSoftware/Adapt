@@ -23,7 +23,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
 
     public TamingHealthBoost() {
-        super("tame-health-boost");
+        super("tame-health");
         registerConfiguration(Config.class);
         setDescription("Increase your tamed animal health.");
         setIcon(Material.COOKED_BEEF);

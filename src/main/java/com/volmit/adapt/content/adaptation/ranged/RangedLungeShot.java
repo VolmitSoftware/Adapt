@@ -19,7 +19,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public RangedLungeShot() {
-        super("lunge-shot");
+        super("ranged-lunge-shot");
         registerConfiguration(Config.class);
         setDescription("360 NO SCOPE");
         setIcon(Material.FEATHER);

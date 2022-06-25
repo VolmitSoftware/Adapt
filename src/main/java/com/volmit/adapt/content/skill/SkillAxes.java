@@ -2,8 +2,8 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.content.adaptation.axe.AxesChop;
-import com.volmit.adapt.content.adaptation.axe.AxesGroundSmash;
+import com.volmit.adapt.content.adaptation.axe.AxeChop;
+import com.volmit.adapt.content.adaptation.axe.AxeGroundSmash;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
@@ -21,8 +21,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         setColor(C.YELLOW);
         setInterval(5251);
         setIcon(Material.GOLDEN_AXE);
-        registerAdaptation(new AxesGroundSmash());
-        registerAdaptation(new AxesChop());
+        registerAdaptation(new AxeGroundSmash());
+        registerAdaptation(new AxeChop());
     }
 
     @EventHandler

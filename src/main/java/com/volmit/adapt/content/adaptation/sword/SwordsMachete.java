@@ -27,7 +27,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public SwordsMachete() {
-        super("machete");
+        super("sword-machete");
         registerConfiguration(Config.class);
         setDescription("Cut through foliage with ease!");
         setIcon(Material.IRON_SWORD);

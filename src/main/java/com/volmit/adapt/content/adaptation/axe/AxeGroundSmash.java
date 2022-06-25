@@ -14,11 +14,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-public class AxesGroundSmash extends SimpleAdaptation<AxesGroundSmash.Config> {
+public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     private final KList<Integer> holds = new KList<>();
 
-    public AxesGroundSmash() {
-        super("ground-smash");
+    public AxeGroundSmash() {
+        super("axe-ground-smash");
         registerConfiguration(Config.class);
         setDescription("Jump, then crouch and smash all nearby enemies.");
         setIcon(Material.NETHERITE_AXE);

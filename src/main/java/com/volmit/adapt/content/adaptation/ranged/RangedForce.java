@@ -21,7 +21,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public RangedForce() {
-        super("force");
+        super("ranged-force");
         registerConfiguration(Config.class);
         setDescription("Shoot projectiles further, faster!");
         setIcon(Material.ARROW);

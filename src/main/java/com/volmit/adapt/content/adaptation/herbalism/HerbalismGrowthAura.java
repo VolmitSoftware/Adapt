@@ -22,7 +22,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     private final KList<Integer> holds = new KList<>();
 
     public HerbalismGrowthAura() {
-        super("growth-aura");
+        super("herbalism-growth-aura");
         registerConfiguration(Config.class);
         setDescription("Grow nature around you in an aura");
         setIcon(Material.BONE_MEAL);

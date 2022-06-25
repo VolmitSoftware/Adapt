@@ -15,7 +15,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public RangedPiercing() {
-        super("piercing");
+        super("ranged-piercing");
         registerConfiguration(Config.class);
         setDescription("Adds Piercing to projectiles! Shoot through things!");
         setIcon(Material.SHEARS);

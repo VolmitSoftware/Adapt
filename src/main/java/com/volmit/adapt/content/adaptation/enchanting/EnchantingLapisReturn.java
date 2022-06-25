@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisReturn.Config> {
 
     public EnchantingLapisReturn() {
-        super("enchant-lapis");
+        super("enchanting-lapis-return");
         registerConfiguration(Config.class);
         setDescription("At the cost of 1 more level of XP, and has a chance to give you free lapis in return");
         setIcon(Material.LAPIS_LAZULI);

@@ -23,7 +23,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public StealthSnatch() {
-        super("snatch");
+        super("stealth-snatch");
         registerConfiguration(Config.class);
         setDescription("Snatch items instantly while sneaking!");
         setIcon(Material.CHEST_MINECART);

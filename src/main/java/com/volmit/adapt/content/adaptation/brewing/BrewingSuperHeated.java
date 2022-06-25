@@ -31,7 +31,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
     private final KSet<Block> activeStands = new KSet<>();
 
     public BrewingSuperHeated() {
-        super("super-heated");
+        super("brewing-super-heated");
         registerConfiguration(Config.class);
         setDescription("Brewing stands work faster the hotter they are.");
         setIcon(Material.LAVA_BUCKET);

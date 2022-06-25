@@ -25,7 +25,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     private final KMap<Player, Long> lastJump = new KMap<>();
 
     public AgilitySuperJump() {
-        super("super-jump");
+        super("agility-super-jump");
         registerConfiguration(Config.class);
         setDescription("Exceptional Height Advantage");
         setIcon(Material.LEATHER_BOOTS);

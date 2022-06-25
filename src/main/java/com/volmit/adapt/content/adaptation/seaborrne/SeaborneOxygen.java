@@ -14,7 +14,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     private final KList<Integer> holds = new KList<>();
 
     public SeaborneOxygen() {
-        super("oxygen");
+        super("seaborne-oxygen");
         registerConfiguration(Config.class);
         setDescription("Hold more oxygen!");
         setIcon(Material.GLASS_PANE);
