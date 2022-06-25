@@ -43,7 +43,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler
     public void on(PlayerTeleportEvent e) {
-        if(getPlayer(e.getPlayer()).hasSkill(this) && e.getFrom().getWorld() != e.getPlayer().getWorld() && !lasttp.containsKey(e.getPlayer())) {
+        if(!lasttp.containsKey(e.getPlayer())) { // any teleport. this was problematic when teleporting from a rift to a rift or using a rift to teleport to a rift inside of a dimension
             xpSilent(e.getPlayer(), getConfig().teleportXP);
             lasttp.put(e.getPlayer(), M.ms());
         }
@@ -116,14 +116,14 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double destroyEndCrystalXP = 350;
-        double damageEndCrystalXP = 350;
+        double destroyEndCrystalXP = 550;
+        double damageEndCrystalXP = 110;
         double damageEndermanXPMultiplier = 4;
         double damageEndermiteXPMultiplier = 2;
-        double damageEnderdragonXPMultiplier = 4;
+        double damageEnderdragonXPMultiplier = 8;
         double throwEnderpearlXP = 75;
         double throwEnderEyeXP = 45;
-        double teleportXP = 1000;
+        double teleportXP = 500;
         double teleportXPCooldown = 60000;
     }
 }

@@ -10,6 +10,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 
@@ -53,15 +55,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         Player p = e.getPlayer();
         if (hasAdaptation(e.getPlayer()) && p.getGameMode().equals(GameMode.SURVIVAL)) {
             e.setCancelled(true);
-
-
             if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
                 return;
             }
-
-
             if (hasAdaptation(e.getPlayer()) && p.isSprinting()) {
-
                 lastJump.put(p, M.ms());
                 Location loc = p.getLocation().clone();
                 Location locOG = p.getLocation().clone();
@@ -82,10 +79,14 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                 }
                 vfxLevelUp(p);
                 Vector v = p.getVelocity().clone().multiply(3);
-
+                if(getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(new RiftResist().getName()) > 0){ // This is the Rift Resist adaptation
+                    v.setY(0.5);p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
+                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1000f, 0.01f);
+                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1000f, 0.01f);
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 80, 1, true, false, false));
+                }
                 p.teleport(loc.add(0, 1, 0));
                 particleLine(locOG, loc, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
-
                 J.a(() -> {
                     try {
                         Thread.sleep(15);
