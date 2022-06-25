@@ -121,9 +121,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         double damageEndermanXPMultiplier = 4;
         double damageEndermiteXPMultiplier = 2;
         double damageEnderdragonXPMultiplier = 8;
-        double throwEnderpearlXP = 75;
+        double throwEnderpearlXP = 105;
         double throwEnderEyeXP = 45;
-        double teleportXP = 500;
+        double teleportXP = 15;
         double teleportXPCooldown = 60000;
     }
 }

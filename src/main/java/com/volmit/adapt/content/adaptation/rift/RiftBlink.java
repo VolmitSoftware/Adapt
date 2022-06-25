@@ -38,6 +38,12 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         return 2000;
     }
 
+//    private boolean isLookingUp(Player player) {
+//        double pitch = player.getLocation().getPitch();
+//        return pitch >= 45.0 || pitch <= -45.0;
+//    }
+
+
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " Blocks on blink (2x Vertical)");
@@ -55,11 +61,13 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         Player p = e.getPlayer();
         if (hasAdaptation(e.getPlayer()) && p.getGameMode().equals(GameMode.SURVIVAL)) {
             e.setCancelled(true);
+            p.setAllowFlight(false);
+
             if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
                 return;
             }
-            if (hasAdaptation(e.getPlayer()) && p.isSprinting()) {
-                lastJump.put(p, M.ms());
+            if (p.isSprinting()) {
+                Vector v = p.getVelocity().clone();
                 Location loc = p.getLocation().clone();
                 Location locOG = p.getLocation().clone();
                 Vector dir = loc.getDirection();
@@ -75,26 +83,26 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
                 if (!isSafe(loc)) {
                     p.getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
+                    lastJump.put(p, M.ms());
                     return;
                 }
-                vfxLevelUp(p);
-                Vector v = p.getVelocity().clone().multiply(3);
+
                 if(getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(new RiftResist().getName()) > 0){ // This is the Rift Resist adaptation
-                    v.setY(0.5);p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1000f, 0.01f);
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1000f, 0.01f);
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 80, 1, true, false, false));
+                    riftResistCheckAndTrigger(p, 30, 2);
                 }
+
                 p.teleport(loc.add(0, 1, 0));
                 particleLine(locOG, loc, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
                 J.a(() -> {
                     try {
-                        Thread.sleep(15);
+                        Thread.sleep(5);
                     } catch (InterruptedException ex) {
                         throw new RuntimeException(ex);
                     }
-                    p.setVelocity(v);
+                    p.setVelocity(v.multiply(3));
                 });
+
+                lastJump.put(p, M.ms());
 
                 p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 1.0f);
                 vfxLevelUp(p);
@@ -111,7 +119,33 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
         if (hasAdaptation(e.getPlayer()) && p.getGameMode().equals(GameMode.SURVIVAL)) {
-            p.setAllowFlight(e.getPlayer().getFallDistance() < 4.5 && e.getPlayer().isSprinting());
+//            if (isLookingUp(p)) {
+//                p.setAllowFlight(false);
+//                return;
+//            }
+
+            if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
+                p.setAllowFlight(false);
+                return;
+            }
+
+            Location loc = p.getLocation().clone();
+            Vector dir = loc.getDirection();
+            double dist = getBlinkDistance(getLevel(p));
+            dir.multiply(dist);
+            loc.add(dir);
+            double cd = dist * 2;
+            loc.subtract(0, dist, 0);
+
+            while (!isSafe(loc) && cd-- > 0) {
+                loc.add(0, 1, 0);
+            }
+            if (!isSafe(loc)) {
+                return;
+            } else if (isSafe(loc)) {
+                p.setAllowFlight(e.getPlayer().getFallDistance() < 4.5 && e.getPlayer().isSprinting());
+            }
+
         }
     }
 
