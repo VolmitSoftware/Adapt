@@ -76,13 +76,18 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                     } else if(!p.isSneaking()) {
                         openPearl(p);
                     }
+                    if(getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(new RiftResist().getName()) > 0){ // This is the Rift Resist adaptation
+                        riftResistCheckAndTrigger(p, 20, 1);
+                    }
                 } else if(!isStorage(block.getBlockData())) {
                     if(p.isSneaking()) { //(Sneak NOT Container)
                         p.sendMessage(C.LIGHT_PURPLE + "That's not a container");
                     } else if(!p.isSneaking() && isBound(hand)) {
                         openPearl(p);
                     }
-
+                    if(getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(new RiftResist().getName()) > 0){ // This is the Rift Resist adaptation
+                        riftResistCheckAndTrigger(p, 20, 1);
+                    }
                 }
                 e.setCancelled(true);
 

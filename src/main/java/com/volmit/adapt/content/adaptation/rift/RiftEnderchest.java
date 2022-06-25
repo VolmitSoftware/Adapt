@@ -41,9 +41,9 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
                 || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
                 Player p = e.getPlayer();
 
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 5.35f, 0.10f);
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.10f);
-                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 35, 1, true, false, false));
+                if(getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(new RiftResist().getName()) > 0){ // This is the Rift Resist adaptation
+                    riftResistCheckAndTrigger(p, 20, 1);
+                }
                 p.openInventory(e.getPlayer().getEnderChest());
 
 
