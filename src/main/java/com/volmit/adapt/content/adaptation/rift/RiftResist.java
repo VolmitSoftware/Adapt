@@ -20,7 +20,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         super("rift-resist");
         registerConfiguration(Config.class);
         setDescription("Gain Resistance when using Ender Items & Abilities");
-        setIcon(Material.WARPED_ROOTS);
+        setIcon(Material.SCULK_VEIN);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
