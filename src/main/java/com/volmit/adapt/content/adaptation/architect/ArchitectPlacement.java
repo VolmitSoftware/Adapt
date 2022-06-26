@@ -6,9 +6,7 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KMap;
 import lombok.NoArgsConstructor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -57,7 +55,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
 
             if (p.isSneaking() && is.getType().isBlock()) {
-
                 KMap<Block, BlockFace> map = totalMap.get(p);
                 double v = getValue(e.getBlock());
                 int handsize = is.getAmount();
@@ -159,7 +156,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     }
 
-
     @Override
     public void onTick() {
         if (!totalMap.isEmpty()) {
@@ -173,32 +169,10 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                     for (Block b : blockRender.keySet()) { // Get the blocks in that map that bind with a BlockFace
                         BlockFace bf = blockRender.get(b); // Get that blockface
                         Block transposedBlock = b.getRelative(bf);
-                        Location point0 = transposedBlock.getLocation(); //bottom left corner of the bloc
-                        Location point1 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY(), point0.getZ());
-                        Location point2 = new Location(point0.getWorld(), point0.getX(), point0.getY() + 1, point0.getZ());
-                        Location point3 = new Location(point0.getWorld(), point0.getX(), point0.getY(), point0.getZ() + 1);
-                        Location point4 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ());
-                        Location point5 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY(), point0.getZ() + 1);
-                        Location point6 = new Location(point0.getWorld(), point0.getX(), point0.getY() + 1, point0.getZ() + 1);
-                        Location point7 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ() + 1);
-
-                        particleLine(point0, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable()); // Corners
-                        particleLine(point0, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point0, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point7, point6, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point7, point5, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point7, point4, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point4, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable()); // Connectors
-                        particleLine(point4, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point5, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point5, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point6, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point6, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-
+                        vfxSingleCubeOutline(transposedBlock);
                     }
                 }
             });
-
         }
     }
 

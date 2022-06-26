@@ -140,8 +140,8 @@ public interface Component {
         from.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, to, 1, 6, 6, 6, 0.6);
     }
 
-    default void particleLine(Location start, Location end, Particle particle, int pointsPerLine, int particleCount, double offsetX, double offsetY, double offsetZ, double extra, @Nullable Double data, boolean forceDisplay,
-        @Nullable Predicate<Location> operationPerPoint) {
+    default void vfxParticleLine(Location start, Location end, Particle particle, int pointsPerLine, int particleCount, double offsetX, double offsetY, double offsetZ, double extra, @Nullable Double data, boolean forceDisplay,
+                                 @Nullable Predicate<Location> operationPerPoint) {
         double d = start.distance(end) / pointsPerLine;
         for (int i = 0; i < pointsPerLine; i++) {
             Location l = start.clone();
@@ -158,11 +158,36 @@ public interface Component {
         }
     }
 
+    default void vfxSingleCubeOutline(Block block){
+        Location point0 = block.getLocation(); //bottom left corner of the bloc
+
+        Location point1 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY(), point0.getZ());
+        Location point2 = new Location(point0.getWorld(), point0.getX(), point0.getY() + 1, point0.getZ());
+        Location point3 = new Location(point0.getWorld(), point0.getX(), point0.getY(), point0.getZ() + 1);
+        Location point4 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ());
+        Location point5 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY(), point0.getZ() + 1);
+        Location point6 = new Location(point0.getWorld(), point0.getX(), point0.getY() + 1, point0.getZ() + 1);
+        Location point7 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ() + 1);
+
+        vfxParticleLine(point0, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable()); // Corners
+        vfxParticleLine(point0, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point0, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point7, point6, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point7, point5, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point7, point4, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point4, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable()); // Connectors
+        vfxParticleLine(point4, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point5, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point5, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point6, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point6, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+    }
+
     default void vfxLevelUp(Player p) {
         p.spawnParticle(Particle.REVERSE_PORTAL, p.getLocation().clone().add(0, 1.7, 0), 100, 0.1, 0.1, 0.1, 4.1);
     }
 
-    default List<Location> getHollowCube(Location corner1, Location corner2, double particleDistance) {
+    default List<Location> vfxSelectionCube(Location corner1, Location corner2, double particleDistance) {
         List<Location> result = new ArrayList<Location>();
         World world = corner1.getWorld();
         double minX = Math.min(corner1.getX(), corner2.getX());
