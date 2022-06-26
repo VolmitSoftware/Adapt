@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KMap;
@@ -16,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
@@ -23,7 +25,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     public ArchitectPlacement() {
         super("architect-placement");
         registerConfiguration(ArchitectPlacement.Config.class);
-        setDescription("allows for you to place multiple blocks at once");
+        setDescription("allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes");
         setIcon(Material.LEAD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -31,8 +33,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         setCostFactor(getConfig().costFactor);
     }
 
-
-    private final KMap<Block, BlockFace> blockMap = new KMap<>();
     private final KMap<Player, KMap<Block, BlockFace>> totalMap = new KMap<>();
 
     private BlockFace getBlockFace(Player player) {
@@ -51,15 +51,40 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     @EventHandler
     public void on(BlockPlaceEvent e) {
         Player p = e.getPlayer();
-        if (hasAdaptation(p) && p.isSneaking() && p.getInventory().getItemInMainHand().getType().isBlock() && totalMap.get(p) != null) {
-            KMap<Block, BlockFace> map = totalMap.get(p);
-            for (Block b : map.keySet()) {
-                BlockFace face = map.get(b);
-                p.playSound(p.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
-                b.getWorld().setBlockData(b.getRelative(face).getLocation(), b.getBlockData());
+        if (hasAdaptation(p) && !totalMap.isEmpty() && totalMap.get(p) != null && totalMap.get(p).size() > 0) {
+            ItemStack is = p.getInventory().getItemInMainHand().clone();
+            ItemStack hand = p.getInventory().getItemInMainHand();
 
+
+            if (p.isSneaking() && is.getType().isBlock()) {
+
+                KMap<Block, BlockFace> map = totalMap.get(p);
+                double v = getValue(e.getBlock());
+                int handsize = is.getAmount();
+                int handSizeAfter = handsize - totalMap.get(p).size();
+                int programaticHandInt = 0;
+                if (handSizeAfter >= 0) {
+                    for (Block b : map.keySet()) { // Block Placer
+                        BlockFace face = map.get(b);
+                        if (b.getWorld().getBlockAt(b.getRelative(face).getLocation()).getType() == Material.AIR) {
+                            if (b.getRelative(face).getLocation() != e.getBlock().getLocation()) {
+                                b.getWorld().setBlockData(b.getRelative(face).getLocation(), b.getBlockData());
+                                totalMap.get(p).remove(b);
+                                programaticHandInt++;
+                                //Add XP
+                                getPlayer(e.getPlayer()).getData().addStat("blocks.placed", 1);
+                                getPlayer(e.getPlayer()).getData().addStat("blocks.placed.value", v);
+                                p.playSound(b.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
+                            }
+                        } else {
+                            totalMap.get(p).remove(b);
+                        }
+                    }
+                    hand.setAmount(handsize - (programaticHandInt+1));
+                } else {
+                    p.sendMessage(C.RED + "You must have " + C.GREEN + totalMap.get(p).size() + C.RED + " blocks in your hand to place them!");
+                }
             }
-
         }
     }
 
@@ -67,8 +92,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
         if (hasAdaptation(p) && !p.isSneaking()) {
-            totalMap.clear();
-            blockMap.clear();
+            totalMap.remove(p);
         }
 
         if (hasAdaptation(p) && p.isSneaking() && p.getInventory().getItemInMainHand().getType().isBlock()) {
@@ -83,36 +107,44 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                 for (int x = block.getX() - 1; x <= block.getX() + 1; x++) { // 1 is the radius of the blocks
                     for (int y = block.getY() - 1; y <= block.getY() + 1; y++) {
                         if (handMaterial == block.getWorld().getBlockAt(x, y, block.getZ()).getType()) {
-                            if (blockMap.size() <= getConfig().maxBlocks) {
-                                blockMap.put(block.getWorld().getBlockAt(x, y, block.getZ()), viewPortBlock);
-
+                            if (totalMap.get(p) == null) {
+                                KMap<Block, BlockFace> map = new KMap<>();
+                                map.put(block.getWorld().getBlockAt(x, y, block.getZ()), viewPortBlock);
+                                totalMap.put(p, map);
+                            } else if (totalMap.get(p).size() <= getConfig().maxBlocks) {
+                                totalMap.get(p).put(block.getWorld().getBlockAt(x, y, block.getZ()), viewPortBlock);
                             }
                         }
                     }
                 }
-                totalMap.put(p, blockMap);
             } else if (viewPortBlock != null && (viewPortBlock.getDirection().equals(BlockFace.EAST.getDirection()) || viewPortBlock.getDirection().equals(BlockFace.WEST.getDirection()))) { // East & West = Z
                 for (int z = block.getZ() - 1; z <= block.getZ() + 1; z++) { // 1 is the radius of the blocks
                     for (int y = block.getY() - 1; y <= block.getY() + 1; y++) {
                         if (handMaterial == block.getWorld().getBlockAt(block.getX(), y, z).getType()) {
-                            if (blockMap.size() <= getConfig().maxBlocks) {
-                                blockMap.put(block.getWorld().getBlockAt(block.getX(), y, z), viewPortBlock);
+                            if (totalMap.get(p) == null) {
+                                KMap<Block, BlockFace> map = new KMap<>();
+                                map.put(block.getWorld().getBlockAt(block.getX(), y, z), viewPortBlock);
+                                totalMap.put(p, map);
+                            } else if (totalMap.get(p).size() <= getConfig().maxBlocks) {
+                                totalMap.get(p).put(block.getWorld().getBlockAt(block.getX(), y, z), viewPortBlock);
                             }
                         }
                     }
                 }
-                totalMap.put(p, blockMap);
             } else if (viewPortBlock != null && (viewPortBlock.getDirection().equals(BlockFace.UP.getDirection()) || viewPortBlock.getDirection().equals(BlockFace.DOWN.getDirection()))) { // Up & Down = Y
                 for (int z = block.getZ() - 1; z <= block.getZ() + 1; z++) { // 1 is the radius of the blocks
                     for (int x = block.getX() - 1; x <= block.getX() + 1; x++) {
                         if (handMaterial == block.getWorld().getBlockAt(x, block.getY(), z).getType()) {
-                            if (blockMap.size() <= getConfig().maxBlocks) {
-                                blockMap.put(block.getWorld().getBlockAt(x, block.getY(), z), viewPortBlock);
+                            if (totalMap.get(p) == null) {
+                                KMap<Block, BlockFace> map = new KMap<>();
+                                map.put(block.getWorld().getBlockAt(x, block.getY(), z), viewPortBlock);
+                                totalMap.put(p, map);
+                            } else if (totalMap.get(p).size() <= getConfig().maxBlocks) {
+                                totalMap.get(p).put(block.getWorld().getBlockAt(x, block.getY(), z), viewPortBlock);
                             }
                         }
                     }
                 }
-                totalMap.put(p, blockMap);
             }
         }
     }
@@ -150,24 +182,20 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                         Location point6 = new Location(point0.getWorld(), point0.getX(), point0.getY() + 1, point0.getZ() + 1);
                         Location point7 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ() + 1);
 
-                        particleLine(point0, point1, Particle.REVERSE_PORTAL, 9, 2, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point0, point2, Particle.REVERSE_PORTAL, 9, 2, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point0, point3, Particle.REVERSE_PORTAL, 9, 2, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point7, point6, Particle.REVERSE_PORTAL, 9, 2, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point7, point5, Particle.REVERSE_PORTAL, 9, 2, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point7, point4, Particle.REVERSE_PORTAL, 9, 2, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point5, point1, Particle.REVERSE_PORTAL, 9, 2, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point5, point3, Particle.REVERSE_PORTAL, 9, 2, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point6, point2, Particle.REVERSE_PORTAL, 9, 2, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point6, point3, Particle.REVERSE_PORTAL, 9, 2, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point4, point2, Particle.REVERSE_PORTAL, 9, 2, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        particleLine(point4, point1, Particle.REVERSE_PORTAL, 9, 2, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+                        particleLine(point0, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable()); // Corners
+                        particleLine(point0, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+                        particleLine(point0, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+                        particleLine(point7, point6, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+                        particleLine(point7, point5, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+                        particleLine(point7, point4, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+                        particleLine(point4, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable()); // Connectors
+                        particleLine(point4, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+                        particleLine(point5, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+                        particleLine(point5, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+                        particleLine(point6, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+                        particleLine(point6, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+
                     }
-                }
-                try {
-                    Thread.sleep(5);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
                 }
             });
 
@@ -182,6 +210,5 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         int maxLevel = 1;
         int initialCost = 4;
         double costFactor = 2.;
-        int baseRange = 2;
     }
 }
