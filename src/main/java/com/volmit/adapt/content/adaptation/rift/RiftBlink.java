@@ -43,13 +43,11 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 //        return pitch >= 45.0 || pitch <= -45.0;
 //    }
 
-
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " Blocks on blink (2x Vertical)");
         v.addLore(C.ITALIC + "While Sprinting: Double tap Jump to " + C.DARK_PURPLE + "Blink");
     }
-
 
     @EventHandler
     public void on(PlayerQuitEvent e) {

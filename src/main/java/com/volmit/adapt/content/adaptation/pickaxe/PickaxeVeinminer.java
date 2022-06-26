@@ -16,11 +16,11 @@ import org.bukkit.event.block.BlockBreakEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PickaxeOreLoot extends SimpleAdaptation<PickaxeOreLoot.Config> {
-    public PickaxeOreLoot() {
-        super("pickaxes-ore-loot");
-        registerConfiguration(PickaxeOreLoot.Config.class);
-        setDescription("Allows you to break blocks in a Vein/Cluster of ores");
+public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> {
+    public PickaxeVeinminer() {
+        super("pickaxe-veinminer");
+        registerConfiguration(PickaxeVeinminer.Config.class);
+        setDescription("Allows you to break blocks in a Vein/Cluster of Vanilla ores");
         setIcon(Material.IRON_PICKAXE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -36,6 +36,9 @@ public class PickaxeOreLoot extends SimpleAdaptation<PickaxeOreLoot.Config> {
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
         if(!hasAdaptation(p)){
+            return;
+        }
+        if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE")) {
             return;
         }
         Block block = e.getBlock();
@@ -62,14 +65,7 @@ public class PickaxeOreLoot extends SimpleAdaptation<PickaxeOreLoot.Config> {
                     e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
             }
         });
-
-
-
-
     }
-
-
-
 
     @Override
     public boolean isEnabled() {
@@ -84,7 +80,6 @@ public class PickaxeOreLoot extends SimpleAdaptation<PickaxeOreLoot.Config> {
     @Override
     public void onTick() {
     }
-
 
     @NoArgsConstructor
     protected static class Config {
