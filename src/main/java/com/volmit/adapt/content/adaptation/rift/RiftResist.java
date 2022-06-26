@@ -38,10 +38,10 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        ItemStack hand = p.getInventory().getItemInMainHand();
         if (!hasAdaptation(p)) {
             return;
         }
+        ItemStack hand = p.getInventory().getItemInMainHand();
 
         switch(e.getAction()) {
             case RIGHT_CLICK_AIR -> {
