@@ -19,7 +19,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         setColor(C.AQUA);
         setDescription("Structures of reality are yours to control");
         setInterval(3700);
-        setIcon(Material.CHISELED_DEEPSLATE);
+        setIcon(Material.SMITHING_TABLE);
         registerAdaptation(new ArchitectPlacement());
 
 //        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());

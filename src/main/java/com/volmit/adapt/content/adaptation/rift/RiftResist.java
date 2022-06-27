@@ -20,7 +20,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         super("rift-resist");
         registerConfiguration(Config.class);
         setDescription("Gain Resistance when using Ender Items & Abilities");
-        setIcon(Material.WARPED_ROOTS);
+        setIcon(Material.SCULK_VEIN);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
@@ -38,10 +38,10 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        ItemStack hand = p.getInventory().getItemInMainHand();
         if (!hasAdaptation(p)) {
             return;
         }
+        ItemStack hand = p.getInventory().getItemInMainHand();
 
         switch(e.getAction()) {
             case RIGHT_CLICK_AIR -> {
