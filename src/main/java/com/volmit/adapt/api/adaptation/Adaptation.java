@@ -20,8 +20,12 @@ import com.volmit.adapt.util.Window;
 import com.volmit.adapt.util.WindowResolution;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Recipe;
+
+import java.util.List;
 
 public interface Adaptation<T> extends Ticked, Component {
     int getMaxLevel();
@@ -192,6 +196,13 @@ public interface Adaptation<T> extends Ticked, Component {
         }
 
         return getDisplayName();
+    }
+    default BlockFace getBlockFace(Player player, int maxrange) {
+        List<Block> lastTwoTargetBlocks = player.getLastTwoTargetBlocks(null, maxrange);
+        if (lastTwoTargetBlocks.size() != 2 || !lastTwoTargetBlocks.get(1).getType().isOccluding()) return null;
+        Block targetBlock = lastTwoTargetBlocks.get(1);
+        Block adjacentBlock = lastTwoTargetBlocks.get(0);
+        return targetBlock.getFace(adjacentBlock);
     }
 
     default void openGui(Player player) {

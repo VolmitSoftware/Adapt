@@ -118,7 +118,6 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     implementation 'com.elmakers.mine.bukkit:EffectLib:9.4'
-    implementation 'net.objecthunter:exp4j:0.4.8'
     implementation 'org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT'
     implementation 'me.clip:placeholderapi:2.11.1'
     implementation 'io.th0rgal:oraxen:1.94.0'
