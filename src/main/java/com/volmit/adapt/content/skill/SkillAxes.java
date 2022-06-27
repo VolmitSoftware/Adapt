@@ -19,6 +19,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         super("axes", "\u2725");
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
+        setDescription("Why chop down trees, when you could chop "+ C.ITALIC + "things" + C.GRAY + " instead, same end result!");
+
         setInterval(5251);
         setIcon(Material.GOLDEN_AXE);
         registerAdaptation(new AxeGroundSmash());

@@ -6,11 +6,13 @@ import com.volmit.adapt.content.adaptation.taming.TamingHealthBoost;
 import com.volmit.adapt.content.adaptation.taming.TamingHealthRegeneration;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 
@@ -28,9 +30,12 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     }
 
     @EventHandler
-    public void on(EntityTameEvent e) {
-        if(e.getOwner() instanceof Player) {
-            xp((Player) e.getOwner(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().tameHealthXPMultiplier);
+    public void on(EntityBreedEvent e) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.sendMessage("AHH: "+ getConfig().tameXpBase );
+            if (player.getLocation().distance(e.getEntity().getLocation()) <= 15) {
+                xp(player,getConfig().tameXpBase);
+            }
         }
     }
 
@@ -38,8 +43,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     public void on(EntityDamageByEntityEvent e) {
         if(e.getDamager() instanceof Tameable &&
             ((Tameable) e.getDamager()).isTamed() &&
-            ((Tameable) e.getDamager()).getOwner() instanceof Player) {
-            Player owner = (Player) ((Tameable) e.getDamager()).getOwner();
+                ((Tameable) e.getDamager()).getOwner() instanceof Player owner) {
             xp(owner, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
         }
     }
@@ -57,6 +61,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        double tameXpBase = 55;
         double tameHealthXPMultiplier = 63;
         double tameDamageXPMultiplier = 9.85;
     }

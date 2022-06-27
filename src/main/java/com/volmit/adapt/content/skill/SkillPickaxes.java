@@ -18,6 +18,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     public SkillPickaxes() {
         super("pickaxes", "\u26CF");
         registerConfiguration(Config.class);
+        setDescription("Dwarves are the miners, but ive learned a thing or to in my time." + C.GOLD + "\nIM SWEDISH!");
         setColor(C.GOLD);
         setInterval(2750);
         setIcon(Material.NETHERITE_PICKAXE);

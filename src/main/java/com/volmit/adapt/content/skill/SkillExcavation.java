@@ -16,6 +16,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     public SkillExcavation() {
         super("excavation", "\u2725");
         registerConfiguration(Config.class);
+        setDescription("Diggey Diggey hole...");
         setColor(C.YELLOW);
         setInterval(5251);
         setIcon(Material.DIAMOND_SHOVEL);
