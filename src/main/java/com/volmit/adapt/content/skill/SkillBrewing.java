@@ -26,7 +26,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         super("brewing", "\u2725");
         registerConfiguration(Config.class);
         setColor(C.LIGHT_PURPLE);
-        setDescription("Double Bubble, Triple Bubble, Quadruple Bubble... I still cant put this potion into a cauldron");
+        setDescription("Double Bubble, Triple Bubble, Quadruple Bubble... \nI still cant put this potion into a cauldron");
         setInterval(5251);
         setIcon(Material.LINGERING_POTION);
         registerAdaptation(new BrewingLingering());
