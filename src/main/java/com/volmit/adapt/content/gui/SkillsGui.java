@@ -22,6 +22,9 @@ public class SkillsGui {
         int ind = 0;
 
         for(PlayerSkillLine i : a.getData().getSkillLines().sortV()) {
+            if (i.getLevel() < 0){
+                continue;
+            }
             int pos = w.getPosition(ind);
             int row = w.getRow(ind);
             Skill<?> sk = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(i.getLine());

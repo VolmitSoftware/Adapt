@@ -1,5 +1,6 @@
 package com.volmit.adapt.api.tick;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.BurstExecutor;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
@@ -39,10 +40,12 @@ public class Ticker {
 
     private void tick() {
         ticking = true;
+//        int ix = 0;
         AtomicInteger tc = new AtomicInteger(0);
         BurstExecutor e = MultiBurst.burst.burst(ticklist.size());
         for(int i = 0; i < ticklist.size(); i++) {
             int ii = i;
+//            ix++;
             e.queue(() -> {
                 Ticked t = ticklist.get(ii);
 
@@ -58,6 +61,7 @@ public class Ticker {
         }
 
         e.complete();
+//        Adapt.info(ix + "");
 
         synchronized(newTicks) {
             while(newTicks.hasElements()) {

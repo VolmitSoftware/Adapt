@@ -23,7 +23,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         super("crafting", "\u2756");
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription("Crafting is its own reward");
+        setDescription("Crafting is its own reward, but why not have another?");
         setInterval(3700);
         setIcon(Material.STRING);
         registerAdaptation(new CraftingDeconstruction());

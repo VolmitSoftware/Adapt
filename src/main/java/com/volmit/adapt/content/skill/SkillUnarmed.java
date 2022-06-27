@@ -29,7 +29,6 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         if(e.getDamager() instanceof Player) {
             AdaptPlayer a = getPlayer((Player) e.getDamager());
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
-
             if(!isMelee(hand)) {
                 xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
             }

@@ -30,7 +30,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     public SkillRift() {
         super("rift", "\u274D");
         registerConfiguration(Config.class);
-        setDescription("Dimensional magic");
+        setDescription("You have harnessed the harness");
         setColor(C.DARK_PURPLE);
         setInterval(1154);
         setIcon(Material.ENDER_EYE);

@@ -16,6 +16,7 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         super("swords", "\u2694");
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
+        setDescription("By the power of Greyskull!");
         setInterval(2150);
         setIcon(Material.DIAMOND_SWORD);
         registerAdaptation(new SwordsMachete());

@@ -2,15 +2,12 @@ package com.volmit.adapt.content.skill;
 
 
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.stealth.StealthSnatch;
 import com.volmit.adapt.content.adaptation.stealth.StealthSpeed;
-import com.volmit.adapt.content.adaptation.stealth.StealthVision;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.advancement.AdvancementDisplay;
 import org.bukkit.entity.Player;
 
 public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
@@ -23,7 +20,6 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         setDescription("The art of the unseen. Walk in the shadows.");
         registerAdaptation(new StealthSpeed());
         registerAdaptation(new StealthSnatch());
-        registerAdaptation(new StealthVision());
 
 //        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sneak_1k").goal(1000).stat("move.sneak").reward(getConfig().challengeSneak1kReward).build());
     }

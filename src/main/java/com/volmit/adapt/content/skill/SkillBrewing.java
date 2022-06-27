@@ -19,11 +19,14 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.cyberpwn.spatial.matter.SpatialMatter;
 
+import java.util.Random;
+
 public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     public SkillBrewing() {
         super("brewing", "\u2725");
         registerConfiguration(Config.class);
         setColor(C.LIGHT_PURPLE);
+        setDescription("Double Bubble, Triple Bubble, Quadruple Bubble... I still cant put this potion into a cauldron");
         setInterval(5251);
         setIcon(Material.LINGERING_POTION);
         registerAdaptation(new BrewingLingering());
