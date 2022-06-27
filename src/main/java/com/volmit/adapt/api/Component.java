@@ -156,32 +156,6 @@ public interface Component {
         }
     }
 
-    List<BlockFace> faces = List.of(BlockFace.UP, BlockFace.DOWN, BlockFace.EAST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST);
-    List<List<List<BlockFace>>> faceLines = List.of(
-            List.of(List.of(BlockFace.UP, BlockFace.NORTH_EAST), List.of(BlockFace.UP, BlockFace.NORTH_WEST)),
-            List.of(List.of(BlockFace.UP, BlockFace.SOUTH_EAST), List.of(BlockFace.UP, BlockFace.SOUTH_WEST)),
-            List.of(List.of(BlockFace.UP, BlockFace.NORTH_EAST), List.of(BlockFace.UP, BlockFace.SOUTH_EAST)),
-            List.of(List.of(BlockFace.UP, BlockFace.NORTH_WEST), List.of(BlockFace.UP, BlockFace.SOUTH_WEST)),
-
-            List.of(List.of(BlockFace.DOWN, BlockFace.NORTH_EAST), List.of(BlockFace.DOWN, BlockFace.NORTH_WEST)),
-            List.of(List.of(BlockFace.DOWN, BlockFace.SOUTH_EAST), List.of(BlockFace.DOWN, BlockFace.SOUTH_WEST)),
-            List.of(List.of(BlockFace.DOWN, BlockFace.NORTH_EAST), List.of(BlockFace.DOWN, BlockFace.SOUTH_EAST)),
-            List.of(List.of(BlockFace.DOWN, BlockFace.NORTH_WEST), List.of(BlockFace.DOWN, BlockFace.SOUTH_WEST)),
-
-            List.of(List.of(BlockFace.UP, BlockFace.NORTH_WEST), List.of(BlockFace.DOWN, BlockFace.NORTH_WEST)),
-            List.of(List.of(BlockFace.UP, BlockFace.NORTH_EAST), List.of(BlockFace.DOWN, BlockFace.NORTH_EAST)),
-            List.of(List.of(BlockFace.UP, BlockFace.SOUTH_EAST), List.of(BlockFace.DOWN, BlockFace.SOUTH_EAST)),
-            List.of(List.of(BlockFace.UP, BlockFace.SOUTH_WEST), List.of(BlockFace.DOWN, BlockFace.SOUTH_WEST))
-
-    );
-    List<Vector> vectorAngles = faces.stream().map((i) -> new Vector(i.getModX(), i.getModY(), i.getModZ()).multiply(0.5)).collect(Collectors.toList());
-
-
-    default void vfxDrawBox(Block b) {
-        Vector center = b.getLocation().add(0.5, 0.5, 0.5).toVector();
-
-    }
-
     default void vfxSingleCubeOutline(Block block) {
         Location point0 = block.getLocation(); //bottom left corner of the bloc
 
@@ -197,17 +171,13 @@ public interface Component {
         vfxParticleLine(point0, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point0, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point0, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-
         vfxParticleLine(point7, point6, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point7, point5, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point7, point4, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-
         vfxParticleLine(point4, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point4, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-
         vfxParticleLine(point5, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point5, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-
         vfxParticleLine(point6, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point6, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
     }
