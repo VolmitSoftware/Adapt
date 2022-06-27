@@ -5,6 +5,7 @@ import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.xp.XP;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -20,6 +21,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public interface Component {
     default void wisdom(Player p, long w) {
@@ -33,19 +35,17 @@ public interface Component {
      * more consumed than amount
      * 3. If the item has durability, the damage will be consuemd and return the item affected, OR null if it broke
      *
-     * @param item
-     *     the item (tool)
-     * @param damage
-     *     the damage to cause
+     * @param item   the item (tool)
+     * @param damage the damage to cause
      * @return the damaged item or null if destroyed
      */
     default ItemStack damage(ItemStack item, int damage) {
-        if(item == null) {
+        if (item == null) {
             return null;
         }
 
-        if(item.getItemMeta() == null) {
-            if(item.getAmount() == 1) {
+        if (item.getItemMeta() == null) {
+            if (item.getAmount() == 1) {
                 return null;
             }
 
@@ -54,8 +54,8 @@ public interface Component {
             return item;
         }
 
-        if(item.getItemMeta() instanceof Damageable d) {
-            if(d.getDamage() + 1 > item.getType().getMaxDurability()) {
+        if (item.getItemMeta() instanceof Damageable d) {
+            if (d.getDamage() + 1 > item.getType().getMaxDurability()) {
                 return null;
             }
 
@@ -64,7 +64,7 @@ public interface Component {
             item.setItemMeta(d);
             return item;
         } else {
-            if(item.getAmount() == 1) {
+            if (item.getAmount() == 1) {
                 return null;
             }
 
@@ -75,10 +75,8 @@ public interface Component {
         }
     }
 
-    default PotionEffect getRawPotionEffect(ItemStack is)
-    {
-        if(is != null && is.getItemMeta() != null && is.getItemMeta() instanceof PotionMeta p && p.getBasePotionData().getType().getEffectType() != null)
-        {
+    default PotionEffect getRawPotionEffect(ItemStack is) {
+        if (is != null && is.getItemMeta() != null && is.getItemMeta() instanceof PotionMeta p && p.getBasePotionData().getType().getEffectType() != null) {
             boolean l = is.getType().equals(Material.LINGERING_POTION);
             boolean x = p.getBasePotionData().isExtended();
             boolean u = p.getBasePotionData().isUpgraded();
@@ -86,7 +84,7 @@ public interface Component {
             int g = u ? l ? 440 : 1800 : e;
             int t = x ? l ? 1200 : 4800 : l ? 440 : 1800;
             int h = u ? l ? 100 : 420 : x ? l ? 440 : 1800 : l ? 220 : 900;
-            return new PotionEffect(p.getBasePotionData().getType().getEffectType(), switch(p.getBasePotionData().getType()) {
+            return new PotionEffect(p.getBasePotionData().getType().getEffectType(), switch (p.getBasePotionData().getType()) {
                 case NIGHT_VISION, INVISIBILITY, FIRE_RESISTANCE, WATER_BREATHING -> e;
                 case JUMP, SPEED, STRENGTH -> g;
                 case SLOWNESS -> u ? l ? 100 : 400 : t;
@@ -158,7 +156,33 @@ public interface Component {
         }
     }
 
-    default void vfxSingleCubeOutline(Block block){
+    List<BlockFace> faces = List.of(BlockFace.UP, BlockFace.DOWN, BlockFace.EAST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST);
+    List<List<List<BlockFace>>> faceLines = List.of(
+            List.of(List.of(BlockFace.UP, BlockFace.NORTH_EAST), List.of(BlockFace.UP, BlockFace.NORTH_WEST)),
+            List.of(List.of(BlockFace.UP, BlockFace.SOUTH_EAST), List.of(BlockFace.UP, BlockFace.SOUTH_WEST)),
+            List.of(List.of(BlockFace.UP, BlockFace.NORTH_EAST), List.of(BlockFace.UP, BlockFace.SOUTH_EAST)),
+            List.of(List.of(BlockFace.UP, BlockFace.NORTH_WEST), List.of(BlockFace.UP, BlockFace.SOUTH_WEST)),
+
+            List.of(List.of(BlockFace.DOWN, BlockFace.NORTH_EAST), List.of(BlockFace.DOWN, BlockFace.NORTH_WEST)),
+            List.of(List.of(BlockFace.DOWN, BlockFace.SOUTH_EAST), List.of(BlockFace.DOWN, BlockFace.SOUTH_WEST)),
+            List.of(List.of(BlockFace.DOWN, BlockFace.NORTH_EAST), List.of(BlockFace.DOWN, BlockFace.SOUTH_EAST)),
+            List.of(List.of(BlockFace.DOWN, BlockFace.NORTH_WEST), List.of(BlockFace.DOWN, BlockFace.SOUTH_WEST)),
+
+            List.of(List.of(BlockFace.UP, BlockFace.NORTH_WEST), List.of(BlockFace.DOWN, BlockFace.NORTH_WEST)),
+            List.of(List.of(BlockFace.UP, BlockFace.NORTH_EAST), List.of(BlockFace.DOWN, BlockFace.NORTH_EAST)),
+            List.of(List.of(BlockFace.UP, BlockFace.SOUTH_EAST), List.of(BlockFace.DOWN, BlockFace.SOUTH_EAST)),
+            List.of(List.of(BlockFace.UP, BlockFace.SOUTH_WEST), List.of(BlockFace.DOWN, BlockFace.SOUTH_WEST))
+
+    );
+    List<Vector> vectorAngles = faces.stream().map((i) -> new Vector(i.getModX(), i.getModY(), i.getModZ()).multiply(0.5)).collect(Collectors.toList());
+
+
+    default void vfxDrawBox(Block b) {
+        Vector center = b.getLocation().add(0.5, 0.5, 0.5).toVector();
+
+    }
+
+    default void vfxSingleCubeOutline(Block block) {
         Location point0 = block.getLocation(); //bottom left corner of the bloc
 
         Location point1 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY(), point0.getZ());
@@ -169,16 +193,21 @@ public interface Component {
         Location point6 = new Location(point0.getWorld(), point0.getX(), point0.getY() + 1, point0.getZ() + 1);
         Location point7 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ() + 1);
 
+
         vfxParticleLine(point0, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point0, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point0, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+
         vfxParticleLine(point7, point6, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point7, point5, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point7, point4, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+
         vfxParticleLine(point4, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point4, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+
         vfxParticleLine(point5, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point5, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+
         vfxParticleLine(point6, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point6, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
     }
@@ -186,6 +215,35 @@ public interface Component {
     default void vfxLevelUp(Player p) {
         p.spawnParticle(Particle.REVERSE_PORTAL, p.getLocation().clone().add(0, 1.7, 0), 100, 0.1, 0.1, 0.1, 4.1);
     }
+
+    default void vfxShootParticle(Player player, Particle particle, double velocity, int count) {
+        Location location = player.getEyeLocation();
+        Vector direction = location.getDirection();
+        for (int i = 0; i < count; i++) {
+            player.getWorld().spawnParticle(particle, location.getX(), location.getY(), location.getZ(), 0, (float) direction.getX(), (float) direction.getY(), (float) direction.getZ(), velocity, null);
+        }
+    }
+
+    default void vfxParticleRing(Location location, int radius, int height, Particle particle, double angleIncrement) {
+        for (double y = 0; y <= height; y += 0.05) {
+            for (double angle = 0; angle < 360; angle += angleIncrement) {
+                double x = location.getX() + (radius * Math.cos(Math.toRadians(angle)));
+                double z = location.getZ() + (radius * Math.sin(Math.toRadians(angle)));
+                location.getWorld().spawnParticle(particle, x, y + location.getY(), z, 1, 0, 0, 0, 0);
+            }
+        }
+    }
+
+    default void vfxParticleSpiral(Location center, int radius, int height, Particle type) {
+        double angle = 0;
+        for (int i = 0; i <= height; i++) {
+            double x = center.getX() + (radius * Math.cos(angle));
+            double z = center.getZ() + (radius * Math.sin(angle));
+            center.getWorld().spawnParticle(type, x, +center.getY(), z, 1, 0, 0, 0, 0);
+            angle += 0.1;
+        }
+    }
+
 
     default List<Location> vfxSelectionCube(Location corner1, Location corner2, double particleDistance) {
         List<Location> result = new ArrayList<Location>();
@@ -197,9 +255,9 @@ public interface Component {
         double maxY = Math.max(corner1.getY(), corner2.getY());
         double maxZ = Math.max(corner1.getZ(), corner2.getZ());
 
-        for (double x = minX; x <= maxX; x+=particleDistance) {
-            for (double y = minY; y <= maxY; y+=particleDistance) {
-                for (double z = minZ; z <= maxZ; z+=particleDistance) {
+        for (double x = minX; x <= maxX; x += particleDistance) {
+            for (double y = minY; y <= maxY; y += particleDistance) {
+                for (double z = minZ; z <= maxZ; z += particleDistance) {
                     int components = 0;
                     if (x == minX || x == maxX) components++;
                     if (y == minY || y == maxY) components++;
@@ -214,7 +272,7 @@ public interface Component {
         return result;
     }
 
-    default void riftResistCheckAndTrigger(Player p, int  duration, int amplifier) {
+    default void riftResistCheckAndTrigger(Player p, int duration, int amplifier) {
 
         p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
         p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1000f, 0.01f);
@@ -234,18 +292,18 @@ public interface Component {
         ItemStack is = p.getInventory().getItemInMainHand();
         ItemMeta im = is.getItemMeta();
 
-        if(im == null) {
+        if (im == null) {
             return;
         }
 
-        if(im.isUnbreakable()) {
+        if (im.isUnbreakable()) {
             return;
         }
 
         Damageable dm = (Damageable) im;
         dm.setDamage(dm.getDamage() + damage);
 
-        if(dm.getDamage() > is.getType().getMaxDurability()) {
+        if (dm.getDamage() > is.getType().getMaxDurability()) {
             p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
             p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
             return;
@@ -259,18 +317,18 @@ public interface Component {
         ItemStack is = p.getInventory().getItemInOffHand();
         ItemMeta im = is.getItemMeta();
 
-        if(im == null) {
+        if (im == null) {
             return;
         }
 
-        if(im.isUnbreakable()) {
+        if (im.isUnbreakable()) {
             return;
         }
 
         Damageable dm = (Damageable) im;
         dm.setDamage(dm.getDamage() + damage);
 
-        if(dm.getDamage() > is.getType().getMaxDurability()) {
+        if (dm.getDamage() > is.getType().getMaxDurability()) {
             p.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
             p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
             return;
@@ -283,12 +341,9 @@ public interface Component {
     /**
      * Takes a custom amount of the item stack exact type (Ignores the item amount)
      *
-     * @param inv
-     *     the inv
-     * @param is
-     *     the item ignore the amount
-     * @param amount
-     *     the amount to use
+     * @param inv    the inv
+     * @param is     the item ignore the amount
+     * @param amount the amount to use
      * @return true if taken, false if not (missing)
      */
     default boolean takeAll(Inventory inv, ItemStack is, int amount) {
@@ -300,10 +355,8 @@ public interface Component {
     /**
      * Take one of an exact type ignoring the item stack amount
      *
-     * @param inv
-     *     the inv
-     * @param is
-     *     the item ignoring the amount
+     * @param inv the inv
+     * @param is  the item ignoring the amount
      * @return true if taken, false if diddnt
      */
     default boolean takeOne(Inventory inv, ItemStack is, int amount) {
@@ -313,10 +366,8 @@ public interface Component {
     /**
      * Take a specific amount of an EXACT META TYPE from an inventory
      *
-     * @param inv
-     *     the inv
-     * @param is
-     *     uses the amount
+     * @param inv the inv
+     * @param is  uses the amount
      * @return returns false if it couldnt get enough (and none was taken)
      */
     default boolean takeAll(Inventory inv, ItemStack is) {
@@ -324,15 +375,15 @@ public interface Component {
 
         int take = is.getAmount();
 
-        for(int ii = 0; ii < items.length; ii++) {
+        for (int ii = 0; ii < items.length; ii++) {
             ItemStack i = items[ii];
 
-            if(i == null) {
+            if (i == null) {
                 continue;
             }
 
-            if(i.isSimilar(is)) {
-                if(take > i.getAmount()) {
+            if (i.isSimilar(is)) {
+                if (take > i.getAmount()) {
                     i.setAmount(i.getAmount() - take);
                     items[ii] = i;
                     take = 0;
@@ -344,7 +395,7 @@ public interface Component {
             }
         }
 
-        if(take > 0) {
+        if (take > 0) {
             return false;
         }
 

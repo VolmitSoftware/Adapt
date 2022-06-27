@@ -128,7 +128,7 @@ dependencies {
     implementation "net.kyori:adventure-text-minimessage:4.11.0"
     implementation 'net.kyori:adventure-platform-bukkit:4.1.1'
     implementation 'net.kyori:adventure-api:4.11.0'
-    implementation 'xyz.xenondevs:particle:1.7.1'
+    implementation 'xyz.xenondevs:particle:1.8.1'
     implementation 'org.cyberpwn:Spatial:21.11.11'
 
     // Dynamically Loaded
