@@ -31,7 +31,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + "REDUCED DAMAGE"+ C.GRAY + ", Based on nearby blocks\nRange: " +C.BLUE+ (getConfig().radiusFactor+level));
+        v.addLore(C.GREEN + "+ " + "REDUCED DAMAGE"+ C.GRAY + ", Based on nearby blocks\nLvl Multiplier: +" +C.BLUE+ level*0.25 );
     }
 
     public double getArmorPoints(Material m) {
@@ -83,6 +83,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     private double getStrength(double factor) {
         return Math.pow(factor, getConfig().strengthExponent);
     }
+
 
     @Override
     public void onTick() {
