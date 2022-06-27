@@ -7,6 +7,7 @@ import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Metrics;
 import com.volmit.adapt.util.VolmitPlugin;
+import de.slikey.effectlib.EffectManager;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
