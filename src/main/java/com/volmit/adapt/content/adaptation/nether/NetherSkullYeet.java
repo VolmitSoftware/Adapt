@@ -1,7 +1,7 @@
-package com.volmit.adapt.content.adaptation.wither;
+package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.content.skill.SkillWither;
+import com.volmit.adapt.content.skill.SkillNether;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -18,12 +18,12 @@ import org.bukkit.util.Vector;
 
 import java.util.UUID;
 
-public class WitherSkullYeet extends SimpleAdaptation<WitherSkullYeet.Config> {
+public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
     private final KMap<UUID, Integer> cooldowns = new KMap<>();
 
-    public WitherSkullYeet() {
-        super(SkillWither.id("yeet"));
+    public NetherSkullYeet() {
+        super(SkillNether.id("skull-toss"));
         registerConfiguration(Config.class);
         setDescription("Unleash your inner Wither by using " + C.ITALIC + "someones" + C.GRAY + " head.");
         setIcon(Material.WITHER_SKELETON_SKULL);

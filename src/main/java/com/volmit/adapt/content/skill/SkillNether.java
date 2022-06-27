@@ -1,13 +1,13 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.content.adaptation.wither.WitherResist;
-import com.volmit.adapt.content.adaptation.wither.WitherSkullYeet;
+import com.volmit.adapt.content.adaptation.nether.NetherWitherResist;
+import com.volmit.adapt.content.adaptation.nether.NetherSkullYeet;
 import com.volmit.adapt.util.C;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -15,10 +15,11 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 
-public class SkillWither extends SimpleSkill<SkillWither.Config> {
+public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
-    public static final String ID = "wither";
+    public static final String ID = "nether";
 
     private int witherRoseCooldown;
 
@@ -26,15 +27,15 @@ public class SkillWither extends SimpleSkill<SkillWither.Config> {
         return ID + "-" + name;
     }
 
-    public SkillWither() {
-        super("wither", "\u20AA");
+    public SkillNether() {
+        super(ID, "\u20AA");
         registerConfiguration(Config.class);
         setDescription("From the depths of the Nether itself.");
         setInterval(3425);
         setColor(C.DARK_GRAY);
-        setIcon(Material.WITHER_SKELETON_SKULL);
-        registerAdaptation(new WitherResist());
-        registerAdaptation(new WitherSkullYeet());
+        setIcon(Material.NETHER_STAR);
+        registerAdaptation(new NetherWitherResist());
+        registerAdaptation(new NetherSkullYeet());
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -52,17 +53,20 @@ public class SkillWither extends SimpleSkill<SkillWither.Config> {
     }
 
     @EventHandler
-    public void onEntityDamage(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player p) {
-            if(e.getEntity() instanceof LivingEntity entity && entity.getHealth() <= e.getFinalDamage()) {
-                switch(e.getEntityType()) {
-                    case WITHER_SKELETON -> xp(p, p.getLocation(), getConfig().getWitherSkeletonKillXp());
-                    case WITHER -> xp(p, p.getLocation(), getConfig().getWitherKillXp());
-                }
-            } else if(e.getCause() == EntityDamageEvent.DamageCause.WITHER){
-                xp(p, getConfig().getWitherAttackXp());
-            }
+    public void onEntityDeath(EntityDeathEvent e) {
+        if(e.getEntity().getKiller() != null) {
+            Player p = e.getEntity().getKiller();
+            if(e.getEntityType() == EntityType.WITHER_SKELETON)
+                xp(p, getConfig().getWitherSkeletonKillXp());
+            else if(e.getEntityType() == EntityType.WITHER)
+                xp(p, getConfig().getWitherKillXp());
         }
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageByEntityEvent e) {
+        if(e.getDamager() instanceof Player p && e.getCause() == EntityDamageEvent.DamageCause.WITHER)
+            xp(p, getConfig().getWitherAttackXp());
     }
 
     @Override

@@ -1,7 +1,7 @@
-package com.volmit.adapt.content.adaptation.wither;
+package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.content.skill.SkillWither;
+import com.volmit.adapt.content.skill.SkillNether;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.Data;
@@ -15,15 +15,15 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Random;
 
-public class WitherResist extends SimpleAdaptation<WitherResist.Config> {
+public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Config> {
 
     private static final Random RANDOM = new Random();
 
-    public WitherResist() {
-        super(SkillWither.id("resist"));
+    public NetherWitherResist() {
+        super(SkillNether.id("wither-resist"));
         registerConfiguration(Config.class);
         setDescription("Resists withering through the power of Netherite.");
-        setIcon(Material.NETHER_STAR);
+        setIcon(Material.NETHERITE_CHESTPLATE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);

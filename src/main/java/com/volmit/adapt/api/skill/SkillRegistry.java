@@ -48,7 +48,7 @@ public class SkillRegistry extends TickedObject {
         registerSkill(SkillUnarmed.class);
         registerSkill(SkillExcavation.class);
         registerSkill(SkillBrewing.class);
-        registerSkill(SkillWither.class);
+        registerSkill(SkillNether.class);
     }
 
     @EventHandler
