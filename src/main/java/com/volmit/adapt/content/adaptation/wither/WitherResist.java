@@ -1,18 +1,14 @@
 package com.volmit.adapt.content.adaptation.wither;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.content.adaptation.rift.RiftResist;
 import com.volmit.adapt.content.skill.SkillWither;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -27,7 +23,7 @@ public class WitherResist extends SimpleAdaptation<WitherResist.Config> {
         super(SkillWither.id("resist"));
         registerConfiguration(Config.class);
         setDescription("Resists withering through the power of Netherite.");
-        setIcon(Material.NETHERITE_CHESTPLATE);
+        setIcon(Material.NETHER_STAR);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);

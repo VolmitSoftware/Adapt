@@ -2,22 +2,18 @@ package com.volmit.adapt.content.adaptation.wither;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.skill.SkillWither;
+import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.KMap;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.minecraft.network.protocol.game.ClientboundCooldownPacket;
-import net.minecraft.world.item.Items;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.util.Vector;
 
 import java.util.UUID;
@@ -61,7 +57,7 @@ public class WitherSkullYeet extends SimpleAdaptation<WitherSkullYeet.Config> {
             e.getItem().setAmount(e.getItem().getAmount() - 1);
             int cooldown = (getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * getLevel(e.getPlayer())) * 20;
             cooldowns.put(e.getPlayer().getUniqueId(), cooldown);
-            sendCooldownPacket(e.getPlayer(), cooldown);
+            NMS.get().sendCooldown(e.getPlayer(), Material.WITHER_SKELETON_SKULL, cooldown);
         }
 
         Vector dir = e.getPlayer().getEyeLocation().getDirection();
@@ -72,6 +68,7 @@ public class WitherSkullYeet extends SimpleAdaptation<WitherSkullYeet.Config> {
             entity.setCharged(false);
             entity.setBounce(false);
             entity.setDirection(dir);
+            entity.setShooter(e.getPlayer());
         });
     }
 
@@ -84,13 +81,9 @@ public class WitherSkullYeet extends SimpleAdaptation<WitherSkullYeet.Config> {
             cooldowns.computeIfPresent(u, (uuid, i) -> i > 0 ? i-- : i);
             if(cooldowns.get(u) == 0) {
                 cooldowns.remove(u);
-                sendCooldownPacket(Bukkit.getPlayer(u), 0);
+                NMS.get().sendCooldown(Bukkit.getPlayer(u), Material.WITHER_SKELETON_SKULL, 0);
             }
         }
-    }
-
-    private void sendCooldownPacket(Player p, int ticks) {
-        ((CraftPlayer)p).getHandle().connection.send(new ClientboundCooldownPacket(Items.WITHER_SKELETON_SKULL, ticks));
     }
 
     @Data
