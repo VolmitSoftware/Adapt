@@ -9,6 +9,7 @@ Adapt Abilities are all accessable in the ingame GUI (Right clicking any Bookshe
 - [X] Super jump (Allows a Crouch jump to launch yourself up to 5 blocks High)
 - [X] Wall jump (Jump on walls)
 - [X] Wind-Up (Sprint and go faster)
+- [X] Armor-Up (Sprint and get more armor)(you need to have it equipped)
 - [ ] Running start, Sprint = Jump boost
 - [ ] Climb WOod
 
