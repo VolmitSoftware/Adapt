@@ -39,6 +39,7 @@ Adapt Abilities are all accessable in the ingame GUI (Right clicking any Bookshe
 
 **Discovery**:
 - [ ] Tiny Potato
+- [ ] Armored Elytras
 - [X] Worldly Armor
 - [X] Passive XP
 - [ ] Villager Attitude

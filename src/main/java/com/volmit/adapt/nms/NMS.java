@@ -12,7 +12,6 @@ public final class NMS {
 
     private static final Map<String, Impl> VERSIONS = new ImmutableMap.Builder<String, Impl>()
             .put("1.19", new NMS_1_19())
-            .put("1.18.2", new NMS_1_18_2())
             .build();
 
     private static String version;
