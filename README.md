@@ -1,6 +1,6 @@
 # Adapt
 
-_Adapt is a drag and drop solution for balanced passive abilities and skills that players can enjoy on a server.
+_Adapt is a drag and drop solution for balanced passive abilities and skills that players can enjoy on a server._
 
 Adapt Abilities are all accessable in the ingame GUI (Right clicking any Bookshelf **_Face_**) providing a more user friendly experience to a "skills" system. Most servers want to increase the quality of the "vanilla" experience. Most Skill based plugins are about powers, game breaking systems, and riddles with bugs. Thats where Adapt comes in.  Lightweight on the server, and providing mere quality of life enhancements to a user's experience. Below is a **WIP** List of features (_and descriptions_) that ill fill when i can. But this should give you a good idea of the roadmap for this plugin! Keep in mine this all WIP, can chanhe at any time, and all of these can be configured  / disabled!
 
