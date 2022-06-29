@@ -2,7 +2,7 @@
 
 _Adapt is a drag and drop solution for balanced passive abilities and skills that players can enjoy on a server._
 
-Adapt Abilities are all accessable in the ingame GUI (Right clicking any Bookshelf **_Face_**) providing a more user friendly experience to a "skills" system. Most servers want to increase the quality of the "vanilla" experience. Most Skill based plugins are about powers, game breaking systems, and riddles with bugs. Thats where Adapt comes in.  Lightweight on the server, and providing mere quality of life enhancements to a user's experience. Below is a **WIP** List of features (_and descriptions_) that ill fill when i can. But this should give you a good idea of the roadmap for this plugin! Keep in mine this all WIP, can chanhe at any time, and all of these can be configured  / disabled!
+Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Bookshelf **_Face_**) providing a more user-friendly experience to a "skills" system. Most servers want to increase the quality of the "vanilla" experience. Most Skill based plugins are about powers, game breaking systems, and riddles with bugs. That's where Adapt comes in.  Lightweight on the server, and providing mere quality of life enhancements to a user's experience. Below is a **WIP** List of features (_and descriptions_) that ill fill when i can. But this should give you a good idea of the roadmap for this plugin! Keep in mine this all WIP, can change at any time, and all of these can be configured  / disabled!
 
 **Agility**:
 - [ ] Slide?
@@ -21,7 +21,7 @@ Adapt Abilities are all accessable in the ingame GUI (Right clicking any Bookshe
 - [ ] Forced Leaf Decay
 
 **Axe**:
-- [ ] Tommahawk Throw
+- [ ] Tomahawk Throw
 - [X] Axe Ground-Smash
 - [X] Axe TreeFeller
 - [ ] StripLogger (Sticks got from stripping)
@@ -36,7 +36,7 @@ Adapt Abilities are all accessable in the ingame GUI (Right clicking any Bookshe
 
 **Crafting**:
 - [ ] Xp for crafting
-- [X] Deconstruction Table (Decraft to basics)
+- [X] Deconstruction Table (De-craft to basics)
 
 **Discovery**:
 - [ ] Tiny Potato
@@ -47,7 +47,7 @@ Adapt Abilities are all accessable in the ingame GUI (Right clicking any Bookshe
 
 **Enchanting**:
 - [ ] XP Refund
-- [X] Lapis Refund (Chance per enchant to give lapis)
+- [X] Lapis Refund (Chance per enchant to give Lapis)
 - [X] In-Inventory Enchanting (Books to Items)
 - [ ] Xp for making Bookshelf/Book/Table
 - [ ] Better Enchant Levels
@@ -55,13 +55,13 @@ Adapt Abilities are all accessable in the ingame GUI (Right clicking any Bookshe
 **Herbalism**:
 - [ ] Fix Aura
 - [X] Hunger Shield (up to 50% less hunger consumption)
-- [X] Replanter (replant items by right clicking)
+- [X] Replanted (replant items by right-clicking)
 - [ ] Harvest Dupes
 - [ ] Xp Gain
 - [ ] Faster Grow
 
 **Hunter**:
-- [X] Adrenaline (mroe damage lower the health)
+- [X] Adrenaline (more damage lower the health)
 - [ ] Regen while in combat -> massive loss in hunger
 - [ ] Resilience in combat  -> massive loss in hunger
 - [ ] Speed while in combat  -> massive loss in hunger
@@ -69,10 +69,10 @@ Adapt Abilities are all accessable in the ingame GUI (Right clicking any Bookshe
 
 **Pickaxe**
 - [X] Chisel ores (more ore, less durability)
-- [X] Veinminer (Veinminer)
+- [X] Vein-miner (Vein-miner)
 - [ ] Locate Nearest Ore:
 - [ ] HammerMiner -> more duration cost
-- [ ] Autosmelt % chance
+- [ ] Auto-smelt % chance
 - [ ] Chance not to eat Durability
 
 **Ranged**:
@@ -86,16 +86,16 @@ Adapt Abilities are all accessable in the ingame GUI (Right clicking any Bookshe
 - [X] Short-Ranged "blink" (teleport)
 - [X] No-Place Enderchest (like /ec )
 - [X] Rift Recall (Teleport to a location)
-- [X] Resiliance based on Ender Atrifact Used (blink = 10% Enderperal = 25% etc)
+- [X] Resilience based on Ender Artifact Used (blink = 10% Enderperal = 25% etc)
 
 **Seaborn**
 - [X] WaterBreathing
-- [ ] Nightvision underwater
+- [ ] Night vision underwater
 - [ ] Passive Fish?
-- [ ] Water Refils Hunger/regen
+- [ ] Water Refiles Hunger/regen
 
 **Stealth**:
-- [X] Snatching (cloce-range item Vacuum) 
+- [X] Snatching (close-range item Vacuum) 
 - [X] Sneak-Speed (Destroy FOV in a single button press)
 - [ ] StealthSight
 - [ ] Sneak Attack
@@ -104,13 +104,13 @@ Adapt Abilities are all accessable in the ingame GUI (Right clicking any Bookshe
 - [X] Machete (chopping blocks down)
 - [ ] Throwing Knife
 - [ ] Bleed Damage
-- [ ] More damage to Non Armored Enemies
+- [ ] More damage to Non-Armored Enemies
 - [ ] Turrets, Deploy Swords, that fling to a target
 
 **Taming**:
 - [X] Tame Health Boost (Tames have more health)
 - [X] Tame Damage Boost (Tames do more DPS)
-- [X] Tame Health Regen (Tames have passibe regen)
+- [X] Tame Health Regen (Tames have passive regen)
 - [ ] Tamed Vampirism  (Familiar)
 
 **Unarmed**:
@@ -124,12 +124,12 @@ Adapt Abilities are all accessable in the ingame GUI (Right clicking any Bookshe
 
 **Nether**:
 - [X] Wither Resist (Resistance to wither)
-- [X] Wither SKull Throw (Pvsshhh)
+- [X] Wither Skull Throw (Pvsshhh)
 - [ ] Soul Speed
-- [ ] Netherite Tools Apply WIther
+- [ ] Nether Tools Apply Wither
 - [ ] Nearby Withering applies regen
 
 **Chronos**: _(Unimplemented)_
-- [ ] Chrono Slowdown (Passive Slowdown for entities in the world)
-- [ ] Chrono Speed (Passive Speed for entities in the world)
+- [ ] Chronos Slowdown (Passive Slowdown for entities in the world)
+- [ ] Chronos Speed (Passive Speed for entities in the world)
 - [ ] 
