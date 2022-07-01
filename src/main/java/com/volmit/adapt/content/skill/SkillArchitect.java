@@ -1,9 +1,12 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.architect.ArchitectPlacement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,10 +22,18 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         setColor(C.AQUA);
         setDescription("Structures of reality are yours to control");
         setInterval(3700);
+        setIcon(Material.IRON_BARS);
+        registerAdvancement(AdaptAdvancement.builder()
+            .icon(Material.BRICK)
+            .key("challenge_place_1k")
+            .title("So much to build!")
+            .description("Place over 1,000 blocks")
+            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
         setIcon(Material.SMITHING_TABLE);
         registerAdaptation(new ArchitectPlacement());
-
-//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
     }
 
     @EventHandler
