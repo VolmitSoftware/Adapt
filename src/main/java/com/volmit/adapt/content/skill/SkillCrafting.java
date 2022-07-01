@@ -1,14 +1,15 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.crafting.CraftingDeconstruction;
 import com.volmit.adapt.util.C;
-
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.advancement.AdvancementDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,7 +28,15 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         setInterval(3700);
         setIcon(Material.STRING);
         registerAdaptation(new CraftingDeconstruction());
-//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_3k").goal(3000).stat("crafted.items").reward(getConfig().challengeCraft3kReward).build());
+        registerAdvancement(AdaptAdvancement.builder()
+            .icon(Material.BRICK)
+            .key("challenge_craft_3k")
+            .title("MacGyver Man")
+            .description("Craft over 3,000 items")
+            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_3k").goal(3000).stat("crafted.items").reward(getConfig().challengeCraft3kReward).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
