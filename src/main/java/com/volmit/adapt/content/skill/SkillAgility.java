@@ -1,6 +1,6 @@
 package com.volmit.adapt.content.skill;
 
-
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.agility.AgilityArmorUp;
@@ -8,6 +8,8 @@ import com.volmit.adapt.content.adaptation.agility.AgilitySuperJump;
 import com.volmit.adapt.content.adaptation.agility.AgilityWallJump;
 import com.volmit.adapt.content.adaptation.agility.AgilityWindUp;
 import com.volmit.adapt.util.C;
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -27,9 +29,33 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         registerAdaptation(new AgilityWallJump());
         registerAdaptation(new AgilitySuperJump());
         registerAdaptation(new AgilityArmorUp());
-//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_move_1k").goal(1000).stat("move").reward(getConfig().challengeMove1kReward).build());
-//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_5k").goal(5000).stat("move").reward(getConfig().challengeSprint5kReward).build());
-//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_marathon").goal(42195).stat("move").reward(getConfig().challengeSprintMarathonReward).build());
+        registerAdvancement(AdaptAdvancement.builder()
+            .icon(Material.LEATHER_BOOTS)
+            .key("challenge_move_1k")
+            .title("Gotta Move!")
+            .description("Walk over 1 Kilometer (1,000 blocks)")
+            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .child(AdaptAdvancement.builder()
+                .icon(Material.IRON_BOOTS)
+                .key("challenge_sprint_5k")
+                .title("Sprint a 5K!")
+                .description("Sprint over 5,000 Blocks!")
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build())
+            .child(AdaptAdvancement.builder()
+                .icon(Material.GOLDEN_BOOTS)
+                .key("challenge_sprint_marathon")
+                .title("Sprint a Marathon!")
+                .description("Sprint over 42,195 Blocks!")
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build())
+            .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_move_1k").goal(1000).stat("move").reward(getConfig().challengeMove1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_5k").goal(5000).stat("move").reward(getConfig().challengeSprint5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_marathon").goal(42195).stat("move").reward(getConfig().challengeSprintMarathonReward).build());
     }
 
     @EventHandler
