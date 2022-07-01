@@ -1,6 +1,6 @@
 package com.volmit.adapt.content.skill;
 
-
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.herbalism.HerbalismGrowthAura;
@@ -8,10 +8,10 @@ import com.volmit.adapt.content.adaptation.herbalism.HerbalismHungryShield;
 import com.volmit.adapt.content.adaptation.herbalism.HerbalismReplant;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
-
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.advancement.AdvancementDisplay;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.event.Event;
@@ -36,12 +36,42 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         registerAdaptation(new HerbalismGrowthAura());
         registerAdaptation(new HerbalismReplant());
         registerAdaptation(new HerbalismHungryShield());
-
-//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_100").goal(100).stat("food.eaten").reward(getConfig().challengeEat100Reward).build());
-//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_1000").goal(1000).stat("food.eaten").reward(getConfig().challengeEat1kReward).build());
-//
-//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_100").goal(100).stat("harvest.blocks").reward(getConfig().challengeHarvest100Reward).build());
-//        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(getConfig().challengeHarvest1kReward).build());
+        registerAdvancement(AdaptAdvancement.builder()
+            .icon(Material.COOKED_BEEF)
+            .key("challenge_eat_100")
+            .title("So much to eat!")
+            .description("Eat over 100 Items!")
+            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .child(AdaptAdvancement.builder()
+                .icon(Material.COOKED_BEEF)
+                .key("challenge_eat_1000")
+                .title("Unquenchable Hunger!")
+                .description("Eat over 1,000 Items!")
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build())
+            .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_100").goal(100).stat("food.eaten").reward(getConfig().challengeEat100Reward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_1000").goal(1000).stat("food.eaten").reward(getConfig().challengeEat1kReward).build());
+        registerAdvancement(AdaptAdvancement.builder()
+            .icon(Material.COOKED_BEEF)
+            .key("challenge_harvest_100")
+            .title("Full Harvest")
+            .description("Harvest over 100 crops!")
+            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .child(AdaptAdvancement.builder()
+                .icon(Material.COOKED_BEEF)
+                .key("challenge_harvest_1000")
+                .title("Grand Harvest")
+                .description("Harvest 1,000 crops!")
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build())
+            .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_100").goal(100).stat("harvest.blocks").reward(getConfig().challengeHarvest100Reward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(getConfig().challengeHarvest1kReward).build());
     }
 
     @EventHandler
