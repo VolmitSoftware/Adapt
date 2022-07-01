@@ -1,16 +1,17 @@
 package com.volmit.adapt.content.adaptation.ranged;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
-
+import eu.endercentral.crazy_advancements.AdvancementDisplay;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.advancement.AdvancementDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -30,6 +31,14 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         setInterval(5000);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+            .icon(Material.SPECTRAL_ARROW)
+            .key("challenge_force_30")
+            .title("Long Shot")
+            .description("Land a shot from over 30 blocks away!")
+            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build());
     }
 
     @Override
@@ -50,7 +59,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
             b.setY(0);
 
             if(a.distanceSquared(b) > 10) {
-//                getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
+                getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
                 getSkill().xp(p, getConfig().challengeRewardLongShotReward);
             }
         }
