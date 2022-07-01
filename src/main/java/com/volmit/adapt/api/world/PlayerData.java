@@ -8,6 +8,7 @@ import com.volmit.adapt.api.notification.TitleNotification;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.KSet;
@@ -151,7 +152,7 @@ public class PlayerData {
                 ActionBarNotification.builder()
                     .duration(450)
                     .group("power")
-                    .title(C.GOLD + "" + (level * AdaptConfig.get().getPowerPerLevel()) + C.GRAY + " Maximum Ability Power")
+                    .title(C.GOLD + "" + Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY + " Maximum Ability Power")
                     .build());
 
         }

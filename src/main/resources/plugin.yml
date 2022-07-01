@@ -6,3 +6,7 @@ libraries:
   - com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2
   - org.apache.commons:commons-lang3:3.12.0
   - com.google.code.gson:gson:2.8.9
+commands:
+  adapt:
+    aliases: [a, ada]
+    permission: op

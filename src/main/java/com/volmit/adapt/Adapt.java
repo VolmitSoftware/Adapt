@@ -4,19 +4,25 @@ import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptServer;
+import com.volmit.adapt.commands.CommandAdapt;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.Metrics;
 import com.volmit.adapt.util.VolmitPlugin;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.io.File;
 
 public class Adapt extends VolmitPlugin {
+    @Command
+    private CommandAdapt commandAdapt = new CommandAdapt();
+
     public static Adapt instance;
 
     @Getter

@@ -3,22 +3,36 @@ package com.volmit.adapt.api.world;
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.Adaptation;
+import com.volmit.adapt.api.notification.ActionBarNotification;
+import com.volmit.adapt.api.notification.AdvancementNotification;
+import com.volmit.adapt.api.notification.SoundNotification;
+import com.volmit.adapt.api.notification.TitleNotification;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.xp.SpatialXP;
 import com.volmit.adapt.api.xp.XP;
+import com.volmit.adapt.content.item.ExperienceOrb;
+import com.volmit.adapt.content.item.KnowledgeOrb;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.IO;
+import com.volmit.adapt.util.Inventories;
+import com.volmit.adapt.util.Items;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -100,6 +114,51 @@ public class AdaptServer extends TickedObject {
         }
         skillRegistry.unregister();
         super.unregister();
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(ProjectileLaunchEvent e)
+    {
+        if(e.getEntity() instanceof Snowball s && e.getEntity().getShooter() instanceof Player p)
+        {
+            KnowledgeOrb.Data data = KnowledgeOrb.get(s.getItem());
+
+            if(data != null) {
+                Skill<?> skill = getSkillRegistry().getSkill(data.getSkill());
+                s.remove();
+                data.apply(p);
+                SoundNotification.builder()
+                    .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
+                    .volume(0.35f).pitch(1.455f)
+                    .build().play(getPlayer(p));
+                SoundNotification.builder()
+                    .sound(Sound.ENTITY_SHULKER_OPEN)
+                    .volume(1f).pitch(1.655f)
+                    .build().play(getPlayer(p));
+                getPlayer(p).getNot().queue(AdvancementNotification.builder()
+                        .icon(Material.BOOK)
+                    .title(C.GRAY + "+ " + C.WHITE + data.getKnowledge() + " " + skill.getDisplayName() + " Knowledge")
+                    .build());
+            }
+
+            else
+            {
+                ExperienceOrb.Data datax = ExperienceOrb.get(s.getItem());
+
+                if(datax != null) {
+                    s.remove();
+                    datax.apply(p);
+                    SoundNotification.builder()
+                        .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
+                        .volume(0.35f).pitch(1.455f)
+                        .build().play(getPlayer(p));
+                    SoundNotification.builder()
+                        .sound(Sound.ENTITY_SHULKER_OPEN)
+                        .volume(1f).pitch(1.655f)
+                        .build().play(getPlayer(p));
+                }
+            }
+        }
     }
 
     @EventHandler

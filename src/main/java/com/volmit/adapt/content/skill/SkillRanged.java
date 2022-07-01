@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
@@ -30,7 +31,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         setIcon(Material.CROSSBOW);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(ProjectileLaunchEvent e) {
         if(e.getEntity().getShooter() instanceof Player) {
             xp(((Player) e.getEntity().getShooter()), getConfig().shootXP);
@@ -39,7 +40,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
         if(e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
             Player p = ((Player) ((Projectile) e.getDamager()).getShooter());

@@ -53,7 +53,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
             ItemStack is = p.getInventory().getItemInMainHand().clone();
             ItemStack hand = p.getInventory().getItemInMainHand();
 
-
             if (p.isSneaking() && is.getType().isBlock()) {
                 KMap<Block, BlockFace> map = totalMap.get(p);
                 double v = getValue(e.getBlock());

@@ -49,15 +49,11 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
             double d = e.getDamage() - h;
             Player p = (Player) e.getEntity();
 
-            if(p.getFoodLevel() >= h) {
-                p.setFoodLevel((int) (p.getFoodLevel() - h));
-            } else {
-                h -= p.getFoodLevel();
-                p.setFoodLevel(0);
+            if(getPlayer(p).consumeFood(h, 6))
+            {
                 d += h;
+                e.setDamage(d);
             }
-
-            e.setDamage(d);
         }
     }
 
@@ -73,7 +69,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
         int maxLevel = 5;
         int initialCost = 14;
         double costFactor = 0.925;
-        double effectivenessBase = 0.09;
-        double maxEffectiveness = 0.5;
+        double effectivenessBase = 0.15;
+        double maxEffectiveness = 0.65;
     }
 }

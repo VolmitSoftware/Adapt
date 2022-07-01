@@ -54,6 +54,66 @@ public class AdaptPlayer extends TickedObject {
         velocity = new Vector();
     }
 
+    public boolean canConsumeFood(double cost, int minFood)
+    {
+        return (player.getFoodLevel() + player.getSaturation()) - minFood > cost;
+    }
+
+    public boolean consumeFood(double cost, int minFood)
+    {
+        if(canConsumeFood(cost, minFood))
+        {
+            int food = player.getFoodLevel();
+            double sat = player.getSaturation();
+
+            if(sat >= cost)
+            {
+                sat = (player.getSaturation() - cost);
+                cost = 0;
+            }
+
+            else if(player.getSaturation() > 0)
+            {
+                cost -= sat;
+                sat = 0;
+            }
+
+            if(cost >= 1)
+            {
+                food -= (int) Math.floor(cost);
+                cost = Math.floor(cost);
+            }
+
+            if(cost > 0)
+            {
+                if(sat >= cost)
+                {
+                    sat -= cost;
+                    cost = 0;
+                }
+
+                else
+                {
+                    sat++;
+                    food--;
+                }
+            }
+
+            if(sat >= cost && cost > 0)
+            {
+                sat -= cost;
+                cost = 0;
+            }
+
+            player.setFoodLevel(food);
+            player.setSaturation((float) sat);
+
+            return true;
+        }
+
+        return false;
+    }
+
     public boolean isBusy() {
         return not.isBusy();
     }

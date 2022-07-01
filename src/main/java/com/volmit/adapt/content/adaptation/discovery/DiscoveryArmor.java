@@ -18,9 +18,9 @@ import java.util.Collection;
 
 public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     public DiscoveryArmor() {
-        super("discovery-armor");
+        super("world-armor");
         registerConfiguration(Config.class);
-        setDescription("Collecting Experience Orbs adds XP to random skills.");
+        setDescription("Passive armor depending on nearby block hardness.");
         setIcon(Material.TURTLE_HELMET);
         setInterval(1125);
         setBaseCost(getConfig().baseCost);
@@ -31,7 +31,8 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + "REDUCED DAMAGE"+ C.GRAY + ", Based on nearby blocks\nLvl Multiplier: +" +C.BLUE+ level*0.25 );
+        v.addLore(C.GREEN + "+ " + "Passive Armor"+ C.GRAY + ", Based on nearby block hardness");
+        v.addLore("Armor Strength: +" +C.BLUE+ level*0.25);
     }
 
     public double getArmorPoints(Material m) {
