@@ -3,7 +3,7 @@ package com.volmit.adapt.api.skill;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.adaptation.Adaptation;
-
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -25,7 +25,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 public interface Skill<T> extends Ticked, Component {
-
+    AdaptAdvancement buildAdvancements();
 
     Class<T> getConfigurationClass();
 
@@ -52,11 +52,15 @@ public interface Skill<T> extends Ticked, Component {
     KList<AdaptStatTracker> getStatTrackers();
 
     default void checkStatTrackers(AdaptPlayer player) {
+        if(!player.getAdvancementHandler().isReady()) {
+            return;
+        }
+
         PlayerData d = player.getData();
 
         for(AdaptStatTracker i : getStatTrackers()) {
             if(!d.isGranted(i.getAdvancement()) && d.getStat(i.getStat()) >= i.getGoal()) {
-//                player.getAdvancementHandler().grant(i.getAdvancement());
+                player.getAdvancementHandler().grant(i.getAdvancement());
                 xp(player.getPlayer(), i.getReward());
             }
         }
@@ -68,6 +72,7 @@ public interface Skill<T> extends Ticked, Component {
 
     double getMinXp();
 
+    void onRegisterAdvancements(KList<AdaptAdvancement> advancements);
 
     default String getDisplayName() {
         return C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName() + " " + Form.capitalize(getName());

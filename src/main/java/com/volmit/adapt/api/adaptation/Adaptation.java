@@ -2,6 +2,7 @@ package com.volmit.adapt.api.adaptation;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.Component;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
@@ -102,6 +103,7 @@ public interface Adaptation<T> extends Ticked, Component {
 
     T getConfig();
 
+    AdaptAdvancement buildAdvancements();
 
     void addStats(int level, Element v);
 
@@ -123,6 +125,7 @@ public interface Adaptation<T> extends Ticked, Component {
 
     KList<AdaptRecipe> getRecipes();
 
+    void onRegisterAdvancements(KList<AdaptAdvancement> advancements);
 
     default boolean hasAdaptation(Player p) {
         return getLevel(p) > 0;

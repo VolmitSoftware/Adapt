@@ -2,6 +2,7 @@ package com.volmit.adapt.api.adaptation;
 
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
@@ -9,6 +10,7 @@ import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.KList;
+import eu.endercentral.crazy_advancements.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
@@ -28,12 +30,14 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     private String description;
     private Material icon;
     private String name;
+    private KList<AdaptAdvancement> cachedAdvancements;
     private KList<AdaptRecipe> recipes;
     private Class<T> configType;
     private T config;
 
     public SimpleAdaptation(String name) {
         super("adaptations", UUID.randomUUID() + "-" + name, 1000);
+        cachedAdvancements = new KList<>();
         recipes = new KList<>();
         setMaxLevel(5);
         setCostFactor(0.35);
@@ -96,5 +100,27 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     public void registerRecipe(AdaptRecipe r) {
         recipes.add(r);
     }
-    
+
+    public void registerAdvancement(AdaptAdvancement a) {
+        cachedAdvancements.add(a);
+    }
+
+    @Override
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+        advancements.addAll(cachedAdvancements);
+    }
+
+    public AdaptAdvancement buildAdvancements() {
+        KList<AdaptAdvancement> a = new KList<>();
+        onRegisterAdvancements(a);
+
+        return AdaptAdvancement.builder()
+            .key("adaptation_" + getName())
+            .title(getDisplayName())
+            .description(getDescription() + ". Unlock this Adaptation by right clicking a bookshelf.")
+            .icon(getIcon())
+            .children(a)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build();
+    }
 }

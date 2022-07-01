@@ -2,6 +2,7 @@ package com.volmit.adapt.api.world;
 
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.notification.Notifier;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
@@ -32,6 +33,7 @@ public class AdaptPlayer extends TickedObject {
     private ChronoLatch updatelatch;
     private Notifier not;
     private Notifier actionBarNotifier;
+    private AdvancementHandler advancementHandler;
     private RollingSequence speed;
     private long lastloc;
     private Vector velocity;
@@ -45,8 +47,10 @@ public class AdaptPlayer extends TickedObject {
         savelatch = new ChronoLatch(60000);
         not = new Notifier(this);
         actionBarNotifier = new Notifier(this);
+        advancementHandler = new AdvancementHandler(this);
         speed = new RollingSequence(7);
         lastloc = M.ms();
+        getAdvancementHandler().activate();
         velocity = new Vector();
     }
 
@@ -66,6 +70,7 @@ public class AdaptPlayer extends TickedObject {
     @Override
     public void unregister() {
         super.unregister();
+        getAdvancementHandler().deactivate();
         save();
     }
 
@@ -153,6 +158,10 @@ public class AdaptPlayer extends TickedObject {
 
         double boostAmount = M.lerp(0.1, 0.25, (double) boostTime / (double) TimeUnit.HOURS.toMillis(1));
         getData().globalXPMultiplier(boostAmount, (int) boostTime);
+        getNot().queue(AdvancementNotification.builder()
+            .title(first ? "Welcome!" : "Welcome Back!")
+            .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " XP for " + C.AQUA + Form.duration(boostTime, 0))
+            .build());
     }
 
     public boolean hasSkill(Skill s) {
