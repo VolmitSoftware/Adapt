@@ -40,8 +40,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onEntityDamage(EntityDamageEvent event) {
-        if(event.getCause() == EntityDamageEvent.DamageCause.WITHER && event.getEntity() instanceof Player p && !(event instanceof EntityDamageByBlockEvent))
+        if(event.getCause() == EntityDamageEvent.DamageCause.WITHER && event.getEntity() instanceof Player p && !(event instanceof EntityDamageByBlockEvent)) {
             xp(p, getConfig().getWitherDamageXp());
+        }
     }
 
     @EventHandler
@@ -56,23 +57,27 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     public void onEntityDeath(EntityDeathEvent e) {
         if(e.getEntity().getKiller() != null) {
             Player p = e.getEntity().getKiller();
-            if(e.getEntityType() == EntityType.WITHER_SKELETON)
+            if(e.getEntityType() == EntityType.WITHER_SKELETON) {
                 xp(p, getConfig().getWitherSkeletonKillXp());
-            else if(e.getEntityType() == EntityType.WITHER)
+            }
+            else if(e.getEntityType() == EntityType.WITHER) {
                 xp(p, getConfig().getWitherKillXp());
+            }
         }
     }
 
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player p && e.getCause() == EntityDamageEvent.DamageCause.WITHER)
+        if(e.getDamager() instanceof Player p && e.getCause() == EntityDamageEvent.DamageCause.WITHER) {
             xp(p, getConfig().getWitherAttackXp());
+        }
     }
 
     @Override
     public void onTick() {
-        if(witherRoseCooldown > 0)
+        if(witherRoseCooldown > 0) {
             witherRoseCooldown--;
+        }
     }
 
     @Override

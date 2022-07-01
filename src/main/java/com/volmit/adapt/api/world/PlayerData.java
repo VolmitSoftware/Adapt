@@ -151,7 +151,7 @@ public class PlayerData {
                 ActionBarNotification.builder()
                     .duration(450)
                     .group("power")
-                    .title(C.GOLD + "" + (level * AdaptConfig.get().getPowerPerLevel()) + C.GRAY + "Maximum Ability Power")
+                    .title(C.GOLD + "" + (level * AdaptConfig.get().getPowerPerLevel()) + C.GRAY + " Maximum Ability Power")
                     .build());
 
         }
