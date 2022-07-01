@@ -8,8 +8,8 @@ import com.volmit.adapt.content.adaptation.agility.AgilitySuperJump;
 import com.volmit.adapt.content.adaptation.agility.AgilityWallJump;
 import com.volmit.adapt.content.adaptation.agility.AgilityWindUp;
 import com.volmit.adapt.util.C;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -93,9 +93,9 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-//        double challengeMove1kReward = 500;
-//        double challengeSprint5kReward = 2000;
-//        double challengeSprintMarathonReward = 6500;
+        double challengeMove1kReward = 500;
+        double challengeSprint5kReward = 2000;
+        double challengeSprintMarathonReward = 6500;
         double sprintXpPassive = 1.25;
     }
 }

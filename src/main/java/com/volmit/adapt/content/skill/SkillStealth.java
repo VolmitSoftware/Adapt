@@ -2,11 +2,12 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.stealth.StealthSnatch;
 import com.volmit.adapt.content.adaptation.stealth.StealthSpeed;
 import com.volmit.adapt.util.C;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -50,7 +51,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-//        double challengeSneak1kReward = 750;
+        double challengeSneak1kReward = 750;
         double sneakXP = 15.48;
     }
 }

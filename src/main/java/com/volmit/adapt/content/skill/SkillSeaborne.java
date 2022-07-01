@@ -5,8 +5,8 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.seaborrne.SeaborneOxygen;
 import com.volmit.adapt.util.C;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -50,7 +50,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-//        double challengeSwim1nmReward = 750;
+        double challengeSwim1nmReward = 750;
         double swimXP = 19.7;
     }
 }

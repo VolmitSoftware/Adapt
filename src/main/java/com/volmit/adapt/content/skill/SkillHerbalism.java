@@ -8,8 +8,8 @@ import com.volmit.adapt.content.adaptation.herbalism.HerbalismHungryShield;
 import com.volmit.adapt.content.adaptation.herbalism.HerbalismReplant;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.block.data.Ageable;
@@ -166,9 +166,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         double composterBaseXP = 51;
         double composterLevelXPMultiplier = 3;
         double composterNonZeroLevelBonus = 250;
-//        double challengeEat100Reward = 1250;
-//        double challengeEat1kReward = 6250;
-//        double challengeHarvest100Reward = 1250;
-//        double challengeHarvest1kReward = 6250;
+        double challengeEat100Reward = 1250;
+        double challengeEat1kReward = 6250;
+        double challengeHarvest100Reward = 1250;
+        double challengeHarvest1kReward = 6250;
     }
 }

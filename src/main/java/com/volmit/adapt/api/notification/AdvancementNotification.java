@@ -2,10 +2,10 @@ package com.volmit.adapt.api.notification;
 
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.RNG;
-import eu.endercentral.crazy_advancements.Advancement;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.AdvancementVisibility;
-import eu.endercentral.crazy_advancements.NameKey;
+import com.volmit.adapt.util.advancements.advancement.Advancement;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
+import com.volmit.adapt.util.advancements.NameKey;
 import lombok.Builder;
 import lombok.Data;
 import org.bukkit.Material;
@@ -36,7 +36,7 @@ public class AdvancementNotification implements Notification {
 
     @Override
     public void play(AdaptPlayer p) {
-        AdvancementDisplay d = new AdvancementDisplay(icon, buildTitle(), description, frameType, true, false, AdvancementVisibility.ALWAYS);
+        AdvancementDisplay d = new AdvancementDisplay(icon, buildTitle(), description, frameType, AdvancementVisibility.ALWAYS);
         Advancement a = new Advancement(null, new NameKey("adapt-notifications", "n" + p.getId() + RNG.r.lmax()), d);
         a.displayToast(p.getPlayer());
     }

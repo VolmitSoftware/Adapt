@@ -5,22 +5,22 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KMap;
-import eu.endercentral.crazy_advancements.Advancement;
-import eu.endercentral.crazy_advancements.manager.AdvancementManager;
+import com.volmit.adapt.util.advancements.NameKey;
+import com.volmit.adapt.util.advancements.advancement.Advancement;
+import com.volmit.adapt.util.advancements.manager.AdvancementManager;
 import lombok.Data;
 
 @Data
 public class AdvancementHandler {
     private AdvancementManager manager;
     private AdaptPlayer player;
-    private KMap<Skill, AdaptAdvancement> roots;
+    private KMap<Skill<?>, AdaptAdvancement> roots;
     private KMap<String, Advancement> real;
     private boolean ready;
 
     public AdvancementHandler(AdaptPlayer player) {
         this.player = player;
-        this.manager = new AdvancementManager(player.getPlayer());
-        getManager().setAnnounceAdvancementMessages(false);
+        this.manager = new AdvancementManager(new NameKey("adapt", player.getPlayer().getUniqueId().toString()), player.getPlayer());
         roots = new KMap<>();
         real = new KMap<>();
         ready = false;

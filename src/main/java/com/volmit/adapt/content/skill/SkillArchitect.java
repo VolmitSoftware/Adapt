@@ -2,11 +2,12 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.architect.ArchitectPlacement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.AdvancementVisibility;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -64,7 +65,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-//        double challengePlace1kReward = 1750;
+        double challengePlace1kReward = 1750;
         double xpValueMultiplier = 1;
         double xpBase = 3;
     }

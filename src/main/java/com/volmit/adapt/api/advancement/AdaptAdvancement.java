@@ -1,10 +1,10 @@
 package com.volmit.adapt.api.advancement;
 
 import com.volmit.adapt.util.KList;
-import eu.endercentral.crazy_advancements.Advancement;
-import eu.endercentral.crazy_advancements.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.AdvancementVisibility;
-import eu.endercentral.crazy_advancements.NameKey;
+import com.volmit.adapt.util.advancements.advancement.Advancement;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
+import com.volmit.adapt.util.advancements.NameKey;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -44,7 +44,7 @@ public class AdaptAdvancement {
             children = new KList<>();
         }
 
-        AdvancementDisplay d = new AdvancementDisplay(getIcon(), getTitle(), getDescription(), getFrame(), isToast(), isAnnounce(), getVisibility());
+        AdvancementDisplay d = new AdvancementDisplay(getIcon(), getTitle(), getDescription(), getFrame(), getVisibility());
 
         if(background != null) {
             d.setBackgroundTexture(getBackground());
