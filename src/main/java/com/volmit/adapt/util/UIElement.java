@@ -146,13 +146,29 @@ public class UIElement implements Element {
 
     @Override
     public Element addLore(String loreLine) {
-        if(loreLine.contains("\n")) {
-            getLore().add(loreLine.split("\\Q\n\\E"));
-            return this;
+        getLore().add(wrapWordsWithFormatting(loreLine.replaceAll("\\Q\n\\E", " "), 52).split("\\Q\n\\E"));
+        return this;
+    }
+
+    public String wrapWordsWithFormatting(String f, int l)
+    {
+        StringBuilder sb = new StringBuilder();
+        String last = null;
+        for(String i : Form.wrapWords(f, l).split("\\Q\n\\E"))
+        {
+            if(last != null)
+            {
+                sb.append("\n").append(C.getLastColors(last)).append(i);
+            }
+
+            else {
+                sb.append("\n").append(i);
+            }
+
+            last = i;
         }
 
-        getLore().add(loreLine);
-        return this;
+        return sb.substring(1);
     }
 
     @Override

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -405,6 +406,27 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         }
 
         KList<String> chain = new KList<String>();
+        chain.add(args);
+
+        for(KList<String> i : commands.k()) {
+            for(String j : i) {
+                if(j.equalsIgnoreCase(label)) {
+                    VirtualCommand cmd = commands.get(i);
+
+                    if(cmd.hit(sender, chain.copy(), label)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean lecternCommand(CommandSender sender, String[] args) {
+        String label = args.length > 0 ? args[0] : "nosdfdgsdf";
+        args = args.length > 0 ? Arrays.copyOfRange(args, 1, args.length) : args;
+        KList<String> chain = new KList<>();
         chain.add(args);
 
         for(KList<String> i : commands.k()) {

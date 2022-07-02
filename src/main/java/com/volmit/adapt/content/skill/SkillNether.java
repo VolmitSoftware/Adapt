@@ -18,13 +18,10 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 public class SkillNether extends SimpleSkill<SkillNether.Config> {
-
-    public static final String ID = "nether";
-
     private int witherRoseCooldown;
 
     public SkillNether() {
-        super(ID, "\u20AA");
+        super("nether", "\u20AA");
         registerConfiguration(Config.class);
         setDescription("From the depths of the Nether itself.");
         setInterval(3425);
