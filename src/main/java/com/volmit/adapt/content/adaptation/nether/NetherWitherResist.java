@@ -20,7 +20,7 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     private static final Random RANDOM = new Random();
 
     public NetherWitherResist() {
-        super(SkillNether.id("wither-resist"));
+        super("nether-wither-resist");
         registerConfiguration(Config.class);
         setDescription("Resists withering through the power of Netherite.");
         setIcon(Material.NETHERITE_CHESTPLATE);

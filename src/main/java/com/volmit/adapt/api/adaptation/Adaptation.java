@@ -182,7 +182,7 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default String getDisplayName() {
-        return C.RESET + "" + C.BOLD + getSkill().getColor().toString() + Form.capitalizeWords(getName().replaceAll("\\Q-\\E", " "));
+        return C.RESET + "" + C.BOLD + getSkill().getColor().toString() + Form.capitalizeWords(getName().replaceAll("\\Q" + getSkill().getName() + "-\\E", "").replaceAll("\\Q-\\E", " "));
     }
 
     default String getDisplayName(int level) {

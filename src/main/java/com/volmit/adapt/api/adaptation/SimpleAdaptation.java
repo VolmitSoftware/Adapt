@@ -6,6 +6,8 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.JSONObject;
@@ -26,6 +28,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     private int initialCost;
     private int baseCost;
     private double costFactor;
+    private String displayName;
     private Skill<?> skill;
     private String description;
     private Material icon;
@@ -99,6 +102,11 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
 
     public void registerRecipe(AdaptRecipe r) {
         recipes.add(r);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return displayName == null ? Adaptation.super.getDisplayName() : (C.RESET + "" + C.BOLD + getSkill().getColor().toString() + displayName);
     }
 
     public void registerAdvancement(AdaptAdvancement a) {

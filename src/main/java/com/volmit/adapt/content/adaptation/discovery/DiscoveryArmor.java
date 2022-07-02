@@ -18,7 +18,7 @@ import java.util.Collection;
 
 public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     public DiscoveryArmor() {
-        super("world-armor");
+        super("discovery-world-armor");
         registerConfiguration(Config.class);
         setDescription("Passive armor depending on nearby block hardness.");
         setIcon(Material.TURTLE_HELMET);
@@ -38,8 +38,6 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     public double getArmorPoints(Material m) {
         return Math.log(Math.min(2000,m.getBlastResistance()*m.getBlastResistance()))+Math.log((m.getHardness() < 0 ? 50 : Math.min(50, m.getHardness()+25))*0.33);
     }
-
-
 
     public double getArmor(Location l, int level){
         Block center = l.getBlock();

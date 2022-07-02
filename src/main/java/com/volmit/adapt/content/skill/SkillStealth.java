@@ -3,7 +3,7 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
-import com.volmit.adapt.content.adaptation.stealth.GhostArmor;
+import com.volmit.adapt.content.adaptation.stealth.StealthGhostArmor;
 import com.volmit.adapt.content.adaptation.stealth.StealthSnatch;
 import com.volmit.adapt.content.adaptation.stealth.StealthSpeed;
 import com.volmit.adapt.util.C;
@@ -24,7 +24,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         setDescription("The art of the unseen. Walk in the shadows.");
         registerAdaptation(new StealthSpeed());
         registerAdaptation(new StealthSnatch());
-        registerAdaptation(new GhostArmor());
+        registerAdaptation(new StealthGhostArmor());
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.LEATHER_LEGGINGS)
             .key("challenge_sneak_1k")

@@ -23,7 +23,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     private final KMap<UUID, Integer> cooldowns = new KMap<>();
 
     public NetherSkullYeet() {
-        super(SkillNether.id("skull-toss"));
+        super("nether-skull-toss");
         registerConfiguration(Config.class);
         setDescription("Unleash your inner Wither by using " + C.ITALIC + "someones" + C.GRAY + " head.");
         setIcon(Material.WITHER_SKELETON_SKULL);

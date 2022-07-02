@@ -23,10 +23,6 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     private int witherRoseCooldown;
 
-    public static String id(String name) {
-        return ID + "-" + name;
-    }
-
     public SkillNether() {
         super(ID, "\u20AA");
         registerConfiguration(Config.class);

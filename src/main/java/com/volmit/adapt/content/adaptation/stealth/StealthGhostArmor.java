@@ -7,26 +7,21 @@ import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.M;
-import com.volmit.adapt.util.VectorMath;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.util.Vector;
 
 import java.util.Collection;
 
-public class GhostArmor extends SimpleAdaptation<GhostArmor.Config> {
-    public GhostArmor() {
-        super("ghost-armor");
+public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config> {
+    public StealthGhostArmor() {
+        super("stealth-ghost-armor");
         registerConfiguration(Config.class);
         setDescription("Slow building armor when not taking damage");
         setIcon(Material.NETHERITE_CHESTPLATE);
