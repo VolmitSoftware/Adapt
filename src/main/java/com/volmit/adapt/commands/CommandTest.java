@@ -4,14 +4,16 @@ import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
+import org.bukkit.Material;
 
-public class CommandAdapt extends MortarCommand {
+public class CommandTest extends MortarCommand {
     @Command
-    private CommandItem item = new CommandItem();
+    private CommandTestParticle particle = new CommandTestParticle();
     @Command
-    private CommandTest test = new CommandTest();
-    public CommandAdapt() {
-        super("adapt", "ada", "a");
+    private CommandTestSound sound = new CommandTestSound();
+
+    public CommandTest() {
+        super("test", "t");
     }
 
     @Override
