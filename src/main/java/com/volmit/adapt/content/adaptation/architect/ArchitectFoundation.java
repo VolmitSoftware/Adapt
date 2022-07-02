@@ -50,15 +50,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
         if (hasAdaptation(p)) {
-            p.sendMessage("Cooldown: " + cooldown.contains(p));
-            p.sendMessage("Block Count: " + blockCount.get(p));
-            p.sendMessage("----------------------------------");
-
             if (cooldown.contains(p)) {
                 return;
             }
-            p.sendMessage("1");
-
             if (blockCount.get(p) != null && blockCount.get(p) >= getConfig().maxBlocks) {
                 startCooldown(p);
                 return;
@@ -67,21 +61,17 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
                 startCooldown(p);
                 return;
             }
-            p.sendMessage("2");
-
             if (e.getPlayer().isSneaking()) {
                 KSet<Block> locs = new KSet<>();
                 locs.add(p.getLocation().getWorld().getBlockAt(p.getLocation().clone().add(0.3, -1, -0.3)));
                 locs.add(p.getLocation().getWorld().getBlockAt(p.getLocation().clone().add(-0.3, -1, -0.3)));
                 locs.add(p.getLocation().getWorld().getBlockAt(p.getLocation().clone().add(0.3, -1, 0.3)));
                 locs.add(p.getLocation().getWorld().getBlockAt(p.getLocation().clone().add(-0.3, -1, +0.3)));
-
                 for (Block b : locs) {
                     if (b.getType() == Material.AIR) {
                         createFakeGlass(b, e.getPlayer());
                     }
                 }
-
             }
         }
     }
@@ -89,7 +79,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     private void createFakeGlass(Block b, Player p) {
         b.getWorld().playSound(b.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.0f, 1.0f);
         vfxSingleCubeOutline(b, Particle.REVERSE_PORTAL);
-        vfxSingleCubeOutline(b, Particle.SUSPENDED);
+        vfxSingleCubeOutline(b, Particle.ASH);
         b.setType(Material.TINTED_GLASS);
         blockMap.add(b);
         if (blockList.get(p) == null) {
@@ -119,9 +109,11 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     private void startCooldown(Player p) {
         if (!cooldown.contains(p)) {
-            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_DEATH, 1.0f, 1.0f);
-            cooldown.add(p);
+            p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 100.0f, 10.0f);
+            p.getWorld().playSound(p.getLocation(), Sound.BLOCK_SCULK_CATALYST_BREAK, 100.0f, 0.81f);
 
+
+            cooldown.add(p);
             blockCount.remove(p);
             J.a(() -> {
                 try {
@@ -130,7 +122,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
                     e.printStackTrace();
                 }
                 cooldown.remove(p);
-                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 1.0f, 1.0f);
+                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 100.0f, 10.0f);
+                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 100.0f, 0.81f);
 
             });
         }
