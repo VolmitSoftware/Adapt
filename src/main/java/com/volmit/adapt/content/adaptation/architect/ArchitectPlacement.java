@@ -7,6 +7,7 @@ import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KMap;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -168,7 +169,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                     for (Block b : blockRender.keySet()) { // Get the blocks in that map that bind with a BlockFace
                         BlockFace bf = blockRender.get(b); // Get that blockface
                         Block transposedBlock = b.getRelative(bf);
-                        vfxSingleCubeOutline(transposedBlock);
+                        vfxSingleCubeOutline(transposedBlock, Particle.REVERSE_PORTAL);
                     }
                 }
             });
