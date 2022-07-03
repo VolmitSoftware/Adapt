@@ -9,7 +9,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class Enchantments {
-
     public static final Enchantment BOUND = new Enchantment(new NamespacedKey(Adapt.instance, "bound")) {
         @NotNull
         @Override

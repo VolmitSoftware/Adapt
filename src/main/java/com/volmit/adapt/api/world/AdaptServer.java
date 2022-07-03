@@ -18,6 +18,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.Inventories;
 import com.volmit.adapt.util.Items;
+import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
@@ -65,32 +66,34 @@ public class AdaptServer extends TickedObject {
     }
 
     public void takeSpatial(AdaptPlayer p) {
-        SpatialXP x = spatialTickets.getRandom();
+        J.attempt(() -> {
+            SpatialXP x = spatialTickets.getRandom();
 
-        if(x == null) {
-            return;
-        }
-
-        if(M.ms() > x.getMs()) {
-            spatialTickets.remove(x);
-            return;
-        }
-
-        if(p.getPlayer().getWorld().equals(x.getLocation().getWorld())) {
-            double c = p.getPlayer().getLocation().distanceSquared(x.getLocation());
-            if(c < x.getRadius() * x.getRadius()) {
-                double distl = M.lerpInverse(0, x.getRadius() * x.getRadius(), c);
-                double xp = x.getXp() / (1.5D * ((distl * 9) + 1));
-                x.setXp(x.getXp() - xp);
-
-                if(x.getXp() < 10) {
-                    xp += x.getXp();
-                    spatialTickets.remove(x);
-                }
-
-                XP.xp(p, x.getSkill(), xp);
+            if(x == null) {
+                return;
             }
-        }
+
+            if(M.ms() > x.getMs()) {
+                spatialTickets.remove(x);
+                return;
+            }
+
+            if(p.getPlayer().getWorld().equals(x.getLocation().getWorld())) {
+                double c = p.getPlayer().getLocation().distanceSquared(x.getLocation());
+                if(c < x.getRadius() * x.getRadius()) {
+                    double distl = M.lerpInverse(0, x.getRadius() * x.getRadius(), c);
+                    double xp = x.getXp() / (1.5D * ((distl * 9) + 1));
+                    x.setXp(x.getXp() - xp);
+
+                    if(x.getXp() < 10) {
+                        xp += x.getXp();
+                        spatialTickets.remove(x);
+                    }
+
+                    XP.xp(p, x.getSkill(), xp);
+                }
+            }
+        });
     }
 
     public void join(Player p) {
