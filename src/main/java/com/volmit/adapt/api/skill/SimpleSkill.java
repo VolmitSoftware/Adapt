@@ -8,6 +8,7 @@ import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.FileWatcher;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.JSONObject;
@@ -67,6 +68,24 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     @Override
     public void registerConfiguration(Class<T> type) {
         this.configType = type;
+        File file = Adapt.instance.getDataFile("adapt", "skills", getName() + ".json");
+        FileWatcher fw = new FileWatcher(file);
+        fw.checkModified();
+        J.a(() -> {
+            fw.checkModified();
+            Adapt.instance.getTicker().register(new TickedObject("config", "config-" + getName(), 1000) {
+                @Override
+                public void onTick() {
+                    if(fw.checkModified() && file.exists())
+                    {
+                        config = null;
+                        getConfig();
+                        Adapt.info("Hotloaded " + file.getPath());
+                        fw.checkModified();
+                    }
+                }
+            });
+        }, 20);
     }
 
     @Override

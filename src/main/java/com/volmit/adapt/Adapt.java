@@ -8,6 +8,7 @@ import com.volmit.adapt.commands.CommandAdapt;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Command;
+import com.volmit.adapt.util.FolderWatcher;
 import com.volmit.adapt.util.Metrics;
 import com.volmit.adapt.util.VolmitPlugin;
 import lombok.Getter;
@@ -29,6 +30,7 @@ public class Adapt extends VolmitPlugin {
     private Ticker ticker;
     @Getter
     private AdaptServer adaptServer;
+    private FolderWatcher configWatcher;
 
     public Adapt() {
         super();
