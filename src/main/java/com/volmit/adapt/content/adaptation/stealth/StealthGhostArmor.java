@@ -97,6 +97,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     {
         if(e.getEntity() instanceof Player p && hasAdaptation(p) && !e.isCancelled() && e.getDamage() > 0)
         {
+            xp(p, 2.5 * e.getDamage());
             J.s(() -> {
                 Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
                 for (AttributeModifier i : new KList<>(c)) {
