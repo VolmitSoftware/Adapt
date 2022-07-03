@@ -76,6 +76,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                                 getPlayer(e.getPlayer()).getData().addStat("blocks.placed", 1);
                                 getPlayer(e.getPlayer()).getData().addStat("blocks.placed.value", v);
                                 p.playSound(b.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
+                                xp(e.getPlayer(), 2);
                             }
                         } else {
                             totalMap.get(p).remove(b);

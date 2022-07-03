@@ -83,6 +83,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         for (Block b : locs) {
             if (power > 0) {
                 if(addFoundation(b)) {
+                    xp(e.getPlayer(), 3);
                     power--;
                 }
             }

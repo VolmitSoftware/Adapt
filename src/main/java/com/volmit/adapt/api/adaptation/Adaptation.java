@@ -31,6 +31,10 @@ import java.util.List;
 public interface Adaptation<T> extends Ticked, Component {
     int getMaxLevel();
 
+    default void xp(Player p, double amount) {
+        getSkill().xp(p, amount);
+    }
+
     default <F> F getStorage(Player p, String key, F defaultValue) {
         PlayerData data = getPlayer(p).getData();
         if(data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName())) {
