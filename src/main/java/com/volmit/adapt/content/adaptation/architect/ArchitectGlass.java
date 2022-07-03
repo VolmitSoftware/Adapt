@@ -59,9 +59,9 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        int baseCost = 8;
+        int baseCost = 5;
         int maxLevel = 1;
-        int initialCost = 1;
-        double costFactor = 1;
+        int initialCost = 0;
+        double costFactor = 5;
     }
 }
