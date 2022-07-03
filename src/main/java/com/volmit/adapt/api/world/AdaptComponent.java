@@ -1,6 +1,7 @@
 package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptMantle;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
@@ -9,6 +10,10 @@ import org.bukkit.inventory.ItemStack;
 public interface AdaptComponent {
     default AdaptServer getServer() {
         return Adapt.instance.getAdaptServer();
+    }
+
+    default AdaptMantle getMantle() {
+        return getServer().getMantle();
     }
 
     default AdaptPlayer getPlayer(Player p) {

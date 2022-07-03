@@ -1,9 +1,12 @@
 package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.content.block.ScaffoldMatter;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
-import org.bukkit.*;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,15 +29,22 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     }
 
     private final KMap<Player, KMap<Block, Long>> blockList = new KMap<>();
-    private final KMap<Player, Integer> blockCount = new KMap<>();
+    private final KMap<Player, Integer> blockCount = new KMap<>(); //TODO: remove
     private final KList<Block> blockMap = new KList<>();
 
     private final KList<Player> cooldown = new KList<>();
 
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "Magically create " + 10 + (level * getConfig().blocksPerLevel) + C.GRAY + " Total Blocks beneath you!");
+
+    }
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
+        clearBlocklist(e.getPlayer(), false);
         blockList.remove(e.getPlayer());
+
     }
 
     @EventHandler
@@ -54,7 +64,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             if (cooldown.contains(p)) {
                 return;
             }
-            if (blockCount.get(p) != null && blockCount.get(p) >= getConfig().maxBlocks) {
+            if (blockCount.get(p) != null && blockCount.get(p) >= (getConfig().startingBlocks + (getLevel(p) * getConfig().blocksPerLevel))) {
                 startCooldown(p);
                 return;
             }
@@ -78,6 +88,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     }
 
     private void createFakeGlass(Block b, Player p) {
+
         b.getWorld().playSound(b.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.0f, 1.0f);
         vfxSingleCubeOutline(b, Particle.REVERSE_PORTAL);
         vfxSingleCubeOutline(b, Particle.ASH);
@@ -85,27 +96,26 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         blockMap.add(b);
         if (blockList.get(p) == null) {
             KMap<Block, Long> map = new KMap<>();
-            map.put(b, System.currentTimeMillis());
+            map.put(b, M.ms());
             blockList.put(p, map);
         } else {
-            blockList.get(p).put(b, System.currentTimeMillis());
+            blockList.get(p).put(b, M.ms());
         }
         if (blockCount.get(p) == null) {
             blockCount.put(p, 0);
         } else {
             blockCount.put(p, blockCount.get(p) + 1);
         }
+//        J.a(() -> getMantle().set(b, ScaffoldMatter.ScaffoldData.builder()
+//                .time(M.ms())
+//                .uuid(p.getUniqueId())
+//                .build()));
     }
 
 
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;
-    }
-
-    @Override
-    public void addStats(int level, Element v) {
-
     }
 
     private void startCooldown(Player p) {
@@ -130,33 +140,73 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         }
     }
 
-    @Override
-    public void onTick() {
-        for (Player p : blockList.keySet()) {
-            for (Block b : blockList.get(p).keySet()) {
-                if (System.currentTimeMillis() - blockList.get(p).get(b) > getConfig().duration) {
-                    J.a(() -> {
-                        b.getWorld().playSound(b.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
-                        vfxSingleCubeOutline(b, Particle.ENCHANTMENT_TABLE);
+    private void clearBlocklist(Player p, Boolean timeCheck) {
+        for (Block b : blockList.get(p).keySet()) {
+            if (timeCheck) {
+                if (M.ms() - blockList.get(p).get(b) > getConfig().duration) {
+                    b.getWorld().playSound(b.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
+                    vfxSingleCubeOutline(b, Particle.ENCHANTMENT_TABLE);
 
-                    });
                     J.s(() -> {
                         b.setType(Material.AIR);
                         blockList.get(p).remove(b);
                         blockMap.remove(b);
                     });
                 }
+            } else {
+                b.getWorld().playSound(b.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
+                vfxSingleCubeOutline(b, Particle.ENCHANTMENT_TABLE);
+                J.s(() -> {
+                    b.setType(Material.AIR);
+                    blockList.get(p).remove(b);
+                    blockMap.remove(b);
+                });
             }
         }
     }
 
+    private void removeFakeBlock(Block b) {
+
+    }
+
+    @Override
+    public void onTick() {
+        for (Player p : blockList.keySet()) {
+            clearBlocklist(p, true);
+        }
+    }
+
+
+//    Block b = e.getBlock();
+//
+//
+//    ScaffoldMatter.ScaffoldData read = getServer().getMantle().get(b, ScaffoldMatter.ScaffoldData.class);
+//
+//    getServer().getMantle().iterate(e.getBlock().getChunk(), ScaffoldMatter.ScaffoldData.class, (x,y,z,t) -> {
+//        Block block = e.getBlock().getWorld().getBlockAt(x,y,z);
+//
+//        if(block.getType().equals(Material.GLASS)) {
+//            if(M.ms() - t.getTime() > 3000) {
+//                getServer().getMantle().set(b, (ScaffoldMatter.ScaffoldData) null);
+//                /// DO YOUR CODE THAT REMOVES THE BLOCK
+//            }
+//        }
+//
+//        else {
+//            getServer().getMantle().set(b, (ScaffoldMatter.ScaffoldData) null);
+//        }
+//    });
+//
+
+
     @NoArgsConstructor
     protected static class Config {
         public long duration = 3000;
-        public int maxBlocks = 10;
+        public int startingBlocks = 10;
+        public int blocksPerLevel = 5;
         boolean enabled = true;
         int baseCost = 6;
-        int maxLevel = 1;
+        int maxLevel = 5;
         int initialCost = 4;
         double costFactor = 2;
     }

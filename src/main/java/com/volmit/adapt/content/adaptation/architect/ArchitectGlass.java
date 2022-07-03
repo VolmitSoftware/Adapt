@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
@@ -47,7 +48,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-
+        v.addLore(C.GREEN + "Your hands gain silk touch for Glass");
     }
 
     @Override

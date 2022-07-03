@@ -25,7 +25,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicReference;
+
 
 public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Config> {
     private final KSet<Block> activeStands = new KSet<>();

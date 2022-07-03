@@ -1,5 +1,6 @@
 package com.volmit.adapt;
 
+import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KMap;
 import org.bukkit.Bukkit;
@@ -37,6 +38,9 @@ public class AdaptMantle implements Listener {
 
     public <T> void set(Block block, T value) {
         mantles.get(block.getWorld()).set(block.getX(), block.getY() - block.getWorld().getMinHeight(), block.getZ(), value);
+    }
+    public <T> void delete(Block block, Class<T> c) {
+        mantles.get(block.getWorld()).remove(block.getX(), block.getY() - block.getWorld().getMinHeight(), block.getZ(), c);
     }
 
     public void close() {

@@ -53,48 +53,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     @EventHandler
     public void on(BlockPlaceEvent e) {
         Player p = e.getPlayer();
-        Block b = e.getBlock();
-
-        getServer().getMantle().set(b, ScaffoldMatter.ScaffoldData.builder()
-            .time(M.ms())
-            .uuid(p.getUniqueId())
-            .build());
-
-        ScaffoldMatter.ScaffoldData read = getServer().getMantle().get(b, ScaffoldMatter.ScaffoldData.class);
-
-        getServer().getMantle().iterate(e.getBlock().getChunk(), ScaffoldMatter.ScaffoldData.class, (x,y,z,t) -> {
-            Block block = e.getBlock().getWorld().getBlockAt(x,y,z);
-
-            if(block.getType().equals(Material.GLASS)) {
-                if(M.ms() - t.getTime() > 3000) {
-                    getServer().getMantle().set(b, (ScaffoldMatter.ScaffoldData) null);
-                    /// DO YOUR CODE THAT REMOVES THE BLOCK
-                }
-            }
-
-            else {
-                getServer().getMantle().set(b, (ScaffoldMatter.ScaffoldData) null);
-            }
-        });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         if (hasAdaptation(p) && !totalMap.isEmpty() && totalMap.get(p) != null && totalMap.get(p).size() > 0) {
             ItemStack is = p.getInventory().getItemInMainHand().clone();
@@ -199,7 +157,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @Override
     public void addStats(int level, Element v) {
-
+        v.addLore(C.GREEN + "A Material Builders Wand");
     }
 
     @Override
