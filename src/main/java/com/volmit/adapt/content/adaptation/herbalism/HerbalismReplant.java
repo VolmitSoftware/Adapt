@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.content.skill.SkillHerbalism;
 import com.volmit.adapt.util.Cuboid;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
@@ -108,6 +109,8 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
             getPlayer(p).getData().addStat("harvest.blocks", 1);
             getPlayer(p).getData().addStat("harvest.planted", 1);
+            xp(p,b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * (((Ageable) b.getBlockData()).getAge()));
+            xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
 
             if(M.r(1D / (double) getLevel(p))) {
                 p.getWorld().playSound(b.getLocation(), Sound.ITEM_CROP_PLANT, 1f, 0.7f);

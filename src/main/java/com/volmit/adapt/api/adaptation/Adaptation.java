@@ -19,6 +19,7 @@ import com.volmit.adapt.util.UIElement;
 import com.volmit.adapt.util.UIWindow;
 import com.volmit.adapt.util.Window;
 import com.volmit.adapt.util.WindowResolution;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -33,6 +34,10 @@ public interface Adaptation<T> extends Ticked, Component {
 
     default void xp(Player p, double amount) {
         getSkill().xp(p, amount);
+    }
+
+    default void xp(Player p, Location l, double amount) {
+        getSkill().xp(p, l, amount);
     }
 
     default <F> F getStorage(Player p, String key, F defaultValue) {
