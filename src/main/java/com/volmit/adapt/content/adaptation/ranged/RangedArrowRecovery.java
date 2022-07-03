@@ -27,6 +27,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         super("ranged-arrow-recovery");
         registerConfiguration(Config.class);
         setDescription("Recover Arrows after you have killed an enemy.");
+        setDisplayName("Arrow Recovery");
         setIcon(Material.TIPPED_ARROW);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

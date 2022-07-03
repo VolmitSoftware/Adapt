@@ -21,6 +21,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
         super("axe-ground-smash");
         registerConfiguration(Config.class);
         setDescription("Jump, then crouch and smash all nearby enemies.");
+        setDisplayName("Axe Ground Smash");
         setIcon(Material.NETHERITE_AXE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);

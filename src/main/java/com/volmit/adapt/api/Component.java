@@ -156,7 +156,7 @@ public interface Component {
         }
     }
 
-    default void vfxSingleCubeOutline(Block block) {
+    default void vfxSingleCubeOutline(Block block, Particle particle) {
         Location point0 = block.getLocation(); //bottom left corner of the bloc
 
         Location point1 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY(), point0.getZ());
@@ -168,19 +168,39 @@ public interface Component {
         Location point7 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ() + 1);
 
 
-        vfxParticleLine(point0, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point0, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point0, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point7, point6, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point7, point5, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point7, point4, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point4, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point4, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point5, point1, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point5, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point6, point2, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point6, point3, Particle.REVERSE_PORTAL, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point0, point1, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point0, point2, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point0, point3, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point7, point6, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point7, point5, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point7, point4, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point4, point2, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point4, point1, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point5, point1, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point5, point3, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point6, point2, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(point6, point3, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
     }
+
+//    default void vfxSolidCube(Block block, Particle particle, double segmentSpacing) {
+//        Location point0 = block.getLocation(); //bottom left corner of the bloc
+//
+//        Location point1 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY(), point0.getZ());
+//        Location point3 = new Location(point0.getWorld(), point0.getX(), point0.getY(), point0.getZ() + 1);
+//        Location point4 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ());
+//        Location point5 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY(), point0.getZ() + 1);
+//        Location point7 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ() + 1);
+//
+//        for (int i = 0; i < 1; i += segmentSpacing) {
+//            vfxParticleLine(point0.add(0,i,0), point1.add(0,i,0), particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+//            vfxParticleLine(point3.add(0,i,0), point5.add(0,i,0), particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+//            vfxParticleLine(point3.add(0,i,0), point0.add(0,i,0), particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+//            vfxParticleLine(point5.add(0,i,0), point1.add(0,i,0), particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+//            vfxParticleLine(point5.add(-i,0,0), point1.add(-i,0,0), particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+//            vfxParticleLine(point7.add(-i,0,0), point4.add(-i,0,0), particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+//        }
+//
+//    }
 
     default void vfxLevelUp(Player p) {
         p.spawnParticle(Particle.REVERSE_PORTAL, p.getLocation().clone().add(0, 1.7, 0), 100, 0.1, 0.1, 0.1, 4.1);

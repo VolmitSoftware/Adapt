@@ -22,6 +22,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
         super("ranged-lunge-shot");
         registerConfiguration(Config.class);
         setDescription("360 NO SCOPE");
+        setDisplayName("Lunge Shot");
         setIcon(Material.FEATHER);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

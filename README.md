@@ -17,7 +17,7 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 - [ ] Temporary blocks (Crouch off a ledge)
 - [X] BuildersWand (Small) (You can place up to 16 blocks at once)
 - [ ] TypeReplace Blocks
-- [ ] DontBreakGrass (Passive Silk-Touch for Glass only)
+- [X] DontBreakGlass (Passive Silk-Touch for Glass only)
 - [ ] Forced Leaf Decay
 
 **Axe**:
@@ -97,6 +97,7 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 **Stealth**:
 - [X] Snatching (close-range item Vacuum) 
 - [X] Sneak-Speed (Destroy FOV in a single button press)
+- [X] Ghost Armor (Armor passively that grown on you, but only works for 1 hit)
 - [ ] StealthSight
 - [ ] Sneak Attack
 

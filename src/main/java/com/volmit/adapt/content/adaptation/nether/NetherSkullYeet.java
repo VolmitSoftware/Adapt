@@ -26,6 +26,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         super("nether-skull-toss");
         registerConfiguration(Config.class);
         setDescription("Unleash your inner Wither by using " + C.ITALIC + "someones" + C.GRAY + " head.");
+        setDisplayName("Wither Skull Throw");
         setIcon(Material.WITHER_SKELETON_SKULL);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);

@@ -25,6 +25,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         super("brewing-lingering");
         registerConfiguration(Config.class);
         setDescription("Brewed potions last longer!");
+        setDisplayName("Lingering Brew");
         setIcon(Material.CLOCK);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);

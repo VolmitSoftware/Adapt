@@ -27,6 +27,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         super("rift-access");
         registerConfiguration(Config.class);
         setDescription("Pull from the void");
+        setDisplayName("Rift Access");
         setMaxLevel(1);
         setIcon(Material.NETHER_STAR);
         setBaseCost(getConfig().baseCost);

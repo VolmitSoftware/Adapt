@@ -20,6 +20,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
         registerConfiguration(Config.class);
         setDescription("Get more armor the longer you sprint!");
         setIcon(Material.IRON_CHESTPLATE);
+        setDisplayName("Agility Armor Up");
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);

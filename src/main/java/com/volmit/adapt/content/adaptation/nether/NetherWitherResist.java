@@ -23,6 +23,7 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
         super("nether-wither-resist");
         registerConfiguration(Config.class);
         setDescription("Resists withering through the power of Netherite.");
+        setDisplayName("Wither Resist");
         setIcon(Material.NETHERITE_CHESTPLATE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);

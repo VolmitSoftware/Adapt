@@ -9,6 +9,7 @@ import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -26,6 +27,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         super("architect-placement");
         registerConfiguration(ArchitectPlacement.Config.class);
         setDescription("allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes");
+        setDisplayName("Architect's Builders Wand");
         setIcon(Material.SCAFFOLDING);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -213,7 +215,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                     for (Block b : blockRender.keySet()) { // Get the blocks in that map that bind with a BlockFace
                         BlockFace bf = blockRender.get(b); // Get that blockface
                         Block transposedBlock = b.getRelative(bf);
-                        vfxSingleCubeOutline(transposedBlock);
+                        vfxSingleCubeOutline(transposedBlock, Particle.REVERSE_PORTAL);
                     }
                 }
             });

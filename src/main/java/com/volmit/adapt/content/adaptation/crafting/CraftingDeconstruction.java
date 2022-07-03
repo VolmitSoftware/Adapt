@@ -27,6 +27,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
         super("crafting-deconstruction");
         registerConfiguration(Config.class);
         setDescription("Deconstruct blocks & items into salvageable base components");
+        setDisplayName("Deconstruction");
         setIcon(Material.SHEARS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(1);

@@ -3,6 +3,8 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
+import com.volmit.adapt.content.adaptation.architect.ArchitectFoundation;
+import com.volmit.adapt.content.adaptation.architect.ArchitectGlass;
 import com.volmit.adapt.content.adaptation.architect.ArchitectPlacement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
@@ -34,6 +36,8 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
             .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
         setIcon(Material.SMITHING_TABLE);
+        registerAdaptation(new ArchitectGlass());
+        registerAdaptation(new ArchitectFoundation());
         registerAdaptation(new ArchitectPlacement());
     }
 

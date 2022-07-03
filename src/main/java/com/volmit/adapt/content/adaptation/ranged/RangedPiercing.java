@@ -18,6 +18,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
         super("ranged-piercing");
         registerConfiguration(Config.class);
         setDescription("Adds Piercing to projectiles! Shoot through things!");
+        setDisplayName("Ranged Piercing");
         setIcon(Material.SHEARS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

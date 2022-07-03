@@ -34,6 +34,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
         super("brewing-super-heated");
         registerConfiguration(Config.class);
         setDescription("Brewing stands work faster the hotter they are.");
+        setDisplayName("Super Heated Brew");
         setIcon(Material.LAVA_BUCKET);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);

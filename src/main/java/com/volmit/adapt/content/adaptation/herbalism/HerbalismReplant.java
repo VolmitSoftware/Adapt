@@ -24,6 +24,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
         super("herbalism-replant");
         registerConfiguration(Config.class);
         setDescription("Right click a crop with a hoe to harvest & replant it.");
+        setDisplayName("Replant");
         setIcon(Material.PUMPKIN_SEEDS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

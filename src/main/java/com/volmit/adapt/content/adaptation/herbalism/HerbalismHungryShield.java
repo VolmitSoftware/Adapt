@@ -18,6 +18,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
         super("herbalism-hungry-shield");
         registerConfiguration(Config.class);
         setDescription("Take damage to your hunger before your health");
+        setDisplayName("Hungry Shield");
         setIcon(Material.APPLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

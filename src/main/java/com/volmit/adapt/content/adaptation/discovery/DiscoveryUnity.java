@@ -15,6 +15,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
         super("discovery-unity");
         registerConfiguration(Config.class);
         setDescription("Collecting Experience Orbs adds XP to random skills.");
+        setDisplayName("Discovery Unity");
         setIcon(Material.REDSTONE);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);

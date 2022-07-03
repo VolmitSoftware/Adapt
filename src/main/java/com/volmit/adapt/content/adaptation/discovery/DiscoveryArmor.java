@@ -21,6 +21,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
         super("discovery-world-armor");
         registerConfiguration(Config.class);
         setDescription("Passive armor depending on nearby block hardness.");
+        setDisplayName("Discovery World Armor");
         setIcon(Material.TURTLE_HELMET);
         setInterval(1125);
         setBaseCost(getConfig().baseCost);

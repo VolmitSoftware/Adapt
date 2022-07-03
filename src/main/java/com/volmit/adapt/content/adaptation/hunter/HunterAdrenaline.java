@@ -15,6 +15,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
         super("hunter-adrenaline");
         registerConfiguration(Config.class);
         setDescription("Deal more damage the lower health you are (Melee)");
+        setDisplayName("Adrenaline");
         setIcon(Material.LEATHER_HELMET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
