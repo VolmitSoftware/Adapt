@@ -1,10 +1,12 @@
 package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.content.block.ScaffoldMatter;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.KMap;
+import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -49,6 +51,49 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     @EventHandler
     public void on(BlockPlaceEvent e) {
         Player p = e.getPlayer();
+        Block b = e.getBlock();
+
+        getServer().getMantle().set(b, ScaffoldMatter.ScaffoldData.builder()
+            .time(M.ms())
+            .uuid(p.getUniqueId())
+            .build());
+
+        ScaffoldMatter.ScaffoldData read = getServer().getMantle().get(b, ScaffoldMatter.ScaffoldData.class);
+
+        getServer().getMantle().iterate(e.getBlock().getChunk(), ScaffoldMatter.ScaffoldData.class, (x,y,z,t) -> {
+            Block block = e.getBlock().getWorld().getBlockAt(x,y,z);
+
+            if(block.getType().equals(Material.GLASS)) {
+                if(M.ms() - t.getTime() > 3000) {
+                    getServer().getMantle().set(b, (ScaffoldMatter.ScaffoldData) null);
+                    /// DO YOUR CODE THAT REMOVES THE BLOCK
+                }
+            }
+
+            else {
+                getServer().getMantle().set(b, (ScaffoldMatter.ScaffoldData) null);
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         if (hasAdaptation(p) && !totalMap.isEmpty() && totalMap.get(p) != null && totalMap.get(p).size() > 0) {
             ItemStack is = p.getInventory().getItemInMainHand().clone();
             ItemStack hand = p.getInventory().getItemInMainHand();

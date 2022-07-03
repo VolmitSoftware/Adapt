@@ -2,6 +2,7 @@ package com.volmit.adapt.api.world;
 
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptMantle;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.notification.ActionBarNotification;
 import com.volmit.adapt.api.notification.AdvancementNotification;
@@ -29,10 +30,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -42,6 +41,8 @@ import java.util.UUID;
 
 public class AdaptServer extends TickedObject {
     private final KMap<Player, AdaptPlayer> players;
+    @Getter
+    private final AdaptMantle mantle;
     private final KList<SpatialXP> spatialTickets;
     @Getter
     private SkillRegistry skillRegistry;
@@ -50,6 +51,7 @@ public class AdaptServer extends TickedObject {
         super("core", UUID.randomUUID().toString(), 1000);
         spatialTickets = new KList<>();
         players = new KMap<>();
+        mantle = new AdaptMantle();
         try {
             skillRegistry = new SkillRegistry();
         } catch(IOException e) {
@@ -113,6 +115,7 @@ public class AdaptServer extends TickedObject {
             quit(i);
         }
         skillRegistry.unregister();
+        mantle.close();
         super.unregister();
     }
 
