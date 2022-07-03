@@ -22,6 +22,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         super("axe-chop");
         registerConfiguration(Config.class);
         setDescription("Chop down trees by right clicking the base log!");
+        setDisplayName("Axe Chop");
         setIcon(Material.IRON_AXE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);

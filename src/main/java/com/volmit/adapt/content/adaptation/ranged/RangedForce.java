@@ -25,6 +25,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         super("ranged-force");
         registerConfiguration(Config.class);
         setDescription("Shoot projectiles further, faster!");
+        setDisplayName("Ranged Force");
         setIcon(Material.ARROW);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

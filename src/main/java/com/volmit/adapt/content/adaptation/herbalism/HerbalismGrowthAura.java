@@ -27,6 +27,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         super("herbalism-growth-aura");
         registerConfiguration(Config.class);
         setDescription("Grow nature around you in an aura");
+        setDisplayName("Growth Aura");
         setIcon(Material.BONE_MEAL);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

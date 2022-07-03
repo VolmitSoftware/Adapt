@@ -24,6 +24,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
         super("pickaxes-chisel");
         registerConfiguration(Config.class);
         setDescription("Right Click Ores to Chisel more ore out of them, at a severe durability cost.");
+        setDisplayName("Ore Chisel");
         setIcon(Material.IRON_NUGGET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

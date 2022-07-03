@@ -17,6 +17,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
         super("architect-glass");
         registerConfiguration(ArchitectGlass.Config.class);
         setDescription("This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand");
+        setDisplayName("Architect's Silk Glass");
         setIcon(Material.GLASS);
         setInterval(9119);
         setBaseCost(getConfig().baseCost);

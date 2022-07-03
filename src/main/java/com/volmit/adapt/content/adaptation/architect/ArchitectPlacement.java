@@ -25,6 +25,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         super("architect-placement");
         registerConfiguration(ArchitectPlacement.Config.class);
         setDescription("allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes");
+        setDisplayName("Architect's Builders Wand");
         setIcon(Material.SCAFFOLDING);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

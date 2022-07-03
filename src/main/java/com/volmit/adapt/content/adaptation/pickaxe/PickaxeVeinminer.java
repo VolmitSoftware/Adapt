@@ -21,6 +21,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         super("pickaxe-veinminer");
         registerConfiguration(PickaxeVeinminer.Config.class);
         setDescription("Allows you to break blocks in a Vein/Cluster of Vanilla ores");
+        setDisplayName("Veinminer");
         setIcon(Material.IRON_PICKAXE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

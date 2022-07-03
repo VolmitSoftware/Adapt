@@ -16,6 +16,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         super("enchanting-lapis-return");
         registerConfiguration(Config.class);
         setDescription("At the cost of 1 more level of XP, and has a chance to give you free lapis in return");
+        setDisplayName("Lapis Return");
         setIcon(Material.LAPIS_LAZULI);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

@@ -25,6 +25,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
         super("agility-wall-jump");
         registerConfiguration(Config.class);
         setDescription("Hold shift while mid-air against a wall to wall latch & jump!");
+        setDisplayName("Agility Wall Jump");
         setIcon(Material.LADDER);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);

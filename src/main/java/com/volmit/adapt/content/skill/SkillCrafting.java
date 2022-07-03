@@ -4,6 +4,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.crafting.CraftingDeconstruction;
+import com.volmit.adapt.content.adaptation.crafting.CraftingXP;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
@@ -26,8 +27,9 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         setColor(C.YELLOW);
         setDescription("Crafting is its own reward, but why not have another?");
         setInterval(3700);
-        setIcon(Material.STRING);
+        setIcon(Material.CRAFTING_TABLE);
         registerAdaptation(new CraftingDeconstruction());
+        registerAdaptation(new CraftingXP());
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.BRICK)
             .key("challenge_craft_3k")
@@ -75,7 +77,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
             default:
         }
 
-        if(test != null && recipeAmount > 0 && !e.isCancelled()) {
+        if(recipeAmount > 0 && !e.isCancelled()) {
 
             double v = recipeAmount * getValue(test) * getConfig().craftingValueXPMultiplier;
             getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.items", recipeAmount);

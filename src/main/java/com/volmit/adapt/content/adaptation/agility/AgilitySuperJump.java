@@ -28,6 +28,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
         super("agility-super-jump");
         registerConfiguration(Config.class);
         setDescription("Exceptional Height Advantage");
+        setDisplayName("Agility Super Jump");
         setIcon(Material.LEATHER_BOOTS);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);

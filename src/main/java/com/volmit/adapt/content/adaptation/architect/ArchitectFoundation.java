@@ -16,6 +16,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         super("architect-foundation");
         registerConfiguration(ArchitectFoundation.Config.class);
         setDescription("This allows for you to sneak near the edge of a block and place a temporary foundation");
+        setDisplayName("Architect's Magic Foundation");
         setIcon(Material.TINTED_GLASS);
         setInterval(500);
         setBaseCost(getConfig().baseCost);

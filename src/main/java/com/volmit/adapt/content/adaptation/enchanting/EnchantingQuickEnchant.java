@@ -27,6 +27,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         super("enchanting-quick-enchant");
         registerConfiguration(Config.class);
         setDescription("Enchant items by clicking enchant books directly on them.");
+        setDisplayName("Quick-Click Enchant");
         setIcon(Material.WRITABLE_BOOK);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
