@@ -102,15 +102,17 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
                 return;
             }
 
+            xp(p,b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * aa.getAge());
+            xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
             b.breakNaturally();
 
             aa.setAge(0);
-            J.s(() -> b.setBlockData(aa, true));
+            J.s(() -> {
+                b.setBlockData(aa, true);
+            });
 
             getPlayer(p).getData().addStat("harvest.blocks", 1);
             getPlayer(p).getData().addStat("harvest.planted", 1);
-            xp(p,b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * (((Ageable) b.getBlockData()).getAge()));
-            xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
 
             if(M.r(1D / (double) getLevel(p))) {
                 p.getWorld().playSound(b.getLocation(), Sound.ITEM_CROP_PLANT, 1f, 0.7f);
