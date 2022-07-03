@@ -14,7 +14,7 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 - [ ] Climb WOod
 
 **Architect**:
-- [ ] Temporary blocks (Crouch off a ledge)
+- [X] Temporary blocks (Crouch off a ledge)
 - [X] BuildersWand (Small) (You can place up to 16 blocks at once)
 - [ ] TypeReplace Blocks
 - [X] DontBreakGlass (Passive Silk-Touch for Glass only)
