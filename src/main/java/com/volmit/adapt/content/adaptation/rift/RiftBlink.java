@@ -12,12 +12,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.Map;
-
 
 public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
-    private final Map<Player, Long> lastJump = new HashMap<>();
+    private final KMap<Player, Long> lastJump = new KMap<>();
 
     public RiftBlink() {
         super("rift-blink");

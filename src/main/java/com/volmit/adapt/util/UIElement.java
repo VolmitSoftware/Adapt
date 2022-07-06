@@ -5,9 +5,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class UIElement implements Element {
     private MaterialBlock material;
     private boolean enchanted;
@@ -15,7 +12,7 @@ public class UIElement implements Element {
     private String name;
     private double progress;
     private boolean bg;
-    private final List<String> lore;
+    private final KList<String> lore;
     private Callback<Element> eLeft;
     private Callback<Element> eRight;
     private Callback<Element> eShiftLeft;
@@ -26,7 +23,7 @@ public class UIElement implements Element {
 
     public UIElement(String id) {
         this.id = id;
-        lore = new ArrayList<>();
+        lore = new KList<>();
         enchanted = false;
         count = 1;
         material = new MaterialBlock(Material.AIR);
@@ -75,7 +72,7 @@ public class UIElement implements Element {
     }
 
     @Override
-    public List<String> getLore() {
+    public KList<String> getLore() {
         return lore;
     }
 

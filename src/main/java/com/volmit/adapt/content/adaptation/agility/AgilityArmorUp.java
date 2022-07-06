@@ -12,11 +12,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
-    private final Map<Player, Integer> ticksRunning = new HashMap<>();
+    private final KMap<Player, Integer> ticksRunning = new KMap<>();
 
     public AgilityArmorUp() {
         super("agility-armor-up");

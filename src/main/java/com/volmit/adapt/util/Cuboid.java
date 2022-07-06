@@ -48,8 +48,8 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
         z2 = Math.max(l1.getBlockZ(), l2.getBlockZ());
     }
 
-    public List<Entity> getEntities() {
-        List<Entity> en = new ArrayList<>();
+    public KList<Entity> getEntities() {
+        KList<Entity> en = new KList<Entity>();
 
         for(Chunk i : getChunks()) {
             for(Entity j : i.getEntities()) {

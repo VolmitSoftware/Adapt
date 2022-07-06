@@ -1,10 +1,7 @@
 package com.volmit.adapt.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ShurikenQueue<T> implements Queue<T> {
-    private List<T> queue;
+    private KList<T> queue;
     private boolean randomPop;
     private boolean reversePop;
 
@@ -29,7 +26,7 @@ public class ShurikenQueue<T> implements Queue<T> {
     }
 
     @Override
-    public ShurikenQueue<T> queue(List<T> t) {
+    public ShurikenQueue<T> queue(KList<T> t) {
         queue.add(t);
         return this;
     }
@@ -50,8 +47,8 @@ public class ShurikenQueue<T> implements Queue<T> {
     }
 
     @Override
-    public List<T> next(int amt) {
-        List<T> t = new ArrayList<>();
+    public KList<T> next(int amt) {
+        KList<T> t = new KList<>();
 
         for(int i = 0; i < amt; i++) {
             if(!hasNext()) {
@@ -66,7 +63,7 @@ public class ShurikenQueue<T> implements Queue<T> {
 
     @Override
     public ShurikenQueue<T> clear() {
-        queue = new ArrayList<>();
+        queue = new KList<T>();
         return this;
     }
 

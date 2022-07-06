@@ -4,8 +4,6 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-
 
 /**
  * Itemstack utilities
@@ -365,7 +363,7 @@ public class Items {
                     return false;
                 }
 
-                if(!new ArrayList<String>(a.getItemMeta().getLore()).equals(new ArrayList<>(b.getItemMeta().getLore()))) {
+                if(!new KList<String>(a.getItemMeta().getLore()).equals(new KList<String>(b.getItemMeta().getLore()))) {
                     return false;
                 }
             }

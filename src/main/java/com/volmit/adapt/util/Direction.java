@@ -5,11 +5,6 @@ import org.bukkit.Axis;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Directions
  *
@@ -23,7 +18,7 @@ public enum Direction {
     E(1, 0, 0, CuboidDirection.East),
     W(-1, 0, 0, CuboidDirection.West);
 
-    private static Map<GBiset<Direction, Direction>, DOP> permute = null;
+    private static KMap<GBiset<Direction, Direction>, DOP> permute = null;
 
     private final int x;
     private final int y;
@@ -133,7 +128,7 @@ public enum Direction {
         return s;
     }
 
-    public static Direction closest(Vector v, List<Direction> d) {
+    public static Direction closest(Vector v, KList<Direction> d) {
         double m = Double.MAX_VALUE;
         Direction s = null;
 
@@ -218,10 +213,8 @@ public enum Direction {
         return f;
     }
 
-    public static List<Direction> news() {
-        List<Direction> d = new ArrayList<>();
-        d.add(N, E, W, S);
-        return d;
+    public static KList<Direction> news() {
+        return new KList<Direction>().add(N, E, W, S);
     }
 
     public static Direction getDirection(Vector v) {
@@ -236,10 +229,8 @@ public enum Direction {
         return Direction.N;
     }
 
-    public static List<Direction> udnews() {
-        List<Direction> d = new ArrayList<>();
-        d.add(U, D, N, E, W, S);
-        return d;
+    public static KList<Direction> udnews() {
+        return new KList<Direction>().add(U, D, N, E, W, S);
     }
 
     /**
@@ -302,7 +293,7 @@ public enum Direction {
             return;
         }
 
-        permute = new HashMap<>();
+        permute = new KMap<GBiset<Direction, Direction>, DOP>();
 
         for(Direction i : udnews()) {
             for(Direction j : udnews()) {

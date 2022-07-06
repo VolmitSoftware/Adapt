@@ -2,8 +2,6 @@ package com.volmit.adapt.util;
 
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-
 public interface Element {
     MaterialBlock getMaterial();
 
@@ -37,7 +35,7 @@ public interface Element {
 
     Element addLore(String loreLine);
 
-    List<String> getLore();
+    KList<String> getLore();
 
     Element call(ElementEvent event, Element context);
 

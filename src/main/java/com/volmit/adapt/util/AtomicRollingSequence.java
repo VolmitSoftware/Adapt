@@ -1,8 +1,5 @@
 package com.volmit.adapt.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AtomicRollingSequence extends AtomicAverage {
     private double median;
     private double max;
@@ -62,12 +59,7 @@ public class AtomicRollingSequence extends AtomicAverage {
     }
 
     private void recalculateMedian() {
-        double[] a = new double[values.length()];
-        for(int i = 0; i < a.length; i++)
-        {
-            a[i] = values.get(i);
-        }
-        median = new ArrayList<Double>().forceAdd(a).sort().middleValue();
+        median = new KList<Double>().forceAdd(values).sort().middleValue();
         dirtyMedian = false;
     }
 

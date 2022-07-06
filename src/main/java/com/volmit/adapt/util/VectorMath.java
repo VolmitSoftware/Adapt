@@ -7,9 +7,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Vector utilities
  *
@@ -247,8 +244,8 @@ public class VectorMath {
      *     the block face
      * @return multiple faces, or one if the face is already simple
      */
-    public static List<BlockFace> split(BlockFace f) {
-        List<BlockFace> faces = new ArrayList<>();
+    public static KList<BlockFace> split(BlockFace f) {
+        KList<BlockFace> faces = new KList<BlockFace>();
 
         switch(f) {
             case DOWN:
@@ -439,8 +436,8 @@ public class VectorMath {
      *     the vectors to be shifted
      * @return the shifted vectors
      */
-    public static List<Vector> shift(Vector vector, List<Vector> vectors) {
-        return new ArrayList<>(new GListAdapter<Vector, Vector>() {
+    public static KList<Vector> shift(Vector vector, KList<Vector> vectors) {
+        return new KList<Vector>(new GListAdapter<Vector, Vector>() {
             @Override
             public Vector onAdapt(Vector from) {
                 return from.add(vector);

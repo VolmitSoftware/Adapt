@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
@@ -91,7 +90,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
         for (Player p : Bukkit.getOnlinePlayers()) {
             if(!hasAdaptation(p)){
                 Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
-                for (AttributeModifier i : new ArrayList<>(c)) {
+                for (AttributeModifier i : new KList<>(c)) {
                     if(i.getName().equals("adapt-discovery-armor")) {
                         p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
                     }
@@ -103,7 +102,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
             armor = Double.isNaN(armor) ? 0 : armor;
 
             Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
-            for (AttributeModifier i : new ArrayList<>(c)) {
+            for (AttributeModifier i : new KList<>(c)) {
                 if(i.getName().equals("adapt-discovery-armor")) {
                     oldArmor = i.getAmount();
                     oldArmor = Double.isNaN(oldArmor) ? 0 : oldArmor;

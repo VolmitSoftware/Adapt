@@ -5,6 +5,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.RNG;
 import lombok.NoArgsConstructor;
@@ -19,11 +20,8 @@ import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Config> {
-    private final List<Integer> holds = new ArrayList<>();
+    private final KList<Integer> holds = new KList<>();
 
     public HerbalismGrowthAura() {
         super("herbalism-growth-aura");
