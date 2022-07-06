@@ -8,15 +8,14 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.enchantment.EnchantItemEvent;
-import org.bukkit.inventory.ItemStack;
 
-public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisReturn.Config> {
+public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Config> {
 
-    public EnchantingLapisReturn() {
-        super("enchanting-lapis-return");
+    public EnchantingXPReturn() {
+        super("enchanting-xp-return");
         registerConfiguration(Config.class);
-        setDescription("At the cost of 1 more level of XP, and has a chance to give you free lapis in return");
-        setDisplayName("Lapis Return");
+        setDescription("Enchantments can give you XP when you make them");
+        setDisplayName("XP Return");
         setIcon(Material.LAPIS_LAZULI);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -27,22 +26,18 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "For every level, it increases the cost of enchanting, by 1, but can return upwards of 3 Lapis");
+        v.addLore(C.GRAY + "Experience spent has a chance to be refunded when you enchant an item");
+        v.addLore(C.GREEN + "" + getConfig().xpReturn* (level * level)+ "Experience per craft");
     }
 
     @EventHandler
     public void on(EnchantItemEvent e) {
+        int level = getLevel(e.getEnchanter());
         Player p = e.getEnchanter();
         if (!hasAdaptation(p)) {
             return;
         }
-        int xp = e.getExpLevelCost();
-        xp = xp + getLevel(p); // Add a level for each enchant
-        e.setExpLevelCost(xp);
-        int lapis = (int) (Math.random() * 1);
-        lapis =  lapis + (int) (Math.random() * (getLevel(p) +1));
-        p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, lapis));
-
+        p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(getConfig().xpReturn * (level * level));
 
     }
 
@@ -58,10 +53,11 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
 
     @NoArgsConstructor
     protected static class Config {
+        public int xpReturn = 2;
         boolean enabled = true;
         int baseCost = 1;
         int maxLevel = 7;
         int initialCost = 2;
-        double costFactor = 1.25;
+        double costFactor = 1.97;
     }
 }

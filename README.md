@@ -35,7 +35,8 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 - [X] Splash Range Increase (Chance to increase Range)
 
 **Crafting**:
-- [ ] Xp for crafting
+- [X] Xp for crafting
+- [ ] Chance for Extras
 - [X] Deconstruction Table (De-craft to basics)
 
 **Discovery**:
