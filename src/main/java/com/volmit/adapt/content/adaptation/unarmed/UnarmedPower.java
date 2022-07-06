@@ -39,14 +39,18 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player) {
-            Player p = (Player) e.getDamager();
+        if(e.getDamager() instanceof Player p) {
+            if (!hasAdaptation(p)) {
+                return;
+            }
+            if (p.getInventory().getItemInMainHand().getType() != Material.AIR || p.getInventory().getItemInOffHand().getType() != Material.AIR) {
+                return;
+            }
             double factor = getLevelPercent(p);
 
             if(factor <= 0) {
                 return;
             }
-
             e.setDamage(e.getDamage() * (1 + getUnarmedDamage(getLevel(p))));
             getSkill().xp(p, 0.321 * factor * e.getDamage());
 

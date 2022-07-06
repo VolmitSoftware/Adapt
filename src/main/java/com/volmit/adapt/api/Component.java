@@ -5,7 +5,6 @@ import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.xp.XP;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -21,7 +20,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public interface Component {
     default void wisdom(Player p, long w) {
@@ -73,6 +71,48 @@ public interface Component {
 
             return item;
         }
+    }
+
+    default double getArmorValue(Player player) {
+        org.bukkit.inventory.PlayerInventory inv = player.getInventory();
+        ItemStack boots = inv.getBoots();
+        ItemStack helmet = inv.getHelmet();
+        ItemStack chest = inv.getChestplate();
+        ItemStack pants = inv.getLeggings();
+        double armorValue = 0.0;
+        if (helmet == null) armorValue = armorValue + 0.0;
+        else if (helmet.getType() == Material.LEATHER_HELMET) armorValue = armorValue + 0.04;
+        else if (helmet.getType() == Material.GOLDEN_HELMET) armorValue = armorValue + 0.08;
+        else if (helmet.getType() == Material.TURTLE_HELMET) armorValue = armorValue + 0.08;
+        else if (helmet.getType() == Material.CHAINMAIL_HELMET) armorValue = armorValue + 0.08;
+        else if (helmet.getType() == Material.IRON_HELMET) armorValue = armorValue + 0.08;
+        else if (helmet.getType() == Material.DIAMOND_HELMET) armorValue = armorValue + 0.12;
+        else if (helmet.getType() == Material.NETHERITE_HELMET) armorValue = armorValue + 0.12;
+        //
+        if (boots == null) armorValue = armorValue + 0.0;
+        else if (boots.getType() == Material.LEATHER_BOOTS) armorValue = armorValue + 0.04;
+        else if (boots.getType() == Material.GOLDEN_BOOTS) armorValue = armorValue + 0.04;
+        else if (boots.getType() == Material.CHAINMAIL_BOOTS) armorValue = armorValue + 0.04;
+        else if (boots.getType() == Material.IRON_BOOTS) armorValue = armorValue + 0.08;
+        else if (boots.getType() == Material.DIAMOND_BOOTS) armorValue = armorValue + 0.12;
+        else if (boots.getType() == Material.NETHERITE_BOOTS) armorValue = armorValue + 0.12;
+        //
+        if (pants == null) armorValue = armorValue + 0.0;
+        else if (pants.getType() == Material.LEATHER_LEGGINGS) armorValue = armorValue + 0.08;
+        else if (pants.getType() == Material.GOLDEN_LEGGINGS) armorValue = armorValue + 0.12;
+        else if (pants.getType() == Material.CHAINMAIL_LEGGINGS) armorValue = armorValue + 0.16;
+        else if (pants.getType() == Material.IRON_LEGGINGS) armorValue = armorValue + 0.20;
+        else if (pants.getType() == Material.DIAMOND_LEGGINGS) armorValue = armorValue + 0.24;
+        else if (pants.getType() == Material.NETHERITE_LEGGINGS) armorValue = armorValue + 0.24;
+        //
+        if (chest == null) armorValue = armorValue + 0.0;
+        else if (chest.getType() == Material.LEATHER_CHESTPLATE) armorValue = armorValue + 0.12;
+        else if (chest.getType() == Material.GOLDEN_CHESTPLATE) armorValue = armorValue + 0.20;
+        else if (chest.getType() == Material.CHAINMAIL_CHESTPLATE) armorValue = armorValue + 0.20;
+        else if (chest.getType() == Material.IRON_CHESTPLATE) armorValue = armorValue + 0.24;
+        else if (chest.getType() == Material.DIAMOND_CHESTPLATE) armorValue = armorValue + 0.32;
+        else if (chest.getType() == Material.NETHERITE_CHESTPLATE) armorValue = armorValue + 0.32;
+        return armorValue;
     }
 
     default PotionEffect getRawPotionEffect(ItemStack is) {
@@ -261,9 +301,9 @@ public interface Component {
 
         return result;
     }
+    
 
     default void riftResistCheckAndTrigger(Player p, int duration, int amplifier) {
-
         p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
         p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1000f, 0.01f);
         p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1000f, 0.01f);

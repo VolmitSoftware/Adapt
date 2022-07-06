@@ -25,7 +25,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     public ArchitectFoundation() {
         super("architect-foundation");
         registerConfiguration(ArchitectFoundation.Config.class);
-        setDescription("This allows for you to sneak near the edge of a block and place a temporary foundation");
+        setDescription("This allows for you to sneak and place a temporary foundation beneath you");
         setDisplayName("Architect's Magic Foundation");
         setIcon(Material.TINTED_GLASS);
         setInterval(1000);
@@ -40,22 +40,21 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerMoveEvent e) {
-        if(!e.getFrom().getBlock().equals(e.getTo().getBlock())) {
+        if (!hasAdaptation(e.getPlayer())) {
+            return;
+        }
+        if (!e.getFrom().getBlock().equals(e.getTo().getBlock())) {
             // We only want actual block position changes, this would be spammy if we dont
             return;
         }
 
-        if(!hasAdaptation(e.getPlayer())) {
-            return;
-        }
-
-        if(!this.active.contains(e.getPlayer())) {
+        if (!this.active.contains(e.getPlayer())) {
             return;
         }
 
         int power = blockPower.get(e.getPlayer());
 
-        if(power <= 0) {
+        if (power <= 0) {
             return;
         }
 
@@ -69,13 +68,13 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
         for (Block b : locs) {
             if (power > 0) {
-                if(addFoundation(b)) {
+                if (addFoundation(b)) {
                     xp(e.getPlayer(), 3);
                     power--;
                 }
             }
 
-            if(power <= 0) {
+            if (power <= 0) {
                 break;
             }
         }
@@ -85,21 +84,19 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerToggleSneakEvent e) {
-        if(!hasAdaptation(e.getPlayer())) {
+        if (!hasAdaptation(e.getPlayer()) || e.getPlayer().getGameMode().equals(GameMode.CREATIVE)
+                || e.getPlayer().getGameMode().equals(GameMode.SPECTATOR)) {
             return;
         }
 
         boolean ready = !hasCooldown(e.getPlayer());
         boolean active = this.active.contains(e.getPlayer());
 
-        if(e.isSneaking() && ready && !active)
-        {
+        if (e.isSneaking() && ready && !active) {
             this.active.add(e.getPlayer());
             cooldowns.put(e.getPlayer(), Long.MAX_VALUE);
             // effect start placing
-        }
-
-        else if(!e.isSneaking() && active) {
+        } else if (!e.isSneaking() && active) {
             this.active.remove(e.getPlayer());
             cooldowns.put(e.getPlayer(), M.ms() + getConfig().cooldown);
             e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 100.0f, 10.0f);
@@ -108,7 +105,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     }
 
     public boolean addFoundation(Block block) {
-        if(!block.getType().isAir()) {
+        if (!block.getType().isAir()) {
             return false;
         }
 
@@ -121,7 +118,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     }
 
     public boolean removeFoundation(Block block) {
-        if(!block.getBlockData().equals(BLOCK)) {
+        if (!block.getBlockData().equals(BLOCK)) {
             return false;
         }
 
@@ -137,15 +134,15 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers()) {
-            if(!hasAdaptation(i)){
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            if (!hasAdaptation(i)) {
                 continue;
             }
 
             boolean ready = !hasCooldown(i);
             int availablePower = getBlockPower(getLevelPercent(i));
             int power = blockPower.compute(i, (k, v) -> {
-                if((k == null || v == null) || (ready && v != availablePower)) {
+                if ((k == null || v == null) || (ready && v != availablePower)) {
                     i.getWorld().playSound(i.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 100.0f, 10.0f);
                     i.getWorld().playSound(i.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 100.0f, 0.81f);
                     return availablePower;
@@ -157,8 +154,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     }
 
     private boolean hasCooldown(Player i) {
-        if(cooldowns.containsKey(i)) {
-            if(M.ms() >= cooldowns.get(i)) {
+        if (cooldowns.containsKey(i)) {
+            if (M.ms() >= cooldowns.get(i)) {
                 cooldowns.remove(i);
             }
         }

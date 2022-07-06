@@ -47,19 +47,23 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 - [ ] Villager Attitude
 
 **Enchanting**:
-- [ ] XP Refund
+- [X] XP Refund
 - [X] Lapis Refund (Chance per enchant to give Lapis)
 - [X] In-Inventory Enchanting (Books to Items)
 - [ ] Xp for making Bookshelf/Book/Table
 - [ ] Better Enchant Levels
 
+**Excavation**:
+- [ ] Dirt/Grass does not consume Durability
+- [ ] Haste while digging
+
 **Herbalism**:
-- [ ] Fix Aura
+- [X] Fix Aura
 - [X] Hunger Shield (up to 50% less hunger consumption)
 - [X] Replanted (replant items by right-clicking)
 - [ ] Harvest Dupes
-- [ ] Xp Gain
-- [ ] Faster Grow
+- [X] Xp Gain
+- [X] Faster Grow
 
 **Hunter**:
 - [X] Adrenaline (more damage lower the health)
@@ -119,7 +123,7 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 - [X] Unarmed Power (Make unarmed Viable)
 - [X] Sucker Punch (One PunCh!)
 - [ ] One-Punch man?
-- [ ] Glass Cannon (Less Armor = More damage to / from you)
+- [X] Glass Cannon (Less Armor = More damage to / from you)
 - [ ] Remote Grab?
 - [ ] Increased Boss Damage
 - [ ] Passive Strength while unarmed
@@ -132,6 +136,5 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 - [ ] Nearby Withering applies regen
 
 **Chronos**: _(Unimplemented)_
-- [ ] Chronos Slowdown (Passive Slowdown for entities in the world)
-- [ ] Chronos Speed (Passive Speed for entities in the world)
-- [ ] 
+- [ ] Chronos Slowdown (Passive Slowdown for entities in the world near you)
+- [ ] Chronos Speed (Passive Speed for entities in the world near you)
