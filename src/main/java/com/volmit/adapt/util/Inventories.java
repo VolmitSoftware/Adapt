@@ -4,6 +4,9 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * ItemStack & Inventory utilities
  *
@@ -52,8 +55,8 @@ public class Inventories {
      *     the inventory
      * @return the ACTUAL contents
      */
-    public static KList<ItemStack> getActualContents(Inventory i) {
-        KList<ItemStack> actualItems = new KList<ItemStack>();
+    public static List<ItemStack> getActualContents(Inventory i) {
+        List<ItemStack> actualItems = new ArrayList<>();
 
         for(ItemStack j : i.getContents()) {
             if(Items.is(j)) {

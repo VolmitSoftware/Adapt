@@ -4,7 +4,6 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.rift.*;
 import com.volmit.adapt.content.adaptation.rift.experimental.RiftAstralKey;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -24,8 +23,11 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillRift extends SimpleSkill<SkillRift.Config> {
-    private final KMap<Player, Long> lasttp = new KMap<>();
+    private final Map<Player, Long> lasttp = new HashMap<>();
 
     public SkillRift() {
         super("rift", "\u274D");

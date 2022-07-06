@@ -6,7 +6,6 @@ import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -20,8 +19,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
-    private final KList<InventoryView> activeViews = new KList<>();
+    private final List<InventoryView> activeViews = new ArrayList<>();
 
     public RiftAccess() {
         super("rift-access");

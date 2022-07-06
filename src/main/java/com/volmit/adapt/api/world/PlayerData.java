@@ -9,9 +9,6 @@ import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.KList;
-import com.volmit.adapt.util.KMap;
-import com.volmit.adapt.util.KSet;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -20,13 +17,15 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.EntityType;
 
+import java.util.*;
+
 @Data
 @NoArgsConstructor
 public class PlayerData {
-    private final KMap<String, PlayerSkillLine> skillLines = new KMap<>();
-    private KMap<String, Double> stats = new KMap<>();
+    private final Map<String, PlayerSkillLine> skillLines = new HashMap<>();
+    private Map<String, Double> stats = new HashMap<>();
     private String last = "none";
-    private KSet<String> advancements = new KSet<>();
+    private Set<String> advancements = new HashSet<>();
     private Discovery<Biome> seenBiomes = new Discovery<>();
     private Discovery<EntityType> seenMobs = new Discovery<>();
     private Discovery<Material> seenFoods = new Discovery<>();
@@ -38,7 +37,7 @@ public class PlayerData {
     private Discovery<World.Environment> seenEnvironments = new Discovery<>();
     private Discovery<String> seenPotionEffects = new Discovery<>();
     private Discovery<String> seenBlocks = new Discovery<>();
-    private KList<XPMultiplier> multipliers = new KList<>();
+    private List<XPMultiplier> multipliers = new ArrayList<>();
     private long wisdom = 0;
     private double multiplier = 0;
     private long lastLogin = 0;

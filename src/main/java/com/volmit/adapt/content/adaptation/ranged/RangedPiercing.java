@@ -3,7 +3,6 @@ package com.volmit.adapt.content.adaptation.ranged;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.KList;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
@@ -11,8 +10,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
-    private final KList<Integer> holds = new KList<>();
+    private final List<Integer> holds = new ArrayList<>();
 
     public RangedPiercing() {
         super("ranged-piercing");

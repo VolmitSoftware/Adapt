@@ -5,7 +5,6 @@ import com.volmit.adapt.content.skill.SkillHerbalism;
 import com.volmit.adapt.util.Cuboid;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -18,8 +17,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> {
-    private final KList<Integer> holds = new KList<>();
+    private final List<Integer> holds = new ArrayList<>();
 
     public HerbalismReplant() {
         super("herbalism-replant");
@@ -81,7 +84,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
                 c = c.expand(Cuboid.CuboidDirection.East, Math.round(getRadius(lvl)));
                 c = c.expand(Cuboid.CuboidDirection.West, Math.round(getRadius(lvl)));
 
-                for(Block i : new KList<>(c.iterator())) {
+                for (Block i : c) {
                     J.s(() -> hit(e.getPlayer(), i), M.irand(1, 6));
                 }
 

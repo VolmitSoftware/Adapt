@@ -1,13 +1,16 @@
 package com.volmit.adapt.util;
 
+import art.arcane.amulet.io.FolderWatcher;
+
 import java.io.File;
+import java.util.List;
 
 public class ReactiveFolder {
     private final File folder;
-    private final Consumer3<KList<File>, KList<File>, KList<File>> hotload;
+    private final Consumer3<List<File>, List<File>, List<File>> hotload;
     private FolderWatcher fw;
 
-    public ReactiveFolder(File folder, Consumer3<KList<File>, KList<File>, KList<File>> hotload) {
+    public ReactiveFolder(File folder, Consumer3<List<File>, List<File>, List<File>> hotload) {
         this.folder = folder;
         this.hotload = hotload;
         this.fw = new FolderWatcher(folder);

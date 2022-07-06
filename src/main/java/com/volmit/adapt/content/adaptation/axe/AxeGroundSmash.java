@@ -5,7 +5,6 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Impulse;
-import com.volmit.adapt.util.KList;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -14,8 +13,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
-    private final KList<Integer> holds = new KList<>();
+    private final List<Integer> holds = new ArrayList<>();
 
     public AxeGroundSmash() {
         super("axe-ground-smash");

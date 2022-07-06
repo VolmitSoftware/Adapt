@@ -1,6 +1,5 @@
 package com.volmit.adapt.api.advancement;
 
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.advancements.advancement.Advancement;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
@@ -10,6 +9,7 @@ import lombok.Data;
 import lombok.Singular;
 import org.bukkit.Material;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -41,7 +41,7 @@ public class AdaptAdvancement {
 
     public Advancement toAdvancement(Advancement parent, int index, int depth) {
         if(children == null) {
-            children = new KList<>();
+            children = new ArrayList<>();
         }
 
         AdvancementDisplay d = new AdvancementDisplay(getIcon(), getTitle(), getDescription(), getFrame(), getVisibility());
@@ -56,12 +56,12 @@ public class AdaptAdvancement {
         return new Advancement(parent, new NameKey("adapt", getKey()), d);
     }
 
-    public KList<Advancement> toAdvancements() {
+    public List<Advancement> toAdvancements() {
         return toAdvancements(null, 0, 0);
     }
 
-    public KList<Advancement> toAdvancements(Advancement p, int index, int depth) {
-        KList<Advancement> aa = new KList<>();
+    public List<Advancement> toAdvancements(Advancement p, int index, int depth) {
+        List<Advancement> aa = new ArrayList<>();
         Advancement a = toAdvancement(p, index, depth);
         int ind = 0;
         if(children != null && !children.isEmpty()) {

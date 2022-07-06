@@ -1,5 +1,6 @@
 package com.volmit.adapt.api.adaptation;
 
+import art.arcane.amulet.io.FileWatcher;
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
@@ -7,12 +8,9 @@ import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.FileWatcher;
-import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.JSONObject;
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,6 +18,8 @@ import org.bukkit.Material;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = false)
@@ -34,15 +34,15 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     private String description;
     private Material icon;
     private String name;
-    private KList<AdaptAdvancement> cachedAdvancements;
-    private KList<AdaptRecipe> recipes;
+    private List<AdaptAdvancement> cachedAdvancements;
+    private List<AdaptRecipe> recipes;
     private Class<T> configType;
     private T config;
 
     public SimpleAdaptation(String name) {
         super("adaptations", UUID.randomUUID() + "-" + name, 1000);
-        cachedAdvancements = new KList<>();
-        recipes = new KList<>();
+        cachedAdvancements = new ArrayList<>();
+        recipes = new ArrayList<>();
         setMaxLevel(5);
         setCostFactor(0.35);
         setBaseCost(3);
@@ -133,12 +133,12 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     }
 
     @Override
-    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
+    public void onRegisterAdvancements(List<AdaptAdvancement> advancements) {
         advancements.addAll(cachedAdvancements);
     }
 
     public AdaptAdvancement buildAdvancements() {
-        KList<AdaptAdvancement> a = new KList<>();
+        List<AdaptAdvancement> a = new ArrayList<>();
         onRegisterAdvancements(a);
 
         return AdaptAdvancement.builder()

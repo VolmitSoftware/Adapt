@@ -4,12 +4,13 @@ import com.google.gson.Gson;
 import com.volmit.adapt.api.xp.Curves;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.JSONObject;
-import com.volmit.adapt.util.KMap;
 import lombok.Getter;
 import org.bukkit.Material;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("ALL")
 @Getter
@@ -26,10 +27,10 @@ public class AdaptConfig {
     @Getter
     public static class ValueConfig {
         private double baseValue = 1;
-        private KMap<String, Double> valueMutlipliers = defaultValueMultipliers();
+        private Map<String, Double> valueMutlipliers = defaultValueMultipliers();
 
-        private KMap<String, Double> defaultValueMultipliers() {
-            KMap<String, Double> f = new KMap<>();
+        private Map<String, Double> defaultValueMultipliers() {
+            Map<String, Double> f = new HashMap<>();
             f.put(Material.BLAZE_ROD.name(), 50D);
             f.put(Material.ENDER_PEARL.name(), 75D);
             f.put(Material.GHAST_TEAR.name(), 100D);

@@ -5,7 +5,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 
 
@@ -115,7 +117,8 @@ public class Area {
      * @return the nearby entities matching the given type
      */
     public Entity[] getNearbyEntities(EntityType type) {
-        KList<Entity> e = new KList<Entity>(getNearbyEntities());
+        List<Entity> e = new ArrayList<>();
+        e.add(getNearbyEntities());
 
         for(Entity i : e.copy()) {
             if(!i.getType().equals(type)) {
@@ -134,7 +137,8 @@ public class Area {
      * @return the nearby entities assignable from the given class
      */
     public Entity[] getNearbyEntities(Class<? extends Entity> entityClass) {
-        KList<Entity> e = new KList<Entity>(getNearbyEntities());
+        List<Entity> e = new ArrayList<>();
+        e.add(getNearbyEntities());
 
         for(Entity i : e.copy()) {
             if(!i.getClass().isAssignableFrom(entityClass)) {
@@ -170,7 +174,7 @@ public class Area {
 
             return radiusEntities.toArray(new Entity[radiusEntities.size()]);
         } catch(Exception e) {
-            return new KList<Entity>().toArray(new Entity[0]);
+            return new ArrayList<Entity>().toArray(new Entity[0]);
         }
     }
 
@@ -180,7 +184,7 @@ public class Area {
      * @return Returns an Player[] array of all players within the given area.
      */
     public Player[] getNearbyPlayers() {
-        KList<Player> px = new KList<Player>();
+        List<Player> px = new ArrayList<>();
 
         for(Entity i : getNearbyEntities()) {
             if(i.getType().equals(EntityType.PLAYER)) {

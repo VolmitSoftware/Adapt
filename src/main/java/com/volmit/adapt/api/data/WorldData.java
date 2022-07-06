@@ -1,21 +1,23 @@
 package com.volmit.adapt.api.data;
 
+import art.arcane.spatial.mantle.Mantle;
+import art.arcane.spatial.matter.SpatialMatter;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.data.unit.Earnings;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KMap;
 import lombok.Getter;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
-import org.cyberpwn.spatial.mantle.Mantle;
-import org.cyberpwn.spatial.matter.SpatialMatter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class WorldData extends TickedObject {
-    private static final KMap<World, WorldData> mantles = new KMap<>();
+    private static final Map<World, WorldData> mantles = new HashMap<>();
     private final World world;
     @Getter
     private final Mantle mantle;

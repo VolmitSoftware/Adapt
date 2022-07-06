@@ -4,25 +4,27 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.advancements.NameKey;
 import com.volmit.adapt.util.advancements.advancement.Advancement;
 import com.volmit.adapt.util.advancements.manager.AdvancementManager;
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Data
 public class AdvancementHandler {
     private AdvancementManager manager;
     private AdaptPlayer player;
-    private KMap<Skill<?>, AdaptAdvancement> roots;
-    private KMap<String, Advancement> real;
+    private Map<Skill<?>, AdaptAdvancement> roots;
+    private Map<String, Advancement> real;
     private boolean ready;
 
     public AdvancementHandler(AdaptPlayer player) {
         this.player = player;
         this.manager = new AdvancementManager(new NameKey("adapt", player.getPlayer().getUniqueId().toString()), player.getPlayer());
-        roots = new KMap<>();
-        real = new KMap<>();
+        roots = new HashMap<>();
+        real = new HashMap<>();
         ready = false;
     }
 

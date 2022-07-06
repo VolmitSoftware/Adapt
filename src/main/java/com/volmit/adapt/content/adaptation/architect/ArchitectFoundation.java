@@ -5,8 +5,6 @@ import com.volmit.adapt.content.block.ScaffoldMatter;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KMap;
-import com.volmit.adapt.util.KSet;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -25,12 +23,14 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Config> {
-    private final KMap<Player, Integer> blockPower;
-    private final KMap<Player, Long> cooldowns;
+    private final Map<Player, Integer> blockPower;
+    private final Map<Player, Long> cooldowns;
     private final Set<Player> active;
     private static final BlockData AIR = Material.AIR.createBlockData();
     private static final BlockData BLOCK = Material.TINTED_GLASS.createBlockData();
@@ -46,8 +46,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        blockPower = new KMap<>();
-        cooldowns = new KMap<>();
+        blockPower = new HashMap<>();
+        cooldowns = new HashMap<>();
         active = new HashSet<>();
     }
 
@@ -74,7 +74,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
         Location l = e.getTo();
         World world = l.getWorld();
-        KSet<Block> locs = new KSet<>();
+        Set<Block> locs = new HashSet<>();
         locs.add(world.getBlockAt(l.clone().add(0.3, -1, -0.3)));
         locs.add(world.getBlockAt(l.clone().add(-0.3, -1, -0.3)));
         locs.add(world.getBlockAt(l.clone().add(0.3, -1, 0.3)));

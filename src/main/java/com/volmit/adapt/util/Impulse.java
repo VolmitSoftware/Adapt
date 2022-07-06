@@ -5,16 +5,19 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Impulse {
     private double radius;
     private double forceMax;
     private double forceMin;
-    private final KList<Entity> ignore;
+    private final List<Entity> ignore;
     private double damageMin;
     private double damageMax;
 
     public Impulse(double radius) {
-        ignore = new KList<Entity>();
+        ignore = new ArrayList<>();
         this.radius = radius;
         this.forceMax = 1;
         this.forceMin = 0;

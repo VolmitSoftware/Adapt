@@ -3,6 +3,8 @@ package com.volmit.adapt.util;
 import com.volmit.adapt.Adapt;
 import org.bukkit.Bukkit;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
@@ -85,8 +87,8 @@ public class J {
         }
     }
 
-    private static KList<Runnable> afterStartup = new KList<>();
-    private static KList<Runnable> afterStartupAsync = new KList<>();
+    private static List<Runnable> afterStartup = new ArrayList<>();
+    private static List<Runnable> afterStartupAsync = new ArrayList<>();
     private static boolean started = false;
 
     /**

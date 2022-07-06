@@ -1,9 +1,10 @@
 package com.volmit.adapt.commands;
 
 import com.volmit.adapt.content.item.ExperienceOrb;
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
+
+import java.util.List;
 
 public class CommandItemExperienceOrb extends MortarCommand {
     public CommandItemExperienceOrb() {
@@ -17,7 +18,7 @@ public class CommandItemExperienceOrb extends MortarCommand {
     }
 
     @Override
-    public void addTabOptions(MortarSender sender, String[] args, KList<String> list) {
+    public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
 
     }
 

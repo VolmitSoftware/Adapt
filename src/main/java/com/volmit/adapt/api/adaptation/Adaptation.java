@@ -12,7 +12,6 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.MaterialBlock;
 import com.volmit.adapt.util.UIElement;
@@ -132,9 +131,9 @@ public interface Adaptation<T> extends Ticked, Component {
 
     double getCostFactor();
 
-    KList<AdaptRecipe> getRecipes();
+    List<AdaptRecipe> getRecipes();
 
-    void onRegisterAdvancements(KList<AdaptAdvancement> advancements);
+    void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
     default boolean hasAdaptation(Player p) {
         return getLevel(p) > 0;

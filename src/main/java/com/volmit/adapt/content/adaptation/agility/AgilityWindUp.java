@@ -4,7 +4,6 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -16,8 +15,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
-    private final KMap<Player, Integer> ticksRunning = new KMap<>();
+    private final Map<Player, Integer> ticksRunning = new HashMap<>();
 
     public AgilityWindUp() {
         super("agility-wind-up");

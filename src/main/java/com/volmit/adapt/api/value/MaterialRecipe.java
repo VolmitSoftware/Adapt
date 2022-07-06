@@ -1,14 +1,15 @@
 package com.volmit.adapt.api.value;
 
-import com.volmit.adapt.util.KList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.List;
 
 @AllArgsConstructor
 @Builder
 @Data
 public class MaterialRecipe {
-    private KList<MaterialCount> input;
+    private List<MaterialCount> input;
     private MaterialCount output;
 }

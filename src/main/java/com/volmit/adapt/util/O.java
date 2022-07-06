@@ -1,8 +1,11 @@
 package com.volmit.adapt.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class O<T> implements Observable<T> {
     private T t = null;
-    private KList<Observer<T>> observers;
+    private List<Observer<T>> observers;
 
     @Override
     public T get() {
@@ -14,7 +17,7 @@ public class O<T> implements Observable<T> {
         T x = t;
         this.t = t;
 
-        if(observers != null && observers.hasElements()) {
+        if(observers != null && observers.isNotEmpty()) {
             observers.forEach((o) -> o.onChanged(x, t));
         }
 
@@ -35,7 +38,7 @@ public class O<T> implements Observable<T> {
     @Override
     public O<T> observe(Observer<T> t) {
         if(observers == null) {
-            observers = new KList<>();
+            observers = new ArrayList<>();
         }
 
         observers.add(t);

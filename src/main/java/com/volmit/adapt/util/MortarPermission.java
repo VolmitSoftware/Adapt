@@ -5,6 +5,8 @@ import org.bukkit.command.CommandSender;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class MortarPermission {
     private MortarPermission parent;
@@ -23,8 +25,8 @@ public abstract class MortarPermission {
         }
     }
 
-    public KList<MortarPermission> getChildren() {
-        KList<MortarPermission> p = new KList<>();
+    public List<MortarPermission> getChildren() {
+        List<MortarPermission> p = new ArrayList<>();
 
         for(Field i : getClass().getDeclaredFields()) {
             if(i.isAnnotationPresent(Permission.class)) {
