@@ -12,17 +12,12 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 public class UIWindow implements Window, Listener {
     private WindowDecorator decorator;
     private final Player viewer;
     private Callback<Window> eClose;
     private WindowResolution resolution;
-    private final Map<Integer, Element> elements;
+    private final KMap<Integer, Element> elements;
     private String title;
     private boolean visible;
     private int viewportPosition;
@@ -36,7 +31,7 @@ public class UIWindow implements Window, Listener {
         clickcheck = 0;
         doubleclicked = false;
         this.viewer = viewer;
-        this.elements = new HashMap<>();
+        this.elements = new KMap<>();
         setTitle("");
         setDecorator(new UIVoidDecorator());
         setResolution(WindowResolution.W9_H6);
@@ -424,7 +419,7 @@ public class UIWindow implements Window, Listener {
     public Window updateInventory() {
         if(isVisible()) {
             ItemStack[] is = inventory.getContents();
-            Set<ItemStack> isf = new HashSet<>();
+            KSet<ItemStack> isf = new KSet<ItemStack>();
 
             for(int i = 0; i < is.length; i++) {
                 ItemStack isc = is[i];

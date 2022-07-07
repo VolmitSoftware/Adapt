@@ -1,14 +1,12 @@
 package com.volmit.adapt.util;
 
-import java.util.List;
-
 /**
  * Represents a pawn command
  *
  * @author cyberpwn
  */
 public interface ICommand {
-    List<String> getRequiredPermissions();
+    KList<String> getRequiredPermissions();
 
     /**
      * Get the name of this command (node)
@@ -22,14 +20,14 @@ public interface ICommand {
      *
      * @return the nodes
      */
-    List<String> getNodes();
+    KList<String> getNodes();
 
     /**
      * Get all (every) node in this command
      *
      * @return all nodes
      */
-    List<String> getAllNodes();
+    KList<String> getAllNodes();
 
     /**
      * Add a node to this command
@@ -51,5 +49,5 @@ public interface ICommand {
      */
     boolean handle(MortarSender sender, String[] args);
 
-    List<String> handleTab(MortarSender sender, String[] args);
+    KList<String> handleTab(MortarSender sender, String[] args);
 }

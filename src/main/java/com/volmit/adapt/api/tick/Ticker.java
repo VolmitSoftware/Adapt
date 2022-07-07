@@ -3,22 +3,21 @@ package com.volmit.adapt.api.tick;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.BurstExecutor;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.MultiBurst;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Ticker {
-    private final List<Ticked> ticklist;
-    private final List<Ticked> newTicks;
-    private final List<String> removeTicks;
+    private final KList<Ticked> ticklist;
+    private final KList<Ticked> newTicks;
+    private final KList<String> removeTicks;
     private volatile boolean ticking;
 
     public Ticker() {
-        this.ticklist = new ArrayList<>(4096);
-        this.newTicks = new ArrayList<>(128);
-        this.removeTicks = new ArrayList<>(128);
+        this.ticklist = new KList<>(4096);
+        this.newTicks = new KList<>(128);
+        this.removeTicks = new KList<>(128);
         ticking = false;
         J.ar(() -> {
             if(!ticking) {
@@ -65,14 +64,14 @@ public class Ticker {
 //        Adapt.info(ix + "");
 
         synchronized(newTicks) {
-            while(newTicks.isNotEmpty()) {
+            while(newTicks.hasElements()) {
                 tc.incrementAndGet();
                 ticklist.add(newTicks.popRandom());
             }
         }
 
         synchronized(removeTicks) {
-            while(removeTicks.isNotEmpty()) {
+            while(removeTicks.hasElements()) {
                 tc.incrementAndGet();
                 String id = removeTicks.popRandom();
 

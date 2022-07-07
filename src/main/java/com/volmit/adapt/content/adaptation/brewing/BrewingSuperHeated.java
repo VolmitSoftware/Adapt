@@ -9,6 +9,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KSet;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.RNG;
 import lombok.NoArgsConstructor;
@@ -23,13 +24,11 @@ import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 
 public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Config> {
-    private final Set<Block> activeStands = new HashSet<>();
+    private final KSet<Block> activeStands = new KSet<>();
 
     public BrewingSuperHeated() {
         super("brewing-super-heated");

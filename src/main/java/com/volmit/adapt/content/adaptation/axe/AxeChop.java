@@ -4,6 +4,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.RNG;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -14,11 +15,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
-    private final List<Integer> holds = new ArrayList<>();
+    private final KList<Integer> holds = new KList<>();
 
     public AxeChop() {
         super("axe-chop");

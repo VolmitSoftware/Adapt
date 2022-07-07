@@ -5,6 +5,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
@@ -17,11 +18,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
-    private final List<Integer> holds = new ArrayList<>();
+    private final KList<Integer> holds = new KList<>();
 
     public RangedForce() {
         super("ranged-force");

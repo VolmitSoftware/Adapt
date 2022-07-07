@@ -9,15 +9,13 @@ import com.volmit.adapt.api.notification.TitleNotification;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
+import com.volmit.adapt.util.KList;
+import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Sound;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Data
@@ -32,9 +30,9 @@ public class PlayerSkillLine {
     private double rfreshness = 1D;
     private int lastLevel = 0;
     private long last = M.ms();
-    private Map<String, Object> storage = new HashMap<>();
-    private Map<String, PlayerAdaptation> adaptations = new HashMap<>();
-    private List<XPMultiplier> multipliers = new ArrayList<>();
+    private KMap<String, Object> storage = new KMap<>();
+    private KMap<String, PlayerAdaptation> adaptations = new KMap<>();
+    private KList<XPMultiplier> multipliers = new KList<>();
 
     public void giveXP(Notifier p, double xp) {
         freshness -= xp * 0.001;

@@ -19,16 +19,19 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public abstract class VolmitPlugin extends JavaPlugin implements Listener {
     public static boolean bad = false;
-    private Map<List<String>, VirtualCommand> commands;
-    private List<MortarCommand> commandCache;
-    private List<MortarPermission> permissionCache;
-    private Map<String, IController> controllers;
-    private List<IController> cachedControllers;
-    private Map<Class<? extends IController>, IController> cachedClassControllers;
+    private KMap<KList<String>, VirtualCommand> commands;
+    private KList<MortarCommand> commandCache;
+    private KList<MortarPermission> permissionCache;
+    private KMap<String, IController> controllers;
+    private KList<IController> cachedControllers;
+    private KMap<Class<? extends IController>, IController> cachedClassControllers;
 
     public void l(Object l) {
         Adapt.info("[" + getName() + "]: " + l);
@@ -88,7 +91,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
     }
 
     private void chain(MortarPermission i, FileConfiguration fc) {
-        List<String> ff = new ArrayList<>();
+        KList<String> ff = new KList<String>();
 
         for(MortarPermission j : i.getChildren()) {
             ff.add(j.getFullNode());
@@ -132,7 +135,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
     }
 
     private void registerPermissions() {
-        permissionCache = new ArrayList<>();
+        permissionCache = new KList<>();
 
         for(Field i : getClass().getDeclaredFields()) {
             if(i.isAnnotationPresent(Permission.class)) {
@@ -159,8 +162,8 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         }
     }
 
-    private List<org.bukkit.permissions.Permission> computePermissions() {
-        List<org.bukkit.permissions.Permission> g = new ArrayList<>();
+    private KList<org.bukkit.permissions.Permission> computePermissions() {
+        KList<org.bukkit.permissions.Permission> g = new KList<>();
         for(Field i : getClass().getDeclaredFields()) {
             if(i.isAnnotationPresent(Permission.class)) {
                 try {
@@ -173,11 +176,11 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
             }
         }
 
-        return g.withoutDuplicates();
+        return g.removeDuplicates();
     }
 
-    private List<org.bukkit.permissions.Permission> computePermissions(MortarPermission p) {
-        List<org.bukkit.permissions.Permission> g = new ArrayList<>();
+    private KList<org.bukkit.permissions.Permission> computePermissions(MortarPermission p) {
+        KList<org.bukkit.permissions.Permission> g = new KList<>();
 
         if(p == null) {
             return g;
@@ -253,7 +256,11 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         }
     }
 
-    public List<IController> getControllers() {
+    public KList<IController> getControllers() {
+        if(bad) {
+            return new KList<>();
+        }
+
         return cachedControllers;
     }
 
@@ -261,8 +268,8 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         if(bad) {
             return;
         }
-        controllers = new HashMap<>();
-        cachedClassControllers = new HashMap<>();
+        controllers = new KMap<>();
+        cachedClassControllers = new KMap<>();
 
         for(Field i : getClass().getDeclaredFields()) {
             if(i.isAnnotationPresent(Control.class)) {
@@ -343,8 +350,8 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         if(bad) {
             return;
         }
-        commands = new HashMap<>();
-        commandCache = new ArrayList<>();
+        commands = new KMap<>();
+        commandCache = new KList<>();
 
         for(Field i : getClass().getDeclaredFields()) {
             if(i.isAnnotationPresent(com.volmit.adapt.util.Command.class)) {
@@ -366,7 +373,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command,
                                       String alias, String[] args) {
-        List<String> chain = new ArrayList<>();
+        KList<String> chain = new KList<String>();
 
         for(String i : args) {
             if(i.trim().isEmpty()) {
@@ -376,7 +383,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
             chain.add(i.trim());
         }
 
-        for(List<String> i : commands.k()) {
+        for(KList<String> i : commands.k()) {
             for(String j : i) {
                 if(j.equalsIgnoreCase(alias)) {
                     VirtualCommand cmd = commands.get(i);
@@ -398,10 +405,10 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
             return false;
         }
 
-        List<String> chain = new ArrayList<>();
+        KList<String> chain = new KList<String>();
         chain.add(args);
 
-        for(List<String> i : commands.k()) {
+        for(KList<String> i : commands.k()) {
             for(String j : i) {
                 if(j.equalsIgnoreCase(label)) {
                     VirtualCommand cmd = commands.get(i);
@@ -419,10 +426,10 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
     public boolean lecternCommand(CommandSender sender, String[] args) {
         String label = args.length > 0 ? args[0] : "nosdfdgsdf";
         args = args.length > 0 ? Arrays.copyOfRange(args, 1, args.length) : args;
-        List<String> chain = new ArrayList<>();
+        KList<String> chain = new KList<>();
         chain.add(args);
 
-        for(List<String> i : commands.k()) {
+        for(KList<String> i : commands.k()) {
             for(String j : i) {
                 if(j.equalsIgnoreCase(label)) {
                     VirtualCommand cmd = commands.get(i);
@@ -557,16 +564,13 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
     }
 
     public File getDataFile(String... strings) {
-        List<String> s = new ArrayList<>();
-        s.add(strings);
-        File f = new File(getDataFolder(), s.toString(File.separator));
+        File f = new File(getDataFolder(), new KList<String>(strings).toString(File.separator));
         f.getParentFile().mkdirs();
         return f;
     }
 
     public File getDataFileList(String pre, String[] strings) {
-        List<String> v = new ArrayList<>();
-        v.add(strings);
+        KList<String> v = new KList<String>(strings);
         v.add(0, pre);
         File f = new File(getDataFolder(), v.toString(File.separator));
         f.getParentFile().mkdirs();
@@ -578,17 +582,14 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
             return super.getDataFolder();
         }
 
-        List<String> s = new ArrayList<>();
-        s.add(strings);
-        File f = new File(getDataFolder(), s.toString(File.separator));
+        File f = new File(getDataFolder(), new KList<String>(strings).toString(File.separator));
         f.mkdirs();
 
         return f;
     }
 
     public File getDataFolderList(String pre, String[] strings) {
-        List<String> v = new ArrayList<>();
-        v.add(strings);
+        KList<String> v = new KList<>(strings);
         v.add(0, pre);
         if(v.size() == 0) {
             return super.getDataFolder();

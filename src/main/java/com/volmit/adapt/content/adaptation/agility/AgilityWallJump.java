@@ -4,6 +4,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.KMap;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -17,11 +18,8 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
-    private final Map<Player, Double> airjumps = new HashMap<>();
+    private final KMap<Player, Double> airjumps = new KMap<>();
 
     public AgilityWallJump() {
         super("agility-wall-jump");

@@ -1,7 +1,5 @@
 package com.volmit.adapt.util;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
@@ -11,11 +9,11 @@ import java.util.concurrent.ForkJoinWorkerThread;
 public class GroupedExecutor {
     private int xc;
     private final ExecutorService service;
-    private final Map<String, Integer> mirror;
+    private final KMap<String, Integer> mirror;
 
     public GroupedExecutor(int threadLimit, int priority, String name) {
         xc = 1;
-        mirror = new HashMap<>();
+        mirror = new KMap<String, Integer>();
 
         if(threadLimit == 1) {
             service = Executors.newSingleThreadExecutor((r) ->

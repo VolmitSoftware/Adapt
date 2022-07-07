@@ -1,18 +1,16 @@
 package com.volmit.adapt.util;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 public class BurstExecutor {
     private final ExecutorService executor;
-    private final List<CompletableFuture<Void>> futures;
+    private final KList<CompletableFuture<Void>> futures;
 
     public BurstExecutor(ExecutorService executor, int burstSizeEstimate) {
         this.executor = executor;
-        futures = new ArrayList<>(burstSizeEstimate);
+        futures = new KList<CompletableFuture<Void>>(burstSizeEstimate);
     }
 
     public CompletableFuture<Void> queue(Runnable r) {

@@ -19,6 +19,8 @@ import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.Inventories;
 import com.volmit.adapt.util.Items;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.KList;
+import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -35,19 +37,19 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.UUID;
 
 public class AdaptServer extends TickedObject {
-    private final Map<Player, AdaptPlayer> players;
+    private final KMap<Player, AdaptPlayer> players;
     @Getter
-    private final List<SpatialXP> spatialTickets;
+    private final KList<SpatialXP> spatialTickets;
     @Getter
     private SkillRegistry skillRegistry;
 
     public AdaptServer() {
         super("core", UUID.randomUUID().toString(), 1000);
-        spatialTickets = new ArrayList<>();
-        players = new HashMap<>();
+        spatialTickets = new KList<>();
+        players = new KMap<>();
         try {
             skillRegistry = new SkillRegistry();
         } catch(IOException e) {
