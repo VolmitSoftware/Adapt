@@ -1,5 +1,7 @@
 package com.volmit.adapt.util;
 
+import java.util.ArrayList;
+
 public class RollingSequence extends Average {
     private double median;
     private double max;
@@ -59,7 +61,7 @@ public class RollingSequence extends Average {
     }
 
     private void recalculateMedian() {
-        median = new KList<Double>().forceAdd(values).sort().middleValue();
+        median = new ArrayList<Double>().forceAdd(values).sort().middleValue();
         dirtyMedian = false;
     }
 

@@ -1,6 +1,8 @@
 package com.volmit.adapt.util;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
 
 public class V {
     private final Object o;
@@ -78,7 +80,7 @@ public class V {
     }
 
     public Object invoke(String method, Object... parameters) {
-        KList<Class<?>> par = new KList<Class<?>>();
+        List<Class<?>> par = new ArrayList<>();
 
         for(Object i : parameters) {
             par.add(i.getClass());

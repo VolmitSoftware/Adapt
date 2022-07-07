@@ -5,7 +5,6 @@ import com.volmit.adapt.content.block.ScaffoldMatter;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -20,7 +19,9 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Config> {
     public ArchitectPlacement() {
@@ -35,7 +36,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         setCostFactor(getConfig().costFactor);
     }
 
-    private final KMap<Player, KMap<Block, BlockFace>> totalMap = new KMap<>();
+    private final Map<Player, Map<Block, BlockFace>> totalMap = new HashMap<>();
 
     private BlockFace getBlockFace(Player player) {
         List<Block> lastTwoTargetBlocks = player.getLastTwoTargetBlocks(null, 5);
@@ -59,7 +60,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
             ItemStack hand = p.getInventory().getItemInMainHand();
 
             if (p.isSneaking() && is.getType().isBlock()) {
-                KMap<Block, BlockFace> map = totalMap.get(p);
+                Map<Block, BlockFace> map = totalMap.get(p);
                 double v = getValue(e.getBlock());
                 int handsize = is.getAmount();
                 int handSizeAfter = handsize - totalMap.get(p).size();
@@ -110,7 +111,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                     for (int y = block.getY() - 1; y <= block.getY() + 1; y++) {
                         if (handMaterial == block.getWorld().getBlockAt(x, y, block.getZ()).getType()) {
                             if (totalMap.get(p) == null) {
-                                KMap<Block, BlockFace> map = new KMap<>();
+                                Map<Block, BlockFace> map = new HashMap<>();
                                 map.put(block.getWorld().getBlockAt(x, y, block.getZ()), viewPortBlock);
                                 totalMap.put(p, map);
                             } else if (totalMap.get(p).size() <= getConfig().maxBlocks) {
@@ -124,7 +125,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                     for (int y = block.getY() - 1; y <= block.getY() + 1; y++) {
                         if (handMaterial == block.getWorld().getBlockAt(block.getX(), y, z).getType()) {
                             if (totalMap.get(p) == null) {
-                                KMap<Block, BlockFace> map = new KMap<>();
+                                Map<Block, BlockFace> map = new HashMap<>();
                                 map.put(block.getWorld().getBlockAt(block.getX(), y, z), viewPortBlock);
                                 totalMap.put(p, map);
                             } else if (totalMap.get(p).size() <= getConfig().maxBlocks) {
@@ -138,7 +139,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                     for (int x = block.getX() - 1; x <= block.getX() + 1; x++) {
                         if (handMaterial == block.getWorld().getBlockAt(x, block.getY(), z).getType()) {
                             if (totalMap.get(p) == null) {
-                                KMap<Block, BlockFace> map = new KMap<>();
+                                Map<Block, BlockFace> map = new HashMap<>();
                                 map.put(block.getWorld().getBlockAt(x, block.getY(), z), viewPortBlock);
                                 totalMap.put(p, map);
                             } else if (totalMap.get(p).size() <= getConfig().maxBlocks) {
@@ -170,7 +171,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                         totalMap.clear();
                         return;
                     }
-                    KMap<Block, BlockFace> blockRender = totalMap.get(p);
+                    Map<Block, BlockFace> blockRender = totalMap.get(p);
                     for (Block b : blockRender.keySet()) { // Get the blocks in that map that bind with a BlockFace
                         BlockFace bf = blockRender.get(b); // Get that blockface
                         Block transposedBlock = b.getRelative(bf);

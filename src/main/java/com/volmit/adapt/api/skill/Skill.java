@@ -14,7 +14,6 @@ import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.MaterialBlock;
 import com.volmit.adapt.util.UIElement;
 import com.volmit.adapt.util.UIWindow;
@@ -23,6 +22,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 public interface Skill<T> extends Ticked, Component {
     AdaptAdvancement buildAdvancements();
@@ -43,13 +44,13 @@ public interface Skill<T> extends Ticked, Component {
 
     String getDescription();
 
-    KList<AdaptRecipe> getRecipes();
+    List<AdaptRecipe> getRecipes();
 
     void registerAdaptation(Adaptation<?> a);
 
     void registerStatTracker(AdaptStatTracker tracker);
 
-    KList<AdaptStatTracker> getStatTrackers();
+    List<AdaptStatTracker> getStatTrackers();
 
     default void checkStatTrackers(AdaptPlayer player) {
         if(!player.getAdvancementHandler().isReady()) {
@@ -66,13 +67,13 @@ public interface Skill<T> extends Ticked, Component {
         }
     }
 
-    KList<Adaptation<?>> getAdaptations();
+    List<Adaptation<?>> getAdaptations();
 
     C getColor();
 
     double getMinXp();
 
-    void onRegisterAdvancements(KList<AdaptAdvancement> advancements);
+    void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
     default String getDisplayName() {
         return C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName() + " " + Form.capitalize(getName());

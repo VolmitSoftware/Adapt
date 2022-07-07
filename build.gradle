@@ -95,14 +95,20 @@ compileJava {
 shadowJar {
     minimize()
     append("plugin.yml")
+    relocate 'manifold', 'com.volmit.adapt.util.manifold'
+    relocate 'art.arcane', 'com.volmit.adapt.util.arcane'
     relocate 'io.papermc.lib', 'com.volmit.adapt.util.paper'
     relocate 'net.kyori', 'com.volmit.adapt.util.kyori'
+    relocate 'ChumBukkit.extensions', 'com.volmit.adapt.util.extensions'
+    relocate 'IrisBukkit.extensions', 'com.volmit.adapt.util.extensions'
+    relocate 'Fukkit.extensions', 'com.volmit.adapt.util.extensions'
+    relocate 'Amulet.extensions', 'com.volmit.adapt.util.extensions'
     dependencies {
         include(dependency('io.papermc:paperlib'))
         include(dependency('net.kyori:'))
-
+        include(dependency('systems.manifold:'))
         include(dependency('xyz.xenondevs:'))
-        include(dependency('org.cyberpwn:'))
+        include(dependency('art.arcane:'))
     }
 }
 
@@ -123,13 +129,19 @@ dependencies {
     implementation 'org.bukkit:craftbukkit:1.19-R0.1-SNAPSHOT'
     implementation 'com.github.LoneDev6:api-itemsadder:3.1.0b'
 
+    // Cancer
+    implementation 'art.arcane:Amulet:22.7.18'
+    implementation 'art.arcane:Fukkit:22.7.5'
+    annotationProcessor 'systems.manifold:manifold-ext:2022.1.18'
+    testAnnotationProcessor 'systems.manifold:manifold-ext:2022.1.18'
+    implementation 'systems.manifold:manifold-rt:2022.1.18'
+
     // Shaded
     implementation 'io.papermc:paperlib:1.0.5'
     implementation "net.kyori:adventure-text-minimessage:4.11.0"
     implementation 'net.kyori:adventure-platform-bukkit:4.1.1'
     implementation 'net.kyori:adventure-api:4.11.0'
     implementation 'xyz.xenondevs:particle:1.8.1'
-    implementation 'org.cyberpwn:Spatial:21.11.11'
 
     // Dynamically Loaded
     implementation 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
@@ -254,6 +266,12 @@ task specialSourceRemap(type: JavaExec)
 
 tasks.compileJava.dependsOn(executeBuildTools)
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 compileJava {
     options.encoding = "UTF-8"
 }
@@ -308,3 +326,15 @@ def registerCustomOutputTaskUnix(name, path) {
         }
     }
 }
+
+if (JavaVersion.current() != JavaVersion.VERSION_1_8 &&
+        sourceSets.main.allJava.files.any { it.name == "module-info.java" }) {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs += ['-Xplugin:Manifold', '--module-path', it.classpath.asPath]
+    }
+} else {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs += ['-Xplugin:Manifold']
+    }
+}
+

@@ -4,7 +4,6 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -20,9 +19,12 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> {
-    private final KMap<Player, Long> lastJump = new KMap<>();
+    private final Map<Player, Long> lastJump = new HashMap<>();
 
     public AgilitySuperJump() {
         super("agility-super-jump");

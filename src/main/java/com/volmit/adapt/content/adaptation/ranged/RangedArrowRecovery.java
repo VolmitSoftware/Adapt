@@ -5,7 +5,6 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.KMap;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -18,10 +17,12 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Config> {
-    private final KMap<UUID, Integer> arrows = new KMap<>();
+    private final Map<UUID, Integer> arrows = new HashMap<>();
 
     public RangedArrowRecovery() {
         super("ranged-arrow-recovery");

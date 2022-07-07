@@ -4,6 +4,8 @@ import org.bukkit.Sound;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a pawn command
@@ -11,9 +13,9 @@ import java.lang.reflect.InvocationTargetException;
  * @author cyberpwn
  */
 public abstract class MortarCommand implements ICommand {
-    private final KList<MortarCommand> children;
-    private final KList<String> nodes;
-    private final KList<String> requiredPermissions;
+    private final List<MortarCommand> children;
+    private final List<String> nodes;
+    private final List<String> requiredPermissions;
     private final String node;
     private String category;
     private String description;
@@ -30,15 +32,16 @@ public abstract class MortarCommand implements ICommand {
     public MortarCommand(String node, String... nodes) {
         category = "";
         this.node = node;
-        this.nodes = new KList<String>(nodes);
-        requiredPermissions = new KList<>();
+        this.nodes = new ArrayList<>();
+        this.nodes.add(nodes);
+        requiredPermissions = new ArrayList<>();
         children = buildChildren();
         description = "No Description";
     }
 
     @Override
-    public KList<String> handleTab(MortarSender sender, String[] args) {
-        KList<String> v = new KList<>();
+    public List<String> handleTab(MortarSender sender, String[] args) {
+        List<String> v = new ArrayList<>();
         if(args.length == 0) {
             for(MortarCommand i : getChildren()) {
                 v.add(i.getNode());
@@ -58,7 +61,7 @@ public abstract class MortarCommand implements ICommand {
         return v;
     }
 
-    public abstract void addTabOptions(MortarSender sender, String[] args, KList<String> list);
+    public abstract void addTabOptions(MortarSender sender, String[] args, List<String> list);
 
     public void printHelp(MortarSender sender) {
         boolean b = false;
@@ -136,12 +139,12 @@ public abstract class MortarCommand implements ICommand {
     }
 
     @Override
-    public KList<String> getNodes() {
+    public List<String> getNodes() {
         return nodes;
     }
 
     @Override
-    public KList<String> getAllNodes() {
+    public List<String> getAllNodes() {
         return getNodes().copy().qadd(getNode());
     }
 
@@ -150,12 +153,12 @@ public abstract class MortarCommand implements ICommand {
         getNodes().add(node);
     }
 
-    public KList<MortarCommand> getChildren() {
+    public List<MortarCommand> getChildren() {
         return children;
     }
 
-    private KList<MortarCommand> buildChildren() {
-        KList<MortarCommand> p = new KList<>();
+    private List<MortarCommand> buildChildren() {
+        List<MortarCommand> p = new ArrayList<>();
 
         for(Field i : getClass().getDeclaredFields()) {
             if(i.isAnnotationPresent(Command.class)) {
@@ -181,7 +184,7 @@ public abstract class MortarCommand implements ICommand {
     }
 
     @Override
-    public KList<String> getRequiredPermissions() {
+    public List<String> getRequiredPermissions() {
         return requiredPermissions;
     }
 

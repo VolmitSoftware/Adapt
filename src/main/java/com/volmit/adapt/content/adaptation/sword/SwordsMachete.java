@@ -6,7 +6,6 @@ import com.volmit.adapt.util.Cuboid;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.RNG;
 import lombok.NoArgsConstructor;
@@ -23,8 +22,11 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import xyz.xenondevs.particle.ParticleEffect;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
-    private final KList<Integer> holds = new KList<>();
+    private final List<Integer> holds = new ArrayList<>();
 
     public SwordsMachete() {
         super("sword-machete");
@@ -71,7 +73,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                         return;
                     }
 
-                    for(Block i : new KList<>(c.iterator())) {
+                    for(Block i : c) {
                         if(M.r((getLevelPercent(lvl) * 2.8) / (i.getLocation().distanceSquared(ctr)))) {
                             if(i.getType().equals(Material.TALL_GRASS)
                                 || i.getType().equals(Material.CACTUS)

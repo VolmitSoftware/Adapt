@@ -3,16 +3,18 @@ package com.volmit.adapt.util;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class DataPalette<T> implements Writable {
     private static final int DEFAULT_BITS_PER_BLOCK = 4;
     private static final int CAPACITY = 4096;
     private int bpb;
     private NibbleArray data;
-    private KList<T> palette;
+    private List<T> palette;
 
     public DataPalette(T defaultValue) {
-        palette = new KList<>();
+        palette = new ArrayList<>();
         bpb = DEFAULT_BITS_PER_BLOCK;
         data = new NibbleArray(bpb, CAPACITY);
         data.setAll(Byte.MIN_VALUE);
@@ -38,7 +40,7 @@ public abstract class DataPalette<T> implements Writable {
     @Override
     public void read(DataInputStream i) throws IOException {
         bpb = i.readByte() - Byte.MIN_VALUE;
-        palette = new KList<>();
+        palette = new ArrayList<>();
         int v = i.readByte() - Byte.MIN_VALUE;
 
         for(int j = 0; j < v; j++) {

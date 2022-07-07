@@ -1,6 +1,7 @@
 package com.volmit.adapt.util;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ public abstract class GListAdapter<FROM, TO> {
      * @return the to list
      */
     public List<TO> adapt(List<FROM> from) {
-        List<TO> adapted = new KList<TO>();
+        List<TO> adapted = new ArrayList<>();
 
         for(FROM i : from) {
             TO t = onAdapt(i);

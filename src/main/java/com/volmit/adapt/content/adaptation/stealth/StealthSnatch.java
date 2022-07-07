@@ -6,7 +6,6 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Inventories;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.V;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -19,8 +18,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
-    private final KList<Integer> holds = new KList<>();
+    private final List<Integer> holds = new ArrayList<>();
 
     public StealthSnatch() {
         super("stealth-snatch");

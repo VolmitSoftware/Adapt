@@ -2,13 +2,13 @@ package com.volmit.adapt.api.item;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.BukkitGson;
-import com.volmit.adapt.util.KList;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface DataItem<T> {
@@ -51,7 +51,7 @@ public interface DataItem<T> {
         }
 
         applyMeta(t, meta);
-        KList<String> lore = new KList<>();
+        List<String> lore = new ArrayList<>();
         applyLore(t, lore);
         meta.setLore(lore);
         meta.getPersistentDataContainer().set(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING, BukkitGson.gson.toJson(t));

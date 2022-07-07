@@ -27,10 +27,13 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class SkillRegistry extends TickedObject {
-    private final KMap<String, Skill<?>> skills = new KMap<>();
+    private final Map<String, Skill<?>> skills = new HashMap<>();
 
     public SkillRegistry() throws IOException {
         super("registry", UUID.randomUUID() + "-sk", 1250);
@@ -147,7 +150,7 @@ public class SkillRegistry extends TickedObject {
         return skills.get(i);
     }
 
-    public KList<Skill<?>> getSkills() {
+    public List<Skill<?>> getSkills() {
         return skills.v();
     }
 

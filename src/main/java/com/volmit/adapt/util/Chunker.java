@@ -1,5 +1,6 @@
 package com.volmit.adapt.util;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -9,9 +10,9 @@ public class Chunker<T> {
     private ExecutorService executor;
     private int threads;
     private int workload;
-    private final KList<T> q;
+    private final List<T> q;
 
-    public Chunker(KList<T> q) {
+    public Chunker(List<T> q) {
         this.q = q;
     }
 

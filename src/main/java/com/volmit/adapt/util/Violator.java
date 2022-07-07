@@ -4,6 +4,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Violator {
@@ -150,7 +152,7 @@ public class Violator {
 
     @SuppressWarnings("unchecked")
     public static <T> T construct(Class<?> c, Object... parameters) {
-        KList<Class<?>> cv = new KList<Class<?>>();
+        List<Class<?>> cv = new ArrayList<Class<?>>();
 
         for(Object i : parameters) {
             cv.add(i.getClass());

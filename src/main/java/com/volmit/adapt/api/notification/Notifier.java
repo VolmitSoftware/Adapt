@@ -6,26 +6,29 @@ import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.KList;
-import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Data
 public class Notifier extends TickedObject {
-    private final KList<Notification> queue;
+    private final List<Notification> queue;
     private final AdaptPlayer target;
-    private final KMap<String, Long> lastSkills;
-    private final KMap<String, Double> lastSkillValues;
+    private final Map<String, Long> lastSkills;
+    private final Map<String, Double> lastSkillValues;
     private int busyTicks;
     private int delayTicks;
     private long lastInstance;
 
     public Notifier(AdaptPlayer target) {
         super("notifications", target.getPlayer().getUniqueId() + "-notify", 97);
-        queue = new KList<>();
-        lastSkills = new KMap<>();
-        lastSkillValues = new KMap<>();
+        queue = new ArrayList<>();
+        lastSkills = new HashMap<>();
+        lastSkillValues = new HashMap<>();
         busyTicks = 0;
         delayTicks = 0;
         this.target = target;

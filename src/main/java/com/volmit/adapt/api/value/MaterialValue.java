@@ -6,9 +6,6 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.JSONObject;
-import com.volmit.adapt.util.KList;
-import com.volmit.adapt.util.KMap;
-import com.volmit.adapt.util.KSet;
 import com.volmit.adapt.util.PrecisionStopwatch;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -23,12 +20,13 @@ import org.bukkit.inventory.StonecuttingRecipe;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
 
 @Getter
 public class MaterialValue {
     private static MaterialValue valueCache = null;
-    private final KMap<Material, Double> value = new KMap<>();
-    private static final KMap<Material, Double> valueMultipliers = new KMap<>();
+    private final Map<Material, Double> value = new HashMap<>();
+    private static final Map<Material, Double> valueMultipliers = new HashMap<>();
 
 
     public static void save() {
@@ -71,10 +69,10 @@ public class MaterialValue {
     }
 
     public static void debugValue(Material m) {
-        debugValue(m, 0, 1, new KSet<>());
+        debugValue(m, 0, 1, new HashSet<>());
     }
 
-    private static void debugValue(Material m, int ind, int x, KSet<MaterialRecipe> ignore) {
+    private static void debugValue(Material m, int ind, int x, Set<MaterialRecipe> ignore) {
         PrecisionStopwatch p = PrecisionStopwatch.start();
         Adapt.info(Form.repeat("  ", ind) + m.name() + ": " + getValue(m) + (x == 1 ? "" : " (x" + x + ")"));
 
@@ -105,22 +103,22 @@ public class MaterialValue {
     }
 
     public static double getValue(Material m) {
-        return getValue(m, new KSet<>());
+        return getValue(m, new HashSet<>());
     }
 
-    private static double getValue(Material m, KSet<MaterialRecipe> ignore) {
+    private static double getValue(Material m, Set<MaterialRecipe> ignore) {
         if(get().value.containsKey(m)) {
             return get().value.get(m);
         }
 
         double v = AdaptConfig.get().getValue().getBaseValue();
 
-        KList<MaterialRecipe> recipes = getRecipes(m);
+        List<MaterialRecipe> recipes = getRecipes(m);
 
         if(recipes.isEmpty()) {
             get().value.put(m, v * getMultiplier(m));
         } else {
-            KList<Double> d = new KList<>();
+            List<Double> d = new ArrayList<>();
             for(MaterialRecipe i : recipes) {
                 if(ignore.contains(i)) {
                     continue;
@@ -147,8 +145,8 @@ public class MaterialValue {
         return get().value.get(m);
     }
 
-    private static KList<MaterialRecipe> getRecipes(Material mat) {
-        KList<MaterialRecipe> r = new KList<>();
+    private static List<MaterialRecipe> getRecipes(Material mat) {
+        List<MaterialRecipe> r = new ArrayList<>();
 
         try {
             ItemStack is = new ItemStack(mat);
@@ -177,15 +175,15 @@ public class MaterialValue {
         try {
             if(r instanceof ShapelessRecipe recipe) {
                 return MaterialRecipe.builder()
-                    .input(new KList<>(recipe.getIngredientList().stream().map(i -> new MaterialCount(i.getType(), 1)).toList()))
+                    .input(new ArrayList<>(recipe.getIngredientList().stream().map(i -> new MaterialCount(i.getType(), 1)).toList()))
                     .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
                     .build();
             } else if(r instanceof ShapedRecipe recipe) {
                 MaterialRecipe re = MaterialRecipe.builder()
-                    .input(new KList<>())
+                    .input(new ArrayList<>())
                     .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
                     .build();
-                KMap<Material, Integer> f = new KMap<>();
+                Map<Material, Integer> f = new HashMap<>();
                 for(ItemStack i : recipe.getIngredientMap().values()) {
                     if(i == null || i.getType() == null || i.getType().isAir()) {
                         continue;
@@ -198,18 +196,24 @@ public class MaterialValue {
 
                 return re;
             } else if(r instanceof CookingRecipe recipe) {
+                List<MaterialCount> a = new ArrayList<>();
+                a.add(new MaterialCount(recipe.getInput().getType(), 1));
+
                 return MaterialRecipe.builder()
-                    .input(new KList<>(new MaterialCount(recipe.getInput().getType(), 1)))
+                    .input(a)
                     .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
                     .build();
             } else if(r instanceof MerchantRecipe recipe) {
                 return MaterialRecipe.builder()
-                    .input(new KList<>(recipe.getIngredients().stream().map(i -> new MaterialCount(i.getType(), 1)).toList()))
+                    .input(new ArrayList<>(recipe.getIngredients().stream().map(i -> new MaterialCount(i.getType(), 1)).toList()))
                     .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
                     .build();
             } else if(r instanceof StonecuttingRecipe recipe) {
+                List<MaterialCount> a = new ArrayList<>();
+                a.add(new MaterialCount(recipe.getInput().getType(), 1));
+
                 return MaterialRecipe.builder()
-                    .input(new KList<>(new MaterialCount(recipe.getInput().getType(), 1)))
+                    .input(a)
                     .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
                     .build();
             }

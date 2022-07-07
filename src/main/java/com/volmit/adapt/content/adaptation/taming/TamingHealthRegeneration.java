@@ -5,7 +5,6 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KMap;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -20,12 +19,14 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import xyz.xenondevs.particle.ParticleEffect;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegeneration.Config> {
     private final UUID attUUID = UUID.nameUUIDFromBytes("health-boost".getBytes());
     private final String attid = "att-health-boost";
-    private final KMap<UUID, Long> lastDamage = new KMap<>();
+    private final Map<UUID, Long> lastDamage = new HashMap<>();
 
     public TamingHealthRegeneration() {
         super("tame-health-regeneration");

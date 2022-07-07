@@ -1,9 +1,10 @@
 package com.volmit.adapt.commands;
 
 import com.volmit.adapt.util.Command;
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
+
+import java.util.List;
 
 public class CommandAdapt extends MortarCommand {
     @Command
@@ -21,7 +22,7 @@ public class CommandAdapt extends MortarCommand {
     }
 
     @Override
-    public void addTabOptions(MortarSender sender, String[] args, KList<String> list) {
+    public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
 
     }
 

@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.skill;
 
+import art.arcane.spatial.matter.SpatialMatter;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -17,7 +18,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.cyberpwn.spatial.matter.SpatialMatter;
 
 import java.util.Random;
 

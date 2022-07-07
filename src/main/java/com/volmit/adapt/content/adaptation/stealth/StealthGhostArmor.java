@@ -5,7 +5,6 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.KList;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -17,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config> {
@@ -51,7 +51,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
         for (Player p : Bukkit.getOnlinePlayers()) {
             if(!hasAdaptation(p)){
                 Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
-                for (AttributeModifier i : new KList<>(c)) {
+                for (AttributeModifier i : new ArrayList<>(c)) {
                     if(i.getName().equals("adapt-ghost-armor")) {
                         p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
                     }
@@ -66,7 +66,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
             if(oldArmor < armor)
             {Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
-                for (AttributeModifier i : new KList<>(c)) {
+                for (AttributeModifier i : new ArrayList<>(c)) {
                     if(i.getName().equals("adapt-ghost-armor")) {
                         oldArmor = i.getAmount();
                         oldArmor = Double.isNaN(oldArmor) ? 0 : oldArmor;
@@ -79,7 +79,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
             else if(oldArmor > armor)
             {Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
-                for (AttributeModifier i : new KList<>(c)) {
+                for (AttributeModifier i : new ArrayList<>(c)) {
                     if(i.getName().equals("adapt-ghost-armor")) {
                         oldArmor = i.getAmount();
                         oldArmor = Double.isNaN(oldArmor) ? 0 : oldArmor;
@@ -100,7 +100,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
             xp(p, 2.5 * e.getDamage());
             J.s(() -> {
                 Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
-                for (AttributeModifier i : new KList<>(c)) {
+                for (AttributeModifier i : new ArrayList<>(c)) {
                     if(i.getName().equals("adapt-ghost-armor")) {
                         p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
                     }

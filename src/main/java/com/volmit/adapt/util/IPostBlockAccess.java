@@ -3,6 +3,8 @@ package com.volmit.adapt.util;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.generator.ChunkGenerator.ChunkData;
 
+import java.util.List;
+
 public interface IPostBlockAccess {
     BlockData getPostBlock(int x, int y, int z, int currentPostX, int currentPostZ, ChunkData currentData);
 
@@ -14,5 +16,5 @@ public interface IPostBlockAccess {
 
     void updateHeight(int x, int z, int h);
 
-    KList<CaveResult> caveFloors(int x, int z);
+    List<CaveResult> caveFloors(int x, int z);
 }

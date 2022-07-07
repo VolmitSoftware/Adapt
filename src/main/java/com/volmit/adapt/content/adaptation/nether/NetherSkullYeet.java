@@ -5,7 +5,6 @@ import com.volmit.adapt.content.skill.SkillNether;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.KMap;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
@@ -16,11 +15,13 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
-    private final KMap<UUID, Integer> cooldowns = new KMap<>();
+    private final Map<UUID, Integer> cooldowns = new HashMap<>();
 
     public NetherSkullYeet() {
         super("nether-skull-toss");

@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
@@ -67,11 +69,11 @@ public class TaskExecutor {
     }
 
     public static class TaskGroup {
-        private final KList<AssignedTask> tasks;
+        private final List<AssignedTask> tasks;
         private final TaskExecutor e;
 
         public TaskGroup(TaskExecutor e) {
-            tasks = new KList<>();
+            tasks = new ArrayList<>();
             this.e = e;
         }
 
@@ -83,7 +85,7 @@ public class TaskExecutor {
             return this;
         }
 
-        public TaskGroup queue(KList<NastyRunnable> r) {
+        public TaskGroup queue(List<NastyRunnable> r) {
             for(NastyRunnable i : r) {
                 tasks.add(new AssignedTask(i));
             }

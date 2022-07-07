@@ -3,11 +3,13 @@ package com.volmit.adapt.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class JarScanner {
-    private final KSet<Class<?>> classes;
+    private final Set<Class<?>> classes;
     private final File jar;
     private final String superPackage;
 
@@ -19,7 +21,7 @@ public class JarScanner {
      */
     public JarScanner(File jar, String superPackage) {
         this.jar = jar;
-        this.classes = new KSet<Class<?>>();
+        this.classes = new HashSet<>();
         this.superPackage = superPackage;
     }
 
@@ -61,7 +63,7 @@ public class JarScanner {
      *
      * @return a gset of classes
      */
-    public KSet<Class<?>> getClasses() {
+    public Set<Class<?>> getClasses() {
         return classes;
     }
 
