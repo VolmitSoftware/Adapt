@@ -52,7 +52,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         registerCommands();
         registerControllers();
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, this::tickControllers, 0, 0);
-        J.a(() -> outputInfo());
+        J.a(this::outputInfo);
         registerListener(this);
         start();
     }
@@ -72,7 +72,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
             outputPluginInfo();
             outputCommandInfo();
             outputPermissionInfo();
-        } catch(Throwable e) {
+        } catch(Throwable ignored) {
 
         }
     }
@@ -153,7 +153,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         for(org.bukkit.permissions.Permission i : computePermissions()) {
             try {
                 Bukkit.getPluginManager().addPermission(i);
-            } catch(Throwable e) {
+            } catch(Throwable ignored) {
 
             }
         }
@@ -470,11 +470,11 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
 
             for(Iterator<Map.Entry<String, Command>> it = k.entrySet().iterator(); it.hasNext(); ) {
                 Map.Entry<String, Command> entry = it.next();
-                if(entry.getValue() instanceof Command) {
+                if(entry.getValue() != null) {
                     org.bukkit.command.Command c = entry.getValue();
                     String u = c.getUsage();
 
-                    if(u != null && u.equals(getName() + ":" + getClass().toString() + ":" + cmd.getNode())) {
+                    if(u.equals(getName() + ":" + getClass().toString() + ":" + cmd.getNode())) {
                         if(c.unregister(m)) {
                             it.remove();
                             v("Unregistered Command /" + cmd.getNode());
@@ -524,7 +524,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         for(VirtualCommand i : commands.v()) {
             try {
                 unregisterCommand(i.getCommand());
-            } catch(Throwable e) {
+            } catch(Throwable ignored) {
 
             }
         }
@@ -590,9 +590,6 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         List<String> v = new ArrayList<>();
         v.add(strings);
         v.add(0, pre);
-        if(v.size() == 0) {
-            return super.getDataFolder();
-        }
         File f = new File(getDataFolder(), v.toString(File.separator));
         f.mkdirs();
 

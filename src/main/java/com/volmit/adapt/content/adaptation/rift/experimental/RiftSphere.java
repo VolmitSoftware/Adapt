@@ -66,7 +66,6 @@ public class RiftSphere extends SimpleAdaptation<RiftSphere.Config> {
     @Override
     public void onTick() {
 
-
     }
 
     @Override
