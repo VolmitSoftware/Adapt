@@ -3,6 +3,7 @@ package com.volmit.adapt.api;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.xp.XP;
+import com.volmit.adapt.util.J;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -143,6 +144,28 @@ public interface Component {
         p.removePotionEffect(type);
     }
 
+    default void addPotionStacks(Player p, PotionEffect pe, int duration) {
+        List<PotionEffect> l = p.getActivePotionEffects().stream().toList();
+        if (l.contains(pe)) {
+            int amplifier = l.get(l.indexOf(pe)).getAmplifier();
+            p.removePotionEffect(pe.getType());
+            p.addPotionEffect(new PotionEffect(pe.getType(), duration, amplifier + 1, true, false));
+        } else {
+            p.addPotionEffect(new PotionEffect(pe.getType(), duration, 1, true, false));
+        }
+    }
+
+    default void removePotionStacks(Player p, PotionEffect pe, int count) {
+        List<PotionEffect> l = p.getActivePotionEffects().stream().toList();
+        if (l.contains(pe)) {
+            int amplifier = l.get(l.indexOf(pe)).getAmplifier();
+            p.removePotionEffect(pe.getType());
+            if (amplifier > 1) {
+                p.addPotionEffect(new PotionEffect(pe.getType(), pe.getDuration(), amplifier - 1, true, false));
+            }
+        }
+    }
+
     default void potion(Player p, PotionEffectType type, int power, int duration) {
         p.addPotionEffect(new PotionEffect(type, power, duration, true, false, false));
     }
@@ -169,6 +192,30 @@ public interface Component {
 
     default double getValue(Block block) {
         return MaterialValue.getValue(block.getType());
+    }
+
+    default void vfxSphereV1(Player p, Location center, double radius, Particle particle, int density) {
+        for (double x = -radius; x < radius; x += density) {
+            for (double z = -radius; z < radius; z += density) {
+                double y = Math.sqrt(radius*radius - x*x - z*z);
+                p.spawnParticle(particle, center.clone().subtract(-x, y, -z), 0, 0, 0, 0, 1);
+                p.spawnParticle(particle, center.clone().add(-x, y, -z), 0, 0, 0, 0, 1);
+            }
+        }
+    }
+
+    default void vfxSphereV2(Location location) {
+        for (double i = 0; i <= Math.PI; i += Math.PI / 10) {
+            double radius = Math.sin(i);
+            double y = Math.cos(i);
+            for (double a = 0; a < Math.PI * 2; a+= Math.PI / 10) {
+                double x = Math.cos(a) * radius;
+                double z = Math.sin(a) * radius;
+                location.add(x, y, z);
+                // display particle at 'location'.
+                location.subtract(x, y, z);
+            }
+        }
     }
 
     default void vfxZuck(Location from, Location to) {
