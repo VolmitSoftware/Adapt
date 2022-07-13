@@ -67,7 +67,7 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 
 **Hunter**:
 - [X] Adrenaline (more damage lower the health)
-- [ ] Regen while in combat -> massive loss in hunger
+- [X] Regen while in combat -> massive loss in hunger
 - [ ] Resilience in combat  -> massive loss in hunger
 - [ ] Speed while in combat  -> massive loss in hunger
 - [ ] Prevent the first damage proc
