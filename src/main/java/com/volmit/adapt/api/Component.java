@@ -140,10 +140,6 @@ public interface Component {
         return null;
     }
 
-    default void removePotion(Player p, PotionEffectType type) {
-        p.removePotionEffect(type);
-    }
-
     default void addPotionStacks(Player p, PotionEffectType potionEffect, int amplifier, int duration, Boolean overlap) {
         List<PotionEffectType> activeList = p.getActivePotionEffects().stream().map(PotionEffect::getType).toList();
         p.sendMessage("Active potion effects: " + activeList);
