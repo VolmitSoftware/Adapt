@@ -3,7 +3,6 @@ package com.volmit.adapt.api;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.xp.XP;
-import com.volmit.adapt.util.J;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -20,6 +19,7 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public interface Component {
@@ -144,25 +144,31 @@ public interface Component {
         p.removePotionEffect(type);
     }
 
-    default void addPotionStacks(Player p, PotionEffect pe, int duration) {
-        List<PotionEffect> l = p.getActivePotionEffects().stream().toList();
-        if (l.contains(pe)) {
-            int amplifier = l.get(l.indexOf(pe)).getAmplifier();
-            p.removePotionEffect(pe.getType());
-            p.addPotionEffect(new PotionEffect(pe.getType(), duration, amplifier + 1, true, false));
-        } else {
-            p.addPotionEffect(new PotionEffect(pe.getType(), duration, 1, true, false));
-        }
-    }
-
-    default void removePotionStacks(Player p, PotionEffect pe, int count) {
-        List<PotionEffect> l = p.getActivePotionEffects().stream().toList();
-        if (l.contains(pe)) {
-            int amplifier = l.get(l.indexOf(pe)).getAmplifier();
-            p.removePotionEffect(pe.getType());
-            if (amplifier > 1) {
-                p.addPotionEffect(new PotionEffect(pe.getType(), pe.getDuration(), amplifier - 1, true, false));
+    default void addPotionStacks(Player p, PotionEffectType potionEffect, int amplifier, int duration, Boolean overlap) {
+        List<PotionEffectType> activeList = p.getActivePotionEffects().stream().map(PotionEffect::getType).toList();
+        p.sendMessage("Active potion effects: " + activeList);
+        if (activeList.size() > 0) {
+            for (PotionEffectType type : activeList) {
+                if (type.equals(potionEffect)) {
+                    if (overlap) {
+                        p.sendMessage(ChatColor.RED + "You have gained a stack of " + potionEffect.getName() + "!");
+                        int newAmplifier = Objects.requireNonNull(p.getPotionEffect(type)).getAmplifier();
+                        int newDuration = Objects.requireNonNull(p.getPotionEffect(type)).getDuration();
+                        p.removePotionEffect(type);
+                        p.addPotionEffect(new PotionEffect(potionEffect, newDuration + duration, newAmplifier + amplifier));
+                    }
+                    p.sendMessage(ChatColor.RED + "You have gained a stack of " + potionEffect.getName() + "!");
+                    int newAmplifier = Objects.requireNonNull(p.getPotionEffect(type)).getAmplifier();
+                    int newDuration = Objects.requireNonNull(p.getPotionEffect(type)).getDuration();
+                    p.removePotionEffect(type);
+                    p.addPotionEffect(new PotionEffect(potionEffect, newDuration, newAmplifier + 1));
+                }
             }
+
+        }
+        if (!activeList.contains(potionEffect)) {
+            p.sendMessage(ChatColor.RED + "You have gained a stack of " + potionEffect.getName() + "!");
+            p.addPotionEffect(new PotionEffect(potionEffect, duration, amplifier));
         }
     }
 
@@ -197,7 +203,7 @@ public interface Component {
     default void vfxSphereV1(Player p, Location center, double radius, Particle particle, int density) {
         for (double x = -radius; x < radius; x += density) {
             for (double z = -radius; z < radius; z += density) {
-                double y = Math.sqrt(radius*radius - x*x - z*z);
+                double y = Math.sqrt(radius * radius - x * x - z * z);
                 p.spawnParticle(particle, center.clone().subtract(-x, y, -z), 0, 0, 0, 0, 1);
                 p.spawnParticle(particle, center.clone().add(-x, y, -z), 0, 0, 0, 0, 1);
             }
@@ -208,7 +214,7 @@ public interface Component {
         for (double i = 0; i <= Math.PI; i += Math.PI / 10) {
             double radius = Math.sin(i);
             double y = Math.cos(i);
-            for (double a = 0; a < Math.PI * 2; a+= Math.PI / 10) {
+            for (double a = 0; a < Math.PI * 2; a += Math.PI / 10) {
                 double x = Math.cos(a) * radius;
                 double z = Math.sin(a) * radius;
                 location.add(x, y, z);
@@ -269,25 +275,25 @@ public interface Component {
         vfxParticleLine(point6, point3, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
     }
 
-//    default void vfxSolidCube(Block block, Particle particle, double segmentSpacing) {
-//        Location point0 = block.getLocation(); //bottom left corner of the bloc
-//
-//        Location point1 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY(), point0.getZ());
-//        Location point3 = new Location(point0.getWorld(), point0.getX(), point0.getY(), point0.getZ() + 1);
-//        Location point4 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ());
-//        Location point5 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY(), point0.getZ() + 1);
-//        Location point7 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ() + 1);
-//
-//        for (int i = 0; i < 1; i += segmentSpacing) {
-//            vfxParticleLine(point0.add(0,i,0), point1.add(0,i,0), particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-//            vfxParticleLine(point3.add(0,i,0), point5.add(0,i,0), particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-//            vfxParticleLine(point3.add(0,i,0), point0.add(0,i,0), particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-//            vfxParticleLine(point5.add(0,i,0), point1.add(0,i,0), particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-//            vfxParticleLine(point5.add(-i,0,0), point1.add(-i,0,0), particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-//            vfxParticleLine(point7.add(-i,0,0), point4.add(-i,0,0), particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-//        }
-//
-//    }
+    default void vfxPrismOutline(Location placer, double outset, Particle particle, int particleCount) {
+
+        Location top = new Location(placer.getWorld(), placer.getX(), placer.getY() + outset, placer.getZ());
+        Location baseCorner1 = new Location(placer.getWorld(), placer.getX() - outset, placer.getY(), placer.getZ() - outset);
+        Location baseCorner2 = new Location(placer.getWorld(), placer.getX() + outset, placer.getY(), placer.getZ() - outset);
+        Location baseCorner3 = new Location(placer.getWorld(), placer.getX() + outset, placer.getY(), placer.getZ() + outset);
+        Location baseCorner4 = new Location(placer.getWorld(), placer.getX() - outset, placer.getY(), placer.getZ() + outset);
+
+        vfxParticleLine(baseCorner1, baseCorner2, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(baseCorner2, baseCorner3, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(baseCorner3, baseCorner4, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(baseCorner4, baseCorner1, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+
+        vfxParticleLine(baseCorner1, top, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(baseCorner2, top, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(baseCorner3, top, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        vfxParticleLine(baseCorner4, top, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+    }
+
 
     default void vfxLevelUp(Player p) {
         p.spawnParticle(Particle.REVERSE_PORTAL, p.getLocation().clone().add(0, 1.7, 0), 100, 0.1, 0.1, 0.1, 4.1);
@@ -348,7 +354,7 @@ public interface Component {
 
         return result;
     }
-    
+
 
     default void riftResistCheckAndTrigger(Player p, int duration, int amplifier) {
         p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);

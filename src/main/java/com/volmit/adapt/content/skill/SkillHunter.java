@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.hunter.HunterAdrenaline;
+import com.volmit.adapt.content.adaptation.hunter.HunterRegen;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -22,6 +23,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         setInterval(4150);
         setIcon(Material.BONE);
         registerAdaptation(new HunterAdrenaline());
+        registerAdaptation(new HunterRegen());
     }
 
     @EventHandler
