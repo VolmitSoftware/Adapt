@@ -155,13 +155,13 @@ public interface Component {
                         int newAmplifier = Objects.requireNonNull(p.getPotionEffect(type)).getAmplifier();
                         int newDuration = Objects.requireNonNull(p.getPotionEffect(type)).getDuration();
                         p.removePotionEffect(type);
-                        p.addPotionEffect(new PotionEffect(potionEffect, newDuration + duration, newAmplifier + amplifier));
+                        p.addPotionEffect(new PotionEffect(potionEffect, newDuration + duration, newAmplifier + amplifier, false, false));
                     }
                     p.sendMessage(ChatColor.RED + "You have gained a stack of " + potionEffect.getName() + "!");
                     int newAmplifier = Objects.requireNonNull(p.getPotionEffect(type)).getAmplifier();
                     int newDuration = Objects.requireNonNull(p.getPotionEffect(type)).getDuration();
                     p.removePotionEffect(type);
-                    p.addPotionEffect(new PotionEffect(potionEffect, newDuration, newAmplifier + 1));
+                    p.addPotionEffect(new PotionEffect(potionEffect, newDuration, newAmplifier + 1, false, false));
                 }
             }
 
