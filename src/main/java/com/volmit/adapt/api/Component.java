@@ -142,7 +142,6 @@ public interface Component {
 
     default void addPotionStacks(Player p, PotionEffectType potionEffect, int amplifier, int duration, Boolean overlap) {
         List<PotionEffectType> activeList = p.getActivePotionEffects().stream().map(PotionEffect::getType).toList();
-        p.sendMessage("Active potion effects: " + activeList);
         if (activeList.size() > 0) {
             for (PotionEffectType type : activeList) {
                 if (type.equals(potionEffect)) {
@@ -153,7 +152,6 @@ public interface Component {
                         p.removePotionEffect(type);
                         p.addPotionEffect(new PotionEffect(potionEffect, newDuration + duration, newAmplifier + amplifier, false, false));
                     }
-                    p.sendMessage(ChatColor.RED + "You have gained a stack of " + potionEffect.getName() + "!");
                     int newAmplifier = Objects.requireNonNull(p.getPotionEffect(type)).getAmplifier();
                     int newDuration = Objects.requireNonNull(p.getPotionEffect(type)).getDuration();
                     p.removePotionEffect(type);
