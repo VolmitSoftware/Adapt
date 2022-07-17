@@ -64,26 +64,24 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                 double v = getValue(e.getBlock());
                 int handsize = is.getAmount();
                 int handSizeAfter = handsize - totalMap.get(p).size();
-                int programaticHandInt = 0;
+                int programmaticHandInt = 0;
                 if (handSizeAfter >= 0) {
                     for (Block b : map.keySet()) { // Block Placer
                         BlockFace face = map.get(b);
+                        totalMap.get(p).remove(b);
                         if (b.getWorld().getBlockAt(b.getRelative(face).getLocation()).getType() == Material.AIR) {
                             if (b.getRelative(face).getLocation() != e.getBlock().getLocation()) {
                                 b.getWorld().setBlockData(b.getRelative(face).getLocation(), b.getBlockData());
-                                totalMap.get(p).remove(b);
-                                programaticHandInt++;
+                                programmaticHandInt++;
                                 //Add XP
                                 getPlayer(e.getPlayer()).getData().addStat("blocks.placed", 1);
                                 getPlayer(e.getPlayer()).getData().addStat("blocks.placed.value", v);
                                 p.playSound(b.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
                                 xp(e.getPlayer(), 2);
                             }
-                        } else {
-                            totalMap.get(p).remove(b);
                         }
                     }
-                    hand.setAmount(handsize - (programaticHandInt+1));
+                    hand.setAmount(handsize - (programmaticHandInt+1));
                 } else {
                     p.sendMessage(C.RED + "You must have " + C.GREEN + totalMap.get(p).size() + C.RED + " blocks in your hand to place them!");
                 }
