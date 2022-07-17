@@ -1,7 +1,6 @@
 package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.content.block.ScaffoldMatter;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
@@ -13,6 +12,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
@@ -27,6 +27,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     private final Set<Player> active;
     private static final BlockData AIR = Material.AIR.createBlockData();
     private static final BlockData BLOCK = Material.TINTED_GLASS.createBlockData();
+    private final Set<Block> activeBlocks;
 
     public ArchitectFoundation() {
         super("architect-foundation");
@@ -42,9 +43,10 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         blockPower = new HashMap<>();
         cooldowns = new HashMap<>();
         active = new HashSet<>();
+        activeBlocks = new HashSet<>();
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerMoveEvent e) {
         if (!hasAdaptation(e.getPlayer())) {
             return;
@@ -115,7 +117,10 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             return false;
         }
 
-        J.s(() -> block.setBlockData(BLOCK));
+        J.s(() -> {
+            block.setBlockData(BLOCK);
+            activeBlocks.add(block);
+        });
         block.getWorld().playSound(block.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.0f, 1.0f);
         vfxSingleCubeOutline(block, Particle.REVERSE_PORTAL);
         vfxSingleCubeOutline(block, Particle.ASH);
@@ -123,15 +128,17 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         return true;
     }
 
-    public boolean removeFoundation(Block block) {
+    public void removeFoundation(Block block) {
         if (!block.getBlockData().equals(BLOCK)) {
-            return false;
+            return;
         }
 
-        J.s(() -> block.setBlockData(AIR));
+        J.s(() -> {
+            block.setBlockData(AIR);
+            activeBlocks.remove(block);
+        });
         block.getWorld().playSound(block.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
         vfxSingleCubeOutline(block, Particle.ENCHANTMENT_TABLE);
-        return true;
     }
 
     public int getBlockPower(double factor) {
@@ -153,7 +160,6 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
                     i.getWorld().playSound(i.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 100.0f, 0.81f);
                     return availablePower;
                 }
-
                 return v;
             });
         }
@@ -167,6 +173,16 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         }
 
         return cooldowns.containsKey(i);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(BlockBreakEvent e) {
+        if (!hasAdaptation(e.getPlayer())) {
+            return;
+        }
+        if (activeBlocks.contains(e.getBlock())) {
+            e.setCancelled(true);
+        }
     }
 
     @Override
