@@ -37,6 +37,7 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
         if(e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
             addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
             addPotionStacks(p, PotionEffectType.REGENERATION, getLevel(p), 50, false);
+
         }
     }
 

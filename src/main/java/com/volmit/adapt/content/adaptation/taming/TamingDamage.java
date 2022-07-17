@@ -25,7 +25,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     public TamingDamage() {
         super("tame-damage");
         registerConfiguration(Config.class);
-        setDescription("Increase your tamed animal health.");
+        setDescription("Increase your tamed animal damage dealt.");
         setIcon(Material.FLINT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

@@ -16,7 +16,7 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
         registerConfiguration(Config.class);
         setDescription("Enchantments can give you XP when you make them");
         setDisplayName("XP Return");
-        setIcon(Material.LAPIS_LAZULI);
+        setIcon(Material.EXPERIENCE_BOTTLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(5000);
