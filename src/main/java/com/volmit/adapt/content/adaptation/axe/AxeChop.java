@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
-    private final List<Integer> holds = new ArrayList<>();
 
     public AxeChop() {
         super("axe-chop");
@@ -52,6 +51,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
             BlockData b = e.getClickedBlock().getBlockData();
             if(isLog(b)) {
+                e.setCancelled(true);
                 e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
 
                 for(int i = 0; i < getLevel(e.getPlayer()); i++) {
