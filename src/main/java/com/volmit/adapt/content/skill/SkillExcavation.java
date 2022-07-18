@@ -2,6 +2,8 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.content.adaptation.excavation.ExcavationHaste;
+import com.volmit.adapt.content.adaptation.excavation.ExcavationOmniTool;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
@@ -20,6 +22,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         setColor(C.YELLOW);
         setInterval(5251);
         setIcon(Material.DIAMOND_SHOVEL);
+        registerAdaptation(new ExcavationHaste());
     }
 
     @EventHandler

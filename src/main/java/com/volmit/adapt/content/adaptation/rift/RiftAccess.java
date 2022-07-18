@@ -35,7 +35,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
-        setInterval(50);
+        setInterval(5544);
         registerRecipe(AdaptRecipe.shapeless()
             .key("rift-access")
             .ingredient(Material.ENDER_PEARL)

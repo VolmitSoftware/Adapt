@@ -12,12 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
-import org.bukkit.inventory.SmithingInventory;
+import org.bukkit.inventory.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,32 +40,32 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
     }
 
     public ItemStack getDeconstructionOffering(ItemStack forStuff) {
-        if(forStuff == null) {
+        if (forStuff == null) {
             return null;
         }
 
         int maxPow = 0;
         Recipe sr = null;
 
-        for(Recipe i : Bukkit.getRecipesFor(forStuff)) {
-            if(i instanceof ShapelessRecipe r) {
+        for (Recipe i : Bukkit.getRecipesFor(forStuff)) {
+            if (i instanceof ShapelessRecipe r) {
                 int mp = r.getIngredientList().stream().mapToInt(f -> f.getAmount()).sum();
 
-                if(mp > maxPow) {
+                if (mp > maxPow) {
                     sr = i;
                     maxPow = mp;
                 }
-            } else if(i instanceof ShapedRecipe r) {
+            } else if (i instanceof ShapedRecipe r) {
                 int mp = r.getIngredientMap().values().stream().mapToInt(f -> f == null ? 0 : f.getAmount()).sum();
 
-                if(mp > maxPow) {
+                if (mp > maxPow) {
                     sr = i;
                     maxPow = mp;
                 }
             }
         }
 
-        if(sr == null) {
+        if (sr == null) {
             return null;
         }
 
@@ -78,9 +73,9 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
         int outa = 1;
         ItemStack sel = null;
 
-        if(sr instanceof ShapelessRecipe r) {
-            for(ItemStack i : r.getIngredientList()) {
-                if(i.getAmount() * forStuff.getAmount() > v) {
+        if (sr instanceof ShapelessRecipe r) {
+            for (ItemStack i : r.getIngredientList()) {
+                if (i.getAmount() * forStuff.getAmount() > v) {
                     v = i.getAmount() * forStuff.getAmount();
                     sel = i;
                     outa = r.getResult().getAmount();
@@ -91,12 +86,12 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
             List<ItemStack> ings = new ArrayList<>();
 
             r.getIngredientMap().forEach((k, vx) -> {
-                if(vx == null) {
+                if (vx == null) {
                     return;
                 }
 
-                for(ItemStack i : ings) {
-                    if(vx.getType().equals(i.getType())) {
+                for (ItemStack i : ings) {
+                    if (vx.getType().equals(i.getType())) {
                         i.setAmount(i.getAmount() + 1);
                         return;
                     }
@@ -105,8 +100,8 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
                 ings.add(vx);
             });
 
-            for(ItemStack i : ings) {
-                if(i != null && i.getAmount() * forStuff.getAmount() > v) {
+            for (ItemStack i : ings) {
+                if (i != null && i.getAmount() * forStuff.getAmount() > v) {
                     v = i.getAmount() * forStuff.getAmount();
                     sel = i;
                     outa = r.getResult().getAmount();
@@ -114,18 +109,18 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
             }
         }
 
-        if(sel != null && sel.getAmount() * forStuff.getAmount() > 1) {
+        if (sel != null && sel.getAmount() * forStuff.getAmount() > 1) {
             sel = sel.clone();
 
             int a = ((sel.getAmount() * forStuff.getAmount()) / outa) / 2;
 
-            if(a > sel.getMaxStackSize()) {
+            if (a > sel.getMaxStackSize()) {
                 return null;
             }
 
             sel.setAmount(a);
 
-            if(getValue(sel) >= getValue(forStuff)) {
+            if (getValue(sel) >= getValue(forStuff)) {
                 return null;
             }
 
@@ -141,28 +136,31 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
     @EventHandler
     public void on(InventoryClickEvent e) {
-        if(e.getView().getTopInventory().getType().equals(InventoryType.SMITHING)) {
+        if (!hasAdaptation((Player) e.getWhoClicked())) {
+            return;
+        }
+        if (e.getView().getTopInventory().getType().equals(InventoryType.SMITHING)) {
             SmithingInventory s = (SmithingInventory) e.getView().getTopInventory();
             J.s(() -> {
-                if(s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null) {
+                if (s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null) {
                     s.setResult(getDeconstructionOffering(s.getItem(0)));
                 }
             });
         }
 
-        if(e.getClickedInventory() != null && e.getClickedInventory().getType().equals(InventoryType.SMITHING)) {
+        if (e.getClickedInventory() != null && e.getClickedInventory().getType().equals(InventoryType.SMITHING)) {
             SmithingInventory s = (SmithingInventory) e.getClickedInventory();
-            if(e.getSlotType().equals(InventoryType.SlotType.CRAFTING)) {
+            if (e.getSlotType().equals(InventoryType.SlotType.CRAFTING)) {
                 J.s(() -> {
-                    if(s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null) {
+                    if (s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null) {
                         s.setResult(getDeconstructionOffering(s.getItem(0)));
                     }
                 });
-            } else if(e.getSlotType().equals(InventoryType.SlotType.RESULT)) {
-                if(s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null) {
+            } else if (e.getSlotType().equals(InventoryType.SlotType.RESULT)) {
+                if (s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null) {
                     ItemStack offering = getDeconstructionOffering(s.getItem(0));
 
-                    if(offering != null) {
+                    if (offering != null) {
                         s.setItem(1, damage(s.getItem(1), s.getItem(0).getAmount()));
                         e.setCursor(offering);
                         e.getClickedInventory().setItem(0, null);
@@ -178,7 +176,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
     private void updateOffering(Inventory inventory) {
         SmithingInventory s = (SmithingInventory) inventory;
 
-        if(s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null) {
+        if (s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null) {
             ItemStack offering = getDeconstructionOffering(s.getItem(0));
             s.setResult(offering);
         }
