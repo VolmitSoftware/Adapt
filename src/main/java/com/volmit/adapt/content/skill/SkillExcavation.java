@@ -23,6 +23,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         setInterval(5251);
         setIcon(Material.DIAMOND_SHOVEL);
         registerAdaptation(new ExcavationHaste());
+        registerAdaptation(new ExcavationOmniTool());
     }
 
     @EventHandler
