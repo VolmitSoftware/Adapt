@@ -1,15 +1,56 @@
 package com.volmit.adapt.nms;
 
+import com.volmit.adapt.util.CustomOutputStream;
+import net.minecraft.nbt.NBTCompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayOutSetCooldown;
 import net.minecraft.world.item.Item;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_19_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Base64;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class NMS_1_19 implements NMS.Impl {
 
+    @Override
+    public String serializeStack(ItemStack is) {
+        try {
+            NBTTagCompound t = new NBTTagCompound();
+            t = CraftItemStack.asNMSCopy(is).b(t);
+            ByteArrayOutputStream boas = new ByteArrayOutputStream();
+            GZIPOutputStream gzo = new CustomOutputStream(boas, 9);
+            DataOutputStream dos = new DataOutputStream(gzo);
+            t.a(dos);
+            dos.close();
+            return Base64.getUrlEncoder().encodeToString(boas.toByteArray());
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ItemStack deserializeStack(String s) {
+        try {
+            ByteArrayInputStream bin = new ByteArrayInputStream(Base64.getUrlDecoder().decode(s));
+            GZIPInputStream gzi = new GZIPInputStream(bin);
+            NBTTagCompound t = NBTCompressedStreamTools.a(gzi);
+            return CraftItemStack.asBukkitCopy(net.minecraft.world.item.ItemStack.a(t));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public void sendCooldown(Player p, Material m, int tick) {
