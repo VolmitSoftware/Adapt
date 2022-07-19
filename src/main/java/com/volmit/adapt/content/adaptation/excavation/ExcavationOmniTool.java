@@ -1,8 +1,10 @@
 package com.volmit.adapt.content.adaptation.excavation;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.OmniTool;
+import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Config> {
     public ExcavationOmniTool() {
@@ -52,9 +57,6 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             if (!p.isSneaking()) {
                 return;
             }
-            if (getLore(p).equals(null)) {
-                return;
-            }
             String lore0 = getLore(p);
 
             if (lore0.contains("OMNITOOL-305")) {
@@ -68,13 +70,16 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         if (e.getPlayer() instanceof Player) {
             Player p = (Player) e.getPlayer();
             Inventory inv = e.getInventory();
-            if (getLore(p).equals(null)) {
-                return;
-            }
             String lore0 = getLore(p);
-            ItemStack[] invItems = inv.getContents();
             if (hasAdaptation(p) && lore0.contains("OMNITOOL-305")) {
-                ItemStack omnitool = OmniTool.withData(invItems);
+                List<String> ss = new ArrayList<>();
+                for (ItemStack s : inv.getContents()) {
+                    Adapt.info(NMS.get().serializeStack(s));
+                    Adapt.info(NMS.get().deserializeStack(NMS.get().serializeStack(s)).getType().toString());
+                    ss.add(NMS.get().serializeStack(s));
+                }
+
+                ItemStack omnitool = OmniTool.withData(ss);
                 p.getInventory().setItemInMainHand(omnitool);
             }
         }
@@ -83,11 +88,6 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     public void openOmnitoolInventory(Player p, ItemStack omniTool) {
         Inventory inventory = Bukkit.createInventory(p, 9, "An Astral Utility Container");
-        ItemStack[] items = OmniTool.getTools(omniTool);
-        if (items != null) {
-            inventory.setContents(items);
-
-        }
         p.openInventory(inventory);
     }
 
