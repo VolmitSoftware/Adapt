@@ -4,6 +4,7 @@ import com.volmit.adapt.api.item.DataItem;
 import com.volmit.adapt.util.C;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -54,9 +55,8 @@ public class OmniTool implements DataItem<OmniTool.Data> {
         return null;
     }
 
-    public static ItemStack setTools(ItemStack item, ItemStack[] t) {
+    public static void setData(ItemStack item, ItemStack[] t) {
         io.setData(item, new OmniTool.Data(t));
-        return item;
     }
 
     public static ItemStack withData(ItemStack[] t) {
@@ -67,7 +67,6 @@ public class OmniTool implements DataItem<OmniTool.Data> {
     @lombok.Data
     public static class Data {
         private ItemStack[] tools;
-
         public static OmniTool.Data at(ItemStack[] l) {
             return new OmniTool.Data(l);
         }

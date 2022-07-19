@@ -52,21 +52,34 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             if (!p.isSneaking()) {
                 return;
             }
-            ItemStack mainHandItem = p.getInventory().getItemInMainHand();
-            ItemMeta mainHandMeta = mainHandItem.getItemMeta();
-            if (mainHandMeta == null) {
+            if (getLore(p).equals(null)) {
                 return;
             }
-            if (mainHandItem.getItemMeta().getLore() == null) {
-                return;
-            }
-            String lore0 = mainHandItem.getItemMeta().getLore().get(0);
+            String lore0 = getLore(p);
 
             if (lore0.contains("OMNITOOL-305")) {
-                openOmnitoolInventory(p, mainHandItem);
+                openOmnitoolInventory(p, p.getInventory().getItemInMainHand());
             }
         }
     }
+
+    @EventHandler
+    public void on(InventoryCloseEvent e) {
+        if (e.getPlayer() instanceof Player) {
+            Player p = (Player) e.getPlayer();
+            Inventory inv = e.getInventory();
+            if (getLore(p).equals(null)) {
+                return;
+            }
+            String lore0 = getLore(p);
+            ItemStack[] invItems = inv.getContents();
+            if (hasAdaptation(p) && lore0.contains("OMNITOOL-305")) {
+                ItemStack omnitool = OmniTool.withData(invItems);
+                p.getInventory().setItemInMainHand(omnitool);
+            }
+        }
+    }
+
 
     public void openOmnitoolInventory(Player p, ItemStack omniTool) {
         Inventory inventory = Bukkit.createInventory(p, 9, "An Astral Utility Container");
@@ -78,26 +91,17 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         p.openInventory(inventory);
     }
 
-    @EventHandler
-    public void on(InventoryCloseEvent e) {
-        if (e.getPlayer() instanceof Player) {
-            Player p = (Player) e.getPlayer();
-            Inventory inv = e.getInventory();
-            ItemStack mainHandItem = p.getInventory().getItemInMainHand();
-            ItemMeta mainHandMeta = mainHandItem.getItemMeta();
-            if (mainHandMeta == null) {
-                return;
-            }
-            if (mainHandItem.getItemMeta().getLore() == null) {
-                return;
-            }
-            String lore0 = mainHandItem.getItemMeta().getLore().get(0);
-            ItemStack[] invItems = inv.getContents();
-            if (hasAdaptation(p) && lore0.contains("OMNITOOL-305")) {
-                ItemStack omnitool = OmniTool.withData(invItems);
-                p.getInventory().setItemInMainHand(omnitool);
-            }
+
+    public String getLore(Player p) {
+        ItemStack mainHandItem = p.getInventory().getItemInMainHand();
+        ItemMeta mainHandMeta = mainHandItem.getItemMeta();
+        if (mainHandMeta == null) {
+            return null;
         }
+        if (mainHandItem.getItemMeta().getLore() == null) {
+            return null;
+        }
+        return mainHandItem.getItemMeta().getLore().get(0);
     }
 
 
