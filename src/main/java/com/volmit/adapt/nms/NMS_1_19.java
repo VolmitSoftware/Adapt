@@ -20,12 +20,14 @@ public class NMS_1_19 implements NMS.Impl {
 
     public <T> T readItemData(ItemStack stack, Class<T> dataType) {
         NBTTagCompound t = CraftItemStack.asNMSCopy(stack).v();
+        if(t.f())
+            return null;
         return NBTSon.fromSNBT(t.toString(), dataType);
     }
 
     public <T> ItemStack writeItemData(ItemStack stack, T data) {
         net.minecraft.world.item.ItemStack nms = CraftItemStack.asNMSCopy(stack);
-        nms.c(usableToNotchian(data.toNBT()));
+        nms.c(usableToNotchian(NBTSon.toNBT(data)));
         return CraftItemStack.asBukkitCopy(nms);
     }
 
