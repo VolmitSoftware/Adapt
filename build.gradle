@@ -133,6 +133,7 @@ dependencies {
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
     implementation 'art.arcane:Fukkit:22.7.5'
+    implementation 'art.arcane:NBTSon:22.7.11'
     annotationProcessor 'systems.manifold:manifold-ext:2022.1.18'
     testAnnotationProcessor 'systems.manifold:manifold-ext:2022.1.18'
     implementation 'systems.manifold:manifold-rt:2022.1.18'

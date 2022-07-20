@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -46,29 +47,13 @@ public class OmniTool implements DataItem<OmniTool.Data> {
 
     }
 
-    public static List<String> getItems(ItemStack stack) {
+    public static List<ItemStack> getItems(ItemStack stack) {
         if (io.getData(stack) != null) {
-            return io.getData(stack).getItems();
+            return io.getData(stack).items();
         }
 
-        return null;
+        return new ArrayList<>();
     }
 
-    public static void setData(ItemStack item, List<String> t) {
-        io.setData(item, new OmniTool.Data(t));
-    }
-
-    public static ItemStack withData(List<String> t) {
-        return io.withData(new OmniTool.Data(t));
-    }
-
-    @AllArgsConstructor
-    @lombok.Data
-    public static class Data {
-        private List<String> items;
-
-        public static OmniTool.Data at(List<String> l) {
-            return new OmniTool.Data(l);
-        }
-    }
+    public record Data(List<ItemStack> items) { }
 }

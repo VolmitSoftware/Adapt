@@ -51,8 +51,8 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
         return null;
     }
 
-    public static void setData(ItemStack item, Block t) {
-        io.setData(item, new Data(t));
+    public static ItemStack setData(ItemStack item, Block t) {
+        return io.setData(item, new Data(t));
     }
 
     public static ItemStack withData(Block t) {

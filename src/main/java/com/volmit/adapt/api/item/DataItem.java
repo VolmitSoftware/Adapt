@@ -1,17 +1,15 @@
 package com.volmit.adapt.api.item;
 
-import com.volmit.adapt.Adapt;
-import com.volmit.adapt.util.BukkitGson;
+import com.volmit.adapt.nms.NMS;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public interface DataItem<T> {
+
     Material getMaterial();
 
     Class<T> getType();
@@ -25,20 +23,14 @@ public interface DataItem<T> {
     }
 
     default T getData(ItemStack stack) {
-        if(stack != null
-            && stack.getType().equals(getMaterial())
-            && stack.getItemMeta() != null) {
-            String r = stack.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING);
-            if(r != null) {
-                return BukkitGson.gson.fromJson(r, getType());
-            }
+        if(stack != null && stack.getType().equals(getMaterial()) && stack.getItemMeta() != null) {
+            return NMS.get().readItemData(stack, getType());
         }
-
         return null;
     }
 
-    default void setData(ItemStack item, T t) {
-        item.setItemMeta(withData(t).getItemMeta());
+    default ItemStack setData(ItemStack item, T t) {
+        return NMS.get().writeItemData(item, t);
     }
 
 
@@ -54,8 +46,7 @@ public interface DataItem<T> {
         List<String> lore = new ArrayList<>();
         applyLore(t, lore);
         meta.setLore(lore);
-        meta.getPersistentDataContainer().set(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING, BukkitGson.gson.toJson(t));
         item.setItemMeta(meta);
-        return item;
+        return setData(item, t);
     }
 }
