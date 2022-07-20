@@ -30,7 +30,11 @@ public interface DataItem<T> {
     }
 
     default ItemStack setData(ItemStack item, T t) {
-        return NMS.get().writeItemData(item, t);
+        if(t != null) {
+            return NMS.get().writeItemData(item, t);
+        } else {
+            return item;
+        }
     }
 
 
