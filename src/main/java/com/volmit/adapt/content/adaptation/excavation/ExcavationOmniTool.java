@@ -11,6 +11,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockDamageAbortEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
@@ -45,6 +47,23 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 .build());
     }
 
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GRAY + "This is a morphing tool that holds all the tools, switching when needed");
+        v.addLore(C.GREEN + "" + (level + 3) + C.GRAY + "x Levels of haste when you start mining ANY block with the right tool");
+        v.addLore(C.ITALIC + "if you lose this item, you lose all of the items");
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    @Override
+    public void onTick() {
+    }
+
     @EventHandler
     public void on(PlayerInteractEvent e) {
         if (!hasAdaptation(e.getPlayer())) {
@@ -65,23 +84,35 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler
     public void on(InventoryCloseEvent e) {
-        if (e.getPlayer() instanceof Player) {
-            Player p = (Player) e.getPlayer();
+        if (e.getPlayer() instanceof Player p) {
             Inventory inv = e.getInventory();
-            String lore0 = getLore(p);
-            if (hasAdaptation(p) && lore0.contains("OMNITOOL-305")) {
+            if (hasAdaptation(p) && getLore(p).contains("OMNITOOL-305")) {
                 ItemStack omnitool = OmniTool.io.withData(new OmniTool.Data(List.of(inv.getContents())));
                 p.getInventory().setItemInMainHand(omnitool);
             }
         }
     }
 
-    public void openOmnitoolInventory(Player p, ItemStack omniTool) {
-        Inventory inventory = Bukkit.createInventory(p, 9, "An Astral Utility Container");
-        OmniTool.getItems(omniTool).forEach(inventory::addItem);
-        p.openInventory(inventory);
+    @EventHandler
+    public void on(BlockDamageEvent e){
+        // Change the Tool
     }
 
+    @EventHandler
+    public void on(BlockDamageAbortEvent e){
+        // Revert the Tool
+    }
+
+    public void openOmnitoolInventory(Player p, ItemStack omniTool) {
+        Inventory inventory = Bukkit.createInventory(p, 9, "An Astral Utility Container");
+        if (OmniTool.getItems(omniTool).isEmpty()) {
+            p.openInventory(inventory);
+        } else {
+            OmniTool.getItems(omniTool).forEach(inventory::addItem);
+            p.openInventory(inventory);
+        }
+
+    }
 
     public String getLore(Player p) {
         ItemStack mainHandItem = p.getInventory().getItemInMainHand();
@@ -93,23 +124,6 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             return null;
         }
         return mainHandItem.getItemMeta().getLore().get(0);
-    }
-
-
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
-
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "This is a morphing tool that holds all the tools, switching when needed");
-        v.addLore(C.GREEN + "" + (level + 3) + C.GRAY + "x Levels of haste when you start mining ANY block with the right tool");
-        v.addLore(C.ITALIC + "if you lose this item, you lose all of the items");
-    }
-
-    @Override
-    public void onTick() {
     }
 
     @NoArgsConstructor
