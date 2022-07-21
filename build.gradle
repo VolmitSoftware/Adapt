@@ -123,8 +123,7 @@ dependencies {
     // Provided or Classpath
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    implementation 'org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT'
-    implementation 'org.spigotmc:spigot:1.19-R0.1-SNAPSHOT'
+    implementation 'org.spigotmc:spigot-api:1.19-R0.1-20220608.212450-1'
     implementation 'me.clip:placeholderapi:2.11.1'
     implementation 'io.th0rgal:oraxen:1.94.0'
     implementation 'org.bukkit:craftbukkit:1.19-R0.1-SNAPSHOT'

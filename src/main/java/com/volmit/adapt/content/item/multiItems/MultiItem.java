@@ -87,7 +87,9 @@ public interface MultiItem {
 
     default void setItems(ItemStack multi, List<ItemStack> itemStacks) {
         setMultiItemData(multi, MultiItemData.builder()
-                .rawItems(itemStacks.stream().filter(this::supportsItem).map(i -> NMS.get().serializeStack(i)).collect(Collectors.toList()))
+                .rawItems(itemStacks.stream().filter(this::supportsItem)
+                        .map(i -> NMS.get().serializeStack(i))
+                        .collect(Collectors.toList()))
                 .build());
     }
 
@@ -125,27 +127,27 @@ public interface MultiItem {
 
     default MultiItemData getMultiItemData(ItemStack multi) {
         try {
-            if(multi.hasItemMeta()) {
-                ItemMeta meta = multi.getItemMeta();
-                return BukkitGson.gson.fromJson(meta.getPersistentDataContainer()
-                        .get(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING), MultiItemData.class);
-            }
+            ItemMeta meta = multi.getItemMeta();
+            String st = meta.getPersistentDataContainer()
+                    .get(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING);
+            Adapt.info("READ " + st);
+            return BukkitGson.gson.fromJson(st, MultiItemData.class);
         }
 
         catch(Throwable e) {
+            Adapt.info("Error reading");
+            e.printStackTrace();
             return null;
         }
-
-        return null;
     }
 
     default void setMultiItemData(ItemStack multi, MultiItemData data) {
-        if(multi.hasItemMeta()) {
-            ItemMeta meta = multi.getItemMeta();
-            meta.getPersistentDataContainer()
-                    .set(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING, BukkitGson.gson.toJson(data));
-            multi.setItemMeta(meta);
-        }
+        String s = BukkitGson.gson.toJson(data);
+        ItemMeta meta = multi.getItemMeta();
+        meta.getPersistentDataContainer()
+                .set(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING, s);
+        multi.setItemMeta(meta);
+        Adapt.info("WRITE " + s);
     }
 
     @Data

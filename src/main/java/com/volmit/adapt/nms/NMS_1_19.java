@@ -27,12 +27,9 @@ public class NMS_1_19 implements NMS.Impl {
     public String serializeStack(ItemStack is) {
         try {
             NBTTagCompound t = new NBTTagCompound();
-            t = CraftItemStack.asNMSCopy(is).b(t);
+            CraftItemStack.asNMSCopy(is).b(t);
             ByteArrayOutputStream boas = new ByteArrayOutputStream();
-            GZIPOutputStream gzo = new CustomOutputStream(boas, 9);
-            DataOutputStream dos = new DataOutputStream(gzo);
-            t.a(dos);
-            dos.close();
+            NBTCompressedStreamTools.a(t, boas);
             return Base64.getUrlEncoder().encodeToString(boas.toByteArray());
 
         } catch (IOException e) {
@@ -44,8 +41,7 @@ public class NMS_1_19 implements NMS.Impl {
     public ItemStack deserializeStack(String s) {
         try {
             ByteArrayInputStream bin = new ByteArrayInputStream(Base64.getUrlDecoder().decode(s));
-            GZIPInputStream gzi = new GZIPInputStream(bin);
-            NBTTagCompound t = NBTCompressedStreamTools.a(gzi);
+            NBTTagCompound t = NBTCompressedStreamTools.a(bin);
             return CraftItemStack.asBukkitCopy(net.minecraft.world.item.ItemStack.a(t));
         } catch (IOException e) {
             throw new RuntimeException(e);
