@@ -25,6 +25,16 @@ public interface MultiItem {
         return WindowResolution.W5_H1;
     }
 
+    default ItemStack build(ItemStack... stacks) {
+        ItemStack s = stacks[0];
+
+        for(int i = 1; i < stacks.length; i++) {
+            add(s, stacks[i]);
+        }
+
+        return s;
+    }
+
     default boolean remove(ItemStack multi, ItemStack toRemove) {
         int ind = getItems(multi).indexOf(toRemove);
         if(ind == -1) {
@@ -49,6 +59,10 @@ public interface MultiItem {
         else {
             setItems(multi, getItems(multi).qadd(item));
         }
+    }
+
+    default ItemStack nextTool(ItemStack multi) {
+        return switchTo(multi, 0);
     }
 
     default ItemStack switchTo(ItemStack multi, int index) {
