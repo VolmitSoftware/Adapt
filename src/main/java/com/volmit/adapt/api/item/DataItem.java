@@ -37,9 +37,6 @@ public interface DataItem<T> {
         return null;
     }
 
-        item.setItemMeta(withData(t).getItemMeta());
-    }
-
 
     default ItemStack withData(T t) {
         ItemStack item = blank();
