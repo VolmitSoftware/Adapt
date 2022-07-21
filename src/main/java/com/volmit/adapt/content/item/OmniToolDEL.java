@@ -15,8 +15,8 @@ import java.util.Random;
 
 @AllArgsConstructor
 @Data
-public class OmniTool implements DataItem<OmniTool.Data> {
-    public static OmniTool io = new OmniTool();
+public class OmniToolDEL implements DataItem<OmniToolDEL.Data> {
+    public static OmniToolDEL io = new OmniToolDEL();
 
     @Override
     public Material getMaterial() {
@@ -25,7 +25,7 @@ public class OmniTool implements DataItem<OmniTool.Data> {
 
     @Override
     public Class<Data> getType() {
-        return OmniTool.Data.class;
+        return OmniToolDEL.Data.class;
     }
 
     @Override
@@ -43,7 +43,6 @@ public class OmniTool implements DataItem<OmniTool.Data> {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
         meta.setDisplayName("T.O.O.L");
-
     }
 
     public static List<String> getItems(ItemStack stack) {
