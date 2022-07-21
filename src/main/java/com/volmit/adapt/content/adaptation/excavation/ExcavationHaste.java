@@ -1,12 +1,11 @@
 package com.volmit.adapt.content.adaptation.excavation;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -28,25 +27,22 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
     }
 
     @EventHandler
-    public void on(BlockDamageEvent e)  {
+    public void on(BlockDamageEvent e) {
         if (!hasAdaptation(e.getPlayer())) {
             return;
         }
         Player p = e.getPlayer();
+        Adapt.info("1");
         if (!e.getBlock().getDrops(e.getItemInHand()).isEmpty()) {
-            boolean has = false;
+            Adapt.info("2");
             for (PotionEffectType type : PotionEffectType.values()) {
-                if (type.equals(PotionEffectType.FAST_DIGGING)) {
-                    has = true;
-                    break;
-                }
+                Adapt.info("3");
+                e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 8, getLevel(p), true, false, true));
+
             }
-            if (!has) {
-                e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 4, getLevel(p), true, false, true));
-            }
+
         }
     }
-
 
 
     @Override
@@ -57,8 +53,8 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "Gain Haste while excavating");
-        v.addLore(C.GREEN + "" +  (level) +C.GRAY+ "x Levels of haste when you start mining ANY block with the right tool" );
-        v.addLore(C.ITALIC + "If you already have a haste buff active this will not apply!" );
+        v.addLore(C.GREEN + "" + (level) + C.GRAY + "x Levels of haste when you start mining ANY block with the right tool");
+        v.addLore(C.ITALIC + "If you already have a haste buff active this will not apply!");
     }
 
     @Override
