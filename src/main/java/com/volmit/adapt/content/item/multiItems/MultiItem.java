@@ -110,6 +110,8 @@ public interface MultiItem {
         return it;
     }
 
+    void onApplyMeta(ItemStack item, ItemMeta meta, List<ItemStack> otherItems);
+
     default boolean isMultiItem(ItemStack item) {
         return supportsItem(item) && getMultiItemData(item) != null;
     }
@@ -130,13 +132,10 @@ public interface MultiItem {
             ItemMeta meta = multi.getItemMeta();
             String st = meta.getPersistentDataContainer()
                     .get(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING);
-            Adapt.info("READ " + st);
             return BukkitGson.gson.fromJson(st, MultiItemData.class);
         }
 
         catch(Throwable e) {
-            Adapt.info("Error reading");
-            e.printStackTrace();
             return null;
         }
     }
@@ -147,7 +146,9 @@ public interface MultiItem {
         meta.getPersistentDataContainer()
                 .set(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING, s);
         multi.setItemMeta(meta);
-        Adapt.info("WRITE " + s);
+        meta = multi.getItemMeta();
+        onApplyMeta(multi, meta, getItems(multi));
+        multi.setItemMeta(meta);
     }
 
     @Data
