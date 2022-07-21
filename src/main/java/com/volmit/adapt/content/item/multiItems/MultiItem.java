@@ -14,6 +14,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public interface MultiItem {
@@ -59,6 +60,17 @@ public interface MultiItem {
         else {
             setItems(multi, getItems(multi).qadd(item));
         }
+    }
+
+    default ItemStack nextMatching(ItemStack item, Predicate<ItemStack> predicate) {
+        List<ItemStack> items = getItems(item);
+        for(int i = 0; i < items.size(); i++) {
+            if(predicate.test(items[i])) {
+                return switchTo(item, i);
+            }
+        }
+
+        return item;
     }
 
     default ItemStack nextTool(ItemStack multi) {

@@ -62,7 +62,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
-        J.attempt(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextTool(e.getPlayer().getInventory().getItemInMainHand())));
+        e.getPlayer().getInventory().setItemInMainHand(omniTool.nextTool(e.getPlayer().getInventory().getItemInMainHand()));
     }
 
     @EventHandler
