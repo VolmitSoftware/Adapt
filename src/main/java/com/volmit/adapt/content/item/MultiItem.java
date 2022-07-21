@@ -1,7 +1,6 @@
 package com.volmit.adapt.content.item;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.api.item.DataItem;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.BukkitGson;
 import com.volmit.adapt.util.WindowResolution;
@@ -13,6 +12,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public interface MultiItem {
     boolean supportsItem(ItemStack itemStack);
@@ -33,22 +33,29 @@ public interface MultiItem {
         setItems(multi, getItems(multi).qadd(item));
     }
 
-    default void switchTo(ItemStack multi, int index) {
-
+    default ItemStack switchTo(ItemStack multi, int index) {
+        List<ItemStack> items = getItems(multi);
+        ItemStack next = items.remove(index);
+        items.add(getRealItem(multi));
+        setItems(next, items);
+        return next;
     }
 
-    default List<ItemStack> setItems(ItemStack multi, List<ItemStack> itemStacks) {
-
+    default void setItems(ItemStack multi, List<ItemStack> itemStacks) {
+        setMultiItemData(multi, MultiItemData.builder()
+                .rawItems(itemStacks.stream().filter(this::supportsItem).map(i -> NMS.get().serializeStack(i)).collect(Collectors.toList()))
+                .build());
     }
 
     default List<ItemStack> getItems(ItemStack multi) {
-
+        return getMultiItemData(multi).getItems();
     }
 
     default List<ItemStack> explode(ItemStack multi) {
         List<ItemStack> it = new ArrayList<>();
         it.add(getRealItem(multi));
-        it.add(getMultiItemData(multi).getRawItems())
+        it.add(getItems(multi));
+        return it;
     }
 
     default ItemStack getRealItem(ItemStack multi) {
@@ -95,9 +102,12 @@ public interface MultiItem {
         @Singular
         List<String> rawItems;
 
-        List<ItemStack> getItems()
-        {
-            return rawItems.stream().map(i -> NMS.get().)
+        void setItems(List<ItemStack> is) {
+            rawItems = is.stream().map(i -> NMS.get().serializeStack(i)).collect(Collectors.toList());
+        }
+
+        List<ItemStack> getItems() {
+            return rawItems.stream().map(i -> NMS.get().deserializeStack(i)).collect(Collectors.toList());
         }
     }
 }
