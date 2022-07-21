@@ -25,6 +25,16 @@ public interface MultiItem {
         return WindowResolution.W5_H1;
     }
 
+    default boolean remove(ItemStack multi, ItemStack toRemove) {
+        int ind = getItems(multi).indexOf(toRemove);
+        if(ind == -1) {
+            return false;
+        }
+
+        remove(multi, ind);
+        return true;
+    }
+
     default void remove(ItemStack multi, int index){
         List<ItemStack> it = getItems(multi);
         it.remove(index);
@@ -32,7 +42,13 @@ public interface MultiItem {
     }
 
     default void add(ItemStack multi, ItemStack item){
-        setItems(multi, getItems(multi).qadd(item));
+        if(isMultiItem(item)) {
+            explode(item).forEach(i -> add(multi, i));
+        }
+
+        else {
+            setItems(multi, getItems(multi).qadd(item));
+        }
     }
 
     default ItemStack switchTo(ItemStack multi, int index) {
@@ -50,7 +66,13 @@ public interface MultiItem {
     }
 
     default List<ItemStack> getItems(ItemStack multi) {
-        return getMultiItemData(multi).getItems();
+        MultiItemData d =  getMultiItemData(multi);
+
+        if(d == null) {
+            return new ArrayList<>();
+        }
+
+        return d.getItems();
     }
 
     default List<ItemStack> explode(ItemStack multi) {
@@ -58,6 +80,10 @@ public interface MultiItem {
         it.add(getRealItem(multi));
         it.add(getItems(multi));
         return it;
+    }
+
+    default boolean isMultiItem(ItemStack item) {
+        return supportsItem(item) && getMultiItemData(item) != null;
     }
 
     default ItemStack getRealItem(ItemStack multi) {
