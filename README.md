@@ -55,15 +55,15 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 
 **Excavation**:
 - [ ] Dirt/Grass does not consume Durability
-- [ ] Haste while digging
+- [X] Haste while digging
+- [X] MultiTool (Merge multiple tools into one)
 
 **Herbalism**:
-- [X] Fix Aura
 - [X] Hunger Shield (up to 50% less hunger consumption)
 - [X] Replanted (replant items by right-clicking)
 - [ ] Harvest Dupes
-- [X] Xp Gain
-- [X] Faster Grow
+- [ ] Xp Gain
+- [X] Faster Grow Aura
 
 **Hunter**:
 - [X] Adrenaline (more damage lower the health)
@@ -71,6 +71,13 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 - [ ] Resilience in combat  -> massive loss in hunger
 - [ ] Speed while in combat  -> massive loss in hunger
 - [ ] Prevent the first damage proc
+
+**Nether**:
+- [X] Wither Resist (Resistance to wither)
+- [X] Wither Skull Throw (Pvsshhh)
+- [ ] Soul Speed
+- [ ] Nether Tools Apply Wither
+- [ ] Nearby Withering applies regen
 
 **Pickaxe**
 - [X] Chisel ores (more ore, less durability)
@@ -95,6 +102,7 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 
 **Seaborn**
 - [X] WaterBreathing
+- [X] Passive Speed bonus while swiming
 - [ ] Night vision underwater
 - [ ] Passive Fish?
 - [ ] Water Refiles Hunger/regen
@@ -103,7 +111,7 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 - [X] Snatching (close-range item Vacuum) 
 - [X] Sneak-Speed (Destroy FOV in a single button press)
 - [X] Ghost Armor (Armor passively that grown on you, but only works for 1 hit)
-- [ ] StealthSight
+- [X] StealthSight
 - [ ] Sneak Attack
 
 **Swords**:
@@ -127,13 +135,6 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 - [ ] Remote Grab?
 - [ ] Increased Boss Damage
 - [ ] Passive Strength while unarmed
-
-**Nether**:
-- [X] Wither Resist (Resistance to wither)
-- [X] Wither Skull Throw (Pvsshhh)
-- [ ] Soul Speed
-- [ ] Nether Tools Apply Wither
-- [ ] Nearby Withering applies regen
 
 **Chronos**: _(Unimplemented)_
 - [ ] Chronos Slowdown (Passive Slowdown for entities in the world near you)
