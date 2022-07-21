@@ -27,8 +27,8 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     public ExcavationOmniTool() {
         super("excavation-omnitool");
         registerConfiguration(ExcavationOmniTool.Config.class);
-        setDisplayName("Trusty T.O.O.L.");
-        setDescription("A Craftable Leatherman Tool, swapping based on needs.");
+        setDisplayName("OMNI - T.O.O.L.");
+        setDescription("Totally, Obviously Over-engineered Leatherman");
         setIcon(Material.DISC_FRAGMENT_5);
         setInterval(20202);
         setBaseCost(getConfig().baseCost);
@@ -39,8 +39,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "Probably the most powerful of  many allows you to dynamically");
-        v.addLore(C.GRAY + "merge and change tools on the fly, based on your needs.");
+        v.addLore(C.GRAY + "Probably the most powerful of  many allows you to dynamically merge and change tools on the fly, based on your needs.");
         v.addLore(C.ITALIC + "to merge, just shift click an item over another in your inventory.");
         v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + " total merge-able items");
         v.addLore(C.STRIKETHROUGH + "you could use five or six tools, or just one!");
@@ -71,6 +70,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
+        if (!hasAdaptation(e.getPlayer())) {
+            return;
+        }
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && hasAdaptation(e.getPlayer())) {
             ItemStack hand = e.getPlayer().getInventory().getItemInMainHand();
             if (!validateOmnitool(hand)) {
