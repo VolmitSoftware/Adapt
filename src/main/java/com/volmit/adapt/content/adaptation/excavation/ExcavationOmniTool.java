@@ -15,7 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -40,12 +39,12 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "This skill, Probably the most powerful of  many allows you to dynamically");
+        v.addLore(C.GRAY + "Probably the most powerful of  many allows you to dynamically");
         v.addLore(C.GRAY + "merge and change tools on the fly, based on your needs.");
         v.addLore(C.ITALIC + "to merge, just shift click an item over another in your inventory.");
-        v.addLore(C.RED + "THIS CANT BE UNDONE (yet) AND PERMANENTLY MERGES THE TOOLs");
-        v.addLore(C.RED + "Should you lose this skill, or items, you will lose your tools capabilities.");
-        v.addLore(C.GREEN + "" + (level + 3) + C.GRAY + "total merge-able items");
+        v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + " total merge-able items");
+        v.addLore(C.STRIKETHROUGH + "you could use five or six tools, or just one!");
+
 
     }
 
@@ -62,21 +61,26 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     public void on(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player p && hasAdaptation(p)) {
             ItemStack hand = p.getInventory().getItemInMainHand();
-            //TODO: Check pref for Axe or Sword
+            if (!validateOmnitool(hand)) {
+                return;
+            }
             J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
             p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
         }
     }
 
     @EventHandler
-    public void on(PlayerInteractEvent e){
-        if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && hasAdaptation(e.getPlayer())){
+    public void on(PlayerInteractEvent e) {
+        if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && hasAdaptation(e.getPlayer())) {
             ItemStack hand = e.getPlayer().getInventory().getItemInMainHand();
-            Block block = e.getClickedBlock();
-            if (block == null){
+            if (!validateOmnitool(hand)) {
                 return;
             }
-            if(ToolListing.farmable.contains(block.getType())){
+            Block block = e.getClickedBlock();
+            if (block == null) {
+                return;
+            }
+            if (ToolListing.farmable.contains(block.getType())) {
                 J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextHoe(hand)));
                 e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
             }
@@ -85,15 +89,19 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     }
 
-
     @EventHandler
     public void on(BlockDamageEvent e) {
         if (!hasAdaptation(e.getPlayer())) {
             return;
         }
 
+
         org.bukkit.block.Block b = e.getBlock(); // nms block for pref tool
         ItemStack hand = e.getPlayer().getInventory().getItemInMainHand();
+
+        if (!validateOmnitool(hand)) {
+            return;
+        }
 
         if (ToolListing.getAxe().contains(b.getType())) {
             if (hand.getType().toString().contains("_AXE")) {
@@ -122,9 +130,19 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         if (!hasAdaptation((Player) e.getWhoClicked())) {
             return;
         }
+
         if (e.getClick().equals(ClickType.SHIFT_LEFT) && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
             ItemStack cursor = e.getWhoClicked().getItemOnCursor().clone();
             ItemStack clicked = e.getClickedInventory().getItem(e.getSlot()).clone();
+
+            if (omniTool.explode(cursor).size() > 1 || omniTool.explode(clicked).size() > 1) {
+                if (omniTool.explode(cursor).size() >= getSlots(getLevel((Player) e.getWhoClicked())) || omniTool.explode(clicked).size() >= getSlots(getLevel((Player) e.getWhoClicked()))) {
+                    e.setCancelled(true);
+                    ((Player) e.getWhoClicked()).playSound(e.getWhoClicked().getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
+                    return;
+
+                }
+            }
 
             if (!ToolListing.tools.contains(cursor.getType()) && !ToolListing.tools.contains(clicked.getType())) { // TOOLS ONLY
                 return;
@@ -141,17 +159,25 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     }
 
-    public void canuse(){
-
+    private boolean validateOmnitool(ItemStack item) {
+        if (item.getItemMeta() != null && item.getItemMeta().getLore() != null && item.getItemMeta().getLore().get(0) != null) {
+            return item.getItemMeta().getLore().get(0).contains("Omnitool");
+        } else {
+            return false;
+        }
     }
 
+    private double getSlots(double level) {
+        return getConfig().startingSlots + level;
+    }
 
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        int baseCost = 15;
+        int baseCost = 10;
         int initialCost = 5;
-        double costFactor = 1;
-        int maxLevel = 1;
+        double costFactor = 0.25;
+        int maxLevel = 3;
+        int startingSlots = 2;
     }
 }

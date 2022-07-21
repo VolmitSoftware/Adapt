@@ -42,7 +42,7 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
                 }
             }
             if (!has) {
-                e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 4, getLevel(p), false, false, false));
+                e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 4, getLevel(p), true, false, true));
             }
         }
     }

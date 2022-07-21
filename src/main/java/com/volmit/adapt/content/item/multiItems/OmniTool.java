@@ -21,7 +21,7 @@ public class OmniTool implements MultiItem {
     @Override
     public void onApplyMeta(ItemStack item, ItemMeta meta, List<ItemStack> otherItems) {
         List<String> lore = new ArrayList<>();
-        lore.add("Omni Tool (" + (otherItems.size() + 1) + " Items)");
+        lore.add("Omnitool (" + (otherItems.size() + 1) + " Items)");
         lore.add("-> " + Form.capitalizeWords(item.getType().name().toLowerCase().replaceAll("\\Q_\\E", " ")));
 
         for(ItemStack i : otherItems) {
@@ -49,6 +49,10 @@ public class OmniTool implements MultiItem {
 
     public ItemStack nextHoe(ItemStack item) {
         return nextMatching(item, i -> i.getType().name().endsWith("_HOE"));
+    }
+
+    public ItemStack nextShears(ItemStack item) {
+        return nextMatching(item, i -> i.getType().name().endsWith("SHEARS"));
     }
 
 }

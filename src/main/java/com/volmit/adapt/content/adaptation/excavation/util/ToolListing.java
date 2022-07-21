@@ -9,6 +9,18 @@ import java.util.List;
 public class ToolListing {
 
     @Getter
+    public static List<Material> shears = List.of(
+            Material.ACACIA_LEAVES,
+            Material.AZALEA_LEAVES,
+            Material.BIRCH_LEAVES,
+            Material.DARK_OAK_LEAVES,
+            Material.JUNGLE_LEAVES,
+            Material.OAK_LEAVES,
+            Material.SPRUCE_LEAVES,
+            Material.MANGROVE_LEAVES
+    );
+
+    @Getter
     public static List<Material> farmable = List.of(
             Material.GRASS_BLOCK,
             Material.DIRT,
@@ -60,7 +72,10 @@ public class ToolListing {
             Material.IRON_HOE,
             Material.GOLDEN_HOE,
             Material.DIAMOND_HOE,
-            Material.NETHERITE_HOE
+            Material.NETHERITE_HOE,
+
+            //EXTRA
+            Material.SHEARS
     );
 
     @Getter
@@ -129,20 +144,29 @@ public class ToolListing {
             //WOODS
             Material.ACACIA_LOG,
             Material.ACACIA_WOOD,
+            Material.STRIPPED_ACACIA_LOG,
             Material.BIRCH_LOG,
             Material.BIRCH_WOOD,
+            Material.STRIPPED_BIRCH_LOG,
             Material.DARK_OAK_LOG,
             Material.DARK_OAK_WOOD,
+            Material.STRIPPED_DARK_OAK_LOG,
             Material.JUNGLE_LOG,
             Material.JUNGLE_WOOD,
+            Material.STRIPPED_JUNGLE_LOG,
             Material.OAK_LOG,
             Material.OAK_WOOD,
+            Material.STRIPPED_OAK_LOG,
             Material.SPRUCE_LOG,
             Material.SPRUCE_WOOD,
+            Material.STRIPPED_SPRUCE_LOG,
             Material.MANGROVE_LOG,
             Material.MANGROVE_WOOD,
+            Material.STRIPPED_MANGROVE_LOG,
             Material.CRIMSON_STEM,
+            Material.CRIMSON_HYPHAE,
             Material.WARPED_SIGN,
+
             //WOODEN_BUTTONS
             Material.ACACIA_BUTTON,
             Material.BIRCH_BUTTON,
