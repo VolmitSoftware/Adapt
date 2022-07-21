@@ -1,4 +1,4 @@
-package com.volmit.adapt.content.item;
+package com.volmit.adapt.content.item.multiItems;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.nms.NMS;
@@ -6,6 +6,8 @@ import com.volmit.adapt.util.BukkitGson;
 import com.volmit.adapt.util.WindowResolution;
 import lombok.*;
 import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -88,6 +90,9 @@ public interface MultiItem {
     default void setMultiItemData(ItemStack multi, MultiItemData data) {
         if(multi.hasItemMeta()) {
             ItemMeta meta = multi.getItemMeta();
+            meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+            meta.setDisplayName("T.O.O.L");
             meta.getPersistentDataContainer()
                     .set(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING, BukkitGson.gson.toJson(data));
             multi.setItemMeta(meta);

@@ -1,4 +1,4 @@
-package com.volmit.adapt.content.item;
+package com.volmit.adapt.content.item.multiItems;
 
 import org.bukkit.inventory.ItemStack;
 

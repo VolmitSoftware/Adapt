@@ -1,11 +1,11 @@
-package com.volmit.adapt.content.item;
+package com.volmit.adapt.content.item.multiItems;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-public class zdxxf {
+public class usage {
     public void go()
     {
         OmniTool tool = new OmniTool();

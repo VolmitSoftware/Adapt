@@ -1,26 +1,18 @@
 package com.volmit.adapt.content.adaptation.excavation;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
-import com.volmit.adapt.content.item.OmniToolDEL;
+import com.volmit.adapt.content.item.multiItems.OmniTool;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockDamageAbortEvent;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Config> {
@@ -41,13 +33,11 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 .ingredient(Material.IRON_PICKAXE)
                 .ingredient(Material.IRON_AXE)
                 .ingredient(Material.IRON_HOE)
-                .ingredient(Material.IRON_SWORD)
-                .ingredient(Material.HOPPER)
+                .ingredient(Material.DIAMOND_BLOCK)
                 .ingredient(Material.ENDER_PEARL)
-                .result(OmniToolDEL.io.withData(new OmniToolDEL.Data(new ArrayList<>())))
+                .result(new ItemStack(Material.DISC_FRAGMENT_5))
                 .build());
     }
-
 
     @Override
     public void addStats(int level, Element v) {
@@ -67,55 +57,18 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-        if (!hasAdaptation(e.getPlayer())) {
-            return;
-        }
         Player p = e.getPlayer();
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) || e.getAction().equals(Action.RIGHT_CLICK_AIR)) {
-            if (!p.isSneaking()) {
-                return;
-            }
-            String lore0 = getLore(p);
+            OmniTool tool = new OmniTool();
+            ItemStack pickaxe = new ItemStack(Material.DIAMOND_PICKAXE);
+            ItemStack shovel = new ItemStack(Material.DIAMOND_SHOVEL);
+            ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
+            ItemStack starter = pickaxe;
+            tool.setItems(starter, List.of(shovel, axe));
+            p.getInventory().setItemInMainHand(tool.switchTo(starter, -1));
 
-            if (lore0.contains("OMNITOOL-305")) {
-                openOmnitoolInventory(p, p.getInventory().getItemInMainHand());
-            }
+
         }
-    }
-
-    @EventHandler
-    public void on(InventoryCloseEvent e) {
-        if (e.getPlayer() instanceof Player p) {
-            Inventory inv = e.getInventory();
-            if (hasAdaptation(p) && getLore(p).contains("OMNITOOL-305")) {
-                ItemStack omnitool = OmniToolDEL.io.withData(new OmniToolDEL.Data(List.of(inv.getContents())));
-                p.getInventory().setItemInMainHand(omnitool);
-            }
-        }
-    }
-
-
-    public void openOmnitoolInventory(Player p, ItemStack omniTool) {
-        Inventory inventory = Bukkit.createInventory(p, 9, "An Astral Utility Container");
-        if (OmniToolDEL.getItems(omniTool).isEmpty()) {
-            p.openInventory(inventory);
-        } else {
-            OmniToolDEL.getItems(omniTool).forEach(inventory::addItem);
-            p.openInventory(inventory);
-        }
-
-    }
-
-    public String getLore(Player p) {
-        ItemStack mainHandItem = p.getInventory().getItemInMainHand();
-        ItemMeta mainHandMeta = mainHandItem.getItemMeta();
-        if (mainHandMeta == null) {
-            return null;
-        }
-        if (mainHandItem.getItemMeta().getLore() == null) {
-            return null;
-        }
-        return mainHandItem.getItemMeta().getLore().get(0);
     }
 
     @NoArgsConstructor
