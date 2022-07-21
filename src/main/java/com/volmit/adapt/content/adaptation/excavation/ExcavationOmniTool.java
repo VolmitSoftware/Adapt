@@ -1,8 +1,10 @@
 package com.volmit.adapt.content.adaptation.excavation;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.OmniTool;
+import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
@@ -43,7 +45,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 .ingredient(Material.IRON_SWORD)
                 .ingredient(Material.HOPPER)
                 .ingredient(Material.ENDER_PEARL)
-                .result(OmniTool.io.withData(new OmniTool.Data(new ArrayList<>())))
+                .result(OmniTool.io.withData(new OmniTool.Data(null)))
                 .build());
     }
 
@@ -86,32 +88,25 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     public void on(InventoryCloseEvent e) {
         if (e.getPlayer() instanceof Player p) {
             Inventory inv = e.getInventory();
-            if (hasAdaptation(p) && getLore(p).contains("OMNITOOL-305")) {
-                ItemStack omnitool = OmniTool.io.withData(new OmniTool.Data(List.of(inv.getContents())));
+            String lore0 = getLore(p);
+            if (hasAdaptation(p) && lore0.contains("OMNITOOL-305")) {
+                List<String> ss = new ArrayList<>();
+                for (ItemStack s : inv.getContents()) {
+                    Adapt.info(NMS.get().serializeStack(s));
+                    Adapt.info(NMS.get().deserializeStack(NMS.get().serializeStack(s)).getType().toString());
+                    ss.add(NMS.get().serializeStack(s));
+                }
+
+                ItemStack omnitool = OmniTool.withData(ss);
                 p.getInventory().setItemInMainHand(omnitool);
             }
         }
     }
 
-    @EventHandler
-    public void on(BlockDamageEvent e){
-        // Change the Tool
-    }
-
-    @EventHandler
-    public void on(BlockDamageAbortEvent e){
-        // Revert the Tool
-    }
 
     public void openOmnitoolInventory(Player p, ItemStack omniTool) {
         Inventory inventory = Bukkit.createInventory(p, 9, "An Astral Utility Container");
-        if (OmniTool.getItems(omniTool).isEmpty()) {
-            p.openInventory(inventory);
-        } else {
-            OmniTool.getItems(omniTool).forEach(inventory::addItem);
-            p.openInventory(inventory);
-        }
-
+        p.openInventory(inventory);
     }
 
     public String getLore(Player p) {

@@ -63,8 +63,8 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
         return 0;
     }
 
-    public static ItemStack set(ItemStack item, String skill, int knowledge) {
-        return io.setData(item, new Data(skill, knowledge));
+    public static void set(ItemStack item, String skill, int knowledge) {
+        io.setData(item, new Data(skill, knowledge));
     }
 
     public static ItemStack with(String skill, int knowledge) {

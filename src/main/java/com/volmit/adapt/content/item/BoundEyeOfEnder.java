@@ -50,8 +50,8 @@ public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
         return null;
     }
 
-    public static ItemStack setData(ItemStack item, Location t) {
-        return io.setData(item, new Data(t));
+    public static void setData(ItemStack item, Location t) {
+        io.setData(item, new Data(t));
     }
 
     public static ItemStack withData(Location t) {

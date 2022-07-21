@@ -5,7 +5,6 @@ import com.volmit.adapt.Adapt;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
@@ -38,8 +37,5 @@ public final class NMS {
 
     public interface Impl {
         void sendCooldown(Player p, Material m, int tick);
-
-        <T> T readItemData(ItemStack stack, Class<T> dataType);
-        <T> ItemStack writeItemData(ItemStack stack, T data);
     }
 }

@@ -50,8 +50,8 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
         return io.getData(is);
     }
 
-    public static ItemStack set(ItemStack item, String skill, double xp) {
-        return io.setData(item, new Data(skill, xp));
+    public static void set(ItemStack item, String skill, double xp) {
+        io.setData(item, new Data(skill, xp));
     }
 
     public static ItemStack with(String skill, double xp) {

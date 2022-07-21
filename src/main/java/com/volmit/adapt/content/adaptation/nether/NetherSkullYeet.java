@@ -47,7 +47,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     public void onRightClick(PlayerInteractEvent e) {
         if(e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK)
             return;
-        if(!hasAdaptation(e.getPlayer()) || e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL)
+        if(e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL)
             return;
 
         if(cooldowns.containsKey(e.getPlayer().getUniqueId())) {
