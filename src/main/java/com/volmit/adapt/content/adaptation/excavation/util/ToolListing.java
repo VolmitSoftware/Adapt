@@ -3,9 +3,65 @@ package com.volmit.adapt.content.adaptation.excavation.util;
 import lombok.Getter;
 import org.bukkit.Material;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ToolListing {
+
+    @Getter
+    public static List<Material> farmable = List.of(
+            Material.GRASS_BLOCK,
+            Material.DIRT,
+            Material.COARSE_DIRT,
+            Material.ROOTED_DIRT,
+            Material.WHEAT,
+            Material.ATTACHED_MELON_STEM,
+            Material.ATTACHED_PUMPKIN_STEM,
+            Material.MELON_STEM,
+            Material.PUMPKIN_STEM,
+            Material.POTATOES,
+            Material.SWEET_BERRY_BUSH,
+            Material.CARROTS,
+            Material.BEETROOTS
+    );
+
+    @Getter
+    public static List<Material> tools = List.of(
+            Material.WOODEN_PICKAXE,
+            Material.STONE_PICKAXE,
+            Material.IRON_PICKAXE,
+            Material.GOLDEN_PICKAXE,
+            Material.DIAMOND_PICKAXE,
+            Material.NETHERITE_PICKAXE,
+            //AXE
+            Material.WOODEN_AXE,
+            Material.STONE_AXE,
+            Material.IRON_AXE,
+            Material.GOLDEN_AXE,
+            Material.DIAMOND_AXE,
+            Material.NETHERITE_AXE,
+            //SWORD
+            Material.WOODEN_SWORD,
+            Material.STONE_SWORD,
+            Material.IRON_SWORD,
+            Material.GOLDEN_SWORD,
+            Material.DIAMOND_SWORD,
+            Material.NETHERITE_SWORD,
+            //SHOVEL
+            Material.WOODEN_SHOVEL,
+            Material.STONE_SHOVEL,
+            Material.IRON_SHOVEL,
+            Material.GOLDEN_SHOVEL,
+            Material.DIAMOND_SHOVEL,
+            Material.NETHERITE_SHOVEL,
+            //HOE
+            Material.WOODEN_HOE,
+            Material.STONE_HOE,
+            Material.IRON_HOE,
+            Material.GOLDEN_HOE,
+            Material.DIAMOND_HOE,
+            Material.NETHERITE_HOE
+    );
 
     @Getter
     public static List<Material> shovel = List.of(

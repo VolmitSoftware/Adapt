@@ -9,9 +9,13 @@ import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -25,7 +29,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         super("excavation-omnitool");
         registerConfiguration(ExcavationOmniTool.Config.class);
         setDisplayName("Trusty T.O.O.L.");
-        setDescription("A Craftable Leatherman Tool, This will swap based on needs.");
+        setDescription("A Craftable Leatherman Tool, swapping based on needs.");
         setIcon(Material.DISC_FRAGMENT_5);
         setInterval(20202);
         setBaseCost(getConfig().baseCost);
@@ -54,9 +58,40 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     public void onTick() {
     }
 
+    @EventHandler
+    public void on(EntityDamageByEntityEvent e) {
+        if (e.getDamager() instanceof Player p && hasAdaptation(p)) {
+            ItemStack hand = p.getInventory().getItemInMainHand();
+            //TODO: Check pref for Axe or Sword
+            J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
+            p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+        }
+    }
+
+    @EventHandler
+    public void on(PlayerInteractEvent e){
+        if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && hasAdaptation(e.getPlayer())){
+            ItemStack hand = e.getPlayer().getInventory().getItemInMainHand();
+            Block block = e.getClickedBlock();
+            if (block == null){
+                return;
+            }
+            if(ToolListing.farmable.contains(block.getType())){
+                J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextHoe(hand)));
+                e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+            }
+
+        }
+
+    }
+
 
     @EventHandler
     public void on(BlockDamageEvent e) {
+        if (!hasAdaptation(e.getPlayer())) {
+            return;
+        }
+
         org.bukkit.block.Block b = e.getBlock(); // nms block for pref tool
         ItemStack hand = e.getPlayer().getInventory().getItemInMainHand();
 
@@ -84,19 +119,29 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler
     public void on(InventoryClickEvent e) {
-//        e.getWhoClicked().sendMessage(e.getClick() + " -> " + e.getAction());
+        if (!hasAdaptation((Player) e.getWhoClicked())) {
+            return;
+        }
         if (e.getClick().equals(ClickType.SHIFT_LEFT) && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
             ItemStack cursor = e.getWhoClicked().getItemOnCursor().clone();
             ItemStack clicked = e.getClickedInventory().getItem(e.getSlot()).clone();
 
+            if (!ToolListing.tools.contains(cursor.getType()) && !ToolListing.tools.contains(clicked.getType())) { // TOOLS ONLY
+                return;
+            }
+
             if (!cursor.getType().isAir() && !clicked.getType().isAir() && omniTool.supportsItem(cursor) && omniTool.supportsItem(clicked)) {
-                e.getWhoClicked().sendMessage("Combined " + cursor.getType() + " with " + clicked.getType());
+                e.getWhoClicked().sendMessage("Omnitool: Combined " + cursor.getType() + " with " + clicked.getType());
                 e.setCancelled(true);
                 e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
                 e.getClickedInventory().setItem(e.getSlot(), omniTool.build(cursor, clicked));
                 e.getWhoClicked().getWorld().playSound(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
             }
         }
+
+    }
+
+    public void canuse(){
 
     }
 
