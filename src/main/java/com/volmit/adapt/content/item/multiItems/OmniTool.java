@@ -5,11 +5,15 @@ import org.bukkit.inventory.ItemStack;
 public class OmniTool implements MultiItem {
     @Override
     public boolean supportsItem(ItemStack itemStack) {
-        return itemStack.getAmount() <= 1 && itemStack.getMaxStackSize() <= 1 && itemStack.getType().getMaxDurability() > 0;
+        return true;
     }
 
     @Override
     public String getKey() {
         return "omnitool";
+    }
+
+    public ItemStack nextPickaxe(ItemStack item) {
+        return nextMatching(item, i -> i.getType().name().endsWith("_PICKAXE"));
     }
 }

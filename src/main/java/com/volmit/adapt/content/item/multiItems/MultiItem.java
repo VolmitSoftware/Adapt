@@ -142,9 +142,6 @@ public interface MultiItem {
     default void setMultiItemData(ItemStack multi, MultiItemData data) {
         if(multi.hasItemMeta()) {
             ItemMeta meta = multi.getItemMeta();
-            meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
-            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-            meta.setDisplayName("T.O.O.L");
             meta.getPersistentDataContainer()
                     .set(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING, BukkitGson.gson.toJson(data));
             multi.setItemMeta(meta);
