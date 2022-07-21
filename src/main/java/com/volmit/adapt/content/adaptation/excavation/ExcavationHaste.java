@@ -33,9 +33,7 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
             return;
         }
         Player p = e.getPlayer();
-
         if (!e.getBlock().getDrops(e.getItemInHand()).isEmpty()) {
-            e.getPlayer().playSound(e.getBlock().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
             boolean has = false;
             for (PotionEffectType type : PotionEffectType.values()) {
                 if (type.equals(PotionEffectType.FAST_DIGGING)) {
@@ -44,7 +42,7 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
                 }
             }
             if (!has) {
-                e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 4, 3+getLevel(p), false, false, false));
+                e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 4, getLevel(p), false, false, false));
             }
         }
     }
@@ -59,7 +57,7 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "Gain Haste while excavating");
-        v.addLore(C.GREEN + "" +  (level + 3) +C.GRAY+ "x Levels of haste when you start mining ANY block with the right tool" );
+        v.addLore(C.GREEN + "" +  (level) +C.GRAY+ "x Levels of haste when you start mining ANY block with the right tool" );
         v.addLore(C.ITALIC + "If you already have a haste buff active this will not apply!" );
     }
 

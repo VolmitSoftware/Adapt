@@ -34,4 +34,21 @@ public class OmniTool implements MultiItem {
     public ItemStack nextPickaxe(ItemStack item) {
         return nextMatching(item, i -> i.getType().name().endsWith("_PICKAXE"));
     }
+
+    public ItemStack nextAxe(ItemStack item) {
+        return nextMatching(item, i -> i.getType().name().endsWith("_AXE"));
+    }
+
+    public ItemStack nextSword(ItemStack item) {
+        return nextMatching(item, i -> i.getType().name().endsWith("_SWORD"));
+    }
+
+    public ItemStack nextShovel(ItemStack item) {
+        return nextMatching(item, i -> i.getType().name().endsWith("_SHOVEL"));
+    }
+
+    public ItemStack nextHoe(ItemStack item) {
+        return nextMatching(item, i -> i.getType().name().endsWith("_HOE"));
+    }
+
 }

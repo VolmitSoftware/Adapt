@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.adaptation.pickaxe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
@@ -39,6 +40,9 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         if(!hasAdaptation(p)){
             return;
         }
+        if (!p.isSneaking()) {
+            return;
+        }
         if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE")) {
             return;
         }
@@ -73,9 +77,10 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         return getConfig().enabled;
     }
 
-    @Override
     public void addStats(int level, Element v) {
-
+        v.addLore(C.GREEN + "Sneak, and mine ORES");
+        v.addLore(C.GREEN + "" +  (level + getConfig().baseRange) +C.GRAY+ "range of vein-mining" );
+        v.addLore(C.ITALIC + "This skill does NOT group all drops together!" );
     }
 
     @Override
