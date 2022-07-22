@@ -20,7 +20,7 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
         super("seaborne-speed");
         registerConfiguration(Config.class);
         setDescription("Swim like a dolphin, without the dolphins");
-        setName("Seaborne's Grace!");
+        setDisplayName("Seaborne Grace");
         setIcon(Material.TRIDENT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);

@@ -18,6 +18,7 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -194,29 +195,21 @@ public interface Component {
         return MaterialValue.getValue(block.getType());
     }
 
-    default void vfxSphereV1(Player p, Location center, double radius, Particle particle, int density) {
-        for (double x = -radius; x < radius; x += density) {
-            for (double z = -radius; z < radius; z += density) {
-                double y = Math.sqrt(radius * radius - x * x - z * z);
-                p.spawnParticle(particle, center.clone().subtract(-x, y, -z), 0, 0, 0, 0, 1);
-                p.spawnParticle(particle, center.clone().add(-x, y, -z), 0, 0, 0, 0, 1);
+    default void vfxSphereV1(Player p, Location l, double radius, Particle particle, int verticalDensity, int radialDensity) {
+        for(double phi=0; phi<=Math.PI; phi+=Math.PI/verticalDensity) {
+            for(double theta=0; theta<=2*Math.PI; theta+=Math.PI/radialDensity) {
+                double x = radius *Math.cos(theta)*Math.sin(phi);
+                double y = radius *Math.cos(phi) + 1.5;
+                double z = radius *Math.sin(theta)*Math.sin(phi);
+
+                l.add(x,y,z);
+                p.getWorld().spawnParticle(particle, l, 1, 0F, 0F, 0F, 0.001);
+                l.subtract(x, y, z);
             }
         }
     }
 
-    default void vfxSphereV2(Location location) {
-        for (double i = 0; i <= Math.PI; i += Math.PI / 10) {
-            double radius = Math.sin(i);
-            double y = Math.cos(i);
-            for (double a = 0; a < Math.PI * 2; a += Math.PI / 10) {
-                double x = Math.cos(a) * radius;
-                double z = Math.sin(a) * radius;
-                location.add(x, y, z);
-                // display particle at 'location'.
-                location.subtract(x, y, z);
-            }
-        }
-    }
+
 
     default void vfxZuck(Location from, Location to) {
         Vector v = from.clone().subtract(to).toVector();
@@ -255,14 +248,15 @@ public interface Component {
         Location point7 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ() + 1);
 
 
-        vfxParticleLine(point0, point1, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point0, point2, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point0, point3, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point7, point6, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point7, point5, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point7, point4, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point4, point2, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point4, point1, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        for (Location location1 : Arrays.asList(point1, point2, point3)) {
+            vfxParticleLine(point0, location1, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        }
+        for (Location location1 : Arrays.asList(point6, point5, point4)) {
+            vfxParticleLine(point7, location1, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        }
+        for (Location location : Arrays.asList(point2, point1)) {
+            vfxParticleLine(point4, location, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        }
         vfxParticleLine(point5, point1, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point5, point3, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(point6, point2, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
@@ -282,15 +276,41 @@ public interface Component {
         vfxParticleLine(baseCorner3, baseCorner4, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
         vfxParticleLine(baseCorner4, baseCorner1, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
 
-        vfxParticleLine(baseCorner1, top, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(baseCorner2, top, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(baseCorner3, top, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(baseCorner4, top, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        for (Location location : Arrays.asList(baseCorner1, baseCorner2, baseCorner3, baseCorner4)) {
+            vfxParticleLine(location, top, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        }
     }
 
 
     default void vfxLevelUp(Player p) {
         p.spawnParticle(Particle.REVERSE_PORTAL, p.getLocation().clone().add(0, 1.7, 0), 100, 0.1, 0.1, 0.1, 4.1);
+    }
+
+    default void vfxFastRing(Location location, double radius, Color color) {
+        for (int d = 0; d <= 90; d += 1) {
+            Location particleLoc = new Location(location.getWorld(), location.getX(), location.getY(), location.getZ());
+            particleLoc.setX(location.getX() + Math.cos(d) * radius);
+            particleLoc.setZ(location.getZ() + Math.sin(d) * radius);
+            location.getWorld().spawnParticle(Particle.REDSTONE, particleLoc, 1, new Particle.DustOptions(color, 5));
+        }
+    }
+
+    default void vfxFastRing(Location location, double radius, Particle particle) {
+        for (int d = 0; d <= 90; d += 1) {
+            Location particleLoc = new Location(location.getWorld(), location.getX(), location.getY(), location.getZ());
+            particleLoc.setX(location.getX() + Math.cos(d) * radius);
+            particleLoc.setZ(location.getZ() + Math.sin(d) * radius);
+            location.getWorld().spawnParticle(particle, particleLoc, 1);
+        }
+    }
+
+    default void vfxFastRing(Location location, double radius, Particle particle, int angle) {
+        for (int d = 0; d <= 90; d += angle) {
+            Location particleLoc = new Location(location.getWorld(), location.getX(), location.getY(), location.getZ());
+            particleLoc.setX(location.getX() + Math.cos(d) * radius);
+            particleLoc.setZ(location.getZ() + Math.sin(d) * radius);
+            location.getWorld().spawnParticle(particle, particleLoc, 1);
+        }
     }
 
     default void vfxShootParticle(Player player, Particle particle, double velocity, int count) {
