@@ -38,6 +38,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         if(factor == 0) {
             return;
         }
+        vfxFastRing();
         AttributeModifier mod = new AttributeModifier("adapt-sneak-speed", getSpeed(factor), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
         if(e.isSneaking()) {
             e.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(mod);
