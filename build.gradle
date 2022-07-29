@@ -24,8 +24,8 @@ plugins {
 }
 
 
-version '1.1.0-1.19' // Needs to be version specific
-def nmsVersion = "1.19"
+version '1.1.0-1.19.1' // Needs to be version specific
+def nmsVersion = "1.19.1"
 def apiVersion = '1.19'
 def spigotJarVersion = '1.19-R0.1-SNAPSHOT'
 def name = getRootProject().getName() // Defined in settings.gradle
@@ -36,8 +36,6 @@ def main = 'com.volmit.adapt.Adapt'
 registerCustomOutputTask('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins')
 registerCustomOutputTask('Psycho', 'D://Dan/MinecraftDevelopment/server/plugins')
 registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins')
-registerCustomOutputTask('Coco', 'D://Documents/MC/plugins')
-registerCustomOutputTask('Strange', 'D://Servers/1.17 Test Server/plugins')
 registerCustomOutputTask('Vatuu', 'D://Minecraft/Servers/1.19/plugins')
 // ========================== UNIX ==============================
 registerCustomOutputTaskUnix('CyberpwnLT', '/Users/danielmills/development/server/plugins')
