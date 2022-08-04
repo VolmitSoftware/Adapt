@@ -12,7 +12,7 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 
 The master branch is for the latest version of minecraft.
 
-# [Support](https://discord.gg/volmit) **|** [Documentation](https://docs.volmit.com/iris/) **|** [Git(Here)](https://github.com/VolmitSoftware/Adapt)
+# [Support](https://discord.gg/volmit) **|** [Documentation](https://docs.volmit.com/adapt/)
 
 # Building
 
