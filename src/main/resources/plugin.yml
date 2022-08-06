@@ -1,8 +1,8 @@
-name: Adapt
+name: ${name}
 main: com.volmit.adapt.Adapt
-version: 0.0.1
+version: ${version}
 authors: [Cyberpwn, NextdoorPsycho, Vatuu]
-api-version: 1.19
+api-version: ${apiversion}
 libraries:
   - com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2
   - org.apache.commons:commons-lang3:3.12.0
