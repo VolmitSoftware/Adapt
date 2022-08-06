@@ -24,7 +24,7 @@ plugins {
 }
 
 
-version '1.1.1-1.19.2' // Needs to be version specific
+version '1.0.1-1.19.2' // Needs to be version specific
 def nmsVersion = "1.19.2"
 def apiVersion = '1.19'
 def spigotJarVersion = '1.19-R0.1-SNAPSHOT'
@@ -114,7 +114,6 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 60, 'minutes'
     resolutionStrategy.cacheDynamicVersionsFor 60, 'minutes'
 }
-
 
 
 dependencies {
