@@ -154,7 +154,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
             boolean ready = !hasCooldown(i);
             int availablePower = getBlockPower(getLevelPercent(i));
-            int power = blockPower.compute(i, (k, v) -> {
+            blockPower.compute(i, (k, v) -> {
                 if ((k == null || v == null) || (ready && v != availablePower)) {
                     i.getWorld().playSound(i.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 100.0f, 10.0f);
                     i.getWorld().playSound(i.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 100.0f, 0.81f);

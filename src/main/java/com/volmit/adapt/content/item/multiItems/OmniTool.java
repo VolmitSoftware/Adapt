@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.item.multiItems;
 
 import com.volmit.adapt.util.Form;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -55,4 +56,25 @@ public class OmniTool implements MultiItem {
         return nextMatching(item, i -> i.getType().name().endsWith("SHEARS"));
     }
 
+    public ItemStack nextItem(ItemStack item) {
+        return nextMatching(item, i -> i.getType().name().endsWith("_PICKAXE") || i.getType().name().endsWith("_AXE") || i.getType().name().endsWith("_SWORD") || i.getType().name().endsWith("_SHOVEL") || i.getType().name().endsWith("_HOE") || i.getType().name().endsWith("SHEARS"));
+    }
+
+    public ItemStack nextNonMatchingItem(ItemStack item, Material material) {
+        if (material.toString().contains("_PICKAXE")) {
+            return nextAxe(item);
+        } else if (material.toString().contains("_AXE")) {
+            return nextSword(item);
+        } else if (material.toString().contains("_SWORD")) {
+            return nextShovel(item);
+        } else if (material.toString().contains("_SHOVEL")) {
+            return nextHoe(item);
+        } else if (material.toString().contains("_HOE")) {
+            return nextShears(item);
+        } else if (material.toString().contains("SHEARS")) {
+            return nextPickaxe(item);
+        } else {
+            return nextItem(item);
+        }
+    }
 }
