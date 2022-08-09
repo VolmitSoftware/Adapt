@@ -148,25 +148,21 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                     Damageable iDmgable = (Damageable) i.getItemMeta();
                     if (i.hasItemMeta()) {
                         ItemMeta im = i.getItemMeta().clone();
-                        String dn;
-                        int dmg;
-                        im.setLore(null);
-                        i.setItemMeta(null);
-                        Map<Enchantment, Integer> enchants;
+                        ItemMeta im2 = im;
                         if (im.hasDisplayName()) {
-                            dn = im.getDisplayName();
-                            im.setDisplayName(dn);
+                            im2.setDisplayName(im.getDisplayName());
                         }
                         if (im.hasEnchants()) {
-                            enchants = im.getEnchants();
+                            Map<Enchantment, Integer>  enchants = im.getEnchants();
                             for (Enchantment enchant : enchants.keySet()) {
-                                i.getItemMeta().addEnchant(enchant, enchants.get(enchant), true);
+                                im2.addEnchant(enchant, enchants.get(enchant), true);
                             }
                         }
                         if (iDmgable != null && iDmgable.hasDamage()) {
-                            dmg = iDmgable.getDamage();
-                            ((Damageable) i.getItemMeta()).setDamage(dmg);
+                            ((Damageable) im2).setDamage(iDmgable.getDamage());
                         }
+                        im2.setLore(null);
+                        i.setItemMeta(im2);
                     }
                     drops.set(drops.indexOf(i), i);
                 }
