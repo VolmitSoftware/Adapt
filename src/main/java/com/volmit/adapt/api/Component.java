@@ -1,5 +1,7 @@
 package com.volmit.adapt.api;
 
+import com.google.common.collect.Lists;
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.xp.XP;
@@ -235,30 +237,37 @@ public interface Component {
         }
     }
 
+    private List<Location> getHollowCube(Location loc, double particleDistance) {
+        List<Location> result = Lists.newArrayList();
+        World world = loc.getWorld();
+        double minX = loc.getBlockX();
+        double minY = loc.getBlockY();
+        double minZ = loc.getBlockZ();
+        double maxX = loc.getBlockX()+1;
+        double maxY = loc.getBlockY()+1;
+        double maxZ = loc.getBlockZ()+1;
+
+        for (double x = minX; x <= maxX; x+=particleDistance) {
+            for (double y = minY; y <= maxY; y+=particleDistance) {
+                for (double z = minZ; z <= maxZ; z+=particleDistance) {
+                    int components = 0;
+                    if (x == minX || x == maxX) components++;
+                    if (y == minY || y == maxY) components++;
+                    if (z == minZ || z == maxZ) components++;
+                    if (components >= 2) {
+                        result.add(new Location(world, x, y, z));
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     default void vfxSingleCubeOutline(Block block, Particle particle) {
-        Location point0 = block.getLocation(); //bottom left corner of the bloc
-
-        Location point1 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY(), point0.getZ());
-        Location point2 = new Location(point0.getWorld(), point0.getX(), point0.getY() + 1, point0.getZ());
-        Location point3 = new Location(point0.getWorld(), point0.getX(), point0.getY(), point0.getZ() + 1);
-        Location point4 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ());
-        Location point5 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY(), point0.getZ() + 1);
-        Location point6 = new Location(point0.getWorld(), point0.getX(), point0.getY() + 1, point0.getZ() + 1);
-        Location point7 = new Location(point0.getWorld(), point0.getX() + 1, point0.getY() + 1, point0.getZ() + 1);
-
-
-        vfxParticleLine(point0, point1, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point0, point2, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point0, point3, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point7, point6, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point7, point5, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point7, point4, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point4, point2, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point4, point1, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point5, point1, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point5, point3, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point6, point2, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-        vfxParticleLine(point6, point3, particle, 9, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        List<Location> hollowCube = getHollowCube( block.getLocation(), 0.25);
+        for (Location l : hollowCube) {
+            block.getWorld().spawnParticle(particle, l, 1, 0F, 0F, 0F, 0.000);
+        }
     }
 
     default void vfxPrismOutline(Location placer, double outset, Particle particle, int particleCount) {

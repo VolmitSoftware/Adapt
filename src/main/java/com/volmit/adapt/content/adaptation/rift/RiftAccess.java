@@ -74,6 +74,10 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         ItemStack hand = p.getInventory().getItemInMainHand();
         ItemMeta handMeta = hand.getItemMeta();
         Block block = e.getClickedBlock();
+
+        if (handMeta == null || handMeta.getLore() == null || !hand.hasItemMeta() || !handMeta.getLore().get(0).equals(C.UNDERLINE + "Portkey")) {
+            return;
+        }
         if (p.hasCooldown(hand.getType())) {
             e.setCancelled(true);
             return;
@@ -81,9 +85,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
             p.setCooldown(Material.ENDER_PEARL, 100);
         }
 
-        if (handMeta == null || handMeta.getLore() == null || !hand.hasItemMeta() || !handMeta.getLore().get(0).equals(C.UNDERLINE + "Portkey")) {
-            return;
-        }
         xp(p, 1);
         switch (e.getAction()) {
             case LEFT_CLICK_BLOCK -> {

@@ -16,7 +16,7 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
         registerConfiguration(Config.class);
         setDescription("When you are struck you gain resistance, at the cost of hunger");
         setDisplayName("Hunter's Resistance");
-        setIcon(Material.SALMON_BUCKET);
+        setIcon(Material.POWDER_SNOW_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
