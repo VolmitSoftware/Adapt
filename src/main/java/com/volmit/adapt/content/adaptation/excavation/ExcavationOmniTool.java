@@ -242,13 +242,10 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             }
             if (ToolListing.tools.contains(cursor.getType()) && ToolListing.tools.contains(clicked.getType())) { // TOOLS ONLY
                 if (!cursor.getType().isAir() && !clicked.getType().isAir() && omniTool.supportsItem(cursor) && omniTool.supportsItem(clicked)) {
-                    e.getWhoClicked().sendMessage("DWAaa");
                     e.setCancelled(true);
                     e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
                     e.getClickedInventory().setItem(e.getSlot(), omniTool.build(cursor, clicked));
                     e.getWhoClicked().getWorld().playSound(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
-                } else {
-                    e.getWhoClicked().sendMessage("DWA");
                 }
             }
         }
