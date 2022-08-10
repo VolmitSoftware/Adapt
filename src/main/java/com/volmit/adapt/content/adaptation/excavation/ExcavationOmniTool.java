@@ -7,6 +7,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -51,9 +52,8 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         v.addLore(C.GRAY + "Probably the most powerful of  many allows you to");
         v.addLore(C.GRAY + "dynamically merge and change tools on the fly, based on your needs.");
         v.addLore(C.GREEN + "to merge, shift click an item over another in your inventory.");
-        v.addLore(C.RED + "to unbind tools, Sneak-Drop the item, and it will unlink.");
-        v.addLore(C.GRAY + "you will not be able to break tools in this leatherman but you cant use broken tools");
-
+        v.addLore(C.RED + "to unbind tools, Sneak-Drop the item, and it will disassemble.");
+        v.addLore(C.GRAY + "you can't break tools in this leatherman but you can't use broken tools");
         v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + " total merge-able items");
         v.addLore(C.UNDERLINE + "you could use five or six tools, or just one!");
 
@@ -75,7 +75,6 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         if (e.getDamager() instanceof Player p) {
             if (!hasAdaptation(p)) {
                 if (validateTool(p.getInventory().getItemInMainHand())) {
-                    //todo: Send Failure Message
                     e.setCancelled(true);
                 }
                 return;
@@ -180,8 +179,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 }
 
                 J.s(() -> {
-                    e.getPlayer().sendMessage("&7[&5Adapt&7] Leatherman Exploded!");
-
+                    e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_IRON_GOLEM_DEATH, 0.25f, 0.77f);
                     for (ItemStack i : drops) {
                         e.getPlayer().getWorld().dropItem(e.getPlayer().getLocation(), i);
                     }
@@ -244,11 +242,13 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             }
             if (ToolListing.tools.contains(cursor.getType()) && ToolListing.tools.contains(clicked.getType())) { // TOOLS ONLY
                 if (!cursor.getType().isAir() && !clicked.getType().isAir() && omniTool.supportsItem(cursor) && omniTool.supportsItem(clicked)) {
-                    e.getWhoClicked().sendMessage("&7[&5Adapt&7] Leatherman Merged: &8" + cursor.getType() + " *7& &8" + clicked.getType());
+                    e.getWhoClicked().sendMessage("DWAaa");
                     e.setCancelled(true);
                     e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
                     e.getClickedInventory().setItem(e.getSlot(), omniTool.build(cursor, clicked));
                     e.getWhoClicked().getWorld().playSound(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                } else {
+                    e.getWhoClicked().sendMessage("DWA");
                 }
             }
         }
@@ -281,9 +281,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     protected static class Config {
         boolean enabled = true;
         int baseCost = 10;
-        int initialCost = 5;
-        double costFactor = 0.25;
-        int maxLevel = 3;
-        int startingSlots = 2;
+        int initialCost = 3;
+        double costFactor = 0.20;
+        int maxLevel = 9;
+        int startingSlots = 1;
     }
 }
