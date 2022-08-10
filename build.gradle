@@ -129,9 +129,9 @@ dependencies {
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
     implementation 'art.arcane:Fukkit:22.7.5'
-    annotationProcessor 'systems.manifold:manifold-ext:2022.1.18'
-    testAnnotationProcessor 'systems.manifold:manifold-ext:2022.1.18'
-    implementation 'systems.manifold:manifold-rt:2022.1.18'
+    annotationProcessor 'systems.manifold:manifold-ext:2022.1.19'
+    testAnnotationProcessor 'systems.manifold:manifold-ext:2022.1.19'
+    implementation 'systems.manifold:manifold-rt:2022.1.19'
 
     // Shaded
     implementation 'io.papermc:paperlib:1.0.5'

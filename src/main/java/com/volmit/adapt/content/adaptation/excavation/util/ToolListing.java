@@ -2,8 +2,6 @@ package com.volmit.adapt.content.adaptation.excavation.util;
 
 import lombok.Getter;
 import org.bukkit.Material;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class ToolListing {
@@ -18,6 +16,14 @@ public class ToolListing {
             Material.OAK_LEAVES,
             Material.SPRUCE_LEAVES,
             Material.MANGROVE_LEAVES
+    );
+
+    @Getter
+    public static List<Material> burnable = List.of(
+            Material.OBSIDIAN,
+            Material.NETHERRACK,
+            Material.SOUL_SAND,
+            Material.TNT
     );
 
     @Getter

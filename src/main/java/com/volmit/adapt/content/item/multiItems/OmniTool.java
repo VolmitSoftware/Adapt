@@ -22,7 +22,7 @@ public class OmniTool implements MultiItem {
     @Override
     public void onApplyMeta(ItemStack item, ItemMeta meta, List<ItemStack> otherItems) {
         List<String> lore = new ArrayList<>();
-        lore.add("Omnitool (" + (otherItems.size() + 1) + " Items)");
+        lore.add("Leatherman (" + (otherItems.size() + 1) + " Items)");
         lore.add("-> " + Form.capitalizeWords(item.getType().name().toLowerCase().replaceAll("\\Q_\\E", " ")));
 
         for(ItemStack i : otherItems) {
@@ -56,6 +56,10 @@ public class OmniTool implements MultiItem {
         return nextMatching(item, i -> i.getType().name().endsWith("SHEARS"));
     }
 
+    public ItemStack nextFnS(ItemStack item) {
+        return nextMatching(item, i -> i.getType().name().endsWith("FLINT_AND_STEEL"));
+    }
+
     public ItemStack nextItem(ItemStack item) {
         return nextMatching(item, i -> i.getType().name().endsWith("_PICKAXE") || i.getType().name().endsWith("_AXE") || i.getType().name().endsWith("_SWORD") || i.getType().name().endsWith("_SHOVEL") || i.getType().name().endsWith("_HOE") || i.getType().name().endsWith("SHEARS"));
     }
@@ -73,6 +77,8 @@ public class OmniTool implements MultiItem {
             return nextShears(item);
         } else if (material.toString().contains("SHEARS")) {
             return nextPickaxe(item);
+        } else if (material.toString().contains("FLINT_AND_STEEL")) {
+            return nextFnS(item);
         } else {
             return nextItem(item);
         }
