@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -26,7 +27,7 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
         setCostFactor(getConfig().costFactor);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void on(BlockDamageEvent e) {
         if (!hasAdaptation(e.getPlayer())) {
             return;

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 
 public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
@@ -28,7 +29,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
         v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + " XP " + C.GRAY + " Per Orb");
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void on(PlayerExpChangeEvent e) {
         if(e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {
             e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.9f);

@@ -35,7 +35,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         setColor(C.DARK_PURPLE);
         setInterval(1154);
         setIcon(Material.ENDER_EYE);
-        registerAdaptation(new RiftResist());
+//        registerAdaptation(new RiftResist());
         registerAdaptation(new RiftAccess());
         registerAdaptation(new RiftEnderchest());
         registerAdaptation(new RiftGate());

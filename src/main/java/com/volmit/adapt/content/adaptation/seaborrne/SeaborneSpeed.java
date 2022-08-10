@@ -40,7 +40,7 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     public void onTick() {
         for(Player p : Bukkit.getOnlinePlayers()) {
             if (hasAdaptation(p)) {
-                if (p.isSwimming()) {
+                if (p.isSwimming() || p.getLocation().getBlock().getType().equals(Material.WATER)) {
                     p.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 1020, getLevel(p), true, false));
                 }
             }

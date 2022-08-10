@@ -7,7 +7,7 @@ import java.util.List;
 public class ToolListing {
 
     @Getter
-    public static List<Material> shears = List.of(
+    public static List<Material> shearList = List.of(
             Material.ACACIA_LEAVES,
             Material.AZALEA_LEAVES,
             Material.BIRCH_LEAVES,
@@ -19,7 +19,35 @@ public class ToolListing {
     );
 
     @Getter
-    public static List<Material> burnable = List.of(
+    public static List<Material> stripList = List.of(
+            Material.ACACIA_LOG,
+            Material.ACACIA_WOOD,
+            Material.STRIPPED_ACACIA_LOG,
+            Material.BIRCH_LOG,
+            Material.BIRCH_WOOD,
+            Material.STRIPPED_BIRCH_LOG,
+            Material.DARK_OAK_LOG,
+            Material.DARK_OAK_WOOD,
+            Material.STRIPPED_DARK_OAK_LOG,
+            Material.JUNGLE_LOG,
+            Material.JUNGLE_WOOD,
+            Material.STRIPPED_JUNGLE_LOG,
+            Material.OAK_LOG,
+            Material.OAK_WOOD,
+            Material.STRIPPED_OAK_LOG,
+            Material.SPRUCE_LOG,
+            Material.SPRUCE_WOOD,
+            Material.STRIPPED_SPRUCE_LOG,
+            Material.MANGROVE_LOG,
+            Material.MANGROVE_WOOD,
+            Material.STRIPPED_MANGROVE_LOG,
+            Material.CRIMSON_STEM,
+            Material.CRIMSON_HYPHAE
+    );
+
+
+    @Getter
+    public static List<Material> burnList = List.of(
             Material.OBSIDIAN,
             Material.NETHERRACK,
             Material.SOUL_SAND,
@@ -27,7 +55,29 @@ public class ToolListing {
     );
 
     @Getter
-    public static List<Material> farmable = List.of(
+    public static List<Material> oreList = List.of(
+            Material.COAL_ORE,
+            Material.DIAMOND_ORE,
+            Material.EMERALD_ORE,
+            Material.GOLD_ORE,
+            Material.IRON_ORE,
+            Material.LAPIS_ORE,
+            Material.REDSTONE_ORE,
+            Material.NETHER_QUARTZ_ORE,
+            Material.NETHER_GOLD_ORE,
+            Material.COPPER_ORE,
+            Material.DEEPSLATE_COAL_ORE,
+            Material.DEEPSLATE_COPPER_ORE,
+            Material.DEEPSLATE_GOLD_ORE,
+            Material.DEEPSLATE_IRON_ORE,
+            Material.DEEPSLATE_DIAMOND_ORE,
+            Material.DEEPSLATE_LAPIS_ORE,
+            Material.DEEPSLATE_EMERALD_ORE,
+            Material.DEEPSLATE_REDSTONE_ORE
+    );
+
+    @Getter
+    public static List<Material> farmList = List.of(
             Material.GRASS_BLOCK,
             Material.DIRT,
             Material.COARSE_DIRT,

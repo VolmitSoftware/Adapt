@@ -1,8 +1,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.content.adaptation.hunter.HunterAdrenaline;
-import com.volmit.adapt.content.adaptation.hunter.HunterRegen;
+import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -24,6 +23,12 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         setIcon(Material.BONE);
         registerAdaptation(new HunterAdrenaline());
         registerAdaptation(new HunterRegen());
+        registerAdaptation(new HunterInvis());
+        registerAdaptation(new HunterJumpBoost());
+        registerAdaptation(new HunterLuck());
+        registerAdaptation(new HunterSpeed());
+        registerAdaptation(new HunterStrength());
+        registerAdaptation(new HunterResistance());
     }
 
     @EventHandler

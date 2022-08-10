@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -30,7 +31,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         v.addLore(C.GREEN + "For every level, it increases the cost of enchanting, by 1, but can return upwards of 3 Lapis");
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void on(EnchantItemEvent e) {
         Player p = e.getEnchanter();
         if (!hasAdaptation(p)) {

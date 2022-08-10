@@ -11,6 +11,7 @@ import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
         setInterval(5000);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if(e.getDamager() instanceof Player && getLevel((Player) e.getDamager()) > 0 && ((Player) e.getDamager()).isSneaking()) {
             if(!isAxe(((Player) e.getDamager()).getInventory().getItemInMainHand())) {

@@ -106,6 +106,7 @@ Keep in mind it should be simple, but complex ones are welcome too!_
 ## Crafting:
 - [X] Xp for crafting
 - [ ] Chance for Extras
+- [ ] offhand autocrafting 
 - [X] Deconstruction Table (De-craft to basics)
 
 ## Discovery:
@@ -137,8 +138,11 @@ Keep in mind it should be simple, but complex ones are welcome too!_
 ## Hunter:
 - [X] Adrenaline (more damage lower the health)
 - [X] Regen while in combat -> massive loss in hunger
-- [ ] Resilience in combat  -> massive loss in hunger
-- [ ] Speed while in combat  -> massive loss in hunger
+- [X] Resistance in combat  -> massive loss in hunger
+- [X] Speed while in combat  -> massive loss in hunger
+- [X] JumpBoost while in combat  -> massive loss in hunger
+- [X] Luck while in combat  -> massive loss in hunger
+- [X] Invisibility while in combat  -> massive loss in hunger
 - [ ] Prevent the first damage proc
 
 ## Nether:

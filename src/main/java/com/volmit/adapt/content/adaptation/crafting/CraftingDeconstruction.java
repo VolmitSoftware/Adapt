@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.*;
@@ -134,7 +135,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
         return forStuff.getAmount() * 8;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(InventoryClickEvent e) {
         if (!hasAdaptation((Player) e.getWhoClicked())) {
             return;

@@ -12,6 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -46,12 +47,12 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         return targetBlock.getFace(adjacentBlock);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void on(PlayerQuitEvent e) {
         totalMap.remove(e.getPlayer());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
         Player p = e.getPlayer();
 

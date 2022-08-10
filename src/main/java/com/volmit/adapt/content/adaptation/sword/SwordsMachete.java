@@ -57,7 +57,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
             int dmg = 0;
             ItemStack is = e.getItem();
             if(isSword(is)) {
-                if(!e.getPlayer().hasCooldown(is.getType()) && getLevel(e.getPlayer()) > 0) {
+                if(is != null && !e.getPlayer().hasCooldown(is.getType()) && getLevel(e.getPlayer()) > 0) {
                     Location ctr = e.getPlayer().getEyeLocation().clone().add(e.getPlayer().getLocation().getDirection().clone().multiply(2.25)).add(0, -0.5, 0);
 
                     int lvl = getLevel(e.getPlayer());

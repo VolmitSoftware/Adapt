@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 
 public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Config> {
@@ -30,7 +31,7 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
         v.addLore(C.GREEN + "" + getConfig().xpReturn* (level * level)+ "Experience per craft");
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EnchantItemEvent e) {
         int level = getLevel(e.getEnchanter());
         Player p = e.getEnchanter();

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
 
 
@@ -24,7 +25,7 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
         setCostFactor(getConfig().costFactor);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(CraftItemEvent e) {
         Player p = (Player) e.getWhoClicked();
         if (hasAdaptation(p) && !e.getRecipe().equals(Material.AIR)) {

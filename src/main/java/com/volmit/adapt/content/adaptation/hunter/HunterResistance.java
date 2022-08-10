@@ -6,16 +6,17 @@ import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffectType;
 
-public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
-    public HunterRegen() {
-        super("hunter-regen");
+public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> {
+    public HunterResistance() {
+        super("hunter-resistance");
         registerConfiguration(Config.class);
-        setDescription("When you are struck you gain regeneration, at the cost of hunger");
-        setDisplayName("Hunter's Regen");
-        setIcon(Material.AXOLOTL_BUCKET);
+        setDescription("When you are struck you gain resistance, at the cost of hunger");
+        setDisplayName("Hunter's Resistance");
+        setIcon(Material.SALMON_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -24,19 +25,19 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "Gain passive regen when struck");
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + "x Regen stacks for a 3 seconds on hit");
+        v.addLore(C.GRAY + "Gain passive resistance when struck");
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + "x Resistance stacks for a 3 seconds on hit");
         v.addLore(C.RED + "- " + 5+level + C.GRAY + "x Stacking hunger");
         v.addLore(C.GRAY + "* " + level + C.GRAY + " Hunger stacks duration and multiplier.");
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " Regen stacks multiplier, not duration.");
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " Resistance stacks multiplier, not duration.");
     }
 
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e) {
         if(e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
             addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
-            addPotionStacks(p, PotionEffectType.REGENERATION, getLevel(p), 50, false);
+            addPotionStacks(p, PotionEffectType.DAMAGE_RESISTANCE, getLevel(p), 50, false);
         }
     }
 

@@ -9,13 +9,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffectType;
 
-public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
-    public HunterRegen() {
-        super("hunter-regen");
+public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
+    public HunterJumpBoost() {
+        super("hunter-jumpboost");
         registerConfiguration(Config.class);
-        setDescription("When you are struck you gain regeneration, at the cost of hunger");
-        setDisplayName("Hunter's Regen");
-        setIcon(Material.AXOLOTL_BUCKET);
+        setDescription("When you are struck you gain jump-boost, at the cost of hunger");
+        setDisplayName("Hunter's Heights");
+        setIcon(Material.PUFFERFISH_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -24,11 +24,11 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "Gain passive regen when struck");
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + "x Regen stacks for a 3 seconds on hit");
+        v.addLore(C.GRAY + "Gain passive jump-boost when struck");
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + "x Jump-Boost stacks for a 3 seconds on hit");
         v.addLore(C.RED + "- " + 5+level + C.GRAY + "x Stacking hunger");
         v.addLore(C.GRAY + "* " + level + C.GRAY + " Hunger stacks duration and multiplier.");
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " Regen stacks multiplier, not duration.");
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " Jump-Boost stacks multiplier, not duration.");
     }
 
 
@@ -36,7 +36,7 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
     public void on(EntityDamageEvent e) {
         if(e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
             addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
-            addPotionStacks(p, PotionEffectType.REGENERATION, getLevel(p), 50, false);
+            addPotionStacks(p, PotionEffectType.SPEED, getLevel(p), 50, false);
         }
     }
 

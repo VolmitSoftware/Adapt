@@ -14,6 +14,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -49,7 +50,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
         return lvl - getConfig().radiusSub;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         if(e.getClickedBlock() == null) {
             return;

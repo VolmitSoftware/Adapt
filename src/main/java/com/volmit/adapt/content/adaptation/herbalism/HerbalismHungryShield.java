@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
     }
 
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e) {
         if(e.getEntity() instanceof Player && getLevel((Player) e.getEntity()) > 0) {
             double f = getEffectiveness(getLevelPercent((Player) e.getEntity()));
