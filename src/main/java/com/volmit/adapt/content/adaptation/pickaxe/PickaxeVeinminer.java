@@ -22,7 +22,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         super("pickaxe-veinminer");
         registerConfiguration(PickaxeVeinminer.Config.class);
         setDescription("Allows you to break blocks in a Vein/Cluster of Vanilla ores");
-        setDisplayName("Veinminer");
+        setDisplayName("Pickaxe Veinminer");
         setIcon(Material.IRON_PICKAXE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -37,7 +37,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     @EventHandler
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
-        if(!hasAdaptation(p)){
+        if (!hasAdaptation(p)) {
             return;
         }
         if (!p.isSneaking()) {
@@ -47,15 +47,15 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
             return;
         }
         Block block = e.getBlock();
-        Map<Location, Block> blockMap  = new HashMap<>();
-        blockMap.put( block.getLocation(), block);
+        Map<Location, Block> blockMap = new HashMap<>();
+        blockMap.put(block.getLocation(), block);
 
         for (int i = 0; i < getRadius(getLevel(p)); i++) {
             for (int x = -i; x <= i; x++) {
                 for (int y = -i; y <= i; y++) {
                     for (int z = -i; z <= i; z++) {
                         Block b = block.getRelative(x, y, z);
-                        if(b.getType() == block.getType()){
+                        if (b.getType() == block.getType()) {
                             blockMap.put(b.getLocation(), b);
                         }
                     }
@@ -65,9 +65,11 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         J.s(() -> {
             for (Location l : blockMap.keySet()) {
                 Block b = e.getBlock().getWorld().getBlockAt(l);
-                    b.breakNaturally();
-                    e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
-                    e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
+
+                b.breakNaturally();
+                e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
+                e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
+
             }
         });
     }
@@ -79,8 +81,8 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
 
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "Sneak, and mine ORES");
-        v.addLore(C.GREEN + "" +  (level + getConfig().baseRange) +C.GRAY+ "range of vein-mining" );
-        v.addLore(C.ITALIC + "This skill does NOT group all drops together!" );
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + "range of vein-mining");
+        v.addLore(C.ITALIC + "This skill does NOT group all drops together!");
     }
 
     @Override

@@ -19,6 +19,17 @@ public class ToolListing {
     );
 
     @Getter
+    public static List<Material> smeltOres = List.of(
+            Material.NETHER_GOLD_ORE,
+            Material.IRON_ORE,
+            Material.GOLD_ORE,
+            Material.COPPER_ORE,
+            Material.RAW_COPPER,
+            Material.RAW_GOLD,
+            Material.RAW_IRON
+    );
+
+    @Getter
     public static List<Material> stripList = List.of(
             Material.ACACIA_LOG,
             Material.ACACIA_WOOD,
