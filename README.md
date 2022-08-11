@@ -132,6 +132,8 @@ Keep in mind it should be simple, but complex ones are welcome too!_
 - [X] Hunger Shield (up to 50% less hunger consumption)
 - [X] Replanted (replant items by right-clicking)
 - [ ] Harvest Dupes
+- [ ] Food feeds more
+- [ ] Instant Food Consumption (Cooldown)
 - [ ] Xp Gain
 - [X] Faster Grow Aura
 

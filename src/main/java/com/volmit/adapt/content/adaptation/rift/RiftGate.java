@@ -14,6 +14,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -109,12 +110,13 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         } else {
             p.getInventory().setItemInMainHand(null);
         }
-        if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
+        if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist")!= null
+                && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
             RiftResist.riftResistStackAdd(p, 150, 3);
         }
 
 
-            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 100, 10, true, false, false));
         p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
         p.playSound(l, Sound.BLOCK_LODESTONE_PLACE, 100f, 0.1f);
         p.playSound(l, Sound.BLOCK_BELL_RESONATE, 100f, 0.1f);
@@ -136,7 +138,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             vfxLevelUp(p);
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
 
-            J.s(() -> p.teleport(l));
+            J.s(() -> p.teleport(l, PlayerTeleportEvent.TeleportCause.PLUGIN));
         });
 
     }
@@ -164,6 +166,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     }
 
     private void linkEye(Player p, Location location) {
+        vfxSingleCuboidOutline(location.getBlock(), location.add(0,1,0).getBlock(), Particle.REVERSE_PORTAL);
+        p.playSound(p.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 0.50f, 0.22f);
         ItemStack hand = p.getInventory().getItemInMainHand();
 
         if(hand.getAmount() == 1) {

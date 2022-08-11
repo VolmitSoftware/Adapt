@@ -15,7 +15,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
         registerConfiguration(Config.class);
         setDescription("When you are struck you gain speed, at the cost of hunger");
         setDisplayName("Hunter's Swiftness");
-        setIcon(Material.COD_BUCKET);
+        setIcon(Material.LAVA_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);

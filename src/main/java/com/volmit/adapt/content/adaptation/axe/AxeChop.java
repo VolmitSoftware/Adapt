@@ -1,7 +1,7 @@
 package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.content.adaptation.excavation.util.ToolListing;
+import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -15,9 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
@@ -44,7 +41,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         if(e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(e.getPlayer().getInventory().getItemInMainHand()) && getLevel(e.getPlayer()) > 0) {
-            if (!ToolListing.getStripList().contains(e.getMaterial())) {
+            if (!ItemListings.getStripList().contains(e.getMaterial())) {
                 return;
             }
 

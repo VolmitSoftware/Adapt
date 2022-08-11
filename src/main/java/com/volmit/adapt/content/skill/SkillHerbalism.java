@@ -4,6 +4,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.herbalism.HerbalismGrowthAura;
+import com.volmit.adapt.content.adaptation.herbalism.HerbalismHungryHippo;
 import com.volmit.adapt.content.adaptation.herbalism.HerbalismHungryShield;
 import com.volmit.adapt.content.adaptation.herbalism.HerbalismReplant;
 import com.volmit.adapt.util.C;
@@ -36,6 +37,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         registerAdaptation(new HerbalismGrowthAura());
         registerAdaptation(new HerbalismReplant());
         registerAdaptation(new HerbalismHungryShield());
+        registerAdaptation(new HerbalismHungryHippo());
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.COOKED_BEEF)
             .key("challenge_eat_100")

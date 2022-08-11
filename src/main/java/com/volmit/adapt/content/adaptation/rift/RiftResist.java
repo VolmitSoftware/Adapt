@@ -46,10 +46,12 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
 
         if (e.getAction() == Action.RIGHT_CLICK_AIR) {
             switch (hand.getType()) {
-                case ENDER_EYE, ENDER_PEARL -> riftResistStackAdd(p, 80, 10);
+                case ENDER_EYE, ENDER_PEARL -> {
+                    xp(e.getPlayer(), 3);
+                    riftResistStackAdd(p, 80, 10);
+                }
             }
         }
-
 
     }
 

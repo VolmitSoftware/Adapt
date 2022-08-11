@@ -51,7 +51,8 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
                     || e.getAction().equals(Action.LEFT_CLICK_AIR)
                     || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
 
-                if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
+                if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null
+                        && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
                     RiftResist.riftResistStackAdd(p, 10, 2);
                 }
                 p.openInventory(e.getPlayer().getEnderChest());

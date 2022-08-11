@@ -74,6 +74,6 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
         int initialCost = 14;
         double costFactor = 0.925;
         double effectivenessBase = 0.15;
-        double maxEffectiveness = 0.65;
+        double maxEffectiveness = 0.95;
     }
 }

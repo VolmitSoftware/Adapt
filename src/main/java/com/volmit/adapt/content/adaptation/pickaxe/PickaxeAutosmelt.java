@@ -1,7 +1,7 @@
 package com.volmit.adapt.content.adaptation.pickaxe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.content.adaptation.excavation.util.ToolListing;
+import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
@@ -36,7 +36,7 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         if (!hasAdaptation(p)) {
             return;
         }
-        if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE") && !ToolListing.getSmeltOres().contains(e.getBlock().getType())) {
+        if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE") && !ItemListings.getSmeltOres().contains(e.getBlock().getType())) {
             return;
         }
         xp(e.getPlayer(), 15);

@@ -1,7 +1,10 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -10,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.util.Vector;
 
@@ -67,7 +71,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                 return;
             }
             if (p.isSprinting()) {
-                Vector v = p.getVelocity().clone();
+
                 Location loc = p.getLocation().clone();
                 Location locOG = p.getLocation().clone();
                 Vector dir = loc.getDirection();
@@ -87,14 +91,16 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                     return;
                 }
 
-                if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
+                if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null &&
+                        getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
                     RiftResist.riftResistStackAdd(p, 10, 5);
                 }
 
-                p.teleport(loc.add(0, 1, 0));
 
                 vfxParticleLine(locOG, loc, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
-                J.a(() -> {
+                J.s(() -> {
+                    Vector v = p.getVelocity().clone();
+                    p.teleport(loc.add(0, 1, 0), PlayerTeleportEvent.TeleportCause.PLUGIN);
                     try {
                         Thread.sleep(5);
                     } catch (InterruptedException ex) {
@@ -105,7 +111,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
                 lastJump.put(p, M.ms());
 
-                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 1.0f);
+                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.50f, 1.0f);
                 vfxLevelUp(p);
 
             }

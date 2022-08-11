@@ -1,7 +1,7 @@
 package com.volmit.adapt.content.adaptation.excavation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.content.adaptation.excavation.util.ToolListing;
+import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.content.item.multiItems.OmniTool;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -122,7 +122,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             if (block == null) {
                 return;
             }
-            if (ToolListing.farmList.contains(block.getType())) {
+            if (ItemListings.farmList.contains(block.getType())) {
                 J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextHoe(hand)));
                 e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 if (imHand != null && imHand.hasDamage()) {
@@ -131,7 +131,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                         e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
                     }
                 }
-            } else if (ToolListing.farmList.contains(block.getType())) {
+            } else if (ItemListings.farmList.contains(block.getType())) {
                 J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextFnS(hand)));
                 e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 if (imHand != null && imHand.hasDamage()) {
@@ -201,13 +201,13 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             return;
         }
         Damageable imHand = (Damageable) hand.getItemMeta();
-        if (ToolListing.getAxe().contains(b.getType())) {
+        if (ItemListings.getAxe().contains(b.getType())) {
             if (hand.getType().toString().contains("_AXE")) {
                 return;
             }
             J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextAxe(hand)));
             itemDelegate(e, hand, imHand);
-        } else if (ToolListing.getShovel().contains(b.getType())) {
+        } else if (ItemListings.getShovel().contains(b.getType())) {
             if (hand.getType().toString().contains("_SHOVEL")) {
                 return;
             }
@@ -240,7 +240,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                     return;
                 }
             }
-            if (ToolListing.tools.contains(cursor.getType()) && ToolListing.tools.contains(clicked.getType())) { // TOOLS ONLY
+            if (ItemListings.tools.contains(cursor.getType()) && ItemListings.tools.contains(clicked.getType())) { // TOOLS ONLY
                 if (!cursor.getType().isAir() && !clicked.getType().isAir() && omniTool.supportsItem(cursor) && omniTool.supportsItem(clicked)) {
                     e.setCancelled(true);
                     e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));

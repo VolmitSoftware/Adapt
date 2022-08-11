@@ -1,10 +1,10 @@
-package com.volmit.adapt.content.adaptation.excavation.util;
+package com.volmit.adapt.content.item;
 
 import lombok.Getter;
 import org.bukkit.Material;
 import java.util.List;
 
-public class ToolListing {
+public class ItemListings {
 
     @Getter
     public static List<Material> shearList = List.of(
@@ -27,6 +27,49 @@ public class ToolListing {
             Material.DEEPSLATE_IRON_ORE,
             Material.DEEPSLATE_GOLD_ORE,
             Material.DEEPSLATE_COPPER_ORE
+    );
+
+    @Getter
+    public static List<Material> foods = List.of(
+            Material.APPLE,
+            Material.BAKED_POTATO,
+            Material.BEETROOT,
+            Material.BEETROOT_SOUP,
+            Material.BREAD,
+            Material.CARROT,
+            Material.CHORUS_FRUIT,
+            Material.COOKED_CHICKEN,
+            Material.COOKED_COD,
+            Material.COOKED_MUTTON,
+            Material.COOKED_PORKCHOP,
+            Material.COOKED_RABBIT,
+            Material.COOKED_SALMON,
+            Material.COOKIE,
+            Material.DRIED_KELP,
+            Material.GOLDEN_APPLE,
+            Material.GLOW_BERRIES,
+            Material.GOLDEN_CARROT,
+            Material.HONEY_BLOCK,
+            Material.MELON_SLICE,
+            Material.MUSHROOM_STEW,
+            Material.POISONOUS_POTATO,
+            Material.POTATO,
+            Material.PUFFERFISH,
+            Material.PUMPKIN_PIE,
+            Material.RABBIT_STEW,
+            Material.BEEF,
+            Material.CHICKEN,
+            Material.COD,
+            Material.MUTTON,
+            Material.PORKCHOP,
+            Material.SALMON,
+            Material.ROTTEN_FLESH,
+            Material.SPIDER_EYE,
+            Material.COOKED_BEEF,
+            Material.SUSPICIOUS_STEW,
+            Material.SWEET_BERRIES,
+            Material.TROPICAL_FISH
+
     );
 
     @Getter
