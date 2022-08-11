@@ -81,10 +81,13 @@ public class Adapt extends VolmitPlugin {
                 for (String messageName : lang.getConfigurationSection(key).getKeys(true)) {
                     String message = lang.getString(key + "." + messageName);
                     localeMessages.put(messageName, message);
+                    Adapt.warn(key + messageName);
                 }
             }
             words.put(file, localeMessages);
         }
+        File langFile = new File(instance.getDataFolder() + "/locales", AdaptConfig.get().getLanguage() + ".yml");
+        warn(words.get(langFile).toString());
     }
 
     @Override
