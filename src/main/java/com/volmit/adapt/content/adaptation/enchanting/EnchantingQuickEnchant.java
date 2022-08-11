@@ -30,8 +30,8 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
     public EnchantingQuickEnchant() {
         super("enchanting-quick-enchant");
         registerConfiguration(Config.class);
-        setDescription("Enchant items by clicking enchant books directly on them.");
-        setDisplayName("Quick-Click Enchant");
+        setDescription(Adapt.dLocalize("QuickEnchant.Description"));
+        setDisplayName(Adapt.dLocalize("QuickEnchant.Name"));
         setIcon(Material.WRITABLE_BOOK);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -46,42 +46,42 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getTotalLevelCount(level) + C.GRAY + " Max Combined Levels");
+        v.addLore(C.GREEN + "+ " + getTotalLevelCount(level) + C.GRAY + Adapt.dLocalize("QuickEnchant.Lore1"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(InventoryClickEvent e) {
-        if(e.getWhoClicked() instanceof Player p
-            && hasAdaptation(p)
-            && e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR)
-            && e.getClick().equals(ClickType.LEFT)
-            && (e.getSlotType().equals(InventoryType.SlotType.CONTAINER)
-            || e.getSlotType().equals(InventoryType.SlotType.ARMOR)
-            || e.getSlotType().equals(InventoryType.SlotType.QUICKBAR))
-            && e.getCursor() != null
-            && e.getCurrentItem() != null
-            && e.getCursor().getType().equals(Material.ENCHANTED_BOOK)
-            && e.getCursor().getItemMeta() != null
-            && e.getCursor().getItemMeta() instanceof EnchantmentStorageMeta eb
-            && e.getCurrentItem().getItemMeta() != null
-            && e.getCurrentItem().getAmount() == 1
-            && e.getCursor().getAmount() == 1) {
+        if (e.getWhoClicked() instanceof Player p
+                && hasAdaptation(p)
+                && e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR)
+                && e.getClick().equals(ClickType.LEFT)
+                && (e.getSlotType().equals(InventoryType.SlotType.CONTAINER)
+                || e.getSlotType().equals(InventoryType.SlotType.ARMOR)
+                || e.getSlotType().equals(InventoryType.SlotType.QUICKBAR))
+                && e.getCursor() != null
+                && e.getCurrentItem() != null
+                && e.getCursor().getType().equals(Material.ENCHANTED_BOOK)
+                && e.getCursor().getItemMeta() != null
+                && e.getCursor().getItemMeta() instanceof EnchantmentStorageMeta eb
+                && e.getCurrentItem().getItemMeta() != null
+                && e.getCurrentItem().getAmount() == 1
+                && e.getCursor().getAmount() == 1) {
             ItemStack item = e.getCurrentItem();
             ItemStack book = e.getCursor();
             Map<Enchantment, Integer> itemEnchants = new HashMap<>(item.getType().equals(Material.ENCHANTED_BOOK)
-                ? ((EnchantmentStorageMeta) item.getItemMeta()).getStoredEnchants()
-                : item.getEnchantments());
+                    ? ((EnchantmentStorageMeta) item.getItemMeta()).getStoredEnchants()
+                    : item.getEnchantments());
             Map<Enchantment, Integer> bookEnchants = new HashMap<>(eb.getStoredEnchants());
             Map<Enchantment, Integer> newEnchants = itemEnchants.copy();
             Map<Enchantment, Integer> addEnchants = new HashMap<>();
             int power = itemEnchants.values().stream().mapToInt(i -> i).sum();
 
-            if(bookEnchants.isEmpty()) {
+            if (bookEnchants.isEmpty()) {
                 return;
             }
 
-            for(Enchantment i : bookEnchants.k()) {
-                if(itemEnchants.containsKey(i)) {
+            for (Enchantment i : bookEnchants.k()) {
+                if (itemEnchants.containsKey(i)) {
                     continue;
                 }
 
@@ -91,16 +91,16 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
                 bookEnchants.remove(i);
             }
 
-            if(power > getTotalLevelCount(getLevel(p))) {
-                Adapt.actionbar(p, C.RED + "Cannot Enchant an item with more than " + getTotalLevelCount(getLevel(p)) + " power");
+            if (power > getTotalLevelCount(getLevel(p))) {
+                Adapt.actionbar(p, C.RED + Adapt.dLocalize("QuickEnchant.Lore2") + getTotalLevelCount(getLevel(p)) + Adapt.dLocalize("QuickEnchant.Lore3"));
                 p.playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.7f);
                 return;
             }
 
-            if(!itemEnchants.equals(newEnchants)) {
+            if (!itemEnchants.equals(newEnchants)) {
                 ItemMeta im = item.getItemMeta();
 
-                if(im instanceof EnchantmentStorageMeta sm) {
+                if (im instanceof EnchantmentStorageMeta sm) {
                     sm.getStoredEnchants().keySet().forEach(sm::removeStoredEnchant);
                     newEnchants.forEach((ec, l) -> sm.addStoredEnchant(ec, l, true));
                     p.sendMessage("---");
@@ -117,9 +117,9 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
                 p.playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_TILES_BREAK, 0.5f, 0.7f);
                 getSkill().xp(p, 320 * addEnchants.values().stream().mapToInt((i) -> i).sum());
 
-                if(bookEnchants.isEmpty()) {
+                if (bookEnchants.isEmpty()) {
                     e.setCursor(null);
-                } else if(!eb.getStoredEnchants().equals(bookEnchants)) {
+                } else if (!eb.getStoredEnchants().equals(bookEnchants)) {
                     eb.getStoredEnchants().keySet().forEach(eb::removeStoredEnchant);
                     bookEnchants.forEach((ec, l) -> eb.addStoredEnchant(ec, l, true));
                     book.setItemMeta(eb);

@@ -19,6 +19,7 @@ public class AdaptConfig {
     private ValueConfig value = new ValueConfig();
     private boolean verbose = false;
     private boolean metrics = true;
+    private String language = "en_US";
     private Curves xpCurve = Curves.XL3L7;
     private double playerXpPerSkillLevelUpBase = 400;
     private double playerXpPerSkillLevelUpLevelMultiplier = 32;

@@ -1,12 +1,8 @@
 package com.volmit.adapt.content.adaptation.stealth;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.Inventories;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.V;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -27,7 +23,8 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     public StealthSnatch() {
         super("stealth-snatch");
         registerConfiguration(Config.class);
-        setDescription("Snatch items instantly while sneaking!");
+        setDescription(Adapt.dLocalize("ItemSnatch.Description"));
+        setDisplayName(Adapt.dLocalize("ItemSnatch.Name"));
         setIcon(Material.CHEST_MINECART);
         setBaseCost(getConfig().baseCost);
         setInterval(50);
@@ -38,16 +35,16 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRange(getLevelPercent(level)), 1) + " Snatch Radius");
+        v.addLore(C.GREEN + "+ " + Form.f(getRange(getLevelPercent(level)), 1) + C.GRAY + Adapt.dLocalize("ItemSnatch.Lore1"));
     }
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
-        if(!hasAdaptation(e.getPlayer())) {
+        if (!hasAdaptation(e.getPlayer())) {
             return;
         }
 
-        if(e.isSneaking()) {
+        if (e.isSneaking()) {
             snatch(e.getPlayer());
         }
     }
@@ -55,24 +52,24 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     private void snatch(Player player) {
         double factor = getLevelPercent(player);
 
-        if(factor == 0) {
+        if (factor == 0) {
             return;
         }
 
-        if(!player.isDead()) {
+        if (!player.isDead()) {
             double range = getRange(factor);
 
-            for(Entity j : player.getWorld().getNearbyEntities(player.getLocation(), range, range / 1.5, range)) {
-                if(j instanceof Item && !holds.contains(j.getEntityId())) {
+            for (Entity j : player.getWorld().getNearbyEntities(player.getLocation(), range, range / 1.5, range)) {
+                if (j instanceof Item && !holds.contains(j.getEntityId())) {
                     double dist = j.getLocation().distanceSquared(player.getLocation());
 
-                    if(dist < range * range && player.isSneaking() && j.getTicksLived() > 1) {
+                    if (dist < range * range && player.isSneaking() && j.getTicksLived() > 1) {
                         ItemStack is = ((Item) j).getItemStack().clone();
 
-                        if(Inventories.hasSpace(player.getInventory(), is)) {
+                        if (Inventories.hasSpace(player.getInventory(), is)) {
                             holds.add(j.getEntityId());
 
-                            if(player.isSneaking()) {
+                            if (player.isSneaking()) {
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (Math.random() / 3)));
                             }
 
@@ -92,7 +89,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     }
 
     private double getRange(double factor) {
-        return factor * getConfig().radiusFactor;
+        return (factor * getConfig().radiusFactor) + 1;
     }
 
     public void sendCollected(Player plr, Item item) {
@@ -106,21 +103,21 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
             new V(v).set("b", plr.getEntityId());
             new V(v).set("c", item.getItemStack().getAmount());
 
-            for(Entity i : plr.getWorld().getNearbyEntities(plr.getLocation(), 8, 8, 8)) {
-                if(i instanceof Player) {
+            for (Entity i : plr.getWorld().getNearbyEntities(plr.getLocation(), 8, 8, 8)) {
+                if (i instanceof Player) {
                     Object pconnect = new V(new V(i).invoke("getHandle")).get("playerConnection");
                     pconnect.getClass().getMethod("sendPacket", pk).invoke(pconnect, v);
                 }
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
 
         }
     }
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers()) {
-            if(i.isSneaking()) {
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            if (i.isSneaking()) {
                 J.s(() -> snatch(i));
             }
         }
@@ -138,6 +135,6 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         int maxLevel = 3;
         int initialCost = 12;
         double costFactor = 0.125;
-        double radiusFactor = 3.38;
+        double radiusFactor = 5.55;
     }
 }

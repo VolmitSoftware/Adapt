@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -20,8 +21,8 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
     public HerbalismHungryShield() {
         super("herbalism-hungry-shield");
         registerConfiguration(Config.class);
-        setDescription("Take damage to your hunger before your health");
-        setDisplayName("Hungry Shield");
+        setDescription(Adapt.dLocalize("HungryShield.Description"));
+        setDisplayName(Adapt.dLocalize("HungryShield.Name"));
         setIcon(Material.APPLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -29,6 +30,12 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("HungryShield.Lore1"));
+    }
+
 
     @Override
     public void onTick() {
@@ -39,22 +46,16 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
         return Math.min(getConfig().maxEffectiveness, factor * factor + getConfig().effectivenessBase);
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + " Resisted by Hunger");
-    }
-
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e) {
-        if(e.getEntity() instanceof Player && getLevel((Player) e.getEntity()) > 0) {
+        if (e.getEntity() instanceof Player && getLevel((Player) e.getEntity()) > 0) {
             double f = getEffectiveness(getLevelPercent((Player) e.getEntity()));
             double h = e.getDamage() * f;
             double d = e.getDamage() - h;
             Player p = (Player) e.getEntity();
 
-            if(getPlayer(p).consumeFood(h, 6))
-            {
+            if (getPlayer(p).consumeFood(h, 6)) {
                 d += h;
                 e.setDamage(d);
             }

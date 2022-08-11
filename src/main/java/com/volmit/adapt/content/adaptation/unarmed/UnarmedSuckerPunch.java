@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.unarmed;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -16,7 +17,8 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     public UnarmedSuckerPunch() {
         super("unarmed-sucker-punch");
         registerConfiguration(Config.class);
-        setDescription("Sprint punches, but more deadly.");
+        setDescription(Adapt.dLocalize("SuckerPunch.Description"));
+        setDisplayName(Adapt.dLocalize("SuckerPunch.Name"));
         setIcon(Material.OBSIDIAN);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
@@ -33,18 +35,16 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         double damageFactor = 0.55;
     }
 
-    private double getDamage(double f) {
-        return getConfig().baseDamage + (f * getConfig().damageFactor);
-    }
-
     @Override
     public void addStats(int level, Element v) {
         double f = getLevelPercent(level);
         double d = getDamage(f);
+        v.addLore(C.GREEN + "+ " + Form.pc(d, 0) + C.GRAY + Adapt.dLocalize("SuckerPunch.Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("SuckerPunch.Lore2"));
+    }
 
-        v.addLore(C.GREEN + "+ " + Form.pc(d, 0) + C.GRAY + " Damage");
-
-        v.addLore(C.BLUE + "Damage increases by with your speed while punching");
+    private double getDamage(double f) {
+        return getConfig().baseDamage + (f * getConfig().damageFactor);
     }
 
     @EventHandler

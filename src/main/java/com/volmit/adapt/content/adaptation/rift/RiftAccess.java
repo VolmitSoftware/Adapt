@@ -32,8 +32,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     public RiftAccess() {
         super("rift-access");
         registerConfiguration(Config.class);
-        setDescription("Pull from the void");
-        setDisplayName("Rift Access");
+        setDescription(Adapt.dLocalize("RemoteAccess.Description"));
+        setDisplayName(Adapt.dLocalize("RemoteAccess.Name"));
         setMaxLevel(1);
         setIcon(Material.NETHER_STAR);
         setBaseCost(getConfig().baseCost);
@@ -48,6 +48,13 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                 .build());
     }
 
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.ITALIC + Adapt.dLocalize("RemoteAccess.Lore1"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("RemoteAccess.Lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("RemoteAccess.Lore3"));
+    }
+
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
@@ -56,12 +63,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         int initialCost = 15;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + "Enderpearl + Compass = Reliquary Portkey");
-        v.addLore(C.ITALIC + "This item allows you to access containers remotely");
-        v.addLore(C.ITALIC + "Once crafted look at item to see usage");
-    }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEvent e) {
@@ -97,7 +98,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                     }
                 } else if (block != null && !isStorage(block.getBlockData())) {
                     if (p.isSneaking()) { //(Sneak NOT Container)
-                        p.sendMessage(C.LIGHT_PURPLE + "That's not a container");
+                        p.sendMessage(C.LIGHT_PURPLE + Adapt.dLocalize("RemoteAccess.NotContainer"));
                     } else if (!p.isSneaking() && isBound(hand)) {
                         openPearl(p);
                     }

@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.architect;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -20,14 +21,19 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
     public ArchitectGlass() {
         super("architect-glass");
         registerConfiguration(ArchitectGlass.Config.class);
-        setDescription("This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand");
-        setDisplayName("Architect's Silk Glass");
+        setDescription(Adapt.dLocalize("Glass.Description"));
+        setDisplayName(Adapt.dLocalize("Glass.Name"));
         setIcon(Material.GLASS);
         setInterval(9119);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+    }
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + Adapt.dLocalize("Glass.Lore1"));
     }
 
 
@@ -37,7 +43,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
             BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), e.getPlayer(), e.getBlock().getBlockData(), true);
             Bukkit.getServer().getPluginManager().callEvent(can);
 
-            if(!can.isBuildable()) {
+            if (!can.isBuildable()) {
                 return;
             }
 
@@ -57,10 +63,6 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
         return getConfig().enabled;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "Your hands gain silk touch for Glass");
-    }
 
     @Override
     public void onTick() {

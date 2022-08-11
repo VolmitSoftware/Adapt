@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.seaborrne;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -19,8 +20,8 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     public SeaborneSpeed() {
         super("seaborne-speed");
         registerConfiguration(Config.class);
-        setDescription("Swim like a dolphin, without the dolphins");
-        setDisplayName("Seaborne Grace");
+        setDescription(Adapt.dLocalize("DolphinGrace.Description"));
+        setDisplayName(Adapt.dLocalize("DolphinGrace.Name"));
         setIcon(Material.TRIDENT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -31,18 +32,16 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "When you are swimming, gain " + C.GREEN + (level) + C.GRAY + "x speed (dolphins grace)");
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + "x Dolphins Grace!");
-        v.addLore(C.ITALIC +  "precision german engineeeri- wait that's not right...");
+        v.addLore(C.GRAY + Adapt.dLocalize("DolphinGrace.Lore1") + C.GREEN + (level) + C.GRAY + Adapt.dLocalize("DolphinGrace.Lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("DolphinGrace.Lore3"));
     }
 
     @Override
     public void onTick() {
-        for(Player p : Bukkit.getOnlinePlayers()) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
             if (hasAdaptation(p)) {
-                if (p.isSwimming() || p.getLocation().getBlock().getType().equals(Material.WATER)) {
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 1020, getLevel(p), true, false));
-                }
+                p.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 1020, getLevel(p), true, false));
+
             }
         }
     }

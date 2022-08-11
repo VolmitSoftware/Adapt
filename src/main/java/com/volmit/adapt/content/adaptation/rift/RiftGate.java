@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.rift;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundEyeOfEnder;
@@ -25,7 +26,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     public RiftGate() {
         super("rift-gate");
         registerConfiguration(Config.class);
-        setDescription("Move through the void");
+        setDescription(Adapt.dLocalize("RiftGate.Description"));
+        setDisplayName(Adapt.dLocalize("RiftGate.Name"));
         setIcon(Material.END_PORTAL_FRAME);
         setBaseCost(0);
         setCostFactor(0);
@@ -43,9 +45,9 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.YELLOW + "CRAFTING: Emerald + Amethyst shard + Ender Pearl");
-        v.addLore(C.RED + "Read before using!");
-        v.addLore(C.ITALIC + "5s delay, " + C.UNDERLINE + "you can die in this");
+        v.addLore(C.YELLOW + Adapt.dLocalize("RiftGate.Lore1"));
+        v.addLore(C.RED + Adapt.dLocalize("RiftGate.Lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("RiftGate.Lore3") + C.UNDERLINE + C.RED + Adapt.dLocalize("RiftGate.Lore4"));
     }
 
 

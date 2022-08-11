@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.rift;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -27,7 +28,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     public RiftBlink() {
         super("rift-blink");
         registerConfiguration(Config.class);
-        setDescription("Just a blink away");
+        setDescription(Adapt.dLocalize("RiftBlink.Description"));
+        setDisplayName(Adapt.dLocalize("RiftBlink.Name"));
         setIcon(Material.FEATHER);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -44,15 +46,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         return 2000;
     }
 
-//    private boolean isLookingUp(Player player) {
-//        double pitch = player.getLocation().getPitch();
-//        return pitch >= 45.0 || pitch <= -45.0;
-//    }
-
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " Blocks on blink (2x Vertical)");
-        v.addLore(C.ITALIC + "While Sprinting: Double tap Jump to " + C.DARK_PURPLE + "Blink");
+        v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + Adapt.dLocalize("RiftBlink.Lore1"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("RiftBlink.Lore2") + C.DARK_PURPLE + Adapt.dLocalize("RiftBlink.Lore3"));
     }
 
     @EventHandler
@@ -126,10 +123,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
         if (hasAdaptation(e.getPlayer()) && p.getGameMode().equals(GameMode.SURVIVAL)) {
-//            if (isLookingUp(p)) {
-//                p.setAllowFlight(false);
-//                return;
-//            }
+
 
             if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
                 p.setAllowFlight(false);

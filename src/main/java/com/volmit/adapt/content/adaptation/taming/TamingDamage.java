@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.taming;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -25,7 +26,8 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     public TamingDamage() {
         super("tame-damage");
         registerConfiguration(Config.class);
-        setDescription("Increase your tamed animal damage dealt.");
+        setDescription(Adapt.dLocalize("TameDamage.Description"));
+        setDisplayName(Adapt.dLocalize("TameDamage.Name"));
         setIcon(Material.FLINT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -36,7 +38,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDamageBoost(level), 0) + C.GRAY + " Increased Damage");
+        v.addLore(C.GREEN + "+ " + Form.pc(getDamageBoost(level), 0) + C.GRAY + Adapt.dLocalize("TameDamage.Lore1"));
     }
 
     private double getDamageBoost(int level) {

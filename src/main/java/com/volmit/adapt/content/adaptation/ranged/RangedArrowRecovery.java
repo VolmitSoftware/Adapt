@@ -27,8 +27,8 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     public RangedArrowRecovery() {
         super("ranged-arrow-recovery");
         registerConfiguration(Config.class);
-        setDescription("Recover Arrows after you have killed an enemy.");
-        setDisplayName("Arrow Recovery");
+        setDescription(Adapt.dLocalize("ArrowRecovery.Description"));
+        setDisplayName(Adapt.dLocalize("ArrowRecovery.Name"));
         setIcon(Material.TIPPED_ARROW);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -43,34 +43,34 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getChance(getLevelPercent(level)), 0) + C.GRAY + " Chance to Recover");
+        v.addLore(C.GREEN + "+ " + Form.pc(getChance(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("ArrowRecovery.Lore1"));
     }
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
+        if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
             Player p = ((Player) ((Projectile) e.getDamager()).getShooter());
 
-            if(getLevel(p) > 0) {
-                if(e.getDamager() instanceof Arrow a && Math.random() < getChance(getLevelPercent(p))) {
+            if (getLevel(p) > 0) {
+                if (e.getDamager() instanceof Arrow a && Math.random() < getChance(getLevelPercent(p))) {
                     int hits = 0;
 
-                    if(a.getPierceLevel() > 0) {
+                    if (a.getPierceLevel() > 0) {
                         NamespacedKey k = new NamespacedKey(Adapt.instance, "arrow-hits");
                         hits = a.getPersistentDataContainer().getOrDefault(k, PersistentDataType.INTEGER, 0);
                         a.getPersistentDataContainer().set(k, PersistentDataType.INTEGER, hits + 1);
                     }
 
-                    if(hits + 1 >= a.getPierceLevel()) {
+                    if (hits + 1 >= a.getPierceLevel()) {
                         arrows.compute(e.getEntity().getUniqueId(), (k, v) -> {
-                            if(v == null) {
+                            if (v == null) {
                                 return 1;
                             }
 
                             return v + 1;
                         });
 
-                        if(hits > 1) {
+                        if (hits > 1) {
                             a.remove();
                         }
                     }
@@ -83,7 +83,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     public void on(EntityDeathEvent e) {
         Integer c = arrows.remove(e.getEntity().getUniqueId());
 
-        if(c != null) {
+        if (c != null) {
             e.getDrops().add(new ItemStack(Material.ARROW, c));
         }
     }

@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.axe;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
@@ -21,8 +22,8 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     public AxeChop() {
         super("axe-chop");
         registerConfiguration(Config.class);
-        setDescription("Chop down trees by right clicking the base log!");
-        setDisplayName("Axe Chop");
+        setDescription(Adapt.dLocalize("Chop.Description"));
+        setDisplayName(Adapt.dLocalize("Chop.Name"));
         setIcon(Material.IRON_AXE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -33,31 +34,31 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + " Blocks Per Chop");
-        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " Chop Cooldown");
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " Tool Wear");
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Chop.Lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("Chop.Lore2"));
+        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + Adapt.dLocalize("Chop.Lore3"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        if(e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(e.getPlayer().getInventory().getItemInMainHand()) && getLevel(e.getPlayer()) > 0) {
+        if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(e.getPlayer().getInventory().getItemInMainHand()) && getLevel(e.getPlayer()) > 0) {
             if (!ItemListings.getStripList().contains(e.getMaterial())) {
                 return;
             }
 
-            if(e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) > 0) {
+            if (e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) > 0) {
                 e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_AXE_STRIP, 0.2f, (1.5f + RNG.r.f(0.5f)));
                 getSkill().xp(e.getPlayer(), 2.25);
                 return;
             }
 
             BlockData b = e.getClickedBlock().getBlockData();
-            if(isLog(b)) {
+            if (isLog(b)) {
                 e.setCancelled(true);
                 e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
 
-                for(int i = 0; i < getLevel(e.getPlayer()); i++) {
-                    if(breakStuff(e.getClickedBlock(), getRange(getLevel(e.getPlayer())))) {
+                for (int i = 0; i < getLevel(e.getPlayer()); i++) {
+                    if (breakStuff(e.getClickedBlock(), getRange(getLevel(e.getPlayer())))) {
                         getSkill().xp(e.getPlayer(), 37);
                         e.getPlayer().setCooldown(e.getPlayer().getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(e.getPlayer())));
                         damageHand(e.getPlayer(), getDamagePerBlock(getLevelPercent(e.getPlayer())));
@@ -81,16 +82,16 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
     private boolean breakStuff(Block b, int power) {
         Block last = b;
-        for(int i = b.getY(); i < power + b.getY(); i++) {
+        for (int i = b.getY(); i < power + b.getY(); i++) {
             Block bb = b.getWorld().getBlockAt(b.getX(), i, b.getZ());
-            if(isLog(bb.getBlockData())) {
+            if (isLog(bb.getBlockData())) {
                 last = bb;
             } else {
                 break;
             }
         }
 
-        if(!isLog(last.getBlockData())) {
+        if (!isLog(last.getBlockData())) {
             return false;
         }
 
@@ -100,8 +101,9 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         return true;
     }
 
+    //Todo: Add this to Item.Itemlistings
     private boolean isLog(BlockData b) {
-        switch(b.getMaterial()) {
+        switch (b.getMaterial()) {
             case ACACIA_LOG:
             case BIRCH_LOG:
             case DARK_OAK_LOG:

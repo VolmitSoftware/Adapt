@@ -15,9 +15,16 @@ import lombok.Getter;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Adapt extends VolmitPlugin {
     @Command
@@ -44,8 +51,48 @@ public class Adapt extends VolmitPlugin {
         return getFile();
     }
 
+    private static Map<File, Map<String, String>> words = new HashMap<>();
+
+    public static String dLocalize(String linkKey) {
+        File langFile = new File(instance.getDataFolder() + "/locales", AdaptConfig.get().getLanguage() + ".yml");
+        return words.get(langFile).get(linkKey);
+    }
+
+    private static void loadLanguageLocalization() {
+        File langFolder = new File(Adapt.instance.getDataFolder() + "/locales");
+        if (!langFolder.exists()) {
+            langFolder.mkdir();
+        }
+        File enFile = new File(langFolder, "en_US.yml");
+        if (!enFile.exists()) {
+            try {
+                InputStream in = Adapt.instance.getResource("en_US.yml");
+                Files.copy(in, enFile.toPath());
+            } catch (IOException ignored) {
+                error("Failed to load Lang file");
+            }
+        }
+        for (File file : langFolder.listFiles()) {
+            info("Loading locale " + file.getName());
+            Map<String, String> localeMessages = new HashMap<>();
+            FileConfiguration lang = YamlConfiguration.loadConfiguration(file);
+
+            for (String key : lang.getKeys(false)) {
+                for (String messageName : lang.getConfigurationSection(key).getKeys(true)) {
+                    String message = lang.getString(key + "." + messageName);
+                    localeMessages.put(messageName, message);
+                    Adapt.warn(key + messageName);
+                }
+            }
+            words.put(file, localeMessages);
+        }
+        File langFile = new File(instance.getDataFolder() + "/locales", AdaptConfig.get().getLanguage() + ".yml");
+        warn(words.get(langFile).toString());
+    }
+
     @Override
     public void start() {
+        loadLanguageLocalization();
         NMS.init();
         ticker = new Ticker();
         adaptServer = new AdaptServer();
@@ -53,7 +100,7 @@ public class Adapt extends VolmitPlugin {
     }
 
     private void setupMetrics() {
-        if(AdaptConfig.get().isMetrics()) {
+        if (AdaptConfig.get().isMetrics()) {
             new Metrics(this, 13412);
         }
     }
@@ -79,21 +126,21 @@ public class Adapt extends VolmitPlugin {
     }
 
     public static void verbose(String string) {
-        if(AdaptConfig.get().isVerbose()) {
+        if (AdaptConfig.get().isVerbose()) {
             msg(C.LIGHT_PURPLE + string);
         }
     }
 
     public static void msg(String string) {
         try {
-            if(instance == null) {
+            if (instance == null) {
                 System.out.println("[Adapt]: " + string);
                 return;
             }
 
             String msg = C.GRAY + "[" + C.LIGHT_PURPLE + "Adapt" + C.GRAY + "]: " + string;
             Bukkit.getConsoleSender().sendMessage(msg);
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             System.out.println("[Adapt]: " + string);
         }
     }

@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.architect;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -13,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
@@ -33,8 +33,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     public ArchitectFoundation() {
         super("architect-foundation");
         registerConfiguration(ArchitectFoundation.Config.class);
-        setDescription("This allows for you to sneak and place a temporary foundation beneath you");
-        setDisplayName("Architect's Magic Foundation");
+        setDescription(Adapt.dLocalize("Foundation.Description"));
+        setDisplayName(Adapt.dLocalize("Foundation.Name"));
         setIcon(Material.TINTED_GLASS);
         setInterval(1000);
         setBaseCost(getConfig().baseCost);
@@ -45,6 +45,11 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         cooldowns = new HashMap<>();
         active = new HashSet<>();
         activeBlocks = new HashSet<>();
+    }
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + Adapt.dLocalize("Foundation.Lore1") + (getBlockPower(getLevelPercent(level))) + C.GRAY + Adapt.dLocalize("Foundation.Lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -190,10 +195,6 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         return getConfig().enabled;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "Magically create " + (getBlockPower(getLevelPercent(level))) + C.GRAY + " Total Blocks beneath you!");
-    }
 
     @NoArgsConstructor
     protected static class Config {

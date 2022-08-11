@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -24,8 +25,8 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
     public CraftingDeconstruction() {
         super("crafting-deconstruction");
         registerConfiguration(Config.class);
-        setDescription("Deconstruct blocks & items into salvageable base components");
-        setDisplayName("Deconstruction");
+        setDescription(Adapt.dLocalize("Deconstruction.Description"));
+        setDisplayName(Adapt.dLocalize("Deconstruction.Name"));
         setIcon(Material.SHEARS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(1);
@@ -36,8 +37,8 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "Place an any item + shears");
-        v.addLore(C.GREEN + "in a smithing table to deconstruct.");
+        v.addLore(C.GREEN + Adapt.dLocalize("Deconstruction.Lore1"));
+        v.addLore(C.GREEN + Adapt.dLocalize("Deconstruction.Lore2"));
     }
 
     public ItemStack getDeconstructionOffering(ItemStack forStuff) {

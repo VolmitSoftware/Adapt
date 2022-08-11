@@ -19,7 +19,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> smeltOres = List.of(
+    public static List<Material> smeltOre = List.of(
             Material.NETHER_GOLD_ORE,
             Material.IRON_ORE,
             Material.GOLD_ORE,
@@ -30,7 +30,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> foods = List.of(
+    public static List<Material> food = List.of(
             Material.APPLE,
             Material.BAKED_POTATO,
             Material.BEETROOT,
@@ -101,7 +101,7 @@ public class ItemListings {
 
 
     @Getter
-    public static List<Material> burnList = List.of(
+    public static List<Material> ignitable = List.of(
             Material.OBSIDIAN,
             Material.NETHERRACK,
             Material.SOUL_SAND,
@@ -131,7 +131,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> farmList = List.of(
+    public static List<Material> farmable = List.of(
             Material.GRASS_BLOCK,
             Material.DIRT,
             Material.COARSE_DIRT,
@@ -148,7 +148,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> tools = List.of(
+    public static List<Material> tool = List.of(
             Material.WOODEN_PICKAXE,
             Material.STONE_PICKAXE,
             Material.IRON_PICKAXE,

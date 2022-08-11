@@ -1,18 +1,10 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.M;
-import com.volmit.adapt.util.RNG;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
@@ -28,8 +20,8 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     public HerbalismGrowthAura() {
         super("herbalism-growth-aura");
         registerConfiguration(Config.class);
-        setDescription("Grow nature around you in an aura");
-        setDisplayName("Growth Aura");
+        setDescription(Adapt.dLocalize("GrowthAura.Description"));
+        setDisplayName(Adapt.dLocalize("GrowthAura.Name"));
         setIcon(Material.BONE_MEAL);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -46,49 +38,43 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         return level * getConfig().strengthFactor;
     }
 
-    private double getFoodCost(double factor)
-    {
+    private double getFoodCost(double factor) {
         return M.lerp(1D - factor, getConfig().maxFoodCost, getConfig().minFoodCost);
     }
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRadius(getLevelPercent(level)), 0) + C.GRAY + " Block Radius");
-        v.addLore(C.GREEN + "+ " + Form.pc(getStrength(level), 0) + C.GRAY + " Growth Strength");
-        v.addLore(C.YELLOW + "+ " + Form.f(getFoodCost(getLevelPercent(level)), 2) + C.GRAY + " Food Cost");
+        v.addLore(C.GREEN + "+ " + Form.f(getRadius(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("GrowthAura.Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getStrength(level), 0) + C.GRAY + Adapt.dLocalize("GrowthAura.Lore2"));
+        v.addLore(C.YELLOW + "+ " + Form.f(getFoodCost(getLevelPercent(level)), 2) + C.GRAY + Adapt.dLocalize("GrowthAura.Lore3"));
     }
 
     @Override
     public void onTick() {
-        for(Player p : Bukkit.getOnlinePlayers()) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
             try {
-                if(getLevel(p) > 0) {
+                if (getLevel(p) > 0) {
                     double rad = getRadius(getLevelPercent(p));
                     double strength = getStrength(getLevel(p));
                     double angle = Math.toRadians(Math.random() * 360);
                     double foodCost = getFoodCost(getLevelPercent(p));
 
-                    for(int i = 0; i < Math.min(Math.min(rad * rad, 256), 3); i++)
-                    {
+                    for (int i = 0; i < Math.min(Math.min(rad * rad, 256), 3); i++) {
                         Location m = p.getLocation().clone().add(new Vector(Math.sin(angle), RNG.r.i(-1, 1), Math.cos(angle)).multiply(Math.random() * rad));
                         Block a = m.getWorld().getHighestBlockAt(m).getRelative(BlockFace.UP);
-                        if(a.getBlockData() instanceof Ageable) {
+                        if (a.getBlockData() instanceof Ageable) {
                             Ageable ab = (Ageable) a.getBlockData();
                             int toGrowLeft = ab.getMaximumAge() - ab.getAge();
 
-                            if(toGrowLeft > 0)
-                            {
+                            if (toGrowLeft > 0) {
                                 int add = (int) Math.max(1, Math.min(strength, toGrowLeft));
-                                if(ab.getMaximumAge() > ab.getAge() && getPlayer(p).canConsumeFood(foodCost, 10)) {
-                                    while(add-- > 0)
-                                    {
+                                if (ab.getMaximumAge() > ab.getAge() && getPlayer(p).canConsumeFood(foodCost, 10)) {
+                                    while (add-- > 0) {
                                         J.s(() -> {
-                                            if(getPlayer(p).consumeFood(foodCost, 10))
-                                            {
+                                            if (getPlayer(p).consumeFood(foodCost, 10)) {
                                                 Ageable aab = (Ageable) a.getBlockData();
 
-                                                if(aab.getAge() < aab.getMaximumAge())
-                                                {
+                                                if (aab.getAge() < aab.getMaximumAge()) {
                                                     aab.setAge(aab.getAge() + 1);
                                                     a.setBlockData(aab, true);
                                                     a.getWorld().playSound(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
@@ -104,7 +90,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                         }
                     }
                 }
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         }

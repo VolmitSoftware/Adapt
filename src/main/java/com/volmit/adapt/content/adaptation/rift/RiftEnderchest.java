@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.rift;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
@@ -16,7 +17,8 @@ import org.bukkit.inventory.ItemStack;
 public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
     public RiftEnderchest() {
         super("rift-enderchest");
-        setDescription("Open an enderchest by clicking");
+        setDescription(Adapt.dLocalize("RemoteAccess.Description"));
+        setDisplayName(Adapt.dLocalize("RemoteAccess.Name"));
         setIcon(Material.ENDER_CHEST);
         setBaseCost(0);
         setCostFactor(0);
@@ -28,7 +30,7 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + "*Click an Enderchest in your hand to open (Just dont place)*");
+        v.addLore(C.ITALIC + Adapt.dLocalize("RemoteAccess.Lore1"));
     }
 
     @EventHandler

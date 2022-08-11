@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.rift;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -20,7 +21,8 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
     public RiftResist() {
         super("rift-resist");
         registerConfiguration(Config.class);
-        setDescription("Gain Resistance when using Ender Items & Abilities");
+        setDescription(Adapt.dLocalize("RiftResistance.Description"));
+        setDisplayName(Adapt.dLocalize("RiftResistance.Name"));
         setIcon(Material.SCULK_VEIN);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -32,8 +34,8 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + "+ Passive: Provides resistance when you use rift abilities, or Ender Items");
-        v.addLore(C.UNDERLINE + "NOt Including Portable Enderchest, only things you can Right-click");
+        v.addLore(C.ITALIC + Adapt.dLocalize("RiftResistance.Lore1"));
+        v.addLore(C.UNDERLINE + Adapt.dLocalize("RiftResistance.Lore2"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

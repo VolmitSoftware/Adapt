@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.stealth;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -23,7 +24,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     public StealthGhostArmor() {
         super("stealth-ghost-armor");
         registerConfiguration(Config.class);
-        setDescription("Slow building armor when not taking damage");
+        setDescription(Adapt.dLocalize("GhostArmor.Description"));
+        setDisplayName(Adapt.dLocalize("GhostArmor.Name"));
         setIcon(Material.NETHERITE_CHESTPLATE);
         setInterval(5353);
         setBaseCost(getConfig().baseCost);
@@ -34,8 +36,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + " Max Armor");
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + " Speed");
+        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("GhostArmor.Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + Adapt.dLocalize("GhostArmor.Lore2"));
     }
 
     public double getMaxArmorPoints(double factor) {

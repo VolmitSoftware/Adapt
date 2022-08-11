@@ -1,7 +1,7 @@
 package com.volmit.adapt.content.adaptation.nether;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.content.skill.SkillNether;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.Data;
@@ -22,8 +22,8 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     public NetherWitherResist() {
         super("nether-wither-resist");
         registerConfiguration(Config.class);
-        setDescription("Resists withering through the power of Netherite.");
-        setDisplayName("Wither Resist");
+        setDescription(Adapt.dLocalize("WitherResist.Description"));
+        setDisplayName(Adapt.dLocalize("WitherResist.Name"));
         setIcon(Material.NETHERITE_CHESTPLATE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -34,37 +34,40 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        int chance = (int)(getConfig().basePieceChance + getConfig().getChanceAddition() * level);
-        v.addLore(C.GREEN + "+ " + chance + "%" + C.GRAY + " chance to negate withering (per piece).");
-        v.addLore(C.GRAY + "Passive: Wearing Netherite Armor has a chance to negate " + C.DARK_GRAY + "withering.");
+        int chance = (int) (getConfig().basePieceChance + getConfig().getChanceAddition() * level);
+        v.addLore(C.GREEN + "+ " + chance + "%" + C.GRAY + Adapt.dLocalize("WitherResist.Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("WitherResist.Lore1") + C.DARK_GRAY + Adapt.dLocalize("WitherResist.Lore2"));
     }
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent e) {
-        if(e.getCause() == EntityDamageEvent.DamageCause.WITHER && e.getEntity() instanceof Player p) {
-            if(!hasAdaptation(p))
+        if (e.getCause() == EntityDamageEvent.DamageCause.WITHER && e.getEntity() instanceof Player p) {
+            if (!hasAdaptation(p))
                 return;
             double chance = getTotalChange(p);
-            if(RANDOM.nextInt(0, 101) <= chance)
+            if (RANDOM.nextInt(0, 101) <= chance)
                 e.setCancelled(true);
         }
     }
 
     @Override
-    public boolean isEnabled() { return getConfig().isEnabled(); }
+    public boolean isEnabled() {
+        return getConfig().isEnabled();
+    }
 
     @Override
-    public void onTick() { }
+    public void onTick() {
+    }
 
     private double getTotalChange(Player p) {
         return getChance(p, EquipmentSlot.HEAD) + getChance(p, EquipmentSlot.CHEST) + getChance(p, EquipmentSlot.LEGS) + getChance(p, EquipmentSlot.FEET);
     }
 
     private double getChance(Player p, EquipmentSlot slot) {
-        if(p.getEquipment() == null)
+        if (p.getEquipment() == null)
             return 0.0;
         ItemStack item = p.getEquipment().getItem(slot);
-        if(item.getType() == Material.NETHERITE_HELMET || item.getType() == Material.NETHERITE_CHESTPLATE || item.getType() == Material.NETHERITE_LEGGINGS || item.getType() == Material.NETHERITE_BOOTS)
+        if (item.getType() == Material.NETHERITE_HELMET || item.getType() == Material.NETHERITE_CHESTPLATE || item.getType() == Material.NETHERITE_LEGGINGS || item.getType() == Material.NETHERITE_BOOTS)
             return getConfig().basePieceChance + getConfig().chanceAddition * getLevel(p);
         return 0.0D;
     }

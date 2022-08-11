@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -15,8 +16,8 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
     public CraftingXP() {
         super("crafting-xp");
         registerConfiguration(CraftingXP.Config.class);
-        setDisplayName("Crafting XP");
-        setDescription("Gain passive XP when crafting");
+        setDisplayName(Adapt.dLocalize("CraftXp.Name"));
+        setDescription(Adapt.dLocalize("CraftXp.Description"));
         setIcon(Material.EXPERIENCE_BOTTLE);
         setInterval(10101);
         setBaseCost(getConfig().baseCost);
@@ -24,6 +25,12 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + Adapt.dLocalize("CraftXp.Lore1"));
+    }
+
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(CraftItemEvent e) {
@@ -38,10 +45,6 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
         return getConfig().enabled;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "Gain XP when crafting");
-    }
 
     @Override
     public void onTick() {

@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.stealth;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -16,8 +17,8 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     public StealthSight() {
         super("stealth-vision");
         registerConfiguration(Config.class);
-        setDescription("Gain night vision while sneaking");
-        setDisplayName("Stealth Vision");
+        setDescription(Adapt.dLocalize("StealthNightVision.Description"));
+        setDisplayName(Adapt.dLocalize("StealthNightVision.Name"));
         setIcon(Material.POTION);
         setBaseCost(getConfig().baseCost);
         setInterval(2000);
@@ -29,7 +30,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "Gain a burst of " + C.GREEN + "night vision" + C.GRAY + " while sneaking");
+        v.addLore(C.GRAY + Adapt.dLocalize("StealthNightVision.Lore1") + C.GREEN + Adapt.dLocalize("StealthNightVision.Lore2") + C.GRAY + Adapt.dLocalize("StealthNightVision.Lore3"));
     }
 
     @EventHandler
@@ -44,8 +45,6 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         } else {
             e.getPlayer().removePotionEffect(PotionEffectType.NIGHT_VISION);
         }
-
-
     }
 
     @Override

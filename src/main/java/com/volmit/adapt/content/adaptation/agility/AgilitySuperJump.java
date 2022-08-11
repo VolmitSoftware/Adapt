@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.agility;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -29,8 +30,8 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     public AgilitySuperJump() {
         super("agility-super-jump");
         registerConfiguration(Config.class);
-        setDescription("Exceptional Height Advantage");
-        setDisplayName("Agility Super Jump");
+        setDescription(Adapt.dLocalize("SuperJump.Description"));
+        setDisplayName(Adapt.dLocalize("SuperJump.Name"));
         setIcon(Material.LEATHER_BOOTS);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -45,17 +46,17 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + " Jump Height");
-        v.addLore(C.LIGHT_PURPLE + "* Sneak + Jump to Super Jump!");
+        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + Adapt.dLocalize("SuperJump.Lore1"));
+        v.addLore(C.LIGHT_PURPLE + Adapt.dLocalize("SuperJump.Lore2"));
     }
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
-        if(!hasAdaptation(e.getPlayer())) {
+        if (!hasAdaptation(e.getPlayer())) {
             return;
         }
 
-        if(e.isSneaking() && e.getPlayer().isOnGround()) {
+        if (e.isSneaking() && e.getPlayer().isOnGround()) {
             e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.3f, 0.35f);
         }
     }
@@ -69,28 +70,28 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
 
-        if(p.isSwimming() || p.isFlying() || p.isGliding() || p.isSprinting()) {
+        if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSprinting()) {
             return;
         }
 
-        if(p.isSneaking() && getLevel(p) > 0) {
+        if (p.isSneaking() && getLevel(p) > 0) {
             Vector velocity = p.getVelocity();
 
-            if(velocity.getY() > 0) {
+            if (velocity.getY() > 0) {
                 double jumpVelocity = 0.4;
                 PotionEffect jumpPotion = p.getPotionEffect(PotionEffectType.JUMP);
 
-                if(jumpPotion != null) {
+                if (jumpPotion != null) {
                     jumpVelocity += (double) ((float) jumpPotion.getAmplifier() + 1) * 0.1F;
                 }
 
-                if(lastJump.get(p) != null && M.ms() - lastJump.get(p) < 1000) {
+                if (lastJump.get(p) != null && M.ms() - lastJump.get(p) < 1000) {
                     return;
-                } else if(lastJump.get(p) != null && M.ms() - lastJump.get(p) > 1500) {
+                } else if (lastJump.get(p) != null && M.ms() - lastJump.get(p) > 1500) {
                     lastJump.remove(p);
                 }
 
-                if(p.getLocation().getBlock().getType() != Material.LADDER && velocity.getY() > jumpVelocity && p.isOnline()) {
+                if (p.getLocation().getBlock().getType() != Material.LADDER && velocity.getY() > jumpVelocity && p.isOnline()) {
                     p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.25f, 0.7f);
                     p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.25f, 1.7f);
                     p.getWorld().spawnParticle(Particle.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData());

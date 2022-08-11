@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.agility;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -24,8 +25,8 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     public AgilityWindUp() {
         super("agility-wind-up");
         registerConfiguration(Config.class);
-        setDescription("Get faster the longer you sprint!");
-        setDisplayName("Agility Wind Up");
+        setDescription(Adapt.dLocalize("WindUp.Description"));
+        setDisplayName(Adapt.dLocalize("WindUp.Name"));
         setIcon(Material.POWERED_RAIL);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -35,8 +36,8 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getWindupSpeed(getLevelPercent(level)), 0) + C.GRAY + " Max Speed");
-        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + " Windup Time");
+        v.addLore(C.GREEN + "+ " + Form.pc(getWindupSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("WindUp.Lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("WindUp.Lore2"));
     }
 
     @EventHandler
@@ -54,21 +55,21 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers()) {
-            for(AttributeModifier j : i.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
-                if(j.getName().equals("adapt-wind-up")) {
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            for (AttributeModifier j : i.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
+                if (j.getName().equals("adapt-wind-up")) {
                     i.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(j);
                 }
             }
 
-            if(i.isSwimming() || i.isFlying() || i.isGliding() || i.isSneaking()) {
+            if (i.isSwimming() || i.isFlying() || i.isGliding() || i.isSneaking()) {
                 ticksRunning.remove(i);
                 return;
             }
 
-            if(i.isSprinting() && getLevel(i) > 0) {
+            if (i.isSprinting() && getLevel(i) > 0) {
                 ticksRunning.compute(i, (k, v) -> {
-                    if(v == null) {
+                    if (v == null) {
                         return 1;
                     }
 
@@ -77,7 +78,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
 
                 Integer tr = ticksRunning.get(i);
 
-                if(tr == null || tr <= 0) {
+                if (tr == null || tr <= 0) {
                     continue;
                 }
 
@@ -86,11 +87,11 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
                 double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
                 double speedIncrease = M.lerp(0, getWindupSpeed(factor), progress);
 
-                if(M.r(0.2 * progress)) {
+                if (M.r(0.2 * progress)) {
                     i.getWorld().spawnParticle(Particle.LAVA, i.getLocation(), 1);
                 }
 
-                if(M.r(0.25 * progress)) {
+                if (M.r(0.25 * progress)) {
                     i.getWorld().spawnParticle(Particle.FLAME, i.getLocation(), 1, 0, 0, 0, 0);
                 }
 

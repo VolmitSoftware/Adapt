@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.ranged;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -19,8 +20,8 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
     public RangedPiercing() {
         super("ranged-piercing");
         registerConfiguration(Config.class);
-        setDescription("Adds Piercing to projectiles! Shoot through things!");
-        setDisplayName("Ranged Piercing");
+        setDescription(Adapt.dLocalize("ArrowPiercing.Description"));
+        setDisplayName(Adapt.dLocalize("ArrowPiercing.Name"));
         setIcon(Material.SHEARS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -31,7 +32,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + " Piercing");
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("ArrowPiercing.Lore1"));
     }
 
     @EventHandler

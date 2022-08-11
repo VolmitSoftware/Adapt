@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.hunter;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -13,8 +14,8 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
     public HunterRegen() {
         super("hunter-regen");
         registerConfiguration(Config.class);
-        setDescription("When you are struck you gain regeneration, at the cost of hunger");
-        setDisplayName("Hunter's Regen");
+        setDescription(Adapt.dLocalize("HunterRegen.Description"));
+        setDisplayName(Adapt.dLocalize("HunterRegen.Name"));
         setIcon(Material.AXOLOTL_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -24,11 +25,11 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "Gain passive regen when struck");
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + "x Regen stacks for a 3 seconds on hit");
-        v.addLore(C.RED + "- " + 5+level + C.GRAY + "x Stacking hunger");
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " Hunger stacks duration and multiplier.");
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " Regen stacks multiplier, not duration.");
+        v.addLore(C.GRAY + Adapt.dLocalize("HunterRegen.Lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("HunterRegen.Lore2"));
+        v.addLore(C.RED + "- " + 5+level + C.GRAY + Adapt.dLocalize("HunterRegen.Lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterRegen.Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterRegen.Lore5"));
     }
 
 

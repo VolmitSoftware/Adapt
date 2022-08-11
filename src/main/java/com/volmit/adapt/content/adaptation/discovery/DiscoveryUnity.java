@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.discovery;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -15,8 +16,8 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     public DiscoveryUnity() {
         super("discovery-unity");
         registerConfiguration(Config.class);
-        setDescription("Collecting Experience Orbs adds XP to random skills.");
-        setDisplayName("Discovery Unity");
+        setDescription(Adapt.dLocalize("DiscoveryUnity.Description"));
+        setDisplayName(Adapt.dLocalize("DiscoveryUnity.Name"));
         setIcon(Material.REDSTONE);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
@@ -26,12 +27,12 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + " XP " + C.GRAY + " Per Orb");
+        v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + Adapt.dLocalize("DiscoveryUnity.Lore1") + C.GRAY + Adapt.dLocalize("DiscoveryUnity.Lore2"));
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void on(PlayerExpChangeEvent e) {
-        if(e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {
+        if (e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {
             e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.9f);
             getPlayer(e.getPlayer()).boostXPToRandom(getPlayer(e.getPlayer()), e.getAmount() * getConfig().xpBoostMultiplier, getConfig().xpBoostDuration);
             getPlayer(e.getPlayer()).giveXPToRandom(getPlayer(e.getPlayer()), getXPGained(getLevelPercent(e.getPlayer()), e.getAmount()));

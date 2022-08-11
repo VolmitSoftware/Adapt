@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
@@ -13,16 +14,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.Config> {
 
     public HerbalismHungryHippo() {
         super("herbalism-hippo");
         registerConfiguration(Config.class);
-        setDescription("Consuming food, gives you more saturation");
-        setDisplayName("Herbalist's Hippo");
+        setDescription(Adapt.dLocalize("Hippo.Description"));
+        setDisplayName(Adapt.dLocalize("Hippo.Name"));
         setIcon(Material.POTATO);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -38,7 +36,7 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
         if (!hasAdaptation(p)) {
             return;
         }
-        if (ItemListings.getFoods().contains(e.getItem().getType())) {
+        if (ItemListings.getFood().contains(e.getItem().getType())) {
             p.setFoodLevel(p.getFoodLevel() + 2 + getLevel(p));
             p.playSound(p.getLocation(), Sound.BLOCK_POINTED_DRIPSTONE_LAND, 1, 0.25f);
             vfxFastRing(p.getLocation().add(0, 0.25, 0), 2, Color.GREEN);
@@ -47,7 +45,7 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ (" + (2 + level) + C.GRAY + " + Food) additional saturation points on consumption");
+        v.addLore(C.GREEN + "+ (" + (2 + level) + C.GRAY + Adapt.dLocalize("Hippo.Lore1"));
     }
 
     @Override

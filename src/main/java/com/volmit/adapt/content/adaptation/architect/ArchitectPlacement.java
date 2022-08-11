@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.architect;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -29,14 +30,19 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     public ArchitectPlacement() {
         super("architect-placement");
         registerConfiguration(ArchitectPlacement.Config.class);
-        setDescription("allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes");
-        setDisplayName("Architect's Builders Wand");
+        setDescription(Adapt.dLocalize("Placement.Description"));
+        setDisplayName(Adapt.dLocalize("Placement.Name"));
         setIcon(Material.SCAFFOLDING);
         setInterval(350);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+    }
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + Adapt.dLocalize("Placement.Lore3"));
     }
 
     private final Map<Player, Map<Block, BlockFace>> totalMap = new HashMap<>();
@@ -61,7 +67,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         if (hasAdaptation(p) && !totalMap.isEmpty() && totalMap.get(p) != null && totalMap.get(p).size() > 0) {
             BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), e.getPlayer(), e.getBlock().getBlockData(), true);
             Bukkit.getServer().getPluginManager().callEvent(can);
-            if(!can.isBuildable()) {
+            if (!can.isBuildable()) {
                 return;
             }
 
@@ -87,11 +93,11 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                         hand.setAmount(is.getAmount());
                     }
                     totalMap.remove(p);
-                    if (hand.getAmount() > 0){
+                    if (hand.getAmount() > 0) {
                         runPlayerViewport(getBlockFace(p), p.getTargetBlock(null, 5), p.getInventory().getItemInMainHand().getType(), p);
                     }
                 } else {
-                    p.sendMessage(C.RED + "You must have " + C.GREEN + totalMap.get(p).size() + C.RED + " blocks in your hand to place them!");
+                    p.sendMessage(C.RED + Adapt.dLocalize("Placement.Lore1") + C.GREEN + totalMap.get(p).size() + C.RED + Adapt.dLocalize("Placement.Lore2"));
                 }
             }
         }
@@ -115,7 +121,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
             runPlayerViewport(viewPortBlock, block, handMaterial, p);
         }
     }
-
 
 
     @EventHandler
@@ -188,10 +193,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         return getConfig().enabled;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "A Material Builders Wand");
-    }
 
     @Override
     public void onTick() {

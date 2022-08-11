@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.stealth;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -15,7 +16,8 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     public StealthSpeed() {
         super("stealth-speed");
         registerConfiguration(Config.class);
-        setDescription("Move faster while sneaking");
+        setDescription(Adapt.dLocalize("SneakSpeed.Description"));
+        setDisplayName(Adapt.dLocalize("SneakSpeed.Name"));
         setIcon(Material.MUSHROOM_STEW);
         setBaseCost(getConfig().baseCost);
         setInterval(2000);
@@ -25,25 +27,25 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " Sneak Speed");
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("SneakSpeed.Lore1"));
     }
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
         double factor = getLevelPercent(e.getPlayer());
-        if(!hasAdaptation(e.getPlayer())) {
+        if (!hasAdaptation(e.getPlayer())) {
             return;
         }
 
-        if(factor == 0) {
+        if (factor == 0) {
             return;
         }
         AttributeModifier mod = new AttributeModifier("adapt-sneak-speed", getSpeed(factor), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-        if(e.isSneaking()) {
+        if (e.isSneaking()) {
             e.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(mod);
         } else {
-            for(AttributeModifier i : e.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
-                if(i.getName().equals("adapt-sneak-speed")) {
+            for (AttributeModifier i : e.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
+                if (i.getName().equals("adapt-sneak-speed")) {
                     e.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(i);
                 }
             }

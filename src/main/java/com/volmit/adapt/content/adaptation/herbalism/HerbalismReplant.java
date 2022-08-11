@@ -1,11 +1,9 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.skill.SkillHerbalism;
-import com.volmit.adapt.util.Cuboid;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -19,7 +17,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> {
@@ -28,8 +25,8 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     public HerbalismReplant() {
         super("herbalism-replant");
         registerConfiguration(Config.class);
-        setDescription("Right click a crop with a hoe to harvest & replant it.");
-        setDisplayName("Replant");
+        setDescription(Adapt.dLocalize("Replant.Description"));
+        setDisplayName(Adapt.dLocalize("Replant.Name"));
         setIcon(Material.PUMPKIN_SEEDS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -38,8 +35,14 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
         setCostFactor(getConfig().costFactor);
     }
 
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + Adapt.dLocalize("Replant.Lore1"));
+    }
+
+
     private int getCooldown(double factor, int level) {
-        if(level == 1) {
+        if (level == 1) {
             return (int) getConfig().cooldownLvl1;
         }
 
@@ -52,31 +55,31 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        if(e.getClickedBlock() == null) {
+        if (e.getClickedBlock() == null) {
             return;
         }
 
-        if(!(e.getClickedBlock().getBlockData() instanceof Ageable)) {
+        if (!(e.getClickedBlock().getBlockData() instanceof Ageable)) {
             return;
         }
 
         int lvl = getLevel(e.getPlayer());
 
-        if(lvl > 0) {
+        if (lvl > 0) {
             ItemStack right = e.getPlayer().getInventory().getItemInMainHand();
             ItemStack left = e.getPlayer().getInventory().getItemInOffHand();
 
-            if(isTool(left) && isHoe(left) && !e.getPlayer().hasCooldown(left.getType())) {
+            if (isTool(left) && isHoe(left) && !e.getPlayer().hasCooldown(left.getType())) {
                 damageOffHand(e.getPlayer(), 1 + ((lvl - 1) * 7));
                 e.getPlayer().setCooldown(left.getType(), getCooldown(getLevelPercent(e.getPlayer()), getLevel(e.getPlayer())));
-            } else if(isTool(right) && isHoe(right) && !e.getPlayer().hasCooldown(right.getType())) {
+            } else if (isTool(right) && isHoe(right) && !e.getPlayer().hasCooldown(right.getType())) {
                 damageHand(e.getPlayer(), 1 + ((lvl - 1) * 7));
                 e.getPlayer().setCooldown(right.getType(), getCooldown(getLevelPercent(e.getPlayer()), getLevel(e.getPlayer())));
             } else {
                 return;
             }
 
-            if(lvl > 1) {
+            if (lvl > 1) {
                 Cuboid c = new Cuboid(e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5));
                 c = c.expand(Cuboid.CuboidDirection.Up, (int) Math.floor(getRadius(lvl)));
                 c = c.expand(Cuboid.CuboidDirection.Down, (int) Math.floor(getRadius(lvl)));
@@ -99,14 +102,14 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     }
 
     private void hit(Player p, Block b) {
-        if(b != null && b.getBlockData() instanceof Ageable && getLevel(p) > 0) {
+        if (b != null && b.getBlockData() instanceof Ageable && getLevel(p) > 0) {
             Ageable aa = (Ageable) b.getBlockData();
 
-            if(aa.getAge() == 0) {
+            if (aa.getAge() == 0) {
                 return;
             }
 
-            xp(p,b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * aa.getAge());
+            xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * aa.getAge());
             xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
             b.breakNaturally();
 
@@ -118,21 +121,18 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
             getPlayer(p).getData().addStat("harvest.blocks", 1);
             getPlayer(p).getData().addStat("harvest.planted", 1);
 
-            if(M.r(1D / (double) getLevel(p))) {
+            if (M.r(1D / (double) getLevel(p))) {
                 p.getWorld().playSound(b.getLocation(), Sound.ITEM_CROP_PLANT, 1f, 0.7f);
             }
         }
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-
-    }
 
     @Override
     public void onTick() {
 
     }
+
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;

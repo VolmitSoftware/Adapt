@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.unarmed;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -14,8 +15,8 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
     public UnarmedGlassCannon() {
         super("unarmed-glass-cannon");
         registerConfiguration(Config.class);
-        setDescription("Bonus Unarmed Damage the lower your armor value is");
-        setDisplayName("Glass Cannon");
+        setDescription(Adapt.dLocalize("GlassCannon.Description"));
+        setDisplayName(Adapt.dLocalize("GlassCannon.Name"));
         setIcon(Material.DISC_FRAGMENT_5);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -26,8 +27,8 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + (getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier)) + "x Damage at 0 armor");
-        v.addLore(C.GREEN + "+ " + Form.f(level * getConfig().perLevelBonusMultiplier) + " PerLevel Bonus Damage");
+        v.addLore(C.GREEN + "+ " + (getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier)) + C.GRAY + Adapt.dLocalize("GlassCannon.Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(level * getConfig().perLevelBonusMultiplier) + C.GRAY + Adapt.dLocalize("GlassCannon.Lore2"));
     }
 
     @EventHandler

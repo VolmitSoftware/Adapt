@@ -5,12 +5,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.M;
-import com.volmit.adapt.util.RNG;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -35,8 +30,8 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
     public BrewingSuperHeated() {
         super("brewing-super-heated");
         registerConfiguration(Config.class);
-        setDescription("Brewing stands work faster the hotter they are.");
-        setDisplayName("Super Heated Brew");
+        setDescription(Adapt.dLocalize("SuperHeated.Description"));
+        setDisplayName(Adapt.dLocalize("SuperHeated.Name"));
         setIcon(Material.LAVA_BUCKET);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -45,65 +40,55 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
         setInterval(250);
     }
 
-    public double getLavaBoost(double factor)
-    {
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "+ " + Form.pc(getFireBoost(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("SuperHeated.Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getLavaBoost(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("SuperHeated.Lore2"));
+    }
+
+    public double getLavaBoost(double factor) {
         return (getConfig().lavaMultiplier) * (getConfig().multiplierFactor * factor);
     }
 
-    public double getFireBoost(double factor)
-    {
+    public double getFireBoost(double factor) {
         return (getConfig().fireMultiplier) * (getConfig().multiplierFactor * factor);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BrewEvent e)
-    {
+    public void on(BrewEvent e) {
         J.s(() -> {
-            if(((BrewingStand)e.getBlock().getState()).getBrewingTime() > 0)
-            {
+            if (((BrewingStand) e.getBlock().getState()).getBrewingTime() > 0) {
                 activeStands.add(e.getBlock());
             }
         });
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(InventoryClickEvent e)
-    {
-        if(e.getView().getTopInventory().getType().equals(InventoryType.BREWING))
-        {
+    public void on(InventoryClickEvent e) {
+        if (e.getView().getTopInventory().getType().equals(InventoryType.BREWING)) {
             activeStands.add(e.getView().getTopInventory().getLocation().getBlock());
         }
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getFireBoost(getLevelPercent(level)), 0) + C.GRAY + " Per Touching Fire Block");
-        v.addLore(C.GREEN + "+ " + Form.pc(getLavaBoost(getLevelPercent(level)), 0) + C.GRAY + " Per Touching Lava Block");
-    }
 
     @Override
     public void onTick() {
-        if(activeStands.isEmpty())
-        {
+        if (activeStands.isEmpty()) {
             return;
         }
 
         Iterator<Block> it = activeStands.iterator();
 
         J.s(() -> {
-            while(it.hasNext())
-            {
+            while (it.hasNext()) {
                 BlockState s = it.next().getState();
 
-                if(s instanceof BrewingStand b)
-                {
-                    if(b.getBrewingTime() <= 0)
-                    {
+                if (s instanceof BrewingStand b) {
+                    if (b.getBrewingTime() <= 0) {
                         J.s(() -> {
                             BrewingStand bb = (BrewingStand) s.getBlock().getState();
 
-                            if(bb.getBrewingTime() <= 0)
-                            {
+                            if (bb.getBrewingTime() <= 0) {
                                 activeStands.remove(b.getBlock());
                             }
                         });
@@ -112,28 +97,20 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
 
                     BrewingStandOwner owner = WorldData.of(b.getWorld()).getMantle().get(b.getX(), b.getY(), b.getZ(), BrewingStandOwner.class);
 
-                    if(owner == null)
-                    {
+                    if (owner == null) {
                         it.remove();
                         continue;
                     }
 
                     PlayerData p = getServer().peekData(owner.getOwner());
 
-                    if(p.getSkillLines().get(getSkill().getName()) != null && p.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName())
-                        && p.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getLevel() > 0)
-                    {
+                    if (p.getSkillLines().get(getSkill().getName()) != null && p.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName())
+                            && p.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getLevel() > 0) {
                         updateHeat(b, getLevelPercent(p.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getLevel()));
-                    }
-
-                    else
-                    {
+                    } else {
                         it.remove();
                     }
-                }
-
-                else
-                {
+                } else {
                     it.remove();
                 }
             }
@@ -144,39 +121,33 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
         double l = 0;
         double f = 0;
 
-        switch(b.getBlock().getRelative(BlockFace.DOWN).getType())
-        {
+        switch (b.getBlock().getRelative(BlockFace.DOWN).getType()) {
             case LAVA -> l = l + 1;
             case FIRE -> f = f + 1;
         }
-        switch(b.getBlock().getRelative(BlockFace.NORTH).getType())
-        {
+        switch (b.getBlock().getRelative(BlockFace.NORTH).getType()) {
             case LAVA -> l = l + 1;
             case FIRE -> f = f + 1;
         }
-        switch(b.getBlock().getRelative(BlockFace.SOUTH).getType())
-        {
+        switch (b.getBlock().getRelative(BlockFace.SOUTH).getType()) {
             case LAVA -> l = l + 1;
             case FIRE -> f = f + 1;
         }
-        switch(b.getBlock().getRelative(BlockFace.EAST).getType())
-        {
+        switch (b.getBlock().getRelative(BlockFace.EAST).getType()) {
             case LAVA -> l = l + 1;
             case FIRE -> f = f + 1;
         }
-        switch(b.getBlock().getRelative(BlockFace.WEST).getType())
-        {
+        switch (b.getBlock().getRelative(BlockFace.WEST).getType()) {
             case LAVA -> l = l + 1;
             case FIRE -> f = f + 1;
         }
 
         double pct = (getFireBoost(factor) * f) + (getLavaBoost(factor) * l) + 1;
-        int warp = (int) ((getInterval()/50D) * pct);
+        int warp = (int) ((getInterval() / 50D) * pct);
         b.setBrewingTime(Math.max(1, b.getBrewingTime() - warp));
         b.update();
 
-        if(M.r(1D / (333D/getInterval())))
-        {
+        if (M.r(1D / (333D / getInterval()))) {
             b.getBlock().getWorld().playSound(b.getBlock().getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1f + RNG.r.f(0.3f, 0.6f));
         }
     }

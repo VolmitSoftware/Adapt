@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.enchanting;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -16,8 +17,8 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
     public EnchantingLapisReturn() {
         super("enchanting-lapis-return");
         registerConfiguration(Config.class);
-        setDescription("At the cost of 1 more level of XP, and has a chance to give you free lapis in return");
-        setDisplayName("Lapis Return");
+        setDescription(Adapt.dLocalize("LapisReturn.Description"));
+        setDisplayName(Adapt.dLocalize("LapisReturn.Name"));
         setIcon(Material.LAPIS_LAZULI);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -28,7 +29,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "For every level, it increases the cost of enchanting, by 1, but can return upwards of 3 Lapis");
+        v.addLore(C.GREEN + Adapt.dLocalize("LapisReturn.Lore1"));
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -41,7 +42,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         xp = xp + getLevel(p); // Add a level for each enchant
         e.setExpLevelCost(xp);
         int lapis = (int) (Math.random() * 1);
-        lapis =  lapis + (int) (Math.random() * (getLevel(p) +1));
+        lapis = lapis + (int) (Math.random() * (getLevel(p) + 1));
         p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, lapis));
 
 

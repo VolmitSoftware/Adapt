@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.ranged;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
@@ -26,8 +27,8 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
     public RangedForce() {
         super("ranged-force");
         registerConfiguration(Config.class);
-        setDescription("Shoot projectiles further, faster!");
-        setDisplayName("Ranged Force");
+        setDescription(Adapt.dLocalize("ForceShot.Description"));
+        setDisplayName(Adapt.dLocalize("ForceShot.Name"));
         setIcon(Material.ARROW);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -37,8 +38,8 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         registerAdvancement(AdaptAdvancement.builder()
             .icon(Material.SPECTRAL_ARROW)
             .key("challenge_force_30")
-            .title("Long Shot")
-            .description("Land a shot from over 30 blocks away!")
+            .title(Adapt.dLocalize("ForceShot.AdvancementName"))
+            .description(Adapt.dLocalize("ForceShot.AdvancementLore"))
             .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.PARENT_GRANTED)
             .build());
@@ -46,7 +47,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " Projectile Speed");
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("ForceShot.Lore1"));
     }
 
     private double getSpeed(double factor) {

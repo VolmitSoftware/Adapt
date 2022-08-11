@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.excavation;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.content.item.multiItems.OmniTool;
@@ -37,8 +38,8 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     public ExcavationOmniTool() {
         super("excavation-omnitool");
         registerConfiguration(ExcavationOmniTool.Config.class);
-        setDisplayName("OMNI - T.O.O.L.");
-        setDescription("Tackle's overdesigned opulent Leatherman");
+        setDisplayName(Adapt.dLocalize("OmniTool.Name"));
+        setDescription(Adapt.dLocalize("OmniTool.Description"));
         setIcon(Material.DISC_FRAGMENT_5);
         setInterval(20202);
         setBaseCost(getConfig().baseCost);
@@ -49,13 +50,13 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "Probably the most powerful of  many allows you to");
-        v.addLore(C.GRAY + "dynamically merge and change tools on the fly, based on your needs.");
-        v.addLore(C.GREEN + "to merge, shift click an item over another in your inventory.");
-        v.addLore(C.RED + "to unbind tools, Sneak-Drop the item, and it will disassemble.");
-        v.addLore(C.GRAY + "you can't break tools in this leatherman but you can't use broken tools");
-        v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + " total merge-able items");
-        v.addLore(C.UNDERLINE + "you could use five or six tools, or just one!");
+        v.addLore(C.GRAY + Adapt.dLocalize("OmniTool.Lore1"));
+        v.addLore(C.GRAY + "" + (level) + C.GRAY + Adapt.dLocalize("OmniTool.Lore2"));
+        v.addLore(C.GREEN + Adapt.dLocalize("OmniTool.Lore3"));
+        v.addLore(C.RED + Adapt.dLocalize("OmniTool.Lore4"));
+        v.addLore(C.GRAY + Adapt.dLocalize("OmniTool.Lore5"));
+        v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + Adapt.dLocalize("OmniTool.Lore6"));
+        v.addLore(C.UNDERLINE + Adapt.dLocalize("OmniTool.Lore7"));
 
 
     }
@@ -122,7 +123,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             if (block == null) {
                 return;
             }
-            if (ItemListings.farmList.contains(block.getType())) {
+            if (ItemListings.farmable.contains(block.getType())) {
                 J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextHoe(hand)));
                 e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 if (imHand != null && imHand.hasDamage()) {
@@ -131,7 +132,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                         e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
                     }
                 }
-            } else if (ItemListings.farmList.contains(block.getType())) {
+            } else if (ItemListings.farmable.contains(block.getType())) {
                 J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextFnS(hand)));
                 e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 if (imHand != null && imHand.hasDamage()) {
@@ -240,7 +241,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                     return;
                 }
             }
-            if (ItemListings.tools.contains(cursor.getType()) && ItemListings.tools.contains(clicked.getType())) { // TOOLS ONLY
+            if (ItemListings.tool.contains(cursor.getType()) && ItemListings.tool.contains(clicked.getType())) { // TOOLS ONLY
                 if (!cursor.getType().isAir() && !clicked.getType().isAir() && omniTool.supportsItem(cursor) && omniTool.supportsItem(clicked)) {
                     e.setCancelled(true);
                     e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));

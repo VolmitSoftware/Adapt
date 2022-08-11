@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.unarmed;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -14,7 +15,8 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     public UnarmedPower() {
         super("unarmed-power");
         registerConfiguration(Config.class);
-        setDescription("Improved Unarmed Damage");
+        setDescription(Adapt.dLocalize("UnarmedPower.Description"));
+        setDisplayName(Adapt.dLocalize("UnarmedPower.Name"));
         setIcon(Material.LEATHER_HELMET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -34,7 +36,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getUnarmedDamage(level), 0) + C.GRAY + " Damage");
+        v.addLore(C.GREEN + "+ " + Form.pc(getUnarmedDamage(level), 0) + C.GRAY + Adapt.dLocalize("UnarmedPower.Lore1"));
     }
 
     @EventHandler

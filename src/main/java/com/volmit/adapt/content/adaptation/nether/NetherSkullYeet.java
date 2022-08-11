@@ -1,7 +1,7 @@
 package com.volmit.adapt.content.adaptation.nether;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.content.skill.SkillNether;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -26,8 +26,8 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     public NetherSkullYeet() {
         super("nether-skull-toss");
         registerConfiguration(Config.class);
-        setDescription("Unleash your inner Wither by using " + C.ITALIC + "someones" + C.GRAY + " head.");
-        setDisplayName("Wither Skull Throw");
+        setDescription(Adapt.dLocalize("SkullToss.Description1") + C.ITALIC + Adapt.dLocalize("SkullToss.Description2") + C.GRAY + Adapt.dLocalize("SkullToss.Description3"));
+        setDisplayName(Adapt.dLocalize("SkullToss.Name"));
         setIcon(Material.WITHER_SKELETON_SKULL);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -39,23 +39,23 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     @Override
     public void addStats(int level, Element v) {
         int chance = getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * level;
-        v.addLore(C.GREEN + String.valueOf(chance) + "s" + C.GRAY + " cooldown between skull tosses.");
-        v.addLore(C.GRAY + "Using Wither Skull: Toss a " + C.DARK_GRAY + "Wither Skull" + C.GRAY + ", exploding on impact.");
+        v.addLore(C.GREEN + String.valueOf(chance) + C.GRAY + Adapt.dLocalize("SkullToss.Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("SkullToss.Lore2") + C.DARK_GRAY + Adapt.dLocalize("SkullToss.Lore3") + C.GRAY + Adapt.dLocalize("SkullToss.Lore4"));
     }
 
     @EventHandler
     public void onRightClick(PlayerInteractEvent e) {
-        if(e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK)
+        if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK)
             return;
-        if(e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL)
+        if (e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL)
             return;
 
-        if(cooldowns.containsKey(e.getPlayer().getUniqueId())) {
+        if (cooldowns.containsKey(e.getPlayer().getUniqueId())) {
             e.getPlayer().playSound(e.getPlayer(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
             return;
         }
 
-        if(e.getPlayer().getGameMode() != GameMode.CREATIVE) {
+        if (e.getPlayer().getGameMode() != GameMode.CREATIVE) {
             e.getItem().setAmount(e.getItem().getAmount() - 1);
             int cooldown = (getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * getLevel(e.getPlayer())) * 20;
             cooldowns.put(e.getPlayer().getUniqueId(), cooldown);
@@ -75,13 +75,15 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     }
 
     @Override
-    public boolean isEnabled() { return getConfig().isEnabled(); }
+    public boolean isEnabled() {
+        return getConfig().isEnabled();
+    }
 
     @Override
     public void onTick() {
-        for(UUID u : cooldowns.k()) {
+        for (UUID u : cooldowns.k()) {
             cooldowns.computeIfPresent(u, (uuid, i) -> i > 0 ? i-- : i);
-            if(cooldowns.get(u) == 0) {
+            if (cooldowns.get(u) == 0) {
                 cooldowns.remove(u);
                 NMS.get().sendCooldown(Bukkit.getPlayer(u), Material.WITHER_SKELETON_SKULL, 0);
             }

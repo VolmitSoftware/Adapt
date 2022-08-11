@@ -1,7 +1,11 @@
 package com.volmit.adapt.content.adaptation.agility;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -21,9 +25,9 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     public AgilityArmorUp() {
         super("agility-armor-up");
         registerConfiguration(Config.class);
-        setDescription("Get more armor the longer you sprint!");
+        setDescription(Adapt.dLocalize("ArmorUp.Description"));
         setIcon(Material.IRON_CHESTPLATE);
-        setDisplayName("Agility Armor Up");
+        setDisplayName(Adapt.dLocalize("ArmorUp.Name"));
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
@@ -32,8 +36,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getWindupArmor(getLevelPercent(level)), 0) + C.GRAY + " Max Armor");
-        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + " Armor-Up Time");
+        v.addLore(C.GREEN + "+ " + Form.pc(getWindupArmor(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("ArmorUp.Lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("ArmorUp.Lore2"));
     }
 
     @EventHandler
@@ -51,21 +55,21 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers()) {
-            for(AttributeModifier j : i.getAttribute(Attribute.GENERIC_ARMOR).getModifiers()) {
-                if(j.getName().equals("adapt-armor-up")) {
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            for (AttributeModifier j : i.getAttribute(Attribute.GENERIC_ARMOR).getModifiers()) {
+                if (j.getName().equals("adapt-armor-up")) {
                     i.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(j);
                 }
             }
 
-            if(i.isSwimming() || i.isFlying() || i.isGliding() || i.isSneaking()) {
+            if (i.isSwimming() || i.isFlying() || i.isGliding() || i.isSneaking()) {
                 ticksRunning.remove(i);
                 return;
             }
 
-            if(i.isSprinting() && getLevel(i) > 0) {
+            if (i.isSprinting() && getLevel(i) > 0) {
                 ticksRunning.compute(i, (k, v) -> {
-                    if(v == null) {
+                    if (v == null) {
                         return 1;
                     }
 
@@ -74,7 +78,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
                 Integer tr = ticksRunning.get(i);
 
-                if(tr == null || tr <= 0) {
+                if (tr == null || tr <= 0) {
                     continue;
                 }
 
@@ -83,11 +87,11 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
                 double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
                 double armorInc = M.lerp(0, getWindupArmor(factor), progress);
 
-                if(M.r(0.2 * progress)) {
+                if (M.r(0.2 * progress)) {
                     i.getWorld().spawnParticle(Particle.END_ROD, i.getLocation(), 1);
                 }
 
-                if(M.r(0.25 * progress)) {
+                if (M.r(0.25 * progress)) {
                     i.getWorld().spawnParticle(Particle.WAX_ON, i.getLocation(), 1, 0, 0, 0, 0);
                 }
 

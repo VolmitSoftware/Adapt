@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.ranged;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -23,8 +24,8 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     public RangedLungeShot() {
         super("ranged-lunge-shot");
         registerConfiguration(Config.class);
-        setDescription("360 NO SCOPE");
-        setDisplayName("Lunge Shot");
+        setDescription(Adapt.dLocalize("LungeShot.Description"));
+        setDisplayName(Adapt.dLocalize("LungeShot.Name"));
         setIcon(Material.FEATHER);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -39,7 +40,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " Speed");
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("LungeShot.Lore1"));
     }
 
     @EventHandler

@@ -7,11 +7,7 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
@@ -23,14 +19,20 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     public PickaxeChisel() {
         super("pickaxes-chisel");
         registerConfiguration(Config.class);
-        setDescription("Right Click Ores to Chisel more ore out of them, at a severe durability cost.");
-        setDisplayName("Ore Chisel");
+        setDescription(Adapt.dLocalize("Chisel.Description"));
+        setDisplayName(Adapt.dLocalize("Chisel.Name"));
         setIcon(Material.IRON_NUGGET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(8276);
         setCostFactor(getConfig().costFactor);
+    }
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "+ " + Form.pc(getDropChance(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Chisel.Lore1"));
+        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + Adapt.dLocalize("Chisel.Lore2"));
     }
 
     private int getCooldownTime(double levelPercent) {
@@ -49,26 +51,21 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
         return (int) (getConfig().damagePerBlockBase + (getConfig().damageFactorInverseMultiplier * ((1D - levelPercent))));
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDropChance(getLevelPercent(level)), 0) + C.GRAY + " Chance to Drop");
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " Tool Wear");
-    }
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-        if(e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(e.getPlayer().getInventory().getItemInMainHand()) && getLevel(e.getPlayer()) > 0) {
-            if(e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) > 0) {
+        if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(e.getPlayer().getInventory().getItemInMainHand()) && getLevel(e.getPlayer()) > 0) {
+            if (e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) > 0) {
                 return;
             }
 
             BlockCanBuildEvent can = new BlockCanBuildEvent(e.getClickedBlock(), e.getPlayer(), e.getClickedBlock().getBlockData(), true);
             Bukkit.getServer().getPluginManager().callEvent(can);
 
-            if(can.isBuildable()) {
+            if (can.isBuildable()) {
                 xp(e.getPlayer(), 3);
                 BlockData b = e.getClickedBlock().getBlockData();
-                if(isOre(b)) {
+                if (isOre(b)) {
                     e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f);
                     e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_METAL_HIT, 1.25f, 1.7f);
 
@@ -79,7 +76,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
                     Location c = e.getPlayer().rayTraceBlocks(8).getHitPosition().toLocation(e.getPlayer().getWorld());
 
                     ItemStack is = getDropFor(b);
-                    if(M.r(getDropChance(getLevelPercent(e.getPlayer())))) {
+                    if (M.r(getDropChance(getLevelPercent(e.getPlayer())))) {
                         e.getClickedBlock().getWorld().spawnParticle(Particle.ITEM_CRACK, c, 14, 0.10, 0.01, 0.01, 0.1, is);
                         e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
                         e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
@@ -90,7 +87,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
                         e.getClickedBlock().getWorld().spawnParticle(Particle.BLOCK_CRACK, c, 9, 0.1, 0.1, 0.1, e.getClickedBlock().getBlockData());
                     }
 
-                    if(M.r(getBreakChance(getLevelPercent(e.getPlayer())))) {
+                    if (M.r(getBreakChance(getLevelPercent(e.getPlayer())))) {
                         e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_BASALT_BREAK, 1.25f, 0.4f);
                         e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.887f);
 
@@ -104,7 +101,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     }
 
     private ItemStack getDropFor(BlockData b) {
-        return switch(b.getMaterial()) {
+        return switch (b.getMaterial()) {
             case COAL_ORE, DEEPSLATE_COAL_ORE -> new ItemStack(Material.COAL);
             case COPPER_ORE, DEEPSLATE_COPPER_ORE -> new ItemStack(Material.RAW_COPPER);
             case GOLD_ORE, DEEPSLATE_GOLD_ORE, NETHER_GOLD_ORE -> new ItemStack(Material.RAW_GOLD);

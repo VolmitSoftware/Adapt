@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.hunter;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -14,8 +15,8 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
     public HunterAdrenaline() {
         super("hunter-adrenaline");
         registerConfiguration(Config.class);
-        setDescription("Deal more damage the lower health you are (Melee)");
-        setDisplayName("Adrenaline");
+        setDescription(Adapt.dLocalize("Adrenaline.Description"));
+        setDisplayName(Adapt.dLocalize("Adrenaline.Name"));
         setIcon(Material.LEATHER_HELMET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -25,7 +26,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDamage(level), 0) + C.GRAY + " Max Damage");
+        v.addLore(C.GREEN + "+ " + Form.pc(getDamage(level), 0) + C.GRAY + Adapt.dLocalize("Adrenaline.Lore1"));
     }
 
     private double getDamage(int level) {
@@ -34,11 +35,11 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player && (getLevel((Player) e.getDamager()) > 0)) {
+        if (e.getDamager() instanceof Player && (getLevel((Player) e.getDamager()) > 0)) {
             double damageMax = getDamage(getLevel((Player) e.getDamager()));
             double hpp = ((Player) e.getDamager()).getHealth() / ((Player) e.getDamager()).getMaxHealth();
 
-            if(hpp >= 1) {
+            if (hpp >= 1) {
                 return;
             }
 

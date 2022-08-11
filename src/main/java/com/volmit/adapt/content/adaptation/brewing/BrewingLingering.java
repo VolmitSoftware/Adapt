@@ -25,8 +25,8 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
     public BrewingLingering() {
         super("brewing-lingering");
         registerConfiguration(Config.class);
-        setDescription("Brewed potions last longer!");
-        setDisplayName("Lingering Brew");
+        setDescription(Adapt.dLocalize("Lingering.Description"));
+        setDisplayName(Adapt.dLocalize("Lingering.Name"));
         setIcon(Material.CLOCK);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -35,44 +35,41 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         setInterval(5000);
     }
 
-    public double getDurationBoost(double factor)
-    {
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "+ " + Form.duration((long) getDurationBoost(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Lingering.Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getPercentBoost(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Lingering.Lore2"));
+    }
+
+    public double getDurationBoost(double factor) {
         return (getConfig().durationBoostFactorTicks * factor) + getConfig().baseDurationBoostTicks;
     }
 
-    public double getPercentBoost(double factor)
-    {
+    public double getPercentBoost(double factor) {
         return 1 + ((factor * factor * getConfig().durationMultiplierFactor) + getConfig().baseDurationMultiplier);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BrewEvent e)
-    {
-        if(e.getBlock().getType().equals(Material.BREWING_STAND))
-        {
+    public void on(BrewEvent e) {
+        if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
             BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).getMantle().get(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);
 
-            if(owner != null)
-            {
+            if (owner != null) {
                 J.s(() -> {
                     PlayerData data = null;
-                    ItemStack[] c = ((BrewingStand)e.getBlock().getState()).getInventory().getStorageContents();
+                    ItemStack[] c = ((BrewingStand) e.getBlock().getState()).getInventory().getStorageContents();
                     boolean ef = false;
-                    for(int i = 0; i < c.length; i++)
-                    {
+                    for (int i = 0; i < c.length; i++) {
                         ItemStack is = c[i];
 
-                        if(is != null && is.getItemMeta() != null && is.getItemMeta() instanceof PotionMeta p)
-                        {
+                        if (is != null && is.getItemMeta() != null && is.getItemMeta() instanceof PotionMeta p) {
                             is = is.clone();
                             data = data == null ? getServer().peekData(owner.getOwner()) : data;
 
-                            if(data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLine(getSkill().getName()).getAdaptations().containsKey(getName()))
-                            {
+                            if (data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLine(getSkill().getName()).getAdaptations().containsKey(getName())) {
                                 PlayerAdaptation a = data.getSkillLine(getSkill().getName()).getAdaptations().get(getName());
 
-                                if(a.getLevel() > 0)
-                                {
+                                if (a.getLevel() > 0) {
                                     double factor = getLevelPercent(a.getLevel());
                                     ef = enhance(factor, is, p) || ef;
                                     c[i] = is;
@@ -81,32 +78,28 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
                         }
                     }
 
-                    if(ef)
-                    {
-                        ((BrewingStand)e.getBlock().getState()).getInventory().setStorageContents(c);
+                    if (ef) {
+                        ((BrewingStand) e.getBlock().getState()).getInventory().setStorageContents(c);
                         e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 0.75f);
                         e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 1.75f);
                     }
                 });
-            }
-
-            else
-            {
+            } else {
                 Adapt.info("No Owner");
             }
         }
     }
 
     private boolean enhance(double factor, ItemStack is, PotionMeta p) {
-        if(!p.getBasePotionData().getType().isInstant()) {
+        if (!p.getBasePotionData().getType().isInstant()) {
             PotionEffect effect = getRawPotionEffect(is);
 
-            if(effect != null) {
+            if (effect != null) {
                 p.addCustomEffect(new PotionEffect(effect.getType(),
 
-                    (int) (getDurationBoost(factor) + (effect.getDuration() * getPercentBoost(factor))),
+                        (int) (getDurationBoost(factor) + (effect.getDuration() * getPercentBoost(factor))),
 
-                    effect.getAmplifier()), true);
+                        effect.getAmplifier()), true);
                 is.setItemMeta(p);
                 return true;
             }
@@ -115,11 +108,6 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         return false;
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.duration((long) getDurationBoost(getLevelPercent(level)), 0) + C.GRAY + " Duration");
-        v.addLore(C.GREEN + "+ " + Form.pc(getPercentBoost(getLevelPercent(level)), 0) + C.GRAY + " Duration");
-    }
 
     @Override
     public void onTick() {

@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.enchanting;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -15,8 +16,8 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
     public EnchantingXPReturn() {
         super("enchanting-xp-return");
         registerConfiguration(Config.class);
-        setDescription("Enchantments can give you XP when you make them");
-        setDisplayName("XP Return");
+        setDescription(Adapt.dLocalize("EnchantingXpReturn.Description"));
+        setDisplayName(Adapt.dLocalize("EnchantingXpReturn.Name"));
         setIcon(Material.EXPERIENCE_BOTTLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -27,8 +28,8 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "Experience spent has a chance to be refunded when you enchant an item");
-        v.addLore(C.GREEN + "" + getConfig().xpReturn* (level * level)+ "Experience per craft");
+        v.addLore(C.GRAY + Adapt.dLocalize("EnchantingXpReturn.Lore1"));
+        v.addLore(C.GREEN + "" + getConfig().xpReturn * (level * level) + Adapt.dLocalize("EnchantingXpReturn.Lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

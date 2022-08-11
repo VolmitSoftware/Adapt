@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.sword;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Cuboid;
@@ -31,7 +32,8 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     public SwordsMachete() {
         super("sword-machete");
         registerConfiguration(Config.class);
-        setDescription("Cut through foliage with ease!");
+        setDescription(Adapt.dLocalize("Machete.Description"));
+        setDisplayName(Adapt.dLocalize("Machete.Name"));
         setIcon(Material.IRON_SWORD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -42,9 +44,9 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + " Slash Radius");
-        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " Chop Cooldown");
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " Tool Wear");
+        v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + Adapt.dLocalize("Machete.Lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("Machete.Lore2"));
+        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + Adapt.dLocalize("Machete.Lore3"));
     }
 
     public double getRadius(int level) {

@@ -1,7 +1,11 @@
 package com.volmit.adapt.content.adaptation.discovery;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.VectorMath;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,7 +17,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -21,8 +24,8 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     public DiscoveryArmor() {
         super("discovery-world-armor");
         registerConfiguration(Config.class);
-        setDescription("Passive armor depending on nearby block hardness.");
-        setDisplayName("Discovery World Armor");
+        setDescription(Adapt.dLocalize("DiscoveryArmor.Description"));
+        setDisplayName(Adapt.dLocalize("DiscoveryArmor.Name"));
         setIcon(Material.TURTLE_HELMET);
         setInterval(1125);
         setBaseCost(getConfig().baseCost);
@@ -33,15 +36,15 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + "Passive Armor"+ C.GRAY + ", Based on nearby block hardness");
-        v.addLore("Armor Strength: +" +C.BLUE+ level*0.25);
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("DiscoveryArmor.Lore1") + C.GRAY + Adapt.dLocalize("DiscoveryArmor.Lore2"));
+        v.addLore(Adapt.dLocalize("DiscoveryArmor.Lore3") + C.BLUE + level * 0.25);
     }
 
     public double getArmorPoints(Material m) {
-        return Math.log(Math.min(2000,m.getBlastResistance()*m.getBlastResistance()))+Math.log((m.getHardness() < 0 ? 50 : Math.min(50, m.getHardness()+25))*0.33);
+        return Math.log(Math.min(2000, m.getBlastResistance() * m.getBlastResistance())) + Math.log((m.getHardness() < 0 ? 50 : Math.min(50, m.getHardness() + 25)) * 0.33);
     }
 
-    public double getArmor(Location l, int level){
+    public double getArmor(Location l, int level) {
         Block center = l.getBlock();
         double armorValue = 0.0;
         double count = 0;
@@ -60,9 +63,9 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
                             }
                             armorValue += a;
 
-                            if (a > 2 && M.r(0.005 * a) ) {
-                                Vector v = VectorMath.directionNoNormal(l,b.getLocation().add(0.5,0.5,0.5) );
-                                l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l.clone().add(0,1,0), 0, v.getX(), v.getY(), v.getZ());
+                            if (a > 2 && M.r(0.005 * a)) {
+                                Vector v = VectorMath.directionNoNormal(l, b.getLocation().add(0.5, 0.5, 0.5));
+                                l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l.clone().add(0, 1, 0), 0, v.getX(), v.getY(), v.getZ());
 
                             }
                         }
@@ -72,8 +75,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
         }
 
 
-
-        return Math.min((armorValue/count) * (level/2D) * 0.65, 10) ;
+        return Math.min((armorValue / count) * (level / 2D) * 0.65, 10);
     }
 
 
@@ -89,10 +91,10 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     @Override
     public void onTick() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if(!hasAdaptation(p)){
+            if (!hasAdaptation(p)) {
                 Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
                 for (AttributeModifier i : new ArrayList<>(c)) {
-                    if(i.getName().equals("adapt-discovery-armor")) {
+                    if (i.getName().equals("adapt-discovery-armor")) {
                         p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
                     }
                 }
@@ -104,7 +106,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
             Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
             for (AttributeModifier i : new ArrayList<>(c)) {
-                if(i.getName().equals("adapt-discovery-armor")) {
+                if (i.getName().equals("adapt-discovery-armor")) {
                     oldArmor = i.getAmount();
                     oldArmor = Double.isNaN(oldArmor) ? 0 : oldArmor;
                     p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);

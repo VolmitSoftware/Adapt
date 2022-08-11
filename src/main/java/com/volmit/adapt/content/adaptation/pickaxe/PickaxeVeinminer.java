@@ -28,6 +28,12 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         setCostFactor(getConfig().costFactor);
     }
 
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "Sneak, and mine ORES");
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + "range of vein-mining");
+        v.addLore(C.ITALIC + "This skill does NOT group all drops together!");
+    }
+
     private int getRadius(int lvl) {
         return lvl + getConfig().baseRange;
     }
@@ -45,7 +51,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), e.getPlayer(), e.getBlock().getBlockData(), true);
         Bukkit.getServer().getPluginManager().callEvent(can);
 
-        if(!can.isBuildable()) {
+        if (!can.isBuildable()) {
             return;
         }
 
@@ -89,11 +95,6 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         return getConfig().enabled;
     }
 
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "Sneak, and mine ORES");
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + "range of vein-mining");
-        v.addLore(C.ITALIC + "This skill does NOT group all drops together!");
-    }
 
     @Override
     public void onTick() {

@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.axe;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -23,8 +24,8 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     public AxeGroundSmash() {
         super("axe-ground-smash");
         registerConfiguration(Config.class);
-        setDescription("Jump, then crouch and smash all nearby enemies.");
-        setDisplayName("Axe Ground Smash");
+        setDescription(Adapt.dLocalize("GroundSmash.Description"));
+        setDisplayName(Adapt.dLocalize("GroundSmash.Name"));
         setIcon(Material.NETHERITE_AXE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -33,24 +34,33 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
         setInterval(5000);
     }
 
+    @Override
+    public void addStats(int level, Element v) {
+        double f = getLevelPercent(level);
+        v.addLore(C.RED + "+ " + Form.f(getFalloffDamage(f), 1) + " - " + Form.f(getDamage(f), 1) + C.GRAY + Adapt.dLocalize("GroundSmash.Lore1"));
+        v.addLore(C.RED + "+ " + Form.f(getRadius(f), 1) + C.GRAY + Adapt.dLocalize("GroundSmash.Lore2"));
+        v.addLore(C.RED + "+ " + Form.pc(getForce(f), 0) + C.GRAY + Adapt.dLocalize("GroundSmash.Lore3"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("GroundSmash.Lore4"));
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player && getLevel((Player) e.getDamager()) > 0 && ((Player) e.getDamager()).isSneaking()) {
-            if(!isAxe(((Player) e.getDamager()).getInventory().getItemInMainHand())) {
+        if (e.getDamager() instanceof Player && getLevel((Player) e.getDamager()) > 0 && ((Player) e.getDamager()).isSneaking()) {
+            if (!isAxe(((Player) e.getDamager()).getInventory().getItemInMainHand())) {
                 return;
             }
 
             double f = getLevelPercent((Player) e.getDamager());
 
-            if(((Player) e.getDamager()).hasCooldown(((Player) e.getDamager()).getInventory().getItemInMainHand().getType())) {
+            if (((Player) e.getDamager()).hasCooldown(((Player) e.getDamager()).getInventory().getItemInMainHand().getType())) {
                 return;
             }
 
             ((Player) e.getDamager()).setCooldown(((Player) e.getDamager()).getInventory().getItemInMainHand().getType(), getCooldownTime(f));
             new Impulse(getRadius(f))
-                .damage(getDamage(f), getFalloffDamage(f))
-                .force(getForce(f))
-                .punch(e.getEntity().getLocation());
+                    .damage(getDamage(f), getFalloffDamage(f))
+                    .force(getForce(f))
+                    .punch(e.getEntity().getLocation());
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.HOSTILE, 0.6f, 0.4f);
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.HOSTILE, 0.5f, 0.1f);
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_TURTLE_EGG_CRACK, SoundCategory.HOSTILE, 1f, 0.4f);
@@ -58,14 +68,6 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
         }
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        double f = getLevelPercent(level);
-        v.addLore(C.RED + "+ " + Form.f(getFalloffDamage(f), 1) + " - " + Form.f(getDamage(f), 1) + C.GRAY + " Damage");
-        v.addLore(C.RED + "+ " + Form.f(getRadius(f), 1) + C.GRAY + " Block Radius");
-        v.addLore(C.RED + "+ " + Form.pc(getForce(f), 0) + C.GRAY + " Force");
-        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " Smash Cooldown");
-    }
 
     public int getCooldownTime(double factor) {
         return (int) (((1D - factor) * getConfig().cooldownTicksInverseLevelMultiplier) + getConfig().cooldownTicksBase);

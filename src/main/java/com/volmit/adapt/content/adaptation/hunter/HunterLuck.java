@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.hunter;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -13,8 +14,8 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
     public HunterLuck() {
         super("hunter-luck");
         registerConfiguration(Config.class);
-        setDescription("When you are struck you gain luck, at the cost of hunger");
-        setDisplayName("Hunter's Luck");
+        setDescription(Adapt.dLocalize("HunterLuck.Description"));
+        setDisplayName(Adapt.dLocalize("HunterLuck.Name"));
         setIcon(Material.TADPOLE_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -24,17 +25,17 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "Gain passive luck when struck");
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + "x Luck stacks for a 3 seconds on hit");
-        v.addLore(C.RED + "- " + 5+level + C.GRAY + "x Stacking hunger");
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " Hunger stacks duration and multiplier.");
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " Luck stacks multiplier, not duration.");
+        v.addLore(C.GRAY + Adapt.dLocalize("HunterLuck.Lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("HunterLuck.Lore2"));
+        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("HunterLuck.Lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterLuck.Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterLuck.Lore5"));
     }
 
 
     @EventHandler
     public void on(EntityDamageEvent e) {
-        if(e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
+        if (e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
             addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
             addPotionStacks(p, PotionEffectType.SPEED, getLevel(p), 50, false);
         }

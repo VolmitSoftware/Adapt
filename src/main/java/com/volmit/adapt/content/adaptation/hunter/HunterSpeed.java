@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.hunter;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -13,8 +14,8 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
     public HunterSpeed() {
         super("hunter-speed");
         registerConfiguration(Config.class);
-        setDescription("When you are struck you gain speed, at the cost of hunger");
-        setDisplayName("Hunter's Swiftness");
+        setDescription(Adapt.dLocalize("HunterSpeed.Description"));
+        setDisplayName(Adapt.dLocalize("HunterSpeed.Name"));
         setIcon(Material.LAVA_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -24,11 +25,11 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "Gain passive swiftness when struck");
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + "x Swiftness stacks for a 3 seconds on hit");
-        v.addLore(C.RED + "- " + 5+level + C.GRAY + "x Stacking hunger");
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " Hunger stacks duration and multiplier.");
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " Swiftness stacks multiplier, not duration.");
+        v.addLore(C.GRAY + Adapt.dLocalize("HunterSpeed.Lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("HunterSpeed.Lore2"));
+        v.addLore(C.RED + "- " + 5+level + C.GRAY + Adapt.dLocalize("HunterSpeed.Lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterSpeed.Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterSpeed.Lore5"));
     }
 
 

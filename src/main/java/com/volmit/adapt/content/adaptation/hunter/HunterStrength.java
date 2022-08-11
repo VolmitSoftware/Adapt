@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.hunter;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -13,8 +14,8 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
     public HunterStrength() {
         super("hunter-strength");
         registerConfiguration(Config.class);
-        setDescription("When you are struck you gain strength, at the cost of hunger");
-        setDisplayName("Hunter's Strength");
+        setDescription(Adapt.dLocalize("HunterStrength.Description"));
+        setDisplayName(Adapt.dLocalize("HunterStrength.Name"));
         setIcon(Material.COD_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -24,11 +25,11 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + "Gain passive strength when struck");
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + "x Strength stacks for a 3 seconds on hit");
-        v.addLore(C.RED + "- " + 5+level + C.GRAY + "x Stacking hunger");
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " Hunger stacks duration and multiplier.");
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " Strength stacks multiplier, not duration.");
+        v.addLore(C.GRAY + Adapt.dLocalize("HunterStrength.Lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("HunterStrength.Lore2"));
+        v.addLore(C.RED + "- " + 5+level + C.GRAY + Adapt.dLocalize("HunterStrength.Lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterStrength.Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterStrength.Lore5"));
     }
 
 
