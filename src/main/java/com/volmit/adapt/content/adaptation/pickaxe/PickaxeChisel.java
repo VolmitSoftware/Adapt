@@ -66,6 +66,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
             Bukkit.getServer().getPluginManager().callEvent(can);
 
             if(can.isBuildable()) {
+                xp(e.getPlayer(), 3);
                 BlockData b = e.getClickedBlock().getBlockData();
                 if(isOre(b)) {
                     e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f);

@@ -109,9 +109,12 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         } else {
             p.getInventory().setItemInMainHand(null);
         }
+        if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
+            RiftResist.riftResistStackAdd(p, 150, 3);
+        }
 
 
-        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
         p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
         p.playSound(l, Sound.BLOCK_LODESTONE_PLACE, 100f, 0.1f);
         p.playSound(l, Sound.BLOCK_BELL_RESONATE, 100f, 0.1f);

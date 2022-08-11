@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
@@ -52,7 +53,6 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             return;
         }
         if (!e.getFrom().getBlock().equals(e.getTo().getBlock())) {
-            // We only want actual block position changes, this would be spammy if we dont
             return;
         }
 

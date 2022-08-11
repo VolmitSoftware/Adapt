@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeChisel;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeVeinminer;
 import com.volmit.adapt.util.C;
@@ -24,6 +25,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         setIcon(Material.NETHERITE_PICKAXE);
         registerAdaptation(new PickaxeChisel());
         registerAdaptation(new PickaxeVeinminer());
+        registerAdaptation(new PickaxeAutosmelt());
     }
 
     @EventHandler

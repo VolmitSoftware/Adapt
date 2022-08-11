@@ -24,9 +24,9 @@ public class ToolListing {
             Material.IRON_ORE,
             Material.GOLD_ORE,
             Material.COPPER_ORE,
-            Material.RAW_COPPER,
-            Material.RAW_GOLD,
-            Material.RAW_IRON
+            Material.DEEPSLATE_IRON_ORE,
+            Material.DEEPSLATE_GOLD_ORE,
+            Material.DEEPSLATE_COPPER_ORE
     );
 
     @Getter

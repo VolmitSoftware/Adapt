@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 
 public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
@@ -31,15 +33,26 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-        if(getLevel(e.getPlayer()) > 0) {
-            if(e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
-                && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
-                || e.getAction().equals(Action.LEFT_CLICK_AIR)
-                || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
-                Player p = e.getPlayer();
+        if (!hasAdaptation(e.getPlayer())) {
+            return;
+        }
+        Player p = e.getPlayer();
+        ItemStack hand = p.getInventory().getItemInMainHand();
+        if (p.hasCooldown(hand.getType())) {
+            e.setCancelled(true);
+            return;
+        } else {
+            NMS.get().sendCooldown(p, Material.ENDER_PEARL, 100);
+            p.setCooldown(Material.ENDER_PEARL, 100);
+        }
+        if (getLevel(e.getPlayer()) > 0) {
+            if (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
+                    && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
+                    || e.getAction().equals(Action.LEFT_CLICK_AIR)
+                    || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
 
-                if(getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(new RiftResist().getName()) > 0){ // This is the Rift Resist adaptation
-                    riftResistCheckAndTrigger(p, 20, 1);
+                if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
+                    RiftResist.riftResistStackAdd(p, 10, 2);
                 }
                 p.openInventory(e.getPlayer().getEnderChest());
 

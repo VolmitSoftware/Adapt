@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -47,19 +46,21 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
 
         if (e.getAction() == Action.RIGHT_CLICK_AIR) {
             switch (hand.getType()) {
-                case ENDER_EYE, ENDER_PEARL -> {
-                    if (p.getLocation().getWorld() == null) {
-                        return;
-                    }
-                    p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1000f, 0.01f);
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1000f, 0.01f);
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 80, 10, true, false, false));
-                }
+                case ENDER_EYE, ENDER_PEARL -> riftResistStackAdd(p, 80, 10);
             }
         }
 
 
+    }
+
+    static void riftResistStackAdd(Player p, int duration, int amplifier) {
+        if (p.getLocation().getWorld() == null) {
+            return;
+        }
+        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
+        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1000f, 0.01f);
+        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1000f, 0.01f);
+        p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, duration, amplifier, true, false, false));
     }
 
 

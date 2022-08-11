@@ -5,6 +5,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -13,6 +14,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -57,6 +59,13 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         Player p = e.getPlayer();
 
         if (hasAdaptation(p) && !totalMap.isEmpty() && totalMap.get(p) != null && totalMap.get(p).size() > 0) {
+            BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), e.getPlayer(), e.getBlock().getBlockData(), true);
+            Bukkit.getServer().getPluginManager().callEvent(can);
+            if(!can.isBuildable()) {
+                return;
+            }
+
+
             ItemStack is = p.getInventory().getItemInMainHand().clone();
             ItemStack hand = p.getInventory().getItemInMainHand();
             if (p.isSneaking() && is.getType().isBlock()) {

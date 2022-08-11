@@ -87,11 +87,12 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                     return;
                 }
 
-                if(getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(new RiftResist().getName()) > 0){ // This is the Rift Resist adaptation
-                    riftResistCheckAndTrigger(p, 30, 2);
+                if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
+                    RiftResist.riftResistStackAdd(p, 10, 5);
                 }
 
                 p.teleport(loc.add(0, 1, 0));
+
                 vfxParticleLine(locOG, loc, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
                 J.a(() -> {
                     try {

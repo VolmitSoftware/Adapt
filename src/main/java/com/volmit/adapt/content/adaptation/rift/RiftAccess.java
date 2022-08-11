@@ -82,6 +82,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
             e.setCancelled(true);
             return;
         } else {
+            NMS.get().sendCooldown(p, Material.ENDER_PEARL, 100);
             p.setCooldown(Material.ENDER_PEARL, 100);
         }
 
@@ -115,7 +116,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     }
 
     private void linkPearl(Player p, Block block) {
-        NMS.get().sendCooldown(p, Material.ENDER_PEARL, 100);
         vfxSingleCubeOutline(block, Particle.REVERSE_PORTAL);
         ItemStack hand = p.getInventory().getItemInMainHand();
 
@@ -130,8 +130,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     private void openPearl(Player p) {
         Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
-        NMS.get().sendCooldown(p, Material.ENDER_PEARL, 100);
-
         if (b != null && b.getState() instanceof InventoryHolder holder) {
             activeViews.add(p.openInventory(holder.getInventory()));
             p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 100f, 0.10f);

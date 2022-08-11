@@ -5,12 +5,14 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.inventory.ItemStack;
 
 
@@ -32,6 +34,13 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
         if (hasAdaptation(e.getPlayer()) && (e.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) && !e.isCancelled()) {
+            BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), e.getPlayer(), e.getBlock().getBlockData(), true);
+            Bukkit.getServer().getPluginManager().callEvent(can);
+
+            if(!can.isBuildable()) {
+                return;
+            }
+
             if (e.getBlock().getType().toString().contains("GLASS") && !e.getBlock().getType().toString().contains("TINTED_GLASS")) {
                 e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(e.getBlock().getType(), 1));
                 e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_LARGE_AMETHYST_BUD_BREAK, 1.0f, 1.0f);

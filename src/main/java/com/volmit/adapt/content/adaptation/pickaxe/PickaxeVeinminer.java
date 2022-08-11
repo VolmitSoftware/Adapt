@@ -5,14 +5,12 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockCanBuildEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +41,15 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         if (!p.isSneaking()) {
             return;
         }
+
+        BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), e.getPlayer(), e.getBlock().getBlockData(), true);
+        Bukkit.getServer().getPluginManager().callEvent(can);
+
+        if(!can.isBuildable()) {
+            return;
+        }
+
+
         if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE")) {
             return;
         }
@@ -65,11 +72,14 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         J.s(() -> {
             for (Location l : blockMap.keySet()) {
                 Block b = e.getBlock().getWorld().getBlockAt(l);
-
-                b.breakNaturally();
-                e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
-                e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
-
+                xp(e.getPlayer(), 3);
+                if (getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-autosmelt").getLevel() > 0) {
+                    PickaxeAutosmelt.autosmeltBlock(b, p);
+                } else {
+                    b.breakNaturally(p.getItemInUse());
+                    e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
+                    e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
+                }
             }
         });
     }
