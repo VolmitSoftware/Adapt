@@ -7,6 +7,7 @@
     }
   },
 
+
   "Skill": {
     "Agility": {
       "Name": "abilität",
@@ -106,6 +107,8 @@
       "Description": "Ohne eine Waffe ist noch ohne Stärke."
     }
   },
+
+
   "Agility": {
     "ArmorUp": {
       "Name": "Armor-Up",
