@@ -1,0 +1,531 @@
+{
+    "Snippets": {
+      "SkillsGUI": {
+        "Level": "Niveau",
+        "Knowledge": "Kennis",
+        "PowerUsed": "Kracht Gebruikt"
+      }
+    },
+  
+    "Skill": {
+      "Agility": {
+        "Name": "wendbaarheid",
+        "Icon": "⇉",
+        "Description": "Wendbaarheid is de bekwaamheid om snel te bewegen en gemakkelijk obstakels te ontwijken."
+      },
+      "Architect": {
+        "Name": "architect",
+        "Icon": "⬧",
+        "Description": "Structuren zijn de bouwblokken van de wereld. De wereld is in jouw handen, doe ermee wat je wilt."
+      },
+      "Axes": {
+        "Name": "bijlen",
+        "Icon": "✥",
+        "Description1": "Waarom zou je alleen bomen hakken, als je ook andere",
+        "Description2": "dingen",
+        "Description3": " kunt hakken?"
+      },
+      "Brewing": {
+        "Name": "brouwen",
+        "Icon": "✥",
+        "Description": "Dubbel Bubbel, Tripel Bubbel, Vierdubbel Bubbel - Ik kan dit drankje nog steeds niet in een pot doen"
+      },
+      "Crafting": {
+        "Name": "crafting",
+        "Icon": "❖",
+        "Description": "Als je alles hebt geplaatst, maak je toch gewoon een nieuwe?"
+      },
+      "Discovery": {
+        "Name": "ontdekking",
+        "Icon": "⚛",
+        "Description": "Met een betere perceptie zie en begrijp je meer van de wereld om je heen!"
+      },
+      "Enchanting": {
+        "Name": "spreuken",
+        "Icon": "⚜",
+        "Description": "Waar heb je het over...? Voorspellingen, visies, bijgelovig gebrabbel?"
+      },
+      "Excavation": {
+        "Name": "graven",
+        "Icon": "✥",
+        "Description": "Diggy Diggy hole!"
+      },
+      "Herbalism": {
+        "Name": "kruiden",
+        "Icon": "⚘",
+        "Description": "Ik kan mijn planten niet vinden, maar wel wat zaadjes... is dat... wiet?"
+      },
+      "Hunter": {
+        "Name": "jager",
+        "Icon": "☠",
+        "Description": "Jagen gaat over de reis, niet de bestemming."
+      },
+      "Nether": {
+        "Name": "onderwereld",
+        "Icon": "₪",
+        "Description": "Vanuit de diepten van de Nether."
+      },
+      "Pickaxe": {
+        "Name": "pikhouweel",
+        "Icon": "⛏",
+        "Description": "Dwergen zijn de mijnwerkers, maar ik heb ook het een en ander geleerd in mijn tijd. ZWEDEN!"
+      },
+      "Ranged": {
+        "Name": "afstand",
+        "Icon": "🏹",
+        "Description": "Afstand is de sleutel tot success, en tot overleving."
+      },
+      "Rift": {
+        "Name": "rift",
+        "Icon": "❍",
+        "Description": "Een Rift is a scheur in tijd en ruimte, maar wel een die jij kan gebruiken."
+      },
+      "Seaborne": {
+        "Name": "waterman",
+        "Icon": "🌊",
+        "Description": "Alleen echte watermannen begrijpen water!"
+      },
+      "Stealth": {
+        "Name": "stealth",
+        "Icon": "✠",
+        "Description": "De kunst van de schaduw. Loop in het ongeziene."
+      },
+      "Swords": {
+        "Name": "zwaarden",
+        "Icon": "⚔",
+        "Description": "Met de kracht van GreyStone!"
+      },
+      "Taming": {
+        "Name": "temmen",
+        "Icon": "♥",
+        "Description": "De koetjes en de kalfjes... en jij?"
+      },
+      "Unarmed": {
+        "Name": "ongewapend",
+        "Icon": "⚜",
+        "Description": "Zonder wapen maar niet ongevaarlijk!"
+      }
+    },
+    "Agility": {
+      "ArmorUp": {
+        "Name": "Armor-Up",
+        "Description": "Krijg meer pantser (armor) naarmate je meer rent!",
+        "Lore1": " Max Armor",
+        "Lore2": " Armor-Up Tijd"
+      },
+      "SuperJump": {
+        "Name": "Super Sprong",
+        "Description": "Uitzonderlijk Hoogtevoordeel",
+        "Lore1": " Max Hoogte",
+        "Lore2": "* Sluip + Spring voor Super Sprong!"
+      },
+      "WallJump": {
+        "Name": "Muur Sprong",
+        "Description": "Houd shift ingedrukt in de lucht tegen een muur om je vast te houden en te springen!",
+        "Lore1": " Max Sprongen",
+        "Lore2": " Springhoogte"
+      },
+      "WindUp": {
+        "Name": "Opwinden",
+        "Description": "Wordt sneller naarmate je meer rent!",
+        "Lore1": " Max Snelheid",
+        "Lore2": " Opwind Tijd"
+      }
+    },
+    "Architect": {
+      "Foundation": {
+        "Name": "Magisch Fundament",
+        "Description": "Dit laat je een tijdelijk platform onder je plaatsen als je shift indrukt!",
+        "Lore1": "Creëer magisch: ",
+        "Lore2": " Blokken onder je!"
+      },
+      "Glass": {
+        "Name": "Silk-Touch Glas",
+        "Description": "Dit helpt je je glasblokken te houden als je ze breekt met een lege hand!",
+        "Lore1": "Je handen hebben silk touch voor Glas"
+      },
+      "Placement": {
+        "Name": "Bouwers Staf",
+        "Description": "laat je meerdere blokken ineens plaatsen als je sluipt, en een blok vasthebt waar je ook naar kijkt, en plaatst! Soms moet je een beetje bewegen om het te laten werken.",
+        "Lore1": "Je hebt",
+        "Lore2": " blokken in je hand nodig om dit te plaatsen",
+        "Lore3": "Bouwers Staf"
+      }
+    },
+    "Axe": {
+      "Chop": {
+        "Name": "Axe Chop",
+        "Description": "Breek bomen door met rechtermuisknop op de stam te klikken!",
+        "Lore1": " Blokken Per Chop",
+        "Lore2": " Chop Cooldown",
+        "Lore3": " Gereedschapskosten"
+      },
+      "GroundSmash": {
+        "Name": "Axe Ground Smash",
+        "Description": "Spring, druk shift en, en stomp alle tegenstanders in de buurt.",
+        "Lore1": " Schade",
+        "Lore2": " Blokken Radius",
+        "Lore3": " Kracht",
+        "Lore4": " Smash Cooldown"
+      }
+    },
+    "Brewing": {
+      "Lingering": {
+        "Name": "Lingering Brew",
+        "Description": "Gebrouwen drankjes duren langer!",
+        "Lore1": " Duratie",
+        "Lore2": " Duratie"
+      },
+      "SuperHeated": {
+        "Name": "Super Heated Brew",
+        "Description": "Brouwstandaarden werken sneller des te heter ze zijn.",
+        "Lore1": " Per aanrakend Vuur Blok",
+        "Lore2": " Per aanrakend Lava Blok"
+      }
+    },
+    "Crafting": {
+      "Deconstruction": {
+        "Name": "Deconstructie",
+        "Description": "Ontmantel blokken & items tot bruikbare componenten!",
+        "Lore1": "Plaats een item en een schaar",
+        "Lore2": "in een smidsetafel om te ontmantelen."
+      },
+      "CraftXp": {
+        "Name": "Crafting XP",
+        "Description": "Krijg passief XP voor craften",
+        "Lore1": "Krijg XP tijdens het craften"
+      }
+    },
+    "Discovery": {
+      "DiscoveryArmor": {
+        "Name": "World Armor",
+        "Description": "Passief pantser (armor) afhankelijk van de hardheid van bijzijnde blokken.",
+        "Lore1": "Passieve Armor",
+        "Lore2": ", gebaseerd op bijzijne blok-hardheid",
+        "Lore3": "Armor Kracht: +"
+      },
+      "DiscoveryUnity": {
+        "Name": "Experimental Unity",
+        "Description": "Het verzamelen van experience bolletjes (Orbs) geeft XP voor willekeurige skills.",
+        "Lore1": " XP ",
+        "Lore2": " Per Orb"
+      }
+    },
+    "Enchanting": {
+      "LapisReturn": {
+        "Name": "Lapis Return",
+        "Description": "Ten koste van 1 level XP krijg je some gratis Lapis terug",
+        "Lore1": "Voor elk niveau, verhoogt de koste van enchanten met 1, maar geeft tot wel 3 lapis terug."
+      },
+      "QuickEnchant": {
+        "Name": "Quick-Click Enchant",
+        "Description": "Enchant items door met een enchantment boek op het item te klikken.",
+        "Lore1": " Max Gecombineerd Niveau",
+        "Lore2": "Kan geen item enchanten met meer dan ",
+        "Lore3": " kracht"
+      },
+      "EnchantingXpReturn": {
+        "Name": "XP Return",
+        "Description": "Krijg XP korting bij het enchanten van items.",
+        "Lore1": "Uitgegeven experience heeft een kans om teruggegeven te worden",
+        "Lore2": "Experience per Enchant"
+      }
+    },
+    "Excavation": {
+      "ExcavationHaste": {
+        "Name": "Hasty Excavator",
+        "Description": "Versnelt het hakken van blokken, met HASTE!",
+        "Lore1": "Krijg Haste tijdens het graven",
+        "Lore2": "x Niveaus van haste als je begint een blok te hakken."
+      },
+      "OmniTool": {
+        "Name": "OMNI - T.O.O.L.",
+        "Description": "Tackle's overontwikkeld Zakmes",
+        "Lore1": "Waarschijnlijk het meest krachtige tool! Laat je dynamisch",
+        "Lore2": "tools (gereedschappen) samenvoegen en veranderen, zodat je altijd hebt wat je nodig hebt.",
+        "Lore3": "om samen te voegen, shift klik je een item op een ander item in je inventory.",
+        "Lore4": "om te splitesen, shift drop (weggooien) je het item, dan valt het uiteen.",
+        "Lore5": "je kan geen tools breken die hier in zitten, maar je kan er ook geen gebroken tools inzetten",
+        "Lore6": " totaal samenvoegbare items",
+        "Lore7": "je kan vijf of zes tools gebruiken, of slechts een!"
+      }
+    },
+    "Herbalism": {
+      "GrowthAura": {
+        "Name": "Growth Aura",
+        "Description": "Laat planen binnen je aura groeien",
+        "Lore1": " Blokken Radius",
+        "Lore2": " Growth Aura Kracht",
+        "Lore3": " Voedsel Kosten"
+      },
+      "Hippo": {
+        "Name": "Herbalist's Nijlpaard",
+        "Description": "Eten geeft meer voeding!",
+        "Lore1": " + Voedsel) extra voedingspunten bij het consumeren"
+      },
+      "HungryShield": {
+        "Name": "Hungry Shield",
+        "Description": "Schade gaat naar je voedingspuntenpunten voor je levenspunten",
+        "Lore1": " Tegengehouden door Voedingspunten"
+      },
+      "Replant": {
+        "Name": "Harvest & Replant",
+        "Description": "Klik met rechtermuisknop op een plant met een schoffel om de plant te oogsten en herplanten.",
+        "Lore1": "Blokken Herplant Radius"
+      }
+    },
+    "Hunter": {
+      "Adrenaline": {
+        "Name": "Adrenaline",
+        "Description": "Doe meer schade op lagere levenspunten (Korteafstand)",
+        "Lore1": " Max Schade"
+      },
+      "HunterInvisibility": {
+        "Name": "Vanishing Step",
+        "Description": "Als je wordt geraakt krijg je onzichtbaarheid, ten koste van voedingspunten",
+        "Lore1": "Krijg passieve snelheid als je wordt geraakt",
+        "Lore2": "x Onzichtbaarheid voor 3 seconden als je bent geraakt",
+        "Lore3": "x Hongerpunten",
+        "Lore4": " Honger duratie en factor.",
+        "Lore5": " Onzichtbaarheidsduratie"
+      },
+      "HunterJumpBoost": {
+        "Name": "Hunter's Heights",
+        "Description": "Als je wordt geraakt you are struck you gain jump-boost, at the cost of hunger",
+        "Lore1": "Gain passive jump-boost when struck",
+        "Lore2": "x Jump-Boost stacks for a 3 seconds on hit",
+        "Lore3": "x Stacking hunger",
+        "Lore4": " Hunger stacks duration and multiplier.",
+        "Lore5": " Jump-Boost stacks multiplier, not duration."
+      },
+      "HunterLuck": {
+        "Name": "Hunter's Luck",
+        "Description": "When you are struck you gain luck, at the cost of hunger",
+        "Lore1": "Gain passive luck when struck",
+        "Lore2": "x Luck stacks for a 3 seconds on hit",
+        "Lore3": "x Stacking hunger",
+        "Lore4": " Hunger stacks duration and multiplier.",
+        "Lore5": " Luck stacks multiplier, not duration."
+      },
+      "HunterRegen": {
+        "Name": "Hunter's Regen",
+        "Description": "When you are struck you gain regeneration, at the cost of hunger",
+        "Lore1": "Gain passive regeneration when struck",
+        "Lore2": "x Regeneration stacks for a 3 seconds on hit",
+        "Lore3": "x Stacking hunger",
+        "Lore4": " Hunger stacks duration and multiplier.",
+        "Lore5": " Regeneration stacks multiplier, not duration."
+      },
+      "HunterResistance": {
+        "Name": "Hunter's Resistance",
+        "Description": "When you are struck you gain resistance, at the cost of hunger",
+        "Lore1": "Gain passive resistance when struck",
+        "Lore2": "x Resistance stacks for a 3 seconds on hit",
+        "Lore3": "x Stacking hunger",
+        "Lore4": " Hunger stacks duration and multiplier.",
+        "Lore5": " Resistance stacks multiplier, not duration."
+      },
+      "HunterSpeed": {
+        "Name": "Hunter's Speed",
+        "Description": "When you are struck you gain speed, at the cost of hunger",
+        "Lore1": "Gain passive speed when struck",
+        "Lore2": "x Speed stacks for a 3 seconds on hit",
+        "Lore3": "x Stacking hunger",
+        "Lore4": " Hunger stacks duration and multiplier.",
+        "Lore5": " Speed stacks multiplier, not duration."
+      },
+      "HunterStrength": {
+        "Name": "Hunter's Strength",
+        "Description": "When you are struck you gain strength, at the cost of hunger",
+        "Lore1": "Gain passive strength when struck",
+        "Lore2": "x Strength stacks for a 3 seconds on hit",
+        "Lore3": "x Stacking hunger",
+        "Lore4": " Hunger stacks duration and multiplier.",
+        "Lore5": " Strength stacks multiplier, not duration."
+      }
+    },
+    "Nether": {
+      "SkullToss": {
+        "Name": "Wither Skull Throw",
+        "Description1": "Unleash your inner Wither by using ",
+        "Description2": "someones",
+        "Description3": "head.",
+        "Lore1": " Seconds of cooldown between skull tosses.",
+        "Lore2": "Using Wither Skull: Toss a ",
+        "Lore3": "Wither Skull",
+        "Lore4": ", exploding on impact."
+      },
+      "WitherResist": {
+        "Name": "Wither Resistance",
+        "Description": "Resists withering through the power of Netherite.",
+        "Lore1": " chance to negate withering (per piece).",
+        "Lore2": "Passive: Wearing Netherite Armor has a chance to negate ",
+        "Lore3": "withering."
+      }
+    },
+    "Pickaxe": {
+      "Autosmelt": {
+        "Name": "Autosmelt",
+        "Description": "Allows you to smelt mined Vanilla ores",
+        "Lore1": "Ores that can be smelted are smelted automatically",
+        "Lore2": "% chance for an extra"
+      },
+      "Chisel": {
+        "Name": "Ore Chisel",
+        "Description": "Right Click Ores to Chisel more ore out of them, at a severe durability cost.",
+        "Lore1": " Chance to Drop",
+        "Lore2": " Tool Wear"
+      },
+      "Veinminer": {
+        "Name": "Veinminer",
+        "Description": "Allows you to break blocks in a Vein/Cluster of Vanilla ores",
+        "Lore1": "Sneak, and mine ORES",
+        "Lore2": "range of vein-mining",
+        "Lore3": "This skill does NOT group all drops together!"
+      }
+    },
+    "Ranged": {
+      "ArrowRecovery": {
+        "Name": "Arrow Recovery",
+        "Description": "Recover Arrows after you have killed an enemy.",
+        "Lore1": " Chance to Recover Arrows on Hit/Kill"
+      },
+      "ForceShot": {
+        "Name": "Force Shot",
+        "Description": "Shoot projectiles further, faster!",
+        "AdvancementName": "Long Shot",
+        "AdvancementLore": "Land a shot from over 30 blocks away!",
+        "Lore1": " Projectile Speed"
+      },
+      "LungeShot": {
+        "Name": "Lunge Shot",
+        "Description": "While falling your arrows toss you in a random direction",
+        "Lore1": " Random Burst Speed"
+      },
+      "ArrowPiercing": {
+        "Name": "Arrow Piercing",
+        "Description": "Adds Piercing to projectiles! Shoot through things!",
+        "Lore1": " Pierce Targets"
+      }
+    },
+    "Rift": {
+      "RemoteAccess": {
+        "Name": "Remote Access",
+        "Description": "Pull from the void, and get into a marked container.",
+        "Lore1": "Enderpearl + Compass = Reliquary Portkey",
+        "Lore2": "This item allows you to access containers remotely",
+        "Lore3": "Once crafted look at item to see usage",
+        "NotContainer": "That's not a container"
+      },
+      "RiftBlink": {
+        "Name": "Rift Blink",
+        "Description": "Short ranged instant teleportation, Just a blink away!",
+        "Lore1": "Blocks on blink (2x Vertical)",
+        "Lore2": "While Sprinting: Double tap Jump to ",
+        "Lore3": "Blink"
+      },
+      "RiftEnderchest": {
+        "Name": "Easy Enderchest",
+        "Description": "Open an enderchest by Left-clicking it in your hand.",
+        "Lore1": "Click an Enderchest in your hand to open (Just dont place it)"
+      },
+      "RiftGate": {
+        "Name": "Rift Gate",
+        "Description": "Teleport to a marked location.",
+        "Lore1": "CRAFTING: Emerald + Amethyst shard + Ender Pearl",
+        "Lore2": "Read before using!",
+        "Lore3": "5s delay, ",
+        "Lore4": "you can die while you are in this animation"
+      },
+      "RiftResistance": {
+        "Name": "Rift Resistance",
+        "Description": "Gain Resistance when using Ender Items & Abilities",
+        "Lore1": "+ Passive: Provides resistance when you use rift abilities, or Ender Items",
+        "Lore2": "NOT Including Portable Enderchest, only things you can Consume"
+      }
+    },
+    "Seaborn": {
+      "SeabornOxygen": {
+        "Name": "Organic Oxygen Tank",
+        "Description": "Hold more oxygen in your tiny lungs!",
+        "Lore1": "Oxygen"
+      },
+      "DolphinGrace": {
+        "Name": "Dolphin's Grace",
+        "Description": "Swim like a dolphin, without the dolphins",
+        "Lore1": "+ Passive: gain ",
+        "Lore2": "x speed (dolphins grace)",
+        "Lore3": "precision german engineeeri- wait that's not right..."
+      }
+    },
+    "Stealth": {
+      "GhostArmor": {
+        "Name": "Ghost's Armor",
+        "Description": "Slow building armor when not taking damage, Lasts for 1 hit",
+        "Lore1": " Max Armor",
+        "Lore2": " Speed"
+      },
+      "StealthNightVision": {
+        "Name": "Stealth Vision",
+        "Description": "Gain night vision while sneaking",
+        "Lore1": "Gain a burst of ",
+        "Lore2": "night vision",
+        "Lore3": "while sneaking"
+      },
+      "ItemSnatch": {
+        "Name": "Item Snatch",
+        "Description": "Snatch Dropped items instantly while sneaking!",
+        "Lore1": " Snatch Radius"
+      },
+      "SneakSpeed": {
+        "Name": "Sneak Speed",
+        "Description": "Gain speed while sneaking",
+        "Lore1": "Sneaking Speed"
+      }
+    },
+    "Sword": {
+      "Machete": {
+        "Name": "Machete",
+        "Description": "Cut through foliage with ease!",
+        "Lore1": " Slash Radius",
+        "Lore2": " Chop Cooldown",
+        "Lore3": " Tool Wear"
+      }
+    },
+    "Taming": {
+      "TameDamage": {
+        "Name": "Tame Damage",
+        "Description": "Increase your tamed animal damage dealt.",
+        "Lore1": " Increased Damage"
+      },
+      "TameHealth": {
+        "Name": "Tame Health",
+        "Description": "Increase your tamed animal health.",
+        "Lore1": " Increased Health"
+      },
+      "TameRegeneration": {
+        "Name": "Tame Regeneration",
+        "Description": "Increase your tamed animal regeneration.",
+        "Lore1": " HP/s"
+      }
+    },
+    "Unarmed": {
+      "GlassCannon": {
+        "Name": "Glass Cannon",
+        "Description": "Bonus Unarmed Damage the lower your armor value is",
+        "Lore1": "x Damage at 0 armor",
+        "Lore2": " PerLevel Bonus Damage"
+      },
+      "UnarmedPower": {
+        "Name": "Unarmed Power",
+        "Description": "Improved Unarmed Damage",
+        "Lore1": " Damage"
+      },
+      "SuckerPunch": {
+        "Name": "Sucker Punch",
+        "Description": "Sprint punches, but more deadly.",
+        "Lore1": " Damage",
+        "Lore2": "Damage increases by with your speed while punching"
+      }
+    }
+  }
