@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
 
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     public SkillSeaborne() {
-        super("seaborne", Adapt.dLocalize("Skill", "Seaborne", "Name"), Adapt.dLocalize("Skill", "Seaborne", "Icon"));
+        super("seaborne", Adapt.dLocalize("Skill", "Seaborne", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.BLUE);
         setDescription(Adapt.dLocalize("Skill", "Seaborne", "Description"));

@@ -32,7 +32,7 @@ import java.util.Map;
 
 public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public SkillDiscovery() {
-        super("discovery", Adapt.dLocalize("Skill", "Discovery", "Name"), Adapt.dLocalize("Skill", "Discovery", "Icon"));
+        super("discovery", Adapt.dLocalize("Skill", "Discovery", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
         setDescription(Adapt.dLocalize("Skill", "Discovery", "Description"));

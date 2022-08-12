@@ -17,7 +17,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     public SkillExcavation() {
-        super("excavation", Adapt.dLocalize("Skill", "Excavation", "Name"), Adapt.dLocalize("Skill", "Excavation", "Icon"));
+        super("excavation", Adapt.dLocalize("Skill", "Excavation", "Icon"));
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Skill", "Excavation", "Description"));
         setColor(C.YELLOW);

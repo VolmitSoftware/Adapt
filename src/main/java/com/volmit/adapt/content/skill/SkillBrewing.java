@@ -22,7 +22,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 
 public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     public SkillBrewing() {
-        super("brewing", Adapt.dLocalize("Skill", "Brewing", "Name"), Adapt.dLocalize("Skill", "Brewing", "Icon"));
+        super("brewing", Adapt.dLocalize("Skill", "Brewing", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.LIGHT_PURPLE);
         setDescription(Adapt.dLocalize("Skill", "Brewing", "Description"));

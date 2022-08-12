@@ -9,99 +9,80 @@
 
   "Skill": {
     "Agility": {
-      "Name": "agility遊☆戯☆王",
       "Icon": "⇉",
-      "Description": "Agility is the ability to move quick and fluidly in the face of obstacles."
+      "Description": "遊☆戯☆王遊☆戯☆王Agility is the ability to move quick and fluidly in the face of obstacles."
     },
     "Architect": {
-      "Name": "architect",
       "Icon": "⬧",
       "Description": "Structures are the building blocks of the world. Reality is in your hands, yours to control."
     },
     "Axes": {
-      "Name": "axes",
-      "Icon": "✥",
+      "Icon": "❖",
       "Description1": "Why chop down trees, when you could chop ",
       "Description2": "things",
       "Description3": " instead, same end result!"
     },
     "Brewing": {
-      "Name": "brewing",
-      "Icon": "✥",
+      "Icon": "❖",
       "Description": "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
     },
     "Crafting": {
-      "Name": "crafting",
       "Icon": "❖",
       "Description": "With no more pieces left to place, why not make another?"
     },
     "Discovery": {
-      "Name": "discovery",
       "Icon": "⚛",
       "Description": "As your Perception expands, your mind unravels to discover that which you did not"
     },
     "Enchanting": {
-      "Name": "enchanting",
       "Icon": "⚜",
       "Description": "What are you going on about? Prophecies, visions, superstitious jibber-jabber?"
     },
     "Excavation": {
-      "Name": "excavation",
       "Icon": "✥",
       "Description": "Diggey Diggey hole..."
     },
     "Herbalism": {
-      "Name": "herbalism",
       "Icon": "⚘",
       "Description": "I can't find any plants, but I can find some seeds and- is that... Weed?"
     },
     "Hunter": {
-      "Name": "hunter",
       "Icon": "☠",
       "Description": "Hunting is about the journey not the outcome."
     },
     "Nether": {
-      "Name": "nether",
       "Icon": "₪",
       "Description": "From the depths of the Nether itself."
     },
     "Pickaxe": {
-      "Name": "pickaxe",
       "Icon": "⛏",
       "Description": "Dwarves are the miners, but ive learned a thing or to in my time. IM SWEDISH"
     },
     "Ranged": {
-      "Name": "ranged",
       "Icon": "🏹",
       "Description": "Distance is the key to victory, and the key to survival."
     },
     "Rift": {
-      "Name": "rift",
       "Icon": "❍",
       "Description": "The Rift is a caustic harness, but you have harnessed the harness."
     },
     "Seaborne": {
-      "Name": "seaborne",
       "Icon": "🌊",
       "Description": "With this skill, you may will the wonders of the water"
     },
     "Stealth": {
-      "Name": "stealth",
       "Icon": "✠",
       "Description": "The art of the unseen. Walk in the shadows."
     },
     "Swords": {
-      "Name": "swords",
       "Icon": "⚔",
       "Description": "By the power of GreyStone!"
     },
     "Taming": {
-      "Name": "taming",
       "Icon": "♥",
       "Description": "The parrots and the bees... and you?"
     },
     "Unarmed": {
-      "Name": "unarmed",
       "Icon": "⚜",
       "Description": "Without a weapon is not without strength"
     }
