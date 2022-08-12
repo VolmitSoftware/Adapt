@@ -21,7 +21,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     public SkillArchitect() {
-        super(Adapt.dLocalize("Skill", "Architect", "Name"), Adapt.dLocalize("Skill", "Architect", "Icon"));
+        super("architect", Adapt.dLocalize("Skill", "Architect", "Name"), Adapt.dLocalize("Skill", "Architect", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
         setDescription(Adapt.dLocalize("Skill", "Architect", "Description"));

@@ -26,6 +26,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = false)
 @Data
 public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
+    private final String internalId;
     private final String name;
     private final String emojiName;
     private C color;
@@ -41,7 +42,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     private Class<T> configType;
     private T config;
 
-    public SimpleSkill(String name, String emojiName) {
+    public SimpleSkill(String internalId, String name, String emojiName) {
         super("skill", UUID.randomUUID() + "-skill-" + name, 50);
         statTrackers = new ArrayList<>();
         recipes = new ArrayList<>();
@@ -50,6 +51,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         adaptations = new ArrayList<>();
         setColor(C.WHITE);
         this.name = name;
+        this.internalId = internalId;
         setIcon(Material.BOOK);
         setDescription("No Description Provided");
         setMinXp(100);
@@ -145,7 +147,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
         return AdaptAdvancement.builder()
             .background(getAdvancementBackground())
-            .key("skill_" + getName())
+            .key("skill_" + getInternalId())
             .title(getDisplayName())
             .description(getDescription())
             .icon(getIcon())

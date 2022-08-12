@@ -37,7 +37,7 @@ public interface Skill<T> extends Ticked, Component {
     T getConfig();
 
     String getName();
-
+    
     String getEmojiName();
 
     Material getIcon();
