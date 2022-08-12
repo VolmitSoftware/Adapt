@@ -70,6 +70,6 @@ public class XP {
     }
 
     public static double getLevelForXp(double xp) {
-        return AdaptConfig.get().getXpCurve().getCurve().computeLevelForXP(xp, 0.001);
+        return AdaptConfig.get().getXpCurve().getCurve().computeLevelForXP(xp, 0.000001);
     }
 }

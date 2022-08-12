@@ -41,7 +41,7 @@ public class PlayerData {
     private long wisdom = 0;
     private double multiplier = 0;
     private long lastLogin = 0;
-    private double masterXp = 0;
+    private double masterXp = 1;
     private double lastMasterXp = 0;
 
     public void giveMasterXp(double xp) {
