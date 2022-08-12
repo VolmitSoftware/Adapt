@@ -3,10 +3,10 @@
 # LitteredAround the whole Adapt Menu's and so on.
 #--------------------[Random Snippets]--------------------
 Snippets:
-  SkillsGUI:
+  CorruptionGUI:
     Level: "Level"
     PowerUsed: "Power Used"
-  CorruptionGUI:
+  SkillsGUI:
     Level: "Level"
     Knowledge: "Knowledge"
     PowerUsed: "Power Used"

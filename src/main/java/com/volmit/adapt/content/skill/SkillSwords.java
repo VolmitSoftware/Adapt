@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     public SkillSwords() {
-        super(Adapt.dLocalize("SkillSwords.Description"), Adapt.dLocalize("SkillSwords.Icon"));
+        super(Adapt.dLocalize("SkillSwords.Name"), Adapt.dLocalize("SkillSwords.Icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
         setDescription(Adapt.dLocalize("SkillSwords.Description"));
