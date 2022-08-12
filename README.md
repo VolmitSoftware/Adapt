@@ -217,3 +217,11 @@ Keep in mind it should be simple, but complex ones are welcome too!_
 
 </details>
 
+
+## Credits
+<details>
+<summary> Language </summary>
+
+   * [NextdoorPsycho](https://github.com/NextdoorPsycho): English
+   
+</details>
