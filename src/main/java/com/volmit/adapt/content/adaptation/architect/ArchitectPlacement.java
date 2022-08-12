@@ -30,8 +30,8 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     public ArchitectPlacement() {
         super("architect-placement");
         registerConfiguration(ArchitectPlacement.Config.class);
-        setDescription(Adapt.dLocalize("Placement.Description"));
-        setDisplayName(Adapt.dLocalize("Placement.Name"));
+        setDescription(Adapt.dLocalize("Architect", "Placement", "Description"));
+        setDisplayName(Adapt.dLocalize("Architect", "Placement", "Name"));
         setIcon(Material.SCAFFOLDING);
         setInterval(350);
         setBaseCost(getConfig().baseCost);
@@ -42,7 +42,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("Placement.Lore3"));
+        v.addLore(C.GREEN + Adapt.dLocalize("Architect", "Placement", "Lore3"));
     }
 
     private final Map<Player, Map<Block, BlockFace>> totalMap = new HashMap<>();
@@ -97,7 +97,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                         runPlayerViewport(getBlockFace(p), p.getTargetBlock(null, 5), p.getInventory().getItemInMainHand().getType(), p);
                     }
                 } else {
-                    p.sendMessage(C.RED + Adapt.dLocalize("Placement.Lore1") + C.GREEN + totalMap.get(p).size() + C.RED + Adapt.dLocalize("Placement.Lore2"));
+                    p.sendMessage(C.RED + Adapt.dLocalize("Adaptations", "Placement", "Lore2") + C.GREEN + totalMap.get(p).size() + C.RED + Adapt.dLocalize("Architect", "Placement", "Lore2"));
                 }
             }
         }

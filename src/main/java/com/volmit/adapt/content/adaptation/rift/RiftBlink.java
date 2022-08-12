@@ -28,8 +28,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     public RiftBlink() {
         super("rift-blink");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("RiftBlink.Description"));
-        setDisplayName(Adapt.dLocalize("RiftBlink.Name"));
+        setDescription(Adapt.dLocalize("Rift","RiftBlink", "Description"));
+        setDisplayName(Adapt.dLocalize("Rift","RiftBlink", "Name"));
         setIcon(Material.FEATHER);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -48,8 +48,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + Adapt.dLocalize("RiftBlink.Lore1"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("RiftBlink.Lore2") + C.DARK_PURPLE + Adapt.dLocalize("RiftBlink.Lore3"));
+        v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + Adapt.dLocalize("Rift","RiftBlink", "Lore1"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RiftBlink", "Lore2") + C.DARK_PURPLE + Adapt.dLocalize("Rift","RiftBlink", "Lore3"));
     }
 
     @EventHandler

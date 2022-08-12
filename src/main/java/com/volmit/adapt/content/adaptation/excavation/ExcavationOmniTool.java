@@ -38,8 +38,8 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     public ExcavationOmniTool() {
         super("excavation-omnitool");
         registerConfiguration(ExcavationOmniTool.Config.class);
-        setDisplayName(Adapt.dLocalize("OmniTool.Name"));
-        setDescription(Adapt.dLocalize("OmniTool.Description"));
+        setDisplayName(Adapt.dLocalize("Excavation", "OmniTool", "Name"));
+        setDescription(Adapt.dLocalize("Excavation", "OmniTool", "Description"));
         setIcon(Material.DISC_FRAGMENT_5);
         setInterval(20202);
         setBaseCost(getConfig().baseCost);
@@ -50,13 +50,13 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("OmniTool.Lore1"));
-        v.addLore(C.GRAY + "" + (level) + C.GRAY + Adapt.dLocalize("OmniTool.Lore2"));
-        v.addLore(C.GREEN + Adapt.dLocalize("OmniTool.Lore3"));
-        v.addLore(C.RED + Adapt.dLocalize("OmniTool.Lore4"));
-        v.addLore(C.GRAY + Adapt.dLocalize("OmniTool.Lore5"));
-        v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + Adapt.dLocalize("OmniTool.Lore6"));
-        v.addLore(C.UNDERLINE + Adapt.dLocalize("OmniTool.Lore7"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Excavation", "OmniTool", "Lore1"));
+        v.addLore(C.GRAY + "" + (level) + C.GRAY + Adapt.dLocalize("Excavation", "OmniTool", "Lore2"));
+        v.addLore(C.GREEN + Adapt.dLocalize("Excavation", "OmniTool", "Lore3"));
+        v.addLore(C.RED + Adapt.dLocalize("Excavation", "OmniTool", "Lore4"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Excavation", "OmniTool", "Lore5"));
+        v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + Adapt.dLocalize("Excavation", "OmniTool", "Lore6"));
+        v.addLore(C.UNDERLINE + Adapt.dLocalize("Excavation", "OmniTool", "Lore7"));
 
 
     }

@@ -20,9 +20,9 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     public SkillAgility() {
-        super(Adapt.dLocalize("SkillAgility.Name"), Adapt.dLocalize("SkillAgility.Icon"));
+        super(Adapt.dLocalize("Skill",  "Agility", "Name"), Adapt.dLocalize("Skill", "Agility", "Icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("SkillAgility.Description"));
+        setDescription(Adapt.dLocalize("Skill", "Agility", "Description"));
         setColor(C.GREEN);
         setInterval(975);
         setIcon(Material.FEATHER);

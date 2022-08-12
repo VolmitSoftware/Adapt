@@ -16,8 +16,8 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
     public CraftingXP() {
         super("crafting-xp");
         registerConfiguration(CraftingXP.Config.class);
-        setDisplayName(Adapt.dLocalize("CraftXp.Name"));
-        setDescription(Adapt.dLocalize("CraftXp.Description"));
+        setDisplayName(Adapt.dLocalize("Crafting", "CraftXp", "Name"));
+        setDescription(Adapt.dLocalize("Crafting", "CraftXp", "Description"));
         setIcon(Material.EXPERIENCE_BOTTLE);
         setInterval(10101);
         setBaseCost(getConfig().baseCost);
@@ -28,7 +28,7 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("CraftXp.Lore1"));
+        v.addLore(C.GREEN + Adapt.dLocalize("Crafting", "CraftXp", "Lore1"));
     }
 
 

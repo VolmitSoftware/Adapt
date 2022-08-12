@@ -15,8 +15,8 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
     public HunterAdrenaline() {
         super("hunter-adrenaline");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Adrenaline.Description"));
-        setDisplayName(Adapt.dLocalize("Adrenaline.Name"));
+        setDescription(Adapt.dLocalize("Hunter", "Adrenaline", "Description"));
+        setDisplayName(Adapt.dLocalize("Hunter", "Adrenaline", "Name"));
         setIcon(Material.LEATHER_HELMET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -26,7 +26,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDamage(level), 0) + C.GRAY + Adapt.dLocalize("Adrenaline.Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getDamage(level), 0) + C.GRAY + Adapt.dLocalize("Hunter", "Adrenaline", "Lore1"));
     }
 
     private double getDamage(int level) {

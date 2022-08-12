@@ -20,14 +20,21 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     public HerbalismGrowthAura() {
         super("herbalism-growth-aura");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("GrowthAura.Description"));
-        setDisplayName(Adapt.dLocalize("GrowthAura.Name"));
+        setDescription(Adapt.dLocalize("Herbalism", "GrowthAura", "Description"));
+        setDisplayName(Adapt.dLocalize("Herbalism", "GrowthAura", "Name"));
         setIcon(Material.BONE_MEAL);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(850);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+    }
+
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "+ " + Form.f(getRadius(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Herbalism", "GrowthAura", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getStrength(level), 0) + C.GRAY + Adapt.dLocalize("Herbalism", "GrowthAura", "Lore2"));
+        v.addLore(C.YELLOW + "+ " + Form.f(getFoodCost(getLevelPercent(level)), 2) + C.GRAY + Adapt.dLocalize("Herbalism", "GrowthAura", "Lore3"));
     }
 
     private double getRadius(double factor) {
@@ -42,12 +49,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         return M.lerp(1D - factor, getConfig().maxFoodCost, getConfig().minFoodCost);
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRadius(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("GrowthAura.Lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getStrength(level), 0) + C.GRAY + Adapt.dLocalize("GrowthAura.Lore2"));
-        v.addLore(C.YELLOW + "+ " + Form.f(getFoodCost(getLevelPercent(level)), 2) + C.GRAY + Adapt.dLocalize("GrowthAura.Lore3"));
-    }
+
 
     @Override
     public void onTick() {

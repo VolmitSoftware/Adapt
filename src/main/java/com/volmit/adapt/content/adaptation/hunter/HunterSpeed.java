@@ -14,8 +14,8 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
     public HunterSpeed() {
         super("hunter-speed");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("HunterSpeed.Description"));
-        setDisplayName(Adapt.dLocalize("HunterSpeed.Name"));
+        setDescription(Adapt.dLocalize("Hunter", "HunterSpeed", "Description"));
+        setDisplayName(Adapt.dLocalize("Hunter", "HunterSpeed", "Name"));
         setIcon(Material.LAVA_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -25,11 +25,11 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("HunterSpeed.Lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("HunterSpeed.Lore2"));
-        v.addLore(C.RED + "- " + 5+level + C.GRAY + Adapt.dLocalize("HunterSpeed.Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterSpeed.Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterSpeed.Lore5"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterSpeed", "Lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterSpeed", "Lore2"));
+        v.addLore(C.RED + "- " + 5+level + C.GRAY + Adapt.dLocalize("Hunter", "HunterSpeed", "Lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterSpeed", "Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterSpeed", "Lore5"));
     }
 
 

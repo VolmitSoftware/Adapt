@@ -23,9 +23,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     private final Map<Player, Long> lasttp = new HashMap<>();
 
     public SkillRift() {
-        super(Adapt.dLocalize("SkillRift.Name"), Adapt.dLocalize("SkillRift.Icon"));
+        super(Adapt.dLocalize("Skill", "Rift", "Name"), Adapt.dLocalize("Skill", "Rift", "Icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("SkillRift.Description"));
+        setDescription(Adapt.dLocalize("Skill", "Rift", "Description"));
         setColor(C.DARK_PURPLE);
         setInterval(1154);
         setIcon(Material.ENDER_EYE);

@@ -16,10 +16,10 @@ import org.bukkit.entity.Player;
 
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     public SkillSeaborne() {
-        super(Adapt.dLocalize("SkillSeaborne.Name"), Adapt.dLocalize("SkillSeaborne.Icon"));
+        super(Adapt.dLocalize("Skill", "Seaborne", "Name"), Adapt.dLocalize("Skill", "Seaborne", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.BLUE);
-        setDescription(Adapt.dLocalize("SkillSeaborne.Description"));
+        setDescription(Adapt.dLocalize("Skill", "Seaborne", "Description"));
         setInterval(2120);
         setIcon(Material.TRIDENT);
         registerAdaptation(new SeaborneOxygen());

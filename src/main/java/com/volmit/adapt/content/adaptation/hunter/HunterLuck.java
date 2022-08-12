@@ -14,8 +14,8 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
     public HunterLuck() {
         super("hunter-luck");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("HunterLuck.Description"));
-        setDisplayName(Adapt.dLocalize("HunterLuck.Name"));
+        setDescription(Adapt.dLocalize("Hunter", "HunterLuck", "Description"));
+        setDisplayName(Adapt.dLocalize("Hunter", "HunterLuck", "Name"));
         setIcon(Material.TADPOLE_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -25,11 +25,11 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("HunterLuck.Lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("HunterLuck.Lore2"));
-        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("HunterLuck.Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterLuck.Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterLuck.Lore5"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterLuck", "Lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterLuck", "Lore2"));
+        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterLuck", "Lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterLuck", "Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterLuck", "Lore5"));
     }
 
 

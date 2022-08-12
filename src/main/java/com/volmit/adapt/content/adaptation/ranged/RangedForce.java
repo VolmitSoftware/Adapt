@@ -18,17 +18,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
-    private final List<Integer> holds = new ArrayList<>();
 
     public RangedForce() {
         super("ranged-force");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("ForceShot.Description"));
-        setDisplayName(Adapt.dLocalize("ForceShot.Name"));
+        setDescription(Adapt.dLocalize("Ranged", "ForceShot", "Description"));
+        setDisplayName(Adapt.dLocalize("Ranged", "ForceShot", "Name"));
         setIcon(Material.ARROW);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -36,18 +32,18 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         registerAdvancement(AdaptAdvancement.builder()
-            .icon(Material.SPECTRAL_ARROW)
-            .key("challenge_force_30")
-            .title(Adapt.dLocalize("ForceShot.AdvancementName"))
-            .description(Adapt.dLocalize("ForceShot.AdvancementLore"))
-            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build());
+                .icon(Material.SPECTRAL_ARROW)
+                .key("challenge_force_30")
+                .title(Adapt.dLocalize("Ranged", "ForceShot", "AdvancementName"))
+                .description(Adapt.dLocalize("Ranged", "ForceShot", "AdvancementLore"))
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
     }
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("ForceShot.Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Ranged", "ForceShot", "Lore1"));
     }
 
     private double getSpeed(double factor) {
@@ -56,13 +52,13 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Projectile r && r.getShooter() instanceof Player p && hasAdaptation(p) && !getPlayer(p).getData().isGranted("challenge_force_30")) {
+        if (e.getDamager() instanceof Projectile r && r.getShooter() instanceof Player p && hasAdaptation(p) && !getPlayer(p).getData().isGranted("challenge_force_30")) {
             Location a = e.getEntity().getLocation().clone();
             Location b = p.getLocation().clone();
             a.setY(0);
             b.setY(0);
 
-            if(a.distanceSquared(b) > 10) {
+            if (a.distanceSquared(b) > 10) {
                 getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
                 getSkill().xp(p, getConfig().challengeRewardLongShotReward);
             }
@@ -71,10 +67,10 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
-        if(e.getEntity().getShooter() instanceof Player) {
+        if (e.getEntity().getShooter() instanceof Player) {
             Player p = ((Player) e.getEntity().getShooter());
 
-            if(getLevel(p) > 0) {
+            if (getLevel(p) > 0) {
                 double factor = getLevelPercent(p);
                 e.getEntity().setVelocity(e.getEntity().getVelocity().clone().multiply(1 + getSpeed(factor)));
                 e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_SNOWBALL_THROW, 0.5f + ((float) factor * 0.25f), 0.7f + (float) (factor / 2f));

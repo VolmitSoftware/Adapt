@@ -32,10 +32,10 @@ import java.util.Map;
 
 public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public SkillDiscovery() {
-        super(Adapt.dLocalize("SkillDiscovery.Name"), Adapt.dLocalize("SkillDiscovery.Icon"));
+        super(Adapt.dLocalize("Skill", "Discovery", "Name"), Adapt.dLocalize("Skill", "Discovery", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setDescription(Adapt.dLocalize("SkillDiscovery.Description"));
+        setDescription(Adapt.dLocalize("Skill", "Discovery", "Description"));
         setInterval(500);
         setIcon(Material.FILLED_MAP);
         registerAdaptation(new DiscoveryUnity());

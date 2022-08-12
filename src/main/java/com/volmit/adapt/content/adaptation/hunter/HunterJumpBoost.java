@@ -14,8 +14,8 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
     public HunterJumpBoost() {
         super("hunter-jumpboost");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("HunterJumpBoost.Description"));
-        setDisplayName(Adapt.dLocalize("HunterJumpBoost.Name"));
+        setDescription(Adapt.dLocalize("Hunter", "HunterJumpBoost", "Description"));
+        setDisplayName(Adapt.dLocalize("Hunter", "HunterJumpBoost", "Name"));
         setIcon(Material.PUFFERFISH_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -25,11 +25,11 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("HunterJumpBoost.Lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("HunterJumpBoost.Lore2"));
-        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("HunterJumpBoost.Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterJumpBoost.Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterJumpBoost.Lore5"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore2"));
+        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore5"));
     }
 
 

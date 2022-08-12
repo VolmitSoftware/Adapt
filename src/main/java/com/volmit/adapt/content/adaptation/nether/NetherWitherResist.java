@@ -22,8 +22,8 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     public NetherWitherResist() {
         super("nether-wither-resist");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("WitherResist.Description"));
-        setDisplayName(Adapt.dLocalize("WitherResist.Name"));
+        setDescription(Adapt.dLocalize("Nether", "WitherResist", "Description"));
+        setDisplayName(Adapt.dLocalize("Nether", "WitherResist", "Name"));
         setIcon(Material.NETHERITE_CHESTPLATE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -35,8 +35,8 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     @Override
     public void addStats(int level, Element v) {
         int chance = (int) (getConfig().basePieceChance + getConfig().getChanceAddition() * level);
-        v.addLore(C.GREEN + "+ " + chance + "%" + C.GRAY + Adapt.dLocalize("WitherResist.Lore1"));
-        v.addLore(C.GRAY + Adapt.dLocalize("WitherResist.Lore1") + C.DARK_GRAY + Adapt.dLocalize("WitherResist.Lore2"));
+        v.addLore(C.GREEN + "+ " + chance + "%" + C.GRAY + Adapt.dLocalize("Nether", "WitherResist", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Nether", "WitherResist", "Lore1") + C.DARK_GRAY + Adapt.dLocalize("Nether", "WitherResist", "Lore2"));
     }
 
     @EventHandler

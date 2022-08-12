@@ -19,8 +19,8 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
     public HerbalismHungryHippo() {
         super("herbalism-hippo");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Hippo.Description"));
-        setDisplayName(Adapt.dLocalize("Hippo.Name"));
+        setDescription(Adapt.dLocalize("Herbalism", "Hippo", "Description"));
+        setDisplayName(Adapt.dLocalize("Herbalism", "Hippo", "Name"));
         setIcon(Material.POTATO);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -29,6 +29,10 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
         setCostFactor(getConfig().costFactor);
     }
 
+    @Override
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + "+ (" + (2 + level) + C.GRAY + Adapt.dLocalize("Herbalism", "Hippo", "Lore1"));
+    }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void on(PlayerItemConsumeEvent e) {
@@ -43,10 +47,6 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
         }
     }
 
-    @Override
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ (" + (2 + level) + C.GRAY + Adapt.dLocalize("Hippo.Lore1"));
-    }
 
     @Override
     public void onTick() {

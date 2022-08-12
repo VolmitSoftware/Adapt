@@ -22,8 +22,8 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     public AxeChop() {
         super("axe-chop");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Chop.Description"));
-        setDisplayName(Adapt.dLocalize("Chop.Name"));
+        setDescription(Adapt.dLocalize("Axe", "Chop", "Description"));
+        setDisplayName(Adapt.dLocalize("Axe", "Chop", "Name"));
         setIcon(Material.IRON_AXE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -34,9 +34,9 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Chop.Lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("Chop.Lore2"));
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + Adapt.dLocalize("Chop.Lore3"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Axe", "Chop", "Lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("Axe", "Chop", "Lore2"));
+        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + Adapt.dLocalize("Axe", "Chop", "Lore3"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -14,10 +14,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     public SkillSwords() {
-        super(Adapt.dLocalize("SkillSwords.Name"), Adapt.dLocalize("SkillSwords.Icon"));
+        super(Adapt.dLocalize("Skill", "Swords", "Name"), Adapt.dLocalize("Skill", "Swords", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription(Adapt.dLocalize("SkillSwords.Description"));
+        setDescription(Adapt.dLocalize("Skill", "Swords", "Description"));
         setInterval(2150);
         setIcon(Material.DIAMOND_SWORD);
         registerAdaptation(new SwordsMachete());

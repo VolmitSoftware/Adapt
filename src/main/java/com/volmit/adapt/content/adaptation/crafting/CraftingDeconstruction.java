@@ -25,8 +25,8 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
     public CraftingDeconstruction() {
         super("crafting-deconstruction");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Deconstruction.Description"));
-        setDisplayName(Adapt.dLocalize("Deconstruction.Name"));
+        setDescription(Adapt.dLocalize("Crafting", "Deconstruction", "Description"));
+        setDisplayName(Adapt.dLocalize("Crafting", "Deconstruction", "Name"));
         setIcon(Material.SHEARS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(1);
@@ -37,8 +37,8 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("Deconstruction.Lore1"));
-        v.addLore(C.GREEN + Adapt.dLocalize("Deconstruction.Lore2"));
+        v.addLore(C.GREEN + Adapt.dLocalize("Crafting", "Deconstruction", "Lore1"));
+        v.addLore(C.GREEN + Adapt.dLocalize("Crafting", "Deconstruction", "Lore2"));
     }
 
     public ItemStack getDeconstructionOffering(ItemStack forStuff) {

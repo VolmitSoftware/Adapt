@@ -16,8 +16,8 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
     public EnchantingXPReturn() {
         super("enchanting-xp-return");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("EnchantingXpReturn.Description"));
-        setDisplayName(Adapt.dLocalize("EnchantingXpReturn.Name"));
+        setDescription(Adapt.dLocalize("Enchanting", "EnchantingXpReturn", "Description"));
+        setDisplayName(Adapt.dLocalize("Enchanting", "EnchantingXpReturn", "Name"));
         setIcon(Material.EXPERIENCE_BOTTLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -28,8 +28,8 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("EnchantingXpReturn.Lore1"));
-        v.addLore(C.GREEN + "" + getConfig().xpReturn * (level * level) + Adapt.dLocalize("EnchantingXpReturn.Lore2"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Enchanting", "EnchantingXpReturn", "Lore1"));
+        v.addLore(C.GREEN + "" + getConfig().xpReturn * (level * level) + Adapt.dLocalize("Enchanting", "EnchantingXpReturn", "Lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

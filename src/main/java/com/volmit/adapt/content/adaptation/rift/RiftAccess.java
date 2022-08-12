@@ -32,8 +32,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     public RiftAccess() {
         super("rift-access");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("RemoteAccess.Description"));
-        setDisplayName(Adapt.dLocalize("RemoteAccess.Name"));
+        setDescription(Adapt.dLocalize("Rift","RemoteAccess", "Description"));
+        setDisplayName(Adapt.dLocalize("Rift","RemoteAccess", "Name"));
         setMaxLevel(1);
         setIcon(Material.NETHER_STAR);
         setBaseCost(getConfig().baseCost);
@@ -41,7 +41,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         setInitialCost(getConfig().initialCost);
         setInterval(5544);
         registerRecipe(AdaptRecipe.shapeless()
-                .key("rift-access")
+                .key("rift-remote-access")
                 .ingredient(Material.ENDER_PEARL)
                 .ingredient(Material.COMPASS)
                 .result(BoundEnderPearl.io.withData(new BoundEnderPearl.Data(null)))
@@ -50,9 +50,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Adapt.dLocalize("RemoteAccess.Lore1"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("RemoteAccess.Lore2"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("RemoteAccess.Lore3"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RemoteAccess", "Lore1"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RemoteAccess", "Lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RemoteAccess", "Lore3"));
     }
 
     @NoArgsConstructor
@@ -98,7 +98,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                     }
                 } else if (block != null && !isStorage(block.getBlockData())) {
                     if (p.isSneaking()) { //(Sneak NOT Container)
-                        p.sendMessage(C.LIGHT_PURPLE + Adapt.dLocalize("RemoteAccess.NotContainer"));
+                        p.sendMessage(C.LIGHT_PURPLE + Adapt.dLocalize("Rift","RemoteAccess", "NotContainer"));
                     } else if (!p.isSneaking() && isBound(hand)) {
                         openPearl(p);
                     }

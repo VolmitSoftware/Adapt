@@ -20,8 +20,8 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
     public RangedPiercing() {
         super("ranged-piercing");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("ArrowPiercing.Description"));
-        setDisplayName(Adapt.dLocalize("ArrowPiercing.Name"));
+        setDescription(Adapt.dLocalize("Ranged","ArrowPiercing", "Description"));
+        setDisplayName(Adapt.dLocalize("Ranged","ArrowPiercing", "Name"));
         setIcon(Material.SHEARS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -32,7 +32,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("ArrowPiercing.Lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Ranged","ArrowPiercing", "Lore1"));
     }
 
     @EventHandler

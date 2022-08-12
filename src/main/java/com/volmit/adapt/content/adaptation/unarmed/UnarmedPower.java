@@ -15,8 +15,8 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     public UnarmedPower() {
         super("unarmed-power");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("UnarmedPower.Description"));
-        setDisplayName(Adapt.dLocalize("UnarmedPower.Name"));
+        setDescription(Adapt.dLocalize("Unarmed","UnarmedPower", "Description"));
+        setDisplayName(Adapt.dLocalize("Unarmed","UnarmedPower", "Name"));
         setIcon(Material.LEATHER_HELMET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -36,7 +36,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getUnarmedDamage(level), 0) + C.GRAY + Adapt.dLocalize("UnarmedPower.Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getUnarmedDamage(level), 0) + C.GRAY + Adapt.dLocalize("Unarmed","UnarmedPower", "Lore1"));
     }
 
     @EventHandler

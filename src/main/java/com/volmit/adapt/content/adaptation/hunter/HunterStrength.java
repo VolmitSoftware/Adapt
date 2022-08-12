@@ -14,8 +14,8 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
     public HunterStrength() {
         super("hunter-strength");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("HunterStrength.Description"));
-        setDisplayName(Adapt.dLocalize("HunterStrength.Name"));
+        setDescription(Adapt.dLocalize("Hunter", "HunterStrength", "Description"));
+        setDisplayName(Adapt.dLocalize("Hunter", "HunterStrength", "Name"));
         setIcon(Material.COD_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -25,11 +25,11 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("HunterStrength.Lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("HunterStrength.Lore2"));
-        v.addLore(C.RED + "- " + 5+level + C.GRAY + Adapt.dLocalize("HunterStrength.Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterStrength.Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterStrength.Lore5"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterStrength", "Lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterStrength", "Lore2"));
+        v.addLore(C.RED + "- " + 5+level + C.GRAY + Adapt.dLocalize("Hunter", "HunterStrength", "Lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterStrength", "Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterStrength", "Lore5"));
     }
 
 

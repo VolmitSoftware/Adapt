@@ -25,9 +25,9 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     public AgilityArmorUp() {
         super("agility-armor-up");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("ArmorUp.Description"));
+        setDescription(Adapt.dLocalize("Agility", "ArmorUp", "Description"));
         setIcon(Material.IRON_CHESTPLATE);
-        setDisplayName(Adapt.dLocalize("ArmorUp.Name"));
+        setDisplayName(Adapt.dLocalize("Agility", "ArmorUp", "Name"));
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
@@ -36,8 +36,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getWindupArmor(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("ArmorUp.Lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("ArmorUp.Lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getWindupArmor(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Agility", "ArmorUp", "Lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("Agility",  "ArmorUp", "Lore2"));
     }
 
     @EventHandler

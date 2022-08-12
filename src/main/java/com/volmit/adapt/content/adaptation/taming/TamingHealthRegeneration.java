@@ -21,15 +21,13 @@ import java.util.Map;
 import java.util.UUID;
 
 public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegeneration.Config> {
-    private final UUID attUUID = UUID.nameUUIDFromBytes("health-boost".getBytes());
-    private final String attid = "att-health-boost";
     private final Map<UUID, Long> lastDamage = new HashMap<>();
 
     public TamingHealthRegeneration() {
         super("tame-health-regeneration");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("TameRegeneration.Description"));
-        setDisplayName(Adapt.dLocalize("TameRegeneration.Name"));
+        setDescription(Adapt.dLocalize("Taming","TameRegeneration", "Description"));
+        setDisplayName(Adapt.dLocalize("Taming","TameRegeneration", "Name"));
         setIcon(Material.GOLDEN_APPLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -40,7 +38,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRegenSpeed(level), 0) + C.GRAY + Adapt.dLocalize("TameRegeneration.Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getRegenSpeed(level), 0) + C.GRAY + Adapt.dLocalize("Taming","TameRegeneration", "Lore1"));
     }
 
     @EventHandler

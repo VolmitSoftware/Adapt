@@ -26,8 +26,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     public RiftGate() {
         super("rift-gate");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("RiftGate.Description"));
-        setDisplayName(Adapt.dLocalize("RiftGate.Name"));
+        setDescription(Adapt.dLocalize("Rift","RiftGate", "Description"));
+        setDisplayName(Adapt.dLocalize("Rift","RiftGate", "Name"));
         setIcon(Material.END_PORTAL_FRAME);
         setBaseCost(0);
         setCostFactor(0);
@@ -35,7 +35,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         setInitialCost(30);
         setInterval(50);
         registerRecipe(AdaptRecipe.shapeless()
-            .key("rift-gate")
+            .key("rift-recall-gate")
             .ingredient(Material.ENDER_PEARL)
                 .ingredient(Material.AMETHYST_SHARD)
                 .ingredient(Material.EMERALD)
@@ -45,9 +45,9 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.YELLOW + Adapt.dLocalize("RiftGate.Lore1"));
-        v.addLore(C.RED + Adapt.dLocalize("RiftGate.Lore2"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("RiftGate.Lore3") + C.UNDERLINE + C.RED + Adapt.dLocalize("RiftGate.Lore4"));
+        v.addLore(C.YELLOW + Adapt.dLocalize("Rift","RiftGate", "Lore1"));
+        v.addLore(C.RED + Adapt.dLocalize("Rift","RiftGate", "Lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RiftGate", "Lore3") + C.UNDERLINE + C.RED + Adapt.dLocalize("Rift","RiftGate", "Lore4"));
     }
 
 

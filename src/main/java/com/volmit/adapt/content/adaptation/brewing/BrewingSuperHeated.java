@@ -30,8 +30,8 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
     public BrewingSuperHeated() {
         super("brewing-super-heated");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("SuperHeated.Description"));
-        setDisplayName(Adapt.dLocalize("SuperHeated.Name"));
+        setDescription(Adapt.dLocalize("Brewing", "SuperHeated", "Description"));
+        setDisplayName(Adapt.dLocalize("Brewing", "SuperHeated", "Name"));
         setIcon(Material.LAVA_BUCKET);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -42,8 +42,8 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getFireBoost(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("SuperHeated.Lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getLavaBoost(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("SuperHeated.Lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getFireBoost(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Brewing", "SuperHeated", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getLavaBoost(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Brewing", "SuperHeated", "Lore2"));
     }
 
     public double getLavaBoost(double factor) {

@@ -25,8 +25,8 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
     public BrewingLingering() {
         super("brewing-lingering");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Lingering.Description"));
-        setDisplayName(Adapt.dLocalize("Lingering.Name"));
+        setDescription(Adapt.dLocalize("Brewing", "Lingering", "Description"));
+        setDisplayName(Adapt.dLocalize("Brewing", "Lingering", "Name"));
         setIcon(Material.CLOCK);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -37,8 +37,8 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.duration((long) getDurationBoost(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Lingering.Lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getPercentBoost(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Lingering.Lore2"));
+        v.addLore(C.GREEN + "+ " + Form.duration((long) getDurationBoost(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Brewing", "Lingering", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getPercentBoost(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Brewing", "Lingering", "Lore2"));
     }
 
     public double getDurationBoost(double factor) {

@@ -18,12 +18,12 @@ import org.bukkit.entity.Player;
 
 public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     public SkillStealth() {
-        super(Adapt.dLocalize("SkillStealth.Name"), Adapt.dLocalize("SkillStealth.Icon"));
+        super(Adapt.dLocalize("Skill", "Stealth", "Name"), Adapt.dLocalize("Skill", "Stealth", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.DARK_GRAY);
         setInterval(1412);
         setIcon(Material.WITHER_ROSE);
-        setDescription(Adapt.dLocalize("SkillStealth.Description"));
+        setDescription(Adapt.dLocalize("Skill", "Stealth", "Description"));
         registerAdaptation(new StealthSpeed());
         registerAdaptation(new StealthSnatch());
         registerAdaptation(new StealthGhostArmor());

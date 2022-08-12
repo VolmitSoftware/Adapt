@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.adaptation.pickaxe;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -19,8 +20,8 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     public PickaxeVeinminer() {
         super("pickaxe-veinminer");
         registerConfiguration(PickaxeVeinminer.Config.class);
-        setDescription("Allows you to break blocks in a Vein/Cluster of Vanilla ores");
-        setDisplayName("Pickaxe Veinminer");
+        setDescription(Adapt.dLocalize("Pickaxe", "Veinminer", "Description"));
+        setDisplayName(Adapt.dLocalize("Pickaxe", "Veinminer", "Name"));
         setIcon(Material.IRON_PICKAXE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -29,9 +30,9 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "Sneak, and mine ORES");
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + "range of vein-mining");
-        v.addLore(C.ITALIC + "This skill does NOT group all drops together!");
+        v.addLore(C.GREEN + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore1"));
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore3"));
     }
 
     private int getRadius(int lvl) {

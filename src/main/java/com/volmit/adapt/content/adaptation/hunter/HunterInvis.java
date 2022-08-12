@@ -14,8 +14,8 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
     public HunterInvis() {
         super("hunter-invis");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("HunterInvisibility.Description"));
-        setDisplayName(Adapt.dLocalize("HunterInvisibility.Name"));
+        setDescription(Adapt.dLocalize("Hunter", "HunterInvisibility", "Description"));
+        setDisplayName(Adapt.dLocalize("Hunter", "HunterInvisibility", "Name"));
         setIcon(Material.TROPICAL_FISH_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -25,11 +25,11 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("HunterInvisibility.Lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("HunterInvisibility.Lore2"));
-        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("HunterInvisibility.Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterInvisibility.Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("HunterInvisibility.Lore5"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore2"));
+        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore5"));
     }
 
 
