@@ -1,4 +1,19 @@
-#--------------------------[Skills]--------------------------
+#--------------------[Random Snippets]--------------------
+# This is a collection of the random menu items that are
+# LitteredAround the whole Adapt Menu's and so on.
+#--------------------[Random Snippets]--------------------
+Snippets:
+  SkillsGUI:
+    Level: "Level"
+    PowerUsed: "Power Used"
+  CorruptionGUI:
+    Level: "Level"
+    Knowledge: "Knowledge"
+    PowerUsed: "Power Used"
+
+
+
+#------------------------------[Skills]------------------------------
 # The Skills below are ordered alphabetically, and only include the
 # Name, Description, and the Icon. The names need to be LOWERCASE, the
 # and the icon needs to be a \u code in the MC Codec eg: "\u21C9"
@@ -6,7 +21,7 @@
 # Please note that all the extra spaces, random commas, and *'s are intentional.
 # This is to make the output look pretty, and so I don't need to do formatting.
 # in every damn place that we are translating.
-#--------------------------[Skills]--------------------------
+#------------------------------[Skills]------------------------------
 
 Skills:
   SkillAgility:
@@ -216,7 +231,7 @@ Excavation:
     Lore3: "to merge, shift click an item over another in your inventory."
     Lore4: "to unbind tools, Sneak-Drop the item, and it will disassemble."
     Lore5: "you can't break tools in this leatherman but you can't use broken tools"
-    Lore6:  " total merge-able items"
+    Lore6: " total merge-able items"
     #This one below is a meme, that might not make sense in other languages: https://www.youtube.com/watch?v=7T1OHha9agg if you want to get it
     Lore7: "you could use five or six tools, or just one!"
 

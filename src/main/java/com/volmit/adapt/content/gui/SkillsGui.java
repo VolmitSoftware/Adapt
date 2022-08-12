@@ -5,11 +5,7 @@ import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.api.xp.XP;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.MaterialBlock;
-import com.volmit.adapt.util.UIElement;
-import com.volmit.adapt.util.UIWindow;
-import com.volmit.adapt.util.Window;
+import com.volmit.adapt.util.*;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -21,23 +17,23 @@ public class SkillsGui {
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         int ind = 0;
 
-        for(PlayerSkillLine i : a.getData().getSkillLines().sortV()) {
-            if (i.getLevel() < 0){
+        for (PlayerSkillLine i : a.getData().getSkillLines().sortV()) {
+            if (i.getLevel() < 0) {
                 continue;
             }
             int pos = w.getPosition(ind);
             int row = w.getRow(ind);
             Skill<?> sk = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(i.getLine());
             w.setElement(pos, row, new UIElement("skill-" + sk.getName())
-                .setMaterial(new MaterialBlock(sk.getIcon()))
-                .setName(sk.getDisplayName(i.getLevel()))
-                .setProgress(1D)
-                .addLore(C.ITALIC + "" + C.GRAY + sk.getDescription())
-                .addLore(C.UNDERLINE + "" + C.WHITE + i.getKnowledge() + C.RESET + " " + C.GRAY + "Knowledge")
-                .onLeftClick((e) -> sk.openGui(player)));
+                    .setMaterial(new MaterialBlock(sk.getIcon()))
+                    .setName(sk.getDisplayName(i.getLevel()))
+                    .setProgress(1D)
+                    .addLore(C.ITALIC + "" + C.GRAY + sk.getDescription())
+                    .addLore(C.UNDERLINE + "" + C.WHITE + i.getKnowledge() + C.RESET + " " + C.GRAY + Adapt.dLocalize("GUI.SkillsGUI.Knowledge"))
+                    .onLeftClick((e) -> sk.openGui(player)));
             ind++;
         }
-        w.setTitle("Level " + (int)XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " Power Used)");
+        w.setTitle(Adapt.dLocalize("GUI.SkillsGUI.Level") + " " + (int) XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " " + Adapt.dLocalize("GUI.SkillsGUI.PowerUsed") + ")");
         w.open();
     }
 }

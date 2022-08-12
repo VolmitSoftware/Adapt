@@ -3,11 +3,7 @@ package com.volmit.adapt.content.gui;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.xp.XP;
-import com.volmit.adapt.util.MaterialBlock;
-import com.volmit.adapt.util.UIElement;
-import com.volmit.adapt.util.UIWindow;
-import com.volmit.adapt.util.Window;
-import com.volmit.adapt.util.WindowResolution;
+import com.volmit.adapt.util.*;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -20,7 +16,7 @@ public class CorruptionGui {
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         int ind = 0;
 
-        w.setTitle("Level " + (int)XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " Power Used)");
+        w.setTitle(Adapt.dLocalize("GUI.CorruptionGUI.Level")+ " " + (int) XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " " + Adapt.dLocalize("GUI.CorruptionGUI.PowerUsed") + ")");
         w.open();
     }
 }
