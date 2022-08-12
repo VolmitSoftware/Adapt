@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationHaste;
@@ -16,9 +17,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     public SkillExcavation() {
-        super("excavation", "\u2725");
+        super(Adapt.dLocalize("SkillExcavation.Name"), Adapt.dLocalize("SkillExcavation.Icon"));
         registerConfiguration(Config.class);
-        setDescription("Diggey Diggey hole...");
+        setDescription(Adapt.dLocalize("SkillExcavation.Description"));
         setColor(C.YELLOW);
         setInterval(5251);
         setIcon(Material.DIAMOND_SHOVEL);
@@ -28,11 +29,11 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player p) {
+        if (e.getDamager() instanceof Player p) {
             AdaptPlayer a = getPlayer((Player) e.getDamager());
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
-            if(isShovel(hand)) {
+            if (isShovel(hand)) {
                 getPlayer(p).getData().addStat("excavation.swings", 1);
                 getPlayer(p).getData().addStat("excavation.damage", e.getDamage());
                 xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
@@ -42,7 +43,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
-        if(isShovel(e.getPlayer().getInventory().getItemInMainHand())) {
+        if (isShovel(e.getPlayer().getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
             getPlayer(e.getPlayer()).getData().addStat("excavation.blocks.broken", 1);
             getPlayer(e.getPlayer()).getData().addStat("excavation.blocks.value", getValue(e.getBlock().getBlockData()));

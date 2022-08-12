@@ -1,6 +1,7 @@
 package com.volmit.adapt.content.skill;
 
 import art.arcane.spatial.matter.SpatialMatter;
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -19,14 +20,12 @@ import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.meta.PotionMeta;
 
-import java.util.Random;
-
 public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     public SkillBrewing() {
-        super("brewing", "\u2725");
+        super(Adapt.dLocalize("SkillBrewing.Name"), Adapt.dLocalize("SkillBrewing.Icon"));
         registerConfiguration(Config.class);
         setColor(C.LIGHT_PURPLE);
-        setDescription("Double Bubble, Triple Bubble, Quadruple Bubble... \nI still cant put this potion into a cauldron");
+        setDescription(Adapt.dLocalize("SkillBrewing.Description"));
         setInterval(5251);
         setIcon(Material.LINGERING_POTION);
         registerAdaptation(new BrewingLingering());
@@ -36,18 +35,17 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler
     public void on(PlayerItemConsumeEvent e) {
-        if(e.getItem().getItemMeta() instanceof PotionMeta o)
-        {
+        if (e.getItem().getItemMeta() instanceof PotionMeta o) {
             xp(e.getPlayer(), e.getPlayer().getLocation(),
-                getConfig().splashXP
-                    + (getConfig().splashMultiplier * o.getCustomEffects().stream().mapToDouble(i -> (i.getAmplifier() + 1) * (i.getDuration() / 20D)).sum())
-            + (getConfig().splashMultiplier * (o.getBasePotionData().isUpgraded() ? 50 : 25)));
+                    getConfig().splashXP
+                            + (getConfig().splashMultiplier * o.getCustomEffects().stream().mapToDouble(i -> (i.getAmplifier() + 1) * (i.getDuration() / 20D)).sum())
+                            + (getConfig().splashMultiplier * (o.getBasePotionData().isUpgraded() ? 50 : 25)));
         }
     }
 
     @EventHandler
     public void on(PotionSplashEvent e) {
-        if(e.getPotion().getShooter() instanceof Player p) {
+        if (e.getPotion().getShooter() instanceof Player p) {
             AdaptPlayer a = getPlayer(p);
             getPlayer(p).getData().addStat("brewing.splashes", 1);
             xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().splashXP + (getConfig().splashMultiplier * e.getPotion().getEffects().stream().mapToDouble(i -> (i.getAmplifier() + 1) * (i.getDuration() / 20D)).sum()));
@@ -55,19 +53,15 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     }
 
     @EventHandler
-    public void on(BlockPlaceEvent e)
-    {
-        if(e.getBlock().getType().equals(Material.BREWING_STAND))
-        {
+    public void on(BlockPlaceEvent e) {
+        if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
             WorldData.of(e.getBlock().getWorld()).getMantle().set(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), new BrewingStandOwner(e.getPlayer().getUniqueId()));
         }
     }
 
     @EventHandler
-    public void on(BlockBreakEvent e)
-    {
-        if(e.getBlock().getType().equals(Material.BREWING_STAND))
-        {
+    public void on(BlockBreakEvent e) {
+        if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
             WorldData.of(e.getBlock().getWorld()).getMantle().remove(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);
         }
     }

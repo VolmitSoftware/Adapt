@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
@@ -15,10 +16,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     public SkillHunter() {
-        super("hunter", "\u2620");
+        super(Adapt.dLocalize("SkillHunter.Name"), Adapt.dLocalize("SkillHunter.Icon"));
         registerConfiguration(Config.class);
         setColor(C.RED);
-        setDescription("Better to be the hunter than the hunted");
+        setDescription(Adapt.dLocalize("SkillHunter.Description"));
         setInterval(4150);
         setIcon(Material.BONE);
         registerAdaptation(new HunterAdrenaline());
@@ -33,7 +34,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
-        if(e.getBlock().getType().equals(Material.TURTLE_EGG)) {
+        if (e.getBlock().getType().equals(Material.TURTLE_EGG)) {
             xp(e.getBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
             getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
         }
@@ -41,7 +42,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-        if(e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
+        if (e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
             xp(e.getClickedBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
             getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
         }
@@ -49,7 +50,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler
     public void on(EntityDeathEvent e) {
-        if(e.getEntity().getKiller() != null && e.getEntity().getKiller() != null) {
+        if (e.getEntity().getKiller() != null && e.getEntity().getKiller() != null) {
             double cmult = e.getEntity().getType().equals(EntityType.CREEPER) ? getConfig().creeperKillMultiplier : 1;
             xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
             xp(e.getEntity().getKiller(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult);

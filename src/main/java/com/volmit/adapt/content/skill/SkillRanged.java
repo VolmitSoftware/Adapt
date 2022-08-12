@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.ranged.RangedArrowRecovery;
 import com.volmit.adapt.content.adaptation.ranged.RangedForce;
@@ -19,9 +20,9 @@ import java.util.Locale;
 
 public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     public SkillRanged() {
-        super("ranged", "\uD83C\uDFF9");
+        super(Adapt.dLocalize("SkillRanged.Name"), Adapt.dLocalize("SkillRanged.Icon"));
         registerConfiguration(Config.class);
-        setDescription("When distance is your only alternative");
+        setDescription(Adapt.dLocalize("SkillRanged.Description"));
         setColor(C.DARK_GREEN);
         setInterval(3000);
         registerAdaptation(new RangedForce());
@@ -33,7 +34,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(ProjectileLaunchEvent e) {
-        if(e.getEntity().getShooter() instanceof Player) {
+        if (e.getEntity().getShooter() instanceof Player) {
             xp(((Player) e.getEntity().getShooter()), getConfig().shootXP);
             getPlayer(((Player) e.getEntity().getShooter())).getData().addStat("ranged.shotsfired", 1);
             getPlayer(((Player) e.getEntity().getShooter())).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
@@ -42,7 +43,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
+        if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
             Player p = ((Player) ((Projectile) e.getDamager()).getShooter());
             getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
             getPlayer(p).getData().addStat("ranged.distance", e.getEntity().getLocation().distance(p.getLocation()));

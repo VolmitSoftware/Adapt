@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -15,29 +16,29 @@ import org.bukkit.entity.Player;
 
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     public SkillSeaborne() {
-        super("seaborne", "\uD83C\uDF0A");
+        super(Adapt.dLocalize("SkillSeaborne.Name"), Adapt.dLocalize("SkillSeaborne.Icon"));
         registerConfiguration(Config.class);
         setColor(C.BLUE);
-        setDescription("Will the wonders of the water");
+        setDescription(Adapt.dLocalize("SkillSeaborne.Description"));
         setInterval(2120);
         setIcon(Material.TRIDENT);
         registerAdaptation(new SeaborneOxygen());
         registerAdaptation(new SeaborneSpeed());
         registerAdvancement(AdaptAdvancement.builder()
-            .icon(Material.TURTLE_HELMET)
-            .key("challenge_swim_1nm")
-            .title("Human Submarine!")
-            .description("Swim 1 Nautical Mile (1,852 blocks)")
-            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build());
+                .icon(Material.TURTLE_HELMET)
+                .key("challenge_swim_1nm")
+                .title("Human Submarine!")
+                .description("Swim 1 Nautical Mile (1,852 blocks)")
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_1nm").goal(1852).stat("move.swim").reward(getConfig().challengeSwim1nmReward).build());
     }
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers()) {
-            if(i.isSwimming() || i.getRemainingAir() < i.getMaximumAir()) {
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            if (i.isSwimming() || i.getRemainingAir() < i.getMaximumAir()) {
                 checkStatTrackers(getPlayer(i));
                 xpSilent(i, getConfig().swimXP);
             }

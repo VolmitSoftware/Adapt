@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingLapisReturn;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingQuickEnchant;
@@ -12,10 +13,10 @@ import org.bukkit.event.enchantment.EnchantItemEvent;
 
 public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
     public SkillEnchanting() {
-        super("enchanting", "\u269C");
+        super(Adapt.dLocalize("SkillEnchanting.Name"), Adapt.dLocalize("SkillEnchanting.Icon"));
         registerConfiguration(Config.class);
         setColor(C.LIGHT_PURPLE);
-        setDescription("Very few can bind magic to reality");
+        setDescription(Adapt.dLocalize("SkillEnchanting.Description"));
         setInterval(3700);
         setIcon(Material.KNOWLEDGE_BOOK);
         registerAdaptation(new EnchantingQuickEnchant());

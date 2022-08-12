@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.axe.AxeChop;
@@ -16,11 +17,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     public SkillAxes() {
-        super("axes", "\u2725");
+        super(Adapt.dLocalize("SkillAxes.Name"), Adapt.dLocalize("SkillAxes.Icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription("Why chop down trees, when you could chop "+ C.ITALIC + "things" + C.GRAY + " instead, same end result!");
-
+        setDescription(Adapt.dLocalize("SkillAxes.Description1") + C.ITALIC + Adapt.dLocalize("SkillAxes.Description2") + C.GRAY + Adapt.dLocalize("SkillAxes.Description3"));
         setInterval(5251);
         setIcon(Material.GOLDEN_AXE);
         registerAdaptation(new AxeGroundSmash());
@@ -29,11 +29,11 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player p) {
+        if (e.getDamager() instanceof Player p) {
             AdaptPlayer a = getPlayer((Player) e.getDamager());
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
-            if(isAxe(hand)) {
+            if (isAxe(hand)) {
                 getPlayer(p).getData().addStat("axes.swings", 1);
                 getPlayer(p).getData().addStat("axes.damage", e.getDamage());
                 xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
@@ -43,7 +43,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
-        if(isAxe(e.getPlayer().getInventory().getItemInMainHand())) {
+        if (isAxe(e.getPlayer().getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
             getPlayer(e.getPlayer()).getData().addStat("axes.blocks.broken", 1);
             getPlayer(e.getPlayer()).getData().addStat("axes.blocks.value", getValue(e.getBlock().getBlockData()));
@@ -56,10 +56,10 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         value += Math.min(getConfig().maxHardnessBonus, type.getHardness());
         value += Math.min(getConfig().maxBlastResistanceBonus, type.getBlastResistance());
 
-        if(type.name().endsWith("_LOG") || type.name().endsWith("_WOOD")) {
+        if (type.name().endsWith("_LOG") || type.name().endsWith("_WOOD")) {
             value += getConfig().logOrWoodXPMultiplier;
         }
-        if(type.name().endsWith("_LEAVES")) {
+        if (type.name().endsWith("_LEAVES")) {
             value += getConfig().leavesMultiplier;
         }
 

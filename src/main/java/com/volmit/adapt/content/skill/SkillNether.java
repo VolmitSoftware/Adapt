@@ -1,8 +1,9 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.content.adaptation.nether.NetherWitherResist;
 import com.volmit.adapt.content.adaptation.nether.NetherSkullYeet;
+import com.volmit.adapt.content.adaptation.nether.NetherWitherResist;
 import com.volmit.adapt.util.C;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,9 +22,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     private int witherRoseCooldown;
 
     public SkillNether() {
-        super("nether", "\u20AA");
+        super(Adapt.dLocalize("SkillNether.Name"), Adapt.dLocalize("SkillNether.Icon"));
         registerConfiguration(Config.class);
-        setDescription("From the depths of the Nether itself.");
+        setDescription(Adapt.dLocalize("SkillNether.Description"));
         setInterval(3425);
         setColor(C.DARK_GRAY);
         setIcon(Material.NETHER_STAR);
@@ -33,14 +34,14 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onEntityDamage(EntityDamageEvent event) {
-        if(event.getCause() == EntityDamageEvent.DamageCause.WITHER && event.getEntity() instanceof Player p && !(event instanceof EntityDamageByBlockEvent)) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.WITHER && event.getEntity() instanceof Player p && !(event instanceof EntityDamageByBlockEvent)) {
             xp(p, getConfig().getWitherDamageXp());
         }
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-        if(e.getBlock().getType() == Material.WITHER_ROSE && witherRoseCooldown == 0) {
+        if (e.getBlock().getType() == Material.WITHER_ROSE && witherRoseCooldown == 0) {
             witherRoseCooldown = getConfig().getWitherRoseBreakCooldown();
             xp(e.getPlayer(), e.getBlock().getLocation().add(.5D, .5D, .5D), getConfig().getWitherRoseBreakXp());
         }
@@ -48,12 +49,11 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent e) {
-        if(e.getEntity().getKiller() != null) {
+        if (e.getEntity().getKiller() != null) {
             Player p = e.getEntity().getKiller();
-            if(e.getEntityType() == EntityType.WITHER_SKELETON) {
+            if (e.getEntityType() == EntityType.WITHER_SKELETON) {
                 xp(p, getConfig().getWitherSkeletonKillXp());
-            }
-            else if(e.getEntityType() == EntityType.WITHER) {
+            } else if (e.getEntityType() == EntityType.WITHER) {
                 xp(p, getConfig().getWitherKillXp());
             }
         }
@@ -61,20 +61,22 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player p && e.getCause() == EntityDamageEvent.DamageCause.WITHER) {
+        if (e.getDamager() instanceof Player p && e.getCause() == EntityDamageEvent.DamageCause.WITHER) {
             xp(p, getConfig().getWitherAttackXp());
         }
     }
 
     @Override
     public void onTick() {
-        if(witherRoseCooldown > 0) {
+        if (witherRoseCooldown > 0) {
             witherRoseCooldown--;
         }
     }
 
     @Override
-    public boolean isEnabled() { return getConfig().isEnabled(); }
+    public boolean isEnabled() {
+        return getConfig().isEnabled();
+    }
 
     @Data
     @NoArgsConstructor

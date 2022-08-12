@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryArmor;
@@ -7,13 +8,7 @@ import com.volmit.adapt.content.adaptation.discovery.DiscoveryUnity;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.FluidCollisionMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -37,10 +32,10 @@ import java.util.Map;
 
 public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public SkillDiscovery() {
-        super("discovery", "\u269B");
+        super(Adapt.dLocalize("SkillDiscovery.Name"), Adapt.dLocalize("SkillDiscovery.Icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setDescription("Perception of the world, is the key to understanding");
+        setDescription(Adapt.dLocalize("SkillDiscovery.Description"));
         setInterval(500);
         setIcon(Material.FILLED_MAP);
         registerAdaptation(new DiscoveryUnity());
@@ -59,7 +54,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler
     public void on(EntityPickupItemEvent e) {
-        if(e.getEntity() instanceof Player) {
+        if (e.getEntity() instanceof Player) {
             seeItem((Player) e.getEntity(), e.getItem().getItemStack());
         }
     }
@@ -67,14 +62,14 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     @EventHandler
     public void on(CraftItemEvent e) {
 
-        if(e.getWhoClicked() instanceof Player p) {
+        if (e.getWhoClicked() instanceof Player p) {
             try {
                 NamespacedKey key = (NamespacedKey) Recipe.class.getDeclaredMethod("getKey()").invoke(e.getRecipe());
 
-                if(key != null) {
+                if (key != null) {
                     seeRecipe(p, key.toString());
                 }
-            } catch(Throwable ignored) {
+            } catch (Throwable ignored) {
 
             }
         }
@@ -88,14 +83,14 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-        if(e.getClickedBlock() != null) {
+        if (e.getClickedBlock() != null) {
             seeBlock(e.getPlayer(), e.getClickedBlock().getBlockData(), e.getClickedBlock().getLocation());
         }
     }
 
     public void seeBlock(Player p, BlockData bd, Location l) {
         Discovery<String> d = getPlayer(p).getData().getSeenBlocks();
-        if(d.isNewDiscovery(bd.getAsString())) {
+        if (d.isNewDiscovery(bd.getAsString())) {
             xp(p, getConfig().discoverBlockBaseXP + (getValue(bd) * getConfig().discoverBlockValueXPMultiplier));
             p.spawnParticle(Particle.TOTEM, l.clone().add(0.5, 0.5, 0.5), 9, 0, 0, 0, 0.3);
         }
@@ -105,7 +100,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     public void seeItem(Player p, Material bd) {
         Discovery<Material> d = getPlayer(p).getData().getSeenItems();
-        if(d.isNewDiscovery(bd)) {
+        if (d.isNewDiscovery(bd)) {
             xp(p, getConfig().discoverItemBaseXP + (getValue(bd) * getConfig().discoverItemValueXPMultiplier));
         }
     }
@@ -114,37 +109,37 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         seeItem(p, bd.getType());
         Map<Enchantment, Integer> m = bd.getEnchantments();
 
-        for(Enchantment i : m.keySet()) {
+        for (Enchantment i : m.keySet()) {
             seeEnchant(p, i, m.get(i));
         }
     }
 
     public void seeRecipe(Player p, String key) {
         Discovery<String> d = getPlayer(p).getData().getSeenRecipes();
-        if(d.isNewDiscovery(key)) {
+        if (d.isNewDiscovery(key)) {
             xp(p, getConfig().discoverRecipeBaseXP);
         }
     }
 
     public void seeFood(Player p, Material bd) {
         Discovery<Material> d = getPlayer(p).getData().getSeenFoods();
-        if(d.isNewDiscovery(bd)) {
+        if (d.isNewDiscovery(bd)) {
             xp(p, getConfig().discoverFoodTypeXP);
         }
     }
 
     public void seeEntity(Player p, Entity bd) {
         Discovery<EntityType> d = getPlayer(p).getData().getSeenMobs();
-        if(d.isNewDiscovery(bd.getType())) {
+        if (d.isNewDiscovery(bd.getType())) {
             xp(p, getConfig().discoverEntityTypeXP);
         }
 
-        if(bd instanceof Player) {
+        if (bd instanceof Player) {
             seePlayer(p, (Player) bd);
         }
 
-        if(bd instanceof LivingEntity) {
-            for(PotionEffect i : ((LivingEntity) bd).getActivePotionEffects()) {
+        if (bd instanceof LivingEntity) {
+            for (PotionEffect i : ((LivingEntity) bd).getActivePotionEffects()) {
                 seePotionEffect(p, i);
             }
         }
@@ -152,21 +147,21 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     public void seePlayer(Player p, Player bd) {
         Discovery<String> d = getPlayer(p).getData().getSeenPeople();
-        if(d.isNewDiscovery(bd.getUniqueId().toString())) {
+        if (d.isNewDiscovery(bd.getUniqueId().toString())) {
             xp(p, getConfig().discoverPlayerXP);
         }
     }
 
     public void seeEnchant(Player p, Enchantment bd, int level) {
         Discovery<String> d = getPlayer(p).getData().getSeenEnchants();
-        if(d.isNewDiscovery(bd.getName() + " " + Form.toRoman(level))) {
+        if (d.isNewDiscovery(bd.getName() + " " + Form.toRoman(level))) {
             xp(p, getConfig().discoverEnchantBaseXP + Math.min(getConfig().discoverEnchantMaxXP, level * getConfig().discoverEnchantLevelXPMultiplier));
         }
     }
 
     public void seeWorld(Player p, World world) {
         Discovery<String> d = getPlayer(p).getData().getSeenWorlds();
-        if(d.isNewDiscovery(world.getName() + "-" + world.getSeed())) {
+        if (d.isNewDiscovery(world.getName() + "-" + world.getSeed())) {
             xp(p, getConfig().discoverWorldXP);
         }
 
@@ -175,33 +170,33 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     public void seeEnvironment(Player p, World.Environment world) {
         Discovery<World.Environment> d = getPlayer(p).getData().getSeenEnvironments();
-        if(d.isNewDiscovery(world)) {
+        if (d.isNewDiscovery(world)) {
             xp(p, getConfig().discoverEnvironmentXP);
         }
     }
 
     public void seePotionEffect(Player p, PotionEffect e) {
         Discovery<String> d = getPlayer(p).getData().getSeenPotionEffects();
-        if(d.isNewDiscovery(e.getType().getName() + " " + Form.toRoman(e.getAmplifier()).trim())) {
+        if (d.isNewDiscovery(e.getType().getName() + " " + Form.toRoman(e.getAmplifier()).trim())) {
             xp(p, getConfig().discoverPotionXP);
         }
     }
 
     public void seeBiome(Player p, Biome e) {
         Discovery<Biome> d = getPlayer(p).getData().getSeenBiomes();
-        if(d.isNewDiscovery(e)) {
+        if (d.isNewDiscovery(e)) {
             xp(p, getConfig().discoverBiomeXP);
         }
     }
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers()) {
+        for (Player i : Bukkit.getOnlinePlayers()) {
             try {
                 Block b = i.getTargetBlockExact(5, FluidCollisionMode.NEVER);
                 seeBlock(i, b.getBlockData(), b.getLocation());
                 seeBiome(i, b.getBiome());
-            } catch(Throwable ignored) {
+            } catch (Throwable ignored) {
 
             }
         }

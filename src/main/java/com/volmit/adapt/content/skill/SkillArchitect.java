@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -20,20 +21,20 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     public SkillArchitect() {
-        super("architect", "\u2B27");
+        super(Adapt.dLocalize("SkillArchitect.Name"), Adapt.dLocalize("SkillArchitect.Icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setDescription("Structures of reality are yours to control");
+        setDescription(Adapt.dLocalize("SkillArchitect.Description"));
         setInterval(3700);
         setIcon(Material.IRON_BARS);
         registerAdvancement(AdaptAdvancement.builder()
-            .icon(Material.BRICK)
-            .key("challenge_place_1k")
-            .title("So much to build!")
-            .description("Place over 1,000 blocks")
-            .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build());
+                .icon(Material.BRICK)
+                .key("challenge_place_1k")
+                .title("So much to build!")
+                .description("Place over 1,000 blocks")
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
         setIcon(Material.SMITHING_TABLE);
         registerAdaptation(new ArchitectGlass());
@@ -56,7 +57,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @Override
     public void onTick() {
-        for(Player i : Bukkit.getOnlinePlayers()) {
+        for (Player i : Bukkit.getOnlinePlayers()) {
             checkStatTrackers(getPlayer(i));
         }
     }

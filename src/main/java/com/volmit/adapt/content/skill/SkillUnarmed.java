@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.unarmed.UnarmedGlassCannon;
@@ -15,10 +16,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     public SkillUnarmed() {
-        super("unarmed", "\u269C");
+        super(Adapt.dLocalize("SkillUnarmed.Name"), Adapt.dLocalize("SkillUnarmed.Icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription("Without a weapon is not without strength");
+        setDescription(Adapt.dLocalize("SkillUnarmed.Description"));
         setInterval(2570);
         registerAdaptation(new UnarmedSuckerPunch());
         registerAdaptation(new UnarmedPower());

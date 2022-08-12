@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
@@ -17,9 +18,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     public SkillPickaxes() {
-        super("pickaxes", "\u26CF");
+        super(Adapt.dLocalize("SkillPickaxe.Name"), Adapt.dLocalize("SkillPickaxe.Icon"));
         registerConfiguration(Config.class);
-        setDescription("Dwarves are the miners, but ive learned a thing or to in my time." + C.GOLD + "\nIM SWEDISH!");
+        setDescription(Adapt.dLocalize("SkillPickaxe.Description"));
         setColor(C.GOLD);
         setInterval(2750);
         setIcon(Material.NETHERITE_PICKAXE);
@@ -30,11 +31,11 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player) {
+        if (e.getDamager() instanceof Player) {
             AdaptPlayer a = getPlayer((Player) e.getDamager());
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
-            if(isPickaxe(hand)) {
+            if (isPickaxe(hand)) {
                 xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
                 getPlayer(a.getPlayer()).getData().addStat("pickaxes.swings", 1);
                 getPlayer(a.getPlayer()).getData().addStat("pickaxes.damage", e.getDamage());
@@ -44,7 +45,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
-        if(isPickaxe(e.getPlayer().getInventory().getItemInMainHand())) {
+        if (isPickaxe(e.getPlayer().getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
             getPlayer(e.getPlayer()).getData().addStat("pickaxes.blocks.broken", 1);
             getPlayer(e.getPlayer()).getData().addStat("pickaxes.blocks.value", getValue(e.getBlock().getBlockData()));
@@ -57,7 +58,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         double value = super.getValue(type) * c.blockValueMultiplier;
         value += Math.min(c.maxHardnessBonus, type.getHardness());
         value += Math.min(c.maxBlastResistanceBonus, type.getBlastResistance());
-        switch(type) {
+        switch (type) {
             case COAL_ORE -> value += c.coalBonus;
             case COPPER_ORE -> value += c.copperBonus;
             case IRON_ORE -> value += c.ironBonus;

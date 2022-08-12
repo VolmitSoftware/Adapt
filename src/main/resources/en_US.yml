@@ -1,9 +1,100 @@
-#-----------------------------------------------------[SKILLS]---------------------------------------------------
-# All Skills Below, Based on when you see the Text / Alphabetically,
+#--------------------------[Skills]--------------------------
+# The Skills below are ordered alphabetically, and only include the
+# Name, Description, and the Icon. The names need to be LOWERCASE, the
+# and the icon needs to be a \u code in the MC Codec eg: "\u21C9"
+#  [DONT CHANGE THESE IF YOU DONT KNOW WHAT YOU ARE DOING]
 # Please note that all the extra spaces, random commas, and *'s are intentional.
-# This is to make the output look pretty and so i dont need to do formatting.
+# This is to make the output look pretty, and so I don't need to do formatting.
 # in every damn place that we are translating.
-#-----------------------------------------------------[SKILLS]---------------------------------------------------
+#--------------------------[Skills]--------------------------
+
+Skills:
+  SkillAgility:
+    Name: "agility"
+    Icon: "\u21C9"
+    Description: "Agility is the ability to move quick and fluidly in the face of obstacles."
+  SkillArchitect:
+    Name: "architect"
+    Icon: "\u2B27"
+    Description: "Structures are the building blocks of the world. Reality is in your hands, yours to control."
+  SkillAxes:
+    Name: "axes"
+    Icon: "\u2725"
+    Description1: "Why chop down trees, when you could chop "
+    Description2: "things"
+    Description3: " instead, same end result!"
+  SkillBrewing:
+    Name: "brewing"
+    Icon: "\u2725"
+    Description: "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
+  SkillCrafting:
+    Name: "crafting"
+    Icon: "\u2756"
+    Description: "With no more pieces left to place, why not make another?"
+  SkillDiscovery:
+    Name: "discovery"
+    Icon: "\u269B"
+    Description: "As your Perception expands, your mind unravels to discover that which you did not"
+  SkillEnchanting:
+    Name: "enchanting"
+    Icon: "\u269C"
+    Description: "What are you going on about? Prophecies, visions, superstitious jibber-jabber?"
+  SkillExcavation:
+    Name: "excavation"
+    Icon: "\u2725"
+    Description: "Diggey Diggey hole..."
+  SkillHerbalism:
+    Name: "herbalism"
+    Icon: "\u2698"
+    Description: "I can't find any plants, but I can find some seeds and- is that... Weed?"
+  SkillHunter:
+    Name: "hunter"
+    Icon: "\u2620"
+    Description: "Hunting is about the journey not the outcome."
+  SkillNether:
+    Name: "nether"
+    Icon: "\u20AA"
+    Description: "From the depths of the Nether itself."
+  SkillPickaxe:
+    Name: "pickaxe"
+    Icon: "\u26CF"
+    Description: "Dwarves are the miners, but ive learned a thing or to in my time. IM SWEDISH"
+  SkillRanged:
+    Name: "ranged"
+    Icon: "\uD83C\uDFF9"
+    Description: "Distance is the key to victory, and the key to survival."
+  SkillRift:
+    Name: "rift"
+    Icon: "\u274D"
+    Description: "The Rift is a caustic harness, but you have harnessed the harness."
+  SkillSeaborne:
+    Name: "seaborne"
+    Icon: "\uD83C\uDF0A"
+    Description: "With this skill, you may will the wonders of the water"
+  SkillStealth:
+    Name: "stealth"
+    Icon: "\u2720"
+    Description: "The art of the unseen. Walk in the shadows."
+  SkillSwords:
+    Name: "swords"
+    Icon: "\u2694"
+    Description: "By the power of GreyStone!"
+  SkillTaming:
+    Name: "taming"
+    Icon: "\u2665"
+    Description: "The parrots and the bees... and you?"
+  SkillUnarmed:
+    Name: "unarmed"
+    Icon: "\u269C"
+    Description: "Without a weapon is not without strength"
+
+
+#--------------------------[Adaptations]--------------------------
+# All Adaptations Below, Based on when you see the Text / Alphabetically,
+# Please note that all the extra spaces, random commas, and *'s are intentional.
+# This is to make the output look pretty, and so I don't need to do formatting.
+# in every damn place that we are translating.
+#--------------------------[Adaptations]--------------------------
 Agility:
   ArmorUp:
     Name: "Armor-Up"

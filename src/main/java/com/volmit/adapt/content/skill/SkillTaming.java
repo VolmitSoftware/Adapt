@@ -1,5 +1,6 @@
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.taming.TamingDamage;
 import com.volmit.adapt.content.adaptation.taming.TamingHealthBoost;
@@ -8,19 +9,17 @@ import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityTameEvent;
 
 public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     public SkillTaming() {
-        super("taming", "\u2665");
+        super(Adapt.dLocalize("SkillTaming.Name"), Adapt.dLocalize("SkillTaming.Description"));
         registerConfiguration(Config.class);
-        setDescription("The parrots and the bees... and you?");
+        setDescription(Adapt.dLocalize("SkillTaming.Description"));
         setColor(C.GOLD);
         setInterval(3700);
         setIcon(Material.LEAD);
@@ -32,17 +31,17 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     @EventHandler
     public void on(EntityBreedEvent e) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage("AHH: "+ getConfig().tameXpBase );
+            player.sendMessage("AHH: " + getConfig().tameXpBase);
             if (player.getLocation().distance(e.getEntity().getLocation()) <= 15) {
-                xp(player,getConfig().tameXpBase);
+                xp(player, getConfig().tameXpBase);
             }
         }
     }
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Tameable &&
-            ((Tameable) e.getDamager()).isTamed() &&
+        if (e.getDamager() instanceof Tameable &&
+                ((Tameable) e.getDamager()).isTamed() &&
                 ((Tameable) e.getDamager()).getOwner() instanceof Player owner) {
             xp(owner, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
         }
