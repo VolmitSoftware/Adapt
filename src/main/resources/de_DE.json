@@ -1,9 +1,32 @@
 {
   "Snippets": {
-    "SkillsGUI": {
+    "GUI": {
       "Level": "Level",
       "Knowledge": "Wissen",
-      "PowerUsed": "Verwendete Energie"
+      "PowerUsed": "Verwendete Energie",
+      "NotLearned": "Nicht gelernt",
+      "XP": "Erfahrung bis"
+    },
+    "AdaptMenu": {
+      "KnowledgeCost": "Wissen kostet",
+      "AlreadyLearned": "Schon gelernt",
+      "UnlearnRefund": "Klicken Sie auf Verlernen & Rückerstattung",
+      "Knowledge": "Wissen",
+      "ClickLearn": "Klicken Sie, um zu lernen",
+      "NoKnowledge": "(Du hast kein Wissen)",
+      "YouOnlyHave": "Du hast nur",
+      "HowToLevelUp": "Verbessere deine Fähigkeiten, um deine maximale Kraft zu erhöhen.",
+      "NotEnoughPower": "Nicht genug Kraft! Jede Fähigkeitsstufe kostet 1 Kraft.",
+      "Power": "Energie",
+      "Learned": "Gelernt ",
+      "Unlearned": "Verlernt "
+    },
+    "KnowledgeOrb": {
+      "Contains": "Enthält",
+      "Knowledge": "Wissen",
+      "RightClick": "Rechtsklick",
+      "ToGainKnowledge": "um dieses Wissen zu erlangen",
+      "KnowledgeOrb": "Wissenskugel"
     }
   },
 

@@ -1,9 +1,34 @@
 {
   "Snippets": {
-    "SkillsGUI": {
+    "GUI": {
       "Level": "Level",
       "Knowledge": "Knowledge",
-      "PowerUsed": "Power Used"
+      "PowerUsed": "Power Used",
+      "NotLearned": "Not Learned",
+      "XP": "XP to"
+    },
+
+
+    "AdaptMenu": {
+      "KnowledgeCost": "Knowledge Cost",
+      "AlreadyLearned": "Already Learned",
+      "UnlearnRefund": "Click to Unlearn & Refund",
+      "Knowledge": "Knowledge",
+      "ClickLearn": "Click to Learn",
+      "NoKnowledge": "(You don't have any Knowledge)",
+      "YouOnlyHave": "You only have",
+      "HowToLevelUp": "Level up skills to increase your max power.",
+      "NotEnoughPower": "Not enough power! Each Ability Level costs 1 power.",
+      "Power": "Power",
+      "Learned": "Learned ",
+      "Unlearned": "Unlearned "
+    },
+    "KnowledgeOrb": {
+      "Contains": "Contains",
+      "Knowledge": "Knowledge",
+      "RightClick": "Right-Click",
+      "ToGainKnowledge": "to gain this knowledge",
+      "KnowledgeOrb": "Knowledge Orb"
     }
   },
 

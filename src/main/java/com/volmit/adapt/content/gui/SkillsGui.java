@@ -29,11 +29,11 @@ public class SkillsGui {
                     .setName(sk.getDisplayName(i.getLevel()))
                     .setProgress(1D)
                     .addLore(C.ITALIC + "" + C.GRAY + sk.getDescription())
-                    .addLore(C.UNDERLINE + "" + C.WHITE + i.getKnowledge() + C.RESET + " " + C.GRAY + "Knowledge")
+                    .addLore(C.UNDERLINE + "" + C.WHITE + i.getKnowledge() + C.RESET + " " + C.GRAY + Adapt.dLocalize("Snippets", "GUI", "Knowledge"))
                     .onLeftClick((e) -> sk.openGui(player)));
             ind++;
         }
-        w.setTitle( "Level " + (int) XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " Power Used)" );
+        w.setTitle(Adapt.dLocalize("Snippets", "GUI", "Level")+" " + (int) XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " " + Adapt.dLocalize("Snippets", "GUI", "PowerUsed") + ")");
         w.open();
     }
 }
