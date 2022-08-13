@@ -32,99 +32,80 @@
   
     "Skill": {
       "Agility": {
-        "Name": "wendbaarheid",
         "Icon": "⇉",
         "Description": "Wendbaarheid is de bekwaamheid om snel te bewegen en gemakkelijk obstakels te ontwijken."
       },
       "Architect": {
-        "Name": "architect",
         "Icon": "⬧",
         "Description": "Structuren zijn de bouwblokken van de wereld. De wereld is in jouw handen, doe ermee wat je wilt."
       },
       "Axes": {
-        "Name": "bijlen",
         "Icon": "❖",
         "Description1": "Waarom zou je alleen bomen hakken, als je ook andere",
         "Description2": "dingen",
         "Description3": " kunt hakken?"
       },
       "Brewing": {
-        "Name": "brouwen",
         "Icon": "❖",
         "Description": "Dubbel Bubbel, Tripel Bubbel, Vierdubbel Bubbel - Ik kan dit drankje nog steeds niet in een pot doen"
       },
       "Crafting": {
-        "Name": "crafting",
         "Icon": "❖",
         "Description": "Als je alles hebt geplaatst, maak je toch gewoon een nieuwe?"
       },
       "Discovery": {
-        "Name": "ontdekking",
         "Icon": "⚛",
         "Description": "Met een betere perceptie zie en begrijp je meer van de wereld om je heen!"
       },
       "Enchanting": {
-        "Name": "spreuken",
         "Icon": "⚜",
         "Description": "Waar heb je het over...? Voorspellingen, visies, bijgelovig gebrabbel?"
       },
       "Excavation": {
-        "Name": "graven",
         "Icon": "✥",
         "Description": "Diggy Diggy hole!"
       },
       "Herbalism": {
-        "Name": "kruiden",
         "Icon": "⚘",
         "Description": "Ik kan mijn planten niet vinden, maar wel wat zaadjes... is dat... wiet?"
       },
       "Hunter": {
-        "Name": "jager",
         "Icon": "☠",
         "Description": "Jagen gaat over de reis, niet de bestemming."
       },
       "Nether": {
-        "Name": "onderwereld",
         "Icon": "₪",
         "Description": "Vanuit de diepten van de Nether."
       },
       "Pickaxe": {
-        "Name": "pikhouweel",
         "Icon": "⛏",
         "Description": "Dwergen zijn de mijnwerkers, maar ik heb ook het een en ander geleerd in mijn tijd. ZWEDEN!"
       },
       "Ranged": {
-        "Name": "afstand",
         "Icon": "🏹",
         "Description": "Afstand is de sleutel tot success, en tot overleving."
       },
       "Rift": {
-        "Name": "rift",
         "Icon": "❍",
         "Description": "Een Rift is a scheur in tijd en ruimte, maar wel een die jij kan gebruiken."
       },
       "Seaborne": {
-        "Name": "waterman",
         "Icon": "🌊",
         "Description": "Alleen echte watermannen begrijpen water!"
       },
       "Stealth": {
-        "Name": "stealth",
         "Icon": "✠",
         "Description": "De kunst van de schaduw. Loop in het ongeziene."
       },
       "Swords": {
-        "Name": "zwaarden",
         "Icon": "⚔",
         "Description": "Met de kracht van GreyStone!"
       },
       "Taming": {
-        "Name": "temmen",
         "Icon": "♥",
         "Description": "De koetjes en de kalfjes... en jij?"
       },
       "Unarmed": {
-        "Name": "ongewapend",
         "Icon": "⚜",
         "Description": "Zonder wapen maar niet ongevaarlijk!"
       }
