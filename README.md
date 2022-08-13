@@ -12,6 +12,10 @@ Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Booksh
 
 The master branch is for the latest version of minecraft.
 
+### Language and Localization
+
+If you would like to help out in translating the contents of Adapt we would love to have you help translate! We take this on an Honor System, so please only if you are confident in the language submit a translation key. Furthermore all translation keys are here: [[Right here]](https://github.com/VolmitSoftware/Adapt/tree/main/src/main/resources) And to add one all you need to do is use the lang code (en_US for example) and translate all they heys. if [i, Myself](https://github.com/NextdoorPsycho) know the language in any capacity, ill do my best to translate it myself for every file that is there when a new Skill / ABility / Translatable Key. PLESE NOTE: LANGUAGE FILES WILL NOT WORK NOR WILL ADAPT IF YOU TRY TO LOAD A LANGUAGE FILE THAT FORS NOT HAVE ALL KEYS, AND ALL KEYS THAT MATCH THE en_US FILE. Ill preface updates that need lanuage updates with: "Language Update Needed" in the release / Comit logs / Tags
+
 # [Support](https://discord.gg/volmit) **|** [Documentation](https://docs.volmit.com/adapt/)
 
 # Building
@@ -220,9 +224,19 @@ Keep in mind it should be simple, but complex ones are welcome too!_
 
 
 ## Credits
+Helping out in any way you can is appreciated, and you will be listed here for your contributions :)
 <details>
 <summary> Language </summary>
 
-   * [NextdoorPsycho](https://github.com/NextdoorPsycho): English
+   * [NextdoorPsycho](https://github.com/NextdoorPsycho): English Translation
+   * [Nowhere (Armin231)](https://github.com/Armin231): German Translation
+   
+</details>
+<details>
+<summary> Code </summary>
+
+   * [Vatuu](https://github.com/Vatuu)
+   * [Cyberpwn](https://github.com/cyberpwnn)
+   * [NextdoorPsycho](https://github.com/NextdoorPsycho)
    
 </details>
