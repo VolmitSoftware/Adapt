@@ -19,12 +19,10 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffect;
@@ -87,6 +85,13 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public void on(PlayerInteractEvent e) {
         if (e.getClickedBlock() != null) {
             seeBlock(e.getPlayer(), e.getClickedBlock().getBlockData(), e.getClickedBlock().getLocation());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void on(PlayerExpChangeEvent e) {
+        if (e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {
+            xp(e.getPlayer(), e.getAmount());
         }
     }
 

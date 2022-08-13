@@ -54,6 +54,6 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     protected static class Config {
         boolean enabled = true;
         double challengeSwim1nmReward = 750;
-        double swimXP = 19.7;
+        double swimXP = 28.7;
     }
 }
