@@ -1,9 +1,32 @@
 {
     "Snippets": {
-      "SkillsGUI": {
+      "GUI": {
         "Level": "Niveau",
         "Knowledge": "Kennis",
-        "PowerUsed": "Kracht Gebruikt"
+        "PowerUsed": "Kracht Gebruikt",
+        "NotLearned": "Niet Geleerd",
+        "XP": "XP voor"
+      },
+      "AdaptMenu": {
+        "KnowledgeCost": "Kennis Kosten",
+        "AlreadyLearned": "Geleerd",
+        "UnlearnRefund": "Klik om te vergeten en terug te krijgen",
+        "Knowledge": "Kennis",
+        "ClickLearn": "Klik om te leren",
+        "NoKnowledge": "(Je hebt geen Kennis)",
+        "YouOnlyHave": "Je hebt slechts",
+        "HowToLevelUp": "Level-up skills om je maximale kracht te verhogen.",
+        "NotEnoughPower": "Niet genoeg Kracht! Elk niveau kost 1 kracht.",
+        "Power": "Kracht",
+        "Learned": "Geleerd ",
+        "Unlearned": "Vergeten "
+      },
+      "KnowledgeOrb": {
+        "Contains": "Bevat",
+        "Knowledge": "Kennis",
+        "RightClick": "Rechtermuisknop",
+        "ToGainKnowledge": "om deze kennis te vergaren",
+        "KnowledgeOrb": "Kennis Orb (Bol)"
       }
     },
   
@@ -20,14 +43,14 @@
       },
       "Axes": {
         "Name": "bijlen",
-        "Icon": "✥",
+        "Icon": "❖",
         "Description1": "Waarom zou je alleen bomen hakken, als je ook andere",
         "Description2": "dingen",
         "Description3": " kunt hakken?"
       },
       "Brewing": {
         "Name": "brouwen",
-        "Icon": "✥",
+        "Icon": "❖",
         "Description": "Dubbel Bubbel, Tripel Bubbel, Vierdubbel Bubbel - Ik kan dit drankje nog steeds niet in een pot doen"
       },
       "Crafting": {
@@ -177,7 +200,7 @@
         "Lore2": " Duratie"
       },
       "SuperHeated": {
-        "Name": "Super Heated Brew",
+        "Name": "Super Heet Brouwen",
         "Description": "Brouwstandaarden werken sneller des te heter ze zijn.",
         "Lore1": " Per aanrakend Vuur Blok",
         "Lore2": " Per aanrakend Lava Blok"
@@ -198,22 +221,29 @@
     },
     "Discovery": {
       "DiscoveryArmor": {
-        "Name": "World Armor",
+        "Name": "Wereld Pantser",
         "Description": "Passief pantser (armor) afhankelijk van de hardheid van bijzijnde blokken.",
         "Lore1": "Passieve Armor",
         "Lore2": ", gebaseerd op bijzijne blok-hardheid",
         "Lore3": "Armor Kracht: +"
       },
       "DiscoveryUnity": {
-        "Name": "Experimental Unity",
+        "Name": "Experimentele Unity",
         "Description": "Het verzamelen van experience bolletjes (Orbs) geeft XP voor willekeurige skills.",
         "Lore1": " XP ",
         "Lore2": " Per Orb"
+      },
+      "DiscoveryXpResist": {
+        "Name": "Experimentele Beschermin",
+        "Description": "Gebruik experience om minder schade te pakken van elke origine\n",
+        "Lore0": "Kan slechts elke 15 seconden worden gebruikt",
+        "Lore1": "% Verminderde Schade",
+        "Lore2": "experience gebruikt"
       }
     },
     "Enchanting": {
       "LapisReturn": {
-        "Name": "Lapis Return",
+        "Name": "Lapis Korting",
         "Description": "Ten koste van 1 level XP krijg je some gratis Lapis terug",
         "Lore1": "Voor elk niveau, verhoogt de koste van enchanten met 1, maar geeft tot wel 3 lapis terug."
       },
@@ -225,7 +255,7 @@
         "Lore3": " kracht"
       },
       "EnchantingXpReturn": {
-        "Name": "XP Return",
+        "Name": "XP Korting",
         "Description": "Krijg XP korting bij het enchanten van items.",
         "Lore1": "Uitgegeven experience heeft een kans om teruggegeven te worden",
         "Lore2": "Experience per Enchant"
@@ -233,14 +263,14 @@
     },
     "Excavation": {
       "ExcavationHaste": {
-        "Name": "Hasty Excavator",
+        "Name": "Haastig Graven",
         "Description": "Versnelt het hakken van blokken, met HASTE!",
         "Lore1": "Krijg Haste tijdens het graven",
         "Lore2": "x Niveaus van haste als je begint een blok te hakken."
       },
       "OmniTool": {
         "Name": "OMNI - T.O.O.L.",
-        "Description": "Tackle's overontwikkeld Zakmes",
+        "Description": "Tackle's Zakmes",
         "Lore1": "Waarschijnlijk het meest krachtige tool! Laat je dynamisch",
         "Lore2": "tools (gereedschappen) samenvoegen en veranderen, zodat je altijd hebt wat je nodig hebt.",
         "Lore3": "om samen te voegen, shift klik je een item op een ander item in je inventory.",
