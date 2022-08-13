@@ -59,7 +59,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
                 p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
                 return;
             }
-            if (!cooldowns.containsKey(p) || (cooldowns.containsKey(p) && M.ms() - cooldowns.get(p) > 5000)) {
+            if (!cooldowns.containsKey(p) || (cooldowns.containsKey(p) && M.ms() - cooldowns.get(p) > 15000)) {
                 e.setDamage(e.getDamage() - (e.getDamage() * (getEffectiveness(getLevelPercent(getLevel(p))))));
                 xp(p, 5);
                 cooldowns.put(p, M.ms());
@@ -88,10 +88,10 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        int baseCost = 2;
+        int baseCost = 5;
         int initialCost = 3;
-        double costFactor = 0.3;
-        int maxLevel = 3;
+        double costFactor = 0.8;
+        int maxLevel = 5;
         double effectivenessBase = 0.15;
         double maxEffectiveness = 0.95;
         int levelDrain = 2;
