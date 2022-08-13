@@ -127,7 +127,7 @@ public interface Skill<T> extends Ticked, Component {
             w.setElement(pos, row, new UIElement("ada-" + i.getName())
                 .setMaterial(new MaterialBlock(i.getIcon()))
                 .setName(i.getDisplayName(lvl))
-                .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
+                .addLore(Form.wrapWordsPrefixed(i.getDescription(), "" + C.GRAY, 45)) // Set to the actual Description
                 .addLore(lvl == 0 ? (C.DARK_GRAY + Adapt.dLocalize("Snippets", "GUI", "NotLearned")) : (C.GRAY + Adapt.dLocalize("Snippets", "GUI", "Level")+" " + C.WHITE + Form.toRoman(lvl)))
                 .setProgress(1D)
                 .onLeftClick((e) -> {

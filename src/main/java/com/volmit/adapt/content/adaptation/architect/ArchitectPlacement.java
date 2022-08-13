@@ -97,7 +97,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                         runPlayerViewport(getBlockFace(p), p.getTargetBlock(null, 5), p.getInventory().getItemInMainHand().getType(), p);
                     }
                 } else {
-                    p.sendMessage(C.RED + Adapt.dLocalize("Adaptations", "Placement", "Lore2") + C.GREEN + totalMap.get(p).size() + C.RED + Adapt.dLocalize("Architect", "Placement", "Lore2"));
+                    p.sendMessage(C.RED + Adapt.dLocalize("Architect", "Placement", "Lore2") + C.GREEN + totalMap.get(p).size() + C.RED + Adapt.dLocalize("Architect", "Placement", "Lore2"));
                 }
             }
         }
