@@ -73,7 +73,7 @@ repositories {
     maven { url "https://maven.enginehub.org/repo/" }
     mavenCentral()
     mavenLocal()
-    maven { url "https://jitpack.io"}
+    maven { url "https://jitpack.io" }
 }
 
 /**
@@ -302,7 +302,7 @@ def registerCustomOutputTask(name, path) {
         from(new File(buildDir, "Adapt-" + version + ".jar"))
         into(file(path))
         rename { String fileName ->
-            fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
+            fileName.replace("Adapt-" + version + ".jar", "Adapt-" + version + ".jar")
         }
     }
 }
@@ -319,7 +319,7 @@ def registerCustomOutputTaskUnix(name, path) {
         from(new File(buildDir, "Adapt-" + version + ".jar"))
         into(file(path))
         rename { String fileName ->
-            fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
+            fileName.replace("Adapt-" + version + ".jar", "Adapt-" + version + ".jar")
         }
     }
 }
