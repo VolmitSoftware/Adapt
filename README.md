@@ -115,7 +115,7 @@ Keep in mind it should be simple, but complex ones are welcome too!_
 - [X] Worldly Armor
 - [X] Passive XP
 - [ ] Villager Attitude
-- [ ] Xp Healthbar
+- [X] Xp Damage Mitigation
 
 ## Enchanting:
 - [X] XP Refund
@@ -178,7 +178,7 @@ Keep in mind it should be simple, but complex ones are welcome too!_
 
 ## Seaborn:
 - [X] WaterBreathing
-- [X] Passive Speed bonus while swiming
+- [X] Passive Speed bonus while swimming
 - [ ] Night vision underwater
 - [ ] Passive Fish?
 - [ ] Water Refiles Hunger/regen
