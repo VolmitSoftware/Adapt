@@ -29,83 +29,81 @@
       "KnowledgeOrb": "Wissenskugel"
     }
   },
-
-
   "Skill": {
     "Agility": {
-      "Name": "abilität",
+      "Name": "Abilität",
       "Icon": "⇉",
       "Description": "Agilität ist die Fähigkeit, sich angesichts von Hindernissen schnell und flüssig zu bewegen."
     },
     "Architect": {
-      "Name": "architekt",
+      "Name": "Architekt",
       "Icon": "⬧",
       "Description": "Strukturen sind die Bausteine der Welt. Die Realität liegt in Ihren Händen, Sie können sie kontrollieren."
     },
     "Axes": {
-      "Name": "äxte",
+      "Name": "Äxte",
       "Icon": "✥",
       "Description1": "Warum sollte man Bäume fällen,",
       "Description2": "wenn man stattdessen auch Dinge",
       "Description3": "fällen kann - mit demselben Ergebnis!"
     },
     "Brewing": {
-      "Name": "brauen",
+      "Name": "Brauen",
       "Icon": "✥",
       "Description": "Doppelte Blase, dreifache Blase, vierfache Blase - Ich kann diesen Trank immer noch nicht in einen Kessel geben."
     },
     "Crafting": {
-      "Name": "crafting",
+      "Name": "Crafting",
       "Icon": "❖",
       "Description": "Da es keine weiteren Teile mehr zu platzieren gibt, warum nicht noch eins machen?"
     },
     "Discovery": {
-      "Name": "entdeckung",
+      "Name": "Entdeckung",
       "Icon": "⚛",
       "Description": "Wenn sich deine Wahrnehmung erweitert, wird dein Verstand enträtseln, um das zu entdecken, was du nicht wusstest."
     },
     "Enchanting": {
-      "Name": "enchanting",
+      "Name": "Enchanting",
       "Icon": "⚜",
       "Description": "Wovon reden Sie eigentlich? Prophezeiungen, Visionen, abergläubisches Gefasel?"
     },
     "Excavation": {
-      "Name": "ausgrabung",
+      "Name": "Ausgrabung",
       "Icon": "✥",
       "Description": "Diggey Diggey hole..."
     },
     "Herbalism": {
-      "Name": "kräuterkunde",
+      "Name": "Kräuterkunde",
       "Icon": "⚘",
       "Description": "Ich kann keine Plfanzen finden, aber ich finde eine paar Samen und - ist das... Unkraut?"
     },
     "Hunter": {
-      "Name": "jäger",
+      "Name": "Jäger",
       "Icon": "☠",
       "Description": "Bei der Jagd geht es um den Weg, nicht um das Resultat."
     },
     "Nether": {
-      "Name": "nether",
+      "Name": "Nether",
       "Icon": "₪",
       "Description": "Aus den Tiefen des Nether-Gebietes selbst"
     },
     "Pickaxe": {
-      "Name": "sptzhacke",
+      "Name": "Sptzhacke",
       "Icon": "⛏",
       "Description": "Zwerge sind die Bergleute, aber ich habe in meiner Zeit auch einiges gelernt. ICH BIN SCHWEDE."
     },
     "Ranged": {
-      "Name": "reichweite",
+      "Name": "Reichweite",
       "Icon": "🏹",
       "Description": "Die Entfernung ist der Schlüssel zum Sieg und zum Überleben."
     },
     "Rift": {
-      "Name": "rift",
+      "Name": "Rift",
       "Icon": "❍",
       "Description": "Der Rift ist ein ätzendes Gurtzeug, aber Sie haben das Gurtzeug angeschnallt."
     },
     "Seaborne": {
-      "Name": "seefahrt",
+      "Name": "Seefahrt",
       "Icon": "🌊",
       "Description": "Mit dieser Fähigkeit kannst du die Wunder des Wassers erleben."
     },
@@ -115,23 +113,21 @@
       "Description": "Die Kunst des Unsichtbaren. In den Schatten gehen."
     },
     "Swords": {
-      "Name": "schwerter",
+      "Name": "Schwerter",
       "Icon": "⚔",
       "Description": "Mit der Kraft von GreyStone!"
     },
     "Taming": {
-      "Name": "zähmung",
+      "Name": "Zähmung",
       "Icon": "♥",
       "Description": "Die Papageien und die Bienen... und du?"
     },
     "Unarmed": {
-      "Name": "unbewaffnet",
+      "Name": "Ynbewaffnet",
       "Icon": "⚜",
       "Description": "Ohne eine Waffe ist noch ohne Stärke."
     }
   },
-
-
   "Agility": {
     "ArmorUp": {
       "Name": "Armor-Up",

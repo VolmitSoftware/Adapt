@@ -23,6 +23,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         super("ranged", Adapt.dLocalize("Skill", "Ranged", "Icon"));
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Skill", "Ranged", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Ranged", "Name"));
         setColor(C.DARK_GREEN);
         setInterval(3000);
         registerAdaptation(new RangedForce());

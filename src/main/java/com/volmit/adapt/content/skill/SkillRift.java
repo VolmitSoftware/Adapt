@@ -26,6 +26,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         super("rift", Adapt.dLocalize("Skill", "Rift", "Icon"));
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Skill", "Rift", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Rift", "Name"));
         setColor(C.DARK_PURPLE);
         setInterval(1154);
         setIcon(Material.ENDER_EYE);

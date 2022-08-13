@@ -20,6 +20,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         super("excavation", Adapt.dLocalize("Skill", "Excavation", "Icon"));
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Skill", "Excavation", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Excavation", "Name"));
         setColor(C.YELLOW);
         setInterval(5251);
         setIcon(Material.DIAMOND_SHOVEL);

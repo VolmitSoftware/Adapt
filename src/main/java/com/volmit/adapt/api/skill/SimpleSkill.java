@@ -31,6 +31,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     private C color;
     private double minXp;
     private String description;
+    private String displayName;
     private Material icon;
     @EqualsAndHashCode.Exclude
     private List<Adaptation<?>> adaptations;
@@ -131,6 +132,11 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     @Override
+    public String getDisplayName() {
+        return displayName == null ? Skill.super.getDisplayName() : (C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName() + " " + displayName);
+    }
+
+    @Override
     public void onRegisterAdvancements(List<AdaptAdvancement> advancements) {
         advancements.addAll(cachedAdvancements);
     }
@@ -146,7 +152,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         return AdaptAdvancement.builder()
             .background(getAdvancementBackground())
             .key("skill_" + getName())
-            .title(getDisplayName())
+            .title(displayName)
             .description(getDescription())
             .icon(getIcon())
             .children(a)

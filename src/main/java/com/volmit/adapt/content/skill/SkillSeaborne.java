@@ -20,6 +20,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         registerConfiguration(Config.class);
         setColor(C.BLUE);
         setDescription(Adapt.dLocalize("Skill", "Seaborne", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Seaborne", "Name"));
         setInterval(2120);
         setIcon(Material.TRIDENT);
         registerAdaptation(new SeaborneOxygen());

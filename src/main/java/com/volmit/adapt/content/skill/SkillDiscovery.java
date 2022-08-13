@@ -35,6 +35,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         registerConfiguration(Config.class);
         setColor(C.AQUA);
         setDescription(Adapt.dLocalize("Skill", "Discovery", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Discovery", "Name"));
         setInterval(500);
         setIcon(Material.FILLED_MAP);
         registerAdaptation(new DiscoveryUnity());

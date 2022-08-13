@@ -20,6 +20,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         registerConfiguration(Config.class);
         setColor(C.RED);
         setDescription(Adapt.dLocalize("Skill", "Hunter", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Hunter", "Name"));
         setInterval(4150);
         setIcon(Material.BONE);
         registerAdaptation(new HunterAdrenaline());

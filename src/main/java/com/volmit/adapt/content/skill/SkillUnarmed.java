@@ -20,6 +20,7 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
         setDescription(Adapt.dLocalize("Skill", "Unarmed", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Unarmed", "Name"));
         setInterval(2570);
         registerAdaptation(new UnarmedSuckerPunch());
         registerAdaptation(new UnarmedPower());

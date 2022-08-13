@@ -34,6 +34,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         setColor(C.GREEN);
         setInterval(3700);
         setDescription(Adapt.dLocalize("Skill", "Herbalism", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Herbalism", "Name"));
         setIcon(Material.WHEAT);
         registerAdaptation(new HerbalismGrowthAura());
         registerAdaptation(new HerbalismReplant());

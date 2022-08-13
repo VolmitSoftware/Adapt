@@ -20,6 +20,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         super("taming", Adapt.dLocalize("Skill", "Taming", "Icon"));
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Skill", "Taming", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Taming", "Name"));
         setColor(C.GOLD);
         setInterval(3700);
         setIcon(Material.LEAD);

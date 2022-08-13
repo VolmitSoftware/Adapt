@@ -23,6 +23,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         super("agility", Adapt.dLocalize("Skill", "Agility", "Icon"));
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Skill", "Agility", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Agility", "Name"));
         setColor(C.GREEN);
         setInterval(975);
         setIcon(Material.FEATHER);

@@ -18,6 +18,7 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
         setDescription(Adapt.dLocalize("Skill", "Swords", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Swords", "Name"));
         setInterval(2150);
         setIcon(Material.DIAMOND_SWORD);
         registerAdaptation(new SwordsMachete());

@@ -25,6 +25,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         registerConfiguration(Config.class);
         setColor(C.AQUA);
         setDescription(Adapt.dLocalize("Skill", "Architect", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Architect", "Name"));
         setInterval(3700);
         setIcon(Material.IRON_BARS);
         registerAdvancement(AdaptAdvancement.builder()

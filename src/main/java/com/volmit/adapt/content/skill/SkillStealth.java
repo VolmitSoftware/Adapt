@@ -24,6 +24,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         setInterval(1412);
         setIcon(Material.WITHER_ROSE);
         setDescription(Adapt.dLocalize("Skill", "Stealth", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Stealth", "Name"));
         registerAdaptation(new StealthSpeed());
         registerAdaptation(new StealthSnatch());
         registerAdaptation(new StealthGhostArmor());

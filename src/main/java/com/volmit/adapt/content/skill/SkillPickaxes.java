@@ -21,6 +21,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         super("pickaxes", Adapt.dLocalize("Skill", "Pickaxe", "Icon"));
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Skill", "Pickaxe", "Description"));
+        setDisplayName(Adapt.dLocalize("Skill", "Pickaxe", "Name"));
         setColor(C.GOLD);
         setInterval(2750);
         setIcon(Material.NETHERITE_PICKAXE);
