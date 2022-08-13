@@ -28,14 +28,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         setDisplayName(Adapt.dLocalize("Skill", "Architect", "Name"));
         setInterval(3700);
         setIcon(Material.IRON_BARS);
-        registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.BRICK)
-                .key("challenge_place_1k")
-                .title("So much to build!")
-                .description("Place over 1,000 blocks")
-                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .build());
+        registerAdvancement(AdaptAdvancement.builder().icon(Material.BRICK).key("challenge_place_1k").title("So much to build!").description("Place over 1,000 blocks").frame(AdvancementDisplay.AdvancementFrame.CHALLENGE).visibility(AdvancementVisibility.PARENT_GRANTED).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
         setIcon(Material.SMITHING_TABLE);
         registerAdaptation(new ArchitectGlass());
@@ -49,11 +42,13 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));
         getPlayer(e.getPlayer()).getData().addStat("blocks.placed", 1);
         getPlayer(e.getPlayer()).getData().addStat("blocks.placed.value", v);
+
     }
 
     @EventHandler
     public void on(BlockBreakEvent e) {
         getPlayer(e.getPlayer()).getData().addStat("blocks.broken", 1);
+
     }
 
     @Override

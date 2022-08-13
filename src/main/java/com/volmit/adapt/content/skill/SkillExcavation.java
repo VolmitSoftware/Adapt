@@ -30,25 +30,29 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player p) {
-            AdaptPlayer a = getPlayer((Player) e.getDamager());
-            ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
-
-            if (isShovel(hand)) {
-                getPlayer(p).getData().addStat("excavation.swings", 1);
-                getPlayer(p).getData().addStat("excavation.damage", e.getDamage());
-                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
+        if (!e.isCancelled()) {
+            if (e.getDamager() instanceof Player p) {
+                AdaptPlayer a = getPlayer((Player) e.getDamager());
+                ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
+                if (isShovel(hand)) {
+                    getPlayer(p).getData().addStat("excavation.swings", 1);
+                    getPlayer(p).getData().addStat("excavation.damage", e.getDamage());
+                    xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
+                }
             }
         }
     }
 
     @EventHandler
     public void on(BlockBreakEvent e) {
-        if (isShovel(e.getPlayer().getInventory().getItemInMainHand())) {
-            double v = getValue(e.getBlock().getType());
-            getPlayer(e.getPlayer()).getData().addStat("excavation.blocks.broken", 1);
-            getPlayer(e.getPlayer()).getData().addStat("excavation.blocks.value", getValue(e.getBlock().getBlockData()));
-            J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
+        if (!e.isCancelled()) {
+
+            if (isShovel(e.getPlayer().getInventory().getItemInMainHand())) {
+                double v = getValue(e.getBlock().getType());
+                getPlayer(e.getPlayer()).getData().addStat("excavation.blocks.broken", 1);
+                getPlayer(e.getPlayer()).getData().addStat("excavation.blocks.value", getValue(e.getBlock().getBlockData()));
+                J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
+            }
         }
     }
 

@@ -70,10 +70,13 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     public void onTick() {
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGH)
     public void on(EntityDamageByEntityEvent e) {
-
         if (e.getDamager() instanceof Player p) {
+            if (!hasAdaptation(p) && validateTool(p.getInventory().getItemInMainHand())) {
+                e.setCancelled(true);
+                return;
+            }
             if (!hasAdaptation(p)) {
                 if (validateTool(p.getInventory().getItemInMainHand())) {
                     e.setCancelled(true);
@@ -97,8 +100,12 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGH)
     public void on(BlockBreakEvent e) {
+        if (!hasAdaptation(e.getPlayer()) && validateTool(e.getPlayer().getInventory().getItemInMainHand())) {
+            e.setCancelled(true);
+            return;
+        }
         if (!hasAdaptation(e.getPlayer())) {
             return;
         }
@@ -108,8 +115,12 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         xp(e.getPlayer(), 3);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void on(PlayerInteractEvent e) {
+        if (!hasAdaptation(e.getPlayer()) && validateTool(e.getPlayer().getInventory().getItemInMainHand())) {
+            e.setCancelled(true);
+            return;
+        }
         if (!hasAdaptation(e.getPlayer())) {
             return;
         }

@@ -56,14 +56,18 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     @EventHandler
     public void on(BlockPlaceEvent e) {
         if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
-            WorldData.of(e.getBlock().getWorld()).getMantle().set(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), new BrewingStandOwner(e.getPlayer().getUniqueId()));
+            if (!e.isCancelled()) {
+                WorldData.of(e.getBlock().getWorld()).getMantle().set(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), new BrewingStandOwner(e.getPlayer().getUniqueId()));
+            }
         }
     }
 
     @EventHandler
     public void on(BlockBreakEvent e) {
-        if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
-            WorldData.of(e.getBlock().getWorld()).getMantle().remove(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);
+        if (!e.isCancelled()) {
+            if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
+                WorldData.of(e.getBlock().getWorld()).getMantle().remove(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);
+            }
         }
     }
 

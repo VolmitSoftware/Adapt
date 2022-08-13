@@ -3,7 +3,7 @@ package com.volmit.adapt.api.xp;
 import lombok.Getter;
 
 public enum Curves {
-    X1D2(resolved(level -> Math.pow(level, 1.2), xp -> Math.pow(xp, 1D / 1.2D))),
+    X1D2(resolved(level -> Math.pow(level, 1.2), xp -> Math.pow(xp, 1D / 1.2D))), // Inverse might not be accurate below
     X1D5(resolved(level -> Math.pow(level, 1.5), xp -> Math.pow(xp, 1D / 1.5D))),
     X2(resolved(level -> Math.pow(level, 2), xp -> Math.pow(xp, 1D / 2D))),
     X3(resolved(level -> Math.pow(level, 3), xp -> Math.pow(xp, 1D / 3D))),

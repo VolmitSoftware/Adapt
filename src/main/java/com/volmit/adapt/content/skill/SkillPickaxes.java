@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
@@ -30,16 +31,17 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         registerAdaptation(new PickaxeAutosmelt());
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player) {
-            AdaptPlayer a = getPlayer((Player) e.getDamager());
-            ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
-
-            if (isPickaxe(hand)) {
-                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
-                getPlayer(a.getPlayer()).getData().addStat("pickaxes.swings", 1);
-                getPlayer(a.getPlayer()).getData().addStat("pickaxes.damage", e.getDamage());
+        if (!e.isCancelled()) {
+            if (e.getDamager() instanceof Player) {
+                AdaptPlayer a = getPlayer((Player) e.getDamager());
+                ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
+                if (isPickaxe(hand)) {
+                    xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
+                    getPlayer(a.getPlayer()).getData().addStat("pickaxes.swings", 1);
+                    getPlayer(a.getPlayer()).getData().addStat("pickaxes.damage", e.getDamage());
+                }
             }
         }
     }

@@ -1,15 +1,15 @@
 package com.volmit.adapt.api.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.api.xp.XPMultiplier;
-import com.volmit.adapt.content.gui.CorruptionGui;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.skill.*;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.M;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -22,7 +22,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.io.IOException;

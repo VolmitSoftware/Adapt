@@ -30,11 +30,13 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player) {
-            AdaptPlayer a = getPlayer((Player) e.getDamager());
-            ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
-            if(!isMelee(hand)) {
-                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
+        if (!e.isCancelled()) {
+            if (e.getDamager() instanceof Player) {
+                AdaptPlayer a = getPlayer((Player) e.getDamager());
+                ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
+                if (!isMelee(hand)) {
+                    xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
+                }
             }
         }
     }
