@@ -71,6 +71,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
             entity.setBounce(false);
             entity.setDirection(dir);
             entity.setShooter(e.getPlayer());
+            xp(e.getPlayer(), 100);
         });
     }
 

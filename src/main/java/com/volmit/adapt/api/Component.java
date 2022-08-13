@@ -1,7 +1,6 @@
 package com.volmit.adapt.api;
 
 import com.google.common.collect.Lists;
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.xp.XP;
@@ -243,13 +242,13 @@ public interface Component {
         double minX = loc.getBlockX();
         double minY = loc.getBlockY();
         double minZ = loc.getBlockZ();
-        double maxX = loc.getBlockX()+1;
-        double maxY = loc.getBlockY()+1;
-        double maxZ = loc.getBlockZ()+1;
+        double maxX = loc.getBlockX() + 1;
+        double maxY = loc.getBlockY() + 1;
+        double maxZ = loc.getBlockZ() + 1;
 
-        for (double x = minX; x <= maxX; x+=particleDistance) {
-            for (double y = minY; y <= maxY; y+=particleDistance) {
-                for (double z = minZ; z <= maxZ; z+=particleDistance) {
+        for (double x = minX; x <= maxX; x += particleDistance) {
+            for (double y = minY; y <= maxY; y += particleDistance) {
+                for (double z = minZ; z <= maxZ; z += particleDistance) {
                     int components = 0;
                     if (x == minX || x == maxX) components++;
                     if (y == minY || y == maxY) components++;
@@ -262,6 +261,7 @@ public interface Component {
         }
         return result;
     }
+
     private List<Location> getHollowCuboid(Location loc, Location loc2, double particleDistance) {
         List<Location> result = Lists.newArrayList();
         World world = loc.getWorld();
@@ -269,13 +269,13 @@ public interface Component {
         double minX = loc.getBlockX();
         double minY = loc.getBlockY();
         double minZ = loc.getBlockZ();
-        double maxX = loc2.getBlockX()+1;
-        double maxY = loc2.getBlockY()+1;
-        double maxZ = loc2.getBlockZ()+1;
+        double maxX = loc2.getBlockX() + 1;
+        double maxY = loc2.getBlockY() + 1;
+        double maxZ = loc2.getBlockZ() + 1;
 
-        for (double x = minX; x <= maxX; x+=particleDistance) {
-            for (double y = minY; y <= maxY; y+=particleDistance) {
-                for (double z = minZ; z <= maxZ; z+=particleDistance) {
+        for (double x = minX; x <= maxX; x += particleDistance) {
+            for (double y = minY; y <= maxY; y += particleDistance) {
+                for (double z = minZ; z <= maxZ; z += particleDistance) {
                     int components = 0;
                     if (x == minX || x == maxX) components++;
                     if (y == minY || y == maxY) components++;
@@ -290,14 +290,14 @@ public interface Component {
     }
 
     default void vfxSingleCubeOutline(Block block, Particle particle) {
-        List<Location> hollowCube = getHollowCube( block.getLocation(), 0.25);
+        List<Location> hollowCube = getHollowCube(block.getLocation(), 0.25);
         for (Location l : hollowCube) {
             block.getWorld().spawnParticle(particle, l, 1, 0F, 0F, 0F, 0.000);
         }
     }
 
     default void vfxSingleCuboidOutline(Block blockStart, Block blockEnd, Particle particle) {
-        List<Location> hollowCube = getHollowCuboid( blockStart.getLocation(), blockEnd.getLocation(), 0.25);
+        List<Location> hollowCube = getHollowCuboid(blockStart.getLocation(), blockEnd.getLocation(), 0.25);
         for (Location l : hollowCube) {
             blockStart.getWorld().spawnParticle(particle, l, 2, 0F, 0F, 0F, 0.000);
         }
@@ -473,6 +473,84 @@ public interface Component {
 
         is.setItemMeta(im);
         p.getInventory().setItemInOffHand(is);
+    }
+
+    default void setExp(Player p, int exp) {
+        p.setExp(0);
+        p.setLevel(0);
+        p.setTotalExperience(0);
+
+        if (exp <= 0) {
+            return;
+        }
+
+        giveExp(p, exp);
+    }
+
+    default void giveExp(Player p, int exp) {
+        while (exp > 0) {
+            int xp = getExpToLevel(p) - getExp(p);
+            if (xp > exp) {
+                xp = exp;
+            }
+            p.giveExp(xp);
+            exp -= xp;
+        }
+    }
+
+    default void takeExp(Player p, int exp) {
+        takeExp(p, exp, true);
+    }
+
+    default void takeExp(Player p, int exp, boolean fromTotal) {
+        int xp = getTotalExp(p);
+
+        if (fromTotal) {
+            xp -= exp;
+        } else {
+            int m = getExp(p) - exp;
+            if (m < 0) {
+                m = 0;
+            }
+            xp -= getExp(p) + m;
+        }
+
+        setExp(p, xp);
+    }
+
+    default int getExp(Player p) {
+        return (int) (getExpToLevel(p) * p.getExp());
+    }
+
+    default int getTotalExp(Player p) {
+        return getTotalExp(p, false);
+    }
+
+    default int getTotalExp(Player p, boolean recalc) {
+        if (recalc) {
+            recalcTotalExp(p);
+        }
+        return p.getTotalExperience();
+    }
+
+    default int getLevel(Player p) {
+        return p.getLevel();
+    }
+
+    default int getExpToLevel(Player p) {
+        return p.getExpToLevel();
+    }
+
+    default int getExpToLevel(int level) {
+        return level >= 30 ? 62 + (level - 30) * 7 : (level >= 15 ? 17 + (level - 15) * 3 : 17);
+    }
+
+    default void recalcTotalExp(Player p) {
+        int total = getExp(p);
+        for (int i = 0; i < p.getLevel(); i++) {
+            total += getExpToLevel(i);
+        }
+        p.setTotalExperience(total);
     }
 
     /**

@@ -58,6 +58,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
             if (getPlayer(p).consumeFood(h, 6)) {
                 d += h;
                 e.setDamage(d);
+                xp(p, d);
             }
         }
     }

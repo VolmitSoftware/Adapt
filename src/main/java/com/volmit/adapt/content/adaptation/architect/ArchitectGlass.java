@@ -53,7 +53,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
                 e.getBlock().getWorld().spawnParticle(Particle.SCRAPE, e.getBlock().getLocation(), 1);
                 J.a(() -> vfxSingleCubeOutline(e.getBlock(), Particle.REVERSE_PORTAL));
                 e.getBlock().breakNaturally();
-                xp(e.getPlayer(), 1);
+                xp(e.getPlayer(), 3);
             }
         }
     }

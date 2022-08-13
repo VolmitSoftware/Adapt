@@ -60,7 +60,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
                         hits = a.getPersistentDataContainer().getOrDefault(k, PersistentDataType.INTEGER, 0);
                         a.getPersistentDataContainer().set(k, PersistentDataType.INTEGER, hits + 1);
                     }
-
+                    xp(p, 5);
                     if (hits + 1 >= a.getPierceLevel()) {
                         arrows.compute(e.getEntity().getUniqueId(), (k, v) -> {
                             if (v == null) {

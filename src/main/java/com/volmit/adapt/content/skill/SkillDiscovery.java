@@ -5,6 +5,7 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryArmor;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryUnity;
+import com.volmit.adapt.content.adaptation.discovery.DiscoveryXpResist;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import lombok.NoArgsConstructor;
@@ -40,6 +41,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         setIcon(Material.FILLED_MAP);
         registerAdaptation(new DiscoveryUnity());
         registerAdaptation(new DiscoveryArmor());
+        registerAdaptation(new DiscoveryXpResist());
     }
 
     @EventHandler

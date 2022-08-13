@@ -115,6 +115,7 @@ Keep in mind it should be simple, but complex ones are welcome too!_
 - [X] Worldly Armor
 - [X] Passive XP
 - [ ] Villager Attitude
+- [ ] Xp Healthbar
 
 ## Enchanting:
 - [X] XP Refund
