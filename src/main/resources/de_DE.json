@@ -33,99 +33,80 @@
 
   "Skill": {
     "Agility": {
-      "Name": "abilität",
       "Icon": "⇉",
       "Description": "Agilität ist die Fähigkeit, sich angesichts von Hindernissen schnell und flüssig zu bewegen."
     },
     "Architect": {
-      "Name": "architekt",
       "Icon": "⬧",
       "Description": "Strukturen sind die Bausteine der Welt. Die Realität liegt in Ihren Händen, Sie können sie kontrollieren."
     },
     "Axes": {
-      "Name": "äxte",
       "Icon": "✥",
       "Description1": "Warum sollte man Bäume fällen,",
       "Description2": "wenn man stattdessen auch Dinge",
       "Description3": "fällen kann - mit demselben Ergebnis!"
     },
     "Brewing": {
-      "Name": "brauen",
       "Icon": "✥",
       "Description": "Doppelte Blase, dreifache Blase, vierfache Blase - Ich kann diesen Trank immer noch nicht in einen Kessel geben."
     },
     "Crafting": {
-      "Name": "crafting",
       "Icon": "❖",
       "Description": "Da es keine weiteren Teile mehr zu platzieren gibt, warum nicht noch eins machen?"
     },
     "Discovery": {
-      "Name": "entdeckung",
       "Icon": "⚛",
       "Description": "Wenn sich deine Wahrnehmung erweitert, wird dein Verstand enträtseln, um das zu entdecken, was du nicht wusstest."
     },
     "Enchanting": {
-      "Name": "enchanting",
       "Icon": "⚜",
       "Description": "Wovon reden Sie eigentlich? Prophezeiungen, Visionen, abergläubisches Gefasel?"
     },
     "Excavation": {
-      "Name": "ausgrabung",
       "Icon": "✥",
       "Description": "Diggey Diggey hole..."
     },
     "Herbalism": {
-      "Name": "kräuterkunde",
       "Icon": "⚘",
       "Description": "Ich kann keine Plfanzen finden, aber ich finde eine paar Samen und - ist das... Unkraut?"
     },
     "Hunter": {
-      "Name": "jäger",
       "Icon": "☠",
       "Description": "Bei der Jagd geht es um den Weg, nicht um das Resultat."
     },
     "Nether": {
-      "Name": "nether",
       "Icon": "₪",
       "Description": "Aus den Tiefen des Nether-Gebietes selbst"
     },
     "Pickaxe": {
-      "Name": "sptzhacke",
       "Icon": "⛏",
       "Description": "Zwerge sind die Bergleute, aber ich habe in meiner Zeit auch einiges gelernt. ICH BIN SCHWEDE."
     },
     "Ranged": {
-      "Name": "reichweite",
       "Icon": "🏹",
       "Description": "Die Entfernung ist der Schlüssel zum Sieg und zum Überleben."
     },
     "Rift": {
-      "Name": "rift",
       "Icon": "❍",
       "Description": "Der Rift ist ein ätzendes Gurtzeug, aber Sie haben das Gurtzeug angeschnallt."
     },
     "Seaborne": {
-      "Name": "seefahrt",
       "Icon": "🌊",
       "Description": "Mit dieser Fähigkeit kannst du die Wunder des Wassers erleben."
     },
     "Stealth": {
-      "Name": "Heimlichkeit",
       "Icon": "✠",
       "Description": "Die Kunst des Unsichtbaren. In den Schatten gehen."
     },
     "Swords": {
-      "Name": "schwerter",
       "Icon": "⚔",
       "Description": "Mit der Kraft von GreyStone!"
     },
     "Taming": {
-      "Name": "zähmung",
       "Icon": "♥",
       "Description": "Die Papageien und die Bienen... und du?"
     },
     "Unarmed": {
-      "Name": "unbewaffnet",
       "Icon": "⚜",
       "Description": "Ohne eine Waffe ist noch ohne Stärke."
     }
