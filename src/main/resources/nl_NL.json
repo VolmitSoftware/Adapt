@@ -291,12 +291,12 @@
       },
       "HunterJumpBoost": {
         "Name": "Hunter's Heights",
-        "Description": "Als je wordt geraakt you are struck you gain jump-boost, at the cost of hunger",
-        "Lore1": "Gain passive jump-boost when struck",
-        "Lore2": "x Jump-Boost stacks for a 3 seconds on hit",
-        "Lore3": "x Stacking hunger",
-        "Lore4": " Hunger stacks duration and multiplier.",
-        "Lore5": " Jump-Boost stacks multiplier, not duration."
+        "Description": "Als je wordt geraakt krijg je Super Sprong, ten koste van je voedingspunten",
+        "Lore1": "Krijg passieve springbonus als je bent geraakt",
+        "Lore2": "x Springbonus voor 3 seconds als je bent geraakt",
+        "Lore3": "x Hongerpunten",
+        "Lore4": " Honger duratie en factor.",
+        "Lore5": " Springbonus vermenigvuldigingsfactor."
       },
       "HunterLuck": {
         "Name": "Hunter's Luck",
