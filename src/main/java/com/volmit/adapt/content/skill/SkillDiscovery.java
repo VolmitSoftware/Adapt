@@ -196,8 +196,11 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         for (Player i : Bukkit.getOnlinePlayers()) {
             try {
                 Block b = i.getTargetBlockExact(5, FluidCollisionMode.NEVER);
-                seeBlock(i, b.getBlockData(), b.getLocation());
-                seeBiome(i, b.getBiome());
+                if (b != null) {
+                    seeBlock(i, b.getBlockData(), b.getLocation());
+                    seeBiome(i, b.getBiome());
+                }
+
             } catch (Throwable ignored) {
 
             }
