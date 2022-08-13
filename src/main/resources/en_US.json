@@ -7,8 +7,6 @@
       "NotLearned": "Not Learned",
       "XP": "XP to"
     },
-
-
     "AdaptMenu": {
       "KnowledgeCost": "Knowledge Cost",
       "AlreadyLearned": "Already Learned",
@@ -221,7 +219,7 @@
     },
     "DiscoveryXpResist": {
       "Name": "Experimental Resistance",
-      "Description": "Consume experience to dampen the damage you take from all sources",
+      "Description": "Consume experience to mitigate the damage you take from all sources\n",
       "Lore0": "This may only occur once per 15 seconds",
       "Lore1": "% Reduced Damage",
       "Lore2": "experience drained"

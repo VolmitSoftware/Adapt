@@ -235,6 +235,13 @@
       "Description": "Durch Sammeln von Erfahrungskugeln erhält man Erfahrungspunkte für zufällige Fähigkeiten.",
       "Lore1": " XP ",
       "Lore2": " Pro Kugel"
+    },
+    "DiscoveryXpResist": {
+      "Name": "Experimentelle Widerstand",
+      "Description": "Verbrauchen Sie Erfahrung, um den Schaden zu dämpfen, den Sie aus allen Quellen nehmen",
+      "Lore0": "Dies darf nur einmal alle 15 Sekunden erfolgen",
+      "Lore1": "% Weniger Schaden",
+      "Lore2": " Erfahrung verbraucht"
     }
   },
   "Enchanting": {
