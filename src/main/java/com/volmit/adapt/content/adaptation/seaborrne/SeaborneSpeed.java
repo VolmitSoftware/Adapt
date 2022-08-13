@@ -5,9 +5,10 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityAirChangeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -20,8 +21,8 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     public SeaborneSpeed() {
         super("seaborne-speed");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Seaborn","DolphinGrace", "Description"));
-        setDisplayName(Adapt.dLocalize("Seaborn","DolphinGrace", "Name"));
+        setDescription(Adapt.dLocalize("Seaborn", "DolphinGrace", "Description"));
+        setDisplayName(Adapt.dLocalize("Seaborn", "DolphinGrace", "Name"));
         setIcon(Material.TRIDENT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -32,18 +33,21 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Seaborn","DolphinGrace", "Lore1") + C.GREEN + (level) + C.GRAY + Adapt.dLocalize("Seaborn","DolphinGrace", "Lore2"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("Seaborn","DolphinGrace", "Lore3"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Seaborn", "DolphinGrace", "Lore1") + C.GREEN + (level) + C.GRAY + Adapt.dLocalize("Seaborn", "DolphinGrace", "Lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Seaborn", "DolphinGrace", "Lore3"));
+    }
+
+    @EventHandler
+    public void on(EntityAirChangeEvent e) {
+        if (e.getEntity() instanceof Player p && p.isSwimming() && hasAdaptation(p)) {
+            p.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 50, getLevel(p)));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, getLevel(p), getLevel(p)));
+        }
     }
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (hasAdaptation(p)) {
-                p.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 1020, getLevel(p), true, false));
 
-            }
-        }
     }
 
     @Override

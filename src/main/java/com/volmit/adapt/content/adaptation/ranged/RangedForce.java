@@ -57,6 +57,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
             Location b = p.getLocation().clone();
             a.setY(0);
             b.setY(0);
+            xp(p, 5);
 
             if (a.distanceSquared(b) > 10) {
                 getPlayer(p).getAdvancementHandler().grant("challenge_force_30");

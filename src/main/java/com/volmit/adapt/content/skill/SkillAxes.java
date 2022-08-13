@@ -17,7 +17,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     public SkillAxes() {
-        super(Adapt.dLocalize("Skill", "Axes", "Name"), Adapt.dLocalize("Skill", "Axes", "Icon"));
+        super("axes", Adapt.dLocalize("Skill", "Axes", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
         setDescription(Adapt.dLocalize("Skill", "Axes", "Description1") + C.ITALIC + Adapt.dLocalize("Skill", "Axes", "Description2") + C.GRAY + Adapt.dLocalize("Skill", "Axes", "Description3"));

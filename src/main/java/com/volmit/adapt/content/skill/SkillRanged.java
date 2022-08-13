@@ -20,7 +20,7 @@ import java.util.Locale;
 
 public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     public SkillRanged() {
-        super(Adapt.dLocalize("Skill", "Ranged", "Name"), Adapt.dLocalize("Skill", "Ranged", "Icon"));
+        super("ranged", Adapt.dLocalize("Skill", "Ranged", "Icon"));
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Skill", "Ranged", "Description"));
         setColor(C.DARK_GREEN);

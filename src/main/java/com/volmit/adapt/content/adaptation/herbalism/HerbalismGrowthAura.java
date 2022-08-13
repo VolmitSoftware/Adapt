@@ -61,6 +61,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                     double angle = Math.toRadians(Math.random() * 360);
                     double foodCost = getFoodCost(getLevelPercent(p));
 
+
                     for (int i = 0; i < Math.min(Math.min(rad * rad, 256), 3); i++) {
                         Location m = p.getLocation().clone().add(new Vector(Math.sin(angle), RNG.r.i(-1, 1), Math.cos(angle)).multiply(Math.random() * rad));
                         Block a = m.getWorld().getHighestBlockAt(m).getRelative(BlockFace.UP);
@@ -81,6 +82,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                                                     a.setBlockData(aab, true);
                                                     a.getWorld().playSound(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
                                                     p.spawnParticle(Particle.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);
+                                                    xp(p, 1);
                                                 }
                                             }
                                         }, RNG.r.i(30, 60));

@@ -49,7 +49,7 @@ public class Ticker {
             e.queue(() -> {
                 Ticked t = ticklist.get(ii);
 
-                if(t.shouldTick()) {
+                if(t != null && t.shouldTick()) {
                     tc.incrementAndGet();
                     try {
                         t.tick();

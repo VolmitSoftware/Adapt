@@ -44,6 +44,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         int lapis = (int) (Math.random() * 1);
         lapis = lapis + (int) (Math.random() * (getLevel(p) + 1));
         p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, lapis));
+        xp(p, 15);
 
 
     }

@@ -39,6 +39,7 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
         if (!hasAdaptation(p)) {
             return;
         }
+        xp(p, 5);
         p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(getConfig().xpReturn * (level * level));
 
     }

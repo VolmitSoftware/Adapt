@@ -44,6 +44,7 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
             p.setFoodLevel(p.getFoodLevel() + 2 + getLevel(p));
             p.playSound(p.getLocation(), Sound.BLOCK_POINTED_DRIPSTONE_LAND, 1, 0.25f);
             vfxFastRing(p.getLocation().add(0, 0.25, 0), 2, Color.GREEN);
+            xp(p, 5);
         }
     }
 

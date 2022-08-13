@@ -162,7 +162,7 @@ public class PlayerSkillLine {
     }
 
     private void notifyLevel(AdaptPlayer p, double lvl, long kn) {
-        Skill s = p.getServer().getSkillRegistry().getSkill(getLine());
+//        Skill s = p.getServer().getSkillRegistry().getSkill(getLine());
         if(lvl % 10 == 0) {
             p.getNot().queue(SoundNotification.builder()
                 .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)

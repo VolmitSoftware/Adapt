@@ -110,6 +110,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
                     newEnchants.forEach((ec, l) -> im.addEnchant(ec, l, true));
                 }
 
+                xp(p, 50);
                 item.setItemMeta(im);
                 e.setCurrentItem(item);
                 e.setCancelled(true);

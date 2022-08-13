@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     public SkillUnarmed() {
-        super(Adapt.dLocalize("Skill", "Unarmed", "Name"), Adapt.dLocalize("Skill", "Unarmed", "Icon"));
+        super("unarmed", Adapt.dLocalize("Skill", "Unarmed", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
         setDescription(Adapt.dLocalize("Skill", "Unarmed", "Description"));

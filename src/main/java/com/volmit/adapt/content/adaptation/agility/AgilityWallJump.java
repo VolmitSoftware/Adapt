@@ -92,7 +92,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                         i.setVelocity(i.getVelocity().setY(getJumpHeight(level)));
                         i.getWorld().spawnParticle(Particle.BLOCK_CRACK, i.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, getStick(i).getBlockData());
                     }
-
+                    xp(i, 2);
                     airjumps.put(i, j);
                 }
 

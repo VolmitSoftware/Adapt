@@ -1,111 +1,118 @@
 {
   "Snippets": {
-    "SkillsGUI": {
+    "GUI": {
       "Level": "Level",
       "Knowledge": "Knowledge",
-      "PowerUsed": "Power Used"
+      "PowerUsed": "Power Used",
+      "NotLearned": "Not Learned",
+      "XP": "XP to"
+    },
+    "AdaptMenu": {
+      "KnowledgeCost": "Knowledge Cost",
+      "AlreadyLearned": "Already Learned",
+      "UnlearnRefund": "Click to Unlearn & Refund",
+      "Knowledge": "Knowledge",
+      "ClickLearn": "Click to Learn",
+      "NoKnowledge": "(You don't have any Knowledge)",
+      "YouOnlyHave": "You only have",
+      "HowToLevelUp": "Level up skills to increase your max power.",
+      "NotEnoughPower": "Not enough power! Each Ability Level costs 1 power.",
+      "Power": "Power",
+      "Learned": "Learned ",
+      "Unlearned": "Unlearned "
+    },
+    "KnowledgeOrb": {
+      "Contains": "Contains",
+      "Knowledge": "Knowledge",
+      "RightClick": "Right-Click",
+      "ToGainKnowledge": "to gain this knowledge",
+      "KnowledgeOrb": "Knowledge Orb"
     }
   },
 
+
   "Skill": {
     "Agility": {
-      "Name": "agility",
       "Icon": "⇉",
       "Description": "Agility is the ability to move quick and fluidly in the face of obstacles."
     },
     "Architect": {
-      "Name": "architect",
       "Icon": "⬧",
       "Description": "Structures are the building blocks of the world. Reality is in your hands, yours to control."
     },
     "Axes": {
-      "Name": "axes",
-      "Icon": "✥",
+      "Icon": "❖",
       "Description1": "Why chop down trees, when you could chop ",
       "Description2": "things",
       "Description3": " instead, same end result!"
     },
     "Brewing": {
-      "Name": "brewing",
-      "Icon": "✥",
+      "Icon": "❖",
       "Description": "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
     },
     "Crafting": {
-      "Name": "crafting",
       "Icon": "❖",
       "Description": "With no more pieces left to place, why not make another?"
     },
     "Discovery": {
-      "Name": "discovery",
       "Icon": "⚛",
       "Description": "As your Perception expands, your mind unravels to discover that which you did not"
     },
     "Enchanting": {
-      "Name": "enchanting",
       "Icon": "⚜",
       "Description": "What are you going on about? Prophecies, visions, superstitious jibber-jabber?"
     },
     "Excavation": {
-      "Name": "excavation",
       "Icon": "✥",
       "Description": "Diggey Diggey hole..."
     },
     "Herbalism": {
-      "Name": "herbalism",
       "Icon": "⚘",
       "Description": "I can't find any plants, but I can find some seeds and- is that... Weed?"
     },
     "Hunter": {
-      "Name": "hunter",
       "Icon": "☠",
       "Description": "Hunting is about the journey not the outcome."
     },
     "Nether": {
-      "Name": "nether",
       "Icon": "₪",
       "Description": "From the depths of the Nether itself."
     },
     "Pickaxe": {
-      "Name": "pickaxe",
       "Icon": "⛏",
       "Description": "Dwarves are the miners, but ive learned a thing or to in my time. IM SWEDISH"
     },
     "Ranged": {
-      "Name": "ranged",
       "Icon": "🏹",
       "Description": "Distance is the key to victory, and the key to survival."
     },
     "Rift": {
-      "Name": "rift",
       "Icon": "❍",
       "Description": "The Rift is a caustic harness, but you have harnessed the harness."
     },
     "Seaborne": {
-      "Name": "seaborne",
       "Icon": "🌊",
       "Description": "With this skill, you may will the wonders of the water"
     },
     "Stealth": {
-      "Name": "stealth",
       "Icon": "✠",
       "Description": "The art of the unseen. Walk in the shadows."
     },
     "Swords": {
-      "Name": "swords",
       "Icon": "⚔",
       "Description": "By the power of GreyStone!"
     },
     "Taming": {
-      "Name": "taming",
       "Icon": "♥",
       "Description": "The parrots and the bees... and you?"
     },
     "Unarmed": {
-      "Name": "unarmed",
       "Icon": "⚜",
       "Description": "Without a weapon is not without strength"
     }
   },
+
+
   "Agility": {
     "ArmorUp": {
       "Name": "Armor-Up",
@@ -209,6 +216,13 @@
       "Description": "Collecting Experience Orbs adds XP to random skills.",
       "Lore1": " XP ",
       "Lore2": " Per Orb"
+    },
+    "DiscoveryXpResist": {
+      "Name": "Experimental Resistance",
+      "Description": "Consume experience to mitigate the damage you take from all sources\n",
+      "Lore0": "This may only occur once per 15 seconds",
+      "Lore1": "% Reduced Damage",
+      "Lore2": "experience drained"
     }
   },
   "Enchanting": {

@@ -29,7 +29,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 
 public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     public SkillHerbalism() {
-        super(Adapt.dLocalize("Skill", "Herbalism", "Name"), Adapt.dLocalize("Skill", "Herbalism", "Icon"));
+        super("herbalism", Adapt.dLocalize("Skill", "Herbalism", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.GREEN);
         setInterval(3700);

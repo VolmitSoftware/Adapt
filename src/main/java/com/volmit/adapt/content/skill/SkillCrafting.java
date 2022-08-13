@@ -23,7 +23,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     public SkillCrafting() {
-        super(Adapt.dLocalize("Skill", "Crafting", "Name"), Adapt.dLocalize("Skill", "Crafting", "Icon"));
+        super("crafting", Adapt.dLocalize("Skill", "Crafting", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
         setDescription(Adapt.dLocalize("Skill", "Crafting", "Description"));

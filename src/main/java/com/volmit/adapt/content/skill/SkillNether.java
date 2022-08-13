@@ -22,7 +22,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     private int witherRoseCooldown;
 
     public SkillNether() {
-        super(Adapt.dLocalize("Skill", "Nether", "Name"), Adapt.dLocalize("Skill", "Nether", "Icon"));
+        super("nether", Adapt.dLocalize("Skill", "Nether", "Icon"));
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Skill", "Nether", "Description"));
         setInterval(3425);

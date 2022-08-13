@@ -48,6 +48,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + Adapt.dLocalize("Agility", "SuperJump", "Lore1"));
         v.addLore(C.LIGHT_PURPLE + Adapt.dLocalize("Agility", "SuperJump", "Lore2"));
+
     }
 
     @EventHandler
@@ -58,6 +59,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
 
         if (e.isSneaking() && e.getPlayer().isOnGround()) {
             e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.3f, 0.35f);
+            xp(e.getPlayer(), 2);
         }
     }
 

@@ -5,6 +5,7 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryArmor;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryUnity;
+import com.volmit.adapt.content.adaptation.discovery.DiscoveryXpResist;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import lombok.NoArgsConstructor;
@@ -18,12 +19,10 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffect;
@@ -32,7 +31,7 @@ import java.util.Map;
 
 public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public SkillDiscovery() {
-        super(Adapt.dLocalize("Skill", "Discovery", "Name"), Adapt.dLocalize("Skill", "Discovery", "Icon"));
+        super("discovery", Adapt.dLocalize("Skill", "Discovery", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
         setDescription(Adapt.dLocalize("Skill", "Discovery", "Description"));
@@ -40,6 +39,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         setIcon(Material.FILLED_MAP);
         registerAdaptation(new DiscoveryUnity());
         registerAdaptation(new DiscoveryArmor());
+        registerAdaptation(new DiscoveryXpResist());
     }
 
     @EventHandler
@@ -85,6 +85,13 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public void on(PlayerInteractEvent e) {
         if (e.getClickedBlock() != null) {
             seeBlock(e.getPlayer(), e.getClickedBlock().getBlockData(), e.getClickedBlock().getLocation());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void on(PlayerExpChangeEvent e) {
+        if (e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {
+            xp(e.getPlayer(), e.getAmount());
         }
     }
 
@@ -194,8 +201,11 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         for (Player i : Bukkit.getOnlinePlayers()) {
             try {
                 Block b = i.getTargetBlockExact(5, FluidCollisionMode.NEVER);
-                seeBlock(i, b.getBlockData(), b.getLocation());
-                seeBiome(i, b.getBiome());
+                if (b != null) {
+                    seeBlock(i, b.getBlockData(), b.getLocation());
+                    seeBiome(i, b.getBiome());
+                }
+
             } catch (Throwable ignored) {
 
             }

@@ -13,7 +13,7 @@ import org.bukkit.event.enchantment.EnchantItemEvent;
 
 public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
     public SkillEnchanting() {
-        super(Adapt.dLocalize("Skill", "Enchanting", "Name"), Adapt.dLocalize("Skill", "Enchanting", "Icon"));
+        super("enchanting", Adapt.dLocalize("Skill", "Enchanting", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.LIGHT_PURPLE);
         setDescription(Adapt.dLocalize("Skill", "Enchanting", "Description"));

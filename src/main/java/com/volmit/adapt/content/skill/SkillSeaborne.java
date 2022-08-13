@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
 
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     public SkillSeaborne() {
-        super(Adapt.dLocalize("Skill", "Seaborne", "Name"), Adapt.dLocalize("Skill", "Seaborne", "Icon"));
+        super("seaborne", Adapt.dLocalize("Skill", "Seaborne", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.BLUE);
         setDescription(Adapt.dLocalize("Skill", "Seaborne", "Description"));
@@ -54,6 +54,6 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     protected static class Config {
         boolean enabled = true;
         double challengeSwim1nmReward = 750;
-        double swimXP = 19.7;
+        double swimXP = 28.7;
     }
 }

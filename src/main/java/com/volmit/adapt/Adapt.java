@@ -15,7 +15,6 @@ import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.Metrics;
 import com.volmit.adapt.util.VolmitPlugin;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -25,15 +24,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.HashMap;
 
 public class Adapt extends VolmitPlugin {
     @Command
     private CommandAdapt commandAdapt = new CommandAdapt();
-
     public static Adapt instance;
 
     @Getter
     private Ticker ticker;
+
     @Getter
     private AdaptServer adaptServer;
     private FolderWatcher configWatcher;
@@ -51,8 +51,10 @@ public class Adapt extends VolmitPlugin {
         return getFile();
     }
 
+    public static HashMap<String, String> wordKey = new HashMap<>();
 
     public static String dLocalize(String s1, String s2, String s3) {
+        if (!wordKey.containsKey(""+s1+s2+s3)) {
         JsonObject jsonObj = null;
         try {
             File langFile = new File(instance.getDataFolder() + "/languages", AdaptConfig.get().getLanguage() + ".json");
@@ -60,10 +62,13 @@ public class Adapt extends VolmitPlugin {
             JsonElement jsonElement = JsonParser.parseString(jsonFromFile); // Get the file as a JsonElement
             jsonObj = jsonElement.getAsJsonObject(); //since you know it's a JsonObject
         } catch (IOException e) {
-            error("Failed to load the json String");
+            error("Failed to load the json String: " + s1+s2+s3);
         }
+            wordKey.put(""+s1+s2+s3, jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
         return jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString();
-
+        } else {
+            return wordKey.get(""+s1+s2+s3);
+        }
     }
 
     private static void loadLanguageLocalization() {

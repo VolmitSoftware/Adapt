@@ -77,6 +77,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
 
                     ItemStack is = getDropFor(b);
                     if (M.r(getDropChance(getLevelPercent(e.getPlayer())))) {
+                        xp(e.getPlayer(), 5);
                         e.getClickedBlock().getWorld().spawnParticle(Particle.ITEM_CRACK, c, 14, 0.10, 0.01, 0.01, 0.1, is);
                         e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
                         e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
