@@ -2,6 +2,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.content.adaptation.axe.AxeChop;
 import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         registerAdaptation(new HunterSpeed());
         registerAdaptation(new HunterStrength());
         registerAdaptation(new HunterResistance());
+        registerAdaptation(new HunterDropToInventory());
     }
 
     @EventHandler

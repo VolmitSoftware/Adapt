@@ -2,6 +2,7 @@ package com.volmit.adapt.content.item;
 
 import lombok.Getter;
 import org.bukkit.Material;
+
 import java.util.List;
 
 public class ItemListings {
@@ -145,6 +146,56 @@ public class ItemListings {
             Material.SWEET_BERRY_BUSH,
             Material.CARROTS,
             Material.BEETROOTS
+    );
+
+    @Getter
+    public static List<Material> toolPickaxes = List.of(
+            Material.WOODEN_PICKAXE,
+            Material.STONE_PICKAXE,
+            Material.IRON_PICKAXE,
+            Material.GOLDEN_PICKAXE,
+            Material.DIAMOND_PICKAXE,
+            Material.NETHERITE_PICKAXE
+    );
+
+    @Getter
+    public static List<Material> toolAxes = List.of(
+            Material.WOODEN_AXE,
+            Material.STONE_AXE,
+            Material.IRON_AXE,
+            Material.GOLDEN_AXE,
+            Material.DIAMOND_AXE,
+            Material.NETHERITE_AXE
+    );
+
+    @Getter
+    public static List<Material> toolSwords = List.of(
+            Material.WOODEN_SWORD,
+            Material.STONE_SWORD,
+            Material.IRON_SWORD,
+            Material.GOLDEN_SWORD,
+            Material.DIAMOND_SWORD,
+            Material.NETHERITE_SWORD
+    );
+
+    @Getter
+    public static List<Material> toolShovels = List.of(
+            Material.WOODEN_SHOVEL,
+            Material.STONE_SHOVEL,
+            Material.IRON_SHOVEL,
+            Material.GOLDEN_SHOVEL,
+            Material.DIAMOND_SHOVEL,
+            Material.NETHERITE_SHOVEL
+    );
+
+    @Getter
+    public static List<Material> toolHoes = List.of(
+            Material.WOODEN_HOE,
+            Material.STONE_HOE,
+            Material.IRON_HOE,
+            Material.GOLDEN_HOE,
+            Material.DIAMOND_HOE,
+            Material.NETHERITE_HOE
     );
 
     @Getter

@@ -38,7 +38,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         v.addLore(C.UNDERLINE + Adapt.dLocalize("Rift","RiftResistance", "Lore2"));
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         if (!hasAdaptation(p)) {

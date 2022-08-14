@@ -4,6 +4,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.axe.AxeChop;
+import com.volmit.adapt.content.adaptation.axe.AxeDropToInventory;
 import com.volmit.adapt.content.adaptation.axe.AxeGroundSmash;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
@@ -27,9 +28,10 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         setIcon(Material.GOLDEN_AXE);
         registerAdaptation(new AxeGroundSmash());
         registerAdaptation(new AxeChop());
+        registerAdaptation(new AxeDropToInventory());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {

@@ -4,10 +4,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
-import com.volmit.adapt.content.adaptation.herbalism.HerbalismGrowthAura;
-import com.volmit.adapt.content.adaptation.herbalism.HerbalismHungryHippo;
-import com.volmit.adapt.content.adaptation.herbalism.HerbalismHungryShield;
-import com.volmit.adapt.content.adaptation.herbalism.HerbalismReplant;
+import com.volmit.adapt.content.adaptation.herbalism.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
@@ -40,6 +37,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         registerAdaptation(new HerbalismReplant());
         registerAdaptation(new HerbalismHungryShield());
         registerAdaptation(new HerbalismHungryHippo());
+        registerAdaptation(new HerbalismDropToInventory());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.COOKED_BEEF)
                 .key("challenge_eat_100")
@@ -93,7 +91,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         xp(e.getPlayer(), e.getEntity().getLocation(), getConfig().shearXP);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerHarvestBlockEvent e) {
         if (e.isCancelled()) {
             return;
@@ -105,7 +103,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
         if (e.getBlock().getBlockData() instanceof Ageable) {
             xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().plantCropSeedsXP);
@@ -113,7 +111,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         if (e.useItemInHand().equals(Event.Result.DENY)) {
             return;
@@ -137,7 +135,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
         if (e.getBlock().getType().equals(Material.CACTUS)) {
             return;

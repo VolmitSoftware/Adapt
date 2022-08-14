@@ -94,7 +94,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e)
     {
         if(e.getEntity() instanceof Player p && hasAdaptation(p) && !e.isCancelled() && e.getDamage() > 0)

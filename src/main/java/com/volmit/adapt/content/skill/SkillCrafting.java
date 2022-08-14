@@ -43,7 +43,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_3k").goal(3000).stat("crafted.items").reward(getConfig().challengeCraft3kReward).build());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(CraftItemEvent e) {
         ItemStack test = e.getRecipe().getResult().clone();
         int recipeAmount = e.getInventory().getResult().getAmount();

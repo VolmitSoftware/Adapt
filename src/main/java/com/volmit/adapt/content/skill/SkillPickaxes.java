@@ -5,6 +5,7 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeChisel;
+import com.volmit.adapt.content.adaptation.pickaxe.PickaxeDropToInventory;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeVeinminer;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
@@ -29,9 +30,10 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         registerAdaptation(new PickaxeChisel());
         registerAdaptation(new PickaxeVeinminer());
         registerAdaptation(new PickaxeAutosmelt());
+        registerAdaptation(new PickaxeDropToInventory());
     }
 
-    @EventHandler (priority = EventPriority.MONITOR)
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player) {

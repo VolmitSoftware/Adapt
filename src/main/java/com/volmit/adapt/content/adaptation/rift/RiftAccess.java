@@ -64,7 +64,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     }
 
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         if (!hasAdaptation(p)) {

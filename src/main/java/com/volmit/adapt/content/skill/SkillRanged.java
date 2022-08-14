@@ -33,7 +33,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         setIcon(Material.CROSSBOW);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(ProjectileLaunchEvent e) {
         if (e.getEntity().getShooter() instanceof Player) {
             xp(((Player) e.getEntity().getShooter()), getConfig().shootXP);
@@ -42,7 +42,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
             Player p = ((Player) ((Projectile) e.getDamager()).getShooter());
