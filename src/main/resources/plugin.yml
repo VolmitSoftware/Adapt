@@ -1,7 +1,7 @@
 name: ${name}
 main: com.volmit.adapt.Adapt
 version: ${version}
-authors: [Cyberpwn, NextdoorPsycho, Vatuu]
+authors: [ NextdoorPsycho, Cyberpwn,  Vatuu ]
 api-version: ${apiversion}
 libraries:
   - com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2
@@ -9,5 +9,5 @@ libraries:
   - com.google.code.gson:gson:2.8.9
 commands:
   adapt:
-    aliases: [a, ada]
+    aliases: [ a, ada ]
     permission: op

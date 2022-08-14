@@ -182,6 +182,9 @@
       "Lore2": " Hieb Abklingzeit",
       "Lore3": " Werkzeugverschleiß"
     },
+    "DropToInventory": {
+      "Name": "Axe Drop-To-Inventory"
+    },
     "GroundSmash": {
       "Name": "Axt-Bodenschlag",
       "Description": "Spring, dann gehe in die Hocke und schlagen die Gegner in ihrer Nähe!",
@@ -267,6 +270,9 @@
       "Lore1": "Beim Graben Eile gewinnen",
       "Lore2": "x Stufen der Eile, wenn mit dem Abbau von Blöcken begonnen wird."
     },
+    "DropToInventory": {
+      "Name": "Shovel Drop-To-Inventory"
+    },
     "OmniTool": {
       "Name": "Schweizer Taschenmesser",
       "Description": "Schweizer überdimensioniertes opulentes Taschenmesser",
@@ -292,6 +298,9 @@
       "Description": "Verzehr von Lebensmittel führt zu mehr Sättigung",
       "Lore1": " + Lebensmittel) zusätzliche Sättigungspunkte beim Verbrauch"
     },
+    "DropToInventory": {
+      "Name": "Hoe Drop-To-Inventory"
+    },
     "HungryShield": {
       "Name": "Hungriges Schild",
       "Description": "Nimm Schaden an deiner Sättigung als an deiner Gesundheit",
@@ -308,6 +317,11 @@
       "Name": "Adrenalin",
       "Description": "Verursache mehr Schaden, je weniger Gesundheit du hast (Nahkampf)",
       "Lore1": " Maximaler Schaden"
+    },
+    "DropToInventory": {
+      "Name": "Items Drop-To-Inventory",
+      "Description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
+      "Lore1": "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."
     },
     "HunterInvisibility": {
       "Name": "Verschwindender Schritt",
@@ -404,6 +418,11 @@
       "Description": "Rechtsklick auf Erze, um mehr Erz herauszumeißel, mit erheblichen Verlust der Haltbarkeit verbunden.",
       "Lore1": " Chance auf Abwurf",
       "Lore2": " Werkzeugverschleiß"
+    },
+    "DropToInventory": {
+      "Name": "Block Drop-To-Inventory",
+      "Description": "When you break a block it teleports the item into your inventory",
+      "Lore1": "Whenever an item is dropped from a block you break it goes into your inventory if it can."
     },
     "Veinminer": {
       "Name": "Minenräumer",

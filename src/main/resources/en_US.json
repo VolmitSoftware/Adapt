@@ -182,6 +182,9 @@
       "Lore2": " Chop Cooldown",
       "Lore3": " Tool Wear"
     },
+    "DropToInventory": {
+      "Name": "Axe Drop-To-Inventory"
+    },
     "GroundSmash": {
       "Name": "Axe Ground Smash",
       "Description": "Jump, then crouch and smash all nearby enemies.",
@@ -267,6 +270,9 @@
       "Lore1": "Gain Haste while excavating",
       "Lore2": "x Levels of haste when you start mining ANY block."
     },
+    "DropToInventory": {
+      "Name": "Shovel Drop-To-Inventory"
+    },
     "OmniTool": {
       "Name": "OMNI - T.O.O.L.",
       "Description": "Tackle's overdesigned opulent Leatherman",
@@ -292,6 +298,9 @@
       "Description": "Consuming food, gives you more saturation",
       "Lore1": " + Food) additional saturation points on consumption"
     },
+    "DropToInventory": {
+      "Name": "Hoe Drop-To-Inventory"
+    },
     "HungryShield": {
       "Name": "Hungry Shield",
       "Description": "Take damage to your hunger before your health",
@@ -308,6 +317,11 @@
       "Name": "Adrenaline",
       "Description": "Deal more damage the lower health you are (Melee)",
       "Lore1": " Max Damage"
+    },
+    "DropToInventory": {
+      "Name": "Items Drop-To-Inventory",
+      "Description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
+      "Lore1": "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."
     },
     "HunterInvisibility": {
       "Name": "Vanishing Step",
@@ -404,6 +418,11 @@
       "Description": "Right Click Ores to Chisel more ore out of them, at a severe durability cost.",
       "Lore1": " Chance to Drop",
       "Lore2": " Tool Wear"
+    },
+    "DropToInventory": {
+      "Name": "Pickaxe Drop-To-Inventory",
+      "Description": "When you break a block it teleports the item into your inventory",
+      "Lore1": "Whenever an item is dropped from a block you break it goes into your inventory if it can."
     },
     "Veinminer": {
       "Name": "Veinminer",

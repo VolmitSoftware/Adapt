@@ -182,6 +182,9 @@
       "Lore2": " Chop Cooldown",
       "Lore3": " Gereedschapskosten"
     },
+    "DropToInventory": {
+      "Name": "Axe Drop-To-Inventory"
+    },
     "GroundSmash": {
       "Name": "Axe Ground Smash",
       "Description": "Spring, druk shift en, en stomp alle tegenstanders in de buurt.",
@@ -267,6 +270,9 @@
       "Lore1": "Krijg Haste tijdens het graven",
       "Lore2": "x Niveaus van haste als je begint een blok te hakken."
     },
+    "DropToInventory": {
+      "Name": "Shovel Drop-To-Inventory"
+    },
     "OmniTool": {
       "Name": "OMNI - T.O.O.L.",
       "Description": "Tackle's Zakmes",
@@ -292,6 +298,9 @@
       "Description": "Eten geeft meer voeding!",
       "Lore1": " + Voedsel) extra voedingspunten bij het consumeren"
     },
+    "DropToInventory": {
+      "Name": "Hoe Drop-To-Inventory"
+    },
     "HungryShield": {
       "Name": "Hungry Shield",
       "Description": "Schade gaat naar je voedingspuntenpunten voor je levenspunten",
@@ -308,6 +317,11 @@
       "Name": "Adrenaline",
       "Description": "Doe meer schade op lagere levenspunten (Korteafstand)",
       "Lore1": " Max Schade"
+    },
+    "DropToInventory": {
+      "Name": "Items Drop-To-Inventory",
+      "Description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
+      "Lore1": "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."
     },
     "HunterInvisibility": {
       "Name": "Vanishing Step",
@@ -404,6 +418,11 @@
       "Description": "Right Click Ores to Chisel more ore out of them, at a severe durability cost.",
       "Lore1": " Chance to Drop",
       "Lore2": " Tool Wear"
+    },
+    "DropToInventory": {
+      "Name": "Block Drop-To-Inventory",
+      "Description": "When you break a block it teleports the item into your inventory",
+      "Lore1": "Whenever an item is dropped from a block you break it goes into your inventory if it can."
     },
     "Veinminer": {
       "Name": "Veinminer",
