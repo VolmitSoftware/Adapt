@@ -27,6 +27,13 @@
       "RightClick": "Rechtsklick",
       "ToGainKnowledge": "um dieses Wissen zu erlangen",
       "KnowledgeOrb": "Wissenskugel"
+    },
+    "ExperienceOrb": {
+      "Contains": "Contains",
+      "XP": "Experience",
+      "RightClick": "Right-Click",
+      "ToGainXP": "to gain this experience",
+      "XPOrb": "Experience Orb"
     }
   },
   "Skill": {
@@ -132,26 +139,26 @@
     "ArmorUp": {
       "Name": "Armor-Up",
       "Description": "Je länger du sprintest, desto mehr Rüstung erhältst du!",
-      "Lore1": " Maximale Rüstung",
-      "Lore2": " Aufrüstungszeit"
+      "Lore1": "Maximale Rüstung",
+      "Lore2": "Aufrüstungszeit"
     },
     "SuperJump": {
       "Name": "Super Jump",
       "Description": "Außergewöhnlicher Höhenvorteil",
-      "Lore1": " Maximale Sprunghöhe",
+      "Lore1": "Maximale Sprunghöhe",
       "Lore2": "* Schleichen +  Springen zum Supersprung"
     },
     "WallJump": {
       "Name": "Wandsprung",
       "Description": "Halte Shift gedrückt, während du dich in der Luft an einer Wand befindet, um dich an der Wand festzuhalten und zu springen!",
-      "Lore1": " Maximal Sprunge",
-      "Lore2": " Sprunghöge"
+      "Lore1": "Maximal Sprunge",
+      "Lore2": "Sprunghöge"
     },
     "WindUp": {
       "Name": "Aufwind",
       "Description": "Je länger du sprintest, desto schneller wirst du!",
-      "Lore1": " Maximale Geschwindigkeit",
-      "Lore2": " Aufwindzeit"
+      "Lore1": "Maximale Geschwindigkeit",
+      "Lore2": "Aufwindzeit"
     }
   },
   "Architect": {
@@ -159,7 +166,7 @@
       "Name": "Magische Grundlage",
       "Description": "So kannst du schleichen und ein provisorisches Fundament unter dich schaffen!",
       "Lore1": "Magie erzeugen : ",
-      "Lore2": " Blöcke unter dir!"
+      "Lore2": "Blöcke unter dir!"
     },
     "Glass": {
       "Name": "Silk-Touch Glass",
@@ -170,7 +177,7 @@
       "Name": "Baumeister Stab",
       "Description": "Ermöglicht es dir, mehrere Blöcke auf einmal zu plazieren. Zum Aktivieren schleiche und halte einen Block, der zu deinem gewünschten Block passt, dann plaziere den Block! Denk daran, dass du dich ein wenig bewegen musst, um die Begrezung der Blöcle auszulösen!",
       "Lore1": "Du brauchst",
-      "Lore2": " Blöcke in deiner Hand, um diese zu plazieren",
+      "Lore2": "Blöcke in deiner Hand, um diese zu plazieren",
       "Lore3": "Ein Baumeister Stab für Materialerstellung"
     }
   },
@@ -178,9 +185,9 @@
     "Chop": {
       "Name": "Axtschlag",
       "Description": "Fälle Bäume, indem du mit der rechten Maustaste auf den Stamm klickst!",
-      "Lore1": " Blöcke pro Hieb",
-      "Lore2": " Hieb Abklingzeit",
-      "Lore3": " Werkzeugverschleiß"
+      "Lore1": "Blöcke pro Hieb",
+      "Lore2": "Hieb Abklingzeit",
+      "Lore3": "Werkzeugverschleiß"
     },
     "DropToInventory": {
       "Name": "Axe Drop-To-Inventory"
@@ -188,24 +195,24 @@
     "GroundSmash": {
       "Name": "Axt-Bodenschlag",
       "Description": "Spring, dann gehe in die Hocke und schlagen die Gegner in ihrer Nähe!",
-      "Lore1": " Schaden",
-      "Lore2": " Block Radius",
-      "Lore3": " Kraft",
-      "Lore4": " Schlag Abklingzeit"
+      "Lore1": "Schaden",
+      "Lore2": "Block Radius",
+      "Lore3": "Kraft",
+      "Lore4": "Schlag Abklingzeit"
     }
   },
   "Brewing": {
     "Lingering": {
       "Name": "Nachhaltendes Gebräu",
       "Description": "Gebräute Tränke halten länger!",
-      "Lore1": " Dauer",
-      "Lore2": " Dauer"
+      "Lore1": "Dauer",
+      "Lore2": "Dauer"
     },
     "SuperHeated": {
       "Name": "Superheißes Gebräu",
       "Description": "Der Braustand arbeitet umso schneller, je heißer er ist!",
-      "Lore1": " Pro berührendem Feuerblock",
-      "Lore2": " Pro berührendem Feuerblock"
+      "Lore1": "Pro berührendem Feuerblock",
+      "Lore2": "Pro berührendem Feuerblock"
     }
   },
   "Crafting": {
@@ -232,15 +239,15 @@
     "DiscoveryUnity": {
       "Name": "Experimentelle Einheitlichkeit",
       "Description": "Durch Sammeln von Erfahrungskugeln erhält man Erfahrungspunkte für zufällige Fähigkeiten.",
-      "Lore1": " XP ",
-      "Lore2": " Pro Kugel"
+      "Lore1": "XP ",
+      "Lore2": "Pro Kugel"
     },
     "DiscoveryXpResist": {
       "Name": "Experimentelle Widerstand",
       "Description": "Verbrauchen Sie Erfahrung, um den Schaden zu dämpfen, den Sie aus allen Quellen nehmen",
       "Lore0": "Dies darf nur einmal alle 15 Sekunden erfolgen",
       "Lore1": "% Weniger Schaden",
-      "Lore2": " Erfahrung verbraucht"
+      "Lore2": "Erfahrung verbraucht"
     }
   },
   "Enchanting": {
@@ -252,9 +259,9 @@
     "QuickEnchant": {
       "Name": "Schnell-Klick Verzaubern",
       "Description": "Verzaubert Gegenstände, wenn Verzauberungsbücher auf sie gezogen werden.",
-      "Lore1": " Maximale kombinierte Levels",
+      "Lore1": "Maximale kombinierte Levels",
       "Lore2": "Kann einen Gegenstand nicht mit mehr als ",
-      "Lore3": " Macht"
+      "Lore3": "Macht"
     },
     "EnchantingXpReturn": {
       "Name": "XP Rückkehr",
@@ -281,7 +288,7 @@
       "Lore3": "Zum Zussamenfügen klicke mit gedrückter Umschalttaste auf einen Gegenstand über einem anderen im Inventar.",
       "Lore4": "Um Werkzeuge zu trennen, lass den Gegenstand während des schleichens fallen.",
       "Lore5": "In diesem Taschenmesser können keine Werkzeuge zerbrechen, aber auch keine zerbrochenen Werkzeuge nutzen",
-      "Lore6": " Zusammenfügbare Gegenstände insgesamt",
+      "Lore6": "Zusammenfügbare Gegenstände insgesamt",
       "Lore7": "Warum fünf oder secks Werkzeuge, wenn auch eins geht!"
     }
   },
@@ -289,14 +296,14 @@
     "GrowthAura": {
       "Name": "Aura des Wachstums",
       "Description": "Lässt die Natur um dich herum wachsen",
-      "Lore1": " Block Radius",
-      "Lore2": " Stärke der Wachstumsaura",
-      "Lore3": " Lebensmittelkosten"
+      "Lore1": "Block Radius",
+      "Lore2": "Stärke der Wachstumsaura",
+      "Lore3": "Lebensmittelkosten"
     },
     "Hippo": {
       "Name": "Raupe Nimmersatt",
       "Description": "Verzehr von Lebensmittel führt zu mehr Sättigung",
-      "Lore1": " + Lebensmittel) zusätzliche Sättigungspunkte beim Verbrauch"
+      "Lore1": "+ Lebensmittel) zusätzliche Sättigungspunkte beim Verbrauch"
     },
     "DropToInventory": {
       "Name": "Hoe Drop-To-Inventory"
@@ -304,7 +311,7 @@
     "HungryShield": {
       "Name": "Hungriges Schild",
       "Description": "Nimm Schaden an deiner Sättigung als an deiner Gesundheit",
-      "Lore1": " Widerstand durch Sättigung"
+      "Lore1": "Widerstand durch Sättigung"
     },
     "Replant": {
       "Name": "Ernte & Wiederbepflanze",
@@ -316,7 +323,7 @@
     "Adrenaline": {
       "Name": "Adrenalin",
       "Description": "Verursache mehr Schaden, je weniger Gesundheit du hast (Nahkampf)",
-      "Lore1": " Maximaler Schaden"
+      "Lore1": "Maximaler Schaden"
     },
     "DropToInventory": {
       "Name": "Items Drop-To-Inventory",
@@ -329,8 +336,8 @@
       "Lore1": "Erhalte passive Unsichtbarkeit bei Schaden",
       "Lore2": "x Unsichtbarkeit stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapel Sättigung",
-      "Lore4": " Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": " Dauer der Unsichtbarkeit"
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
+      "Lore5": "Dauer der Unsichtbarkeit"
     },
     "HunterJumpBoost": {
       "Name": "Jägersprung",
@@ -338,8 +345,8 @@
       "Lore1": "Erhalte Sprung-Boost bei Schaden",
       "Lore2": "x Sprung-Boost stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapel Sättigung",
-      "Lore4": " Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": " Sprung-Boost stapelt Multiplikator, nicht Dauer."
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
+      "Lore5": "Sprung-Boost stapelt Multiplikator, nicht Dauer."
     },
     "HunterLuck": {
       "Name": "Das Glück des Jägers",
@@ -347,8 +354,8 @@
       "Lore1": "Erhalte passive Glück bei Schaden",
       "Lore2": "x Glück stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapelt Sättigung",
-      "Lore4": " Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": " Glück stapelt Multiplikator, nicht Dauer."
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
+      "Lore5": "Glück stapelt Multiplikator, nicht Dauer."
     },
     "HunterRegen": {
       "Name": "Regeneration des Jägers",
@@ -356,8 +363,8 @@
       "Lore1": "Erhalte passive Regeneration bei Schaden",
       "Lore2": "x Regeneration stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapelt Sättigung",
-      "Lore4": " Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": " Regeneration stapelt Multiplikator, nicht Dauer."
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
+      "Lore5": "Regeneration stapelt Multiplikator, nicht Dauer."
     },
     "HunterResistance": {
       "Name": "Widerstandsfähigkeit des Jägers",
@@ -365,8 +372,8 @@
       "Lore1": "Erhalte passive Resistenz bei Schaden",
       "Lore2": "x Resistenz stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapelt Sättigung",
-      "Lore4": " Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": " Resistenz stapelt Multiplikator, nicht Dauer."
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
+      "Lore5": "Resistenz stapelt Multiplikator, nicht Dauer."
     },
     "HunterSpeed": {
       "Name": "Geschwindigkeit des Jägers",
@@ -374,8 +381,8 @@
       "Lore1": "Erhalte passive Geschwindigkeit bei Schaden",
       "Lore2": "x Geschwindigkeit stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapelt Sättigung",
-      "Lore4": " Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": " Geschwindigkeit stapelt Multiplikator, nicht Dauer."
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
+      "Lore5": "Geschwindigkeit stapelt Multiplikator, nicht Dauer."
     },
     "HunterStrength": {
       "Name": "Stärke des Jägers",
@@ -383,8 +390,8 @@
       "Lore1": "Erhalte passive Stärke bei Schaden",
       "Lore2": "x Stärke stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapelt Sättigung",
-      "Lore4": " Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": " Stärke stapelt Multiplikator, nicht Dauer."
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
+      "Lore5": "Stärke stapelt Multiplikator, nicht Dauer."
     }
   },
   "Nether": {
@@ -393,7 +400,7 @@
       "Description1": "Entfessel den inneren Wither, indem du ",
       "Description2": "jemandes",
       "Description3": "Kopf.",
-      "Lore1": " Sekunden Abkühlzeit zwischen Schädelwürfen.",
+      "Lore1": "Sekunden Abkühlzeit zwischen Schädelwürfen.",
       "Lore2": "Wither Skull verwenden: Wirf einen ",
       "Lore3": "Wither Skull",
       "Lore4": ", beim Aufprall explodieren"
@@ -401,7 +408,7 @@
     "WitherResist": {
       "Name": "Wither Widerstandsfähigkeit",
       "Description": "Widerstehe dem Wither durch die Kraft des Netherite",
-      "Lore1": " Chance, Wither zu negieren (pro Stück).",
+      "Lore1": "Chance, Wither zu negieren (pro Stück).",
       "Lore2": "Passiv: Tragen von Netherite Rüstung hat eine Chance, folgende Eigenschaften zu negieren ",
       "Lore3": "withering."
     }
@@ -416,8 +423,8 @@
     "Chisel": {
       "Name": "Erzmeißel",
       "Description": "Rechtsklick auf Erze, um mehr Erz herauszumeißel, mit erheblichen Verlust der Haltbarkeit verbunden.",
-      "Lore1": " Chance auf Abwurf",
-      "Lore2": " Werkzeugverschleiß"
+      "Lore1": "Chance auf Abwurf",
+      "Lore2": "Werkzeugverschleiß"
     },
     "DropToInventory": {
       "Name": "Block Drop-To-Inventory",
@@ -436,24 +443,24 @@
     "ArrowRecovery": {
       "Name": "Pfeilbergung",
       "Description": "Sammelt Peife ein, nachdem du einen Feind erledigt hast.",
-      "Lore1": " Chance auf Wiederherstellung von Pfeilen bei Treffern/Tötung"
+      "Lore1": "Chance auf Wiederherstellung von Pfeilen bei Treffern/Tötung"
     },
     "ForceShot": {
       "Name": "Kraftschuss",
       "Description": "Schießt Projektile schneller und weiter!",
       "AdvancementName": "Weitschuss",
       "AdvancementLore": "Schieße aus über 30 Blöcken Entfernung!",
-      "Lore1": " Geschossgeschwindigkeit"
+      "Lore1": "Geschossgeschwindigkeit"
     },
     "LungeShot": {
       "Name": "Ausfallschritt",
       "Description": "Beim Fallen schleudern dich deine Pfeile in eine zufällige Richtung",
-      "Lore1": " Zufällige Burst-Geschwindigkeit"
+      "Lore1": "Zufällige Burst-Geschwindigkeit"
     },
     "ArrowPiercing": {
       "Name": "Pfeildurchbohren",
       "Description": "Fügt Projektilen Durchschlagskraft hinzu! Schieß durch Dinge hindurch!",
-      "Lore1": " Ziele durchschlagen"
+      "Lore1": "Ziele durchschlagen"
     }
   },
   "Rift": {
@@ -510,8 +517,8 @@
     "GhostArmor": {
       "Name": "Geister Rüstung",
       "Description": "Langsamer Aufbau von Rüstung, wenn kein Schaden erhalten wird, hält für 1 Treffer an",
-      "Lore1": " Maximale Rüstung",
-      "Lore2": " Geschwindigkeit"
+      "Lore1": "Maximale Rüstung",
+      "Lore2": "Geschwindigkeit"
     },
     "StealthNightVision": {
       "Name": "Stealth Vision",
@@ -523,7 +530,7 @@
     "ItemSnatch": {
       "Name": "Schnappen",
       "Description": "Nimm sofort fallen gelassene Gegenstände auf während du schleichst ",
-      "Lore1": " Schnappradius"
+      "Lore1": "Schnappradius"
     },
     "SneakSpeed": {
       "Name": "Schleichgeschwindigkeit",
@@ -535,26 +542,26 @@
     "Machete": {
       "Name": "Die Machete",
       "Description": "Schneide mit Leichtigkeit durch Laub!",
-      "Lore1": " Slash Radius",
-      "Lore2": " Schlag Abklingzeit",
-      "Lore3": " Werkzeugverschleiß"
+      "Lore1": "Slash Radius",
+      "Lore2": "Schlag Abklingzeit",
+      "Lore3": "Werkzeugverschleiß"
     }
   },
   "Taming": {
     "TameDamage": {
       "Name": "Zähmbarer Schaden",
       "Description": "Erhöht den Schade von gezähmten Tieren.",
-      "Lore1": " Erhöhter Schaden"
+      "Lore1": "Erhöhter Schaden"
     },
     "TameHealth": {
       "Name": "Zähmbare Gesundheit",
       "Description": "Erhöht die Gesundheit von gezähmten Tieren.",
-      "Lore1": " Erhöte Gesundheit"
+      "Lore1": "Erhöte Gesundheit"
     },
     "TameRegeneration": {
       "Name": "Tame Regeneration",
       "Description": "Erhöht die Gesundheitsregeneration von gezähmten Tieren.",
-      "Lore1": " HP/s"
+      "Lore1": "HP/s"
     }
   },
   "Unarmed": {
@@ -562,17 +569,17 @@
       "Name": "Glass Cannon",
       "Description": "Bonus auf unbewaffneten Schaden, je niedriger dein Rüstungswert ist",
       "Lore1": "x Schaden bei 0 Rüstung",
-      "Lore2": " Pro Level Bonus Schaden"
+      "Lore2": "Pro Level Bonus Schaden"
     },
     "UnarmedPower": {
       "Name": "Unbewaffnete Macht",
       "Description": "Verbesserter unbewaffeter Schaden",
-      "Lore1": " Schaden"
+      "Lore1": "Schaden"
     },
     "SuckerPunch": {
       "Name": "Sucker Punch",
       "Description": "Sprint Schläge, aber tödlicher.",
-      "Lore1": " Schaden",
+      "Lore1": "Schaden",
       "Lore2": "Schaden erhöht sich mit der Geschwindigkeit beim Schlagen"
     }
   }
