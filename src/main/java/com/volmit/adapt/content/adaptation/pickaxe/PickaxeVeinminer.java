@@ -57,7 +57,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         }
 
 
-        if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE")) {
+        if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE") || e.getBlock().getBlockData().getMaterial().name().endsWith("OBSIDIAN")) {
             return;
         }
         Block block = e.getBlock();
