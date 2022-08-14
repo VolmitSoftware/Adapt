@@ -1,0 +1,579 @@
+{
+  "1Snippets": {
+    "GUI": {
+      "Level": "Nivel",
+      "Knowledge": "Conocimiento",
+      "PowerUsed": "Poder Utilizado",
+      "NotLearned": "No aprendido",
+      "XP": "XP a"
+    },
+    "AdaptMenu": {
+      "KnowledgeCost": "Coste del conocimiento",
+      "AlreadyLearned": "Ya aprendido",
+      "UnlearnRefund": "Haga clic para desaprender y reembolsar",
+      "Knowledge": "Conocimiento",
+      "ClickLearn": "Haga clic para aprender",
+      "NoKnowledge": "(No tienes ningún Conocimiento)",
+      "YouOnlyHave": "Sólo tienes",
+      "HowToLevelUp": "Subir de nivel las habilidades para aumentar tu poder máximo.",
+      "NotEnoughPower": "¡No tienes suficiente poder! Cada nivel de habilidad cuesta 1 poder.",
+      "Power": "Poder",
+      "Learned": "Aprendida ",
+      "Unlearned": "No aprendido "
+    },
+    "KnowledgeOrb": {
+      "Contains": "Contiene",
+      "Knowledge": "Conocimiento",
+      "RightClick": "Clic derecho",
+      "ToGainKnowledge": "para obtener este conocimiento",
+      "KnowledgeOrb": "Orbe de conocimiento"
+    }
+  },
+  "2Skill": {
+    "Agility": {
+      "Name": "Agilidad",
+      "Icon": "⇉",
+      "Description": "La agilidad es la capacidad de moverse con rapidez y fluidez ante los obstáculos."
+    },
+    "Architect": {
+      "Name": "Arquitecto",
+      "Icon": "⬧",
+      "Description": "Las estructuras son los bloques de construcción del mundo. La realidad está en tus manos, la controlas tú."
+    },
+    "Axes": {
+      "Name": "Ejes",
+      "Icon": "❖",
+      "Description1": "Por qué cortar árboles, cuando puedes cortar ",
+      "Description2": "cosas",
+      "Description3": " en su lugar, ¡el mismo resultado final!"
+    },
+    "Brewing": {
+      "Name": "Elaboración de la cerveza",
+      "Icon": "❖",
+      "Description": "Burbuja doble, burbuja triple, burbuja cuádruple - Todavía no puedo poner esta poción en un caldero"
+    },
+    "Crafting": {
+      "Name": "Elaborar",
+      "Icon": "❖",
+      "Description": "Sin más piezas que colocar, ¿por qué no hacer otra?"
+    },
+    "Discovery": {
+      "Name": "Descubrimiento",
+      "Icon": "⚛",
+      "Description": "A medida que tu Percepción se expande, tu mente se desenvuelve para descubrir lo que no"
+    },
+    "Enchanting": {
+      "Name": "Encantador",
+      "Icon": "⚜",
+      "Description": "¿De qué se trata? Profecías, visiones, chácharas supersticiosas?"
+    },
+    "Excavation": {
+      "Name": "Excavación",
+      "Icon": "✥",
+      "Description": "Diggey Diggey hole..."
+    },
+    "Herbalism": {
+      "Name": "Herbolaria",
+      "Icon": "⚘",
+      "Description": "No puedo encontrar ninguna planta, pero puedo encontrar algunas semillas y- es que... ¿Hierba?"
+    },
+    "Hunter": {
+      "Name": "Cazador",
+      "Icon": "☠",
+      "Description": "La caza consiste en el viaje, no en el resultado."
+    },
+    "Nether": {
+      "Name": "Nether",
+      "Icon": "₪",
+      "Description": "Desde las profundidades del propio Nether."
+    },
+    "Pickaxe": {
+      "Name": "Pickaxe",
+      "Icon": "⛏",
+      "Description": "Los enanos son los mineros, pero he aprendido un par de cosas en mi tiempo. SOY SUECO"
+    },
+    "Ranged": {
+      "Name": "Ranged",
+      "Icon": "🏹",
+      "Description": "La distancia es la clave de la victoria, y la clave de la supervivencia."
+    },
+    "Rift": {
+      "Name": "Rift",
+      "Icon": "❍",
+      "Description": "La Grieta es un arnés cáustico, pero tú has aprovechado el arnés."
+    },
+    "Seaborne": {
+      "Name": "Seaborne",
+      "Icon": "🌊",
+      "Description": "Con esta habilidad, puedes hacer las maravillas del agua"
+    },
+    "Stealth": {
+      "Name": "Sigilo",
+      "Icon": "✠",
+      "Description": "El arte de lo que no se ve. Camina entre las sombras."
+    },
+    "Swords": {
+      "Name": "Espadas",
+      "Icon": "⚔",
+      "Description": "¡Por el poder de la Piedra Gris!"
+    },
+    "Taming": {
+      "Name": "Domando",
+      "Icon": "♥",
+      "Description": "Los loros y las abejas... ¿y tú?"
+    },
+    "Unarmed": {
+      "Name": "Desarmado",
+      "Icon": "⚜",
+      "Description": "Sin arma no es sin fuerza"
+    }
+  },
+  "Agility": {
+    "ArmorUp": {
+      "Name": "Armor-Up",
+      "Description": "¡Consigue más armadura cuanto más tiempo corras!",
+      "Lore1": " Armadura máxima",
+      "Lore2": " Tiempo de Armadura"
+    },
+    "SuperJump": {
+      "Name": "Súper salto",
+      "Description": "Ventaja de altura excepcional",
+      "Lore1": " Altura máxima de salto",
+      "Lore2": "*¡Se escabulle + salta a super salto!"
+    },
+    "WallJump": {
+      "Name": "Salto de pared",
+      "Description": "Mantén el turno mientras estás en el aire contra una pared para engancharla y saltar.",
+      "Lore1": " Salto máximo",
+      "Lore2": " Altura de salto"
+    },
+    "WindUp": {
+      "Name": "Sube el ritmo",
+      "Description": "Acelera cuanto más tiempo corras.",
+      "Lore1": " Velocidad máxima",
+      "Lore2": " Tiempo de aceleración"
+    }
+  },
+  "Architect": {
+    "Foundation": {
+      "Name": "Fundación mágica",
+      "Description": "¡Esto te permite escabullirte y colocar una base temporal debajo de ti!",
+      "Lore1": "Crea mágicamente : ",
+      "Lore2": " ¡Bloques debajo de ti!"
+    },
+    "Glass": {
+      "Name": "Vidrio con tacto de seda",
+      "Description": "Esto te permite evitar esencialmente la pérdida de bloques de cristal cuando los rompes con la mano vacía.",
+      "Lore1": "Tus manos ganan el toque de seda para el vidrio"
+    },
+    "Placement": {
+      "Name": "Varita de constructor",
+      "Description": "te permite colocar varios bloques a la vez para activar el Colocador, ¡y sostener un bloque que coincida con el que estás buscando y colocarlo! Ten en cuenta que es posible que tengas que moverte un poco para activar la limitación de las cajas.",
+      "Lore1": "Necesitas",
+      "Lore2": " bloques en tu mano para colocar esto",
+      "Lore3": "Una varita de constructor de materiales"
+    }
+  },
+  "Axe": {
+    "Chop": {
+      "Name": "Hacha de corte",
+      "Description": "Corta los árboles haciendo clic con el botón derecho del ratón en el tronco base.",
+      "Lore1": " Bloques por corte",
+      "Lore2": " Enfriamiento del corte",
+      "Lore3": " Desgaste de la herramienta"
+    },
+    "DropToInventory": {
+      "Name": "Hachas de caída al inventario"
+    },
+    "GroundSmash": {
+      "Name": "Golpe de tierra con el hacha",
+      "Description": "Salta, agáchate y golpea a todos los enemigos cercanos.",
+      "Lore1": " Daño",
+      "Lore2": " Radio de bloqueo",
+      "Lore3": " Fuerza",
+      "Lore4": " Enfriamiento de Smash"
+    }
+  },
+  "Brewing": {
+    "Lingering": {
+      "Name": "Brebaje persistente",
+      "Description": "Las pociones elaboradas duran más.",
+      "Lore1": " Duración",
+      "Lore2": " Duración"
+    },
+    "SuperHeated": {
+      "Name": "Elaboración de cerveza supercaliente",
+      "Description": "Los puestos de elaboración de cerveza funcionan más rápido cuanto más calientes estén.",
+      "Lore1": " Por tocar el bloque de fuego",
+      "Lore2": " Por tocar el bloque de lava"
+    }
+  },
+  "Crafting": {
+    "Deconstruction": {
+      "Name": "Deconstrucción",
+      "Description": "Deconstruye bloques y objetos para convertirlos en componentes básicos recuperables.",
+      "Lore1": "Coloca un objeto cualquiera + cizalla",
+      "Lore2": "en una mesa de herrería para deconstruir."
+    },
+    "CraftXp": {
+      "Name": "XP de artesanía",
+      "Description": "Gana experiencia pasiva cuando construyes.",
+      "Lore1": "Gana XP al fabricar"
+    }
+  },
+  "Discovery": {
+    "DiscoveryArmor": {
+      "Name": "Armadura del mundo",
+      "Description": "Armadura pasiva en función de la dureza del bloque cercano.",
+      "Lore1": "Armadura pasiva",
+      "Lore2": "Basada en la dureza de los bloques cercanos",
+      "Lore3": "Fuerza de la armadura: +"
+    },
+    "DiscoveryUnity": {
+      "Name": "Unidad experimental",
+      "Description": "Recoger orbes de experiencia añade XP a habilidades aleatorias.",
+      "Lore1": " XP ",
+      "Lore2": " Por orbe"
+    },
+    "DiscoveryXpResist": {
+      "Name": "Resistencia Experimental",
+      "Description": "Consume experiencia para mitigar el daño que recibes de todas las fuentes\n",
+      "Lore0": "Esto sólo puede ocurrir una vez cada 15 segundos",
+      "Lore1": "% de daño reducido",
+      "Lore2": "Experiencia drenada"
+    }
+  },
+  "Enchanting": {
+    "LapisReturn": {
+      "Name": "Retorno de Lapis",
+      "Description": "A costa de 1 nivel más de XP, y tiene la posibilidad de darte lapis gratis a cambio",
+      "Lore1": "Por cada nivel, aumenta el coste de encantamiento, en 1, pero puede devolver hasta 3 Lapis"
+    },
+    "QuickEnchant": {
+      "Name": "Encantar con un clic rápido",
+      "Description": "Encanta objetos haciendo clic en los libros de encantamiento directamente sobre ellos.",
+      "Lore1": " Niveles máximos combinados",
+      "Lore2": "No se puede encantar un objeto con más de ",
+      "Lore3": " poder"
+    },
+    "EnchantingXpReturn": {
+      "Name": "Devolución de XP",
+      "Description": "La XP de encantamiento se te devuelve cuando encantas un objeto.",
+      "Lore1": "La experiencia gastada tiene una posibilidad de ser devuelta cuando encantas un objeto",
+      "Lore2": "Experiencia por encantamiento"
+    }
+  },
+  "Excavation": {
+    "ExcavationHaste": {
+      "Name": "Excavador apresurado",
+      "Description": "Acelera el proceso de excavación, ¡con HASTE!",
+      "Lore1": "Gana Prisa mientras excavas",
+      "Lore2": "x Niveles de prisa cuando empiezas a excavar cualquier bloque."
+    },
+    "DropToInventory": {
+      "Name": "Pala de caída al inventario"
+    },
+    "OmniTool": {
+      "Name": "OMNI - T.O.O.L.",
+      "Description": "La opulenta pala de Tackle",
+      "Lore1": "Probablemente el más potente de todos te permite",
+      "Lore2": "fusionar y cambiar dinámicamente las herramientas sobre la marcha, en función de tus necesidades.",
+      "Lore3": "para fusionar, haz clic con el botón shift en un elemento sobre otro de tu inventario.",
+      "Lore4": "para desunir herramientas, suelta el objeto y se desmontará.",
+      "Lore5": "no puedes romper herramientas en este leatherman, pero no puedes usar herramientas rotas",
+      "Lore6": " total de artículos fusionables",
+      "Lore7": "puedes usar cinco o seis herramientas, ¡o sólo una!"
+    }
+  },
+  "Herbalism": {
+    "GrowthAura": {
+      "Name": "Aura de crecimiento",
+      "Description": "Haz crecer la naturaleza a tu alrededor en un aura",
+      "Lore1": " Radio de bloqueo",
+      "Lore2": " Fuerza del Aura de Crecimiento",
+      "Lore3": " Coste de la comida"
+    },
+    "Hippo": {
+      "Name": "Hipopótamo de herbolario",
+      "Description": "Consumir comida, te da más saturación",
+      "Lore1": " + Comida) puntos de saturación adicionales al consumirla"
+    },
+    "DropToInventory": {
+      "Name": "Azada de caída al inventario"
+    },
+    "HungryShield": {
+      "Name": "Escudo de hambre",
+      "Description": "Recibe el daño de tu hambre antes que el de tu salud",
+      "Lore1": " Resistido por el hambre"
+    },
+    "Replant": {
+      "Name": "Cosecha y replantación",
+      "Description": "Haz clic con el botón derecho en un cultivo con una azada para cosechar y replantar.",
+      "Lore1": "Bloquea el radio de replantación"
+    }
+  },
+  "Hunter": {
+    "Adrenaline": {
+      "Name": "Adrenalina",
+      "Description": "Inflige más daño cuanto menos salud tenga (cuerpo a cuerpo)",
+      "Lore1": " Daño máximo"
+    },
+    "DropToInventory": {
+      "Name": "Objetos Caen al Inventario",
+      "Description": "Cuando matas algo / rompes un bloque con una espada, teletransporta las gotas a tu inventario",
+      "Lore1": "Cada vez que un objeto cae de un mob/bloque que rompes va a tu inventario si puede."
+    },
+    "HunterInvisibility": {
+      "Name": "Paso de fuga",
+      "Description": "Cuando te golpean obtienes un impulso de salto, a costa del hambre",
+      "Lore1": "Ganas rapidez pasiva cuando te golpean",
+      "Lore2": "x La invisibilidad se acumula durante 3 segundos al ser golpeado",
+      "Lore3": "x Hambre acumulada",
+      "Lore4": " El hambre acumula la duración y el multiplicador.",
+      "Lore5": " Duración de la invisibilidad"
+    },
+    "HunterJumpBoost": {
+      "Name": "Cumbres del cazador",
+      "Description": "Cuando te golpean, obtienes un impulso de salto, a costa del hambre",
+      "Lore1": "Obtiene un impulso de salto pasivo al ser golpeado",
+      "Lore2": "x El impulso de salto se acumula durante 3 segundos al ser golpeado",
+      "Lore3": "x Apilamiento de hambre",
+      "Lore4": " El hambre acumula la duración y el multiplicador.",
+      "Lore5": " El potenciador de salto acumula el multiplicador, no la duración."
+    },
+    "HunterLuck": {
+      "Name": "Suerte del cazador",
+      "Description": "Cuando te golpean, ganas suerte, a costa del hambre",
+      "Lore1": "Ganas suerte pasiva cuando te golpean",
+      "Lore2": "x Suerte se acumula durante 3 segundos al ser golpeado",
+      "Lore3": "x Apilamiento de hambre",
+      "Lore4": " El hambre acumula la duración y el multiplicador.",
+      "Lore5": " La suerte se acumula con el multiplicador, no con la duración."
+    },
+    "HunterRegen": {
+      "Name": "Regeneración del cazador",
+      "Description": "Cuando te golpean, obtienes regeneración, a costa del hambre",
+      "Lore1": "Obtienes regeneración pasiva cuando te golpean",
+      "Lore2": "x Regeneración se acumula durante 3 segundos al ser golpeado",
+      "Lore3": "x Apilamiento de hambre",
+      "Lore4": " El hambre acumula la duración y el multiplicador.",
+      "Lore5": " El multiplicador de regeneración se acumula, no la duración."
+    },
+    "HunterResistance": {
+      "Name": "Resistencia del cazador",
+      "Description": "Cuando te golpean, ganas resistencia, a costa de hambre",
+      "Lore1": "Ganas resistencia pasiva cuando te golpean",
+      "Lore2": "x La resistencia se acumula durante 3 segundos al ser golpeado",
+      "Lore3": "x Apilamiento de hambre",
+      "Lore4": " El hambre acumula la duración y el multiplicador.",
+      "Lore5": " La resistencia se acumula con un multiplicador, no con la duración."
+    },
+    "HunterSpeed": {
+      "Name": "Velocidad del cazador",
+      "Description": "Cuando te golpean, ganas velocidad, a costa de hambre",
+      "Lore1": "Ganas velocidad pasiva cuando te golpean",
+      "Lore2": "x Velocidad se acumula durante 3 segundos al ser golpeado",
+      "Lore3": "x Hambre de apilamiento",
+      "Lore4": " Duración y multiplicador de las pilas de hambre.",
+      "Lore5": " El multiplicador de velocidad se acumula, no la duración."
+    },
+    "HunterStrength": {
+      "Name": "Fuerza del cazador",
+      "Description": "Cuando te golpean, ganas fuerza, a costa del hambre",
+      "Lore1": "Ganas fuerza pasiva al ser golpeado",
+      "Lore2": "x Fuerza se acumula durante 3 segundos al ser golpeado",
+      "Lore3": "x Apilamiento de hambre",
+      "Lore4": " Duración y multiplicador de las acumulaciones de hambre.",
+      "Lore5": " La fuerza se acumula con el multiplicador, no con la duración."
+    }
+  },
+  "Nether": {
+    "SkullToss": {
+      "Name": "Lanzamiento de calavera marchita",
+      "Description1": "Da rienda suelta a tu Wither interior utilizando ",
+      "Description2": "alguien",
+      "Description3": "cabeza.",
+      "Lore1": " Segundos de enfriamiento entre lanzamientos de calavera.",
+      "Lore2": "Uso de Wither Skull: Lanza una ",
+      "Lore3": "Cráneo marchito",
+      "Lore4": "que explota al impactar."
+    },
+    "WitherResist": {
+      "Name": "Resistencia a la marchitez",
+      "Description": "Resiste el marchitamiento mediante el poder de Netherite.",
+      "Lore1": " Probabilidad de anular el marchitamiento (por pieza).",
+      "Lore2": "Pasiva: Llevar una armadura de netherita tiene una probabilidad de anular ",
+      "Lore3": "el marchitamiento."
+    }
+  },
+  "Pickaxe": {
+    "Autosmelt": {
+      "Name": "Fundición automática",
+      "Description": "Te permite fundir minerales de vainilla extraídos.",
+      "Lore1": "Los minerales que se pueden fundir se funden automáticamente",
+      "Lore2": "Probabilidad de un extra de"
+    },
+    "Chisel": {
+      "Name": "Cincelado de mineral",
+      "Description": "Haz clic con el botón derecho del ratón en los minerales para cincelar más mineral de ellos, con un gran coste de durabilidad.",
+      "Lore1": " Probabilidad de soltar",
+      "Lore2": " Desgaste de la herramienta"
+    },
+    "DropToInventory": {
+      "Name": "Pico de caída al inventario",
+      "Description": "Cuando rompes un bloque se teletransporta el objeto a tu inventario",
+      "Lore1": "Cada vez que se suelta un objeto de un bloque que rompes va a tu inventario si puede."
+    },
+    "Veinminer": {
+      "Name": "Minador de vetas",
+      "Description": "Te permite romper bloques en una Veta/Conjunto de Minas de Vainilla",
+      "Lore1": "Colarse, y minar ORES",
+      "Lore2": "rango de minado de vetas",
+      "Lore3": "¡Esta habilidad NO agrupa todos los drops!"
+    }
+  },
+  "Ranged": {
+    "ArrowRecovery": {
+      "Name": "Recuperación de flechas",
+      "Description": "Recupera las flechas después de matar a un enemigo.",
+      "Lore1": " Probabilidad de recuperar flechas al golpear/matar"
+    },
+    "ForceShot": {
+      "Name": "Tiro de fuerza",
+      "Description": "Dispara proyectiles más lejos y más rápido.",
+      "AdvancementName": "Tiro largo",
+      "AdvancementLore": "Dispara desde más de 30 manzanas de distancia.",
+      "Lore1": " Velocidad de los proyectiles"
+    },
+    "LungeShot": {
+      "Name": "Tiro de arremetida",
+      "Description": "Mientras caes tus flechas te lanzan en una dirección aleatoria",
+      "Lore1": " Velocidad de ráfaga aleatoria"
+    },
+    "ArrowPiercing": {
+      "Name": "Perforación de flechas",
+      "Description": "¡Añade perforación a los proyectiles! ¡Dispara a través de cosas!",
+      "Lore1": " Perfora objetivos"
+    }
+  },
+  "Rift": {
+    "RemoteAccess": {
+      "Name": "Acceso remoto",
+      "Description": "Saca del vacío y entra en un contenedor marcado.",
+      "Lore1": "Enderpearl + Brújula = Llave de puerto del relicario",
+      "Lore2": "Este objeto te permite acceder a los contenedores de forma remota",
+      "Lore3": "Una vez fabricado, mira el objeto para ver su uso",
+      "NotContainer": "Eso no es un contenedor"
+    },
+    "RiftBlink": {
+      "Name": "Parpadeo de la grieta",
+      "Description": "Teletransporte instantáneo de corto alcance, ¡sólo un parpadeo!",
+      "Lore1": "Bloquea al parpadear (2x vertical)",
+      "Lore2": "Mientras esprinta: Doble toque para saltar a ",
+      "Lore3": "Blink"
+    },
+    "RiftEnderchest": {
+      "Name": "Cofre fácil",
+      "Description": "Abre un cofre con un clic izquierdo en tu mano.",
+      "Lore1": "Haz clic en un cofre en tu mano para abrirlo (pero no lo coloques)"
+    },
+    "RiftGate": {
+      "Name": "Puerta de la Grieta",
+      "Description": "Teletranspórtate a un lugar marcado.",
+      "Lore1": "CRAFTING: Esmeralda + Fragmento de amatista + Perla de Ender",
+      "Lore2": "¡Leer antes de usar!",
+      "Lore3": "Retraso de 5s, ",
+      "Lore4": "puedes morir mientras estás en esta animación"
+    },
+    "RiftResistance": {
+      "Name": "Resistencia a la Grieta",
+      "Description": "Gana resistencia al usar objetos y habilidades de Ender",
+      "Lore1": "+ Pasiva: Proporciona resistencia cuando usas habilidades de la grieta, o ítems de Ender",
+      "Lore2": "NO incluye el cofre portátil de Ender, sólo las cosas que puedes consumir"
+    }
+  },
+  "Seaborn": {
+    "SeabornOxygen": {
+      "Name": "Tanque de oxígeno orgánico",
+      "Description": "Mantiene más oxígeno en tus pequeños pulmones",
+      "Lore1": "Oxígeno"
+    },
+    "DolphinGrace": {
+      "Name": "Gracia de delfín",
+      "Description": "Nada como un delfín, sin los delfines",
+      "Lore1": "+ Pasiva: gana ",
+      "Lore2": "x velocidad (gracia de delfín)",
+      "Lore3": "Precisión de maquinista alemán... Espera, eso no está bien..."
+    }
+  },
+  "Stealth": {
+    "GhostArmor": {
+      "Name": "Armadura del fantasma",
+      "Description": "Armadura de construcción lenta cuando no recibe daño, dura 1 golpe",
+      "Lore1": " Armadura máxima",
+      "Lore2": " Velocidad"
+    },
+    "StealthNightVision": {
+      "Name": "Visión Sigilosa",
+      "Description": "Gana visión nocturna mientras se escabulle",
+      "Lore1": "Obtiene una ráfaga de ",
+      "Lore2": "visión nocturna",
+      "Lore3": "mientras te escabulles"
+    },
+    "ItemSnatch": {
+      "Name": "Arrebato de objetos",
+      "Description": "Atrapa al instante los objetos que se te caen mientras te escabulles.",
+      "Lore1": " Radio de arrebato"
+    },
+    "SneakSpeed": {
+      "Name": "Velocidad de colada",
+      "Description": "Gana velocidad mientras te escabulles",
+      "Lore1": "Velocidad de escabullirse"
+    }
+  },
+  "Sword": {
+    "Machete": {
+      "Name": "Machete",
+      "Description": "Corta el follaje con facilidad",
+      "Lore1": " Radio de corte",
+      "Lore2": " Enfriamiento del hacha",
+      "Lore3": " Desgaste de herramientas"
+    }
+  },
+  "Taming": {
+    "TameDamage": {
+      "Name": "Daño de domesticación",
+      "Description": "Aumenta el daño infligido por tu animal domesticado.",
+      "Lore1": " Daño aumentado"
+    },
+    "TameHealth": {
+      "Name": "Salud del animal domado",
+      "Description": "Aumenta la salud de tu animal domado.",
+      "Lore1": " Aumento de la salud"
+    },
+    "TameRegeneration": {
+      "Name": "Regeneración de animales domados",
+      "Description": "Aumenta la regeneración de tu animal domesticado.",
+      "Lore1": " HP/s"
+    }
+  },
+  "Unarmed": {
+    "GlassCannon": {
+      "Name": "Cañón de cristal",
+      "Description": "Bonificación de daño sin armas cuanto menor sea tu valor de armadura",
+      "Lore1": "x Daño a 0 de armadura",
+      "Lore2": " Bonificación de daño por nivel"
+    },
+    "UnarmedPower": {
+      "Name": "Poder desarmado",
+      "Description": "Daño sin armas mejorado",
+      "Lore1": " Daño"
+    },
+    "SuckerPunch": {
+      "Name": "Puñetazo de chupete",
+      "Description": "Puñetazos sprint, pero más mortíferos.",
+      "Lore1": " Daño",
+      "Lore2": "El daño aumenta con tu velocidad al golpear"
+    }
+  }
+}
