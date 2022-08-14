@@ -39,7 +39,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     public void addStats(int level, Element v) {
         double f = getLevelPercent(level);
         double d = getDamage(f);
-        v.addLore(C.GREEN + "+ " + Form.pc(d, 0) + C.GRAY + Adapt.dLocalize("Unarmed","SuckerPunch", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(d, 0) + C.GRAY + " " +Adapt.dLocalize("Unarmed","SuckerPunch", "Lore1"));
         v.addLore(C.GRAY + Adapt.dLocalize("Unarmed","SuckerPunch", "Lore2"));
     }
 

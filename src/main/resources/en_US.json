@@ -27,6 +27,13 @@
       "RightClick": "Right-Click",
       "ToGainKnowledge": "to gain this knowledge",
       "KnowledgeOrb": "Knowledge Orb"
+    },
+    "ExperienceOrb": {
+      "Contains": "Contains",
+      "XP": "Experience",
+      "RightClick": "Right-Click",
+      "ToGainXP": "to gain this experience",
+      "XPOrb": "Experience Orb"
     }
   },
   "Skill": {
@@ -45,7 +52,7 @@
       "Icon": "❖",
       "Description1": "Why chop down trees, when you could chop ",
       "Description2": "things",
-      "Description3": " instead, same end result!"
+      "Description3": "instead, same end result!"
     },
     "Brewing": {
       "Name": "Brewing",
@@ -132,34 +139,34 @@
     "ArmorUp": {
       "Name": "Armor-Up",
       "Description": "Get more armor the longer you sprint!",
-      "Lore1": " Max Armor",
-      "Lore2": " Armor-Up Time"
+      "Lore1": "Max Armor",
+      "Lore2": "Armor-Up Time"
     },
     "SuperJump": {
       "Name": "Super Jump",
       "Description": "Exceptional Height Advantage",
-      "Lore1": " Max Jump Height",
-      "Lore2": "* Sneak + Jump to Super Jump!"
+      "Lore1": "Max Jump Height",
+      "Lore2": "Sneak + Jump to Super Jump!"
     },
     "WallJump": {
       "Name": "Wall Jump",
       "Description": "Hold shift while mid-air against a wall to wall latch & jump!",
-      "Lore1": " Max Jumps",
-      "Lore2": " Jump Height"
+      "Lore1": "Max Jumps",
+      "Lore2": "Jump Height"
     },
     "WindUp": {
       "Name": "Wind Up",
       "Description": "Get faster the longer you sprint!",
-      "Lore1": " Max Speed",
-      "Lore2": " Windup Time"
+      "Lore1": "Max Speed",
+      "Lore2": "Windup Time"
     }
   },
   "Architect": {
     "Foundation": {
       "Name": "Magic Foundation",
       "Description": "This allows for you to sneak and place a temporary foundation beneath you!",
-      "Lore1": "Magically create : ",
-      "Lore2": " Blocks beneath you!"
+      "Lore1": "Magically create: ",
+      "Lore2": "Blocks beneath you!"
     },
     "Glass": {
       "Name": "Silk-Touch Glass",
@@ -168,9 +175,9 @@
     },
     "Placement": {
       "Name": "Builders Wand",
-      "Description": "allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!",
+      "Description": "Allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!",
       "Lore1": "You need",
-      "Lore2": " blocks in your hand to place this",
+      "Lore2": "blocks in your hand to place this",
       "Lore3": "A Material Builders Wand"
     }
   },
@@ -178,9 +185,9 @@
     "Chop": {
       "Name": "Axe Chop",
       "Description": "Chop down trees by right clicking the base log!",
-      "Lore1": " Blocks Per Chop",
-      "Lore2": " Chop Cooldown",
-      "Lore3": " Tool Wear"
+      "Lore1": "Blocks Per Chop",
+      "Lore2": "Chop Cooldown",
+      "Lore3": "Tool Wear"
     },
     "DropToInventory": {
       "Name": "Axe Drop-To-Inventory"
@@ -188,24 +195,24 @@
     "GroundSmash": {
       "Name": "Axe Ground Smash",
       "Description": "Jump, then crouch and smash all nearby enemies.",
-      "Lore1": " Damage",
-      "Lore2": " Block Radius",
-      "Lore3": " Force",
-      "Lore4": " Smash Cooldown"
+      "Lore1": "Damage",
+      "Lore2": "Block Radius",
+      "Lore3": "Force",
+      "Lore4": "Smash Cooldown"
     }
   },
   "Brewing": {
     "Lingering": {
       "Name": "Lingering Brew",
       "Description": "Brewed potions last longer!",
-      "Lore1": " Duration",
-      "Lore2": " Duration"
+      "Lore1": "Duration",
+      "Lore2": "Duration"
     },
     "SuperHeated": {
       "Name": "Super Heated Brew",
       "Description": "Brewing stands work faster the hotter they are.",
-      "Lore1": " Per Touching Fire Block",
-      "Lore2": " Per Touching Lava Block"
+      "Lore1": "Per Touching Fire Block",
+      "Lore2": "Per Touching Lava Block"
     }
   },
   "Crafting": {
@@ -226,14 +233,14 @@
       "Name": "World Armor",
       "Description": "Passive armor depending on nearby block hardness.",
       "Lore1": "Passive Armor",
-      "Lore2": ", Based on nearby block hardness",
+      "Lore2": "Based on nearby block hardness",
       "Lore3": "Armor Strength: +"
     },
     "DiscoveryUnity": {
       "Name": "Experimental Unity",
       "Description": "Collecting Experience Orbs adds XP to random skills.",
-      "Lore1": " XP ",
-      "Lore2": " Per Orb"
+      "Lore1": "XP ",
+      "Lore2": "Per Orb"
     },
     "DiscoveryXpResist": {
       "Name": "Experimental Resistance",
@@ -252,9 +259,9 @@
     "QuickEnchant": {
       "Name": "Quick-Click Enchant",
       "Description": "Enchant items by clicking enchant books directly on them.",
-      "Lore1": " Max Combined Levels",
+      "Lore1": "Max Combined Levels",
       "Lore2": "Cannot Enchant an item with more than ",
-      "Lore3": " power"
+      "Lore3": "power"
     },
     "EnchantingXpReturn": {
       "Name": "XP Return",
@@ -281,7 +288,7 @@
       "Lore3": "to merge, shift click an item over another in your inventory.",
       "Lore4": "to unbind tools, Sneak-Drop the item, and it will disassemble.",
       "Lore5": "you can't break tools in this leatherman but you can't use broken tools",
-      "Lore6": " total merge-able items",
+      "Lore6": "total merge-able items",
       "Lore7": "you could use five or six tools, or just one!"
     }
   },
@@ -289,14 +296,14 @@
     "GrowthAura": {
       "Name": "Growth Aura",
       "Description": "Grow nature around you in an aura",
-      "Lore1": " Block Radius",
-      "Lore2": " Growth Aura Strength",
-      "Lore3": " Food Cost"
+      "Lore1": "Block Radius",
+      "Lore2": "Growth Aura Strength",
+      "Lore3": "Food Cost"
     },
     "Hippo": {
       "Name": "Herbalist's Hippo",
       "Description": "Consuming food, gives you more saturation",
-      "Lore1": " + Food) additional saturation points on consumption"
+      "Lore1": "Food) additional saturation points on consumption"
     },
     "DropToInventory": {
       "Name": "Hoe Drop-To-Inventory"
@@ -304,7 +311,7 @@
     "HungryShield": {
       "Name": "Hungry Shield",
       "Description": "Take damage to your hunger before your health",
-      "Lore1": " Resisted by Hunger"
+      "Lore1": "Resisted by Hunger"
     },
     "Replant": {
       "Name": "Harvest & Replant",
@@ -316,7 +323,7 @@
     "Adrenaline": {
       "Name": "Adrenaline",
       "Description": "Deal more damage the lower health you are (Melee)",
-      "Lore1": " Max Damage"
+      "Lore1": "Max Damage"
     },
     "DropToInventory": {
       "Name": "Items Drop-To-Inventory",
@@ -329,8 +336,8 @@
       "Lore1": "Gain passive swiftness when struck",
       "Lore2": "x Invisibility stacks for a 3 seconds on hit",
       "Lore3": "x Stacking hunger",
-      "Lore4": " Hunger stacks duration and multiplier.",
-      "Lore5": " Invisibility duration"
+      "Lore4": "Hunger stacks duration and multiplier.",
+      "Lore5": "Invisibility duration"
     },
     "HunterJumpBoost": {
       "Name": "Hunter's Heights",
@@ -338,8 +345,8 @@
       "Lore1": "Gain passive jump-boost when struck",
       "Lore2": "x Jump-Boost stacks for a 3 seconds on hit",
       "Lore3": "x Stacking hunger",
-      "Lore4": " Hunger stacks duration and multiplier.",
-      "Lore5": " Jump-Boost stacks multiplier, not duration."
+      "Lore4": "Hunger stacks duration and multiplier.",
+      "Lore5": "Jump-Boost stacks multiplier, not duration."
     },
     "HunterLuck": {
       "Name": "Hunter's Luck",
@@ -347,8 +354,8 @@
       "Lore1": "Gain passive luck when struck",
       "Lore2": "x Luck stacks for a 3 seconds on hit",
       "Lore3": "x Stacking hunger",
-      "Lore4": " Hunger stacks duration and multiplier.",
-      "Lore5": " Luck stacks multiplier, not duration."
+      "Lore4": "Hunger stacks duration and multiplier.",
+      "Lore5": "Luck stacks multiplier, not duration."
     },
     "HunterRegen": {
       "Name": "Hunter's Regen",
@@ -356,8 +363,8 @@
       "Lore1": "Gain passive regeneration when struck",
       "Lore2": "x Regeneration stacks for a 3 seconds on hit",
       "Lore3": "x Stacking hunger",
-      "Lore4": " Hunger stacks duration and multiplier.",
-      "Lore5": " Regeneration stacks multiplier, not duration."
+      "Lore4": "Hunger stacks duration and multiplier.",
+      "Lore5": "Regeneration stacks multiplier, not duration."
     },
     "HunterResistance": {
       "Name": "Hunter's Resistance",
@@ -365,8 +372,8 @@
       "Lore1": "Gain passive resistance when struck",
       "Lore2": "x Resistance stacks for a 3 seconds on hit",
       "Lore3": "x Stacking hunger",
-      "Lore4": " Hunger stacks duration and multiplier.",
-      "Lore5": " Resistance stacks multiplier, not duration."
+      "Lore4": "Hunger stacks duration and multiplier.",
+      "Lore5": "Resistance stacks multiplier, not duration."
     },
     "HunterSpeed": {
       "Name": "Hunter's Speed",
@@ -374,8 +381,8 @@
       "Lore1": "Gain passive speed when struck",
       "Lore2": "x Speed stacks for a 3 seconds on hit",
       "Lore3": "x Stacking hunger",
-      "Lore4": " Hunger stacks duration and multiplier.",
-      "Lore5": " Speed stacks multiplier, not duration."
+      "Lore4": "Hunger stacks duration and multiplier.",
+      "Lore5": "Speed stacks multiplier, not duration."
     },
     "HunterStrength": {
       "Name": "Hunter's Strength",
@@ -383,25 +390,25 @@
       "Lore1": "Gain passive strength when struck",
       "Lore2": "x Strength stacks for a 3 seconds on hit",
       "Lore3": "x Stacking hunger",
-      "Lore4": " Hunger stacks duration and multiplier.",
-      "Lore5": " Strength stacks multiplier, not duration."
+      "Lore4": "Hunger stacks duration and multiplier.",
+      "Lore5": "Strength stacks multiplier, not duration."
     }
   },
   "Nether": {
     "SkullToss": {
       "Name": "Wither Skull Throw",
-      "Description1": "Unleash your inner Wither by using ",
+      "Description1": "Unleash your inner Wither by using",
       "Description2": "someones",
       "Description3": "head.",
-      "Lore1": " Seconds of cooldown between skull tosses.",
+      "Lore1": "Seconds of cooldown between skull tosses.",
       "Lore2": "Using Wither Skull: Toss a ",
       "Lore3": "Wither Skull",
-      "Lore4": ", exploding on impact."
+      "Lore4": "exploding on impact."
     },
     "WitherResist": {
       "Name": "Wither Resistance",
       "Description": "Resists withering through the power of Netherite.",
-      "Lore1": " chance to negate withering (per piece).",
+      "Lore1": "chance to negate withering (per piece).",
       "Lore2": "Passive: Wearing Netherite Armor has a chance to negate ",
       "Lore3": "withering."
     }
@@ -416,8 +423,8 @@
     "Chisel": {
       "Name": "Ore Chisel",
       "Description": "Right Click Ores to Chisel more ore out of them, at a severe durability cost.",
-      "Lore1": " Chance to Drop",
-      "Lore2": " Tool Wear"
+      "Lore1": "Chance to Drop",
+      "Lore2": "Tool Wear"
     },
     "DropToInventory": {
       "Name": "Pickaxe Drop-To-Inventory",
@@ -436,24 +443,24 @@
     "ArrowRecovery": {
       "Name": "Arrow Recovery",
       "Description": "Recover Arrows after you have killed an enemy.",
-      "Lore1": " Chance to Recover Arrows on Hit/Kill"
+      "Lore1": "Chance to Recover Arrows on Hit/Kill"
     },
     "ForceShot": {
       "Name": "Force Shot",
       "Description": "Shoot projectiles further, faster!",
       "AdvancementName": "Long Shot",
       "AdvancementLore": "Land a shot from over 30 blocks away!",
-      "Lore1": " Projectile Speed"
+      "Lore1": "Projectile Speed"
     },
     "LungeShot": {
       "Name": "Lunge Shot",
       "Description": "While falling your arrows toss you in a random direction",
-      "Lore1": " Random Burst Speed"
+      "Lore1": "Random Burst Speed"
     },
     "ArrowPiercing": {
       "Name": "Arrow Piercing",
       "Description": "Adds Piercing to projectiles! Shoot through things!",
-      "Lore1": " Pierce Targets"
+      "Lore1": "Pierce Targets"
     }
   },
   "Rift": {
@@ -510,8 +517,8 @@
     "GhostArmor": {
       "Name": "Ghost's Armor",
       "Description": "Slow building armor when not taking damage, Lasts for 1 hit",
-      "Lore1": " Max Armor",
-      "Lore2": " Speed"
+      "Lore1": "Max Armor",
+      "Lore2": "Speed"
     },
     "StealthNightVision": {
       "Name": "Stealth Vision",
@@ -523,7 +530,7 @@
     "ItemSnatch": {
       "Name": "Item Snatch",
       "Description": "Snatch Dropped items instantly while sneaking!",
-      "Lore1": " Snatch Radius"
+      "Lore1": "Snatch Radius"
     },
     "SneakSpeed": {
       "Name": "Sneak Speed",
@@ -535,26 +542,26 @@
     "Machete": {
       "Name": "Machete",
       "Description": "Cut through foliage with ease!",
-      "Lore1": " Slash Radius",
-      "Lore2": " Chop Cooldown",
-      "Lore3": " Tool Wear"
+      "Lore1": "Slash Radius",
+      "Lore2": "Chop Cooldown",
+      "Lore3": "Tool Wear"
     }
   },
   "Taming": {
     "TameDamage": {
       "Name": "Tame Damage",
       "Description": "Increase your tamed animal damage dealt.",
-      "Lore1": " Increased Damage"
+      "Lore1": "Increased Damage"
     },
     "TameHealth": {
       "Name": "Tame Health",
       "Description": "Increase your tamed animal health.",
-      "Lore1": " Increased Health"
+      "Lore1": "Increased Health"
     },
     "TameRegeneration": {
       "Name": "Tame Regeneration",
       "Description": "Increase your tamed animal regeneration.",
-      "Lore1": " HP/s"
+      "Lore1": "HP/s"
     }
   },
   "Unarmed": {
@@ -562,17 +569,17 @@
       "Name": "Glass Cannon",
       "Description": "Bonus Unarmed Damage the lower your armor value is",
       "Lore1": "x Damage at 0 armor",
-      "Lore2": " PerLevel Bonus Damage"
+      "Lore2": "PerLevel Bonus Damage"
     },
     "UnarmedPower": {
       "Name": "Unarmed Power",
       "Description": "Improved Unarmed Damage",
-      "Lore1": " Damage"
+      "Lore1": "Damage"
     },
     "SuckerPunch": {
       "Name": "Sucker Punch",
       "Description": "Sprint punches, but more deadly.",
-      "Lore1": " Damage",
+      "Lore1": "Damage",
       "Lore2": "Damage increases by with your speed while punching"
     }
   }

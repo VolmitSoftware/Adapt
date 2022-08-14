@@ -38,7 +38,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRegenSpeed(level), 0) + C.GRAY + Adapt.dLocalize("Taming","TameRegeneration", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getRegenSpeed(level), 0) + C.GRAY + " " +Adapt.dLocalize("Taming","TameRegeneration", "Lore1"));
     }
 
     @EventHandler

@@ -37,10 +37,10 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     @Override
     public void addStats(int level, Element v) {
         double f = getLevelPercent(level);
-        v.addLore(C.RED + "+ " + Form.f(getFalloffDamage(f), 1) + " - " + Form.f(getDamage(f), 1) + C.GRAY + Adapt.dLocalize("Axe", "GroundSmash", "Lore1"));
-        v.addLore(C.RED + "+ " + Form.f(getRadius(f), 1) + C.GRAY + Adapt.dLocalize("Axe", "GroundSmash", "Lore2"));
-        v.addLore(C.RED + "+ " + Form.pc(getForce(f), 0) + C.GRAY + Adapt.dLocalize("Axe", "GroundSmash", "Lore3"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("Axe", "GroundSmash", "Lore4"));
+        v.addLore(C.RED + "+ " + Form.f(getFalloffDamage(f), 1) + " - " + Form.f(getDamage(f), 1) + C.GRAY + " " +Adapt.dLocalize("Axe", "GroundSmash", "Lore1"));
+        v.addLore(C.RED + "+ " + Form.f(getRadius(f), 1) + C.GRAY + " " +Adapt.dLocalize("Axe", "GroundSmash", "Lore2"));
+        v.addLore(C.RED + "+ " + Form.pc(getForce(f), 0) + C.GRAY + " " +Adapt.dLocalize("Axe", "GroundSmash", "Lore3"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " +Adapt.dLocalize("Axe", "GroundSmash", "Lore4"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

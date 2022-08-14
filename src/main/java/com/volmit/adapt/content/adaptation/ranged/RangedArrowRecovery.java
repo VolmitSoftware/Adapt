@@ -43,7 +43,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getChance(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Ranged","ArrowRecovery", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getChance(getLevelPercent(level)), 0) + C.GRAY + " " +Adapt.dLocalize("Ranged","ArrowRecovery", "Lore1"));
     }
 
     @EventHandler

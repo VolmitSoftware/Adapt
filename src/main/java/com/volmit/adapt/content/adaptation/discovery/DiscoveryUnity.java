@@ -27,7 +27,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + Adapt.dLocalize("Discovery", "DiscoveryUnity", "Lore1") + C.GRAY + Adapt.dLocalize("Discovery", "DiscoveryUnity", "Lore2"));
+        v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + " " + Adapt.dLocalize("Discovery", "DiscoveryUnity", "Lore1") + C.GRAY + " " + Adapt.dLocalize("Discovery", "DiscoveryUnity", "Lore2"));
     }
 
     @EventHandler(priority = EventPriority.LOW)

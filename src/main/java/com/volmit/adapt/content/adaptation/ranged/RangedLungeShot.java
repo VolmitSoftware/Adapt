@@ -40,7 +40,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Ranged","LungeShot", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " +Adapt.dLocalize("Ranged","LungeShot", "Lore1"));
     }
 
     @EventHandler

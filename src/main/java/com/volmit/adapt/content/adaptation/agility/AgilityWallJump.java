@@ -39,8 +39,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getMaxJumps(level) + C.GRAY + Adapt.dLocalize("Agility", "WallJump", "Lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + Adapt.dLocalize("Agility", "WallJump", "Lore2"));
+        v.addLore(C.GREEN + "+ " + getMaxJumps(level) + C.GRAY + " " +Adapt.dLocalize("Agility", "WallJump", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY +" " + Adapt.dLocalize("Agility", "WallJump", "Lore2"));
     }
 
     @EventHandler

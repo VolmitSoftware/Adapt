@@ -28,8 +28,8 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
         v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterLuck", "Lore1"));
         v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterLuck", "Lore2"));
         v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterLuck", "Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterLuck", "Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterLuck", "Lore5"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterLuck", "Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterLuck", "Lore5"));
     }
 
 

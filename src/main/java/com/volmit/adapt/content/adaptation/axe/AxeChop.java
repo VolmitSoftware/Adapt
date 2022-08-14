@@ -34,9 +34,9 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Axe", "Chop", "Lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("Axe", "Chop", "Lore2"));
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + Adapt.dLocalize("Axe", "Chop", "Lore3"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + " " + Adapt.dLocalize("Axe", "Chop", "Lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " + Adapt.dLocalize("Axe", "Chop", "Lore2"));
+        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Adapt.dLocalize("Axe", "Chop", "Lore3"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -36,8 +36,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Stealth","GhostArmor", "Lore1"));
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + Adapt.dLocalize("Stealth","GhostArmor", "Lore2"));
+        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + " " +Adapt.dLocalize("Stealth","GhostArmor", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + " " +Adapt.dLocalize("Stealth","GhostArmor", "Lore2"));
     }
 
     public double getMaxArmorPoints(double factor) {

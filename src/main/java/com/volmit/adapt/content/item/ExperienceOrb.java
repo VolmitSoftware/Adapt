@@ -34,19 +34,18 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
     @Override
     public void applyLore(Data data, List<String> lore) {
         Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill);
-        lore.add(C.WHITE + "Contains "  + C.UNDERLINE + C.WHITE + Form.f(data.experience, 0) + " " + skill.getDisplayName() +  C.GRAY+  " XP");
-        lore.add(C.LIGHT_PURPLE + "Right Click " + C.GRAY + "to gain this experience");
+        lore.add(C.WHITE + Adapt.dLocalize("Snippets", "ExperienceOrb", "Contains") + " " + C.UNDERLINE + C.WHITE + Form.f(data.experience, 0) + " " + skill.getDisplayName() + C.GRAY + " " + Adapt.dLocalize("Snippets", "ExperienceOrb", "XP"));
+        lore.add(C.LIGHT_PURPLE + Adapt.dLocalize("Snippets", "ExperienceOrb", "RightClick") + " " + C.GRAY + Adapt.dLocalize("Snippets", "ExperienceOrb", "ToGainXP"));
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " XP Orb");
+        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " "+Adapt.dLocalize("Snippets", "ExperienceOrb", "XPOrb"));
     }
 
-    public static Data get(ItemStack is)
-    {
+    public static Data get(ItemStack is) {
         return io.getData(is);
     }
 

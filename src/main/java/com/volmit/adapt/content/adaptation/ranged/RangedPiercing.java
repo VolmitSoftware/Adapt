@@ -32,7 +32,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Ranged","ArrowPiercing", "Lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + " " +Adapt.dLocalize("Ranged","ArrowPiercing", "Lore1"));
     }
 
     @EventHandler

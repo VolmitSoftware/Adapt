@@ -28,8 +28,8 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
         v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore1"));
         v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore2"));
         v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore5"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore5"));
     }
 
 

@@ -26,7 +26,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDamage(level), 0) + C.GRAY + Adapt.dLocalize("Hunter", "Adrenaline", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getDamage(level), 0) + C.GRAY + " " +Adapt.dLocalize("Hunter", "Adrenaline", "Lore1"));
     }
 
     private double getDamage(int level) {

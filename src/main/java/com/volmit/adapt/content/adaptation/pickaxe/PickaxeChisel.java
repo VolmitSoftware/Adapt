@@ -31,8 +31,8 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDropChance(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Pickaxe", "Chisel", "Lore1"));
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + Adapt.dLocalize("Pickaxe", "Chisel", "Lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getDropChance(getLevelPercent(level)), 0) + C.GRAY + " " +Adapt.dLocalize("Pickaxe", "Chisel", "Lore1"));
+        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " +Adapt.dLocalize("Pickaxe", "Chisel", "Lore2"));
     }
 
     private int getCooldownTime(double levelPercent) {

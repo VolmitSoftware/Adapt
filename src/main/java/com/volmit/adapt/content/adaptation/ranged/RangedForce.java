@@ -43,7 +43,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Ranged", "ForceShot", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " +Adapt.dLocalize("Ranged", "ForceShot", "Lore1"));
     }
 
     private double getSpeed(double factor) {

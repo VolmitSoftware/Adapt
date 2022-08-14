@@ -35,7 +35,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRange(getLevelPercent(level)), 1) + C.GRAY + Adapt.dLocalize("Stealth","ItemSnatch", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getRange(getLevelPercent(level)), 1) + C.GRAY + " " +Adapt.dLocalize("Stealth","ItemSnatch", "Lore1"));
     }
 
     @EventHandler

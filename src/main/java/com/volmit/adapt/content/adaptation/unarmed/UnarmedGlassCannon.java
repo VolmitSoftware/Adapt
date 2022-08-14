@@ -27,8 +27,8 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + (getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier)) + C.GRAY + Adapt.dLocalize("Unarmed","GlassCannon", "Lore1"));
-        v.addLore(C.GREEN + "+ " + Form.f(level * getConfig().perLevelBonusMultiplier) + C.GRAY + Adapt.dLocalize("Unarmed","GlassCannon", "Lore2"));
+        v.addLore(C.GREEN + "+ " + (getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier)) + C.GRAY + " " +Adapt.dLocalize("Unarmed","GlassCannon", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(level * getConfig().perLevelBonusMultiplier) + C.GRAY + " " +Adapt.dLocalize("Unarmed","GlassCannon", "Lore2"));
     }
 
     @EventHandler

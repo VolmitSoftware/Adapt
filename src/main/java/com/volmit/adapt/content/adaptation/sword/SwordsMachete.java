@@ -44,9 +44,9 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + Adapt.dLocalize("Sword","Machete", "Lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("Sword","Machete", "Lore2"));
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + Adapt.dLocalize("Sword","Machete", "Lore3"));
+        v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + " " +Adapt.dLocalize("Sword","Machete", "Lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " +Adapt.dLocalize("Sword","Machete", "Lore2"));
+        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " +Adapt.dLocalize("Sword","Machete", "Lore3"));
     }
 
     public double getRadius(int level) {

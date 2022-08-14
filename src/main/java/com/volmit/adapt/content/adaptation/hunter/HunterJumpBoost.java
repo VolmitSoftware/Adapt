@@ -28,8 +28,8 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
         v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore1"));
         v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore2"));
         v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore5"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore5"));
     }
 
 
