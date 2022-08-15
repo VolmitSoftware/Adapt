@@ -38,10 +38,10 @@ public class AdaptConfig {
     private boolean verbose = false;
     private boolean metrics = true;
     private String language = "en_US";
-    private Curves xpCurve = Curves.WOW;
-    private double playerXpPerSkillLevelUpBase = 400;
-    private double playerXpPerSkillLevelUpLevelMultiplier = 32;
-    private double powerPerLevel = 0.62;
+    private Curves xpCurve = Curves.XL1L7;
+    private double playerXpPerSkillLevelUpBase = 489;
+    private double playerXpPerSkillLevelUpLevelMultiplier = 44;
+    private double powerPerLevel = 0.73;
 
     @Getter
     public static class ValueConfig {

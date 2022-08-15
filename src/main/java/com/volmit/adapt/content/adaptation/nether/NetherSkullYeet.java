@@ -44,7 +44,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     public NetherSkullYeet() {
         super("nether-skull-toss");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Nether", "SkullToss", "Description1") + C.ITALIC +" " + Adapt.dLocalize("Nether", "SkullToss", "Description2") " " + C.GRAY + Adapt.dLocalize("Nether", "SkullToss", "Description3"));
+        setDescription(Adapt.dLocalize("Nether", "SkullToss", "Description1") + C.ITALIC +" " + Adapt.dLocalize("Nether", "SkullToss", "Description2") + " " + C.GRAY + Adapt.dLocalize("Nether", "SkullToss", "Description3"));
         setDisplayName(Adapt.dLocalize("Nether", "SkullToss", "Name"));
         setIcon(Material.WITHER_SKELETON_SKULL);
         setBaseCost(getConfig().baseCost);
@@ -58,7 +58,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     public void addStats(int level, Element v) {
         int chance = getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * level;
         v.addLore(C.GREEN + String.valueOf(chance) + C.GRAY + " " +Adapt.dLocalize("Nether", "SkullToss", "Lore1"));
-        v.addLore(C.GRAY + Adapt.dLocalize("Nether", "SkullToss", "Lore2") + C.DARK_GRAY + Adapt.dLocalize("Nether", "SkullToss", "Lore3") + C.GRAY + ", " +Adapt.dLocalize("Nether", "SkullToss", "Lore4"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Nether", "SkullToss", "Lore2") + C.DARK_GRAY + Adapt.dLocalize("Nether", "SkullToss", "Lore3") + C.GRAY + ", " + Adapt.dLocalize("Nether", "SkullToss", "Lore4"));
     }
 
     @EventHandler

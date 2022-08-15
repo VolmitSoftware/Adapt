@@ -41,7 +41,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
     public HunterDropToInventory() {
         super("pickaxe-drop-to-inventory");
         registerConfiguration(HunterDropToInventory.Config.class);
-        setDescription(Adapt.dLocalize("ww", "DropToInventory", "Description"));
+        setDescription(Adapt.dLocalize("Pickaxe", "DropToInventory", "Description"));
         setDisplayName(Adapt.dLocalize("Hunter", "DropToInventory", "Name"));
         setIcon(Material.DIRT);
         setBaseCost(getConfig().baseCost);

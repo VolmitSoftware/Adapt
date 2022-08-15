@@ -73,25 +73,52 @@ public class Adapt extends VolmitPlugin {
 
     public static String dLocalize(String s1, String s2, String s3) {
         if (!wordKey.containsKey(""+s1+s2+s3)) {
-        JsonObject jsonObj = null;
-        try {
-            File langFile = new File(instance.getDataFolder() + "/languages", AdaptConfig.get().getLanguage() + ".json");
-            String jsonFromFile = Files.readString(langFile.toPath());
-            JsonElement jsonElement = JsonParser.parseString(jsonFromFile); // Get the file as a JsonElement
-            jsonObj = jsonElement.getAsJsonObject(); //since you know it's a JsonObject
-        } catch (IOException e) {
-            error("Failed to load the json String: " + s1+s2+s3);
-        }
-            wordKey.put(""+s1+s2+s3, jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
-        return jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString();
+            JsonObject jsonObj = null;
+            try {
+                File langFile = new File(instance.getDataFolder() + "/languages", AdaptConfig.get().getLanguage() + ".json");
+                String jsonFromFile = Files.readString(langFile.toPath());
+                JsonElement jsonElement = JsonParser.parseString(jsonFromFile); // Get the file as a JsonElement
+                jsonObj = jsonElement.getAsJsonObject(); //since you know it's a JsonObject
+            } catch (IOException e) {
+                error("Failed to load the json String: " + s1 + s2 + s3);
+            }
+            if (jsonObj == null || jsonObj.get(s1) == null) { // Lang key does not exist in the lang Dictionary
+                File langFileEN = new File(instance.getDataFolder() + "/languages", "en_US.json");
+                InputStream in = Adapt.instance.getResource("en_US.json");
+                if (!langFileEN.exists()) {
+                    try {
+                        if (in != null) {
+                            Files.copy(in, langFileEN.toPath());
+                            info("Created default language file: " + langFileEN.getName());
+                            String jsonFromFile = Files.readString(langFileEN.toPath());
+                            JsonElement jsonElement = JsonParser.parseString(jsonFromFile); // Get the file as a JsonElement
+                            jsonObj = jsonElement.getAsJsonObject(); //since you know it's a JsonObject
+                        } else {
+                            error("Your Jar is corrupted, please reinstall the plugin");
+                        }
+                    } catch (IOException ignored) {
+                        error("Failed to load Lang file");
+                    }
+                } else {
+                    try {
+                        String jsonFromFile = Files.readString(langFileEN.toPath());
+                        JsonElement jsonElement = JsonParser.parseString(jsonFromFile); // Get the file as a JsonElement
+                        jsonObj = jsonElement.getAsJsonObject(); //since you know it's a JsonObject
+                    } catch (IOException e) {
+                        error("Failed to load fallback english language file");
+                    }
+                }
+                info(s1 + s2 + s3 + " Language Key is null, Using English Variant");
+            }
+            wordKey.put("" + s1 + s2 + s3, jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
+            return jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString();
         } else {
             return wordKey.get(""+s1+s2+s3);
         }
     }
 
     private static void loadLanguageLocalization() {
-        warn("Loading Language File");
-
+        info("Loading Language File");
         File langFolder = new File(Adapt.instance.getDataFolder() + "/languages");
         if (!langFolder.exists()) {
             langFolder.mkdir();
@@ -106,13 +133,14 @@ public class Adapt extends VolmitPlugin {
                 error("Failed to load Lang file");
             }
         }
-        warn("Language Files Loaded");
+        info("Language Files Loaded");
     }
 
 
     @Override
     public void start() {
         loadLanguageLocalization();
+        printInformation();
         NMS.init();
         ticker = new Ticker();
         adaptServer = new AdaptServer();
@@ -135,6 +163,13 @@ public class Adapt extends VolmitPlugin {
     @Override
     public String getTag(String subTag) {
         return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.LIGHT_PURPLE + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
+    }
+
+    public static void printInformation() {
+        info("XP Curve: " + AdaptConfig.get().getXpCurve());
+        info("XP/Level base: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
+        info("XP/Level multiplier: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier());
+        info("Language: " + AdaptConfig.get().getLanguage());
     }
 
     public static void warn(String string) {

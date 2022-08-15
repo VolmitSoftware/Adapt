@@ -57,6 +57,7 @@ public class SkillRegistry extends TickedObject {
         registerSkill(SkillAgility.class);
         registerSkill(SkillArchitect.class);
         registerSkill(SkillAxes.class);
+        registerSkill(SkillChronos.class);
         registerSkill(SkillCrafting.class);
         registerSkill(SkillDiscovery.class);
         registerSkill(SkillEnchanting.class);
@@ -69,6 +70,7 @@ public class SkillRegistry extends TickedObject {
         registerSkill(SkillStealth.class);
         registerSkill(SkillSwords.class);
         registerSkill(SkillTaming.class);
+        registerSkill(SkillTragOul.class);
         registerSkill(SkillUnarmed.class);
         registerSkill(SkillExcavation.class);
         registerSkill(SkillBrewing.class);
