@@ -27,6 +27,13 @@
       "RightClick": "Rechtermuisknop",
       "ToGainKnowledge": "om deze kennis te vergaren",
       "KnowledgeOrb": "Kennis Orb (Bol)"
+    },
+    "ExperienceOrb": {
+      "Contains": "Contains",
+      "XP": "Experience",
+      "RightClick": "Right-Click",
+      "ToGainXP": "to gain this experience",
+      "XPOrb": "Experience Orb"
     }
   },
   "Skill": {
