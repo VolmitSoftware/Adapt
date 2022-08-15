@@ -323,6 +323,12 @@
       "Description": "Take damage to your hunger before your health",
       "Lore1": "Resisted by Hunger"
     },
+    "Luck": {
+      "Name": "Herbalist's Luck",
+      "Description": "When you break Grass/Flowers, you have a chance to get a random item",
+      "Lore1": "Chance to get an item from breaking Flowers",
+      "Lore2": "Chance to get an item from breaking Grass"
+    },
     "Replant": {
       "Name": "Harvest & Replant",
       "Description": "Right click a crop with a hoe to harvest & replant it.",
@@ -342,8 +348,8 @@
     },
     "HunterInvisibility": {
       "Name": "Vanishing Step",
-      "Description": "When you are struck you gain jump-boost, at the cost of hunger",
-      "Lore1": "Gain passive swiftness when struck",
+      "Description": "When you are struck you gain invisibility, at the cost of hunger",
+      "Lore1": "Gain passive invisibility when struck",
       "Lore2": "x Invisibility stacks for a 3 seconds on hit",
       "Lore3": "x Stacking hunger",
       "Lore4": "Hunger stacks duration and multiplier.",

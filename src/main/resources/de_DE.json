@@ -129,6 +129,16 @@
       "Icon": "♥",
       "Description": "Die Papageien und die Bienen... und du?"
     },
+    "TragOul": {
+      "Name": "TragOul",
+      "Icon": "▼",
+      "Description": "Blood flows through the veins of the universe. Constricted by your hands."
+    },
+    "Chronos": {
+      "Name": "Chronos",
+      "Icon": "۞",
+      "Description": "Wind the Clock of the universe, experience the flow. Break the clock, Become it."
+    },
     "Unarmed": {
       "Name": "Ynbewaffnet",
       "Icon": "⚜",
@@ -312,6 +322,12 @@
       "Name": "Hungriges Schild",
       "Description": "Nimm Schaden an deiner Sättigung als an deiner Gesundheit",
       "Lore1": "Widerstand durch Sättigung"
+    },
+    "Luck": {
+      "Name": "Herbalist's Luck",
+      "Description": "When you break Grass/Flowers, you have a chance to get a random item",
+      "Lore1": "Chance to get an item from breaking Flowers",
+      "Lore2": "Chance to get an item from breaking Grass"
     },
     "Replant": {
       "Name": "Ernte & Wiederbepflanze",

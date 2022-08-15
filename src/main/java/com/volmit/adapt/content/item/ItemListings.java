@@ -49,6 +49,41 @@ public class ItemListings {
     );
 
     @Getter
+    public static List<Material> herbalLuckSeeds = List.of(
+            Material.MELON_SEEDS,
+            Material.PUMPKIN_SEEDS,
+            Material.COCOA_BEANS
+    );
+
+    @Getter
+    public static List<Material> herbalLuckFood = List.of(
+            Material.POTATOES,
+            Material.CARROTS,
+            Material.BEETROOTS,
+            Material.APPLE
+    );
+
+    @Getter
+    public static List<Material> flowers = List.of(
+            Material.DANDELION,
+            Material.POPPY,
+            Material.BLUE_ORCHID,
+            Material.ALLIUM,
+            Material.AZURE_BLUET,
+            Material.RED_TULIP,
+            Material.ORANGE_TULIP,
+            Material.WHITE_TULIP,
+            Material.PINK_TULIP,
+            Material.OXEYE_DAISY,
+            Material.CORNFLOWER,
+            Material.LILY_OF_THE_VALLEY,
+            Material.LILAC,
+            Material.ROSE_BUSH,
+            Material.PEONY,
+            Material.WITHER_ROSE
+    );
+
+    @Getter
     public static List<Material> food = List.of(
             Material.APPLE,
             Material.BAKED_POTATO,

@@ -36,7 +36,7 @@
       "XPOrb": "Experience Orb"
     }
   },
-  "2Skill": {
+  "Skill": {
     "Agility": {
       "Name": "Agilità",
       "Icon": "⇉",
@@ -128,6 +128,16 @@
       "Name": "Domare",
       "Icon": "♥",
       "Description": "I pappagalli e le api... e voi?"
+    },
+    "TragOul": {
+      "Name": "TragOul",
+      "Icon": "▼",
+      "Description": "Blood flows through the veins of the universe. Constricted by your hands."
+    },
+    "Chronos": {
+      "Name": "Chronos",
+      "Icon": "۞",
+      "Description": "Wind the Clock of the universe, experience the flow. Break the clock, Become it."
     },
     "Unarmed": {
       "Name": "Disarmato",
@@ -312,6 +322,12 @@
       "Name": "Scudo della fame",
       "Description": "Subisce danni alla fame prima che alla salute",
       "Lore1": "Resistente alla fame"
+    },
+    "Luck": {
+      "Name": "Herbalist's Luck",
+      "Description": "When you break Grass/Flowers, you have a chance to get a random item",
+      "Lore1": "Chance to get an item from breaking Flowers",
+      "Lore2": "Chance to get an item from breaking Grass"
     },
     "Replant": {
       "Name": "Raccogliere e ripiantare",

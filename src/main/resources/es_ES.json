@@ -36,7 +36,7 @@
       "XPOrb": "Experience Orb"
     }
   },
-  "2Skill": {
+  "Skill": {
     "Agility": {
       "Name": "Agilidad",
       "Icon": "⇉",
@@ -128,6 +128,16 @@
       "Name": "Domando",
       "Icon": "♥",
       "Description": "Los loros y las abejas... ¿y tú?"
+    },
+    "TragOul": {
+      "Name": "TragOul",
+      "Icon": "▼",
+      "Description": "Blood flows through the veins of the universe. Constricted by your hands."
+    },
+    "Chronos": {
+      "Name": "Chronos",
+      "Icon": "۞",
+      "Description": "Wind the Clock of the universe, experience the flow. Break the clock, Become it."
     },
     "Unarmed": {
       "Name": "Desarmado",
@@ -312,6 +322,12 @@
       "Name": "Escudo de hambre",
       "Description": "Recibe el daño de tu hambre antes que el de tu salud",
       "Lore1": "Resistido por el hambre"
+    },
+    "Luck": {
+      "Name": "Herbalist's Luck",
+      "Description": "When you break Grass/Flowers, you have a chance to get a random item",
+      "Lore1": "Chance to get an item from breaking Flowers",
+      "Lore2": "Chance to get an item from breaking Grass"
     },
     "Replant": {
       "Name": "Cosecha y replantación",
