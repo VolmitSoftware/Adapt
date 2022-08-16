@@ -3,20 +3,20 @@
     "GUI": {
       "Level": "Level",
       "Knowledge": "Wissen",
-      "PowerUsed": "Verwendete Energie",
-      "NotLearned": "Nicht gelernt",
-      "XP": "Erfahrung bis"
+      "PowerUsed": "belegte Energie",
+      "NotLearned": "Noch nicht gelernt",
+      "XP": " Erfahrung bis"
     },
     "AdaptMenu": {
-      "KnowledgeCost": "Wissen kostet",
-      "AlreadyLearned": "Bereits gelernt",
-      "UnlearnRefund": "Klick Sie auf Verlernen & Rückerstattung",
+      "KnowledgeCost": "Wissen",
+      "AlreadyLearned": "Bereits gelernt!",
+      "UnlearnRefund": "Klick erneut zum Verlernen & erhalte eine Rückerstattung von",
       "Knowledge": "Wissen",
-      "ClickLearn": "Klicken Sie, um zu lernen",
+      "ClickLearn": "Klicken, zum erlernen von",
       "NoKnowledge": "(Du hast kein Wissen)",
       "YouOnlyHave": "Du hast nur",
-      "HowToLevelUp": "Verbessere deine Fähigkeiten, um deine maximales Level zu erhöhen.",
-      "NotEnoughPower": "Nicht genug Kraft! Jede Fähigkeitsstufe kostet 1 Kraft.",
+      "HowToLevelUp": "Verbessere deine Fähigkeiten, um dein maximales Level zu erhöhen!",
+      "NotEnoughPower": "Nicht genug Energie! Jede Fähigkeitsstufe kostet 1 Energie.",
       "Power": "Energie",
       "Learned": "Gelernt ",
       "Unlearned": "Verlernt "
@@ -40,34 +40,34 @@
     "Agility": {
       "Name": "Agilität",
       "Icon": "⇉",
-      "Description": "Agilität ist die Fähigkeit, sich angesichts von Hindernissen schnell und flüssig zu bewegen."
+      "Description": "Agilität ist die Fähigkeit, sich im Angesichte von Hindernissen schnell und flüssig zu bewegen!"
     },
     "Architect": {
       "Name": "Architekt",
       "Icon": "⬧",
-      "Description": "Strukturen sind die Bausteine der Welt. Die Realität liegt in Ihren Händen, Sie können sie kontrollieren."
+      "Description": "Strukturen sind die Bausteine der Welt. Die Realität liegt in Ihren Händen, Sie können sie kontrollieren!"
     },
     "Axes": {
       "Name": "Äxte",
       "Icon": "✥",
-      "Description1": "Warum sollte man Bäume fällen,",
+      "Description1": "Warum sollte man Bäume fällen, ",
       "Description2": "wenn man stattdessen auch Dinge",
       "Description3": "fällen kann - mit demselben Ergebnis!"
     },
     "Brewing": {
       "Name": "Brauen",
       "Icon": "✥",
-      "Description": "Doppelte Blase, dreifache Blase, vierfache Blase - Ich kann diesen Trank immer noch nicht in einen Kessel geben."
+      "Description": "Doppelte Blase, dreifache Blase, vierfache Blase - Ich kann diesen Trank immer noch nicht in einen Kessel geben!"
     },
     "Crafting": {
-      "Name": "Crafting",
+      "Name": "Handwerk",
       "Icon": "❖",
-      "Description": "Da es nichts mehr zu platzieren gibt, warum nicht neues erschaffen"
+      "Description": "Da es nichts mehr zu platzieren gibt, warum nicht neues erschaffen?"
     },
     "Discovery": {
       "Name": "Entdeckung",
       "Icon": "⚛",
-      "Description": "Wenn sich deine Wahrnehmung erweitert, wird dein Verstand enträtseln, um das zu entdecken, was du nicht wusstest."
+      "Description": "Wenn sich deine Wahrnehmung erweitert, wird dein Verstand enträtseln, um das zu entdecken, was du nicht wusstest!"
     },
     "Enchanting": {
       "Name": "Verzauberung",
@@ -77,7 +77,7 @@
     "Excavation": {
       "Name": "Ausgrabung",
       "Icon": "✥",
-      "Description": "Diggey Diggey hole..."
+      "Description": "Diggey Diggey Hole...!"
     },
     "Herbalism": {
       "Name": "Kräuterkunde",
@@ -87,37 +87,37 @@
     "Hunter": {
       "Name": "Jäger",
       "Icon": "☠",
-      "Description": "Bei der Jagd geht es um den Weg, nicht um das Resultat."
+      "Description": "Bei der Jagd geht es um den Weg, nicht um das Resultat!"
     },
     "Nether": {
       "Name": "Nether",
       "Icon": "₪",
-      "Description": "Aus den Tiefen des Nether-Gebietes selbst"
+      "Description": "Aus den Tiefen des Nethergebietes selbst!"
     },
     "Pickaxe": {
-      "Name": "Sptzhacke",
+      "Name": "Spitzhacke",
       "Icon": "⛏",
-      "Description": "Zwerge sind die Bergleute, aber ich habe in meiner Zeit auch einiges gelernt. ICH BIN SCHWEDE."
+      "Description": "Zwerge sind die Bergleute, aber ich habe in meiner Zeit auch einiges gelernt. ICH BIN SCHWEDE!"
     },
     "Ranged": {
       "Name": "Reichweite",
       "Icon": "🏹",
-      "Description": "Die Entfernung ist der Schlüssel zum Sieg und zum Überleben."
+      "Description": "Die Entfernung ist der Schlüssel zum Sieg... und zum Überleben!"
     },
     "Rift": {
       "Name": "Rift",
       "Icon": "❍",
-      "Description": "Der Rift ist ein ätzendes Gurtzeug, aber Sie haben das Gurtzeug angeschnallt."
+      "Description": "Rift ist ein ätzendes Gurtzeug, aber Sie haben das Gurtzeug angeschnallt!"
     },
     "Seaborne": {
       "Name": "Seefahrt",
       "Icon": "🌊",
-      "Description": "Mit dieser Fähigkeit kannst du die Wunder des Wassers erleben."
+      "Description": "Mit dieser Fähigkeit kannst du die Wunder des Wassers erleben!"
     },
     "Stealth": {
       "Name": "Heimlichkeit",
       "Icon": "✠",
-      "Description": "Die Kunst des Unsichtbaren. In den Schatten gehen."
+      "Description": "Die Kunst des Unsichtbaren - Sei der Schatten!"
     },
     "Swords": {
       "Name": "Schwerter",
@@ -132,23 +132,23 @@
     "TragOul": {
       "Name": "TragOul",
       "Icon": "▼",
-      "Description": "Blut fließt durch die Adern des Universums. Gefesselt durch deine Hände."
+      "Description": "Blut fließt durch die Adern des Universums. Entfesselt durch deine Hände!"
     },
     "Chronos": {
       "Name": "Chronos",
       "Icon": "۞",
-      "Description": "Zieh die Uhr des Universums auf und erlebe den Zeitenfluss."
+      "Description": "Zieh die Uhr des Universums auf und erlebe den Zeitenfluss!"
     },
     "Unarmed": {
       "Name": "Unbewaffnet",
       "Icon": "⚜",
-      "Description": "Ohne Waffe bedeutet nicht ohne Stärke."
+      "Description": "Ohne Waffe bedeutet nicht ohne Stärke!"
     }
   },
   "Agility": {
     "ArmorUp": {
       "Name": "Aufrüsten",
-      "Description": "Je länger du sprintest, desto mehr Rüstung erhältst du!",
+      "Description": "Je länger du sprintest, desto mehr Rüstung erhältst du",
       "Lore1": "Maximale Rüstung",
       "Lore2": "Aufrüstungszeit"
     },
@@ -160,13 +160,13 @@
     },
     "WallJump": {
       "Name": "Wandsprung",
-      "Description": "Halte Shift gedrückt, während du dich in der Luft an einer Wand befindet, um dich an der Wand festzuhalten und zu springen!",
+      "Description": "Halte Shift gedrückt, während du dich in der Luft an einer Wand befindet, um dich an der Wand festzuhalten und zu springen",
       "Lore1": "Maximal Sprunge",
       "Lore2": "Sprunghöge"
     },
     "WindUp": {
       "Name": "Aufwind",
-      "Description": "Je länger du sprintest, desto schneller wirst du!",
+      "Description": "Je länger du sprintest, desto schneller wirst du",
       "Lore1": "Maximale Geschwindigkeit",
       "Lore2": "Aufwindzeit"
     }
@@ -174,18 +174,18 @@
   "Architect": {
     "Foundation": {
       "Name": "Magische Grundlage",
-      "Description": "So kannst du schleichen und ein provisorisches Fundament unter dich schaffen!",
+      "Description": "Schleiche um ein provisorisches Fundament unter dir zu erschaffen",
       "Lore1": "Magie erzeugen : ",
       "Lore2": "Blöcke unter dir!"
     },
     "Glass": {
       "Name": "Behutsames Glass",
-      "Description": "Auf diese Weise kannst du den Verlust von Glassblöcken verhindern, wenn du sie mit leeren Händen zerbrichst!",
+      "Description": "Auf diese Weise kannst du den Verlust von Glassblöcken verhindern, wenn du sie mit leeren Händen zerbrichst",
       "Lore1": "Deine Hände erhalten Silk Touch für Glass"
     },
     "Placement": {
       "Name": "Baumeister Stab",
-      "Description": "Ermöglicht es dir, mehrere Blöcke auf einmal zu plazieren. Zum Aktivieren schleiche und halte einen Block, der zu deinem gewünschten Block passt, dann plaziere den Block! Denk daran, dass du dich ein wenig bewegen musst, um die Begrezung der Blöcle auszulösen!",
+      "Description": "Ermöglicht es dir, mehrere Blöcke auf einmal zu plazieren. Zum Aktivieren schleiche und halte einen Block, der zu deinem gewünschten Block passt, dann plaziere den Block. Denk daran, dass du dich ein wenig bewegen musst, um die Begrenzung der Blöcke auszulösen",
       "Lore1": "Du brauchst",
       "Lore2": "Blöcke in deiner Hand, um diese zu plazieren",
       "Lore3": "Ein Baumeister Stab für Materialerstellung"
@@ -194,7 +194,7 @@
   "Axe": {
     "Chop": {
       "Name": "Axtschlag",
-      "Description": "Fälle Bäume, indem du mit der rechten Maustaste auf den Stamm klickst!",
+      "Description": "Fälle Bäume, indem du mit der rechten Maustaste auf den Stamm klickst",
       "Lore1": "Blöcke pro Hieb",
       "Lore2": "Hieb Abklingzeit",
       "Lore3": "Werkzeugverschleiß"
@@ -204,7 +204,7 @@
     },
     "GroundSmash": {
       "Name": "Axt-Bodenschlag",
-      "Description": "Spring, dann gehe in die Hocke und schlagen die Gegner in ihrer Nähe!",
+      "Description": "Springe, dann gehe in die Hocke und zerschlage deine Gegner in der Nähe",
       "Lore1": "Schaden",
       "Lore2": "Block Radius",
       "Lore3": "Kraft",
@@ -214,13 +214,13 @@
   "Brewing": {
     "Lingering": {
       "Name": "Nachhaltendes Gebräu",
-      "Description": "Gebräute Tränke halten länger!",
+      "Description": "Gebräute Tränke halten länger",
       "Lore1": "Dauer",
       "Lore2": "Dauer"
     },
     "SuperHeated": {
       "Name": "Superheißes Gebräu",
-      "Description": "Der Braustand arbeitet umso schneller, je heißer er ist!",
+      "Description": "Je heißer der Braustand ist, desto schneller verarbeitet er",
       "Lore1": "Pro berührendem Feuerblock",
       "Lore2": "Pro berührendem Feuerblock"
     }
@@ -228,7 +228,7 @@
   "Crafting": {
     "Deconstruction": {
       "Name": "Dekonstruktion",
-      "Description": "Zerlege Blöcke und Gegenstände in wiederverwertbare Komponenten!",
+      "Description": "Zerlege Blöcke und Gegenstände in wiederverwertbare Komponenten",
       "Lore1": "Lege einen beliebigen Gegenstand + Schere ",
       "Lore2": "auf einen Schmiedetisch um ihn zu zerlegen."
     },
@@ -241,21 +241,21 @@
   "Discovery": {
     "DiscoveryArmor": {
       "Name": "Weltweite Rüstung",
-      "Description": "Passive Rüstung, abhängig von der Härte der in der Nähe befindlichen Blöcken,",
+      "Description": "Passive Rüstung, abhängig von der Härte der in der Nähe befindlichen Blöcken",
       "Lore1": "Passive Rüstung",
       "Lore2": ", basiert auf der Härter des benachbarten Blocks",
       "Lore3": "Stärke der Rüstung: +"
     },
     "DiscoveryUnity": {
       "Name": "Experimentelle Einheitlichkeit",
-      "Description": "Durch Sammeln von Erfahrungskugeln erhält man Erfahrungspunkte für zufällige Fähigkeiten.",
+      "Description": "Durch Sammeln von Erfahrungskugeln erhält man Erfahrungspunkte für zufällige Fähigkeiten",
       "Lore1": "Erfahrung ",
       "Lore2": "Pro Kugel"
     },
     "DiscoveryXpResist": {
       "Name": "Experimentelle Widerstand",
-      "Description": "Verbrauchen Sie Erfahrung, um den Schaden zu dämpfen, den Sie aus allen Quellen nehmen",
-      "Lore0": "Dies darf nur einmal alle 15 Sekunden erfolgen",
+      "Description": "Verbrauche Erfahrung, um Schaden abzudämpfen",
+      "Lore0": "Dies kann nur einmal alle 15 Sekunden erfolgen",
       "Lore1": "% Weniger Schaden",
       "Lore2": "Erfahrung verbraucht"
     }
@@ -263,20 +263,20 @@
   "Enchanting": {
     "LapisReturn": {
       "Name": "Lapis Rückkehr",
-      "Description": "Die Chance, auf Kosten von 1 Level XP, Lapis zurückzubekommen",
-      "Lore1": "Für jede Stufe erhöht es die Kosten der Verzauberung um 1, kann aber bis zu 3 Lapis zurückgeben."
+      "Description": "Die Chance Lapis zurückzubekommen auf Kosten von 1 Level Erfahrung",
+      "Lore1": "Für jede Stufe erhöht es die Kosten der Verzauberung um 1, kann aber bis zu 3 Lapis zurückgeben"
     },
     "QuickEnchant": {
       "Name": "Schnell-Klick Verzaubern",
-      "Description": "Verzaubert Gegenstände, wenn Verzauberungsbücher auf sie gezogen werden.",
+      "Description": "Verzaubert Gegenstände, wenn Verzauberungsbücher auf sie gezogen werden",
       "Lore1": "Maximale kombinierte Levels",
       "Lore2": "Kann einen Gegenstand nicht mit mehr als ",
       "Lore3": "Macht"
     },
     "EnchantingXpReturn": {
       "Name": "Erfahrung Rückkehr",
-      "Description": "Verzauberungs-XP wird zurückgegeben, wenn ein Gegenstand verzaubert wird.",
-      "Lore1": "Erfahrung kann zurückerstattet werden, wenn Gegenstände verzaubert werden.",
+      "Description": "Wenn ein Gegenstand verzaubert wird erhalte Verzauberungs-Erfahrung zurück",
+      "Lore1": "Erfahrung kann zurückerstattet werden, wenn Gegenstände verzaubert werden",
       "Lore2": "Erfahrung pro Verzauberung"
     }
   },
@@ -285,14 +285,14 @@
       "Name": "Hastiges Schaufeln",
       "Description": "Dadurch wir das Graben beschleunigt, mit HAST!",
       "Lore1": "Beim Graben Eile gewinnen",
-      "Lore2": "x Stufen der Eile, wenn mit dem Abbau von Blöcken begonnen wird."
+      "Lore2": "x Stufen der Eile, wenn mit dem Abbau von Blöcken begonnen wird"
     },
     "DropToInventory": {
       "Name": "Schaufel Drop-Ins-Inventar"
     },
     "OmniTool": {
       "Name": "Schweizer Taschenmesser",
-      "Description": "Schweizer überdimensioniertes opulentes Taschenmesser",
+      "Description": "Schweizer überdimensioniertes mannigfaltiges Taschenmesser",
       "Lore1": "Die Leistungsfähigkeit von vielen ermöglicht es",
       "Lore2": "Werkzeuge dynmaoisch zusammenzufügen und je nach Bedarf zu ändern.",
       "Lore3": "Zum Zussamenfügen klicke mit gedrückter Umschalttaste auf einen Gegenstand über einem anderen im Inventar.",
@@ -320,14 +320,14 @@
     },
     "HungryShield": {
       "Name": "Hungriges Schild",
-      "Description": "Nimm Schaden an deiner Sättigung als an deiner Gesundheit",
+      "Description": "Nimm Schaden an deiner Sättigung statt deiner Gesundheit",
       "Lore1": "Widerstand durch Sättigung"
     },
     "Luck": {
       "Name": "Glück des Kräuterkundlers",
-      "Description": "Wenn du Gras/Blumen zerbrichst, hast du die Chance, einen zufälligen Gegenstand zu erhalten.",
-      "Lore1": "Chance, einen Gegenstand aus zerbrechenden Blumen zu erhalten.",
-      "Lore2": "Chance, einen Gegenstand aus zerbrechendem Gras zu erhalten."
+      "Description": "Wenn du Gras/Blumen zerbrichst, hast du die Chance, einen zufälligen Gegenstand zu erhalten",
+      "Lore1": "Chance, einen Gegenstand aus zerbrechenden Blumen zu erhalten",
+      "Lore2": "Chance, einen Gegenstand aus zerbrechendem Gras zu erhalten"
     },
     "Replant": {
       "Name": "Ernte & Wiederbepflanze",
@@ -344,7 +344,7 @@
     "DropToInventory": {
       "Name": "Items Drop-Ins-Inventar",
       "Description": "Wenn du etwas tötest / einen Block mit dem Schwert zerstörst, werden die Drops in dein Inventar teleopiert",
-      "Lore1": "Jedes Mal, wenn ein Gegenstand von einem Mob/Block fallen gelassen wird, landet er in deinem Inventar."
+      "Lore1": "Jedes Mal, wenn ein Gegenstand von einem Mob/Block fallen gelassen wird, landet er in deinem Inventar"
     },
     "HunterInvisibility": {
       "Name": "Verschwindender Schritt",
@@ -352,7 +352,7 @@
       "Lore1": "Erhalte passive Unsichtbarkeit bei Schaden",
       "Lore2": "x Unsichtbarkeit stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapel Sättigung",
-      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator",
       "Lore5": "Dauer der Unsichtbarkeit"
     },
     "HunterJumpBoost": {
@@ -361,17 +361,17 @@
       "Lore1": "Erhalte Sprung-Boost bei Schaden",
       "Lore2": "x Sprung-Boost stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapel Sättigung",
-      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": "Sprung-Boost stapelt Multiplikator, nicht Dauer."
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "Lore5": "Sprung-Boost stapelt Multiplikator, nicht Dauer"
     },
     "HunterLuck": {
-      "Name": "Das Glück des Jägers",
+      "Name": "Glück des Jägers",
       "Description": "Wenn du getroffen wirst, erhältst du Glück auf Kosten deiner Sättigung",
       "Lore1": "Erhalte passive Glück bei Schaden",
       "Lore2": "x Glück stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapelt Sättigung",
-      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": "Glück stapelt Multiplikator, nicht Dauer."
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "Lore5": "Glück stapelt Multiplikator, nicht Dauer"
     },
     "HunterRegen": {
       "Name": "Regeneration des Jägers",
@@ -379,17 +379,17 @@
       "Lore1": "Erhalte passive Regeneration bei Schaden",
       "Lore2": "x Regeneration stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapelt Sättigung",
-      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": "Regeneration stapelt Multiplikator, nicht Dauer."
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "Lore5": "Regeneration stapelt Multiplikator, nicht Dauer"
     },
     "HunterResistance": {
       "Name": "Widerstandsfähigkeit des Jägers",
-      "Description": "Wenn du getroffen wirst, wirst du widerstandsfähiger auf Kosten deiner Sättigung",
+      "Description": "Wenn du getroffen wirst, erhältst du Widerstandsfähigkeit auf Kosten deiner Sättigung",
       "Lore1": "Erhalte passive Resistenz bei Schaden",
       "Lore2": "x Resistenz stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapelt Sättigung",
-      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": "Resistenz stapelt Multiplikator, nicht Dauer."
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "Lore5": "Resistenz stapelt Multiplikator, nicht Dauer"
     },
     "HunterSpeed": {
       "Name": "Geschwindigkeit des Jägers",
@@ -397,8 +397,8 @@
       "Lore1": "Erhalte passive Geschwindigkeit bei Schaden",
       "Lore2": "x Geschwindigkeit stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapelt Sättigung",
-      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": "Geschwindigkeit stapelt Multiplikator, nicht Dauer."
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "Lore5": "Geschwindigkeit stapelt Multiplikator, nicht Dauer"
     },
     "HunterStrength": {
       "Name": "Stärke des Jägers",
@@ -406,8 +406,8 @@
       "Lore1": "Erhalte passive Stärke bei Schaden",
       "Lore2": "x Stärke stapelt sich bei einem Treffer für 3 Sekunden",
       "Lore3": "x stapelt Sättigung",
-      "Lore4": "Sättigung stapelt Dauer und Multiplikator.",
-      "Lore5": "Stärke stapelt Multiplikator, nicht Dauer."
+      "Lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "Lore5": "Stärke stapelt Multiplikator, nicht Dauer"
     }
   },
   "Nether": {
@@ -415,7 +415,7 @@
       "Name": "Wither Schädel Wurf",
       "Description1": "Entfessel den inneren Wither, indem du ",
       "Description2": "jemandes",
-      "Description3": "Kopf.",
+      "Description3": "Kopf",
       "Lore1": "Sekunden Abkühlzeit zwischen Schädelwürfen.",
       "Lore2": "Wither Skull verwenden: Wirf einen ",
       "Lore3": "Wither Skull",
@@ -426,30 +426,30 @@
       "Description": "Widerstehe dem Wither durch die Kraft des Netherite",
       "Lore1": "Chance, Wither zu negieren (pro Stück).",
       "Lore2": "Passiv: Tragen von Netherite Rüstung hat eine Chance, folgende Eigenschaften zu negieren ",
-      "Lore3": "withering."
+      "Lore3": "withering"
     }
   },
   "Pickaxe": {
     "Autosmelt": {
       "Name": "Automatisches Schmelzen",
-      "Description": "Ermöglicht das Schemlzen von abgebauten Erzen",
-      "Lore1": "Erze, die geschmolzen werden können, werden automatisch geschmolzen.",
+      "Description": "Ermöglicht das Schmelzen von abgebauten Erzen",
+      "Lore1": "Erze, die geschmolzen werden können, werden automatisch geschmolzen",
       "Lore2": "% Chance auf ein Extra"
     },
     "Chisel": {
       "Name": "Erzmeißel",
-      "Description": "Rechtsklick auf Erze, um mehr Erz herauszumeißel, mit erheblichen Verlust der Haltbarkeit verbunden.",
+      "Description": "Rechtsklick auf Erze, um mehr Erz herauszumeißel! Dies ist mit erheblichen Verlust der Haltbarkeit verbunden",
       "Lore1": "Chance auf Abwurf",
       "Lore2": "Werkzeugverschleiß"
     },
     "DropToInventory": {
       "Name": "Block Drop-Ins-Inventar",
-      "Description": "Wenn du einen Block zerbrichst, wird der Gegenstand in dein Inventar teleportiert.",
-      "Lore1": "Jedes Mal, wenn ein Gegenstand von einem Block droppt, landet er in deinem Inventar."
+      "Description": "Wenn du einen Block zerbrichst, wird der Gegenstand in dein Inventar teleportiert",
+      "Lore1": "Jedes Mal, wenn ein Gegenstand von einem Block droppt, landet er in deinem Inventar"
     },
     "Veinminer": {
       "Name": "Minenräumer",
-      "Description": "Ermöglicht das Zerbrechen von Blöcken in einer Ader/einem Cluster von Erzen",
+      "Description": "Ermöglicht das zeitgleiche Zerbrechen von Blöcken in einer Ader/einem Cluster von Erzen",
       "Lore1": "Schleichen und Erze abbauen",
       "Lore2": "Reichweite des Mienenräumens",
       "Lore3": "Diese Fähigkeit fasst nicht alle Drops zusammen!"
@@ -458,7 +458,7 @@
   "Ranged": {
     "ArrowRecovery": {
       "Name": "Pfeilbergung",
-      "Description": "Sammelt Peife ein, nachdem du einen Feind erledigt hast.",
+      "Description": "Sammelt Peife ein, nachdem du einen Feind erledigt hast",
       "Lore1": "Chance auf Wiederherstellung von Pfeilen bei Treffern/Tötung"
     },
     "ForceShot": {
@@ -475,14 +475,14 @@
     },
     "ArrowPiercing": {
       "Name": "Pfeildurchbohren",
-      "Description": "Fügt Projektilen Durchschlagskraft hinzu! Schieß durch Dinge hindurch!",
+      "Description": "Fügt Projektilen Durchschlagskraft hinzu. Schieß durch Dinge hindurch!",
       "Lore1": "Ziele durchschlagen"
     }
   },
   "Rift": {
     "RemoteAccess": {
       "Name": "Fernzugriff",
-      "Description": "In die Leere greifen um auf markierte Behälter zuzugreifen.",
+      "Description": "In die Leere greifen um auf einen markierte Behälter zuzugreifen",
       "Lore1": "Enderpele + Kompass = Reliquienportschlüssel",
       "Lore2": "Dieser Gegenstand ermöglicht es aus der Ferne auf Behälter zuzugreifen",
       "Lore3": "Sieh dir den Gegenstand nach der Herstellung an um ihn zu verstehen",
@@ -490,14 +490,14 @@
     },
     "RiftBlink": {
       "Name": "Rift Blink",
-      "Description": "Teleportation auf kurze Distanz, nur ein Wimpernschlag entfernt!",
+      "Description": "Teleportation auf kurze Distanz. Nur ein Wimpernschlag entfernt!",
       "Lore1": "Blöcke auf Blinken (2x vertikal)",
       "Lore2": "Beim Sprinten: Doppelklick auf Springen, um ",
       "Lore3": "zu Blink"
     },
     "RiftEnderchest": {
       "Name": "Einfache Endertruhe",
-      "Description": "Öffne eine Endertruhe in deiner Hand, mit einem Linksklick",
+      "Description": "Linksklick um eine Endertruhe in deiner Hand zu öffnen",
       "Lore1": "Klick auf eine Endertruhe in deiner Hand, um sie zu öffnen (nicht plazieren)"
     },
     "RiftGate": {
@@ -523,7 +523,7 @@
     },
     "DolphinGrace": {
       "Name": "Delphins Anmut",
-      "Description": "Schwimm wie ein Delphin, ohne ein Delphine",
+      "Description": "Schwimm wie ein Delphin, ohne einen Delphine!",
       "Lore1": "+ Passiv: erhalte ",
       "Lore2": "x Geschwindigkeit (Delphins Anmut)",
       "Lore3": "Präzise deutsche Ingenieeee.. - Moment, das ist nicht richtig..."
@@ -532,7 +532,7 @@
   "Stealth": {
     "GhostArmor": {
       "Name": "Geister Rüstung",
-      "Description": "Langsamer Aufbau von Rüstung, wenn kein Schaden erhalten wird, hält für 1 Treffer an",
+      "Description": "Langsamer Aufbau von Rüstung, wenn kein Schaden erhalten wird. Hält für 1 Treffer an!",
       "Lore1": "Maximale Rüstung",
       "Lore2": "Geschwindigkeit"
     },
@@ -550,14 +550,14 @@
     },
     "SneakSpeed": {
       "Name": "Schleichgeschwindigkeit",
-      "Description": "Beim Schleichen an Geschwindigkeit gewinnen",
+      "Description": "Gewinne an Geschwindigkeit beim Schleichen",
       "Lore1": "Schleichgeschwindigkeit"
     }
   },
   "Sword": {
     "Machete": {
       "Name": "Die Machete",
-      "Description": "Schneide mit Leichtigkeit durch Laub!",
+      "Description": "Schneide mit Leichtigkeit durchs Laub!",
       "Lore1": "Slash Radius",
       "Lore2": "Schlag Abklingzeit",
       "Lore3": "Werkzeugverschleiß"
@@ -566,17 +566,17 @@
   "Taming": {
     "TameDamage": {
       "Name": "Zähmbarer Schaden",
-      "Description": "Erhöht den Schade von gezähmten Tieren.",
+      "Description": "Erhöht den Schaden von gezähmten Tieren",
       "Lore1": "Erhöhter Schaden"
     },
     "TameHealth": {
       "Name": "Zähmbare Gesundheit",
-      "Description": "Erhöht die Gesundheit von gezähmten Tieren.",
+      "Description": "Erhöht die Gesundheit von gezähmten Tieren",
       "Lore1": "Erhöte Gesundheit"
     },
     "TameRegeneration": {
       "Name": "Gezähmte Regeneration",
-      "Description": "Erhöht die Gesundheitsregeneration von gezähmten Tieren.",
+      "Description": "Erhöht die Gesundheitsregeneration von gezähmten Tieren",
       "Lore1": "HP/s"
     }
   },
@@ -589,12 +589,12 @@
     },
     "UnarmedPower": {
       "Name": "Unbewaffnete Macht",
-      "Description": "Verbesserter unbewaffeter Schaden",
+      "Description": "Verbessert unbewaffeten Schaden",
       "Lore1": "Schaden"
     },
     "SuckerPunch": {
       "Name": "Sucker Punch",
-      "Description": "Sprint Schläge, aber tödlicher.",
+      "Description": "Sprint Schläge, aber tödlicher!",
       "Lore1": "Schaden",
       "Lore2": "Schaden erhöht sich mit der Geschwindigkeit beim Schlagen"
     }
