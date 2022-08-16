@@ -9,13 +9,13 @@
     },
     "AdaptMenu": {
       "KnowledgeCost": "Wissen kostet",
-      "AlreadyLearned": "Schon gelernt",
-      "UnlearnRefund": "Klicken Sie auf Verlernen & Rückerstattung",
+      "AlreadyLearned": "Bereits gelernt",
+      "UnlearnRefund": "Klick Sie auf Verlernen & Rückerstattung",
       "Knowledge": "Wissen",
       "ClickLearn": "Klicken Sie, um zu lernen",
       "NoKnowledge": "(Du hast kein Wissen)",
       "YouOnlyHave": "Du hast nur",
-      "HowToLevelUp": "Verbessere deine Fähigkeiten, um deine maximale Kraft zu erhöhen.",
+      "HowToLevelUp": "Verbessere deine Fähigkeiten, um deine maximales Level zu erhöhen.",
       "NotEnoughPower": "Nicht genug Kraft! Jede Fähigkeitsstufe kostet 1 Kraft.",
       "Power": "Energie",
       "Learned": "Gelernt ",
@@ -29,16 +29,16 @@
       "KnowledgeOrb": "Wissenskugel"
     },
     "ExperienceOrb": {
-      "Contains": "Contains",
-      "XP": "Experience",
-      "RightClick": "Right-Click",
-      "ToGainXP": "to gain this experience",
-      "XPOrb": "Experience Orb"
+      "Contains": "Enthält",
+      "XP": "Erfahrung",
+      "RightClick": "Rechtsklick",
+      "ToGainXP": "um Erfahrung zu sammeln",
+      "XPOrb": "Erfahrungskugeln"
     }
   },
   "Skill": {
     "Agility": {
-      "Name": "Abilität",
+      "Name": "Agilität",
       "Icon": "⇉",
       "Description": "Agilität ist die Fähigkeit, sich angesichts von Hindernissen schnell und flüssig zu bewegen."
     },
@@ -62,7 +62,7 @@
     "Crafting": {
       "Name": "Crafting",
       "Icon": "❖",
-      "Description": "Da es keine weiteren Teile mehr zu platzieren gibt, warum nicht noch eins machen?"
+      "Description": "Da es nichts mehr zu platzieren gibt, warum nicht neues erschaffen"
     },
     "Discovery": {
       "Name": "Entdeckung",
@@ -70,7 +70,7 @@
       "Description": "Wenn sich deine Wahrnehmung erweitert, wird dein Verstand enträtseln, um das zu entdecken, was du nicht wusstest."
     },
     "Enchanting": {
-      "Name": "Enchanting",
+      "Name": "Verzauberung",
       "Icon": "⚜",
       "Description": "Wovon reden Sie eigentlich? Prophezeiungen, Visionen, abergläubisches Gefasel?"
     },
@@ -132,22 +132,22 @@
     "TragOul": {
       "Name": "TragOul",
       "Icon": "▼",
-      "Description": "Blood flows through the veins of the universe. Constricted by your hands."
+      "Description": "Blut fließt durch die Adern des Universums. Gefesselt durch deine Hände."
     },
     "Chronos": {
       "Name": "Chronos",
       "Icon": "۞",
-      "Description": "Wind the Clock of the universe, experience the flow. Break the clock, Become it."
+      "Description": "Zieh die Uhr des Universums auf und erlebe den Zeitenfluss."
     },
     "Unarmed": {
-      "Name": "Ynbewaffnet",
+      "Name": "Unbewaffnet",
       "Icon": "⚜",
-      "Description": "Ohne eine Waffe ist noch ohne Stärke."
+      "Description": "Ohne Waffe bedeutet nicht ohne Stärke."
     }
   },
   "Agility": {
     "ArmorUp": {
-      "Name": "Armor-Up",
+      "Name": "Aufrüsten",
       "Description": "Je länger du sprintest, desto mehr Rüstung erhältst du!",
       "Lore1": "Maximale Rüstung",
       "Lore2": "Aufrüstungszeit"
@@ -179,7 +179,7 @@
       "Lore2": "Blöcke unter dir!"
     },
     "Glass": {
-      "Name": "Silk-Touch Glass",
+      "Name": "Behutsames Glass",
       "Description": "Auf diese Weise kannst du den Verlust von Glassblöcken verhindern, wenn du sie mit leeren Händen zerbrichst!",
       "Lore1": "Deine Hände erhalten Silk Touch für Glass"
     },
@@ -200,7 +200,7 @@
       "Lore3": "Werkzeugverschleiß"
     },
     "DropToInventory": {
-      "Name": "Axe Drop-To-Inventory"
+      "Name": "Axt Drop-Ins-Inventar"
     },
     "GroundSmash": {
       "Name": "Axt-Bodenschlag",
@@ -233,9 +233,9 @@
       "Lore2": "auf einen Schmiedetisch um ihn zu zerlegen."
     },
     "CraftXp": {
-      "Name": "Crafting XP",
-      "Description": "Passiv XP beim Craften erhalten",
-      "Lore1": "XP beim Craften erhalten"
+      "Name": "Crafting Erfahrung",
+      "Description": "Passiv Erfahrung beim Craften erhalten",
+      "Lore1": "Erfahrung beim Craften erhalten"
     }
   },
   "Discovery": {
@@ -249,7 +249,7 @@
     "DiscoveryUnity": {
       "Name": "Experimentelle Einheitlichkeit",
       "Description": "Durch Sammeln von Erfahrungskugeln erhält man Erfahrungspunkte für zufällige Fähigkeiten.",
-      "Lore1": "XP ",
+      "Lore1": "Erfahrung ",
       "Lore2": "Pro Kugel"
     },
     "DiscoveryXpResist": {
@@ -274,7 +274,7 @@
       "Lore3": "Macht"
     },
     "EnchantingXpReturn": {
-      "Name": "XP Rückkehr",
+      "Name": "Erfahrung Rückkehr",
       "Description": "Verzauberungs-XP wird zurückgegeben, wenn ein Gegenstand verzaubert wird.",
       "Lore1": "Erfahrung kann zurückerstattet werden, wenn Gegenstände verzaubert werden.",
       "Lore2": "Erfahrung pro Verzauberung"
@@ -288,7 +288,7 @@
       "Lore2": "x Stufen der Eile, wenn mit dem Abbau von Blöcken begonnen wird."
     },
     "DropToInventory": {
-      "Name": "Shovel Drop-To-Inventory"
+      "Name": "Schaufel Drop-Ins-Inventar"
     },
     "OmniTool": {
       "Name": "Schweizer Taschenmesser",
@@ -316,7 +316,7 @@
       "Lore1": "+ Lebensmittel) zusätzliche Sättigungspunkte beim Verbrauch"
     },
     "DropToInventory": {
-      "Name": "Hoe Drop-To-Inventory"
+      "Name": "Hacke Drop-Ins-Inventar"
     },
     "HungryShield": {
       "Name": "Hungriges Schild",
@@ -324,10 +324,10 @@
       "Lore1": "Widerstand durch Sättigung"
     },
     "Luck": {
-      "Name": "Herbalist's Luck",
-      "Description": "When you break Grass/Flowers, you have a chance to get a random item",
-      "Lore1": "Chance to get an item from breaking Flowers",
-      "Lore2": "Chance to get an item from breaking Grass"
+      "Name": "Glück des Kräuterkundlers",
+      "Description": "Wenn du Gras/Blumen zerbrichst, hast du die Chance, einen zufälligen Gegenstand zu erhalten.",
+      "Lore1": "Chance, einen Gegenstand aus zerbrechenden Blumen zu erhalten.",
+      "Lore2": "Chance, einen Gegenstand aus zerbrechendem Gras zu erhalten."
     },
     "Replant": {
       "Name": "Ernte & Wiederbepflanze",
@@ -342,9 +342,9 @@
       "Lore1": "Maximaler Schaden"
     },
     "DropToInventory": {
-      "Name": "Items Drop-To-Inventory",
-      "Description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
-      "Lore1": "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."
+      "Name": "Items Drop-Ins-Inventar",
+      "Description": "Wenn du etwas tötest / einen Block mit dem Schwert zerstörst, werden die Drops in dein Inventar teleopiert",
+      "Lore1": "Jedes Mal, wenn ein Gegenstand von einem Mob/Block fallen gelassen wird, landet er in deinem Inventar."
     },
     "HunterInvisibility": {
       "Name": "Verschwindender Schritt",
@@ -443,9 +443,9 @@
       "Lore2": "Werkzeugverschleiß"
     },
     "DropToInventory": {
-      "Name": "Block Drop-To-Inventory",
-      "Description": "When you break a block it teleports the item into your inventory",
-      "Lore1": "Whenever an item is dropped from a block you break it goes into your inventory if it can."
+      "Name": "Block Drop-Ins-Inventar",
+      "Description": "Wenn du einen Block zerbrichst, wird der Gegenstand in dein Inventar teleportiert.",
+      "Lore1": "Jedes Mal, wenn ein Gegenstand von einem Block droppt, landet er in deinem Inventar."
     },
     "Veinminer": {
       "Name": "Minenräumer",
@@ -512,7 +512,7 @@
       "Name": "Rift Widerstand",
       "Description": "Erhalte Resistenz bei der Verwendung von Ender Gegenständen & Fähigkeiten",
       "Lore1": "+ Passiv: Bietet Widerstand, wenn du Rift-Fähigkeiten oder Ender Gegenstände benutzt",
-      "Lore2": "Beinhält NICHT die tragbaren Endertruhe, nur Dinge, die du verbrauchen kannst"
+      "Lore2": "Beinhält NICHT die tragbare Endertruhe, nur Dinge, die du verbrauchen kannst"
     }
   },
   "Seaborn": {
@@ -575,7 +575,7 @@
       "Lore1": "Erhöte Gesundheit"
     },
     "TameRegeneration": {
-      "Name": "Tame Regeneration",
+      "Name": "Gezähmte Regeneration",
       "Description": "Erhöht die Gesundheitsregeneration von gezähmten Tieren.",
       "Lore1": "HP/s"
     }
