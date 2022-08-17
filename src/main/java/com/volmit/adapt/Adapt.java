@@ -193,7 +193,7 @@ public class Adapt extends VolmitPlugin {
                 return;
             }
 
-            String msg = C.GRAY + "[" + C.LIGHT_PURPLE + "Adapt" + C.GRAY + "]: " + string;
+            String msg = C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + string;
             Bukkit.getConsoleSender().sendMessage(msg);
         } catch (Throwable e) {
             System.out.println("[Adapt]: " + string);
