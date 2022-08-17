@@ -40,7 +40,7 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Herbalism", "Luck", "Description"));
         setDisplayName(Adapt.dLocalize("Herbalism", "Luck", "Name"));
-        setIcon(Material.POTATO);
+        setIcon(Material.EMERALD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(8111);
