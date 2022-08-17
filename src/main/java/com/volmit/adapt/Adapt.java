@@ -149,8 +149,6 @@ public class Adapt extends VolmitPlugin {
         }
     }
 
-
-
     private static void updateLanguageFile() {
         info("Attempting to update Language File");
         File langFolder = new File(Adapt.instance.getDataFolder() + "/languages");

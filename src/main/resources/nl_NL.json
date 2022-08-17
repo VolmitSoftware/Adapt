@@ -326,6 +326,7 @@
     "Luck": {
       "Name": "Herbalist's Luck",
       "Description": "When you break Grass/Flowers, you have a chance to get a random item",
+      "Lore0": "Flowers = Food, and Grass = Seeds",
       "Lore1": "Chance to get an item from breaking Flowers",
       "Lore2": "Chance to get an item from breaking Grass"
     },

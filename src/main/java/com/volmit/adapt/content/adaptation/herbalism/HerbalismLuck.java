@@ -50,8 +50,9 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ (" + (getEffectiveness(level)) + C.GRAY + ") + " + Adapt.dLocalize("Herbalism", "Luck", "Lore1"));
-        v.addLore(C.GREEN + "+ (" + (getEffectiveness(level)) + C.GRAY + ") + " + Adapt.dLocalize("Herbalism", "Luck", "Lore2"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("Herbalism", "Luck", "Lore0"));
+        v.addLore(C.GREEN + "+ (" + (getEffectiveness(level)) + C.GRAY + "%) + " + Adapt.dLocalize("Herbalism", "Luck", "Lore1"));
+        v.addLore(C.GREEN + "+ (" + (getEffectiveness(level)) + C.GRAY + "%) + " + Adapt.dLocalize("Herbalism", "Luck", "Lore2"));
     }
 
     private double getEffectiveness(double factor) {
