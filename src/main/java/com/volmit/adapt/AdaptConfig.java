@@ -42,6 +42,7 @@ public class AdaptConfig {
     private double playerXpPerSkillLevelUpBase = 489;
     private double playerXpPerSkillLevelUpLevelMultiplier = 44;
     private double powerPerLevel = 0.73;
+    public boolean debug = false;
 
     @Getter
     public static class ValueConfig {

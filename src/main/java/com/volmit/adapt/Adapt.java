@@ -166,9 +166,9 @@ public class Adapt extends VolmitPlugin {
     }
 
     public static void printInformation() {
-        info("XP Curve: " + AdaptConfig.get().getXpCurve());
-        info("XP/Level base: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
-        info("XP/Level multiplier: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier());
+        debug("XP Curve: " + AdaptConfig.get().getXpCurve());
+        debug("XP/Level base: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
+        debug("XP/Level multiplier: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier());
         info("Language: " + AdaptConfig.get().getLanguage());
     }
 
@@ -206,6 +206,12 @@ public class Adapt extends VolmitPlugin {
 
     public static void info(String string) {
         msg(C.WHITE + string);
+    }
+
+    public static void debug(String string) {
+        if (AdaptConfig.get().isDebug()) {
+            msg(C.DARK_PURPLE + string);
+        }
     }
 
 }
