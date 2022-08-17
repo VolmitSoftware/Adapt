@@ -51,7 +51,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         setCostFactor(0);
         setMaxLevel(1);
         setInitialCost(30);
-        setInterval(50);
+        setInterval(1322);
         registerRecipe(AdaptRecipe.shapeless()
             .key("rift-recall-gate")
             .ingredient(Material.ENDER_PEARL)

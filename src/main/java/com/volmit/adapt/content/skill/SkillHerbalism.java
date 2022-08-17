@@ -57,6 +57,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         registerAdaptation(new HerbalismHungryHippo());
         registerAdaptation(new HerbalismDropToInventory());
         registerAdaptation(new HerbalismLuck());
+        registerAdaptation(new HerbalismMyconid());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.COOKED_BEEF)
                 .key("challenge_eat_100")
