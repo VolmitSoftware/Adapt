@@ -310,6 +310,11 @@
       "Lore2": "Fuerza del Aura de Crecimiento",
       "Lore3": "Coste de la comida"
     },
+    "Myconid": {
+      "Name": "Herbalist's Myconid",
+      "Description": "Gives you the ability to craft Mycelium",
+      "Lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
+    },
     "Hippo": {
       "Name": "Hipopótamo de herbolario",
       "Description": "Consumir comida, te da más saturación",

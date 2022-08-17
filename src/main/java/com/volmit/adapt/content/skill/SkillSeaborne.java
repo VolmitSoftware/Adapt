@@ -31,6 +31,8 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerFishEvent;
 
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     public SkillSeaborne() {
@@ -61,6 +63,15 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                 checkStatTrackers(getPlayer(i));
                 xpSilent(i, getConfig().swimXP);
             }
+        }
+    }
+
+    @EventHandler
+    public void on(PlayerFishEvent e) {
+        if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
+            xp(e.getPlayer(), 300);
+        } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
+            xp(e.getPlayer(), 10);
         }
     }
 

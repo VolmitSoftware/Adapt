@@ -323,6 +323,11 @@
       "Description": "Subisce danni alla fame prima che alla salute",
       "Lore1": "Resistente alla fame"
     },
+    "Myconid": {
+      "Name": "Herbalist's Myconid",
+      "Description": "Gives you the ability to craft Mycelium",
+      "Lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
+    },
     "Luck": {
       "Name": "Herbalist's Luck",
       "Description": "When you break Grass/Flowers, you have a chance to get a random item",

@@ -315,6 +315,11 @@
       "Description": "Consuming food, gives you more saturation",
       "Lore1": "Food) additional saturation points on consumption"
     },
+    "Myconid": {
+      "Name": "Herbalist's Myconid",
+      "Description": "Gives you the ability to craft Mycelium",
+      "Lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
+    },
     "DropToInventory": {
       "Name": "Hoe Drop-To-Inventory"
     },
