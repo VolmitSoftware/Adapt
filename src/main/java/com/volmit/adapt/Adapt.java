@@ -71,71 +71,6 @@ public class Adapt extends VolmitPlugin {
 
     public static HashMap<String, String> wordKey = new HashMap<>();
 
-    public static String dLocalize(String s1, String s2, String s3) {
-        if (!wordKey.containsKey(""+s1+s2+s3)) {
-            JsonObject jsonObj = null;
-            try {
-                File langFile = new File(instance.getDataFolder() + "/languages", AdaptConfig.get().getLanguage() + ".json");
-                String jsonFromFile = Files.readString(langFile.toPath());
-                JsonElement jsonElement = JsonParser.parseString(jsonFromFile); // Get the file as a JsonElement
-                jsonObj = jsonElement.getAsJsonObject(); //since you know it's a JsonObject
-            } catch (IOException e) {
-                error("Failed to load the json String: " + s1 + s2 + s3);
-            }
-            if (jsonObj == null || jsonObj.get(s1) == null) { // Lang key does not exist in the lang Dictionary
-                File langFileEN = new File(instance.getDataFolder() + "/languages", "en_US.json");
-                InputStream in = Adapt.instance.getResource("en_US.json");
-                if (!langFileEN.exists()) {
-                    try {
-                        if (in != null) {
-                            Files.copy(in, langFileEN.toPath());
-                            info("Created default language file: " + langFileEN.getName());
-                            String jsonFromFile = Files.readString(langFileEN.toPath());
-                            JsonElement jsonElement = JsonParser.parseString(jsonFromFile); // Get the file as a JsonElement
-                            jsonObj = jsonElement.getAsJsonObject(); //since you know it's a JsonObject
-                        } else {
-                            error("Your Jar is corrupted, please reinstall the plugin");
-                        }
-                    } catch (IOException ignored) {
-                        error("Failed to load Lang file");
-                    }
-                } else {
-                    try {
-                        String jsonFromFile = Files.readString(langFileEN.toPath());
-                        JsonElement jsonElement = JsonParser.parseString(jsonFromFile); // Get the file as a JsonElement
-                        jsonObj = jsonElement.getAsJsonObject(); //since you know it's a JsonObject
-                    } catch (IOException e) {
-                        error("Failed to load fallback english language file");
-                    }
-                }
-                info(s1 + s2 + s3 + " Language Key is null, Using English Variant");
-            }
-            wordKey.put("" + s1 + s2 + s3, jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
-            return jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString();
-        } else {
-            return wordKey.get(""+s1+s2+s3);
-        }
-    }
-
-    private static void loadLanguageLocalization() {
-        info("Loading Language File");
-        File langFolder = new File(Adapt.instance.getDataFolder() + "/languages");
-        if (!langFolder.exists()) {
-            langFolder.mkdir();
-        }
-
-        File langFile = new File(langFolder, AdaptConfig.get().getLanguage() + ".json");
-        if (!langFile.exists()) {
-            try {
-                InputStream in = Adapt.instance.getResource(AdaptConfig.get().getLanguage() + ".json");
-                Files.copy(in, langFile.toPath());
-            } catch (IOException ignored) {
-                error("Failed to load Lang file");
-            }
-        }
-        info("Language Files Loaded");
-    }
-
 
     @Override
     public void start() {
@@ -213,5 +148,83 @@ public class Adapt extends VolmitPlugin {
             msg(C.DARK_PURPLE + string);
         }
     }
+
+
+
+    private static void updateLanguageFile() {
+        info("Attempting to update Language File");
+        File langFolder = new File(Adapt.instance.getDataFolder() + "/languages");
+        if (!langFolder.exists()) {
+            langFolder.mkdir();
+        }
+
+        File langFile = new File(langFolder, AdaptConfig.get().getLanguage() + ".json");
+        if (langFile.exists()) {
+            try {
+                InputStream in = Adapt.instance.getResource(AdaptConfig.get().getLanguage() + ".json");
+                Files.deleteIfExists(langFile.toPath());
+                Files.copy(in, langFile.toPath());
+                info("Language File Updated");
+            } catch (IOException ignored) {
+                error("Failed to load Internal Lang file");
+            }
+        } else {
+            loadLanguageLocalization();
+        }
+    }
+
+    private static void loadLanguageLocalization() {
+        info("Loading Language File");
+        File langFolder = new File(Adapt.instance.getDataFolder() + "/languages");
+        if (!langFolder.exists()) {
+            langFolder.mkdir();
+        }
+
+        File langFile = new File(langFolder, AdaptConfig.get().getLanguage() + ".json");
+        if (!langFile.exists()) {
+            try {
+                InputStream in = Adapt.instance.getResource(AdaptConfig.get().getLanguage() + ".json");
+                Files.copy(in, langFile.toPath());
+            } catch (IOException ignored) {
+                error("Failed to load Lang file");
+            }
+        }
+        info("Language Files Loaded");
+    }
+
+    private boolean localized = false;
+    public static String dLocalize(String s1, String s2, String s3) {
+        if (!wordKey.containsKey(""+s1+s2+s3)) {
+            JsonObject jsonObj = null;
+            try {
+                File langFile = new File(instance.getDataFolder() + "/languages", AdaptConfig.get().getLanguage() + ".json");
+                String jsonFromFile = Files.readString(langFile.toPath());
+                JsonElement jsonElement = JsonParser.parseString(jsonFromFile); // Get the file as a JsonElement
+                jsonObj = jsonElement.getAsJsonObject(); //since you know it's a JsonObject
+                if (jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString() == null && !instance.localized) {
+                    updateLanguageFile();
+                    instance.localized = true;
+                }
+            } catch (Exception e) {
+                updateLanguageFile();
+                try {
+                    File langFile = new File(instance.getDataFolder() + "/languages", AdaptConfig.get().getLanguage() + ".json");
+                    String jsonFromFile = Files.readString(langFile.toPath());
+                    JsonElement jsonElement = JsonParser.parseString(jsonFromFile); // Get the file as a JsonElement
+                    jsonObj = jsonElement.getAsJsonObject(); //since you know it's a JsonObject
+                } catch (IOException e1) {
+                    error("Failed to load the json String: " + s1 + s2 + s3);
+
+                    e1.printStackTrace();
+                }
+            }
+
+            wordKey.put("" + s1 + s2 + s3, jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
+            return jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString();
+        } else {
+            return wordKey.get(""+s1+s2+s3);
+        }
+    }
+
 
 }
