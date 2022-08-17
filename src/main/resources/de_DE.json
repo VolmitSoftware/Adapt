@@ -5,7 +5,7 @@
       "Knowledge": "Wissen",
       "PowerUsed": "belegte Energie",
       "NotLearned": "Noch nicht gelernt",
-      "XP": " Erfahrung bis"
+      "XP": " XP bis"
     },
     "AdaptMenu": {
       "KnowledgeCost": "Wissen",
@@ -311,9 +311,9 @@
       "Lore3": "Lebensmittelkosten"
     },
     "Myconid": {
-      "Name": "Herbalist's Myconid",
-      "Description": "Gives you the ability to craft Mycelium",
-      "Lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
+      "Name": "Myzel des Kräuterkundlers",
+      "Description": "Ermöglicht die Herstellung von Mycelium",
+      "Lore1": "Jede Erde und einen braunen und roten Pilz zusammen kombiniert stellen Mycelium her"
     },
     "Hippo": {
       "Name": "Raupe Nimmersatt",
