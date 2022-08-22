@@ -16,31 +16,22 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands;
+package com.volmit.adapt.commands.item;
 
-import com.volmit.adapt.commands.boost.CommandBoost;
-import com.volmit.adapt.commands.item.CommandItem;
-import com.volmit.adapt.commands.test.CommandTest;
-import com.volmit.adapt.util.Command;
+import com.volmit.adapt.content.item.KnowledgeOrb;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
 
 import java.util.List;
 
-public class CommandAdapt extends MortarCommand {
-    @Command
-    private CommandBoost boost = new CommandBoost();
-    @Command
-    private CommandItem item = new CommandItem();
-    @Command
-    private CommandTest test = new CommandTest();
-    public CommandAdapt() {
-        super("adapt", "ada", "a");
+public class CommandItemKnowledgeOrb extends MortarCommand {
+    public CommandItemKnowledgeOrb() {
+        super("knowledge", "k");
     }
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        printHelp(sender);
+        sender.player().getInventory().addItem(KnowledgeOrb.with(args[0], Integer.parseInt(args[1])));
         return true;
     }
 
@@ -51,6 +42,6 @@ public class CommandAdapt extends MortarCommand {
 
     @Override
     protected String getArgsUsage() {
-        return "";
+        return "<skill> <knowledge>";
     }
 }

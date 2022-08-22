@@ -16,7 +16,7 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands;
+package com.volmit.adapt.commands.test;
 
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.MortarCommand;

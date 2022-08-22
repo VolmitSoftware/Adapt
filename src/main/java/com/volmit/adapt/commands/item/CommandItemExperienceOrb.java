@@ -16,40 +16,32 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands;
+package com.volmit.adapt.commands.item;
 
+import com.volmit.adapt.content.item.ExperienceOrb;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
-import org.bukkit.Sound;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
-public class CommandTestSound extends MortarCommand {
-    public CommandTestSound() {
-        super("sound", "s");
+public class CommandItemExperienceOrb extends MortarCommand {
+    public CommandItemExperienceOrb() {
+        super("experience", "xp", "x");
     }
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        sender.player().playSound(sender.player(), Sound.valueOf(args[0])
-            , Float.parseFloat(args.length > 1 ? args[1] : "1")
-            , Float.parseFloat(args.length > 2 ? args[2] : "1"));
+        sender.player().getInventory().addItem(ExperienceOrb.with(args[0], Integer.parseInt(args[1])));
         return true;
     }
 
     @Override
     public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
-        if(args.length < 2) {
-            String query = args.length == 1 ? args[0] : null;
-            list.addAll(Arrays.stream(Sound.values()).filter(i -> query != null ? i.name().contains(query.toUpperCase(Locale.ROOT)) : true).map(i -> i.name()).collect(Collectors.toList()));
-        }
+
     }
 
     @Override
     protected String getArgsUsage() {
-        return "";
+        return "<skill> <xp>";
     }
 }

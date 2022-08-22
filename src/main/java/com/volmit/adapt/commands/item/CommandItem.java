@@ -16,23 +16,22 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands;
+package com.volmit.adapt.commands.item;
 
 import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
-import org.bukkit.Material;
 
 import java.util.List;
 
-public class CommandTest extends MortarCommand {
+public class CommandItem extends MortarCommand {
     @Command
-    private CommandTestParticle particle = new CommandTestParticle();
+    private CommandItemKnowledgeOrb skillOrb = new CommandItemKnowledgeOrb();
     @Command
-    private CommandTestSound sound = new CommandTestSound();
+    private CommandItemExperienceOrb xpOrb = new CommandItemExperienceOrb();
 
-    public CommandTest() {
-        super("test", "t");
+    public CommandItem() {
+        super("item", "i");
     }
 
     @Override

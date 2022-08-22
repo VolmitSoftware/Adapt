@@ -16,26 +16,22 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands;
+package com.volmit.adapt.commands.test;
 
-import com.volmit.adapt.commands.boost.CommandBoost;
-import com.volmit.adapt.commands.item.CommandItem;
-import com.volmit.adapt.commands.test.CommandTest;
 import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
 
 import java.util.List;
 
-public class CommandAdapt extends MortarCommand {
+public class CommandTest extends MortarCommand {
     @Command
-    private CommandBoost boost = new CommandBoost();
+    private CommandTestParticle particle = new CommandTestParticle();
     @Command
-    private CommandItem item = new CommandItem();
-    @Command
-    private CommandTest test = new CommandTest();
-    public CommandAdapt() {
-        super("adapt", "ada", "a");
+    private CommandTestSound sound = new CommandTestSound();
+
+    public CommandTest() {
+        super("test", "t");
     }
 
     @Override
