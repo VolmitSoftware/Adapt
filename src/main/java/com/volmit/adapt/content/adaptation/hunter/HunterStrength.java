@@ -45,17 +45,22 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
     public void addStats(int level, Element v) {
         v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterStrength", "Lore1"));
         v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterStrength", "Lore2"));
-        v.addLore(C.RED + "- " + 5+level + C.GRAY + Adapt.dLocalize("Hunter", "HunterStrength", "Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterStrength", "Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterStrength", "Lore5"));
+        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterStrength", "Lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "HunterStrength", "Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "HunterStrength", "Lore5"));
     }
 
 
     @EventHandler
     public void on(EntityDamageEvent e) {
-        if(e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
-            addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
-            addPotionStacks(p, PotionEffectType.INCREASE_DAMAGE, getLevel(p), 50, false);
+        if (e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
+            if (p.getFoodLevel() == 0) {
+                addPotionStacks(p, PotionEffectType.POISON, getLevel(p), 50, true);
+
+            } else {
+                addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
+                addPotionStacks(p, PotionEffectType.INCREASE_DAMAGE, getLevel(p), 50, false);
+            }
         }
     }
 

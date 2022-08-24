@@ -48,14 +48,21 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
         v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore3"));
         v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore4"));
         v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore5"));
+        v.addLore(C.RED + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "GenericPenalty", "Lore1"));
     }
 
 
     @EventHandler
     public void on(EntityDamageEvent e) {
         if (e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
-            addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
-            addPotionStacks(p, PotionEffectType.INVISIBILITY, 1, 50 * getLevel(p), true);
+            if (p.getFoodLevel() == 0) {
+                addPotionStacks(p, PotionEffectType.POISON, getLevel(p), 50, true);
+
+            } else {
+
+                addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
+                addPotionStacks(p, PotionEffectType.INVISIBILITY, 1, 50 * getLevel(p), true);
+            }
         }
     }
 

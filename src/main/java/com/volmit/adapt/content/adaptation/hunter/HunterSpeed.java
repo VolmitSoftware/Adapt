@@ -54,8 +54,13 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
     @EventHandler
     public void on(EntityDamageEvent e) {
         if(e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
-            addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
-            addPotionStacks(p, PotionEffectType.SPEED, getLevel(p), 50, false);
+            if (p.getFoodLevel() == 0) {
+                addPotionStacks(p, PotionEffectType.POISON, getLevel(p), 50, true);
+
+            } else {
+                addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
+                addPotionStacks(p, PotionEffectType.SPEED, getLevel(p), 50, false);
+            }
         }
     }
 
