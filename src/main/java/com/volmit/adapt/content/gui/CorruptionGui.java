@@ -34,7 +34,7 @@ public class CorruptionGui {
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         int ind = 0;
 
-        w.setTitle(Adapt.dLocalize("Snippets", "GUI", "Level")+ " " + (int) XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " " + Adapt.dLocalize("Snippets", "GUI", "PowerUsed") + ")");
+        w.setTitle(Adapt.dLocalize("Snippets", "GUI", "Level") + " " + (int) XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " " + Adapt.dLocalize("Snippets", "GUI", "PowerUsed") + ")");
         w.open();
     }
 }

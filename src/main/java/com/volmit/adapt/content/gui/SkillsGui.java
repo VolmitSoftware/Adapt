@@ -21,6 +21,7 @@ package com.volmit.adapt.content.gui;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.util.*;
@@ -32,16 +33,20 @@ public class SkillsGui {
         Window w = new UIWindow(player);
         w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE)));
 
-        AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
+        AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getPlayer(player);
         int ind = 0;
 
-        if (a.getData().getSkillLines().size() > 0) {
-            for (PlayerSkillLine i : a.getData().getSkillLines().sortV()) {
+        if (adaptPlayer.getData().getSkillLines().size() > 0) {
+            for (PlayerSkillLine i : adaptPlayer.getData().getSkillLines().sortV()) {
                 if (i.getLevel() < 0) {
                     continue;
                 }
                 int pos = w.getPosition(ind);
                 int row = w.getRow(ind);
+                int adaptationLevel = 0;
+                for (PlayerAdaptation adaptation : i.getAdaptations().sortV()) {
+                    adaptationLevel = adaptation.getLevel();
+                }
                 Skill<?> sk = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(i.getLine());
                 w.setElement(pos, row, new UIElement("skill-" + sk.getName())
                         .setMaterial(new MaterialBlock(sk.getIcon()))
@@ -49,10 +54,11 @@ public class SkillsGui {
                         .setProgress(1D)
                         .addLore(C.ITALIC + "" + C.GRAY + sk.getDescription())
                         .addLore(C.UNDERLINE + "" + C.WHITE + i.getKnowledge() + C.RESET + " " + C.GRAY + Adapt.dLocalize("Snippets", "GUI", "Knowledge"))
+                        .addLore(C.ITALIC + "" + C.GRAY + Adapt.dLocalize("Snippets", "GUI", "PowerUsed") + " " + C.DARK_GREEN + adaptationLevel)
                         .onLeftClick((e) -> sk.openGui(player)));
                 ind++;
             }
-            w.setTitle(Adapt.dLocalize("Snippets", "GUI", "Level") + " " + (int) XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " " + Adapt.dLocalize("Snippets", "GUI", "PowerUsed") + ")");
+            w.setTitle(Adapt.dLocalize("Snippets", "GUI", "Level") + " " + (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp()) + " (" + adaptPlayer.getData().getUsedPower() + "/" + adaptPlayer.getData().getMaxPower() + " " + Adapt.dLocalize("Snippets", "GUI", "PowerUsed") + ")");
             w.open();
         }
     }
