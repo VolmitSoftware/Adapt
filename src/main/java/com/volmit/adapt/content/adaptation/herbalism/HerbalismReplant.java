@@ -123,34 +123,30 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     }
 
     private void hit(Player p, Block b) {
-        if (b != null && b.getBlockData() instanceof Ageable aa && getLevel(p) > 0) {
+        if (b != null && b.getBlockData() instanceof Ageable && getLevel(p) > 0) {
+            Ageable aa = (Ageable) b.getBlockData();
+
             if (aa.getAge() == 0) {
                 return;
             }
 
             xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * aa.getAge());
             xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
-            if (getPlayer(p).getData().getSkillLines().get("herbalism").getAdaptations().get("herbalism-drop-to-inventory") != null
-                    && getPlayer(p).getData().getSkillLines().get("herbalism").getAdaptations().get("herbalism-drop-to-inventory").getLevel() > 0) {
-                if (ItemListings.toolHoes.contains(p.getInventory().getItemInMainHand().getType())) {
-                    b.breakNaturally();
-
-                    Collection<ItemStack> items = b.getDrops();
-                    for (ItemStack i : items) {
-                        p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
-                        xp(p, 2);
-                        i.setAmount(2);
-                        if (!p.getInventory().addItem(i).isEmpty()) {
-                            p.getWorld().dropItem(p.getLocation(), i);
-                        }
+            if (getPlayer(p).getData().getSkillLines().get("herbalism").getAdaptations().get("herbalism-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("herbalism").getAdaptations().get("herbalism-drop-to-inventory").getLevel() > 0) {
+                Collection<ItemStack> items = b.getDrops();
+                for (ItemStack i : items) {
+                    p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
+                    xp(p, 2);
+                    i.setAmount(1);
+                    if (!p.getInventory().addItem(i).isEmpty()) {
+                        p.getWorld().dropItem(p.getLocation(), i);
                     }
-                } else {
-                    b.breakNaturally();
                 }
+                aa.setAge(0);
+                J.s(() -> b.setBlockData(aa, true));
 
             } else {
                 b.breakNaturally();
-
             }
 
             aa.setAge(0);
