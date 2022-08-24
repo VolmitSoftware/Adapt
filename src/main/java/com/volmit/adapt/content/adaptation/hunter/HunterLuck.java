@@ -24,6 +24,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffectType;
@@ -53,7 +54,8 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
 
     @EventHandler
     public void on(EntityDamageEvent e) {
-        if (e.getEntity() instanceof org.bukkit.entity.Player && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
+        if (e.getEntity() instanceof org.bukkit.entity.Player && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation((Player) e.getEntity())) {
+            Player p = (Player) e.getEntity();
             if (p.getFoodLevel() == 0) {
                 addPotionStacks(p, PotionEffectType.POISON, getLevel(p), 50, true);
 

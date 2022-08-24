@@ -80,7 +80,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
 
     @EventHandler
     public void on(PlayerMoveEvent e) {
-        if (e.getFrom().getWorld().equals(e.getTo().getWorld())) {
+        if (e.getFrom().getWorld() != null && e.getTo() !=null && e.getFrom().getWorld().equals(e.getTo().getWorld())) {
             double d = e.getFrom().distance(e.getTo());
             getPlayer(e.getPlayer()).getData().addStat("move", d);
             if (e.getPlayer().isSneaking()) {
