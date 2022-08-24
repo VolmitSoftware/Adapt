@@ -16,40 +16,30 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands;
+package com.volmit.adapt.commands.openGui;
 
-import com.volmit.adapt.commands.boost.CommandBoost;
-import com.volmit.adapt.commands.item.CommandItem;
-import com.volmit.adapt.commands.openGui.CommandOpen;
-import com.volmit.adapt.commands.test.CommandTest;
-import com.volmit.adapt.util.Command;
+import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
+import org.bukkit.Sound;
 
 import java.util.List;
 
-public class CommandAdapt extends MortarCommand {
-    @Command
-    private CommandBoost boost = new CommandBoost();
-    @Command
-    private CommandOpen openGui = new CommandOpen();
-    @Command
-    private CommandItem item = new CommandItem();
-    @Command
-    private CommandTest test = new CommandTest();
-    public CommandAdapt() {
-        super("adapt", "ada", "a");
+public class CommandOpenGUI extends MortarCommand {
+    public CommandOpenGUI() {
+        super("gui", "g");
     }
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        printHelp(sender);
+        sender.player().playSound(sender.player().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 0.72f);
+        sender.player().playSound(sender.player().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
+        SkillsGui.open(sender.player());
         return true;
     }
 
     @Override
     public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
-
     }
 
     @Override

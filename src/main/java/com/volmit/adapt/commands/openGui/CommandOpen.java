@@ -18,28 +18,23 @@
 
 package com.volmit.adapt.commands.openGui;
 
-import com.volmit.adapt.commands.boost.CommandBoostPlayer;
-import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
-import org.bukkit.Sound;
 
 import java.util.List;
 
-public class CommandOpenGui extends MortarCommand {
+public class CommandOpen extends MortarCommand {
     @Command
-    private CommandOpenGui player = new CommandOpenGui();
+    private CommandOpenGUI gui = new CommandOpenGUI();
 
-    public CommandOpenGui() {
-        super("opengui", "gui");
+    public CommandOpen() {
+        super("open", "o");
     }
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        sender.player().playSound(sender.player().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 0.72f);
-        sender.player().playSound(sender.player().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
-        SkillsGui.open(sender.player());
+        printHelp(sender);
         return true;
     }
 
