@@ -50,9 +50,9 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRadius(getLevelPercent(level)), 0) + C.GRAY + " " +Adapt.dLocalize("Herbalism", "GrowthAura", "Lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getStrength(level), 0) + C.GRAY + " " +Adapt.dLocalize("Herbalism", "GrowthAura", "Lore2"));
-        v.addLore(C.YELLOW + "+ " + Form.f(getFoodCost(getLevelPercent(level)), 2) + C.GRAY + " " +Adapt.dLocalize("Herbalism", "GrowthAura", "Lore3"));
+        v.addLore(C.GREEN + "+ " + Form.f(getRadius(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("Herbalism", "GrowthAura", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getStrength(level), 0) + C.GRAY + " " + Adapt.dLocalize("Herbalism", "GrowthAura", "Lore2"));
+        v.addLore(C.YELLOW + "+ " + Form.f(getFoodCost(getLevelPercent(level)), 2) + C.GRAY + " " + Adapt.dLocalize("Herbalism", "GrowthAura", "Lore3"));
     }
 
     private double getRadius(double factor) {
@@ -66,7 +66,6 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     private double getFoodCost(double factor) {
         return M.lerp(1D - factor, getConfig().maxFoodCost, getConfig().minFoodCost);
     }
-
 
 
     @Override
@@ -93,14 +92,16 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                                     while (add-- > 0) {
                                         J.s(() -> {
                                             if (getPlayer(p).consumeFood(foodCost, 10)) {
-                                                Ageable aab = (Ageable) a.getBlockData();
+                                                if (a.getBlockData() instanceof Ageable) {
+                                                    Ageable aab = (Ageable) a.getBlockData();
 
-                                                if (aab.getAge() < aab.getMaximumAge()) {
-                                                    aab.setAge(aab.getAge() + 1);
-                                                    a.setBlockData(aab, true);
-                                                    a.getWorld().playSound(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
-                                                    p.spawnParticle(Particle.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);
-                                                    xp(p, 1);
+                                                    if (aab.getAge() < aab.getMaximumAge()) {
+                                                        aab.setAge(aab.getAge() + 1);
+                                                        a.setBlockData(aab, true);
+                                                        a.getWorld().playSound(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
+                                                        p.spawnParticle(Particle.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);
+                                                        xp(p, 1);
+                                                    }
                                                 }
                                             }
                                         }, RNG.r.i(30, 60));
