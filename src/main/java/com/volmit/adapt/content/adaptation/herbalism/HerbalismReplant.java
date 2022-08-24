@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.content.skill.SkillHerbalism;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -29,15 +30,13 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> {
 
@@ -74,10 +73,10 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        if (e.getClickedBlock() == null ) {
+        if (e.getClickedBlock() == null) {
             return;
         }
-        if (!e.getAction().equals(Action.LEFT_CLICK_BLOCK)) { // you need to right-click to harvest!
+        if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) { // you need to right-click to harvest!
             return;
         }
 
@@ -124,31 +123,35 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     }
 
     private void hit(Player p, Block b) {
-        if (b != null && b.getBlockData() instanceof Ageable && getLevel(p) > 0) {
-            Ageable aa = (Ageable) b.getBlockData();
-
+        if (b != null && b.getBlockData() instanceof Ageable aa && getLevel(p) > 0) {
             if (aa.getAge() == 0) {
                 return;
             }
 
             xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * aa.getAge());
             xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
-            if (getPlayer(p).getData().getSkillLines().get("herbalism").getAdaptations().get("herbalism-drop-to-inventory")!= null
+            if (getPlayer(p).getData().getSkillLines().get("herbalism").getAdaptations().get("herbalism-drop-to-inventory") != null
                     && getPlayer(p).getData().getSkillLines().get("herbalism").getAdaptations().get("herbalism-drop-to-inventory").getLevel() > 0) {
+                if (ItemListings.toolHoes.contains(p.getInventory().getItemInMainHand().getType())) {
+                    b.breakNaturally();
+
+                    Collection<ItemStack> items = b.getDrops();
+                    for (ItemStack i : items) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
+                        xp(p, 2);
+                        i.setAmount(2);
+                        if (!p.getInventory().addItem(i).isEmpty()) {
+                            p.getWorld().dropItem(p.getLocation(), i);
+                        }
+                    }
+                } else {
+                    b.breakNaturally();
+                }
+
+            } else {
+                b.breakNaturally();
 
             }
-            if (ItemListings.toolHoes.contains(e.getPlayer().getInventory().getItemInMainHand().getType())) {
-                List<Item> items = e.getItems().copy();
-                e.getItems().clear();
-                for (Item i : items) {
-                    p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
-                    xp(p, 2);
-                    if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
-                        p.getWorld().dropItem(p.getLocation(), i.getItemStack());
-                    }
-                }
-            }
-            b.breakNaturally();
 
             aa.setAge(0);
             J.s(() -> b.setBlockData(aa, true));
