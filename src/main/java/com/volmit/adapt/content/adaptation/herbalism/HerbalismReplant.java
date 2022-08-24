@@ -133,6 +133,21 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
             xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * aa.getAge());
             xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
+            if (getPlayer(p).getData().getSkillLines().get("herbalism").getAdaptations().get("herbalism-drop-to-inventory")!= null
+                    && getPlayer(p).getData().getSkillLines().get("herbalism").getAdaptations().get("herbalism-drop-to-inventory").getLevel() > 0) {
+
+            }
+            if (ItemListings.toolHoes.contains(e.getPlayer().getInventory().getItemInMainHand().getType())) {
+                List<Item> items = e.getItems().copy();
+                e.getItems().clear();
+                for (Item i : items) {
+                    p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
+                    xp(p, 2);
+                    if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
+                        p.getWorld().dropItem(p.getLocation(), i.getItemStack());
+                    }
+                }
+            }
             b.breakNaturally();
 
             aa.setAge(0);

@@ -37,7 +37,7 @@ import java.util.List;
 
 public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToInventory.Config> {
     public HerbalismDropToInventory() {
-        super("pickaxe-drop-to-inventory");
+        super("herbalism-drop-to-inventory");
         registerConfiguration(HerbalismDropToInventory.Config.class);
         setDescription(Adapt.dLocalize("Pickaxe", "DropToInventory", "Description"));
         setDisplayName(Adapt.dLocalize("Herbalism", "DropToInventory", "Name"));

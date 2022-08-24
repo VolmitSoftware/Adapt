@@ -39,7 +39,7 @@ import java.util.List;
 
 public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventory.Config> {
     public HunterDropToInventory() {
-        super("pickaxe-drop-to-inventory");
+        super("hunter-drop-to-inventory");
         registerConfiguration(HunterDropToInventory.Config.class);
         setDescription(Adapt.dLocalize("Pickaxe", "DropToInventory", "Description"));
         setDisplayName(Adapt.dLocalize("Hunter", "DropToInventory", "Name"));

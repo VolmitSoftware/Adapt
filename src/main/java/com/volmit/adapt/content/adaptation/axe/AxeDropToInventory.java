@@ -37,7 +37,7 @@ import java.util.List;
 
 public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Config> {
     public AxeDropToInventory() {
-        super("pickaxe-drop-to-inventory");
+        super("axe-drop-to-inventory");
         registerConfiguration(AxeDropToInventory.Config.class);
         setDescription(Adapt.dLocalize("Pickaxe", "DropToInventory", "Description"));
         setDisplayName(Adapt.dLocalize("Axe", "DropToInventory", "Name"));

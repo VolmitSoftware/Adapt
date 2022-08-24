@@ -37,7 +37,7 @@ import java.util.List;
 
 public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropToInventory.Config> {
     public ExcavationDropToInventory() {
-        super("pickaxe-drop-to-inventory");
+        super("excavation-drop-to-inventory");
         registerConfiguration(ExcavationDropToInventory.Config.class);
         setDescription(Adapt.dLocalize("Pickaxe", "DropToInventory", "Description"));
         setDisplayName(Adapt.dLocalize("Excavation", "DropToInventory", "Name"));
