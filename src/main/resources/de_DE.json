@@ -346,6 +346,11 @@
       "Description": "Verursache mehr Schaden, je weniger Gesundheit du hast (Nahkampf)",
       "Lore1": "Maximaler Schaden"
     },
+    "GenericPenalty": {
+      "Name": "",
+      "Description": "",
+      "Lore1": "You will Gain Poison stacks if you run out of hunger"
+    },
     "DropToInventory": {
       "Name": "Items Drop-Ins-Inventar",
       "Description": "Wenn du etwas tötest / einen Block mit dem Schwert zerstörst, werden die Drops in dein Inventar teleopiert",

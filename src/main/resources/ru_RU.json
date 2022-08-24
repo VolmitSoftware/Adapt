@@ -352,6 +352,11 @@
       "Description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
       "Lore1": "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."
     },
+    "GenericPenalty": {
+      "Name": "",
+      "Description": "",
+      "Lore1": "You will Gain Poison stacks if you run out of hunger"
+    },
     "HunterInvisibility": {
       "Name": "Vanishing Step",
       "Description": "When you are struck you gain invisibility, at the cost of hunger",

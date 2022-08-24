@@ -313,7 +313,7 @@
     "Myconid": {
       "Name": "Hierbalismo de Hongo",
       "Description": "Te da la capacidad de elaborar micelio",
-      "Lore1": "Cualquier tierra, y un hongo marrón y rojo crean micelio"."
+      "Lore1": "Cualquier tierra, y un hongo marrón y rojo crean micelio."
     },
     "Hippo": {
       "Name": "Hipopótamo de hierbalismo",
@@ -351,6 +351,11 @@
       "Name": "Telepatia de inventario",
       "Description": "Cuando matas algo / rompes un bloque con una espada, teletransporta los drops a tu inventario",
       "Lore1": "Cada vez que un item cae de un mob/bloque que rompes va a tu inventario si puede."
+    },
+    "GenericPenalty": {
+      "Name": "",
+      "Description": "",
+      "Lore1": "You will Gain Poison stacks if you run out of hunger"
     },
     "HunterInvisibility": {
       "Name": "Paso de invisibilidad",

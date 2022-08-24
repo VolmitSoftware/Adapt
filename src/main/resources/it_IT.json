@@ -347,6 +347,11 @@
       "Description": "Infligge più danni quanto più basso è il livello di salute (mischia).",
       "Lore1": "Danno massimo"
     },
+    "GenericPenalty": {
+      "Name": "",
+      "Description": "",
+      "Lore1": "You will Gain Poison stacks if you run out of hunger"
+    },
     "DropToInventory": {
       "Name": "Oggetti che cadono nell'inventario",
       "Description": "Quando si uccide qualcosa o si rompe un blocco con la spada, gli oggetti vengono teletrasportati nell'inventario.",

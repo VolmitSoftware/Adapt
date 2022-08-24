@@ -347,6 +347,11 @@
       "Description": "Deal more damage the lower health you are (Melee)",
       "Lore1": "Max Damage"
     },
+    "GenericPenalty": {
+      "Name": "",
+      "Description": "",
+      "Lore1": "You will Gain Poison stacks if you run out of hunger"
+    },
     "DropToInventory": {
       "Name": "Items Drop-To-Inventory",
       "Description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
