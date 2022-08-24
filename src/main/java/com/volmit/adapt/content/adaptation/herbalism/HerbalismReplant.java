@@ -29,8 +29,10 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -72,7 +74,10 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        if (e.getClickedBlock() == null) {
+        if (e.getClickedBlock() == null ) {
+            return;
+        }
+        if (!e.getAction().equals(Action.LEFT_CLICK_BLOCK)) { // you need to right-click to harvest!
             return;
         }
 
@@ -131,9 +136,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
             b.breakNaturally();
 
             aa.setAge(0);
-            J.s(() -> {
-                b.setBlockData(aa, true);
-            });
+            J.s(() -> b.setBlockData(aa, true));
 
             getPlayer(p).getData().addStat("harvest.blocks", 1);
             getPlayer(p).getData().addStat("harvest.planted", 1);
