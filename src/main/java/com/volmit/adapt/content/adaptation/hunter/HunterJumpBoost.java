@@ -53,7 +53,7 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
 
     @EventHandler
     public void on(EntityDamageEvent e) {
-        if (e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
+        if (e.getEntity() instanceof org.bukkit.entity.Player && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
             if (p.getFoodLevel() == 0) {
                 addPotionStacks(p, PotionEffectType.POISON, getLevel(p), 50, true);
 
