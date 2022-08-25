@@ -50,6 +50,8 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
         v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterResistance", "Lore3"));
         v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterResistance", "Lore4"));
         v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterResistance", "Lore5"));
+        v.addLore(C.GRAY + "- " + level + C.RED + " " + Adapt.dLocalize("Hunter", "GenericPenalty", "Lore1"));
+
     }
 
 

@@ -49,6 +49,8 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
         v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterRegen", "Lore3"));
         v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "HunterRegen", "Lore4"));
         v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "HunterRegen", "Lore5"));
+        v.addLore(C.GRAY + "- " + level + C.RED + " " + Adapt.dLocalize("Hunter", "GenericPenalty", "Lore1"));
+
     }
 
 
