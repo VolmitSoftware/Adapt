@@ -36,6 +36,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Lectern;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -84,7 +85,7 @@ public class SkillRegistry extends TickedObject {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEvent e) {
         if(!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
             && e.getClickedBlock().getType().equals(Material.BOOKSHELF) && (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR)

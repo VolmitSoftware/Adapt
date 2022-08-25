@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -62,7 +63,7 @@ public class UIWindow implements Window, Listener {
         setViewportPosition(0);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(InventoryClickEvent e) {
         if(!e.getWhoClicked().equals(viewer)) {
             return;
@@ -206,7 +207,7 @@ public class UIWindow implements Window, Listener {
 
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(InventoryCloseEvent e) {
         if(!e.getPlayer().equals(viewer)) {
             return;
