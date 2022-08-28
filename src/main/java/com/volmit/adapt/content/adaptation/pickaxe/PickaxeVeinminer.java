@@ -98,7 +98,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
             for (Location l : blockMap.keySet()) {
                 Block b = e.getBlock().getWorld().getBlockAt(l);
                 xp(e.getPlayer(), 3);
-                if (getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-autosmelt").getLevel() > 0) {
+                if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-autosmelt") != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-autosmelt").getLevel() > 0) {
                     PickaxeAutosmelt.autosmeltBlock(b, p);
                 } else {
                     b.breakNaturally(p.getItemInUse());

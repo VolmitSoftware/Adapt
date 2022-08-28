@@ -62,8 +62,8 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
                 addPotionStacks(p, PotionEffectType.POISON, getLevel(p), 50, true);
 
             } else {
-                addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
-                addPotionStacks(p, PotionEffectType.REGENERATION, getLevel(p), 50, false);
+                addPotionStacks(p, PotionEffectType.HUNGER, 10 + getLevel(p), 100, true);
+                addPotionStacks(p, PotionEffectType.REGENERATION, getLevel(p), 10, false);
             }
         }
     }
