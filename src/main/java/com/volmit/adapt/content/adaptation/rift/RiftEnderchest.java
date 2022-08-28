@@ -58,6 +58,10 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
         }
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
+        if (hand.getType() != Material.ENDER_CHEST) {
+            return;
+        }
+
         if (p.hasCooldown(hand.getType())) {
             e.setCancelled(true);
             return;
