@@ -95,6 +95,7 @@ Keep in mind it should be simple, but complex ones are welcome too!_
 
 ## Axe:
 - [ ] Tomahawk Throw
+- [X] Drop to inventory
 - [X] Axe Ground-Smash
 - [X] Axe TreeFeller
 - [ ] StripLogger (Sticks got from stripping)
@@ -131,19 +132,24 @@ Keep in mind it should be simple, but complex ones are welcome too!_
 ## Excavation**:
 - [ ] Dirt/Grass does not consume Durability
 - [X] Haste while digging
+- [X] Drop to inventory
 - [X] MultiTool (Merge multiple tools into one)
 
 ## Herbalism:
 - [X] Hunger Shield (up to 50% less hunger consumption)
+- [X] Drop to inventory
 - [X] Replanted (replant items by right-clicking)
 - [ ] Harvest Dupes
 - [X] Food feeds more
+- [X] Herbalist Luck (breaking things can give you things)
+- [X] Herbalist's Myconid (craftable Mycelia)
 - [ ] Instant Food Consumption (Cooldown)
 - [ ] Xp Gain
 - [X] Faster Grow Aura
 
 ## Hunter:
 - [X] Adrenaline (more damage lower the health)
+- [X] Drop to inventory
 - [X] Regen while in combat -> massive loss in hunger
 - [X] Resistance in combat  -> massive loss in hunger
 - [X] Speed while in combat  -> massive loss in hunger
@@ -164,7 +170,8 @@ Keep in mind it should be simple, but complex ones are welcome too!_
 - [X] Vein-miner (Vein-miner)
 - [ ] Locate Nearest Ore:
 - [ ] HammerMiner -> more duration cost
-- [ ] Auto-smelt % chance
+- [X] Auto-smelt % chance
+- [X] Drop to inventory
 - [ ] Chance not to eat Durability
 
 ## Ranged**:
@@ -219,6 +226,9 @@ Keep in mind it should be simple, but complex ones are welcome too!_
 ## Chronos: _(Unimplemented)_
 - [ ] Chronos Slowdown (Passive Slowdown for entities in the world near you)
 - [ ] Chronos Speed (Passive Speed for entities in the world near you)
+
+## TragOul: _(Unimplemented)_
+- [ ] Blood Mechanich and hurt yourself to get X
 
 </details>
 
