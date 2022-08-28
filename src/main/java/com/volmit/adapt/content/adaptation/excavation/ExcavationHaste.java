@@ -58,8 +58,6 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
         }
         Player p = e.getPlayer();
         e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 8, getLevel(p), true, false, true));
-
-
     }
 
 
