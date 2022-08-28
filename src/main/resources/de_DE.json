@@ -214,7 +214,7 @@
   "Brewing": {
     "Lingering": {
       "Name": "Nachhaltendes Gebräu",
-      "Description": "Gebräute Tränke halten länger",
+      "Description": "Gebraute Tränke halten länger",
       "Lore1": "Dauer",
       "Lore2": "Dauer"
     },
@@ -349,7 +349,7 @@
     "GenericPenalty": {
       "Name": "",
       "Description": "",
-      "Lore1": "You will Gain Poison stacks if you run out of hunger"
+      "Lore1": "Du erhältst Giftstapel, wenn du keine Sättigung mehr hast"
     },
     "DropToInventory": {
       "Name": "Items Drop-Ins-Inventar",
@@ -361,7 +361,7 @@
       "Description": "Wenn du getroffen wirst, erhältst du einen Unsichtbarkeits-Boost auf Kosten deiner Sättigung",
       "Lore1": "Erhalte passive Unsichtbarkeit bei Schaden",
       "Lore2": "x Unsichtbarkeit stapelt sich bei einem Treffer für 3 Sekunden",
-      "Lore3": "x stapel Sättigung",
+      "Lore3": "x Stapel Sättigung",
       "Lore4": "Sättigung stapelt Dauer und Multiplikator",
       "Lore5": "Dauer der Unsichtbarkeit"
     },
@@ -370,7 +370,7 @@
       "Description": "Wenn du getroffen wirst, erhältst du einen Sprung-Boost auf Kosten deiner Sättigung",
       "Lore1": "Erhalte Sprung-Boost bei Schaden",
       "Lore2": "x Sprung-Boost stapelt sich bei einem Treffer für 3 Sekunden",
-      "Lore3": "x stapel Sättigung",
+      "Lore3": "x Stapel Sättigung",
       "Lore4": "Sättigung stapelt Dauer und Multiplikator",
       "Lore5": "Sprung-Boost stapelt Multiplikator, nicht Dauer"
     },
@@ -379,7 +379,7 @@
       "Description": "Wenn du getroffen wirst, erhältst du Glück auf Kosten deiner Sättigung",
       "Lore1": "Erhalte passive Glück bei Schaden",
       "Lore2": "x Glück stapelt sich bei einem Treffer für 3 Sekunden",
-      "Lore3": "x stapelt Sättigung",
+      "Lore3": "x Stapel Sättigung",
       "Lore4": "Sättigung stapelt Dauer und Multiplikator",
       "Lore5": "Glück stapelt Multiplikator, nicht Dauer"
     },
@@ -388,7 +388,7 @@
       "Description": "Wenn du getroffen wirst, erhälst du Regeneration auf Kosten deiner Sättigung",
       "Lore1": "Erhalte passive Regeneration bei Schaden",
       "Lore2": "x Regeneration stapelt sich bei einem Treffer für 3 Sekunden",
-      "Lore3": "x stapelt Sättigung",
+      "Lore3": "x Stapel Sättigung",
       "Lore4": "Sättigung stapelt Dauer und Multiplikator",
       "Lore5": "Regeneration stapelt Multiplikator, nicht Dauer"
     },
@@ -397,7 +397,7 @@
       "Description": "Wenn du getroffen wirst, erhältst du Widerstandsfähigkeit auf Kosten deiner Sättigung",
       "Lore1": "Erhalte passive Resistenz bei Schaden",
       "Lore2": "x Resistenz stapelt sich bei einem Treffer für 3 Sekunden",
-      "Lore3": "x stapelt Sättigung",
+      "Lore3": "x Stapel Sättigung",
       "Lore4": "Sättigung stapelt Dauer und Multiplikator",
       "Lore5": "Resistenz stapelt Multiplikator, nicht Dauer"
     },
@@ -406,7 +406,7 @@
       "Description": "Wenn du getroffen wirst, erhältst du Geschwindigkeit auf Kosten deiner Sättigung",
       "Lore1": "Erhalte passive Geschwindigkeit bei Schaden",
       "Lore2": "x Geschwindigkeit stapelt sich bei einem Treffer für 3 Sekunden",
-      "Lore3": "x stapelt Sättigung",
+      "Lore3": "x Stapel Sättigung",
       "Lore4": "Sättigung stapelt Dauer und Multiplikator",
       "Lore5": "Geschwindigkeit stapelt Multiplikator, nicht Dauer"
     },
@@ -415,7 +415,7 @@
       "Description": "Wenn du getroffen wirst, erhälst du Stärke auf Kosten deiner Sättigung",
       "Lore1": "Erhalte passive Stärke bei Schaden",
       "Lore2": "x Stärke stapelt sich bei einem Treffer für 3 Sekunden",
-      "Lore3": "x stapelt Sättigung",
+      "Lore3": "x Stapel Sättigung",
       "Lore4": "Sättigung stapelt Dauer und Multiplikator",
       "Lore5": "Stärke stapelt Multiplikator, nicht Dauer"
     }
@@ -592,7 +592,7 @@
   },
   "Unarmed": {
     "GlassCannon": {
-      "Name": "Glass Cannon",
+      "Name": "Glaskanone",
       "Description": "Bonus auf unbewaffneten Schaden, je niedriger dein Rüstungswert ist",
       "Lore1": "x Schaden bei 0 Rüstung",
       "Lore2": "Pro Level Bonus Schaden"
