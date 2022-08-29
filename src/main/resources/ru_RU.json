@@ -3,8 +3,8 @@
     "GUI": {
       "Level": "Level",
       "Knowledge": "Знания",
-      "PowerUsed": "Power Used",
-      "NotLearned": "Not Learned",
+      "PowerUsed": "Используемая мощность",
+      "NotLearned": "Не изучен",
       "XP": "XP to"
     },
     "AdaptMenu": {
@@ -149,17 +149,17 @@
     "ArmorUp": {
       "Name": "Armor-Up",
       "Description": "Get more armor the longer you sprint!",
-      "Lore1": "Max Armor",
-      "Lore2": "Armor-Up Time"
+      "Lore1": "Максимальная броня",
+      "Lore2": "Время усиления брони"
     },
     "SuperJump": {
-      "Name": "Super Jump",
-      "Description": "Exceptional Height Advantage",
-      "Lore1": "Max Jump Height",
-      "Lore2": "Sneak + Jump to Super Jump!"
+      "Name": "Супер прыжок",
+      "Description": "Исключительное преимущество высоты",
+      "Lore1": "Максимальная высота прыжка",
+      "Lore2": "Скрытность + прыжок к супер прыжку!"
     },
     "WallJump": {
-      "Name": "Wall Jump",
+      "Name": "Прыжок от стены",
       "Description": "Hold shift while mid-air against a wall to wall latch & jump!",
       "Lore1": "Max Jumps",
       "Lore2": "Jump Height"
@@ -167,26 +167,26 @@
     "WindUp": {
       "Name": "Wind Up",
       "Description": "Get faster the longer you sprint!",
-      "Lore1": "Max Speed",
-      "Lore2": "Windup Time"
+      "Lore1": "Максимальная скорость",
+      "Lore2": "Время завершения"
     }
   },
   "Architect": {
     "Foundation": {
-      "Name": "Magic Foundation",
-      "Description": "This allows for you to sneak and place a temporary foundation beneath you!",
-      "Lore1": "Magically create: ",
-      "Lore2": "Blocks beneath you!"
+      "Name": "Волшебный Фонд",
+      "Description": "Это позволяет вам прокрасться и разместить под собой временный фундамент!",
+      "Lore1": "Волшебно создать:",
+      "Lore2": "Блоки под вами!"
     },
     "Glass": {
-      "Name": "Silk-Touch Glass",
-      "Description": "This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand!",
-      "Lore1": "Your hands gain silk touch for Glass"
+      "Name": "Шелковое стекло",
+      "Description": "Это позволяет вам существенно предотвратить потерю стеклянных блоков, когда вы разбиваете их пустой рукой!",
+      "Lore1": "Ваши руки приобретают шелковое прикосновение для стекла"
     },
     "Placement": {
-      "Name": "Builders Wand",
-      "Description": "Allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!",
-      "Lore1": "You need",
+      "Name": "Жезл строителя",
+      "Description": "Позволяет вам размещать несколько блоков одновременно, чтобы активировать скрытность, и удерживать блок, который соответствует вашему внешнему блоку и месту! Имейте в виду, что вам может понадобиться немного сдвинуться, чтобы активировать ограничивающие рамки!",
+      "Lore1": "Тебе нужно",
       "Lore2": "blocks in your hand to place this",
       "Lore3": "A Material Builders Wand"
     }
@@ -227,8 +227,8 @@
   },
   "Crafting": {
     "Deconstruction": {
-      "Name": "Deconstruction",
-      "Description": "Deconstruct blocks & items into salvageable base components!",
+      "Name": "Деконструкция",
+      "Description": "Разбирайте блоки и предметы на базовые компоненты, которые можно спасти!",
       "Lore1": "Place an any item + shears",
       "Lore2": "in a smithing table to deconstruct."
     },
@@ -347,15 +347,13 @@
       "Description": "Deal more damage the lower health you are (Melee)",
       "Lore1": "Max Damage"
     },
+    "GenericPenalty": {
+      "Lore1": "You will Gain Poison stacks if you run out of hunger"
+    },
     "DropToInventory": {
       "Name": "Items Drop-To-Inventory",
       "Description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
       "Lore1": "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."
-    },
-    "GenericPenalty": {
-      "Name": "",
-      "Description": "",
-      "Lore1": "You will Gain Poison stacks if you run out of hunger"
     },
     "HunterInvisibility": {
       "Name": "Vanishing Step",
