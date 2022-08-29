@@ -51,15 +51,13 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
         v.addLore(C.GREEN + "" + (level) + C.GRAY + Adapt.dLocalize("Excavation", "ExcavationHaste", "Lore2"));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockDamageEvent e) {
         if (!hasAdaptation(e.getPlayer())) {
             return;
         }
         Player p = e.getPlayer();
-        J.a(() -> {
-            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 8, getLevel(p), true, false, true));
-        });
+        p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 15, getLevel(p), false, false, true));
     }
 
 
