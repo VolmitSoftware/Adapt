@@ -46,6 +46,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
@@ -133,46 +134,40 @@ public class AdaptServer extends TickedObject {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(ProjectileLaunchEvent e)
     {
-        if(e.getEntity() instanceof Snowball s && e.getEntity().getShooter() instanceof Player p)
-        {
+        if (e.getEntity() instanceof Snowball s && e.getEntity().getShooter() instanceof Player p) {
             KnowledgeOrb.Data data = KnowledgeOrb.get(s.getItem());
-
-            if(data != null) {
+            if (data != null) {
                 Skill<?> skill = getSkillRegistry().getSkill(data.getSkill());
-                s.remove();
                 data.apply(p);
                 SoundNotification.builder()
-                    .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
-                    .volume(0.35f).pitch(1.455f)
-                    .build().play(getPlayer(p));
-                SoundNotification.builder()
-                    .sound(Sound.ENTITY_SHULKER_OPEN)
-                    .volume(1f).pitch(1.655f)
-                    .build().play(getPlayer(p));
-                getPlayer(p).getNot().queue(AdvancementNotification.builder()
-                        .icon(Material.BOOK)
-                    .title(C.GRAY + "+ " + C.WHITE + data.getKnowledge() + " " + skill.getDisplayName() + " Knowledge")
-                    .build());
-            }
-
-            else
-            {
-                ExperienceOrb.Data datax = ExperienceOrb.get(s.getItem());
-
-                if(datax != null) {
-                    s.remove();
-                    datax.apply(p);
-                    SoundNotification.builder()
                         .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
                         .volume(0.35f).pitch(1.455f)
                         .build().play(getPlayer(p));
-                    SoundNotification.builder()
+                SoundNotification.builder()
                         .sound(Sound.ENTITY_SHULKER_OPEN)
                         .volume(1f).pitch(1.655f)
+                        .build().play(getPlayer(p));
+                getPlayer(p).getNot().queue(AdvancementNotification.builder()
+                        .icon(Material.BOOK)
+                        .title(C.GRAY + "+ " + C.WHITE + data.getKnowledge() + " " + skill.getDisplayName() + " Knowledge")
+                        .build());
+            } else {
+                ExperienceOrb.Data datax = ExperienceOrb.get(s.getItem());
+                if (datax != null) {
+                    datax.apply(p);
+                    SoundNotification.builder()
+                            .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
+                            .volume(0.35f).pitch(1.455f)
+                            .build().play(getPlayer(p));
+                    SoundNotification.builder()
+                            .sound(Sound.ENTITY_SHULKER_OPEN)
+                            .volume(1f).pitch(1.655f)
                         .build().play(getPlayer(p));
                 }
             }
         }
+        e.setCancelled(false);
+        e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(1000));
     }
 
     @EventHandler
