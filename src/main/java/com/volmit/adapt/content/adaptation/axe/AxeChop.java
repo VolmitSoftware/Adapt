@@ -34,6 +34,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
@@ -64,14 +65,14 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
                 return;
             }
 
-            if (e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) > 0) {
+            if (e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) >= 0) {
                 e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_AXE_STRIP, 0.2f, (1.5f + RNG.r.f(0.5f)));
                 getSkill().xp(e.getPlayer(), 2.25);
                 return;
             }
 
             BlockData b = e.getClickedBlock().getBlockData();
-            if (isLog(b)) {
+            if (isLog(new ItemStack(b.getMaterial()))) {
                 e.setCancelled(true);
                 e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
 
@@ -102,14 +103,14 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         Block last = b;
         for (int i = b.getY(); i < power + b.getY(); i++) {
             Block bb = b.getWorld().getBlockAt(b.getX(), i, b.getZ());
-            if (isLog(bb.getBlockData())) {
+            if (isLog(new ItemStack(bb.getType()))) {
                 last = bb;
             } else {
                 break;
             }
         }
 
-        if (!isLog(last.getBlockData())) {
+        if (!isLog(new ItemStack(last.getType()))) {
             return false;
         }
 
@@ -119,41 +120,6 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         return true;
     }
 
-    //Todo: Add this to Item.Itemlistings
-    private boolean isLog(BlockData b) {
-        switch (b.getMaterial()) {
-            case ACACIA_LOG:
-            case BIRCH_LOG:
-            case DARK_OAK_LOG:
-            case JUNGLE_LOG:
-            case OAK_LOG:
-            case SPRUCE_LOG:
-            case STRIPPED_ACACIA_LOG:
-            case STRIPPED_BIRCH_LOG:
-            case STRIPPED_DARK_OAK_LOG:
-            case STRIPPED_JUNGLE_LOG:
-            case STRIPPED_OAK_LOG:
-            case STRIPPED_SPRUCE_LOG:
-            case ACACIA_WOOD:
-            case BIRCH_WOOD:
-            case DARK_OAK_WOOD:
-            case JUNGLE_WOOD:
-            case OAK_WOOD:
-            case SPRUCE_WOOD:
-            case STRIPPED_ACACIA_WOOD:
-            case STRIPPED_BIRCH_WOOD:
-            case STRIPPED_DARK_OAK_WOOD:
-            case STRIPPED_JUNGLE_WOOD:
-            case STRIPPED_OAK_WOOD:
-            case STRIPPED_SPRUCE_WOOD:
-            case MUSHROOM_STEM:
-            case BROWN_MUSHROOM_BLOCK:
-            case RED_MUSHROOM_BLOCK:
-                return true;
-        }
-
-        return false;
-    }
 
     @Override
     public void onTick() {
