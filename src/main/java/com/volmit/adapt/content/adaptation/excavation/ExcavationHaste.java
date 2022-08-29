@@ -22,7 +22,6 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -80,6 +79,6 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
         int baseCost = 2;
         int initialCost = 3;
         double costFactor = 0.3;
-        int maxLevel = 7;
+        int maxLevel = 3;
     }
 }
