@@ -80,7 +80,6 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
     public static class Data {
         private String skill;
         private double experience;
-
         public void apply(Player p) {
             Adapt.instance.getAdaptServer().getPlayer(p).getSkillLine(skill).giveXP(Adapt.instance.getAdaptServer().getPlayer(p).getNot(), experience);
         }

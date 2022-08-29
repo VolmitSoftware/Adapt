@@ -57,7 +57,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("Discovery", "DiscoveryXpResist", "Lore0"));
         v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Discovery", "DiscoveryXpResist", "Lore1"));
-        v.addLore(C.GREEN + "+ " + getXpTaken(level) + C.GRAY + Adapt.dLocalize("Discovery", "DiscoveryXpResist", "Lore2"));
+        v.addLore(C.GREEN + "+ " + getXpTaken(level) +" " + C.GRAY + Adapt.dLocalize("Discovery", "DiscoveryXpResist", "Lore2"));
     }
 
     private double getEffectiveness(double factor) {
@@ -72,7 +72,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     @EventHandler
     public void on(EntityDamageEvent e) {
         if (e.getEntity() instanceof Player p && hasAdaptation(p)) {
-            if (getTotalExp(p) < getXpTaken(getLevel(p))) {
+            if (p.getLevel() <  p.getLevel() - getXpTaken(getLevel(p))) {
                 vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);
                 p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
                 return;
@@ -81,14 +81,14 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
                 e.setDamage(e.getDamage() - (e.getDamage() * (getEffectiveness(getLevelPercent(getLevel(p))))));
                 xp(p, 5);
                 cooldowns.put(p, M.ms());
-                takeExp(p, getXpTaken(getLevel(p)));
+
+                p.setLevel(p.getLevel() - getXpTaken(getLevel(p)));
                 vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.LIME);
                 p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 3, 0.01f);
                 p.playSound(p.getLocation(), Sound.BLOCK_SHROOMLIGHT_HIT, 15, 0.01f);
             } else {
                 vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);
                 p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
-                return;
             }
         }
     }

@@ -22,7 +22,6 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -52,15 +51,13 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
         v.addLore(C.GREEN + "" + (level) + C.GRAY + Adapt.dLocalize("Excavation", "ExcavationHaste", "Lore2"));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockDamageEvent e) {
         if (!hasAdaptation(e.getPlayer())) {
             return;
         }
         Player p = e.getPlayer();
-        J.a(() -> {
-            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 8, getLevel(p), true, false, true));
-        });
+        p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 15, getLevel(p), false, false, true));
     }
 
 
@@ -80,6 +77,6 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
         int baseCost = 2;
         int initialCost = 3;
         double costFactor = 0.3;
-        int maxLevel = 7;
+        int maxLevel = 3;
     }
 }

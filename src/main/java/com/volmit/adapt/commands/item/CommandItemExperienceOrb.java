@@ -21,6 +21,7 @@ package com.volmit.adapt.commands.item;
 import com.volmit.adapt.content.item.ExperienceOrb;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
+import org.bukkit.Bukkit;
 
 import java.util.List;
 
@@ -31,7 +32,13 @@ public class CommandItemExperienceOrb extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        sender.player().getInventory().addItem(ExperienceOrb.with(args[0], Integer.parseInt(args[1])));
+        if (args.toList().size() > 2) {
+            if (Bukkit.getPlayer(args[2]) != null && Bukkit.getPlayer(args[2]).getPlayer() != null) {
+                Bukkit.getPlayer(args[2]).getPlayer().getInventory().addItem(ExperienceOrb.with(args[0], Integer.parseInt(args[1])));
+            }
+        } else if (args.toList().size() == 2) {
+            sender.player().getInventory().addItem(ExperienceOrb.with(args[0], Integer.parseInt(args[1])));
+        }
         return true;
     }
 
