@@ -123,9 +123,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     }
 
     private void hit(Player p, Block b) {
-        if (b != null && b.getBlockData() instanceof Ageable && getLevel(p) > 0) {
-            Ageable aa = (Ageable) b.getBlockData();
-
+        if (b != null && b.getBlockData() instanceof Ageable aa && getLevel(p) > 0) {
             if (aa.getAge() == 0) {
                 return;
             }
@@ -146,7 +144,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
                 J.s(() -> b.setBlockData(aa, true));
 
             } else {
-                b.breakNaturally();
+                p.breakBlock(b);
             }
 
             aa.setAge(0);

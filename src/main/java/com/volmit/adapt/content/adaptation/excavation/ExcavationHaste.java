@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -51,13 +52,15 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
         v.addLore(C.GREEN + "" + (level) + C.GRAY + Adapt.dLocalize("Excavation", "ExcavationHaste", "Lore2"));
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler
     public void on(BlockDamageEvent e) {
         if (!hasAdaptation(e.getPlayer())) {
             return;
         }
         Player p = e.getPlayer();
-        e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 8, getLevel(p), true, false, true));
+        J.a(() -> {
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 8, getLevel(p), true, false, true));
+        });
     }
 
 
