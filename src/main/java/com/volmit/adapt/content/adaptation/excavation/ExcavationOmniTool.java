@@ -243,6 +243,12 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             }
             J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextShovel(hand)));
             itemDelegate(e, hand, imHand);
+        } else if (ItemListings.getSwordBreakables().contains(b.getType())) {
+            if (hand.getType().toString().contains("_SWORD")) {
+                return;
+            }
+            J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextSword(hand)));
+            itemDelegate(e, hand, imHand);
         } else { // Default to pickaxe
             if (hand.getType().toString().contains("_PICKAXE")) {
                 return;

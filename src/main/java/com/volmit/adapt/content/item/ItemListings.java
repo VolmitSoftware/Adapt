@@ -56,6 +56,17 @@ public class ItemListings {
     );
 
     @Getter
+    public static List<Material> swordBreakables = List.of(
+            Material.COBWEB,
+            Material.CAVE_VINES,
+            Material.CAVE_VINES_PLANT,
+            Material.BAMBOO,
+            Material.COCOA,
+            Material.COCOA_BEANS,
+            Material.HAY_BLOCK
+    );
+
+    @Getter
     public static List<Material> herbalLuckFood = List.of(
             Material.POTATOES,
             Material.CARROTS,

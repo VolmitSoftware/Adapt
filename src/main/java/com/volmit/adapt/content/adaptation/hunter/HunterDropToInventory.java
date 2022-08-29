@@ -56,7 +56,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Pickaxe", "DropToInventory", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "DropToInventory", "Lore1"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
