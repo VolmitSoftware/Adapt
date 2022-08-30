@@ -310,15 +310,15 @@
       "Lore2": "Stärke der Wachstumsaura",
       "Lore3": "Lebensmittelkosten"
     },
-    "Myconid": {
-      "Name": "Myzel des Kräuterkundlers",
-      "Description": "Ermöglicht die Herstellung von Mycelium",
-      "Lore1": "Jede Erde und einen braunen und roten Pilz zusammen kombiniert stellen Mycelium her"
-    },
     "Hippo": {
       "Name": "Raupe Nimmersatt",
       "Description": "Verzehr von Lebensmittel führt zu mehr Sättigung",
       "Lore1": "+ Lebensmittel) zusätzliche Sättigungspunkte beim Verbrauch"
+    },
+    "Myconid": {
+      "Name": "Myzel des Kräuterkundlers",
+      "Description": "Ermöglicht die Herstellung von Mycelium",
+      "Lore1": "Jede Erde und einen braunen und roten Pilz zusammen kombiniert stellen Mycelium her"
     },
     "DropToInventory": {
       "Name": "Hacke Drop-Ins-Inventar"
@@ -347,8 +347,6 @@
       "Lore1": "Maximaler Schaden"
     },
     "GenericPenalty": {
-      "Name": "",
-      "Description": "",
       "Lore1": "Du erhältst Giftstapel, wenn du keine Sättigung mehr hast"
     },
     "DropToInventory": {
@@ -555,8 +553,7 @@
     },
     "ItemSnatch": {
       "Name": "Schnappen",
-      "Description": "Nimm sofort fallen gelassene Gegenstände auf während du schleichst ",
-      "Lore1": "Schnappradius"
+      "Description": "Nimm sofort fallen gelassene Gegenstände auf während du schleichst "
     },
     "SneakSpeed": {
       "Name": "Schleichgeschwindigkeit",
