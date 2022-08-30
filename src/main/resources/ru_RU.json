@@ -1,10 +1,8 @@
 {
   "Snippets": {
     "GUI": {
-      "Level": "Level",
+      "Level": "Уровень",
       "Knowledge": "Знания",
-      "PowerUsed": "Power Used",
-      "NotLearned": "Not Learned",
       "XP": "XP to"
     },
     "AdaptMenu": {
@@ -148,45 +146,32 @@
   "Agility": {
     "ArmorUp": {
       "Name": "Armor-Up",
-      "Description": "Get more armor the longer you sprint!",
-      "Lore1": "Max Armor",
-      "Lore2": "Armor-Up Time"
+      "Description": "Get more armor the longer you sprint!"
     },
     "SuperJump": {
-      "Name": "Super Jump",
-      "Description": "Exceptional Height Advantage",
-      "Lore1": "Max Jump Height",
-      "Lore2": "Sneak + Jump to Super Jump!"
+      "Lore2": "Шифт + Пробел для супер прыжка!"
     },
     "WallJump": {
-      "Name": "Wall Jump",
       "Description": "Hold shift while mid-air against a wall to wall latch & jump!",
       "Lore1": "Max Jumps",
       "Lore2": "Jump Height"
     },
     "WindUp": {
       "Name": "Wind Up",
-      "Description": "Get faster the longer you sprint!",
-      "Lore1": "Max Speed",
-      "Lore2": "Windup Time"
+      "Description": "Get faster the longer you sprint!"
     }
   },
   "Architect": {
     "Foundation": {
-      "Name": "Magic Foundation",
-      "Description": "This allows for you to sneak and place a temporary foundation beneath you!",
-      "Lore1": "Magically create: ",
-      "Lore2": "Blocks beneath you!"
+      "Description": "Это позволяет вам  разместить под собой временный фундамент, когда вы крадетесь!"
     },
     "Glass": {
-      "Name": "Silk-Touch Glass",
-      "Description": "This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand!",
-      "Lore1": "Your hands gain silk touch for Glass"
+      "Description": "Это позволяет вам получить стеклянные блоки, когда вы разбиваете их рукой!",
+      "Lore1": "Ваши руки приобретают шелковое касание для стекла"
     },
     "Placement": {
-      "Name": "Builders Wand",
-      "Description": "Allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!",
-      "Lore1": "You need",
+      "Description": "Позволяет вам размещать несколько блоков одновременно, чтобы активировать начните красться, и держите в руках тот же блок на который вы смотрите! Имейте в виду, что вам может понадобиться немного сдвинуться, чтобы все вместилось!",
+      "Lore1": "Вам нужно",
       "Lore2": "blocks in your hand to place this",
       "Lore3": "A Material Builders Wand"
     }
@@ -227,22 +212,14 @@
   },
   "Crafting": {
     "Deconstruction": {
-      "Name": "Deconstruction",
-      "Description": "Deconstruct blocks & items into salvageable base components!",
-      "Lore1": "Place an any item + shears",
-      "Lore2": "in a smithing table to deconstruct."
+      "Description": "Разбирайте блоки и предметы на базовые компоненты!",
+      "Lore1": "Возьмите любой предмет + ножницы"
     },
     "CraftXp": {
-      "Name": "Crafting XP",
-      "Description": "Gain passive XP when crafting",
-      "Lore1": "Gain XP when crafting"
     }
   },
   "Discovery": {
     "DiscoveryArmor": {
-      "Name": "World Armor",
-      "Description": "Passive armor depending on nearby block hardness.",
-      "Lore1": "Passive Armor",
       "Lore2": "Based on nearby block hardness",
       "Lore3": "Armor Strength: +"
     },
@@ -347,15 +324,13 @@
       "Description": "Deal more damage the lower health you are (Melee)",
       "Lore1": "Max Damage"
     },
+    "GenericPenalty": {
+      "Lore1": "You will Gain Poison stacks if you run out of hunger"
+    },
     "DropToInventory": {
       "Name": "Items Drop-To-Inventory",
       "Description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
       "Lore1": "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."
-    },
-    "GenericPenalty": {
-      "Name": "",
-      "Description": "",
-      "Lore1": "You will Gain Poison stacks if you run out of hunger"
     },
     "HunterInvisibility": {
       "Name": "Vanishing Step",
