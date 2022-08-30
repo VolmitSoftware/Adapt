@@ -310,15 +310,15 @@
       "Lore2": "Stärke der Wachstumsaura",
       "Lore3": "Lebensmittelkosten"
     },
-    "Myconid": {
-      "Name": "Myzel des Kräuterkundlers",
-      "Description": "Ermöglicht die Herstellung von Mycelium",
-      "Lore1": "Jede Erde und einen braunen und roten Pilz zusammen kombiniert stellen Mycelium her"
-    },
     "Hippo": {
       "Name": "Raupe Nimmersatt",
       "Description": "Verzehr von Lebensmittel führt zu mehr Sättigung",
       "Lore1": "+ Lebensmittel) zusätzliche Sättigungspunkte beim Verbrauch"
+    },
+    "Myconid": {
+      "Name": "Myzel des Kräuterkundlers",
+      "Description": "Ermöglicht die Herstellung von Mycelium",
+      "Lore1": "Jede Erde und einen braunen und roten Pilz zusammen kombiniert stellen Mycelium her"
     },
     "DropToInventory": {
       "Name": "Hacke Drop-Ins-Inventar"
@@ -331,6 +331,7 @@
     "Luck": {
       "Name": "Glück des Kräuterkundlers",
       "Description": "Wenn du Gras/Blumen zerbrichst, hast du die Chance, einen zufälligen Gegenstand zu erhalten",
+      "Lore0": "Blumchen = Nahrung, und Gras = Samen",
       "Lore1": "Chance, einen Gegenstand aus zerbrechenden Blumen zu erhalten",
       "Lore2": "Chance, einen Gegenstand aus zerbrechendem Gras zu erhalten"
     },
@@ -347,8 +348,6 @@
       "Lore1": "Maximaler Schaden"
     },
     "GenericPenalty": {
-      "Name": "",
-      "Description": "",
       "Lore1": "Du erhältst Giftstapel, wenn du keine Sättigung mehr hast"
     },
     "DropToInventory": {
