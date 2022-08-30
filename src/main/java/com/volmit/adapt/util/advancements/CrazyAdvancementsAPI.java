@@ -920,7 +920,7 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
 					Damageable meta = (Damageable) stack.getItemMeta();
 					meta.setDamage(damage);
 					stack.setItemMeta(meta);
-				} catch (ClassCastException | NumberFormatException e) {
+				} catch (ClassCastException | NumberFormatException ignored) {
 				}
 			}
 			return stack;

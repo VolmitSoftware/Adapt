@@ -63,10 +63,8 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
-        if(e.getEntity().getShooter() instanceof Player) {
+        if(e.getEntity().getShooter() instanceof Player p) {
             if(e.getEntity() instanceof AbstractArrow a) {
-                Player p = ((Player) e.getEntity().getShooter());
-
                 if(hasAdaptation(p)) {
                     if(!p.isOnGround()) {
                         Vector velocity = p.getPlayer().getLocation().getDirection().normalize().multiply(getSpeed(getLevelPercent(p)));
