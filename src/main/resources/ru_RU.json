@@ -148,13 +148,18 @@
   "Agility": {
     "ArmorUp": {
       "Name": "Armor-Up",
-      "Description": "Get more armor the longer you sprint!"
+      "Description": "Get more armor the longer you sprint!",
+      "Lore1": "Максимальная броня",
+      "Lore2": "Время усиления брони"
     },
     "SuperJump": {
+      "Name": "Супер прыжок",
       "Description": "Исключительное преимущество в высоте",
+      "Lore1": "Максимальная высота прыжка",
       "Lore2": "Шифт + Пробел для супер прыжка!"
     },
     "WallJump": {
+      "Name": "Прыжок от стены",
       "Description": "Hold shift while mid-air against a wall to wall latch & jump!",
       "Lore1": "Max Jumps",
       "Lore2": "Jump Height"
@@ -162,6 +167,7 @@
     "WindUp": {
       "Name": "Wind Up",
       "Description": "Get faster the longer you sprint!",
+      "Lore1": "Максимальная скорость",
       "Lore2": "Время действия"
     }
   },
@@ -169,13 +175,16 @@
     "Foundation": {
       "Name": "Основы магии",
       "Description": "Это позволяет вам  разместить под собой временный фундамент, когда вы крадетесь!",
-      "Lore1": "Вы можете создать"
+      "Lore1": "Вы можете создать",
+      "Lore2": "Блоки под вами!"
     },
     "Glass": {
+      "Name": "Шелковое стекло",
       "Description": "Это позволяет вам получить стеклянные блоки, когда вы разбиваете их рукой!",
       "Lore1": "Ваши руки приобретают шелковое касание для стекла"
     },
     "Placement": {
+      "Name": "Жезл строителя",
       "Description": "Позволяет вам размещать несколько блоков одновременно, чтобы активировать начните красться, и держите в руках тот же блок на который вы смотрите! Имейте в виду, что вам может понадобиться немного сдвинуться, чтобы все вместилось!",
       "Lore1": "Вам нужно",
       "Lore2": "blocks in your hand to place this",
@@ -218,6 +227,7 @@
   },
   "Crafting": {
     "Deconstruction": {
+      "Name": "Деконструкция",
       "Description": "Разбирайте блоки и предметы на базовые компоненты!",
       "Lore1": "Возьмите любой предмет + ножницы",
       "Lore2": "в кузнечный стол для разборки."
