@@ -1,0 +1,611 @@
+{
+  "Snippets": {
+    "GUI": {
+      "Level": "Nível",
+      "Knowledge": "Conhecimento",
+      "PowerUsed": "Energia usada",
+      "NotLearned": "Não aprendido",
+      "XP": "XP para"
+    },
+    "AdaptMenu": {
+      "KnowledgeCost": "Custo do Conhecimento",
+      "AlreadyLearned": "Já aprendeu",
+      "UnlearnRefund": "Clique para desaprender e reembolsar",
+      "Knowledge": "Conhecimento",
+      "ClickLearn": "Clique para aprender",
+      "NoKnowledge": "(Você não tem nenhum Conhecimento)",
+      "YouOnlyHave": "Você só tem",
+      "HowToLevelUp": "Aumente o nível de habilidades para aumentar seu poder máximo.",
+      "NotEnoughPower": "Não há energia suficiente! Cada Nível de Habilidade custa 1 poder.",
+      "Power": "Poder",
+      "Learned": "Aprendido",
+      "Unlearned": "Sem instrução"
+    },
+    "KnowledgeOrb": {
+      "Contains": "Contém",
+      "Knowledge": "Conhecimento",
+      "RightClick": "Clique com o botão direito",
+      "ToGainKnowledge": "para obter este conhecimento",
+      "KnowledgeOrb": "Orbe do Conhecimento"
+    },
+    "ExperienceOrb": {
+      "Contains": "Contém",
+      "XP": "Experiência",
+      "RightClick": "Clique com o botão direito",
+      "ToGainXP": "para ganhar esta experiência",
+      "XPOrb": "Orbe de Experiência"
+    }
+  },
+  "Skill": {
+    "Agility": {
+      "Name": "Agilidade",
+      "Icon": "⇉",
+      "Description": "Agilidade é a capacidade de se mover de forma rápida e fluida diante de obstáculos."
+    },
+    "Architect": {
+      "Name": "Arquiteto",
+      "Icon": "⬧",
+      "Description": "As estruturas são os blocos de construção do mundo. A realidade está em suas mãos, seu controle."
+    },
+    "Axes": {
+      "Name": "Machados",
+      "Icon": "❖",
+      "Description1": "Por que derrubar árvores, quando você pode cortar",
+      "Description2": "coisas",
+      "Description3": "em vez disso, mesmo resultado final!"
+    },
+    "Brewing": {
+      "Name": "Fermentação",
+      "Icon": "❦",
+      "Description": "Bolha dupla, bolha tripla, bolha quádrupla - ainda não consigo colocar esta poção em um caldeirão"
+    },
+    "Crafting": {
+      "Name": "Construindo",
+      "Icon": "⌂",
+      "Description": "Sem mais peças para colocar, por que não fazer outra?"
+    },
+    "Discovery": {
+      "Name": "Descoberta",
+      "Icon": "⚛",
+      "Description": "À medida que sua percepção se expande, sua mente se desdobra para descobrir o que você não"
+    },
+    "Enchanting": {
+      "Name": "Encantador",
+      "Icon": "♰",
+      "Description": "O quê você está querendo? Profecias, visões, tagarelice supersticiosa?"
+    },
+    "Excavation": {
+      "Name": "Escavação",
+      "Icon": "✥",
+      "Description": "Buraco do Diggey..."
+    },
+    "Herbalism": {
+      "Name": "Herbalismo",
+      "Icon": "⚘",
+      "Description": "Não consigo encontrar nenhuma planta, mas posso encontrar algumas sementes e isso é... Erva daninha?"
+    },
+    "Hunter": {
+      "Name": "Caçador",
+      "Icon": "☠",
+      "Description": "A caça é sobre a jornada, não sobre o resultado."
+    },
+    "Nether": {
+      "Name": "Inferior",
+      "Icon": "₪",
+      "Description": "Das profundezas do próprio Nether."
+    },
+    "Pickaxe": {
+      "Name": "Picareta",
+      "Icon": "⛏",
+      "Description": "Anões são os mineiros, mas aprendi uma coisa ou duas no meu tempo. EU SOU SUECO"
+    },
+    "Ranged": {
+      "Name": "À distância",
+      "Icon": "🏹",
+      "Description": "A distância é a chave para a vitória e a chave para a sobrevivência."
+    },
+    "Rift": {
+      "Name": "Fenda",
+      "Icon": "❍",
+      "Description": "O Rift é um arnês cáustico, mas você aproveitou o arnês."
+    },
+    "Seaborne": {
+      "Name": "Marítimo",
+      "Icon": "🌊",
+      "Description": "Com esta habilidade, você pode conhecer as maravilhas da água"
+    },
+    "Stealth": {
+      "Name": "Furtividade",
+      "Icon": "✠",
+      "Description": "A arte do invisível. Caminhe nas sombras."
+    },
+    "Swords": {
+      "Name": "Espadas",
+      "Icon": "⚔",
+      "Description": "Pelo poder de GreyStone!"
+    },
+    "Taming": {
+      "Name": "Domar",
+      "Icon": "♥",
+      "Description": "Os papagaios e as abelhas... e você?"
+    },
+    "TragOul": {
+      "Name": "TragOul",
+      "Icon": "▼",
+      "Description": "O sangue corre pelas veias do universo. Constrangido por suas mãos."
+    },
+    "Chronos": {
+      "Name": "Cronos",
+      "Icon": "۞",
+      "Description": "Enrole o Relógio do universo, experimente o fluxo. Quebre o relógio, torne-se."
+    },
+    "Unarmed": {
+      "Name": "Desarmado",
+      "Icon": "⚜",
+      "Description": "Sem uma arma não é sem força"
+    }
+  },
+  "Agility": {
+    "ArmorUp": {
+      "Name": "Armadura",
+      "Description": "Obtenha mais armadura quanto mais tempo você correr!",
+      "Lore1": "Armadura máxima",
+      "Lore2": "Tempo de Armadura"
+    },
+    "SuperJump": {
+      "Name": "Super pulo",
+      "Description": "Vantagem de Altura Excepcional",
+      "Lore1": "Altura máxima de salto",
+      "Lore2": "Sneak + Jump para Super Jump!"
+    },
+    "WallJump": {
+      "Name": "Salto da parede",
+      "Description": "Segure o shift enquanto estiver no ar contra uma trava de parede a parede e pule!",
+      "Lore1": "Máximo de saltos",
+      "Lore2": "Altura do salto"
+    },
+    "WindUp": {
+      "Name": "Fim",
+      "Description": "Seja mais rápido quanto mais você correr!",
+      "Lore1": "Velocidade máxima",
+      "Lore2": "Tempo de encerramento"
+    }
+  },
+  "Architect": {
+    "Foundation": {
+      "Name": "Fundação mágica",
+      "Description": "Isso permite que você se esgueire e coloque uma base temporária abaixo de você!",
+      "Lore1": "Crie magicamente:",
+      "Lore2": "Blocos abaixo de você!"
+    },
+    "Glass": {
+      "Name": "Vidro de toque de seda",
+      "Description": "Isso permite que você evite essencialmente a perda de blocos de vidro quando você os quebra com a mão vazia!",
+      "Lore1": "Suas mãos ganham toque sedoso para Glass"
+    },
+    "Placement": {
+      "Name": "Varinha dos Construtores",
+      "Description": "Permite que você coloque vários blocos de uma só vez para ativar o Sneak e segure um bloco que corresponda ao seu bloco e local! Lembre-se de que pode ser necessário mover um pouco para acionar a delimitação das caixas!",
+      "Lore1": "Você precisa",
+      "Lore2": "blocos em sua mão para colocar este",
+      "Lore3": "Uma varinha de construtores de materiais"
+    }
+  },
+  "Axe": {
+    "Chop": {
+      "Name": "Machado",
+      "Description": "Corte árvores clicando com o botão direito do mouse no tronco de base!",
+      "Lore1": "Blocos por chop",
+      "Lore2": "Chop Cooldown",
+      "Lore3": "Desgaste da ferramenta"
+    },
+    "DropToInventory": {
+      "Name": "Axe drop-to-inventário"
+    },
+    "GroundSmash": {
+      "Name": "Esmagamento do Machado",
+      "Description": "Pule, agache-se e esmague todos os inimigos próximos.",
+      "Lore1": "Dano",
+      "Lore2": "Raio do bloco",
+      "Lore3": "Força",
+      "Lore4": "Esmagar Cooldown"
+    }
+  },
+  "Brewing": {
+    "Lingering": {
+      "Name": "Cerveja demorada",
+      "Description": "Poções fabricadas duram mais!",
+      "Lore1": "Duração",
+      "Lore2": "Duração"
+    },
+    "SuperHeated": {
+      "Name": "Cerveja Super Aquecida",
+      "Description": "Os suportes de fabricação de cerveja funcionam mais rápido quanto mais quentes estiverem.",
+      "Lore1": "Por Bloco de Fogo Tocante",
+      "Lore2": "Por Tocar Bloco de Lava"
+    }
+  },
+  "Crafting": {
+    "Deconstruction": {
+      "Name": "Desconstrução",
+      "Description": "Desconstrua blocos e itens em componentes básicos recuperáveis!",
+      "Lore1": "Coloque qualquer item + tesoura",
+      "Lore2": "em uma mesa de ferraria para desconstruir."
+    },
+    "CraftXp": {
+      "Name": "EXP de Criação",
+      "Description": "Ganhe XP passivo ao criar",
+      "Lore1": "Ganhe XP ao criar"
+    }
+  },
+  "Discovery": {
+    "DiscoveryArmor": {
+      "Name": "Armadura Mundial",
+      "Description": "Armadura passiva dependendo da dureza do bloco próximo.",
+      "Lore1": "Armadura Passiva",
+      "Lore2": "Com base na dureza do bloco próximo",
+      "Lore3": "Força da Armadura: +"
+    },
+    "DiscoveryUnity": {
+      "Name": "Unidade Experimental",
+      "Description": "Coletar Orbes de Experiência adiciona XP a habilidades aleatórias.",
+      "Lore1": "XP",
+      "Lore2": "Por Orbe"
+    },
+    "DiscoveryXpResist": {
+      "Name": "Resistência Experimental",
+      "Description": "Consuma experiência para mitigar o dano que você recebe de todas as fontes\n",
+      "Lore0": "Isso só pode ocorrer uma vez a cada 15 segundos",
+      "Lore1": "% de Dano Reduzido",
+      "Lore2": "experiência drenada"
+    }
+  },
+  "Enchanting": {
+    "LapisReturn": {
+      "Name": "Devolução de lápis",
+      "Description": "Ao custo de mais 1 nível de XP, e tem a chance de lhe dar lapis grátis em troca",
+      "Lore1": "Para cada nível, aumenta o custo de encantamento, em 1, mas pode retornar mais de 3 lápis"
+    },
+    "QuickEnchant": {
+      "Name": "Encantamento de clique rápido",
+      "Description": "Encante itens clicando em encantar livros diretamente neles.",
+      "Lore1": "Níveis máximos combinados",
+      "Lore2": "Não é possível encantar um item com mais de",
+      "Lore3": "potência"
+    },
+    "EnchantingXpReturn": {
+      "Name": "Retorno de XP",
+      "Description": "O XP de encantamento é devolvido a você quando você encanta um item.",
+      "Lore1": "A experiência gasta tem a chance de ser reembolsada quando você encanta um item",
+      "Lore2": "Experiência por Encantamento"
+    }
+  },
+  "Excavation": {
+    "ExcavationHaste": {
+      "Name": "Escavadeira Apressada",
+      "Description": "Isto irá acelerar o processo de escavação, com HASTE!",
+      "Lore1": "Ganhe Aceleração durante a escavação",
+      "Lore2": "x Níveis de aceleração quando você começa a minerar QUALQUER bloco."
+    },
+    "DropToInventory": {
+      "Name": "Pá Drop-To-Inventory"
+    },
+    "OmniTool": {
+      "Name": "OMNI - T.O.O.L.",
+      "Description": "O opulento Leatherman de Tackle",
+      "Lore1": "Provavelmente o mais poderoso de muitos permite que você",
+      "Lore2": "mescle e altere ferramentas dinamicamente em tempo real, com base em suas necessidades.",
+      "Lore3": "para mesclar, clique com a tecla Shift em um item sobre outro em seu inventário.",
+      "Lore4": "para desvincular ferramentas, solte o item e ele será desmontado.",
+      "Lore5": "você não pode quebrar ferramentas neste homem de couro, mas você não pode usar ferramentas quebradas",
+      "Lore6": "total de itens mescláveis",
+      "Lore7": "você pode usar cinco ou seis ferramentas, ou apenas uma!"
+    }
+  },
+  "Herbalism": {
+    "GrowthAura": {
+      "Name": "Aura de crescimento",
+      "Description": "Cresça a natureza ao seu redor em uma aura",
+      "Lore1": "Raio do bloco",
+      "Lore2": "Força da Aura de Crescimento",
+      "Lore3": "Custo alimentar"
+    },
+    "Hippo": {
+      "Name": "Hipopótamo do Herbalist",
+      "Description": "Consumir alimentos, dá-lhe mais saturação",
+      "Lore1": "Alimentos) pontos de saturação adicionais no consumo"
+    },
+    "Myconid": {
+      "Name": "Myconid de Herbalist",
+      "Description": "Dá-lhe a capacidade de criar Micélio",
+      "Lore1": "Qualquer sujeira e um cogumelo marrom e vermelho criarão micélio."
+    },
+    "DropToInventory": {
+      "Name": "Enxada Drop-To-Inventary"
+    },
+    "HungryShield": {
+      "Name": "Escudo Faminto",
+      "Description": "Leve o dano à sua fome antes da sua saúde.",
+      "Lore1": "Resistidos pela fome"
+    },
+    "Luck": {
+      "Name": "Sorte do Herbalista",
+      "Description": "Ao quebrar Grama/Flores, você tem a chance de obter um item aleatório",
+      "Lore0": "Flores = Comida e Grama = Sementes",
+      "Lore1": "Chance de obter um item ao quebrar Flores",
+      "Lore2": "Chance de obter um item ao quebrar a grama"
+    },
+    "Replant": {
+      "Name": "Colheita e Replanta",
+      "Description": "Clique com o botão direito em uma colheita com uma enxada para colher e replantá-la.",
+      "Lore1": "Bloqueia o raio de replantação"
+    }
+  },
+  "Hunter": {
+    "Adrenaline": {
+      "Name": "Adrenalina",
+      "Description": "Cause mais dano quanto menos saúde você estiver (Melee)",
+      "Lore1": "Dano Máximo"
+    },
+    "GenericPenalty": {
+      "Lore1": "Você ganhará pilhas de veneno se ficar sem fome"
+    },
+    "DropToInventory": {
+      "Name": "Itens drop-to-inventário",
+      "Description": "Quando você Mata alguma coisa / Quebra um bloco Com uma espada ela teleporta as gotas para o seu inventário",
+      "Lore1": "Sempre que um item é dropado de um mob/bloco que você quebra, ele entra em seu inventário, se puder."
+    },
+    "HunterInvisibility": {
+      "Name": "Passo de Fuga",
+      "Description": "Quando você é atingido, você ganha invisibilidade, ao custo da fome",
+      "Lore1": "Ganhe invisibilidade passiva quando atingido",
+      "Lore2": "x Invisibilidade acumula por 3 segundos ao acertar",
+      "Lore3": "x Fome de empilhamento",
+      "Lore4": "A fome acumula duração e multiplicador.",
+      "Lore5": "Duração da invisibilidade"
+    },
+    "HunterJumpBoost": {
+      "Name": "Alturas do caçador",
+      "Description": "Quando você é atingido, você ganha impulso de salto, ao custo de fome",
+      "Lore1": "Ganhe impulso de salto passivo quando atingido",
+      "Lore2": "x Jump-Boost acumula por 3 segundos ao acertar",
+      "Lore3": "x Fome de empilhamento",
+      "Lore4": "A fome acumula duração e multiplicador.",
+      "Lore5": "Multiplicador de pilhas Jump-Boost, não duração."
+    },
+    "HunterLuck": {
+      "Name": "sorte de caçador",
+      "Description": "Quando você é atingido você ganha sorte, ao custo da fome",
+      "Lore1": "Ganhe sorte passiva quando atingido",
+      "Lore2": "x Sorte acumula por 3 segundos ao acertar",
+      "Lore3": "x Fome de empilhamento",
+      "Lore4": "A fome acumula duração e multiplicador.",
+      "Lore5": "A sorte acumula o multiplicador, não a duração."
+    },
+    "HunterRegen": {
+      "Name": "Regeneração do Caçador",
+      "Description": "Quando você é atingido, você ganha regeneração, ao custo da fome",
+      "Lore1": "Ganhe regeneração passiva quando atingido",
+      "Lore2": "x Regeneração acumula por 3 segundos ao acertar",
+      "Lore3": "x Fome de empilhamento",
+      "Lore4": "A fome acumula duração e multiplicador.",
+      "Lore5": "Multiplicador de pilhas de regeneração, não duração."
+    },
+    "HunterResistance": {
+      "Name": "Resistência do caçador",
+      "Description": "Quando você é atingido, você ganha resistência, ao custo da fome",
+      "Lore1": "Ganhe resistência passiva quando atingido",
+      "Lore2": "x Resistência acumula por 3 segundos ao acertar",
+      "Lore3": "x Fome de empilhamento",
+      "Lore4": "A fome acumula duração e multiplicador.",
+      "Lore5": "A resistência acumula o multiplicador, não a duração."
+    },
+    "HunterSpeed": {
+      "Name": "Velocidade do caçador",
+      "Description": "Quando você é atingido, você ganha velocidade, ao custo da fome",
+      "Lore1": "Ganhe velocidade passiva quando atingido",
+      "Lore2": "x A velocidade acumula por 3 segundos ao acertar",
+      "Lore3": "x Fome de empilhamento",
+      "Lore4": "A fome acumula duração e multiplicador.",
+      "Lore5": "Multiplicador de stacks de velocidade, não duração."
+    },
+    "HunterStrength": {
+      "Name": "Força do caçador",
+      "Description": "Quando você é atingido você ganha força, à custa da fome",
+      "Lore1": "Ganhe força passiva quando atingido",
+      "Lore2": "x A força acumula por 3 segundos ao acertar",
+      "Lore3": "x Fome de empilhamento",
+      "Lore4": "A fome acumula duração e multiplicador.",
+      "Lore5": "A força acumula o multiplicador, não a duração."
+    }
+  },
+  "Nether": {
+    "SkullToss": {
+      "Name": "Arremesso de Caveira Murcha",
+      "Description1": "Liberte seu Wither interior usando",
+      "Description2": "de alguém",
+      "Description3": "cabeça.",
+      "Lore1": "Segundos de cooldown entre lançamentos de caveiras.",
+      "Lore2": "Usando Wither Skull: Jogue um",
+      "Lore3": "Murchar Crânio",
+      "Lore4": "explodindo no impacto."
+    },
+    "WitherResist": {
+      "Name": "Resistência à Murcha",
+      "Description": "Resiste a murchar pelo poder de Netherite.",
+      "Lore1": "chance de negar o murchamento (por peça).",
+      "Lore2": "Passivo: Usar Armadura Netherita tem chance de negar",
+      "Lore3": "murchando."
+    }
+  },
+  "Pickaxe": {
+    "Autosmelt": {
+      "Name": "Fundição automática",
+      "Description": "Permite fundir minérios de baunilha extraídos",
+      "Lore1": "Minérios que podem ser fundidos são fundidos automaticamente",
+      "Lore2": "% de chance de um extra"
+    },
+    "Chisel": {
+      "Name": "Minério Cinzel",
+      "Description": "Right Click Minérios para Cinzelar mais minério deles, a um custo de durabilidade severo.",
+      "Lore1": "Chance de cair",
+      "Lore2": "Desgaste da ferramenta"
+    },
+    "DropToInventory": {
+      "Name": "Picareta Drop-To-Inventary",
+      "Description": "Quando você quebra um bloco, ele teleporta o item para seu inventário",
+      "Lore1": "Sempre que um item é descartado de um bloco que você quebra, ele entra em seu inventário, se puder."
+    },
+    "Veinminer": {
+      "Name": "Minerador de veias",
+      "Description": "Permite quebrar blocos em uma veia/grupo de minérios de baunilha",
+      "Lore1": "Esgueirar-se e minerar ORES",
+      "Lore2": "gama de mineração de veias",
+      "Lore3": "Esta habilidade NÃO agrupa todos os drops juntos!"
+    }
+  },
+  "Ranged": {
+    "ArrowRecovery": {
+      "Name": "Recuperação de flechas",
+      "Description": "Recupere as flechas depois de matar um inimigo.",
+      "Lore1": "Chance de recuperar flechas ao acertar/matar"
+    },
+    "ForceShot": {
+      "Name": "Tiro de Força",
+      "Description": "Atire projéteis mais longe, mais rápido!",
+      "AdvancementName": "Tiro longo",
+      "AdvancementLore": "Acerte um tiro a mais de 30 quarteirões de distância!",
+      "Lore1": "Velocidade do projétil"
+    },
+    "LungeShot": {
+      "Name": "Tiro de Afundo",
+      "Description": "Ao cair suas flechas te jogam em uma direção aleatória",
+      "Lore1": "Velocidade de rajada aleatória"
+    },
+    "ArrowPiercing": {
+      "Name": "Perfuração de flecha",
+      "Description": "Adiciona Piercing aos projéteis! Atire através das coisas!",
+      "Lore1": "Perfurar alvos"
+    }
+  },
+  "Rift": {
+    "RemoteAccess": {
+      "Name": "Acesso remoto",
+      "Description": "Puxe do vazio e entre em um recipiente marcado.",
+      "Lore1": "Enderpearl + Compass = Chave de Portal do Relicário",
+      "Lore2": "Este item permite acessar contêineres remotamente",
+      "Lore3": "Uma vez criado, olhe para o item para ver o uso",
+      "NotContainer": "Isso não é um recipiente"
+    },
+    "RiftBlink": {
+      "Name": "Piscar de fenda",
+      "Description": "Teletransporte instantâneo de curto alcance, apenas um piscar de olhos!",
+      "Lore1": "Blocos em piscar (2x Vertical)",
+      "Lore2": "Durante a corrida: toque duas vezes em Saltar para",
+      "Lore3": "Piscar"
+    },
+    "RiftEnderchest": {
+      "Name": "Baú Fácil",
+      "Description": "Abra um enderchest clicando com o botão esquerdo em sua mão.",
+      "Lore1": "Clique em um Enderchest em sua mão para abrir (apenas não coloque)"
+    },
+    "RiftGate": {
+      "Name": "Portão da Fenda",
+      "Description": "Teletransporte para um local marcado.",
+      "Lore1": "CRIAÇÃO: Esmeralda + Fragmento de Ametista + Pérola Ender",
+      "Lore2": "Leia antes de usar!",
+      "Lore3": "5s de atraso,",
+      "Lore4": "você pode morrer enquanto estiver nesta animação"
+    },
+    "RiftResistance": {
+      "Name": "Resistência a fendas",
+      "Description": "Ganhe Resistência ao usar Itens e Habilidades do Ender",
+      "Lore1": "+ Passivo: Fornece resistência quando você usa habilidades de fenda ou Itens de Ender",
+      "Lore2": "NÃO incluindo Enderchest portátil, apenas coisas que você pode consumir"
+    }
+  },
+  "Seaborn": {
+    "SeabornOxygen": {
+      "Name": "Tanque de Oxigênio Orgânico",
+      "Description": "Mantenha mais oxigênio em seus minúsculos pulmões!",
+      "Lore1": "Oxigênio"
+    },
+    "DolphinGrace": {
+      "Name": "Graça do Golfinho",
+      "Description": "Nade como um golfinho, sem os golfinhos",
+      "Lore1": "+ Passivo: ganho",
+      "Lore2": "x velocidade (graça dos golfinhos)",
+      "Lore3": "engenharia alemã de precisão - espere, isso não está certo ..."
+    }
+  },
+  "Stealth": {
+    "GhostArmor": {
+      "Name": "Armadura do Fantasma",
+      "Description": "Armadura de construção lenta quando não sofre dano, dura 1 hit",
+      "Lore1": "Armadura máxima",
+      "Lore2": "Velocidade"
+    },
+    "StealthNightVision": {
+      "Name": "Visão furtiva",
+      "Description": "Ganhe visão noturna enquanto se esgueira",
+      "Lore1": "Ganhe uma explosão de",
+      "Lore2": "visão noturna",
+      "Lore3": "enquanto se esgueirando"
+    },
+    "ItemSnatch": {
+      "Name": "Arrebatar de Itens",
+      "Description": "Snatch Drops de itens instantaneamente enquanto se esgueira!",
+      "Lore1": "Raio de captura"
+    },
+    "SneakSpeed": {
+      "Name": "Velocidade Furtiva",
+      "Description": "Ganhe velocidade enquanto se esgueira",
+      "Lore1": "Velocidade Furtiva"
+    }
+  },
+  "Sword": {
+    "Machete": {
+      "Name": "Machete",
+      "Description": "Corte a folhagem com facilidade!",
+      "Lore1": "Raio da barra",
+      "Lore2": "Chop Cooldown",
+      "Lore3": "Desgaste da ferramenta"
+    }
+  },
+  "Taming": {
+    "TameDamage": {
+      "Name": "Domar Danos",
+      "Description": "Aumente o dano causado ao seu animal domesticado.",
+      "Lore1": "Dano aumentado"
+    },
+    "TameHealth": {
+      "Name": "Saúde Doméstica",
+      "Description": "Aumente a saúde do seu animal domesticado.",
+      "Lore1": "Saúde aumentada"
+    },
+    "TameRegeneration": {
+      "Name": "Regeneração Domada",
+      "Description": "Aumente sua regeneração de animais domesticados.",
+      "Lore1": "HP/s"
+    }
+  },
+  "Unarmed": {
+    "GlassCannon": {
+      "Name": "Canhão de vidro",
+      "Description": "Dano desarmado bônus quanto menor for o valor da sua armadura",
+      "Lore1": "x Dano com 0 de armadura",
+      "Lore2": "Dano Bônus PerLevel"
+    },
+    "UnarmedPower": {
+      "Name": "Poder Desarmado",
+      "Description": "Dano Desarmado Aprimorado",
+      "Lore1": "Dano"
+    },
+    "SuckerPunch": {
+      "Name": "Golaço",
+      "Description": "Socos de corrida, mas mais mortais.",
+      "Lore1": "Dano",
+      "Lore2": "O dano aumenta com a sua velocidade enquanto soca"
+    }
+  }
+}
