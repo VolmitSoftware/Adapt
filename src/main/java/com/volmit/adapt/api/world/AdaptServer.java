@@ -165,9 +165,10 @@ public class AdaptServer extends TickedObject {
                         .build().play(getPlayer(p));
                 }
             }
+            e.setCancelled(false);
+            e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(1000));
         }
-        e.setCancelled(false);
-        e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(1000));
+
     }
 
     @EventHandler

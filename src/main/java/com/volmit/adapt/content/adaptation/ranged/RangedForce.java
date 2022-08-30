@@ -86,9 +86,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
-        if (e.getEntity().getShooter() instanceof Player) {
-            Player p = ((Player) e.getEntity().getShooter());
-
+        if (e.getEntity().getShooter() instanceof Player p) {
             if (getLevel(p) > 0) {
                 double factor = getLevelPercent(p);
                 e.getEntity().setVelocity(e.getEntity().getVelocity().clone().multiply(1 + getSpeed(factor)));
