@@ -3,6 +3,8 @@
     "GUI": {
       "Level": "Уровень",
       "Knowledge": "Знания",
+      "PowerUsed": "Используемая энергия\n",
+      "NotLearned": "Не изучено",
       "XP": "XP to"
     },
     "AdaptMenu": {
@@ -149,6 +151,7 @@
       "Description": "Get more armor the longer you sprint!"
     },
     "SuperJump": {
+      "Description": "Исключительное преимущество в высоте",
       "Lore2": "Шифт + Пробел для супер прыжка!"
     },
     "WallJump": {
@@ -158,12 +161,15 @@
     },
     "WindUp": {
       "Name": "Wind Up",
-      "Description": "Get faster the longer you sprint!"
+      "Description": "Get faster the longer you sprint!",
+      "Lore2": "Время действия"
     }
   },
   "Architect": {
     "Foundation": {
-      "Description": "Это позволяет вам  разместить под собой временный фундамент, когда вы крадетесь!"
+      "Name": "Основы магии",
+      "Description": "Это позволяет вам  разместить под собой временный фундамент, когда вы крадетесь!",
+      "Lore1": "Вы можете создать"
     },
     "Glass": {
       "Description": "Это позволяет вам получить стеклянные блоки, когда вы разбиваете их рукой!",
@@ -213,13 +219,20 @@
   "Crafting": {
     "Deconstruction": {
       "Description": "Разбирайте блоки и предметы на базовые компоненты!",
-      "Lore1": "Возьмите любой предмет + ножницы"
+      "Lore1": "Возьмите любой предмет + ножницы",
+      "Lore2": "в кузнечный стол для разборки."
     },
     "CraftXp": {
+      "Name": "Создание опыта",
+      "Description": "Получайте пассивный опыт при крафте",
+      "Lore1": "Прирост опыта при крафте"
     }
   },
   "Discovery": {
     "DiscoveryArmor": {
+      "Name": "Мировая защита",
+      "Description": "Пассивная броня в зависимости от твердости ближайшего блока.",
+      "Lore1": "Пассивная броня",
       "Lore2": "Based on nearby block hardness",
       "Lore3": "Armor Strength: +"
     },
