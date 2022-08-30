@@ -553,7 +553,8 @@
     },
     "ItemSnatch": {
       "Name": "Schnappen",
-      "Description": "Nimm sofort fallen gelassene Gegenstände auf während du schleichst "
+      "Description": "Nimm sofort fallen gelassene Gegenstände auf während du schleichst ",
+      "Lore1": "Schnappradius"
     },
     "SneakSpeed": {
       "Name": "Schleichgeschwindigkeit",
