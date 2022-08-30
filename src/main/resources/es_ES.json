@@ -156,7 +156,7 @@
       "Name": "Súper salto",
       "Description": "Ventaja de altura excepcional",
       "Lore1": "Altura máxima de salto",
-      "Lore2": "*¡Se escabulle + salta a super salto!"
+      "Lore2": "Agachate + salta y saltaras super alto!"
     },
     "WallJump": {
       "Name": "Salto de pared",
@@ -229,13 +229,13 @@
     "Deconstruction": {
       "Name": "Deconstrucción",
       "Description": "Deconstruye bloques y objetos para convertirlos en componentes básicos recuperables.",
-      "Lore1": "Coloca un item cualquiera + tijeras",
+      "Lore1": "Coloca cualquier item + tijeras",
       "Lore2": "en una mesa de herrería para deconstruir."
     },
     "CraftXp": {
       "Name": "XP de artesanía",
       "Description": "Gana experiencia pasiva cuando construyes.",
-      "Lore1": "Gana XP al fabricar"
+      "Lore1": "Gana XP al craftear"
     }
   },
   "Discovery": {
@@ -310,15 +310,15 @@
       "Lore2": "Fuerza del Aura de Crecimiento",
       "Lore3": "Coste de la comida"
     },
-    "Myconid": {
-      "Name": "Hierbalismo de Hongo",
-      "Description": "Te da la capacidad de elaborar micelio",
-      "Lore1": "Cualquier tierra, y un hongo marrón y rojo crean micelio."
-    },
     "Hippo": {
       "Name": "Hipopótamo de hierbalismo",
       "Description": "Consumir comida, te da más saturación",
       "Lore1": "+ Comida) puntos de saturación adicionales al consumirla"
+    },
+    "Myconid": {
+      "Name": "Hierbalismo de Hongo",
+      "Description": "Te da la capacidad de elaborar micelio",
+      "Lore1": "Cualquier tierra, y un hongo marrón y rojo crean micelio."
     },
     "DropToInventory": {
       "Name": "Azada de caída al inventario"
@@ -347,15 +347,13 @@
       "Description": "Inflige más daño cuando tienes menos vida (cuerpo a cuerpo)",
       "Lore1": "Daño máximo"
     },
+    "GenericPenalty": {
+      "Lore1": "You will Gain Poison stacks if you run out of hunger"
+    },
     "DropToInventory": {
       "Name": "Telepatia de inventario",
       "Description": "Cuando matas algo / rompes un bloque con una espada, teletransporta los drops a tu inventario",
       "Lore1": "Cada vez que un item cae de un mob/bloque que rompes va a tu inventario si puede."
-    },
-    "GenericPenalty": {
-      "Name": "",
-      "Description": "",
-      "Lore1": "You will Gain Poison stacks if you run out of hunger"
     },
     "HunterInvisibility": {
       "Name": "Paso de invisibilidad",
@@ -434,7 +432,7 @@
     },
     "WitherResist": {
       "Name": "Resistencia a la descomposicion",
-      "Description": "Resiste a la descomposicion mediante el poder de Netherite.",
+      "Description": "Resiste a la descomposicion mediante el poder del Netherite.",
       "Lore1": "Probabilidad de anular la descomposicion (por pieza).",
       "Lore2": "Pasiva: Llevar una armadura de netherita tiene una probabilidad de anular ",
       "Lore3": "la descomposicion."
