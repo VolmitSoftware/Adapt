@@ -116,6 +116,18 @@ public interface AdaptComponent {
         return false;
     }
 
+    default boolean isLeaves(ItemStack it) {
+        if (isItem(it)) {
+            return switch (it.getType()) {
+                case OAK_LEAVES, SPRUCE_LEAVES, BIRCH_LEAVES, JUNGLE_LEAVES, ACACIA_LEAVES, DARK_OAK_LEAVES,MANGROVE_LEAVES, AZALEA_LEAVES, FLOWERING_AZALEA_LEAVES->
+                        true;
+                default -> false;
+            };
+        }
+
+        return false;
+    }
+
     default boolean isBoots(ItemStack it) {
         if (isItem(it)) {
             return switch (it.getType()) {

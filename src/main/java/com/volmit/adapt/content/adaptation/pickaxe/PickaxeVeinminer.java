@@ -30,6 +30,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
 
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore1"));
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore2"));
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY+ " " + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore2"));
         v.addLore(C.ITALIC + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore3"));
     }
 
@@ -99,11 +100,23 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                 Block b = e.getBlock().getWorld().getBlockAt(l);
                 xp(e.getPlayer(), 3);
                 if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-autosmelt") != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-autosmelt").getLevel() > 0) {
-                    PickaxeAutosmelt.autosmeltBlock(b, p);
+                    if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-drop-to-inventory").getLevel() > 0) {
+                        PickaxeAutosmelt.autosmeltBlockDTI(b, p);
+                    } else {
+                        PickaxeAutosmelt.autosmeltBlock(b, p);
+                    }
                 } else {
-                    b.breakNaturally(p.getItemInUse());
-                    e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
-                    e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
+                    if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-drop-to-inventory").getLevel() > 0) {
+                    b.getDrops(e.getPlayer().getInventory().getItemInMainHand(), p).forEach(item -> {
+                        HashMap<Integer, ItemStack> extra = p.getInventory().addItem(item);
+                        extra.forEach((k, v) -> p.getWorld().dropItem(p.getLocation(), v));
+                    });
+                    b.setType(Material.AIR);
+                    } else {
+                        b.breakNaturally(p.getItemInUse());
+                        e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
+                        e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
+                    }
                 }
             }
         });
@@ -123,7 +136,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     protected static class Config {
         boolean enabled = true;
         int baseCost = 6;
-        int maxLevel = 4;
+        int maxLevel = 5;
         int initialCost = 4;
         double costFactor = 2.325;
         int baseRange = 2;

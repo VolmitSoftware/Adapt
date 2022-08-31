@@ -49,6 +49,54 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         setCostFactor(getConfig().costFactor);
     }
 
+    static void autosmeltBlockDTI(Block b, Player p) {
+        int fortune = 1;
+        Random random = new Random();
+        if (p.getInventory().getItemInMainHand().getEnchantments().get(Enchantment.LOOT_BONUS_BLOCKS) != null) {
+            fortune = p.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) + (random.nextInt(3));
+
+        }
+        switch (b.getType()) {
+            case IRON_ORE, DEEPSLATE_IRON_ORE -> {
+
+                if (b.getLocation().getWorld() == null) {
+                    return;
+                }
+
+                b.setType(Material.AIR);
+                if (!p.getInventory().addItem(new ItemStack(Material.IRON_INGOT, fortune)).isEmpty()) {
+                    b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.IRON_INGOT, fortune));
+                }
+                b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+            }
+            case GOLD_ORE, DEEPSLATE_GOLD_ORE, NETHER_GOLD_ORE -> {
+                if (b.getLocation().getWorld() == null) {
+                    return;
+                }
+
+                b.setType(Material.AIR);
+                if (!p.getInventory().addItem(new ItemStack(Material.GOLD_INGOT, fortune)).isEmpty()) {
+                    b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.GOLD_INGOT, fortune));
+                }
+                b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+            }
+            case COPPER_ORE, DEEPSLATE_COPPER_ORE -> {
+                if (b.getLocation().getWorld() == null) {
+                    return;
+                }
+                b.setType(Material.AIR);
+                if (!p.getInventory().addItem(new ItemStack(Material.COPPER_INGOT, fortune)).isEmpty()) {
+                    b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.COPPER_INGOT, fortune));
+                }
+                b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
+            }
+
+        }
+    }
+
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;
@@ -57,19 +105,6 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + Adapt.dLocalize("Pickaxe", "Autosmelt", "Lore1"));
         v.addLore(C.GREEN + "" + (level * 1.25) + C.GRAY + Adapt.dLocalize("Pickaxe", "Autosmelt", "Lore2"));
-    }
-
-    @EventHandler
-    public void on(BlockBreakEvent e) {
-        Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
-            return;
-        }
-        if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE") && !ItemListings.getSmeltOre().contains(e.getBlock().getType())) {
-            return;
-        }
-        xp(e.getPlayer(), 15);
-        autosmeltBlock(e.getBlock(), p);
     }
 
     static void autosmeltBlock(Block b, Player p) {
@@ -82,34 +117,53 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         switch (b.getType()) {
             case IRON_ORE, DEEPSLATE_IRON_ORE -> {
 
-                if (b.getLocation().getWorld() == null)
+                if (b.getLocation().getWorld() == null) {
                     return;
+                }
+
                 b.setType(Material.AIR);
                 b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.IRON_INGOT, fortune));
-
                 b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
             case GOLD_ORE, DEEPSLATE_GOLD_ORE, NETHER_GOLD_ORE -> {
-                if (b.getLocation().getWorld() == null)
+                if (b.getLocation().getWorld() == null) {
                     return;
+                }
 
                 b.setType(Material.AIR);
                 b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.GOLD_INGOT, fortune));
-
                 b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
             case COPPER_ORE, DEEPSLATE_COPPER_ORE -> {
-                if (b.getLocation().getWorld() == null)
+                if (b.getLocation().getWorld() == null) {
                     return;
+                }
                 b.setType(Material.AIR);
                 b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.COPPER_INGOT, fortune));
-
                 b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
 
+        }
+    }
+
+    @EventHandler
+    public void on(BlockBreakEvent e) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
+            return;
+        }
+        if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE") && !ItemListings.getSmeltOre().contains(e.getBlock().getType())) {
+            return;
+        }
+        xp(e.getPlayer(), 15);
+        if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-drop-to-inventory").getLevel() > 0) {
+            Adapt.info("2");
+            PickaxeAutosmelt.autosmeltBlockDTI(e.getBlock(), p);
+        } else {
+            autosmeltBlock(e.getBlock(), p);
         }
     }
 

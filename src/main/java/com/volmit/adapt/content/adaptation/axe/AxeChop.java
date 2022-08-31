@@ -108,6 +108,8 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
         Block ll = last;
         b.getWorld().playSound(ll.getLocation(), Sound.ITEM_AXE_STRIP, 0.75f, 1.3f);
+
+
         ll.breakNaturally();
         return true;
     }
