@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -87,6 +88,10 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDeathEvent e) {
         LivingEntity k = e.getEntity();
+        if (k.getKiller() == null || k.getKiller().getType() != EntityType.PLAYER) {
+            return;
+        }
+
         Player p = k.getKiller();
         if (!hasAdaptation(p)) {
             return;
