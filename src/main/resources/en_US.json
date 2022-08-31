@@ -209,6 +209,13 @@
       "Lore2": "Block Radius",
       "Lore3": "Force",
       "Lore4": "Smash Cooldown"
+    },
+    "LeafMiner": {
+      "Name": "LeafMiner",
+      "Description": "Allows you to break bulk leaves at once!",
+      "Lore1": "Sneak, and mine LEAVES",
+      "Lore2": "range of Leaf-mining",
+      "Lore3": "You will not get the drops from the leaves (Exploit Prevention)"
     }
   },
   "Brewing": {

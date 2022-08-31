@@ -60,22 +60,14 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(e.getPlayer().getInventory().getItemInMainHand()) && getLevel(e.getPlayer()) > 0) {
-            if (!ItemListings.getStripList().contains(e.getMaterial())) {
-                return;
-            }
-
-            if (e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) >= 0) {
-                e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_AXE_STRIP, 0.2f, (1.5f + RNG.r.f(0.5f)));
-                getSkill().xp(e.getPlayer(), 2.25);
-                return;
-            }
-
+        if (e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) > 0) {
+            return;
+        }
+        if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(e.getPlayer().getInventory().getItemInMainHand()) && hasAdaptation(e.getPlayer())) {
             BlockData b = e.getClickedBlock().getBlockData();
             if (isLog(new ItemStack(b.getMaterial()))) {
                 e.setCancelled(true);
                 e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
-
                 for (int i = 0; i < getLevel(e.getPlayer()); i++) {
                     if (breakStuff(e.getClickedBlock(), getRange(getLevel(e.getPlayer())))) {
                         getSkill().xp(e.getPlayer(), 37);
@@ -116,6 +108,8 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
         Block ll = last;
         b.getWorld().playSound(ll.getLocation(), Sound.ITEM_AXE_STRIP, 0.75f, 1.3f);
+
+
         ll.breakNaturally();
         return true;
     }
