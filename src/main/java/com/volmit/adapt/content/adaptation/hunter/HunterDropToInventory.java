@@ -74,8 +74,8 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         if (ItemListings.toolSwords.contains(e.getPlayer().getInventory().getItemInMainHand().getType())) {
             List<Item> items = e.getItems().copy();
             e.getItems().clear();
+            p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
             for (Item i : items) {
-                p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
                 xp(p, 2);
                 if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
                     p.getWorld().dropItem(p.getLocation(), i.getItemStack());
@@ -86,21 +86,22 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDeathEvent e) {
-        LivingEntity killed = e.getEntity();
-
-        if(killed.getKiller() != null && hasAdaptation(killed.getKiller())) {
-            Player p = killed.getKiller();
-            if (!hasAdaptation(p)) {
-                return;
-            }
-            if (p.getGameMode() != GameMode.SURVIVAL) {
-                return;
-            }
-            if (ItemListings.toolSwords.contains(p.getInventory().getItemInMainHand().getType())) {
-                xp(p, 2);
-            }
-
+        LivingEntity k = e.getEntity();
+        Player p = k.getKiller();
+        if (!hasAdaptation(p)) {
+            return;
         }
+        if (e.getEntity() instanceof Player) {
+            return;
+        }
+        p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
+        e.getDrops().forEach(i -> {
+            xp(p, 2);
+            if (!p.getInventory().addItem(i).isEmpty()) {
+                p.getWorld().dropItem(p.getLocation(), i);
+            }
+        });
+        e.getDrops().clear();
     }
 
 
