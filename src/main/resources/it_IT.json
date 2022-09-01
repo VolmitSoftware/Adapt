@@ -209,6 +209,8 @@
       "Lore2": "Raggio di blocco",
       "Lore3": "Forza",
       "Lore4": "Cooldown dello Smash"
+    },
+    "LeafMiner": {
     }
   },
   "Brewing": {
@@ -315,6 +317,11 @@
       "Description": "Consumando cibo, si ottiene una maggiore saturazione",
       "Lore1": "+ Cibo) punti di saturazione aggiuntivi al consumo"
     },
+    "Myconid": {
+      "Name": "Herbalist's Myconid",
+      "Description": "Gives you the ability to craft Mycelium",
+      "Lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
+    },
     "DropToInventory": {
       "Name": "Goccia di zappa nell'inventario"
     },
@@ -322,11 +329,6 @@
       "Name": "Scudo della fame",
       "Description": "Subisce danni alla fame prima che alla salute",
       "Lore1": "Resistente alla fame"
-    },
-    "Myconid": {
-      "Name": "Herbalist's Myconid",
-      "Description": "Gives you the ability to craft Mycelium",
-      "Lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
     },
     "Luck": {
       "Name": "Herbalist's Luck",
@@ -348,8 +350,6 @@
       "Lore1": "Danno massimo"
     },
     "GenericPenalty": {
-      "Name": "",
-      "Description": "",
       "Lore1": "You will Gain Poison stacks if you run out of hunger"
     },
     "DropToInventory": {
