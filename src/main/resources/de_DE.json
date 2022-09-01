@@ -209,6 +209,13 @@
       "Lore2": "Block Radius",
       "Lore3": "Kraft",
       "Lore4": "Schlag Abklingzeit"
+    },
+    "LeafMiner": {
+      "Name": "BlattMiner",
+      "Description": "Ermöglicht es, große Mengen an Blättern auf einmal zu entfernen!",
+      "Lore1": "Schleiche, und baue Blätter ab",
+      "Lore2": "Reichweite des BlätterMiners",
+      "Lore3": "Du erhältst hierfür keine Drops von den Blättern"
     }
   },
   "Brewing": {
