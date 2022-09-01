@@ -209,6 +209,13 @@
       "Lore2": "Radio de bloqueo",
       "Lore3": "Fuerza",
       "Lore4": "Recarga de Smash"
+    },
+    "LeafMiner": {
+      "Name": "minero de hojas",
+      "Description": "¡Te permite romper hojas a granel a la vez!",
+      "Lore1": "Sneak, y las mías HOJAS",
+      "Lore2": "gama de Leaf-mining",
+      "Lore3": "No obtendrás las gotas de las hojas (Prevención de exploits)"
     }
   },
   "Brewing": {
