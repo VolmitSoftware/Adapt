@@ -209,6 +209,13 @@
       "Lore2": "Raio do bloco",
       "Lore3": "Força",
       "Lore4": "Esmagar Cooldown"
+    },
+    "LeafMiner": {
+      "Name": "Leaf Miner",
+      "Description": "Permite quebrar folhas a granel de uma só vez!",
+      "Lore1": "Esgueirar-se, e minhas FOLHAS",
+      "Lore2": "gama de mineração de folhas",
+      "Lore3": "Você não obterá as gotas das folhas (Prevenção de Exploit)"
     }
   },
   "Brewing": {
