@@ -63,18 +63,18 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player && getLevel((Player) e.getDamager()) > 0 && ((Player) e.getDamager()).isSneaking()) {
-            if (!isAxe(((Player) e.getDamager()).getInventory().getItemInMainHand())) {
+        if (e.getDamager() instanceof Player p && getLevel(p) > 0 && p.isSneaking()) {
+            if (!isAxe(p.getInventory().getItemInMainHand())) {
                 return;
             }
 
-            double f = getLevelPercent((Player) e.getDamager());
+            double f = getLevelPercent(p);
 
-            if (((Player) e.getDamager()).hasCooldown(((Player) e.getDamager()).getInventory().getItemInMainHand().getType())) {
+            if (p.hasCooldown(p.getInventory().getItemInMainHand().getType())) {
                 return;
             }
 
-            ((Player) e.getDamager()).setCooldown(((Player) e.getDamager()).getInventory().getItemInMainHand().getType(), getCooldownTime(f));
+            p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(f));
             new Impulse(getRadius(f))
                     .damage(getDamage(f), getFalloffDamage(f))
                     .force(getForce(f))

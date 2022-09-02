@@ -71,8 +71,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
                 J.a(() -> {
                     for(Tameable j : gl) {
-                        if(j.isTamed() && j.getOwner() instanceof Player) {
-                            Player p = (Player) j.getOwner();
+                        if(j.isTamed() && j.getOwner() instanceof Player p) {
                             update(j, getLevel(p));
                         }
                     }
@@ -83,7 +82,11 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
     private void update(Tameable j, int level) {
         AttributeModifier mod = new AttributeModifier(attUUID, attid, getDamageBoost(level), AttributeModifier.Operation.ADD_SCALAR);
-        j.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier(mod);
+        if (j.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null) {
+            j.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier(mod);
+        } else {
+            return;
+        }
 
         if(level > 0) {
             j.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(mod);
