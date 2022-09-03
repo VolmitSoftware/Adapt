@@ -29,19 +29,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerFishEvent;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFantasy.Config> {
-    private final List<Integer> holds = new ArrayList<>();
 
     public SeaborneFishersFantasy() {
         super("seaborne-fishers-fantasy");
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Seaborn", "FishersFantasy", "Description"));
         setDisplayName(Adapt.dLocalize("Seaborn", "FishersFantasy", "Name"));
-        setIcon(Material.TRIDENT);
+        setIcon(Material.FISHING_ROD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(8080);
@@ -51,7 +48,7 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Seaborn", "FishersFantasy", "Lore3"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Seaborn", "FishersFantasy", "Lore1"));
     }
 
     @EventHandler
@@ -65,7 +62,7 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
             for (int i = 0; i < getLevel(p); i++) {
                 if (random.nextBoolean()) {
                     p.getWorld().spawn(p.getLocation(), ExperienceOrb.class);
-                    xp(p, 50);
+                    xp(p, 15 * getLevel(p));
                 }
             }
         }
@@ -84,9 +81,9 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        int baseCost = 3;
+        int baseCost = 5;
         int maxLevel = 7;
         int initialCost = 2;
-        double costFactor = 0.525;
+        double costFactor = 1.525;
     }
 }
