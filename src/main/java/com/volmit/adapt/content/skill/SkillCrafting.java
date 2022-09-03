@@ -46,7 +46,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         setColor(C.YELLOW);
         setDescription(Adapt.dLocalize("Skill", "Crafting", "Description"));
         setDisplayName(Adapt.dLocalize("Skill", "Crafting", "Name"));
-        setInterval(3700);
+        setInterval(3789);
         setIcon(Material.CRAFTING_TABLE);
         registerAdaptation(new CraftingDeconstruction());
         registerAdaptation(new CraftingXP());

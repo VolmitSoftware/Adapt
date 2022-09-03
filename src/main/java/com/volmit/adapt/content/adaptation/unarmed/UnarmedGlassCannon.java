@@ -40,6 +40,7 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(4544);
     }
 
 

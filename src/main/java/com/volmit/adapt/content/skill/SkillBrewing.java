@@ -45,7 +45,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         setColor(C.LIGHT_PURPLE);
         setDescription(Adapt.dLocalize("Skill", "Brewing", "Description"));
         setDisplayName(Adapt.dLocalize("Skill", "Brewing", "Name"));
-        setInterval(5251);
+        setInterval(5851);
         setIcon(Material.LINGERING_POTION);
         registerAdaptation(new BrewingLingering());
         registerAdaptation(new BrewingSuperHeated());

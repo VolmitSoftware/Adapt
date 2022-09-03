@@ -40,6 +40,7 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(9744);
     }
 
     @Override

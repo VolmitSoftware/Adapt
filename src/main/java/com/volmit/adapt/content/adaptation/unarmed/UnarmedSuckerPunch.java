@@ -41,6 +41,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(4944);
     }
 
     @NoArgsConstructor

@@ -50,7 +50,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
-        setInterval(4750);
+        setInterval(4753);
         setCostFactor(getConfig().costFactor);
     }
 

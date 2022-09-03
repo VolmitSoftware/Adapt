@@ -40,6 +40,7 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(9044);
     }
 
     @Override

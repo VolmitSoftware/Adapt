@@ -40,6 +40,8 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(9444);
+
     }
 
     @Override

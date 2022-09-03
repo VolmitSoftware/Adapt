@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
+import com.volmit.adapt.content.adaptation.seaborrne.SeaborneFishersFantasy;
 import com.volmit.adapt.content.adaptation.seaborrne.SeaborneOxygen;
 import com.volmit.adapt.content.adaptation.seaborrne.SeaborneSpeed;
 import com.volmit.adapt.util.C;
@@ -45,6 +46,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         setIcon(Material.TRIDENT);
         registerAdaptation(new SeaborneOxygen());
         registerAdaptation(new SeaborneSpeed());
+        registerAdaptation(new SeaborneFishersFantasy());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.TURTLE_HELMET)
                 .key("challenge_swim_1nm")

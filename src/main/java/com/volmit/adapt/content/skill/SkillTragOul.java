@@ -37,7 +37,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         setColor(C.AQUA);
         setDescription(Adapt.dLocalize("Skill", "TragOul", "Description"));
         setDisplayName(Adapt.dLocalize("Skill", "TragOul", "Name"));
-        setInterval(3755);
+        setInterval(2755);
         setIcon(Material.CRIMSON_ROOTS);
     }
 

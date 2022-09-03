@@ -48,7 +48,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
-        setInterval(5000);
+        setInterval(6911);
     }
 
     @Override

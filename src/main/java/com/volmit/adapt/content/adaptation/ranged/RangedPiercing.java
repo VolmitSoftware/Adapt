@@ -43,7 +43,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
         setIcon(Material.SHEARS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(5000);
+        setInterval(4791);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }

@@ -49,6 +49,8 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(18440);
+
     }
 
     @Override

@@ -50,7 +50,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
-        setInterval(1000);
+        setInterval(1033);
         setCostFactor(getConfig().costFactor);
     }
 

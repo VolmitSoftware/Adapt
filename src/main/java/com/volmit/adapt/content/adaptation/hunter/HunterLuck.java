@@ -40,6 +40,7 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(9644);
     }
 
     @Override

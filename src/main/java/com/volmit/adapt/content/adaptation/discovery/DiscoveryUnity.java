@@ -41,6 +41,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
+        setInterval(666);
     }
 
     @Override

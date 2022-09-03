@@ -39,7 +39,7 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
         setIcon(Material.EXPERIENCE_BOTTLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(5000);
+        setInterval(13001);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }

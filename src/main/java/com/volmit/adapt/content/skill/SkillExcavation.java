@@ -42,7 +42,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         setDescription(Adapt.dLocalize("Skill", "Excavation", "Description"));
         setDisplayName(Adapt.dLocalize("Skill", "Excavation", "Name"));
         setColor(C.YELLOW);
-        setInterval(5251);
+        setInterval(5953);
         setIcon(Material.DIAMOND_SHOVEL);
         registerAdaptation(new ExcavationHaste());
         registerAdaptation(new ExcavationOmniTool());

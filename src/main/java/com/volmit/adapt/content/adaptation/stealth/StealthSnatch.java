@@ -45,7 +45,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         setDisplayName(Adapt.dLocalize("Stealth","ItemSnatch", "Name"));
         setIcon(Material.CHEST_MINECART);
         setBaseCost(getConfig().baseCost);
-        setInterval(50);
+        setInterval(100);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);

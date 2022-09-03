@@ -43,7 +43,7 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
         setIcon(Material.EMERALD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(8111);
+        setInterval(8121);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }

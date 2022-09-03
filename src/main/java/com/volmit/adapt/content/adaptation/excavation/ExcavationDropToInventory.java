@@ -46,6 +46,8 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(11777);
+
     }
 
     @Override

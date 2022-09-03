@@ -37,7 +37,7 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
         setDisplayName(Adapt.dLocalize("Crafting", "CraftXp", "Name"));
         setDescription(Adapt.dLocalize("Crafting", "CraftXp", "Description"));
         setIcon(Material.EXPERIENCE_BOTTLE);
-        setInterval(10101);
+        setInterval(5580);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);

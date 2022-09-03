@@ -43,7 +43,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
-        setInterval(8276);
+        setInterval(7433);
         setCostFactor(getConfig().costFactor);
     }
 

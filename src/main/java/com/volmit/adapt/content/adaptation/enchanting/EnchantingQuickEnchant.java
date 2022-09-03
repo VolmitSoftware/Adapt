@@ -53,7 +53,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         setIcon(Material.WRITABLE_BOOK);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(5000);
+        setInterval(15100);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }

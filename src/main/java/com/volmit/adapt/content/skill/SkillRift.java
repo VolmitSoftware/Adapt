@@ -28,6 +28,7 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
@@ -55,7 +56,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         registerAdaptation(new RiftBlink());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerTeleportEvent e) {
         if (!lasttp.containsKey(e.getPlayer())) { // any teleport. this was problematic when teleporting from a rift to a rift or using a rift to teleport to a rift inside of a dimension
             xpSilent(e.getPlayer(), getConfig().teleportXP);

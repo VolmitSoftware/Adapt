@@ -45,7 +45,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
         setDescription(Adapt.dLocalize("Discovery", "DiscoveryArmor", "Description"));
         setDisplayName(Adapt.dLocalize("Discovery", "DiscoveryArmor", "Name"));
         setIcon(Material.TURTLE_HELMET);
-        setInterval(1125);
+        setInterval(1305);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);

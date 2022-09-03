@@ -55,7 +55,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
-        setInterval(9344);
+        setInterval(9999);
     }
 
     private double getJumpHeight(int level) {

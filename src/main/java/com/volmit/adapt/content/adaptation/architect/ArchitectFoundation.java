@@ -54,7 +54,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         setDescription(Adapt.dLocalize("Architect", "Foundation", "Description"));
         setDisplayName(Adapt.dLocalize("Architect", "Foundation", "Name"));
         setIcon(Material.TINTED_GLASS);
-        setInterval(1000);
+        setInterval(988);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);

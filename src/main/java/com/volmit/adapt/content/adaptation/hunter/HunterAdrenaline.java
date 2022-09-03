@@ -40,6 +40,8 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(1911);
+
     }
 
     @Override

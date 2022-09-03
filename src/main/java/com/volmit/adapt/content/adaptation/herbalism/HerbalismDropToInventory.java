@@ -46,6 +46,8 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(7999);
+
     }
 
     @Override
