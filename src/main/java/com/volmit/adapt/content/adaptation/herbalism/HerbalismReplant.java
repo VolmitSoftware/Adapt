@@ -48,7 +48,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
         setIcon(Material.PUMPKIN_SEEDS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(6000);
+        setInterval(6090);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }

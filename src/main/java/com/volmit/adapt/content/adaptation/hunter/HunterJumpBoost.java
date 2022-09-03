@@ -40,6 +40,7 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(9544);
     }
 
     @Override

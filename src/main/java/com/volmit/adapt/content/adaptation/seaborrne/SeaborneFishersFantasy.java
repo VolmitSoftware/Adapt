@@ -16,70 +16,56 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.content.adaptation.unarmed;
+package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerFishEvent;
 
-public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
-    public UnarmedPower() {
-        super("unarmed-power");
+import java.util.Random;
+
+public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFantasy.Config> {
+
+    public SeaborneFishersFantasy() {
+        super("seaborne-fishers-fantasy");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Unarmed","UnarmedPower", "Description"));
-        setDisplayName(Adapt.dLocalize("Unarmed","UnarmedPower", "Name"));
-        setIcon(Material.LEATHER_HELMET);
+        setDescription(Adapt.dLocalize("Seaborn", "FishersFantasy", "Description"));
+        setDisplayName(Adapt.dLocalize("Seaborn", "FishersFantasy", "Name"));
+        setIcon(Material.FISHING_ROD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
+        setInterval(8080);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        setInterval(4444);
-    }
-
-    @NoArgsConstructor
-    protected static class Config {
-        boolean enabled = true;
-        int baseCost = 3;
-        int maxLevel = 7;
-        int initialCost = 6;
-        double costFactor = 0.425;
-        double damageFactor = 2.57;
     }
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getUnarmedDamage(level), 0) + C.GRAY + Adapt.dLocalize("Unarmed","UnarmedPower", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Seaborn", "FishersFantasy", "Lore1"));
     }
 
     @EventHandler
-    public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player p) {
-            if (!hasAdaptation(p)) {
-                return;
-            }
-            if (p.getInventory().getItemInMainHand().getType() != Material.AIR || p.getInventory().getItemInOffHand().getType() != Material.AIR) {
-                return;
-            }
-            double factor = getLevelPercent(p);
-
-            if(factor <= 0) {
-                return;
-            }
-            e.setDamage(e.getDamage() * (1 + getUnarmedDamage(getLevel(p))));
-            getSkill().xp(p, 0.321 * factor * e.getDamage());
-
+    public void on(PlayerFishEvent e) {
+        if (!hasAdaptation(e.getPlayer())) {
+            return;
         }
-    }
-
-    private double getUnarmedDamage(int level) {
-        return getLevelPercent(level) * getConfig().damageFactor;
+        if (e.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
+            Random random = new Random();
+            Player p = e.getPlayer();
+            for (int i = 0; i < getLevel(p); i++) {
+                if (random.nextBoolean()) {
+                    p.getWorld().spawn(p.getLocation(), ExperienceOrb.class);
+                    xp(p, 15 * getLevel(p));
+                }
+            }
+        }
     }
 
     @Override
@@ -90,5 +76,14 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;
+    }
+
+    @NoArgsConstructor
+    protected static class Config {
+        boolean enabled = true;
+        int baseCost = 5;
+        int maxLevel = 7;
+        int initialCost = 2;
+        double costFactor = 1.525;
     }
 }

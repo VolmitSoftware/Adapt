@@ -49,7 +49,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
-        setInterval(5000);
+        setInterval(4333);
     }
 
     @Override

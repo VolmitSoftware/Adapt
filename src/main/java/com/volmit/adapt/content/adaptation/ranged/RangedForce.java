@@ -46,7 +46,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         setIcon(Material.ARROW);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(5000);
+        setInterval(4900);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         registerAdvancement(AdaptAdvancement.builder()

@@ -24,8 +24,8 @@ plugins {
 }
 
 
-version '1.0.7-1.19.2' // Needs to be version specific
-def nmsVersion = "1.19"
+version '1.0.8-1.19.2' // Needs to be version specific
+def nmsVersion = "1.19.2"
 def apiVersion = '1.19'
 def spigotJarVersion = '1.19-R0.1-SNAPSHOT'
 def name = getRootProject().getName() // Defined in settings.gradle

@@ -47,7 +47,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
         setIcon(Material.FEATHER);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(5000);
+        setInterval(4859);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }

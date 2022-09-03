@@ -46,7 +46,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
-        setInterval(9288);
+        setInterval(10288);
     }
 
 

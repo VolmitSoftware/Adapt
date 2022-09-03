@@ -51,7 +51,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         setDescription(Adapt.dLocalize("Architect", "Placement", "Description"));
         setDisplayName(Adapt.dLocalize("Architect", "Placement", "Name"));
         setIcon(Material.SCAFFOLDING);
-        setInterval(350);
+        setInterval(360);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);

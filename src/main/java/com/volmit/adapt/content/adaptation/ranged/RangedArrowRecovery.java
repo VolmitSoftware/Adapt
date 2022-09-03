@@ -50,7 +50,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         setIcon(Material.TIPPED_ARROW);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(5000);
+        setInterval(4009);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }

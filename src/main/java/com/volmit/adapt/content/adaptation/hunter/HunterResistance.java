@@ -41,6 +41,7 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(9844);
     }
 
     @Override

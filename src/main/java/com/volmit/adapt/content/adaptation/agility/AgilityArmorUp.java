@@ -49,7 +49,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
-        setInterval(55);
+        setInterval(250);
     }
 
     @Override
@@ -90,7 +90,6 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
                     if (v == null) {
                         return 1;
                     }
-
                     return v + 1;
                 });
 

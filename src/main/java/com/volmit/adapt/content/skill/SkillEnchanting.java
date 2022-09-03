@@ -36,7 +36,7 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         setColor(C.LIGHT_PURPLE);
         setDescription(Adapt.dLocalize("Skill", "Enchanting", "Description"));
         setDisplayName(Adapt.dLocalize("Skill", "Enchanting", "Name"));
-        setInterval(3700);
+        setInterval(3909);
         setIcon(Material.KNOWLEDGE_BOOK);
         registerAdaptation(new EnchantingQuickEnchant());
         registerAdaptation(new EnchantingLapisReturn());

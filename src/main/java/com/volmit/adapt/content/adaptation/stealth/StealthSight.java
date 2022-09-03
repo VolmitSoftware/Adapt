@@ -39,7 +39,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         setDisplayName(Adapt.dLocalize("Stealth","StealthNightVision", "Name"));
         setIcon(Material.POTION);
         setBaseCost(getConfig().baseCost);
-        setInterval(2000);
+        setInterval(5252);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);

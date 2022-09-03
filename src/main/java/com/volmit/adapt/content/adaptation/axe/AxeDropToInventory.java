@@ -46,6 +46,8 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(8800);
+
     }
 
     @Override

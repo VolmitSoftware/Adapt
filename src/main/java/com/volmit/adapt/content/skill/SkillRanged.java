@@ -43,7 +43,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         setDescription(Adapt.dLocalize("Skill", "Ranged", "Description"));
         setDisplayName(Adapt.dLocalize("Skill", "Ranged", "Name"));
         setColor(C.DARK_GREEN);
-        setInterval(3000);
+        setInterval(3044);
         registerAdaptation(new RangedForce());
         registerAdaptation(new RangedPiercing());
         registerAdaptation(new RangedArrowRecovery());

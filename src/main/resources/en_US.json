@@ -539,6 +539,11 @@
       "Description": "Hold more oxygen in your tiny lungs!",
       "Lore1": "Oxygen"
     },
+    "FishersFantasy": {
+      "Name": "Fisher's Fantasy",
+      "Description": "earn more XP from fishing, and get more fish!",
+      "Lore1": "For each level there is a chance to get more XP and Fish!"
+    },
     "DolphinGrace": {
       "Name": "Dolphin's Grace",
       "Description": "Swim like a dolphin, without the dolphins",

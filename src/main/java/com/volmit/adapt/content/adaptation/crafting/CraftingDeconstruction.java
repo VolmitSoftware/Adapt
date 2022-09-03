@@ -48,7 +48,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
         setIcon(Material.SHEARS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(1);
-        setInterval(5000);
+        setInterval(5590);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }

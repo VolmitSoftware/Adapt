@@ -40,6 +40,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(9844);
     }
 
     @Override

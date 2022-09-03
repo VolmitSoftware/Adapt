@@ -49,7 +49,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
-        setInterval(50);
+        setInterval(120);
     }
 
     @Override

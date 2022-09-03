@@ -40,7 +40,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         setIcon(Material.LAPIS_LAZULI);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(5000);
+        setInterval(20999);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }

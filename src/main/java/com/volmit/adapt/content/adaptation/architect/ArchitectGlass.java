@@ -42,7 +42,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
         setDescription(Adapt.dLocalize("Architect", "Glass", "Description"));
         setDisplayName(Adapt.dLocalize("Architect", "Glass", "Name"));
         setIcon(Material.GLASS);
-        setInterval(9119);
+        setInterval(25000);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);

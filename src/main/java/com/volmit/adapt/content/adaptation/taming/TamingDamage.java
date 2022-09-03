@@ -50,7 +50,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
-        setInterval(4750);
+        setInterval(6119);
         setCostFactor(getConfig().costFactor);
     }
 

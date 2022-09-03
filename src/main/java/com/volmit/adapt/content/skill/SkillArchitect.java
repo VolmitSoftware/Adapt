@@ -44,7 +44,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         setColor(C.AQUA);
         setDescription(Adapt.dLocalize("Skill", "Architect", "Description"));
         setDisplayName(Adapt.dLocalize("Skill", "Architect", "Name"));
-        setInterval(3700);
+        setInterval(3100);
         setIcon(Material.IRON_BARS);
         registerAdvancement(AdaptAdvancement.builder().icon(Material.BRICK).key("challenge_place_1k").title("So much to build!").description("Place over 1,000 blocks").frame(AdvancementDisplay.AdvancementFrame.CHALLENGE).visibility(AdvancementVisibility.PARENT_GRANTED).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());

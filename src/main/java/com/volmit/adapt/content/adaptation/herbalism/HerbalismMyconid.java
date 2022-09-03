@@ -37,7 +37,7 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
         setIcon(Material.MYCELIUM);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(10101);
+        setInterval(17771);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         registerRecipe(AdaptRecipe.shapeless()

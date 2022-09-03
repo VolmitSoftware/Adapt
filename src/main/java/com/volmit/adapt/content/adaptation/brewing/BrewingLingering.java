@@ -50,7 +50,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
-        setInterval(5000);
+        setInterval(4788);
     }
 
     @Override

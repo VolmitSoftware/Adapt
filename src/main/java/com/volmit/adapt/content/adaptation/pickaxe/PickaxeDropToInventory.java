@@ -47,6 +47,7 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        setInterval(7944);
     }
 
     @Override

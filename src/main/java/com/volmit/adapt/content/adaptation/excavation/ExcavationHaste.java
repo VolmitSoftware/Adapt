@@ -38,7 +38,7 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
         setDisplayName(Adapt.dLocalize("Excavation", "ExcavationHaste", "Name"));
         setDescription(Adapt.dLocalize("Excavation", "ExcavationHaste", "Description"));
         setIcon(Material.GOLDEN_PICKAXE);
-        setInterval(10101);
+        setInterval(4388);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
