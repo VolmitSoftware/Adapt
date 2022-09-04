@@ -40,7 +40,7 @@
     "Agility": {
       "Name": "敏捷",
       "Icon": "⇉",
-      "Description": "敏捷可以使你在遇阻时灵活的移动。"
+      "Description": "敏捷可以使你在遇阻时快速、灵活的移动。"
     },
     "Architect": {
       "Name": "建筑师",
@@ -50,49 +50,49 @@
     "Axes": {
       "Name": "巨斧",
       "Icon": "❖",
-      "Description1": "砍掉一块木头，",
-      "Description2": "与砍倒一整棵树有什么不一样的吗？",
-      "Description3": "—— 没什么不一样的。"
+      "Description1": "如果说你可以砍掉什么东西",
+      "Description2": "来取代掉砍树",
+      "Description3": "它们有什么不一样的吗？"
     },
     "Brewing": {
       "Name": "酿造",
       "Icon": "❦",
-      "Description": "咕嘟，咕嘟，咕嘟 - 我还是不敢将这瓶药水丢进炼药锅中。"
+      "Description": "咕嘟，咕嘟，咕嘟- 我还是不敢将这瓶药水丢进炼药锅中。"
     },
     "Crafting": {
-      "Name": "制作",
+      "Name": "合成",
       "Icon": "⌂",
-      "Description": "若有些东西找不到，为什么不再做一个呢？"
+      "Description": "若没有剩下什么东西可以合成，为什么不再做一个呢？"
     },
     "Discovery": {
       "Name": "探索",
       "Icon": "⚛",
-      "Description": "提升洞察力，寻找本应不该遗忘之物。"
+      "Description": "当洞察力提升时，你的思维便会澄澈，探索能与不能。"
     },
     "Enchanting": {
       "Name": "附魔",
       "Icon": "♰",
-      "Description": "我们从不向命运屈服。"
+      "Description": "你在嘀咕些什么？预言，幻象，还是在胡言乱语？"
     },
     "Excavation": {
       "Name": "挖掘",
       "Icon": "✥",
-      "Description": "当...当...咚！"
+      "Description": "挖...大...洞..."
     },
     "Herbalism": {
       "Name": "草药学",
       "Icon": "⚘",
-      "Description": "我怎么都找不到植物，不过我能找到一些种子—— 呃，那是杂草吗？"
+      "Description": "我见不到植物，不过我能找到一些种子还有—— 呃，杂草？"
     },
     "Hunter": {
       "Name": "狩猎",
       "Icon": "☠",
-      "Description": "狩猎是一个过程，而不是结果。"
+      "Description": "狩猎是一段旅程，而不是结果。"
     },
     "Nether": {
       "Name": "下界",
       "Icon": "₪",
-      "Description": "它从深处而来。"
+      "Description": "它来自深处。"
     },
     "Pickaxe": {
       "Name": "采矿",
@@ -112,22 +112,22 @@
     "Seaborne": {
       "Name": "激流",
       "Icon": "🌊",
-      "Description": "带着这个技能，也许有一天你能见到由水组成的奇观。"
+      "Description": "别忘了带着这个技能，也许有一天你能见到由水组成的奇观。"
     },
     "Stealth": {
       "Name": "隐形",
       "Icon": "✠",
-      "Description": "嘘！当行走于阴影里，这是看不见的艺术。"
+      "Description": "当行走于阴影里，这是看不见的艺术。"
     },
     "Swords": {
       "Name": "剑术",
       "Icon": "⚔",
-      "Description": "来自玄武石的力量。"
+      "Description": "这是来自玄武石的力量。"
     },
     "Taming": {
       "Name": "驯兽",
       "Icon": "♥",
-      "Description": "鹦鹉、蜜蜂。还有......你？"
+      "Description": "鹦鹉、蜜蜂，和......你？"
     },
     "TragOul": {
       "Name": "塔格奥",
@@ -137,7 +137,7 @@
     "Chronos": {
       "Name": "时空",
       "Icon": "۞",
-      "Description": "给宇宙的钟上个发条，会体验到流动。如果可以把时钟弄坏，也许就能成为它。"
+      "Description": "尝试着宇宙的钟上个发条，便可以体验到流动。若能把时钟弄坏，或许就能成为它。"
     },
     "Unarmed": {
       "Name": "搏击",
@@ -181,7 +181,7 @@
     "Glass": {
       "Name": "丝质手套",
       "Description": "徒手打破玻璃后将会掉落玻璃方块！",
-      "Lore1": "当手触摸到玻璃有丝绸般的触感"
+      "Lore1": "当手触摸到玻璃时有丝绸般的触感"
     },
     "Placement": {
       "Name": "建筑师之杖",
@@ -194,13 +194,13 @@
   "Axe": {
     "Chop": {
       "Name": "伐木斧",
-      "Description": "手持斧头，右键木头砍伐大棵树木。",
+      "Description": "手持斧头，右键木头砍伐多块树木。",
       "Lore1": "每次砍伐的数量",
       "Lore2": "冷却",
       "Lore3": "耐久消耗"
     },
     "DropToInventory": {
-      "Name": "斧头的掉落物进入背包"
+      "Name": "快速进入背包"
     },
     "GroundSmash": {
       "Name": "山崩地裂",
@@ -247,7 +247,7 @@
   },
   "Discovery": {
     "DiscoveryArmor": {
-      "Name": "世界战甲",
+      "Name": "世界之甲",
       "Description": "根据附近方块硬度给予被动防御。",
       "Lore1": "被动防御",
       "Lore2": "由附近方块硬度决定",
@@ -277,7 +277,7 @@
       "Name": "快速附魔",
       "Description": "在物品栏用附魔书点击被附魔的物品以快速附魔。",
       "Lore1": "累计最大等级",
-      "Lore2": "此物品总共的等级不能超过 ",
+      "Lore2": "此物品应用的附魔总等级不能超过 ",
       "Lore3": "级"
     },
     "EnchantingXpReturn": {
@@ -295,7 +295,7 @@
       "Lore2": "x 挖掘时急迫效果等级"
     },
     "DropToInventory": {
-      "Name": "铲子的掉落物进入背包"
+      "Name": "快速进入背包"
     },
     "OmniTool": {
       "Name": "OMNI - T.O.O.L.",
@@ -328,7 +328,7 @@
       "Lore1": "所有泥土，和棕、红色蘑菇将会制作出菌丝。"
     },
     "DropToInventory": {
-      "Name": "心灵遥感"
+      "Name": "快速进入背包"
     },
     "HungryShield": {
       "Name": "饥饿护盾",
@@ -360,7 +360,7 @@
       "Lore1": "如果饥饿度归零，将给予剧毒效果！"
     },
     "DropToInventory": {
-      "Name": "心灵遥感",
+      "Name": "快速进入背包",
       "Description": "当你击杀生物/破坏某方块，它的掉落物将会自动进入背包。",
       "Lore1": "如果允许，击杀生物/破坏某方块的掉落物将会自动进入背包。"
     },
@@ -456,12 +456,12 @@
     },
     "Chisel": {
       "Name": "破碎锤",
-      "Description": "右键单击目标矿石，将有概率获得额外产物。这可能严重消耗耐久度。",
+      "Description": "右键单击目标矿石，将有概率获得额外产物。这可能会严重消耗耐久度。",
       "Lore1": "概率掉落额外产物",
       "Lore2": "耐久消耗"
     },
     "DropToInventory": {
-      "Name": "心灵遥感",
+      "Name": "快速进入背包",
       "Description": "当你击杀生物/破坏某方块，它的掉落物将会自动进入背包。",
       "Lore1": "如果允许，击杀生物/破坏某方块的掉落物将会自动进入背包。"
     },
@@ -540,7 +540,7 @@
       "Lore1": "氧气"
     },
     "FishersFantasy": {
-      "Name": "与渔同乐",
+      "Name": "与鱼同乐",
       "Description": "从钓鱼中获得更多经验，以及更多的鱼！",
       "Lore1": "每级都有概率获得更多的经验和鱼"
     },
