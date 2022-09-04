@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.api.skill;
 
+import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -88,7 +90,7 @@ public class SkillRegistry extends TickedObject {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEvent e) {
         if(!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
-            && e.getClickedBlock().getType().equals(Material.BOOKSHELF) && (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR)
+            && e.getClickedBlock().getType().equals(Material.valueOf(AdaptConfig.get().adaptActivatorBlock)) && (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR)
             || !e.getPlayer().getInventory().getItemInMainHand().getType().isBlock()) &&
             (e.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.AIR) || !e.getPlayer().getInventory().getItemInOffHand().getType().isBlock())) {
             e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 0.72f);
