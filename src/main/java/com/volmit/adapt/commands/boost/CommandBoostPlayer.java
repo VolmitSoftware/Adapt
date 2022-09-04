@@ -19,8 +19,11 @@
 package com.volmit.adapt.commands.boost;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptServer;
+import com.volmit.adapt.api.xp.XP;
+import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
 import org.bukkit.Bukkit;
@@ -36,17 +39,23 @@ public class CommandBoostPlayer extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        if (Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).toList().contains(args[0])) {
-            Player p = Bukkit.getPlayer(args[0]);
-            AdaptPlayer ap = Adapt.instance.getAdaptServer().getPlayer(p);
-            AdaptServer as = Adapt.instance.getAdaptServer();
-            ap.boostXPToRecents(ap, Double.parseDouble(args[1]), Integer.parseInt(args[2])); // not working
-            p.sendMessage("BOOSTED " + args[1] + " XP TO " + args[2] + " ALL RECENT SKILL GAINS");
-            Adapt.info("BOOSTED " + args[1] + " XP TO " + args[2] + " ALL RECENT SKILL GAINS");
-        }
-        AdaptPlayer ap = Adapt.instance.getAdaptServer().getPlayer(sender.player());
+        try {
+            if (Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).toList().contains(args[0])) {
+                Player p = Bukkit.getPlayer(args[0]);
+                AdaptPlayer ap = Adapt.instance.getAdaptServer().getPlayer(p);
+                AdaptServer as = Adapt.instance.getAdaptServer();
 
-        return true;
+                ap.boostXPToRecents(ap, Double.parseDouble(args[1]), Integer.parseInt(args[2])); // not working
+                p.sendMessage("BOOSTED " + args[1] + " XP TO " + args[2] + " ALL RECENT SKILL GAINS");
+                Adapt.info("BOOSTED " + args[1] + " XP TO " + args[2] + " ALL RECENT SKILL GAINS");
+            }
+            AdaptPlayer ap = Adapt.instance.getAdaptServer().getPlayer(sender.player());
+
+            return true;
+        }  catch (Exception ignored) {
+            printHelp(sender);
+            return true;
+        }
     }
 
     @Override

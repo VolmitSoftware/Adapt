@@ -58,8 +58,11 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerTeleportEvent e) {
-        if (!lasttp.containsKey(e.getPlayer())) { // any teleport. this was problematic when teleporting from a rift to a rift or using a rift to teleport to a rift inside of a dimension
-            xpSilent(e.getPlayer(), getConfig().teleportXP);
+        if (!lasttp.containsKey(e.getPlayer())) {
+            try {
+                xpSilent(e.getPlayer(), getConfig().teleportXP);
+            } catch (Exception ignored) {
+            }
             lasttp.put(e.getPlayer(), M.ms());
         }
     }

@@ -29,13 +29,7 @@ import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.content.gui.SkillsGui;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.MaterialBlock;
-import com.volmit.adapt.util.UIElement;
-import com.volmit.adapt.util.UIWindow;
-import com.volmit.adapt.util.Window;
+import com.volmit.adapt.util.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -117,7 +111,10 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xpSilent(Player p, double xp) {
-        XP.xpSilent(p, this, xp);
+        try {
+            XP.xpSilent(p, this, xp);
+        } catch (Exception ignored) { // Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.
+        }
     }
 
     default void xp(Location at, double xp, int rad, long duration) {

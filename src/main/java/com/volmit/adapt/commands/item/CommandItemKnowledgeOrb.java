@@ -19,6 +19,7 @@
 package com.volmit.adapt.commands.item;
 
 import com.volmit.adapt.content.item.KnowledgeOrb;
+import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
 
@@ -31,8 +32,14 @@ public class CommandItemKnowledgeOrb extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        sender.player().getInventory().addItem(KnowledgeOrb.with(args[0], Integer.parseInt(args[1])));
-        return true;
+        try {
+            sender.player().getInventory().addItem(KnowledgeOrb.with(args[0], Integer.parseInt(args[1])));
+            return true;
+        } catch (Exception ignored) {
+            printHelp(sender);
+            sender.sendMessage(C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item knowledge <Skill> <XP Amount>");
+            return true;
+        }
     }
 
     @Override
