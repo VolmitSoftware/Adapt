@@ -43,6 +43,7 @@ public class AdaptConfig {
     private double playerXpPerSkillLevelUpLevelMultiplier = 44;
     private double powerPerLevel = 0.73;
     public boolean debug = false;
+    public String adaptActivatorBlock = "BOOKSHELF";
 
     @Getter
     public static class ValueConfig {

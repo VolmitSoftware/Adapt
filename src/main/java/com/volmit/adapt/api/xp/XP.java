@@ -40,7 +40,9 @@ public class XP {
     }
 
     public static void xpSilent(AdaptPlayer p, Skill skill, double xp) {
-        p.getSkillLine(skill.getName()).giveXP(null, xp);
+        if (p.getSkillLine(skill.getName()) != null) {
+            p.getSkillLine(skill.getName()).giveXP(null, xp);
+        }
     }
 
     public static void spatialXP(Location l, Skill skill, double xp, int rad, long duration) {

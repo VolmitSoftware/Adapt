@@ -19,6 +19,7 @@
 package com.volmit.adapt.commands.item;
 
 import com.volmit.adapt.content.item.ExperienceOrb;
+import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
 import org.bukkit.Bukkit;
@@ -32,14 +33,23 @@ public class CommandItemExperienceOrb extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        if (args.toList().size() > 2) {
-            if (Bukkit.getPlayer(args[2]) != null && Bukkit.getPlayer(args[2]).getPlayer() != null) {
-                Bukkit.getPlayer(args[2]).getPlayer().getInventory().addItem(ExperienceOrb.with(args[0], Integer.parseInt(args[1])));
+
+        try {
+            if (args.toList().size() > 2) {
+                if (Bukkit.getPlayer(args[2]) != null && Bukkit.getPlayer(args[2]).getPlayer() != null) {
+                    Bukkit.getPlayer(args[2]).getPlayer().getInventory().addItem(ExperienceOrb.with(args[0], Integer.parseInt(args[1])));
+                }
+            } else if (args.toList().size() == 2) {
+                sender.player().getInventory().addItem(ExperienceOrb.with(args[0], Integer.parseInt(args[1])));
             }
-        } else if (args.toList().size() == 2) {
-            sender.player().getInventory().addItem(ExperienceOrb.with(args[0], Integer.parseInt(args[1])));
+            return true;
+        } catch (Exception ignored) {
+            printHelp(sender);
+            sender.sendMessage(C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item knowledge <Skill> <XP Amount>");
+            return true;
         }
-        return true;
+
+
     }
 
     @Override

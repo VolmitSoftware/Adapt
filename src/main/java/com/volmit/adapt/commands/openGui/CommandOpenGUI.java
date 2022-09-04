@@ -32,10 +32,15 @@ public class CommandOpenGUI extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
+        try {
         sender.player().playSound(sender.player().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 0.72f);
         sender.player().playSound(sender.player().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
         SkillsGui.open(sender.player());
         return true;
+        }  catch (Exception ignored) {
+            printHelp(sender);
+            return true;
+        }
     }
 
     @Override
