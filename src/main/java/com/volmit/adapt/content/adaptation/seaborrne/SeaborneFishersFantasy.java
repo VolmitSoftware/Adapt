@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,7 @@ import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Random;
 
@@ -60,7 +62,10 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
             Random random = new Random();
             Player p = e.getPlayer();
             for (int i = 0; i < getLevel(p); i++) {
+                ItemStack item = new ItemStack(ItemListings.getFishingDrops().getRandom(), 1);
                 if (random.nextBoolean()) {
+                    p.sendMessage("You caught a fish!");
+                    p.getWorld().dropItemNaturally(p.getLocation(), item);
                     p.getWorld().spawn(p.getLocation(), ExperienceOrb.class);
                     xp(p, 15 * getLevel(p));
                 }
