@@ -26,7 +26,10 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bukkit.*;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.EventHandler;
@@ -38,7 +41,6 @@ import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
