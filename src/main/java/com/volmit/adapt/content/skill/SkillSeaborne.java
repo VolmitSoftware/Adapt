@@ -22,9 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
-import com.volmit.adapt.content.adaptation.seaborrne.SeaborneFishersFantasy;
-import com.volmit.adapt.content.adaptation.seaborrne.SeaborneOxygen;
-import com.volmit.adapt.content.adaptation.seaborrne.SeaborneSpeed;
+import com.volmit.adapt.content.adaptation.seaborrne.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
@@ -33,6 +31,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
@@ -47,6 +46,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         registerAdaptation(new SeaborneOxygen());
         registerAdaptation(new SeaborneSpeed());
         registerAdaptation(new SeaborneFishersFantasy());
+        registerAdaptation(new SeaborneTurtlesVision());
+        registerAdaptation(new SeaborneTurtlesMiningSpeed());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.TURTLE_HELMET)
                 .key("challenge_swim_1nm")
@@ -74,6 +75,15 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             xp(e.getPlayer(), 300);
         } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
             xp(e.getPlayer(), 10);
+        }
+    }
+
+    @EventHandler
+    public void on(BlockBreakEvent e) {
+        if (e.getBlock().getType().equals(Material.SEA_PICKLE) && e.getPlayer().isSwimming() && e.getPlayer().getRemainingAir() < e.getPlayer().getMaximumAir()) { // BECAUSE I LIKE PICKLES
+            xpSilent(e.getPlayer(), 10);
+        } else {
+            xpSilent(e.getPlayer(), 3);
         }
     }
 
