@@ -24,11 +24,11 @@ plugins {
 }
 
 
-version '1.0.9-1.19.2' // Needs to be version specific
-def nmsVersion = "1.19.2"
+version '1.0.10-1.19.2' // Needs to be version specific
+def nmsVersion = "1.19.2" //[NMS]
 def apiVersion = '1.19'
-def specialSourceVersion = '1.11.0'
-def spigotJarVersion = '1.19.2-R0.1-SNAPSHOT'
+def specialSourceVersion = '1.11.0' //[NMS]
+def spigotJarVersion = '1.19.2-R0.1-SNAPSHOT' //[NMS]
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
 
@@ -118,10 +118,10 @@ dependencies {
     // Provided or Classpath
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    implementation 'org.spigotmc:spigot-api:1.19.2-R0.1-SNAPSHOT'
+    implementation 'org.spigotmc:spigot-api:1.19.2-R0.1-SNAPSHOT' //[NMS]
     implementation 'me.clip:placeholderapi:2.11.1'
     implementation 'io.th0rgal:oraxen:1.94.0'
-    implementation 'org.bukkit:craftbukkit:1.19.2-R0.1-SNAPSHOT'
+    implementation 'org.bukkit:craftbukkit:1.19.2-R0.1-SNAPSHOT' //[NMS]
     implementation 'com.github.LoneDev6:api-itemsadder:3.1.0b'
 
     // Cancer
