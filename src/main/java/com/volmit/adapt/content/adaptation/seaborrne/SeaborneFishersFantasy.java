@@ -64,7 +64,6 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
             for (int i = 0; i < getLevel(p); i++) {
                 ItemStack item = new ItemStack(ItemListings.getFishingDrops().getRandom(), 1);
                 if (random.nextBoolean()) {
-                    p.sendMessage("You caught a fish!");
                     p.getWorld().dropItemNaturally(p.getLocation(), item);
                     p.getWorld().spawn(p.getLocation(), ExperienceOrb.class);
                     xp(p, 15 * getLevel(p));
