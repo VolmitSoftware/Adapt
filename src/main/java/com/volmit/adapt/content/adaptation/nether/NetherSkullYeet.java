@@ -23,13 +23,16 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
 
@@ -39,7 +42,7 @@ import java.util.UUID;
 
 public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
-    private final Map<UUID, Integer> cooldowns = new HashMap<>();
+    private final Map<Player, Long> lastJump = new HashMap<>();
 
     public NetherSkullYeet() {
         super("nether-skull-toss");
@@ -57,27 +60,52 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     @Override
     public void addStats(int level, Element v) {
         int chance = getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * level;
-        v.addLore(C.GREEN + String.valueOf(chance) + C.GRAY + " " +Adapt.dLocalize("Nether", "SkullToss", "Lore1"));
+        v.addLore(C.GREEN + String.valueOf(chance) + C.GRAY + " " + Adapt.dLocalize("Nether", "SkullToss", "Lore1"));
         v.addLore(C.GRAY + Adapt.dLocalize("Nether", "SkullToss", "Lore2") + C.DARK_GRAY + Adapt.dLocalize("Nether", "SkullToss", "Lore3") + C.GRAY + ", " + Adapt.dLocalize("Nether", "SkullToss", "Lore4"));
+    }
+
+    private int getCooldownDuration(Player p) {
+        return (getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * getLevel(p)) * 20;
+    }
+
+    @EventHandler
+    public void on(PlayerQuitEvent e) {
+        lastJump.remove(e.getPlayer());
     }
 
     @EventHandler
     public void onRightClick(PlayerInteractEvent e) {
-        if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK)
+        if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK) {
             return;
-        if (e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL)
+        }
+        if (e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL) {
             return;
+        }
 
-        if (cooldowns.containsKey(e.getPlayer().getUniqueId())) {
+        Player p = e.getPlayer();
+
+        if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(p)) {
             e.getPlayer().playSound(e.getPlayer(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
             return;
         }
 
+        if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(p)) {
+            return;
+        }
+
+        if (p.hasCooldown(p.getInventory().getItemInMainHand().getType())) {
+            e.setCancelled(true);
+            e.getPlayer().playSound(e.getPlayer(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
+            return;
+        } else {
+            NMS.get().sendCooldown(p, Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
+            p.setCooldown(Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
+        }
+
+
         if (e.getPlayer().getGameMode() != GameMode.CREATIVE) {
             e.getItem().setAmount(e.getItem().getAmount() - 1);
-            int cooldown = (getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * getLevel(e.getPlayer())) * 20;
-            cooldowns.put(e.getPlayer().getUniqueId(), cooldown);
-            NMS.get().sendCooldown(e.getPlayer(), Material.WITHER_SKELETON_SKULL, cooldown);
+            lastJump.put(e.getPlayer(), M.ms());
         }
 
         Vector dir = e.getPlayer().getEyeLocation().getDirection();
@@ -100,23 +128,17 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
     @Override
     public void onTick() {
-        for (UUID u : cooldowns.k()) {
-            cooldowns.computeIfPresent(u, (uuid, i) -> i > 0 ? i-- : i);
-            if (cooldowns.get(u) == 0) {
-                cooldowns.remove(u);
-                NMS.get().sendCooldown(Bukkit.getPlayer(u), Material.WITHER_SKELETON_SKULL, 0);
-            }
-        }
+
     }
 
     @Data
     @NoArgsConstructor
     public static class Config {
         private boolean enabled = true;
-        private int baseCooldown = 37;
+        private int baseCooldown = 15;
         private int levelCooldown = 7;
-        private int baseCost = 3;
-        private double costFactor = 1;
+        private int baseCost = 10;
+        private double costFactor = 1.5;
         private int maxLevel = 3;
         private int initialCost = 5;
     }
