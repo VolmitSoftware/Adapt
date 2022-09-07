@@ -355,8 +355,6 @@
       "Lore1": "最大伤害"
     },
     "GenericPenalty": {
-      "Name": "",
-      "Description": "",
       "Lore1": "如果饥饿度归零，将给予剧毒效果！"
     },
     "DropToInventory": {
@@ -436,7 +434,7 @@
       "Description3": "枯竭。",
       "Lore1": "秒发射冷却时间。",
       "Lore2": "使用凋灵头颅发射器：",
-      "Lore3": "手持凋灵骷髅头颅，并右键",
+      "Lore3": "手持凋灵骷髅头颅，并左键",
       "Lore4": "发射一颗凋灵头颅。遇到方块或生物时自动爆炸。"
     },
     "WitherResist": {
