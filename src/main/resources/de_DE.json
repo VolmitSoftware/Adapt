@@ -537,6 +537,11 @@
       "Description": "Halte mehr Sauerstoff in deinen kleinen Lungen!",
       "Lore1": "Sauerstoff"
     },
+    "FishersFantasy": {
+      "Name": "Phantasie des Fischers",
+      "Description": "Erhalte mehr Erfahrung und mehr Fische beim Fischen!",
+      "Lore1": "Für jedes Level gibt es eine Chance mehr Erfahrung und Fische zu erhalten"
+    },
     "DolphinGrace": {
       "Name": "Delphins Anmut",
       "Description": "Schwimm wie ein Delphin, ohne einen Delphine!",
