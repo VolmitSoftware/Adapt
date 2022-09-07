@@ -544,6 +544,16 @@
       "Description": "earn more XP from fishing, and get more fish!",
       "Lore1": "For each level there is a chance to get more XP and Fish!"
     },
+    "TurtlesMiningSpeed": {
+      "Name": "Turtle Miner",
+      "Description": "While mining underwater you gain haste!",
+      "Lore1": "Haste 3 is applied underwater while mining (stacks with AquaAffinity) after your water breathing effect wears off!"
+    },
+    "TurtlesVision": {
+      "Name": "Turtle's Vision",
+      "Description": "While underwater, you gain Night Vision",
+      "Lore1": "Simply gain Night Vision while underwater after your water breathing effect wears off!"
+    },
     "DolphinGrace": {
       "Name": "Dolphin's Grace",
       "Description": "Swim like a dolphin, without the dolphins",

@@ -20,55 +20,40 @@ package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.entity.EntityAirChangeEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
-import java.util.Random;
+public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtlesMiningSpeed.Config> {
 
-public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFantasy.Config> {
-
-    public SeaborneFishersFantasy() {
-        super("seaborne-fishers-fantasy");
+    public SeaborneTurtlesMiningSpeed() {
+        super("seaborne-turtles-mining-speed");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Seaborn", "FishersFantasy", "Description"));
-        setDisplayName(Adapt.dLocalize("Seaborn", "FishersFantasy", "Name"));
-        setIcon(Material.FISHING_ROD);
+        setDescription(Adapt.dLocalize("Seaborn", "TurtlesMiningSpeed", "Description"));
+        setDisplayName(Adapt.dLocalize("Seaborn", "TurtlesMiningSpeed", "Name"));
+        setIcon(Material.GOLDEN_HORSE_ARMOR);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(8080);
+        setInterval(8229);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Seaborn", "FishersFantasy", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Seaborn", "TurtlesMiningSpeed", "Lore1"));
     }
 
     @EventHandler
-    public void on(PlayerFishEvent e) {
-        if (!hasAdaptation(e.getPlayer())) {
-            return;
-        }
-        if (e.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
-            Random random = new Random();
-            Player p = e.getPlayer();
-            for (int i = 0; i < getLevel(p); i++) {
-                ItemStack item = new ItemStack(ItemListings.getFishingDrops().getRandom(), 1);
-                if (random.nextBoolean()) {
-                    p.getWorld().dropItemNaturally(p.getLocation(), item);
-                    p.getWorld().spawn(p.getLocation(), ExperienceOrb.class);
-                    xp(p, 15 * getLevel(p));
-                }
-            }
+    public void on(EntityAirChangeEvent e) {
+        if (e.getEntity() instanceof Player p && p.getInventory().getHelmet() != null && p.getInventory().getHelmet().getType().equals(Material.TURTLE_HELMET) && hasAdaptation(p)) {
+            p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 10, 3));
         }
     }
 
@@ -85,9 +70,9 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        int baseCost = 5;
-        int maxLevel = 7;
-        int initialCost = 2;
-        double costFactor = 1.525;
+        int baseCost = 15;
+        int maxLevel = 1;
+        int initialCost = 3;
+        double costFactor = 1;
     }
 }

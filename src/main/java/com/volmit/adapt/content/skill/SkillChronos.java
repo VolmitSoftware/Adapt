@@ -31,7 +31,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         super("chronos", Adapt.dLocalize("Skill", "Chronos", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setInterval(8551);
+        setInterval(10000);
         setDescription(Adapt.dLocalize("Skill", "Chronos", "Description"));
         setDisplayName(Adapt.dLocalize("Skill", "Chronos", "Name"));
         setInterval(getConfig().setInterval);
