@@ -60,7 +60,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         return getConfig().baseDistance + (getLevelPercent(level) * getConfig().distanceFactor);
     }
 
-    private int getCooldownDuration(int level) {
+    private int getCooldownDuration() {
         return 2000;
     }
 
@@ -82,7 +82,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             e.setCancelled(true);
             p.setAllowFlight(false);
 
-            if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
+            if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration()) {
                 return;
             }
             if (p.isSprinting()) {
@@ -143,7 +143,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         if (hasAdaptation(e.getPlayer()) && p.getGameMode().equals(GameMode.SURVIVAL)) {
 
 
-            if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(getLevel(p))) {
+            if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration()) {
                 p.setAllowFlight(false);
                 return;
             }
