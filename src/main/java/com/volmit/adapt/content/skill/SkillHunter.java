@@ -20,7 +20,6 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.content.adaptation.axe.AxeChop;
 import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
@@ -28,6 +27,7 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -69,7 +69,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void on(EntityDeathEvent e) {
         if (e.getEntity().getKiller() != null && e.getEntity().getKiller() != null) {
             double cmult = e.getEntity().getType().equals(EntityType.CREEPER) ? getConfig().creeperKillMultiplier : 1;
