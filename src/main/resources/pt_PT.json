@@ -537,6 +537,21 @@
       "Description": "Mantenha mais oxigênio em seus minúsculos pulmões!",
       "Lore1": "Oxigênio"
     },
+    "FishersFantasy": {
+      "Name": "fantasia de pescador",
+      "Description": "ganhe mais XP pescando e pegue mais peixes!",
+      "Lore1": "Para cada nível, há uma chance de obter mais XP e Peixes!"
+    },
+    "TurtlesMiningSpeed": {
+      "Name": "Tartaruga Mineira",
+      "Description": "Ao minerar debaixo d'água, você ganha pressa!",
+      "Lore1": "Haste 3 é aplicado debaixo d'água durante a mineração (acumula com AquaAffinity) depois que seu efeito de respiração na água desaparece!"
+    },
+    "TurtlesVision": {
+      "Name": "Visão da tartaruga",
+      "Description": "Enquanto estiver debaixo d'água, você ganha Visão Noturna",
+      "Lore1": "Simplesmente ganhe Visão Noturna enquanto estiver debaixo d'água depois que seu efeito de respiração na água desaparecer!"
+    },
     "DolphinGrace": {
       "Name": "Graça do Golfinho",
       "Description": "Nade como um golfinho, sem os golfinhos",

@@ -54,6 +54,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         registerAdaptation(new RiftEnderchest());
         registerAdaptation(new RiftGate());
         registerAdaptation(new RiftBlink());
+        registerAdaptation(new RiftDoor());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

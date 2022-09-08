@@ -24,6 +24,7 @@ import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.xp.XP;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -498,6 +499,78 @@ public interface Component {
         is.setItemMeta(im);
         p.getInventory().setItemInOffHand(is);
     }
+
+    default Block getRightBlock(Player p, Block b) {
+        Location l = p.getLocation();
+        float yaw = l.getYaw();
+        // Make sure yaw is in the range 0 to 360
+        while (yaw < 0) {
+            yaw += 360;
+        }
+        yaw = yaw % 360;
+        // The player's yaw is their rotation in the world,
+        // so, we can use that to get the right face of a block!
+        BlockFace rightFace;
+        // if the player is facing SE to SW
+        if (yaw < 45 || yaw >= 315) {
+            rightFace = BlockFace.EAST;
+            return b.getRelative(rightFace);
+        }
+        // if the player is facing SW to NW
+        else if (yaw < 135) {
+            rightFace = BlockFace.SOUTH;
+            return b.getRelative(rightFace);
+        }
+        // if the player is facing NW to NE
+        else if (yaw < 225) {
+            rightFace = BlockFace.WEST;
+            return b.getRelative(rightFace);
+        }
+        // if the player is facing NE to SE
+        else if (yaw < 315) {
+            rightFace = BlockFace.NORTH;
+            return b.getRelative(rightFace);
+        } else {
+            return null;
+        }
+    }
+
+    default Block getLeftBlock(Player p, Block b) {
+        Location l = p.getLocation();
+        float yaw = l.getYaw();
+
+        // Make sure yaw is in the range 0 to 360
+        while (yaw < 0) {
+            yaw += 360;
+        }
+        yaw = yaw % 360;
+        // The player's yaw is their rotation in the world,
+        // so, we can use that to get the right face of a block!
+        BlockFace leftFace;
+        // if the player is facing SE to SW
+        if (yaw < 45 || yaw >= 315) {
+            leftFace = BlockFace.WEST;
+            return b.getRelative(leftFace);
+        }
+        // if the player is facing SW to NW
+        else if (yaw < 135) {
+            leftFace = BlockFace.NORTH;
+            return b.getRelative(leftFace);
+        }
+        // if the player is facing NW to NE
+        else if (yaw < 225) {
+            leftFace = BlockFace.EAST;
+            return b.getRelative(leftFace);
+        }
+        // if the player is facing NE to SE
+        else if (yaw < 315) {
+            leftFace = BlockFace.SOUTH;
+            return b.getRelative(leftFace);
+        } else {
+            return null;
+        }
+    }
+
 
     default void setExp(Player p, int exp) {
         p.setExp(0);
