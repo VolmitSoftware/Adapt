@@ -542,6 +542,16 @@
       "Description": "Erhalte mehr Erfahrung und mehr Fische beim Fischen!",
       "Lore1": "Für jedes Level gibt es eine Chance mehr Erfahrung und Fische zu erhalten"
     },
+    "TurtlesMiningSpeed": {
+      "Name": "Schildkröten Miner",
+      "Description": "Erhalte Eile beim Bergbau unter Wasser!",
+      "Lore1": "Eile 3 wird während des Abbaus unter Wasser angewendet (stapelt sich mit Wasseraffinität), nachdem der Effekt der Wasseratmung nachlässt!"
+    },
+    "TurtlesVision": {
+      "Name": "Vision der Schildkröte",
+      "Description": "Erhalte Nachsicht, wenn du unter Wasser bist",
+      "Lore1": "Erhalte Nachtsicht unter Wasser, wenn der Effekt der Wasseratmung nachlässt!"
+    },
     "DolphinGrace": {
       "Name": "Delphins Anmut",
       "Description": "Schwimm wie ein Delphin, ohne einen Delphine!",
