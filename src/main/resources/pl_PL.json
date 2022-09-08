@@ -1,0 +1,389 @@
+{
+  "Snippets": {
+    "GUI": {
+      "Level": "Poziom",
+      "Knowledge": "Wiedza",
+      "PowerUsed": "Użyta moc",
+      "NotLearned": "Nie Nauczono",
+      "XP": "XP do"
+    },
+    "AdaptMenu": {
+      "KnowledgeCost": "Koszt Wiedzy",
+      "AlreadyLearned": "Już Nauczono",
+      "UnlearnRefund": "Kliknij, aby się oduczyć i otrzymać zwrot XP",
+      "Knowledge": "Wiedza",
+      "ClickLearn": "Kliknij, aby dowiedzieć się",
+      "NoKnowledge": "(Nie masz żadnej wiedzy)",
+      "YouOnlyHave": "Posiadasz tylko",
+      "NotEnoughPower": "Za mało mocy! Każdy poziom umiejętności kosztuje 1 moc.",
+      "Power": "Moc",
+      "Learned": "Nauczono"
+    },
+    "KnowledgeOrb": {
+      "Contains": "Zawiera",
+      "Knowledge": "Wiedza",
+      "RightClick": "Kliknij Prawym Przyciskiem Myszy",
+      "ToGainKnowledge": "do zdobycia tej wiedzy"
+    },
+    "ExperienceOrb": {
+      "Contains": "Zawiera",
+      "XP": "Doświadczenie",
+      "RightClick": "Prawy Przycisk",
+      "ToGainXP": "do zdobycia tego doświadczenia"
+    }
+  },
+  "Skill": {
+    "Agility": {
+      "Name": "Zręczność",
+      "Icon": "⇉"
+    },
+    "Architect": {
+      "Name": "Architekt",
+      "Icon": "⬧",
+      "Description": "Struktury są budulcem świata. Rzeczywistość jest w Twoich rękach i pod Twoją kontrolą."
+    },
+    "Axes": {
+      "Name": "Siekiery",
+      "Icon": "❖",
+      "Description2": "rzeczy"
+    },
+    "Brewing": {
+      "Name": "Browarnictwo",
+      "Icon": "❦"
+    },
+    "Crafting": {
+      "Name": "Rzemiosło",
+      "Icon": "⌂"
+    },
+    "Discovery": {
+      "Name": "Odkrycie",
+      "Icon": "⚛"
+    },
+    "Enchanting": {
+      "Icon": "♰"
+    },
+    "Excavation": {
+      "Name": "Wykop",
+      "Icon": "✥"
+    },
+    "Herbalism": {
+      "Name": "Zielarstwo",
+      "Icon": "⚘"
+    },
+    "Hunter": {
+      "Name": "Łowca",
+      "Icon": "☠"
+    },
+    "Nether": {
+      "Name": "Nether",
+      "Icon": "₪"
+    },
+    "Pickaxe": {
+      "Name": "Kilof",
+      "Icon": "⛏"
+    },
+    "Ranged": {
+      "Name": "Dystansowy",
+      "Icon": "🏹",
+      "Description": "Trzymanie wroga na dystans jest kluczem do zwycięstwa i kluczem do przetrwania."
+    },
+    "Rift": {
+      "Name": "Szczelina",
+      "Icon": "❍"
+    },
+    "Seaborne": {
+      "Name": "Morski",
+      "Icon": "🌊",
+      "Description": "Dzięki tej umiejętności możesz poznać morskie cuda"
+    },
+    "Stealth": {
+      "Name": "Skradanie",
+      "Icon": "✠",
+      "Description": "Sztuka niewidzialnego. Ukryj się w cieniu."
+    },
+    "Swords": {
+      "Name": "Miecze",
+      "Icon": "⚔"
+    },
+    "Taming": {
+      "Name": "Oswajanie",
+      "Icon": "♥",
+      "Description": "Papugi, pszczoły... i ty?"
+    },
+    "TragOul": {
+      "Name": "TragOul",
+      "Icon": "▼"
+    },
+    "Chronos": {
+      "Icon": "۞"
+    },
+    "Unarmed": {
+      "Name": "Nieuzbrojony",
+      "Icon": "⚜"
+    }
+  },
+  "Agility": {
+    "ArmorUp": {
+      "Description": "Zdobądź więcej pancerza, im dłużej sprintujesz!",
+      "Lore1": "Maksymalny Pancerz",
+      "Lore2": "Czas Do Uzbrojenia"
+    },
+    "SuperJump": {
+      "Name": "Super Skok",
+      "Description": "Nadzwyczajna Przewaga Wysokości",
+      "Lore1": "Maksymalna Wysokość Skoku"
+    },
+    "WallJump": {
+      "Name": "Skok Po Ścianie",
+      "Lore1": "Maksymalna Ilość Skoków",
+      "Lore2": "Wysokość Skoku"
+    },
+    "WindUp": {
+      "Description": "Nabierz prędkości im dłużej biegniesz!",
+      "Lore1": "Maksymalna Prędkość"
+    }
+  },
+  "Architect": {
+    "Foundation": {
+      "Lore1": "Stwórz magicznie:",
+      "Lore2": "Bloki pod tobą!"
+    },
+    "Glass": {
+      "Name": "Jedwabny Dotyk Szkła",
+      "Lore1": "Twoje dłonie zyskują jedwabisty dotyk do szkła"
+    },
+    "Placement": {
+      "Name": "Różdzka Konstruktora",
+      "Lore1": "Potrzebujesz"
+    }
+  },
+  "Axe": {
+    "Chop": {
+      "Name": "Uderzenie Siekiery",
+      "Lore3": "Zużycie Narzędzi"
+    },
+    "DropToInventory": {
+    },
+    "GroundSmash": {
+      "Lore1": "Obrażenia",
+      "Lore2": "Zasięg Bloku",
+      "Lore3": "Moc"
+    },
+    "LeafMiner": {
+      "Lore3": "Nie otrzymasz dropów z liści (Aby zapobiec nadużyciu)"
+    }
+  },
+  "Brewing": {
+    "Lingering": {
+      "Lore1": "Czas Trwania",
+      "Lore2": "Czas Trwania"
+    },
+    "SuperHeated": {
+    }
+  },
+  "Crafting": {
+    "Deconstruction": {
+      "Name": "Dekonstrukcja",
+      "Description": "Rozłóż bloki i przedmioty na odzyskiwalne elementy bazowe!",
+      "Lore1": "Umieść dowolny przedmiot + użyj nożyce"
+    },
+    "CraftXp": {
+    }
+  },
+  "Discovery": {
+    "DiscoveryArmor": {
+      "Lore1": "Zbroja Pasywna",
+      "Lore3": "Siła Pancerza: +"
+    },
+    "DiscoveryUnity": {
+      "Lore1": "XP "
+    },
+    "DiscoveryXpResist": {
+      "Lore2": "doświadczenie wyczerpane"
+    }
+  },
+  "Enchanting": {
+    "LapisReturn": {
+    },
+    "QuickEnchant": {
+      "Lore3": "moc"
+    },
+    "EnchantingXpReturn": {
+      "Name": "Zwrot XP"
+    }
+  },
+  "Excavation": {
+    "ExcavationHaste": {
+    },
+    "DropToInventory": {
+    },
+    "OmniTool": {
+    }
+  },
+  "Herbalism": {
+    "GrowthAura": {
+    },
+    "Hippo": {
+    },
+    "Myconid": {
+    },
+    "DropToInventory": {
+    },
+    "HungryShield": {
+      "Lore1": "Odparty przez Głód"
+    },
+    "Luck": {
+      "Name": "Szczęście Zielarza",
+      "Lore1": "Szansa na zdobycie przedmiotu niszcząc kwiaty"
+    },
+    "Replant": {
+      "Name": "Zbiór i Przesadzanie"
+    }
+  },
+  "Hunter": {
+    "Adrenaline": {
+      "Name": "Adrenalina",
+      "Description": "Zadaj więcej obrażeń, mając mniej zdrowia (walka wręcz)",
+      "Lore1": "Maksymalne Obrażenia"
+    },
+    "GenericPenalty": {
+    },
+    "DropToInventory": {
+    },
+    "HunterInvisibility": {
+      "Lore5": "Czas trwania niewidzialności"
+    },
+    "HunterJumpBoost": {
+    },
+    "HunterLuck": {
+    },
+    "HunterRegen": {
+      "Name": "Regeneracja Łowcy"
+    },
+    "HunterResistance": {
+      "Name": "Opór Łowcy"
+    },
+    "HunterSpeed": {
+      "Name": "Szybkość Łowcy"
+    },
+    "HunterStrength": {
+      "Name": "Siła Łowcy"
+    }
+  },
+  "Nether": {
+    "SkullToss": {
+      "Description2": "kogoś",
+      "Description3": "głowa.",
+      "Lore3": "Czaszka Witherowego Szkieleta"
+    },
+    "WitherResist": {
+    }
+  },
+  "Pickaxe": {
+    "Autosmelt": {
+    },
+    "Chisel": {
+      "Name": "Dłuto Rudy",
+      "Lore1": "Szansa na Drop"
+    },
+    "DropToInventory": {
+    },
+    "Veinminer": {
+      "Name": "Żniwiarz"
+    }
+  },
+  "Ranged": {
+    "ArrowRecovery": {
+      "Name": "Odzyskiwanie Strzał"
+    },
+    "ForceShot": {
+      "AdvancementName": "Długi Strzał",
+      "AdvancementLore": "Traf strzałem z odległości ponad 30 bloków!",
+      "Lore1": "Prędkość Pocisku"
+    },
+    "LungeShot": {
+    },
+    "ArrowPiercing": {
+      "Name": "Przebicie Strzały"
+    }
+  },
+  "Rift": {
+    "RemoteAccess": {
+    },
+    "RiftBlink": {
+      "Lore1": "Migające bloki (2 w pionie)",
+      "Lore3": "Miganie"
+    },
+    "RiftEnderchest": {
+    },
+    "RiftGate": {
+      "Name": "Brama Szczeliny",
+      "Lore2": "Przeczytaj przed użyciem!",
+      "Lore3": "opóźnienie 5 sek.,",
+      "Lore4": "możesz umrzeć, gdy używasz tą animację"
+    },
+    "RiftResistance": {
+      "Name": "Odporność Na Szczelinę"
+    }
+  },
+  "Seaborn": {
+    "SeabornOxygen": {
+      "Lore1": "Tlen"
+    },
+    "FishersFantasy": {
+      "Name": "Fantazja Rybaka",
+      "Lore1": "Na każdym poziomie jest szansa na zdobycie większej ilości XP i Łowienia Więcej Ryb!"
+    },
+    "TurtlesMiningSpeed": {
+    },
+    "TurtlesVision": {
+    },
+    "DolphinGrace": {
+      "Name": "Łaska Delfina"
+    }
+  },
+  "Stealth": {
+    "GhostArmor": {
+      "Lore2": "Prędkość"
+    },
+    "StealthNightVision": {
+      "Lore2": "Noktowizja",
+      "Lore3": "podczas skradania się"
+    },
+    "ItemSnatch": {
+      "Lore1": "Zasięg Chwytu"
+    },
+    "SneakSpeed": {
+      "Name": "Prędkość Skradania Się",
+      "Description": "Zyskaj prędkość podczas skradania się",
+      "Lore1": "Prędkość skradania się"
+    }
+  },
+  "Sword": {
+    "Machete": {
+      "Name": "Maczeta"
+    }
+  },
+  "Taming": {
+    "TameDamage": {
+    },
+    "TameHealth": {
+      "Lore1": "Zwiększone Zdrowie"
+    },
+    "TameRegeneration": {
+      "Lore1": "HP"
+    }
+  },
+  "Unarmed": {
+    "GlassCannon": {
+      "Name": "Szklana Armata"
+    },
+    "UnarmedPower": {
+      "Lore1": "Obrażenia"
+    },
+    "SuckerPunch": {
+      "Name": "Cios Partyzanta",
+      "Lore1": "Obrażenia"
+    }
+  }
+}
