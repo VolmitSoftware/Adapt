@@ -53,8 +53,12 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(CraftItemEvent e) {
         Player p = (Player) e.getWhoClicked();
-        if (hasAdaptation(p) && !e.getRecipe().equals(Material.AIR)) {
-            p.giveExp(e.getInventory().getResult().getAmount() * getLevel(p));
+        if (e.getInventory().getResult() != null && !e.isCancelled() && hasAdaptation(p)) {
+            if (e.getInventory().getResult().getAmount() > 0) {
+                if (e.getInventory().getResult() != null) {
+                    p.giveExp(e.getInventory().getResult().getAmount() * getLevel(p));
+                }
+            }
         }
     }
 
