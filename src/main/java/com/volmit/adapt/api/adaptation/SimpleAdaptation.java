@@ -143,7 +143,11 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
 
     @Override
     public String getDisplayName() {
-        return displayName == null ? Adaptation.super.getDisplayName() : (C.RESET + "" + C.BOLD + getSkill().getColor().toString() + displayName);
+        try {
+            return displayName == null ? Adaptation.super.getDisplayName() : (C.RESET + "" + C.BOLD + getSkill().getColor().toString() + displayName);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     public void registerAdvancement(AdaptAdvancement a) {
