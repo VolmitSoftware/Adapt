@@ -213,9 +213,9 @@
     "LeafMiner": {
       "Name": "minero de hojas",
       "Description": "¡Te permite romper hojas a granel a la vez!",
-      "Lore1": "Sneak, y las mías HOJAS",
+      "Lore1": "Shiftea, y las mías HOJAS",
       "Lore2": "gama de Leaf-mining",
-      "Lore3": "No obtendrás las gotas de las hojas (Prevención de exploits)"
+      "Lore3": "No obtendrás los drops de las hojas (Prevención de exploits)"
     }
   },
   "Brewing": {
@@ -540,12 +540,12 @@
     "FishersFantasy": {
       "Name": "la fantasía del pescador",
       "Description": "¡gana más XP pescando y consigue más peces!",
-      "Lore1": "¡Para cada nivel existe la posibilidad de obtener más XP y Fish!"
+      "Lore1": "¡Para cada nivel existe la posibilidad de obtener más XP y mas peces!"
     },
     "TurtlesMiningSpeed": {
       "Name": "minero tortuga",
       "Description": "¡Mientras mina bajo el agua ganas prisa!",
-      "Lore1": "¡Haste 3 se aplica bajo el agua mientras se extrae (se acumula con AquaAffinity) después de que desaparece el efecto de respiración acuática!"
+      "Lore1": "¡Haste 3 se aplica bajo el agua mientras se extrae (se acumula con Afinidad Acuatica) después de que desaparece el efecto de respiración acuática!"
     },
     "TurtlesVision": {
       "Name": "Visión de tortuga",
