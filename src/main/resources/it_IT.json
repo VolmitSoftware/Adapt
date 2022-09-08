@@ -537,6 +537,21 @@
       "Description": "Trattiene più ossigeno nei suoi piccoli polmoni!",
       "Lore1": "Ossigeno"
     },
+    "FishersFantasy": {
+      "Name": "La fantasia di Fisher",
+      "Description": "guadagna più XP dalla pesca e ottieni più pesci!",
+      "Lore1": "Per ogni livello c'è la possibilità di ottenere più XP e Pesce!"
+    },
+    "TurtlesMiningSpeed": {
+      "Name": "Minatore di tartarughe",
+      "Description": "Durante l'estrazione sott'acqua guadagni in fretta!",
+      "Lore1": "Haste 3 viene applicato sott'acqua durante l'estrazione (si accumula con AquaAffinity) dopo che l'effetto di respirazione dell'acqua svanisce!"
+    },
+    "TurtlesVision": {
+      "Name": "Visione della tartaruga",
+      "Description": "Mentre sei sott'acqua, ottieni Visione notturna",
+      "Lore1": "Ottieni semplicemente la visione notturna mentre sei sott'acqua dopo che l'effetto di respirazione dell'acqua svanisce!"
+    },
     "DolphinGrace": {
       "Name": "Grazia del delfino",
       "Description": "Nuota come un delfino, senza i delfini.",
