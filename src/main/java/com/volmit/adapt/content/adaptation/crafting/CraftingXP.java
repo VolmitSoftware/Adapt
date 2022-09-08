@@ -50,12 +50,13 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
     }
 
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOW)
     public void on(CraftItemEvent e) {
         Player p = (Player) e.getWhoClicked();
-        if (e.getInventory().getResult() != null && !e.isCancelled() && hasAdaptation(p)) {
-            if (e.getInventory().getResult().getAmount() > 0) {
-                if (e.getInventory().getResult() != null) {
+        if (e.getInventory().getResult() != null && !e.isCancelled() && hasAdaptation(p) && e.getInventory().getResult().getAmount() > 0) {
+            if (e.getInventory().getResult() != null && e.getCursor() != null && e.getCursor().getAmount() < 64) {
+                if (p.getInventory().addItem(e.getCurrentItem()).isEmpty()) {
+                    p.getInventory().removeItem(e.getCurrentItem());
                     p.giveExp(e.getInventory().getResult().getAmount() * getLevel(p));
                 }
             }
