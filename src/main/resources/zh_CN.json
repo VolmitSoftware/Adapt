@@ -542,6 +542,16 @@
       "Description": "从钓鱼中获得更多经验，以及更多的鱼！",
       "Lore1": "每级都有概率获得更多的经验和鱼"
     },
+    "TurtlesMiningSpeed": {
+      "Name": "海龟矿工",
+      "Description": "当你在水下时给予急迫效果！",
+      "Lore1": "当水下呼吸效果消失时，在水下挖掘时将给予急迫3效果（可与水下速掘效果叠加）。"
+    },
+    "TurtlesVision": {
+      "Name": "海龟夜视\n",
+      "Description": "当你在水下时给予夜视效果！",
+      "Lore1": "当水下呼吸效果消失时，在水下时将给予夜视效果！"
+    },
     "DolphinGrace": {
       "Name": "海豚的祝福",
       "Description": "无需海豚相伴也能快速游动了。",
