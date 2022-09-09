@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryArmor;
@@ -63,17 +64,26 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler
     public void on(PlayerChangedWorldEvent e) {
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         seeWorld(e.getPlayer(), e.getPlayer().getWorld());
     }
 
     @EventHandler
     public void on(PlayerInteractAtEntityEvent e) {
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         seeEntity(e.getPlayer(), e.getRightClicked());
     }
 
     @EventHandler
     public void on(EntityPickupItemEvent e) {
-        if (e.getEntity() instanceof Player) {
+        if (e.getEntity() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             seeItem((Player) e.getEntity(), e.getItem().getItemStack());
         }
     }
@@ -82,6 +92,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public void on(CraftItemEvent e) {
 
         if (e.getWhoClicked() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             try {
                 NamespacedKey key = (NamespacedKey) Recipe.class.getDeclaredMethod("getKey()").invoke(e.getRecipe());
 
@@ -96,12 +109,18 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler
     public void on(PlayerItemConsumeEvent e) {
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         seeItem(e.getPlayer(), e.getItem());
         seeFood(e.getPlayer(), e.getItem().getType());
     }
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.getClickedBlock() != null) {
             seeBlock(e.getPlayer(), e.getClickedBlock().getBlockData(), e.getClickedBlock().getLocation());
         }
@@ -109,6 +128,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.LOW)
     public void on(PlayerExpChangeEvent e) {
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {
             xp(e.getPlayer(), e.getAmount());
         }

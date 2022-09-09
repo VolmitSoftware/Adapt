@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -80,6 +81,9 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
 
     @EventHandler
     public void on(PlayerMoveEvent e) {
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.getFrom().getWorld() != null && e.getTo() !=null && e.getFrom().getWorld().equals(e.getTo().getWorld())) {
             double d = e.getFrom().distance(e.getTo());
             getPlayer(e.getPlayer()).getData().addStat("move", d);
@@ -100,6 +104,9 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         for (Player i : Bukkit.getOnlinePlayers()) {
             checkStatTrackers(getPlayer(i));
             if (i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
+                if (!AdaptConfig.get().isXpInCreative() && i.getGameMode().name().contains("CREATIVE")) {
+                    return;
+                }
                 xpSilent(i, getConfig().sprintXpPassive);
             }
         }

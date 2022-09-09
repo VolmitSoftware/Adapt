@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.ranged.RangedArrowRecovery;
 import com.volmit.adapt.content.adaptation.ranged.RangedForce;
@@ -53,7 +54,10 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(ProjectileLaunchEvent e) {
-        if (e.getEntity().getShooter() instanceof Player) {
+        if (e.getEntity().getShooter() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(((Player) e.getEntity().getShooter()), getConfig().shootXP);
             getPlayer(((Player) e.getEntity().getShooter())).getData().addStat("ranged.shotsfired", 1);
             getPlayer(((Player) e.getEntity().getShooter())).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
@@ -64,6 +68,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     public void on(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
             Player p = ((Player) ((Projectile) e.getDamager()).getShooter());
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
             getPlayer(p).getData().addStat("ranged.distance", e.getEntity().getLocation().distance(p.getLocation()));
             getPlayer(p).getData().addStat("ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());

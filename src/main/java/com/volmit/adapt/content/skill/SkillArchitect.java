@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -56,6 +57,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @EventHandler
     public void on(BlockPlaceEvent e) {
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
         J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));
         getPlayer(e.getPlayer()).getData().addStat("blocks.placed", 1);
@@ -65,8 +69,10 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         getPlayer(e.getPlayer()).getData().addStat("blocks.broken", 1);
-
     }
 
     @Override

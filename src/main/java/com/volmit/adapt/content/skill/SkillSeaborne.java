@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -71,6 +72,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler
     public void on(PlayerFishEvent e) {
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
             xp(e.getPlayer(), 300);
         } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
@@ -80,6 +84,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.getBlock().getType().equals(Material.SEA_PICKLE) && e.getPlayer().isSwimming() && e.getPlayer().getRemainingAir() < e.getPlayer().getMaximumAir()) { // BECAUSE I LIKE PICKLES
             xpSilent(e.getPlayer(), 10);
         } else {
