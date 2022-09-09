@@ -57,6 +57,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -68,6 +71,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
+
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }

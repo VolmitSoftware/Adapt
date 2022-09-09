@@ -46,6 +46,9 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
 
     @EventHandler
     public void on(EnchantItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getEnchanter().getGameMode().name().contains("CREATIVE")) {
             return;
         }

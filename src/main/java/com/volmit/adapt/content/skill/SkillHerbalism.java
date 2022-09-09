@@ -99,6 +99,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler
     public void on(PlayerItemConsumeEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getItem().getItemMeta() instanceof PotionMeta o) {
             return;
         }
@@ -111,6 +114,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler
     public void on(PlayerShearEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -133,6 +139,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -144,6 +153,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
+
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -171,6 +181,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }

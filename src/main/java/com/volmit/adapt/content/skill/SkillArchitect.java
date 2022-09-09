@@ -57,6 +57,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @EventHandler
     public void on(BlockPlaceEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -69,6 +72,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }

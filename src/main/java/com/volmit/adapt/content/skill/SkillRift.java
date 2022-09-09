@@ -60,6 +60,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerTeleportEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -74,6 +77,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity() instanceof EnderPearl && e.getEntity().getShooter() instanceof Player p) {
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;
@@ -89,6 +95,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity() instanceof Enderman && e.getDamager() instanceof Player p) {
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;

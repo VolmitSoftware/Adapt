@@ -54,6 +54,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(ProjectileLaunchEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity().getShooter() instanceof Player p) {
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;

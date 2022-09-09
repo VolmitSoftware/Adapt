@@ -64,6 +64,9 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(CraftItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = (Player) e.getWhoClicked();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
@@ -151,6 +154,9 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @EventHandler
     public void on(FurnaceSmeltEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP +
                         (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier),
                 getConfig().furnaceXPRadius,

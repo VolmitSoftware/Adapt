@@ -80,6 +80,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler
     public void on(BlockPlaceEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -92,6 +95,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }

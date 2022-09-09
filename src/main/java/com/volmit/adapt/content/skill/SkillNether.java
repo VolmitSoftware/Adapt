@@ -53,8 +53,11 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.WITHER && event.getEntity() instanceof Player p && !(event instanceof EntityDamageByBlockEvent)) {
+    public void onEntityDamage(EntityDamageEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (e.getCause() == EntityDamageEvent.DamageCause.WITHER && e.getEntity() instanceof Player p && !(e instanceof EntityDamageByBlockEvent)) {
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;
             }
@@ -64,6 +67,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -90,6 +96,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getDamager() instanceof Player p && e.getCause() == EntityDamageEvent.DamageCause.WITHER) {
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;

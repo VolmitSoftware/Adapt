@@ -72,6 +72,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler
     public void on(PlayerFishEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -84,6 +87,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
         }
