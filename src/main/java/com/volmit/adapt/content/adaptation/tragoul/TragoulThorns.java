@@ -22,17 +22,13 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
-import de.slikey.effectlib.effect.*;
-import de.slikey.effectlib.util.DynamicLocation;
+import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
-import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.util.Vector;
 
 
 public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
@@ -52,26 +48,21 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "" + level + "x "+ Adapt.dLocalize("TragOul", "Thorns", "Lore1"));
+        v.addLore(C.GREEN + "" + getConfig().damageMultiplierPerLevel * level + "x "+ Adapt.dLocalize("TragOul", "Thorns", "Lore1"));
     }
 
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player p) {
-            if (!hasAdaptation(p)) {
-                return;
+        if (e.getEntity() instanceof Player p && hasAdaptation(p)) {
+            if (e.getDamager() instanceof LivingEntity le) {
+                BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
+                blood.setEntity(le);
+                blood.height = -1;
+                blood.iterations = 1;
+                blood.start();
+                le.damage(getConfig().damageMultiplierPerLevel * getLevel(p), p);
             }
-            Entity ent = e.getEntity();
-
-            BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
-            blood.setEntity(ent);
-            blood.height = -1;
-            blood.iterations = 1;
-            blood.start();
-
-            ((Player) e.getDamager()).damage(getLevel(p));
-
         }
     }
 
@@ -91,6 +82,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         int baseCost = 5;
         int maxLevel = 5;
         int initialCost = 5;
+        int damageMultiplierPerLevel = 1;
         double costFactor = 1.10;
     }
 }
