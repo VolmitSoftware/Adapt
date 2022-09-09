@@ -160,7 +160,7 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
             return;
         }
         xp(e.getPlayer(), 15);
-        if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("pickaxes").getAdaptations().get("pickaxe-drop-to-inventory").getLevel() > 0) {
+        if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-drop-to-inventory").getLevel() > 0) {
             Adapt.info("2");
             PickaxeAutosmelt.autosmeltBlockDTI(e.getBlock(), p);
         } else {

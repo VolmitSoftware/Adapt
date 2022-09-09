@@ -35,7 +35,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     public PickaxeChisel() {
-        super("pickaxes-chisel");
+        super("pickaxe-chisel");
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Pickaxe", "Chisel", "Description"));
         setDisplayName(Adapt.dLocalize("Pickaxe", "Chisel", "Name"));
