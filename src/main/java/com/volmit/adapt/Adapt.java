@@ -32,6 +32,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.Metrics;
 import com.volmit.adapt.util.VolmitPlugin;
+import de.slikey.effectlib.EffectManager;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -70,7 +71,7 @@ public class Adapt extends VolmitPlugin {
     }
 
     public static HashMap<String, String> wordKey = new HashMap<>();
-
+    public final EffectManager adaptEffectManager = new EffectManager(this);
 
     @Override
     public void start() {

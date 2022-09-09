@@ -130,6 +130,7 @@ dependencies {
     annotationProcessor 'systems.manifold:manifold-ext:2022.1.19'
     testAnnotationProcessor 'systems.manifold:manifold-ext:2022.1.19'
     implementation 'systems.manifold:manifold-rt:2022.1.19'
+    implementation 'com.elmakers.mine.bukkit:EffectLib:9.4'
 
     // Shaded
     implementation 'io.papermc:paperlib:1.0.5'
