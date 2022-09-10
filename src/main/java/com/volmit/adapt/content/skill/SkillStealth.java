@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;

@@ -39,8 +39,8 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
     public RiftResist() {
         super("rift-resist");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Rift","RiftResistance", "Description"));
-        setDisplayName(Adapt.dLocalize("Rift","RiftResistance", "Name"));
+        setDescription(Adapt.dLocalize("Rift", "RiftResistance", "Description"));
+        setDisplayName(Adapt.dLocalize("Rift", "RiftResistance", "Name"));
         setIcon(Material.SCULK_VEIN);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -49,11 +49,20 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         setInterval(10288);
     }
 
+    static void riftResistStackAdd(Player p, int duration, int amplifier) {
+        if (p.getLocation().getWorld() == null) {
+            return;
+        }
+        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
+        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1000f, 0.01f);
+        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1000f, 0.01f);
+        p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, duration, amplifier, true, false, false));
+    }
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RiftResistance", "Lore1"));
-        v.addLore(C.UNDERLINE + Adapt.dLocalize("Rift","RiftResistance", "Lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Rift", "RiftResistance", "Lore1"));
+        v.addLore(C.UNDERLINE + Adapt.dLocalize("Rift", "RiftResistance", "Lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -74,17 +83,6 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         }
 
     }
-
-    static void riftResistStackAdd(Player p, int duration, int amplifier) {
-        if (p.getLocation().getWorld() == null) {
-            return;
-        }
-        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
-        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1000f, 0.01f);
-        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1000f, 0.01f);
-        p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, duration, amplifier, true, false, false));
-    }
-
 
     @Override
     public void onTick() {

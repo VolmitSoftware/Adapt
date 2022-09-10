@@ -51,7 +51,7 @@ public class MultiBurst {
     }
 
     public void sync(Runnable... r) {
-        for(Runnable i : r) {
+        for (Runnable i : r) {
             i.run();
         }
     }

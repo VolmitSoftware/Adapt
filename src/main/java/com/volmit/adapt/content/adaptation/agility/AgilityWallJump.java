@@ -108,7 +108,10 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                     if (j - 0.25 <= getMaxJumps(level)) {
                         jumped = true;
                         i.setVelocity(i.getVelocity().setY(getJumpHeight(level)));
-                        i.getWorld().spawnParticle(Particle.BLOCK_CRACK, i.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, getStick(i).getBlockData());
+                        if (getConfig().showParticles) {
+
+                            i.getWorld().spawnParticle(Particle.BLOCK_CRACK, i.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, getStick(i).getBlockData());
+                        }
                     }
                     xp(i, 2);
                     airjumps.put(i, j);
@@ -125,7 +128,9 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                 if (i.hasGravity()) {
                     i.getLocation().getWorld().playSound(i.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
                     i.getLocation().getWorld().playSound(i.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
-                    i.getWorld().spawnParticle(Particle.BLOCK_CRACK, i.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.2, 0.1, 0.1, getStick(i).getBlockData());
+                    if (getConfig().showParticles) {
+                        i.getWorld().spawnParticle(Particle.BLOCK_CRACK, i.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.2, 0.1, 0.1, getStick(i).getBlockData());
+                    }
                 }
 
                 i.setGravity(false);
@@ -200,6 +205,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 2;
         double costFactor = 0.65;
         int maxLevel = 5;

@@ -24,13 +24,7 @@ import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.notification.Notifier;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.ChronoLatch;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.IO;
-import com.volmit.adapt.util.JSONObject;
-import com.volmit.adapt.util.M;
-import com.volmit.adapt.util.RollingSequence;
+import com.volmit.adapt.util.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
@@ -72,53 +66,39 @@ public class AdaptPlayer extends TickedObject {
         velocity = new Vector();
     }
 
-    public boolean canConsumeFood(double cost, int minFood)
-    {
+    public boolean canConsumeFood(double cost, int minFood) {
         return (player.getFoodLevel() + player.getSaturation()) - minFood > cost;
     }
 
-    public boolean consumeFood(double cost, int minFood)
-    {
-        if(canConsumeFood(cost, minFood))
-        {
+    public boolean consumeFood(double cost, int minFood) {
+        if (canConsumeFood(cost, minFood)) {
             int food = player.getFoodLevel();
             double sat = player.getSaturation();
 
-            if(sat >= cost)
-            {
+            if (sat >= cost) {
                 sat = (player.getSaturation() - cost);
                 cost = 0;
-            }
-
-            else if(player.getSaturation() > 0)
-            {
+            } else if (player.getSaturation() > 0) {
                 cost -= sat;
                 sat = 0;
             }
 
-            if(cost >= 1)
-            {
+            if (cost >= 1) {
                 food -= (int) Math.floor(cost);
                 cost = Math.floor(cost);
             }
 
-            if(cost > 0)
-            {
-                if(sat >= cost)
-                {
+            if (cost > 0) {
+                if (sat >= cost) {
                     sat -= cost;
                     cost = 0;
-                }
-
-                else
-                {
+                } else {
                     sat++;
                     food--;
                 }
             }
 
-            if(sat >= cost && cost > 0)
-            {
+            if (sat >= cost && cost > 0) {
                 sat -= cost;
                 cost = 0;
             }
@@ -155,10 +135,10 @@ public class AdaptPlayer extends TickedObject {
     private PlayerData loadPlayerData() {
         File f = new File(Bukkit.getServer().getPluginManager().getPlugin(Adapt.instance.getName()).getDataFolder() + File.separator + "data" + File.separator + "players" + File.separator + player.getUniqueId() + ".json");
 
-        if(f.exists()) {
+        if (f.exists()) {
             try {
                 return new Gson().fromJson(IO.readAll(f), PlayerData.class);
-            } catch(Throwable ignored) {
+            } catch (Throwable ignored) {
 
             }
         }
@@ -168,11 +148,11 @@ public class AdaptPlayer extends TickedObject {
 
     @Override
     public void onTick() {
-        if(updatelatch.flip()) {
+        if (updatelatch.flip()) {
             getData().update(this);
         }
 
-        if(savelatch.flip()) {
+        if (savelatch.flip()) {
             save();
         }
 
@@ -180,9 +160,9 @@ public class AdaptPlayer extends TickedObject {
 
         Location at = player.getLocation();
 
-        if(lastpos != null) {
-            if(lastpos.getWorld().equals(at.getWorld())) {
-                if(lastpos.distanceSquared(at) <= 7 * 7) {
+        if (lastpos != null) {
+            if (lastpos.getWorld().equals(at.getWorld())) {
+                if (lastpos.distanceSquared(at) <= 7 * 7) {
                     speed.put(lastpos.distance(at) / ((double) (M.ms() - lastloc) / 50D));
                     velocity = velocity.clone().add(at.clone().subtract(lastpos).toVector()).multiply(0.5);
                     velocity.setX(Math.abs(velocity.getX()) < 0.01 ? 0 : velocity.getX());
@@ -201,8 +181,8 @@ public class AdaptPlayer extends TickedObject {
     }
 
     public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {
-        for(PlayerSkillLine i : p.getData().getSkillLines().v()) {
-            if(M.ms() - i.getLast() < ms) {
+        for (PlayerSkillLine i : p.getData().getSkillLines().v()) {
+            if (M.ms() - i.getLast() < ms) {
                 i.giveXP(not, xpGained);
             }
         }
@@ -217,8 +197,8 @@ public class AdaptPlayer extends TickedObject {
     }
 
     public void boostXPToRecents(AdaptPlayer p, double boost, int ms) {
-        for(PlayerSkillLine i : p.getData().getSkillLines().v()) {
-            if(M.ms() - i.getLast() < ms) {
+        for (PlayerSkillLine i : p.getData().getSkillLines().v()) {
+            if (M.ms() - i.getLast() < ms) {
                 i.boost(boost, ms);
             }
         }
@@ -230,16 +210,16 @@ public class AdaptPlayer extends TickedObject {
         getData().setLastLogin(M.ms());
         long boostTime = (long) Math.min(timeGone / 12D, TimeUnit.HOURS.toMillis(1));
 
-        if(boostTime < TimeUnit.MINUTES.toMillis(5)) {
+        if (boostTime < TimeUnit.MINUTES.toMillis(5)) {
             return;
         }
 
         double boostAmount = M.lerp(0.1, 0.25, (double) boostTime / (double) TimeUnit.HOURS.toMillis(1));
         getData().globalXPMultiplier(boostAmount, (int) boostTime);
         getNot().queue(AdvancementNotification.builder()
-            .title(first ? "Welcome!" : "Welcome Back!")
-            .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " XP for " + C.AQUA + Form.duration(boostTime, 0))
-            .build());
+                .title(first ? "Welcome!" : "Welcome Back!")
+                .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " XP for " + C.AQUA + Form.duration(boostTime, 0))
+                .build());
     }
 
     public boolean hasSkill(Skill s) {

@@ -36,6 +36,22 @@ import java.util.List;
 public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
     public static BoundEnderPearl io = new BoundEnderPearl();
 
+    public static Block getBlock(ItemStack stack) {
+        if (io.getData(stack) != null) {
+            return io.getData(stack).getBlock();
+        }
+
+        return null;
+    }
+
+    public static void setData(ItemStack item, Block t) {
+        io.setData(item, new Data(t));
+    }
+
+    public static ItemStack withData(Block t) {
+        return io.withData(new Data(t));
+    }
+
     @Override
     public Material getMaterial() {
         return Material.ENDER_PEARL;
@@ -59,22 +75,6 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
         meta.setDisplayName("Reliquary Portkey");
 
-    }
-
-    public static Block getBlock(ItemStack stack) {
-        if(io.getData(stack) != null) {
-            return io.getData(stack).getBlock();
-        }
-
-        return null;
-    }
-
-    public static void setData(ItemStack item, Block t) {
-        io.setData(item, new Data(t));
-    }
-
-    public static ItemStack withData(Block t) {
-        return io.withData(new Data(t));
     }
 
     @AllArgsConstructor

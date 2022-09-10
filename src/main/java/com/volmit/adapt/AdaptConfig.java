@@ -34,6 +34,9 @@ import java.util.Map;
 @Getter
 public class AdaptConfig {
     private static AdaptConfig config = null;
+    public boolean debug = false;
+    public boolean xpInCreative = false;
+    public String adaptActivatorBlock = "BOOKSHELF";
     private ValueConfig value = new ValueConfig();
     private boolean verbose = false;
     private boolean metrics = true;
@@ -42,9 +45,34 @@ public class AdaptConfig {
     private double playerXpPerSkillLevelUpBase = 489;
     private double playerXpPerSkillLevelUpLevelMultiplier = 44;
     private double powerPerLevel = 0.73;
-    public boolean debug = false;
-    public boolean xpInCreative = false;
-    public String adaptActivatorBlock = "BOOKSHELF";
+
+    public static AdaptConfig get() {
+        if (config == null) {
+            AdaptConfig dummy = new AdaptConfig();
+            File l = Adapt.instance.getDataFile("adapt", "adapt.json");
+
+
+            if (!l.exists()) {
+                try {
+                    IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    config = dummy;
+                    return dummy;
+                }
+            }
+
+            try {
+                config = new Gson().fromJson(IO.readAll(l), AdaptConfig.class);
+                IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
+            } catch (IOException e) {
+                e.printStackTrace();
+                config = new AdaptConfig();
+            }
+        }
+
+        return config;
+    }
 
     @Getter
     public static class ValueConfig {
@@ -76,33 +104,5 @@ public class AdaptConfig {
             f.put(Material.NETHER_QUARTZ_ORE.name(), 1.11D);
             return f;
         }
-    }
-
-    public static AdaptConfig get() {
-        if(config == null) {
-            AdaptConfig dummy = new AdaptConfig();
-            File l = Adapt.instance.getDataFile("adapt", "adapt.json");
-
-
-            if(!l.exists()) {
-                try {
-                    IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
-                } catch(IOException e) {
-                    e.printStackTrace();
-                    config = dummy;
-                    return dummy;
-                }
-            }
-
-            try {
-                config = new Gson().fromJson(IO.readAll(l), AdaptConfig.class);
-                IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
-            } catch(IOException e) {
-                e.printStackTrace();
-                config = new AdaptConfig();
-            }
-        }
-
-        return config;
     }
 }

@@ -39,6 +39,18 @@ import java.util.List;
 public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
     public static ExperienceOrb io = new ExperienceOrb();
 
+    public static Data get(ItemStack is) {
+        return io.getData(is);
+    }
+
+    public static void set(ItemStack item, String skill, double xp) {
+        io.setData(item, new Data(skill, xp));
+    }
+
+    public static ItemStack with(String skill, double xp) {
+        return io.withData(new Data(skill, xp));
+    }
+
     @Override
     public Material getMaterial() {
         return Material.SNOWBALL;
@@ -60,19 +72,7 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " "+Adapt.dLocalize("Snippets", "ExperienceOrb", "XPOrb"));
-    }
-
-    public static Data get(ItemStack is) {
-        return io.getData(is);
-    }
-
-    public static void set(ItemStack item, String skill, double xp) {
-        io.setData(item, new Data(skill, xp));
-    }
-
-    public static ItemStack with(String skill, double xp) {
-        return io.withData(new Data(skill, xp));
+        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " " + Adapt.dLocalize("Snippets", "ExperienceOrb", "XPOrb"));
     }
 
     @AllArgsConstructor
@@ -80,6 +80,7 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
     public static class Data {
         private String skill;
         private double experience;
+
         public void apply(Player p) {
             Adapt.instance.getAdaptServer().getPlayer(p).getSkillLine(skill).giveXP(Adapt.instance.getAdaptServer().getPlayer(p).getNot(), experience);
         }

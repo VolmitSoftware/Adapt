@@ -50,8 +50,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     public RiftAccess() {
         super("rift-access");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Rift","RemoteAccess", "Description"));
-        setDisplayName(Adapt.dLocalize("Rift","RemoteAccess", "Name"));
+        setDescription(Adapt.dLocalize("Rift", "RemoteAccess", "Description"));
+        setDisplayName(Adapt.dLocalize("Rift", "RemoteAccess", "Name"));
         setMaxLevel(1);
         setIcon(Material.NETHER_STAR);
         setBaseCost(getConfig().baseCost);
@@ -68,17 +68,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RemoteAccess", "Lore1"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RemoteAccess", "Lore2"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RemoteAccess", "Lore3"));
-    }
-
-    @NoArgsConstructor
-    protected static class Config {
-        boolean enabled = true;
-        int baseCost = 3;
-        double costFactor = 0.2;
-        int initialCost = 15;
+        v.addLore(C.ITALIC + Adapt.dLocalize("Rift", "RemoteAccess", "Lore1"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Rift", "RemoteAccess", "Lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Rift", "RemoteAccess", "Lore3"));
     }
 
 
@@ -116,7 +108,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                     }
                 } else if (block != null && !isStorage(block.getBlockData())) {
                     if (p.isSneaking()) { //(Sneak NOT Container)
-                        p.sendMessage(C.LIGHT_PURPLE + Adapt.dLocalize("Rift","RemoteAccess", "NotContainer"));
+                        p.sendMessage(C.LIGHT_PURPLE + Adapt.dLocalize("Rift", "RemoteAccess", "NotContainer"));
                     } else if (!p.isSneaking() && isBound(hand)) {
                         openPearl(p);
                     }
@@ -135,7 +127,10 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     }
 
     private void linkPearl(Player p, Block block) {
-        vfxSingleCubeOutline(block, Particle.REVERSE_PORTAL);
+        if (getConfig().showParticles) {
+
+            vfxSingleCubeOutline(block, Particle.REVERSE_PORTAL);
+        }
         ItemStack hand = p.getInventory().getItemInMainHand();
 
         if (hand.getAmount() == 1) {
@@ -151,8 +146,11 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
         if (b != null && b.getState() instanceof InventoryHolder holder) {
             activeViews.add(p.openInventory(holder.getInventory()));
-            p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 100f, 0.10f);
-            p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 100f, 0.10f);
+            if (getConfig().showParticles) {
+
+                p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 100f, 0.10f);
+                p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 100f, 0.10f);
+            }
         }
     }
 
@@ -184,4 +182,15 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     public boolean isEnabled() {
         return getConfig().enabled;
     }
+
+
+    @NoArgsConstructor
+    protected static class Config {
+        boolean enabled = true;
+        boolean showParticles = true;
+        int baseCost = 3;
+        double costFactor = 0.2;
+        int initialCost = 15;
+    }
+
 }

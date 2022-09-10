@@ -148,7 +148,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         Discovery<String> d = getPlayer(p).getData().getSeenBlocks();
         if (d.isNewDiscovery(bd.getAsString())) {
             xp(p, getConfig().discoverBlockBaseXP + (getValue(bd) * getConfig().discoverBlockValueXPMultiplier));
-            p.spawnParticle(Particle.TOTEM, l.clone().add(0.5, 0.5, 0.5), 9, 0, 0, 0, 0.3);
+            if (getConfig().showParticles) {
+                p.spawnParticle(Particle.TOTEM, l.clone().add(0.5, 0.5, 0.5), 9, 0, 0, 0, 0.3);
+            }
         }
 
         seeItem(p, bd.getMaterial());
@@ -269,6 +271,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         double discoverBiomeXP = 15;
         double discoverPotionXP = 36;
         double discoverEntityTypeXP = 125;

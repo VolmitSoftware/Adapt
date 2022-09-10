@@ -42,7 +42,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         super("axes", Adapt.dLocalize("Skill", "Axes", "Icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription(Adapt.dLocalize("Skill", "Axes", "Description1") + C.ITALIC + Adapt.dLocalize("Skill", "Axes", "Description2") + C.GRAY + " " +Adapt.dLocalize("Skill", "Axes", "Description3"));
+        setDescription(Adapt.dLocalize("Skill", "Axes", "Description1") + C.ITALIC + Adapt.dLocalize("Skill", "Axes", "Description2") + C.GRAY + " " + Adapt.dLocalize("Skill", "Axes", "Description3"));
         setDisplayName(Adapt.dLocalize("Skill", "Axes", "Name"));
         setInterval(5251);
         setIcon(Material.GOLDEN_AXE);

@@ -30,18 +30,18 @@ public interface NewtonCurve {
         double test;
         boolean last = false;
 
-        while(jumpSize > maxError && iterations < 100) {
+        while (jumpSize > maxError && iterations < 100) {
             iterations++;
             test = getXPForLevel(cursor);
-            if(test < xp) {
-                if(last) {
+            if (test < xp) {
+                if (last) {
                     jumpSize /= div;
                 }
 
                 last = false;
                 cursor += jumpSize;
             } else {
-                if(!last) {
+                if (!last) {
                     jumpSize /= div;
                 }
 

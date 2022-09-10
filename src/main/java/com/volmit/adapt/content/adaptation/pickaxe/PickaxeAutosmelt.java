@@ -98,16 +98,6 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         }
     }
 
-    @Override
-    public boolean isEnabled() {
-        return getConfig().enabled;
-    }
-
-    public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("Pickaxe", "Autosmelt", "Lore1"));
-        v.addLore(C.GREEN + "" + (level * 1.25) + C.GRAY + Adapt.dLocalize("Pickaxe", "Autosmelt", "Lore2"));
-    }
-
     static void autosmeltBlock(Block b, Player p) {
         int fortune = 1;
         Random random = new Random();
@@ -148,6 +138,16 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
             }
 
         }
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return getConfig().enabled;
+    }
+
+    public void addStats(int level, Element v) {
+        v.addLore(C.GREEN + Adapt.dLocalize("Pickaxe", "Autosmelt", "Lore1"));
+        v.addLore(C.GREEN + "" + (level * 1.25) + C.GRAY + Adapt.dLocalize("Pickaxe", "Autosmelt", "Lore2"));
     }
 
     @EventHandler

@@ -84,7 +84,7 @@ public class PlayerData {
     }
 
     public void addStat(String key, double amt) {
-        if(!stats.containsKey(key)) {
+        if (!stats.containsKey(key)) {
             stats.put(key, amt);
         } else {
             stats.put(key, stats.get(key) + amt);
@@ -93,8 +93,8 @@ public class PlayerData {
 
     public void update(AdaptPlayer p) {
         double m = 1;
-        for(XPMultiplier i : multipliers.copy()) {
-            if(i.isExpired()) {
+        for (XPMultiplier i : multipliers.copy()) {
+            if (i.isExpired()) {
                 multipliers.remove(i);
                 continue;
             }
@@ -102,24 +102,24 @@ public class PlayerData {
             m += i.getMultiplier();
         }
 
-        if(m <= 0) {
+        if (m <= 0) {
             m = 0.01;
         }
 
-        if(m > 1000) {
+        if (m > 1000) {
             m = 1000;
         }
 
         multiplier = m;
 
-        for(String i : skillLines.k()) {
-            if(getSkillLine(i) == null) {
+        for (String i : skillLines.k()) {
+            if (getSkillLine(i) == null) {
                 skillLines.remove(i);
                 Adapt.warn("Removed unknown skill line '" + i + "' from " + p.getPlayer().getName());
                 continue;
             }
 
-            if(getSkillLine(i).getXp() == 0 && getSkillLine(i).getKnowledge() == 0) {
+            if (getSkillLine(i).getXp() == 0 && getSkillLine(i).getKnowledge() == 0) {
                 skillLines.remove(i);
                 continue;
             }
@@ -130,89 +130,83 @@ public class PlayerData {
         int oldLevel = (int) XP.getLevelForXp(getLastMasterXp());
         int level = (int) XP.getLevelForXp(getMasterXp());
 
-        if(oldLevel != level)
-        {
+        if (oldLevel != level) {
             setLastMasterXp(getMasterXp());
             p.getNot().queue(SoundNotification.builder()
-                    .sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE)
-                    .volume(1f)
-                    .pitch(0.54f)
-                    .group("lvl")
-                    .build(),
-                SoundNotification.builder()
-                    .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-                    .volume(1f)
-                    .pitch(0.44f)
-                    .group("lvl")
-                    .build(),
-                SoundNotification.builder()
-                    .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-                    .volume(1f)
-                    .pitch(0.74f)
-                    .group("lvl")
-                    .build(),
-                SoundNotification.builder()
-                    .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-                    .volume(1f)
-                    .pitch(1.34f)
-                    .group("lvl")
-                    .build(),
-                TitleNotification.builder()
-                    .in(250)
-                    .stay(1450)
-                    .out(2250)
-                    .group("lvl")
-                    .title("")
-                    .subtitle(C.GOLD + "Level " + level)
-                .build());
+                            .sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE)
+                            .volume(1f)
+                            .pitch(0.54f)
+                            .group("lvl")
+                            .build(),
+                    SoundNotification.builder()
+                            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+                            .volume(1f)
+                            .pitch(0.44f)
+                            .group("lvl")
+                            .build(),
+                    SoundNotification.builder()
+                            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+                            .volume(1f)
+                            .pitch(0.74f)
+                            .group("lvl")
+                            .build(),
+                    SoundNotification.builder()
+                            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+                            .volume(1f)
+                            .pitch(1.34f)
+                            .group("lvl")
+                            .build(),
+                    TitleNotification.builder()
+                            .in(250)
+                            .stay(1450)
+                            .out(2250)
+                            .group("lvl")
+                            .title("")
+                            .subtitle(C.GOLD + "Level " + level)
+                            .build());
             p.getActionBarNotifier().queue(
-                ActionBarNotification.builder()
-                    .duration(450)
-                    .group("power")
-                    .title(C.GOLD + "" + Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY + " Maximum Ability Power")
-                    .build());
+                    ActionBarNotification.builder()
+                            .duration(450)
+                            .group("power")
+                            .title(C.GOLD + "" + Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY + " Maximum Ability Power")
+                            .build());
 
         }
     }
 
-    public int getAvailablePower()
-    {
+    public int getAvailablePower() {
         return getMaxPower() - getUsedPower();
     }
 
-    public boolean hasPowerAvailable()
-    {
+    public boolean hasPowerAvailable() {
         return hasPowerAvailable(1);
     }
 
-    public boolean hasPowerAvailable(int amount)
-    {
+    public boolean hasPowerAvailable(int amount) {
         return getAvailablePower() >= amount;
     }
 
-    public int getUsedPower()
-    {
+    public int getUsedPower() {
         return getSkillLines().values().stream().mapToInt(i -> i.getAdaptations().values().stream().mapToInt(PlayerAdaptation::getLevel).sum()).sum();
     }
 
-    public int getMaxPower()
-    {
+    public int getMaxPower() {
         return (int) (XP.getLevelForXp(getMasterXp()) * AdaptConfig.get().getPowerPerLevel());
     }
 
     public PlayerSkillLine getSkillLine(String skillLine) {
-        if(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skillLine) == null) {
+        if (Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skillLine) == null) {
             return null;
         }
 
-        synchronized(skillLines) {
+        synchronized (skillLines) {
             try {
                 PlayerSkillLine s = skillLines.get(skillLine);
 
-                if(s != null) {
+                if (s != null) {
                     return s;
                 }
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
                 Adapt.error("Failed to get skill line " + skillLine);
             }

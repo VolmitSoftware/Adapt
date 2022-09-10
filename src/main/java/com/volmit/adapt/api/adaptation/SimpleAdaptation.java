@@ -70,7 +70,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         this.name = name;
 
         J.a(() -> {
-            if(!isEnabled()) {
+            if (!isEnabled()) {
                 unregister();
             }
         }, 1);
@@ -92,8 +92,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
             Adapt.instance.getTicker().register(new TickedObject("config", "config-adaptation-" + getName(), 1000) {
                 @Override
                 public void onTick() {
-                    if(fw.checkModified() && file.exists())
-                    {
+                    if (fw.checkModified() && file.exists()) {
                         config = null;
                         getConfig();
                         Adapt.info("Hotloaded " + file.getPath());
@@ -107,14 +106,14 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     @Override
     public T getConfig() {
         try {
-            if(config == null) {
+            if (config == null) {
                 T dummy = getConfigurationClass().getConstructor().newInstance();
                 File l = Adapt.instance.getDataFile("adapt", "adaptations", getName() + ".json");
 
-                if(!l.exists()) {
+                if (!l.exists()) {
                     try {
                         IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
-                    } catch(IOException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                         config = dummy;
                         return config;
@@ -124,13 +123,13 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
                 try {
                     config = new Gson().fromJson(IO.readAll(l), getConfigurationClass());
                     IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
-                } catch(IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     config = dummy;
                     return config;
                 }
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
 
         }
 
@@ -164,12 +163,12 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         onRegisterAdvancements(a);
 
         return AdaptAdvancement.builder()
-            .key("adaptation_" + getName())
-            .title(getDisplayName())
-            .description(getDescription() + ". Unlock this Adaptation by right clicking a bookshelf.")
-            .icon(getIcon())
-            .children(a)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
-            .build();
+                .key("adaptation_" + getName())
+                .title(getDisplayName())
+                .description(getDescription() + ". Unlock this Adaptation by right clicking a bookshelf.")
+                .icon(getIcon())
+                .children(a)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build();
     }
 }

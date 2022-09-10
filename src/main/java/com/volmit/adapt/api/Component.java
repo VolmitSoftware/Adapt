@@ -314,6 +314,7 @@ public interface Component {
             block.getWorld().spawnParticle(particle, l, 1, 0F, 0F, 0F, 0.000);
         }
     }
+
     default void vfxSingleCubeOutlineR(Block block, Particle particle) {
         List<Location> hollowCube = getHollowCube(block.getLocation(), 0.50);
         for (Location l : hollowCube) {

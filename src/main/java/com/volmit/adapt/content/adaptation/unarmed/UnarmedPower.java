@@ -33,8 +33,8 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     public UnarmedPower() {
         super("unarmed-power");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Unarmed","UnarmedPower", "Description"));
-        setDisplayName(Adapt.dLocalize("Unarmed","UnarmedPower", "Name"));
+        setDescription(Adapt.dLocalize("Unarmed", "UnarmedPower", "Description"));
+        setDisplayName(Adapt.dLocalize("Unarmed", "UnarmedPower", "Name"));
         setIcon(Material.LEATHER_HELMET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -43,24 +43,14 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
         setInterval(4444);
     }
 
-    @NoArgsConstructor
-    protected static class Config {
-        boolean enabled = true;
-        int baseCost = 3;
-        int maxLevel = 7;
-        int initialCost = 6;
-        double costFactor = 0.425;
-        double damageFactor = 2.57;
-    }
-
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getUnarmedDamage(level), 0) + C.GRAY + Adapt.dLocalize("Unarmed","UnarmedPower", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getUnarmedDamage(level), 0) + C.GRAY + Adapt.dLocalize("Unarmed", "UnarmedPower", "Lore1"));
     }
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if(e.getDamager() instanceof Player p) {
+        if (e.getDamager() instanceof Player p) {
             if (!hasAdaptation(p)) {
                 return;
             }
@@ -69,7 +59,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
             }
             double factor = getLevelPercent(p);
 
-            if(factor <= 0) {
+            if (factor <= 0) {
                 return;
             }
             e.setDamage(e.getDamage() * (1 + getUnarmedDamage(getLevel(p))));
@@ -90,5 +80,15 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;
+    }
+
+    @NoArgsConstructor
+    protected static class Config {
+        boolean enabled = true;
+        int baseCost = 3;
+        int maxLevel = 7;
+        int initialCost = 6;
+        double costFactor = 0.425;
+        double damageFactor = 2.57;
     }
 }

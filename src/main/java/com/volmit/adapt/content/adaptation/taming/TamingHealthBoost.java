@@ -44,8 +44,8 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     public TamingHealthBoost() {
         super("tame-health");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Taming","TameHealth", "Description"));
-        setDisplayName(Adapt.dLocalize("Taming","TameHealth", "Name"));
+        setDescription(Adapt.dLocalize("Taming", "TameHealth", "Description"));
+        setDisplayName(Adapt.dLocalize("Taming", "TameHealth", "Name"));
         setIcon(Material.COOKED_BEEF);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -56,7 +56,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getHealthBoost(level), 0) + C.GRAY + " " +Adapt.dLocalize("Taming","TameHealth", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getHealthBoost(level), 0) + C.GRAY + " " + Adapt.dLocalize("Taming", "TameHealth", "Lore1"));
     }
 
     private double getHealthBoost(int level) {
@@ -65,13 +65,13 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
     @Override
     public void onTick() {
-        for(World i : Bukkit.getServer().getWorlds()) {
+        for (World i : Bukkit.getServer().getWorlds()) {
             J.s(() -> {
                 Collection<Tameable> gl = i.getEntitiesByClass(Tameable.class);
 
                 J.a(() -> {
-                    for(Tameable j : gl) {
-                        if(j.isTamed() && j.getOwner() instanceof Player) {
+                    for (Tameable j : gl) {
+                        if (j.isTamed() && j.getOwner() instanceof Player) {
                             Player p = (Player) j.getOwner();
                             update(j, getLevel(p));
                         }
@@ -85,7 +85,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
         AttributeModifier mod = new AttributeModifier(attUUID, attid, getHealthBoost(level), AttributeModifier.Operation.ADD_SCALAR);
         j.getAttribute(Attribute.GENERIC_MAX_HEALTH).removeModifier(mod);
 
-        if(level > 0) {
+        if (level > 0) {
             j.getAttribute(Attribute.GENERIC_MAX_HEALTH).addModifier(mod);
         }
     }

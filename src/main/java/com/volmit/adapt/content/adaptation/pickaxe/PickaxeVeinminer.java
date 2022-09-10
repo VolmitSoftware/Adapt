@@ -51,7 +51,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
 
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore1"));
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY+ " " + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore2"));
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore2"));
         v.addLore(C.ITALIC + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore3"));
     }
 
@@ -108,15 +108,18 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                     }
                 } else {
                     if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-drop-to-inventory").getLevel() > 0) {
-                    b.getDrops(e.getPlayer().getInventory().getItemInMainHand(), p).forEach(item -> {
-                        HashMap<Integer, ItemStack> extra = p.getInventory().addItem(item);
-                        extra.forEach((k, v) -> p.getWorld().dropItem(p.getLocation(), v));
-                    });
-                    b.setType(Material.AIR);
+                        b.getDrops(e.getPlayer().getInventory().getItemInMainHand(), p).forEach(item -> {
+                            HashMap<Integer, ItemStack> extra = p.getInventory().addItem(item);
+                            extra.forEach((k, v) -> p.getWorld().dropItem(p.getLocation(), v));
+                        });
+                        b.setType(Material.AIR);
                     } else {
                         b.breakNaturally(p.getItemInUse());
                         e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
-                        e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
+                        if (getConfig().showParticles) {
+
+                            e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
+                        }
                     }
                 }
             }
@@ -136,6 +139,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 6;
         int maxLevel = 5;
         int initialCost = 4;

@@ -19,11 +19,8 @@
 package com.volmit.adapt.commands.boost;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptServer;
-import com.volmit.adapt.api.xp.XP;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
 import org.bukkit.Bukkit;
@@ -52,7 +49,7 @@ public class CommandBoostPlayer extends MortarCommand {
             AdaptPlayer ap = Adapt.instance.getAdaptServer().getPlayer(sender.player());
 
             return true;
-        }  catch (Exception ignored) {
+        } catch (Exception ignored) {
             printHelp(sender);
             return true;
         }

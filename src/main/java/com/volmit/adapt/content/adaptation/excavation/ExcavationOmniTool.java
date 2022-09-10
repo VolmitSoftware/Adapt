@@ -73,7 +73,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         v.addLore(C.GREEN + Adapt.dLocalize("Excavation", "OmniTool", "Lore3"));
         v.addLore(C.RED + Adapt.dLocalize("Excavation", "OmniTool", "Lore4"));
         v.addLore(C.GRAY + Adapt.dLocalize("Excavation", "OmniTool", "Lore5"));
-        v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + " " +Adapt.dLocalize("Excavation", "OmniTool", "Lore6"));
+        v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + " " + Adapt.dLocalize("Excavation", "OmniTool", "Lore6"));
         v.addLore(C.UNDERLINE + Adapt.dLocalize("Excavation", "OmniTool", "Lore7"));
 
 

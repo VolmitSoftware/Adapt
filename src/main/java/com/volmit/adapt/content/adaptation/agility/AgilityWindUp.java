@@ -104,15 +104,16 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
                 double ticksToMax = getWindupTicks(factor);
                 double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
                 double speedIncrease = M.lerp(0, getWindupSpeed(factor), progress);
+                if (getConfig().showParticles) {
 
-                if (M.r(0.2 * progress)) {
-                    i.getWorld().spawnParticle(Particle.LAVA, i.getLocation(), 1);
+                    if (M.r(0.2 * progress)) {
+                        i.getWorld().spawnParticle(Particle.LAVA, i.getLocation(), 1);
+                    }
+
+                    if (M.r(0.25 * progress)) {
+                        i.getWorld().spawnParticle(Particle.FLAME, i.getLocation(), 1, 0, 0, 0, 0);
+                    }
                 }
-
-                if (M.r(0.25 * progress)) {
-                    i.getWorld().spawnParticle(Particle.FLAME, i.getLocation(), 1, 0, 0, 0, 0);
-                }
-
                 i.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(new AttributeModifier("adapt-wind-up", speedIncrease, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
             } else {
                 ticksRunning.remove(i);
@@ -128,6 +129,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 2;
         double costFactor = 0.65;
         int initialCost = 8;

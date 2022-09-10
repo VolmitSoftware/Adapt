@@ -38,20 +38,20 @@ public class Ticker {
         this.removeTicks = new ArrayList<>(128);
         ticking = false;
         J.ar(() -> {
-            if(!ticking) {
+            if (!ticking) {
                 tick();
             }
         }, 0);
     }
 
     public void register(Ticked ticked) {
-        synchronized(newTicks) {
+        synchronized (newTicks) {
             newTicks.add(ticked);
         }
     }
 
     public void unregister(Ticked ticked) {
-        synchronized(removeTicks) {
+        synchronized (removeTicks) {
             removeTicks.add(ticked.getId());
         }
     }
@@ -61,17 +61,17 @@ public class Ticker {
 //        int ix = 0;
         AtomicInteger tc = new AtomicInteger(0);
         BurstExecutor e = MultiBurst.burst.burst(ticklist.size());
-        for(int i = 0; i < ticklist.size(); i++) {
+        for (int i = 0; i < ticklist.size(); i++) {
             int ii = i;
 //            ix++;
             e.queue(() -> {
                 Ticked t = ticklist.get(ii);
 
-                if(t != null && t.shouldTick()) {
+                if (t != null && t.shouldTick()) {
                     tc.incrementAndGet();
                     try {
                         t.tick();
-                    } catch(Throwable exxx) {
+                    } catch (Throwable exxx) {
                         exxx.printStackTrace();
                     }
                 }
@@ -81,20 +81,20 @@ public class Ticker {
         e.complete();
 //        Adapt.info(ix + "");
 
-        synchronized(newTicks) {
-            while(newTicks.isNotEmpty()) {
+        synchronized (newTicks) {
+            while (newTicks.isNotEmpty()) {
                 tc.incrementAndGet();
                 ticklist.add(newTicks.popRandom());
             }
         }
 
-        synchronized(removeTicks) {
-            while(removeTicks.isNotEmpty()) {
+        synchronized (removeTicks) {
+            while (removeTicks.isNotEmpty()) {
                 tc.incrementAndGet();
                 String id = removeTicks.popRandom();
 
-                for(int i = 0; i < ticklist.size(); i++) {
-                    if(ticklist.get(i).getId().equals(id)) {
+                for (int i = 0; i < ticklist.size(); i++) {
+                    if (ticklist.get(i).getId().equals(id)) {
                         ticklist.remove(i);
                         break;
                     }

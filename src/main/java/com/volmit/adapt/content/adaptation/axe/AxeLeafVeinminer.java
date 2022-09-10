@@ -35,7 +35,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> {
@@ -126,9 +125,15 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                         } else {
                             b.breakNaturally(p.getItemInUse());
                             e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
-                            e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
+                            if (getConfig().showParticles) {
+
+                                e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
+                            }
                         }
-                        vfxSingleCubeOutlineR(b, Particle.ENCHANTMENT_TABLE);
+                        if (getConfig().showParticles) {
+
+                            vfxSingleCubeOutlineR(b, Particle.ENCHANTMENT_TABLE);
+                        }
                     }
                 });
             }
@@ -143,6 +148,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 6;
         int maxLevel = 5;
         int initialCost = 4;

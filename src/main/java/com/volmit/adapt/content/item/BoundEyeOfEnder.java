@@ -36,6 +36,22 @@ import java.util.List;
 public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
     public static BoundEyeOfEnder io = new BoundEyeOfEnder();
 
+    public static Location getLocation(ItemStack stack) {
+        if (io.getData(stack) != null) {
+            return io.getData(stack).getLocation();
+        }
+
+        return null;
+    }
+
+    public static void setData(ItemStack item, Location t) {
+        io.setData(item, new Data(t));
+    }
+
+    public static ItemStack withData(Location t) {
+        return io.withData(new Data(t));
+    }
+
     @Override
     public Material getMaterial() {
         return Material.ENDER_EYE;
@@ -58,22 +74,6 @@ public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE);
         meta.setDisplayName("Ocular Anchor");
-    }
-
-    public static Location getLocation(ItemStack stack) {
-        if(io.getData(stack) != null) {
-            return io.getData(stack).getLocation();
-        }
-
-        return null;
-    }
-
-    public static void setData(ItemStack item, Location t) {
-        io.setData(item, new Data(t));
-    }
-
-    public static ItemStack withData(Location t) {
-        return io.withData(new Data(t));
     }
 
     @AllArgsConstructor

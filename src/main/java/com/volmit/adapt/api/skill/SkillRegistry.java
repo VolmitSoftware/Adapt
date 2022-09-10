@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.api.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
@@ -82,17 +81,17 @@ public class SkillRegistry extends TickedObject {
 
     @EventHandler
     public void on(PlayerExpChangeEvent e) {
-        if(e.getAmount() > 0) {
+        if (e.getAmount() > 0) {
             getPlayer(e.getPlayer()).boostXPToRecents(getPlayer(e.getPlayer()), 0.03, 10000);
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEvent e) {
-        if(!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
-            && e.getClickedBlock().getType().equals(Material.valueOf(AdaptConfig.get().adaptActivatorBlock)) && (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR)
-            || !e.getPlayer().getInventory().getItemInMainHand().getType().isBlock()) &&
-            (e.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.AIR) || !e.getPlayer().getInventory().getItemInOffHand().getType().isBlock())) {
+        if (!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
+                && e.getClickedBlock().getType().equals(Material.valueOf(AdaptConfig.get().adaptActivatorBlock)) && (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR)
+                || !e.getPlayer().getInventory().getItemInMainHand().getType().isBlock()) &&
+                (e.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.AIR) || !e.getPlayer().getInventory().getItemInOffHand().getType().isBlock())) {
             e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 0.72f);
             e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
             SkillsGui.open(e.getPlayer());
@@ -100,13 +99,13 @@ public class SkillRegistry extends TickedObject {
             e.getPlayer().getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
         }
 
-        if(!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
-            && e.getClickedBlock().getType().equals(Material.LECTERN) && (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR)
-            || !e.getPlayer().getInventory().getItemInMainHand().getType().isBlock()) &&
-            (e.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.AIR) || !e.getPlayer().getInventory().getItemInOffHand().getType().isBlock())
-            && !e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.WRITTEN_BOOK)
-            && !e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.WRITABLE_BOOK)
-            && ((Lectern) e.getClickedBlock().getState()).getInventory().getItem(0) == null
+        if (!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
+                && e.getClickedBlock().getType().equals(Material.LECTERN) && (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR)
+                || !e.getPlayer().getInventory().getItemInMainHand().getType().isBlock()) &&
+                (e.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.AIR) || !e.getPlayer().getInventory().getItemInOffHand().getType().isBlock())
+                && !e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.WRITTEN_BOOK)
+                && !e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.WRITABLE_BOOK)
+                && ((Lectern) e.getClickedBlock().getState()).getInventory().getItem(0) == null
         ) {
 //            e.setCancelled(true);
 //            CorruptionGui.open(e.getPlayer());
@@ -118,20 +117,20 @@ public class SkillRegistry extends TickedObject {
 //            e.getPlayer().getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
         }
 
-        if(e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.LECTERN)) {
+        if (e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.LECTERN)) {
             ItemStack it = e.getPlayer().getInventory().getItemInMainHand();
 
-            if(it.getItemMeta() != null && !it.getItemMeta().getPersistentDataContainer().getKeys().isEmpty()) {
+            if (it.getItemMeta() != null && !it.getItemMeta().getPersistentDataContainer().getKeys().isEmpty()) {
                 e.setCancelled(true);
                 playDebug(e.getPlayer());
                 it.getItemMeta().getPersistentDataContainer().getKeys().forEach(k -> Bukkit.getServer().getConsoleSender().sendMessage(k + " = " + it.getItemMeta().getPersistentDataContainer().getOrDefault(k, PersistentDataType.STRING, "Not a String")));
             }
         }
 
-        if(e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.OBSERVER)) {
+        if (e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.OBSERVER)) {
             ItemStack it = e.getPlayer().getInventory().getItemInMainHand();
 
-            if(it.getType().equals(Material.EXPERIENCE_BOTTLE)) {
+            if (it.getType().equals(Material.EXPERIENCE_BOTTLE)) {
                 e.setCancelled(true);
                 Bukkit.getServer().getConsoleSender().sendMessage("   ");
                 e.getPlayer().setCooldown(Material.ENCHANTED_BOOK, 3);
@@ -141,17 +140,17 @@ public class SkillRegistry extends TickedObject {
                 String xv = a.getData().getMultiplier() - 1d > 0 ? "+" + Form.pc(a.getData().getMultiplier() - 1D) : Form.pc(a.getData().getMultiplier() - 1D);
                 Bukkit.getServer().getConsoleSender().sendMessage("Global" + C.GRAY + ": " + C.GREEN + xv);
 
-                for(XPMultiplier i : a.getData().getMultipliers()) {
+                for (XPMultiplier i : a.getData().getMultipliers()) {
                     String vv = i.getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier()) : Form.pc(i.getMultiplier());
                     Bukkit.getServer().getConsoleSender().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
                 }
 
-                for(PlayerSkillLine i : a.getData().getSkillLines().v()) {
+                for (PlayerSkillLine i : a.getData().getSkillLines().v()) {
                     Skill<?> s = i.getRawSkill(a);
                     String v = i.getMultiplier() - a.getData().getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier() - a.getData().getMultiplier()) : Form.pc(i.getMultiplier() - a.getData().getMultiplier());
                     Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getDisplayName() + C.GRAY + ": " + s.getColor() + v);
 
-                    for(XPMultiplier j : i.getMultipliers()) {
+                    for (XPMultiplier j : i.getMultipliers()) {
                         String vv = j.getMultiplier() > 0 ? "+" + Form.pc(j.getMultiplier()) : Form.pc(j.getMultiplier());
                         Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getShortName() + C.GRAY + " " + vv + " for " + Form.duration(j.getGoodFor() - M.ms(), 0));
                     }
@@ -180,13 +179,14 @@ public class SkillRegistry extends TickedObject {
         try {
             Skill<?> sk = skill.getConstructor().newInstance();
 
-            if(!sk.isEnabled()) {
+            if (!sk.isEnabled()) {
                 return;
             }
 
             skills.put(sk.getName(), sk);
             registerRecipes(sk);
-        } catch(InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
             e.printStackTrace();
         }
     }
@@ -203,7 +203,7 @@ public class SkillRegistry extends TickedObject {
 
     @Override
     public void unregister() {
-        for(Skill<?> i : skills.v()) {
+        for (Skill<?> i : skills.v()) {
             i.unregister();
             unregisterRecipes(i);
         }

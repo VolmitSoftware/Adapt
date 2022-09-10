@@ -42,26 +42,26 @@ public class ReactiveFolder {
     public void check() {
         boolean modified = false;
 
-        if(fw.checkModified()) {
-            for(File i : fw.getCreated()) {
-                if(i.getName().endsWith(".iob") || i.getName().endsWith(".json")) {
+        if (fw.checkModified()) {
+            for (File i : fw.getCreated()) {
+                if (i.getName().endsWith(".iob") || i.getName().endsWith(".json")) {
                     modified = true;
                     break;
                 }
             }
 
-            if(!modified) {
-                for(File i : fw.getChanged()) {
-                    if(i.getName().endsWith(".iob") || i.getName().endsWith(".json")) {
+            if (!modified) {
+                for (File i : fw.getChanged()) {
+                    if (i.getName().endsWith(".iob") || i.getName().endsWith(".json")) {
                         modified = true;
                         break;
                     }
                 }
             }
 
-            if(!modified) {
-                for(File i : fw.getDeleted()) {
-                    if(i.getName().endsWith(".iob") || i.getName().endsWith(".json")) {
+            if (!modified) {
+                for (File i : fw.getDeleted()) {
+                    if (i.getName().endsWith(".iob") || i.getName().endsWith(".json")) {
                         modified = true;
                         break;
                     }
@@ -69,7 +69,7 @@ public class ReactiveFolder {
             }
         }
 
-        if(modified) {
+        if (modified) {
             hotload.accept(fw.getCreated(), fw.getChanged(), fw.getDeleted());
         }
 

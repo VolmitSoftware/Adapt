@@ -71,8 +71,8 @@ public class ShurikenQueue<T> implements Queue<T> {
     public List<T> next(int amt) {
         List<T> t = new ArrayList<>();
 
-        for(int i = 0; i < amt; i++) {
-            if(!hasNext()) {
+        for (int i = 0; i < amt; i++) {
+            if (!hasNext()) {
                 break;
             }
 

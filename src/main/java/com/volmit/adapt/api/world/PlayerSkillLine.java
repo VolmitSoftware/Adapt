@@ -54,12 +54,16 @@ public class PlayerSkillLine {
     private Map<String, PlayerAdaptation> adaptations = new HashMap<>();
     private List<XPMultiplier> multipliers = new ArrayList<>();
 
+    private static double diff(long a, long b) {
+        return Math.abs(a - b / (double) (a == 0 ? 1 : a));
+    }
+
     public void giveXP(Notifier p, double xp) {
         freshness -= xp * 0.001;
         xp = multiplier * xp;
         this.xp += xp;
 
-        if(p != null) {
+        if (p != null) {
             last = M.ms();
             p.notifyXP(line, xp);
         }
@@ -76,7 +80,7 @@ public class PlayerSkillLine {
     public int getAdaptationLevel(String id) {
         PlayerAdaptation a = getAdaptation(id);
 
-        if(a == null) {
+        if (a == null) {
             return 0;
         }
 
@@ -84,7 +88,7 @@ public class PlayerSkillLine {
     }
 
     public void setAdaptation(Adaptation a, int level) {
-        if(level <= 1) {
+        if (level <= 1) {
             adaptations.remove(a.getName());
         }
 
@@ -99,17 +103,17 @@ public class PlayerSkillLine {
     }
 
     public void update(AdaptPlayer p, String line, PlayerData data) {
-        if(!p.getData().isGranted("skill_" + line)) {
+        if (!p.getData().isGranted("skill_" + line)) {
             p.getAdvancementHandler().grant("skill_" + line);
         }
 
-        for(String i : getAdaptations().k()) {
-            if(!p.getData().isGranted("adaptation_" + i)) {
+        for (String i : getAdaptations().k()) {
+            if (!p.getData().isGranted("adaptation_" + i)) {
                 p.getAdvancementHandler().grant("adaptation_" + i);
             }
         }
 
-        if(!p.isBusy() && getXp() > XP.getXpForLevel(100)) {
+        if (!p.isBusy() && getXp() > XP.getXpForLevel(100)) {
             xp = getXp() - XP.getXpForLevel(100);
             lastXP = xp;
             lastLevel = (int) Math.floor(XP.getLevelForXp(getXp()));
@@ -120,26 +124,26 @@ public class PlayerSkillLine {
         double max = 1D + (getLevel() * 0.004);
 
         freshness += (0.1 * freshness) + 0.00124;
-        if(freshness > max) {
+        if (freshness > max) {
             freshness = max;
         }
 
-        if(freshness < 0.01) {
+        if (freshness < 0.01) {
             freshness = 0.01;
         }
 
-        if(freshness < rfreshness) {
+        if (freshness < rfreshness) {
             rfreshness -= ((rfreshness - freshness) * 0.003);
         }
 
-        if(freshness > rfreshness) {
+        if (freshness > rfreshness) {
             rfreshness += (freshness - rfreshness) * 0.265;
         }
 
         double m = rfreshness;
 
-        for(XPMultiplier i : multipliers.copy()) {
-            if(i.isExpired()) {
+        for (XPMultiplier i : multipliers.copy()) {
+            if (i.isExpired()) {
                 multipliers.remove(i);
                 continue;
             }
@@ -147,11 +151,11 @@ public class PlayerSkillLine {
             m += i.getMultiplier();
         }
 
-        if(m <= 0) {
+        if (m <= 0) {
             m = 0.01;
         }
 
-        if(m > 1000) {
+        if (m > 1000) {
             m = 1000;
         }
 
@@ -159,13 +163,13 @@ public class PlayerSkillLine {
 
         double earned = xp - lastXP;
 
-        if(earned > p.getServer().getSkillRegistry().getSkill(line).getMinXp()) {
+        if (earned > p.getServer().getSkillRegistry().getSkill(line).getMinXp()) {
             lastXP = xp;
         }
 
-        if(lastLevel < getLevel()) {
+        if (lastLevel < getLevel()) {
             long kb = getKnowledge();
-            for(int i = lastLevel; i < getLevel(); i++) {
+            for (int i = lastLevel; i < getLevel(); i++) {
                 giveKnowledge((i / 13) + 1);
                 p.getData().giveMasterXp((i * AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier()) + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
             }
@@ -175,57 +179,53 @@ public class PlayerSkillLine {
         }
     }
 
-    private static double diff(long a, long b) {
-        return Math.abs(a - b / (double) (a == 0 ? 1 : a));
-    }
-
     private void notifyLevel(AdaptPlayer p, double lvl, long kn) {
 //        Skill s = p.getServer().getSkillRegistry().getSkill(getLine());
-        if(lvl % 10 == 0) {
+        if (lvl % 10 == 0) {
             p.getNot().queue(SoundNotification.builder()
-                .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
-                .volume(1f)
-                .pitch(1.35f)
-                .group("lvl" + getLine())
-                .build(), SoundNotification.builder()
-                .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
-                .volume(1f)
-                .pitch(0.75f)
-                .group("lvl" + getLine())
-                .build(), TitleNotification.builder()
-                .in(250)
-                .stay(1450)
-                .out(2250)
-                .group("lvl" + getLine())
-                .title("")
-                .subtitle(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
-                .build());
-            p.getActionBarNotifier().queue(
-                ActionBarNotification.builder()
-                    .duration(450)
-                    .group("know" + getLine())
-                    .title(kn + " " + p.getServer().getSkillRegistry().getSkill(getLine()).getShortName() + " Knowledge")
+                    .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
+                    .volume(1f)
+                    .pitch(1.35f)
+                    .group("lvl" + getLine())
+                    .build(), SoundNotification.builder()
+                    .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
+                    .volume(1f)
+                    .pitch(0.75f)
+                    .group("lvl" + getLine())
+                    .build(), TitleNotification.builder()
+                    .in(250)
+                    .stay(1450)
+                    .out(2250)
+                    .group("lvl" + getLine())
+                    .title("")
+                    .subtitle(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
                     .build());
+            p.getActionBarNotifier().queue(
+                    ActionBarNotification.builder()
+                            .duration(450)
+                            .group("know" + getLine())
+                            .title(kn + " " + p.getServer().getSkillRegistry().getSkill(getLine()).getShortName() + " Knowledge")
+                            .build());
 
         } else {
             p.getActionBarNotifier().queue(
-                SoundNotification.builder()
-                    .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK)
-                    .volume(1f)
-                    .pitch(1.74f)
-                    .group("lvl" + getLine())
-                    .build(),
-                SoundNotification.builder()
-                    .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-                    .volume(1f)
-                    .pitch(0.74f)
-                    .group("lvl" + getLine())
-                    .build(),
-                ActionBarNotification.builder()
-                    .duration(450)
-                    .group("lvl" + getLine())
-                    .title(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
-                    .build());
+                    SoundNotification.builder()
+                            .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK)
+                            .volume(1f)
+                            .pitch(1.74f)
+                            .group("lvl" + getLine())
+                            .build(),
+                    SoundNotification.builder()
+                            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+                            .volume(1f)
+                            .pitch(0.74f)
+                            .group("lvl" + getLine())
+                            .build(),
+                    ActionBarNotification.builder()
+                            .duration(450)
+                            .group("lvl" + getLine())
+                            .title(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
+                            .build());
         }
 
         lastLevel = (int) Math.floor(XP.getLevelForXp(getXp()));
@@ -272,7 +272,7 @@ public class PlayerSkillLine {
     }
 
     public boolean spendKnowledge(int c) {
-        if(getKnowledge() >= c) {
+        if (getKnowledge() >= c) {
             setKnowledge(getKnowledge() - c);
             return true;
         }

@@ -34,7 +34,7 @@ public class BurstExecutor {
     }
 
     public CompletableFuture<Void> queue(Runnable r) {
-        synchronized(futures) {
+        synchronized (futures) {
             CompletableFuture<Void> c = CompletableFuture.runAsync(r, executor);
             futures.add(c);
             return c;
@@ -42,8 +42,8 @@ public class BurstExecutor {
     }
 
     public BurstExecutor queue(Runnable[] r) {
-        synchronized(futures) {
-            for(Runnable i : r) {
+        synchronized (futures) {
+            for (Runnable i : r) {
                 CompletableFuture<Void> c = CompletableFuture.runAsync(i, executor);
                 futures.add(c);
             }
@@ -53,11 +53,11 @@ public class BurstExecutor {
     }
 
     public void complete() {
-        synchronized(futures) {
+        synchronized (futures) {
             try {
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()])).get();
                 futures.clear();
-            } catch(InterruptedException | ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }

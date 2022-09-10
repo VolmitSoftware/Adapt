@@ -50,14 +50,14 @@ public class VirtualCommand {
         children = new HashMap<>();
         this.tag = tag;
 
-        for(Field i : command.getClass().getDeclaredFields()) {
-            if(i.isAnnotationPresent(Command.class)) {
+        for (Field i : command.getClass().getDeclaredFields()) {
+            if (i.isAnnotationPresent(Command.class)) {
                 try {
                     Command cc = i.getAnnotation(Command.class);
                     ICommand cmd = (ICommand) i.getType().getConstructor().newInstance();
                     new V(command, true, true).set(i.getName(), cmd);
                     children.put(cmd.getAllNodes(), new VirtualCommand(cmd, cc.value().trim().isEmpty() ? tag : cc.value().trim()));
-                } catch(Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -84,12 +84,12 @@ public class VirtualCommand {
         MortarSender vs = new MortarSender(sender);
         vs.setTag(tag);
 
-        if(label != null) {
+        if (label != null) {
             vs.setCommand(label);
         }
 
-        if(chain.isEmpty()) {
-            if(!checkPermissions(sender, command)) {
+        if (chain.isEmpty()) {
+            if (!checkPermissions(sender, command)) {
                 return true;
             }
 
@@ -98,15 +98,15 @@ public class VirtualCommand {
 
         String nl = chain.get(0);
 
-        for(List<String> i : children.k()) {
-            for(String j : i) {
-                if(j.equalsIgnoreCase(nl)) {
+        for (List<String> i : children.k()) {
+            for (String j : i) {
+                if (j.equalsIgnoreCase(nl)) {
                     vs.setCommand(chain.get(0));
                     VirtualCommand cmd = children.get(i);
                     List<String> c = chain.copy();
                     c.remove(0);
-                    if(cmd.hit(sender, c, vs.getCommand())) {
-                        if(vs.isPlayer()) {
+                    if (cmd.hit(sender, c, vs.getCommand())) {
+                        if (vs.isPlayer()) {
                             vs.player().getWorld().playSound(vs.player().getLocation(), Sound.ITEM_AXE_STRIP, 0.35f, 1.8f);
                         }
 
@@ -116,7 +116,7 @@ public class VirtualCommand {
             }
         }
 
-        if(!checkPermissions(sender, command)) {
+        if (!checkPermissions(sender, command)) {
             return true;
         }
 
@@ -127,11 +127,11 @@ public class VirtualCommand {
         MortarSender vs = new MortarSender(sender);
         vs.setTag(tag);
 
-        if(label != null)
+        if (label != null)
             vs.setCommand(label);
 
-        if(chain.isEmpty()) {
-            if(!checkPermissions(sender, command)) {
+        if (chain.isEmpty()) {
+            if (!checkPermissions(sender, command)) {
                 return null;
             }
 
@@ -140,22 +140,22 @@ public class VirtualCommand {
 
         String nl = chain.get(0);
 
-        for(List<String> i : children.k()) {
-            for(String j : i) {
-                if(j.equalsIgnoreCase(nl)) {
+        for (List<String> i : children.k()) {
+            for (String j : i) {
+                if (j.equalsIgnoreCase(nl)) {
                     vs.setCommand(chain.get(0));
                     VirtualCommand cmd = children.get(i);
                     List<String> c = chain.copy();
                     c.remove(0);
                     List<String> v = cmd.hitTab(sender, c, vs.getCommand());
-                    if(v != null) {
+                    if (v != null) {
                         return v;
                     }
                 }
             }
         }
 
-        if(!checkPermissions(sender, command)) {
+        if (!checkPermissions(sender, command)) {
             return null;
         }
 
@@ -165,14 +165,14 @@ public class VirtualCommand {
     private boolean checkPermissions(CommandSender sender, ICommand command2) {
         boolean failed = false;
 
-        for(String i : command.getRequiredPermissions()) {
-            if(!sender.hasPermission(i)) {
+        for (String i : command.getRequiredPermissions()) {
+            if (!sender.hasPermission(i)) {
                 failed = true;
                 Bukkit.getScheduler().scheduleSyncDelayedTask(Adapt.instance, () -> sender.sendMessage("- " + C.WHITE + i), 0);
             }
         }
 
-        if(failed) {
+        if (failed) {
             sender.sendMessage("Insufficient Permissions");
             return false;
         }

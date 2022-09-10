@@ -54,8 +54,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getWindupArmor(getLevelPercent(level)), 0) + C.GRAY + " " +Adapt.dLocalize("Agility", "ArmorUp", "Lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + " " +C.GRAY + Adapt.dLocalize("Agility",  "ArmorUp", "Lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getWindupArmor(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("Agility", "ArmorUp", "Lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + " " + C.GRAY + Adapt.dLocalize("Agility", "ArmorUp", "Lore2"));
     }
 
     @EventHandler
@@ -104,14 +104,15 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
                 double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
                 double armorInc = M.lerp(0, getWindupArmor(factor), progress);
 
-                if (M.r(0.2 * progress)) {
-                    i.getWorld().spawnParticle(Particle.END_ROD, i.getLocation(), 1);
-                }
+                if (getConfig().showParticles) {
+                    if (M.r(0.2 * progress)) {
+                        i.getWorld().spawnParticle(Particle.END_ROD, i.getLocation(), 1);
+                    }
 
-                if (M.r(0.25 * progress)) {
-                    i.getWorld().spawnParticle(Particle.WAX_ON, i.getLocation(), 1, 0, 0, 0, 0);
+                    if (M.r(0.25 * progress)) {
+                        i.getWorld().spawnParticle(Particle.WAX_ON, i.getLocation(), 1, 0, 0, 0, 0);
+                    }
                 }
-
                 i.getAttribute(Attribute.GENERIC_ARMOR).addModifier(new AttributeModifier("adapt-armor-up", armorInc, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
             } else {
                 ticksRunning.remove(i);
@@ -127,6 +128,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 2;
         double costFactor = 0.65;
         int initialCost = 8;

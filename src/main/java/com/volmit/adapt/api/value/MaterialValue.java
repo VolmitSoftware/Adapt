@@ -28,13 +28,7 @@ import com.volmit.adapt.util.PrecisionStopwatch;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.inventory.CookingRecipe;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MerchantRecipe;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
-import org.bukkit.inventory.StonecuttingRecipe;
+import org.bukkit.inventory.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,33 +36,47 @@ import java.util.*;
 
 @Getter
 public class MaterialValue {
-    private static MaterialValue valueCache = null;
-    private final Map<Material, Double> value = new HashMap<>();
     private static final Map<Material, Double> valueMultipliers = new HashMap<>();
+    private static MaterialValue valueCache = null;
 
+    static {
+        AdaptConfig.get().getValue().getValueMutlipliers().forEach((k, v) -> {
+            try {
+                Material m = Material.valueOf(k.toUpperCase());
+
+                if (m != null) {
+                    valueMultipliers.put(m, v);
+                }
+            } catch (Throwable e) {
+
+            }
+        });
+    }
+
+    private final Map<Material, Double> value = new HashMap<>();
 
     public static void save() {
-        if(valueCache == null) {
+        if (valueCache == null) {
             return;
         }
 
         File l = Adapt.instance.getDataFile("data", "value-cache.json");
         try {
             IO.writeAll(l, new JSONObject(new Gson().toJson(valueCache)).toString(4));
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static MaterialValue get() {
-        if(valueCache == null) {
+        if (valueCache == null) {
             MaterialValue dummy = new MaterialValue();
             File l = Adapt.instance.getDataFile("data", "value-cache.json");
 
-            if(!l.exists()) {
+            if (!l.exists()) {
                 try {
                     IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
-                } catch(IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     valueCache = dummy;
                     return dummy;
@@ -77,7 +85,7 @@ public class MaterialValue {
 
             try {
                 valueCache = new Gson().fromJson(IO.readAll(l), MaterialValue.class);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 valueCache = new MaterialValue();
             }
@@ -95,8 +103,8 @@ public class MaterialValue {
         Adapt.info(Form.repeat("  ", ind) + m.name() + ": " + getValue(m) + (x == 1 ? "" : " (x" + x + ")"));
 
         int r = 0;
-        for(MaterialRecipe i : getRecipes(m)) {
-            if(ignore.contains(i)) {
+        for (MaterialRecipe i : getRecipes(m)) {
+            if (ignore.contains(i)) {
                 continue;
             }
 
@@ -105,7 +113,7 @@ public class MaterialValue {
             int o = i.getOutput().getAmount();
             Adapt.info(Form.repeat("  ", ind) + "# Recipe [" + ind + "x" + r + (o == 1 ? "]" : "] (x" + o + ")"));
 
-            for(MaterialCount j : i.getInput()) {
+            for (MaterialCount j : i.getInput()) {
                 debugValue(j.getMaterial(), ind + 1, j.getAmount(), ignore);
             }
 
@@ -125,7 +133,7 @@ public class MaterialValue {
     }
 
     private static double getValue(Material m, Set<MaterialRecipe> ignore) {
-        if(get().value.containsKey(m)) {
+        if (get().value.containsKey(m)) {
             return get().value.get(m);
         }
 
@@ -133,12 +141,12 @@ public class MaterialValue {
 
         List<MaterialRecipe> recipes = getRecipes(m);
 
-        if(recipes.isEmpty()) {
+        if (recipes.isEmpty()) {
             get().value.put(m, v * getMultiplier(m));
         } else {
             List<Double> d = new ArrayList<>();
-            for(MaterialRecipe i : recipes) {
-                if(ignore.contains(i)) {
+            for (MaterialRecipe i : recipes) {
+                if (ignore.contains(i)) {
                     continue;
                 }
 
@@ -146,14 +154,14 @@ public class MaterialValue {
 
                 double vx = v;
 
-                for(MaterialCount j : i.getInput()) {
+                for (MaterialCount j : i.getInput()) {
                     vx += getValue(j.getMaterial(), ignore);
                 }
 
                 d.add(vx / i.getOutput().getAmount());
             }
 
-            if(d.size() > 0) {
+            if (d.size() > 0) {
                 v += d.stream().mapToDouble(i -> i).average().getAsDouble();
             }
 
@@ -171,18 +179,18 @@ public class MaterialValue {
 
             try {
                 is.setDurability((short) -1);
-            } catch(Throwable e) {
+            } catch (Throwable e) {
 
             }
 
             Bukkit.getRecipesFor(is).forEach(i -> {
                 MaterialRecipe rx = toMaterial(i);
 
-                if(rx != null) {
+                if (rx != null) {
                     r.add(rx);
                 }
             });
-        } catch(Throwable e) {
+        } catch (Throwable e) {
 
         }
 
@@ -191,19 +199,19 @@ public class MaterialValue {
 
     private static MaterialRecipe toMaterial(Recipe r) {
         try {
-            if(r instanceof ShapelessRecipe recipe) {
+            if (r instanceof ShapelessRecipe recipe) {
                 return MaterialRecipe.builder()
-                    .input(new ArrayList<>(recipe.getIngredientList().stream().map(i -> new MaterialCount(i.getType(), 1)).toList()))
-                    .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
-                    .build();
-            } else if(r instanceof ShapedRecipe recipe) {
+                        .input(new ArrayList<>(recipe.getIngredientList().stream().map(i -> new MaterialCount(i.getType(), 1)).toList()))
+                        .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
+                        .build();
+            } else if (r instanceof ShapedRecipe recipe) {
                 MaterialRecipe re = MaterialRecipe.builder()
-                    .input(new ArrayList<>())
-                    .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
-                    .build();
+                        .input(new ArrayList<>())
+                        .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
+                        .build();
                 Map<Material, Integer> f = new HashMap<>();
-                for(ItemStack i : recipe.getIngredientMap().values()) {
-                    if(i == null || i.getType() == null || i.getType().isAir()) {
+                for (ItemStack i : recipe.getIngredientMap().values()) {
+                    if (i == null || i.getType() == null || i.getType().isAir()) {
                         continue;
                     }
 
@@ -213,46 +221,32 @@ public class MaterialValue {
                 f.forEach((k, v) -> re.getInput().add(new MaterialCount(k, v)));
 
                 return re;
-            } else if(r instanceof CookingRecipe recipe) {
+            } else if (r instanceof CookingRecipe recipe) {
                 List<MaterialCount> a = new ArrayList<>();
                 a.add(new MaterialCount(recipe.getInput().getType(), 1));
 
                 return MaterialRecipe.builder()
-                    .input(a)
-                    .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
-                    .build();
-            } else if(r instanceof MerchantRecipe recipe) {
+                        .input(a)
+                        .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
+                        .build();
+            } else if (r instanceof MerchantRecipe recipe) {
                 return MaterialRecipe.builder()
-                    .input(new ArrayList<>(recipe.getIngredients().stream().map(i -> new MaterialCount(i.getType(), 1)).toList()))
-                    .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
-                    .build();
-            } else if(r instanceof StonecuttingRecipe recipe) {
+                        .input(new ArrayList<>(recipe.getIngredients().stream().map(i -> new MaterialCount(i.getType(), 1)).toList()))
+                        .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
+                        .build();
+            } else if (r instanceof StonecuttingRecipe recipe) {
                 List<MaterialCount> a = new ArrayList<>();
                 a.add(new MaterialCount(recipe.getInput().getType(), 1));
 
                 return MaterialRecipe.builder()
-                    .input(a)
-                    .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
-                    .build();
+                        .input(a)
+                        .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
+                        .build();
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
 
         return null;
-    }
-
-    static {
-        AdaptConfig.get().getValue().getValueMutlipliers().forEach((k, v) -> {
-            try {
-                Material m = Material.valueOf(k.toUpperCase());
-
-                if(m != null) {
-                    valueMultipliers.put(m, v);
-                }
-            } catch(Throwable e) {
-
-            }
-        });
     }
 }

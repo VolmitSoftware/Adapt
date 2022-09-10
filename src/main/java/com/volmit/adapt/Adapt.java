@@ -46,16 +46,17 @@ import java.nio.file.Files;
 import java.util.HashMap;
 
 public class Adapt extends VolmitPlugin {
+    public static Adapt instance;
+    public static HashMap<String, String> wordKey = new HashMap<>();
+    public final EffectManager adaptEffectManager = new EffectManager(this);
     @Command
     private CommandAdapt commandAdapt = new CommandAdapt();
-    public static Adapt instance;
-
     @Getter
     private Ticker ticker;
-
     @Getter
     private AdaptServer adaptServer;
     private FolderWatcher configWatcher;
+    private boolean localized = false;
 
     public Adapt() {
         super();
@@ -64,41 +65,6 @@ public class Adapt extends VolmitPlugin {
 
     public static void actionbar(Player p, String msg) {
         p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(msg));
-    }
-
-    public File getJarFile() {
-        return getFile();
-    }
-
-    public static HashMap<String, String> wordKey = new HashMap<>();
-    public final EffectManager adaptEffectManager = new EffectManager(this);
-
-    @Override
-    public void start() {
-        loadLanguageLocalization();
-        printInformation();
-        NMS.init();
-        ticker = new Ticker();
-        adaptServer = new AdaptServer();
-        setupMetrics();
-    }
-
-    private void setupMetrics() {
-        if (AdaptConfig.get().isMetrics()) {
-            new Metrics(this, 13412);
-        }
-    }
-
-    @Override
-    public void stop() {
-        adaptServer.unregister();
-        MaterialValue.save();
-        WorldData.stop();
-    }
-
-    @Override
-    public String getTag(String subTag) {
-        return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.LIGHT_PURPLE + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
     }
 
     public static void printInformation() {
@@ -191,9 +157,8 @@ public class Adapt extends VolmitPlugin {
         info("Language Files Loaded");
     }
 
-    private boolean localized = false;
     public static String dLocalize(String s1, String s2, String s3) {
-        if (!wordKey.containsKey(""+s1+s2+s3)) {
+        if (!wordKey.containsKey("" + s1 + s2 + s3)) {
             JsonObject jsonObj = null;
             try {
                 File langFile = new File(instance.getDataFolder() + "/languages", AdaptConfig.get().getLanguage() + ".json");
@@ -221,8 +186,40 @@ public class Adapt extends VolmitPlugin {
             wordKey.put("" + s1 + s2 + s3, jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
             return jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString();
         } else {
-            return wordKey.get(""+s1+s2+s3);
+            return wordKey.get("" + s1 + s2 + s3);
         }
+    }
+
+    public File getJarFile() {
+        return getFile();
+    }
+
+    @Override
+    public void start() {
+        loadLanguageLocalization();
+        printInformation();
+        NMS.init();
+        ticker = new Ticker();
+        adaptServer = new AdaptServer();
+        setupMetrics();
+    }
+
+    private void setupMetrics() {
+        if (AdaptConfig.get().isMetrics()) {
+            new Metrics(this, 13412);
+        }
+    }
+
+    @Override
+    public void stop() {
+        adaptServer.unregister();
+        MaterialValue.save();
+        WorldData.stop();
+    }
+
+    @Override
+    public String getTag(String subTag) {
+        return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.LIGHT_PURPLE + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
     }
 
 

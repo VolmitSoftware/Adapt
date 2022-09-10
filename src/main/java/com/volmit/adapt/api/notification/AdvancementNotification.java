@@ -20,10 +20,10 @@ package com.volmit.adapt.api.notification;
 
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.RNG;
+import com.volmit.adapt.util.advancements.NameKey;
 import com.volmit.adapt.util.advancements.advancement.Advancement;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
-import com.volmit.adapt.util.advancements.NameKey;
 import lombok.Builder;
 import lombok.Data;
 import org.bukkit.Material;
@@ -60,7 +60,7 @@ public class AdvancementNotification implements Notification {
     }
 
     public String buildTitle() {
-        if(description.trim().isEmpty()) {
+        if (description.trim().isEmpty()) {
             return title;
         }
 

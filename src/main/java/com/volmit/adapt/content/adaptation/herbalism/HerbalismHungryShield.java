@@ -47,7 +47,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + " " +Adapt.dLocalize("Herbalism", "HungryShield", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("Herbalism", "HungryShield", "Lore1"));
     }
 
 

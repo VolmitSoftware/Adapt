@@ -33,7 +33,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockDropItemEvent;
 
-
 import java.util.List;
 
 public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInventory.Config> {
