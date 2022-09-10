@@ -21,15 +21,17 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulThorns;
 import com.volmit.adapt.util.C;
+import de.slikey.effectlib.effect.CloudEffect;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     public SkillTragOul() {
@@ -59,6 +61,40 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         }
     }
 
+    @EventHandler
+    public void on(PlayerDeathEvent e) {
+        if (getConfig().takeAwaySkillsOnDeath) {
+            if (getConfig().showParticles) {
+                CloudEffect ce = new CloudEffect(Adapt.instance.adaptEffectManager);
+                ce.mainParticle = Particle.ASH;
+                ce.cloudParticle = Particle.REDSTONE;
+                ce.duration = 10000;
+                ce.iterations = 1000;
+                ce.setEntity(e.getEntity());
+                ce.start();
+            }
+            AdaptPlayer a = getPlayer(e.getEntity());
+            Player p = a.getPlayer();
+            p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_DEATH, 1f, 1f);
+            double xp = a.getData().getSkillLines().get("tragoul").getXp();
+            if (a.getData().getSkillLines().get("tragoul").getXp() > getConfig().deathXpLoss) {
+                xp(p, getConfig().deathXpLoss);
+            } else {
+                a.getData().getSkillLines().get("tragoul").setXp(0);
+            }
+            a.getData().getSkillLines().get("tragoul").setXp(xp);
+            a.getData().getSkillLines().get("tragoul").setLastXP(xp);
+            for (PlayerAdaptation adapt : a.getData().getSkillLines().get("tragoul").getAdaptations().values()) {
+                if (adapt.getLevel() > 0) {
+                    adapt.setLevel(adapt.getLevel() - 1);
+                } else {
+                    adapt.setLevel(0);
+                }
+            }
+            recalcTotalExp(p);
+        }
+    }
+
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
@@ -73,7 +109,10 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @NoArgsConstructor
     protected static class Config {
+        public double deathXpLoss = -500;
+        boolean takeAwaySkillsOnDeath = true;
         boolean enabled = true;
+        boolean showParticles = true;
         double damageXPMultiplier = 5.26;
         double damageReceivedXpMultiplier = 2.26;
     }
