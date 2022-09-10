@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -98,16 +99,27 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler
     public void on(PlayerItemConsumeEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getItem().getItemMeta() instanceof PotionMeta o) {
             return;
         }
-
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         xp(e.getPlayer(), getConfig().foodConsumeXP);
         getPlayer(e.getPlayer()).getData().addStat("food.eaten", 1);
     }
 
     @EventHandler
     public void on(PlayerShearEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         xp(e.getPlayer(), e.getEntity().getLocation(), getConfig().shearXP);
     }
 
@@ -116,7 +128,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (e.isCancelled()) {
             return;
         }
-
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.getHarvestedBlock().getBlockData() instanceof Ageable) {
             getPlayer(e.getPlayer()).getData().addStat("harvest.blocks", 1);
             xp(e.getPlayer(), e.getHarvestedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * (((Ageable) e.getHarvestedBlock().getBlockData()).getAge()));
@@ -125,6 +139,12 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.getBlock().getBlockData() instanceof Ageable) {
             xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().plantCropSeedsXP);
             getPlayer(e.getPlayer()).getData().addStat("harvest.planted", 1);
@@ -133,6 +153,10 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
+
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.useItemInHand().equals(Event.Result.DENY)) {
             return;
         }
@@ -157,6 +181,12 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.getBlock().getType().equals(Material.CACTUS)) {
             return;
         }

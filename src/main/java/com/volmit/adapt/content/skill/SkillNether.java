@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.nether.NetherSkullYeet;
 import com.volmit.adapt.content.adaptation.nether.NetherWitherResist;
@@ -52,14 +53,26 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.WITHER && event.getEntity() instanceof Player p && !(event instanceof EntityDamageByBlockEvent)) {
+    public void onEntityDamage(EntityDamageEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (e.getCause() == EntityDamageEvent.DamageCause.WITHER && e.getEntity() instanceof Player p && !(e instanceof EntityDamageByBlockEvent)) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(p, getConfig().getWitherDamageXp());
         }
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.getBlock().getType() == Material.WITHER_ROSE && witherRoseCooldown == 0) {
             witherRoseCooldown = getConfig().getWitherRoseBreakCooldown();
             xp(e.getPlayer(), e.getBlock().getLocation().add(.5D, .5D, .5D), getConfig().getWitherRoseBreakXp());
@@ -70,6 +83,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     public void onEntityDeath(EntityDeathEvent e) {
         if (e.getEntity().getKiller() != null) {
             Player p = e.getEntity().getKiller();
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             if (e.getEntityType() == EntityType.WITHER_SKELETON) {
                 xp(p, getConfig().getWitherSkeletonKillXp());
             } else if (e.getEntityType() == EntityType.WITHER) {
@@ -80,7 +96,13 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getDamager() instanceof Player p && e.getCause() == EntityDamageEvent.DamageCause.WITHER) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(p, getConfig().getWitherAttackXp());
         }
     }

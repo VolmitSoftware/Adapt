@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
@@ -38,7 +39,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     public SkillPickaxes() {
-        super("pickaxes", Adapt.dLocalize("Skill", "Pickaxe", "Icon"));
+        super("pickaxe", Adapt.dLocalize("Skill", "Pickaxe", "Icon"));
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Skill", "Pickaxe", "Description"));
         setDisplayName(Adapt.dLocalize("Skill", "Pickaxe", "Name"));
@@ -54,13 +55,16 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
-            if (e.getDamager() instanceof Player) {
+            if (e.getDamager() instanceof Player p) {
+                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                    return;
+                }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
                 ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
                 if (isPickaxe(hand)) {
                     xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
-                    getPlayer(a.getPlayer()).getData().addStat("pickaxes.swings", 1);
-                    getPlayer(a.getPlayer()).getData().addStat("pickaxes.damage", e.getDamage());
+                    getPlayer(a.getPlayer()).getData().addStat("pickaxe.swings", 1);
+                    getPlayer(a.getPlayer()).getData().addStat("pickaxe.damage", e.getDamage());
                 }
             }
         }
@@ -68,10 +72,16 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (isPickaxe(e.getPlayer().getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
-            getPlayer(e.getPlayer()).getData().addStat("pickaxes.blocks.broken", 1);
-            getPlayer(e.getPlayer()).getData().addStat("pickaxes.blocks.value", getValue(e.getBlock().getBlockData()));
+            getPlayer(e.getPlayer()).getData().addStat("pickaxe.blocks.broken", 1);
+            getPlayer(e.getPlayer()).getData().addStat("pickaxe.blocks.value", getValue(e.getBlock().getBlockData()));
             J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
         }
     }

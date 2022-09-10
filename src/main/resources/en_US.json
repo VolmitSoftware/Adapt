@@ -613,6 +613,13 @@
       "Lore1": "HP/s"
     }
   },
+  "TragOul": {
+    "Thorns": {
+      "Name": "Thorns",
+      "Description": "Reflect damage back to your attacker!",
+      "Lore1": "Damage retaliated when struck"
+    }
+  },
   "Unarmed": {
     "GlassCannon": {
       "Name": "Glass Cannon",

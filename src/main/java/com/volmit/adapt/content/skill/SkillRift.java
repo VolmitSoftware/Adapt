@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.rift.*;
 import com.volmit.adapt.util.C;
@@ -59,6 +60,12 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerTeleportEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (!lasttp.containsKey(e.getPlayer())) {
             try {
                 xpSilent(e.getPlayer(), getConfig().teleportXP);
@@ -70,38 +77,74 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity() instanceof EnderPearl && e.getEntity().getShooter() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(p, getConfig().throwEnderpearlXP);
         } else if (e.getEntity() instanceof EnderSignal && e.getEntity().getShooter() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(p, getConfig().throwEnderEyeXP);
         }
     }
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity() instanceof Enderman && e.getDamager() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(p, getConfig().damageEndermanXPMultiplier * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof Endermite && e.getDamager() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(p, getConfig().damageEndermiteXPMultiplier * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(p, getConfig().damageEnderdragonXPMultiplier * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(p, getConfig().damageEndCrystalXP);
         }
 
         if (e.getEntity() instanceof Enderman && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(p, getConfig().damageEndermanXPMultiplier * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof Endermite && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(p, getConfig().damageEndermiteXPMultiplier * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(p, getConfig().damageEnderdragonXPMultiplier * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(p, getConfig().damageEndCrystalXP);
         }
     }
@@ -109,6 +152,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     @EventHandler
     public void on(EntityDeathEvent e) {
         if (e.getEntity() instanceof EnderCrystal && e.getEntity().getKiller() != null) {
+            if (!AdaptConfig.get().isXpInCreative() && e.getEntity().getKiller().getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             xp(e.getEntity().getKiller(), getConfig().destroyEndCrystalXP);
         }
     }

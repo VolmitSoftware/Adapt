@@ -20,6 +20,7 @@ package com.volmit.adapt.content.skill;
 
 import art.arcane.spatial.matter.SpatialMatter;
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -54,7 +55,15 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler
     public void on(PlayerItemConsumeEvent e) {
-        if (e.getItem().getItemMeta() instanceof PotionMeta o) {
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
+        Adapt.info(e.getItem().toString());
+        if (e.getItem().getItemMeta() instanceof PotionMeta o
+                && !e.getItem().toString().contains("potion-type=minecraft:water")
+                && !e.getItem().toString().contains("potion-type=minecraft:mundane")
+                && !e.getItem().toString().contains("potion-type=minecraft:thick")
+                && !e.getItem().toString().contains("potion-type=minecraft:awkward")) {
             xp(e.getPlayer(), e.getPlayer().getLocation(),
                     getConfig().splashXP
                             + (getConfig().splashMultiplier * o.getCustomEffects().stream().mapToDouble(i -> (i.getAmplifier() + 1) * (i.getDuration() / 20D)).sum())
@@ -65,6 +74,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     @EventHandler
     public void on(PotionSplashEvent e) {
         if (e.getPotion().getShooter() instanceof Player p) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             AdaptPlayer a = getPlayer(p);
             getPlayer(p).getData().addStat("brewing.splashes", 1);
             xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().splashXP + (getConfig().splashMultiplier * e.getPotion().getEffects().stream().mapToDouble(i -> (i.getAmplifier() + 1) * (i.getDuration() / 20D)).sum()));
@@ -73,6 +85,12 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler
     public void on(BlockPlaceEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
             if (!e.isCancelled()) {
                 WorldData.of(e.getBlock().getWorld()).getMantle().set(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), new BrewingStandOwner(e.getPlayer().getUniqueId()));
@@ -82,6 +100,12 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (!e.isCancelled()) {
             if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
                 WorldData.of(e.getBlock().getWorld()).getMantle().remove(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);

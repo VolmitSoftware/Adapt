@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
@@ -26,6 +27,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -55,6 +57,12 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.getBlock().getType().equals(Material.TURTLE_EGG)) {
             xp(e.getBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
             getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
@@ -63,6 +71,10 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
+
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
             xp(e.getClickedBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
             getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
@@ -71,7 +83,10 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(EntityDeathEvent e) {
-        if (e.getEntity().getKiller() != null && e.getEntity().getKiller() != null) {
+        if (e.getEntity().getKiller() != null) {
+            if (!AdaptConfig.get().isXpInCreative() && e.getEntity().getKiller().getGameMode().name().contains("CREATIVE")) {
+                return;
+            }
             double cmult = e.getEntity().getType().equals(EntityType.CREEPER) ? getConfig().creeperKillMultiplier : 1;
             xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
             xp(e.getEntity().getKiller(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult);

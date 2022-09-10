@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.sword.SwordsMachete;
@@ -45,7 +46,10 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
-            if (e.getDamager() instanceof Player) {
+            if (e.getDamager() instanceof Player p) {
+                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                    return;
+                }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
                 ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
                 if (isSword(hand)) {

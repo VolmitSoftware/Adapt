@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.axe.AxeChop;
@@ -55,6 +56,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
+                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                    return;
+                }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
                 ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
@@ -69,6 +73,12 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @EventHandler
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+            return;
+        }
         if (isAxe(e.getPlayer().getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
             getPlayer(e.getPlayer()).getData().addStat("axes.blocks.broken", 1);
