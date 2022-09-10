@@ -18,20 +18,19 @@
 
 package com.volmit.adapt.util.advancements.packet;
 
-import java.util.HashMap;
-
 import com.volmit.adapt.util.advancements.JSONMessage;
 import com.volmit.adapt.util.advancements.NameKey;
 import com.volmit.adapt.util.advancements.advancement.Advancement;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementFlag;
 import com.volmit.adapt.util.advancements.advancement.ToastNotification;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
-
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.resources.MinecraftKey;
 import net.minecraft.world.item.ItemStack;
+import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
+
+import java.util.HashMap;
 
 public class PacketConverter {
 	

@@ -35,8 +35,8 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     public UnarmedSuckerPunch() {
         super("unarmed-sucker-punch");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Unarmed","SuckerPunch", "Description"));
-        setDisplayName(Adapt.dLocalize("Unarmed","SuckerPunch", "Name"));
+        setDescription(Adapt.dLocalize("Unarmed", "SuckerPunch", "Description"));
+        setDisplayName(Adapt.dLocalize("Unarmed", "SuckerPunch", "Name"));
         setIcon(Material.OBSIDIAN);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
@@ -44,22 +44,13 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         setInterval(4944);
     }
 
-    @NoArgsConstructor
-    protected static class Config {
-        boolean enabled = true;
-        int baseCost = 2;
-        int initialCost = 4;
-        double costFactor = 0.225;
-        double baseDamage = 0.2;
-        double damageFactor = 0.55;
-    }
 
     @Override
     public void addStats(int level, Element v) {
         double f = getLevelPercent(level);
         double d = getDamage(f);
-        v.addLore(C.GREEN + "+ " + Form.pc(d, 0) + C.GRAY + " " +Adapt.dLocalize("Unarmed","SuckerPunch", "Lore1"));
-        v.addLore(C.GRAY + Adapt.dLocalize("Unarmed","SuckerPunch", "Lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(d, 0) + C.GRAY + " " + Adapt.dLocalize("Unarmed", "SuckerPunch", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("Unarmed", "SuckerPunch", "Lore2"));
     }
 
     private double getDamage(double f) {
@@ -95,7 +86,19 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
             getSkill().xp(p, 6.221 * e.getDamage());
             if (e.getDamage() > 5) {
                 getSkill().xp(p, 0.42 * e.getDamage());
-                e.getEntity().getWorld().spawnParticle(Particle.FLASH, e.getEntity().getLocation(), 1);
+                if (getConfig().showParticles) {
+
+
+
+
+
+
+
+
+
+                    
+                    e.getEntity().getWorld().spawnParticle(Particle.FLASH, e.getEntity().getLocation(), 1);
+                }
             }
         }
     }
@@ -108,5 +111,16 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;
+    }
+
+    @NoArgsConstructor
+    protected static class Config {
+        boolean enabled = true;
+        boolean showParticles = true;
+        int baseCost = 2;
+        int initialCost = 4;
+        double costFactor = 0.225;
+        double baseDamage = 0.2;
+        double damageFactor = 0.55;
     }
 }

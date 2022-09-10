@@ -19,7 +19,6 @@
 package com.volmit.adapt.util;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class AtomicRollingSequence extends AtomicAverage {
     private double median;

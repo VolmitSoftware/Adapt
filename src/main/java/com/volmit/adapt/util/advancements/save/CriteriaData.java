@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.util.advancements.save;
 
-import java.util.List;
-
 import com.volmit.adapt.util.advancements.NameKey;
 import com.volmit.adapt.util.advancements.advancement.criteria.CriteriaType;
+
+import java.util.List;
 
 /**
  * Represents the Save Data for an Advancement saved by {@link CriteriaType} LIST

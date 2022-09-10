@@ -19,8 +19,6 @@
 package com.volmit.adapt.content.matter;
 
 import art.arcane.spatial.matter.slices.RawMatter;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

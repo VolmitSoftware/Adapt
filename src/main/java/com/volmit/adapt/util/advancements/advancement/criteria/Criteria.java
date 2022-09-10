@@ -18,12 +18,12 @@
 
 package com.volmit.adapt.util.advancements.advancement.criteria;
 
+import com.volmit.adapt.util.advancements.CrazyAdvancementsAPI;
+import net.minecraft.advancements.Criterion;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-
-import com.volmit.adapt.util.advancements.CrazyAdvancementsAPI;
-import net.minecraft.advancements.Criterion;
 
 /**
  * Represents the Criteria that is required for an Advancement

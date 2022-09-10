@@ -73,14 +73,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RemoteAccess", "Lore3"));
     }
 
-    @NoArgsConstructor
-    protected static class Config {
-        boolean enabled = true;
-        int baseCost = 3;
-        double costFactor = 0.2;
-        int initialCost = 15;
-    }
-
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
@@ -135,7 +127,10 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     }
 
     private void linkPearl(Player p, Block block) {
-        vfxSingleCubeOutline(block, Particle.REVERSE_PORTAL);
+        if (getConfig().showParticles) {
+
+            vfxSingleCubeOutline(block, Particle.REVERSE_PORTAL);
+        }
         ItemStack hand = p.getInventory().getItemInMainHand();
 
         if (hand.getAmount() == 1) {
@@ -151,8 +146,11 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
         if (b != null && b.getState() instanceof InventoryHolder holder) {
             activeViews.add(p.openInventory(holder.getInventory()));
-            p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 100f, 0.10f);
-            p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 100f, 0.10f);
+            if (getConfig().showParticles) {
+
+                p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 100f, 0.10f);
+                p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 100f, 0.10f);
+            }
         }
     }
 
@@ -184,4 +182,15 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     public boolean isEnabled() {
         return getConfig().enabled;
     }
+
+
+    @NoArgsConstructor
+    protected static class Config {
+        boolean enabled = true;
+        boolean showParticles = true;
+        int baseCost = 3;
+        double costFactor = 0.2;
+        int initialCost = 15;
+    }
+
 }

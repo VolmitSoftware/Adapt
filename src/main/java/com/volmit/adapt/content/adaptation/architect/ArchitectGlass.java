@@ -68,8 +68,11 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
             if (e.getBlock().getType().toString().contains("GLASS") && !e.getBlock().getType().toString().contains("TINTED_GLASS")) {
                 e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(e.getBlock().getType(), 1));
                 e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_LARGE_AMETHYST_BUD_BREAK, 1.0f, 1.0f);
-                e.getBlock().getWorld().spawnParticle(Particle.SCRAPE, e.getBlock().getLocation(), 1);
-                J.a(() -> vfxSingleCubeOutline(e.getBlock(), Particle.REVERSE_PORTAL));
+                if (getConfig().showParticles) {
+
+                    e.getBlock().getWorld().spawnParticle(Particle.SCRAPE, e.getBlock().getLocation(), 1);
+                    J.a(() -> vfxSingleCubeOutline(e.getBlock(), Particle.REVERSE_PORTAL));
+                }
                 e.getBlock().breakNaturally();
                 xp(e.getPlayer(), 3);
             }
@@ -89,6 +92,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 5;
         int maxLevel = 1;
         int initialCost = 0;

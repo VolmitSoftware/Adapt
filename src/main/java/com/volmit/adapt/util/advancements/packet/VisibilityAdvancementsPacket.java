@@ -18,13 +18,13 @@
 
 package com.volmit.adapt.util.advancements.packet;
 
-import java.util.Iterator;
-import java.util.List;
-
 import com.volmit.adapt.util.advancements.NameKey;
 import com.volmit.adapt.util.advancements.advancement.Advancement;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import org.bukkit.entity.Player;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Represents an Advancement Packet which respects Advancement Visibility

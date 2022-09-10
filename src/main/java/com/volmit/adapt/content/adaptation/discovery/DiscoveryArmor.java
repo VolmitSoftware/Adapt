@@ -83,8 +83,10 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
                             if (a > 2 && M.r(0.005 * a)) {
                                 Vector v = VectorMath.directionNoNormal(l, b.getLocation().add(0.5, 0.5, 0.5));
-                                l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l.clone().add(0, 1, 0), 0, v.getX(), v.getY(), v.getZ());
+                                if (getConfig().showParticles) {
 
+                                    l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l.clone().add(0, 1, 0), 0, v.getX(), v.getY(), v.getZ());
+                                }
                             }
                         }
                     }
@@ -149,7 +151,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     protected static class Config {
         public int radiusFactor = 3;
         public double strengthExponent = 1.25;
-
+        public boolean showParticles = true;
         boolean enabled = true;
         int baseCost = 2;
         int initialCost = 3;

@@ -44,8 +44,8 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
     public TamingHealthRegeneration() {
         super("tame-health-regeneration");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Taming","TameRegeneration", "Description"));
-        setDisplayName(Adapt.dLocalize("Taming","TameRegeneration", "Name"));
+        setDescription(Adapt.dLocalize("Taming", "TameRegeneration", "Description"));
+        setDisplayName(Adapt.dLocalize("Taming", "TameRegeneration", "Name"));
         setIcon(Material.GOLDEN_APPLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -56,7 +56,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRegenSpeed(level), 0) + C.GRAY + " " +Adapt.dLocalize("Taming","TameRegeneration", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getRegenSpeed(level), 0) + C.GRAY + " " + Adapt.dLocalize("Taming", "TameRegeneration", "Lore1"));
     }
 
     @EventHandler
@@ -105,7 +105,10 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
                             if (level > 0) {
                                 J.s(() -> j.setHealth(Math.min(j.getHealth() + getRegenSpeed(level), mh)));
-                                ParticleEffect.HEART.display(j.getLocation().clone().add(0, 1, 0), 0.55f, 0.37f, 0.55f, 0.3f, level, null);
+                                if (getConfig().showParticles) {
+
+                                    ParticleEffect.HEART.display(j.getLocation().clone().add(0, 1, 0), 0.55f, 0.37f, 0.55f, 0.3f, level, null);
+                                }
                             }
                         }
                     }
@@ -122,6 +125,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 7;
         int maxLevel = 3;
         int initialCost = 8;

@@ -21,15 +21,14 @@ package com.volmit.adapt.util.advancements.advancement;
 import com.volmit.adapt.util.advancements.CrazyAdvancementsAPI;
 import com.volmit.adapt.util.advancements.JSONMessage;
 import com.volmit.adapt.util.advancements.NameKey;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay.AdvancementFrame;
 import com.volmit.adapt.util.advancements.advancement.criteria.Criteria;
 import com.volmit.adapt.util.advancements.advancement.progress.AdvancementProgress;
 import com.volmit.adapt.util.advancements.packet.ToastPacket;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * Represents a Toast Notification

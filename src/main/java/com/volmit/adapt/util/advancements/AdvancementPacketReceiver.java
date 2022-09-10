@@ -18,14 +18,6 @@
 
 package com.volmit.adapt.util.advancements;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
-import org.bukkit.entity.Player;
-
 import com.volmit.adapt.util.advancements.event.AdvancementScreenCloseEvent;
 import com.volmit.adapt.util.advancements.event.AdvancementTabChangeEvent;
 import io.netty.channel.Channel;
@@ -37,6 +29,13 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayInAdvancements;
 import net.minecraft.network.protocol.game.PacketPlayInAdvancements.Status;
+import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.entity.Player;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.List;
 
 public class AdvancementPacketReceiver {
 	

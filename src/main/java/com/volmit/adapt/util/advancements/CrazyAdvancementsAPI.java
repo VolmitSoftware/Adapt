@@ -18,18 +18,24 @@
 
 package com.volmit.adapt.util.advancements;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-
-import javax.annotation.Nullable;
-
+import com.google.gson.*;
+import com.volmit.adapt.util.advancements.advancement.*;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay.AdvancementFrame;
+import com.volmit.adapt.util.advancements.advancement.criteria.CriteriaType;
+import com.volmit.adapt.util.advancements.advancement.progress.GenericResult;
+import com.volmit.adapt.util.advancements.advancement.progress.GrantCriteriaResult;
+import com.volmit.adapt.util.advancements.advancement.serialized.SerializedAdvancement;
+import com.volmit.adapt.util.advancements.advancement.serialized.SerializedAdvancementDisplay;
+import com.volmit.adapt.util.advancements.command.ProgressChangeOperation;
+import com.volmit.adapt.util.advancements.item.CustomItem;
+import com.volmit.adapt.util.advancements.item.SerializedCustomItem;
+import com.volmit.adapt.util.advancements.manager.AdvancementManager;
+import com.volmit.adapt.util.advancements.packet.AdvancementsPacket;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.CriterionInstance;
+import net.minecraft.advancements.critereon.LootSerializationContext;
+import net.minecraft.network.protocol.game.PacketPlayOutSelectAdvancementTab;
+import net.minecraft.resources.MinecraftKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -48,34 +54,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import com.volmit.adapt.util.advancements.advancement.Advancement;
-import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
-import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay.AdvancementFrame;
-import com.volmit.adapt.util.advancements.advancement.AdvancementFlag;
-import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
-import com.volmit.adapt.util.advancements.advancement.ToastNotification;
-import com.volmit.adapt.util.advancements.advancement.criteria.CriteriaType;
-import com.volmit.adapt.util.advancements.advancement.progress.GenericResult;
-import com.volmit.adapt.util.advancements.advancement.progress.GrantCriteriaResult;
-import com.volmit.adapt.util.advancements.advancement.serialized.SerializedAdvancement;
-import com.volmit.adapt.util.advancements.advancement.serialized.SerializedAdvancementDisplay;
-import com.volmit.adapt.util.advancements.command.ProgressChangeOperation;
-import com.volmit.adapt.util.advancements.item.CustomItem;
-import com.volmit.adapt.util.advancements.item.SerializedCustomItem;
-import com.volmit.adapt.util.advancements.manager.AdvancementManager;
-import com.volmit.adapt.util.advancements.packet.AdvancementsPacket;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.CriterionInstance;
-import net.minecraft.advancements.critereon.LootSerializationContext;
-import net.minecraft.network.protocol.game.PacketPlayOutSelectAdvancementTab;
-import net.minecraft.resources.MinecraftKey;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Represents the API's Plugin

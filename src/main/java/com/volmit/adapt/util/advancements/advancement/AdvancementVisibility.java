@@ -18,9 +18,9 @@
 
 package com.volmit.adapt.util.advancements.advancement;
 
-import java.util.Arrays;
-
 import org.bukkit.entity.Player;
+
+import java.util.Arrays;
 
 /**
  * Represents the conditions under which an Advancement is visible

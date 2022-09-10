@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.util.advancements.advancement.serialized;
 
-import java.util.List;
-
 import com.volmit.adapt.util.advancements.CrazyAdvancementsAPI;
 import com.volmit.adapt.util.advancements.NameKey;
 import com.volmit.adapt.util.advancements.advancement.AdvancementFunctionReward;
+
+import java.util.List;
 
 public class SerializedAdvancement {
 	

@@ -18,14 +18,13 @@
 
 package com.volmit.adapt.util.advancements.advancement.progress;
 
+import com.google.common.collect.Iterables;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.CriterionProgress;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.StreamSupport;
-
-import com.google.common.collect.Iterables;
-
-import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.CriterionProgress;
 
 /**
  * Represents the progress a Player has made for a specific Advancement

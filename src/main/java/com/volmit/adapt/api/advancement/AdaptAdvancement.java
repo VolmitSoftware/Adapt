@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.api.advancement;
 
+import com.volmit.adapt.util.advancements.NameKey;
 import com.volmit.adapt.util.advancements.advancement.Advancement;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
-import com.volmit.adapt.util.advancements.NameKey;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;

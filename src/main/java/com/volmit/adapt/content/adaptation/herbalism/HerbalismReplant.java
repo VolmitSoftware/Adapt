@@ -20,7 +20,6 @@ package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.content.skill.SkillHerbalism;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -115,7 +114,10 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
                 xp(e.getPlayer(), 4);
                 e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_SHOVEL_FLATTEN, 1f, 0.66f);
                 e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_BAMBOO_SAPLING_BREAK, 1f, 0.66f);
-                e.getPlayer().spawnParticle(Particle.VILLAGER_HAPPY, e.getPlayer().getLocation().clone().add(0.5, 0.5, 0.5), getLevel(e.getPlayer()) * 3, 0.3 * getLevel(e.getPlayer()), 0.3 * getLevel(e.getPlayer()), 0.3 * getLevel(e.getPlayer()), 0.9);
+                if (getConfig().showParticles) {
+
+                    e.getPlayer().spawnParticle(Particle.VILLAGER_HAPPY, e.getPlayer().getLocation().clone().add(0.5, 0.5, 0.5), getLevel(e.getPlayer()) * 3, 0.3 * getLevel(e.getPlayer()), 0.3 * getLevel(e.getPlayer()), 0.3 * getLevel(e.getPlayer()), 0.9);
+                }
             } else {
                 hit(e.getPlayer(), e.getClickedBlock());
             }
@@ -173,6 +175,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 6;
         int maxLevel = 3;
         int initialCost = 4;

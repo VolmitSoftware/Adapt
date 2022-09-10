@@ -48,7 +48,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "" + getConfig().damageMultiplierPerLevel * level + "x "+ Adapt.dLocalize("TragOul", "Thorns", "Lore1"));
+        v.addLore(C.GREEN + "" + getConfig().damageMultiplierPerLevel * level + "x " + Adapt.dLocalize("TragOul", "Thorns", "Lore1"));
     }
 
 
@@ -60,7 +60,9 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
                 blood.setEntity(le);
                 blood.height = -1;
                 blood.iterations = 1;
-                blood.start();
+                if (getConfig().showParticles) {
+                    blood.start();
+                }
                 le.damage(getConfig().damageMultiplierPerLevel * getLevel(p), p);
             }
         }
@@ -79,6 +81,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 5;
         int maxLevel = 5;
         int initialCost = 5;

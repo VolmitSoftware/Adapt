@@ -49,8 +49,8 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDropChance(getLevelPercent(level)), 0) + C.GRAY + " " +Adapt.dLocalize("Pickaxe", "Chisel", "Lore1"));
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " +Adapt.dLocalize("Pickaxe", "Chisel", "Lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getDropChance(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("Pickaxe", "Chisel", "Lore1"));
+        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Adapt.dLocalize("Pickaxe", "Chisel", "Lore2"));
     }
 
     private int getCooldownTime(double levelPercent) {
@@ -96,14 +96,20 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
                     ItemStack is = getDropFor(b);
                     if (M.r(getDropChance(getLevelPercent(e.getPlayer())))) {
                         xp(e.getPlayer(), 5);
-                        e.getClickedBlock().getWorld().spawnParticle(Particle.ITEM_CRACK, c, 14, 0.10, 0.01, 0.01, 0.1, is);
+                        if (getConfig().showParticles) {
+
+                            e.getClickedBlock().getWorld().spawnParticle(Particle.ITEM_CRACK, c, 14, 0.10, 0.01, 0.01, 0.1, is);
+
+                        }
                         e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
                         e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
                         e.getClickedBlock().getWorld().dropItemNaturally(c.clone().subtract(e.getPlayer().getLocation().getDirection().clone().multiply(0.1)), is);
                     } else {
-                        e.getClickedBlock().getWorld().spawnParticle(Particle.ITEM_CRACK, c, 3, 0.01, 0.01, 0.01, 0.1, is);
+                        if (getConfig().showParticles) {
 
-                        e.getClickedBlock().getWorld().spawnParticle(Particle.BLOCK_CRACK, c, 9, 0.1, 0.1, 0.1, e.getClickedBlock().getBlockData());
+                            e.getClickedBlock().getWorld().spawnParticle(Particle.ITEM_CRACK, c, 3, 0.01, 0.01, 0.01, 0.1, is);
+                            e.getClickedBlock().getWorld().spawnParticle(Particle.BLOCK_CRACK, c, 9, 0.1, 0.1, 0.1, e.getClickedBlock().getBlockData());
+                        }
                     }
 
                     if (M.r(getBreakChance(getLevelPercent(e.getPlayer())))) {
@@ -148,6 +154,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 6;
         int maxLevel = 7;
         int initialCost = 5;

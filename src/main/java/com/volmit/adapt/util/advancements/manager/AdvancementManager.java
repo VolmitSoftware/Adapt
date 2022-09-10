@@ -18,38 +18,20 @@
 
 package com.volmit.adapt.util.advancements.manager;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.volmit.adapt.util.advancements.CrazyAdvancementsAPI;
 import com.volmit.adapt.util.advancements.NameKey;
+import com.volmit.adapt.util.advancements.advancement.Advancement;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementReward;
 import com.volmit.adapt.util.advancements.advancement.criteria.CriteriaType;
 import com.volmit.adapt.util.advancements.advancement.progress.AdvancementProgress;
 import com.volmit.adapt.util.advancements.advancement.progress.GenericResult;
 import com.volmit.adapt.util.advancements.advancement.progress.GrantCriteriaResult;
 import com.volmit.adapt.util.advancements.advancement.progress.SetCriteriaResult;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-
-import com.volmit.adapt.util.advancements.advancement.Advancement;
-import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
-import com.volmit.adapt.util.advancements.advancement.AdvancementReward;
 import com.volmit.adapt.util.advancements.event.AdvancementGrantEvent;
 import com.volmit.adapt.util.advancements.event.AdvancementRevokeEvent;
 import com.volmit.adapt.util.advancements.packet.AdvancementsPacket;
@@ -57,6 +39,14 @@ import com.volmit.adapt.util.advancements.packet.PacketConverter;
 import com.volmit.adapt.util.advancements.save.CriteriaData;
 import com.volmit.adapt.util.advancements.save.ProgressData;
 import com.volmit.adapt.util.advancements.save.SaveFile;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Represents a Manager that manages Players and Advancements

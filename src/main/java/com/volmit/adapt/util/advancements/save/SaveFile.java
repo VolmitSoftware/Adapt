@@ -18,13 +18,13 @@
 
 package com.volmit.adapt.util.advancements.save;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 
 /**
  * Represents a Save File

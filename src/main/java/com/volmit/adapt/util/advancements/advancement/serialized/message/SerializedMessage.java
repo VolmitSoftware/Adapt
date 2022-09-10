@@ -18,15 +18,15 @@
 
 package com.volmit.adapt.util.advancements.advancement.serialized.message;
 
-import java.util.List;
-import java.util.Locale;
-
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.KeybindComponent;
 import net.md_5.bungee.api.chat.SelectorComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+
+import java.util.List;
+import java.util.Locale;
 
 public class SerializedMessage {
 	

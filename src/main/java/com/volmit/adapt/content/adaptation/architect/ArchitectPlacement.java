@@ -115,7 +115,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                         runPlayerViewport(getBlockFace(p), p.getTargetBlock(null, 5), p.getInventory().getItemInMainHand().getType(), p);
                     }
                 } else {
-                    p.sendMessage(C.RED + Adapt.dLocalize("Architect", "Placement", "Lore1") + C.GREEN + totalMap.get(p).size() + C.RED + " " +Adapt.dLocalize("Architect", "Placement", "Lore2"));
+                    p.sendMessage(C.RED + Adapt.dLocalize("Architect", "Placement", "Lore1") + C.GREEN + totalMap.get(p).size() + C.RED + " " + Adapt.dLocalize("Architect", "Placement", "Lore2"));
                 }
             }
         }
@@ -225,7 +225,10 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                     for (Block b : blockRender.keySet()) { // Get the blocks in that map that bind with a BlockFace
                         BlockFace bf = blockRender.get(b); // Get that blockface
                         Block transposedBlock = b.getRelative(bf);
-                        vfxSingleCubeOutline(transposedBlock, Particle.REVERSE_PORTAL);
+                        if (getConfig().showParticles) {
+
+                            vfxSingleCubeOutline(transposedBlock, Particle.REVERSE_PORTAL);
+                        }
                     }
                 }
             });
@@ -236,6 +239,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     protected static class Config {
         public int maxBlocks = 20;
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 6;
         int maxLevel = 1;
         int initialCost = 4;

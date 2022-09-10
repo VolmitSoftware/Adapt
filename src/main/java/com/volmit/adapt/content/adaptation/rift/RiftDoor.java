@@ -88,7 +88,9 @@ public class RiftDoor extends SimpleAdaptation<RiftDoor.Config> {
             J.s(() -> {
                 entity.setGravity(false);
                 entity.setVelocity(new Vector(0, 0, 0));
-                vfxSingleCubeOutline(b, Particle.REVERSE_PORTAL);
+                if (getConfig().showParticles) {
+                    vfxSingleCubeOutline(b, Particle.REVERSE_PORTAL);
+                }
                 entity.getWorld().playSound(entity.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 1f);
             });
             try {
@@ -117,6 +119,7 @@ public class RiftDoor extends SimpleAdaptation<RiftDoor.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = false;
+        boolean showParticles = true;
         int baseCost = 3;
         double costFactor = 1;
         int maxLevel = 1;

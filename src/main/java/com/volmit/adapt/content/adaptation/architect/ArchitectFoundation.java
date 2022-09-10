@@ -67,7 +67,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("Architect", "Foundation", "Lore1") + (getBlockPower(getLevelPercent(level))) + C.GRAY + " " +Adapt.dLocalize("Architect", "Foundation", "Lore2"));
+        v.addLore(C.GREEN + Adapt.dLocalize("Architect", "Foundation", "Lore1") + (getBlockPower(getLevelPercent(level))) + C.GRAY + " " + Adapt.dLocalize("Architect", "Foundation", "Lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -145,8 +145,11 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             activeBlocks.add(block);
         });
         block.getWorld().playSound(block.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.0f, 1.0f);
-        vfxSingleCubeOutline(block, Particle.REVERSE_PORTAL);
-        vfxSingleCubeOutline(block, Particle.ASH);
+        if (getConfig().showParticles) {
+
+            vfxSingleCubeOutline(block, Particle.REVERSE_PORTAL);
+            vfxSingleCubeOutline(block, Particle.ASH);
+        }
         J.a(() -> removeFoundation(block), 3 * 20);
         return true;
     }
@@ -161,7 +164,10 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             activeBlocks.remove(block);
         });
         block.getWorld().playSound(block.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
-        vfxSingleCubeOutline(block, Particle.ENCHANTMENT_TABLE);
+        if (getConfig().showParticles) {
+
+            vfxSingleCubeOutline(block, Particle.ENCHANTMENT_TABLE);
+        }
     }
 
     public int getBlockPower(double factor) {
@@ -179,7 +185,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             int availablePower = getBlockPower(getLevelPercent(i));
             blockPower.compute(i, (k, v) -> {
                 if ((k == null || v == null) || (ready && v != availablePower)) {
-                    if (i==null) {
+                    if (i == null) {
                         return 0;
                     }
 
@@ -220,6 +226,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @NoArgsConstructor
     protected static class Config {
+        boolean showParticles = true;
         public long duration = 3000;
         public int minBlocks = 9;
         public int maxBlocks = 35;

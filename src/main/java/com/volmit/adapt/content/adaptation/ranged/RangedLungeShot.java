@@ -42,8 +42,8 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     public RangedLungeShot() {
         super("ranged-lunge-shot");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Ranged","LungeShot", "Description"));
-        setDisplayName(Adapt.dLocalize("Ranged","LungeShot", "Name"));
+        setDescription(Adapt.dLocalize("Ranged", "LungeShot", "Description"));
+        setDisplayName(Adapt.dLocalize("Ranged", "LungeShot", "Name"));
         setIcon(Material.FEATHER);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -58,23 +58,26 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " +Adapt.dLocalize("Ranged","LungeShot", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("Ranged", "LungeShot", "Lore1"));
     }
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
-        if(e.getEntity().getShooter() instanceof Player p) {
-            if(e.getEntity() instanceof AbstractArrow a) {
-                if(hasAdaptation(p)) {
-                    if(!p.isOnGround()) {
+        if (e.getEntity().getShooter() instanceof Player p) {
+            if (e.getEntity() instanceof AbstractArrow a) {
+                if (hasAdaptation(p)) {
+                    if (!p.isOnGround()) {
                         Vector velocity = p.getPlayer().getLocation().getDirection().normalize().multiply(getSpeed(getLevelPercent(p)));
                         p.setVelocity(p.getVelocity().subtract(velocity));
                         p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_TURTLE, 1f, 0.75f);
                         p.getWorld().playSound(p.getLocation(), Sound.ITEM_CROSSBOW_SHOOT, 1f, 1.95f);
 
-                        for(int i = 0; i < 9; i++) {
+                        for (int i = 0; i < 9; i++) {
                             Vector v = velocity.clone().add(Vector.getRandom().subtract(Vector.getRandom()).multiply(0.3)).normalize();
-                            p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().clone().add(0, 1, 0), 0, v.getX(), v.getY(), v.getZ(), 0.2);
+                            if (getConfig().showParticles) {
+
+                                p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().clone().add(0, 1, 0), 0, v.getX(), v.getY(), v.getZ(), 0.2);
+                            }
                         }
                     }
                 }
@@ -95,6 +98,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 3;
         int maxLevel = 3;
         int initialCost = 8;

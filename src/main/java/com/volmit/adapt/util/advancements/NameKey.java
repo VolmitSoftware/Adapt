@@ -18,9 +18,9 @@
 
 package com.volmit.adapt.util.advancements;
 
-import java.util.Objects;
-
 import net.minecraft.resources.MinecraftKey;
+
+import java.util.Objects;
 
 /**
  * Represents a Unique Name

@@ -18,24 +18,11 @@
 
 package com.volmit.adapt.util.advancements.advancement;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
-
-import javax.annotation.Nullable;
-
 import com.volmit.adapt.util.advancements.NameKey;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay.AdvancementFrame;
 import com.volmit.adapt.util.advancements.advancement.criteria.Criteria;
 import com.volmit.adapt.util.advancements.advancement.progress.AdvancementProgress;
 import com.volmit.adapt.util.advancements.manager.AdvancementManager;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
-import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay.AdvancementFrame;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -44,6 +31,11 @@ import net.md_5.bungee.api.chat.HoverEvent.Action;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 /**
  * Represents an Advancement

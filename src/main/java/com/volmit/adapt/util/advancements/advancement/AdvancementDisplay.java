@@ -18,15 +18,14 @@
 
 package com.volmit.adapt.util.advancements.advancement;
 
-import javax.annotation.Nullable;
-
 import com.volmit.adapt.util.advancements.JSONMessage;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.minecraft.advancements.AdvancementFrameType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.advancements.AdvancementFrameType;
+import javax.annotation.Nullable;
 
 /**
  * Represents the Display Information of an Advancement

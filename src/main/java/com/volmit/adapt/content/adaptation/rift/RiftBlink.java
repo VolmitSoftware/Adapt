@@ -111,8 +111,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                     RiftResist.riftResistStackAdd(p, 10, 5);
                 }
 
+                if (getConfig().showParticles) {
 
-                vfxParticleLine(locOG, loc, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
+                    vfxParticleLine(locOG, loc, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
+                }
                 J.s(() -> {
                     Vector v = p.getVelocity().clone();
                     p.teleport(loc.add(0, 1, 0), PlayerTeleportEvent.TeleportCause.PLUGIN);
@@ -182,6 +184,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean showParticles = true;
         int baseCost = 15;
         double costFactor = 1;
         int maxLevel = 5;
