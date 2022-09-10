@@ -38,8 +38,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     public StealthGhostArmor() {
         super("stealth-ghost-armor");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Stealth","GhostArmor", "Description"));
-        setDisplayName(Adapt.dLocalize("Stealth","GhostArmor", "Name"));
+        setDescription(Adapt.dLocalize("Stealth", "GhostArmor", "Description"));
+        setDisplayName(Adapt.dLocalize("Stealth", "GhostArmor", "Name"));
         setIcon(Material.NETHERITE_CHESTPLATE);
         setInterval(5353);
         setBaseCost(getConfig().baseCost);
@@ -50,8 +50,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + " " +Adapt.dLocalize("Stealth","GhostArmor", "Lore1"));
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + " " +Adapt.dLocalize("Stealth","GhostArmor", "Lore2"));
+        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("Stealth", "GhostArmor", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + " " + Adapt.dLocalize("Stealth", "GhostArmor", "Lore2"));
     }
 
     public double getMaxArmorPoints(double factor) {
@@ -65,10 +65,10 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     @Override
     public void onTick() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if(!hasAdaptation(p)){
+            if (!hasAdaptation(p)) {
                 Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
                 for (AttributeModifier i : new ArrayList<>(c)) {
-                    if(i.getName().equals("adapt-ghost-armor")) {
+                    if (i.getName().equals("adapt-ghost-armor")) {
                         p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
                     }
                 }
@@ -79,45 +79,40 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
             armor = Double.isNaN(armor) ? 0 : armor;
 
 
-
-            if(oldArmor < armor)
-            {Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
+            if (oldArmor < armor) {
+                Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
                 for (AttributeModifier i : new ArrayList<>(c)) {
-                    if(i.getName().equals("adapt-ghost-armor")) {
+                    if (i.getName().equals("adapt-ghost-armor")) {
                         oldArmor = i.getAmount();
                         oldArmor = Double.isNaN(oldArmor) ? 0 : oldArmor;
                         p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
                     }
                 }
                 p.getAttribute(Attribute.GENERIC_ARMOR)
-                    .addModifier(new AttributeModifier("adapt-ghost-armor", Math.min(armor, oldArmor+getMaxArmorPerTick(getLevelPercent(p))), AttributeModifier.Operation.ADD_NUMBER));
-            }
-
-            else if(oldArmor > armor)
-            {Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
+                        .addModifier(new AttributeModifier("adapt-ghost-armor", Math.min(armor, oldArmor + getMaxArmorPerTick(getLevelPercent(p))), AttributeModifier.Operation.ADD_NUMBER));
+            } else if (oldArmor > armor) {
+                Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
                 for (AttributeModifier i : new ArrayList<>(c)) {
-                    if(i.getName().equals("adapt-ghost-armor")) {
+                    if (i.getName().equals("adapt-ghost-armor")) {
                         oldArmor = i.getAmount();
                         oldArmor = Double.isNaN(oldArmor) ? 0 : oldArmor;
                         p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
                     }
                 }
                 p.getAttribute(Attribute.GENERIC_ARMOR)
-                    .addModifier(new AttributeModifier("adapt-ghost-armor", armor, AttributeModifier.Operation.ADD_NUMBER));
+                        .addModifier(new AttributeModifier("adapt-ghost-armor", armor, AttributeModifier.Operation.ADD_NUMBER));
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(EntityDamageEvent e)
-    {
-        if(e.getEntity() instanceof Player p && hasAdaptation(p) && !e.isCancelled() && e.getDamage() > 0)
-        {
+    public void on(EntityDamageEvent e) {
+        if (e.getEntity() instanceof Player p && hasAdaptation(p) && !e.isCancelled() && e.getDamage() > 0) {
             xp(p, 2.5 * e.getDamage());
             J.s(() -> {
                 Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
                 for (AttributeModifier i : new ArrayList<>(c)) {
-                    if(i.getName().equals("adapt-ghost-armor")) {
+                    if (i.getName().equals("adapt-ghost-armor")) {
                         p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
                     }
                 }

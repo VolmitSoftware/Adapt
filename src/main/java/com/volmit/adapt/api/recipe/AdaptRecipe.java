@@ -30,14 +30,6 @@ import org.bukkit.inventory.*;
 import java.util.List;
 
 public interface AdaptRecipe {
-    ItemStack getResult();
-
-    String getKey();
-
-    default NamespacedKey getNSKey() {
-        return new NamespacedKey(Adapt.instance, getKey());
-    }
-
     static Shapeless.ShapelessBuilder shapeless() {
         return Shapeless.builder();
     }
@@ -68,6 +60,14 @@ public interface AdaptRecipe {
 
     static Campfire.CampfireBuilder campfire() {
         return Campfire.builder();
+    }
+
+    ItemStack getResult();
+
+    String getKey();
+
+    default NamespacedKey getNSKey() {
+        return new NamespacedKey(Adapt.instance, getKey());
     }
 
     void register();

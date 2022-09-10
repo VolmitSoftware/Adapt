@@ -23,7 +23,7 @@ public class SkyrimNewtonCurve implements NewtonCurve {
     public double getXPForLevel(double level) {
         double f = 0;
 
-        for(int i = 1; i < level; i++) {
+        for (int i = 1; i < level; i++) {
             f += getNextLevelCost(i);
         }
 

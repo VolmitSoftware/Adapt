@@ -41,11 +41,11 @@ import java.util.Map;
 import java.util.Set;
 
 public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Config> {
+    private static final BlockData AIR = Material.AIR.createBlockData();
+    private static final BlockData BLOCK = Material.TINTED_GLASS.createBlockData();
     private final Map<Player, Integer> blockPower;
     private final Map<Player, Long> cooldowns;
     private final Set<Player> active;
-    private static final BlockData AIR = Material.AIR.createBlockData();
-    private static final BlockData BLOCK = Material.TINTED_GLASS.createBlockData();
     private final Set<Block> activeBlocks;
 
     public ArchitectFoundation() {
@@ -226,11 +226,11 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @NoArgsConstructor
     protected static class Config {
-        boolean showParticles = true;
         public long duration = 3000;
         public int minBlocks = 9;
         public int maxBlocks = 35;
         public int cooldown = 5000;
+        boolean showParticles = true;
         boolean enabled = true;
         int baseCost = 5;
         int maxLevel = 5;

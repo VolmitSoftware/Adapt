@@ -49,7 +49,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     public NetherSkullYeet() {
         super("nether-skull-toss");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Nether", "SkullToss", "Description1") + C.ITALIC +" " + Adapt.dLocalize("Nether", "SkullToss", "Description2") + " " + C.GRAY + Adapt.dLocalize("Nether", "SkullToss", "Description3"));
+        setDescription(Adapt.dLocalize("Nether", "SkullToss", "Description1") + C.ITALIC + " " + Adapt.dLocalize("Nether", "SkullToss", "Description2") + " " + C.GRAY + Adapt.dLocalize("Nether", "SkullToss", "Description3"));
         setDisplayName(Adapt.dLocalize("Nether", "SkullToss", "Name"));
         setIcon(Material.WITHER_SKELETON_SKULL);
         setBaseCost(getConfig().baseCost);

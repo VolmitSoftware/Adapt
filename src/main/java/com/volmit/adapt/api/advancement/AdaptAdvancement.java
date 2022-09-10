@@ -58,13 +58,13 @@ public class AdaptAdvancement {
     }
 
     public Advancement toAdvancement(Advancement parent, int index, int depth) {
-        if(children == null) {
+        if (children == null) {
             children = new ArrayList<>();
         }
 
         AdvancementDisplay d = new AdvancementDisplay(getIcon(), getTitle(), getDescription(), getFrame(), getVisibility());
 
-        if(background != null) {
+        if (background != null) {
             d.setBackgroundTexture(getBackground());
         }
 
@@ -82,8 +82,8 @@ public class AdaptAdvancement {
         List<Advancement> aa = new ArrayList<>();
         Advancement a = toAdvancement(p, index, depth);
         int ind = 0;
-        if(children != null && !children.isEmpty()) {
-            for(AdaptAdvancement i : children) {
+        if (children != null && !children.isEmpty()) {
+            for (AdaptAdvancement i : children) {
                 aa.addAll(i.toAdvancements(a, aa.size(), depth + 1));
             }
         }

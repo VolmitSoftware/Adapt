@@ -49,7 +49,7 @@ public class CommandBoostPlayer extends MortarCommand {
             AdaptPlayer ap = Adapt.instance.getAdaptServer().getPlayer(sender.player());
 
             return true;
-        }  catch (Exception ignored) {
+        } catch (Exception ignored) {
             printHelp(sender);
             return true;
         }

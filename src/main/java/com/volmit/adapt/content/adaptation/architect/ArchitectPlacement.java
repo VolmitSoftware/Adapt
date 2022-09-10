@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Config> {
+    private final Map<Player, Map<Block, BlockFace>> totalMap = new HashMap<>();
+
     public ArchitectPlacement() {
         super("architect-placement");
         registerConfiguration(ArchitectPlacement.Config.class);
@@ -62,8 +64,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + Adapt.dLocalize("Architect", "Placement", "Lore3"));
     }
-
-    private final Map<Player, Map<Block, BlockFace>> totalMap = new HashMap<>();
 
     private BlockFace getBlockFace(Player player) {
         List<Block> lastTwoTargetBlocks = player.getLastTwoTargetBlocks(null, 5);

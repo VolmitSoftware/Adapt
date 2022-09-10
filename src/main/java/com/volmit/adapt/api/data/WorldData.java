@@ -36,6 +36,11 @@ import java.util.Map;
 
 public class WorldData extends TickedObject {
     private static final Map<World, WorldData> mantles = new HashMap<>();
+
+    static {
+        SpatialMatter.registerSliceType(new Earnings.EarningsMatter());
+    }
+
     private final World world;
     @Getter
     private final Mantle mantle;
@@ -46,10 +51,18 @@ public class WorldData extends TickedObject {
         mantle = new Mantle(Adapt.instance.getDataFolder("data", "mantle"), 256);
     }
 
+    public static void stop() {
+        mantles.v().forEach(WorldData::unregister);
+    }
+
+    public static WorldData of(World world) {
+        return mantles.computeIfAbsent(world, WorldData::new);
+    }
+
     public double getEarningsMultiplier(Block block) {
         Earnings e = mantle.get(block.getX(), block.getY(), block.getZ(), Earnings.class);
 
-        if(e == null) {
+        if (e == null) {
             return 1;
         }
 
@@ -60,7 +73,7 @@ public class WorldData extends TickedObject {
         Earnings e = mantle.get(block.getX(), block.getY(), block.getZ(), Earnings.class);
         e = e == null ? new Earnings(0) : e;
 
-        if(e.getEarnings() >= 127) {
+        if (e.getEarnings() >= 127) {
             return 1 / (double) (e.getEarnings() == 0 ? 1 : e.getEarnings());
         }
 
@@ -87,17 +100,5 @@ public class WorldData extends TickedObject {
     @Override
     public void onTick() {
         mantle.trim(60_000);
-    }
-
-    public static void stop() {
-        mantles.v().forEach(WorldData::unregister);
-    }
-
-    public static WorldData of(World world) {
-        return mantles.computeIfAbsent(world, WorldData::new);
-    }
-
-    static {
-        SpatialMatter.registerSliceType(new Earnings.EarningsMatter());
     }
 }

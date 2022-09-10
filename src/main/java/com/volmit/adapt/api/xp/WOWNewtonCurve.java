@@ -23,7 +23,7 @@ public class WOWNewtonCurve implements NewtonCurve {
     public double getXPForLevel(double level) {
         double f = 0;
 
-        for(int i = 1; i < level; i++) {
+        for (int i = 1; i < level; i++) {
             f += getNextLevelCost(i);
         }
 
@@ -39,11 +39,11 @@ public class WOWNewtonCurve implements NewtonCurve {
     }
 
     private double getDRF(double currentLevel) {
-        if(currentLevel >= 11 && currentLevel <= 27) {
+        if (currentLevel >= 11 && currentLevel <= 27) {
             return (1 - (currentLevel - 10) / 100);
         }
 
-        if(currentLevel >= 28 && currentLevel <= 59) {
+        if (currentLevel >= 28 && currentLevel <= 59) {
             return 0.82;
         }
 
@@ -51,16 +51,16 @@ public class WOWNewtonCurve implements NewtonCurve {
     }
 
     private double getDiff(double currentLevel) {
-        if(currentLevel <= 28) {
+        if (currentLevel <= 28) {
             return 0;
         }
-        if(currentLevel == 29) {
+        if (currentLevel == 29) {
             return 1;
         }
-        if(currentLevel == 30) {
+        if (currentLevel == 30) {
             return 3;
         }
-        if(currentLevel == 31) {
+        if (currentLevel == 31) {
             return 6;
         }
 

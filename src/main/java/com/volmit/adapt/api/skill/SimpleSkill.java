@@ -96,8 +96,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
             Adapt.instance.getTicker().register(new TickedObject("config", "config-" + getName(), 1000) {
                 @Override
                 public void onTick() {
-                    if(fw.checkModified() && file.exists())
-                    {
+                    if (fw.checkModified() && file.exists()) {
                         config = null;
                         getConfig();
                         Adapt.info("Hotloaded " + file.getPath());
@@ -111,14 +110,14 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     @Override
     public T getConfig() {
         try {
-            if(config == null) {
+            if (config == null) {
                 T dummy = getConfigurationClass().getConstructor().newInstance();
                 File l = Adapt.instance.getDataFile("adapt", "skills", getName() + ".json");
 
-                if(!l.exists()) {
+                if (!l.exists()) {
                     try {
                         IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
-                    } catch(IOException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                         config = dummy;
                         return config;
@@ -128,13 +127,13 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
                 try {
                     config = new Gson().fromJson(IO.readAll(l), getConfigurationClass());
                     IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
-                } catch(IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     config = dummy;
                     return config;
                 }
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
 
         }
 
@@ -163,19 +162,19 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         List<AdaptAdvancement> a = new ArrayList<>();
         onRegisterAdvancements(a);
 
-        for(Adaptation<?> i : getAdaptations()) {
+        for (Adaptation<?> i : getAdaptations()) {
             a.add(i.buildAdvancements());
         }
 
         return AdaptAdvancement.builder()
-            .background(getAdvancementBackground())
-            .key("skill_" + getName())
-            .title(displayName)
-            .description(getDescription())
-            .icon(getIcon())
-            .children(a)
-            .visibility(AdvancementVisibility.HIDDEN)
-            .build();
+                .background(getAdvancementBackground())
+                .key("skill_" + getName())
+                .title(displayName)
+                .description(getDescription())
+                .icon(getIcon())
+                .children(a)
+                .visibility(AdvancementVisibility.HIDDEN)
+                .build();
     }
 
     @Override
@@ -190,7 +189,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
     @Override
     public void registerAdaptation(Adaptation<?> a) {
-        if(!a.isEnabled()) {
+        if (!a.isEnabled()) {
             return;
         }
 

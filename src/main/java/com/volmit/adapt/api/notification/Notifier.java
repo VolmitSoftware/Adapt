@@ -55,7 +55,7 @@ public class Notifier extends TickedObject {
 
     public void notifyXP(String line, double value) {
         try {
-            if(!lastSkills.containsKey(line)) {
+            if (!lastSkills.containsKey(line)) {
                 lastSkillValues.put(line, 0d);
             }
 
@@ -66,30 +66,30 @@ public class Notifier extends TickedObject {
 
             StringBuilder sb = new StringBuilder();
 
-            for(String i : lastSkills.sortKNumber().reverse()) {
+            for (String i : lastSkills.sortKNumber().reverse()) {
                 Skill sk = getServer().getSkillRegistry().getSkill(i);
                 sb.append(i.equals(line) ? sk.getDisplayName() : sk.getShortName())
-                    .append(C.RESET).append(C.GRAY)
-                    .append(" +").append(C.WHITE)
-                    .append(line.equals(i) ? C.UNDERLINE : "")
-                    .append(Form.f(lastSkillValues.get(i).intValue()))
-                    .append(C.RESET).append(C.GRAY)
-                    .append("XP ");
+                        .append(C.RESET).append(C.GRAY)
+                        .append(" +").append(C.WHITE)
+                        .append(line.equals(i) ? C.UNDERLINE : "")
+                        .append(Form.f(lastSkillValues.get(i).intValue()))
+                        .append(C.RESET).append(C.GRAY)
+                        .append("XP ");
             }
 
-            while(lastSkills.size() > 5) {
+            while (lastSkills.size() > 5) {
                 String s = lastSkills.sortKNumber().reverse().get(0);
                 lastSkills.remove(s);
                 lastSkillValues.remove(s);
             }
 
             target.getActionBarNotifier().queue(ActionBarNotification.builder()
-                .duration(0)
-                .maxTTL(M.ms() + 100)
-                .title(sb.toString())
-                .group("xp")
-                .build());
-        } catch(Throwable e) {
+                    .duration(0)
+                    .maxTTL(M.ms() + 100)
+                    .title(sb.toString())
+                    .group("xp")
+                    .build());
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
@@ -106,35 +106,35 @@ public class Notifier extends TickedObject {
     public void onTick() {
         cleanupSkills();
 
-        if(busyTicks > 6) {
+        if (busyTicks > 6) {
             busyTicks = 6;
         }
 
-        if(busyTicks-- > 0) {
+        if (busyTicks-- > 0) {
             return;
         }
 
-        if(busyTicks < 0) {
+        if (busyTicks < 0) {
             busyTicks = 0;
         }
 
         delayTicks--;
-        if(delayTicks > 0) {
+        if (delayTicks > 0) {
             return;
         }
 
-        if(delayTicks < 0) {
+        if (delayTicks < 0) {
             delayTicks = 0;
         }
 
 
-        if(!isBusy()) {
+        if (!isBusy()) {
             cleanupStackedNotifications();
         }
 
         Notification n = queue.pop();
 
-        if(n == null) {
+        if (n == null) {
             return;
         }
 
@@ -148,8 +148,8 @@ public class Notifier extends TickedObject {
     }
 
     private void cleanupSkills() {
-        for(String i : lastSkills.k()) {
-            if(M.ms() - lastSkills.get(i) > 10000 || (M.ms() - lastInstance > 3100 && M.ms() - lastSkills.get(i) > 3100)) {
+        for (String i : lastSkills.k()) {
+            if (M.ms() - lastSkills.get(i) > 10000 || (M.ms() - lastInstance > 3100 && M.ms() - lastSkills.get(i) > 3100)) {
                 lastSkills.remove(i);
                 lastSkillValues.remove(i);
             }

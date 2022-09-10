@@ -60,7 +60,7 @@ public class AdvancementNotification implements Notification {
     }
 
     public String buildTitle() {
-        if(description.trim().isEmpty()) {
+        if (description.trim().isEmpty()) {
             return title;
         }
 

@@ -49,7 +49,7 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ (" + (2 + level) + C.GRAY + " + " +Adapt.dLocalize("Herbalism", "Hippo", "Lore1"));
+        v.addLore(C.GREEN + "+ (" + (2 + level) + C.GRAY + " + " + Adapt.dLocalize("Herbalism", "Hippo", "Lore1"));
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

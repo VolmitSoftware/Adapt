@@ -43,7 +43,7 @@ public class OmniTool implements MultiItem {
         lore.add("Leatherman (" + (otherItems.size() + 1) + " Items)");
         lore.add("-> " + Form.capitalizeWords(item.getType().name().toLowerCase().replaceAll("\\Q_\\E", " ")));
 
-        for(ItemStack i : otherItems) {
+        for (ItemStack i : otherItems) {
             lore.add("-  " + Form.capitalizeWords(i.getType().name().toLowerCase().replaceAll("\\Q_\\E", " ")));
         }
 

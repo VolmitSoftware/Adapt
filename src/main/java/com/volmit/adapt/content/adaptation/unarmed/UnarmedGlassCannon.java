@@ -33,8 +33,8 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
     public UnarmedGlassCannon() {
         super("unarmed-glass-cannon");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Unarmed","GlassCannon", "Description"));
-        setDisplayName(Adapt.dLocalize("Unarmed","GlassCannon", "Name"));
+        setDescription(Adapt.dLocalize("Unarmed", "GlassCannon", "Description"));
+        setDisplayName(Adapt.dLocalize("Unarmed", "GlassCannon", "Name"));
         setIcon(Material.DISC_FRAGMENT_5);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -46,8 +46,8 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + (getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier)) + C.GRAY + " " +Adapt.dLocalize("Unarmed","GlassCannon", "Lore1"));
-        v.addLore(C.GREEN + "+ " + Form.f(level * getConfig().perLevelBonusMultiplier) + C.GRAY + " " +Adapt.dLocalize("Unarmed","GlassCannon", "Lore2"));
+        v.addLore(C.GREEN + "+ " + (getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier)) + C.GRAY + " " + Adapt.dLocalize("Unarmed", "GlassCannon", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(level * getConfig().perLevelBonusMultiplier) + C.GRAY + " " + Adapt.dLocalize("Unarmed", "GlassCannon", "Lore2"));
     }
 
     @EventHandler

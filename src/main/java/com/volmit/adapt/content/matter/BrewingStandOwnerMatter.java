@@ -26,24 +26,22 @@ import java.io.IOException;
 import java.util.UUID;
 
 public class BrewingStandOwnerMatter extends RawMatter<BrewingStandOwner> {
-        public BrewingStandOwnerMatter(int w, int h, int d)
-        {
-            super(w,h,d,BrewingStandOwner.class);
-        }
-
-        public BrewingStandOwnerMatter()
-        {
-            this(1,1,1);
-        }
-
-        @Override
-        public void writeNode(BrewingStandOwner brewingStandOwner, DataOutputStream dataOutputStream) throws IOException {
-            dataOutputStream.writeLong(brewingStandOwner.getOwner().getMostSignificantBits());
-            dataOutputStream.writeLong(brewingStandOwner.getOwner().getLeastSignificantBits());
-        }
-
-        @Override
-        public BrewingStandOwner readNode(DataInputStream dataInputStream) throws IOException {
-            return new BrewingStandOwner(new UUID(dataInputStream.readLong(), dataInputStream.readLong()));
-        }
+    public BrewingStandOwnerMatter(int w, int h, int d) {
+        super(w, h, d, BrewingStandOwner.class);
     }
+
+    public BrewingStandOwnerMatter() {
+        this(1, 1, 1);
+    }
+
+    @Override
+    public void writeNode(BrewingStandOwner brewingStandOwner, DataOutputStream dataOutputStream) throws IOException {
+        dataOutputStream.writeLong(brewingStandOwner.getOwner().getMostSignificantBits());
+        dataOutputStream.writeLong(brewingStandOwner.getOwner().getLeastSignificantBits());
+    }
+
+    @Override
+    public BrewingStandOwner readNode(DataInputStream dataInputStream) throws IOException {
+        return new BrewingStandOwner(new UUID(dataInputStream.readLong(), dataInputStream.readLong()));
+    }
+}

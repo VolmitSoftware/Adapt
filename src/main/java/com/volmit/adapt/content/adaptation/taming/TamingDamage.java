@@ -44,8 +44,8 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     public TamingDamage() {
         super("tame-damage");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Taming","TameDamage", "Description"));
-        setDisplayName(Adapt.dLocalize("Taming","TameDamage", "Name"));
+        setDescription(Adapt.dLocalize("Taming", "TameDamage", "Description"));
+        setDisplayName(Adapt.dLocalize("Taming", "TameDamage", "Name"));
         setIcon(Material.FLINT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -56,7 +56,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDamageBoost(level), 0) + C.GRAY + " " +Adapt.dLocalize("Taming","TameDamage", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getDamageBoost(level), 0) + C.GRAY + " " + Adapt.dLocalize("Taming", "TameDamage", "Lore1"));
     }
 
     private double getDamageBoost(int level) {
@@ -65,13 +65,13 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
     @Override
     public void onTick() {
-        for(World i : Bukkit.getServer().getWorlds()) {
+        for (World i : Bukkit.getServer().getWorlds()) {
             J.s(() -> {
                 Collection<Tameable> gl = i.getEntitiesByClass(Tameable.class);
 
                 J.a(() -> {
-                    for(Tameable j : gl) {
-                        if(j.isTamed() && j.getOwner() instanceof Player p) {
+                    for (Tameable j : gl) {
+                        if (j.isTamed() && j.getOwner() instanceof Player p) {
                             update(j, getLevel(p));
                         }
                     }
@@ -88,7 +88,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
             return;
         }
 
-        if(level > 0) {
+        if (level > 0) {
             j.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(mod);
         }
     }

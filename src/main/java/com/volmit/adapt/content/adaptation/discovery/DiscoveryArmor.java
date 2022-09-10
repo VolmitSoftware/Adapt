@@ -54,7 +54,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("Discovery","DiscoveryArmor", "Lore1") + C.GRAY + ", " +Adapt.dLocalize("Discovery", "DiscoveryArmor", "Lore2"));
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("Discovery", "DiscoveryArmor", "Lore1") + C.GRAY + ", " + Adapt.dLocalize("Discovery", "DiscoveryArmor", "Lore2"));
         v.addLore(Adapt.dLocalize("Discovery", "DiscoveryArmor", "Lore3") + C.BLUE + level * 0.25);
     }
 

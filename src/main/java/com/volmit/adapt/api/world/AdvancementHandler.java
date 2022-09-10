@@ -50,15 +50,15 @@ public class AdvancementHandler {
         J.s(() -> {
             removeAllAdvancements();
 
-            for(Skill i : player.getServer().getSkillRegistry().getSkills()) {
+            for (Skill i : player.getServer().getSkillRegistry().getSkills()) {
                 AdaptAdvancement aa = i.buildAdvancements();
                 roots.put(i, aa);
 
-                for(Advancement j : aa.toAdvancements().reverse()) {
+                for (Advancement j : aa.toAdvancements().reverse()) {
                     real.put(j.getName().getKey(), j);
                     try {
                         getManager().addAdvancement(j);
-                    } catch(Throwable e) {
+                    } catch (Throwable e) {
                         Adapt.error("Failed to register advancement " + j.getName().getKey());
                         e.printStackTrace();
                     }
@@ -75,7 +75,7 @@ public class AdvancementHandler {
         getPlayer().getData().ensureGranted(key);
         J.s(() -> getManager().grantAdvancement(player.getPlayer(), real.get(key)), 5);
 
-        if(toast) {
+        if (toast) {
             real.get(key).displayToast(getPlayer().getPlayer());
         }
     }
@@ -85,13 +85,13 @@ public class AdvancementHandler {
     }
 
     private void unlockExisting(AdaptAdvancement aa) {
-        if(aa.getChildren() != null) {
-            for(AdaptAdvancement i : aa.getChildren()) {
+        if (aa.getChildren() != null) {
+            for (AdaptAdvancement i : aa.getChildren()) {
                 unlockExisting(i);
             }
         }
 
-        if(getPlayer().getData().isGranted(aa.getKey())) {
+        if (getPlayer().getData().isGranted(aa.getKey())) {
             J.s(() -> grant(aa.getKey(), false), 20);
         }
     }
@@ -101,7 +101,7 @@ public class AdvancementHandler {
     }
 
     public void removeAllAdvancements() {
-        for(Advancement i : getManager().getAdvancements()) {
+        for (Advancement i : getManager().getAdvancements()) {
             getManager().removeAdvancement(i);
         }
     }

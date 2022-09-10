@@ -87,16 +87,6 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
             if (e.getDamage() > 5) {
                 getSkill().xp(p, 0.42 * e.getDamage());
                 if (getConfig().showParticles) {
-
-
-
-
-
-
-
-
-
-                    
                     e.getEntity().getWorld().spawnParticle(Particle.FLASH, e.getEntity().getLocation(), 1);
                 }
             }

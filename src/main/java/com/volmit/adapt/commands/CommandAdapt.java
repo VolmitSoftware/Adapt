@@ -37,6 +37,7 @@ public class CommandAdapt extends MortarCommand {
     private CommandItem item = new CommandItem();
     @Command
     private CommandTest test = new CommandTest();
+
     public CommandAdapt() {
         super("adapt", "ada", "a");
     }

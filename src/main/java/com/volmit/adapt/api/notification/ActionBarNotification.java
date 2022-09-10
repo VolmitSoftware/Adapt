@@ -38,7 +38,7 @@ public class ActionBarNotification implements Notification {
 
     @Override
     public long getTotalDuration() {
-        if(M.ms() > maxTTL) {
+        if (M.ms() > maxTTL) {
             return 0;
         }
         return duration;
@@ -51,7 +51,7 @@ public class ActionBarNotification implements Notification {
 
     @Override
     public void play(AdaptPlayer p) {
-        if(M.ms() > maxTTL) {
+        if (M.ms() > maxTTL) {
             return;
         }
 

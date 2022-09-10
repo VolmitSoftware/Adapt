@@ -45,7 +45,7 @@ public interface MultiItem {
     default ItemStack build(ItemStack... stacks) {
         ItemStack s = stacks[0];
 
-        for(int i = 1; i < stacks.length; i++) {
+        for (int i = 1; i < stacks.length; i++) {
             add(s, stacks[i]);
         }
 
@@ -54,7 +54,7 @@ public interface MultiItem {
 
     default boolean remove(ItemStack multi, ItemStack toRemove) {
         int ind = getItems(multi).indexOf(toRemove);
-        if(ind == -1) {
+        if (ind == -1) {
             return false;
         }
 
@@ -62,26 +62,24 @@ public interface MultiItem {
         return true;
     }
 
-    default void remove(ItemStack multi, int index){
+    default void remove(ItemStack multi, int index) {
         List<ItemStack> it = getItems(multi);
         it.remove(index);
         setItems(multi, it);
     }
 
-    default void add(ItemStack multi, ItemStack item){
-        if(isMultiItem(item)) {
+    default void add(ItemStack multi, ItemStack item) {
+        if (isMultiItem(item)) {
             explode(item).forEach(i -> add(multi, i));
-        }
-
-        else {
+        } else {
             setItems(multi, getItems(multi).qadd(item));
         }
     }
 
     default ItemStack nextMatching(ItemStack item, Predicate<ItemStack> predicate) {
         List<ItemStack> items = getItems(item);
-        for(int i = 0; i < items.size(); i++) {
-            if(predicate.test(items[i])) {
+        for (int i = 0; i < items.size(); i++) {
+            if (predicate.test(items[i])) {
                 return switchTo(item, i);
             }
         }
@@ -110,9 +108,9 @@ public interface MultiItem {
     }
 
     default List<ItemStack> getItems(ItemStack multi) {
-        MultiItemData d =  getMultiItemData(multi);
+        MultiItemData d = getMultiItemData(multi);
 
-        if(d == null) {
+        if (d == null) {
             return new ArrayList<>();
         }
 
@@ -134,7 +132,7 @@ public interface MultiItem {
 
     default ItemStack getRealItem(ItemStack multi) {
         ItemStack c = multi.clone();
-        if(c.hasItemMeta()) {
+        if (c.hasItemMeta()) {
             ItemMeta meta = c.getItemMeta();
             meta.getPersistentDataContainer().remove(new NamespacedKey(Adapt.instance, getKey()));
             c.setItemMeta(meta);
@@ -149,9 +147,7 @@ public interface MultiItem {
             String st = meta.getPersistentDataContainer()
                     .get(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING);
             return BukkitGson.gson.fromJson(st, MultiItemData.class);
-        }
-
-        catch(Throwable e) {
+        } catch (Throwable e) {
             return null;
         }
     }
@@ -175,12 +171,12 @@ public interface MultiItem {
         @Singular
         List<String> rawItems;
 
-        void setItems(List<ItemStack> is) {
-            rawItems = is.stream().map(i -> NMS.get().serializeStack(i)).collect(Collectors.toList());
-        }
-
         List<ItemStack> getItems() {
             return rawItems.stream().map(i -> NMS.get().deserializeStack(i)).collect(Collectors.toList());
+        }
+
+        void setItems(List<ItemStack> is) {
+            rawItems = is.stream().map(i -> NMS.get().serializeStack(i)).collect(Collectors.toList());
         }
     }
 }

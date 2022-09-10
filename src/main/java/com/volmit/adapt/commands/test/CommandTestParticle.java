@@ -36,13 +36,13 @@ public class CommandTestParticle extends MortarCommand {
     @Override
     public boolean handle(MortarSender sender, String[] args) {
         J.sr(() -> J.attempt(() -> sender.player().spawnParticle(Particle.valueOf(args[0]),
-            sender.player().getLocation().clone().add(sender.player().getEyeLocation().getDirection().clone().multiply(7)), 3)), 0, 20);
+                sender.player().getLocation().clone().add(sender.player().getEyeLocation().getDirection().clone().multiply(7)), 3)), 0, 20);
         return true;
     }
 
     @Override
     public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
-        if(args.length < 2) {
+        if (args.length < 2) {
             String query = args.length == 1 ? args[0] : null;
             list.addAll(Arrays.stream(Particle.values()).filter(i -> query != null ? i.name().contains(query.toUpperCase(Locale.ROOT)) : true).map(i -> i.name()).collect(Collectors.toList()));
         }

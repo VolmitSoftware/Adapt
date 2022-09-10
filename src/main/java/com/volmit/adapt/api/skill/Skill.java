@@ -49,7 +49,7 @@ public interface Skill<T> extends Ticked, Component {
     T getConfig();
 
     String getName();
-    
+
     String getEmojiName();
 
     Material getIcon();
@@ -65,14 +65,14 @@ public interface Skill<T> extends Ticked, Component {
     List<AdaptStatTracker> getStatTrackers();
 
     default void checkStatTrackers(AdaptPlayer player) {
-        if(!player.getAdvancementHandler().isReady()) {
+        if (!player.getAdvancementHandler().isReady()) {
             return;
         }
 
         PlayerData d = player.getData();
 
-        for(AdaptStatTracker i : getStatTrackers()) {
-            if(!d.isGranted(i.getAdvancement()) && d.getStat(i.getStat()) >= i.getGoal()) {
+        for (AdaptStatTracker i : getStatTrackers()) {
+            if (!d.isGranted(i.getAdvancement()) && d.getStat(i.getStat()) >= i.getGoal()) {
                 player.getAdvancementHandler().grant(i.getAdvancement());
                 xp(player.getPlayer(), i.getReward());
             }
@@ -105,7 +105,7 @@ public interface Skill<T> extends Ticked, Component {
 
     default void xp(Player p, Location at, double xp) {
         XP.xp(p, this, xp);
-        if(xp > 50) {
+        if (xp > 50) {
             vfxXP(p, at, (int) xp);
         }
     }
@@ -113,7 +113,8 @@ public interface Skill<T> extends Ticked, Component {
     default void xpSilent(Player p, double xp) {
         try {
             XP.xpSilent(p, this, xp);
-        } catch (Exception ignored) { // Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.
+        } catch (
+                Exception ignored) { // Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.
         }
     }
 
@@ -135,25 +136,25 @@ public interface Skill<T> extends Ticked, Component {
 
         int ind = 0;
 
-        for(Adaptation i : getAdaptations()) {
+        for (Adaptation i : getAdaptations()) {
             int pos = w.getPosition(ind);
             int row = w.getRow(ind);
             int lvl = getPlayer(player).getData().getSkillLine(getName()).getAdaptationLevel(i.getName());
             w.setElement(pos, row, new UIElement("ada-" + i.getName())
-                .setMaterial(new MaterialBlock(i.getIcon()))
-                .setName(i.getDisplayName(lvl))
-                .addLore(Form.wrapWordsPrefixed(i.getDescription(), "" + C.GRAY, 45)) // Set to the actual Description
-                .addLore(lvl == 0 ? (C.DARK_GRAY + Adapt.dLocalize("Snippets", "GUI", "NotLearned")) : (C.GRAY + Adapt.dLocalize("Snippets", "GUI", "Level")+" " + C.WHITE + Form.toRoman(lvl)))
-                .setProgress(1D)
-                .onLeftClick((e) -> {
-                    w.close();
-                    i.openGui(player);
-                }));
+                    .setMaterial(new MaterialBlock(i.getIcon()))
+                    .setName(i.getDisplayName(lvl))
+                    .addLore(Form.wrapWordsPrefixed(i.getDescription(), "" + C.GRAY, 45)) // Set to the actual Description
+                    .addLore(lvl == 0 ? (C.DARK_GRAY + Adapt.dLocalize("Snippets", "GUI", "NotLearned")) : (C.GRAY + Adapt.dLocalize("Snippets", "GUI", "Level") + " " + C.WHITE + Form.toRoman(lvl)))
+                    .setProgress(1D)
+                    .onLeftClick((e) -> {
+                        w.close();
+                        i.openGui(player);
+                    }));
             ind++;
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Adapt.dLocalize("Snippets", "GUI", "XP")+" " + (a.getSkillLine(getName()).getLevel() + 1) + ")");
+        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Adapt.dLocalize("Snippets", "GUI", "XP") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")");
         w.onClosed((vv) -> J.s(() -> {
             player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
             player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);

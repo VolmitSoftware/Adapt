@@ -46,7 +46,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDamage(level), 0) + C.GRAY + " " +Adapt.dLocalize("Hunter", "Adrenaline", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getDamage(level), 0) + C.GRAY + " " + Adapt.dLocalize("Hunter", "Adrenaline", "Lore1"));
     }
 
     private double getDamage(int level) {
@@ -55,7 +55,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player p && hasAdaptation(p) &&getLevel((Player) e.getDamager()) > 0) {
+        if (e.getDamager() instanceof Player p && hasAdaptation(p) && getLevel((Player) e.getDamager()) > 0) {
             double damageMax = getDamage(getLevel(p));
             double hpp = ((Player) e.getDamager()).getHealth() / ((Player) e.getDamager()).getMaxHealth();
 

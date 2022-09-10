@@ -35,14 +35,14 @@ public class CommandTestSound extends MortarCommand {
     @Override
     public boolean handle(MortarSender sender, String[] args) {
         sender.player().playSound(sender.player(), Sound.valueOf(args[0])
-            , Float.parseFloat(args.length > 1 ? args[1] : "1")
-            , Float.parseFloat(args.length > 2 ? args[2] : "1"));
+                , Float.parseFloat(args.length > 1 ? args[1] : "1")
+                , Float.parseFloat(args.length > 2 ? args[2] : "1"));
         return true;
     }
 
     @Override
     public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
-        if(args.length < 2) {
+        if (args.length < 2) {
             String query = args.length == 1 ? args[0] : null;
             list.addAll(Arrays.stream(Sound.values()).filter(i -> query != null ? i.name().contains(query.toUpperCase(Locale.ROOT)) : true).map(i -> i.name()).collect(Collectors.toList()));
         }

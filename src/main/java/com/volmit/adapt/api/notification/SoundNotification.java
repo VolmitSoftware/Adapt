@@ -52,12 +52,12 @@ public class SoundNotification implements Notification {
         pitch = pitch < 0.1 ? (float) 0.1 : pitch;
 
         return SoundNotification.builder()
-            .sound(sound)
-            .isolation(isolation)
-            .predelay(predelay)
-            .volume(volume)
-            .pitch(pitch)
-            .build();
+                .sound(sound)
+                .isolation(isolation)
+                .predelay(predelay)
+                .volume(volume)
+                .pitch(pitch)
+                .build();
     }
 
     @Override

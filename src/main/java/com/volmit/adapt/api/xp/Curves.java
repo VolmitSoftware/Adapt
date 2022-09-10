@@ -51,6 +51,10 @@ public enum Curves {
     @Getter
     private final NewtonCurve curve;
 
+    Curves(NewtonCurve curve) {
+        this.curve = curve;
+    }
+
     private static NewtonCurve resolved(NewtonCurve c, NewtonCurve inverse) {
         return new ResolvedNewtonCurve() {
             @Override
@@ -63,9 +67,5 @@ public enum Curves {
                 return c.getXPForLevel(level);
             }
         };
-    }
-
-    Curves(NewtonCurve curve) {
-        this.curve = curve;
     }
 }

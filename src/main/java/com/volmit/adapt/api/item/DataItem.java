@@ -43,11 +43,11 @@ public interface DataItem<T> {
     }
 
     default T getData(ItemStack stack) {
-        if(stack != null
-            && stack.getType().equals(getMaterial())
-            && stack.getItemMeta() != null) {
+        if (stack != null
+                && stack.getType().equals(getMaterial())
+                && stack.getItemMeta() != null) {
             String r = stack.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING);
-            if(r != null) {
+            if (r != null) {
                 return BukkitGson.gson.fromJson(r, getType());
             }
         }
@@ -63,7 +63,7 @@ public interface DataItem<T> {
         ItemStack item = blank();
         ItemMeta meta = item.getItemMeta();
 
-        if(meta == null) {
+        if (meta == null) {
             return null;
         }
 

@@ -37,29 +37,6 @@ import java.util.List;
 public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
     public static KnowledgeOrb io = new KnowledgeOrb();
 
-    @Override
-    public Material getMaterial() {
-        return Material.SNOWBALL;
-    }
-
-    @Override
-    public Class<Data> getType() {
-        return KnowledgeOrb.Data.class;
-    }
-
-    @Override
-    public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Adapt.dLocalize("Snippets", "KnowledgeOrb", "Contains") + " " + C.UNDERLINE + C.WHITE + "" + data.knowledge + " " + Adapt.dLocalize("Snippets", "KnowledgeOrb", "Knowledge"));
-        lore.add(C.LIGHT_PURPLE + Adapt.dLocalize("Snippets", "KnowledgeOrb", "RightClick") + " " + C.GRAY + Adapt.dLocalize("Snippets", "KnowledgeOrb", "ToGainKnowledge"));
-    }
-
-    @Override
-    public void applyMeta(Data data, ItemMeta meta) {
-        meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " " + Adapt.dLocalize("Snippets", "KnowledgeOrb", "KnowledgeOrb"));
-    }
-
     public static Data get(ItemStack is) {
         return io.getData(is);
     }
@@ -86,6 +63,29 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
 
     public static ItemStack with(String skill, int knowledge) {
         return io.withData(new Data(skill, knowledge));
+    }
+
+    @Override
+    public Material getMaterial() {
+        return Material.SNOWBALL;
+    }
+
+    @Override
+    public Class<Data> getType() {
+        return KnowledgeOrb.Data.class;
+    }
+
+    @Override
+    public void applyLore(Data data, List<String> lore) {
+        lore.add(C.WHITE + Adapt.dLocalize("Snippets", "KnowledgeOrb", "Contains") + " " + C.UNDERLINE + C.WHITE + "" + data.knowledge + " " + Adapt.dLocalize("Snippets", "KnowledgeOrb", "Knowledge"));
+        lore.add(C.LIGHT_PURPLE + Adapt.dLocalize("Snippets", "KnowledgeOrb", "RightClick") + " " + C.GRAY + Adapt.dLocalize("Snippets", "KnowledgeOrb", "ToGainKnowledge"));
+    }
+
+    @Override
+    public void applyMeta(Data data, ItemMeta meta) {
+        meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " " + Adapt.dLocalize("Snippets", "KnowledgeOrb", "KnowledgeOrb"));
     }
 
     @AllArgsConstructor

@@ -38,8 +38,8 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
     public RangedPiercing() {
         super("ranged-piercing");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Ranged","ArrowPiercing", "Description"));
-        setDisplayName(Adapt.dLocalize("Ranged","ArrowPiercing", "Name"));
+        setDescription(Adapt.dLocalize("Ranged", "ArrowPiercing", "Description"));
+        setDisplayName(Adapt.dLocalize("Ranged", "ArrowPiercing", "Name"));
         setIcon(Material.SHEARS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -50,15 +50,15 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + " " +Adapt.dLocalize("Ranged","ArrowPiercing", "Lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + " " + Adapt.dLocalize("Ranged", "ArrowPiercing", "Lore1"));
     }
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
-        if(e.getEntity().getShooter() instanceof Player p) {
-            if(e.getEntity() instanceof AbstractArrow a) {
+        if (e.getEntity().getShooter() instanceof Player p) {
+            if (e.getEntity() instanceof AbstractArrow a) {
                 xp(p, 5);
-                if(getLevel(p) > 0) {
+                if (getLevel(p) > 0) {
                     a.setPierceLevel(((AbstractArrow) e.getEntity()).getPierceLevel() + getLevel(p));
                 }
             }

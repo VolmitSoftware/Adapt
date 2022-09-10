@@ -40,10 +40,9 @@ public final class NMS {
         version = Bukkit.getBukkitVersion().split("-")[0];
         impl = VERSIONS.getOrDefault(version(), new NMS_Default());
 
-        if(impl instanceof NMS_Default) {
+        if (impl instanceof NMS_Default) {
             Adapt.error("Failed to bind NMS for Version " + version() + "!");
-        }
-        else {
+        } else {
             Adapt.info("Successfully bound NMS for Version " + version() + ".");
         }
     }

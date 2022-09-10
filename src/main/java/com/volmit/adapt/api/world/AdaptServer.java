@@ -64,11 +64,11 @@ public class AdaptServer extends TickedObject {
         players = new HashMap<>();
         try {
             skillRegistry = new SkillRegistry();
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        for(Player i : Bukkit.getServer().getOnlinePlayers()) {
+        for (Player i : Bukkit.getServer().getOnlinePlayers()) {
             join(i);
         }
     }
@@ -81,23 +81,23 @@ public class AdaptServer extends TickedObject {
         J.attempt(() -> {
             SpatialXP x = spatialTickets.getRandom();
 
-            if(x == null) {
+            if (x == null) {
                 return;
             }
 
-            if(M.ms() > x.getMs()) {
+            if (M.ms() > x.getMs()) {
                 spatialTickets.remove(x);
                 return;
             }
 
-            if(p.getPlayer().getWorld().equals(x.getLocation().getWorld())) {
+            if (p.getPlayer().getWorld().equals(x.getLocation().getWorld())) {
                 double c = p.getPlayer().getLocation().distanceSquared(x.getLocation());
-                if(c < x.getRadius() * x.getRadius()) {
+                if (c < x.getRadius() * x.getRadius()) {
                     double distl = M.lerpInverse(0, x.getRadius() * x.getRadius(), c);
                     double xp = x.getXp() / (1.5D * ((distl * 9) + 1));
                     x.setXp(x.getXp() - xp);
 
-                    if(x.getXp() < 10) {
+                    if (x.getXp() < 10) {
                         xp += x.getXp();
                         spatialTickets.remove(x);
                     }
@@ -109,21 +109,21 @@ public class AdaptServer extends TickedObject {
     }
 
     public void join(Player p) {
-        if(!players.containsKey(p)) {
+        if (!players.containsKey(p)) {
             players.put(p, new AdaptPlayer(p));
             players.get(p).loggedIn();
         }
     }
 
     public void quit(Player p) {
-        if(players.containsKey(p)) {
+        if (players.containsKey(p)) {
             players.remove(p).unregister();
         }
     }
 
     @Override
     public void unregister() {
-        for(Player i : players.k()) {
+        for (Player i : players.k()) {
             quit(i);
         }
         skillRegistry.unregister();
@@ -131,8 +131,7 @@ public class AdaptServer extends TickedObject {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(ProjectileLaunchEvent e)
-    {
+    public void on(ProjectileLaunchEvent e) {
         if (e.getEntity() instanceof Snowball s && e.getEntity().getShooter() instanceof Player p) {
             KnowledgeOrb.Data data = KnowledgeOrb.get(s.getItem());
             if (data != null) {
@@ -161,7 +160,7 @@ public class AdaptServer extends TickedObject {
                     SoundNotification.builder()
                             .sound(Sound.ENTITY_SHULKER_OPEN)
                             .volume(1f).pitch(1.655f)
-                        .build().play(getPlayer(p));
+                            .build().play(getPlayer(p));
                 }
             }
             e.setCancelled(false);
@@ -182,10 +181,10 @@ public class AdaptServer extends TickedObject {
 
     @EventHandler
     public void on(CraftItemEvent e) {
-        if(e.getWhoClicked() instanceof Player p) {
-            for(Skill<?> i : getSkillRegistry().getSkills()) {
-                for(Adaptation<?> j : i.getAdaptations()) {
-                    if(j.isAdaptationRecipe(e.getRecipe()) && !j.hasAdaptation(p)) {
+        if (e.getWhoClicked() instanceof Player p) {
+            for (Skill<?> i : getSkillRegistry().getSkills()) {
+                for (Adaptation<?> j : i.getAdaptations()) {
+                    if (j.isAdaptationRecipe(e.getRecipe()) && !j.hasAdaptation(p)) {
                         Adapt.actionbar(p, C.RED + "Requires " + j.getDisplayName() + C.RED + " from " + i.getDisplayName());
                         p.playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.5f, 1.8f);
                         e.setCancelled(true);
@@ -197,29 +196,27 @@ public class AdaptServer extends TickedObject {
 
     @Override
     public void onTick() {
-        synchronized(spatialTickets) {
-            for(int i = 0; i < spatialTickets.size(); i++) {
-                if(M.ms() > spatialTickets.get(i).getMs()) {
+        synchronized (spatialTickets) {
+            for (int i = 0; i < spatialTickets.size(); i++) {
+                if (M.ms() > spatialTickets.get(i).getMs()) {
                     spatialTickets.remove(i);
                 }
             }
         }
     }
 
-    public PlayerData peekData(UUID player)
-    {
-        if(Bukkit.getPlayer(player) != null)
-        {
+    public PlayerData peekData(UUID player) {
+        if (Bukkit.getPlayer(player) != null) {
             return getPlayer(Bukkit.getPlayer(player)).getData();
         }
 
-        
+
         File f = new File(Bukkit.getServer().getPluginManager().getPlugin(Adapt.instance.getName()).getDataFolder() + File.separator + "data" + File.separator + "players" + File.separator + player + ".json");
 
-        if(f.exists()) {
+        if (f.exists()) {
             try {
                 return new Gson().fromJson(IO.readAll(f), PlayerData.class);
-            } catch(Throwable ignored) {
+            } catch (Throwable ignored) {
 
             }
         }

@@ -44,17 +44,16 @@ public class ScaffoldMatter extends RawMatter<ScaffoldMatter.ScaffoldData> {
     @Override
     public ScaffoldData readNode(DataInputStream din) throws IOException {
         return ScaffoldData.builder()
-            .uuid(new UUID(din.readLong(), din.readLong()))
-            .time(din.readLong())
-            .build();
+                .uuid(new UUID(din.readLong(), din.readLong()))
+                .time(din.readLong())
+                .build();
     }
 
     @Data
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ScaffoldData
-    {
+    public static class ScaffoldData {
         private UUID uuid;
         @Builder.Default
         private long time = 0;

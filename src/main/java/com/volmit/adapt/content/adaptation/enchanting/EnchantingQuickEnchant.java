@@ -64,7 +64,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getTotalLevelCount(level) + C.GRAY + " " +Adapt.dLocalize("Enchanting", "QuickEnchant", "Lore1"));
+        v.addLore(C.GREEN + "+ " + getTotalLevelCount(level) + C.GRAY + " " + Adapt.dLocalize("Enchanting", "QuickEnchant", "Lore1"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -110,7 +110,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
             }
 
             if (power > getTotalLevelCount(getLevel(p))) {
-                Adapt.actionbar(p, C.RED + Adapt.dLocalize("Enchanting","QuickEnchant", "Lore2") + getTotalLevelCount(getLevel(p)) + " " +Adapt.dLocalize("Enchanting","QuickEnchant", "Lore3"));
+                Adapt.actionbar(p, C.RED + Adapt.dLocalize("Enchanting", "QuickEnchant", "Lore2") + getTotalLevelCount(getLevel(p)) + " " + Adapt.dLocalize("Enchanting", "QuickEnchant", "Lore3"));
                 p.playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.7f);
                 return;
             }

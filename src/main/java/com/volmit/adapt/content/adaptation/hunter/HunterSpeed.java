@@ -47,9 +47,9 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
     public void addStats(int level, Element v) {
         v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterSpeed", "Lore1"));
         v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterSpeed", "Lore2"));
-        v.addLore(C.RED + "- " + 5+level + C.GRAY + Adapt.dLocalize("Hunter", "HunterSpeed", "Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterSpeed", "Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " +Adapt.dLocalize("Hunter", "HunterSpeed", "Lore5"));
+        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterSpeed", "Lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "HunterSpeed", "Lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "HunterSpeed", "Lore5"));
         v.addLore(C.GRAY + "- " + level + C.RED + " " + Adapt.dLocalize("Hunter", "GenericPenalty", "Lore1"));
 
     }

@@ -50,8 +50,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     public RiftAccess() {
         super("rift-access");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Rift","RemoteAccess", "Description"));
-        setDisplayName(Adapt.dLocalize("Rift","RemoteAccess", "Name"));
+        setDescription(Adapt.dLocalize("Rift", "RemoteAccess", "Description"));
+        setDisplayName(Adapt.dLocalize("Rift", "RemoteAccess", "Name"));
         setMaxLevel(1);
         setIcon(Material.NETHER_STAR);
         setBaseCost(getConfig().baseCost);
@@ -68,9 +68,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RemoteAccess", "Lore1"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RemoteAccess", "Lore2"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("Rift","RemoteAccess", "Lore3"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Rift", "RemoteAccess", "Lore1"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Rift", "RemoteAccess", "Lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("Rift", "RemoteAccess", "Lore3"));
     }
 
 
@@ -108,7 +108,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                     }
                 } else if (block != null && !isStorage(block.getBlockData())) {
                     if (p.isSneaking()) { //(Sneak NOT Container)
-                        p.sendMessage(C.LIGHT_PURPLE + Adapt.dLocalize("Rift","RemoteAccess", "NotContainer"));
+                        p.sendMessage(C.LIGHT_PURPLE + Adapt.dLocalize("Rift", "RemoteAccess", "NotContainer"));
                     } else if (!p.isSneaking() && isBound(hand)) {
                         openPearl(p);
                     }

@@ -32,7 +32,7 @@ public class Earnings {
     private final int earnings;
 
     public Earnings increment() {
-        if(earnings >= 127) {
+        if (earnings >= 127) {
             return this;
         }
 
