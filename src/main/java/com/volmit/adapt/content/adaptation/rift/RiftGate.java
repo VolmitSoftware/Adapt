@@ -137,8 +137,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
         p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
         p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
-        p.playSound(l, Sound.BLOCK_LODESTONE_PLACE, 100f, 0.1f);
-        p.playSound(l, Sound.BLOCK_BELL_RESONATE, 100f, 0.1f);
+        p.playSound(l, Sound.BLOCK_LODESTONE_PLACE, 1f, 0.1f);
+        p.playSound(l, Sound.BLOCK_BELL_RESONATE, 1f, 0.1f);
         J.a(() -> {
             double d = 2;
             double pcd = 1000;
