@@ -29,6 +29,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import xyz.xenondevs.particle.ParticleEffect;
@@ -70,7 +71,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(EntityDeathEvent e) {
         lastDamage.remove(e.getEntity().getUniqueId());
     }

@@ -71,7 +71,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
         if (e.isCancelled()) {
             return;

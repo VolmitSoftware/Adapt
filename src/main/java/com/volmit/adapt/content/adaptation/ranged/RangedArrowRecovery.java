@@ -30,6 +30,7 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
@@ -96,7 +97,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(EntityDeathEvent e) {
         Integer c = arrows.remove(e.getEntity().getUniqueId());
 

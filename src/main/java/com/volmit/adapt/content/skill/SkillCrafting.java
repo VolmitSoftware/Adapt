@@ -152,7 +152,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         return resultCount * materialCount;
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(FurnaceSmeltEvent e) {
         if (e.isCancelled()) {
             return;

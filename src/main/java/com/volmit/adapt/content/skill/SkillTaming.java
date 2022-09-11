@@ -30,6 +30,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
@@ -47,7 +48,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         registerAdaptation(new TamingHealthRegeneration());
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(EntityBreedEvent e) {
         if (e.isCancelled()) {
             return;
@@ -60,7 +61,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (e.isCancelled()) {
             return;

@@ -148,8 +148,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
             activeViews.add(p.openInventory(holder.getInventory()));
             if (getConfig().showParticles) {
 
-                p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 100f, 0.10f);
-                p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 100f, 0.10f);
+                p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+                p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
             }
         }
     }

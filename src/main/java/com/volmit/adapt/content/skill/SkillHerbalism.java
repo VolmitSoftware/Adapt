@@ -97,7 +97,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(getConfig().challengeHarvest1kReward).build());
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerItemConsumeEvent e) {
         if (e.isCancelled()) {
             return;
@@ -112,7 +112,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         getPlayer(e.getPlayer()).getData().addStat("food.eaten", 1);
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerShearEntityEvent e) {
         if (e.isCancelled()) {
             return;

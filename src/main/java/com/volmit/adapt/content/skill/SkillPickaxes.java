@@ -70,7 +70,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
         if (e.isCancelled()) {
             return;
