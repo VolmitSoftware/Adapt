@@ -35,6 +35,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
@@ -55,7 +56,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         registerAdaptation(new ArchitectPlacement());
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
         if (e.isCancelled()) {
             return;
@@ -70,7 +71,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
         if (e.isCancelled()) {
             return;

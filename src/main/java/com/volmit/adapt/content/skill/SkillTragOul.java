@@ -30,6 +30,7 @@ import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
@@ -47,7 +48,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     }
 
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
@@ -61,7 +62,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerDeathEvent e) {
         if (getConfig().takeAwaySkillsOnDeath) {
             if (getConfig().showParticles) {

@@ -33,6 +33,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
@@ -53,7 +54,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         SpatialMatter.registerSliceType(new BrewingStandOwnerMatter());
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerItemConsumeEvent e) {
         if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
             return;
@@ -71,7 +72,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PotionSplashEvent e) {
         if (e.getPotion().getShooter() instanceof Player p) {
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
@@ -83,7 +84,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
         if (e.isCancelled()) {
             return;
@@ -98,7 +99,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
         if (e.isCancelled()) {
             return;
