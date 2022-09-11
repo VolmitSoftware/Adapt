@@ -84,7 +84,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;
             }
-            seeItem((Player) e.getEntity(), e.getItem().getItemStack());
+            seeItem(p, e.getItem().getItemStack());
         }
     }
 

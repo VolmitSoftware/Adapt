@@ -55,8 +55,8 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                 AdaptPlayer a = getPlayer(p);
                 xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
 
-            } else if (e.getEntity().getType() == EntityType.PLAYER) {
-                AdaptPlayer a = getPlayer((Player) e.getEntity());
+            } else if (e.getEntity() instanceof Player p) {
+                AdaptPlayer a = getPlayer(p);
                 xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
             }
         }
