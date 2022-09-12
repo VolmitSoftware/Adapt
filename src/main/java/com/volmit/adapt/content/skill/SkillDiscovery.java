@@ -68,7 +68,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         seeWorld(p, p.getWorld());
@@ -83,7 +83,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         seeEntity(p, e.getRightClicked());
@@ -98,7 +98,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             return;
         }
         if (e.getEntity() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
                 return;
             }
             seeItem(p, e.getItem().getItemStack());
@@ -114,7 +114,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
-            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
                 return;
             }
             try {
@@ -138,7 +138,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         seeItem(p, e.getItem());
@@ -154,7 +154,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         if (e.getClickedBlock() != null) {
@@ -168,7 +168,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         if (e.getAmount() > 0 && getLevel(p) > 0) {

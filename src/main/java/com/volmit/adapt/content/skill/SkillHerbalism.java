@@ -110,7 +110,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (e.getItem().getItemMeta() instanceof PotionMeta o) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         xp(p, getConfig().foodConsumeXP);
@@ -126,7 +126,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         xp(p, e.getEntity().getLocation(), getConfig().shearXP);
@@ -141,7 +141,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         if (e.getHarvestedBlock().getBlockData() instanceof Ageable) {
@@ -159,7 +159,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         if (e.getBlock().getBlockData() instanceof Ageable) {
@@ -177,7 +177,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         if (e.useItemInHand().equals(Event.Result.DENY)) {
@@ -211,7 +211,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         if (e.getBlock().getType().equals(Material.CACTUS)) {

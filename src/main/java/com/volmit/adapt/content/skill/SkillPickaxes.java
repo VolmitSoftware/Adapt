@@ -59,7 +59,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                 if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                     return;
                 }
-                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
                     return;
                 }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
@@ -82,7 +82,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         if (isPickaxe(p.getInventory().getItemInMainHand())) {

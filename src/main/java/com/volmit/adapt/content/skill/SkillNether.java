@@ -61,7 +61,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             return;
         }
         if (e.getCause() == EntityDamageEvent.DamageCause.WITHER && e.getEntity() instanceof Player p && !(e instanceof EntityDamageByBlockEvent)) {
-            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
                 return;
             }
             xp(p, getConfig().getWitherDamageXp());
@@ -77,7 +77,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         if (e.getBlock().getType() == Material.WITHER_ROSE && witherRoseCooldown == 0) {
@@ -93,7 +93,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
-            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
                 return;
             }
             if (e.getEntityType() == EntityType.WITHER_SKELETON) {
@@ -116,7 +116,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
-            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
                 return;
             }
             xp(p, getConfig().getWitherAttackXp());

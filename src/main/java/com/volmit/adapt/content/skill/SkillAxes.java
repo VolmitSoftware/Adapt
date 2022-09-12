@@ -29,6 +29,7 @@ import com.volmit.adapt.content.adaptation.axe.AxeLeafVeinminer;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,7 +63,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
                 if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                     return;
                 }
-                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
                     return;
                 }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
@@ -87,7 +88,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             return;
         }
 
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         if (isAxe(p.getInventory().getItemInMainHand())) {

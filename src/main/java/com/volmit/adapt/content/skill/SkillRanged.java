@@ -61,7 +61,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
-            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
                 return;
             }
             xp(p, getConfig().shootXP);
@@ -80,7 +80,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
-            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+            if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
                 return;
             }
             getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
