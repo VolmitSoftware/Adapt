@@ -64,7 +64,7 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
         if (e.isCancelled()) {
             return;
         }
-        Player p = e.getPlayer();;
+        Player p = e.getPlayer();
         if (!hasAdaptation(p)) {
             return;
         }

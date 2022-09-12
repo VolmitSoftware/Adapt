@@ -85,7 +85,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
             return;
         }
 
-        Player p = e.getPlayer();;
+        Player p = e.getPlayer();
 
         if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(p)) {
             p.playSound(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);

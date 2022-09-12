@@ -51,7 +51,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
@@ -69,7 +69,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
         if (!e.isCancelled()) {

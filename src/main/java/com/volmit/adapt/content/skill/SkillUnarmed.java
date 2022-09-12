@@ -48,7 +48,7 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         setIcon(Material.FIRE_CHARGE);
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {

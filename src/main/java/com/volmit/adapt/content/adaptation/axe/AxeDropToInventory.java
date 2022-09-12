@@ -64,7 +64,7 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
         if (e.isCancelled()) {
             return;
         }
-        Player p = e.getPlayer();;
+        Player p = e.getPlayer();
         if (!hasAdaptation(p)) {
             return;
         }

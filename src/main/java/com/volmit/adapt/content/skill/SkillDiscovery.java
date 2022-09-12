@@ -62,7 +62,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         registerAdaptation(new DiscoveryXpResist());
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerChangedWorldEvent e) {
         Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
@@ -71,7 +71,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         seeWorld(p, p.getWorld());
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractAtEntityEvent e) {
         Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
@@ -80,7 +80,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         seeEntity(p, e.getRightClicked());
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityPickupItemEvent e) {
         if (e.getEntity() instanceof Player p) {
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
@@ -90,7 +90,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(CraftItemEvent e) {
         if (e.isCancelled()) {
             return;
@@ -111,12 +111,12 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerItemConsumeEvent e) {
-        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
+        Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -124,12 +124,12 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         seeFood(p, e.getItem().getType());
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
+        Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -138,7 +138,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerExpChangeEvent e) {
         Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {

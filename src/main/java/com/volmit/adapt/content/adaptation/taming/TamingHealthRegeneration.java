@@ -71,7 +71,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDeathEvent e) {
         lastDamage.remove(e.getEntity().getUniqueId());
     }

@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Config> {
-    private final Map<Player, Map<Block, BlockFace>> totalMap = new HashMap<>();
+    private final HashMap<Player, Map<Block, BlockFace>> totalMap = new HashMap<>();
 
     public ArchitectPlacement() {
         super("architect-placement");
@@ -125,7 +125,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
-        Player p = e.getPlayer();;
+        Player p = e.getPlayer();
         if (hasAdaptation(p) && p.isSneaking()) {
             totalMap.remove(p);
         }
@@ -144,7 +144,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @EventHandler
     public void on(PlayerMoveEvent e) {
-        Player p = e.getPlayer();;
+        Player p = e.getPlayer();
         if (hasAdaptation(p) && !p.isSneaking()) {
             totalMap.remove(p);
         }

@@ -67,7 +67,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         if (e.isCancelled()) {
             return;
         }
-        Player p = e.getPlayer();;
+        Player p = e.getPlayer();
         if (!hasAdaptation(p)) {
             return;
         }

@@ -98,12 +98,12 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(getConfig().challengeHarvest1kReward).build());
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerItemConsumeEvent e) {
-        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
+        Player p = e.getPlayer();
         if (e.getItem().getItemMeta() instanceof PotionMeta o) {
             return;
         }
@@ -114,12 +114,12 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         getPlayer(p).getData().addStat("food.eaten", 1);
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerShearEntityEvent e) {
-        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
+        Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -128,10 +128,10 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerHarvestBlockEvent e) {
-        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
+        Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -143,10 +143,10 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
-        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
+        Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -187,10 +187,10 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
+        Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }

@@ -45,7 +45,7 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         registerAdaptation(new EnchantingXPReturn()); //
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EnchantItemEvent e) {
         if (e.isCancelled()) {
             return;

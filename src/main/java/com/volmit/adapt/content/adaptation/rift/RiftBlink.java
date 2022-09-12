@@ -78,7 +78,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerToggleFlightEvent e) {
-        Player p = e.getPlayer();;
+        Player p = e.getPlayer();
         if (hasAdaptation(p) && p.getGameMode().equals(GameMode.SURVIVAL)) {
             e.setCancelled(true);
             p.setAllowFlight(false);
@@ -142,7 +142,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     @EventHandler
     public void on(PlayerMoveEvent e) {
-        Player p = e.getPlayer();;
+        Player p = e.getPlayer();
         if (hasAdaptation(p) && p.getGameMode().equals(GameMode.SURVIVAL)) {
 
 

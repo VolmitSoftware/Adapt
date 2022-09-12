@@ -224,6 +224,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockDamageEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (!hasAdaptation(p)) {
             return;

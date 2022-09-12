@@ -56,12 +56,12 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         registerAdaptation(new ArchitectPlacement());
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
-        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
+        Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -72,12 +72,12 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
+        Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }

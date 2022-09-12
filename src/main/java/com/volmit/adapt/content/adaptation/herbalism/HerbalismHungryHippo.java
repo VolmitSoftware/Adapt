@@ -54,7 +54,7 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void on(PlayerItemConsumeEvent e) {
-        Player p = e.getPlayer();;
+        Player p = e.getPlayer();
         if (!hasAdaptation(p)) {
             return;
         }

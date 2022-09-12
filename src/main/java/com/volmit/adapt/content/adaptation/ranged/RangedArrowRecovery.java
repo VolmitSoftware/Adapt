@@ -97,7 +97,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDeathEvent e) {
         Integer c = arrows.remove(e.getEntity().getUniqueId());
 

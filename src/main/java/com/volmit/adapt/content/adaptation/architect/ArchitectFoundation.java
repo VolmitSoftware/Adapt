@@ -116,6 +116,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerToggleSneakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (!hasAdaptation(p) || p.getGameMode().equals(GameMode.CREATIVE)
                 || p.getGameMode().equals(GameMode.SPECTATOR)) {
@@ -210,7 +213,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         return cooldowns.containsKey(i);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
         if (!hasAdaptation(p)) {

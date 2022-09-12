@@ -26,8 +26,10 @@ import com.volmit.adapt.content.adaptation.tragoul.TragoulThorns;
 import com.volmit.adapt.util.C;
 import de.slikey.effectlib.effect.CloudEffect;
 import lombok.NoArgsConstructor;
-import org.bukkit.*;
-import org.bukkit.entity.EntityType;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -48,7 +50,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     }
 
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
@@ -62,7 +64,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerDeathEvent e) {
         if (getConfig().takeAwaySkillsOnDeath) {
             if (getConfig().showParticles) {

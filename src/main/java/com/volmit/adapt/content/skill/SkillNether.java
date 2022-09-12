@@ -52,7 +52,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         registerAdaptation(new NetherSkullYeet());
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent e) {
         if (e.isCancelled()) {
             return;
@@ -65,12 +65,12 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockBreak(BlockBreakEvent e) {
-        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
+        Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -80,7 +80,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDeath(EntityDeathEvent e) {
         if (e.getEntity().getKiller() != null) {
             Player p = e.getEntity().getKiller();
@@ -95,7 +95,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageByEntityEvent e) {
         if (e.isCancelled()) {
             return;

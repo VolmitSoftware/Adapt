@@ -60,10 +60,10 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerTeleportEvent e) {
-        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
+        Player p = e.getPlayer();
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -76,7 +76,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(ProjectileLaunchEvent e) {
         if (e.isCancelled()) {
             return;
@@ -94,7 +94,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (e.isCancelled()) {
             return;
@@ -150,7 +150,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDeathEvent e) {
         if (e.getEntity() instanceof EnderCrystal && e.getEntity().getKiller() != null) {
             if (!AdaptConfig.get().isXpInCreative() && e.getEntity().getKiller().getGameMode().name().contains("CREATIVE")) {
@@ -160,7 +160,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         lasttp.remove(p);

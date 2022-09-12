@@ -71,7 +71,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-        Player p = e.getPlayer();;
+        Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
         if (hand.getItemMeta() == null || hand.getItemMeta().getLore() == null || !hasAdaptation(p)) {
             return;

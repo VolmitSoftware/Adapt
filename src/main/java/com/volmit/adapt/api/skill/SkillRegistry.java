@@ -34,7 +34,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Lectern;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -99,24 +98,6 @@ public class SkillRegistry extends TickedObject {
             SkillsGui.open(p);
             p.getWorld().spawnParticle(Particle.CRIT_MAGIC, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 25, 0, 0, 0, 1.1);
             p.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
-        }
-
-        if (!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
-                && e.getClickedBlock().getType().equals(Material.LECTERN) && (p.getInventory().getItemInMainHand().getType().equals(Material.AIR)
-                || !p.getInventory().getItemInMainHand().getType().isBlock()) &&
-                (p.getInventory().getItemInOffHand().getType().equals(Material.AIR) || !p.getInventory().getItemInOffHand().getType().isBlock())
-                && !p.getInventory().getItemInMainHand().getType().equals(Material.WRITTEN_BOOK)
-                && !p.getInventory().getItemInMainHand().getType().equals(Material.WRITABLE_BOOK)
-                && ((Lectern) e.getClickedBlock().getState()).getInventory().getItem(0) == null
-        ) {
-//            e.setCancelled(true);
-//            CorruptionGui.open(p);
-//            e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.72f);
-//            e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 0.2f);
-//            e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.455f);
-//            p.getWorld().spawnParticle(Particle.CRIT_MAGIC, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 25, 0, 0, 0, 1.1);
-//            p.getWorld().spawnParticle(Particle.FLASH, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 1, 0, 0, 0, 1);
-//            p.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
         }
 
         if (p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.LECTERN)) {

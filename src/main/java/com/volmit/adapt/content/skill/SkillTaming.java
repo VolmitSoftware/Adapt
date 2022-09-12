@@ -48,7 +48,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         registerAdaptation(new TamingHealthRegeneration());
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityBreedEvent e) {
         if (e.isCancelled()) {
             return;
@@ -61,7 +61,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (e.isCancelled()) {
             return;
