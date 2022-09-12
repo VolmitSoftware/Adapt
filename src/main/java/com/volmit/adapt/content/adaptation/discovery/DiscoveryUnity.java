@@ -53,7 +53,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     @EventHandler(priority = EventPriority.LOW)
     public void on(PlayerExpChangeEvent e) {
         Player p = e.getPlayer();
-        if (e.getAmount() > 0 && getLevel(p) > 0) {
+        if (e.getAmount() > 0 && hasAdaptation(p)) {
             xp(p, 5);
             p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.9f);
             getPlayer(p).boostXPToRandom(getPlayer(p), e.getAmount() * getConfig().xpBoostMultiplier, getConfig().xpBoostDuration);

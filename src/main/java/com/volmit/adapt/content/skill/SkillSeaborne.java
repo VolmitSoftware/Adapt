@@ -64,6 +64,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+                return;
+            }
             if (i.isSwimming() || i.getRemainingAir() < i.getMaximumAir()) {
                 checkStatTrackers(getPlayer(i));
                 xpSilent(i, getConfig().swimXP);
@@ -77,6 +80,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -93,6 +99,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }

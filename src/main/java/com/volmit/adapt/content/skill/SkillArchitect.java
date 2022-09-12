@@ -62,6 +62,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -78,6 +81,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -88,6 +94,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
             checkStatTrackers(getPlayer(i));
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+                return;
+            }
         }
     }
 

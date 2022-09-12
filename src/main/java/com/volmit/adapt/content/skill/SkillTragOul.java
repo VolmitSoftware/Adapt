@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerAdaptation;
@@ -54,10 +55,22 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
+                if (e.isCancelled()) {
+                    return;
+                }
+                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                    return;
+                }
                 AdaptPlayer a = getPlayer(p);
                 xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
 
             } else if (e.getEntity() instanceof Player p) {
+                if (e.isCancelled()) {
+                    return;
+                }
+                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                    return;
+                }
                 AdaptPlayer a = getPlayer(p);
                 xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
             }
@@ -66,6 +79,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerDeathEvent e) {
+        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
+            return;
+        }
         if (getConfig().takeAwaySkillsOnDeath) {
             if (getConfig().showParticles) {
                 CloudEffect ce = new CloudEffect(Adapt.instance.adaptEffectManager);
@@ -102,6 +118,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
             checkStatTrackers(getPlayer(i));
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+                return;
+            }
         }
     }
 

@@ -63,7 +63,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player p && getLevel(p) > 0 && p.isSneaking()) {
+        if (e.getDamager() instanceof Player p && hasAdaptation(p) && p.isSneaking()) {
             if (!isAxe(p.getInventory().getItemInMainHand())) {
                 return;
             }

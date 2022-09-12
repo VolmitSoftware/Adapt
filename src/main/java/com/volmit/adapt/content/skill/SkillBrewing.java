@@ -56,7 +56,13 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerItemConsumeEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -76,6 +82,12 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PotionSplashEvent e) {
         if (e.getPotion().getShooter() instanceof Player p) {
+            if (e.isCancelled()) {
+                return;
+            }
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;
             }
@@ -91,6 +103,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -107,6 +122,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }

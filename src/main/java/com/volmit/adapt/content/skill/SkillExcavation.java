@@ -55,6 +55,12 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
+                if (e.isCancelled()) {
+                    return;
+                }
+                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                    return;
+                }
                 if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                     return;
                 }
@@ -72,6 +78,9 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!e.isCancelled()) {
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;

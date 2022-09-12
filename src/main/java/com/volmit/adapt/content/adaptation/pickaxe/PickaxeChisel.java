@@ -74,7 +74,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(p.getInventory().getItemInMainHand()) && getLevel(p) > 0) {
+        if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(p.getInventory().getItemInMainHand()) && hasAdaptation(p)) {
             if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
                 return;
             }

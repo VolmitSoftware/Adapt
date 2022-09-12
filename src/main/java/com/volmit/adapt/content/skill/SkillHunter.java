@@ -57,8 +57,11 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-
         if (e.isCancelled()) {
+            return;
+        }
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
@@ -72,8 +75,13 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
         if (e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
@@ -84,6 +92,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDeathEvent e) {
+        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
+            return;
+        }
         if (e.getEntity().getKiller() != null) {
             if (!AdaptConfig.get().isXpInCreative() && e.getEntity().getKiller().getGameMode().name().contains("CREATIVE")) {
                 return;

@@ -104,6 +104,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (e.getItem().getItemMeta() instanceof PotionMeta o) {
             return;
         }
@@ -120,6 +123,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -132,6 +138,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -147,6 +156,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -158,8 +170,13 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
-
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -191,6 +208,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }

@@ -169,6 +169,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     @Override
     public void onTick() {
         for (Player i : lasttp.k()) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+                return;
+            }
             if (M.ms() - lasttp.get(i) > getConfig().teleportXPCooldown) {
                 lasttp.remove(i);
             }

@@ -58,6 +58,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             return;
         }
         if (e.getEntity().getShooter() instanceof Player p) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;
             }
@@ -71,6 +74,12 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     public void on(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
             Player p = ((Player) ((Projectile) e.getDamager()).getShooter());
+            if (e.isCancelled()) {
+                return;
+            }
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;
             }

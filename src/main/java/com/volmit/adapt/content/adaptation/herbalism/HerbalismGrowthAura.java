@@ -72,7 +72,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     public void onTick() {
         for (Player p : Bukkit.getOnlinePlayers()) {
             try {
-                if (getLevel(p) > 0) {
+                if (hasAdaptation(p)) {
                     double rad = getRadius(getLevelPercent(p));
                     double strength = getStrength(getLevel(p));
                     double angle = Math.toRadians(Math.random() * 360);

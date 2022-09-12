@@ -57,6 +57,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         if (e.isCancelled()) {
             return;
         }
+        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
+            return;
+        }
         if (e.getCause() == EntityDamageEvent.DamageCause.WITHER && e.getEntity() instanceof Player p && !(e instanceof EntityDamageByBlockEvent)) {
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;
@@ -71,6 +74,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -84,6 +90,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     public void onEntityDeath(EntityDeathEvent e) {
         if (e.getEntity().getKiller() != null) {
             Player p = e.getEntity().getKiller();
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;
             }
@@ -101,6 +110,12 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             return;
         }
         if (e.getDamager() instanceof Player p && e.getCause() == EntityDamageEvent.DamageCause.WITHER) {
+            if (e.isCancelled()) {
+                return;
+            }
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;
             }

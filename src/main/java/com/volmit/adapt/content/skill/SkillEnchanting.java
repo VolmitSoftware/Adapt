@@ -27,6 +27,7 @@ import com.volmit.adapt.content.adaptation.enchanting.EnchantingXPReturn;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;
@@ -48,6 +49,9 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EnchantItemEvent e) {
         if (e.isCancelled()) {
+            return;
+        }
+        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEnchanter().getWorld().getName())) {
             return;
         }
         if (!AdaptConfig.get().isXpInCreative() && e.getEnchanter().getGameMode().name().contains("CREATIVE")) {

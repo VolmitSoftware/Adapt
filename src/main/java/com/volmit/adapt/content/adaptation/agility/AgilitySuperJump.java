@@ -95,7 +95,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
             return;
         }
 
-        if (p.isSneaking() && getLevel(p) > 0) {
+        if (p.isSneaking() && hasAdaptation(p)) {
             Vector velocity = p.getVelocity();
 
             if (velocity.getY() > 0) {

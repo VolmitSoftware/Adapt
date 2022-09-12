@@ -65,6 +65,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerChangedWorldEvent e) {
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -73,7 +76,13 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractAtEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -82,6 +91,12 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityPickupItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
+            return;
+        }
         if (e.getEntity() instanceof Player p) {
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;
@@ -96,6 +111,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             return;
         }
         if (e.getWhoClicked() instanceof Player p) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;
             }
@@ -117,6 +135,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -130,6 +151,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -141,6 +165,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerExpChangeEvent e) {
         Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
@@ -255,6 +282,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+                return;
+            }
             try {
                 Block b = i.getTargetBlockExact(5, FluidCollisionMode.NEVER);
                 if (b != null) {

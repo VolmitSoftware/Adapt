@@ -58,7 +58,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
         if (e.getEntity().getShooter() instanceof Player p) {
             if (e.getEntity() instanceof AbstractArrow a) {
                 xp(p, 5);
-                if (getLevel(p) > 0) {
+                if (hasAdaptation(p)) {
                     a.setPierceLevel(((AbstractArrow) e.getEntity()).getPierceLevel() + getLevel(p));
                 }
             }

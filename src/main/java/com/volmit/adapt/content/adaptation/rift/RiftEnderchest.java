@@ -69,20 +69,16 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
             NMS.get().sendCooldown(p, Material.ENDER_PEARL, 100);
             p.setCooldown(Material.ENDER_PEARL, 100);
         }
-        if (getLevel(p) > 0) {
-            if (p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
-                    && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
-                    || e.getAction().equals(Action.LEFT_CLICK_AIR)
-                    || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
+        if (p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
+                && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
+                || e.getAction().equals(Action.LEFT_CLICK_AIR)
+                || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
 
-                if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null
-                        && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
-                    RiftResist.riftResistStackAdd(p, 10, 2);
-                }
-                p.openInventory(p.getEnderChest());
-
-
+            if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null
+                    && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
+                RiftResist.riftResistStackAdd(p, 10, 2);
             }
+            p.openInventory(p.getEnderChest());
         }
     }
 
