@@ -100,7 +100,7 @@
       "Description": "גמדים הם הכורים, אבל למדתי דבר או שניים בזמני.אני שוודי"
     },
     "Ranged": {
-      "Name": "נע",
+      "Name": "טווח",
       "Icon": "🏹",
       "Description": "מרחק הוא המפתח לניצחון, והמפתח להישרדות."
     },
@@ -211,7 +211,7 @@
       "Lore4": "smashCooldown"
     },
     "LeafMiner": {
-      "Name": "LeafMiner",
+      "Name": "חוצב עלים",
       "Description": "מאפשר לך לשבור עלים בתפזורת בבת אחת!",
       "Lore1": "להתגנב, והעלים שלי",
       "Lore2": "מגוון של כריית עלים",
@@ -609,6 +609,13 @@
       "Name": "התחדשות מאולפת",
       "Description": "הגדל את התחדשות החיות המואשפת שלך.",
       "Lore1": "HP/s"
+    }
+  },
+  "TragOul": {
+    "Thorns": {
+      "Name": "קוצים",
+      "Description": "החזר נזק לתוקף שלך!",
+      "Lore1": "הנזק מתקבל כאשר אתם נפגעים"
     }
   },
   "Unarmed": {

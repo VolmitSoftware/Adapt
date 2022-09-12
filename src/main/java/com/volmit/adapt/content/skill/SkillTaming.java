@@ -27,6 +27,7 @@ import com.volmit.adapt.content.adaptation.taming.TamingHealthRegeneration;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
@@ -76,16 +77,18 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
             return;
         }
-        if (e.getDamager() instanceof Tameable &&
-                ((Tameable) e.getDamager()).isTamed() &&
-                ((Tameable) e.getDamager()).getOwner() instanceof Player owner) {
-            xp(owner, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
+
+        if (e.getDamager() instanceof Tameable &&  ((Tameable) e.getDamager()).isTamed() &&  ((Tameable) e.getDamager()).getOwner() instanceof Player owner) {
+            if (!AdaptConfig.get().isXpInCreative() && owner.getGameMode().equals(GameMode.CREATIVE)) {
+                return;
+            } else {
+                xp(owner, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
+            }
         }
     }
 
     @Override
     public void onTick() {
-
     }
 
     @Override
@@ -97,7 +100,6 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     protected static class Config {
         boolean enabled = true;
         double tameXpBase = 55;
-        double tameHealthXPMultiplier = 63;
         double tameDamageXPMultiplier = 9.85;
     }
 }

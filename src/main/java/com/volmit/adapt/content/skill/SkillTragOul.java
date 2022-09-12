@@ -27,10 +27,7 @@ import com.volmit.adapt.content.adaptation.tragoul.TragoulThorns;
 import com.volmit.adapt.util.C;
 import de.slikey.effectlib.effect.CloudEffect;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -61,6 +58,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                 if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                     return;
                 }
+                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
+                    return;
+                }
                 AdaptPlayer a = getPlayer(p);
                 xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
 
@@ -82,7 +82,11 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
             return;
         }
+        if (!AdaptConfig.get().isXpInCreative() && e.getEntity().getGameMode().equals(GameMode.CREATIVE)) {
+            return;
+        }
         if (getConfig().takeAwaySkillsOnDeath) {
+
             if (getConfig().showParticles) {
                 CloudEffect ce = new CloudEffect(Adapt.instance.adaptEffectManager);
                 ce.mainParticle = Particle.ASH;

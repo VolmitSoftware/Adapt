@@ -611,6 +611,13 @@
       "Lore1": "生命/秒"
     }
   },
+  "TragOul": {
+    "Thorns": {
+      "Name": "荆棘",
+      "Description": "受伤时将伤害返回给攻击者！",
+      "Lore1": "受伤时伤害返回给攻击者"
+    }
+  },
   "Unarmed": {
     "GlassCannon": {
       "Name": "玻璃大炮",
