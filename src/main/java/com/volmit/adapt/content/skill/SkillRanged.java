@@ -27,6 +27,7 @@ import com.volmit.adapt.content.adaptation.ranged.RangedLungeShot;
 import com.volmit.adapt.content.adaptation.ranged.RangedPiercing;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
