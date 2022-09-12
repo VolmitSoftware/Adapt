@@ -611,6 +611,13 @@
       "Lore1": "HP/s"
     }
   },
+  "TragOul": {
+    "Thorns": {
+      "Name": "Dornen",
+      "Description": "Reflektiert Schaden zurück auf den Angreifer!",
+      "Lore1": "Schaden vergelten, wenn man getroffen wird"
+    }
+  },
   "Unarmed": {
     "GlassCannon": {
       "Name": "Glaskanone",
