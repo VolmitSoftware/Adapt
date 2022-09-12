@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.taming.TamingDamage;
 import com.volmit.adapt.content.adaptation.taming.TamingHealthBoost;
@@ -48,12 +49,18 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         registerAdaptation(new TamingHealthRegeneration());
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityBreedEvent e) {
         if (e.isCancelled()) {
             return;
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
+            if (e.isCancelled()) {
+                return;
+            }
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
+            }
             p.sendMessage("AHH: " + getConfig().tameXpBase);
             if (p.getLocation().distance(e.getEntity().getLocation()) <= 15) {
                 xp(p, getConfig().tameXpBase);
@@ -61,9 +68,12 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (e.isCancelled()) {
+            return;
+        }
+        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
             return;
         }
         if (e.getDamager() instanceof Tameable &&

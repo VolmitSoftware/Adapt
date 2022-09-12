@@ -69,7 +69,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     public void on(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player p) {
 
-            if (getLevel(p) > 0) {
+            if (hasAdaptation(p)) {
                 if (e.getDamager() instanceof Arrow a && Math.random() < getChance(getLevelPercent(p))) {
                     int hits = 0;
 
@@ -97,7 +97,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDeathEvent e) {
         Integer c = arrows.remove(e.getEntity().getUniqueId());
 

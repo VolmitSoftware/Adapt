@@ -19,6 +19,7 @@
 package com.volmit.adapt.api.adaptation;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
@@ -145,6 +146,9 @@ public interface Adaptation<T> extends Ticked, Component {
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
     default boolean hasAdaptation(Player p) {
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return false;
+        }
         return getLevel(p) > 0;
     }
 

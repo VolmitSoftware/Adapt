@@ -71,30 +71,31 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
-        if (!hasAdaptation(e.getPlayer())) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
             return;
         }
 
-        if (e.isSneaking() && e.getPlayer().isOnGround()) {
-            e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.3f, 0.35f);
-            xp(e.getPlayer(), 2);
+        if (e.isSneaking() && p.isOnGround()) {
+            p.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.3f, 0.35f);
+            xp(p, 2);
         }
     }
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
-        lastJump.remove(e.getPlayer());
+        Player p = e.getPlayer();
+        lastJump.remove(p);
     }
 
     @EventHandler
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-
         if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSprinting()) {
             return;
         }
 
-        if (p.isSneaking() && getLevel(p) > 0) {
+        if (p.isSneaking() && hasAdaptation(p)) {
             Vector velocity = p.getVelocity();
 
             if (velocity.getY() > 0) {

@@ -53,10 +53,10 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-        if (!hasAdaptation(e.getPlayer())) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
             return;
         }
-        Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
         if (hand.getType() != Material.ENDER_CHEST) {
             return;
@@ -69,20 +69,16 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
             NMS.get().sendCooldown(p, Material.ENDER_PEARL, 100);
             p.setCooldown(Material.ENDER_PEARL, 100);
         }
-        if (getLevel(e.getPlayer()) > 0) {
-            if (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
-                    && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
-                    || e.getAction().equals(Action.LEFT_CLICK_AIR)
-                    || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
+        if (p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
+                && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
+                || e.getAction().equals(Action.LEFT_CLICK_AIR)
+                || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
 
-                if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null
-                        && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
-                    RiftResist.riftResistStackAdd(p, 10, 2);
-                }
-                p.openInventory(e.getPlayer().getEnderChest());
-
-
+            if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null
+                    && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
+                RiftResist.riftResistStackAdd(p, 10, 2);
             }
+            p.openInventory(p.getEnderChest());
         }
     }
 

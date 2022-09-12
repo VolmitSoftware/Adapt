@@ -71,7 +71,7 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
         if (p.getGameMode() != GameMode.SURVIVAL) {
             return;
         }
-        if (ItemListings.toolShovels.contains(e.getPlayer().getInventory().getItemInMainHand().getType())) {
+        if (ItemListings.toolShovels.contains(p.getInventory().getItemInMainHand().getType())) {
             List<Item> items = e.getItems().copy();
             e.getItems().clear();
             for (Item i : items) {

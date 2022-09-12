@@ -26,6 +26,7 @@ import com.volmit.adapt.util.Form;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerExpChangeEvent;
@@ -51,11 +52,12 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
     @EventHandler(priority = EventPriority.LOW)
     public void on(PlayerExpChangeEvent e) {
-        if (e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {
-            xp(e.getPlayer(), 5);
-            e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.9f);
-            getPlayer(e.getPlayer()).boostXPToRandom(getPlayer(e.getPlayer()), e.getAmount() * getConfig().xpBoostMultiplier, getConfig().xpBoostDuration);
-            getPlayer(e.getPlayer()).giveXPToRandom(getPlayer(e.getPlayer()), getXPGained(getLevelPercent(e.getPlayer()), e.getAmount()));
+        Player p = e.getPlayer();
+        if (e.getAmount() > 0 && hasAdaptation(p)) {
+            xp(p, 5);
+            p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.9f);
+            getPlayer(p).boostXPToRandom(getPlayer(p), e.getAmount() * getConfig().xpBoostMultiplier, getConfig().xpBoostDuration);
+            getPlayer(p).giveXPToRandom(getPlayer(p), getXPGained(getLevelPercent(p), e.getAmount()));
         }
     }
 

@@ -28,6 +28,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -58,19 +59,20 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        if (e.getPlayer().getCooldown(e.getPlayer().getInventory().getItemInMainHand().getType()) > 0) {
+        Player p = e.getPlayer();
+        if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
             return;
         }
-        if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(e.getPlayer().getInventory().getItemInMainHand()) && hasAdaptation(e.getPlayer())) {
+        if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(p.getInventory().getItemInMainHand()) && hasAdaptation(p)) {
             BlockData b = e.getClickedBlock().getBlockData();
             if (isLog(new ItemStack(b.getMaterial()))) {
                 e.setCancelled(true);
-                e.getPlayer().getLocation().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
-                for (int i = 0; i < getLevel(e.getPlayer()); i++) {
-                    if (breakStuff(e.getClickedBlock(), getRange(getLevel(e.getPlayer())))) {
-                        getSkill().xp(e.getPlayer(), 37);
-                        e.getPlayer().setCooldown(e.getPlayer().getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(e.getPlayer())));
-                        damageHand(e.getPlayer(), getDamagePerBlock(getLevelPercent(e.getPlayer())));
+                p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
+                for (int i = 0; i < getLevel(p); i++) {
+                    if (breakStuff(e.getClickedBlock(), getRange(getLevel(p)))) {
+                        getSkill().xp(p, 37);
+                        p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
+                        damageHand(p, getDamagePerBlock(getLevelPercent(p)));
                     }
                 }
             }

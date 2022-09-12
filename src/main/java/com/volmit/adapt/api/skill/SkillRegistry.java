@@ -34,7 +34,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Lectern;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -81,61 +80,45 @@ public class SkillRegistry extends TickedObject {
 
     @EventHandler
     public void on(PlayerExpChangeEvent e) {
+        Player p = e.getPlayer();
         if (e.getAmount() > 0) {
-            getPlayer(e.getPlayer()).boostXPToRecents(getPlayer(e.getPlayer()), 0.03, 10000);
+            getPlayer(p).boostXPToRecents(getPlayer(p), 0.03, 10000);
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEvent e) {
-        if (!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
-                && e.getClickedBlock().getType().equals(Material.valueOf(AdaptConfig.get().adaptActivatorBlock)) && (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR)
-                || !e.getPlayer().getInventory().getItemInMainHand().getType().isBlock()) &&
-                (e.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.AIR) || !e.getPlayer().getInventory().getItemInOffHand().getType().isBlock())) {
+        Player p = e.getPlayer();
+        if (!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
+                && e.getClickedBlock().getType().equals(Material.valueOf(AdaptConfig.get().adaptActivatorBlock)) && (p.getInventory().getItemInMainHand().getType().equals(Material.AIR)
+                || !p.getInventory().getItemInMainHand().getType().isBlock()) &&
+                (p.getInventory().getItemInOffHand().getType().equals(Material.AIR) || !p.getInventory().getItemInOffHand().getType().isBlock())) {
             e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 0.72f);
             e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
-            SkillsGui.open(e.getPlayer());
-            e.getPlayer().getWorld().spawnParticle(Particle.CRIT_MAGIC, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 25, 0, 0, 0, 1.1);
-            e.getPlayer().getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
+            SkillsGui.open(p);
+            p.getWorld().spawnParticle(Particle.CRIT_MAGIC, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 25, 0, 0, 0, 1.1);
+            p.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
         }
 
-        if (!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
-                && e.getClickedBlock().getType().equals(Material.LECTERN) && (e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.AIR)
-                || !e.getPlayer().getInventory().getItemInMainHand().getType().isBlock()) &&
-                (e.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.AIR) || !e.getPlayer().getInventory().getItemInOffHand().getType().isBlock())
-                && !e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.WRITTEN_BOOK)
-                && !e.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.WRITABLE_BOOK)
-                && ((Lectern) e.getClickedBlock().getState()).getInventory().getItem(0) == null
-        ) {
-//            e.setCancelled(true);
-//            CorruptionGui.open(e.getPlayer());
-//            e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.72f);
-//            e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 0.2f);
-//            e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.455f);
-//            e.getPlayer().getWorld().spawnParticle(Particle.CRIT_MAGIC, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 25, 0, 0, 0, 1.1);
-//            e.getPlayer().getWorld().spawnParticle(Particle.FLASH, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 1, 0, 0, 0, 1);
-//            e.getPlayer().getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
-        }
-
-        if (e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.LECTERN)) {
-            ItemStack it = e.getPlayer().getInventory().getItemInMainHand();
+        if (p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.LECTERN)) {
+            ItemStack it = p.getInventory().getItemInMainHand();
 
             if (it.getItemMeta() != null && !it.getItemMeta().getPersistentDataContainer().getKeys().isEmpty()) {
                 e.setCancelled(true);
-                playDebug(e.getPlayer());
+                playDebug(p);
                 it.getItemMeta().getPersistentDataContainer().getKeys().forEach(k -> Bukkit.getServer().getConsoleSender().sendMessage(k + " = " + it.getItemMeta().getPersistentDataContainer().getOrDefault(k, PersistentDataType.STRING, "Not a String")));
             }
         }
 
-        if (e.getPlayer().isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.OBSERVER)) {
-            ItemStack it = e.getPlayer().getInventory().getItemInMainHand();
+        if (p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.OBSERVER)) {
+            ItemStack it = p.getInventory().getItemInMainHand();
 
             if (it.getType().equals(Material.EXPERIENCE_BOTTLE)) {
                 e.setCancelled(true);
                 Bukkit.getServer().getConsoleSender().sendMessage("   ");
-                e.getPlayer().setCooldown(Material.ENCHANTED_BOOK, 3);
-                AdaptPlayer a = getPlayer(e.getPlayer());
-                playDebug(e.getPlayer());
+                p.setCooldown(Material.ENCHANTED_BOOK, 3);
+                AdaptPlayer a = getPlayer(p);
+                playDebug(p);
 
                 String xv = a.getData().getMultiplier() - 1d > 0 ? "+" + Form.pc(a.getData().getMultiplier() - 1D) : Form.pc(a.getData().getMultiplier() - 1D);
                 Bukkit.getServer().getConsoleSender().sendMessage("Global" + C.GRAY + ": " + C.GREEN + xv);

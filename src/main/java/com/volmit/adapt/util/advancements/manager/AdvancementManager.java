@@ -59,6 +59,7 @@ public final class AdvancementManager {
     private final NameKey name;
     private ArrayList<Player> players;
     private ArrayList<Advancement> advancements = new ArrayList<>();
+
     /**
      * Constructor for creating Advancement Managers
      *

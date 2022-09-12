@@ -27,6 +27,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -67,14 +68,15 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
         if (e.getHand() != null && e.getHand().equals(EquipmentSlot.HAND) && e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
             int dmg = 0;
             ItemStack is = e.getItem();
             if (isSword(is)) {
-                if (is != null && !e.getPlayer().hasCooldown(is.getType()) && getLevel(e.getPlayer()) > 0) {
-                    Location ctr = e.getPlayer().getEyeLocation().clone().add(e.getPlayer().getLocation().getDirection().clone().multiply(2.25)).add(0, -0.5, 0);
+                if (is != null && !p.hasCooldown(is.getType()) && hasAdaptation(p)) {
+                    Location ctr = p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(2.25)).add(0, -0.5, 0);
 
-                    int lvl = getLevel(e.getPlayer());
+                    int lvl = getLevel(p);
                     Cuboid c = new Cuboid(ctr);
                     c = c.expand(Cuboid.CuboidDirection.Up, (int) Math.floor(getRadius(lvl)));
                     c = c.expand(Cuboid.CuboidDirection.Down, (int) Math.floor(getRadius(lvl)));
@@ -126,14 +128,14 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                                     || i.getType().equals(Material.BAMBOO)
 
                             ) {
-                                BlockBreakEvent ee = new BlockBreakEvent(i, e.getPlayer());
+                                BlockBreakEvent ee = new BlockBreakEvent(i, p);
                                 Bukkit.getPluginManager().callEvent(ee);
 
                                 if (!ee.isCancelled()) {
                                     dmg += 1;
                                     J.s(() -> {
                                         i.breakNaturally();
-                                        e.getPlayer().getWorld().playSound(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4f, (float) Math.random() * 1.85f);
+                                        p.getWorld().playSound(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4f, (float) Math.random() * 1.85f);
                                     }, RNG.r.i(0, (getMaxLevel() - lvl * 2) + 1));
                                 }
                             }
@@ -141,13 +143,13 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                     }
 
                     if (dmg > 0) {
-                        e.getPlayer().setCooldown(is.getType(), getCooldownTime(getLevelPercent(lvl)));
+                        p.setCooldown(is.getType(), getCooldownTime(getLevelPercent(lvl)));
                         if (getConfig().showParticles) {
-                            ParticleEffect.SWEEP_ATTACK.display(e.getPlayer().getEyeLocation().clone().add(e.getPlayer().getLocation().getDirection().clone().multiply(1.25)).add(0, -0.5, 0), 0f, 0f, 0f, 0.1f, 1, null);
+                            ParticleEffect.SWEEP_ATTACK.display(p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(1.25)).add(0, -0.5, 0), 0f, 0f, 0f, 0.1f, 1, null);
                         }
-                        e.getPlayer().getWorld().playSound(e.getPlayer().getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (Math.random() / 2) + 0.65f);
-                        damageHand(e.getPlayer(), dmg * getDamagePerBlock(getLevelPercent(lvl)));
-                        getSkill().xp(e.getPlayer(), dmg * 11.25);
+                        p.getWorld().playSound(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (Math.random() / 2) + 0.65f);
+                        damageHand(p, dmg * getDamagePerBlock(getLevelPercent(lvl)));
+                        getSkill().xp(p, dmg * 11.25);
                     }
                 }
             }

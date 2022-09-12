@@ -27,6 +27,7 @@ import com.volmit.adapt.content.adaptation.unarmed.UnarmedPower;
 import com.volmit.adapt.content.adaptation.unarmed.UnarmedSuckerPunch;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -48,11 +49,14 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         setIcon(Material.FIRE_CHARGE);
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
-                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
+                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                    return;
+                }
+                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
                     return;
                 }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());

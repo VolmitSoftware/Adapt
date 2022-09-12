@@ -74,7 +74,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         if (p.getGameMode() != GameMode.SURVIVAL) {
             return;
         }
-        if (ItemListings.toolSwords.contains(e.getPlayer().getInventory().getItemInMainHand().getType())) {
+        if (ItemListings.toolSwords.contains(p.getInventory().getItemInMainHand().getType())) {
             List<Item> items = e.getItems().copy();
             e.getItems().clear();
             p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);

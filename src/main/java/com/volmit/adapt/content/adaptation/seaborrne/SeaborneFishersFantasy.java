@@ -55,12 +55,12 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
 
     @EventHandler
     public void on(PlayerFishEvent e) {
-        if (!hasAdaptation(e.getPlayer())) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
             return;
         }
         if (e.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
             Random random = new Random();
-            Player p = e.getPlayer();
             for (int i = 0; i < getLevel(p); i++) {
                 ItemStack item = new ItemStack(ItemListings.getFishingDrops().getRandom(), 1);
                 if (random.nextBoolean()) {

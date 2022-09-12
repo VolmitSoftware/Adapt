@@ -28,6 +28,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -57,8 +58,9 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        if (hasAdaptation(e.getPlayer()) && (e.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) && !e.isCancelled()) {
-            BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), e.getPlayer(), e.getBlock().getBlockData(), true);
+        Player p = e.getPlayer();
+        if (hasAdaptation(p) && (p.getInventory().getItemInMainHand().getType() == Material.AIR) && !e.isCancelled()) {
+            BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), p, e.getBlock().getBlockData(), true);
             Bukkit.getServer().getPluginManager().callEvent(can);
 
             if (!can.isBuildable()) {
@@ -74,7 +76,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
                     J.a(() -> vfxSingleCubeOutline(e.getBlock(), Particle.REVERSE_PORTAL));
                 }
                 e.getBlock().breakNaturally();
-                xp(e.getPlayer(), 3);
+                xp(p, 3);
             }
         }
     }

@@ -209,6 +209,7 @@ public class UIWindow implements Window, Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(InventoryCloseEvent e) {
+
         if (!e.getPlayer().equals(viewer)) {
             return;
         }

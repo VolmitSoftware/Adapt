@@ -53,15 +53,15 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
-        if (!hasAdaptation(e.getPlayer())) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
             return;
         }
-        if (!e.getPlayer().isSneaking()) {
-            Player p = e.getPlayer();
+        if (!p.isSneaking()) {
             p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
             p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 20000, 0, false, false));
         } else {
-            e.getPlayer().removePotionEffect(PotionEffectType.NIGHT_VISION);
+            p.removePotionEffect(PotionEffectType.NIGHT_VISION);
         }
     }
 

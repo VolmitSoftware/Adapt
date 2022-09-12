@@ -60,7 +60,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
-        ticksRunning.remove(e.getPlayer());
+        Player p = e.getPlayer();
+        ticksRunning.remove(p);
     }
 
     private double getWindupTicks(double factor) {

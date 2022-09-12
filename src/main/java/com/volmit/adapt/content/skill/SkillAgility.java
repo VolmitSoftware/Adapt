@@ -32,6 +32,7 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -80,22 +81,29 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_marathon").goal(42195).stat("move").reward(getConfig().challengeSprintMarathonReward).build());
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerMoveEvent e) {
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (e.isCancelled()) {
+            return;
+        }
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         if (e.getFrom().getWorld() != null && e.getTo() != null && e.getFrom().getWorld().equals(e.getTo().getWorld())) {
             double d = e.getFrom().distance(e.getTo());
-            getPlayer(e.getPlayer()).getData().addStat("move", d);
-            if (e.getPlayer().isSneaking()) {
-                getPlayer(e.getPlayer()).getData().addStat("move.sneak", d);
-            } else if (e.getPlayer().isFlying()) {
-                getPlayer(e.getPlayer()).getData().addStat("move.fly", d);
-            } else if (e.getPlayer().isSwimming()) {
-                getPlayer(e.getPlayer()).getData().addStat("move.swim", d);
-            } else if (e.getPlayer().isSprinting()) {
-                getPlayer(e.getPlayer()).getData().addStat("move.sprint", d);
+            getPlayer(p).getData().addStat("move", d);
+            if (p.isSneaking()) {
+                getPlayer(p).getData().addStat("move.sneak", d);
+            } else if (p.isFlying()) {
+                getPlayer(p).getData().addStat("move.fly", d);
+            } else if (p.isSwimming()) {
+                getPlayer(p).getData().addStat("move.swim", d);
+            } else if (p.isSprinting()) {
+                getPlayer(p).getData().addStat("move.sprint", d);
             }
         }
     }
@@ -104,6 +112,9 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
             checkStatTrackers(getPlayer(i));
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+                return;
+            }
             if (i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
                 if (!AdaptConfig.get().isXpInCreative() && i.getGameMode().name().contains("CREATIVE")) {
                     return;

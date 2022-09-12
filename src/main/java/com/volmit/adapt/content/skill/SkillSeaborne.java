@@ -29,6 +29,7 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -64,6 +65,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+                return;
+            }
             if (i.isSwimming() || i.getRemainingAir() < i.getMaximumAir()) {
                 checkStatTrackers(getPlayer(i));
                 xpSilent(i, getConfig().swimXP);
@@ -71,33 +75,41 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerFishEvent e) {
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
         if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
-            xp(e.getPlayer(), 300);
+            xp(p, 300);
         } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
-            xp(e.getPlayer(), 10);
+            xp(p, 10);
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (e.getBlock().getType().equals(Material.SEA_PICKLE) && e.getPlayer().isSwimming() && e.getPlayer().getRemainingAir() < e.getPlayer().getMaximumAir()) { // BECAUSE I LIKE PICKLES
-            xpSilent(e.getPlayer(), 10);
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
+            return;
+        }
+        if (e.getBlock().getType().equals(Material.SEA_PICKLE) && p.isSwimming() && p.getRemainingAir() < p.getMaximumAir()) { // BECAUSE I LIKE PICKLES
+            xpSilent(p, 10);
         } else {
-            xpSilent(e.getPlayer(), 3);
+            xpSilent(p, 3);
         }
     }
 

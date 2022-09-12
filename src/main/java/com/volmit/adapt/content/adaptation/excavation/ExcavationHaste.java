@@ -53,10 +53,10 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockDamageEvent e) {
-        if (!hasAdaptation(e.getPlayer())) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
             return;
         }
-        Player p = e.getPlayer();
         p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 15, getLevel(p), false, false, true));
     }
 

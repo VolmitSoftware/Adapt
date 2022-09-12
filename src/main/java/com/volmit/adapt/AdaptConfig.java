@@ -28,6 +28,7 @@ import org.bukkit.Material;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("ALL")
@@ -37,6 +38,7 @@ public class AdaptConfig {
     public boolean debug = false;
     public boolean xpInCreative = false;
     public String adaptActivatorBlock = "BOOKSHELF";
+    public List<String> blacklistedWorlds = List.of("some_world_adapt_should_not_run_in", "anotherWorldFolderName");
     private ValueConfig value = new ValueConfig();
     private boolean verbose = false;
     private boolean metrics = true;

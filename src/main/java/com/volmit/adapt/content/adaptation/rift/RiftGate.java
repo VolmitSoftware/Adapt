@@ -84,7 +84,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
 
         if (e.getClickedBlock() == null) {
-            location = e.getPlayer().getLocation();
+            location = p.getLocation();
 
         } else {
             location = new Location(e.getClickedBlock().getLocation().getWorld(),
