@@ -538,7 +538,6 @@
       "Lore1": "氧气"
     },
     "FishersFantasy": {
-      "Name": "与鱼同乐",
       "Description": "从钓鱼中获得更多经验，以及更多的鱼！",
       "Lore1": "每级都有概率获得更多的经验和鱼"
     },
@@ -609,6 +608,13 @@
       "Name": "驯化再生",
       "Description": "提高你驯养的生物的再生效果",
       "Lore1": "生命/秒"
+    }
+  },
+  "TragOul": {
+    "Thorns": {
+      "Name": "荆棘",
+      "Description": "受伤时将伤害返回给攻击者！",
+      "Lore1": "受伤时伤害返回给攻击者"
     }
   },
   "Unarmed": {
