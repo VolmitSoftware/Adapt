@@ -39,11 +39,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerHarvestBlockEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.player.PlayerShearEntityEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.meta.PotionMeta;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     public SkillHerbalism() {
@@ -99,6 +99,14 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(getConfig().challengeHarvest1kReward).build());
     }
 
+    private final Map<Player, Long> herbCooldown = new HashMap<>();
+
+    @EventHandler
+    public void on(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+        herbCooldown.remove(p);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerItemConsumeEvent e) {
         if (e.isCancelled()) {
@@ -145,9 +153,16 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
-        if (e.getHarvestedBlock().getBlockData() instanceof Ageable) {
+
+        if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown < System.currentTimeMillis()) {
+            herbCooldown.remove(p);
+        } else if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
+            return;
+        }
+        if (e.getHarvestedBlock().getBlockData() instanceof Ageable block) {
+            herbCooldown.put(p, System.currentTimeMillis());
             getPlayer(p).getData().addStat("harvest.blocks", 1);
-            xp(p, e.getHarvestedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * (((Ageable) e.getHarvestedBlock().getBlockData()).getAge()));
+            xp(p, e.getHarvestedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * block.getAge());
         }
     }
 
@@ -163,7 +178,13 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
+        if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown < System.currentTimeMillis()) {
+            herbCooldown.remove(p);
+        } else if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
+            return;
+        }
         if (e.getBlock().getBlockData() instanceof Ageable) {
+            herbCooldown.put(p, System.currentTimeMillis());
             xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().plantCropSeedsXP);
             getPlayer(p).getData().addStat("harvest.planted", 1);
         }
@@ -218,8 +239,13 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (e.getBlock().getType().equals(Material.CACTUS)) {
             return;
         }
-
+        if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown < System.currentTimeMillis()) {
+            herbCooldown.remove(p);
+        } else if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
+            return;
+        }
         if (e.getBlock().getBlockData() instanceof Ageable) {
+            herbCooldown.put(p, System.currentTimeMillis());
             xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * (((Ageable) e.getBlock().getBlockData()).getAge()));
             getPlayer(p).getData().addStat("harvest.blocks", 1);
         }
@@ -238,6 +264,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     @NoArgsConstructor
     public static class Config {
         public boolean enabled = true;
+        public double harvestXpCooldown = 5000;
         public double foodConsumeXP = 125;
         public double shearXP = 95;
         public double harvestPerAgeXP = 35;

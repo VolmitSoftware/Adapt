@@ -73,7 +73,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         return targetBlock.getFace(adjacentBlock);
     }
 
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         totalMap.remove(p);
