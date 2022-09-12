@@ -63,7 +63,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
-        airjumps.remove(e.getPlayer());
+        Player p = e.getPlayer();
+        airjumps.remove(p);
     }
 
     private int getMaxJumps(int level) {
@@ -76,9 +77,10 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @EventHandler
     public void on(PlayerMoveEvent e) {
-        if (airjumps.containsKey(e.getPlayer())) {
-            if (e.getPlayer().isOnGround() && !e.getPlayer().getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData().getMaterial().isAir()) {
-                airjumps.remove(e.getPlayer());
+        Player p = e.getPlayer();
+        if (airjumps.containsKey(p)) {
+            if (p.isOnGround() && !p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData().getMaterial().isAir()) {
+                airjumps.remove(p);
             }
         }
     }

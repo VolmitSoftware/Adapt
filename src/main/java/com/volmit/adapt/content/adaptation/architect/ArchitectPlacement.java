@@ -75,7 +75,8 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @EventHandler(priority = EventPriority.LOW)
     public void on(PlayerQuitEvent e) {
-        totalMap.remove(e.getPlayer());
+        Player p = e.getPlayer();
+        totalMap.remove(p);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -83,7 +84,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         Player p = e.getPlayer();
 
         if (hasAdaptation(p) && !totalMap.isEmpty() && totalMap.get(p) != null && totalMap.get(p).size() > 0) {
-            BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), e.getPlayer(), e.getBlock().getBlockData(), true);
+            BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), p, e.getBlock().getBlockData(), true);
             Bukkit.getServer().getPluginManager().callEvent(can);
             if (!can.isBuildable()) {
                 return;
@@ -101,10 +102,10 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                         if (b.getWorld().getBlockAt(b.getRelative(face).getLocation()).getType() == Material.AIR) {
                             if (b.getRelative(face).getLocation() != e.getBlock().getLocation()) {
                                 b.getWorld().setBlockData(b.getRelative(face).getLocation(), b.getBlockData());
-                                getPlayer(e.getPlayer()).getData().addStat("blocks.placed", 1);
-                                getPlayer(e.getPlayer()).getData().addStat("blocks.placed.value", v);
+                                getPlayer(p).getData().addStat("blocks.placed", 1);
+                                getPlayer(p).getData().addStat("blocks.placed.value", v);
                                 p.playSound(b.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
-                                xp(e.getPlayer(), 2);
+                                xp(p, 2);
                             }
                         }
                         is.setAmount(is.getAmount() - 1);
@@ -124,7 +125,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
-        Player p = e.getPlayer();
+        Player p = e.getPlayer();;
         if (hasAdaptation(p) && p.isSneaking()) {
             totalMap.remove(p);
         }
@@ -143,7 +144,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @EventHandler
     public void on(PlayerMoveEvent e) {
-        Player p = e.getPlayer();
+        Player p = e.getPlayer();;
         if (hasAdaptation(p) && !p.isSneaking()) {
             totalMap.remove(p);
         }

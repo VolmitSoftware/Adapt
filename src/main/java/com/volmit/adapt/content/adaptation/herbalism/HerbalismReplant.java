@@ -72,6 +72,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
         if (e.getClickedBlock() == null) {
             return;
         }
@@ -83,18 +84,18 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
             return;
         }
 
-        int lvl = getLevel(e.getPlayer());
+        int lvl = getLevel(p);
 
         if (lvl > 0) {
-            ItemStack right = e.getPlayer().getInventory().getItemInMainHand();
-            ItemStack left = e.getPlayer().getInventory().getItemInOffHand();
+            ItemStack right = p.getInventory().getItemInMainHand();
+            ItemStack left = p.getInventory().getItemInOffHand();
 
-            if (isTool(left) && isHoe(left) && !e.getPlayer().hasCooldown(left.getType())) {
-                damageOffHand(e.getPlayer(), 1 + ((lvl - 1) * 7));
-                e.getPlayer().setCooldown(left.getType(), getCooldown(getLevelPercent(e.getPlayer()), getLevel(e.getPlayer())));
-            } else if (isTool(right) && isHoe(right) && !e.getPlayer().hasCooldown(right.getType())) {
-                damageHand(e.getPlayer(), 1 + ((lvl - 1) * 7));
-                e.getPlayer().setCooldown(right.getType(), getCooldown(getLevelPercent(e.getPlayer()), getLevel(e.getPlayer())));
+            if (isTool(left) && isHoe(left) && !p.hasCooldown(left.getType())) {
+                damageOffHand(p, 1 + ((lvl - 1) * 7));
+                p.setCooldown(left.getType(), getCooldown(getLevelPercent(p), getLevel(p)));
+            } else if (isTool(right) && isHoe(right) && !p.hasCooldown(right.getType())) {
+                damageHand(p, 1 + ((lvl - 1) * 7));
+                p.setCooldown(right.getType(), getCooldown(getLevelPercent(p), getLevel(p)));
             } else {
                 return;
             }
@@ -109,17 +110,17 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
                 c = c.expand(Cuboid.CuboidDirection.West, Math.round(getRadius(lvl)));
 
                 for (Block i : c) {
-                    J.s(() -> hit(e.getPlayer(), i), M.irand(1, 6));
+                    J.s(() -> hit(p, i), M.irand(1, 6));
                 }
-                xp(e.getPlayer(), 4);
-                e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_SHOVEL_FLATTEN, 1f, 0.66f);
-                e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_BAMBOO_SAPLING_BREAK, 1f, 0.66f);
+                xp(p, 4);
+                p.getWorld().playSound(p.getLocation(), Sound.ITEM_SHOVEL_FLATTEN, 1f, 0.66f);
+                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BAMBOO_SAPLING_BREAK, 1f, 0.66f);
                 if (getConfig().showParticles) {
 
-                    e.getPlayer().spawnParticle(Particle.VILLAGER_HAPPY, e.getPlayer().getLocation().clone().add(0.5, 0.5, 0.5), getLevel(e.getPlayer()) * 3, 0.3 * getLevel(e.getPlayer()), 0.3 * getLevel(e.getPlayer()), 0.3 * getLevel(e.getPlayer()), 0.9);
+                    p.spawnParticle(Particle.VILLAGER_HAPPY, p.getLocation().clone().add(0.5, 0.5, 0.5), getLevel(p) * 3, 0.3 * getLevel(p), 0.3 * getLevel(p), 0.3 * getLevel(p), 0.9);
                 }
             } else {
-                hit(e.getPlayer(), e.getClickedBlock());
+                hit(p, e.getClickedBlock());
             }
         }
     }

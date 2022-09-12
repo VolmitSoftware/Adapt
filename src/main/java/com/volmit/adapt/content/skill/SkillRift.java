@@ -60,18 +60,19 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerTeleportEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
-        if (!lasttp.containsKey(e.getPlayer())) {
+        if (!lasttp.containsKey(p)) {
             try {
-                xpSilent(e.getPlayer(), getConfig().teleportXP);
+                xpSilent(p, getConfig().teleportXP);
             } catch (Exception ignored) {
             }
-            lasttp.put(e.getPlayer(), M.ms());
+            lasttp.put(p, M.ms());
         }
     }
 
@@ -161,7 +162,8 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerQuitEvent e) {
-        lasttp.remove(e.getPlayer());
+        Player p = e.getPlayer();
+        lasttp.remove(p);
     }
 
     @Override

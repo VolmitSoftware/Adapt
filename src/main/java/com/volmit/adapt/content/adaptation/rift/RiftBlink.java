@@ -72,13 +72,14 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
-        lastJump.remove(e.getPlayer());
+        Player p = e.getPlayer();
+        lastJump.remove(p);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerToggleFlightEvent e) {
-        Player p = e.getPlayer();
-        if (hasAdaptation(e.getPlayer()) && p.getGameMode().equals(GameMode.SURVIVAL)) {
+        Player p = e.getPlayer();;
+        if (hasAdaptation(p) && p.getGameMode().equals(GameMode.SURVIVAL)) {
             e.setCancelled(true);
             p.setAllowFlight(false);
 
@@ -141,8 +142,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     @EventHandler
     public void on(PlayerMoveEvent e) {
-        Player p = e.getPlayer();
-        if (hasAdaptation(e.getPlayer()) && p.getGameMode().equals(GameMode.SURVIVAL)) {
+        Player p = e.getPlayer();;
+        if (hasAdaptation(p) && p.getGameMode().equals(GameMode.SURVIVAL)) {
 
 
             if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration()) {
@@ -164,7 +165,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             if (!isSafe(loc)) {
                 return;
             } else if (isSafe(loc)) {
-                p.setAllowFlight(e.getPlayer().getFallDistance() < 4.5 && e.getPlayer().isSprinting());
+                p.setAllowFlight(p.getFallDistance() < 4.5 && p.isSprinting());
             }
 
         }

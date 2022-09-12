@@ -64,14 +64,14 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
         if (e.isCancelled()) {
             return;
         }
-        Player p = e.getPlayer();
+        Player p = e.getPlayer();;
         if (!hasAdaptation(p)) {
             return;
         }
         if (p.getGameMode() != GameMode.SURVIVAL) {
             return;
         }
-        if (ItemListings.toolAxes.contains(e.getPlayer().getInventory().getItemInMainHand().getType())) {
+        if (ItemListings.toolAxes.contains(p.getInventory().getItemInMainHand().getType())) {
             List<Item> items = e.getItems().copy();
             e.getItems().clear();
             for (Item i : items) {

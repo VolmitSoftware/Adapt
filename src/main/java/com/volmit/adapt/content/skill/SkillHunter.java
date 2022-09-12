@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -56,27 +57,28 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
         if (e.getBlock().getType().equals(Material.TURTLE_EGG)) {
             xp(e.getBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
-            getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
+            getPlayer(p).getData().addStat("killed.tutleeggs", 1);
         }
     }
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        Player p = e.getPlayer();
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
         if (e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
             xp(e.getClickedBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
-            getPlayer(e.getPlayer()).getData().addStat("killed.tutleeggs", 1);
+            getPlayer(p).getData().addStat("killed.tutleeggs", 1);
         }
     }
 

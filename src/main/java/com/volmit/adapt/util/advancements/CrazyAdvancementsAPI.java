@@ -389,6 +389,7 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
+
         Player player = e.getPlayer();
         packetReciever.initPlayer(player);
 
@@ -405,11 +406,12 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        packetReciever.close(e.getPlayer(), packetReciever.getHandlers().get(e.getPlayer().getName()));
+        Player p = e.getPlayer();
+        packetReciever.close(p, packetReciever.getHandlers().get(p.getName()));
 
         //Unload Progress in the File Advancement Manager
-        fileAdvancementManager.unloadProgress(e.getPlayer().getUniqueId());
-        fileAdvancementManager.unloadVisibilityStatus(e.getPlayer().getUniqueId());
+        fileAdvancementManager.unloadProgress(p.getUniqueId());
+        fileAdvancementManager.unloadVisibilityStatus(p.getUniqueId());
     }
 
     @Override

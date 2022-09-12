@@ -67,7 +67,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
+        Player p = e.getPlayer();;
         if (!hasAdaptation(p)) {
             return;
         }
@@ -76,7 +76,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         if (e.getAction() == Action.RIGHT_CLICK_AIR) {
             switch (hand.getType()) {
                 case ENDER_EYE, ENDER_PEARL -> {
-                    xp(e.getPlayer(), 3);
+                    xp(p, 3);
                     riftResistStackAdd(p, 80, 10);
                 }
             }

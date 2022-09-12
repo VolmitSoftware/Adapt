@@ -120,30 +120,32 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(BlockBreakEvent e) {
-        if (!hasAdaptation(e.getPlayer()) && validateTool(e.getPlayer().getInventory().getItemInMainHand())) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p) && validateTool(p.getInventory().getItemInMainHand())) {
             e.setCancelled(true);
             return;
         }
-        if (!hasAdaptation(e.getPlayer())) {
+        if (!hasAdaptation(p)) {
             return;
         }
-        if (!validateTool(e.getPlayer().getInventory().getItemInMainHand())) {
+        if (!validateTool(p.getInventory().getItemInMainHand())) {
             return;
         }
-        xp(e.getPlayer(), 3);
+        xp(p, 3);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(PlayerInteractEvent e) {
-        if (!hasAdaptation(e.getPlayer()) && validateTool(e.getPlayer().getInventory().getItemInMainHand())) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p) && validateTool(p.getInventory().getItemInMainHand())) {
             e.setCancelled(true);
             return;
         }
-        if (!hasAdaptation(e.getPlayer())) {
+        if (!hasAdaptation(p)) {
             return;
         }
-        if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && hasAdaptation(e.getPlayer())) {
-            ItemStack hand = e.getPlayer().getInventory().getItemInMainHand();
+        if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && hasAdaptation(p)) {
+            ItemStack hand = p.getInventory().getItemInMainHand();
             if (!validateTool(hand)) {
                 return;
             }
@@ -153,21 +155,21 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 return;
             }
             if (ItemListings.farmable.contains(block.getType())) {
-                J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextHoe(hand)));
-                e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextHoe(hand)));
+                p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 if (imHand != null && imHand.hasDamage()) {
                     if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
                         e.setCancelled(true);
-                        e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+                        p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
                     }
                 }
             } else if (ItemListings.farmable.contains(block.getType())) {
-                J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextFnS(hand)));
-                e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextFnS(hand)));
+                p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 if (imHand != null && imHand.hasDamage()) {
                     if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
                         e.setCancelled(true);
-                        e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+                        p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
                     }
                 }
 
@@ -179,10 +181,11 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerDropItemEvent e) {
-        if (!hasAdaptation(e.getPlayer())) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
             return;
         }
-        if (e.getPlayer().isSneaking()) {
+        if (p.isSneaking()) {
             if (validateTool(e.getItemDrop().getItemStack())) {
                 List<ItemStack> drops = omniTool.explode(e.getItemDrop().getItemStack());
                 for (ItemStack i : drops) {
@@ -209,9 +212,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 }
 
                 J.s(() -> {
-                    e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_IRON_GOLEM_DEATH, 0.25f, 0.77f);
+                    p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_DEATH, 0.25f, 0.77f);
                     for (ItemStack i : drops) {
-                        e.getPlayer().getWorld().dropItem(e.getPlayer().getLocation(), i);
+                        p.getWorld().dropItem(p.getLocation(), i);
                     }
                 });
                 e.getItemDrop().setItemStack(new ItemStack(Material.AIR));
@@ -221,11 +224,12 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockDamageEvent e) {
-        if (!hasAdaptation(e.getPlayer())) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
             return;
         }
         org.bukkit.block.Block b = e.getBlock(); // nms block for pref tool
-        ItemStack hand = e.getPlayer().getInventory().getItemInMainHand();
+        ItemStack hand = p.getInventory().getItemInMainHand();
 
         if (!validateTool(hand)) {
             return;
@@ -235,25 +239,25 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             if (hand.getType().toString().contains("_AXE")) {
                 return;
             }
-            J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextAxe(hand)));
+            J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextAxe(hand)));
             itemDelegate(e, hand, imHand);
         } else if (ItemListings.getShovel().contains(b.getType())) {
             if (hand.getType().toString().contains("_SHOVEL")) {
                 return;
             }
-            J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextShovel(hand)));
+            J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextShovel(hand)));
             itemDelegate(e, hand, imHand);
         } else if (ItemListings.getSwordBreakables().contains(b.getType())) {
             if (hand.getType().toString().contains("_SWORD")) {
                 return;
             }
-            J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextSword(hand)));
+            J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
             itemDelegate(e, hand, imHand);
         } else { // Default to pickaxe
             if (hand.getType().toString().contains("_PICKAXE")) {
                 return;
             }
-            J.s(() -> e.getPlayer().getInventory().setItemInMainHand(omniTool.nextPickaxe(hand)));
+            J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextPickaxe(hand)));
             itemDelegate(e, hand, imHand);
         }
 
@@ -289,11 +293,12 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     }
 
     private void itemDelegate(BlockDamageEvent e, ItemStack hand, Damageable imHand) {
-        e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+        Player p = e.getPlayer();
+        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
         if (imHand != null && imHand.hasDamage()) {
             if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
                 e.setCancelled(true);
-                e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+                p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
             }
         }
     }

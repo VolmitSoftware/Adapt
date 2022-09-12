@@ -72,7 +72,8 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
-        lastJump.remove(e.getPlayer());
+        Player p = e.getPlayer();
+        lastJump.remove(p);
     }
 
     @EventHandler
@@ -84,10 +85,10 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
             return;
         }
 
-        Player p = e.getPlayer();
+        Player p = e.getPlayer();;
 
         if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(p)) {
-            e.getPlayer().playSound(e.getPlayer(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
+            p.playSound(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
             return;
         }
 
@@ -97,7 +98,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
         if (p.hasCooldown(p.getInventory().getItemInMainHand().getType())) {
             e.setCancelled(true);
-            e.getPlayer().playSound(e.getPlayer(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
+            p.playSound(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
             return;
         } else {
             NMS.get().sendCooldown(p, Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
@@ -105,21 +106,21 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         }
 
 
-        if (e.getPlayer().getGameMode() != GameMode.CREATIVE) {
+        if (p.getGameMode() != GameMode.CREATIVE) {
             e.getItem().setAmount(e.getItem().getAmount() - 1);
-            lastJump.put(e.getPlayer(), M.ms());
+            lastJump.put(p, M.ms());
         }
 
-        Vector dir = e.getPlayer().getEyeLocation().getDirection();
-        Location spawn = e.getPlayer().getEyeLocation().add(new Vector(.5, -.5, .5)).add(dir);
-        e.getPlayer().getWorld().spawn(spawn, WitherSkull.class, entity -> {
-            e.getPlayer().playSound(entity, Sound.ENTITY_WITHER_SHOOT, 1, 1);
-            entity.setRotation(e.getPlayer().getEyeLocation().getYaw(), e.getPlayer().getEyeLocation().getPitch());
+        Vector dir = p.getEyeLocation().getDirection();
+        Location spawn = p.getEyeLocation().add(new Vector(.5, -.5, .5)).add(dir);
+        p.getWorld().spawn(spawn, WitherSkull.class, entity -> {
+            p.playSound(entity, Sound.ENTITY_WITHER_SHOOT, 1, 1);
+            entity.setRotation(p.getEyeLocation().getYaw(), p.getEyeLocation().getPitch());
             entity.setCharged(false);
             entity.setBounce(false);
             entity.setDirection(dir);
-            entity.setShooter(e.getPlayer());
-            xp(e.getPlayer(), 100);
+            entity.setShooter(p);
+            xp(p, 100);
         });
     }
 

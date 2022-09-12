@@ -61,7 +61,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
 
     @EventHandler
     public void on(BlockBreakEvent e) {
-        Player p = e.getPlayer();
+        Player p = e.getPlayer();;
         if (!hasAdaptation(p)) {
             return;
         }
@@ -69,7 +69,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
             return;
         }
 
-        BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), e.getPlayer(), e.getBlock().getBlockData(), true);
+        BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), p, e.getBlock().getBlockData(), true);
         Bukkit.getServer().getPluginManager().callEvent(can);
 
         if (!can.isBuildable()) {
@@ -99,7 +99,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         J.s(() -> {
             for (Location l : blockMap.keySet()) {
                 Block b = e.getBlock().getWorld().getBlockAt(l);
-                xp(e.getPlayer(), 3);
+                xp(p, 3);
                 if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-autosmelt") != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-autosmelt").getLevel() > 0) {
                     if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-drop-to-inventory").getLevel() > 0) {
                         PickaxeAutosmelt.autosmeltBlockDTI(b, p);
@@ -108,7 +108,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                     }
                 } else {
                     if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-drop-to-inventory").getLevel() > 0) {
-                        b.getDrops(e.getPlayer().getInventory().getItemInMainHand(), p).forEach(item -> {
+                        b.getDrops(p.getInventory().getItemInMainHand(), p).forEach(item -> {
                             HashMap<Integer, ItemStack> extra = p.getInventory().addItem(item);
                             extra.forEach((k, v) -> p.getWorld().dropItem(p.getLocation(), v));
                         });

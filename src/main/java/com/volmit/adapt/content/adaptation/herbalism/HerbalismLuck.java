@@ -60,7 +60,7 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void on(BlockDropItemEvent e) {
-        Player p = e.getPlayer();
+        Player p = e.getPlayer();;
         if (!hasAdaptation(p)) {
             return;
         }

@@ -64,18 +64,20 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerChangedWorldEvent e) {
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        Player p = e.getPlayer();
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
-        seeWorld(e.getPlayer(), e.getPlayer().getWorld());
+        seeWorld(p, p.getWorld());
     }
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerInteractAtEntityEvent e) {
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        Player p = e.getPlayer();
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
-        seeEntity(e.getPlayer(), e.getRightClicked());
+        seeEntity(p, e.getRightClicked());
     }
 
     @EventHandler (priority = EventPriority.HIGHEST)
@@ -111,36 +113,39 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerItemConsumeEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
-        seeItem(e.getPlayer(), e.getItem());
-        seeFood(e.getPlayer(), e.getItem().getType());
+        seeItem(p, e.getItem());
+        seeFood(p, e.getItem().getType());
     }
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
         if (e.getClickedBlock() != null) {
-            seeBlock(e.getPlayer(), e.getClickedBlock().getBlockData(), e.getClickedBlock().getLocation());
+            seeBlock(p, e.getClickedBlock().getBlockData(), e.getClickedBlock().getLocation());
         }
     }
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerExpChangeEvent e) {
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        Player p = e.getPlayer();
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
-        if (e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {
-            xp(e.getPlayer(), e.getAmount());
+        if (e.getAmount() > 0 && getLevel(p) > 0) {
+            xp(p, e.getAmount());
         }
     }
 

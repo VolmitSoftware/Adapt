@@ -72,18 +72,19 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerMoveEvent e) {
-        if (!hasAdaptation(e.getPlayer())) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
             return;
         }
         if (!e.getFrom().getBlock().equals(e.getTo().getBlock())) {
             return;
         }
 
-        if (!this.active.contains(e.getPlayer())) {
+        if (!this.active.contains(p)) {
             return;
         }
 
-        int power = blockPower.get(e.getPlayer());
+        int power = blockPower.get(p);
 
         if (power <= 0) {
             return;
@@ -100,7 +101,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         for (Block b : locs) {
             if (power > 0) {
                 if (addFoundation(b)) {
-                    xp(e.getPlayer(), 3);
+                    xp(p, 3);
                     power--;
                 }
             }
@@ -110,28 +111,29 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             }
         }
 
-        blockPower.put(e.getPlayer(), power);
+        blockPower.put(p, power);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerToggleSneakEvent e) {
-        if (!hasAdaptation(e.getPlayer()) || e.getPlayer().getGameMode().equals(GameMode.CREATIVE)
-                || e.getPlayer().getGameMode().equals(GameMode.SPECTATOR)) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p) || p.getGameMode().equals(GameMode.CREATIVE)
+                || p.getGameMode().equals(GameMode.SPECTATOR)) {
             return;
         }
 
-        boolean ready = !hasCooldown(e.getPlayer());
-        boolean active = this.active.contains(e.getPlayer());
+        boolean ready = !hasCooldown(p);
+        boolean active = this.active.contains(p);
 
         if (e.isSneaking() && ready && !active) {
-            this.active.add(e.getPlayer());
-            cooldowns.put(e.getPlayer(), Long.MAX_VALUE);
+            this.active.add(p);
+            cooldowns.put(p, Long.MAX_VALUE);
             // effect start placing
         } else if (!e.isSneaking() && active) {
-            this.active.remove(e.getPlayer());
-            cooldowns.put(e.getPlayer(), M.ms() + getConfig().cooldown);
-            e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 10.0f);
-            e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_SCULK_CATALYST_BREAK, 1.0f, 0.81f);
+            this.active.remove(p);
+            cooldowns.put(p, M.ms() + getConfig().cooldown);
+            p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 10.0f);
+            p.getWorld().playSound(p.getLocation(), Sound.BLOCK_SCULK_CATALYST_BREAK, 1.0f, 0.81f);
         }
     }
 
@@ -210,7 +212,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (!hasAdaptation(e.getPlayer())) {
+        Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
             return;
         }
         if (activeBlocks.contains(e.getBlock())) {

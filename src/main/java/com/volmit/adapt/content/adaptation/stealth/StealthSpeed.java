@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
@@ -50,8 +51,9 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
-        double factor = getLevelPercent(e.getPlayer());
-        if (!hasAdaptation(e.getPlayer())) {
+        Player p = e.getPlayer();
+        double factor = getLevelPercent(p);
+        if (!hasAdaptation(p)) {
             return;
         }
 
@@ -60,11 +62,11 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         }
         AttributeModifier mod = new AttributeModifier("adapt-sneak-speed", getSpeed(factor), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
         if (e.isSneaking()) {
-            e.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(mod);
+            p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(mod);
         } else {
-            for (AttributeModifier i : e.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
+            for (AttributeModifier i : p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
                 if (i.getName().equals("adapt-sneak-speed")) {
-                    e.getPlayer().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(i);
+                    p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(i);
                 }
             }
         }

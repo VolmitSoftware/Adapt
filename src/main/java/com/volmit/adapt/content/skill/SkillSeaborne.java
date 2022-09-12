@@ -73,31 +73,33 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerFishEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
         if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
-            xp(e.getPlayer(), 300);
+            xp(p, 300);
         } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
-            xp(e.getPlayer(), 10);
+            xp(p, 10);
         }
     }
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
-        if (e.getBlock().getType().equals(Material.SEA_PICKLE) && e.getPlayer().isSwimming() && e.getPlayer().getRemainingAir() < e.getPlayer().getMaximumAir()) { // BECAUSE I LIKE PICKLES
-            xpSilent(e.getPlayer(), 10);
+        if (e.getBlock().getType().equals(Material.SEA_PICKLE) && p.isSwimming() && p.getRemainingAir() < p.getMaximumAir()) { // BECAUSE I LIKE PICKLES
+            xpSilent(p, 10);
         } else {
-            xpSilent(e.getPlayer(), 3);
+            xpSilent(p, 3);
         }
     }
 

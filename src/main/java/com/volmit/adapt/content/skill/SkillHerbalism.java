@@ -32,6 +32,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Levelled;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -99,62 +100,67 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerItemConsumeEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
         if (e.getItem().getItemMeta() instanceof PotionMeta o) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
-        xp(e.getPlayer(), getConfig().foodConsumeXP);
-        getPlayer(e.getPlayer()).getData().addStat("food.eaten", 1);
+        xp(p, getConfig().foodConsumeXP);
+        getPlayer(p).getData().addStat("food.eaten", 1);
     }
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(PlayerShearEntityEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
-        xp(e.getPlayer(), e.getEntity().getLocation(), getConfig().shearXP);
+        xp(p, e.getEntity().getLocation(), getConfig().shearXP);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerHarvestBlockEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
         if (e.getHarvestedBlock().getBlockData() instanceof Ageable) {
-            getPlayer(e.getPlayer()).getData().addStat("harvest.blocks", 1);
-            xp(e.getPlayer(), e.getHarvestedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * (((Ageable) e.getHarvestedBlock().getBlockData()).getAge()));
+            getPlayer(p).getData().addStat("harvest.blocks", 1);
+            xp(p, e.getHarvestedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * (((Ageable) e.getHarvestedBlock().getBlockData()).getAge()));
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
         if (e.getBlock().getBlockData() instanceof Ageable) {
-            xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().plantCropSeedsXP);
-            getPlayer(e.getPlayer()).getData().addStat("harvest.planted", 1);
+            xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().plantCropSeedsXP);
+            getPlayer(p).getData().addStat("harvest.planted", 1);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
 
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
         if (e.useItemInHand().equals(Event.Result.DENY)) {
@@ -172,8 +178,8 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
             J.s(() -> {
                 int nl = ((Levelled) e.getClickedBlock().getBlockData()).getLevel();
                 if (nl > ol || (ol > 0 && nl == 0)) {
-                    xp(e.getPlayer(), e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().composterBaseXP + (nl * getConfig().composterLevelXPMultiplier) + (nl == 0 ? getConfig().composterNonZeroLevelBonus : 5));
-                    getPlayer(e.getPlayer()).getData().addStat("harvest.composted", 1);
+                    xp(p, e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().composterBaseXP + (nl * getConfig().composterLevelXPMultiplier) + (nl == 0 ? getConfig().composterNonZeroLevelBonus : 5));
+                    getPlayer(p).getData().addStat("harvest.composted", 1);
                 }
             });
         }
@@ -181,10 +187,11 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
         if (e.getBlock().getType().equals(Material.CACTUS)) {
@@ -192,8 +199,8 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         }
 
         if (e.getBlock().getBlockData() instanceof Ageable) {
-            xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * (((Ageable) e.getBlock().getBlockData()).getAge()));
-            getPlayer(e.getPlayer()).getData().addStat("harvest.blocks", 1);
+            xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * (((Ageable) e.getBlock().getBlockData()).getAge()));
+            getPlayer(p).getData().addStat("harvest.blocks", 1);
         }
     }
 

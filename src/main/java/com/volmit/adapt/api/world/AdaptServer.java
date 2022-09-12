@@ -171,12 +171,14 @@ public class AdaptServer extends TickedObject {
 
     @EventHandler
     public void on(PlayerJoinEvent e) {
-        join(e.getPlayer());
+        Player p = e.getPlayer();
+        join(p);
     }
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
-        quit(e.getPlayer());
+        Player p = e.getPlayer();
+        quit(p);
     }
 
     @EventHandler

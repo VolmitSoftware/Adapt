@@ -67,15 +67,16 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void onBlockBreak(BlockBreakEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
         if (e.getBlock().getType() == Material.WITHER_ROSE && witherRoseCooldown == 0) {
             witherRoseCooldown = getConfig().getWitherRoseBreakCooldown();
-            xp(e.getPlayer(), e.getBlock().getLocation().add(.5D, .5D, .5D), getConfig().getWitherRoseBreakXp());
+            xp(p, e.getBlock().getLocation().add(.5D, .5D, .5D), getConfig().getWitherRoseBreakXp());
         }
     }
 

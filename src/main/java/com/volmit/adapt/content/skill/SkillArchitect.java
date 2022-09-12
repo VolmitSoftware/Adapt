@@ -58,28 +58,30 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
         double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
-        J.a(() -> xp(e.getPlayer(), e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));
-        getPlayer(e.getPlayer()).getData().addStat("blocks.placed", 1);
-        getPlayer(e.getPlayer()).getData().addStat("blocks.placed.value", v);
+        J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));
+        getPlayer(p).getData().addStat("blocks.placed", 1);
+        getPlayer(p).getData().addStat("blocks.placed.value", v);
 
     }
 
     @EventHandler (priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
+        Player p = e.getPlayer();
         if (e.isCancelled()) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getPlayer().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
             return;
         }
-        getPlayer(e.getPlayer()).getData().addStat("blocks.broken", 1);
+        getPlayer(p).getData().addStat("blocks.broken", 1);
     }
 
     @Override
