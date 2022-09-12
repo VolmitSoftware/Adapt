@@ -61,9 +61,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().name().contains("CREATIVE")) {
                 return;
             }
-            xp(((Player) e.getEntity().getShooter()), getConfig().shootXP);
-            getPlayer(((Player) e.getEntity().getShooter())).getData().addStat("ranged.shotsfired", 1);
-            getPlayer(((Player) e.getEntity().getShooter())).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
+            xp(p, getConfig().shootXP);
+            getPlayer(p).getData().addStat("ranged.shotsfired", 1);
+            getPlayer(p).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
         }
     }
 

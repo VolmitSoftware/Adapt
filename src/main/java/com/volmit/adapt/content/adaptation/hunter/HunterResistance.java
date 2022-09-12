@@ -58,8 +58,7 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e) {
-        if (e.getEntity() instanceof org.bukkit.entity.Player && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation((Player) e.getEntity())) {
-            Player p = (Player) e.getEntity();
+        if (e.getEntity() instanceof org.bukkit.entity.Player  p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
             if (p.getFoodLevel() == 0) {
                 addPotionStacks(p, PotionEffectType.POISON, getLevel(p), 50, true);
 
