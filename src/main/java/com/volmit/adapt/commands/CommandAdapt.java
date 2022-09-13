@@ -38,8 +38,15 @@ public class CommandAdapt extends MortarCommand {
     @Command
     private CommandTest test = new CommandTest();
 
+    private static final List<String> permission = List.of("adapt.main");
+
     public CommandAdapt() {
         super("adapt", "ada", "a");
+    }
+
+    @Override
+    public List<String> getRequiredPermissions() {
+        return permission;
     }
 
     @Override
