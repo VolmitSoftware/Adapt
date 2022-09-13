@@ -8,7 +8,7 @@
       "XP": "至下一级经验"
     },
     "AdaptMenu": {
-      "KnowledgeCost": "知识花费",
+      "KnowledgeCost": "知识可用",
       "AlreadyLearned": "已学习",
       "UnlearnRefund": "点击忘却此技能",
       "Knowledge": "知识",
@@ -615,7 +615,7 @@
     "Thorns": {
       "Name": "荆棘",
       "Description": "受伤时将伤害返回给攻击者！",
-      "Lore1": "受伤时伤害返回给攻击者"
+      "Lore1": "伤害返回倍数"
     }
   },
   "Unarmed": {
