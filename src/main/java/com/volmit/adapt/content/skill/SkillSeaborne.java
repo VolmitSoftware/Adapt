@@ -65,12 +65,14 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
-                return;
-            }
-            if (i.isSwimming() || i.getRemainingAir() < i.getMaximumAir()) {
-                checkStatTrackers(getPlayer(i));
-                xpSilent(i, getConfig().swimXP);
+            if (i != null) {
+                if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+                    return;
+                }
+                if (i.isSwimming() || i.getRemainingAir() < i.getMaximumAir()) {
+                    checkStatTrackers(getPlayer(i));
+                    xpSilent(i, getConfig().swimXP);
+                }
             }
         }
     }

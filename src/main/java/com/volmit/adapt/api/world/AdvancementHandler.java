@@ -73,10 +73,12 @@ public class AdvancementHandler {
 
     public void grant(String key, boolean toast) {
         getPlayer().getData().ensureGranted(key);
-        J.s(() -> getManager().grantAdvancement(player.getPlayer(), real.get(key)), 5);
+        if (player != null && player.getPlayer() != null) {
+            J.s(() -> getManager().grantAdvancement(player.getPlayer().getUniqueId(), real.get(key)), 5);
 
-        if (toast) {
-            real.get(key).displayToast(getPlayer().getPlayer());
+            if (toast) {
+                real.get(key).displayToast(getPlayer().getPlayer());
+            }
         }
     }
 

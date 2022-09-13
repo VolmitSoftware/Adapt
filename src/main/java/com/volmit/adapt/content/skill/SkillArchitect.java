@@ -94,9 +94,11 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            checkStatTrackers(getPlayer(i));
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
-                return;
+            if (i != null) {
+                checkStatTrackers(getPlayer(i));
+                if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+                    return;
+                }
             }
         }
     }
