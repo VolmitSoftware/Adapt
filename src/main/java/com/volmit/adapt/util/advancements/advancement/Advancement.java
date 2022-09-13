@@ -338,10 +338,7 @@ public class Advancement {
      * @return The progress
      */
     public AdvancementProgress getProgress(Player player) {
-        if  (player != null) {
-            return getProgress(player.getUniqueId());
-        }
-        return null;
+        return getProgress(player.getUniqueId());
     }
 
     /**

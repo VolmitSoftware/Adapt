@@ -167,17 +167,18 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(e.getBlock().getWorld().getName())) {
             return;
         }
-        xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP + (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier), getConfig().furnaceXPRadius, getConfig().furnaceXPDuration);
+        xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP +
+                        (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier),
+                getConfig().furnaceXPRadius,
+                getConfig().furnaceXPDuration);
     }
 
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (i != null) {
-                checkStatTrackers(getPlayer(i));
-                if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
-                    return;
-                }
+            checkStatTrackers(getPlayer(i));
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+                return;
             }
         }
     }

@@ -102,14 +102,10 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                 return;
             }
             double cmult = e.getEntity().getType().equals(EntityType.CREEPER) ? getConfig().creeperKillMultiplier : 1;
-            try {
-                if (e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() > 0) {
-                    xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
-                    xp(e.getEntity().getKiller(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult);
-                    getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
-                }
-            } catch (Exception ex) {
-                Adapt.verbose(String.valueOf(ex));
+            if (e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) {
+                xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
+                xp(e.getEntity().getKiller(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult);
+                getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
             }
         }
     }

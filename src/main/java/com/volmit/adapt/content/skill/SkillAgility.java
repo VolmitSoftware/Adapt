@@ -111,17 +111,15 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (i != null) {
-                checkStatTrackers(getPlayer(i));
-                if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+            checkStatTrackers(getPlayer(i));
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+                return;
+            }
+            if (i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
+                if (!AdaptConfig.get().isXpInCreative() && i.getGameMode().name().contains("CREATIVE")) {
                     return;
                 }
-                if (i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
-                    if (!AdaptConfig.get().isXpInCreative() && i.getGameMode().name().contains("CREATIVE")) {
-                        return;
-                    }
-                    xpSilent(i, getConfig().sprintXpPassive);
-                }
+                xpSilent(i, getConfig().sprintXpPassive);
             }
         }
     }
