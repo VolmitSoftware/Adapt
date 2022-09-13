@@ -8,12 +8,12 @@
       "XP": "至下一级经验"
     },
     "AdaptMenu": {
-      "KnowledgeCost": "需要花费的 知识",
+      "KnowledgeCost": "知识可用",
       "AlreadyLearned": "已学习",
       "UnlearnRefund": "点击忘却此技能",
       "Knowledge": "知识",
       "ClickLearn": "点击以学习",
-      "NoKnowledge": "（你没有任何知识）",
+      "NoKnowledge": "（你没有任何知识可用）",
       "YouOnlyHave": "你只有",
       "HowToLevelUp": "升级技能来扩大能力上限",
       "NotEnoughPower": "能力不足！",
@@ -25,14 +25,14 @@
       "Contains": "包含",
       "Knowledge": "知识",
       "RightClick": "右键点击",
-      "ToGainKnowledge": "来获得此 知识",
+      "ToGainKnowledge": "来获得此知识",
       "KnowledgeOrb": "知识之珠"
     },
     "ExperienceOrb": {
       "Contains": "包含",
       "XP": "经验",
       "RightClick": "右键点击",
-      "ToGainXP": "来获得此 经验",
+      "ToGainXP": "来获得此经验",
       "XPOrb": "经验球"
     }
   },
@@ -40,7 +40,7 @@
     "Agility": {
       "Name": "敏捷",
       "Icon": "⇉",
-      "Description": "敏捷可以使你在遇阻时快速、灵活的移动。"
+      "Description": "敏捷可以在遇到障碍时帮助你快速、灵活的移动。"
     },
     "Architect": {
       "Name": "建筑师",
@@ -48,16 +48,16 @@
       "Description": "结构是万物之本。现实在你手中，由你掌握。"
     },
     "Axes": {
-      "Name": "巨斧",
+      "Name": "斧技",
       "Icon": "❖",
       "Description1": "如果说你可以砍掉什么东西",
       "Description2": "来取代掉砍树",
-      "Description3": "它们有什么不一样的吗？"
+      "Description3": "有什么不一样的吗？"
     },
     "Brewing": {
       "Name": "酿造",
       "Icon": "❦",
-      "Description": "咕嘟，咕嘟，咕嘟- 我还是不敢将这瓶药水丢进炼药锅中。"
+      "Description": "咕嘟，咕嘟，咕嘟- 我最终还是不敢将这瓶药水丢进炼药锅中。"
     },
     "Crafting": {
       "Name": "合成",
@@ -67,7 +67,7 @@
     "Discovery": {
       "Name": "探索",
       "Icon": "⚛",
-      "Description": "当洞察力提升时，你的思维便会澄澈，探索能与不能。"
+      "Description": "当洞察力提升时，你的思维便会愈发澄澈，探索更多的奥秘。"
     },
     "Enchanting": {
       "Name": "附魔",
@@ -77,7 +77,7 @@
     "Excavation": {
       "Name": "挖掘",
       "Icon": "✥",
-      "Description": "挖...大...洞..."
+      "Description": "挖大洞......"
     },
     "Herbalism": {
       "Name": "草药学",
@@ -92,12 +92,12 @@
     "Nether": {
       "Name": "下界",
       "Icon": "₪",
-      "Description": "它来自深处。"
+      "Description": "它自深处而来。"
     },
     "Pickaxe": {
       "Name": "采矿",
       "Icon": "⛏",
-      "Description": "矮人是矿工，而我在这段时间里明白了一件事。我是瑞典人"
+      "Description": "矮人是矿工，而我在这段时间里明白了一件事。我是瑞典人！"
     },
     "Ranged": {
       "Name": "箭术",
@@ -107,7 +107,7 @@
     "Rift": {
       "Name": "裂痕",
       "Icon": "❍",
-      "Description": "裂痕是尖刻的线束。现在你应控制了它。"
+      "Description": "裂痕如同一道尖锐的线束，但是现在你控制了它。"
     },
     "Seaborne": {
       "Name": "激流",
@@ -122,27 +122,27 @@
     "Swords": {
       "Name": "剑术",
       "Icon": "⚔",
-      "Description": "这是来自玄武石的力量。"
+      "Description": "一份来自玄武石的力量！"
     },
     "Taming": {
       "Name": "驯兽",
       "Icon": "♥",
-      "Description": "鹦鹉、蜜蜂，和......你？"
+      "Description": "鹦鹉、蜜蜂，以及......你？"
     },
     "TragOul": {
       "Name": "塔格奥",
       "Icon": "▼",
-      "Description": "血液流过宇宙的血管。现在，它被你束缚着。"
+      "Description": "血液在宇宙的血管中游动，束缚于你的手中。"
     },
     "Chronos": {
       "Name": "时空",
       "Icon": "۞",
-      "Description": "尝试着宇宙的钟上个发条，便可以体验到流动。若能把时钟弄坏，或许就能成为它。"
+      "Description": "尝试着宇宙的钟上个发条，便可以感受到流动。若能把时钟弄坏，或许就能成为它。"
     },
     "Unarmed": {
       "Name": "搏击",
       "Icon": "⚜",
-      "Description": "没有武器并不意味着失去力量。"
+      "Description": "赤手空拳并不意味着失去力量。"
     }
   },
   "Agility": {
@@ -251,7 +251,7 @@
       "Description": "根据附近方块硬度给予被动防御。",
       "Lore1": "被动防御",
       "Lore2": "由附近方块硬度决定",
-      "Lore3": "装备力量： +"
+      "Lore3": "防御： +"
     },
     "DiscoveryUnity": {
       "Name": "实验性统合",
@@ -306,7 +306,7 @@
       "Lore4": "拆解：手持预拆解的物品，按住潜行键丢弃以拆解。",
       "Lore5": "注意：如果此工具钳套件中任何一个物品耐久度至零，该工具钳将报废！",
       "Lore6": "个可合并物品。",
-      "Lore7": "也许你需要五、六种物品在同一个工具钳里。或者仅仅需要一个。"
+      "Lore7": "有时候你需要五、六种物品在同一个工具钳里，或许仅仅需要一个。"
     }
   },
   "Herbalism": {
@@ -344,7 +344,7 @@
     },
     "Replant": {
       "Name": "收割者",
-      "Description": "手持锄头，右键庄稼进行自动收割和再种植。",
+      "Description": "手持锄头，右键庄稼进行自动收割和重新种植。",
       "Lore1": " 有效范围半径"
     }
   },
@@ -429,8 +429,8 @@
   "Nether": {
     "SkullToss": {
       "Name": "凋灵发射器",
-      "Description1": "发射凋灵的头展现",
-      "Description2": "内心中的",
+      "Description1": "发射凋灵的头",
+      "Description2": "展现内心中的",
       "Description3": "枯竭。",
       "Lore1": "秒发射冷却时间。",
       "Lore2": "使用凋灵头颅发射器：",
@@ -615,7 +615,7 @@
     "Thorns": {
       "Name": "荆棘",
       "Description": "受伤时将伤害返回给攻击者！",
-      "Lore1": "受伤时伤害返回给攻击者"
+      "Lore1": "伤害返回倍数"
     }
   },
   "Unarmed": {
@@ -632,7 +632,7 @@
     },
     "SuckerPunch": {
       "Name": "杀客同萌",
-      "Description": "疾跑时可以攻击，但是更加致命",
+      "Description": "疾跑时可以攻击，将更加致命",
       "Lore1": "伤害",
       "Lore2": "攻击时伤害随移动速度增加"
     }
