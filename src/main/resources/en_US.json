@@ -5,7 +5,11 @@
       "Knowledge": "Knowledge",
       "PowerUsed": "Power Used",
       "NotLearned": "Not Learned",
-      "XP": "XP to"
+      "XP": "XP to",
+      "Welcome": "Welcome!",
+      "WelcomeBack": "Welcome back!",
+      "XPBonusForTime": "XP for",
+      "UnlockThisByCLicking": "Unlock this by Right-Clicking the Adapt Block!"
     },
     "AdaptMenu": {
       "KnowledgeCost": "Knowledge Cost",
