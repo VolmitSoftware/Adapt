@@ -27,13 +27,16 @@ import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
@@ -103,10 +106,24 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
             }
             double cmult = e.getEntity().getType().equals(EntityType.CREEPER) ? getConfig().creeperKillMultiplier : 1;
             if (e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) {
-                xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
-                xp(e.getEntity().getKiller(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult);
-                getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
+                if (e.getEntity().getPortalCooldown() > 0) {
+                    xp(e.getEntity().getLocation(), getConfig().spawnerMobReductionXpMultiplier * (e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult), getConfig().killSpatialRadius, getConfig().killSpatialDuration);
+                    xp(e.getEntity().getKiller(), e.getEntity().getLocation(), getConfig().spawnerMobReductionXpMultiplier * (e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult));
+                    getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
+                } else {
+                    xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
+                    xp(e.getEntity().getKiller(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult);
+                    getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
+                }
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(CreatureSpawnEvent e) {
+        if (e.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.SPAWNER)) {
+            Entity ent = e.getEntity();
+            ent.setPortalCooldown(630726000);
         }
     }
 
@@ -131,5 +148,6 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         double killMaxHealthXPMultiplier = 6;
         int killSpatialRadius = 24;
         long killSpatialDuration = 15000;
+        double spawnerMobReductionXpMultiplier = 0.5;
     }
 }
