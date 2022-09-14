@@ -125,7 +125,7 @@ public class AdaptPlayer extends TickedObject {
         UUID uuid = player.getUniqueId();
         String data = new Gson().toJson(this.data);
 
-        if(Adapt.instance.getSqlManager().useSql()) {
+        if (Adapt.instance.getSqlManager().useSql()) {
             Adapt.instance.getSqlManager().updateData(uuid, data);
         } else {
             IO.writeAll(getPlayerDataFile(uuid), new JSONObject(data).toString(4));
@@ -141,9 +141,9 @@ public class AdaptPlayer extends TickedObject {
 
     private PlayerData loadPlayerData() {
         boolean upload = false;
-        if(Adapt.instance.getSqlManager().useSql()) {
+        if (Adapt.instance.getSqlManager().useSql()) {
             String sqlData = Adapt.instance.getSqlManager().fetchData(player.getUniqueId());
-            if(sqlData != null) {
+            if (sqlData != null) {
                 return new Gson().fromJson(sqlData, PlayerData.class);
             }
             upload = true;
@@ -153,11 +153,12 @@ public class AdaptPlayer extends TickedObject {
         if (f.exists()) {
             try {
                 String text = IO.readAll(f);
-                if(upload) {
+                if (upload) {
                     Adapt.instance.getSqlManager().updateData(player.getUniqueId(), text);
                 }
                 return new Gson().fromJson(IO.readAll(f), PlayerData.class);
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
         }
 
         return new PlayerData();
@@ -234,8 +235,8 @@ public class AdaptPlayer extends TickedObject {
         double boostAmount = M.lerp(0.1, 0.25, (double) boostTime / (double) TimeUnit.HOURS.toMillis(1));
         getData().globalXPMultiplier(boostAmount, (int) boostTime);
         getNot().queue(AdvancementNotification.builder()
-                .title(first ? "Welcome!" : "Welcome Back!")
-                .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " XP for " + C.AQUA + Form.duration(boostTime, 0))
+                .title(first ? Adapt.dLocalize("Snippets", "GUI", "Welcome") : Adapt.dLocalize("Snippets", "GUI", "WelcomeBack"))
+                .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " " + Adapt.dLocalize("Snippets", "GUI", "XPBonusForTime") + " " + C.AQUA + Form.duration(boostTime, 0))
                 .build());
     }
 

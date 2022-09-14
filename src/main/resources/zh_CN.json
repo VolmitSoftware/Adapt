@@ -5,7 +5,11 @@
       "Knowledge": "知识",
       "PowerUsed": "已使用的 能力",
       "NotLearned": "尚未学习",
-      "XP": "至下一级经验"
+      "XP": "至下一级经验",
+      "Welcome": "欢迎！",
+      "WelcomeBack": "欢迎回来！",
+      "XPBonusForTime": "经验增益，持续",
+      "UnlockThisByCLicking": "右键Adapt方块以解锁！"
     },
     "AdaptMenu": {
       "KnowledgeCost": "知识可用",
@@ -263,7 +267,7 @@
       "Name": "实验性电阻",
       "Description": "减少来自任何方面的伤害\n",
       "Lore0": "每 15秒 发生一次",
-      "Lore1": "% 减少伤害",
+      "Lore1": " 减少伤害",
       "Lore2": "经验消耗"
     }
   },
@@ -450,7 +454,7 @@
       "Name": "自动熔炼",
       "Description": "当你挖掘（曾经）需要冶炼的矿物",
       "Lore1": "时将自动熔炼成熔炼后的产物。",
-      "Lore2": "% 的概率获得额外产物。"
+      "Lore2": " 的概率获得额外产物。"
     },
     "Chisel": {
       "Name": "破碎锤",
