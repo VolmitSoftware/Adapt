@@ -38,6 +38,8 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 
 public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     public SkillHunter() {
@@ -141,7 +143,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     protected static class Config {
         boolean enabled = true;
         double turtleEggKillXP = 125;
-        int turtleEggSpatialRadius = 24;
+        int turtleEggSpatialRadius = 14;
         long turtleEggSpatialDuration = 15000;
         double creeperKillMultiplier = 4;
         double killMaxHealthSpatialXPMultiplier = 3;

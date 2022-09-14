@@ -42,7 +42,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
         super("discovery-xp-resist");
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("Discovery", "DiscoveryXpResist", "Description"));
-        setDisplayName(" " + Adapt.dLocalize("Discovery", "DiscoveryXpResist", "Name"));
+        setDisplayName(Adapt.dLocalize("Discovery", "DiscoveryXpResist", "Name"));
         setIcon(Material.EMERALD);
         setInterval(5215);
         setBaseCost(getConfig().baseCost);

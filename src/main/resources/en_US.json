@@ -265,10 +265,17 @@
     },
     "DiscoveryXpResist": {
       "Name": "Experimental Resistance",
-      "Description": "Consume experience to mitigate the damage you take from all sources\n",
+      "Description": "Consume experience to mitigate the damage you take from all sources",
       "Lore0": "This may only occur once per 15 seconds",
       "Lore1": "% Reduced Damage",
       "Lore2": "experience drained"
+    },
+    "DiscoveryVillagerAtt": {
+      "Name": "Villager Attraction",
+      "Description": "Allows for you to get Better trades with villagers!",
+      "Lore1": "This consumes XP per interaction with Villagers",
+      "Lore2": "Chance Per interaction to consume XP, and enhance trades",
+      "Lore3": "required XP drain per Interaction"
     }
   },
   "Enchanting": {

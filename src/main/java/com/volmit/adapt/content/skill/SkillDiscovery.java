@@ -24,6 +24,7 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryArmor;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryUnity;
+import com.volmit.adapt.content.adaptation.discovery.DiscoveryVillagerAtt;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryXpResist;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
@@ -60,6 +61,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         registerAdaptation(new DiscoveryUnity());
         registerAdaptation(new DiscoveryArmor());
         registerAdaptation(new DiscoveryXpResist());
+        registerAdaptation(new DiscoveryVillagerAtt());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
