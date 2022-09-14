@@ -70,6 +70,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         v.addLore(C.GREEN + Adapt.dLocalize("Architect", "Foundation", "Lore1") + (getBlockPower(getLevelPercent(level))) + C.GRAY + " " + Adapt.dLocalize("Architect", "Foundation", "Lore2"));
     }
 
+
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
@@ -215,10 +217,6 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
-            return;
-        }
         if (activeBlocks.contains(e.getBlock())) {
             e.setCancelled(true);
         }

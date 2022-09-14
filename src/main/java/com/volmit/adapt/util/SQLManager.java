@@ -3,7 +3,10 @@ package com.volmit.adapt.util;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class SQLManager {
@@ -20,22 +23,35 @@ public class SQLManager {
             AdaptConfig config = AdaptConfig.get();
             try {
                 connection = DriverManager.getConnection(assembleUrl(config), config.getSql().getUsername(), config.getSql().getPassword());
-                if(!connection.isValid(30)) {
+                if (!connection.isValid(30)) {
                     Adapt.error("Timeout while trying to establish a connection to the SQL server!");
                     connection.close();
                     connection = null;
                 } else {
                     Adapt.info(String.format("Connected to SQL Database \"%s\" at %s:%d.", config.getSql().getDatabase(), config.getSql().getHost(), config.getSql().getPort()));
-                    if(!connection.getMetaData().getTables(null, null, TABLE_NAME, new String[] {"TABLE"}).next()) {
+                    if (!connection.getMetaData().getTables(null, null, TABLE_NAME, new String[]{"TABLE"}).next()) {
                         Adapt.info("\tAdapt Table does not exist, creating...");
                         connection.createStatement().executeUpdate(CREATE_TABLE_QUERY);
                         Adapt.info("\tCreated Table \"" + TABLE_NAME + "\" on database " + config.getSql().getDatabase() + ".");
                     }
                 }
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 Adapt.error("Failed to establish a connection to the SQL server!");
                 Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
                 connection = null;
+            }
+        });
+    }
+
+    public void closeConnection() {
+        J.a(() -> {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    Adapt.error("Failed to close the connection to the SQL server!");
+                    Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
+                }
             }
         });
     }
@@ -44,7 +60,7 @@ public class SQLManager {
         J.a(() -> {
             try {
                 connection.createStatement().executeUpdate(String.format(UPDATE_QUERY, uuid.toString(), data, data));
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 Adapt.error("Failed to write data to the SQL server!");
                 Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
             }
@@ -54,10 +70,10 @@ public class SQLManager {
     public String fetchData(UUID uuid) {
         try {
             ResultSet set = connection.prepareStatement(String.format(FETCH_QUERY, uuid.toString())).executeQuery();
-            if(!set.next())
+            if (!set.next())
                 return null;
             return set.getString("DATA");
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             Adapt.error("Failed to read data from the SQL server!");
             Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
             return null;

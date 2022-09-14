@@ -216,6 +216,7 @@ public class Adapt extends VolmitPlugin {
 
     @Override
     public void stop() {
+        sqlManager.closeConnection();
         adaptServer.unregister();
         MaterialValue.save();
         WorldData.stop();
