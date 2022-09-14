@@ -30,8 +30,15 @@ public class CommandTest extends MortarCommand {
     @Command
     private CommandTestSound sound = new CommandTestSound();
 
+    private static final List<String> permission = List.of("adapt.ireallyknowwhatimdoingiswear");
+
     public CommandTest() {
         super("test", "t");
+    }
+
+    @Override
+    public List<String> getRequiredPermissions() {
+        return permission;
     }
 
     @Override

@@ -146,6 +146,10 @@ public interface Adaptation<T> extends Ticked, Component {
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
     default boolean hasAdaptation(Player p) {
+        if (p.getClass().getSimpleName().equals("PlayerNPC")) {
+            return false;
+        }
+
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return false;
         }
@@ -153,10 +157,16 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default int getLevel(Player p) {
+        if (p.getClass().getSimpleName().equals("PlayerNPC")) {
+            return 0;
+        }
         return getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
     }
 
     default double getLevelPercent(Player p) {
+        if (p.getClass().getSimpleName().equals("PlayerNPC")) {
+            return 0.0;
+        }
         return Math.min(Math.max(0, M.lerpInverse(0, getMaxLevel(), getLevel(p))), 1);
     }
 

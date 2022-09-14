@@ -24,7 +24,7 @@ plugins {
 }
 
 
-version '1.1.4-1.19.2' // Needs to be version specific
+version '1.1.5-1.19.2' // Needs to be version specific
 def nmsVersion = "1.19.2" //[NMS]
 def apiVersion = '1.19'
 def specialSourceVersion = '1.11.0' //[NMS]
@@ -301,7 +301,7 @@ def registerCustomOutputTask(name, path) {
         from(new File(buildDir, "Adapt-" + version + ".jar"))
         into(file(path))
         rename { String fileName ->
-            fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
+            fileName.replace("Adapt-" + version + ".jar", "Adapt-"+ version +".jar")
         }
     }
 }
@@ -318,7 +318,7 @@ def registerCustomOutputTaskUnix(name, path) {
         from(new File(buildDir, "Adapt-" + version + ".jar"))
         into(file(path))
         rename { String fileName ->
-            fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
+            fileName.replace("Adapt-" + version + ".jar", "Adapt-"+ version +".jar")
         }
     }
 }

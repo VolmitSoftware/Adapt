@@ -65,6 +65,9 @@ public interface Skill<T> extends Ticked, Component {
     List<AdaptStatTracker> getStatTrackers();
 
     default void checkStatTrackers(AdaptPlayer player) {
+        if (player.getPlayer().getClass().getSimpleName().equals("PlayerNPC")) {
+            return;
+        }
         if (!player.getAdvancementHandler().isReady()) {
             return;
         }
@@ -100,21 +103,27 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xp(Player p, double xp) {
-        xp(p, p.getLocation(), xp);
+        if (!p.getClass().getSimpleName().equals("PlayerNPC")) {
+            xp(p, p.getLocation(), xp);
+        }
     }
 
     default void xp(Player p, Location at, double xp) {
-        XP.xp(p, this, xp);
-        if (xp > 50) {
-            vfxXP(p, at, (int) xp);
+        if (!p.getClass().getSimpleName().equals("PlayerNPC")) {
+            XP.xp(p, this, xp);
+            if (xp > 50) {
+                vfxXP(p, at, (int) xp);
+            }
         }
     }
 
     default void xpSilent(Player p, double xp) {
-        try {
-            XP.xpSilent(p, this, xp);
-        } catch (
-                Exception ignored) { // Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.
+        if (!p.getClass().getSimpleName().equals("PlayerNPC")) {
+            try {
+                XP.xpSilent(p, this, xp);
+            } catch (
+                    Exception ignored) { // Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.
+            }
         }
     }
 
@@ -128,6 +137,9 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void openGui(Player player) {
+        if (player.getClass().getSimpleName().equals("PlayerNPC")) {
+            return;
+        }
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
