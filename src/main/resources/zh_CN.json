@@ -5,7 +5,11 @@
       "Knowledge": "知识",
       "PowerUsed": "已使用的 能力",
       "NotLearned": "尚未学习",
-      "XP": "至下一级经验"
+      "XP": "至下一级经验",
+      "Welcome": "欢迎！",
+      "WelcomeBack": "欢迎回来！",
+      "XPBonusForTime": "经验增益，持续",
+      "UnlockThisByCLicking": "右键Adapt方块以解锁！"
     },
     "AdaptMenu": {
       "KnowledgeCost": "知识可用",
