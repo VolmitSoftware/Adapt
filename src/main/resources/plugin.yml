@@ -11,4 +11,3 @@ libraries:
 commands:
   adapt:
     aliases: [ a, ada ]
-    permission: op

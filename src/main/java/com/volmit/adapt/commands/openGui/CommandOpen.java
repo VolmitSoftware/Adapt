@@ -28,8 +28,16 @@ public class CommandOpen extends MortarCommand {
     @Command
     private CommandOpenGUI gui = new CommandOpenGUI();
 
+    private static final List<String> permission = List.of("adapt.opengui");
+
+
     public CommandOpen() {
         super("open", "o");
+    }
+
+    @Override
+    public List<String> getRequiredPermissions() {
+        return permission;
     }
 
     @Override

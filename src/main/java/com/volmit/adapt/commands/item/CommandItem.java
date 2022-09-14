@@ -30,8 +30,16 @@ public class CommandItem extends MortarCommand {
     @Command
     private CommandItemExperienceOrb xpOrb = new CommandItemExperienceOrb();
 
+    private static final List<String> permission = List.of("adapt.cheatitem");
+
+
     public CommandItem() {
         super("item", "i");
+    }
+
+    @Override
+    public List<String> getRequiredPermissions() {
+        return permission;
     }
 
     @Override
