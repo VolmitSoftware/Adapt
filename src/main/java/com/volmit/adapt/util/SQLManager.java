@@ -19,28 +19,26 @@ public class SQLManager {
     private Connection connection;
 
     public void establishConnection() {
-        J.a(() -> {
-            AdaptConfig config = AdaptConfig.get();
-            try {
-                connection = DriverManager.getConnection(assembleUrl(config), config.getSql().getUsername(), config.getSql().getPassword());
-                if (!connection.isValid(30)) {
-                    Adapt.error("Timeout while trying to establish a connection to the SQL server!");
-                    connection.close();
-                    connection = null;
-                } else {
-                    Adapt.info(String.format("Connected to SQL Database \"%s\" at %s:%d.", config.getSql().getDatabase(), config.getSql().getHost(), config.getSql().getPort()));
-                    if (!connection.getMetaData().getTables(null, null, TABLE_NAME, new String[]{"TABLE"}).next()) {
-                        Adapt.info("\tAdapt Table does not exist, creating...");
-                        connection.createStatement().executeUpdate(CREATE_TABLE_QUERY);
-                        Adapt.info("\tCreated Table \"" + TABLE_NAME + "\" on database " + config.getSql().getDatabase() + ".");
-                    }
-                }
-            } catch (SQLException e) {
-                Adapt.error("Failed to establish a connection to the SQL server!");
-                Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
+        AdaptConfig config = AdaptConfig.get();
+        try {
+            connection = DriverManager.getConnection(assembleUrl(config), config.getSql().getUsername(), config.getSql().getPassword());
+            if (!connection.isValid(30)) {
+                Adapt.error("Timeout while trying to establish a connection to the SQL server!");
+                connection.close();
                 connection = null;
+            } else {
+                Adapt.info(String.format("Connected to SQL Database \"%s\" at %s:%d.", config.getSql().getDatabase(), config.getSql().getHost(), config.getSql().getPort()));
+                if (!connection.getMetaData().getTables(null, null, TABLE_NAME, new String[]{"TABLE"}).next()) {
+                    Adapt.info("\tAdapt Table does not exist, creating...");
+                    connection.createStatement().executeUpdate(CREATE_TABLE_QUERY);
+                    Adapt.info("\tCreated Table \"" + TABLE_NAME + "\" on database " + config.getSql().getDatabase() + ".");
+                }
             }
-        });
+        } catch (SQLException e) {
+            Adapt.error("Failed to establish a connection to the SQL server!");
+            Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
+            connection = null;
+        }
     }
 
     public void closeConnection() {

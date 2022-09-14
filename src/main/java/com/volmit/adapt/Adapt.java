@@ -200,11 +200,11 @@ public class Adapt extends VolmitPlugin {
         printInformation();
         NMS.init();
         ticker = new Ticker();
-        adaptServer = new AdaptServer();
         sqlManager = new SQLManager();
         if(AdaptConfig.get().isUseSql()) {
             sqlManager.establishConnection();
         }
+        adaptServer = new AdaptServer();
         setupMetrics();
     }
 
