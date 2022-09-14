@@ -47,6 +47,8 @@ public class AdaptConfig {
     private double playerXpPerSkillLevelUpBase = 489;
     private double playerXpPerSkillLevelUpLevelMultiplier = 44;
     private double powerPerLevel = 0.73;
+    private boolean useSql = false;
+    private SqlSettings sql = new SqlSettings();
 
     public static AdaptConfig get() {
         if (config == null) {
@@ -74,6 +76,15 @@ public class AdaptConfig {
         }
 
         return config;
+    }
+
+    @Getter
+    public static class SqlSettings {
+        private String host = "localhost";
+        private int port = 1337;
+        private String database = "adapt";
+        private String username = "user";
+        private String password = "password";
     }
 
     @Getter

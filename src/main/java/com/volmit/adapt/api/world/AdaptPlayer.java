@@ -28,12 +28,12 @@ import com.volmit.adapt.util.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.io.File;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @EqualsAndHashCode(callSuper = false)
@@ -122,7 +122,14 @@ public class AdaptPlayer extends TickedObject {
 
     @SneakyThrows
     private void save() {
-        IO.writeAll(new File(Bukkit.getServer().getPluginManager().getPlugin(Adapt.instance.getName()).getDataFolder() + File.separator + "data" + File.separator + "players" + File.separator + player.getUniqueId() + ".json"), new JSONObject(new Gson().toJson(data)).toString(4));
+        UUID uuid = player.getUniqueId();
+        String data = new Gson().toJson(this.data);
+
+        if(Adapt.instance.getSqlManager().useSql()) {
+            Adapt.instance.getSqlManager().updateData(uuid, data);
+        } else {
+            IO.writeAll(getPlayerDataFile(uuid), new JSONObject(data).toString(4));
+        }
     }
 
     @Override
@@ -133,14 +140,24 @@ public class AdaptPlayer extends TickedObject {
     }
 
     private PlayerData loadPlayerData() {
-        File f = new File(Bukkit.getServer().getPluginManager().getPlugin(Adapt.instance.getName()).getDataFolder() + File.separator + "data" + File.separator + "players" + File.separator + player.getUniqueId() + ".json");
+        boolean upload = false;
+        if(Adapt.instance.getSqlManager().useSql()) {
+            String sqlData = Adapt.instance.getSqlManager().fetchData(player.getUniqueId());
+            if(sqlData != null) {
+                return new Gson().fromJson(sqlData, PlayerData.class);
+            }
+            upload = true;
+        }
 
+        File f = getPlayerDataFile(player.getUniqueId());
         if (f.exists()) {
             try {
+                String text = IO.readAll(f);
+                if(upload) {
+                    Adapt.instance.getSqlManager().updateData(player.getUniqueId(), text);
+                }
                 return new Gson().fromJson(IO.readAll(f), PlayerData.class);
-            } catch (Throwable ignored) {
-
-            }
+            } catch (Throwable ignored) {}
         }
 
         return new PlayerData();
@@ -224,5 +241,9 @@ public class AdaptPlayer extends TickedObject {
 
     public boolean hasSkill(Skill s) {
         return getData().getSkillLines().containsKey(s.getName()) && getData().getSkillLines().get(s.getId()).getXp() > 1;
+    }
+
+    private File getPlayerDataFile(UUID uuid) {
+        return new File(Adapt.instance.getDataFolder("data", "players"), uuid.toString() + ".json");
     }
 }

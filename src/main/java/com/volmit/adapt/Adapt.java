@@ -28,10 +28,7 @@ import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.commands.CommandAdapt;
 import com.volmit.adapt.nms.NMS;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Command;
-import com.volmit.adapt.util.Metrics;
-import com.volmit.adapt.util.VolmitPlugin;
+import com.volmit.adapt.util.*;
 import de.slikey.effectlib.EffectManager;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatMessageType;
@@ -57,6 +54,9 @@ public class Adapt extends VolmitPlugin {
     private AdaptServer adaptServer;
     private FolderWatcher configWatcher;
     private boolean localized = false;
+
+    @Getter
+    private SQLManager sqlManager;
 
     public Adapt() {
         super();
@@ -201,6 +201,10 @@ public class Adapt extends VolmitPlugin {
         NMS.init();
         ticker = new Ticker();
         adaptServer = new AdaptServer();
+        sqlManager = new SQLManager();
+        if(AdaptConfig.get().isUseSql()) {
+            sqlManager.establishConnection();
+        }
         setupMetrics();
     }
 
