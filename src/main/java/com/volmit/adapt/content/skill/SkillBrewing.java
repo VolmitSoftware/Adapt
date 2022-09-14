@@ -67,7 +67,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
             return;
         }
-        Adapt.info(e.getItem().toString());
+        Adapt.verbose(e.getItem().toString());
         if (e.getItem().getItemMeta() instanceof PotionMeta o
                 && !e.getItem().toString().contains("potion-type=minecraft:water")
                 && !e.getItem().toString().contains("potion-type=minecraft:mundane")
