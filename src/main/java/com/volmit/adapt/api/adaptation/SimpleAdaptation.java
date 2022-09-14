@@ -32,7 +32,9 @@ import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.entity.Horse;
 
 import java.io.File;
 import java.io.IOException;
@@ -164,7 +166,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
 
         return AdaptAdvancement.builder()
                 .key("adaptation_" + getName())
-                .title(getDisplayName())
+                .title(C.WHITE +"[     " + getDisplayName() + C.WHITE + "     ]")
                 .description(getDescription() + ". " + Adapt.dLocalize("Snippets", "GUI", "UnlockThisByCLicking"))
                 .icon(getIcon())
                 .children(a)
