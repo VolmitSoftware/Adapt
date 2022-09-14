@@ -44,16 +44,14 @@ public class SQLManager {
     }
 
     public void closeConnection() {
-        J.a(() -> {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    Adapt.error("Failed to close the connection to the SQL server!");
-                    Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
-                }
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                Adapt.error("Failed to close the connection to the SQL server!");
+                Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
             }
-        });
+        }
     }
 
     public void updateData(UUID uuid, String data) {
