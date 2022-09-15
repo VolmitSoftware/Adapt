@@ -120,10 +120,6 @@ public class AdaptPlayer extends TickedObject {
         return getData().getSkillLine(l);
     }
 
-    public void deleteData() {
-        //todo: delete data
-    }
-
     @SneakyThrows
     private void save() {
         UUID uuid = player.getUniqueId();
