@@ -93,7 +93,6 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         if (k.getKiller() == null || k.getKiller().getType() != EntityType.PLAYER) {
             return;
         }
-
         Player p = k.getKiller();
         if (!hasAdaptation(p)) {
             return;
@@ -101,14 +100,16 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         if (e.getEntity() instanceof Player) {
             return;
         }
-        p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
-        e.getDrops().forEach(i -> {
-            xp(p, 2);
-            if (!p.getInventory().addItem(i).isEmpty()) {
-                p.getWorld().dropItem(p.getLocation(), i);
-            }
-        });
-        e.getDrops().clear();
+        if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
+            p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
+            e.getDrops().forEach(i -> {
+                xp(p, 2);
+                if (!p.getInventory().addItem(i).isEmpty()) {
+                    p.getWorld().dropItem(p.getLocation(), i);
+                }
+            });
+            e.getDrops().clear();
+        }
     }
 
 

@@ -57,7 +57,10 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
     @EventHandler
     public void on(EntityAirChangeEvent e) {
-        if (e.getEntity() instanceof Player p && p.isSwimming() && hasAdaptation(p)) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (e.getEntity() instanceof Player p && p.isSwimming() && hasAdaptation(p) && p.getWorld().getBlockAt(p.getLocation()).isLiquid()) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 50, getLevel(p)));
             p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, getLevel(p), getLevel(p)));
         }

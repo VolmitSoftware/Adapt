@@ -31,6 +31,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -90,6 +91,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getDamager() instanceof Player p) {
             if (!hasAdaptation(p) && validateTool(p.getInventory().getItemInMainHand())) {
                 e.setCancelled(true);
@@ -102,15 +106,15 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 return;
             }
             ItemStack hand = p.getInventory().getItemInMainHand();
-            Damageable imHand = (Damageable) hand.getItemMeta();
+            Damageable inHand = (Damageable) hand.getItemMeta();
 
             if (!validateTool(hand)) {
                 return;
             }
             J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
             p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
-            if (imHand != null && imHand.hasDamage()) {
-                if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
+            if (inHand != null && inHand.hasDamage()) {
+                if ((hand.getType().getMaxDurability() - inHand.getDamage() - 2) <= 2) {
                     e.setCancelled(true);
                     p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
                 }
@@ -142,6 +146,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             return;
         }
         if (!hasAdaptation(p)) {
+            return;
+        }
+        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
             return;
         }
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && hasAdaptation(p)) {

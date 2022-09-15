@@ -22,7 +22,9 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.content.adaptation.sword.SwordsBloodyBlade;
 import com.volmit.adapt.content.adaptation.sword.SwordsMachete;
+import com.volmit.adapt.content.adaptation.sword.SwordsPoisonedBlade;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
@@ -43,6 +45,8 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         setInterval(2150);
         setIcon(Material.DIAMOND_SWORD);
         registerAdaptation(new SwordsMachete());
+        registerAdaptation(new SwordsPoisonedBlade());
+        registerAdaptation(new SwordsBloodyBlade());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -52,7 +56,12 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
                 if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                     return;
                 }
-                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
+                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE)
+                        || p.getGameMode().equals(GameMode.SPECTATOR))
+                        || e.getEntity().isDead()
+                        || e.getEntity().isInvulnerable()
+                        || p.isDead()
+                        || p.isInvulnerable()) {
                     return;
                 }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());

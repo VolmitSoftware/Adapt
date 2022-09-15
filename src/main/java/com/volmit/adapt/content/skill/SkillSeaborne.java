@@ -37,7 +37,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillSeaborne() {
         super("seaborne", Adapt.dLocalize("Skill", "Seaborne", "Icon"));
         registerConfiguration(Config.class);
@@ -60,6 +65,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_1nm").goal(1852).stat("move.swim").reward(getConfig().challengeSwim1nmReward).build());
+        cooldowns = new HashMap<>();
     }
 
     @Override
@@ -68,7 +74,11 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;
             }
-            if (i.isSwimming() || i.getRemainingAir() < i.getMaximumAir()) {
+            if (!AdaptConfig.get().isXpInCreative() && (i.getGameMode().equals(GameMode.CREATIVE) || i.getGameMode().equals(GameMode.SPECTATOR))) {
+                return;
+            }
+            if (i.getWorld().getBlockAt(i.getLocation()).isLiquid() && i.isSwimming()) {
+                Adapt.verbose("Seaborne Tick");
                 checkStatTrackers(getPlayer(i));
                 xpSilent(i, getConfig().swimXP);
             }
@@ -80,11 +90,12 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         if (e.isCancelled()) {
             return;
         }
+        Adapt.verbose("Fishing");
         Player p = e.getPlayer();
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
@@ -99,13 +110,23 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         if (e.isCancelled()) {
             return;
         }
+        if (cooldowns.containsKey(e.getPlayer())) {
+            if (cooldowns.get(e.getPlayer()) + getConfig().seaPickleCooldown > System.currentTimeMillis()) {
+                return;
+            } else {
+                cooldowns.remove(e.getPlayer());
+            }
+        }
+
+        cooldowns.put(e.getPlayer(), System.currentTimeMillis());
         Player p = e.getPlayer();
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
+        Adapt.verbose("Block Break Event");
         if (e.getBlock().getType().equals(Material.SEA_PICKLE) && p.isSwimming() && p.getRemainingAir() < p.getMaximumAir()) { // BECAUSE I LIKE PICKLES
             xpSilent(p, 10);
         } else {
@@ -120,6 +141,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @NoArgsConstructor
     protected static class Config {
+        public long seaPickleCooldown = 1000;
         boolean enabled = true;
         double challengeSwim1nmReward = 750;
         double swimXP = 28.7;

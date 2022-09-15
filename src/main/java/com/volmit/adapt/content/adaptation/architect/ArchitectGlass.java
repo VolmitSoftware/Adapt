@@ -58,6 +58,9 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (hasAdaptation(p) && (p.getInventory().getItemInMainHand().getType() == Material.AIR) && !e.isCancelled()) {
             BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), p, e.getBlock().getBlockData(), true);

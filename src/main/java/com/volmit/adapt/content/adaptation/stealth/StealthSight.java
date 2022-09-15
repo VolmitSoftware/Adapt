@@ -53,6 +53,9 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (!hasAdaptation(p)) {
             return;

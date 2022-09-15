@@ -68,14 +68,11 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         if (e.isCancelled()) {
             return;
         }
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = (Player) e.getWhoClicked();
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().xpInCreative && p.getGameMode().equals(GameMode.CREATIVE)) {
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (e.getInventory().getResult() != null && !e.isCancelled() && e.getInventory().getResult().getAmount() > 0) {
@@ -167,10 +164,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(e.getBlock().getWorld().getName())) {
             return;
         }
-        xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP +
-                        (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier),
-                getConfig().furnaceXPRadius,
-                getConfig().furnaceXPDuration);
+        xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP + (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier), getConfig().furnaceXPRadius, getConfig().furnaceXPDuration);
     }
 
     @Override

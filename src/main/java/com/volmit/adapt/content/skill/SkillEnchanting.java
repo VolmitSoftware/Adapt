@@ -26,6 +26,7 @@ import com.volmit.adapt.content.adaptation.enchanting.EnchantingQuickEnchant;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingXPReturn;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -53,7 +54,7 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(e.getEnchanter().getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getEnchanter().getGameMode().name().contains("CREATIVE")) {
+        if (!AdaptConfig.get().isXpInCreative() && (e.getEnchanter().getGameMode().equals(GameMode.CREATIVE) || e.getEnchanter().getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         xp(e.getEnchanter(), getConfig().enchantPowerXPMultiplier * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());

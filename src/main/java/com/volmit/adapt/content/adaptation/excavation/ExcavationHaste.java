@@ -53,6 +53,9 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockDamageEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (!hasAdaptation(p)) {
             return;

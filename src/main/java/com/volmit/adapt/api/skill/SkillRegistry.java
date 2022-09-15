@@ -35,6 +35,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -58,6 +59,7 @@ public class SkillRegistry extends TickedObject {
         registerSkill(SkillAgility.class);
         registerSkill(SkillArchitect.class);
         registerSkill(SkillAxes.class);
+        registerSkill(SkillBlocking.class);
         registerSkill(SkillChronos.class);
         registerSkill(SkillCrafting.class);
         registerSkill(SkillDiscovery.class);
@@ -89,6 +91,9 @@ public class SkillRegistry extends TickedObject {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
+            return;
+        }
         if (!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
                 && e.getClickedBlock().getType().equals(Material.valueOf(AdaptConfig.get().adaptActivatorBlock)) && (p.getInventory().getItemInMainHand().getType().equals(Material.AIR)
                 || !p.getInventory().getItemInMainHand().getType().isBlock()) &&

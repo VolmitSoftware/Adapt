@@ -63,7 +63,11 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
                 if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                     return;
                 }
-                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
+                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
+                        || e.getEntity().isDead()
+                        || e.getEntity().isInvulnerable()
+                        || p.isDead()
+                        || p.isInvulnerable()) {
                     return;
                 }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
@@ -88,7 +92,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             return;
         }
 
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (isAxe(p.getInventory().getItemInMainHand())) {

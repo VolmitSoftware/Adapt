@@ -69,6 +69,9 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(InventoryClickEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getWhoClicked() instanceof Player p
                 && hasAdaptation(p)
                 && e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR)

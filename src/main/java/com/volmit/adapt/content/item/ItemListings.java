@@ -174,6 +174,18 @@ public class ItemListings {
     );
 
     @Getter
+    public static List<Material> multiArmorable = List.of(
+            Material.ELYTRA,
+            Material.CHAINMAIL_CHESTPLATE,
+            Material.DIAMOND_CHESTPLATE,
+            Material.GOLDEN_CHESTPLATE,
+            Material.IRON_CHESTPLATE,
+            Material.LEATHER_CHESTPLATE,
+            Material.NETHERITE_CHESTPLATE
+    );
+
+
+    @Getter
     public static List<Material> oreList = List.of(
             Material.COAL_ORE,
             Material.DIAMOND_ORE,
