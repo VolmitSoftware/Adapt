@@ -63,6 +63,11 @@
       "Icon": "❦",
       "Description": "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
     },
+    "Blocking": {
+      "Name": "Blocking",
+      "Icon": "A",
+      "Description": "Sticks and stones Won't break your bones, But a shield will."
+    },
     "Crafting": {
       "Name": "Crafting",
       "Icon": "⌂",
@@ -234,6 +239,18 @@
       "Description": "Brewing stands work faster the hotter they are.",
       "Lore1": "Per Touching Fire Block",
       "Lore2": "Per Touching Lava Block"
+    }
+  },
+  "Blocking": {
+    "MultiArmor": {
+      "Name": "Multi-Armor",
+      "Description": "Bind Elytras to Armor",
+      "Lore1": "This Is an amazing skill for traveling.",
+      "Lore2": "dynamically merge and change Armor/Elytra on the Fly!",
+      "Lore3": "to merge, shift click an item over another in your inventory.",
+      "Lore4": "to unbind Armor, Sneak-Drop the item, and it will disassemble.",
+      "Lore5": "If your MultiArmor is destroyed, you will lose all items in it.",
+      "Lore6": "I Don't need armor, It disappoints me..."
     }
   },
   "Crafting": {
