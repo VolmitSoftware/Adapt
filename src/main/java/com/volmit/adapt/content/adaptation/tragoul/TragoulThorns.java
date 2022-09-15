@@ -63,7 +63,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         if (e.isCancelled()) {
             return;
         }
-        if (e.getEntity() instanceof Player p && hasAdaptation(p) ) {
+        if (e.getEntity() instanceof Player p && hasAdaptation(p)) {
             if (cooldowns.containsKey(p)) {
                 if (cooldowns.get(p) + 1500 > System.currentTimeMillis()) {
                     return;
@@ -74,11 +74,11 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
 
             cooldowns.put(p, System.currentTimeMillis());
             if (e.getDamager() instanceof LivingEntity le) {
-                BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
-                blood.setEntity(le);
-                blood.height = -1;
-                blood.iterations = 1;
                 if (getConfig().showParticles) {
+                    BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
+                    blood.setEntity(le);
+                    blood.height = -1;
+                    blood.iterations = 1;
                     blood.start();
                 }
                 le.damage(getConfig().damageMultiplierPerLevel * getLevel(p), p);

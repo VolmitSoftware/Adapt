@@ -605,6 +605,20 @@
       "Lore1": "Slash Radius",
       "Lore2": "Chop Cooldown",
       "Lore3": "Tool Wear"
+    },
+    "BloodyBlade": {
+      "Name": "Bloody Blade",
+      "Description": "Strikes with your sword, cause Bleeding!",
+      "Lore1": "Striking a Living entity with your Sword causes Bleeding",
+      "Lore2": "Bleed Duration",
+      "Lore3": "Bleed Cooldown"
+    },
+    "PoisonedBlade": {
+      "Name": "Poisoned Blade",
+      "Description": "Strikes with your sword, cause Poison!",
+      "Lore1": "Striking a Living entity with your Sword causes Poison" ,
+      "Lore2": "Poison Duration",
+      "Lore3": "Poison Cooldown"
     }
   },
   "Taming": {
