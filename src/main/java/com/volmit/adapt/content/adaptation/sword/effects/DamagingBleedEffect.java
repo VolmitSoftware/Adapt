@@ -16,44 +16,26 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands.test;
+package com.volmit.adapt.content.adaptation.sword.effects;
 
-import com.volmit.adapt.util.Command;
-import com.volmit.adapt.util.MortarCommand;
-import com.volmit.adapt.util.MortarSender;
+import com.volmit.adapt.util.J;
+import de.slikey.effectlib.EffectManager;
+import de.slikey.effectlib.effect.BleedEffect;
+import org.bukkit.entity.LivingEntity;
 
-import java.util.List;
+public class DamagingBleedEffect extends BleedEffect {
+    private final double damage;
+    private final LivingEntity target;
 
-public class CommandTest extends MortarCommand {
-    @Command
-    private CommandTestParticle particle = new CommandTestParticle();
-    @Command
-    private CommandTestSound sound = new CommandTestSound();
-
-    private static final List<String> permission = List.of("adapt.idontknowwhatimdoingiswear");
-
-    public CommandTest() {
-        super("test", "t");
+    public DamagingBleedEffect(EffectManager effectManager, double damage, LivingEntity target) {
+        super(effectManager);
+        this.damage = damage;
+        this.target = target;
     }
 
     @Override
-    public List<String> getRequiredPermissions() {
-        return permission;
-    }
-
-    @Override
-    public boolean handle(MortarSender sender, String[] args) {
-        printHelp(sender);
-        return true;
-    }
-
-    @Override
-    public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
-
-    }
-
-    @Override
-    protected String getArgsUsage() {
-        return "";
+    public void onRun() {
+        super.onRun();
+        J.s(() -> target.damage(damage));
     }
 }

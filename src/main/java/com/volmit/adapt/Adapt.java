@@ -116,6 +116,43 @@ public class Adapt extends VolmitPlugin {
         }
     }
 
+    public File getJarFile() {
+        return getFile();
+    }
+
+    @Override
+    public void start() {
+        loadLanguageLocalization();
+        printInformation();
+        NMS.init();
+        ticker = new Ticker();
+        sqlManager = new SQLManager();
+        if(AdaptConfig.get().isUseSql()) {
+            sqlManager.establishConnection();
+        }
+        adaptServer = new AdaptServer();
+        setupMetrics();
+    }
+
+    private void setupMetrics() {
+        if (AdaptConfig.get().isMetrics()) {
+            new Metrics(this, 13412);
+        }
+    }
+
+    @Override
+    public void stop() {
+        sqlManager.closeConnection();
+        adaptServer.unregister();
+        MaterialValue.save();
+        WorldData.stop();
+    }
+
+    @Override
+    public String getTag(String subTag) {
+        return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.LIGHT_PURPLE + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
+    }
+
     private static void updateLanguageFile() {
         info("Attempting to update Language File");
         File langFolder = new File(Adapt.instance.getDataFolder() + "/languages");
@@ -189,43 +226,5 @@ public class Adapt extends VolmitPlugin {
             return wordKey.get("" + s1 + s2 + s3);
         }
     }
-
-    public File getJarFile() {
-        return getFile();
-    }
-
-    @Override
-    public void start() {
-        loadLanguageLocalization();
-        printInformation();
-        NMS.init();
-        ticker = new Ticker();
-        sqlManager = new SQLManager();
-        if(AdaptConfig.get().isUseSql()) {
-            sqlManager.establishConnection();
-        }
-        adaptServer = new AdaptServer();
-        setupMetrics();
-    }
-
-    private void setupMetrics() {
-        if (AdaptConfig.get().isMetrics()) {
-            new Metrics(this, 13412);
-        }
-    }
-
-    @Override
-    public void stop() {
-        sqlManager.closeConnection();
-        adaptServer.unregister();
-        MaterialValue.save();
-        WorldData.stop();
-    }
-
-    @Override
-    public String getTag(String subTag) {
-        return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.LIGHT_PURPLE + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
-    }
-
 
 }

@@ -30,8 +30,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
+    private final Map<Player, Long> cooldowns;
 
     public TragoulThorns() {
         super("tragoul-thorns");
@@ -44,6 +48,8 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        cooldowns = new HashMap<>();
+
     }
 
     @Override
@@ -58,12 +64,21 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
             return;
         }
         if (e.getEntity() instanceof Player p && hasAdaptation(p)) {
+            if (cooldowns.containsKey(p)) {
+                if (cooldowns.get(p) + 1500 > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    cooldowns.remove(p);
+                }
+            }
+
+            cooldowns.put(p, System.currentTimeMillis());
             if (e.getDamager() instanceof LivingEntity le) {
-                BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
-                blood.setEntity(le);
-                blood.height = -1;
-                blood.iterations = 1;
                 if (getConfig().showParticles) {
+                    BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
+                    blood.setEntity(le);
+                    blood.height = -1;
+                    blood.iterations = 1;
                     blood.start();
                 }
                 le.damage(getConfig().damageMultiplierPerLevel * getLevel(p), p);
