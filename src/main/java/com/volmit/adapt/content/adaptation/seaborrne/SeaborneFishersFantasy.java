@@ -69,6 +69,7 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
                 if (random.nextBoolean()) {
                     p.getWorld().dropItemNaturally(p.getLocation(), item);
                     p.getWorld().spawn(p.getLocation(), ExperienceOrb.class);
+                    Adapt.verbose("Fishing Gift Donated!");
                     xp(p, 15 * getLevel(p));
                 }
             }

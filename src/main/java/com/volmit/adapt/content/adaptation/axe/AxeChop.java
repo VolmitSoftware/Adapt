@@ -30,6 +30,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -62,12 +63,9 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        BlockCanBuildEvent can = new BlockCanBuildEvent(p.getWorld().getBlockAt(p.getLocation()), p, Material.AIR.createBlockData(), false);
-        Bukkit.getServer().getPluginManager().callEvent(can);
-        if (!can.isBuildable()) {
-            return;
+        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
+           return;
         }
-
         if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
             return;
         }
