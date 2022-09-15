@@ -32,6 +32,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -80,7 +81,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         if (!hasAdaptation(p)) {
             return;
         }
-
+        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
+            return;
+        }
 
         ItemStack hand = p.getInventory().getItemInMainHand();
         ItemMeta handMeta = hand.getItemMeta();

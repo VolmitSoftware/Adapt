@@ -74,7 +74,13 @@ public class AdaptServer extends TickedObject {
     }
 
     public void offer(SpatialXP xp) {
-        spatialTickets.add(xp);
+        try {
+            if (xp == null || xp.getSkill() == null || xp.getRadius() > 0 || xp.getMs() > 0 || xp.getLocation() == null) {
+                return;
+            }
+            spatialTickets.add(xp);
+        } catch (Exception ignored) {
+        }
     }
 
     public void takeSpatial(AdaptPlayer p) {
@@ -86,6 +92,10 @@ public class AdaptServer extends TickedObject {
             }
 
             if (M.ms() > x.getMs()) {
+                spatialTickets.remove(x);
+                return;
+            }
+            if (p.getPlayer().getClass().getSimpleName().equals("PlayerNPC")) {
                 spatialTickets.remove(x);
                 return;
             }

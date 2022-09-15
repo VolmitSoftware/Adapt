@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -72,7 +73,9 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
             return;
         }
         ItemStack hand = p.getInventory().getItemInMainHand();
-
+        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
+            return;
+        }
         if (e.getAction() == Action.RIGHT_CLICK_AIR) {
             switch (hand.getType()) {
                 case ENDER_EYE, ENDER_PEARL -> {

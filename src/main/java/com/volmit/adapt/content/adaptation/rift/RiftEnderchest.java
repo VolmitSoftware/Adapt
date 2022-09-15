@@ -26,6 +26,7 @@ import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -55,6 +56,9 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         if (!hasAdaptation(p)) {
+            return;
+        }
+        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
             return;
         }
         ItemStack hand = p.getInventory().getItemInMainHand();

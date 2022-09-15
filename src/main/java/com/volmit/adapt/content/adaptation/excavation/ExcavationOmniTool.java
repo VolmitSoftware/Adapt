@@ -31,6 +31,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -145,6 +146,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             return;
         }
         if (!hasAdaptation(p)) {
+            return;
+        }
+        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
             return;
         }
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && hasAdaptation(p)) {
