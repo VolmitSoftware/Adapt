@@ -126,10 +126,10 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
         public long cooldown = 5000;
         public long effectDuration = 1000;
         boolean enabled = true;
-        int baseCost = 4;
+        int baseCost = 7;
         int maxLevel = 7;
         int initialCost = 7;
-        double costFactor = 0.225;
+        double costFactor = 0.325;
     }
 }
 
