@@ -59,6 +59,9 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getCause() == EntityDamageEvent.DamageCause.WITHER && e.getEntity() instanceof Player p) {
             if (!hasAdaptation(p))
                 return;

@@ -68,9 +68,6 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         if (e.isCancelled()) {
             return;
         }
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = (Player) e.getWhoClicked();
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;

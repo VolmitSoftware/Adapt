@@ -69,6 +69,9 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BrewEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
             BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).getMantle().get(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);
 

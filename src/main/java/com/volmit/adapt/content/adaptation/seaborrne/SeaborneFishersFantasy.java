@@ -55,6 +55,9 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
 
     @EventHandler
     public void on(PlayerFishEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (!hasAdaptation(p)) {
             return;

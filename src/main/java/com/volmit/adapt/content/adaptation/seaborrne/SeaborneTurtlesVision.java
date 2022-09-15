@@ -52,6 +52,9 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
 
     @EventHandler
     public void on(EntityAirChangeEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity() instanceof Player p && p.getInventory().getHelmet() != null && p.getInventory().getHelmet().getType().equals(Material.TURTLE_HELMET) && hasAdaptation(p)) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 50, getLevel(p)));
         }

@@ -74,6 +74,9 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BrewEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         J.s(() -> {
             if (((BrewingStand) e.getBlock().getState()).getBrewingTime() > 0) {
                 activeStands.add(e.getBlock());
@@ -83,6 +86,9 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(InventoryClickEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getView().getTopInventory().getType().equals(InventoryType.BREWING)) {
             activeStands.add(e.getView().getTopInventory().getLocation().getBlock());
         }

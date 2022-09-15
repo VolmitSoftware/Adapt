@@ -50,6 +50,9 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getDamager() instanceof Player p) {
             if (!hasAdaptation(p)) {
                 return;

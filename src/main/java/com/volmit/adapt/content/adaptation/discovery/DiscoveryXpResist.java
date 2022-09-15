@@ -71,6 +71,9 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
 
     @EventHandler
     public void on(EntityDamageEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity() instanceof Player p && hasAdaptation(p) && p.getLevel() > 1) {
             if (p.getLevel() < p.getLevel() - getXpTaken(getLevel(p))) {
                 vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);

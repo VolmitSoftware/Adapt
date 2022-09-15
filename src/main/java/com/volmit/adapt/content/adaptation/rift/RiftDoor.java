@@ -62,6 +62,9 @@ public class RiftDoor extends SimpleAdaptation<RiftDoor.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockDamageEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (hasAdaptation(p) && !e.isCancelled()) {
             Block b = e.getBlock();

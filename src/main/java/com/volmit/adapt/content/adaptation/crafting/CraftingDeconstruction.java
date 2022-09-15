@@ -156,6 +156,9 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(InventoryClickEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!hasAdaptation((Player) e.getWhoClicked())) {
             return;
         }

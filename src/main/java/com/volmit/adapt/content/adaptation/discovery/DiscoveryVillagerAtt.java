@@ -69,6 +69,9 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
 
     @EventHandler
     public void on(PlayerInteractEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (e.getRightClicked() instanceof Villager v && hasAdaptation(p)) {
             Random r = new Random();

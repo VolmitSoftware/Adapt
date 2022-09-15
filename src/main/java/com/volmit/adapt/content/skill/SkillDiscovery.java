@@ -149,9 +149,6 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;

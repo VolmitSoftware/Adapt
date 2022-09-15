@@ -24,6 +24,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -32,6 +33,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -60,6 +62,12 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        BlockCanBuildEvent can = new BlockCanBuildEvent(p.getWorld().getBlockAt(p.getLocation()), p, Material.AIR.createBlockData(), false);
+        Bukkit.getServer().getPluginManager().callEvent(can);
+        if (!can.isBuildable()) {
+            return;
+        }
+
         if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
             return;
         }
