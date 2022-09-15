@@ -48,6 +48,7 @@ public class AdaptConfig {
     private double playerXpPerSkillLevelUpLevelMultiplier = 44;
     private double powerPerLevel = 0.73;
     private boolean requireBuildPermissionToUseSkills = true;
+    private boolean hardcoreResetOnPlayerDeath = false;
     private boolean useSql = false;
     private SqlSettings sql = new SqlSettings();
 

@@ -97,7 +97,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
             return;
         }
-        if (e.getEntity().getKiller() != null && e.getEntity().getKiller() != null) {
+        if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
             if (!AdaptConfig.get().isXpInCreative() && (e.getEntity().getKiller().getGameMode().equals(GameMode.CREATIVE) || e.getEntity().getKiller().getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
@@ -111,7 +111,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                 } else {
                     xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
                     xp(e.getEntity().getKiller(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult);
-                    try {getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);} catch (Exception ignored){}
+                    getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
                 }
             }
         }
