@@ -90,7 +90,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (e.getFrom().getWorld() != null && e.getTo() != null && e.getFrom().getWorld().equals(e.getTo().getWorld())) {
@@ -116,7 +116,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                 return;
             }
             if (i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
-                if (!AdaptConfig.get().isXpInCreative() && i.getGameMode().name().contains("CREATIVE")) {
+                if (!AdaptConfig.get().isXpInCreative() && (i.getGameMode().equals(GameMode.CREATIVE) || i.getGameMode().equals(GameMode.SPECTATOR))) {
                     return;
                 }
                 xpSilent(i, getConfig().sprintXpPassive);

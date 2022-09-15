@@ -153,6 +153,9 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     @EventHandler
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
+        if (e.isCancelled()) {
+            return;
+        }
         if (!hasAdaptation(p)) {
             return;
         }

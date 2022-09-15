@@ -52,6 +52,9 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EnchantItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         int level = getLevel(e.getEnchanter());
         Player p = e.getEnchanter();
         if (!hasAdaptation(p)) {

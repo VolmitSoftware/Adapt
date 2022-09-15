@@ -51,6 +51,9 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         double factor = getLevelPercent(p);
         if (!hasAdaptation(p)) {

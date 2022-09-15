@@ -54,6 +54,9 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity() instanceof Player p && hasAdaptation(p)) {
             if (e.getDamager() instanceof LivingEntity le) {
                 BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood

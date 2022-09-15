@@ -77,6 +77,9 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @EventHandler
     public void on(PlayerMoveEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (airjumps.containsKey(p)) {
             if (p.isOnGround() && !p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData().getMaterial().isAir()) {

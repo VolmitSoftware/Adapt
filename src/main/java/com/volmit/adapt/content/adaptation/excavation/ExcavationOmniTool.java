@@ -90,6 +90,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getDamager() instanceof Player p) {
             if (!hasAdaptation(p) && validateTool(p.getInventory().getItemInMainHand())) {
                 e.setCancelled(true);

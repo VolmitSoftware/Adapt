@@ -52,6 +52,9 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(EnchantItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getEnchanter();
         if (!hasAdaptation(p)) {
             return;

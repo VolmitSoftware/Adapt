@@ -70,6 +70,9 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getDamager() instanceof Projectile r && r.getShooter() instanceof Player p && hasAdaptation(p) && !getPlayer(p).getData().isGranted("challenge_force_30")) {
             Location a = e.getEntity().getLocation().clone();
             Location b = p.getLocation().clone();
@@ -86,6 +89,9 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity().getShooter() instanceof Player p) {
             if (hasAdaptation(p)) {
                 double factor = getLevelPercent(p);

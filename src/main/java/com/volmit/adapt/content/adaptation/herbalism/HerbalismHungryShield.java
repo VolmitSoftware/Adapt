@@ -63,6 +63,9 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity() instanceof Player p && hasAdaptation(p)) {
             double f = getEffectiveness(getLevelPercent(p));
             double h = e.getDamage() * f;

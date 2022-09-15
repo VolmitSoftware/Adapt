@@ -55,6 +55,9 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
     @EventHandler
     public void on(ProjectileLaunchEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity().getShooter() instanceof Player p) {
             if (e.getEntity() instanceof AbstractArrow a) {
                 xp(p, 5);

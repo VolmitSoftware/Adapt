@@ -58,7 +58,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                 if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                     return;
                 }
-                if (!AdaptConfig.get().isXpInCreative() && p.getGameMode().equals(GameMode.CREATIVE)) {
+                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                     return;
                 }
                 AdaptPlayer a = getPlayer(p);
@@ -82,7 +82,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && e.getEntity().getGameMode().equals(GameMode.CREATIVE)) {
+        if (!AdaptConfig.get().isXpInCreative() && (e.getEntity().getGameMode().equals(GameMode.CREATIVE) || e.getEntity().getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (getConfig().takeAwaySkillsOnDeath) {

@@ -58,6 +58,9 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
     @EventHandler
     public void on(PlayerToggleSneakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (!hasAdaptation(p)) {
             return;

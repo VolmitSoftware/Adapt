@@ -74,6 +74,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerMoveEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (!hasAdaptation(p)) {
             return;

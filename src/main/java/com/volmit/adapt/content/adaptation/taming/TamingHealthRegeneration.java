@@ -62,6 +62,9 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity() instanceof Tameable) {
             lastDamage.put(e.getEntity().getUniqueId(), M.ms());
         }
