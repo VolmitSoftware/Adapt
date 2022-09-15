@@ -106,15 +106,15 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 return;
             }
             ItemStack hand = p.getInventory().getItemInMainHand();
-            Damageable imHand = (Damageable) hand.getItemMeta();
+            Damageable inHand = (Damageable) hand.getItemMeta();
 
             if (!validateTool(hand)) {
                 return;
             }
             J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
             p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
-            if (imHand != null && imHand.hasDamage()) {
-                if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
+            if (inHand != null && inHand.hasDamage()) {
+                if ((hand.getType().getMaxDurability() - inHand.getDamage() - 2) <= 2) {
                     e.setCancelled(true);
                     p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
                 }

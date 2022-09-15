@@ -51,24 +51,35 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (!e.isCancelled()) {
-            if (e.getDamager() instanceof Player p) {
+//            if (e.getDamager() instanceof Player p) {
+//                if (e.isCancelled()) {
+//                    return;
+//                }
+//                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+//                    return;
+//                }
+//                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) && !p.isBlocking()) {
+//                    return;
+//                }
+////                AdaptPlayer a = getPlayer(p);
+////                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
+//
+//            } else
+            if (e.getEntity() instanceof Player p) {
                 if (e.isCancelled()) {
                     return;
                 }
                 if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                     return;
                 }
-                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
+                        || e.getEntity().isDead()
+                        || e.getEntity().isInvulnerable()
+                        || p.isDead()
+                        || p.isInvulnerable()) {
                     return;
                 }
-                AdaptPlayer a = getPlayer(p);
-                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
-
-            } else if (e.getEntity() instanceof Player p) {
-                if (e.isCancelled()) {
-                    return;
-                }
-                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                if (p.isBlocking() || p.isDead() || p.isInvulnerable()) {
                     return;
                 }
                 AdaptPlayer a = getPlayer(p);
@@ -99,22 +110,24 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
             AdaptPlayer a = getPlayer(e.getEntity());
             Player p = a.getPlayer();
             p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_DEATH, 1f, 1f);
-            double xp = a.getData().getSkillLines().get("tragoul").getXp();
-            if (a.getData().getSkillLines().get("tragoul").getXp() > getConfig().deathXpLoss) {
-                xp(p, getConfig().deathXpLoss);
-            } else {
-                a.getData().getSkillLines().get("tragoul").setXp(0);
-            }
-            a.getData().getSkillLines().get("tragoul").setXp(xp);
-            a.getData().getSkillLines().get("tragoul").setLastXP(xp);
-            for (PlayerAdaptation adapt : a.getData().getSkillLines().get("tragoul").getAdaptations().values()) {
-                if (adapt.getLevel() > 0) {
-                    adapt.setLevel(adapt.getLevel() - 1);
+            if (a.getData().getSkillLines().get("tragoul") != null) {
+                double xp = a.getData().getSkillLines().get("tragoul").getXp();
+                if (a.getData().getSkillLines().get("tragoul").getXp() > getConfig().deathXpLoss) {
+                    xp(p, getConfig().deathXpLoss);
                 } else {
-                    adapt.setLevel(0);
+                    a.getData().getSkillLines().get("tragoul").setXp(0);
                 }
+                a.getData().getSkillLines().get("tragoul").setXp(xp);
+                a.getData().getSkillLines().get("tragoul").setLastXP(xp);
+                for (PlayerAdaptation adapt : a.getData().getSkillLines().get("tragoul").getAdaptations().values()) {
+                    if (adapt.getLevel() > 0) {
+                        adapt.setLevel(adapt.getLevel() - 1);
+                    } else {
+                        adapt.setLevel(0);
+                    }
+                }
+                recalcTotalExp(p);
             }
-            recalcTotalExp(p);
         }
     }
 
@@ -139,7 +152,6 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         boolean takeAwaySkillsOnDeath = true;
         boolean enabled = true;
         boolean showParticles = true;
-        double damageXPMultiplier = 5.26;
         double damageReceivedXpMultiplier = 2.26;
     }
 }

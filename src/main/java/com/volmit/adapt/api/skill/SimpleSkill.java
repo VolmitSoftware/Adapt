@@ -213,6 +213,11 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     @EventHandler
     public void on(PlayerDeathEvent e) {
         if (AdaptConfig.get().isHardcoreResetOnPlayerDeath()) {
+            Player p = e.getEntity();
+            AdaptPlayer ap = getPlayer(p);
+            if (ap != null) {
+                ap.deleteData();
+            }
         }
     }
 }

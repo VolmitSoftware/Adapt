@@ -176,6 +176,18 @@ public interface AdaptComponent {
         return false;
     }
 
+    default boolean isElytra(ItemStack it) {
+        if (isItem(it)) {
+            return switch (it.getType()) {
+                case ELYTRA, LEGACY_ELYTRA->
+                        true;
+                default -> false;
+            };
+        }
+
+        return false;
+    }
+
     default boolean isHoe(ItemStack it) {
         if (isItem(it)) {
             return switch (it.getType()) {
