@@ -15,6 +15,7 @@ public class SQLManager {
     private static final String CREATE_TABLE_QUERY = "CREATE TABLE " + TABLE_NAME + " (UUID char(36) NOT NULL UNIQUE, DATA MEDIUMTEXT NOT NULL)";
     private static final String UPDATE_QUERY = "INSERT INTO " + TABLE_NAME + " (UUID, DATA) VALUES('%s', '%s') ON DUPLICATE KEY UPDATE DATA='%s'";
     private static final String FETCH_QUERY = "SELECT DATA FROM " + TABLE_NAME + " WHERE UUID='%s'";
+    private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE UUID='%s'";
 
     private Connection connection;
 
@@ -58,6 +59,17 @@ public class SQLManager {
                 connection.createStatement().executeUpdate(String.format(UPDATE_QUERY, uuid.toString(), data, data));
             } catch (SQLException e) {
                 Adapt.error("Failed to write data to the SQL server!");
+                Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
+            }
+        });
+    }
+
+    public void delete(UUID uuid) {
+        J.a(() -> {
+            try {
+                connection.createStatement().executeUpdate(String.format(DELETE_QUERY, uuid.toString()));
+            } catch(SQLException e) {
+                Adapt.error("Failed to delete data from the SQL server!");
                 Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
             }
         });

@@ -139,6 +139,15 @@ public class AdaptPlayer extends TickedObject {
         save();
     }
 
+    public void delete(UUID uuid) {
+        File local = getPlayerDataFile(player.getUniqueId());
+        if(local.exists())
+            local.delete();
+        if (Adapt.instance.getSqlManager().useSql()) {
+            Adapt.instance.getSqlManager().delete(uuid);
+        }
+    }
+
     private PlayerData loadPlayerData() {
         boolean upload = false;
         if (Adapt.instance.getSqlManager().useSql()) {
