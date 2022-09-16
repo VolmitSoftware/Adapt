@@ -62,7 +62,6 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
-            p.sendMessage("AHH: " + getConfig().tameXpBase);
             if (p.getLocation().distance(e.getEntity().getLocation()) <= 15) {
                 xp(p, getConfig().tameXpBase);
             }
