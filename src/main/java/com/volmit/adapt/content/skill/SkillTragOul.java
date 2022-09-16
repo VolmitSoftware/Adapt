@@ -96,8 +96,15 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         if (!AdaptConfig.get().isXpInCreative() && (e.getEntity().getGameMode().equals(GameMode.CREATIVE) || e.getEntity().getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
-        if (getConfig().takeAwaySkillsOnDeath) {
 
+        if (AdaptConfig.get().isHardcoreResetOnPlayerDeath()) {
+            Adapt.info("Resetting " + e.getEntity().getName() + "'s skills due to death");
+            Player p = e.getEntity();
+            AdaptPlayer ap = getPlayer(p);
+            ap.delete(p.getUniqueId());
+            return;
+        }
+        if (getConfig().takeAwaySkillsOnDeath) {
             if (getConfig().showParticles) {
                 CloudEffect ce = new CloudEffect(Adapt.instance.adaptEffectManager);
                 ce.mainParticle = Particle.ASH;
@@ -130,6 +137,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
             }
         }
     }
+
 
     @Override
     public void onTick() {
