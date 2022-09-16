@@ -29,8 +29,10 @@ import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.commands.CommandAdapt;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.secret.SecretSplash;
 import de.slikey.effectlib.EffectManager;
 import lombok.Getter;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -41,10 +43,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.Random;
 
 public class Adapt extends VolmitPlugin {
     public static Adapt instance;
     public static HashMap<String, String> wordKey = new HashMap<>();
+    public static BukkitAudiences audiences;
     public final EffectManager adaptEffectManager = new EffectManager(this);
     @Command
     private CommandAdapt commandAdapt = new CommandAdapt();
@@ -127,11 +131,12 @@ public class Adapt extends VolmitPlugin {
         NMS.init();
         ticker = new Ticker();
         sqlManager = new SQLManager();
-        if(AdaptConfig.get().isUseSql()) {
+        if (AdaptConfig.get().isUseSql()) {
             sqlManager.establishConnection();
         }
         adaptServer = new AdaptServer();
         setupMetrics();
+        startupPrint(); // Splash screen
     }
 
     private void setupMetrics() {
@@ -225,6 +230,43 @@ public class Adapt extends VolmitPlugin {
         } else {
             return wordKey.get("" + s1 + s2 + s3);
         }
+    }
+
+    public static int getJavaVersion() {
+        String version = System.getProperty("java.version");
+        if (version.startsWith("1.")) {
+            version = version.substring(2, 3);
+        } else {
+            int dot = version.indexOf(".");
+            if (dot != -1) {
+                version = version.substring(0, dot);
+            }
+        }
+        return Integer.parseInt(version);
+    }
+
+    private void startupPrint() {
+        if (!AdaptConfig.get().isSplashScreen()) {
+            return;
+        }
+        Random r = new Random();
+        int game = r.nextInt(100);
+
+        if (game < 85){ // 85%
+            Adapt.info(
+                    "\n" +
+                            C.GRAY + " █████" + C.DARK_RED + "╗ " + C.GRAY + "██████" + C.DARK_RED + "╗  " + C.GRAY + "█████" + C.DARK_RED + "╗ " + C.GRAY + "██████" + C.DARK_RED + "╗ " + C.GRAY + "████████" + C.DARK_RED + "╗\n" +
+                            C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗╚══" + C.GRAY + "██" + C.DARK_RED + "╔══╝" + C.WHITE + "         Version: " + C.DARK_RED + instance.getDescription().getVersion() + "     \n" +
+                            C.GRAY + "███████" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "███████" + C.DARK_RED + "║" + C.GRAY + "██████" + C.DARK_RED + "╔╝   " + C.GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            By: " + C.RED + "A"+ C.GOLD + "r"+ C.YELLOW + "c"+ C.GREEN + "a"+ C.DARK_GRAY + "n"+ C.AQUA + "e "+ C.AQUA + "A"+ C.BLUE + "r"+ C.DARK_BLUE + "t"+ C.DARK_PURPLE + "s"+ C.WHITE +" (Volmit Software)\n" +
+                            C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "╔═══╝    " + C.GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Java Version: " + C.DARK_RED + getJavaVersion() + "     \n" +
+                            C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██████" + C.DARK_RED + "╔╝" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║        " + C.GRAY + "██" + C.DARK_RED + "║   \n" +
+                            C.DARK_RED + "╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝        ╚═╝   \n"
+            );
+        } else {
+            info(SecretSplash.getSecretSplash().getRandom());
+        }
+
+
     }
 
 }
