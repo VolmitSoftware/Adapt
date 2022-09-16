@@ -72,6 +72,7 @@ repositories {
         }
     }
     maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
+    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
 }
 
 /**
@@ -119,7 +120,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     implementation 'org.spigotmc:spigot-api:1.19.2-R0.1-SNAPSHOT' //[NMS]
-    implementation 'me.clip:placeholderapi:2.11.1'
+    implementation 'me.clip:placeholderapi:2.11.2'
     implementation 'io.th0rgal:oraxen:1.94.0'
     implementation 'org.bukkit:craftbukkit:1.19.2-R0.1-SNAPSHOT' //[NMS]
     implementation 'com.github.LoneDev6:api-itemsadder:3.1.0b'

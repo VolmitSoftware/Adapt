@@ -126,6 +126,9 @@ public class Adapt extends VolmitPlugin {
 
     @Override
     public void start() {
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new PapiExpansion().register();
+        }
         loadLanguageLocalization();
         printInformation();
         NMS.init();

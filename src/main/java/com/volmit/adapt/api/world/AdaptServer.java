@@ -222,15 +222,18 @@ public class AdaptServer extends TickedObject {
             return getPlayer(Bukkit.getPlayer(player)).getData();
         }
 
+        if (Adapt.instance.getSqlManager().useSql()) {
+            String sqlData = Adapt.instance.getSqlManager().fetchData(player);
+            if (sqlData != null) {
+                return new Gson().fromJson(sqlData, PlayerData.class);
+            }
+        }
 
-        File f = new File(Bukkit.getServer().getPluginManager().getPlugin(Adapt.instance.getName()).getDataFolder() + File.separator + "data" + File.separator + "players" + File.separator + player + ".json");
-
+        File f = new File(Adapt.instance.getDataFolder("data", "players"), player + ".json");
         if (f.exists()) {
             try {
                 return new Gson().fromJson(IO.readAll(f), PlayerData.class);
-            } catch (Throwable ignored) {
-
-            }
+            } catch (Throwable ignored) { }
         }
 
         return new PlayerData();

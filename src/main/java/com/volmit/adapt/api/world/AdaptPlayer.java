@@ -196,7 +196,7 @@ public class AdaptPlayer extends TickedObject {
                 if (upload) {
                     Adapt.instance.getSqlManager().updateData(player.getUniqueId(), text);
                 }
-                return new Gson().fromJson(IO.readAll(f), PlayerData.class);
+                return new Gson().fromJson(text, PlayerData.class);
             } catch (Throwable ignored) {
             }
         }
