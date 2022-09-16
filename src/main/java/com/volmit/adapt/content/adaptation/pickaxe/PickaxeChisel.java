@@ -79,9 +79,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
             if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
                 return;
             }
-            if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
-                return;
-            }
+
             BlockCanBuildEvent can = new BlockCanBuildEvent(e.getClickedBlock(), p, e.getClickedBlock().getBlockData(), true);
             Bukkit.getServer().getPluginManager().callEvent(can);
 

@@ -173,10 +173,10 @@ public class AdaptPlayer extends TickedObject {
                 local.delete();
                 unSave();
             }
+            if (Adapt.instance.getSqlManager().useSql()) {
+                Adapt.instance.getSqlManager().delete(uuid);
+            }
         });
-        if (Adapt.instance.getSqlManager().useSql()) {
-            Adapt.instance.getSqlManager().delete(uuid);
-        }
     }
 
     private PlayerData loadPlayerData() {

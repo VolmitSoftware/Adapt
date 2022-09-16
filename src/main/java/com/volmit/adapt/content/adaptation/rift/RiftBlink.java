@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
@@ -66,7 +67,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + Adapt.dLocalize("Rift", "RiftBlink", "Lore1"));
+        v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " " + Adapt.dLocalize("Rift", "RiftBlink", "Lore1"));
         v.addLore(C.ITALIC + Adapt.dLocalize("Rift", "RiftBlink", "Lore2") + C.DARK_PURPLE + Adapt.dLocalize("Rift", "RiftBlink", "Lore3"));
     }
 
@@ -186,10 +187,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     protected static class Config {
         boolean enabled = true;
         boolean showParticles = true;
-        int baseCost = 15;
-        double costFactor = 1;
+        int baseCost = 7;
+        double costFactor = 0.12;
         int maxLevel = 5;
-        int initialCost = 5;
+        int initialCost = 1;
         double baseDistance = 6;
         double distanceFactor = 5;
     }

@@ -80,9 +80,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
         if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) { // you need to right-click to harvest!
             return;
         }
-        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
-            return;
-        }
+
         if (!(e.getClickedBlock().getBlockData() instanceof Ageable)) {
             return;
         }

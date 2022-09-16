@@ -81,9 +81,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         if (!hasAdaptation(p)) {
             return;
         }
-        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
-            return;
-        }
 
         ItemStack hand = p.getInventory().getItemInMainHand();
         ItemMeta handMeta = hand.getItemMeta();

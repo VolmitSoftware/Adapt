@@ -73,9 +73,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
             return;
         }
         ItemStack hand = p.getInventory().getItemInMainHand();
-        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
-            return;
-        }
+
         if (e.getAction() == Action.RIGHT_CLICK_AIR) {
             switch (hand.getType()) {
                 case ENDER_EYE, ENDER_PEARL -> {
