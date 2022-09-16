@@ -1,5 +1,5 @@
 name: Adapt Feature Request
-description: File a feature request for Adapt. Keep in mind that more descriptions are better, but the features are NOT intended to replace other plugins (though, i would not mind doing it) all features should feel effortless on the player to be using.
+description: File a feature request for Adapt, the features are NOT intended to replace other plugins (though, i would not mind doing it) all features should feel effortless on the player to be using.
 labels: [ feature ]
 body:
   - type: markdown
@@ -30,7 +30,7 @@ body:
     id: desc
     attributes:
       label: What are you trying to modify
-      description: Give as detailed of a description as you can for the modification that you want done (include pictures/Videos if applicable)
+      description: Give as detailed of a description as you can for the skill that you want (include pictures/Videos if applicable)
       value: The way I would implement this is ...
     validations:
       required: true
@@ -43,4 +43,4 @@ body:
   - type: markdown
     id: thanks
     attributes:
-      value: "Thank you for filling out the form! We will be with you soon. Please do not ask support to review your report."
+      value: "Thank you for filling out the form! We read it soon.."
