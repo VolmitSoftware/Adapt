@@ -33,6 +33,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -132,11 +133,50 @@ public class AdaptPlayer extends TickedObject {
         }
     }
 
+    @SneakyThrows
+    private void unSave() {
+        UUID uuid = player.getUniqueId();
+        String data = new Gson().toJson(new PlayerData());
+        unregister();
+
+        if (Adapt.instance.getSqlManager().useSql()) {
+            Adapt.instance.getSqlManager().updateData(uuid, data);
+        } else {
+            IO.writeAll(getPlayerDataFile(uuid), new JSONObject(data).toString(4));
+        }
+    }
+
     @Override
     public void unregister() {
         super.unregister();
         getAdvancementHandler().deactivate();
         save();
+    }
+
+    @SneakyThrows
+    public void delete(UUID uuid) {
+        File local = getPlayerDataFile(player.getUniqueId());
+        Adapt.warn("Deleting Player Data: " + local.getAbsolutePath());
+        Player p = player;
+        J.s(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            p.kickPlayer("Your data has been deleted.");
+            if (local.exists()) {
+                local.delete();
+                unSave();
+                local.delete();
+                save();
+                local.delete();
+                unSave();
+            }
+        });
+        if (Adapt.instance.getSqlManager().useSql()) {
+            Adapt.instance.getSqlManager().delete(uuid);
+        }
     }
 
     private PlayerData loadPlayerData() {

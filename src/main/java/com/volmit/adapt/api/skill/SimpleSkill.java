@@ -21,12 +21,10 @@ package com.volmit.adapt.api.skill;
 import art.arcane.amulet.io.FileWatcher;
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
-import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.IO;
@@ -36,9 +34,6 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -209,10 +204,4 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
     @Override
     public abstract void onTick();
-
-    @EventHandler
-    public void on(PlayerDeathEvent e) {
-        if (AdaptConfig.get().isHardcoreResetOnPlayerDeath()) {
-        }
-    }
 }
