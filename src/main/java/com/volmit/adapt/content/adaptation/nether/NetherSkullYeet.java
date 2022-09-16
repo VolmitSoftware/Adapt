@@ -85,9 +85,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         if (e.getHand() != EquipmentSlot.HAND || e.getItem() == null || e.getMaterial() != Material.WITHER_SKELETON_SKULL) {
             return;
         }
-        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
-            return;
-        }
+
         Player p = e.getPlayer();
 
         if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(p)) {

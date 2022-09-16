@@ -75,17 +75,18 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
+            if (i.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED) == null) {
+                return;
+            }
             for (AttributeModifier j : i.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
                 if (j.getName().equals("adapt-wind-up")) {
                     i.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(j);
                 }
             }
-
             if (i.isSwimming() || i.isFlying() || i.isGliding() || i.isSneaking()) {
                 ticksRunning.remove(i);
                 return;
             }
-
             if (i.isSprinting() && getLevel(i) > 0) {
                 ticksRunning.compute(i, (k, v) -> {
                     if (v == null) {
@@ -100,7 +101,6 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
                 if (tr == null || tr <= 0) {
                     continue;
                 }
-
                 double factor = getLevelPercent(i);
                 double ticksToMax = getWindupTicks(factor);
                 double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);

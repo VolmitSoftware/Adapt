@@ -50,6 +50,9 @@ public class RiftDoor extends SimpleAdaptation<RiftDoor.Config> {
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
+        setBaseCost(getConfig().baseCost);
+        setCostFactor(getConfig().costFactor);
+        setInitialCost(getConfig().initialCost);
         setInterval(2218);
     }
 
@@ -123,9 +126,9 @@ public class RiftDoor extends SimpleAdaptation<RiftDoor.Config> {
     protected static class Config {
         boolean enabled = false;
         boolean showParticles = true;
-        int baseCost = 3;
+        int baseCost = 10;
         double costFactor = 1;
         int maxLevel = 1;
-        int initialCost = 5;
+        int initialCost = 1;
     }
 }

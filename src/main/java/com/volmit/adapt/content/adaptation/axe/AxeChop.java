@@ -63,9 +63,6 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
-           return;
-        }
         if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
             return;
         }

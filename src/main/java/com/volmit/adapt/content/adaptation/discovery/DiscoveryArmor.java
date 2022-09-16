@@ -137,7 +137,6 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
             lArmor = Double.isNaN(lArmor) ? 0 : lArmor;
             p.getAttribute(Attribute.GENERIC_ARMOR).addModifier(new AttributeModifier("adapt-discovery-armor", lArmor, AttributeModifier.Operation.ADD_NUMBER));
 
-
         }
 
     }

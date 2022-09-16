@@ -49,7 +49,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
-        setInterval(250);
+        setInterval(350);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
                 return;
             }
 
-            if (i.isSprinting() && getLevel(i) > 0) {
+            if (i.isSprinting() && hasAdaptation(i)) {
                 ticksRunning.compute(i, (k, v) -> {
                     if (v == null) {
                         return 1;
@@ -114,7 +114,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
                         i.getWorld().spawnParticle(Particle.WAX_ON, i.getLocation(), 1, 0, 0, 0, 0);
                     }
                 }
-                i.getAttribute(Attribute.GENERIC_ARMOR).addModifier(new AttributeModifier("adapt-armor-up", armorInc, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                i.getAttribute(Attribute.GENERIC_ARMOR).addModifier(new AttributeModifier("adapt-armor-up", armorInc*10, AttributeModifier.Operation.ADD_NUMBER));
+
             } else {
                 ticksRunning.remove(i);
             }

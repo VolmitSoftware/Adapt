@@ -80,11 +80,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         if (!hand.getItemMeta().getLore().contains("Ocular Anchor") && !hand.getType().equals(Material.ENDER_EYE)) {
             return;
         }
-        if (e.useItemInHand().equals(Event.Result.DENY) || e.useInteractedBlock().equals(Event.Result.DENY)) {
-            return;
-        }
-        Location location = null;
 
+        Location location = null;
 
         if (e.getClickedBlock() == null) {
             location = p.getLocation();
@@ -95,10 +92,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
                     e.getClickedBlock().getLocation().getY() + 1,
                     e.getClickedBlock().getLocation().getZ() + 0.5);
         }
-
-
         e.setCancelled(true);
-
         switch (e.getAction()) {
             case LEFT_CLICK_BLOCK -> {
                 if (p.isSneaking()) {
@@ -113,9 +107,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
                 }
             }
 
-            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> { // use
-                openEye(p);
-            }
+            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> // use
+                    openEye(p);
 
         }
 
@@ -126,7 +119,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         Location l = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
         ItemStack hand = p.getInventory().getItemInMainHand();
 
-        getSkill().xp(p, 75);
+        xp(p, 75);
         if (hand.getAmount() > 1) { // consume the hand
             hand.setAmount(hand.getAmount() - 1);
         } else {
@@ -136,8 +129,6 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
                 && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
             RiftResist.riftResistStackAdd(p, 150, 3);
         }
-
-
         p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
         p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
         p.playSound(l, Sound.BLOCK_LODESTONE_PLACE, 1f, 0.1f);
