@@ -5,7 +5,11 @@
       "knowledge": "Conhecimento",
       "powerused": "Energia usada",
       "notlearned": "Não aprendido",
-      "xp": "XP para"
+      "xp": "XP para",
+      "welcome": "Bem-vindo!",
+      "welcomeback": "Bem vindo de volta!",
+      "xpbonusfortime": "XP para",
+      "unlockthisbyclicking": "Desbloqueie isso clicando com o botão direito do mouse no bloco Adapt!"
     },
     "adaptmenu": {
       "knowledgecost": "Custo do Conhecimento",
@@ -59,12 +63,17 @@
       "icon": "❦",
       "description": "Bolha dupla, bolha tripla, bolha quádrupla - ainda não consigo colocar esta poção em um caldeirão"
     },
-    "crafting":{
+    "blocking": {
+      "name": "Bloqueio",
+      "icon": "▒",
+      "description": "Paus e pedras não vão quebrar seus ossos, mas um escudo vai."
+    },
+    "crafting": {
       "name": "Construindo",
       "icon": "⌂",
       "description": "Sem mais peças para colocar, por que não fazer outra?"
     },
-    "discovery":{
+    "discovery": {
       "name": "Descoberta",
       "icon": "⚛",
       "description": "À medida que sua percepção se expande, sua mente se desdobra para descobrir o que você não"
@@ -79,7 +88,7 @@
       "icon": "✥",
       "description": "Buraco do Diggey..."
     },
-    "herbalism":  {
+    "herbalism": {
       "name": "Herbalismo",
       "icon": "⚘",
       "description": "Não consigo encontrar nenhuma planta, mas posso encontrar algumas sementes e isso é... Erva daninha?"
@@ -232,7 +241,19 @@
       "lore2": "Por Tocar Bloco de Lava"
     }
   },
-  "crafting":{
+  "blocking": {
+    "multiarmor": {
+      "name": "Armadura múltipla",
+      "description": "Ligar Elytras à Armadura",
+      "lore1": "Esta é uma habilidade incrível para viajar.",
+      "lore2": "mesclar e alterar dinamicamente Armadura/Elytra on the Fly!",
+      "lore3": "para mesclar, clique em um item sobre outro em seu inventário.",
+      "lore4": "para desvincular a armadura, solte o item furtivamente e ele será desmontado.",
+      "lore5": "Se sua MultiArmor for destruída, você perderá todos os itens nela.",
+      "lore6": "Eu não preciso de armadura, isso me decepciona..."
+    }
+  },
+  "crafting": {
     "deconstruction": {
       "name": "Desconstrução",
       "description": "Desconstrua blocos e itens em componentes básicos recuperáveis!",
@@ -245,7 +266,7 @@
       "lore1": "Ganhe XP ao criar"
     }
   },
-  "discovery":{
+  "discovery": {
     "armor": {
       "name": "Armadura Mundial",
       "description": "Armadura passiva dependendo da dureza do bloco próximo.",
@@ -265,6 +286,13 @@
       "lore0": "Isso só pode ocorrer uma vez a cada 15 segundos",
       "lore1": "% de Dano Reduzido",
       "lore2": "experiência drenada"
+    },
+    "villager": {
+      "name": "Atração do Aldeão",
+      "description": "Permite que você obtenha melhores negócios com os aldeões!",
+      "lore1": "Isso consome XP por interação com os aldeões",
+      "lore2": "Chance por interação de consumir XP e aprimorar negociações",
+      "lore3": "dreno de XP necessário por interação"
     }
   },
   "enchanting": {
@@ -309,7 +337,7 @@
       "lore7": "você pode usar cinco ou seis ferramentas, ou apenas uma!"
     }
   },
-  "herbalism":  {
+  "herbalism": {
     "growthaura": {
       "name": "Aura de crescimento",
       "description": "Cresça a natureza ao seu redor em uma aura",
@@ -592,6 +620,20 @@
       "lore1": "Raio da barra",
       "lore2": "Chop Cooldown",
       "lore3": "Desgaste da ferramenta"
+    },
+    "bloodyblade": {
+      "name": "Lâmina Sangrenta",
+      "description": "Golpeia com sua espada, causa sangramento!",
+      "lore1": "Atingir uma entidade viva com sua espada causa sangramento",
+      "lore2": "Duração do sangramento",
+      "lore3": "Resfriamento de Sangria"
+    },
+    "poisonedblade": {
+      "name": "Lâmina Envenenada",
+      "description": "Golpeia com sua espada, causa veneno!",
+      "lore1": "Atingir uma entidade viva com sua espada causa veneno",
+      "lore2": "Duração do veneno",
+      "lore3": "Tempo de espera de veneno"
     }
   },
   "taming": {
@@ -609,6 +651,13 @@
       "name": "Regeneração Domada",
       "description": "Aumente sua regeneração de animais domesticados.",
       "lore1": "HP/s"
+    }
+  },
+  "tragoul": {
+    "thorns": {
+      "name": "Espinhos",
+      "description": "Reflita o dano de volta ao seu atacante!",
+      "lore1": "Danos retaliados quando atingidos"
     }
   },
   "unarmed": {
