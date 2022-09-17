@@ -36,11 +36,11 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     public SkillTragOul() {
-        super("tragoul", Adapt.dLocalize("Skill", "TragOul", "Icon"));
+        super("tragoul", Adapt.dLocalize("skill", "tragoul", "icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setDescription(Adapt.dLocalize("Skill", "TragOul", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "TragOul", "Name"));
+        setDescription(Adapt.dLocalize("skill", "tragoul", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "tragoul", "name"));
         setInterval(2755);
         setIcon(Material.CRIMSON_ROOTS);
         registerAdaptation(new TragoulThorns());

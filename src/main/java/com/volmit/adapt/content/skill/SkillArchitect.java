@@ -42,11 +42,11 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     public SkillArchitect() {
-        super("architect", Adapt.dLocalize("Skill", "Architect", "Icon"));
+        super("architect", Adapt.dLocalize("skill", "architect", "icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setDescription(Adapt.dLocalize("Skill", "Architect", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "Architect", "Name"));
+        setDescription(Adapt.dLocalize("skill", "architect", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "architect", "name"));
         setInterval(3100);
         setIcon(Material.IRON_BARS);
         registerAdvancement(AdaptAdvancement.builder().icon(Material.BRICK).key("challenge_place_1k").title("So much to build!").description("Place over 1,000 blocks").frame(AdvancementDisplay.AdvancementFrame.CHALLENGE).visibility(AdvancementVisibility.PARENT_GRANTED).build());

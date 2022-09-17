@@ -43,8 +43,8 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     public HerbalismReplant() {
         super("herbalism-replant");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Herbalism", "Replant", "Description"));
-        setDisplayName(Adapt.dLocalize("Herbalism", "Replant", "Name"));
+        setDescription(Adapt.dLocalize("herbalism", "replant", "description"));
+        setDisplayName(Adapt.dLocalize("herbalism", "replant", "name"));
         setIcon(Material.PUMPKIN_SEEDS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -55,7 +55,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + Adapt.dLocalize("Herbalism", "Replant", "Lore1"));
+        v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + Adapt.dLocalize("herbalism", "replant", "lore1"));
     }
 
 

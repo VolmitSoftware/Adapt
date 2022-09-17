@@ -32,7 +32,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -51,8 +50,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     public RiftAccess() {
         super("rift-access");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Rift", "RemoteAccess", "Description"));
-        setDisplayName(Adapt.dLocalize("Rift", "RemoteAccess", "Name"));
+        setDescription(Adapt.dLocalize("rift", "remoteaccess", "description"));
+        setDisplayName(Adapt.dLocalize("rift", "remoteaccess", "name"));
         setMaxLevel(1);
         setIcon(Material.NETHER_STAR);
         setBaseCost(getConfig().baseCost);
@@ -69,9 +68,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Adapt.dLocalize("Rift", "RemoteAccess", "Lore1"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("Rift", "RemoteAccess", "Lore2"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("Rift", "RemoteAccess", "Lore3"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("rift", "remoteaccess", "lore1"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("rift", "remoteaccess", "lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("rift", "remoteaccess", "lore3"));
     }
 
 
@@ -108,7 +107,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                     }
                 } else if (block != null && !isStorage(block.getBlockData())) {
                     if (p.isSneaking()) { //(Sneak NOT Container)
-                        p.sendMessage(C.LIGHT_PURPLE + Adapt.dLocalize("Rift", "RemoteAccess", "NotContainer"));
+                        p.sendMessage(C.LIGHT_PURPLE + Adapt.dLocalize("rift", "remoteaccess", "notcontainer"));
                     } else if (!p.isSneaking() && isBound(hand)) {
                         openPearl(p);
                     }

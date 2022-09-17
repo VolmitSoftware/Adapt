@@ -37,11 +37,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     public SkillUnarmed() {
-        super("unarmed", Adapt.dLocalize("Skill", "Unarmed", "Icon"));
+        super("unarmed", Adapt.dLocalize("skill", "unarmed", "icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription(Adapt.dLocalize("Skill", "Unarmed", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "Unarmed", "Name"));
+        setDescription(Adapt.dLocalize("skill", "unarmed", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "unarmed", "name"));
         setInterval(2579);
         registerAdaptation(new UnarmedSuckerPunch());
         registerAdaptation(new UnarmedPower());

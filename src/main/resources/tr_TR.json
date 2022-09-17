@@ -1,640 +1,640 @@
 {
-  "Snippets": {
-    "GUI": {
-      "Level": "Seviye",
-      "Knowledge": "Bilgi",
-      "PowerUsed": "Kullanılan Güç",
-      "NotLearned": "Öğrenilmedi",
-      "XP": "XP'ye"
+  "snippets": {
+    "gui": {
+      "level": "Seviye",
+      "knowledge": "Bilgi",
+      "powerused": "Kullanılan Güç",
+      "notlearned": "Öğrenilmedi",
+      "xp": "XP'ye"
     },
-    "AdaptMenu": {
-      "KnowledgeCost": "Bilgi Maliyeti",
-      "AlreadyLearned": "Zaten Öğrenildi",
-      "UnlearnRefund": "Öğrenimi Geri Almak ve Geri Ödemek İçin Tıklayın",
-      "Knowledge": "Bilgi",
-      "ClickLearn": "Öğrenmek için tıklayın",
-      "NoKnowledge": "(Hiç bilginiz yok)",
-      "YouOnlyHave": "sadece sahipsin",
-      "HowToLevelUp": "Maksimum gücünüzü artırmak için becerilerinizi yükseltin.",
-      "NotEnoughPower": "Yetersiz güç! Her Yetenek Seviyesi 1 güce mal olur.",
-      "Power": "Güç",
-      "Learned": "Öğrendi",
-      "Unlearned": "bilgisiz"
+    "adaptmenu": {
+      "knowledgecost": "Bilgi Maliyeti",
+      "alreadylearned": "Zaten Öğrenildi",
+      "unlearnrefund": "Öğrenimi Geri Almak ve Geri Ödemek İçin Tıklayın",
+      "knowledge": "Bilgi",
+      "clicklearn": "Öğrenmek için tıklayın",
+      "noknowledge": "(Hiç bilginiz yok)",
+      "youonlyhave": "sadece sahipsin",
+      "howtolevelup": "Maksimum gücünüzü artırmak için becerilerinizi yükseltin.",
+      "notenoughpower": "Yetersiz güç! Her Yetenek Seviyesi 1 güce mal olur.",
+      "power": "Güç",
+      "learned": "Öğrendi",
+      "unlearned": "bilgisiz"
     },
-    "KnowledgeOrb": {
-      "Contains": "içerir",
-      "Knowledge": "Bilgi",
-      "RightClick": "Sağ tık",
-      "ToGainKnowledge": "bu bilgiyi kazanmak için",
-      "KnowledgeOrb": "Bilgi Küresi"
+    "knowledgeorb": {
+      "contains": "içerir",
+      "knowledge": "Bilgi",
+      "rightclick": "Sağ tık",
+      "togainknowledge": "bu bilgiyi kazanmak için",
+      "knowledgeorb": "Bilgi Küresi"
     },
-    "ExperienceOrb": {
-      "Contains": "içerir",
-      "XP": "Deneyim",
-      "RightClick": "Sağ tık",
-      "ToGainXP": "bu deneyimi kazanmak için",
-      "XPOrb": "Deneyim Küresi"
+    "experienceorb": {
+      "contains": "içerir",
+      "xp": "Deneyim",
+      "rightclick": "Sağ tık",
+      "togainxp": "bu deneyimi kazanmak için",
+      "xporb": "Deneyim Küresi"
     }
   },
-  "Skill": {
-    "Agility": {
-      "Name": "Çeviklik",
-      "Icon": "⇉",
-      "Description": "Çeviklik, engeller karşısında hızlı ve akıcı hareket etme yeteneğidir."
+  "skill": {
+    "agility": {
+      "name": "Çeviklik",
+      "icon": "⇉",
+      "description": "Çeviklik, engeller karşısında hızlı ve akıcı hareket etme yeteneğidir."
     },
-    "Architect": {
-      "Name": "Mimar",
-      "Icon": "⬧",
-      "Description": "Yapılar dünyanın yapı taşlarıdır. Gerçeklik sizin elinizde, kontrol etmek sizin elinizde."
+    "architect": {
+      "name": "Mimar",
+      "icon": "⬧",
+      "description": "Yapılar dünyanın yapı taşlarıdır. Gerçeklik sizin elinizde, kontrol etmek sizin elinizde."
     },
-    "Axes": {
-      "Name": "eksenler",
-      "Icon": "❖",
-      "Description1": "Kesmek varken neden ağaçları keselim?",
-      "Description2": "şeyler",
-      "Description3": "bunun yerine, aynı sonuç!"
+    "axes": {
+      "name": "eksenler",
+      "icon": "❖",
+      "description1": "Kesmek varken neden ağaçları keselim?",
+      "description2": "şeyler",
+      "description3": "bunun yerine, aynı sonuç!"
     },
-    "Brewing": {
-      "Name": "demleme",
-      "Icon": "❦",
-      "Description": "Double Bubble, Triple Bubble, Quadruple Bubble - Bu iksiri hala bir kazana koyamıyorum"
+    "brewing": {
+      "name": "demleme",
+      "icon": "❦",
+      "description": "Double Bubble, Triple Bubble, Quadruple Bubble - Bu iksiri hala bir kazana koyamıyorum"
     },
-    "Crafting": {
-      "Name": "Üretmek",
-      "Icon": "⌂",
-      "Description": "Yerleştirilecek parça kalmadı, neden bir tane daha yapmıyorsunuz?"
+    "crafting":{
+      "name": "Üretmek",
+      "icon": "⌂",
+      "description": "Yerleştirilecek parça kalmadı, neden bir tane daha yapmıyorsunuz?"
     },
-    "Discovery": {
-      "Name": "keşif",
-      "Icon": "⚛",
-      "Description": "Algınız genişledikçe, zihniniz keşfetmediğinizi keşfetmek için çözülür."
+    "discovery":{
+      "name": "keşif",
+      "icon": "⚛",
+      "description": "Algınız genişledikçe, zihniniz keşfetmediğinizi keşfetmek için çözülür."
     },
-    "Enchanting": {
-      "Name": "Büyüleyici",
-      "Icon": "♰",
-      "Description": "Ne yapacaksın? Kehanetler, vizyonlar, batıl inançlı gevezelik mi?"
+    "enchanting": {
+      "name": "Büyüleyici",
+      "icon": "♰",
+      "description": "Ne yapacaksın? Kehanetler, vizyonlar, batıl inançlı gevezelik mi?"
     },
-    "Excavation": {
-      "Name": "kazı",
-      "Icon": "✥",
-      "Description": "Diggey Diggey deliği..."
+    "excavation": {
+      "name": "kazı",
+      "icon": "✥",
+      "description": "Diggey Diggey deliği..."
     },
-    "Herbalism": {
-      "Name": "bitkicilik",
-      "Icon": "⚘",
-      "Description": "Bitki bulamıyorum, ama biraz tohum bulabiliyorum ve- bu... Ot mu?"
+    "herbalism":  {
+      "name": "bitkicilik",
+      "icon": "⚘",
+      "description": "Bitki bulamıyorum, ama biraz tohum bulabiliyorum ve- bu... Ot mu?"
     },
-    "Hunter": {
-      "Name": "avcı",
-      "Icon": "☠",
-      "Description": "Avcılık, sonuçla değil yolculukla ilgilidir."
+    "hunter": {
+      "name": "avcı",
+      "icon": "☠",
+      "description": "Avcılık, sonuçla değil yolculukla ilgilidir."
     },
-    "Nether": {
-      "Name": "Hollanda",
-      "Icon": "₪",
-      "Description": "Nether'in derinliklerinden."
+    "nether": {
+      "name": "Hollanda",
+      "icon": "₪",
+      "description": "Nether'in derinliklerinden."
     },
-    "Pickaxe": {
-      "Name": "Kazma",
-      "Icon": "⛏",
-      "Description": "Cüceler madencilerdir, ama benim zamanımda bir iki şey öğrendim. BEN İSVİÇRELİYİM"
+    "pickaxe": {
+      "name": "Kazma",
+      "icon": "⛏",
+      "description": "Cüceler madencilerdir, ama benim zamanımda bir iki şey öğrendim. BEN İSVİÇRELİYİM"
     },
-    "Ranged": {
-      "Name": "menzilli",
-      "Icon": "🏹",
-      "Description": "Mesafe zaferin anahtarıdır ve hayatta kalmanın anahtarıdır."
+    "ranged": {
+      "name": "menzilli",
+      "icon": "🏹",
+      "description": "Mesafe zaferin anahtarıdır ve hayatta kalmanın anahtarıdır."
     },
-    "Rift": {
-      "Name": "yarık",
-      "Icon": "❍",
-      "Description": "Vadi, yakıcı bir koşum takımıdır, ancak siz koşum takımını kullanmışsınızdır."
+    "rift": {
+      "name": "yarık",
+      "icon": "❍",
+      "description": "Vadi, yakıcı bir koşum takımıdır, ancak siz koşum takımını kullanmışsınızdır."
     },
-    "Seaborne": {
-      "Name": "deniz yoluyla taşınan",
-      "Icon": "🌊",
-      "Description": "Bu beceri ile suyun harikalarını keşfedebilirsiniz."
+    "seaborne": {
+      "name": "deniz yoluyla taşınan",
+      "icon": "🌊",
+      "description": "Bu beceri ile suyun harikalarını keşfedebilirsiniz."
     },
-    "Stealth": {
-      "Name": "gizli",
-      "Icon": "✠",
-      "Description": "Görünmeyen sanat. Gölgelerde yürü."
+    "stealth": {
+      "name": "gizli",
+      "icon": "✠",
+      "description": "Görünmeyen sanat. Gölgelerde yürü."
     },
-    "Swords": {
-      "Name": "Kılıçlar",
-      "Icon": "⚔",
-      "Description": "GreyStone'un gücü adına!"
+    "swords": {
+      "name": "Kılıçlar",
+      "icon": "⚔",
+      "description": "GreyStone'un gücü adına!"
     },
-    "Taming": {
-      "Name": "evcilleştirme",
-      "Icon": "♥",
-      "Description": "Papağanlar ve arılar... ve sen?"
+    "taming": {
+      "name": "evcilleştirme",
+      "icon": "♥",
+      "description": "Papağanlar ve arılar... ve sen?"
     },
-    "TragOul": {
-      "Name": "TragOul",
-      "Icon": "▼",
-      "Description": "Kainatın damarlarında kan akar. Ellerin tarafından daraltılmış."
+    "tragoul": {
+      "name": "TragOul",
+      "icon": "▼",
+      "description": "Kainatın damarlarında kan akar. Ellerin tarafından daraltılmış."
     },
-    "Chronos": {
-      "Name": "kronolar",
-      "Icon": "۞",
-      "Description": "Evrenin Saatini kurun, akışı deneyimleyin. Saati kır, ol."
+    "chronos": {
+      "name": "kronolar",
+      "icon": "۞",
+      "description": "Evrenin Saatini kurun, akışı deneyimleyin. Saati kır, ol."
     },
-    "Unarmed": {
-      "Name": "silahsız",
-      "Icon": "⚜",
-      "Description": "Silahsız güç olmaz"
+    "unarmed": {
+      "name": "silahsız",
+      "icon": "⚜",
+      "description": "Silahsız güç olmaz"
     }
   },
-  "Agility": {
-    "ArmorUp": {
-      "Name": "Zırhlı",
-      "Description": "Ne kadar uzun süre koşarsan o kadar çok zırh al!",
-      "Lore1": "Maksimum Zırh",
-      "Lore2": "Zırhlanma Süresi"
+  "agility": {
+    "armorup": {
+      "name": "Zırhlı",
+      "description": "Ne kadar uzun süre koşarsan o kadar çok zırh al!",
+      "lore1": "Maksimum Zırh",
+      "lore2": "Zırhlanma Süresi"
     },
-    "SuperJump": {
-      "Name": "Süper Zıplama",
-      "Description": "Olağanüstü Yükseklik Avantajı",
-      "Lore1": "Maksimum Atlama Yüksekliği",
-      "Lore2": "Gizlice + Süper Atlamaya Atla!"
+    "superjump": {
+      "name": "Süper Zıplama",
+      "description": "Olağanüstü Yükseklik Avantajı",
+      "lore1": "Maksimum Atlama Yüksekliği",
+      "lore2": "Gizlice + Süper Atlamaya Atla!"
     },
-    "WallJump": {
-      "Name": "Duvar atlama",
-      "Description": "Bir duvardan duvara mandalla havada havadayken vitesi basılı tutun ve zıplayın!",
-      "Lore1": "Maksimum Sıçrama",
-      "Lore2": "Atlama yüksekliği"
+    "walljump": {
+      "name": "Duvar atlama",
+      "description": "Bir duvardan duvara mandalla havada havadayken vitesi basılı tutun ve zıplayın!",
+      "lore1": "Maksimum Sıçrama",
+      "lore2": "Atlama yüksekliği"
     },
-    "WindUp": {
-      "Name": "Kurma",
-      "Description": "Ne kadar uzun koşarsan o kadar hızlı ol!",
-      "Lore1": "Max hız",
-      "Lore2": "Kurma Süresi"
+    "windup": {
+      "name": "Kurma",
+      "description": "Ne kadar uzun koşarsan o kadar hızlı ol!",
+      "lore1": "Max hız",
+      "lore2": "Kurma Süresi"
     }
   },
-  "Architect": {
-    "Foundation": {
-      "Name": "Sihirli Fondöten",
-      "Description": "Bu, gizlice altınıza geçici bir temel oluşturmanıza izin verir!",
-      "Lore1": "Sihirli bir şekilde oluşturun:",
-      "Lore2": "Altınızda bloklar!"
+  "architect": {
+    "foundation": {
+      "name": "Sihirli Fondöten",
+      "description": "Bu, gizlice altınıza geçici bir temel oluşturmanıza izin verir!",
+      "lore1": "Sihirli bir şekilde oluşturun:",
+      "lore2": "Altınızda bloklar!"
     },
-    "Glass": {
-      "Name": "İpek Dokunuşlu Cam",
-      "Description": "Bu, boş elinizle kırdığınızda cam blokların kaybolmasını esasen önlemenizi sağlar!",
-      "Lore1": "Elleriniz Glass için ipeksi bir dokunuş kazanıyor"
+    "glass": {
+      "name": "İpek Dokunuşlu Cam",
+      "description": "Bu, boş elinizle kırdığınızda cam blokların kaybolmasını esasen önlemenizi sağlar!",
+      "lore1": "Elleriniz Glass için ipeksi bir dokunuş kazanıyor"
     },
-    "Placement": {
-      "Name": "inşaatçılar değnek",
-      "Description": "Sneak'i etkinleştirmek için aynı anda birden fazla blok yerleştirmenize ve görünen blok ve yerinize uygun bir blok tutmanıza izin verir! Kutuları sınırlamayı tetiklemek için biraz hareket etmeniz gerekebileceğini unutmayın!",
-      "Lore1": "ihtiyacın var",
-      "Lore2": "Bunu yerleştirmek için elinizde bloklar",
-      "Lore3": "Malzeme Oluşturucu Değneği"
+    "placement": {
+      "name": "inşaatçılar değnek",
+      "description": "Sneak'i etkinleştirmek için aynı anda birden fazla blok yerleştirmenize ve görünen blok ve yerinize uygun bir blok tutmanıza izin verir! Kutuları sınırlamayı tetiklemek için biraz hareket etmeniz gerekebileceğini unutmayın!",
+      "lore1": "ihtiyacın var",
+      "lore2": "Bunu yerleştirmek için elinizde bloklar",
+      "lore3": "Malzeme Oluşturucu Değneği"
     }
   },
-  "Axe": {
-    "Chop": {
-      "Name": "balta doğrama",
-      "Description": "Taban günlüğüne sağ tıklayarak ağaçları kesin!",
-      "Lore1": "Doğrama Başına Bloklar",
-      "Lore2": "Doğrama Bekleme Süresi",
-      "Lore3": "Takım Aşınması"
+  "axe": {
+    "chop": {
+      "name": "balta doğrama",
+      "description": "Taban günlüğüne sağ tıklayarak ağaçları kesin!",
+      "lore1": "Doğrama Başına Bloklar",
+      "lore2": "Doğrama Bekleme Süresi",
+      "lore3": "Takım Aşınması"
     },
-    "DropToInventory": {
-      "Name": "Balta Envantere Düşürme"
+    "droptoinventory": {
+      "name": "Balta Envantere Düşürme"
     },
-    "GroundSmash": {
-      "Name": "Balta Yer Ezmesi",
-      "Description": "Zıplayın, ardından çömelin ve yakındaki tüm düşmanları parçalayın.",
-      "Lore1": "Zarar",
-      "Lore2": "Blok Yarıçapı",
-      "Lore3": "Kuvvet",
-      "Lore4": "Smash Cooldown"
+    "groundsmash": {
+      "name": "Balta Yer Ezmesi",
+      "description": "Zıplayın, ardından çömelin ve yakındaki tüm düşmanları parçalayın.",
+      "lore1": "Zarar",
+      "lore2": "Blok Yarıçapı",
+      "lore3": "Kuvvet",
+      "lore4": "Smash Cooldown"
     },
-    "LeafMiner": {
-      "Name": "Yaprak Madenci",
-      "Description": "Toplu yaprakları bir kerede kırmanıza izin verir!",
-      "Lore1": "Gizlice ve benim YAPRAKLAR",
-      "Lore2": "yaprak madenciliği aralığı",
-      "Lore3": "Yapraklardan damla alamayacaksınız (Sömürü Önleme)"
+    "leafminer": {
+      "name": "Yaprak Madenci",
+      "description": "Toplu yaprakları bir kerede kırmanıza izin verir!",
+      "lore1": "Gizlice ve benim YAPRAKLAR",
+      "lore2": "yaprak madenciliği aralığı",
+      "lore3": "Yapraklardan damla alamayacaksınız (Sömürü Önleme)"
     }
   },
-  "Brewing": {
-    "Lingering": {
-      "Name": "kalıcı bira",
-      "Description": "Demlenmiş iksirler daha uzun süre dayanır!",
-      "Lore1": "Süre",
-      "Lore2": "Süre"
+  "brewing": {
+    "lingering": {
+      "name": "kalıcı bira",
+      "description": "Demlenmiş iksirler daha uzun süre dayanır!",
+      "lore1": "Süre",
+      "lore2": "Süre"
     },
-    "SuperHeated": {
-      "Name": "Süper Isıtılmış Demleme",
-      "Description": "Bira stantları ne kadar sıcaksa o kadar hızlı çalışır.",
-      "Lore1": "Ateş Bloğuna Dokunma Başına",
-      "Lore2": "Lav Bloğuna Dokunma Başına"
+    "superheated": {
+      "name": "Süper Isıtılmış Demleme",
+      "description": "Bira stantları ne kadar sıcaksa o kadar hızlı çalışır.",
+      "lore1": "Ateş Bloğuna Dokunma Başına",
+      "lore2": "Lav Bloğuna Dokunma Başına"
     }
   },
-  "Crafting": {
-    "Deconstruction": {
-      "Name": "Yapısöküm",
-      "Description": "Blokları ve öğeleri kurtarılabilir temel bileşenlere dönüştürün!",
-      "Lore1": "Herhangi bir öğe + makas yerleştirin",
-      "Lore2": "parçalamak için bir demircilik masasında."
+  "crafting":{
+    "deconstruction": {
+      "name": "Yapısöküm",
+      "description": "Blokları ve öğeleri kurtarılabilir temel bileşenlere dönüştürün!",
+      "lore1": "Herhangi bir öğe + makas yerleştirin",
+      "lore2": "parçalamak için bir demircilik masasında."
     },
-    "CraftXp": {
-      "Name": "XP işçiliği",
-      "Description": "Üretirken pasif XP kazanın",
-      "Lore1": "Üretirken XP kazanın"
+    "xp": {
+      "name": "XP işçiliği",
+      "description": "Üretirken pasif XP kazanın",
+      "lore1": "Üretirken XP kazanın"
     }
   },
-  "Discovery": {
-    "DiscoveryArmor": {
-      "Name": "Dünya Zırhı",
-      "Description": "Yakındaki blok sertliğine bağlı olarak pasif zırh.",
-      "Lore1": "Pasif Zırh",
-      "Lore2": "Yakındaki blok sertliğine göre",
-      "Lore3": "Zırh Gücü: +"
+  "discovery":{
+    "armor": {
+      "name": "Dünya Zırhı",
+      "description": "Yakındaki blok sertliğine bağlı olarak pasif zırh.",
+      "lore1": "Pasif Zırh",
+      "lore2": "Yakındaki blok sertliğine göre",
+      "lore3": "Zırh Gücü: +"
     },
-    "DiscoveryUnity": {
-      "Name": "Deneysel Birlik",
-      "Description": "Deneyim Küreleri toplamak, rastgele becerilere XP ekler.",
-      "Lore1": "DP",
-      "Lore2": "Küre Başına"
+    "unity": {
+      "name": "Deneysel Birlik",
+      "description": "Deneyim Küreleri toplamak, rastgele becerilere XP ekler.",
+      "lore1": "DP",
+      "lore2": "Küre Başına"
     },
-    "DiscoveryXpResist": {
-      "Name": "Deneysel Direnç",
-      "Description": "Tüm kaynaklardan aldığınız hasarı azaltmak için deneyim tüketin\n",
-      "Lore0": "Bu yalnızca 15 saniyede bir gerçekleşebilir",
-      "Lore1": "% Azaltılmış Hasar",
-      "Lore2": "deneyim tükenmiş"
+    "resist": {
+      "name": "Deneysel Direnç",
+      "description": "Tüm kaynaklardan aldığınız hasarı azaltmak için deneyim tüketin\n",
+      "lore0": "Bu yalnızca 15 saniyede bir gerçekleşebilir",
+      "lore1": "% Azaltılmış Hasar",
+      "lore2": "deneyim tükenmiş"
     }
   },
-  "Enchanting": {
-    "LapisReturn": {
-      "Name": "Lapis Dönüşü",
-      "Description": "1 XP seviyesi daha pahasına ve karşılığında size bedava lapis verme şansı var",
-      "Lore1": "Her seviye için, efsunlama maliyetini 1 arttırır, ancak 3 Lapis'in üzerine geri dönebilir."
+  "enchanting": {
+    "lapisreturn": {
+      "name": "Lapis Dönüşü",
+      "description": "1 XP seviyesi daha pahasına ve karşılığında size bedava lapis verme şansı var",
+      "lore1": "Her seviye için, efsunlama maliyetini 1 arttırır, ancak 3 Lapis'in üzerine geri dönebilir."
     },
-    "QuickEnchant": {
-      "Name": "Hızlı Tıkla Büyü",
-      "Description": "Öğeleri doğrudan üzerlerindeki efsunlu kitaplara tıklayarak büyüleyin.",
-      "Lore1": "Maksimum Birleştirilmiş Düzeyler",
-      "Lore2": "Birden fazla öğe ile büyü yapılamaz",
-      "Lore3": "güç"
+    "quickenchant": {
+      "name": "Hızlı Tıkla Büyü",
+      "description": "Öğeleri doğrudan üzerlerindeki efsunlu kitaplara tıklayarak büyüleyin.",
+      "lore1": "Maksimum Birleştirilmiş Düzeyler",
+      "lore2": "Birden fazla öğe ile büyü yapılamaz",
+      "lore3": "güç"
     },
-    "EnchantingXpReturn": {
-      "Name": "DP Dönüşü",
-      "Description": "Bir öğeyi büyülediğinizde, Büyüleyici XP size iade edilir.",
-      "Lore1": "Bir öğeyi büyülediğinizde harcanan deneyimin iade edilme şansı vardır.",
-      "Lore2": "Büyü Başına Deneyim"
+    "return": {
+      "name": "DP Dönüşü",
+      "description": "Bir öğeyi büyülediğinizde, Büyüleyici XP size iade edilir.",
+      "lore1": "Bir öğeyi büyülediğinizde harcanan deneyimin iade edilme şansı vardır.",
+      "lore2": "Büyü Başına Deneyim"
     }
   },
-  "Excavation": {
-    "ExcavationHaste": {
-      "Name": "aceleci ekskavatör",
-      "Description": "Bu, HASTE ile kazı sürecini hızlandıracak!",
-      "Lore1": "Kazı yaparken Haste kazanın",
-      "Lore2": "x HERHANGİ bir blok madenciliği yapmaya başladığınızda acele etme seviyeleri."
+  "excavation": {
+    "haste": {
+      "name": "aceleci ekskavatör",
+      "description": "Bu, HASTE ile kazı sürecini hızlandıracak!",
+      "lore1": "Kazı yaparken Haste kazanın",
+      "lore2": "x HERHANGİ bir blok madenciliği yapmaya başladığınızda acele etme seviyeleri."
     },
-    "DropToInventory": {
-      "Name": "Envantere Kürek"
+    "droptoinventory": {
+      "name": "Envantere Kürek"
     },
-    "OmniTool": {
-      "Name": "OMNI - T.O.O.L.",
-      "Description": "Tackle'ın aşırı tasarlanmış gösterişli Leatherman'i",
-      "Lore1": "Muhtemelen birçoğunun en güçlüsü,",
-      "Lore2": "İhtiyaçlarınıza göre araçları anında dinamik olarak birleştirin ve değiştirin.",
-      "Lore3": "birleştirmek için envanterinizdeki bir öğeyi diğerinin üzerine tıklayın.",
-      "Lore4": "araçları çözmek için, öğeyi Gizlice Bırakın ve parçalanacaktır.",
-      "Lore5": "Bu dericide aletleri kıramazsın ama kırık aletleri kullanamazsın",
-      "Lore6": "toplam birleştirilebilen öğeler",
-      "Lore7": "beş veya altı araç veya sadece bir araç kullanabilirsiniz!"
+    "omnitool": {
+      "name": "OMNI - T.O.O.L.",
+      "description": "Tackle'ın aşırı tasarlanmış gösterişli Leatherman'i",
+      "lore1": "Muhtemelen birçoğunun en güçlüsü,",
+      "lore2": "İhtiyaçlarınıza göre araçları anında dinamik olarak birleştirin ve değiştirin.",
+      "lore3": "birleştirmek için envanterinizdeki bir öğeyi diğerinin üzerine tıklayın.",
+      "lore4": "araçları çözmek için, öğeyi Gizlice Bırakın ve parçalanacaktır.",
+      "lore5": "Bu dericide aletleri kıramazsın ama kırık aletleri kullanamazsın",
+      "lore6": "toplam birleştirilebilen öğeler",
+      "lore7": "beş veya altı araç veya sadece bir araç kullanabilirsiniz!"
     }
   },
-  "Herbalism": {
-    "GrowthAura": {
-      "Name": "Büyüme Aurası",
-      "Description": "Bir aura içinde çevrenizdeki doğayı büyütün",
-      "Lore1": "Blok Yarıçapı",
-      "Lore2": "Büyüme Aura Gücü",
-      "Lore3": "Gıda Maliyeti"
+  "herbalism":  {
+    "growthaura": {
+      "name": "Büyüme Aurası",
+      "description": "Bir aura içinde çevrenizdeki doğayı büyütün",
+      "lore1": "Blok Yarıçapı",
+      "lore2": "Büyüme Aura Gücü",
+      "lore3": "Gıda Maliyeti"
     },
-    "Hippo": {
-      "Name": "Herbalist'in Su Aygırı",
-      "Description": "Yiyecek tüketmek, size daha fazla doygunluk sağlar",
-      "Lore1": "Gıda) tüketimde ek doygunluk noktaları"
+    "hippo": {
+      "name": "Herbalist'in Su Aygırı",
+      "description": "Yiyecek tüketmek, size daha fazla doygunluk sağlar",
+      "lore1": "Gıda) tüketimde ek doygunluk noktaları"
     },
-    "Myconid": {
-      "Name": "Bitki Uzmanı Myconid",
-      "Description": "Size Miselyum yapma yeteneği verir",
-      "Lore1": "Herhangi bir Kir ve bir Kahverengi ve Kırmızı Mantar, Miselyum üretecektir."
+    "myconid": {
+      "name": "Bitki Uzmanı Myconid",
+      "description": "Size Miselyum yapma yeteneği verir",
+      "lore1": "Herhangi bir Kir ve bir Kahverengi ve Kırmızı Mantar, Miselyum üretecektir."
     },
-    "DropToInventory": {
-      "Name": "Envantere Çapa Bırakma"
+    "droptoinventory": {
+      "name": "Envantere Çapa Bırakma"
     },
-    "HungryShield": {
-      "Name": "Aç Kalkan",
-      "Description": "Sağlığınızdan önce açlığınıza zarar verin.",
-      "Lore1": "Açlığa direndi"
+    "hungryshield": {
+      "name": "Aç Kalkan",
+      "description": "Sağlığınızdan önce açlığınıza zarar verin.",
+      "lore1": "Açlığa direndi"
     },
-    "Luck": {
-      "Name": "Herbalist'in Şansı",
-      "Description": "Çim/Çiçek kırdığınızda, rastgele bir eşya alma şansınız olur.",
-      "Lore0": "Çiçekler = Yiyecek ve Çim = Tohumlar",
-      "Lore1": "Çiçek kırarak eşya kazanma şansı",
-      "Lore2": "Grass kırılarak bir eşya elde etme şansı"
+    "luck": {
+      "name": "Herbalist'in Şansı",
+      "description": "Çim/Çiçek kırdığınızda, rastgele bir eşya alma şansınız olur.",
+      "lore0": "Çiçekler = Yiyecek ve Çim = Tohumlar",
+      "lore1": "Çiçek kırarak eşya kazanma şansı",
+      "lore2": "Grass kırılarak bir eşya elde etme şansı"
     },
-    "Replant": {
-      "Name": "Hasat ve Tekrar Dikim",
-      "Description": "Hasat etmek ve yeniden dikmek için çapa ile bir mahsulü sağ tıklayın.",
-      "Lore1": "Replant Yarıçapını Bloklar"
+    "replant": {
+      "name": "Hasat ve Tekrar Dikim",
+      "description": "Hasat etmek ve yeniden dikmek için çapa ile bir mahsulü sağ tıklayın.",
+      "lore1": "Replant Yarıçapını Bloklar"
     }
   },
-  "Hunter": {
-    "Adrenaline": {
-      "Name": "adrenalin",
-      "Description": "Canınız azaldıkça daha fazla hasar verin (Yakın dövüş)",
-      "Lore1": "Maksimum Hasar"
+  "hunter": {
+    "adrenaline": {
+      "name": "adrenalin",
+      "description": "Canınız azaldıkça daha fazla hasar verin (Yakın dövüş)",
+      "lore1": "Maksimum Hasar"
     },
-    "GenericPenalty": {
-      "Lore1": "Açlığınız biterse Zehir yığınları kazanacaksınız"
+    "penalty": {
+      "lore1": "Açlığınız biterse Zehir yığınları kazanacaksınız"
     },
-    "DropToInventory": {
-      "Name": "Envantere Düşen Öğeler",
-      "Description": "Bir şeyi öldürdüğünüzde / Bir blok kırdığınızda bir kılıçla damlaları envanterinize ışınlar",
-      "Lore1": "Ne zaman bir mafyadan/bloktan bir eşya düşürülürse, kırılabilirse envanterinize girer."
+    "droptoinventory": {
+      "name": "Envantere Düşen Öğeler",
+      "description": "Bir şeyi öldürdüğünüzde / Bir blok kırdığınızda bir kılıçla damlaları envanterinize ışınlar",
+      "lore1": "Ne zaman bir mafyadan/bloktan bir eşya düşürülürse, kırılabilirse envanterinize girer."
     },
-    "HunterInvisibility": {
-      "Name": "Kaybolan Adım",
-      "Description": "Vurulduğunda, açlık pahasına görünmezlik kazanırsın",
-      "Lore1": "Vurulduğunda pasif görünmezlik kazan",
-      "Lore2": "x Görünmezlik isabet halinde 3 saniye boyunca birikir",
-      "Lore3": "x İstifleme açlığı",
-      "Lore4": "Açlık yığınları süresi ve çarpanı.",
-      "Lore5": "Görünmezlik süresi"
+    "invisibility": {
+      "name": "Kaybolan Adım",
+      "description": "Vurulduğunda, açlık pahasına görünmezlik kazanırsın",
+      "lore1": "Vurulduğunda pasif görünmezlik kazan",
+      "lore2": "x Görünmezlik isabet halinde 3 saniye boyunca birikir",
+      "lore3": "x İstifleme açlığı",
+      "lore4": "Açlık yığınları süresi ve çarpanı.",
+      "lore5": "Görünmezlik süresi"
     },
-    "HunterJumpBoost": {
-      "Name": "Avcı Tepeleri",
-      "Description": "Vurulduğunuzda, açlık pahasına zıplama desteği kazanırsınız.",
-      "Lore1": "Vurulduğunda pasif atlama desteği kazanın",
-      "Lore2": "Vuruşta 3 saniye boyunca x Zıplama Artışı yükleri",
-      "Lore3": "x İstifleme açlığı",
-      "Lore4": "Açlık yığınları süresi ve çarpanı.",
-      "Lore5": "Jump-Boost, süreyi değil, yığın çarpanını artırır."
+    "jumpboost": {
+      "name": "Avcı Tepeleri",
+      "description": "Vurulduğunuzda, açlık pahasına zıplama desteği kazanırsınız.",
+      "lore1": "Vurulduğunda pasif atlama desteği kazanın",
+      "lore2": "Vuruşta 3 saniye boyunca x Zıplama Artışı yükleri",
+      "lore3": "x İstifleme açlığı",
+      "lore4": "Açlık yığınları süresi ve çarpanı.",
+      "lore5": "Jump-Boost, süreyi değil, yığın çarpanını artırır."
     },
-    "HunterLuck": {
-      "Name": "Avcı Şansı",
-      "Description": "Vurulduğunda şans kazanırsın, açlık pahasına",
-      "Lore1": "Vurulduğunda pasif şans kazan",
-      "Lore2": "x Şans, isabet halinde 3 saniye boyunca birikir",
-      "Lore3": "x İstifleme açlığı",
-      "Lore4": "Açlık yığınları süresi ve çarpanı.",
-      "Lore5": "Şans, süreyi değil, çarpanı biriktirir."
+    "luck": {
+      "name": "Avcı Şansı",
+      "description": "Vurulduğunda şans kazanırsın, açlık pahasına",
+      "lore1": "Vurulduğunda pasif şans kazan",
+      "lore2": "x Şans, isabet halinde 3 saniye boyunca birikir",
+      "lore3": "x İstifleme açlığı",
+      "lore4": "Açlık yığınları süresi ve çarpanı.",
+      "lore5": "Şans, süreyi değil, çarpanı biriktirir."
     },
-    "HunterRegen": {
-      "Name": "avcı yenilenmesi",
-      "Description": "Vurulduğun zaman, açlık pahasına yenilenme kazanırsın",
-      "Lore1": "Vurulduğunda pasif yenilenme kazanın",
-      "Lore2": "x Yenileme, isabet halinde 3 saniye boyunca istiflenir",
-      "Lore3": "x İstifleme açlığı",
-      "Lore4": "Açlık yığınları süresi ve çarpanı.",
-      "Lore5": "Yenilenme yığınları çarpanı, süreyi değil."
+    "regen": {
+      "name": "avcı yenilenmesi",
+      "description": "Vurulduğun zaman, açlık pahasına yenilenme kazanırsın",
+      "lore1": "Vurulduğunda pasif yenilenme kazanın",
+      "lore2": "x Yenileme, isabet halinde 3 saniye boyunca istiflenir",
+      "lore3": "x İstifleme açlığı",
+      "lore4": "Açlık yığınları süresi ve çarpanı.",
+      "lore5": "Yenilenme yığınları çarpanı, süreyi değil."
     },
-    "HunterResistance": {
-      "Name": "Avcının Direnişi",
-      "Description": "Vurulduğun zaman açlık pahasına direniş kazanırsın",
-      "Lore1": "Vurulduğunda pasif direnç kazan",
-      "Lore2": "x Direnç, isabet halinde 3 saniye boyunca birikir",
-      "Lore3": "x İstifleme açlığı",
-      "Lore4": "Açlık yığınları süresi ve çarpanı.",
-      "Lore5": "Direnç, süreyi değil, çarpanı yığınlar."
+    "resistance": {
+      "name": "Avcının Direnişi",
+      "description": "Vurulduğun zaman açlık pahasına direniş kazanırsın",
+      "lore1": "Vurulduğunda pasif direnç kazan",
+      "lore2": "x Direnç, isabet halinde 3 saniye boyunca birikir",
+      "lore3": "x İstifleme açlığı",
+      "lore4": "Açlık yığınları süresi ve çarpanı.",
+      "lore5": "Direnç, süreyi değil, çarpanı yığınlar."
     },
-    "HunterSpeed": {
-      "Name": "Avcının Hızı",
-      "Description": "Vurulduğunda hız kazanırsın, açlık pahasına",
-      "Lore1": "Vurulduğunda pasif hız kazan",
-      "Lore2": "x Hız, isabet halinde 3 saniye boyunca birikir",
-      "Lore3": "x İstifleme açlığı",
-      "Lore4": "Açlık yığınları süresi ve çarpanı.",
-      "Lore5": "Hız yığınları çarpanı, süre değil."
+    "speed": {
+      "name": "Avcının Hızı",
+      "description": "Vurulduğunda hız kazanırsın, açlık pahasına",
+      "lore1": "Vurulduğunda pasif hız kazan",
+      "lore2": "x Hız, isabet halinde 3 saniye boyunca birikir",
+      "lore3": "x İstifleme açlığı",
+      "lore4": "Açlık yığınları süresi ve çarpanı.",
+      "lore5": "Hız yığınları çarpanı, süre değil."
     },
-    "HunterStrength": {
-      "Name": "Avcının Gücü",
-      "Description": "Vurulduğun zaman, açlık pahasına güç kazanırsın",
-      "Lore1": "Vurulduğunda pasif güç kazan",
-      "Lore2": "x Vuruşta 3 saniye boyunca Güç birikir",
-      "Lore3": "x İstifleme açlığı",
-      "Lore4": "Açlık yığınları süresi ve çarpanı.",
-      "Lore5": "Güç yığınları çarpanı, süreyi değil."
+    "strength": {
+      "name": "Avcının Gücü",
+      "description": "Vurulduğun zaman, açlık pahasına güç kazanırsın",
+      "lore1": "Vurulduğunda pasif güç kazan",
+      "lore2": "x Vuruşta 3 saniye boyunca Güç birikir",
+      "lore3": "x İstifleme açlığı",
+      "lore4": "Açlık yığınları süresi ve çarpanı.",
+      "lore5": "Güç yığınları çarpanı, süreyi değil."
     }
   },
-  "Nether": {
-    "SkullToss": {
-      "Name": "Wither Kafatası Fırlatma",
-      "Description1": "kullanarak içinizdeki Solgunluğu açığa çıkarın.",
-      "Description2": "birisi",
-      "Description3": "kafa.",
-      "Lore1": "Kafatası atışları arasında saniyeler süren bekleme süresi.",
-      "Lore2": "Wither Skull'u Kullanma: Bir",
-      "Lore3": "solmuş kafatası",
-      "Lore4": "çarpma anında patlıyor."
+  "nether": {
+    "skulltoss": {
+      "name": "Wither Kafatası Fırlatma",
+      "description1": "kullanarak içinizdeki Solgunluğu açığa çıkarın.",
+      "description2": "birisi",
+      "description3": "kafa.",
+      "lore1": "Kafatası atışları arasında saniyeler süren bekleme süresi.",
+      "lore2": "Wither Skull'u Kullanma: Bir",
+      "lore3": "solmuş kafatası",
+      "lore4": "çarpma anında patlıyor."
     },
-    "WitherResist": {
-      "Name": "Solma Direnci",
-      "Description": "Netherite'nin gücüyle solmaya karşı direnir.",
-      "Lore1": "solmayı engelleme şansı (parça başına).",
-      "Lore2": "Pasif: Netherite Zırhı giymek, olumsuzlama şansına sahiptir.",
-      "Lore3": "soluyor."
+    "witherresist": {
+      "name": "Solma Direnci",
+      "description": "Netherite'nin gücüyle solmaya karşı direnir.",
+      "lore1": "solmayı engelleme şansı (parça başına).",
+      "lore2": "Pasif: Netherite Zırhı giymek, olumsuzlama şansına sahiptir.",
+      "lore3": "soluyor."
     }
   },
-  "Pickaxe": {
-    "Autosmelt": {
-      "Name": "oto kokusu",
-      "Description": "Mayınlı Vanilya cevherlerini eritmenizi sağlar",
-      "Lore1": "Eritilebilen cevherler otomatik olarak eritilir",
-      "Lore2": "% ekstra şans"
+  "pickaxe": {
+    "autosmelt": {
+      "name": "oto kokusu",
+      "description": "Mayınlı Vanilya cevherlerini eritmenizi sağlar",
+      "lore1": "Eritilebilen cevherler otomatik olarak eritilir",
+      "lore2": "% ekstra şans"
     },
-    "Chisel": {
-      "Name": "cevher keski",
-      "Description": "Cevherlerden daha fazla cevher çıkarmak için Sağ Tıkla Cevherler, ciddi bir dayanıklılık maliyetiyle.",
-      "Lore1": "Düşme Şansı",
-      "Lore2": "Takım Aşınması"
+    "chisel": {
+      "name": "cevher keski",
+      "description": "Cevherlerden daha fazla cevher çıkarmak için Sağ Tıkla Cevherler, ciddi bir dayanıklılık maliyetiyle.",
+      "lore1": "Düşme Şansı",
+      "lore2": "Takım Aşınması"
     },
-    "DropToInventory": {
-      "Name": "Envantere Düşen Kazma",
-      "Description": "Bir bloğu kırdığınızda, öğeyi envanterinize ışınlar.",
-      "Lore1": "Bir bloktan bir eşya düştüğünde, kırarsanız envanterinize girer."
+    "droptoinventory": {
+      "name": "Envantere Düşen Kazma",
+      "description": "Bir bloğu kırdığınızda, öğeyi envanterinize ışınlar.",
+      "lore1": "Bir bloktan bir eşya düştüğünde, kırarsanız envanterinize girer."
     },
-    "Veinminer": {
-      "Name": "damar madenci",
-      "Description": "Vanilya cevheri Damarında/Kümesinde blokları kırmanıza izin verir",
-      "Lore1": "Gizlice ve maden cevherleri",
-      "Lore2": "damar madenciliği aralığı",
-      "Lore3": "Bu beceri, tüm damlaları bir arada gruplandırmaz!"
+    "veinminer": {
+      "name": "damar madenci",
+      "description": "Vanilya cevheri Damarında/Kümesinde blokları kırmanıza izin verir",
+      "lore1": "Gizlice ve maden cevherleri",
+      "lore2": "damar madenciliği aralığı",
+      "lore3": "Bu beceri, tüm damlaları bir arada gruplandırmaz!"
     }
   },
-  "Ranged": {
-    "ArrowRecovery": {
-      "Name": "Ok Kurtarma",
-      "Description": "Bir düşmanı öldürdükten sonra Okları kurtarın.",
-      "Lore1": "Vurma/Öldürmede Okları Kurtarma Şansı"
+  "ranged": {
+    "arrowrecovery": {
+      "name": "Ok Kurtarma",
+      "description": "Bir düşmanı öldürdükten sonra Okları kurtarın.",
+      "lore1": "Vurma/Öldürmede Okları Kurtarma Şansı"
     },
-    "ForceShot": {
-      "Name": "Zorla Atış",
-      "Description": "Mermileri daha uzağa, daha hızlı vurun!",
-      "AdvancementName": "Uzun atış",
-      "AdvancementLore": "30 blok öteden bir atış yapın!",
-      "Lore1": "mermi hızı"
+    "forceshot": {
+      "name": "Zorla Atış",
+      "description": "Mermileri daha uzağa, daha hızlı vurun!",
+      "advancementname": "Uzun atış",
+      "advancementlore": "30 blok öteden bir atış yapın!",
+      "lore1": "mermi hızı"
     },
-    "LungeShot": {
-      "Name": "hamle atış",
-      "Description": "Oklarınız düşerken sizi rastgele bir yöne fırlatır",
-      "Lore1": "Rastgele Patlama Hızı"
+    "lungeshot": {
+      "name": "hamle atış",
+      "description": "Oklarınız düşerken sizi rastgele bir yöne fırlatır",
+      "lore1": "Rastgele Patlama Hızı"
     },
-    "ArrowPiercing": {
-      "Name": "ok delici",
-      "Description": "Mermilere Piercing ekler! Şeylerin arasından ateş edin!",
-      "Lore1": "Delme Hedefleri"
+    "arrowpiercing": {
+      "name": "ok delici",
+      "description": "Mermilere Piercing ekler! Şeylerin arasından ateş edin!",
+      "lore1": "Delme Hedefleri"
     }
   },
-  "Rift": {
-    "RemoteAccess": {
-      "Name": "Uzaktan erişim",
-      "Description": "Boşluktan çekin ve işaretli bir kaba alın.",
-      "Lore1": "Enderpearl + Pusula = Reliquary Portkey",
-      "Lore2": "Bu öğe, kapsayıcılara uzaktan erişmenizi sağlar",
-      "Lore3": "Hazırlandıktan sonra kullanımı görmek için öğeye bakın",
-      "NotContainer": "Bu bir konteyner değil"
+  "rift": {
+    "remoteaccess": {
+      "name": "Uzaktan erişim",
+      "description": "Boşluktan çekin ve işaretli bir kaba alın.",
+      "lore1": "Enderpearl + Pusula = Reliquary Portkey",
+      "lore2": "Bu öğe, kapsayıcılara uzaktan erişmenizi sağlar",
+      "lore3": "Hazırlandıktan sonra kullanımı görmek için öğeye bakın",
+      "notcontainer": "Bu bir konteyner değil"
     },
-    "RiftBlink": {
-      "Name": "Yarık Yanıp Sönme",
-      "Description": "Kısa menzilli anında ışınlanma, Sadece bir göz açıp kapayıncaya kadar!",
-      "Lore1": "Yanıp sönen bloklar (2x Dikey)",
-      "Lore2": "Sprint Yaparken: Şuraya Git'e iki kez dokunun",
-      "Lore3": "Göz kırpmak"
+    "blink": {
+      "name": "Yarık Yanıp Sönme",
+      "description": "Kısa menzilli anında ışınlanma, Sadece bir göz açıp kapayıncaya kadar!",
+      "lore1": "Yanıp sönen bloklar (2x Dikey)",
+      "lore2": "Sprint Yaparken: Şuraya Git'e iki kez dokunun",
+      "lore3": "Göz kırpmak"
     },
-    "RiftEnderchest": {
-      "Name": "Kolay Enderchest",
-      "Description": "Elinizde sol tıklayarak bir enderchest açın.",
-      "Lore1": "Açmak için elinizdeki Enderchest'e tıklayın (Yalnızca yerleştirmeyin)"
+    "chest": {
+      "name": "Kolay Enderchest",
+      "description": "Elinizde sol tıklayarak bir enderchest açın.",
+      "lore1": "Açmak için elinizdeki Enderchest'e tıklayın (Yalnızca yerleştirmeyin)"
     },
-    "RiftGate": {
-      "Name": "yarık kapısı",
-      "Description": "İşaretli bir yere ışınlan.",
-      "Lore1": "İŞLEM: Zümrüt + Ametist parçası + Ender İnci",
-      "Lore2": "Kullanmadan önce okuyun!",
-      "Lore3": "5 sn gecikme,",
-      "Lore4": "bu animasyondayken ölebilirsin"
+    "gate": {
+      "name": "yarık kapısı",
+      "description": "İşaretli bir yere ışınlan.",
+      "lore1": "İŞLEM: Zümrüt + Ametist parçası + Ender İnci",
+      "lore2": "Kullanmadan önce okuyun!",
+      "lore3": "5 sn gecikme,",
+      "lore4": "bu animasyondayken ölebilirsin"
     },
-    "RiftResistance": {
-      "Name": "Yarık Direnci",
-      "Description": "Ender Eşyaları ve Yeteneklerini kullanırken Direnç kazanın",
-      "Lore1": "+ Pasif: Rift yeteneklerini veya Ender Öğelerini kullandığınızda direnç sağlar",
-      "Lore2": "Portable Enderchest DAHİL DEĞİLDİR, yalnızca tüketebileceğiniz şeyler"
+    "resist": {
+      "name": "Yarık Direnci",
+      "description": "Ender Eşyaları ve Yeteneklerini kullanırken Direnç kazanın",
+      "lore1": "+ Pasif: Rift yeteneklerini veya Ender Öğelerini kullandığınızda direnç sağlar",
+      "lore2": "Portable Enderchest DAHİL DEĞİLDİR, yalnızca tüketebileceğiniz şeyler"
     }
   },
-  "Seaborn": {
-    "SeabornOxygen": {
-      "Name": "Organik Oksijen Tankı",
-      "Description": "Minik ciğerlerinizde daha fazla oksijen tutun!",
-      "Lore1": "Oksijen"
+  "seaborn": {
+    "oxygen": {
+      "name": "Organik Oksijen Tankı",
+      "description": "Minik ciğerlerinizde daha fazla oksijen tutun!",
+      "lore1": "Oksijen"
     },
-    "FishersFantasy": {
-      "Name": "Fisher'ın Fantezi",
-      "Description": "balıkçılıktan daha fazla XP kazanın ve daha fazla balık alın!",
-      "Lore1": "Her seviye için daha fazla XP ve Balık kazanma şansı var!"
+    "fishersfantasy": {
+      "name": "Fisher'ın Fantezi",
+      "description": "balıkçılıktan daha fazla XP kazanın ve daha fazla balık alın!",
+      "lore1": "Her seviye için daha fazla XP ve Balık kazanma şansı var!"
     },
-    "TurtlesMiningSpeed": {
-      "Name": "kaplumbağa madenci",
-      "Description": "Su altında madencilik yaparken acele edersiniz!",
-      "Lore1": "Haste 3, su soluma etkiniz geçtikten sonra madencilik yaparken (AquaAffinity ile istiflenirken) su altında uygulanır!"
+    "haste": {
+      "name": "kaplumbağa madenci",
+      "description": "Su altında madencilik yaparken acele edersiniz!",
+      "lore1": "Haste 3, su soluma etkiniz geçtikten sonra madencilik yaparken (AquaAffinity ile istiflenirken) su altında uygulanır!"
     },
-    "TurtlesVision": {
-      "Name": "Kaplumbağa Vizyonu",
-      "Description": "Su altındayken Gece Görüşü kazanırsınız",
-      "Lore1": "Su soluma etkiniz geçtikten sonra su altındayken Gece Görüşü kazanın!"
+    "nightvision": {
+      "name": "Kaplumbağa Vizyonu",
+      "description": "Su altındayken Gece Görüşü kazanırsınız",
+      "lore1": "Su soluma etkiniz geçtikten sonra su altındayken Gece Görüşü kazanın!"
     },
-    "DolphinGrace": {
-      "Name": "yunus lütfu",
-      "Description": "Yunuslar olmadan bir yunus gibi yüzün",
-      "Lore1": "+ Pasif: kazanç",
-      "Lore2": "x hız (yunuslar zarafet)",
-      "Lore3": "hassas alman mühendisi-bekle bu doğru değil..."
+    "dolphingrace": {
+      "name": "yunus lütfu",
+      "description": "Yunuslar olmadan bir yunus gibi yüzün",
+      "lore1": "+ Pasif: kazanç",
+      "lore2": "x hız (yunuslar zarafet)",
+      "lore3": "hassas alman mühendisi-bekle bu doğru değil..."
     }
   },
-  "Stealth": {
-    "GhostArmor": {
-      "Name": "Hayaletin Zırhı",
-      "Description": "Hasar almadığında zırh oluşturmayı yavaşlatır, 1 vuruş sürer",
-      "Lore1": "Maksimum Zırh",
-      "Lore2": "Hız"
+  "stealth": {
+    "ghostarmor": {
+      "name": "Hayaletin Zırhı",
+      "description": "Hasar almadığında zırh oluşturmayı yavaşlatır, 1 vuruş sürer",
+      "lore1": "Maksimum Zırh",
+      "lore2": "Hız"
     },
-    "StealthNightVision": {
-      "Name": "Gizli Vizyon",
-      "Description": "Gizlice girerken gece görüşü kazanın",
-      "Lore1": "Bir patlama kazanın",
-      "Lore2": "gece görüşü",
-      "Lore3": "gizlice girerken"
+    "nightvision": {
+      "name": "Gizli Vizyon",
+      "description": "Gizlice girerken gece görüşü kazanın",
+      "lore1": "Bir patlama kazanın",
+      "lore2": "gece görüşü",
+      "lore3": "gizlice girerken"
     },
-    "ItemSnatch": {
-      "Name": "Eşya Yakalama",
-      "Description": "Gizlice düşerken anında Düşen eşyaları kap!",
-      "Lore1": "Yakalama Yarıçapı"
+    "snatch": {
+      "name": "Eşya Yakalama",
+      "description": "Gizlice düşerken anında Düşen eşyaları kap!",
+      "lore1": "Yakalama Yarıçapı"
     },
-    "SneakSpeed": {
-      "Name": "Gizli Hız",
-      "Description": "Gizlice girerken hız kazanın",
-      "Lore1": "sinsi hız"
+    "speed": {
+      "name": "Gizli Hız",
+      "description": "Gizlice girerken hız kazanın",
+      "lore1": "sinsi hız"
     }
   },
-  "Sword": {
-    "Machete": {
-      "Name": "pala",
-      "Description": "Yaprakları kolayca kesin!",
-      "Lore1": "Yarıçap Yarıçapı",
-      "Lore2": "Doğrama Bekleme Süresi",
-      "Lore3": "Takım Aşınması"
+  "sword": {
+    "machete": {
+      "name": "pala",
+      "description": "Yaprakları kolayca kesin!",
+      "lore1": "Yarıçap Yarıçapı",
+      "lore2": "Doğrama Bekleme Süresi",
+      "lore3": "Takım Aşınması"
     }
   },
-  "Taming": {
-    "TameDamage": {
-      "Name": "Tame Hasar",
-      "Description": "Verdiğiniz evcil hayvan hasarını artırın.",
-      "Lore1": "Hasar artışı"
+  "taming": {
+    "damage": {
+      "name": "Tame Hasar",
+      "description": "Verdiğiniz evcil hayvan hasarını artırın.",
+      "lore1": "Hasar artışı"
     },
-    "TameHealth": {
-      "Name": "Tame Sağlık",
-      "Description": "Evcilleştirilmiş hayvan sağlığınızı artırın.",
-      "Lore1": "Geliştirilmiş sağlık"
+    "health": {
+      "name": "Tame Sağlık",
+      "description": "Evcilleştirilmiş hayvan sağlığınızı artırın.",
+      "lore1": "Geliştirilmiş sağlık"
     },
-    "TameRegeneration": {
-      "Name": "Tame Yenileme",
-      "Description": "Evcilleştirilmiş hayvan yenilenmenizi artırın.",
-      "Lore1": "HP/s"
+    "regeneration": {
+      "name": "Tame Yenileme",
+      "description": "Evcilleştirilmiş hayvan yenilenmenizi artırın.",
+      "lore1": "HP/s"
     }
   },
-  "TragOul": {
-    "Thorns": {
-      "Name": "dikenler",
-      "Description": "Hasarı saldırganınıza geri yansıtın!",
-      "Lore1": "Vurulduğunda misilleme verilen hasar"
+  "tragoul": {
+    "thorns": {
+      "name": "dikenler",
+      "description": "Hasarı saldırganınıza geri yansıtın!",
+      "lore1": "Vurulduğunda misilleme verilen hasar"
     }
   },
-  "Unarmed": {
-    "GlassCannon": {
-      "Name": "Cam Top",
-      "Description": "Bonus Silahsız Hasar, zırh değeriniz ne kadar düşükse",
-      "Lore1": "x 0 zırhta hasar",
-      "Lore2": "PerLevel Bonus Hasarı"
+  "unarmed": {
+    "glasscannon": {
+      "name": "Cam Top",
+      "description": "Bonus Silahsız Hasar, zırh değeriniz ne kadar düşükse",
+      "lore1": "x 0 zırhta hasar",
+      "lore2": "PerLevel Bonus Hasarı"
     },
-    "UnarmedPower": {
-      "Name": "Silahsız Güç",
-      "Description": "Geliştirilmiş Silahsız Hasar",
-      "Lore1": "Zarar"
+    "power": {
+      "name": "Silahsız Güç",
+      "description": "Geliştirilmiş Silahsız Hasar",
+      "lore1": "Zarar"
     },
-    "SuckerPunch": {
-      "Name": "Sucker Punch",
-      "Description": "Sprint yumruklar, ama daha ölümcül.",
-      "Lore1": "Zarar",
-      "Lore2": "Zımbalarken hızınızla birlikte hasar artar"
+    "suckerpunch": {
+      "name": "Sucker Punch",
+      "description": "Sprint yumruklar, ama daha ölümcül.",
+      "lore1": "Zarar",
+      "lore2": "Zımbalarken hızınızla birlikte hasar artar"
     }
   }
 }

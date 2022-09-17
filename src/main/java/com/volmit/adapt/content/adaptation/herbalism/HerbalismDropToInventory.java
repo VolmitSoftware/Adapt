@@ -39,8 +39,8 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
     public HerbalismDropToInventory() {
         super("herbalism-drop-to-inventory");
         registerConfiguration(HerbalismDropToInventory.Config.class);
-        setDescription(Adapt.dLocalize("Pickaxe", "DropToInventory", "Description"));
-        setDisplayName(Adapt.dLocalize("Herbalism", "DropToInventory", "Name"));
+        setDescription(Adapt.dLocalize("pickaxe", "droptoinventory", "description"));
+        setDisplayName(Adapt.dLocalize("herbalism", "droptoinventory", "name"));
         setIcon(Material.DIRT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -56,7 +56,7 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Pickaxe", "DropToInventory", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("pickaxe", "droptoinventory", "lore1"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

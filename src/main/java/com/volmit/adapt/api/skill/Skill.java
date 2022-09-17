@@ -156,7 +156,7 @@ public interface Skill<T> extends Ticked, Component {
                     .setMaterial(new MaterialBlock(i.getIcon()))
                     .setName(i.getDisplayName(lvl))
                     .addLore(Form.wrapWordsPrefixed(i.getDescription(), "" + C.GRAY, 45)) // Set to the actual Description
-                    .addLore(lvl == 0 ? (C.DARK_GRAY + Adapt.dLocalize("Snippets", "GUI", "NotLearned")) : (C.GRAY + Adapt.dLocalize("Snippets", "GUI", "Level") + " " + C.WHITE + Form.toRoman(lvl)))
+                    .addLore(lvl == 0 ? (C.DARK_GRAY + Adapt.dLocalize("snippets", "gui", "notlearned")) : (C.GRAY + Adapt.dLocalize("snippets", "gui", "level") + " " + C.WHITE + Form.toRoman(lvl)))
                     .setProgress(1D)
                     .onLeftClick((e) -> {
                         w.close();
@@ -166,7 +166,7 @@ public interface Skill<T> extends Ticked, Component {
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Adapt.dLocalize("Snippets", "GUI", "XP") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")");
+        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Adapt.dLocalize("snippets", "gui", "xp") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")");
         w.onClosed((vv) -> J.s(() -> {
             player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
             player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);

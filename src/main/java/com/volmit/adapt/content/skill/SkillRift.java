@@ -44,10 +44,10 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     private final Map<Player, Long> lasttp = new HashMap<>();
 
     public SkillRift() {
-        super("rift", Adapt.dLocalize("Skill", "Rift", "Icon"));
+        super("rift", Adapt.dLocalize("skill", "rift", "icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Skill", "Rift", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "Rift", "Name"));
+        setDescription(Adapt.dLocalize("skill", "rift", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "rift", "name"));
         setColor(C.DARK_PURPLE);
         setInterval(1154);
         setIcon(Material.ENDER_EYE);
@@ -56,7 +56,6 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         registerAdaptation(new RiftEnderchest());
         registerAdaptation(new RiftGate());
         registerAdaptation(new RiftBlink());
-        registerAdaptation(new RiftDoor());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

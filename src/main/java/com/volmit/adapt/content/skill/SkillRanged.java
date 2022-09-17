@@ -40,10 +40,10 @@ import java.util.Locale;
 
 public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     public SkillRanged() {
-        super("ranged", Adapt.dLocalize("Skill", "Ranged", "Icon"));
+        super("ranged", Adapt.dLocalize("skill", "ranged", "icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Skill", "Ranged", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "Ranged", "Name"));
+        setDescription(Adapt.dLocalize("skill", "ranged", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "ranged", "name"));
         setColor(C.DARK_GREEN);
         setInterval(3044);
         registerAdaptation(new RangedForce());

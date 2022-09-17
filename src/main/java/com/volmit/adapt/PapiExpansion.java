@@ -17,20 +17,35 @@ public class PapiExpansion extends PlaceholderExpansion {
 
     private final Map<String, Function<PlayerSkillLine, String>> skillMap = Maps.newHashMap();
     private final Map<String, Function<PlayerData, String>> playerMap = Maps.newHashMap();
-    private final Map<String, BiFunction<PlayerSkillLine, PlayerAdaptation, String>> adaptMap = Maps.newHashMap();
+    private final Map<String, BiFunction<PlayerSkillLine, PlayerAdaptation, String>> adaptationMap = Maps.newHashMap();
 
     public PapiExpansion() {
-        skillMap.put("level", s -> String.valueOf(s.getLevel()));
-        skillMap.put("knowledge", s -> String.valueOf(s.getKnowledge()));
-        skillMap.put("xp", s -> String.format("%.2f", s.getXp()));
-        skillMap.put("freshness", s -> String.valueOf(s.getFreshness()));
-        skillMap.put("name", s -> Adapt.dLocalize("Skill", s.getLine().capitalize(), "Name"));
+        skillMap.put("level", skill -> String.valueOf(skill.getLevel()));
+        skillMap.put("knowledge", skill -> String.valueOf(skill.getKnowledge()));
+        skillMap.put("xp", skill -> String.format("%.2f", skill.getXp()));
+        skillMap.put("freshness", skill -> String.valueOf(skill.getFreshness()));
+        skillMap.put("multiplier", skill -> String.valueOf(skill.getMultiplier()));
+        skillMap.put("name", skill -> Adapt.dLocalize("skill", skill.getLine(), "name"));
 
-        playerMap.put("multiplier", pd -> String.valueOf(pd.getMultiplier()));
+        playerMap.put("multiplier", playerData -> String.valueOf(playerData.getMultiplier()));
+        playerMap.put("availablepower", playerData -> String.valueOf(playerData.getAvailablePower()));
+        playerMap.put("maxpower", playerData -> String.valueOf(playerData.getMaxPower()));
+        playerMap.put("usedpower", playerData -> String.valueOf(playerData.getUsedPower()));
+        playerMap.put("wisdom", playerData -> String.valueOf(playerData.getWisdom()));
+        playerMap.put("masterxp", playerData -> String.valueOf(playerData.getMasterXp()));
+        playerMap.put("seenthings", playerData -> String.valueOf(playerData.getSeenBlocks().getSeen().size()
+                + playerData.getSeenBiomes().getSeen().size()
+                + playerData.getSeenEnchants().getSeen().size()
+                +playerData.getSeenEnvironments().getSeen().size()
+                + playerData.getSeenFoods().getSeen().size()
+                + playerData.getSeenItems().getSeen().size()
+                + playerData.getSeenMobs().getSeen().size()
+                + playerData.getSeenPeople().getSeen().size()
+                + playerData.getSeenPotionEffects().getSeen().size() + playerData.getSeenRecipes().getSeen().size()
+                + playerData.getSeenPotionEffects().getSeen().size() + playerData.getSeenWorlds().getSeen().size()));
 
-        adaptMap.put("name", (sl, a) -> Adapt.dLocalize(sl.getLine().capitalize(), a.getId().capitalize(), "Name"));
-        adaptMap.put("level", (sl, a) -> String.valueOf(a.getLevel()));
-    }
+        adaptationMap.put("name", (skillLine, adaptation) -> Adapt.dLocalize(skillLine.getLine(), adaptation.getId(), "name"));
+        adaptationMap.put("level", (skillLine, adaptation) -> String.valueOf(adaptation.getLevel()));}
 
     @Override
     public @NotNull String getIdentifier() { return Adapt.instance.getDescription().getName().toLowerCase(); }
@@ -45,7 +60,7 @@ public class PapiExpansion extends PlaceholderExpansion {
     Example for Brian's smooth brain:
     - %adapt_multiplier% - Returns the players multiplier
     - %adapt_hunter_level% - Returns the level of the players hunter skill
-    - %adapt_nether_wither-resist% - Returns the level of the Wither Armor Adaptation
+    - %adapt_nether_witherresist% - Returns the level of the Wither Armor Adaptation
     */
     @Override
     public @Nullable String onRequest(OfflinePlayer player, @NotNull String params) {
@@ -69,9 +84,9 @@ public class PapiExpansion extends PlaceholderExpansion {
             String adaptName = args[0] + "-" + args[1];
             if(line.getAdaptations().containsKey(adaptName)) {
                 PlayerAdaptation adapt = line.getAdaptation(adaptName);
-                for(String k : adaptMap.keySet()) {
+                for(String k : adaptationMap.keySet()) {
                     if(k.equalsIgnoreCase(args[2])) {
-                        return adaptMap.get(k).apply(line, adapt);
+                        return adaptationMap.get(k).apply(line, adapt);
                     }
                 }
             }

@@ -40,8 +40,8 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
     public RiftResist() {
         super("rift-resist");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Rift", "RiftResistance", "Description"));
-        setDisplayName(Adapt.dLocalize("Rift", "RiftResistance", "Name"));
+        setDescription(Adapt.dLocalize("rift", "resist", "description"));
+        setDisplayName(Adapt.dLocalize("rift", "resist", "name"));
         setIcon(Material.SCULK_VEIN);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -62,8 +62,8 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Adapt.dLocalize("Rift", "RiftResistance", "Lore1"));
-        v.addLore(C.UNDERLINE + Adapt.dLocalize("Rift", "RiftResistance", "Lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("rift", "resist", "lore1"));
+        v.addLore(C.UNDERLINE + Adapt.dLocalize("rift", "resist", "lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

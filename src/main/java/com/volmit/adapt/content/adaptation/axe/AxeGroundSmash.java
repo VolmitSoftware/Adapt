@@ -42,8 +42,8 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     public AxeGroundSmash() {
         super("axe-ground-smash");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Axe", "GroundSmash", "Description"));
-        setDisplayName(Adapt.dLocalize("Axe", "GroundSmash", "Name"));
+        setDescription(Adapt.dLocalize("axe", "groundsmash", "description"));
+        setDisplayName(Adapt.dLocalize("axe", "groundsmash", "name"));
         setIcon(Material.NETHERITE_AXE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -55,10 +55,10 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     @Override
     public void addStats(int level, Element v) {
         double f = getLevelPercent(level);
-        v.addLore(C.RED + "+ " + Form.f(getFalloffDamage(f), 1) + " - " + Form.f(getDamage(f), 1) + C.GRAY + " " + Adapt.dLocalize("Axe", "GroundSmash", "Lore1"));
-        v.addLore(C.RED + "+ " + Form.f(getRadius(f), 1) + C.GRAY + " " + Adapt.dLocalize("Axe", "GroundSmash", "Lore2"));
-        v.addLore(C.RED + "+ " + Form.pc(getForce(f), 0) + C.GRAY + " " + Adapt.dLocalize("Axe", "GroundSmash", "Lore3"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " + Adapt.dLocalize("Axe", "GroundSmash", "Lore4"));
+        v.addLore(C.RED + "+ " + Form.f(getFalloffDamage(f), 1) + " - " + Form.f(getDamage(f), 1) + C.GRAY + " " + Adapt.dLocalize("axe", "groundsmash", "lore1"));
+        v.addLore(C.RED + "+ " + Form.f(getRadius(f), 1) + C.GRAY + " " + Adapt.dLocalize("axe", "groundsmash", "lore2"));
+        v.addLore(C.RED + "+ " + Form.pc(getForce(f), 0) + C.GRAY + " " + Adapt.dLocalize("axe", "groundsmash", "lore3"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " + Adapt.dLocalize("axe", "groundsmash", "lore4"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

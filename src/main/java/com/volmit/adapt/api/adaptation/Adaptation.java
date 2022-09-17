@@ -280,9 +280,9 @@ public interface Adaptation<T> extends Ticked, Component {
                     .setEnchanted(mylevel >= lvl)
                     .setProgress(1D)
                     .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
-                    .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Adapt.dLocalize("Snippets", "AdaptMenu", "KnowledgeCost")))
-                    .addLore(mylevel >= lvl ? (C.GREEN + Adapt.dLocalize("Snippets", "AdaptMenu", "AlreadyLearned") + " " + C.GRAY + Adapt.dLocalize("Snippets", "AdaptMenu", "UnlearnRefund") + " " + C.GREEN + rc + " " + Adapt.dLocalize("Snippets", "AdaptMenu", "KnowledgeCost")) : (k >= c ? (C.BLUE + Adapt.dLocalize("Snippets", "AdaptMenu", "ClickLearn") + " " + getDisplayName(i)) : (k == 0 ? (C.RED + Adapt.dLocalize("Snippets", "AdaptMenu", "NoKnowledge")) : (C.RED + "(" + Adapt.dLocalize("Snippets", "AdaptMenu", "YouOnlyHave") + " " + C.WHITE + k + C.RED + " " + Adapt.dLocalize("Snippets", "AdaptMenu", "KnowledgeCost") + ")"))))
-                    .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("Snippets", "AdaptMenu", "Power") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("Snippets", "AdaptMenu", "Power") : C.RED + Adapt.dLocalize("Snippets", "AdaptMenu", "NotEnoughPower") + " \n" + C.RED + Adapt.dLocalize("Snippets", "AdaptMenu", "HowToLevelUp"))
+                    .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost")))
+                    .addLore(mylevel >= lvl ? (C.GREEN + Adapt.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "unlearnrefund") + " " + C.GREEN + rc + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost")) : (k >= c ? (C.BLUE + Adapt.dLocalize("snippets", "adaptmenu", "clicklearn") + " " + getDisplayName(i)) : (k == 0 ? (C.RED + Adapt.dLocalize("snippets", "adaptmenu", "noknowledge")) : (C.RED + "(" + Adapt.dLocalize("snippets", "adaptmenu", "youonlyhave") + " " + C.WHITE + k + C.RED + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost") + ")"))))
+                    .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("snippets", "adaptmenu", "power") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("snippets", "adaptmenu", "power") : C.RED + Adapt.dLocalize("snippets", "adaptmenu", "notenoughpower") + " \n" + C.RED + Adapt.dLocalize("snippets", "adaptmenu", "howtolevelup"))
                     .onLeftClick((e) -> {
                         if (mylevel >= lvl) {
                             getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(rc);
@@ -290,7 +290,7 @@ public interface Adaptation<T> extends Ticked, Component {
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
                             w.close();
-                            player.sendTitle(" ", C.GRAY + Adapt.dLocalize("Snippets", "AdaptMenu", "Unlearned") + " " + getDisplayName(mylevel), 1, 5, 11);
+                            player.sendTitle(" ", C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "unlearned") + " " + getDisplayName(mylevel), 1, 5, 11);
                             J.s(() -> openGui(player), 14);
                             return;
                         }
@@ -303,7 +303,7 @@ public interface Adaptation<T> extends Ticked, Component {
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
                                 w.close();
-                                player.sendTitle(" ", C.GRAY + Adapt.dLocalize("Snippets", "AdaptMenu", "Learned") + " " + getDisplayName(lvl), 1, 5, 11);
+                                player.sendTitle(" ", C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "learned") + " " + getDisplayName(lvl), 1, 5, 11);
                                 J.s(() -> openGui(player), 14);
                             } else {
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
@@ -319,7 +319,7 @@ public interface Adaptation<T> extends Ticked, Component {
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle(getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " " + Adapt.dLocalize("Snippets", "AdaptMenu", "Knowledge"));
+        w.setTitle(getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledge"));
         w.onClosed((vv) -> J.s(() -> {
             player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
             player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);

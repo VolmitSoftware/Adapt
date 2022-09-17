@@ -35,8 +35,8 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
     public HerbalismHungryShield() {
         super("herbalism-hungry-shield");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Herbalism", "HungryShield", "Description"));
-        setDisplayName(Adapt.dLocalize("Herbalism", "HungryShield", "Name"));
+        setDescription(Adapt.dLocalize("herbalism", "hungryshield", "description"));
+        setDisplayName(Adapt.dLocalize("herbalism", "hungryshield", "name"));
         setIcon(Material.APPLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -47,7 +47,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("Herbalism", "HungryShield", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("herbalism", "hungryshield", "lore1"));
     }
 
 

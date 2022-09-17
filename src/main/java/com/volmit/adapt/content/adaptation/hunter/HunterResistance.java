@@ -33,8 +33,8 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
     public HunterResistance() {
         super("hunter-resistance");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Hunter", "HunterResistance", "Description"));
-        setDisplayName(Adapt.dLocalize("Hunter", "HunterResistance", "Name"));
+        setDescription(Adapt.dLocalize("hunter", "resistance", "description"));
+        setDisplayName(Adapt.dLocalize("hunter", "resistance", "name"));
         setIcon(Material.POWDER_SNOW_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -45,12 +45,12 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterResistance", "Lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterResistance", "Lore2"));
-        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterResistance", "Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "HunterResistance", "Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "HunterResistance", "Lore5"));
-        v.addLore(C.GRAY + "- " + level + C.RED + " " + Adapt.dLocalize("Hunter", "GenericPenalty", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("hunter", "resistance", "lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("hunter", "resistance", "lore2"));
+        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("hunter", "resistance", "lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "resistance", "lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "resistance", "lore5"));
+        v.addLore(C.GRAY + "- " + level + C.RED + " " + Adapt.dLocalize("hunter", "penalty", "lore1"));
 
     }
 

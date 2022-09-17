@@ -43,8 +43,8 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     public AgilityWindUp() {
         super("agility-wind-up");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Agility", "WindUp", "Description"));
-        setDisplayName(Adapt.dLocalize("Agility", "WindUp", "Name"));
+        setDescription(Adapt.dLocalize("agility", "windup", "description"));
+        setDisplayName(Adapt.dLocalize("agility", "windup", "name"));
         setIcon(Material.POWERED_RAIL);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -54,8 +54,8 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getWindupSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Agility", "WindUp", "Lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("Agility", "WindUp", "Lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getWindupSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("agility", "windup", "lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + Adapt.dLocalize("agility", "windup", "lore2"));
     }
 
     @EventHandler

@@ -32,8 +32,8 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
     public HerbalismMyconid() {
         super("herbalism-myconid");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Herbalism", "Myconid", "Description"));
-        setDisplayName(Adapt.dLocalize("Herbalism", "Myconid", "Name"));
+        setDescription(Adapt.dLocalize("herbalism", "myconid", "description"));
+        setDisplayName(Adapt.dLocalize("herbalism", "myconid", "name"));
         setIcon(Material.MYCELIUM);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -52,7 +52,7 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("Herbalism", "Myconid", "Lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("herbalism", "myconid", "lore1"));
     }
 
 

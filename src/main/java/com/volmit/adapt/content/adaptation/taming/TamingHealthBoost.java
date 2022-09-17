@@ -44,8 +44,8 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     public TamingHealthBoost() {
         super("tame-health");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Taming", "TameHealth", "Description"));
-        setDisplayName(Adapt.dLocalize("Taming", "TameHealth", "Name"));
+        setDescription(Adapt.dLocalize("taming", "health", "description"));
+        setDisplayName(Adapt.dLocalize("taming", "health", "name"));
         setIcon(Material.COOKED_BEEF);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -56,7 +56,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getHealthBoost(level), 0) + C.GRAY + " " + Adapt.dLocalize("Taming", "TameHealth", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getHealthBoost(level), 0) + C.GRAY + " " + Adapt.dLocalize("taming", "health", "lore1"));
     }
 
     private double getHealthBoost(int level) {

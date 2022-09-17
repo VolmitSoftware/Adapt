@@ -39,8 +39,8 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     public SeaborneSpeed() {
         super("seaborne-speed");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Seaborn", "DolphinGrace", "Description"));
-        setDisplayName(Adapt.dLocalize("Seaborn", "DolphinGrace", "Name"));
+        setDescription(Adapt.dLocalize("seaborn", "dolphingrace", "description"));
+        setDisplayName(Adapt.dLocalize("seaborn", "dolphingrace", "name"));
         setIcon(Material.TRIDENT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -51,8 +51,8 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Seaborn", "DolphinGrace", "Lore1") + C.GREEN + (level) + C.GRAY + Adapt.dLocalize("Seaborn", "DolphinGrace", "Lore2"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("Seaborn", "DolphinGrace", "Lore3"));
+        v.addLore(C.GRAY + Adapt.dLocalize("seaborn", "dolphingrace", "lore1") + C.GREEN + (level) + C.GRAY + Adapt.dLocalize("seaborn", "dolphingrace", "lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("seaborn", "dolphingrace", "lore3"));
     }
 
     @EventHandler

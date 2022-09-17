@@ -38,7 +38,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -52,11 +51,11 @@ import java.util.Map;
 
 public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public SkillDiscovery() {
-        super("discovery", Adapt.dLocalize("Skill", "Discovery", "Icon"));
+        super("discovery", Adapt.dLocalize("skill", "discovery", "icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setDescription(Adapt.dLocalize("Skill", "Discovery", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "Discovery", "Name"));
+        setDescription(Adapt.dLocalize("skill", "discovery", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "discovery", "name"));
         setInterval(500);
         setIcon(Material.FILLED_MAP);
         registerAdaptation(new DiscoveryUnity());

@@ -29,12 +29,12 @@ import org.bukkit.entity.Player;
 
 public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     public SkillChronos() {
-        super("chronos", Adapt.dLocalize("Skill", "Chronos", "Icon"));
+        super("chronos", Adapt.dLocalize("skill", "chronos", "icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
         setInterval(10000);
-        setDescription(Adapt.dLocalize("Skill", "Chronos", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "Chronos", "Name"));
+        setDescription(Adapt.dLocalize("skill", "chronos", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "chronos", "name"));
         setInterval(getConfig().setInterval);
         setIcon(Material.CLOCK);
     }

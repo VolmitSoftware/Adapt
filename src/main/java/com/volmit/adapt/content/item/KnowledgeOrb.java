@@ -77,15 +77,15 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Adapt.dLocalize("Snippets", "KnowledgeOrb", "Contains") + " " + C.UNDERLINE + C.WHITE + "" + data.knowledge + " " + Adapt.dLocalize("Snippets", "KnowledgeOrb", "Knowledge"));
-        lore.add(C.LIGHT_PURPLE + Adapt.dLocalize("Snippets", "KnowledgeOrb", "RightClick") + " " + C.GRAY + Adapt.dLocalize("Snippets", "KnowledgeOrb", "ToGainKnowledge"));
+        lore.add(C.WHITE + Adapt.dLocalize("snippets", "knowledgeorb", "contains") + " " + C.UNDERLINE + C.WHITE + "" + data.knowledge + " " + Adapt.dLocalize("snippets", "knowledgeorb", "knowledge"));
+        lore.add(C.LIGHT_PURPLE + Adapt.dLocalize("snippets", "knowledgeorb", "rightclick") + " " + C.GRAY + Adapt.dLocalize("snippets", "knowledgeorb", "togainknowledge"));
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " " + Adapt.dLocalize("Snippets", "KnowledgeOrb", "KnowledgeOrb"));
+        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " " + Adapt.dLocalize("snippets", "knowledgeorb", "knowledgeorb"));
     }
 
     @AllArgsConstructor

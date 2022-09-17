@@ -42,8 +42,8 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     public RangedLungeShot() {
         super("ranged-lunge-shot");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Ranged", "LungeShot", "Description"));
-        setDisplayName(Adapt.dLocalize("Ranged", "LungeShot", "Name"));
+        setDescription(Adapt.dLocalize("ranged", "lungeshot", "description"));
+        setDisplayName(Adapt.dLocalize("ranged", "lungeshot", "name"));
         setIcon(Material.FEATHER);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -58,7 +58,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("Ranged", "LungeShot", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("ranged", "lungeshot", "lore1"));
     }
 
     @EventHandler

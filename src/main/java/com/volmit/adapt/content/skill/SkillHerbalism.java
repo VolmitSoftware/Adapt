@@ -47,12 +47,12 @@ import java.util.Map;
 
 public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     public SkillHerbalism() {
-        super("herbalism", Adapt.dLocalize("Skill", "Herbalism", "Icon"));
+        super("herbalism", Adapt.dLocalize("skill", "herbalism", "icon"));
         registerConfiguration(Config.class);
         setColor(C.GREEN);
         setInterval(3990);
-        setDescription(Adapt.dLocalize("Skill", "Herbalism", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "Herbalism", "Name"));
+        setDescription(Adapt.dLocalize("skill", "herbalism", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "herbalism", "name"));
         setIcon(Material.WHEAT);
         registerAdaptation(new HerbalismGrowthAura());
         registerAdaptation(new HerbalismReplant());

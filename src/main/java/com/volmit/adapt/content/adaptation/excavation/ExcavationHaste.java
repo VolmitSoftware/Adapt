@@ -35,8 +35,8 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
     public ExcavationHaste() {
         super("excavation-haste");
         registerConfiguration(ExcavationHaste.Config.class);
-        setDisplayName(Adapt.dLocalize("Excavation", "ExcavationHaste", "Name"));
-        setDescription(Adapt.dLocalize("Excavation", "ExcavationHaste", "Description"));
+        setDisplayName(Adapt.dLocalize("excavation", "haste", "name"));
+        setDescription(Adapt.dLocalize("excavation", "haste", "description"));
         setIcon(Material.GOLDEN_PICKAXE);
         setInterval(4388);
         setBaseCost(getConfig().baseCost);
@@ -47,8 +47,8 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("Excavation", "ExcavationHaste", "Lore1"));
-        v.addLore(C.GREEN + "" + (level) + C.GRAY + Adapt.dLocalize("Excavation", "ExcavationHaste", "Lore2"));
+        v.addLore(C.GREEN + Adapt.dLocalize("excavation", "haste", "lore1"));
+        v.addLore(C.GREEN + "" + (level) + C.GRAY + Adapt.dLocalize("excavation", "haste", "lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

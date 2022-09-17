@@ -57,8 +57,8 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     public ExcavationOmniTool() {
         super("excavation-omnitool");
         registerConfiguration(ExcavationOmniTool.Config.class);
-        setDisplayName(Adapt.dLocalize("Excavation", "OmniTool", "Name"));
-        setDescription(Adapt.dLocalize("Excavation", "OmniTool", "Description"));
+        setDisplayName(Adapt.dLocalize("excavation", "omnitool", "name"));
+        setDescription(Adapt.dLocalize("excavation", "omnitool", "description"));
         setIcon(Material.DISC_FRAGMENT_5);
         setInterval(20202);
         setBaseCost(getConfig().baseCost);
@@ -69,13 +69,13 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Excavation", "OmniTool", "Lore1"));
-        v.addLore(C.GRAY + "" + (level) + C.GRAY + Adapt.dLocalize("Excavation", "OmniTool", "Lore2"));
-        v.addLore(C.GREEN + Adapt.dLocalize("Excavation", "OmniTool", "Lore3"));
-        v.addLore(C.RED + Adapt.dLocalize("Excavation", "OmniTool", "Lore4"));
-        v.addLore(C.GRAY + Adapt.dLocalize("Excavation", "OmniTool", "Lore5"));
-        v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + " " + Adapt.dLocalize("Excavation", "OmniTool", "Lore6"));
-        v.addLore(C.UNDERLINE + Adapt.dLocalize("Excavation", "OmniTool", "Lore7"));
+        v.addLore(C.GRAY + Adapt.dLocalize("excavation", "omnitool", "lore1"));
+        v.addLore(C.GRAY + "" + (level) + C.GRAY + Adapt.dLocalize("excavation", "omnitool", "lore2"));
+        v.addLore(C.GREEN + Adapt.dLocalize("excavation", "omnitool", "lore3"));
+        v.addLore(C.RED + Adapt.dLocalize("excavation", "omnitool", "lore4"));
+        v.addLore(C.GRAY + Adapt.dLocalize("excavation", "omnitool", "lore5"));
+        v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + " " + Adapt.dLocalize("excavation", "omnitool", "lore6"));
+        v.addLore(C.UNDERLINE + Adapt.dLocalize("excavation", "omnitool", "lore7"));
 
 
     }
