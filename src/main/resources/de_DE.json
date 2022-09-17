@@ -5,7 +5,11 @@
       "knowledge": "Wissen",
       "powerused": "belegte Energie",
       "notlearned": "Noch nicht gelernt",
-      "xp": " XP bis"
+      "xp": " XP bis",
+      "welcome": "Herzlich willkommen!",
+      "welcomeback": "Willkommen zurück!",
+      "xpbonusfortime": "XP für",
+      "unlockthisbyclicking": "Schalte dies frei, indem du mit der rechten Maustaste auf den Adapt-Block klickst!"
     },
     "adaptmenu": {
       "knowledgecost": "Wissen",
@@ -59,12 +63,17 @@
       "icon": "✥",
       "description": "Doppelte Blase, dreifache Blase, vierfache Blase - Ich kann diesen Trank immer noch nicht in einen Kessel geben!"
     },
-    "crafting":{
+    "blocking": {
+      "name": "Blockierung",
+      "icon": "▒",
+      "description": "Stöcke und Steine werden deine Knochen nicht brechen, aber ein Schild wird es tun."
+    },
+    "crafting": {
       "name": "Handwerk",
       "icon": "❖",
       "description": "Da es nichts mehr zu platzieren gibt, warum nicht neues erschaffen?"
     },
-    "discovery":{
+    "discovery": {
       "name": "Entdeckung",
       "icon": "⚛",
       "description": "Wenn sich deine Wahrnehmung erweitert, wird dein Verstand enträtseln, um das zu entdecken, was du nicht wusstest!"
@@ -79,7 +88,7 @@
       "icon": "✥",
       "description": "Diggey Diggey Hole...!"
     },
-    "herbalism":  {
+    "herbalism": {
       "name": "Kräuterkunde",
       "icon": "⚘",
       "description": "Ich kann keine Plfanzen finden, aber ich finde eine paar Samen und - ist das... Unkraut?"
@@ -232,7 +241,19 @@
       "lore2": "Pro berührendem Feuerblock"
     }
   },
-  "crafting":{
+  "blocking": {
+    "multiarmor": {
+      "name": "Multi-Rüstung",
+      "description": "Binde Elytras an die Rüstung",
+      "lore1": "Dies ist eine erstaunliche Fähigkeit zum Reisen.",
+      "lore2": "Dynamisch zusammenführen und Rüstung/Elytra on the Fly ändern!",
+      "lore3": "Klicken Sie zum Zusammenführen mit der Umschalttaste auf einen Gegenstand über einem anderen in Ihrem Inventar.",
+      "lore4": "Um die Rüstung zu lösen, lassen Sie den Gegenstand Sneak-Drop fallen und er wird zerlegt.",
+      "lore5": "Wenn Ihre MultiArmor zerstört wird, verlieren Sie alle darin enthaltenen Gegenstände.",
+      "lore6": "Ich brauche keine Rüstung, es enttäuscht mich ..."
+    }
+  },
+  "crafting": {
     "deconstruction": {
       "name": "Dekonstruktion",
       "description": "Zerlege Blöcke und Gegenstände in wiederverwertbare Komponenten",
@@ -245,7 +266,7 @@
       "lore1": "Erfahrung beim Craften erhalten"
     }
   },
-  "discovery":{
+  "discovery": {
     "armor": {
       "name": "Weltweite Rüstung",
       "description": "Passive Rüstung, abhängig von der Härte der in der Nähe befindlichen Blöcken",
@@ -265,6 +286,13 @@
       "lore0": "Dies kann nur einmal alle 15 Sekunden erfolgen",
       "lore1": "% Weniger Schaden",
       "lore2": "Erfahrung verbraucht"
+    },
+    "villager": {
+      "name": "Dorfbewohner-Attraktion",
+      "description": "Ermöglicht Ihnen bessere Geschäfte mit Dorfbewohnern!",
+      "lore1": "Dies verbraucht EP pro Interaktion mit Dorfbewohnern",
+      "lore2": "Chance pro Interaktion, XP zu verbrauchen und Trades zu verbessern",
+      "lore3": "Erforderlicher XP-Abfluss pro Interaktion"
     }
   },
   "enchanting": {
@@ -309,7 +337,7 @@
       "lore7": "Warum fünf oder secks Werkzeuge, wenn auch eins geht!"
     }
   },
-  "herbalism":  {
+  "herbalism": {
     "growthaura": {
       "name": "Aura des Wachstums",
       "description": "Lässt die Natur um dich herum wachsen",
@@ -592,6 +620,20 @@
       "lore1": "Slash Radius",
       "lore2": "Schlag Abklingzeit",
       "lore3": "Werkzeugverschleiß"
+    },
+    "bloodyblade": {
+      "name": "Blutige Klinge",
+      "description": "Schläge mit deinem Schwert verursachen Blutungen!",
+      "lore1": "Das Schlagen eines Lebewesens mit deinem Schwert verursacht Bluten",
+      "lore2": "Blutungsdauer",
+      "lore3": "Blutungs-Cooldown"
+    },
+    "poisonedblade": {
+      "name": "Vergiftete Klinge",
+      "description": "Schläge mit deinem Schwert, verursache Gift!",
+      "lore1": "Das Schlagen eines Lebewesens mit deinem Schwert verursacht Gift",
+      "lore2": "Giftdauer",
+      "lore3": "Gift-Abklingzeit"
     }
   },
   "taming": {
