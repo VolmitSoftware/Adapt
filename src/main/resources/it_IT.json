@@ -5,7 +5,11 @@
       "knowledge": "Conoscenze",
       "powerused": "Potere Usato",
       "notlearned": "Non appreso",
-      "xp": "XP a"
+      "xp": "XP a",
+      "welcome": "Ben arrivato!",
+      "welcomeback": "Ben tornato!",
+      "xpbonusfortime": "XP per",
+      "unlockthisbyclicking": "Sbloccalo facendo clic con il pulsante destro del mouse sul blocco di adattamento!"
     },
     "adaptmenu": {
       "knowledgecost": "Costo della conoscenza",
@@ -59,12 +63,17 @@
       "icon": "❖",
       "description": "Doppia bolla, tripla bolla, quadrupla bolla: non riesco ancora a mettere questa pozione in un calderone."
     },
-    "crafting":{
+    "blocking": {
+      "name": "Blocco",
+      "icon": "▒",
+      "description": "Bastoni e pietre non ti spezzeranno le ossa, ma uno scudo sì."
+    },
+    "crafting": {
       "name": "Artigianato",
       "icon": "❖",
       "description": "Non essendoci più pezzi da posizionare, perché non farne un altro?"
     },
-    "discovery":{
+    "discovery": {
       "name": "Scoperta",
       "icon": "⚛",
       "description": "Mentre la tua percezione si espande, la tua mente si dipana per scoprire ciò che non conoscevi."
@@ -79,7 +88,7 @@
       "icon": "✥",
       "description": "Scavare un buco..."
     },
-    "herbalism":  {
+    "herbalism": {
       "name": "Erboristeria",
       "icon": "⚘",
       "description": "Non trovo nessuna pianta, ma trovo dei semi e... è...? Erba?"
@@ -232,7 +241,19 @@
       "lore2": "Per ogni blocco di lava toccato"
     }
   },
-  "crafting":{
+  "blocking": {
+    "multiarmor": {
+      "name": "Multi-armatura",
+      "description": "Lega le Elitre all'Armatura",
+      "lore1": "Questa è un'abilità straordinaria per viaggiare.",
+      "lore2": "unisci e cambia dinamicamente armatura/elitre al volo!",
+      "lore3": "per unire, fai clic maiuscolo su un articolo su un altro nel tuo inventario.",
+      "lore4": "per sciogliere l'armatura, lascia cadere l'oggetto e si smonterà.",
+      "lore5": "Se la tua MultiArmor viene distrutta, perderai tutti gli oggetti in essa contenuti.",
+      "lore6": "Non ho bisogno di armature, mi delude..."
+    }
+  },
+  "crafting": {
     "deconstruction": {
       "name": "Decostruzione",
       "description": "Decostruisci blocchi e oggetti in componenti di base recuperabili!",
@@ -245,7 +266,7 @@
       "lore1": "Guadagna XP durante il crafting"
     }
   },
-  "discovery":{
+  "discovery": {
     "armor": {
       "name": "Armatura mondiale",
       "description": "Armatura passiva che dipende dalla durezza dei blocchi vicini.",
@@ -265,6 +286,13 @@
       "lore0": "Può verificarsi solo una volta ogni 15 secondi",
       "lore1": "% Danno ridotto",
       "lore2": "esperienza drenata"
+    },
+    "villager": {
+      "name": "Attrazione del villaggio",
+      "description": "Ti permette di ottenere migliori scambi con gli abitanti del villaggio!",
+      "lore1": "Questo consuma XP per interazione con gli abitanti del villaggio",
+      "lore2": "Possibilità per interazione di consumare XP e migliorare gli scambi",
+      "lore3": "consumo di PE richiesto per interazione"
     }
   },
   "enchanting": {
@@ -309,7 +337,7 @@
       "lore7": "si possono usare cinque o sei attrezzi, oppure uno solo!"
     }
   },
-  "herbalism":  {
+  "herbalism": {
     "growthaura": {
       "name": "Aura di crescita",
       "description": "Fai crescere la natura intorno a te con un'aura",
@@ -592,6 +620,20 @@
       "lore1": "Raggio del fendente",
       "lore2": "Tempo di raffreddamento del taglio",
       "lore3": "Usura dell'attrezzo"
+    },
+    "bloodyblade": {
+      "name": "Lama insanguinata",
+      "description": "Colpisce con la tua spada, causa Sanguinamento!",
+      "lore1": "Colpire un essere vivente con la tua spada provoca sanguinamento",
+      "lore2": "Durata del sanguinamento",
+      "lore3": "Tempo di recupero dell'emorragia"
+    },
+    "poisonedblade": {
+      "name": "Lama avvelenata",
+      "description": "Colpisce con la tua spada, causa Veleno!",
+      "lore1": "Colpire un essere vivente con la tua spada provoca Veleno",
+      "lore2": "Durata del veleno",
+      "lore3": "Tempo di recupero del veleno"
     }
   },
   "taming": {
@@ -609,6 +651,13 @@
       "name": "Rigenerazione dell'animale domato",
       "description": "Aumenta la rigenerazione degli animali addomesticati.",
       "lore1": "HP/s"
+    }
+  },
+  "tragoul": {
+    "thorns": {
+      "name": "Spine",
+      "description": "Rifletti il danno sul tuo attaccante!",
+      "lore1": "Il danno ha reagito quando colpito"
     }
   },
   "unarmed": {
