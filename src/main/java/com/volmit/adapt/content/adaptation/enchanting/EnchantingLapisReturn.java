@@ -35,8 +35,8 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
     public EnchantingLapisReturn() {
         super("enchanting-lapis-return");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Enchanting", "LapisReturn", "Description"));
-        setDisplayName(Adapt.dLocalize("Enchanting", "LapisReturn", "Name"));
+        setDescription(Adapt.dLocalize("enchanting", "lapisreturn", "description"));
+        setDisplayName(Adapt.dLocalize("enchanting", "lapisreturn", "name"));
         setIcon(Material.LAPIS_LAZULI);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -47,7 +47,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("Enchanting", "LapisReturn", "Lore1"));
+        v.addLore(C.GREEN + Adapt.dLocalize("enchanting", "lapisreturn", "lore1"));
     }
 
     @EventHandler(priority = EventPriority.HIGH)

@@ -38,8 +38,8 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
     public SeaborneFishersFantasy() {
         super("seaborne-fishers-fantasy");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Seaborn", "FishersFantasy", "Description"));
-        setDisplayName(Adapt.dLocalize("Seaborn", "FishersFantasy", "Name"));
+        setDescription(Adapt.dLocalize("seaborn", "fishersfantasy", "description"));
+        setDisplayName(Adapt.dLocalize("seaborn", "fishersfantasy", "name"));
         setIcon(Material.FISHING_ROD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -50,7 +50,7 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Seaborn", "FishersFantasy", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("seaborn", "fishersfantasy", "lore1"));
     }
 
     @EventHandler

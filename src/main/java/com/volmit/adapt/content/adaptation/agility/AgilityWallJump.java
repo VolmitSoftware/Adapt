@@ -45,8 +45,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     public AgilityWallJump() {
         super("agility-wall-jump");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Agility", "WallJump", "Description"));
-        setDisplayName(Adapt.dLocalize("Agility", "WallJump", "Name"));
+        setDescription(Adapt.dLocalize("agility", "walljump", "description"));
+        setDisplayName(Adapt.dLocalize("agility", "walljump", "name"));
         setIcon(Material.LADDER);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -57,8 +57,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getMaxJumps(level) + C.GRAY + " " + Adapt.dLocalize("Agility", "WallJump", "Lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + " " + Adapt.dLocalize("Agility", "WallJump", "Lore2"));
+        v.addLore(C.GREEN + "+ " + getMaxJumps(level) + C.GRAY + " " + Adapt.dLocalize("agility", "walljump", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + " " + Adapt.dLocalize("agility", "walljump", "lore2"));
     }
 
     @EventHandler

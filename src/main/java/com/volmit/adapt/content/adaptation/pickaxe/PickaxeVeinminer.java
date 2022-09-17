@@ -39,8 +39,8 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     public PickaxeVeinminer() {
         super("pickaxe-veinminer");
         registerConfiguration(PickaxeVeinminer.Config.class);
-        setDescription(Adapt.dLocalize("Pickaxe", "Veinminer", "Description"));
-        setDisplayName(Adapt.dLocalize("Pickaxe", "Veinminer", "Name"));
+        setDescription(Adapt.dLocalize("pickaxe", "veinminer", "description"));
+        setDisplayName(Adapt.dLocalize("pickaxe", "veinminer", "name"));
         setIcon(Material.IRON_PICKAXE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -50,9 +50,9 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore1"));
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore2"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("Pickaxe", "Veinminer", "Lore3"));
+        v.addLore(C.GREEN + Adapt.dLocalize("pickaxe", "veinminer", "lore1"));
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Adapt.dLocalize("pickaxe", "veinminer", "lore2"));
+        v.addLore(C.ITALIC + Adapt.dLocalize("pickaxe", "veinminer", "lore3"));
     }
 
     private int getRadius(int lvl) {

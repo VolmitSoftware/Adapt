@@ -196,7 +196,7 @@ public class AdaptPlayer extends TickedObject {
                 if (upload) {
                     Adapt.instance.getSqlManager().updateData(player.getUniqueId(), text);
                 }
-                return new Gson().fromJson(IO.readAll(f), PlayerData.class);
+                return new Gson().fromJson(text, PlayerData.class);
             } catch (Throwable ignored) {
             }
         }
@@ -275,8 +275,8 @@ public class AdaptPlayer extends TickedObject {
         double boostAmount = M.lerp(0.1, 0.25, (double) boostTime / (double) TimeUnit.HOURS.toMillis(1));
         getData().globalXPMultiplier(boostAmount, (int) boostTime);
         getNot().queue(AdvancementNotification.builder()
-                .title(first ? Adapt.dLocalize("Snippets", "GUI", "Welcome") : Adapt.dLocalize("Snippets", "GUI", "WelcomeBack"))
-                .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " " + Adapt.dLocalize("Snippets", "GUI", "XPBonusForTime") + " " + C.AQUA + Form.duration(boostTime, 0))
+                .title(first ? Adapt.dLocalize("snippets", "gui", "welcome") : Adapt.dLocalize("snippets", "gui", "welcomeback"))
+                .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " " + Adapt.dLocalize("snippets", "gui", "xpbonusfortime") + " " + C.AQUA + Form.duration(boostTime, 0))
                 .build());
     }
 

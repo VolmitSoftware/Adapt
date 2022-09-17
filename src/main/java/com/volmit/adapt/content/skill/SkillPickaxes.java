@@ -40,10 +40,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     public SkillPickaxes() {
-        super("pickaxe", Adapt.dLocalize("Skill", "Pickaxe", "Icon"));
+        super("pickaxe", Adapt.dLocalize("skill", "pickaxe", "icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Skill", "Pickaxe", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "Pickaxe", "Name"));
+        setDescription(Adapt.dLocalize("skill", "pickaxe", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "pickaxe", "name"));
         setColor(C.GOLD);
         setInterval(2750);
         setIcon(Material.NETHERITE_PICKAXE);

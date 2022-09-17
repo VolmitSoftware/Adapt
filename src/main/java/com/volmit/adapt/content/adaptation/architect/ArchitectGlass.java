@@ -40,8 +40,8 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
     public ArchitectGlass() {
         super("architect-glass");
         registerConfiguration(ArchitectGlass.Config.class);
-        setDescription(Adapt.dLocalize("Architect", "Glass", "Description"));
-        setDisplayName(Adapt.dLocalize("Architect", "Glass", "Name"));
+        setDescription(Adapt.dLocalize("architect", "glass", "description"));
+        setDisplayName(Adapt.dLocalize("architect", "glass", "name"));
         setIcon(Material.GLASS);
         setInterval(25000);
         setBaseCost(getConfig().baseCost);
@@ -52,7 +52,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("Architect", "Glass", "Lore1"));
+        v.addLore(C.GREEN + Adapt.dLocalize("architect", "glass", "lore1"));
     }
 
 

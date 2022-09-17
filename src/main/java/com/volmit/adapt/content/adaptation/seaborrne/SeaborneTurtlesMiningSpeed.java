@@ -35,8 +35,8 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
     public SeaborneTurtlesMiningSpeed() {
         super("seaborne-turtles-mining-speed");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Seaborn", "TurtlesMiningSpeed", "Description"));
-        setDisplayName(Adapt.dLocalize("Seaborn", "TurtlesMiningSpeed", "Name"));
+        setDescription(Adapt.dLocalize("seaborn", "haste", "description"));
+        setDisplayName(Adapt.dLocalize("seaborn", "haste", "name"));
         setIcon(Material.GOLDEN_HORSE_ARMOR);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -47,7 +47,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Seaborn", "TurtlesMiningSpeed", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("seaborn", "haste", "lore1"));
     }
 
     @EventHandler

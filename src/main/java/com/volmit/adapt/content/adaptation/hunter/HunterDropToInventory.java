@@ -42,8 +42,8 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
     public HunterDropToInventory() {
         super("hunter-drop-to-inventory");
         registerConfiguration(HunterDropToInventory.Config.class);
-        setDescription(Adapt.dLocalize("Hunter", "DropToInventory", "Description"));
-        setDisplayName(Adapt.dLocalize("Hunter", "DropToInventory", "Name"));
+        setDescription(Adapt.dLocalize("hunter", "droptoinventory", "description"));
+        setDisplayName(Adapt.dLocalize("hunter", "droptoinventory", "name"));
         setIcon(Material.DIRT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -59,7 +59,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "DropToInventory", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("hunter", "droptoinventory", "lore1"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

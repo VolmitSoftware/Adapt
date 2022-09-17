@@ -35,8 +35,8 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     public DiscoveryUnity() {
         super("discovery-unity");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Discovery", "DiscoveryUnity", "Description"));
-        setDisplayName(Adapt.dLocalize("Discovery", "DiscoveryUnity", "Name"));
+        setDescription(Adapt.dLocalize("discovery", "unity", "description"));
+        setDisplayName(Adapt.dLocalize("discovery", "unity", "name"));
         setIcon(Material.REDSTONE);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
@@ -47,7 +47,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + " " + Adapt.dLocalize("Discovery", "DiscoveryUnity", "Lore1") + C.GRAY + " " + Adapt.dLocalize("Discovery", "DiscoveryUnity", "Lore2"));
+        v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + " " + Adapt.dLocalize("discovery", "unity", "lore1") + C.GRAY + " " + Adapt.dLocalize("discovery", "unity", "lore2"));
     }
 
     @EventHandler(priority = EventPriority.LOW)

@@ -43,8 +43,8 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
     public SwordsBloodyBlade() {
         super("sword-bloody-blade");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Sword", "BloodyBlade", "Description"));
-        setDisplayName(Adapt.dLocalize("Sword", "BloodyBlade", "Name"));
+        setDescription(Adapt.dLocalize("sword", "bloodyblade", "description"));
+        setDisplayName(Adapt.dLocalize("sword", "bloodyblade", "name"));
         setIcon(Material.RED_DYE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -56,9 +56,9 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + " " + Adapt.dLocalize("Sword", "BloodyBlade", "Lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getDurationOfEffect(level), 1) + C.GRAY + " " + Adapt.dLocalize("Sword", "BloodyBlade", "Lore2"));
-        v.addLore(C.RED + "* " + Form.duration(getCooldown(level), 1) + C.GRAY + " " + Adapt.dLocalize("Sword", "BloodyBlade", "Lore3"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + " " + Adapt.dLocalize("sword", "bloodyblade", "lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getDurationOfEffect(level), 1) + C.GRAY + " " + Adapt.dLocalize("sword", "bloodyblade", "lore2"));
+        v.addLore(C.RED + "* " + Form.duration(getCooldown(level), 1) + C.GRAY + " " + Adapt.dLocalize("sword", "bloodyblade", "lore3"));
     }
 
     public long getCooldown(int level) {

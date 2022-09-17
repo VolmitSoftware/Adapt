@@ -44,11 +44,11 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillSeaborne() {
-        super("seaborne", Adapt.dLocalize("Skill", "Seaborne", "Icon"));
+        super("seaborne", Adapt.dLocalize("skill", "seaborne", "icon"));
         registerConfiguration(Config.class);
         setColor(C.BLUE);
-        setDescription(Adapt.dLocalize("Skill", "Seaborne", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "Seaborne", "Name"));
+        setDescription(Adapt.dLocalize("skill", "seaborne", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "seaborne", "name"));
         setInterval(2120);
         setIcon(Material.TRIDENT);
         registerAdaptation(new SeaborneOxygen());
@@ -78,7 +78,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                 return;
             }
             if (i.getWorld().getBlockAt(i.getLocation()).isLiquid() && i.isSwimming()) {
-                Adapt.verbose("Seaborne Tick");
+                Adapt.verbose("seaborne Tick");
                 checkStatTrackers(getPlayer(i));
                 xpSilent(i, getConfig().swimXP);
             }

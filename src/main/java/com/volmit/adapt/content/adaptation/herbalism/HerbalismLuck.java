@@ -37,8 +37,8 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
     public HerbalismLuck() {
         super("herbalism-hippo");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Herbalism", "Luck", "Description"));
-        setDisplayName(Adapt.dLocalize("Herbalism", "Luck", "Name"));
+        setDescription(Adapt.dLocalize("herbalism", "luck", "description"));
+        setDisplayName(Adapt.dLocalize("herbalism", "luck", "name"));
         setIcon(Material.EMERALD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -49,9 +49,9 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("Herbalism", "Luck", "Lore0"));
-        v.addLore(C.GREEN + "+ (" + (getEffectiveness(level)) + C.GRAY + "%) + " + Adapt.dLocalize("Herbalism", "Luck", "Lore1"));
-        v.addLore(C.GREEN + "+ (" + (getEffectiveness(level)) + C.GRAY + "%) + " + Adapt.dLocalize("Herbalism", "Luck", "Lore2"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("herbalism", "luck", "lore0"));
+        v.addLore(C.GREEN + "+ (" + (getEffectiveness(level)) + C.GRAY + "%) + " + Adapt.dLocalize("herbalism", "luck", "lore1"));
+        v.addLore(C.GREEN + "+ (" + (getEffectiveness(level)) + C.GRAY + "%) + " + Adapt.dLocalize("herbalism", "luck", "lore2"));
     }
 
     private double getEffectiveness(double factor) {

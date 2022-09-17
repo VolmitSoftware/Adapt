@@ -51,8 +51,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     public ArchitectFoundation() {
         super("architect-foundation");
         registerConfiguration(ArchitectFoundation.Config.class);
-        setDescription(Adapt.dLocalize("Architect", "Foundation", "Description"));
-        setDisplayName(Adapt.dLocalize("Architect", "Foundation", "Name"));
+        setDescription(Adapt.dLocalize("architect", "foundation", "description"));
+        setDisplayName(Adapt.dLocalize("architect", "foundation", "name"));
         setIcon(Material.TINTED_GLASS);
         setInterval(988);
         setBaseCost(getConfig().baseCost);
@@ -67,7 +67,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("Architect", "Foundation", "Lore1") + (getBlockPower(getLevelPercent(level))) + C.GRAY + " " + Adapt.dLocalize("Architect", "Foundation", "Lore2"));
+        v.addLore(C.GREEN + Adapt.dLocalize("architect", "foundation", "lore1") + (getBlockPower(getLevelPercent(level))) + C.GRAY + " " + Adapt.dLocalize("architect", "foundation", "lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -50,8 +50,8 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     public ArchitectPlacement() {
         super("architect-placement");
         registerConfiguration(ArchitectPlacement.Config.class);
-        setDescription(Adapt.dLocalize("Architect", "Placement", "Description"));
-        setDisplayName(Adapt.dLocalize("Architect", "Placement", "Name"));
+        setDescription(Adapt.dLocalize("architect", "placement", "description"));
+        setDisplayName(Adapt.dLocalize("architect", "placement", "name"));
         setIcon(Material.SCAFFOLDING);
         setInterval(360);
         setBaseCost(getConfig().baseCost);
@@ -62,7 +62,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("Architect", "Placement", "Lore3"));
+        v.addLore(C.GREEN + Adapt.dLocalize("architect", "placement", "lore3"));
     }
 
     private BlockFace getBlockFace(Player player) {
@@ -119,7 +119,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                         runPlayerViewport(getBlockFace(p), p.getTargetBlock(null, 5), p.getInventory().getItemInMainHand().getType(), p);
                     }
                 } else {
-                    p.sendMessage(C.RED + Adapt.dLocalize("Architect", "Placement", "Lore1") + C.GREEN + totalMap.get(p).size() + C.RED + " " + Adapt.dLocalize("Architect", "Placement", "Lore2"));
+                    p.sendMessage(C.RED + Adapt.dLocalize("architect", "placement", "lore1") + C.GREEN + totalMap.get(p).size() + C.RED + " " + Adapt.dLocalize("architect", "placement", "lore2"));
                 }
             }
         }

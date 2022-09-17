@@ -46,8 +46,8 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
     public SwordsPoisonedBlade() {
         super("sword-poison-blade");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Sword", "PoisonedBlade", "Description"));
-        setDisplayName(Adapt.dLocalize("Sword", "PoisonedBlade", "Name"));
+        setDescription(Adapt.dLocalize("sword", "poisonedblade", "description"));
+        setDisplayName(Adapt.dLocalize("sword", "poisonedblade", "name"));
         setIcon(Material.GREEN_DYE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -59,9 +59,9 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + " " + Adapt.dLocalize("Sword", "PoisonedBlade", "Lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getDurationOfEffect(level), 1) + C.GRAY + " " + Adapt.dLocalize("Sword", "PoisonedBlade", "Lore2"));
-        v.addLore(C.RED + "* " + Form.duration(getCooldown(level), 1) + C.GRAY + " " + Adapt.dLocalize("Sword", "PoisonedBlade", "Lore3"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + " " + Adapt.dLocalize("sword", "poisonedblade", "lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getDurationOfEffect(level), 1) + C.GRAY + " " + Adapt.dLocalize("sword", "poisonedblade", "lore2"));
+        v.addLore(C.RED + "* " + Form.duration(getCooldown(level), 1) + C.GRAY + " " + Adapt.dLocalize("sword", "poisonedblade", "lore3"));
     }
 
     public long getCooldown(int level) {

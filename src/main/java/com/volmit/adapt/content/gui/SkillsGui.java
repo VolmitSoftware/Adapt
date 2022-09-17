@@ -53,12 +53,12 @@ public class SkillsGui {
                         .setName(sk.getDisplayName(i.getLevel()))
                         .setProgress(1D)
                         .addLore(C.ITALIC + "" + C.GRAY + sk.getDescription())
-                        .addLore(C.UNDERLINE + "" + C.WHITE + i.getKnowledge() + C.RESET + " " + C.GRAY + Adapt.dLocalize("Snippets", "GUI", "Knowledge"))
-                        .addLore(C.ITALIC + "" + C.GRAY + Adapt.dLocalize("Snippets", "GUI", "PowerUsed") + " " + C.DARK_GREEN + adaptationLevel)
+                        .addLore(C.UNDERLINE + "" + C.WHITE + i.getKnowledge() + C.RESET + " " + C.GRAY + Adapt.dLocalize("snippets", "gui", "knowledge"))
+                        .addLore(C.ITALIC + "" + C.GRAY + Adapt.dLocalize("snippets", "gui", "powerused") + " " + C.DARK_GREEN + adaptationLevel)
                         .onLeftClick((e) -> sk.openGui(player)));
                 ind++;
             }
-            w.setTitle(Adapt.dLocalize("Snippets", "GUI", "Level") + " " + (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp()) + " (" + adaptPlayer.getData().getUsedPower() + "/" + adaptPlayer.getData().getMaxPower() + " " + Adapt.dLocalize("Snippets", "GUI", "PowerUsed") + ")");
+            w.setTitle(Adapt.dLocalize("snippets", "gui", "level") + " " + (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp()) + " (" + adaptPlayer.getData().getUsedPower() + "/" + adaptPlayer.getData().getMaxPower() + " " + Adapt.dLocalize("snippets", "gui", "powerused") + ")");
             w.open();
         }
     }

@@ -40,8 +40,8 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
     public DiscoveryVillagerAtt() {
         super("discovery-villager-att");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Discovery", "DiscoveryVillagerAtt", "Description"));
-        setDisplayName(Adapt.dLocalize("Discovery", "DiscoveryVillagerAtt", "Name"));
+        setDescription(Adapt.dLocalize("discovery", "villager", "description"));
+        setDisplayName(Adapt.dLocalize("discovery", "villager", "name"));
         setIcon(Material.GLASS_BOTTLE);
         setInterval(5832);
         setBaseCost(getConfig().baseCost);
@@ -53,9 +53,9 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("Discovery", "DiscoveryVillagerAtt", "Lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Discovery", "DiscoveryVillagerAtt", "Lore2"));
-        v.addLore(C.GREEN + "+ " + getXpTaken(level) + " " + C.GRAY + Adapt.dLocalize("Discovery", "DiscoveryVillagerAtt", "Lore3"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("discovery", "villager", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("discovery", "villager", "lore2"));
+        v.addLore(C.GREEN + "+ " + getXpTaken(level) + " " + C.GRAY + Adapt.dLocalize("discovery", "villager", "lore3"));
     }
 
     private double getEffectiveness(double multiplier) {

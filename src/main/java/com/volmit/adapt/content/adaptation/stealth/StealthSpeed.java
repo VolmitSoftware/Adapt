@@ -35,8 +35,8 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     public StealthSpeed() {
         super("stealth-speed");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Stealth", "SneakSpeed", "Description"));
-        setDisplayName(Adapt.dLocalize("Stealth", "SneakSpeed", "Name"));
+        setDescription(Adapt.dLocalize("stealth", "speed", "description"));
+        setDisplayName(Adapt.dLocalize("stealth", "speed", "name"));
         setIcon(Material.MUSHROOM_STEW);
         setBaseCost(getConfig().baseCost);
         setInterval(2000);
@@ -46,7 +46,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("Stealth", "SneakSpeed", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("stealth", "speed", "lore1"));
     }
 
     @EventHandler

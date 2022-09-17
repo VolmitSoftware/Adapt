@@ -1,684 +1,684 @@
 {
-  "Snippets": {
-    "GUI": {
-      "Level": "Level",
-      "Knowledge": "Knowledge",
-      "PowerUsed": "Power Used",
-      "NotLearned": "Not Learned",
-      "XP": "XP to",
-      "Welcome": "Welcome!",
-      "WelcomeBack": "Welcome back!",
-      "XPBonusForTime": "XP for",
-      "UnlockThisByCLicking": "Unlock this by Right-Clicking the Adapt Block!"
+  "snippets": {
+    "gui": {
+      "level": "level",
+      "knowledge": "knowledge",
+      "powerused": "Power Used",
+      "notlearned": "Not Learned",
+      "xp": "XP to",
+      "welcome": "Welcome!",
+      "welcomeback": "Welcome back!",
+      "xpbonusfortime": "XP for",
+      "unlockthisbyclicking": "Unlock this by Right-Clicking the Adapt Block!"
     },
-    "AdaptMenu": {
-      "KnowledgeCost": "Knowledge Cost",
-      "AlreadyLearned": "Already Learned",
-      "UnlearnRefund": "Click to Unlearn & Refund",
-      "Knowledge": "Knowledge",
-      "ClickLearn": "Click to Learn",
-      "NoKnowledge": "(You don't have any Knowledge)",
-      "YouOnlyHave": "You only have",
-      "HowToLevelUp": "Level up skills to increase your max power.",
-      "NotEnoughPower": "Not enough power! Each Ability Level costs 1 power.",
-      "Power": "Power",
-      "Learned": "Learned ",
-      "Unlearned": "Unlearned "
+    "adaptmenu": {
+      "knowledgecost": "Knowledge Cost",
+      "alreadylearned": "Already Learned",
+      "unlearnrefund": "Click to Unlearn & Refund",
+      "knowledge": "knowledge",
+      "clicklearn": "Click to Learn",
+      "noknowledge": "(You don't have any Knowledge)",
+      "youonlyhave": "You only have",
+      "howtolevelup": "Level up skills to increase your max power.",
+      "notenoughpower": "Not enough power! Each Ability Level costs 1 power.",
+      "power": "power",
+      "learned": "Learned ",
+      "unlearned": "Unlearned "
     },
-    "KnowledgeOrb": {
-      "Contains": "Contains",
-      "Knowledge": "Knowledge",
-      "RightClick": "Right-Click",
-      "ToGainKnowledge": "to gain this knowledge",
-      "KnowledgeOrb": "Knowledge Orb"
+    "knowledgeorb": {
+      "contains": "contains",
+      "knowledge": "knowledge",
+      "rightclick": "Right-Click",
+      "togainknowledge": "to gain this knowledge",
+      "knowledgeorb": "Knowledge Orb"
     },
-    "ExperienceOrb": {
-      "Contains": "Contains",
-      "XP": "Experience",
-      "RightClick": "Right-Click",
-      "ToGainXP": "to gain this experience",
-      "XPOrb": "Experience Orb"
+    "experienceorb": {
+      "contains": "contains",
+      "xp": "Experience",
+      "rightclick": "Right-Click",
+      "togainxp": "to gain this experience",
+      "xporb": "Experience Orb"
     }
   },
-  "Skill": {
-    "Agility": {
-      "Name": "Agility",
-      "Icon": "⇉",
-      "Description": "Agility is the ability to move quick and fluidly in the face of obstacles."
+  "skill": {
+    "agility": {
+      "name": "Agility",
+      "icon": "⇉",
+      "description": "Agility is the ability to move quick and fluidly in the face of obstacles."
     },
-    "Architect": {
-      "Name": "Architect",
-      "Icon": "⬧",
-      "Description": "Structures are the building blocks of the world. Reality is in your hands, yours to control."
+    "architect": {
+      "name": "Architect",
+      "icon": "⬧",
+      "description": "Structures are the building blocks of the world. Reality is in your hands, yours to control."
     },
-    "Axes": {
-      "Name": "Axes",
-      "Icon": "❖",
-      "Description1": "Why chop down trees, when you could chop ",
-      "Description2": "things",
-      "Description3": "instead, same end result!"
+    "axes": {
+      "name": "Axes",
+      "icon": "❖",
+      "description1": "Why chop down trees, when you could chop ",
+      "description2": "things",
+      "description3": "instead, same end result!"
     },
-    "Brewing": {
-      "Name": "Brewing",
-      "Icon": "❦",
-      "Description": "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
+    "brewing": {
+      "name": "Arewing",
+      "icon": "❦",
+      "description": "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
     },
-    "Blocking": {
-      "Name": "Blocking",
-      "Icon": "▒",
-      "Description": "Sticks and stones Won't break your bones, But a shield will."
+    "blocking": {
+      "name": "Blocking",
+      "icon": "▒",
+      "description": "Sticks and stones Won't break your bones, But a shield will."
     },
-    "Crafting": {
-      "Name": "Crafting",
-      "Icon": "⌂",
-      "Description": "With no more pieces left to place, why not make another?"
+    "crafting":{
+      "name": "Crafting",
+      "icon": "⌂",
+      "description": "With no more pieces left to place, why not make another?"
     },
-    "Discovery": {
-      "Name": "Discovery",
-      "Icon": "⚛",
-      "Description": "As your Perception expands, your mind unravels to discover that which you did not"
+    "discovery":{
+      "name": "Discovery",
+      "icon": "⚛",
+      "description": "As your Perception expands, your mind unravels to discover that which you did not"
     },
-    "Enchanting": {
-      "Name": "Enchanting",
-      "Icon": "♰",
-      "Description": "What are you going on about? Prophecies, visions, superstitious jibber-jabber?"
+    "enchanting": {
+      "name": "Enchanting",
+      "icon": "♰",
+      "description": "What are you going on about? Prophecies, visions, superstitious jibber-jabber?"
     },
-    "Excavation": {
-      "Name": "Excavation",
-      "Icon": "✥",
-      "Description": "Diggey Diggey hole..."
+    "excavation": {
+      "name": "Excavation",
+      "icon": "✥",
+      "description": "Diggey Diggey hole..."
     },
-    "Herbalism": {
-      "Name": "Herbalism",
-      "Icon": "⚘",
-      "Description": "I can't find any plants, but I can find some seeds and- is that... Weed?"
+    "herbalism":  {
+      "name": "Herbalism",
+      "icon": "⚘",
+      "description": "I can't find any plants, but I can find some seeds and- is that... Weed?"
     },
-    "Hunter": {
-      "Name": "Hunter",
-      "Icon": "☠",
-      "Description": "Hunting is about the journey not the outcome."
+    "hunter": {
+      "name": "Hunter",
+      "icon": "☠",
+      "description": "Hunting is about the journey not the outcome."
     },
-    "Nether": {
-      "Name": "Nether",
-      "Icon": "₪",
-      "Description": "From the depths of the Nether itself."
+    "nether": {
+      "name": "Nether",
+      "icon": "₪",
+      "description": "From the depths of the Nether itself."
     },
-    "Pickaxe": {
-      "Name": "Pickaxe",
-      "Icon": "⛏",
-      "Description": "Dwarves are the miners, but ive learned a thing or two in my time. IM SWEDISH"
+    "pickaxe": {
+      "name": "Pickaxe",
+      "icon": "⛏",
+      "description": "Dwarves are the miners, but ive learned a thing or two in my time. IM SWEDISH"
     },
-    "Ranged": {
-      "Name": "Ranged",
-      "Icon": "🏹",
-      "Description": "Distance is the key to victory, and the key to survival."
+    "ranged": {
+      "name": "Ranged",
+      "icon": "🏹",
+      "description": "Distance is the key to victory, and the key to survival."
     },
-    "Rift": {
-      "Name": "Rift",
-      "Icon": "❍",
-      "Description": "The Rift is a caustic harness, but you have harnessed the harness."
+    "rift": {
+      "name": "Rift",
+      "icon": "❍",
+      "description": "The Rift is a caustic harness, but you have harnessed the harness."
     },
-    "Seaborne": {
-      "Name": "Seaborne",
-      "Icon": "🌊",
-      "Description": "With this skill, you may will the wonders of the water"
+    "seaborne": {
+      "name": "Seaborne",
+      "icon": "🌊",
+      "description": "With this skill, you may will the wonders of the water"
     },
-    "Stealth": {
-      "Name": "Stealth",
-      "Icon": "✠",
-      "Description": "The art of the unseen. Walk in the shadows."
+    "stealth": {
+      "name": "Stealth",
+      "icon": "✠",
+      "description": "The art of the unseen. Walk in the shadows."
     },
-    "Swords": {
-      "Name": "Swords",
-      "Icon": "⚔",
-      "Description": "By the power of GreyStone!"
+    "swords": {
+      "name": "Swords",
+      "icon": "⚔",
+      "description": "By the power of GreyStone!"
     },
-    "Taming": {
-      "Name": "Taming",
-      "Icon": "♥",
-      "Description": "The parrots and the bees... and you?"
+    "taming": {
+      "name": "Taming",
+      "icon": "♥",
+      "description": "The parrots and the bees... and you?"
     },
-    "TragOul": {
-      "Name": "TragOul",
-      "Icon": "▼",
-      "Description": "Blood flows through the veins of the universe. Constricted by your hands."
+    "tragoul": {
+      "name": "TragOul",
+      "icon": "▼",
+      "description": "Blood flows through the veins of the universe. Constricted by your hands."
     },
-    "Chronos": {
-      "Name": "Chronos",
-      "Icon": "۞",
-      "Description": "Wind the Clock of the universe, experience the flow. Break the clock, Become it."
+    "chronos": {
+      "name": "Chronos",
+      "icon": "۞",
+      "description": "Wind the Clock of the universe, experience the flow. Break the clock, Become it."
     },
-    "Unarmed": {
-      "Name": "Unarmed",
-      "Icon": "⚜",
-      "Description": "Without a weapon is not without strength"
+    "unarmed": {
+      "name": "Unarmed",
+      "icon": "⚜",
+      "description": "Without a weapon is not without strength"
     }
   },
-  "Agility": {
-    "ArmorUp": {
-      "Name": "Armor-Up",
-      "Description": "Get more armor the longer you sprint!",
-      "Lore1": "Max Armor",
-      "Lore2": "Armor-Up Time"
+  "agility": {
+    "armorup": {
+      "name": "Armor-Up",
+      "description": "Get more armor the longer you sprint!",
+      "lore1": "Max Armor",
+      "lore2": "Armor-Up Time"
     },
-    "SuperJump": {
-      "Name": "Super Jump",
-      "Description": "Exceptional Height Advantage",
-      "Lore1": "Max Jump Height",
-      "Lore2": "Sneak + Jump to Super Jump!"
+    "superjump": {
+      "name": "Super Jump",
+      "description": "Exceptional Height Advantage",
+      "lore1": "Max Jump Height",
+      "lore2": "Sneak + Jump to Super Jump!"
     },
-    "WallJump": {
-      "Name": "Wall Jump",
-      "Description": "Hold shift while mid-air against a wall to wall latch & jump!",
-      "Lore1": "Max Jumps",
-      "Lore2": "Jump Height"
+    "walljump": {
+      "name": "Wall Jump",
+      "description": "Hold shift while mid-air against a wall to wall latch & jump!",
+      "lore1": "Max Jumps",
+      "lore2": "Jump Height"
     },
-    "WindUp": {
-      "Name": "Wind Up",
-      "Description": "Get faster the longer you sprint!",
-      "Lore1": "Max Speed",
-      "Lore2": "Windup Time"
+    "windup": {
+      "name": "Wind Up",
+      "description": "Get faster the longer you sprint!",
+      "lore1": "Max Speed",
+      "lore2": "Windup Time"
     }
   },
-  "Architect": {
-    "Foundation": {
-      "Name": "Magic Foundation",
-      "Description": "This allows for you to sneak and place a temporary foundation beneath you!",
-      "Lore1": "Magically create: ",
-      "Lore2": "Blocks beneath you!"
+  "architect": {
+    "foundation": {
+      "name": "Magic Foundation",
+      "description": "This allows for you to sneak and place a temporary foundation beneath you!",
+      "lore1": "Magically create: ",
+      "lore2": "Blocks beneath you!"
     },
-    "Glass": {
-      "Name": "Silk-Touch Glass",
-      "Description": "This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand!",
-      "Lore1": "Your hands gain silk touch for Glass"
+    "glass": {
+      "name": "Silk-Touch Glass",
+      "description": "This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand!",
+      "lore1": "Your hands gain silk touch for Glass"
     },
-    "Placement": {
-      "Name": "Builders Wand",
-      "Description": "Allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!",
-      "Lore1": "You need",
-      "Lore2": "blocks in your hand to place this",
-      "Lore3": "A Material Builders Wand"
+    "placement": {
+      "name": "Builders Wand",
+      "description": "Allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!",
+      "lore1": "You need",
+      "lore2": "blocks in your hand to place this",
+      "lore3": "A Material Builders Wand"
     }
   },
-  "Axe": {
-    "Chop": {
-      "Name": "Axe Chop",
-      "Description": "Chop down trees by right clicking the base log!",
-      "Lore1": "Blocks Per Chop",
-      "Lore2": "Chop Cooldown",
-      "Lore3": "Tool Wear"
+  "axe": {
+    "chop": {
+      "name": "Axe Chop",
+      "description": "Chop down trees by right clicking the base log!",
+      "lore1": "Blocks Per Chop",
+      "lore2": "Chop Cooldown",
+      "lore3": "Tool Wear"
     },
-    "DropToInventory": {
-      "Name": "Axe Drop-To-Inventory"
+    "droptoinventory": {
+      "name": "Axe Drop-To-Inventory"
     },
-    "GroundSmash": {
-      "Name": "Axe Ground Smash",
-      "Description": "Jump, then crouch and smash all nearby enemies.",
-      "Lore1": "Damage",
-      "Lore2": "Block Radius",
-      "Lore3": "Force",
-      "Lore4": "Smash Cooldown"
+    "groundsmash": {
+      "name": "Axe Ground Smash",
+      "description": "Jump, then crouch and smash all nearby enemies.",
+      "lore1": "Damage",
+      "lore2": "Block Radius",
+      "lore3": "Force",
+      "lore4": "Smash Cooldown"
     },
-    "LeafMiner": {
-      "Name": "LeafMiner",
-      "Description": "Allows you to break bulk leaves at once!",
-      "Lore1": "Sneak, and mine LEAVES",
-      "Lore2": "range of Leaf-mining",
-      "Lore3": "You will not get the drops from the leaves (Exploit Prevention)"
+    "leafminer": {
+      "name": "leafminer",
+      "description": "Allows you to break bulk leaves at once!",
+      "lore1": "Sneak, and mine LEAVES",
+      "lore2": "range of Leaf-mining",
+      "lore3": "You will not get the drops from the leaves (Exploit Prevention)"
     }
   },
-  "Brewing": {
-    "Lingering": {
-      "Name": "Lingering Brew",
-      "Description": "Brewed potions last longer!",
-      "Lore1": "Duration",
-      "Lore2": "Duration"
+  "brewing": {
+    "lingering": {
+      "name": "Lingering Brew",
+      "description": "Brewed potions last longer!",
+      "lore1": "Duration",
+      "lore2": "Duration"
     },
-    "SuperHeated": {
-      "Name": "Super Heated Brew",
-      "Description": "Brewing stands work faster the hotter they are.",
-      "Lore1": "Per Touching Fire Block",
-      "Lore2": "Per Touching Lava Block"
+    "superheated": {
+      "name": "Super Heated Brew",
+      "description": "Brewing stands work faster the hotter they are.",
+      "lore1": "Per Touching Fire Block",
+      "lore2": "Per Touching Lava Block"
     }
   },
-  "Blocking": {
-    "MultiArmor": {
-      "Name": "Multi-Armor",
-      "Description": "Bind Elytras to Armor",
-      "Lore1": "This Is an amazing skill for traveling.",
-      "Lore2": "dynamically merge and change Armor/Elytra on the Fly!",
-      "Lore3": "to merge, shift click an item over another in your inventory.",
-      "Lore4": "to unbind Armor, Sneak-Drop the item, and it will disassemble.",
-      "Lore5": "If your MultiArmor is destroyed, you will lose all items in it.",
-      "Lore6": "I Don't need armor, It disappoints me..."
+  "blocking": {
+    "multiarmor": {
+      "name": "Multi-Armor",
+      "description": "Bind Elytras to Armor",
+      "lore1": "This Is an amazing skill for traveling.",
+      "lore2": "dynamically merge and change Armor/Elytra on the Fly!",
+      "lore3": "to merge, shift click an item over another in your inventory.",
+      "lore4": "to unbind Armor, Sneak-Drop the item, and it will disassemble.",
+      "lore5": "If your MultiArmor is destroyed, you will lose all items in it.",
+      "lore6": "I Don't need armor, It disappoints me..."
     }
   },
-  "Crafting": {
-    "Deconstruction": {
-      "Name": "Deconstruction",
-      "Description": "Deconstruct blocks & items into salvageable base components!",
-      "Lore1": "Place an any item + shears",
-      "Lore2": "in a smithing table to deconstruct."
+  "crafting":{
+    "deconstruction": {
+      "name": "Deconstruction",
+      "description": "Deconstruct blocks & items into salvageable base components!",
+      "lore1": "Place an any item + shears",
+      "lore2": "in a smithing table to deconstruct."
     },
-    "CraftXp": {
-      "Name": "Crafting XP",
-      "Description": "Gain passive XP when crafting",
-      "Lore1": "Gain XP when crafting"
+    "xp": {
+      "name": "Crafting XP",
+      "description": "Gain passive XP when crafting",
+      "lore1": "Gain XP when crafting"
     }
   },
-  "Discovery": {
-    "DiscoveryArmor": {
-      "Name": "World Armor",
-      "Description": "Passive armor depending on nearby block hardness.",
-      "Lore1": "Passive Armor",
-      "Lore2": "Based on nearby block hardness",
-      "Lore3": "Armor Strength: +"
+  "discovery":{
+    "armor": {
+      "name": "World Armor",
+      "description": "Passive armor depending on nearby block hardness.",
+      "lore1": "Passive Armor",
+      "lore2": "Based on nearby block hardness",
+      "lore3": "Armor Strength: +"
     },
-    "DiscoveryUnity": {
-      "Name": "Experimental Unity",
-      "Description": "Collecting Experience Orbs adds XP to random skills.",
-      "Lore1": "XP ",
-      "Lore2": "Per Orb"
+    "unity": {
+      "name": "Experimental Unity",
+      "description": "Collecting Experience Orbs adds XP to random skills.",
+      "lore1": "XP ",
+      "lore2": "Per Orb"
     },
-    "DiscoveryXpResist": {
-      "Name": "Experimental Resistance",
-      "Description": "Consume experience to mitigate the damage you take from all sources",
-      "Lore0": "This may only occur once per 15 seconds",
-      "Lore1": "% Reduced Damage",
-      "Lore2": "experience drained"
+    "resist": {
+      "name": "Experimental Resistance",
+      "description": "Consume experience to mitigate the damage you take from all sources",
+      "lore0": "This may only occur once per 15 seconds",
+      "lore1": "% Reduced Damage",
+      "lore2": "experience drained"
     },
-    "DiscoveryVillagerAtt": {
-      "Name": "Villager Attraction",
-      "Description": "Allows for you to get Better trades with villagers!",
-      "Lore1": "This consumes XP per interaction with Villagers",
-      "Lore2": "Chance Per interaction to consume XP, and enhance trades",
-      "Lore3": "required XP drain per Interaction"
+    "villager": {
+      "name": "Villager Attraction",
+      "description": "Allows for you to get Better trades with villagers!",
+      "lore1": "This consumes XP per interaction with Villagers",
+      "lore2": "Chance Per interaction to consume XP, and enhance trades",
+      "lore3": "required XP drain per Interaction"
     }
   },
-  "Enchanting": {
-    "LapisReturn": {
-      "Name": "Lapis Return",
-      "Description": "At the cost of 1 more level of XP, and has a chance to give you free lapis in return",
-      "Lore1": "For every level, it increases the cost of enchanting, by 1, but can return upwards of 3 Lapis"
+  "enchanting": {
+    "lapisreturn": {
+      "name": "Lapis Return",
+      "description": "At the cost of 1 more level of XP, and has a chance to give you free lapis in return",
+      "lore1": "For every level, it increases the cost of enchanting, by 1, but can return upwards of 3 Lapis"
     },
-    "QuickEnchant": {
-      "Name": "Quick-Click Enchant",
-      "Description": "Enchant items by clicking enchant books directly on them.",
-      "Lore1": "Max Combined Levels",
-      "Lore2": "Cannot Enchant an item with more than ",
-      "Lore3": "power"
+    "quickenchant": {
+      "name": "Quick-Click Enchant",
+      "description": "Enchant items by clicking enchant books directly on them.",
+      "lore1": "Max Combined Levels",
+      "lore2": "Cannot Enchant an item with more than ",
+      "lore3": "power"
     },
-    "EnchantingXpReturn": {
-      "Name": "XP Return",
-      "Description": "Enchanting XP is returned to you when you enchant an item.",
-      "Lore1": "Experience spent has a chance to be refunded when you enchant an item",
-      "Lore2": "Experience per Enchant"
+    "return": {
+      "name": "XP Return",
+      "description": "Enchanting XP is returned to you when you enchant an item.",
+      "lore1": "Experience spent has a chance to be refunded when you enchant an item",
+      "lore2": "Experience per Enchant"
     }
   },
-  "Excavation": {
-    "ExcavationHaste": {
-      "Name": "Hasty Excavator",
-      "Description": "This will speed up the excavation process, with HASTE!",
-      "Lore1": "Gain Haste while excavating",
-      "Lore2": "x Levels of haste when you start mining ANY block."
+  "excavation": {
+    "haste": {
+      "name": "Hasty Excavator",
+      "description": "This will speed up the excavation process, with HASTE!",
+      "lore1": "Gain Haste while excavating",
+      "lore2": "x Levels of haste when you start mining ANY block."
     },
-    "DropToInventory": {
-      "Name": "Shovel Drop-To-Inventory"
+    "droptoinventory": {
+      "name": "Shovel Drop-To-Inventory"
     },
-    "OmniTool": {
-      "Name": "OMNI - T.O.O.L.",
-      "Description": "Tackle's overdesigned opulent Leatherman",
-      "Lore1": "Probably the most powerful of  many allows you to",
-      "Lore2": "dynamically merge and change tools on the fly, based on your needs.",
-      "Lore3": "to merge, shift click an item over another in your inventory.",
-      "Lore4": "to unbind tools, Sneak-Drop the item, and it will disassemble.",
-      "Lore5": "you can't break tools in this leatherman but you can't use broken tools",
-      "Lore6": "total merge-able items",
-      "Lore7": "you could use five or six tools, or just one!"
+    "omnitool": {
+      "name": "OMNI - T.O.O.L.",
+      "description": "Tackle's overdesigned opulent Leatherman",
+      "lore1": "Probably the most powerful of  many allows you to",
+      "lore2": "dynamically merge and change tools on the fly, based on your needs.",
+      "lore3": "to merge, shift click an item over another in your inventory.",
+      "lore4": "to unbind tools, Sneak-Drop the item, and it will disassemble.",
+      "lore5": "you can't break tools in this leatherman but you can't use broken tools",
+      "lore6": "total merge-able items",
+      "lore7": "you could use five or six tools, or just one!"
     }
   },
-  "Herbalism": {
-    "GrowthAura": {
-      "Name": "Growth Aura",
-      "Description": "Grow nature around you in an aura",
-      "Lore1": "Block Radius",
-      "Lore2": "Growth Aura Strength",
-      "Lore3": "Food Cost"
+  "herbalism":  {
+    "growthaura": {
+      "name": "Growth Aura",
+      "description": "Grow nature around you in an aura",
+      "lore1": "Block Radius",
+      "lore2": "Growth Aura Strength",
+      "lore3": "Food Cost"
     },
-    "Hippo": {
-      "Name": "Herbalist's Hippo",
-      "Description": "Consuming food, gives you more saturation",
-      "Lore1": "Food) additional saturation points on consumption"
+    "hippo": {
+      "name": "Herbalist's Hippo",
+      "description": "Consuming food, gives you more saturation",
+      "lore1": "Food) additional saturation points on consumption"
     },
-    "Myconid": {
-      "Name": "Herbalist's Myconid",
-      "Description": "Gives you the ability to craft Mycelium",
-      "Lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
+    "myconid": {
+      "name": "Herbalist's Myconid",
+      "description": "Gives you the ability to craft Mycelium",
+      "lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
     },
-    "DropToInventory": {
-      "Name": "Hoe Drop-To-Inventory"
+    "droptoinventory": {
+      "name": "Hoe Drop-To-Inventory"
     },
-    "HungryShield": {
-      "Name": "Hungry Shield",
-      "Description": "Take damage to your hunger before your health.",
-      "Lore1": "Resisted by Hunger"
+    "hungryshield": {
+      "name": "Hungry Shield",
+      "description": "Take damage to your hunger before your health.",
+      "lore1": "Resisted by Hunger"
     },
-    "Luck": {
-      "Name": "Herbalist's Luck",
-      "Description": "When you break Grass/Flowers, you have a chance to get a random item",
-      "Lore0": "Flowers = Food, and Grass = Seeds",
-      "Lore1": "Chance to get an item from breaking Flowers",
-      "Lore2": "Chance to get an item from breaking Grass"
+    "luck": {
+      "name": "Herbalist's Luck",
+      "description": "When you break Grass/Flowers, you have a chance to get a random item",
+      "lore0": "Flowers = Food, and Grass = Seeds",
+      "lore1": "Chance to get an item from breaking Flowers",
+      "lore2": "Chance to get an item from breaking Grass"
     },
-    "Replant": {
-      "Name": "Harvest & Replant",
-      "Description": "Right click a crop with a hoe to harvest & replant it.",
-      "Lore1": "Blocks Replant Radius"
+    "replant": {
+      "name": "Harvest & Replant",
+      "description": "Right click a crop with a hoe to harvest & replant it.",
+      "lore1": "Blocks Replant Radius"
     }
   },
-  "Hunter": {
-    "Adrenaline": {
-      "Name": "Adrenaline",
-      "Description": "Deal more damage the lower health you are (Melee)",
-      "Lore1": "Max Damage"
+  "hunter": {
+    "adrenaline": {
+      "name": "Adrenaline",
+      "description": "Deal more damage the lower health you are (Melee)",
+      "lore1": "Max Damage"
     },
-    "GenericPenalty": {
-      "Name": "",
-      "Description": "",
-      "Lore1": "You will Gain Poison stacks if you run out of hunger"
+    "penalty": {
+      "name": "",
+      "description": "",
+      "lore1": "You will Gain Poison stacks if you run out of hunger"
     },
-    "DropToInventory": {
-      "Name": "Items Drop-To-Inventory",
-      "Description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
-      "Lore1": "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."
+    "droptoinventory": {
+      "name": "Items Drop-To-Inventory",
+      "description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
+      "lore1": "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."
     },
-    "HunterInvisibility": {
-      "Name": "Vanishing Step",
-      "Description": "When you are struck you gain invisibility, at the cost of hunger",
-      "Lore1": "Gain passive invisibility when struck",
-      "Lore2": "x Invisibility stacks for a 3 seconds on hit",
-      "Lore3": "x Stacking hunger",
-      "Lore4": "Hunger stacks duration and multiplier.",
-      "Lore5": "Invisibility duration"
+    "invisibility": {
+      "name": "Vanishing Step",
+      "description": "When you are struck you gain invisibility, at the cost of hunger",
+      "lore1": "Gain passive invisibility when struck",
+      "lore2": "x Invisibility stacks for a 3 seconds on hit",
+      "lore3": "x Stacking hunger",
+      "lore4": "Hunger stacks duration and multiplier.",
+      "lore5": "Invisibility duration"
     },
-    "HunterJumpBoost": {
-      "Name": "Hunter's Heights",
-      "Description": "When you are struck you gain jump-boost, at the cost of hunger",
-      "Lore1": "Gain passive jump-boost when struck",
-      "Lore2": "x Jump-Boost stacks for a 3 seconds on hit",
-      "Lore3": "x Stacking hunger",
-      "Lore4": "Hunger stacks duration and multiplier.",
-      "Lore5": "Jump-Boost stacks multiplier, not duration."
+    "jumpboost": {
+      "name": "Hunter's Heights",
+      "description": "When you are struck you gain jump-boost, at the cost of hunger",
+      "lore1": "Gain passive jump-boost when struck",
+      "lore2": "x Jump-Boost stacks for a 3 seconds on hit",
+      "lore3": "x Stacking hunger",
+      "lore4": "Hunger stacks duration and multiplier.",
+      "lore5": "Jump-Boost stacks multiplier, not duration."
     },
-    "HunterLuck": {
-      "Name": "Hunter's Luck",
-      "Description": "When you are struck you gain luck, at the cost of hunger",
-      "Lore1": "Gain passive luck when struck",
-      "Lore2": "x Luck stacks for a 3 seconds on hit",
-      "Lore3": "x Stacking hunger",
-      "Lore4": "Hunger stacks duration and multiplier.",
-      "Lore5": "Luck stacks multiplier, not duration."
+    "luck": {
+      "name": "Hunter's Luck",
+      "description": "When you are struck you gain luck, at the cost of hunger",
+      "lore1": "Gain passive luck when struck",
+      "lore2": "x Luck stacks for a 3 seconds on hit",
+      "lore3": "x Stacking hunger",
+      "lore4": "Hunger stacks duration and multiplier.",
+      "lore5": "Luck stacks multiplier, not duration."
     },
-    "HunterRegen": {
-      "Name": "Hunter's Regen",
-      "Description": "When you are struck you gain regeneration, at the cost of hunger",
-      "Lore1": "Gain passive regeneration when struck",
-      "Lore2": "x Regeneration stacks for a 3 seconds on hit",
-      "Lore3": "x Stacking hunger",
-      "Lore4": "Hunger stacks duration and multiplier.",
-      "Lore5": "Regeneration stacks multiplier, not duration."
+    "regen": {
+      "name": "Hunter's Regen",
+      "description": "When you are struck you gain regeneration, at the cost of hunger",
+      "lore1": "Gain passive regeneration when struck",
+      "lore2": "x Regeneration stacks for a 3 seconds on hit",
+      "lore3": "x Stacking hunger",
+      "lore4": "Hunger stacks duration and multiplier.",
+      "lore5": "Regeneration stacks multiplier, not duration."
     },
-    "HunterResistance": {
-      "Name": "Hunter's Resistance",
-      "Description": "When you are struck you gain resistance, at the cost of hunger",
-      "Lore1": "Gain passive resistance when struck",
-      "Lore2": "x Resistance stacks for a 3 seconds on hit",
-      "Lore3": "x Stacking hunger",
-      "Lore4": "Hunger stacks duration and multiplier.",
-      "Lore5": "Resistance stacks multiplier, not duration."
+    "resistance": {
+      "name": "Hunter's Resistance",
+      "description": "When you are struck you gain resistance, at the cost of hunger",
+      "lore1": "Gain passive resistance when struck",
+      "lore2": "x Resistance stacks for a 3 seconds on hit",
+      "lore3": "x Stacking hunger",
+      "lore4": "Hunger stacks duration and multiplier.",
+      "lore5": "Resistance stacks multiplier, not duration."
     },
-    "HunterSpeed": {
-      "Name": "Hunter's Speed",
-      "Description": "When you are struck you gain speed, at the cost of hunger",
-      "Lore1": "Gain passive speed when struck",
-      "Lore2": "x Speed stacks for a 3 seconds on hit",
-      "Lore3": "x Stacking hunger",
-      "Lore4": "Hunger stacks duration and multiplier.",
-      "Lore5": "Speed stacks multiplier, not duration."
+    "speed": {
+      "name": "Hunter's Speed",
+      "description": "When you are struck you gain speed, at the cost of hunger",
+      "lore1": "Gain passive speed when struck",
+      "lore2": "x Speed stacks for a 3 seconds on hit",
+      "lore3": "x Stacking hunger",
+      "lore4": "Hunger stacks duration and multiplier.",
+      "lore5": "Speed stacks multiplier, not duration."
     },
-    "HunterStrength": {
-      "Name": "Hunter's Strength",
-      "Description": "When you are struck you gain strength, at the cost of hunger",
-      "Lore1": "Gain passive strength when struck",
-      "Lore2": "x Strength stacks for a 3 seconds on hit",
-      "Lore3": "x Stacking hunger",
-      "Lore4": "Hunger stacks duration and multiplier.",
-      "Lore5": "Strength stacks multiplier, not duration."
+    "strength": {
+      "name": "Hunter's Strength",
+      "description": "When you are struck you gain strength, at the cost of hunger",
+      "lore1": "Gain passive strength when struck",
+      "lore2": "x Strength stacks for a 3 seconds on hit",
+      "lore3": "x Stacking hunger",
+      "lore4": "Hunger stacks duration and multiplier.",
+      "lore5": "Strength stacks multiplier, not duration."
     }
   },
-  "Nether": {
-    "SkullToss": {
-      "Name": "Wither Skull Throw",
-      "Description1": "Unleash your inner Wither by using",
-      "Description2": "someones",
-      "Description3": "head.",
-      "Lore1": "Seconds of cooldown between skull tosses.",
-      "Lore2": "Using Wither Skull: Toss a ",
-      "Lore3": "Wither Skull",
-      "Lore4": "exploding on impact."
+  "nether": {
+    "skulltoss": {
+      "name": "Wither Skull Throw",
+      "description1": "Unleash your inner Wither by using",
+      "description2": "someones",
+      "description3": "head.",
+      "lore1": "Seconds of cooldown between skull tosses.",
+      "lore2": "Using Wither Skull: Toss a ",
+      "lore3": "Wither Skull",
+      "lore4": "exploding on impact."
     },
-    "WitherResist": {
-      "Name": "Wither Resistance",
-      "Description": "Resists withering through the power of Netherite.",
-      "Lore1": "chance to negate withering (per piece).",
-      "Lore2": "Passive: Wearing Netherite Armor has a chance to negate ",
-      "Lore3": "withering."
+    "witherresist": {
+      "name": "Wither Resistance",
+      "description": "Resists withering through the power of Netherite.",
+      "lore1": "chance to negate withering (per piece).",
+      "lore2": "Passive: Wearing Netherite Armor has a chance to negate ",
+      "lore3": "withering."
     }
   },
-  "Pickaxe": {
-    "Autosmelt": {
-      "Name": "Autosmelt",
-      "Description": "Allows you to smelt mined Vanilla ores",
-      "Lore1": "Ores that can be smelted are smelted automatically",
-      "Lore2": "% chance for an extra"
+  "pickaxe": {
+    "autosmelt": {
+      "name": "Autosmelt",
+      "description": "Allows you to smelt mined Vanilla ores",
+      "lore1": "Ores that can be smelted are smelted automatically",
+      "lore2": "% chance for an extra"
     },
-    "Chisel": {
-      "Name": "Ore Chisel",
-      "Description": "Right Click Ores to Chisel more ore out of them, at a severe durability cost.",
-      "Lore1": "Chance to Drop",
-      "Lore2": "Tool Wear"
+    "chisel": {
+      "name": "Ore Chisel",
+      "description": "Right Click Ores to Chisel more ore out of them, at a severe durability cost.",
+      "lore1": "Chance to Drop",
+      "lore2": "Tool Wear"
     },
-    "DropToInventory": {
-      "Name": "Pickaxe Drop-To-Inventory",
-      "Description": "When you break a block it teleports the item into your inventory",
-      "Lore1": "Whenever an item is dropped from a block you break it goes into your inventory if it can."
+    "droptoinventory": {
+      "name": "Pickaxe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore1": "Whenever an item is dropped from a block you break it goes into your inventory if it can."
     },
-    "Veinminer": {
-      "Name": "Veinminer",
-      "Description": "Allows you to break blocks in a Vein/Cluster of Vanilla ores",
-      "Lore1": "Sneak, and mine ORES",
-      "Lore2": "range of vein-mining",
-      "Lore3": "This skill does NOT group all drops together!"
+    "veinminer": {
+      "name": "Veinminer",
+      "description": "Allows you to break blocks in a Vein/Cluster of Vanilla ores",
+      "lore1": "Sneak, and mine ORES",
+      "lore2": "range of vein-mining",
+      "lore3": "This skill does NOT group all drops together!"
     }
   },
-  "Ranged": {
-    "ArrowRecovery": {
-      "Name": "Arrow Recovery",
-      "Description": "Recover Arrows after you have killed an enemy.",
-      "Lore1": "Chance to Recover Arrows on Hit/Kill"
+  "ranged": {
+    "arrowrecovery": {
+      "name": "Arrow Recovery",
+      "description": "Recover Arrows after you have killed an enemy.",
+      "lore1": "Chance to Recover Arrows on Hit/Kill"
     },
-    "ForceShot": {
-      "Name": "Force Shot",
-      "Description": "Shoot projectiles further, faster!",
-      "AdvancementName": "Long Shot",
-      "AdvancementLore": "Land a shot from over 30 blocks away!",
-      "Lore1": "Projectile Speed"
+    "forceshot": {
+      "name": "Force Shot",
+      "description": "Shoot projectiles further, faster!",
+      "advancementname": "Long Shot",
+      "advancementlore": "Land a shot from over 30 blocks away!",
+      "lore1": "Projectile Speed"
     },
-    "LungeShot": {
-      "Name": "Lunge Shot",
-      "Description": "While falling your arrows toss you in a random direction",
-      "Lore1": "Random Burst Speed"
+    "lungeshot": {
+      "name": "Lunge Shot",
+      "description": "While falling your arrows toss you in a random direction",
+      "lore1": "Random Burst Speed"
     },
-    "ArrowPiercing": {
-      "Name": "Arrow Piercing",
-      "Description": "Adds Piercing to projectiles! Shoot through things!",
-      "Lore1": "Pierce Targets"
+    "arrowpiercing": {
+      "name": "Arrow Piercing",
+      "description": "Adds Piercing to projectiles! Shoot through things!",
+      "lore1": "Pierce Targets"
     }
   },
-  "Rift": {
-    "RemoteAccess": {
-      "Name": "Remote Access",
-      "Description": "Pull from the void, and get into a marked container.",
-      "Lore1": "Enderpearl + Compass = Reliquary Portkey",
-      "Lore2": "This item allows you to access containers remotely",
-      "Lore3": "Once crafted look at item to see usage",
-      "NotContainer": "That's not a container"
+  "rift": {
+    "remoteaccess": {
+      "name": "Remote Access",
+      "description": "Pull from the void, and get into a marked container.",
+      "lore1": "Enderpearl + Compass = Reliquary Portkey",
+      "lore2": "This item allows you to access containers remotely",
+      "lore3": "Once crafted look at item to see usage",
+      "notcontainer": "That's not a container"
     },
-    "RiftBlink": {
-      "Name": "Rift Blink",
-      "Description": "Short ranged instant teleportation, Just a blink away!",
-      "Lore1": "Blocks on blink (2x Vertical)",
-      "Lore2": "While Sprinting: Double tap Jump to ",
-      "Lore3": "Blink"
+    "blink": {
+      "name": "Rift Blink",
+      "description": "Short ranged instant teleportation, Just a blink away!",
+      "lore1": "Blocks on blink (2x Vertical)",
+      "lore2": "While Sprinting: Double tap Jump to ",
+      "lore3": "Blink"
     },
-    "RiftEnderchest": {
-      "Name": "Easy Enderchest",
-      "Description": "Open an enderchest by Left-clicking it in your hand.",
-      "Lore1": "Click an Enderchest in your hand to open (Just dont place it)"
+    "chest": {
+      "name": "Easy Enderchest",
+      "description": "Open an enderchest by Left-clicking it in your hand.",
+      "lore1": "Click an Enderchest in your hand to open (Just dont place it)"
     },
-    "RiftGate": {
-      "Name": "Rift Gate",
-      "Description": "Teleport to a marked location.",
-      "Lore1": "CRAFTING: Emerald + Amethyst shard + Ender Pearl",
-      "Lore2": "Read before using!",
-      "Lore3": "5s delay, ",
-      "Lore4": "you can die while you are in this animation"
+    "gate": {
+      "name": "Rift Gate",
+      "description": "Teleport to a marked location.",
+      "lore1": "CRAFTING: Emerald + Amethyst shard + Ender Pearl",
+      "lore2": "Read before using!",
+      "lore3": "5s delay, ",
+      "lore4": "you can die while you are in this animation"
     },
-    "RiftResistance": {
-      "Name": "Rift Resistance",
-      "Description": "Gain Resistance when using Ender Items & Abilities",
-      "Lore1": "+ Passive: Provides resistance when you use rift abilities, or Ender Items",
-      "Lore2": "NOT Including Portable Enderchest, only things you can Consume"
+    "resist": {
+      "name": "Rift Resistance",
+      "description": "Gain Resistance when using Ender Items & Abilities",
+      "lore1": "+ Passive: Provides resistance when you use rift abilities, or Ender Items",
+      "lore2": "NOT Including Portable Enderchest, only things you can Consume"
     }
   },
-  "Seaborn": {
-    "SeabornOxygen": {
-      "Name": "Organic Oxygen Tank",
-      "Description": "Hold more oxygen in your tiny lungs!",
-      "Lore1": "Oxygen"
+  "seaborn": {
+    "oxygen": {
+      "name": "Organic Oxygen Tank",
+      "description": "Hold more oxygen in your tiny lungs!",
+      "lore1": "Oxygen"
     },
-    "FishersFantasy": {
-      "Name": "Fisher's Fantasy",
-      "Description": "earn more XP from fishing, and get more fish!",
-      "Lore1": "For each level there is a chance to get more XP and Fish!"
+    "fishersfantasy": {
+      "name": "Fisher's Fantasy",
+      "description": "earn more XP from fishing, and get more fish!",
+      "lore1": "For each level there is a chance to get more XP and Fish!"
     },
-    "TurtlesMiningSpeed": {
-      "Name": "Turtle Miner",
-      "Description": "While mining underwater you gain haste!",
-      "Lore1": "Haste 3 is applied underwater while mining (stacks with AquaAffinity) after your water breathing effect wears off!"
+    "haste": {
+      "name": "Turtle Miner",
+      "description": "While mining underwater you gain haste!",
+      "lore1": "Haste 3 is applied underwater while mining (stacks with AquaAffinity) after your water breathing effect wears off!"
     },
-    "TurtlesVision": {
-      "Name": "Turtle's Vision",
-      "Description": "While underwater, you gain Night Vision",
-      "Lore1": "Simply gain Night Vision while underwater after your water breathing effect wears off!"
+    "nightvision": {
+      "name": "Turtle's Vision",
+      "description": "While underwater, you gain Night Vision",
+      "lore1": "Simply gain Night Vision while underwater after your water breathing effect wears off!"
     },
-    "DolphinGrace": {
-      "Name": "Dolphin's Grace",
-      "Description": "Swim like a dolphin, without the dolphins",
-      "Lore1": "+ Passive: gain ",
-      "Lore2": "x speed (dolphins grace)",
-      "Lore3": "precision german engineeeri- wait that's not right..."
+    "dolphingrace": {
+      "name": "Dolphin's Grace",
+      "description": "Swim like a dolphin, without the dolphins",
+      "lore1": "+ Passive: gain ",
+      "lore2": "x speed (dolphins grace)",
+      "lore3": "precision german engineeeri- wait that's not right..."
     }
   },
-  "Stealth": {
-    "GhostArmor": {
-      "Name": "Ghost's Armor",
-      "Description": "Slow building armor when not taking damage, Lasts for 1 hit",
-      "Lore1": "Max Armor",
-      "Lore2": "Speed"
+  "stealth": {
+    "ghostarmor": {
+      "name": "Ghost's Armor",
+      "description": "Slow building armor when not taking damage, Lasts for 1 hit",
+      "lore1": "Max Armor",
+      "lore2": "Speed"
     },
-    "StealthNightVision": {
-      "Name": "Stealth Vision",
-      "Description": "Gain night vision while sneaking",
-      "Lore1": "Gain a burst of ",
-      "Lore2": "night vision",
-      "Lore3": "while sneaking"
+    "nightvision": {
+      "name": "Stealth Vision",
+      "description": "Gain night vision while sneaking",
+      "lore1": "Gain a burst of ",
+      "lore2": "night vision",
+      "lore3": "while sneaking"
     },
-    "ItemSnatch": {
-      "Name": "Item Snatch",
-      "Description": "Snatch Dropped items instantly while sneaking!",
-      "Lore1": "Snatch Radius"
+    "snatch": {
+      "name": "Item Snatch",
+      "description": "Snatch Dropped items instantly while sneaking!",
+      "lore1": "Snatch Radius"
     },
-    "SneakSpeed": {
-      "Name": "Sneak Speed",
-      "Description": "Gain speed while sneaking",
-      "Lore1": "Sneaking Speed"
+    "speed": {
+      "name": "Sneak Speed",
+      "description": "Gain speed while sneaking",
+      "lore1": "Sneaking Speed"
     }
   },
-  "Sword": {
-    "Machete": {
-      "Name": "Machete",
-      "Description": "Cut through foliage with ease!",
-      "Lore1": "Slash Radius",
-      "Lore2": "Chop Cooldown",
-      "Lore3": "Tool Wear"
+  "sword": {
+    "machete": {
+      "name": "Machete",
+      "description": "Cut through foliage with ease!",
+      "lore1": "Slash Radius",
+      "lore2": "Chop Cooldown",
+      "lore3": "Tool Wear"
     },
-    "BloodyBlade": {
-      "Name": "Bloody Blade",
-      "Description": "Strikes with your sword, cause Bleeding!",
-      "Lore1": "Striking a Living entity with your Sword causes Bleeding",
-      "Lore2": "Bleed Duration",
-      "Lore3": "Bleed Cooldown"
+    "bloodyblade": {
+      "name": "Bloody Blade",
+      "description": "Strikes with your sword, cause Bleeding!",
+      "lore1": "Striking a Living entity with your Sword causes Bleeding",
+      "lore2": "Bleed Duration",
+      "lore3": "Bleed Cooldown"
     },
-    "PoisonedBlade": {
-      "Name": "Poisoned Blade",
-      "Description": "Strikes with your sword, cause Poison!",
-      "Lore1": "Striking a Living entity with your Sword causes Poison" ,
-      "Lore2": "Poison Duration",
-      "Lore3": "Poison Cooldown"
+    "poisonedblade": {
+      "name": "Poisoned Blade",
+      "description": "Strikes with your sword, cause Poison!",
+      "lore1": "Striking a Living entity with your Sword causes Poison" ,
+      "lore2": "Poison Duration",
+      "lore3": "Poison Cooldown"
     }
   },
-  "Taming": {
-    "TameDamage": {
-      "Name": "Tame Damage",
-      "Description": "Increase your tamed animal damage dealt.",
-      "Lore1": "Increased Damage"
+  "taming": {
+    "damage": {
+      "name": "Tame Damage",
+      "description": "Increase your tamed animal damage dealt.",
+      "lore1": "Increased Damage"
     },
-    "TameHealth": {
-      "Name": "Tame Health",
-      "Description": "Increase your tamed animal health.",
-      "Lore1": "Increased Health"
+    "health": {
+      "name": "Tame Health",
+      "description": "Increase your tamed animal health.",
+      "lore1": "Increased Health"
     },
-    "TameRegeneration": {
-      "Name": "Tame Regeneration",
-      "Description": "Increase your tamed animal regeneration.",
-      "Lore1": "HP/s"
+    "regeneration": {
+      "name": "Tame Regeneration",
+      "description": "Increase your tamed animal regeneration.",
+      "lore1": "HP/s"
     }
   },
-  "TragOul": {
-    "Thorns": {
-      "Name": "Thorns",
-      "Description": "Reflect damage back to your attacker!",
-      "Lore1": "Damage retaliated when struck"
+  "tragoul": {
+    "thorns": {
+      "name": "Thorns",
+      "description": "Reflect damage back to your attacker!",
+      "lore1": "Damage retaliated when struck"
     }
   },
-  "Unarmed": {
-    "GlassCannon": {
-      "Name": "Glass Cannon",
-      "Description": "Bonus Unarmed Damage the lower your armor value is",
-      "Lore1": "x Damage at 0 armor",
-      "Lore2": "PerLevel Bonus Damage"
+  "unarmed": {
+    "glasscannon": {
+      "name": "Glass Cannon",
+      "description": "Bonus Unarmed Damage the lower your armor value is",
+      "lore1": "x Damage at 0 armor",
+      "lore2": "PerLevel Bonus Damage"
     },
-    "UnarmedPower": {
-      "Name": "Unarmed Power",
-      "Description": "Improved Unarmed Damage",
-      "Lore1": "Damage"
+    "power": {
+      "name": "Unarmed Power",
+      "description": "Improved Unarmed Damage",
+      "lore1": "Damage"
     },
-    "SuckerPunch": {
-      "Name": "Sucker Punch",
-      "Description": "Sprint punches, but more deadly.",
-      "Lore1": "Damage",
-      "Lore2": "Damage increases by with your speed while punching"
+    "suckerpunch": {
+      "name": "Sucker Punch",
+      "description": "Sprint punches, but more deadly.",
+      "lore1": "Damage",
+      "lore2": "Damage increases by with your speed while punching"
     }
   }
 }

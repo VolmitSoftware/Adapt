@@ -36,6 +36,7 @@ import java.util.Map;
 public class AdaptConfig {
     private static AdaptConfig config = null;
     public boolean debug = false;
+    public boolean splashScreen = true;
     public boolean xpInCreative = false;
     public String adaptActivatorBlock = "BOOKSHELF";
     public List<String> blacklistedWorlds = List.of("some_world_adapt_should_not_run_in", "anotherWorldFolderName");

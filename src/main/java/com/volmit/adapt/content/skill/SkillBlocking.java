@@ -39,11 +39,11 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillBlocking() {
-        super("blocking", Adapt.dLocalize("Skill", "Blocking", "Icon"));
+        super("blocking", Adapt.dLocalize("skill", "blocking", "icon"));
         registerConfiguration(Config.class);
         setColor(C.DARK_GRAY);
-        setDescription(Adapt.dLocalize("Skill", "Blocking", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "Blocking", "Name"));
+        setDescription(Adapt.dLocalize("skill", "blocking", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "blocking", "name"));
         setInterval(5000);
         setIcon(Material.SHIELD);
         registerAdaptation(new BlockingMultiArmor());

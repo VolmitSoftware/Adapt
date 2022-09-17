@@ -42,8 +42,8 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     public DiscoveryArmor() {
         super("discovery-world-armor");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Discovery", "DiscoveryArmor", "Description"));
-        setDisplayName(Adapt.dLocalize("Discovery", "DiscoveryArmor", "Name"));
+        setDescription(Adapt.dLocalize("discovery", "armor", "description"));
+        setDisplayName(Adapt.dLocalize("discovery", "armor", "name"));
         setIcon(Material.TURTLE_HELMET);
         setInterval(1305);
         setBaseCost(getConfig().baseCost);
@@ -54,8 +54,8 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("Discovery", "DiscoveryArmor", "Lore1") + C.GRAY + ", " + Adapt.dLocalize("Discovery", "DiscoveryArmor", "Lore2"));
-        v.addLore(Adapt.dLocalize("Discovery", "DiscoveryArmor", "Lore3") + C.BLUE + level * 0.25);
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("discovery", "armor", "lore1") + C.GRAY + ", " + Adapt.dLocalize("discovery", "armor", "lore2"));
+        v.addLore(Adapt.dLocalize("discovery", "armor", "lore3") + C.BLUE + level * 0.25);
     }
 
     public double getArmorPoints(Material m) {

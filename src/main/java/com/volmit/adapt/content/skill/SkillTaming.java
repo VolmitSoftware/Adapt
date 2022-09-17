@@ -38,10 +38,10 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     public SkillTaming() {
-        super("taming", Adapt.dLocalize("Skill", "Taming", "Icon"));
+        super("taming", Adapt.dLocalize("skill", "taming", "icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Skill", "Taming", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "Taming", "Name"));
+        setDescription(Adapt.dLocalize("skill", "taming", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "taming", "name"));
         setColor(C.GOLD);
         setInterval(3480);
         setIcon(Material.LEAD);

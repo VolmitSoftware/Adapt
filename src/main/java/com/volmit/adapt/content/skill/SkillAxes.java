@@ -40,11 +40,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     public SkillAxes() {
-        super("axes", Adapt.dLocalize("Skill", "Axes", "Icon"));
+        super("axes", Adapt.dLocalize("skill", "axes", "icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription(Adapt.dLocalize("Skill", "Axes", "Description1") + C.ITALIC + Adapt.dLocalize("Skill", "Axes", "Description2") + C.GRAY + " " + Adapt.dLocalize("Skill", "Axes", "Description3"));
-        setDisplayName(Adapt.dLocalize("Skill", "Axes", "Name"));
+        setDescription(Adapt.dLocalize("skill", "axes", "description1") + C.ITALIC + Adapt.dLocalize("skill", "axes", "description2") + C.GRAY + " " + Adapt.dLocalize("skill", "axes", "description3"));
+        setDisplayName(Adapt.dLocalize("skill", "axes", "name"));
         setInterval(5251);
         setIcon(Material.GOLDEN_AXE);
         registerAdaptation(new AxeGroundSmash());

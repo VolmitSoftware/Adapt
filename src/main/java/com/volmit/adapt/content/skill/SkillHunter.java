@@ -42,11 +42,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     public SkillHunter() {
-        super("hunter", Adapt.dLocalize("Skill", "Hunter", "Icon"));
+        super("hunter", Adapt.dLocalize("skill", "hunter", "icon"));
         registerConfiguration(Config.class);
         setColor(C.RED);
-        setDescription(Adapt.dLocalize("Skill", "Hunter", "Description"));
-        setDisplayName(Adapt.dLocalize("Skill", "Hunter", "Name"));
+        setDescription(Adapt.dLocalize("skill", "hunter", "description"));
+        setDisplayName(Adapt.dLocalize("skill", "hunter", "name"));
         setInterval(4150);
         setIcon(Material.BONE);
         registerAdaptation(new HunterAdrenaline());

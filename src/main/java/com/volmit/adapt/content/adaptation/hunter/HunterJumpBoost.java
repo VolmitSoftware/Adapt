@@ -32,8 +32,8 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
     public HunterJumpBoost() {
         super("hunter-jumpboost");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Hunter", "HunterJumpBoost", "Description"));
-        setDisplayName(Adapt.dLocalize("Hunter", "HunterJumpBoost", "Name"));
+        setDescription(Adapt.dLocalize("hunter", "jumpboost", "description"));
+        setDisplayName(Adapt.dLocalize("hunter", "jumpboost", "name"));
         setIcon(Material.PUFFERFISH_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -44,12 +44,12 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore2"));
-        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "HunterJumpBoost", "Lore5"));
-        v.addLore(C.GRAY + "- " + level + C.RED + " " + Adapt.dLocalize("Hunter", "GenericPenalty", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("hunter", "jumpboost", "lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("hunter", "jumpboost", "lore2"));
+        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("hunter", "jumpboost", "lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "jumpboost", "lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "jumpboost", "lore5"));
+        v.addLore(C.GRAY + "- " + level + C.RED + " " + Adapt.dLocalize("hunter", "penalty", "lore1"));
 
     }
 

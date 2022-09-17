@@ -1,682 +1,682 @@
 {
-  "Snippets": {
-    "GUI": {
-      "Level": "等级",
-      "Knowledge": "知识",
-      "PowerUsed": "已使用的 能力",
-      "NotLearned": "尚未学习",
-      "XP": "至下一级经验",
-      "Welcome": "欢迎！",
-      "WelcomeBack": "欢迎回来！",
-      "XPBonusForTime": "经验增益，持续",
-      "UnlockThisByCLicking": "右键Adapt方块以解锁！"
+  "snippets": {
+    "gui": {
+      "level": "等级",
+      "knowledge": "知识",
+      "powerused": "已使用的 能力",
+      "notlearned": "尚未学习",
+      "xp": "至下一级经验",
+      "welcome": "欢迎！",
+      "welcomeback": "欢迎回来！",
+      "xpbonusfortime": "经验增益，持续",
+      "unlockthisbyclicking": "右键Adapt方块以解锁！"
     },
-    "AdaptMenu": {
-      "KnowledgeCost": "知识可用",
-      "AlreadyLearned": "已学习",
-      "UnlearnRefund": "点击忘却此技能",
-      "Knowledge": "知识",
-      "ClickLearn": "点击以学习",
-      "NoKnowledge": "（你没有任何知识可用）",
-      "YouOnlyHave": "你只有",
-      "HowToLevelUp": "升级技能来扩大能力上限",
-      "NotEnoughPower": "能力不足！",
-      "Power": "能力",
-      "Learned": "已学习 ",
-      "Unlearned": "未学习 "
+    "adaptmenu": {
+      "knowledgecost": "知识可用",
+      "alreadylearned": "已学习",
+      "unlearnrefund": "点击忘却此技能",
+      "knowledge": "知识",
+      "clicklearn": "点击以学习",
+      "noknowledge": "（你没有任何知识可用）",
+      "youonlyhave": "你只有",
+      "howtolevelup": "升级技能来扩大能力上限",
+      "notenoughpower": "能力不足！",
+      "power": "能力",
+      "learned": "已学习 ",
+      "unlearned": "未学习 "
     },
-    "KnowledgeOrb": {
-      "Contains": "包含",
-      "Knowledge": "知识",
-      "RightClick": "右键点击",
-      "ToGainKnowledge": "来获得此知识",
-      "KnowledgeOrb": "知识之珠"
+    "knowledgeorb": {
+      "contains": "包含",
+      "knowledge": "知识",
+      "rightclick": "右键点击",
+      "togainknowledge": "来获得此知识",
+      "knowledgeorb": "知识之珠"
     },
-    "ExperienceOrb": {
-      "Contains": "包含",
-      "XP": "经验",
-      "RightClick": "右键点击",
-      "ToGainXP": "来获得此经验",
-      "XPOrb": "经验球"
+    "experienceorb": {
+      "contains": "包含",
+      "xp": "经验",
+      "rightclick": "右键点击",
+      "togainxp": "来获得此经验",
+      "xporb": "经验球"
     }
   },
-  "Skill": {
-    "Agility": {
-      "Name": "敏捷",
-      "Icon": "⇉",
-      "Description": "敏捷可以在遇到障碍时帮助你快速、灵活的移动。"
+  "skill": {
+    "agility": {
+      "name": "敏捷",
+      "icon": "⇉",
+      "description": "敏捷可以在遇到障碍时帮助你快速、灵活的移动。"
     },
-    "Architect": {
-      "Name": "建筑师",
-      "Icon": "⬧",
-      "Description": "结构是万物之本。现实在你手中，由你掌握。"
+    "architect": {
+      "name": "建筑师",
+      "icon": "⬧",
+      "description": "结构是万物之本。现实在你手中，由你掌握。"
     },
-    "Axes": {
-      "Name": "斧技",
-      "Icon": "❖",
-      "Description1": "如果说你可以砍掉什么东西",
-      "Description2": "来取代掉砍树",
-      "Description3": "有什么不一样的吗？"
+    "axes": {
+      "name": "斧技",
+      "icon": "❖",
+      "description1": "如果说你可以砍掉什么东西",
+      "description2": "来取代掉砍树",
+      "description3": "有什么不一样的吗？"
     },
-    "Brewing": {
-      "Name": "酿造",
-      "Icon": "❦",
-      "Description": "咕嘟，咕嘟，咕嘟- 我最终还是不敢将这瓶药水丢进炼药锅中。"
+    "brewing": {
+      "name": "酿造",
+      "icon": "❦",
+      "description": "咕嘟，咕嘟，咕嘟- 我最终还是不敢将这瓶药水丢进炼药锅中。"
     },
-    "Blocking": {
-      "Name": "窒碍",
-      "Icon": "▒",
-      "Description": "棍棒与石头不会折断你的骨头，但是盾牌会。"
+    "blocking": {
+      "name": "窒碍",
+      "icon": "▒",
+      "description": "棍棒与石头不会折断你的骨头，但是盾牌会。"
     },
-    "Crafting": {
-      "Name": "合成",
-      "Icon": "⌂",
-      "Description": "若没有剩下什么东西可以合成，为什么不再做一个呢？"
+    "crafting":{
+      "name": "合成",
+      "icon": "⌂",
+      "description": "若没有剩下什么东西可以合成，为什么不再做一个呢？"
     },
-    "Discovery": {
-      "Name": "探索",
-      "Icon": "⚛",
-      "Description": "当洞察力提升时，你的思维便会愈发澄澈，探索更多的奥秘。"
+    "discovery":{
+      "name": "探索",
+      "icon": "⚛",
+      "description": "当洞察力提升时，你的思维便会愈发澄澈，探索更多的奥秘。"
     },
-    "Enchanting": {
-      "Name": "附魔",
-      "Icon": "♰",
-      "Description": "你在嘀咕些什么？预言，幻象，还是在胡言乱语？"
+    "enchanting": {
+      "name": "附魔",
+      "icon": "♰",
+      "description": "你在嘀咕些什么？预言，幻象，还是在胡言乱语？"
     },
-    "Excavation": {
-      "Name": "挖掘",
-      "Icon": "✥",
-      "Description": "挖大洞......"
+    "excavation": {
+      "name": "挖掘",
+      "icon": "✥",
+      "description": "挖大洞......"
     },
-    "Herbalism": {
-      "Name": "草药学",
-      "Icon": "⚘",
-      "Description": "我见不到植物，不过我能找到一些种子还有—— 呃，杂草？"
+    "herbalism":  {
+      "name": "草药学",
+      "icon": "⚘",
+      "description": "我见不到植物，不过我能找到一些种子还有—— 呃，杂草？"
     },
-    "Hunter": {
-      "Name": "狩猎",
-      "Icon": "☠",
-      "Description": "狩猎是一段旅程，而不是结果。"
+    "hunter": {
+      "name": "狩猎",
+      "icon": "☠",
+      "description": "狩猎是一段旅程，而不是结果。"
     },
-    "Nether": {
-      "Name": "下界",
-      "Icon": "₪",
-      "Description": "它自深处而来。"
+    "nether": {
+      "name": "下界",
+      "icon": "₪",
+      "description": "它自深处而来。"
     },
-    "Pickaxe": {
-      "Name": "采矿",
-      "Icon": "⛏",
-      "Description": "矮人是矿工，而我在这段时间里明白了一件事。我是瑞典人！"
+    "pickaxe": {
+      "name": "采矿",
+      "icon": "⛏",
+      "description": "矮人是矿工，而我在这段时间里明白了一件事。我是瑞典人！"
     },
-    "Ranged": {
-      "Name": "箭术",
-      "Icon": "🏹",
-      "Description": "你与目标的距离是胜利的关键所在，也是生存的关键所在。"
+    "ranged": {
+      "name": "箭术",
+      "icon": "🏹",
+      "description": "你与目标的距离是胜利的关键所在，也是生存的关键所在。"
     },
-    "Rift": {
-      "Name": "裂痕",
-      "Icon": "❍",
-      "Description": "裂痕如同一道尖锐的线束，但是现在你控制了它。"
+    "rift": {
+      "name": "裂痕",
+      "icon": "❍",
+      "description": "裂痕如同一道尖锐的线束，但是现在你控制了它。"
     },
-    "Seaborne": {
-      "Name": "激流",
-      "Icon": "🌊",
-      "Description": "别忘了带着这个技能，也许有一天你能见到由水组成的奇观。"
+    "seaborne": {
+      "name": "激流",
+      "icon": "🌊",
+      "description": "别忘了带着这个技能，也许有一天你能见到由水组成的奇观。"
     },
-    "Stealth": {
-      "Name": "隐形",
-      "Icon": "✠",
-      "Description": "当行走于阴影里，这是看不见的艺术。"
+    "stealth": {
+      "name": "隐形",
+      "icon": "✠",
+      "description": "当行走于阴影里，这是看不见的艺术。"
     },
-    "Swords": {
-      "Name": "剑术",
-      "Icon": "⚔",
-      "Description": "一份来自玄武石的力量！"
+    "swords": {
+      "name": "剑术",
+      "icon": "⚔",
+      "description": "一份来自玄武石的力量！"
     },
-    "Taming": {
-      "Name": "驯兽",
-      "Icon": "♥",
-      "Description": "鹦鹉、蜜蜂，以及......你？"
+    "taming": {
+      "name": "驯兽",
+      "icon": "♥",
+      "description": "鹦鹉、蜜蜂，以及......你？"
     },
-    "TragOul": {
-      "Name": "塔格奥",
-      "Icon": "▼",
-      "Description": "血液在宇宙的血管中游动，束缚于你的手中。"
+    "tragoul": {
+      "name": "塔格奥",
+      "icon": "▼",
+      "description": "血液在宇宙的血管中游动，束缚于你的手中。"
     },
-    "Chronos": {
-      "Name": "时空",
-      "Icon": "۞",
-      "Description": "尝试着宇宙的钟上个发条，便可以感受到流动。若能把时钟弄坏，或许就能成为它。"
+    "chronos": {
+      "name": "时空",
+      "icon": "۞",
+      "description": "尝试着宇宙的钟上个发条，便可以感受到流动。若能把时钟弄坏，或许就能成为它。"
     },
-    "Unarmed": {
-      "Name": "搏击",
-      "Icon": "⚜",
-      "Description": "赤手空拳并不意味着失去力量。"
+    "unarmed": {
+      "name": "搏击",
+      "icon": "⚜",
+      "description": "赤手空拳并不意味着失去力量。"
     }
   },
-  "Agility": {
-    "ArmorUp": {
-      "Name": "装甲加速",
-      "Description": "冲刺的越快，给予的护甲值就越多！",
-      "Lore1": "最大护甲值",
-      "Lore2": "所需的加速时间"
+  "agility": {
+    "armorup": {
+      "name": "装甲加速",
+      "description": "冲刺的越快，给予的护甲值就越多！",
+      "lore1": "最大护甲值",
+      "lore2": "所需的加速时间"
     },
-    "SuperJump": {
-      "Name": "高跳",
-      "Description": "一览众山小。",
-      "Lore1": "最大跳跃高度",
-      "Lore2": "同时按下 潜行 + 跳跃 按键进行高跳！"
+    "superjump": {
+      "name": "高跳",
+      "description": "一览众山小。",
+      "lore1": "最大跳跃高度",
+      "lore2": "同时按下 潜行 + 跳跃 按键进行高跳！"
     },
-    "WallJump": {
-      "Name": "攀跳",
-      "Description": "在半空中紧贴墙壁，按住潜行键并跳跃。",
-      "Lore1": "最大跳跃数量",
-      "Lore2": "跳跃高度"
+    "walljump": {
+      "name": "攀跳",
+      "description": "在半空中紧贴墙壁，按住潜行键并跳跃。",
+      "lore1": "最大跳跃数量",
+      "lore2": "跳跃高度"
     },
-    "WindUp": {
-      "Name": "上弦",
-      "Description": "冲刺时间越长，速度越快！",
-      "Lore1": " 最大速度",
-      "Lore2": " 所需冲刺时间"
+    "windup": {
+      "name": "上弦",
+      "description": "冲刺时间越长，速度越快！",
+      "lore1": " 最大速度",
+      "lore2": " 所需冲刺时间"
     }
   },
-  "Architect": {
-    "Foundation": {
-      "Name": "魔法基建",
-      "Description": "当你潜行时，可以临时在脚下放置方块。",
-      "Lore1": "最多可在脚下生成：",
-      "Lore2": "块临时方块"
+  "architect": {
+    "foundation": {
+      "name": "魔法基建",
+      "description": "当你潜行时，可以临时在脚下放置方块。",
+      "lore1": "最多可在脚下生成：",
+      "lore2": "块临时方块"
     },
-    "Glass": {
-      "Name": "丝质手套",
-      "Description": "徒手打破玻璃后将会掉落玻璃方块！",
-      "Lore1": "当手触摸到玻璃时有丝绸般的触感"
+    "glass": {
+      "name": "丝质手套",
+      "description": "徒手打破玻璃后将会掉落玻璃方块！",
+      "lore1": "当手触摸到玻璃时有丝绸般的触感"
     },
-    "Placement": {
-      "Name": "建筑师之杖",
-      "Description": "手持多个方块，按住潜行键瞄准目标方块。根据预览摆放方块，持续调整以达到最好效果！请注意：可能需要移动来调整边界。",
-      "Lore1": "手中必须持有多于",
-      "Lore2": "个方块才能使用",
-      "Lore3": "建筑师之杖。"
+    "placement": {
+      "name": "建筑师之杖",
+      "description": "手持多个方块，按住潜行键瞄准目标方块。根据预览摆放方块，持续调整以达到最好效果！请注意：可能需要移动来调整边界。",
+      "lore1": "手中必须持有多于",
+      "lore2": "个方块才能使用",
+      "lore3": "建筑师之杖。"
     }
   },
-  "Axe": {
-    "Chop": {
-      "Name": "伐木斧",
-      "Description": "手持斧头，右键木头砍伐多块树木。",
-      "Lore1": "每次砍伐的数量",
-      "Lore2": "冷却",
-      "Lore3": "耐久消耗"
+  "axe": {
+    "chop": {
+      "name": "伐木斧",
+      "description": "手持斧头，右键木头砍伐多块树木。",
+      "lore1": "每次砍伐的数量",
+      "lore2": "冷却",
+      "lore3": "耐久消耗"
     },
-    "DropToInventory": {
-      "Name": "快速进入背包"
+    "droptoinventory": {
+      "name": "快速进入背包"
     },
-    "GroundSmash": {
-      "Name": "山崩地裂",
-      "Description": "跳跃，然后迅速蹲下。斩击所有附近的敌人。",
-      "Lore1": "伤害",
-      "Lore2": "方块半径",
-      "Lore3": "力量",
-      "Lore4": "冷却"
+    "groundsmash": {
+      "name": "山崩地裂",
+      "description": "跳跃，然后迅速蹲下。斩击所有附近的敌人。",
+      "lore1": "伤害",
+      "lore2": "方块半径",
+      "lore3": "力量",
+      "lore4": "冷却"
     },
-    "LeafMiner": {
-      "Name": "花匠",
-      "Description": "同时剪断大量树叶。",
-      "Lore1": "潜行，然后挖掘树叶。",
-      "Lore2": "树叶挖掘范围",
-      "Lore3": "由于防止漏洞滥用，挖掘树叶将不会获得掉落物。"
+    "leafminer": {
+      "name": "花匠",
+      "description": "同时剪断大量树叶。",
+      "lore1": "潜行，然后挖掘树叶。",
+      "lore2": "树叶挖掘范围",
+      "lore3": "由于防止漏洞滥用，挖掘树叶将不会获得掉落物。"
     }
   },
-  "Brewing": {
-    "Lingering": {
-      "Name": "缠绵",
-      "Description": "加长药水效果持续时间。",
-      "Lore1": "持续时间",
-      "Lore2": "持续时间"
+  "brewing": {
+    "lingering": {
+      "name": "缠绵",
+      "description": "加长药水效果持续时间。",
+      "lore1": "持续时间",
+      "lore2": "持续时间"
     },
-    "SuperHeated": {
-      "Name": "过载",
-      "Description": "酿造台越热，它的工作效率就越高！",
-      "Lore1": "酿造台每贴近火焰",
-      "Lore2": "酿造台每贴近岩浆"
+    "superheated": {
+      "name": "过载",
+      "description": "酿造台越热，它的工作效率就越高！",
+      "lore1": "酿造台每贴近火焰",
+      "lore2": "酿造台每贴近岩浆"
     }
   },
-  "Blocking": {
-    "MultiArmor": {
-      "Name": "盔甲套组",
-      "Description": "在盔甲上绑定鞘翅",
-      "Lore1": "旅行必备品。",
-      "Lore2": "飞行时动态合并或切换盔甲与鞘翅！",
-      "Lore3": "要合并，在物品栏按住Shift拖拽合并物品到被合并物品上。",
-      "Lore4": "要解绑盔甲上的物品，按住潜行并丢弃物品以拆解。",
-      "Lore5": "当盔甲耐久值至零时，合并到该盔甲上的所有物品都将丢失",
-      "Lore6": "我不再需要盔甲了，它让我太失望了..."
+  "blocking": {
+    "multiarmor": {
+      "name": "盔甲套组",
+      "description": "在盔甲上绑定鞘翅",
+      "lore1": "旅行必备品。",
+      "lore2": "飞行时动态合并或切换盔甲与鞘翅！",
+      "lore3": "要合并，在物品栏按住Shift拖拽合并物品到被合并物品上。",
+      "lore4": "要解绑盔甲上的物品，按住潜行并丢弃物品以拆解。",
+      "lore5": "当盔甲耐久值至零时，合并到该盔甲上的所有物品都将丢失",
+      "lore6": "我不再需要盔甲了，它让我太失望了..."
     }
   },
-  "Crafting": {
-    "Deconstruction": {
-      "Name": "分解器",
-      "Description": "分解方块或物品，回收部分合成时的材料。",
-      "Lore1": "将 被分解物品 + 剪刀",
-      "Lore2": "放入锻造台进行回收。"
+  "crafting":{
+    "deconstruction": {
+      "name": "分解器",
+      "description": "分解方块或物品，回收部分合成时的材料。",
+      "lore1": "将 被分解物品 + 剪刀",
+      "lore2": "放入锻造台进行回收。"
     },
-    "CraftXp": {
-      "Name": "熟能生巧",
-      "Description": "合成物品时给予原版经验。",
-      "Lore1": "当合成完毕后自动给予"
+    "xp": {
+      "name": "熟能生巧",
+      "description": "合成物品时给予原版经验。",
+      "lore1": "当合成完毕后自动给予"
     }
   },
-  "Discovery": {
-    "DiscoveryArmor": {
-      "Name": "世界之甲",
-      "Description": "根据附近方块硬度给予被动防御。",
-      "Lore1": "被动防御",
-      "Lore2": "由附近方块硬度决定",
-      "Lore3": "防御： +"
+  "discovery":{
+    "armor": {
+      "name": "世界之甲",
+      "description": "根据附近方块硬度给予被动防御。",
+      "lore1": "被动防御",
+      "lore2": "由附近方块硬度决定",
+      "lore3": "防御： +"
     },
-    "DiscoveryUnity": {
-      "Name": "实验性统合",
-      "Description": "收集经验球，随机为其它技能增长经验。",
-      "Lore1": "点经验 ",
-      "Lore2": "每个经验球"
+    "unity": {
+      "name": "实验性统合",
+      "description": "收集经验球，随机为其它技能增长经验。",
+      "lore1": "点经验 ",
+      "lore2": "每个经验球"
     },
-    "DiscoveryXpResist": {
-      "Name": "实验性电阻",
-      "Description": "减少来自任何方面的伤害\n",
-      "Lore0": "每 15秒 发生一次",
-      "Lore1": " 减少伤害",
-      "Lore2": "经验消耗"
+    "resist": {
+      "name": "实验性电阻",
+      "description": "减少来自任何方面的伤害\n",
+      "lore0": "每 15秒 发生一次",
+      "lore1": " 减少伤害",
+      "lore2": "经验消耗"
     },
-    "DiscoveryVillagerAtt": {
-      "Name": "村庄聚光灯",
-      "Description": "与村民交易时将提升交易质量！",
-      "Lore1": "每次与村民互动时都会减少获得的经验",
-      "Lore2": "以减少和村民互动时获得的经验为代价，提高交易质量",
-      "Lore3": "交互经验削减"
+    "villager": {
+      "name": "村庄聚光灯",
+      "description": "与村民交易时将提升交易质量！",
+      "lore1": "每次与村民互动时都会减少获得的经验",
+      "lore2": "以减少和村民互动时获得的经验为代价，提高交易质量",
+      "lore3": "交互经验削减"
     }
   },
-  "Enchanting": {
-    "LapisReturn": {
-      "Name": "青金石的回报",
-      "Description": "每级都将多消耗1经验。但是越高等级返还青金石越多。",
-      "Lore1": "每升一级都会额外消耗1经验，最高可以返还3青金石。"
+  "enchanting": {
+    "lapisreturn": {
+      "name": "青金石的回报",
+      "description": "每级都将多消耗1经验。但是越高等级返还青金石越多。",
+      "lore1": "每升一级都会额外消耗1经验，最高可以返还3青金石。"
     },
-    "QuickEnchant": {
-      "Name": "快速附魔",
-      "Description": "在物品栏用附魔书点击被附魔的物品以快速附魔。",
-      "Lore1": "累计最大等级",
-      "Lore2": "此物品应用的附魔总等级不能超过 ",
-      "Lore3": "级"
+    "quickenchant": {
+      "name": "快速附魔",
+      "description": "在物品栏用附魔书点击被附魔的物品以快速附魔。",
+      "lore1": "累计最大等级",
+      "lore2": "此物品应用的附魔总等级不能超过 ",
+      "lore3": "级"
     },
-    "EnchantingXpReturn": {
-      "Name": "经验返还",
-      "Description": "当你附魔一个物品时，消耗的经验会被返还一部分。",
-      "Lore1": "当你附魔物品后，有机会返还一部分经验。",
-      "Lore2": "经验返还"
+    "return": {
+      "name": "经验返还",
+      "description": "当你附魔一个物品时，消耗的经验会被返还一部分。",
+      "lore1": "当你附魔物品后，有机会返还一部分经验。",
+      "lore2": "经验返还"
     }
   },
-  "Excavation": {
-    "ExcavationHaste": {
-      "Name": "极速挖掘机",
-      "Description": "给予急迫效果，提高挖掘速度！",
-      "Lore1": "当挖掘时给予急迫效果",
-      "Lore2": "x 挖掘时急迫效果等级"
+  "excavation": {
+    "haste": {
+      "name": "极速挖掘机",
+      "description": "给予急迫效果，提高挖掘速度！",
+      "lore1": "当挖掘时给予急迫效果",
+      "lore2": "x 挖掘时急迫效果等级"
     },
-    "DropToInventory": {
-      "Name": "快速进入背包"
+    "droptoinventory": {
+      "name": "快速进入背包"
     },
-    "OmniTool": {
-      "Name": "OMNI - T.O.O.L.",
-      "Description": "Tackle设计的豪华多功能工具钳。",
-      "Lore1": "这也许是最强大的设计。",
-      "Lore2": "可以根据实际需要合并或拆解工具。",
-      "Lore3": "合并：按住潜行键，在物品栏中用预合并的物品点击被合并的物品。",
-      "Lore4": "拆解：手持预拆解的物品，按住潜行键丢弃以拆解。",
-      "Lore5": "注意：如果此工具钳套件中任何一个物品耐久度至零，该工具钳将报废！",
-      "Lore6": "个可合并物品。",
-      "Lore7": "有时候你需要五、六种物品在同一个工具钳里，或许仅仅需要一个。"
+    "omnitool": {
+      "name": "OMNI - T.O.O.L.",
+      "description": "Tackle设计的豪华多功能工具钳。",
+      "lore1": "这也许是最强大的设计。",
+      "lore2": "可以根据实际需要合并或拆解工具。",
+      "lore3": "合并：按住潜行键，在物品栏中用预合并的物品点击被合并的物品。",
+      "lore4": "拆解：手持预拆解的物品，按住潜行键丢弃以拆解。",
+      "lore5": "注意：如果此工具钳套件中任何一个物品耐久度至零，该工具钳将报废！",
+      "lore6": "个可合并物品。",
+      "lore7": "有时候你需要五、六种物品在同一个工具钳里，或许仅仅需要一个。"
     }
   },
-  "Herbalism": {
-    "GrowthAura": {
-      "Name": "生长光环",
-      "Description": "加速农作物生长时间",
-      "Lore1": "光环半径",
-      "Lore2": "生长速度",
-      "Lore3": "消耗饱食度"
+  "herbalism":  {
+    "growthaura": {
+      "name": "生长光环",
+      "description": "加速农作物生长时间",
+      "lore1": "光环半径",
+      "lore2": "生长速度",
+      "lore3": "消耗饱食度"
     },
-    "Hippo": {
-      "Name": "草药师的河马",
-      "Description": "吃点食物，感觉能更饱点。",
-      "Lore1": "饱食度) 额外饱食度"
+    "hippo": {
+      "name": "草药师的河马",
+      "description": "吃点食物，感觉能更饱点。",
+      "lore1": "饱食度) 额外饱食度"
     },
-    "Myconid": {
-      "Name": "草药师的菌丝",
-      "Description": "给予你制作菌丝的能力。",
-      "Lore1": "所有泥土，和棕、红色蘑菇将会制作出菌丝。"
+    "myconid": {
+      "name": "草药师的菌丝",
+      "description": "给予你制作菌丝的能力。",
+      "lore1": "所有泥土，和棕、红色蘑菇将会制作出菌丝。"
     },
-    "DropToInventory": {
-      "Name": "快速进入背包"
+    "droptoinventory": {
+      "name": "快速进入背包"
     },
-    "HungryShield": {
-      "Name": "饥饿护盾",
-      "Description": "在饥饿席卷而来前保护生命值。",
-      "Lore1": "饥饿抵抗"
+    "hungryshield": {
+      "name": "饥饿护盾",
+      "description": "在饥饿席卷而来前保护生命值。",
+      "lore1": "饥饿抵抗"
     },
-    "Luck": {
-      "Name": "草药师的祝福",
-      "Description": "当你破坏花或草时，你将有概率获得随机物品。",
-      "Lore0": "花将收获食物，草将收获种子",
-      "Lore1": "破坏花获得随机物品的概率",
-      "Lore2": "破坏草获得随机物品的概率"
+    "luck": {
+      "name": "草药师的祝福",
+      "description": "当你破坏花或草时，你将有概率获得随机物品。",
+      "lore0": "花将收获食物，草将收获种子",
+      "lore1": "破坏花获得随机物品的概率",
+      "lore2": "破坏草获得随机物品的概率"
     },
-    "Replant": {
-      "Name": "收割者",
-      "Description": "手持锄头，右键庄稼进行自动收割和重新种植。",
-      "Lore1": " 有效范围半径"
+    "replant": {
+      "name": "收割者",
+      "description": "手持锄头，右键庄稼进行自动收割和重新种植。",
+      "lore1": " 有效范围半径"
     }
   },
-  "Hunter": {
-    "Adrenaline": {
-      "Name": "肾上腺素",
-      "Description": "生命越少，近战造成的伤害越大。",
-      "Lore1": "最大伤害"
+  "hunter": {
+    "adrenaline": {
+      "name": "肾上腺素",
+      "description": "生命越少，近战造成的伤害越大。",
+      "lore1": "最大伤害"
     },
-    "GenericPenalty": {
-      "Lore1": "如果饥饿度归零，将给予剧毒效果！"
+    "penalty": {
+      "lore1": "如果饥饿度归零，将给予剧毒效果！"
     },
-    "DropToInventory": {
-      "Name": "快速进入背包",
-      "Description": "当你击杀生物/破坏某方块，它的掉落物将会自动进入背包。",
-      "Lore1": "如果允许，击杀生物/破坏某方块的掉落物将会自动进入背包。"
+    "droptoinventory": {
+      "name": "快速进入背包",
+      "description": "当你击杀生物/破坏某方块，它的掉落物将会自动进入背包。",
+      "lore1": "如果允许，击杀生物/破坏某方块的掉落物将会自动进入背包。"
     },
-    "HunterInvisibility": {
-      "Name": "隐形之步",
-      "Description": "以饥饿为代价，当你受伤时给予隐身效果。",
-      "Lore1": "受伤时自动给予隐身效果。",
-      "Lore2": "x 隐身效果，持续三秒",
-      "Lore3": "x 叠加饥饿效果",
-      "Lore4": "饥饿感叠加持续时间和倍数",
-      "Lore5": "隐身效果持续时间"
+    "invisibility": {
+      "name": "隐形之步",
+      "description": "以饥饿为代价，当你受伤时给予隐身效果。",
+      "lore1": "受伤时自动给予隐身效果。",
+      "lore2": "x 隐身效果，持续三秒",
+      "lore3": "x 叠加饥饿效果",
+      "lore4": "饥饿感叠加持续时间和倍数",
+      "lore5": "隐身效果持续时间"
     },
-    "HunterJumpBoost": {
-      "Name": "狩猎者之巅",
-      "Description": "以饥饿为代价，当受伤时给予跳跃提升效果。",
-      "Lore1": "受伤时自动给予跳跃提升效果。",
-      "Lore2": "x 跳跃提升效果，持续三秒",
-      "Lore3": "x 叠加饥饿效果",
-      "Lore4": "饥饿感叠加持续时间和倍数",
-      "Lore5": "跳跃提升叠加倍数"
+    "jumpboost": {
+      "name": "狩猎者之巅",
+      "description": "以饥饿为代价，当受伤时给予跳跃提升效果。",
+      "lore1": "受伤时自动给予跳跃提升效果。",
+      "lore2": "x 跳跃提升效果，持续三秒",
+      "lore3": "x 叠加饥饿效果",
+      "lore4": "饥饿感叠加持续时间和倍数",
+      "lore5": "跳跃提升叠加倍数"
     },
-    "HunterLuck": {
-      "Name": "狩猎者的祝福",
-      "Description": "以饥饿为代价，当你受伤时给予幸运效果。",
-      "Lore1": "受伤时自动给予幸运效果。",
-      "Lore2": "x 幸运效果，持续三秒",
-      "Lore3": "x 叠加饥饿效果",
-      "Lore4": "饥饿感叠加持续时间和倍数",
-      "Lore5": "幸运叠加倍数"
+    "luck": {
+      "name": "狩猎者的祝福",
+      "description": "以饥饿为代价，当你受伤时给予幸运效果。",
+      "lore1": "受伤时自动给予幸运效果。",
+      "lore2": "x 幸运效果，持续三秒",
+      "lore3": "x 叠加饥饿效果",
+      "lore4": "饥饿感叠加持续时间和倍数",
+      "lore5": "幸运叠加倍数"
     },
-    "HunterRegen": {
-      "Name": "狩猎者的再生",
-      "Description": "以饥饿为代价，当你受伤时给予再生效果。",
-      "Lore1": "受伤时自动给予再生效果。",
-      "Lore2": "x 再生效果，持续三秒",
-      "Lore3": "x 叠加饥饿效果",
-      "Lore4": "饥饿感叠加持续时间和倍数",
-      "Lore5": "再生叠加倍数"
+    "regen": {
+      "name": "狩猎者的再生",
+      "description": "以饥饿为代价，当你受伤时给予再生效果。",
+      "lore1": "受伤时自动给予再生效果。",
+      "lore2": "x 再生效果，持续三秒",
+      "lore3": "x 叠加饥饿效果",
+      "lore4": "饥饿感叠加持续时间和倍数",
+      "lore5": "再生叠加倍数"
     },
-    "HunterResistance": {
-      "Name": "狩猎者之盾",
-      "Description": "以饥饿为代价，当你受伤时给予抗性提升效果。",
-      "Lore1": "受伤时自动给予抗性提升效果。",
-      "Lore2": "x3 抗性提升效果，持续三秒",
-      "Lore3": "x 叠加饥饿效果",
-      "Lore4": "饥饿感叠加持续时间和倍数",
-      "Lore5": "抗性提升叠加倍数"
+    "resistance": {
+      "name": "狩猎者之盾",
+      "description": "以饥饿为代价，当你受伤时给予抗性提升效果。",
+      "lore1": "受伤时自动给予抗性提升效果。",
+      "lore2": "x3 抗性提升效果，持续三秒",
+      "lore3": "x 叠加饥饿效果",
+      "lore4": "饥饿感叠加持续时间和倍数",
+      "lore5": "抗性提升叠加倍数"
     },
-    "HunterSpeed": {
-      "Name": "狩猎者之速",
-      "Description": "以饥饿为代价，当你受伤时给予速度效果。",
-      "Lore1": "受伤时自动给予速度效果。",
-      "Lore2": "x 速度效果，持续三秒",
-      "Lore3": "x 叠加饥饿效果",
-      "Lore4": "饥饿感叠加持续时间和倍数",
-      "Lore5": "抗性提升叠加倍数"
+    "speed": {
+      "name": "狩猎者之速",
+      "description": "以饥饿为代价，当你受伤时给予速度效果。",
+      "lore1": "受伤时自动给予速度效果。",
+      "lore2": "x 速度效果，持续三秒",
+      "lore3": "x 叠加饥饿效果",
+      "lore4": "饥饿感叠加持续时间和倍数",
+      "lore5": "抗性提升叠加倍数"
     },
-    "HunterStrength": {
-      "Name": "狩猎者之力",
-      "Description": "以饥饿为代价，当你受伤时给予力量效果。",
-      "Lore1": "受伤时自动给予力量效果。",
-      "Lore2": "x 力量效果，持续三秒",
-      "Lore3": "x 叠加饥饿效果",
-      "Lore4": "饥饿感叠加持续时间和倍数",
-      "Lore5": "力量叠加倍数"
+    "strength": {
+      "name": "狩猎者之力",
+      "description": "以饥饿为代价，当你受伤时给予力量效果。",
+      "lore1": "受伤时自动给予力量效果。",
+      "lore2": "x 力量效果，持续三秒",
+      "lore3": "x 叠加饥饿效果",
+      "lore4": "饥饿感叠加持续时间和倍数",
+      "lore5": "力量叠加倍数"
     }
   },
-  "Nether": {
-    "SkullToss": {
-      "Name": "凋灵发射器",
-      "Description1": "发射凋灵的头",
-      "Description2": "展现内心中的",
-      "Description3": "枯竭。",
-      "Lore1": "秒发射冷却时间。",
-      "Lore2": "使用凋灵头颅发射器：",
-      "Lore3": "手持凋灵骷髅头颅，并左键",
-      "Lore4": "发射一颗凋灵头颅。遇到方块或生物时自动爆炸。"
+  "nether": {
+    "skulltoss": {
+      "name": "凋灵发射器",
+      "description1": "发射凋灵的头",
+      "description2": "展现内心中的",
+      "description3": "枯竭。",
+      "lore1": "秒发射冷却时间。",
+      "lore2": "使用凋灵头颅发射器：",
+      "lore3": "手持凋灵骷髅头颅，并左键",
+      "lore4": "发射一颗凋灵头颅。遇到方块或生物时自动爆炸。"
     },
-    "WitherResist": {
-      "Name": "凋零抑制器",
-      "Description": "通过下界合金的力量抑制凋零",
-      "Lore1": "的概率避免凋零效果",
-      "Lore2": "被动效果：穿着下界套装有概率避免",
-      "Lore3": "凋零效果。"
+    "witherresist": {
+      "name": "凋零抑制器",
+      "description": "通过下界合金的力量抑制凋零",
+      "lore1": "的概率避免凋零效果",
+      "lore2": "被动效果：穿着下界套装有概率避免",
+      "lore3": "凋零效果。"
     }
   },
-  "Pickaxe": {
-    "Autosmelt": {
-      "Name": "自动熔炼",
-      "Description": "当你挖掘（曾经）需要冶炼的矿物",
-      "Lore1": "时将自动熔炼成熔炼后的产物。",
-      "Lore2": " 的概率获得额外产物。"
+  "pickaxe": {
+    "autosmelt": {
+      "name": "自动熔炼",
+      "description": "当你挖掘（曾经）需要冶炼的矿物",
+      "lore1": "时将自动熔炼成熔炼后的产物。",
+      "lore2": " 的概率获得额外产物。"
     },
-    "Chisel": {
-      "Name": "破碎锤",
-      "Description": "右键单击目标矿石，将有概率获得额外产物。这可能会严重消耗耐久度。",
-      "Lore1": "概率掉落额外产物",
-      "Lore2": "耐久消耗"
+    "chisel": {
+      "name": "破碎锤",
+      "description": "右键单击目标矿石，将有概率获得额外产物。这可能会严重消耗耐久度。",
+      "lore1": "概率掉落额外产物",
+      "lore2": "耐久消耗"
     },
-    "DropToInventory": {
-      "Name": "快速进入背包",
-      "Description": "当你击杀生物/破坏某方块，它的掉落物将会自动进入背包。",
-      "Lore1": "如果允许，击杀生物/破坏某方块的掉落物将会自动进入背包。"
+    "droptoinventory": {
+      "name": "快速进入背包",
+      "description": "当你击杀生物/破坏某方块，它的掉落物将会自动进入背包。",
+      "lore1": "如果允许，击杀生物/破坏某方块的掉落物将会自动进入背包。"
     },
-    "Veinminer": {
-      "Name": "连锁挖矿",
-      "Description": "允许你遇到原版矿物的矿脉时候连锁挖矿。",
-      "Lore1": "按住潜行键，并挖掘矿物",
-      "Lore2": "来使用连锁挖矿。",
-      "Lore3": "此技能不会将掉落物合并在一起。"
+    "veinminer": {
+      "name": "连锁挖矿",
+      "description": "允许你遇到原版矿物的矿脉时候连锁挖矿。",
+      "lore1": "按住潜行键，并挖掘矿物",
+      "lore2": "来使用连锁挖矿。",
+      "lore3": "此技能不会将掉落物合并在一起。"
     }
   },
-  "Ranged": {
-    "ArrowRecovery": {
-      "Name": "箭矢回收站",
-      "Description": "当你击杀目标后有概率回收箭矢。",
-      "Lore1": "概率在击杀生物时回收箭矢"
+  "ranged": {
+    "arrowrecovery": {
+      "name": "箭矢回收站",
+      "description": "当你击杀目标后有概率回收箭矢。",
+      "lore1": "概率在击杀生物时回收箭矢"
     },
-    "ForceShot": {
-      "Name": "暴力投掷",
-      "Description": "射出的投掷物又快又远！",
-      "AdvancementName": "远距离射击",
-      "AdvancementLore": "投掷物可以在超过30个方块外着陆",
-      "Lore1": "射击速度"
+    "forceshot": {
+      "name": "暴力投掷",
+      "description": "射出的投掷物又快又远！",
+      "advancementname": "远距离射击",
+      "advancementlore": "投掷物可以在超过30个方块外着陆",
+      "lore1": "射击速度"
     },
-    "LungeShot": {
-      "Name": "弓步射击",
-      "Description": "当你射出的箭矢落下后将你随机掷出一个方向",
-      "Lore1": "随机爆发速度"
+    "lungeshot": {
+      "name": "弓步射击",
+      "description": "当你射出的箭矢落下后将你随机掷出一个方向",
+      "lore1": "随机爆发速度"
     },
-    "ArrowPiercing": {
-      "Name": "精准穿透",
-      "Description": "提升投掷物或箭矢的穿透力，甚至可以穿透物体。",
-      "Lore1": "可穿透目标"
+    "arrowpiercing": {
+      "name": "精准穿透",
+      "description": "提升投掷物或箭矢的穿透力，甚至可以穿透物体。",
+      "lore1": "可穿透目标"
     }
   },
-  "Rift": {
-    "RemoteAccess": {
-      "Name": "远程访问权限",
-      "Description": "来自虚空之中，可以访问被标记的容器。",
-      "Lore1": "末影珍珠 + 指南针 = Reliquary Portkey",
-      "Lore2": "这个物品允许你远程访问被标记的容器。",
-      "Lore3": "制作完成后，查看物品来使用该技能",
-      "NotContainer": "这个物品不是可用的容器"
+  "rift": {
+    "remoteaccess": {
+      "name": "远程访问权限",
+      "description": "来自虚空之中，可以访问被标记的容器。",
+      "lore1": "末影珍珠 + 指南针 = Reliquary Portkey",
+      "lore2": "这个物品允许你远程访问被标记的容器。",
+      "lore3": "制作完成后，查看物品来使用该技能",
+      "notcontainer": "这个物品不是可用的容器"
     },
-    "RiftBlink": {
-      "Name": "裂痕闪烁",
-      "Description": "眨个眼的功夫，短距离即可瞬间传送",
-      "Lore1": "个方块（传送距离）",
-      "Lore2": "当疾跑时：跳跃两次以",
-      "Lore3": "传送"
+    "blink": {
+      "name": "裂痕闪烁",
+      "description": "眨个眼的功夫，短距离即可瞬间传送",
+      "lore1": "个方块（传送距离）",
+      "lore2": "当疾跑时：跳跃两次以",
+      "lore3": "传送"
     },
-    "RiftEnderchest": {
-      "Name": "便捷式末影箱",
-      "Description": "手持末影箱",
-      "Lore1": "左键点击以快速打开末影箱（无需放置）"
+    "chest": {
+      "name": "便捷式末影箱",
+      "description": "手持末影箱",
+      "lore1": "左键点击以快速打开末影箱（无需放置）"
     },
-    "RiftGate": {
-      "Name": "裂痕之门",
-      "Description": "传送到标记位置",
-      "Lore1": "制作：末影珍珠 + 紫水晶碎片 + 绿宝石",
-      "Lore2": "请注意：",
-      "Lore3": "有五秒延迟，",
-      "Lore4": "在进行五秒延迟等待时，你可以在动画中死亡。"
+    "gate": {
+      "name": "裂痕之门",
+      "description": "传送到标记位置",
+      "lore1": "制作：末影珍珠 + 紫水晶碎片 + 绿宝石",
+      "lore2": "请注意：",
+      "lore3": "有五秒延迟，",
+      "lore4": "在进行五秒延迟等待时，你可以在动画中死亡。"
     },
-    "RiftResistance": {
-      "Name": "裂痕抗性",
-      "Description": "当使用末影物品或技能时，给予抗性提升",
-      "Lore1": "+ 被动效果：当你使用末影物品或技能时，给予抗性提升效果。",
-      "Lore2": "不包含便捷式末影箱。只对实际消耗的物品有效。"
+    "resist": {
+      "name": "裂痕抗性",
+      "description": "当使用末影物品或技能时，给予抗性提升",
+      "lore1": "+ 被动效果：当你使用末影物品或技能时，给予抗性提升效果。",
+      "lore2": "不包含便捷式末影箱。只对实际消耗的物品有效。"
     }
   },
-  "Seaborn": {
-    "SeabornOxygen": {
-      "Name": "有机氧气罐",
-      "Description": "小肺终于能容纳更多的氧气了。",
-      "Lore1": "氧气"
+  "seaborn": {
+    "oxygen": {
+      "name": "有机氧气罐",
+      "description": "小肺终于能容纳更多的氧气了。",
+      "lore1": "氧气"
     },
-    "FishersFantasy": {
-      "Name": "与鱼同乐",
-      "Description": "从钓鱼中获得更多经验，以及更多的鱼！",
-      "Lore1": "每级都有概率获得更多的经验和鱼"
+    "fishersfantasy": {
+      "name": "与鱼同乐",
+      "description": "从钓鱼中获得更多经验，以及更多的鱼！",
+      "lore1": "每级都有概率获得更多的经验和鱼"
     },
-    "TurtlesMiningSpeed": {
-      "Name": "海龟矿工",
-      "Description": "当你在水下时给予急迫效果！",
-      "Lore1": "当水下呼吸效果消失时，在水下挖掘时将给予急迫3效果（可与水下速掘效果叠加）。"
+    "haste": {
+      "name": "海龟矿工",
+      "description": "当你在水下时给予急迫效果！",
+      "lore1": "当水下呼吸效果消失时，在水下挖掘时将给予急迫3效果（可与水下速掘效果叠加）。"
     },
-    "TurtlesVision": {
-      "Name": "海龟夜视\n",
-      "Description": "当你在水下时给予夜视效果！",
-      "Lore1": "当水下呼吸效果消失时，在水下时将给予夜视效果！"
+    "nightvision": {
+      "name": "海龟夜视\n",
+      "description": "当你在水下时给予夜视效果！",
+      "lore1": "当水下呼吸效果消失时，在水下时将给予夜视效果！"
     },
-    "DolphinGrace": {
-      "Name": "海豚的祝福",
-      "Description": "无需海豚相伴也能快速游动了。",
-      "Lore1": "+ 被动技能：给予 ",
-      "Lore2": "x 在水中速度 (海豚的恩惠效果)",
-      "Lore3": "精准的德国工程师- 等等，这好像不对..."
+    "dolphingrace": {
+      "name": "海豚的祝福",
+      "description": "无需海豚相伴也能快速游动了。",
+      "lore1": "+ 被动技能：给予 ",
+      "lore2": "x 在水中速度 (海豚的恩惠效果)",
+      "lore3": "精准的德国工程师- 等等，这好像不对..."
     }
   },
-  "Stealth": {
-    "GhostArmor": {
-      "Name": "幽灵战甲",
-      "Description": "潜行时缓慢的构建幽灵战甲- 受伤后清空",
-      "Lore1": "最大护甲值",
-      "Lore2": "构建时间"
+  "stealth": {
+    "ghostarmor": {
+      "name": "幽灵战甲",
+      "description": "潜行时缓慢的构建幽灵战甲- 受伤后清空",
+      "lore1": "最大护甲值",
+      "lore2": "构建时间"
     },
-    "StealthNightVision": {
-      "Name": "鹰眼",
-      "Description": "当潜行时给予夜视效果",
-      "Lore1": "当保持潜行状态时",
-      "Lore2": "给予",
-      "Lore3": "夜视效果"
+    "nightvision": {
+      "name": "鹰眼",
+      "description": "当潜行时给予夜视效果",
+      "lore1": "当保持潜行状态时",
+      "lore2": "给予",
+      "lore3": "夜视效果"
     },
-    "ItemSnatch": {
-      "Name": "物品夺取",
-      "Description": "潜行时立即夺取半径内的掉落物",
-      "Lore1": "夺取半径"
+    "snatch": {
+      "name": "物品夺取",
+      "description": "潜行时立即夺取半径内的掉落物",
+      "lore1": "夺取半径"
     },
-    "SneakSpeed": {
-      "Name": "潜行加速",
-      "Description": "当潜行时给予速度效果",
-      "Lore1": "潜行速度"
+    "speed": {
+      "name": "潜行加速",
+      "description": "当潜行时给予速度效果",
+      "lore1": "潜行速度"
     }
   },
-  "Sword": {
-    "Machete": {
-      "Name": "弯刀",
-      "Description": "让剑斩开树叶。",
-      "Lore1": "有效范围半径",
-      "Lore2": "斩击冷却",
-      "Lore3": "耐久消耗"
+  "sword": {
+    "machete": {
+      "name": "弯刀",
+      "description": "让剑斩开树叶。",
+      "lore1": "有效范围半径",
+      "lore2": "斩击冷却",
+      "lore3": "耐久消耗"
     },
-    "BloodyBlade": {
-      "Name": "血液之刃",
-      "Description": "用剑斩击，持续流血！",
-      "Lore1": "使用剑斩击生物时使其流失生命值",
-      "Lore2": "流失持续时间",
-      "Lore3": "冷却"
+    "bloodyblade": {
+      "name": "血液之刃",
+      "description": "用剑斩击，持续流血！",
+      "lore1": "使用剑斩击生物时使其流失生命值",
+      "lore2": "流失持续时间",
+      "lore3": "冷却"
     },
-    "PoisonedBlade": {
-      "Name": "淬毒匕首",
-      "Description": "用剑斩击，给予剧毒效果！",
-      "Lore1": "使用剑斩击生物时给予剧毒效果",
-      "Lore2": "效果持续时间",
-      "Lore3": "冷却"
+    "poisonedblade": {
+      "name": "淬毒匕首",
+      "description": "用剑斩击，给予剧毒效果！",
+      "lore1": "使用剑斩击生物时给予剧毒效果",
+      "lore2": "效果持续时间",
+      "lore3": "冷却"
     }
   },
-  "Taming": {
-    "TameDamage": {
-      "Name": "驯化伤害",
-      "Description": "提高你驯养的生物的伤害",
-      "Lore1": "伤害增长"
+  "taming": {
+    "damage": {
+      "name": "驯化伤害",
+      "description": "提高你驯养的生物的伤害",
+      "lore1": "伤害增长"
     },
-    "TameHealth": {
-      "Name": "驯化生命",
-      "Description": "提高你驯养的生物的生命值",
-      "Lore1": "生命增长"
+    "health": {
+      "name": "驯化生命",
+      "description": "提高你驯养的生物的生命值",
+      "lore1": "生命增长"
     },
-    "TameRegeneration": {
-      "Name": "驯化再生",
-      "Description": "提高你驯养的生物的再生效果",
-      "Lore1": "生命/秒"
+    "regeneration": {
+      "name": "驯化再生",
+      "description": "提高你驯养的生物的再生效果",
+      "lore1": "生命/秒"
     }
   },
-  "TragOul": {
-    "Thorns": {
-      "Name": "荆棘",
-      "Description": "受伤时将伤害返回给攻击者！",
-      "Lore1": "伤害返回倍数"
+  "tragoul": {
+    "thorns": {
+      "name": "荆棘",
+      "description": "受伤时将伤害返回给攻击者！",
+      "lore1": "伤害返回倍数"
     }
   },
-  "Unarmed": {
-    "GlassCannon": {
-      "Name": "玻璃大炮",
-      "Description": "你的护甲值越低，空手造成的伤害越高",
-      "Lore1": "x 伤害（至0护甲值）",
-      "Lore2": "每级造成的额外伤害"
+  "unarmed": {
+    "glasscannon": {
+      "name": "玻璃大炮",
+      "description": "你的护甲值越低，空手造成的伤害越高",
+      "lore1": "x 伤害（至0护甲值）",
+      "lore2": "每级造成的额外伤害"
     },
-    "UnarmedPower": {
-      "Name": "钢铁之力",
-      "Description": "提升空手造成的伤害",
-      "Lore1": "伤害"
+    "power": {
+      "name": "钢铁之力",
+      "description": "提升空手造成的伤害",
+      "lore1": "伤害"
     },
-    "SuckerPunch": {
-      "Name": "杀客同萌",
-      "Description": "疾跑时可以攻击，将更加致命",
-      "Lore1": "伤害",
-      "Lore2": "攻击时伤害随移动速度增加"
+    "suckerpunch": {
+      "name": "杀客同萌",
+      "description": "疾跑时可以攻击，将更加致命",
+      "lore1": "伤害",
+      "lore2": "攻击时伤害随移动速度增加"
     }
   }
 }

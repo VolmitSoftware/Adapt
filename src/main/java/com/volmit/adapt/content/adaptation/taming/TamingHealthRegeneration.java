@@ -45,8 +45,8 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
     public TamingHealthRegeneration() {
         super("tame-health-regeneration");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Taming", "TameRegeneration", "Description"));
-        setDisplayName(Adapt.dLocalize("Taming", "TameRegeneration", "Name"));
+        setDescription(Adapt.dLocalize("taming", "regeneration", "description"));
+        setDisplayName(Adapt.dLocalize("taming", "regeneration", "name"));
         setIcon(Material.GOLDEN_APPLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -57,7 +57,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRegenSpeed(level), 0) + C.GRAY + " " + Adapt.dLocalize("Taming", "TameRegeneration", "Lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getRegenSpeed(level), 0) + C.GRAY + " " + Adapt.dLocalize("taming", "regeneration", "lore1"));
     }
 
     @EventHandler

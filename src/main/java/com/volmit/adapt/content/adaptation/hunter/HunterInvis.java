@@ -32,8 +32,8 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
     public HunterInvis() {
         super("hunter-invis");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("Hunter", "HunterInvisibility", "Description"));
-        setDisplayName(Adapt.dLocalize("Hunter", "HunterInvisibility", "Name"));
+        setDescription(Adapt.dLocalize("hunter", "invisibility", "description"));
+        setDisplayName(Adapt.dLocalize("hunter", "invisibility", "name"));
         setIcon(Material.TROPICAL_FISH_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -45,13 +45,13 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore2"));
-        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "HunterInvisibility", "Lore5"));
-        v.addLore(C.RED + "* " + level + C.GRAY + " " + Adapt.dLocalize("Hunter", "GenericPenalty", "Lore1"));
-        v.addLore(C.GRAY + "- " + level + C.RED + " " + Adapt.dLocalize("Hunter", "GenericPenalty", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("hunter", "invisibility", "lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("hunter", "invisibility", "lore2"));
+        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("hunter", "invisibility", "lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "invisibility", "lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "invisibility", "lore5"));
+        v.addLore(C.RED + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "penalty", "lore1"));
+        v.addLore(C.GRAY + "- " + level + C.RED + " " + Adapt.dLocalize("hunter", "penalty", "lore1"));
 
     }
 

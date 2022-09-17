@@ -39,8 +39,8 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
     public PickaxeDropToInventory() {
         super("pickaxe-drop-to-inventory");
         registerConfiguration(PickaxeDropToInventory.Config.class);
-        setDescription(Adapt.dLocalize("Pickaxe", "DropToInventory", "Description"));
-        setDisplayName(Adapt.dLocalize("Pickaxe", "DropToInventory", "Name"));
+        setDescription(Adapt.dLocalize("pickaxe", "droptoinventory", "description"));
+        setDisplayName(Adapt.dLocalize("pickaxe", "droptoinventory", "name"));
         setIcon(Material.DIRT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -55,7 +55,7 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("Pickaxe", "DropToInventory", "Lore1"));
+        v.addLore(C.GRAY + Adapt.dLocalize("pickaxe", "droptoinventory", "lore1"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
