@@ -28,7 +28,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Map;
 
 public final class NMS {
-
     private static final Map<String, Impl> VERSIONS = new ImmutableMap.Builder<String, Impl>()
             .put("1.19.2", new NMS_1_19_2())
             .build();

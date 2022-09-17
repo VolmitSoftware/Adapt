@@ -18,35 +18,33 @@
 
 package com.volmit.adapt.nms;
 
-import net.minecraft.nbt.NBTCompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
+import art.arcane.curse.Curse;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayOutSetCooldown;
 import net.minecraft.world.item.Item;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_19_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Base64;
 
 public class NMS_1_19_2 implements NMS.Impl {
-
     @Override
     public String serializeStack(ItemStack is) {
         try {
-            NBTTagCompound t = new NBTTagCompound();
-            CraftItemStack.asNMSCopy(is).b(t);
+            Object t = Curse.on(Class.forName("net.minecraft.nbt.NBTTagCompound")).construct();
+            Object nmsStack = Curse.on(Class.forName("org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack"))
+                .method("asNMSCopy", ItemStack.class)
+                .invoke(t, is);
+            Curse.on(nmsStack).method("b", Class.forName("net.minecraft.nbt.NBTTagCompound")).invoke(t);
             ByteArrayOutputStream boas = new ByteArrayOutputStream();
-            NBTCompressedStreamTools.a(t, boas);
+            Curse.on(Class.forName("net.minecraft.nbt.NBTCompressedStreamTools")).method("a", Class.forName("net.minecraft.nbt.NBTTagCompound"), OutputStream.class).invoke(t, boas);
             return Base64.getUrlEncoder().encodeToString(boas.toByteArray());
-
-        } catch (IOException e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -55,9 +53,10 @@ public class NMS_1_19_2 implements NMS.Impl {
     public ItemStack deserializeStack(String s) {
         try {
             ByteArrayInputStream bin = new ByteArrayInputStream(Base64.getUrlDecoder().decode(s));
-            NBTTagCompound t = NBTCompressedStreamTools.a(bin);
-            return CraftItemStack.asBukkitCopy(net.minecraft.world.item.ItemStack.a(t));
-        } catch (IOException e) {
+            Object t = Curse.on(Class.forName("net.minecraft.nbt.NBTCompressedStreamTools")).method("a", InputStream.class).invoke(bin);
+            Object nmsCopy = Curse.on(Class.forName("net.minecraft.world.item.ItemStack")).method("a", Class.forName("net.minecraft.nbt.NBTTagCompound")).invoke(t);
+            return Curse.on(Class.forName("org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack")).method("asBukkitCopy", Class.forName("net.minecraft.world.item.ItemStack")).invoke(nmsCopy);
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -68,10 +67,24 @@ public class NMS_1_19_2 implements NMS.Impl {
     }
 
     private void sendPacket(Player player, Packet<?> packet) {
-        ((CraftPlayer) player).getHandle().b.a(packet);
+        try {
+            Object cp = Curse.on(Class.forName("org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer")).method("getHandle").invoke(player);
+            Object f = Curse.on(cp).get("b");
+            Curse.on(f).method("a", Class.forName("net.minecraft.network.protocol.Packet")).invoke(packet);
+        }
+
+        catch(Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Item notchianItem(Material m) {
-        return CraftMagicNumbers.getItem(m);
+        try {
+            return Curse.on(Class.forName("org.bukkit.craftbukkit.v1_19_R1.util.CraftMagicNumbers")).method("getItem", Material.class).invoke(m);
+        }
+
+        catch(Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 }
