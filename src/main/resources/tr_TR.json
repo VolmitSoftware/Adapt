@@ -5,7 +5,11 @@
       "knowledge": "Bilgi",
       "powerused": "Kullanılan Güç",
       "notlearned": "Öğrenilmedi",
-      "xp": "XP'ye"
+      "xp": "XP'ye",
+      "welcome": "Hoş geldin!",
+      "welcomeback": "Tekrar hoşgeldiniz!",
+      "xpbonusfortime": "XP için",
+      "unlockthisbyclicking": "Uyarlama Bloğuna Sağ Tıklayarak bunun kilidini açın!"
     },
     "adaptmenu": {
       "knowledgecost": "Bilgi Maliyeti",
@@ -59,12 +63,17 @@
       "icon": "❦",
       "description": "Double Bubble, Triple Bubble, Quadruple Bubble - Bu iksiri hala bir kazana koyamıyorum"
     },
-    "crafting":{
+    "blocking": {
+      "name": "Engelleme",
+      "icon": "▒",
+      "description": "Sopalar ve taşlar kemiklerini kırmaz, Ama kalkan kırar."
+    },
+    "crafting": {
       "name": "Üretmek",
       "icon": "⌂",
       "description": "Yerleştirilecek parça kalmadı, neden bir tane daha yapmıyorsunuz?"
     },
-    "discovery":{
+    "discovery": {
       "name": "keşif",
       "icon": "⚛",
       "description": "Algınız genişledikçe, zihniniz keşfetmediğinizi keşfetmek için çözülür."
@@ -79,7 +88,7 @@
       "icon": "✥",
       "description": "Diggey Diggey deliği..."
     },
-    "herbalism":  {
+    "herbalism": {
       "name": "bitkicilik",
       "icon": "⚘",
       "description": "Bitki bulamıyorum, ama biraz tohum bulabiliyorum ve- bu... Ot mu?"
@@ -232,7 +241,19 @@
       "lore2": "Lav Bloğuna Dokunma Başına"
     }
   },
-  "crafting":{
+  "blocking": {
+    "multiarmor": {
+      "name": "Çoklu Zırh",
+      "description": "Elytras'ı Zırhla Bağlayın",
+      "lore1": "Bu seyahat etmek için harika bir beceridir.",
+      "lore2": "Zırh/Elytra on the Fly dinamik olarak birleştirin ve değiştirin!",
+      "lore3": "birleştirmek için envanterinizdeki bir öğeyi diğerinin üzerine tıklayın.",
+      "lore4": "Zırhı çözmek için, öğeyi Gizlice Bırakın ve parçalanacaktır.",
+      "lore5": "MultiArmor'unuz yok edilirse, içindeki tüm öğeleri kaybedersiniz.",
+      "lore6": "Zırha ihtiyacım yok, beni hayal kırıklığına uğratıyor..."
+    }
+  },
+  "crafting": {
     "deconstruction": {
       "name": "Yapısöküm",
       "description": "Blokları ve öğeleri kurtarılabilir temel bileşenlere dönüştürün!",
@@ -245,7 +266,7 @@
       "lore1": "Üretirken XP kazanın"
     }
   },
-  "discovery":{
+  "discovery": {
     "armor": {
       "name": "Dünya Zırhı",
       "description": "Yakındaki blok sertliğine bağlı olarak pasif zırh.",
@@ -265,6 +286,13 @@
       "lore0": "Bu yalnızca 15 saniyede bir gerçekleşebilir",
       "lore1": "% Azaltılmış Hasar",
       "lore2": "deneyim tükenmiş"
+    },
+    "villager": {
+      "name": "Köylü Cazibesi",
+      "description": "Köylülerle daha iyi ticaret yapmanızı sağlar!",
+      "lore1": "Bu, Köylülerle etkileşim başına XP tüketir",
+      "lore2": "XP tüketmek ve takasları geliştirmek için etkileşim Başına Şans",
+      "lore3": "Etkileşim başına gerekli XP boşaltma"
     }
   },
   "enchanting": {
@@ -309,7 +337,7 @@
       "lore7": "beş veya altı araç veya sadece bir araç kullanabilirsiniz!"
     }
   },
-  "herbalism":  {
+  "herbalism": {
     "growthaura": {
       "name": "Büyüme Aurası",
       "description": "Bir aura içinde çevrenizdeki doğayı büyütün",
@@ -592,6 +620,20 @@
       "lore1": "Yarıçap Yarıçapı",
       "lore2": "Doğrama Bekleme Süresi",
       "lore3": "Takım Aşınması"
+    },
+    "bloodyblade": {
+      "name": "kanlı bıçak",
+      "description": "Kılıcınla vurur, Kanamaya neden olur!",
+      "lore1": "Kılıcınızla Canlı bir varlığa vurmak Kanamalara Neden Olur",
+      "lore2": "Kanama Süresi",
+      "lore3": "Kanama Bekleme Süresi"
+    },
+    "poisonedblade": {
+      "name": "zehirli bıçak",
+      "description": "Kılıcınla vurur, Zehire neden olur!",
+      "lore1": "Kılıcınızla Canlı bir varlığa vurmak Zehire neden olur",
+      "lore2": "Zehir Süresi",
+      "lore3": "Zehir Soğuma Süresi"
     }
   },
   "taming": {
