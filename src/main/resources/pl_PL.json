@@ -5,7 +5,11 @@
       "knowledge": "Wiedza",
       "powerused": "Użyta moc",
       "notlearned": "Nie Nauczono",
-      "xp": "XP do"
+      "xp": "XP do",
+      "welcome": "Witamy!",
+      "welcomeback": "Witamy spowrotem!",
+      "xpbonusfortime": "XP za",
+      "unlockthisbyclicking": "Odblokuj to, klikając prawym przyciskiem myszy blok adaptacyjny!"
     },
     "adaptmenu": {
       "knowledgecost": "Koszt Wiedzy",
@@ -59,12 +63,16 @@
       "icon": "❦",
       "description": "Double Bubble, Triple Bubble, Quadruple Bubble- Nadal nie mogę wlać tej mikstury do kociołka"
     },
-    "crafting":{
+    "blocking": {
+      "name": "Bloking",
+      "description": "Kije i kamienie nie złamią twoich kości, ale tarcza złamie."
+    },
+    "crafting": {
       "name": "Rzemiosło",
       "icon": "⌂",
       "description": "Skoro nie ma już kawałków do umieszczenia, dlaczego nie zrobić kolejnego?"
     },
-    "discovery":{
+    "discovery": {
       "name": "Odkrycie",
       "icon": "⚛",
       "description": "Gdy twoja Percepcja się rozszerza, twój umysł rozplątuje się, by odkryć to, czego nie odkryłeś"
@@ -79,7 +87,7 @@
       "icon": "✥",
       "description": "Diggey Diggey otwór..."
     },
-    "herbalism":  {
+    "herbalism": {
       "name": "Zielarstwo",
       "icon": "⚘",
       "description": "Nie mogę znaleźć żadnych roślin, ale mogę znaleźć nasiona i- czy to... Ziele?"
@@ -232,7 +240,19 @@
       "lore2": "Za dotknięcie bloku lawy"
     }
   },
-  "crafting":{
+  "blocking": {
+    "multiarmor": {
+      "name": "Wielopancerz",
+      "description": "Powiąż Elytry ze zbroją",
+      "lore1": "To niesamowita umiejętność podróżowania.",
+      "lore2": "dynamicznie łącz i zmieniaj Pancerz/Elytrę w locie!",
+      "lore3": "aby scalić, kliknij z wciśniętym klawiszem Shift element nad innym w ekwipunku.",
+      "lore4": "aby rozpiąć zbroję, upuść przedmiot z ukrycia, a rozłoży się.",
+      "lore5": "Jeśli twój MultiArmor zostanie zniszczony, stracisz wszystkie znajdujące się w nim przedmioty.",
+      "lore6": "Nie potrzebuję zbroi, to mnie rozczarowuje..."
+    }
+  },
+  "crafting": {
     "deconstruction": {
       "name": "Dekonstrukcja",
       "description": "Rozłóż bloki i przedmioty na odzyskiwalne elementy bazowe!",
@@ -245,7 +265,7 @@
       "lore1": "Zdobywaj PD podczas tworzenia"
     }
   },
-  "discovery":{
+  "discovery": {
     "armor": {
       "name": "Zbroja świata",
       "description": "Pancerz pasywny w zależności od twardości pobliskiego bloku.",
@@ -265,6 +285,13 @@
       "lore0": "Może się to zdarzyć tylko raz na 15 sekund",
       "lore1": "% Zmniejszone Obrażenia",
       "lore2": "doświadczenie wyczerpane"
+    },
+    "villager": {
+      "name": "Atrakcja wieśniaka",
+      "description": "Pozwala na uzyskanie lepszych transakcji z mieszkańcami wioski!",
+      "lore1": "Zużywa to PD za interakcję z wieśniakami",
+      "lore2": "Szansa na zużycie PD i ulepszenie wymian na interakcję",
+      "lore3": "wymagany drenaż XP na interakcję"
     }
   },
   "enchanting": {
@@ -309,7 +336,7 @@
       "lore7": "możesz użyć pięciu lub sześciu narzędzi lub tylko jednego!"
     }
   },
-  "herbalism":  {
+  "herbalism": {
     "growthaura": {
       "name": "Aura wzrostu",
       "description": "Rozwijaj przyrodę wokół siebie w aurze",
@@ -592,6 +619,20 @@
       "lore1": "Promień ukośnika",
       "lore2": "Czas odnowienia siekania",
       "lore3": "Zużycie narzędzi"
+    },
+    "bloodyblade": {
+      "name": "Krwawe Ostrze",
+      "description": "Uderza mieczem, powodując krwawienie!",
+      "lore1": "Uderzenie żywej istoty mieczem powoduje krwawienie",
+      "lore2": "Czas trwania krwawienia",
+      "lore3": "Czas odnowienia krwawienia"
+    },
+    "poisonedblade": {
+      "name": "Zatrute Ostrze",
+      "description": "Uderza mieczem, powodując truciznę!",
+      "lore1": "Uderzenie żywej istoty mieczem powoduje truciznę",
+      "lore2": "Czas trwania trucizny",
+      "lore3": "Czas odnowienia trucizny"
     }
   },
   "taming": {
@@ -609,6 +650,13 @@
       "name": "Oswojona regeneracja",
       "description": "Zwiększ regenerację oswojonych zwierząt.",
       "lore1": "HP"
+    }
+  },
+  "tragoul": {
+    "thorns": {
+      "name": "Ciernie",
+      "description": "Odbij obrażenia z powrotem swojemu napastnikowi!",
+      "lore1": "Odwet po uderzeniu"
     }
   },
   "unarmed": {
