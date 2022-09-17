@@ -5,7 +5,11 @@
       "knowledge": "Conocimiento",
       "powerused": "Poder Utilizado",
       "notlearned": "No aprendido",
-      "xp": "XP a"
+      "xp": "XP a",
+      "welcome": "¡Bienvenidos!",
+      "welcomeback": "¡Bienvenido de nuevo!",
+      "xpbonusfortime": "XP para",
+      "unlockthisbyclicking": "¡Desbloquee esto haciendo clic derecho en el bloque Adaptar!"
     },
     "adaptmenu": {
       "knowledgecost": "Coste del conocimiento",
@@ -59,12 +63,17 @@
       "icon": "❖",
       "description": "Burbuja doble, burbuja triple, burbuja cuádruple - Todavía no puedo poner esta poción en un caldero"
     },
-    "crafting":{
+    "blocking": {
+      "name": "Bloqueo",
+      "icon": "▒",
+      "description": "Palos y piedras no romperán tus huesos, pero un escudo sí."
+    },
+    "crafting": {
       "name": "Craftear",
       "icon": "❖",
       "description": "Sin más piezas que colocar, ¿por qué no hacer otra?"
     },
-    "discovery":{
+    "discovery": {
       "name": "Descubrimiento",
       "icon": "⚛",
       "description": "A medida que tu Percepción se expande, tu mente se desenvuelve para descubrir lo que no"
@@ -79,7 +88,7 @@
       "icon": "✥",
       "description": "Diggey Diggey hole..."
     },
-    "herbalism":  {
+    "herbalism": {
       "name": "Hierbalismo",
       "icon": "⚘",
       "description": "No puedo encontrar ninguna planta, pero puedo encontrar algunas semillas y- es que... ¿Hierba?"
@@ -232,7 +241,19 @@
       "lore2": "Por tocar el bloque de lava"
     }
   },
-  "crafting":{
+  "blocking": {
+    "multiarmor": {
+      "name": "Multi-Armadura",
+      "description": "Vincular élitros a la armadura",
+      "lore1": "Esta es una habilidad increíble para viajar.",
+      "lore2": "¡Fusiona y cambia dinámicamente Armor/Elytra sobre la marcha!",
+      "lore3": "para fusionar, haga clic en un elemento sobre otro en su inventario.",
+      "lore4": "para desvincular la Armadura, Sneak-Drop el artículo, y se desarmará.",
+      "lore5": "Si se destruye su MultiArmor, perderá todos los elementos que contenga.",
+      "lore6": "No necesito armadura, me decepciona..."
+    }
+  },
+  "crafting": {
     "deconstruction": {
       "name": "Deconstrucción",
       "description": "Deconstruye bloques y objetos para convertirlos en componentes básicos recuperables.",
@@ -245,7 +266,7 @@
       "lore1": "Gana XP al craftear"
     }
   },
-  "discovery":{
+  "discovery": {
     "armor": {
       "name": "Armadura del mundo",
       "description": "Armadura pasiva en función de la dureza del bloque cercano.",
@@ -265,6 +286,13 @@
       "lore0": "Esto sólo puede ocurrir una vez cada 15 segundos",
       "lore1": "% de daño reducido",
       "lore2": "Experiencia drenada"
+    },
+    "villager": {
+      "name": "Atracción de aldeanos",
+      "description": "¡Te permite obtener mejores intercambios con los aldeanos!",
+      "lore1": "Esto consume XP por interacción con los aldeanos.",
+      "lore2": "Probabilidad por interacción de consumir XP y mejorar los intercambios",
+      "lore3": "Drenaje de XP requerido por interacción"
     }
   },
   "enchanting": {
@@ -309,7 +337,7 @@
       "lore7": "puedes usar cinco o seis herramientas, ¡o sólo una!"
     }
   },
-  "herbalism":  {
+  "herbalism": {
     "growthaura": {
       "name": "Aura de crecimiento",
       "description": "Haz crecer la naturaleza a tu alrededor en un aura",
@@ -592,6 +620,20 @@
       "lore1": "Radio de corte",
       "lore2": "Recarga del hacha",
       "lore3": "Desgaste de herramientas"
+    },
+    "bloodyblade": {
+      "name": "Hoja sangrienta",
+      "description": "¡Golpea con tu espada, causa sangrado!",
+      "lore1": "Golpear a una entidad viva con tu espada causa sangrado",
+      "lore2": "Duración del sangrado",
+      "lore3": "Enfriamiento de sangrado"
+    },
+    "poisonedblade": {
+      "name": "Hoja envenenada",
+      "description": "¡Golpea con tu espada, causa veneno!",
+      "lore1": "Golpear a una entidad viva con tu espada causa veneno",
+      "lore2": "Duración del veneno",
+      "lore3": "Enfriamiento de veneno"
     }
   },
   "taming": {
@@ -609,6 +651,13 @@
       "name": "Regeneración de animales domados",
       "description": "Aumenta la regeneración de tu animal domesticado.",
       "lore1": "HP/s"
+    }
+  },
+  "tragoul": {
+    "thorns": {
+      "name": "espinas",
+      "description": "¡Refleja el daño hacia tu atacante!",
+      "lore1": "Daño represaliado cuando es golpeado"
     }
   },
   "unarmed": {
