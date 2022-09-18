@@ -473,7 +473,9 @@ public final class AdvancementManager {
             Bukkit.getPluginManager().callEvent(event);
 
             if (event.isShowToast()) {
-                advancement.displayToast(player);
+                if (player.getPlayer() != null) {
+                    advancement.displayToast(player);
+                }
             }
             if (event.isDisplayMessage()) {
                 advancement.displayMessageToEverybody(player);
@@ -559,7 +561,9 @@ public final class AdvancementManager {
                 Bukkit.getPluginManager().callEvent(event);
 
                 if (event.isShowToast()) {
-                    advancement.displayToast(player);
+                    if (player.getPlayer() != null) {
+                        advancement.displayToast(player);
+                    }
                 }
                 if (event.isDisplayMessage()) {
                     advancement.displayMessageToEverybody(player);
@@ -655,7 +659,9 @@ public final class AdvancementManager {
                     Bukkit.getPluginManager().callEvent(event);
 
                     if (event.isShowToast()) {
-                        advancement.displayToast(player);
+                        if (player.getPlayer() != null) {
+                            advancement.displayToast(player);
+                        }
                     }
                     if (event.isDisplayMessage()) {
                         advancement.displayMessageToEverybody(player);

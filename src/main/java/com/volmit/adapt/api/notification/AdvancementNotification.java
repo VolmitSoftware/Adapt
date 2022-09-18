@@ -56,7 +56,9 @@ public class AdvancementNotification implements Notification {
     public void play(AdaptPlayer p) {
         AdvancementDisplay d = new AdvancementDisplay(icon, buildTitle(), description, frameType, AdvancementVisibility.ALWAYS);
         Advancement a = new Advancement(null, new NameKey("adapt-notifications", "n" + p.getId() + RNG.r.lmax()), d);
-        a.displayToast(p.getPlayer());
+        if (p.getPlayer() != null) {
+            a.displayToast(p.getPlayer());
+        }
     }
 
     public String buildTitle() {
