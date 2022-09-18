@@ -159,6 +159,8 @@ public class AdaptServer extends TickedObject {
                         .icon(Material.BOOK)
                         .title(C.GRAY + "+ " + C.WHITE + data.getKnowledge() + " " + skill.getDisplayName() + " Knowledge")
                         .build());
+                e.setCancelled(false);
+                e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(1000));
             } else {
                 ExperienceOrb.Data datax = ExperienceOrb.get(s.getItem());
                 if (datax != null) {
@@ -171,10 +173,10 @@ public class AdaptServer extends TickedObject {
                             .sound(Sound.ENTITY_SHULKER_OPEN)
                             .volume(1f).pitch(1.655f)
                             .build().play(getPlayer(p));
+                    e.setCancelled(false);
+                    e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(1000));
                 }
             }
-            e.setCancelled(false);
-            e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(1000));
         }
 
     }
