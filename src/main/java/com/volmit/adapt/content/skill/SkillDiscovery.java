@@ -66,6 +66,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerChangedWorldEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
@@ -78,6 +81,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractAtEntityEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
@@ -93,6 +99,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityPickupItemEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
@@ -109,6 +118,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(CraftItemEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
@@ -133,6 +145,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerItemConsumeEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
@@ -149,6 +164,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         Player p = e.getPlayer();
 
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
@@ -164,6 +182,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerExpChangeEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         Player p = e.getPlayer();
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
@@ -281,6 +302,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @Override
     public void onTick() {
+        if (!this.isEnabled()) {
+            return;
+        }
         for (Player i : Bukkit.getOnlinePlayers()) {
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;

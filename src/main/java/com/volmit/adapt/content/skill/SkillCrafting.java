@@ -65,6 +65,9 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(CraftItemEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
@@ -158,12 +161,16 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(FurnaceSmeltEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
         if (AdaptConfig.get().blacklistedWorlds.contains(e.getBlock().getWorld().getName())) {
             return;
         }
+
         xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP + (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier), getConfig().furnaceXPRadius, getConfig().furnaceXPDuration);
     }
 

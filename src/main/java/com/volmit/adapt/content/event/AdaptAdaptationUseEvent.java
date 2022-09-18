@@ -16,44 +16,13 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands.boost;
+package com.volmit.adapt.content.event;
 
-import com.volmit.adapt.util.Command;
-import com.volmit.adapt.util.MortarCommand;
-import com.volmit.adapt.util.MortarSender;
+import com.volmit.adapt.api.adaptation.Adaptation;
+import com.volmit.adapt.api.world.AdaptPlayer;
 
-import java.util.List;
-
-public class CommandBoost extends MortarCommand {
-    @Command
-    private CommandBoostPlayer player = new CommandBoostPlayer();
-
-    private static final List<String> permission = List.of("adapt.boost");
-
-    public CommandBoost() {
-        super("boost", "b");
-    }
-
-
-
-    @Override
-    public List<String> getRequiredPermissions() {
-        return permission;
-    }
-
-    @Override
-    public boolean handle(MortarSender sender, String[] args) {
-        printHelp(sender);
-        return true;
-    }
-
-    @Override
-    public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
-
-    }
-
-    @Override
-    protected String getArgsUsage() {
-        return "";
+public class AdaptAdaptationUseEvent extends AdaptAdaptationEvent {
+    public AdaptAdaptationUseEvent(boolean async, AdaptPlayer player, Adaptation<?> adaptation) {
+        super(async, player, adaptation);
     }
 }

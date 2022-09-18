@@ -16,44 +16,42 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands.boost;
+package com.volmit.adapt.content.event;
 
-import com.volmit.adapt.util.Command;
-import com.volmit.adapt.util.MortarCommand;
-import com.volmit.adapt.util.MortarSender;
+import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.world.AdaptServer;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+public class AdaptEvent extends Event implements Cancellable {
+    private boolean canceled;
+    private static final HandlerList handlers = new HandlerList();
 
-public class CommandBoost extends MortarCommand {
-    @Command
-    private CommandBoostPlayer player = new CommandBoostPlayer();
 
-    private static final List<String> permission = List.of("adapt.boost");
-
-    public CommandBoost() {
-        super("boost", "b");
+    public AdaptEvent(boolean async) {
+        super(async);
+        canceled = false;
     }
 
-
-
-    @Override
-    public List<String> getRequiredPermissions() {
-        return permission;
-    }
-
-    @Override
-    public boolean handle(MortarSender sender, String[] args) {
-        printHelp(sender);
-        return true;
+    public AdaptServer getServer() {
+        return Adapt.instance.getAdaptServer();
     }
 
     @Override
-    public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
-
+    public boolean isCancelled() {
+        return canceled;
     }
 
     @Override
-    protected String getArgsUsage() {
-        return "";
+    public void setCancelled(boolean b) {
+        canceled = b;
+    }
+
+    @NotNull
+    @Override
+    public HandlerList getHandlers() {
+        return handlers;
     }
 }

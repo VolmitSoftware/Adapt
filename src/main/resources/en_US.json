@@ -272,7 +272,7 @@
       "description": "Passive armor depending on nearby block hardness.",
       "lore1": "Passive Armor",
       "lore2": "Based on nearby block hardness",
-      "lore3": "Armor Strength: +"
+      "lore3": "Armor Strength:"
     },
     "unity": {
       "name": "Experimental Unity",
@@ -284,7 +284,7 @@
       "name": "Experimental Resistance",
       "description": "Consume experience to mitigate the damage you take from all sources",
       "lore0": "This may only occur once per 15 seconds",
-      "lore1": "% Reduced Damage",
+      "lore1": " Reduced Damage",
       "lore2": "experience drained"
     },
     "villager": {

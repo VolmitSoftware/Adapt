@@ -50,21 +50,10 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (!e.isCancelled()) {
-//            if (e.getDamager() instanceof Player p) {
-//                if (e.isCancelled()) {
-//                    return;
-//                }
-//                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-//                    return;
-//                }
-//                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) && !p.isBlocking()) {
-//                    return;
-//                }
-////                AdaptPlayer a = getPlayer(p);
-////                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
-//
-//            } else
             if (e.getEntity() instanceof Player p) {
                 if (e.isCancelled()) {
                     return;
@@ -90,6 +79,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerDeathEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
             return;
         }

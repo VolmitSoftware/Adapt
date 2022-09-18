@@ -27,6 +27,7 @@ import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerData;
+import com.volmit.adapt.content.event.AdaptAdaptationUseEvent;
 import com.volmit.adapt.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -35,11 +36,10 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.inventory.Recipe;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public interface Adaptation<T> extends Ticked, Component {
     int getMaxLevel();
@@ -75,6 +75,17 @@ public interface Adaptation<T> extends Ticked, Component {
 
         return false;
     }
+
+    default boolean canUse(AdaptPlayer player) {
+        AdaptAdaptationUseEvent e = new AdaptAdaptationUseEvent(!Bukkit.isPrimaryThread(), player, this);
+        Bukkit.getServer().getPluginManager().callEvent(e);
+        return (!e.isCancelled());
+    }
+
+    default boolean canUse(Player player) {
+        return canUse(getPlayer(player));
+    }
+
 
     default String getStorageString(Player p, String key, String defaultValue) {
         return getStorage(p, key, defaultValue);
@@ -301,8 +312,8 @@ public interface Adaptation<T> extends Ticked, Component {
                     .setProgress(1D)
                     .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
                     .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost")))
-                    .addLore(mylevel >= lvl ? (C.GREEN + Adapt.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "unlearnrefund") + " " + C.GREEN + rc + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost")) : (k >= c ? (C.BLUE + Adapt.dLocalize("snippets", "adaptmenu", "clicklearn") + " " + getDisplayName(i)) : (k == 0 ? (C.RED + Adapt.dLocalize("snippets", "adaptmenu", "noknowledge")) : (C.RED + "(" + Adapt.dLocalize("snippets", "adaptmenu", "youonlyhave") + " " + C.WHITE + k + C.RED + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost") + ")"))))
-                    .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("snippets", "adaptmenu", "power") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("snippets", "adaptmenu", "power") : C.RED + Adapt.dLocalize("snippets", "adaptmenu", "notenoughpower") + " \n" + C.RED + Adapt.dLocalize("snippets", "adaptmenu", "howtolevelup"))
+                    .addLore(mylevel >= lvl ? (C.GREEN + Adapt.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "unlearnrefund") + "" + C.GREEN + rc + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost")) : (k >= c ? (C.BLUE + Adapt.dLocalize("snippets", "adaptmenu", "clicklearn") + " " + getDisplayName(i)) : (k == 0 ? (C.RED + Adapt.dLocalize("snippets", "adaptmenu", "noknowledge")) : (C.RED + "(" + Adapt.dLocalize("snippets", "adaptmenu", "youonlyhave") + " " + C.WHITE + k + C.RED + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost") + ")"))))
+                    .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("snippets", "adaptmenu", "power") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("snippets", "adaptmenu", "power") : C.RED + Adapt.dLocalize("snippets", "adaptmenu", "notenoughpower") + "\n" + C.RED + Adapt.dLocalize("snippets", "adaptmenu", "howtolevelup"))
                     .onLeftClick((e) -> {
                         if (mylevel >= lvl) {
                             getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(rc);

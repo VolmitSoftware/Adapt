@@ -43,7 +43,7 @@ import java.util.Map;
 
 
 public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> {
-    private final Map<Player, Long> lastJump = new HashMap<>();
+    private final Map<Player, Long> lastJump;
 
     public AgilitySuperJump() {
         super("agility-super-jump");
@@ -56,6 +56,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(9999);
+        lastJump = new HashMap<>();
     }
 
     private double getJumpHeight(int level) {
@@ -101,7 +102,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
             return;
         }
 
-        if (p.isSneaking() && hasAdaptation(p)) {
+        if (p.isSneaking() && hasAdaptation(p) && canUse(getPlayer(p))) {
             Vector velocity = p.getVelocity();
 
             if (velocity.getY() > 0) {

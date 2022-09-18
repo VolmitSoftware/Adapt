@@ -32,13 +32,15 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
-    private final Map<Player, Integer> ticksRunning = new HashMap<>();
+    private final Map<Player, Integer> ticksRunning;
+
 
     public AgilityArmorUp() {
         super("agility-armor-up");
@@ -50,6 +52,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
         setInterval(350);
+        ticksRunning = new HashMap<>();
     }
 
     @Override
@@ -72,6 +75,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
         return getConfig().windupArmorBase + (factor * getConfig().windupArmorLevelMultiplier);
     }
 
+
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
@@ -87,6 +91,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
             }
 
             if (i.isSprinting() && hasAdaptation(i)) {
+
+
                 ticksRunning.compute(i, (k, v) -> {
                     if (v == null) {
                         return 1;
@@ -114,7 +120,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
                         i.getWorld().spawnParticle(Particle.WAX_ON, i.getLocation(), 1, 0, 0, 0, 0);
                     }
                 }
-                i.getAttribute(Attribute.GENERIC_ARMOR).addModifier(new AttributeModifier("adapt-armor-up", armorInc*10, AttributeModifier.Operation.ADD_NUMBER));
+                i.getAttribute(Attribute.GENERIC_ARMOR).addModifier(new AttributeModifier("adapt-armor-up", armorInc * 10, AttributeModifier.Operation.ADD_NUMBER));
 
             } else {
                 ticksRunning.remove(i);

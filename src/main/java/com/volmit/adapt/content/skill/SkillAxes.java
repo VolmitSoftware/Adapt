@@ -55,6 +55,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
                 if (e.isCancelled()) {
@@ -84,6 +87,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }

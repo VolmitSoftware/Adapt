@@ -16,44 +16,34 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands.boost;
+package com.volmit.adapt.content.event;
 
-import com.volmit.adapt.util.Command;
-import com.volmit.adapt.util.MortarCommand;
-import com.volmit.adapt.util.MortarSender;
+import com.volmit.adapt.api.adaptation.Adaptation;
+import com.volmit.adapt.api.skill.Skill;
+import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.PlayerSkillLine;
 
-import java.util.List;
+public class AdaptAdaptationEvent extends AdaptPlayerEvent {
+    private final Skill<?> skill;
+    private final PlayerSkillLine playerSkill;
+    private final Adaptation<?> adaptation;
 
-public class CommandBoost extends MortarCommand {
-    @Command
-    private CommandBoostPlayer player = new CommandBoostPlayer();
-
-    private static final List<String> permission = List.of("adapt.boost");
-
-    public CommandBoost() {
-        super("boost", "b");
+    public AdaptAdaptationEvent(boolean async, AdaptPlayer player,  Adaptation<?> adaptation) {
+        super(async, player);
+        this.adaptation = adaptation;
+        this.playerSkill = player.getSkillLine(adaptation.getSkill().getId());
+        this.skill = adaptation.getSkill();
     }
 
-
-
-    @Override
-    public List<String> getRequiredPermissions() {
-        return permission;
+    public Skill<?> getSkill() {
+        return skill;
     }
 
-    @Override
-    public boolean handle(MortarSender sender, String[] args) {
-        printHelp(sender);
-        return true;
+    public Adaptation<?> getAdaptation() {
+        return adaptation;
     }
 
-    @Override
-    public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
-
-    }
-
-    @Override
-    protected String getArgsUsage() {
-        return "";
+    public PlayerSkillLine getPlayerSkill() {
+        return playerSkill;
     }
 }

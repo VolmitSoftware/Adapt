@@ -255,7 +255,7 @@ public class Adapt extends VolmitPlugin {
         Random r = new Random();
         int game = r.nextInt(100);
 
-        if (game < 85){ // 85%
+        if (game < 90){ // 90%
             Adapt.info(
                     "\n" +
                             C.GRAY + " █████" + C.DARK_RED + "╗ " + C.GRAY + "██████" + C.DARK_RED + "╗  " + C.GRAY + "█████" + C.DARK_RED + "╗ " + C.GRAY + "██████" + C.DARK_RED + "╗ " + C.GRAY + "████████" + C.DARK_RED + "╗\n" +

@@ -55,6 +55,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
@@ -71,6 +74,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockBreak(BlockBreakEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
@@ -89,6 +95,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDeath(EntityDeathEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
             Player p = e.getEntity().getKiller();
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
@@ -107,6 +116,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageByEntityEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }

@@ -48,6 +48,9 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EnchantItemEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
