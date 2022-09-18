@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
-    private final Map<Player, Integer> ticksRunning = new HashMap<>();
+    private final Map<Player, Integer> ticksRunning;
 
     public AgilityWindUp() {
         super("agility-wind-up");
@@ -50,6 +50,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
         setInterval(120);
+        ticksRunning = new HashMap<>();
     }
 
     @Override

@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
-    private final Map<Player, Double> airjumps = new HashMap<>();
+    private final Map<Player, Double> airjumps;
 
     public AgilityWallJump() {
         super("agility-wall-jump");
@@ -53,6 +53,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(50);
+        airjumps = new HashMap<>();
     }
 
     @Override
