@@ -76,7 +76,9 @@ public class AdvancementHandler {
         J.s(() -> getManager().grantAdvancement(player.getPlayer(), real.get(key)), 5);
 
         if (toast) {
-            real.get(key).displayToast(getPlayer().getPlayer());
+            if (getPlayer().getPlayer() != null) {
+                real.get(key).displayToast(getPlayer().getPlayer());
+            }
         }
     }
 

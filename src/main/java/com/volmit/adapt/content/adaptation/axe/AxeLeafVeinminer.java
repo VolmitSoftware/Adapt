@@ -59,7 +59,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
 
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + Adapt.dLocalize("axe", "leafminer", "lore1"));
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + Adapt.dLocalize("axe", "leafminer", "lore2"));
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " +  Adapt.dLocalize("axe", "leafminer", "lore2"));
         v.addLore(C.ITALIC + Adapt.dLocalize("axe", "leafminer", "lore3"));
     }
 
@@ -116,7 +116,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                         if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory").getLevel() > 0) {
                             Collection<ItemStack> items = e.getBlock().getDrops();
                             for (ItemStack i : items) {
-                                p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
+                                p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.01f, 0.01f);
                                 xp(p, 2);
                                 HashMap<Integer, ItemStack> extra = p.getInventory().addItem(i);
                                 if (!extra.isEmpty()) {
@@ -127,14 +127,12 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                             e.getBlock().getDrops().clear();
                         } else {
                             b.breakNaturally(p.getItemInUse());
-                            e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
+                            e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
                             if (getConfig().showParticles) {
-
                                 e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
                             }
                         }
                         if (getConfig().showParticles) {
-
                             vfxSingleCubeOutlineR(b, Particle.ENCHANTMENT_TABLE);
                         }
                     }
