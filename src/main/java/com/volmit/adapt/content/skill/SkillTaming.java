@@ -52,6 +52,9 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityBreedEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
@@ -70,6 +73,9 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }

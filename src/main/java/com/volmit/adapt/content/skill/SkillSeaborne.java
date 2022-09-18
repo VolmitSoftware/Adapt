@@ -80,6 +80,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             if (i.getWorld().getBlockAt(i.getLocation()).isLiquid() && i.isSwimming()) {
                 Adapt.verbose("seaborne Tick");
                 checkStatTrackers(getPlayer(i));
+                if (!this.isEnabled()) {
+                    return;
+                }
                 xpSilent(i, getConfig().swimXP);
             }
         }
@@ -87,6 +90,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerFishEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
@@ -107,6 +113,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }

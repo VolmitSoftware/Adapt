@@ -52,6 +52,9 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
@@ -88,6 +91,9 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             }
             if (i.getPlayer() != null && (i.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.SHIELD) || i.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.SHIELD))) {
                 if (!AdaptConfig.get().isXpInCreative() && (i.getGameMode().equals(GameMode.CREATIVE) || i.getGameMode().equals(GameMode.SPECTATOR))) {
+                    return;
+                }
+                if (!this.isEnabled()) {
                     return;
                 }
                 xpSilent(i, getConfig().passiveXpForUsingShield);

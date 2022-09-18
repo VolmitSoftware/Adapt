@@ -51,6 +51,9 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
                 if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {

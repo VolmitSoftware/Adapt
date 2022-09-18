@@ -83,6 +83,9 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerMoveEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
@@ -110,6 +113,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
 
     @Override
     public void onTick() {
+
         for (Player i : Bukkit.getOnlinePlayers()) {
             checkStatTrackers(getPlayer(i));
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
@@ -117,6 +121,9 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
             }
             if (i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
                 if (!AdaptConfig.get().isXpInCreative() && (i.getGameMode().equals(GameMode.CREATIVE) || i.getGameMode().equals(GameMode.SPECTATOR))) {
+                    return;
+                }
+                if (!this.isEnabled()) {
                     return;
                 }
                 xpSilent(i, getConfig().sprintXpPassive);
