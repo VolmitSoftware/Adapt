@@ -28,15 +28,18 @@ import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.util.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.Recipe;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public interface Adaptation<T> extends Ticked, Component {
     int getMaxLevel();
@@ -146,10 +149,13 @@ public interface Adaptation<T> extends Ticked, Component {
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
     default boolean hasAdaptation(Player p) {
+        if (!this.getSkill().isEnabled()) {
+            this.unregister();
+        }
+
         if (p.getClass().getSimpleName().equals("PlayerNPC")) {
             return false;
         }
-
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return false;
         }
@@ -160,10 +166,18 @@ public interface Adaptation<T> extends Ticked, Component {
         if (p.getClass().getSimpleName().equals("PlayerNPC")) {
             return 0;
         }
-        return getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
+        if (!this.getSkill().isEnabled()) {
+            this.unregister();
+            return 0;
+        } else {
+            return getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
+        }
     }
 
     default double getLevelPercent(Player p) {
+        if (!this.getSkill().isEnabled()) {
+            this.unregister();
+        }
         if (p.getClass().getSimpleName().equals("PlayerNPC")) {
             return 0.0;
         }
@@ -212,10 +226,16 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default String getDisplayName() {
+        if (!this.getSkill().isEnabled()) {
+            this.unregister();
+        }
         return C.RESET + "" + C.BOLD + getSkill().getColor().toString() + Form.capitalizeWords(getName().replaceAll("\\Q" + getSkill().getName() + "-\\E", "").replaceAll("\\Q-\\E", " "));
     }
 
     default String getDisplayName(int level) {
+        if (!this.getSkill().isEnabled()) {
+            this.unregister();
+        }
         if (level >= 1) {
             return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + Form.toRoman(level) + C.RESET;
         }
@@ -330,6 +350,9 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default boolean isAdaptationRecipe(Recipe recipe) {
+        if (!this.getSkill().isEnabled()) {
+            this.unregister();
+        }
         for (AdaptRecipe i : getRecipes()) {
             if (i.is(recipe)) {
                 return true;
