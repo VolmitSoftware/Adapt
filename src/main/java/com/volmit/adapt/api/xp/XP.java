@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.util.M;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -32,7 +33,10 @@ public class XP {
     }
 
     public static void xp(AdaptPlayer p, Skill skill, double xp) {
-        p.getSkillLine(skill.getName()).giveXP(p.getNot(), xp);
+        PlayerSkillLine skillLine = p.getSkillLine(skill.getName());
+        if (skillLine != null) {
+            skillLine.giveXP(p.getNot(), xp);
+        }
     }
 
     public static void xpSilent(Player p, Skill skill, double xp) {
