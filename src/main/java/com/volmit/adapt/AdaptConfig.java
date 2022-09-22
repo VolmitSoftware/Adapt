@@ -44,7 +44,7 @@ public class AdaptConfig {
     private boolean verbose = false;
     private boolean metrics = true;
     private String language = "en_US";
-    private Curves xpCurve = Curves.XL1L7;
+    private Curves xpCurve = Curves.XL2L7;
     private double playerXpPerSkillLevelUpBase = 489;
     private double playerXpPerSkillLevelUpLevelMultiplier = 44;
     private double powerPerLevel = 0.73;
