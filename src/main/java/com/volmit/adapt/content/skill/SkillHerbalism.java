@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -29,7 +28,6 @@ import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Levelled;
@@ -46,6 +44,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
+    private final Map<Player, Long> herbCooldown = new HashMap<>();
+
     public SkillHerbalism() {
         super("herbalism", Adapt.dLocalize("skill", "herbalism", "icon"));
         registerConfiguration(Config.class);
@@ -98,8 +98,6 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_100").goal(100).stat("harvest.blocks").reward(getConfig().challengeHarvest100Reward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(getConfig().challengeHarvest1kReward).build());
     }
-
-    private final Map<Player, Long> herbCooldown = new HashMap<>();
 
     @EventHandler
     public void on(PlayerQuitEvent e) {

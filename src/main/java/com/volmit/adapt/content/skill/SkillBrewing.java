@@ -20,7 +20,6 @@ package com.volmit.adapt.content.skill;
 
 import art.arcane.spatial.matter.SpatialMatter;
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -30,7 +29,6 @@ import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.content.matter.BrewingStandOwnerMatter;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
