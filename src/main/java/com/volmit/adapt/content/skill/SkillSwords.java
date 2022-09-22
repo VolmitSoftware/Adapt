@@ -49,12 +49,20 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
-                if (canUseSkill(p)) {
+                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                     return;
                 }
-                if (e.getEntity().isDead() || e.getEntity().isInvulnerable()) {
+                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE)
+                        || p.getGameMode().equals(GameMode.SPECTATOR))
+                        || e.getEntity().isDead()
+                        || e.getEntity().isInvulnerable()
+                        || p.isDead()
+                        || p.isInvulnerable()) {
                     return;
                 }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());

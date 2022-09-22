@@ -21,7 +21,6 @@ package com.volmit.adapt.api.skill;
 import art.arcane.amulet.io.FileWatcher;
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
@@ -34,9 +33,7 @@ import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
@@ -146,30 +143,6 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     public void registerRecipe(AdaptRecipe r) {
         recipes.add(r);
     }
-
-    public boolean canUseSkill(Player p) {
-        if (!this.isEnabled()) {
-            return false;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return false;
-        }
-        if (!AdaptConfig.get().isXpInCreative()
-                && (p.getGameMode().equals(GameMode.CREATIVE)
-                || p.getGameMode().equals(GameMode.SPECTATOR)
-                || p.isDead()
-                || p.isInvulnerable()
-                || p.isDead()
-                || p.isInvulnerable())) {
-            return false;
-        }
-        return true;
-    }
-
-    public boolean canUseSkill() {
-        return this.isEnabled();
-    }
-
 
     public void registerAdvancement(AdaptAdvancement a) {
         cachedAdvancements.add(a);

@@ -107,14 +107,20 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerItemConsumeEvent e) {
-        Player p = e.getPlayer();
-        if (canUseSkill(p)) {
+        if (!this.isEnabled()) {
             return;
         }
         if (e.isCancelled()) {
             return;
         }
-        if (e.getItem().getItemMeta() instanceof PotionMeta) {
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (e.getItem().getItemMeta() instanceof PotionMeta o) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         xp(p, getConfig().foodConsumeXP);
@@ -123,11 +129,17 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerShearEntityEvent e) {
-        Player p = e.getPlayer();
-        if (canUseSkill(p)) {
+        if (!this.isEnabled()) {
             return;
         }
         if (e.isCancelled()) {
+            return;
+        }
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         xp(p, e.getEntity().getLocation(), getConfig().shearXP);
@@ -135,13 +147,20 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerHarvestBlockEvent e) {
-        Player p = e.getPlayer();
-        if (canUseSkill(p)) {
+        if (!this.isEnabled()) {
             return;
         }
         if (e.isCancelled()) {
             return;
         }
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            return;
+        }
+
         if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown < System.currentTimeMillis()) {
             herbCooldown.remove(p);
         } else if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
@@ -156,11 +175,18 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
-        Player p = e.getPlayer();
-        if (canUseSkill(p)) {
+        if (!this.isEnabled()) {
             return;
         }
         if (e.isCancelled()) {
+
+            return;
+        }
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown < System.currentTimeMillis()) {
@@ -177,13 +203,21 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         Player p = e.getPlayer();
-        if (canUseSkill(p)) {
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (e.useItemInHand().equals(Event.Result.DENY)) {
             return;
         }
+
         if (e.getClickedBlock() == null) {
             return;
         }
@@ -204,11 +238,17 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        Player p = e.getPlayer();
-        if (canUseSkill(p)) {
+        if (!this.isEnabled()) {
             return;
         }
         if (e.isCancelled()) {
+            return;
+        }
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (e.getBlock().getType().equals(Material.CACTUS)) {

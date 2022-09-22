@@ -42,10 +42,10 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (canUseSkill(i)) {
+            checkStatTrackers(getPlayer(i));
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;
             }
-            checkStatTrackers(getPlayer(i));
         }
     }
 

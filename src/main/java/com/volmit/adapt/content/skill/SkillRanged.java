@@ -54,11 +54,17 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(ProjectileLaunchEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
         if (e.getEntity().getShooter() instanceof Player p) {
-            if (canUseSkill(p)) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
+            }
+            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             if (e.getEntity() instanceof Snowball) {
@@ -72,11 +78,18 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player p) {
-            if (canUseSkill(p)) {
+        if (!this.isEnabled()) {
+            return;
+        }
+        if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
+            Player p = ((Player) ((Projectile) e.getDamager()).getShooter());
+            if (e.isCancelled()) {
                 return;
             }
-            if (e.isCancelled()) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
+            }
+            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             if (e.getEntity() instanceof Snowball) {

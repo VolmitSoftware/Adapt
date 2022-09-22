@@ -58,11 +58,17 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        Player p = e.getPlayer();
-        if (canUseSkill(p)) {
+        if (!this.isEnabled()) {
             return;
         }
-        if (e.isCancelled()) {
+        if (e.isCancelled() && this.isEnabled()) {
+            return;
+        }
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (e.getBlock().getType().equals(Material.TURTLE_EGG)) {
@@ -73,8 +79,15 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         Player p = e.getPlayer();
-        if (canUseSkill(p)) {
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
@@ -85,10 +98,14 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDeathEvent e) {
-
+        if (!this.isEnabled()) {
+            return;
+        }
+        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
+            return;
+        }
         if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
-            Player p = e.getEntity().getKiller();
-            if (canUseSkill(p)) {
+            if (!AdaptConfig.get().isXpInCreative() && (e.getEntity().getKiller().getGameMode().equals(GameMode.CREATIVE) || e.getEntity().getKiller().getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             double cmult = e.getEntity().getType().equals(EntityType.CREEPER) ? getConfig().creeperKillMultiplier : 1;
@@ -109,9 +126,6 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(CreatureSpawnEvent e) {
-        if (canUseSkill()) {
-            return;
-        }
         if (!this.isEnabled()) {
             return;
         }
