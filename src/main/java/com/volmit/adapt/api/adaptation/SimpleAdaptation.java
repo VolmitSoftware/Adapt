@@ -32,9 +32,7 @@ import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.entity.Horse;
 
 import java.io.File;
 import java.io.IOException;
