@@ -55,22 +55,16 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
+                if (canUseSkill(p)) {
+                    return;
+                }
                 if (e.isCancelled()) {
                     return;
                 }
-                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                    return;
-                }
-                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
-                        || e.getEntity().isDead()
-                        || e.getEntity().isInvulnerable()
-                        || p.isDead()
-                        || p.isInvulnerable()) {
+
+                if (e.getEntity().isDead() || e.getEntity().isInvulnerable()) {
                     return;
                 }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
@@ -87,18 +81,11 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        if (!this.isEnabled()) {
+        Player p = e.getPlayer();
+        if (canUseSkill(p)) {
             return;
         }
         if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (isAxe(p.getInventory().getItemInMainHand())) {

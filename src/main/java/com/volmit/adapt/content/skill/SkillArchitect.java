@@ -59,17 +59,11 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
-        if (!this.isEnabled()) {
+        Player p = e.getPlayer();
+        if (canUseSkill(e.getPlayer())) {
             return;
         }
         if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
@@ -81,17 +75,11 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        if (!this.isEnabled()) {
+        Player p = e.getPlayer();
+        if (canUseSkill(e.getPlayer())) {
             return;
         }
         if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         getPlayer(p).getData().addStat("blocks.broken", 1);
@@ -100,10 +88,10 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            checkStatTrackers(getPlayer(i));
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+            if (canUseSkill(i)) {
                 return;
             }
+            checkStatTrackers(getPlayer(i));
         }
     }
 

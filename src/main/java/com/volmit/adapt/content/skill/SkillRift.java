@@ -60,14 +60,11 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerTeleportEvent e) {
-        if (!this.isEnabled()) {
+        Player p = e.getPlayer();
+        if (canUseSkill(p)) {
             return;
         }
         if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (!lasttp.containsKey(p)) {
@@ -81,19 +78,16 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(ProjectileLaunchEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
         if (e.isCancelled()) {
             return;
         }
         if (e.getEntity() instanceof EnderPearl && e.getEntity().getShooter() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            if (canUseSkill(p)) {
                 return;
             }
             xp(p, getConfig().throwEnderpearlXP);
         } else if (e.getEntity() instanceof EnderSignal && e.getEntity().getShooter() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            if (canUseSkill(p)) {
                 return;
             }
             xp(p, getConfig().throwEnderEyeXP);
@@ -102,57 +96,54 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
         if (e.isCancelled()) {
             return;
         }
         if (e.getEntity() instanceof Enderman && e.getDamager() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            if (canUseSkill(p)) {
                 return;
             }
             xp(p, getConfig().damageEndermanXPMultiplier * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof Endermite && e.getDamager() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            if (canUseSkill(p)) {
                 return;
             }
             xp(p, getConfig().damageEndermiteXPMultiplier * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            if (canUseSkill(p)) {
                 return;
             }
             xp(p, getConfig().damageEnderdragonXPMultiplier * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            if (canUseSkill(p)) {
                 return;
             }
             xp(p, getConfig().damageEndCrystalXP);
         }
 
         if (e.getEntity() instanceof Enderman && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            if (canUseSkill(p)) {
                 return;
             }
             xp(p, getConfig().damageEndermanXPMultiplier * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof Endermite && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            if (canUseSkill(p)) {
                 return;
             }
             xp(p, getConfig().damageEndermiteXPMultiplier * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            if (canUseSkill(p)) {
                 return;
             }
             xp(p, getConfig().damageEnderdragonXPMultiplier * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            if (canUseSkill(p)) {
                 return;
             }
             xp(p, getConfig().damageEndCrystalXP);
@@ -165,7 +156,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             return;
         }
         if (e.getEntity() instanceof EnderCrystal && e.getEntity().getKiller() != null) {
-            if (!AdaptConfig.get().isXpInCreative() && (e.getEntity().getKiller().getGameMode().equals(GameMode.CREATIVE) || e.getEntity().getKiller().getGameMode().equals(GameMode.SPECTATOR))) {
+            if (canUseSkill(e.getEntity().getKiller())) {
                 return;
             }
             xp(e.getEntity().getKiller(), getConfig().destroyEndCrystalXP);
@@ -181,7 +172,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     @Override
     public void onTick() {
         for (Player i : lasttp.k()) {
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+            if (canUseSkill(i)) {
                 return;
             }
             if (M.ms() - lasttp.get(i) > getConfig().teleportXPCooldown) {

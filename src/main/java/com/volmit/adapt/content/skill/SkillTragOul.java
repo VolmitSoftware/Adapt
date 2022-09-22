@@ -50,25 +50,12 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
         if (!e.isCancelled()) {
             if (e.getEntity() instanceof Player p) {
-                if (e.isCancelled()) {
+                if (canUseSkill(p)) {
                     return;
                 }
-                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                    return;
-                }
-                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
-                        || e.getEntity().isDead()
-                        || e.getEntity().isInvulnerable()
-                        || p.isDead()
-                        || p.isInvulnerable()) {
-                    return;
-                }
-                if (p.isBlocking() || p.isDead() || p.isInvulnerable()) {
+                if (e.getEntity().isDead() || e.getEntity().isInvulnerable()) {
                     return;
                 }
                 AdaptPlayer a = getPlayer(p);
@@ -79,19 +66,13 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerDeathEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (e.getEntity().getGameMode().equals(GameMode.CREATIVE) || e.getEntity().getGameMode().equals(GameMode.SPECTATOR))) {
+        Player p = e.getEntity();
+        if (canUseSkill(p)) {
             return;
         }
 
         if (AdaptConfig.get().isHardcoreResetOnPlayerDeath()) {
             Adapt.info("Resetting " + e.getEntity().getName() + "'s skills due to death");
-            Player p = e.getEntity();
             AdaptPlayer ap = getPlayer(p);
             ap.delete(p.getUniqueId());
             return;
@@ -107,7 +88,6 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                 ce.start();
             }
             AdaptPlayer a = getPlayer(e.getEntity());
-            Player p = a.getPlayer();
             p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_DEATH, 1f, 1f);
             if (a.getData().getSkillLines().get("tragoul") != null) {
                 double xp = a.getData().getSkillLines().get("tragoul").getXp();
@@ -134,10 +114,10 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            checkStatTrackers(getPlayer(i));
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+            if (canUseSkill(i)) {
                 return;
             }
+            checkStatTrackers(getPlayer(i));
         }
     }
 
