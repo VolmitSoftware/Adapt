@@ -167,7 +167,7 @@ public interface Component {
             for (PotionEffectType type : activeList) {
                 if (type.equals(potionEffect)) {
                     if (overlap) {
-                        p.sendMessage(ChatColor.RED + "You have gained a stack of " + potionEffect.getName() + "!");
+                        p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
                         int newAmplifier = Objects.requireNonNull(p.getPotionEffect(type)).getAmplifier();
                         int newDuration = Objects.requireNonNull(p.getPotionEffect(type)).getDuration();
                         p.removePotionEffect(type);
@@ -182,7 +182,7 @@ public interface Component {
 
         }
         if (!activeList.contains(potionEffect)) {
-            p.sendMessage(ChatColor.RED + "You have gained a stack of " + potionEffect.getName() + "!");
+            p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
             p.addPotionEffect(new PotionEffect(potionEffect, duration, amplifier));
         }
     }
