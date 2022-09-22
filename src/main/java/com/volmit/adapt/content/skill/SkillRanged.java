@@ -31,6 +31,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -68,6 +69,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
+            if (e.getEntity() instanceof Snowball) {
+                return; // Ignore snowballs
+            }
             xp(p, getConfig().shootXP);
             getPlayer(p).getData().addStat("ranged.shotsfired", 1);
             getPlayer(p).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
@@ -89,6 +93,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
+            }
+            if (e.getEntity() instanceof Snowball) {
+                return; // Ignore snowballs
             }
             getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
             getPlayer(p).getData().addStat("ranged.distance", e.getEntity().getLocation().distance(p.getLocation()));

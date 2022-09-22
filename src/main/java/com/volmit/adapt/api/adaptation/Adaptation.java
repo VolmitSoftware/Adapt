@@ -36,7 +36,6 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.inventory.Recipe;
 
 import java.util.List;
