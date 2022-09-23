@@ -27,6 +27,7 @@ import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
@@ -75,6 +76,9 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(p.getInventory().getItemInMainHand()) && hasAdaptation(p)) {
+            if (p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH) || p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.MENDING)) {
+                return;
+            }
             if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
                 return;
             }
