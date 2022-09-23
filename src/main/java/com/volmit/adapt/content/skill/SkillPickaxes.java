@@ -29,6 +29,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -80,6 +81,10 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         }
         if (isPickaxe(p.getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
+            if (p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
+                xp(p, 5);
+                return;
+            }
             getPlayer(p).getData().addStat("pickaxe.blocks.broken", 1);
             getPlayer(p).getData().addStat("pickaxe.blocks.value", getValue(e.getBlock().getBlockData()));
             J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
