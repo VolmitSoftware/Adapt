@@ -50,6 +50,9 @@ public class AdaptConfig {
     private double powerPerLevel = 0.73;
     private boolean requireBuildPermissionToUseSkills = true;
     private boolean hardcoreResetOnPlayerDeath = false;
+    private boolean hardcoreNoRefunds = false;
+    private boolean loginBonus = true;
+    private boolean advancements = true;
     private boolean useSql = false;
     private SqlSettings sql = new SqlSettings();
 

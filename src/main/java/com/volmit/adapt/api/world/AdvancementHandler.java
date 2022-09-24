@@ -19,6 +19,7 @@
 package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.util.J;
@@ -47,6 +48,9 @@ public class AdvancementHandler {
     }
 
     public void activate() {
+        if (!AdaptConfig.get().isAdvancements()) {
+            return;
+        }
         J.s(() -> {
             removeAllAdvancements();
 
@@ -76,7 +80,7 @@ public class AdvancementHandler {
         J.s(() -> getManager().grantAdvancement(player.getPlayer(), real.get(key)), 5);
 
         if (toast) {
-            if (getPlayer().getPlayer() != null) {
+            if (getPlayer() != null && getPlayer().getPlayer() != null) {
                 real.get(key).displayToast(getPlayer().getPlayer());
             }
         }
