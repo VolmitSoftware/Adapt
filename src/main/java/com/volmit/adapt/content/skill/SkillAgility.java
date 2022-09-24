@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -32,7 +31,6 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -83,19 +81,13 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerMoveEvent e) {
-        if (!this.isEnabled()) {
+        if (canUseSkill(e.getPlayer())) {
             return;
         }
         if (e.isCancelled()) {
             return;
         }
         Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
         if (e.getFrom().getWorld() != null && e.getTo() != null && e.getFrom().getWorld().equals(e.getTo().getWorld())) {
             double d = e.getFrom().distance(e.getTo());
             getPlayer(p).getData().addStat("move", d);
@@ -113,19 +105,12 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
 
     @Override
     public void onTick() {
-
         for (Player i : Bukkit.getOnlinePlayers()) {
-            checkStatTrackers(getPlayer(i));
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+            if (canUseSkill(i.getPlayer())) {
                 return;
             }
+            checkStatTrackers(getPlayer(i));
             if (i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
-                if (!AdaptConfig.get().isXpInCreative() && (i.getGameMode().equals(GameMode.CREATIVE) || i.getGameMode().equals(GameMode.SPECTATOR))) {
-                    return;
-                }
-                if (!this.isEnabled()) {
-                    return;
-                }
                 xpSilent(i, getConfig().sprintXpPassive);
             }
         }

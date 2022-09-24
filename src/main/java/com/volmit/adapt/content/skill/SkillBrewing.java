@@ -20,7 +20,6 @@ package com.volmit.adapt.content.skill;
 
 import art.arcane.spatial.matter.SpatialMatter;
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -30,7 +29,6 @@ import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.content.matter.BrewingStandOwnerMatter;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -57,17 +55,11 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerItemConsumeEvent e) {
-        if (!this.isEnabled()) {
+        Player p = e.getPlayer();
+        if (canUseSkill(p)) {
             return;
         }
         if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         Adapt.verbose(e.getItem().toString());
@@ -85,17 +77,11 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PotionSplashEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
         if (e.getPotion().getShooter() instanceof Player p) {
+            if (canUseSkill(p)) {
+                return;
+            }
             if (e.isCancelled()) {
-                return;
-            }
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             AdaptPlayer a = getPlayer(p);
@@ -106,17 +92,11 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
-        if (!this.isEnabled()) {
+        Player p = e.getPlayer();
+        if (canUseSkill(p)) {
             return;
         }
         if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
@@ -128,17 +108,11 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        if (!this.isEnabled()) {
+        Player p = e.getPlayer();
+        if (canUseSkill(p)) {
             return;
         }
         if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (!e.isCancelled()) {

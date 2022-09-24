@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.taming.TamingDamage;
 import com.volmit.adapt.content.adaptation.taming.TamingHealthBoost;
@@ -27,7 +26,6 @@ import com.volmit.adapt.content.adaptation.taming.TamingHealthRegeneration;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
@@ -52,17 +50,11 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityBreedEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
         if (e.isCancelled()) {
             return;
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (e.isCancelled()) {
-                return;
-            }
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            if (canUseSkill(p)) {
                 return;
             }
             if (p.getLocation().distance(e.getEntity().getLocation()) <= 15) {
@@ -73,22 +65,15 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
         if (e.isCancelled()) {
             return;
         }
-        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
-            return;
-        }
-
-        if (e.getDamager() instanceof Tameable &&  ((Tameable) e.getDamager()).isTamed() &&  ((Tameable) e.getDamager()).getOwner() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+        if (e.getDamager() instanceof Tameable && ((Tameable) e.getDamager()).isTamed() && ((Tameable) e.getDamager()).getOwner() instanceof Player p) {
+            if (canUseSkill(p)) {
                 return;
-            } else {
-                xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
             }
+            xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
+
         }
     }
 

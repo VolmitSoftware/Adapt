@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
@@ -43,10 +42,10 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            checkStatTrackers(getPlayer(i));
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+            if (canUseSkill(i)) {
                 return;
             }
+            checkStatTrackers(getPlayer(i));
         }
     }
 
