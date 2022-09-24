@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.util.advancements.advancement;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.advancements.NameKey;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay.AdvancementFrame;
 import com.volmit.adapt.util.advancements.advancement.criteria.Criteria;
@@ -348,6 +349,10 @@ public class Advancement {
      * @return The Player's progress
      */
     public AdvancementProgress getProgress(UUID uuid) {
+        if (uuid == null) {
+            Adapt.error("AdvancementProgress.getProgress(UUID) was called with a null UUID!");
+            return null;
+        }
         if (!progressMap.containsKey(uuid.toString())) {
             progressMap.put(uuid.toString(), new AdvancementProgress(getCriteria().getCriteria(), getCriteria().getRequirements()));
         }
