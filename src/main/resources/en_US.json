@@ -15,6 +15,7 @@
       "knowledgecost": "Knowledge Cost",
       "alreadylearned": "Already Learned",
       "unlearnrefund": "Click to Unlearn & Refund",
+      "norefunds": "HARDCORE, REFUNDS DISABLED",
       "knowledge": "knowledge",
       "clicklearn": "Click to Learn",
       "noknowledge": "(You don't have any Knowledge)",
@@ -22,6 +23,7 @@
       "howtolevelup": "Level up skills to increase your max power.",
       "notenoughpower": "Not enough power! Each Ability Level costs 1 power.",
       "power": "power",
+      "powerdrain": "Power Drain",
       "learned": "Learned ",
       "unlearned": "Unlearned "
     },
