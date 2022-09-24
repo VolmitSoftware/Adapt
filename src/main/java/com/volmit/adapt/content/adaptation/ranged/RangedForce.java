@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.adaptation.ranged;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
@@ -80,7 +81,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
             b.setY(0);
             xp(p, 5);
 
-            if (a.distanceSquared(b) > 10) {
+            if (a.distanceSquared(b) > 10 && AdaptConfig.get().isAdvancements()) {
                 getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
                 getSkill().xp(p, getConfig().challengeRewardLongShotReward);
             }

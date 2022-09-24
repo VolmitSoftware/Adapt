@@ -103,12 +103,12 @@ public class PlayerSkillLine {
     }
 
     public void update(AdaptPlayer p, String line, PlayerData data) {
-        if (!p.getData().isGranted("skill_" + line)) {
+        if (!p.getData().isGranted("skill_" + line) && AdaptConfig.get().isAdvancements()) {
             p.getAdvancementHandler().grant("skill_" + line);
         }
 
         for (String i : getAdaptations().k()) {
-            if (!p.getData().isGranted("adaptation_" + i)) {
+            if (!p.getData().isGranted("adaptation_" + i) && AdaptConfig.get().isAdvancements()) {
                 p.getAdvancementHandler().grant("adaptation_" + i);
             }
         }

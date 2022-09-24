@@ -19,6 +19,7 @@
 package com.volmit.adapt.api.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
@@ -71,10 +72,9 @@ public interface Skill<T> extends Ticked, Component {
         if (player.getPlayer().getClass().getSimpleName().equals("PlayerNPC")) {
             return;
         }
-        if (!player.getAdvancementHandler().isReady()) {
+        if (!player.getAdvancementHandler().isReady() && AdaptConfig.get().isAdvancements()) {
             return;
         }
-
         PlayerData d = player.getData();
 
         for (AdaptStatTracker i : getStatTrackers()) {
