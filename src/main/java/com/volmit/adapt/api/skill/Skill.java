@@ -180,6 +180,14 @@ public interface Skill<T> extends Ticked, Component {
             ind++;
         }
 
+        w.setElement(8, 2, new UIElement("back")
+                .setMaterial(new MaterialBlock(Material.RED_BED))
+                .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "back"))
+                .onLeftClick((e) -> {
+                    w.close();
+                    w.callClosed();
+                }));
+
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Adapt.dLocalize("snippets", "gui", "xp") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")");
         w.onClosed((vv) -> J.s(() -> {
