@@ -353,18 +353,22 @@ public interface Adaptation<T> extends Ticked, Component {
                 .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "back"))
                 .onLeftClick((e) -> {
                     w.close();
-                    w.callClosed();
+                    onGuiClose(player, true);
                 }));
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         w.setTitle(getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledge"));
-        w.onClosed((vv) -> J.s(() -> {
-            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
-            player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
-            getSkill().openGui(player);
-        }));
+        w.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
         w.open();
+    }
+
+    private void onGuiClose(Player player, boolean openPrevGui) {
+        player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
+        player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
+        player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
+        if (openPrevGui) {
+            getSkill().openGui(player);
+        }
     }
 
     default boolean isAdaptationRecipe(Recipe recipe) {
