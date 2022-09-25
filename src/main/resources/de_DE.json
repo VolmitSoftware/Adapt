@@ -1,7 +1,7 @@
 {
   "snippets": {
     "gui": {
-      "level": "level",
+      "level": "Level",
       "knowledge": "Wissen",
       "powerused": "belegte Energie",
       "notlearned": "Noch nicht gelernt",
@@ -12,16 +12,15 @@
       "unlockthisbyclicking": "Schalte dies frei, indem du mit der rechten Maustaste auf den Adapt-Block klickst!"
     },
     "adaptmenu": {
-      "knowledgecost": "Wissen",
       "alreadylearned": "Bereits gelernt!",
-      "unlearnrefund": "Klick erneut zum Verlernen & erhalte eine Rückerstattung von",
+      "norefunds": "HARDCORE, ERSTATTUNGEN DEAKTIVIERT",
       "knowledge": "Wissen",
-      "clicklearn": "Klicken, zum erlernen von",
       "noknowledge": "(Du hast kein Wissen)",
       "youonlyhave": "Du hast nur",
       "howtolevelup": "Verbessere deine Fähigkeiten, um dein maximales Level zu erhöhen!",
       "notenoughpower": "Nicht genug Energie! Jede Fähigkeitsstufe kostet 1 Energie.",
       "power": "Energie",
+      "powerdrain": "Power Drain",
       "learned": "Gelernt ",
       "unlearned": "Verlernt "
     },
@@ -144,7 +143,7 @@
       "description": "Blut fließt durch die Adern des Universums. Entfesselt durch deine Hände!"
     },
     "chronos": {
-      "name": "chronos",
+      "name": "Chronos",
       "icon": "۞",
       "description": "Zieh die Uhr des Universums auf und erlebe den Zeitenfluss!"
     },
@@ -162,7 +161,7 @@
       "lore2": "Aufrüstungszeit"
     },
     "superjump": {
-      "name": "Super Jump",
+      "name": "Supersprung",
       "description": "Außergewöhnlicher Höhenvorteil",
       "lore1": "Maximale Sprunghöhe",
       "lore2": "* Schleichen +  Springen zum Supersprung"
@@ -184,7 +183,7 @@
     "foundation": {
       "name": "Magische Grundlage",
       "description": "Schleiche um ein provisorisches Fundament unter dir zu erschaffen",
-      "lore1": "Magie erzeugen : ",
+      "lore1": "Magie erzeugen: ",
       "lore2": "Blöcke unter dir!"
     },
     "glass": {
@@ -244,13 +243,13 @@
   "blocking": {
     "multiarmor": {
       "name": "Multi-Rüstung",
-      "description": "Binde Elytras an die Rüstung",
+      "description": "Binde Elytra an die Rüstung",
       "lore1": "Dies ist eine erstaunliche Fähigkeit zum Reisen.",
-      "lore2": "Dynamisch zusammenführen und Rüstung/Elytra on the Fly ändern!",
-      "lore3": "Klicken Sie zum Zusammenführen mit der Umschalttaste auf einen Gegenstand über einem anderen in Ihrem Inventar.",
-      "lore4": "Um die Rüstung zu lösen, lassen Sie den Gegenstand Sneak-Drop fallen und er wird zerlegt.",
-      "lore5": "Wenn Ihre MultiArmor zerstört wird, verlieren Sie alle darin enthaltenen Gegenstände.",
-      "lore6": "Ich brauche keine Rüstung, es enttäuscht mich ..."
+      "lore2": "Dynamisches Zusammenführen und Ändern von Rüstungen/Elytra während des Spiels!",
+      "lore3": "Klick zum Zusammenführen mit der Umschalttaste auf einen Gegenstand über einem anderen im Inventar.",
+      "lore4": "Um die Rüstung zu lösen, lass den Gegenstand während des Schleichens fallen und er wird zerlegt.",
+      "lore5": "Wenn Ihre Multi-Rüstung zerstört wird, verlieren Sie alle darin enthaltenen Gegenstände.",
+      "lore6": "Ich brauche keine Rüstung, sie enttäuscht mich..."
     }
   },
   "crafting": {
@@ -261,7 +260,7 @@
       "lore2": "auf einen Schmiedetisch um ihn zu zerlegen."
     },
     "xp": {
-      "name": "Crafting Erfahrung",
+      "name": "Herstellungserfahrung",
       "description": "Passiv Erfahrung beim Craften erhalten",
       "lore1": "Erfahrung beim Craften erhalten"
     }
@@ -271,7 +270,7 @@
       "name": "Weltweite Rüstung",
       "description": "Passive Rüstung, abhängig von der Härte der in der Nähe befindlichen Blöcken",
       "lore1": "Passive Rüstung",
-      "lore2": ", basiert auf der Härter des benachbarten Blocks",
+      "lore2": "basiert auf der Härter des benachbarten Blocks",
       "lore3": "Stärke der Rüstung: +"
     },
     "unity": {
@@ -290,7 +289,7 @@
     "villager": {
       "name": "Dorfbewohner-Attraktion",
       "description": "Ermöglicht Ihnen bessere Geschäfte mit Dorfbewohnern!",
-      "lore1": "Dies verbraucht EP pro Interaktion mit Dorfbewohnern",
+      "lore1": "Verbraucht EP pro Interaktion mit Dorfbewohnern",
       "lore2": "Chance pro Interaktion, XP zu verbrauchen und Trades zu verbessern",
       "lore3": "Erforderlicher XP-Abfluss pro Interaktion"
     }
@@ -304,7 +303,6 @@
     "quickenchant": {
       "name": "Schnell-Klick Verzaubern",
       "description": "Verzaubert Gegenstände, wenn Verzauberungsbücher auf sie gezogen werden",
-      "lore1": "Maximale kombinierte Levels",
       "lore2": "Kann einen Gegenstand nicht mit mehr als ",
       "lore3": "Macht"
     },
@@ -447,7 +445,7 @@
     "strength": {
       "name": "Stärke des Jägers",
       "description": "Wenn du getroffen wirst, erhälst du Stärke auf Kosten deiner Sättigung",
-      "lore1": "Erhalte passive Stärke bei Schaden",
+      "lore1": "Erhalte passive Stärke beim Schäden",
       "lore2": "x Stärke stapelt sich bei einem Treffer für 3 Sekunden",
       "lore3": "x Stapel Sättigung",
       "lore4": "Sättigung stapelt Dauer und Multiplikator",
@@ -463,7 +461,7 @@
       "lore1": "Sekunden Abkühlzeit zwischen Schädelwürfen.",
       "lore2": "Wither Skull verwenden: Wirf einen ",
       "lore3": "Wither Skull",
-      "lore4": ", beim Aufprall explodieren"
+      "lore4": "beim Aufprall explodieren"
     },
     "witherresist": {
       "name": "Wither Widerstandsfähigkeit",
@@ -533,7 +531,7 @@
       "notcontainer": "Das ist kein Behälter"
     },
     "blink": {
-      "name": "Rift Blink",
+      "name": "Rift Blinzeln",
       "description": "Teleportation auf kurze Distanz. Nur ein Wimpernschlag entfernt!",
       "lore1": "Blöcke auf Blinken (2x vertikal)",
       "lore2": "Beim Sprinten: Doppelklick auf Springen, um ",
@@ -581,10 +579,7 @@
       "lore1": "Erhalte Nachtsicht unter Wasser, wenn der Effekt der Wasseratmung nachlässt!"
     },
     "dolphingrace": {
-      "name": "Delphins Anmut",
-      "description": "Schwimm wie ein Delphin, ohne einen Delphine!",
       "lore1": "+ Passiv: erhalte ",
-      "lore2": "x Geschwindigkeit (Delphins Anmut)",
       "lore3": "Präzise deutsche Ingenieeee.. - Moment, das ist nicht richtig..."
     }
   },
@@ -596,7 +591,6 @@
       "lore2": "Geschwindigkeit"
     },
     "nightvision": {
-      "name": "Stealth Vision",
       "description": "Erhalte Nachtsicht beim Schleichen",
       "lore1": "Erhalte einen Schub von ",
       "lore2": "night vision",
@@ -626,14 +620,14 @@
       "description": "Schläge mit deinem Schwert verursachen Blutungen!",
       "lore1": "Das Schlagen eines Lebewesens mit deinem Schwert verursacht Bluten",
       "lore2": "Blutungsdauer",
-      "lore3": "Blutungs-Cooldown"
+      "lore3": "Blutungs-Abklingzeit"
     },
     "poisonedblade": {
       "name": "Vergiftete Klinge",
-      "description": "Schläge mit deinem Schwert, verursache Gift!",
-      "lore1": "Das Schlagen eines Lebewesens mit deinem Schwert verursacht Gift",
-      "lore2": "Giftdauer",
-      "lore3": "Gift-Abklingzeit"
+      "description": "Schläge mit deinem Schwert, verursachen Vergiftung!",
+      "lore1": "Das Schlagen eines Lebewesens mit deinem Schwert verursacht Vergiftung",
+      "lore2": "Vergiftungsdauer",
+      "lore3": "Vergiftungs-Abklingzeit"
     }
   },
   "taming": {
