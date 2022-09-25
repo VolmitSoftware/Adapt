@@ -320,7 +320,9 @@ public interface Adaptation<T> extends Ticked, Component {
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
                             w.close();
-                            player.sendTitle(" ", C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "unlearned") + " " + getDisplayName(mylevel), 1, 5, 11);
+                            if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
+                                player.sendTitle(" ", C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "unlearned") + " " + getDisplayName(mylevel), 1, 5, 11);
+                            }
                             J.s(() -> openGui(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
                             return;
                         }
@@ -333,7 +335,9 @@ public interface Adaptation<T> extends Ticked, Component {
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
                                 w.close();
-                                player.sendTitle(" ", C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "learned") + " " + getDisplayName(lvl), 1, 5, 11);
+                                if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
+                                    player.sendTitle(" ", C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "learned") + " " + getDisplayName(lvl), 1, 5, 11);
+                                }
                                 J.s(() -> openGui(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
                             } else {
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
