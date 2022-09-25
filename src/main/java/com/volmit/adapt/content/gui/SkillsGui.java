@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.gui;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerAdaptation;
@@ -26,6 +27,7 @@ import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.util.*;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 public class SkillsGui {
@@ -58,6 +60,22 @@ public class SkillsGui {
                         .onLeftClick((e) -> sk.openGui(player)));
                 ind++;
             }
+
+            w.setElement(8, 2, new UIElement("unlearn-all")
+                    .setMaterial(new MaterialBlock(Material.BARRIER))
+                    .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "unlearnall")
+                            + (AdaptConfig.get().isHardcoreNoRefunds()
+                            ? " " + C.DARK_RED + "" + C.BOLD + Adapt.dLocalize("snippets", "adaptmenu", "norefunds")
+                            : ""))
+                    .onLeftClick((e) -> {
+                        Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> skill.getAdaptations().forEach(adaptation -> adaptation.unlearn(player, 1)));
+                        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
+                        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
+                        player.sendTitle(" ", C.GRAY + Adapt.dLocalize("snippets", "gui", "unlearnedall"), 1, 5, 11);
+                        w.close();
+                        J.s(() -> open(player), 14);
+                    }));
+
             w.setTitle(Adapt.dLocalize("snippets", "gui", "level") + " " + (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp()) + " (" + adaptPlayer.getData().getUsedPower() + "/" + adaptPlayer.getData().getMaxPower() + " " + Adapt.dLocalize("snippets", "gui", "powerused") + ")");
             w.open();
         }
