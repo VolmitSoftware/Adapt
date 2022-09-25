@@ -12,9 +12,12 @@
       "unlockthisbyclicking": "Schalte dies frei, indem du mit der rechten Maustaste auf den Adapt-Block klickst!"
     },
     "adaptmenu": {
+      "knowledgecost": "Wissenskosten",
       "alreadylearned": "Bereits gelernt!",
+      "unlearnrefund": "Klicken zum Verlernen & für Rückerstattung",
       "norefunds": "HARDCORE, ERSTATTUNGEN DEAKTIVIERT",
       "knowledge": "Wissen",
+      "clicklearn": "Klicken zum erlernen von",
       "noknowledge": "(Du hast kein Wissen)",
       "youonlyhave": "Du hast nur",
       "howtolevelup": "Verbessere deine Fähigkeiten, um dein maximales Level zu erhöhen!",
@@ -303,6 +306,7 @@
     "quickenchant": {
       "name": "Schnell-Klick Verzaubern",
       "description": "Verzaubert Gegenstände, wenn Verzauberungsbücher auf sie gezogen werden",
+      "lore1": "Maximale kombinierte Level",
       "lore2": "Kann einen Gegenstand nicht mit mehr als ",
       "lore3": "Macht"
     },
@@ -579,7 +583,10 @@
       "lore1": "Erhalte Nachtsicht unter Wasser, wenn der Effekt der Wasseratmung nachlässt!"
     },
     "dolphingrace": {
+      "name": "Gunst des Delfins",
+      "description": "Schwimm wie ein Delphin, ohne einen Delphin!",
       "lore1": "+ Passiv: erhalte ",
+      "lore2": "x Geschwindigkeit (Gunst des Delfins)",
       "lore3": "Präzise deutsche Ingenieeee.. - Moment, das ist nicht richtig..."
     }
   },
@@ -591,6 +598,7 @@
       "lore2": "Geschwindigkeit"
     },
     "nightvision": {
+      "name": "Heimliche Vision",
       "description": "Erhalte Nachtsicht beim Schleichen",
       "lore1": "Erhalte einen Schub von ",
       "lore2": "night vision",
