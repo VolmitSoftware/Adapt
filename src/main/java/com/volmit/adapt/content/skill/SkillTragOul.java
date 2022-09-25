@@ -27,10 +27,7 @@ import com.volmit.adapt.content.adaptation.tragoul.TragoulThorns;
 import com.volmit.adapt.util.C;
 import de.slikey.effectlib.effect.CloudEffect;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -53,12 +50,25 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (!e.isCancelled()) {
             if (e.getEntity() instanceof Player p) {
-                if (canUseSkill(p)) {
+                if (e.isCancelled()) {
                     return;
                 }
-                if (e.getEntity().isDead() || e.getEntity().isInvulnerable()) {
+                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                    return;
+                }
+                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
+                        || e.getEntity().isDead()
+                        || e.getEntity().isInvulnerable()
+                        || p.isDead()
+                        || p.isInvulnerable()) {
+                    return;
+                }
+                if (p.isBlocking() || p.isDead() || p.isInvulnerable()) {
                     return;
                 }
                 AdaptPlayer a = getPlayer(p);
@@ -69,13 +79,19 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerDeathEvent e) {
-        Player p = e.getEntity();
-        if (canUseSkill(p)) {
+        if (!this.isEnabled()) {
+            return;
+        }
+        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (e.getEntity().getGameMode().equals(GameMode.CREATIVE) || e.getEntity().getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
 
         if (AdaptConfig.get().isHardcoreResetOnPlayerDeath()) {
             Adapt.info("Resetting " + e.getEntity().getName() + "'s skills due to death");
+            Player p = e.getEntity();
             AdaptPlayer ap = getPlayer(p);
             ap.delete(p.getUniqueId());
             return;
@@ -91,6 +107,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                 ce.start();
             }
             AdaptPlayer a = getPlayer(e.getEntity());
+            Player p = a.getPlayer();
             p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_DEATH, 1f, 1f);
             if (a.getData().getSkillLines().get("tragoul") != null) {
                 double xp = a.getData().getSkillLines().get("tragoul").getXp();
@@ -117,10 +134,10 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (canUseSkill(i)) {
+            checkStatTrackers(getPlayer(i));
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;
             }
-            checkStatTrackers(getPlayer(i));
         }
     }
 

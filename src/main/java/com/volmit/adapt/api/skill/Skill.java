@@ -72,7 +72,10 @@ public interface Skill<T> extends Ticked, Component {
         if (player.getPlayer().getClass().getSimpleName().equals("PlayerNPC")) {
             return;
         }
-        if (!player.getAdvancementHandler().isReady() && AdaptConfig.get().isAdvancements()) {
+        if (!player.getAdvancementHandler().isReady() ) {
+            return;
+        }
+        if (!AdaptConfig.get().isAdvancements()) {
             return;
         }
         PlayerData d = player.getData();

@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
@@ -28,6 +29,7 @@ import com.volmit.adapt.content.adaptation.pickaxe.PickaxeVeinminer;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -54,9 +56,15 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
-                if (canUseSkill(p)) {
+                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                    return;
+                }
+                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                     return;
                 }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
@@ -72,11 +80,17 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        Player p = e.getPlayer();
-        if (canUseSkill(p)) {
+        if (!this.isEnabled()) {
             return;
         }
         if (e.isCancelled()) {
+            return;
+        }
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (isPickaxe(p.getInventory().getItemInMainHand())) {

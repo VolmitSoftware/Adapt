@@ -77,11 +77,19 @@ public class AdvancementHandler {
 
     public void grant(String key, boolean toast) {
         getPlayer().getData().ensureGranted(key);
-        J.s(() -> getManager().grantAdvancement(player.getPlayer(), real.get(key)), 5);
+        try {
+            J.s(() -> getManager().grantAdvancement(player.getPlayer(), real.get(key)), 5);
+        } catch (Exception e) {
+            Adapt.error("Failed to grant advancement " + key);
+        }
 
         if (toast) {
             if (getPlayer() != null && getPlayer().getPlayer() != null) {
-                real.get(key).displayToast(getPlayer().getPlayer());
+                try {
+                    real.get(key).displayToast(getPlayer().getPlayer());
+                } catch (Exception e) {
+                    Adapt.error("Failed to grant advancement " + key + " Reattaching!");
+                }
             }
         }
     }

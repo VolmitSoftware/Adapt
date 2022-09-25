@@ -19,14 +19,15 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingLapisReturn;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingQuickEnchant;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingXPReturn;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;
@@ -47,11 +48,16 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EnchantItemEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
-        Player p = e.getEnchanter();
-        if (canUseSkill(p)) {
+        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEnchanter().getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (e.getEnchanter().getGameMode().equals(GameMode.CREATIVE) || e.getEnchanter().getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         xp(e.getEnchanter(), getConfig().enchantPowerXPMultiplier * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());
