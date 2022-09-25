@@ -30,6 +30,7 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -64,11 +65,17 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(CraftItemEvent e) {
-        Player p = (Player) e.getWhoClicked();
-        if (canUseSkill(p)) {
+        if (!this.isEnabled()) {
             return;
         }
         if (e.isCancelled()) {
+            return;
+        }
+        Player p = (Player) e.getWhoClicked();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         if (e.getInventory().getResult() != null && !e.isCancelled() && e.getInventory().getResult().getAmount() > 0) {
@@ -163,18 +170,13 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(e.getBlock().getWorld().getName())) {
             return;
         }
+
         xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP + (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier), getConfig().furnaceXPRadius, getConfig().furnaceXPDuration);
     }
 
     @Override
     public void onTick() {
-        if (canUseSkill()) {
-            return;
-        }
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (canUseSkill(i)) {
-                return;
-            }
             checkStatTrackers(getPlayer(i));
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;

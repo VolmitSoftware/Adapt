@@ -65,7 +65,9 @@ public class PlayerSkillLine {
 
         if (p != null) {
             last = M.ms();
-            p.notifyXP(line, xp);
+            if (AdaptConfig.get().isActionbarNotifyXp()) {
+                p.notifyXP(line, xp);
+            }
         }
     }
 
@@ -173,8 +175,9 @@ public class PlayerSkillLine {
                 giveKnowledge((i / 13) + 1);
                 p.getData().giveMasterXp((i * AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier()) + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
             }
-
-            notifyLevel(p, getLevel(), getKnowledge());
+            if (AdaptConfig.get().isActionbarNotifyLevel()) {
+                notifyLevel(p, getLevel(), getKnowledge());
+            }
             lastLevel = getLevel();
         }
     }

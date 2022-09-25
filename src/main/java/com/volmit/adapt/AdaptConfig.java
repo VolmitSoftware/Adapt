@@ -54,6 +54,9 @@ public class AdaptConfig {
     private boolean loginBonus = true;
     private boolean advancements = true;
     private boolean useSql = false;
+    private int learnUnlearnButtonDelayTicks = 14;
+    private boolean actionbarNotifyXp = true;
+    private boolean actionbarNotifyLevel = true;
     private SqlSettings sql = new SqlSettings();
 
     public static AdaptConfig get() {
@@ -83,6 +86,7 @@ public class AdaptConfig {
 
         return config;
     }
+
 
     @Getter
     public static class SqlSettings {

@@ -465,6 +465,9 @@ public final class AdvancementManager {
      * @return The Result of this operation
      */
     public GenericResult grantAdvancement(Player player, Advancement advancement) {
+        if (advancement == null || player == null) {
+            return null;
+        }
         AdvancementProgress progress = advancement.getProgress(player);
         GenericResult result = progress.grant();
 

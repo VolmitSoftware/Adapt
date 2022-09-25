@@ -19,11 +19,13 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.blocking.BlockingMultiArmor;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -50,11 +52,17 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (e.isCancelled()) {
             return;
         }
         if (e.getEntity() instanceof Player p) {
-            if (canUseSkill(p)) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
+            }
+            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             if (cooldowns.containsKey(p)) {
@@ -77,11 +85,17 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (canUseSkill(i)) {
+            checkStatTrackers(getPlayer(i));
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;
             }
-            checkStatTrackers(getPlayer(i));
             if (i.getPlayer() != null && (i.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.SHIELD) || i.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.SHIELD))) {
+                if (!AdaptConfig.get().isXpInCreative() && (i.getGameMode().equals(GameMode.CREATIVE) || i.getGameMode().equals(GameMode.SPECTATOR))) {
+                    return;
+                }
+                if (!this.isEnabled()) {
+                    return;
+                }
                 xpSilent(i, getConfig().passiveXpForUsingShield);
             }
         }

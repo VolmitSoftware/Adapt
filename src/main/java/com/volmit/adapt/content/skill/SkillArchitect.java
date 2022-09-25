@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -31,6 +32,7 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -57,11 +59,17 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPlaceEvent e) {
-        Player p = e.getPlayer();
-        if (canUseSkill(e.getPlayer())) {
+        if (!this.isEnabled()) {
             return;
         }
         if (e.isCancelled()) {
+            return;
+        }
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
@@ -73,11 +81,17 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        Player p = e.getPlayer();
-        if (canUseSkill(e.getPlayer())) {
+        if (!this.isEnabled()) {
             return;
         }
         if (e.isCancelled()) {
+            return;
+        }
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
         getPlayer(p).getData().addStat("blocks.broken", 1);
@@ -86,10 +100,10 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (canUseSkill(i)) {
+            checkStatTrackers(getPlayer(i));
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;
             }
-            checkStatTrackers(getPlayer(i));
         }
     }
 

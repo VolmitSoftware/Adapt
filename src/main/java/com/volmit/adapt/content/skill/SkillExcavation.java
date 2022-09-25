@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationDropToInventory;
@@ -27,6 +28,7 @@ import com.volmit.adapt.content.adaptation.excavation.ExcavationOmniTool;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -52,12 +54,18 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (!e.isCancelled()) {
             if (e.getDamager() instanceof Player p) {
                 if (e.isCancelled()) {
                     return;
                 }
-                if (canUseSkill(p)) {
+                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                    return;
+                }
+                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                     return;
                 }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
@@ -73,11 +81,17 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
+        if (!this.isEnabled()) {
+            return;
+        }
         Player p = e.getPlayer();
-        if (canUseSkill(p)) {
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
         if (!e.isCancelled()) {
+            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+                return;
+            }
             if (isShovel(p.getInventory().getItemInMainHand())) {
                 double v = getValue(e.getBlock().getType());
                 getPlayer(p).getData().addStat("excavation.blocks.broken", 1);

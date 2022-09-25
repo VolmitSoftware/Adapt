@@ -15,6 +15,7 @@
       "knowledgecost": "知识可用",
       "alreadylearned": "已学习",
       "unlearnrefund": "点击忘却此技能",
+      "norefunds": "极限模式将禁用点数返还",
       "knowledge": "知识",
       "clicklearn": "点击以学习",
       "noknowledge": "（你没有任何知识可用）",
@@ -22,6 +23,7 @@
       "howtolevelup": "升级技能来扩大能力上限",
       "notenoughpower": "能力不足！",
       "power": "能力",
+      "powerdrain": "耗费能力",
       "learned": "已学习 ",
       "unlearned": "未学习 "
     },
@@ -68,12 +70,12 @@
       "icon": "▒",
       "description": "棍棒与石头不会折断你的骨头，但是盾牌会。"
     },
-    "crafting":{
+    "crafting": {
       "name": "合成",
       "icon": "⌂",
       "description": "若没有剩下什么东西可以合成，为什么不再做一个呢？"
     },
-    "discovery":{
+    "discovery": {
       "name": "探索",
       "icon": "⚛",
       "description": "当洞察力提升时，你的思维便会愈发澄澈，探索更多的奥秘。"
@@ -88,7 +90,7 @@
       "icon": "✥",
       "description": "挖大洞......"
     },
-    "herbalism":  {
+    "herbalism": {
       "name": "草药学",
       "icon": "⚘",
       "description": "我见不到植物，不过我能找到一些种子还有—— 呃，杂草？"
@@ -253,7 +255,7 @@
       "lore6": "我不再需要盔甲了，它让我太失望了..."
     }
   },
-  "crafting":{
+  "crafting": {
     "deconstruction": {
       "name": "分解器",
       "description": "分解方块或物品，回收部分合成时的材料。",
@@ -266,7 +268,7 @@
       "lore1": "当合成完毕后自动给予"
     }
   },
-  "discovery":{
+  "discovery": {
     "armor": {
       "name": "世界之甲",
       "description": "根据附近方块硬度给予被动防御。",
@@ -337,7 +339,7 @@
       "lore7": "有时候你需要五、六种物品在同一个工具钳里，或许仅仅需要一个。"
     }
   },
-  "herbalism":  {
+  "herbalism": {
     "growthaura": {
       "name": "生长光环",
       "description": "加速农作物生长时间",

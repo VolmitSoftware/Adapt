@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -28,6 +29,7 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -69,7 +71,10 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (canUseSkill(i)) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+                return;
+            }
+            if (!AdaptConfig.get().isXpInCreative() && (i.getGameMode().equals(GameMode.CREATIVE) || i.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             if (i.getWorld().getBlockAt(i.getLocation()).isLiquid() && i.isSwimming()) {
@@ -85,14 +90,20 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerFishEvent e) {
-        Player p = e.getPlayer();
-        if (canUseSkill(p)) {
+        if (!this.isEnabled()) {
             return;
         }
         if (e.isCancelled()) {
             return;
         }
         Adapt.verbose("Fishing");
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            return;
+        }
         if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
             xp(p, 300);
         } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
@@ -102,8 +113,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        Player p = e.getPlayer();
-        if (canUseSkill(p)) {
+        if (!this.isEnabled()) {
             return;
         }
         if (e.isCancelled()) {
@@ -115,6 +125,15 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             } else {
                 cooldowns.remove(e.getPlayer());
             }
+        }
+
+        cooldowns.put(e.getPlayer(), System.currentTimeMillis());
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            return;
         }
         Adapt.verbose("Block Break Event");
         if (e.getBlock().getType().equals(Material.SEA_PICKLE) && p.isSwimming() && p.getRemainingAir() < p.getMaximumAir()) { // BECAUSE I LIKE PICKLES
