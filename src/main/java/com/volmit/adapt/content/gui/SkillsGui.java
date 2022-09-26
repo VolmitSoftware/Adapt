@@ -74,9 +74,11 @@ public class SkillsGui {
                         Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> skill.getAdaptations().forEach(adaptation -> adaptation.unlearn(player, 1)));
                         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
                         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
-                        player.sendTitle(" ", C.GRAY + Adapt.dLocalize("snippets", "gui", "unlearnedall"), 1, 5, 11);
                         w.close();
-                        J.s(() -> open(player), 14);
+                        if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
+                            player.sendTitle(" ", C.GRAY + Adapt.dLocalize("snippets", "gui", "unlearnedall"), 1, 5, 11);
+                        }
+                        J.s(() -> open(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
                     }));
 
             w.setTitle(Adapt.dLocalize("snippets", "gui", "level") + " " + (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp()) + " (" + adaptPlayer.getData().getUsedPower() + "/" + adaptPlayer.getData().getMaxPower() + " " + Adapt.dLocalize("snippets", "gui", "powerused") + ")");
