@@ -369,7 +369,6 @@ public interface Adaptation<T> extends Ticked, Component {
         w.open();
     }
 
-
     private void onGuiClose(Player player, boolean openPrevGui) {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
