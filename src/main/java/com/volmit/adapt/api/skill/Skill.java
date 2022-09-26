@@ -186,7 +186,7 @@ public interface Skill<T> extends Ticked, Component {
         if (AdaptConfig.get().isGuiBackButton()) {
             int backPos = w.getResolution().getWidth() - 1;
             int backRow = w.getViewportHeight() - 1;
-            if (ind % w.getResolution().getWidth() == 0 && ind / w.getResolution().getWidth() == w.getViewportHeight()) backRow++;
+            if (w.getElement(backPos, backRow) != null) backRow++;
             w.setElement(backPos, backRow, new UIElement("back")
                     .setMaterial(new MaterialBlock(Material.RED_BED))
                     .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "back"))
