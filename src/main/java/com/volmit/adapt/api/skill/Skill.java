@@ -183,16 +183,18 @@ public interface Skill<T> extends Ticked, Component {
             ind++;
         }
 
-        int backPos = w.getResolution().getWidth() - 1;
-        int backRow = w.getViewportHeight() - 1;
-        if (ind % w.getResolution().getWidth() == 0) backRow++;
-        w.setElement(backPos, backRow, new UIElement("back")
-                .setMaterial(new MaterialBlock(Material.RED_BED))
-                .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "back"))
-                .onLeftClick((e) -> {
-                    w.close();
-                    onGuiClose(player, true);
-                }));
+        if (AdaptConfig.get().isGuiBackButton()) {
+            int backPos = w.getResolution().getWidth() - 1;
+            int backRow = w.getViewportHeight() - 1;
+            if (ind % w.getResolution().getWidth() == 0) backRow++;
+            w.setElement(backPos, backRow, new UIElement("back")
+                    .setMaterial(new MaterialBlock(Material.RED_BED))
+                    .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "back"))
+                    .onLeftClick((e) -> {
+                        w.close();
+                        onGuiClose(player, true);
+                    }));
+        }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Adapt.dLocalize("snippets", "gui", "xp") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")");

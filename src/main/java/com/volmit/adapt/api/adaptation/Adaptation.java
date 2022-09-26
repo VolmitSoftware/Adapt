@@ -352,15 +352,17 @@ public interface Adaptation<T> extends Ticked, Component {
             w.setElement(pos, row, de);
         }
 
-        int backPos = w.getResolution().getWidth() - 1;
-        int backRow = w.getViewportHeight() - 1;
-        w.setElement(backPos, backRow, new UIElement("back")
-                .setMaterial(new MaterialBlock(Material.RED_BED))
-                .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "back"))
-                .onLeftClick((e) -> {
-                    w.close();
-                    onGuiClose(player, true);
-                }));
+        if (AdaptConfig.get().isGuiBackButton()) {
+            int backPos = w.getResolution().getWidth() - 1;
+            int backRow = w.getViewportHeight() - 1;
+            w.setElement(backPos, backRow, new UIElement("back")
+                    .setMaterial(new MaterialBlock(Material.RED_BED))
+                    .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "back"))
+                    .onLeftClick((e) -> {
+                        w.close();
+                        onGuiClose(player, true);
+                    }));
+        }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         w.setTitle(getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledge"));
