@@ -352,7 +352,9 @@ public interface Adaptation<T> extends Ticked, Component {
             w.setElement(pos, row, de);
         }
 
-        w.setElement(8, 2, new UIElement("back")
+        int backPos = w.getResolution().getWidth() - 1;
+        int backRow = w.getViewportHeight() - 1;
+        w.setElement(backPos, backRow, new UIElement("back")
                 .setMaterial(new MaterialBlock(Material.RED_BED))
                 .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "back"))
                 .onLeftClick((e) -> {
