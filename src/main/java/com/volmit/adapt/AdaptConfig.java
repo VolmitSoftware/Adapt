@@ -59,6 +59,7 @@ public class AdaptConfig {
     private int learnUnlearnButtonDelayTicks = 14;
     private boolean actionbarNotifyXp = true;
     private boolean actionbarNotifyLevel = true;
+    private boolean unlearnAllButton = false;
     private SqlSettings sql = new SqlSettings();
 
     public static AdaptConfig get() {

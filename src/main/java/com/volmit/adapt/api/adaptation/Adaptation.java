@@ -315,8 +315,7 @@ public interface Adaptation<T> extends Ticked, Component {
                     .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("snippets", "adaptmenu", "powerdrain") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("snippets", "adaptmenu", "powerdrain") : C.RED + Adapt.dLocalize("snippets", "adaptmenu", "notenoughpower") + "\n" + C.RED + Adapt.dLocalize("snippets", "adaptmenu", "howtolevelup"))
                     .onLeftClick((e) -> {
                         if (mylevel >= lvl) {
-                            if (!AdaptConfig.get().isHardcoreNoRefunds()) {getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(rc);}
-                            getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl - 1);
+                            unlearn(player, lvl);
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
                             w.close();
@@ -370,6 +369,7 @@ public interface Adaptation<T> extends Ticked, Component {
         w.open();
     }
 
+
     private void onGuiClose(Player player, boolean openPrevGui) {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
@@ -377,6 +377,16 @@ public interface Adaptation<T> extends Ticked, Component {
         if (openPrevGui) {
             getSkill().openGui(player);
         }
+    }
+
+    default void unlearn(Player player, int lvl) {
+        int mylevel = getPlayer(player).getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
+        int rc = getRefundCostFor(lvl - 1, mylevel);
+
+        if (!AdaptConfig.get().isHardcoreNoRefunds()) {
+            getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(rc);
+        }
+        getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl - 1);
     }
 
     default boolean isAdaptationRecipe(Recipe recipe) {

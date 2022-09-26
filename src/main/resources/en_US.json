@@ -10,7 +10,9 @@
       "welcomeback": "Welcome back!",
       "xpbonusfortime": "XP for",
       "unlockthisbyclicking": "Unlock this by Right-Clicking the Adapt Block!",
-      "back": "Back"
+      "back": "Back",
+      "unlearnall": "Unlearn all",
+      "unlearnedall": "Unlearned all"
     },
     "adaptmenu": {
       "knowledgecost": "Knowledge Cost",
