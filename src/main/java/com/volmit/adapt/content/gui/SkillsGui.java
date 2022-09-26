@@ -61,7 +61,10 @@ public class SkillsGui {
                 ind++;
             }
 
-            w.setElement(8, 2, new UIElement("unlearn-all")
+            int unlearnAllPos = w.getResolution().getWidth() - 1;
+            int unlearnAllRow = w.getViewportHeight() - 1;
+            if (ind % w.getResolution().getWidth() == 0) unlearnAllRow++;
+            w.setElement(unlearnAllPos, unlearnAllRow, new UIElement("unlearn-all")
                     .setMaterial(new MaterialBlock(Material.BARRIER))
                     .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "unlearnall")
                             + (AdaptConfig.get().isHardcoreNoRefunds()
