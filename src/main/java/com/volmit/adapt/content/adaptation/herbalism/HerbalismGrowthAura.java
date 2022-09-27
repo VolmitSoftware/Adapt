@@ -102,7 +102,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                                                         if (getConfig().showParticles) {
                                                             p.spawnParticle(Particle.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);
                                                         }
-                                                        xp(p, 1);
+//                                                        xp(p, 1); // JESUS THIS IS FUCKING BUSTED
                                                     }
                                                 }
                                             }
