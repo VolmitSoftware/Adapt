@@ -70,6 +70,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @Override
     public void onTick() {
+        if (!this.isEnabled()) {
+            return;
+        }
         for (Player i : Bukkit.getOnlinePlayers()) {
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;
@@ -80,9 +83,6 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             if (i.getWorld().getBlockAt(i.getLocation()).isLiquid() && i.isSwimming()) {
                 Adapt.verbose("seaborne Tick");
                 checkStatTrackers(getPlayer(i));
-                if (!this.isEnabled()) {
-                    return;
-                }
                 xpSilent(i, getConfig().swimXP);
             }
         }

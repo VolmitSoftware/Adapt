@@ -71,10 +71,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             return;
         }
         if (!lasttp.containsKey(p)) {
-            try {
-                xpSilent(p, getConfig().teleportXP);
-            } catch (Exception ignored) {
-            }
+            xpSilent(p, getConfig().teleportXP);
             lasttp.put(p, M.ms());
         }
     }
@@ -180,6 +177,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @Override
     public void onTick() {
+        if (!this.isEnabled()) {
+            return;
+        }
         for (Player i : lasttp.k()) {
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;

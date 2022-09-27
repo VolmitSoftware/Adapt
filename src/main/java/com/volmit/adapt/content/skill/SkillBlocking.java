@@ -84,6 +84,9 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
     @Override
     public void onTick() {
+        if (!this.isEnabled()) {
+            return;
+        }
         for (Player i : Bukkit.getOnlinePlayers()) {
             checkStatTrackers(getPlayer(i));
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
@@ -91,9 +94,6 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             }
             if (i.getPlayer() != null && (i.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.SHIELD) || i.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.SHIELD))) {
                 if (!AdaptConfig.get().isXpInCreative() && (i.getGameMode().equals(GameMode.CREATIVE) || i.getGameMode().equals(GameMode.SPECTATOR))) {
-                    return;
-                }
-                if (!this.isEnabled()) {
                     return;
                 }
                 xpSilent(i, getConfig().passiveXpForUsingShield);
