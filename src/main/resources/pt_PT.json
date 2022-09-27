@@ -9,12 +9,16 @@
       "welcome": "Bem-vindo!",
       "welcomeback": "Bem vindo de volta!",
       "xpbonusfortime": "XP para",
-      "unlockthisbyclicking": "Desbloqueie isso clicando com o botão direito do mouse no bloco Adapt!"
+      "unlockthisbyclicking": "Desbloqueie isso clicando com o botão direito do mouse no bloco Adapt!",
+      "back": "De volta",
+      "unlearnall": "Desaprender tudo",
+      "unlearnedall": "Desaprendeu tudo"
     },
     "adaptmenu": {
       "knowledgecost": "Custo do Conhecimento",
       "alreadylearned": "Já aprendeu",
       "unlearnrefund": "Clique para desaprender e reembolsar",
+      "norefunds": "INCONDICIONAL, REEMBOLSOS DESABILITADOS",
       "knowledge": "Conhecimento",
       "clicklearn": "Clique para aprender",
       "noknowledge": "(Você não tem nenhum Conhecimento)",
@@ -22,6 +26,7 @@
       "howtolevelup": "Aumente o nível de habilidades para aumentar seu poder máximo.",
       "notenoughpower": "Não há energia suficiente! Cada Nível de Habilidade custa 1 poder.",
       "power": "Poder",
+      "powerdrain": "Dreno de Energia",
       "learned": "Aprendido",
       "unlearned": "Sem instrução"
     },
