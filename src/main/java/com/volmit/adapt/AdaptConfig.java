@@ -54,6 +54,8 @@ public class AdaptConfig {
     private boolean loginBonus = true;
     private boolean advancements = true;
     private boolean useSql = false;
+    private boolean escClosesAllGuis = false;
+    private boolean guiBackButton = false;
     private int learnUnlearnButtonDelayTicks = 14;
     private boolean actionbarNotifyXp = true;
     private boolean actionbarNotifyLevel = true;
