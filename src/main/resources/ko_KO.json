@@ -9,6 +9,7 @@
       "welcome": "어서 오십시오!",
       "welcomeback": "다시 오신 것을 환영합니다!",
       "xpbonusfortime": "XP",
+      "unlockthisbyclicking": "Adapt  블럭을 마우스 오른쪽 버튼으로 클릭하여 잠금을 해제하십시오!",
       "back": "뒤",
       "unlearnall": "모두 해제",
       "unlearnedall": "모두 학습하지 않음"
@@ -21,7 +22,9 @@
       "knowledge": "지식",
       "clicklearn": "클릭하여 배우기",
       "noknowledge": "(당신은 지식이 없습니다)",
+      "youonlyhave": "당신은 오직 가지고 있습니다",
       "howtolevelup": "스킬을 레벨업하여 최대 파워를 높이세요.",
+      "notenoughpower": "힘이 부족해! 각 능력 레벨은 1 힘을 소모합니다.",
       "power": "힘",
       "powerdrain": "전원 드레인",
       "learned": "배웠다",
@@ -31,17 +34,20 @@
       "contains": "포함",
       "knowledge": "지식",
       "rightclick": "마우스 오른쪽 버튼으로 클릭",
-      "togainknowledge": "이 지식을 얻기 위해"
+      "togainknowledge": "이 지식을 얻기 위해",
+      "knowledgeorb": "지식의 구체"
     },
     "experienceorb": {
       "contains": "포함",
       "xp": "경험",
       "rightclick": "마우스 오른쪽 버튼으로 클릭",
-      "togainxp": "이 경험을 얻기 위해"
+      "togainxp": "이 경험을 얻기 위해",
+      "xporb": "경험치 구체"
     }
   },
   "skill": {
     "agility": {
+      "name": "민첩성",
       "icon": "⇉",
       "description": "민첩성은 장애물에 직면하여 빠르고 유동적으로 움직이는 능력입니다."
     },
@@ -149,11 +155,15 @@
     },
     "unarmed": {
       "name": "비무장",
-      "icon": "⚜"
+      "icon": "⚜",
+      "description": "무기가 없어도 힘이 없는 것이 아니다"
     }
   },
   "agility": {
     "armorup": {
+      "name": "방어구 적용",
+      "description": "달릴수록 더 강화된 방어구를 적용받으세요!",
+      "lore1": "최대 방어구 적용",
       "lore2": "방어력 상승 시간"
     },
     "superjump": {
@@ -442,6 +452,7 @@
     "strength": {
       "name": "사냥꾼의 힘",
       "description": "공격을 받으면 힘을 얻고 굶주림을 대가로",
+      "lore1": "패시브 - 공격을 받으면 힘을 얻습니다.",
       "lore2": "x 힘은 적중 시 3초 동안 중첩됩니다.",
       "lore3": "x 쌓인 배고픔",
       "lore4": "굶주림은 지속 시간과 승수를 중첩합니다.",
@@ -501,6 +512,7 @@
     },
     "forceshot": {
       "name": "포스 샷",
+      "description": "더 멀리, 더 빠르게 투사체를 쏴라!",
       "advancementname": "장거리 슛",
       "advancementlore": "30블록 이상 떨어진 곳에서 사격하세요!",
       "lore1": "발사체 속도"
@@ -526,6 +538,7 @@
       "notcontainer": "저건 컨테이너가 아니야"
     },
     "blink": {
+      "name": "균열 점멸",
       "description": "근거리 순간이동, 눈 깜짝할 사이!",
       "lore1": "깜박임 차단(2x 수직)",
       "lore2": "질주 중: 두 번 탭하여 점프",
@@ -574,6 +587,7 @@
     },
     "dolphingrace": {
       "name": "돌고래의 은혜",
+      "description": "돌고래 없이 돌고래처럼 헤엄쳐라",
       "lore1": "+ 패시브: 이득",
       "lore2": "x 속도(돌핀스 그레이스)",
       "lore3": "정밀 독일 엔지니어- 잠깐, 그건 옳지 않아..."
@@ -582,12 +596,16 @@
   "stealth": {
     "ghostarmor": {
       "name": "유령의 갑옷",
+      "description": "피해를 입지 않을 때 느리게 갑옷 적용, 피해를 입기 전까지 지속",
       "lore1": "최대 갑옷",
       "lore2": "속도"
     },
     "nightvision": {
+      "name": "잠행 투시",
+      "description": "웅크리는 동안 야간 투시 적용",
       "lore1": "버스트 획득",
-      "lore2": "야간 투시경"
+      "lore2": "야간 투시경",
+      "lore3": "웅크리고 있는 동안"
     },
     "snatch": {
       "name": "아이템 강탈",
