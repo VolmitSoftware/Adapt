@@ -9,12 +9,16 @@
       "welcome": "Hoş geldin!",
       "welcomeback": "Tekrar hoşgeldiniz!",
       "xpbonusfortime": "XP için",
-      "unlockthisbyclicking": "Uyarlama Bloğuna Sağ Tıklayarak bunun kilidini açın!"
+      "unlockthisbyclicking": "Uyarlama Bloğuna Sağ Tıklayarak bunun kilidini açın!",
+      "back": "Geri",
+      "unlearnall": "Tüm öğrenmeyi geri al",
+      "unlearnedall": "hepsi öğrenilmemiş"
     },
     "adaptmenu": {
       "knowledgecost": "Bilgi Maliyeti",
       "alreadylearned": "Zaten Öğrenildi",
       "unlearnrefund": "Öğrenimi Geri Almak ve Geri Ödemek İçin Tıklayın",
+      "norefunds": "HARDCORE, GERİ ÖDEME ENGELLİ",
       "knowledge": "Bilgi",
       "clicklearn": "Öğrenmek için tıklayın",
       "noknowledge": "(Hiç bilginiz yok)",
@@ -22,6 +26,7 @@
       "howtolevelup": "Maksimum gücünüzü artırmak için becerilerinizi yükseltin.",
       "notenoughpower": "Yetersiz güç! Her Yetenek Seviyesi 1 güce mal olur.",
       "power": "Güç",
+      "powerdrain": "Güç Tahliyesi",
       "learned": "Öğrendi",
       "unlearned": "bilgisiz"
     },

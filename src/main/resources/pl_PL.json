@@ -9,12 +9,16 @@
       "welcome": "Witamy!",
       "welcomeback": "Witamy spowrotem!",
       "xpbonusfortime": "XP za",
-      "unlockthisbyclicking": "Odblokuj to, klikając prawym przyciskiem myszy blok adaptacyjny!"
+      "unlockthisbyclicking": "Odblokuj to, klikając prawym przyciskiem myszy blok adaptacyjny!",
+      "back": "Z powrotem",
+      "unlearnall": "Oducz się wszystkich",
+      "unlearnedall": "Wszystko oduczone"
     },
     "adaptmenu": {
       "knowledgecost": "Koszt Wiedzy",
       "alreadylearned": "Już Nauczono",
       "unlearnrefund": "Kliknij, aby się oduczyć i otrzymać zwrot XP",
+      "norefunds": "HARDCORE, ZWROTY ZWROTÓW WYŁĄCZONE",
       "knowledge": "Wiedza",
       "clicklearn": "Kliknij, aby dowiedzieć się",
       "noknowledge": "(Nie masz żadnej wiedzy)",
@@ -22,6 +26,7 @@
       "howtolevelup": "Zwiększaj umiejętności, aby zwiększyć swoją maksymalną moc.",
       "notenoughpower": "Za mało mocy! Każdy poziom umiejętności kosztuje 1 moc.",
       "power": "Moc",
+      "powerdrain": "Pobór mocy",
       "learned": "Nauczono",
       "unlearned": "Nieuczony"
     },

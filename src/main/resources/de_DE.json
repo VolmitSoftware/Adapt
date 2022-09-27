@@ -9,7 +9,10 @@
       "welcome": "Herzlich willkommen!",
       "welcomeback": "Willkommen zurück!",
       "xpbonusfortime": "XP für",
-      "unlockthisbyclicking": "Schalte dies frei, indem du mit der rechten Maustaste auf den Adapt-Block klickst!"
+      "unlockthisbyclicking": "Schalte dies frei, indem du mit der rechten Maustaste auf den Adapt-Block klickst!",
+      "back": "Der Rücken",
+      "unlearnall": "Alles verlernen",
+      "unlearnedall": "Alles verlernt"
     },
     "adaptmenu": {
       "knowledgecost": "Wissenskosten",
