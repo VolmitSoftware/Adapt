@@ -9,12 +9,16 @@
       "welcome": "ברוך הבא!",
       "welcomeback": "ברוך שובך!",
       "xpbonusfortime": "XP עבור",
-      "unlockthisbyclicking": "בטל את הנעילה על ידי לחיצה ימנית על בלוק ההתאמה!"
+      "unlockthisbyclicking": "בטל את הנעילה על ידי לחיצה ימנית על בלוק ההתאמה!",
+      "back": "חזור",
+      "unlearnall": "הסר הכל",
+      "unlearnedall": "לא למד הכל"
     },
     "adaptmenu": {
       "knowledgecost": "עלות ידע",
       "alreadylearned": "כבר נלמד",
       "unlearnrefund": "לחץ כדי לבטל ולהחזיר",
+      "norefunds": "HARDCORE, החזרים כספיים מושבתים",
       "knowledge": "ידע",
       "clicklearn": "לחץ כדי ללמוד",
       "noknowledge": "(אין לך שום ידע)",
@@ -22,6 +26,7 @@
       "howtolevelup": "מיומנויות ברמה כדי להגדיל את הכוח המקסימלי שלך.",
       "notenoughpower": "לא מספיק כוח! כל רמת יכולת עולה כוח 1.",
       "power": "כוח",
+      "powerdrain": "ניקוז כוח",
       "learned": "נלמד ",
       "unlearned": "לא נלמד "
     },
