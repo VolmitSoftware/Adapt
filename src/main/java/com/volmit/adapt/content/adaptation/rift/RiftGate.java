@@ -72,8 +72,11 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
+            return;
+        }
         ItemStack hand = p.getInventory().getItemInMainHand();
-        if (hand.getItemMeta() == null || hand.getItemMeta().getLore() == null || !hasAdaptation(p)) {
+        if (hand.getItemMeta() == null || hand.getItemMeta().getLore() == null) {
             return;
         }
         if (!hand.getItemMeta().getLore().contains("Ocular Anchor") && !hand.getType().equals(Material.ENDER_EYE)) {

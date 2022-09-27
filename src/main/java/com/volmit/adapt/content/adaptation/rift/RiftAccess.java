@@ -159,6 +159,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @Override
     public void onTick() {
+        if (!this.isEnabled()) {
+            return;
+        }
         J.s(() -> {
             for (int ii = activeViews.size() - 1; ii >= 0; ii--) {
                 InventoryView i = activeViews.get(ii);

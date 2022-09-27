@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SkillRift extends SimpleSkill<SkillRift.Config> {
-    private final Map<Player, Long> lasttp = new HashMap<>();
+    private final Map<Player, Long> lasttp;
 
     public SkillRift() {
         super("rift", Adapt.dLocalize("skill", "rift", "icon"));
@@ -56,6 +56,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         registerAdaptation(new RiftEnderchest());
         registerAdaptation(new RiftGate());
         registerAdaptation(new RiftBlink());
+        lasttp = new HashMap<>();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
