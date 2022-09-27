@@ -9,12 +9,16 @@
       "welcome": "Ben arrivato!",
       "welcomeback": "Ben tornato!",
       "xpbonusfortime": "XP per",
-      "unlockthisbyclicking": "Sbloccalo facendo clic con il pulsante destro del mouse sul blocco di adattamento!"
+      "unlockthisbyclicking": "Sbloccalo facendo clic con il pulsante destro del mouse sul blocco di adattamento!",
+      "back": "Di ritorno",
+      "unlearnall": "Disimpara tutto",
+      "unlearnedall": "Tutto disimparato"
     },
     "adaptmenu": {
       "knowledgecost": "Costo della conoscenza",
       "alreadylearned": "Già appreso",
       "unlearnrefund": "Clicca per disimparare e rimborsare",
+      "norefunds": "HARDCORE, RIMBORSI DISABILI",
       "knowledge": "Conoscenze",
       "clicklearn": "Clicca per imparare",
       "noknowledge": "(Non hai alcuna conoscenza)",
@@ -22,6 +26,7 @@
       "howtolevelup": "Aumenta le abilità di livello per aumentare la tua potenza massima.",
       "notenoughpower": "Non c'è abbastanza potenza! Ogni livello di abilità costa 1 potere.",
       "power": "Potere",
+      "powerdrain": "Scarico di corrente",
       "learned": "Imparato ",
       "unlearned": "Non appreso "
     },
