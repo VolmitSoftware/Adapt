@@ -37,7 +37,7 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("blocking", "horsearmorer", "description"));
         setDisplayName(Adapt.dLocalize("blocking", "horsearmorer", "name"));
-        setIcon(Material.CHAINMAIL_HELMET);
+        setIcon(Material.GOLDEN_HORSE_ARMOR);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(17774);

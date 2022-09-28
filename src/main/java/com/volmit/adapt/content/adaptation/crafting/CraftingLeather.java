@@ -36,7 +36,7 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("crafting", "leather", "description"));
         setDisplayName(Adapt.dLocalize("crafting", "leather", "name"));
-        setIcon(Material.MUDDY_MANGROVE_ROOTS);
+        setIcon(Material.LEATHER);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
