@@ -57,7 +57,9 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("blocking", "chainarmorer", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("blocking", "saddlecrafter", "lore1"));
+        v.addLore("X-X");
+        v.addLore("XXX");
     }
 
 

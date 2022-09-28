@@ -63,6 +63,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         registerAdaptation(new HerbalismDropToInventory());
         registerAdaptation(new HerbalismLuck());
         registerAdaptation(new HerbalismMyconid());
+        registerAdaptation(new HerbalismTerralid());
         registerAdaptation(new HerbalismCraftableMushroomBlocks());
         registerAdaptation(new HerbalismCraftableCobweb());
         registerAdvancement(AdaptAdvancement.builder()

@@ -30,51 +30,34 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<HerbalismCraftableMushroomBlocks.Config> {
+public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config> {
 
-    public HerbalismCraftableMushroomBlocks() {
-        super("herbalism-cobweb");
+    public HerbalismTerralid() {
+        super("herbalism-terralid");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("herbalism", "mushroomblocks", "description"));
-        setDisplayName(Adapt.dLocalize("herbalism", "mushroomblocks", "name"));
-        setIcon(Material.CRIMSON_FUNGUS);
+        setDescription(Adapt.dLocalize("herbalism", "terralid", "description"));
+        setDisplayName(Adapt.dLocalize("herbalism", "terralid", "name"));
+        setIcon(Material.GRASS_BLOCK);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(17772);
+        setInterval(17771);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         registerRecipe(AdaptRecipe.shaped()
-                .key("herbalism-redmushblock")
-                .ingredient(new MaterialChar('I', Material.RED_MUSHROOM))
+                .key("herbalism-dirt-terralid")
+                .ingredient(new MaterialChar('S', Material.WHEAT_SEEDS))
+                .ingredient(new MaterialChar('D', Material.DIRT))
                 .shapes(List.of(
-                        "II",
-                        "II"))
-                .result(new ItemStack(Material.RED_MUSHROOM_BLOCK, 1))
-                .build());
-        registerRecipe(AdaptRecipe.shaped()
-                .key("herbalism-brownmushblock")
-                .ingredient(new MaterialChar('I', Material.BROWN_MUSHROOM))
-                .shapes(List.of(
-                        "II",
-                        "II"))
-                .result(new ItemStack(Material.BROWN_MUSHROOM_BLOCK, 1))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("herbalism-mushstemred")
-                .ingredient(Material.RED_MUSHROOM_BLOCK)
-                .result(new ItemStack(Material.MUSHROOM_STEM, 1))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("herbalism-mushstembrown")
-                .ingredient(Material.BROWN_MUSHROOM_BLOCK)
-                .result(new ItemStack(Material.MUSHROOM_STEM, 1))
+                        "SSS",
+                        "DDD"))
+                .result(new ItemStack(Material.GRASS_BLOCK, 3))
                 .build());
 
     }
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("herbalism", "mushroomblocks", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("herbalism", "terralid", "lore1"));
     }
 
 
@@ -96,9 +79,9 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
     protected static class Config {
         boolean permanent = true;
         boolean enabled = true;
-        int baseCost = 2;
+        int baseCost = 8;
         int maxLevel = 1;
-        int initialCost = 2;
-        double costFactor = 1;
+        int initialCost = 3;
+        double costFactor = 0.75;
     }
 }

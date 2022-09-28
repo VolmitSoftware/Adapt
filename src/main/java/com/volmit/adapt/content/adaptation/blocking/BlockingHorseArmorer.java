@@ -87,7 +87,11 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("blocking", "chainarmorer", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("blocking", "horsearmorer", "lore1"));
+        v.addLore("XXX");
+        v.addLore("XSX");
+        v.addLore("XXX");
+
     }
 
 

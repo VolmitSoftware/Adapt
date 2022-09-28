@@ -75,12 +75,12 @@
       "icon": "▒",
       "description": "Sticks and stones Won't break your bones, But a shield will."
     },
-    "crafting":{
+    "crafting": {
       "name": "Crafting",
       "icon": "⌂",
       "description": "With no more pieces left to place, why not make another?"
     },
-    "discovery":{
+    "discovery": {
       "name": "Discovery",
       "icon": "⚛",
       "description": "As your Perception expands, your mind unravels to discover that which you did not"
@@ -95,7 +95,7 @@
       "icon": "✥",
       "description": "Diggey Diggey hole..."
     },
-    "herbalism":  {
+    "herbalism": {
       "name": "Herbalism",
       "icon": "⚘",
       "description": "I can't find any plants, but I can find some seeds and- is that... Weed?"
@@ -267,7 +267,7 @@
     "saddlecrafter": {
       "name": "Craftable Saddle",
       "description": "Craft a Saddle with Leather",
-      "lore1": "Craft a Saddle with Leather: \nX X X \n L X L \n L L L"
+      "lore1": "Recipe: 5 Leather:"
     },
     "multiarmor": {
       "name": "Multi-Armor",
@@ -280,7 +280,7 @@
       "lore6": "I Don't need armor, It disappoints me..."
     }
   },
-  "crafting":{
+  "crafting": {
     "deconstruction": {
       "name": "Deconstruction",
       "description": "Deconstruct blocks & items into salvageable base components!",
@@ -296,9 +296,19 @@
       "name": "Craftable Leather",
       "description": "Craft Leather from Rotten Flesh",
       "lore1": "Just toss it(rotten flesh) on the campfire!"
+    },
+    "skulls": {
+      "name": "Craftable skulls!",
+      "description": "Using Materials you can Craft Mob Skulls!",
+      "lore1": "Surround a Bone Block with the following to get a skull:",
+      "lore2": "Zombie: Rotting Flesh",
+      "lore3": "Skeleton: Bone",
+      "lore4": "Creeper: Gunpowder",
+      "lore5": "Wither: Nether Brick",
+      "lore6": "Dragon: Dragons Breath"
     }
   },
-  "discovery":{
+  "discovery": {
     "armor": {
       "name": "World Armor",
       "description": "Passive armor depending on nearby block hardness.",
@@ -369,7 +379,7 @@
       "lore7": "you could use five or six tools, or just one!"
     }
   },
-  "herbalism":  {
+  "herbalism": {
     "growthaura": {
       "name": "Growth Aura",
       "description": "Grow nature around you in an aura",
@@ -386,6 +396,11 @@
       "name": "Herbalist's Myconid",
       "description": "Gives you the ability to craft Mycelium",
       "lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
+    },
+    "terralid": {
+      "name": "Herbalist's Terralid",
+      "description": "Gives you the ability to craft Gras Blocks",
+      "lore1": "Three Seeds, over 3 Dirt, will craft 3 Grass Blocks."
     },
     "cobweb": {
       "name": "Webby Creator",
@@ -675,7 +690,7 @@
     "poisonedblade": {
       "name": "Poisoned Blade",
       "description": "Strikes with your sword, cause Poison!",
-      "lore1": "Striking a Living entity with your Sword causes Poison" ,
+      "lore1": "Striking a Living entity with your Sword causes Poison",
       "lore2": "Poison Duration",
       "lore3": "Poison Cooldown"
     }
