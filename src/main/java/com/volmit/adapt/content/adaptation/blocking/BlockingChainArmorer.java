@@ -44,7 +44,7 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         registerRecipe(AdaptRecipe.shaped()
-                .key("blocking-chainarmorer-boots")
+                .key("blocking-chainarmorerboots")
                 .ingredient(new MaterialChar('I', Material.IRON_NUGGET))
                 .ingredient(new MaterialChar(' ', Material.AIR))
                 .shapes(List.of(
@@ -53,7 +53,7 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
                 .result(new ItemStack(Material.CHAINMAIL_BOOTS, 1))
                 .build());
         registerRecipe(AdaptRecipe.shaped()
-                .key("blocking-chainarmorer-leggings")
+                .key("blocking-chainarmorerleggings")
                 .ingredient(new MaterialChar('I', Material.IRON_NUGGET))
                 .ingredient(new MaterialChar(' ', Material.AIR))
                 .shapes(List.of(
@@ -63,7 +63,7 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
                 .result(new ItemStack(Material.CHAINMAIL_LEGGINGS, 1))
                 .build());
         registerRecipe(AdaptRecipe.shaped()
-                .key("blocking-chainarmorer-chestplate")
+                .key("blocking-chainarmorerchestplate")
                 .ingredient(new MaterialChar('I', Material.IRON_NUGGET))
                 .ingredient(new MaterialChar(' ', Material.AIR))
                 .shapes(List.of(
@@ -73,7 +73,7 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
                 .result(new ItemStack(Material.CHAINMAIL_CHESTPLATE, 1))
                 .build());
         registerRecipe(AdaptRecipe.shaped()
-                .key("blocking-chainarmorer-helmet")
+                .key("blocking-chainarmorerhelmet")
                 .ingredient(new MaterialChar('I', Material.IRON_NUGGET))
                 .ingredient(new MaterialChar(' ', Material.AIR))
                 .shapes(List.of(
