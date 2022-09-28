@@ -143,6 +143,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     @Data
     @NoArgsConstructor
     public static class Config {
+        public boolean permanent = false;
         private boolean enabled = true;
         private int baseCooldown = 15;
         private int levelCooldown = 7;
