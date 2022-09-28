@@ -15,6 +15,8 @@
       "unlearnedall": "Alles verlernt"
     },
     "adaptmenu": {
+      "maynotunlearn": "KANN MAN NICHT VERLERNEN",
+      "mayunlearn": "SIE KÖNNEN LERNEN/VERLERNEN",
       "knowledgecost": "Wissenskosten",
       "alreadylearned": "Bereits gelernt!",
       "unlearnrefund": "Klicken zum Verlernen & für Rückerstattung",
@@ -213,6 +215,11 @@
       "lore2": "Hieb Abklingzeit",
       "lore3": "Werkzeugverschleiß"
     },
+    "logswap": {
+      "name": "Lucys Stammtauscher",
+      "description": "Ändere die Art von Holzscheiten an einer Werkbank!",
+      "lore1": "1 Holzscheit beliebiger Art + 1 Setzling = 1 Holzscheit der Art des Setzlings"
+    },
     "droptoinventory": {
       "name": "Axt Drop-Ins-Inventar"
     },
@@ -247,6 +254,21 @@
     }
   },
   "blocking": {
+    "chainarmorer": {
+      "name": "Die Ketten des Mephistopheles",
+      "description": "Ermöglicht die Herstellung von Kettenhemd-Rüstung",
+      "lore1": "Das Handwerksrezept ist dasselbe wie jedes andere, aber mit Eisennuggets"
+    },
+    "horsearmorer": {
+      "name": "Herstellbare Pferderüstung",
+      "description": "Ermöglicht die Herstellung von Rossharnisch an einer Werkbank",
+      "lore1": "Umgeben Sie einen Sattel mit dem Material, das Sie für die Herstellung der Rüstung verwenden möchten"
+    },
+    "saddlecrafter": {
+      "name": "Herstellbarer Sattel",
+      "description": "Herstellung eines Sattels mit Leder",
+      "lore1": "Rezept: 5 Leder:"
+    },
     "multiarmor": {
       "name": "Multi-Rüstung",
       "description": "Binde Elytra an die Rüstung",
@@ -269,6 +291,29 @@
       "name": "Herstellungserfahrung",
       "description": "Passiv Erfahrung beim Craften erhalten",
       "lore1": "Erfahrung beim Craften erhalten"
+    },
+    "leather": {
+      "name": "Handwerkliches Leder",
+      "description": "Leder aus verfaultem Fleisch herstellen",
+      "lore1": "Wirf es (das verfaulte Fleisch) einfach auf das Lagerfeuer!"
+    },
+    "backpacks": {
+      "name": "Die Rucksäcke eines Boutiliers!",
+      "description": "Das bringt das Mojang-Bundle ins Spiel!",
+      "lore1": "Sie müssen in Survival sein, um dies zu nutzen",
+      "lore2": "XLX : Leder, Leine, Leder",
+      "lore3": "XSX : Leder, Shulker Kiste, Leder",
+      "lore4": "XCX : Leder, Kiste, Leder"
+    },
+    "skulls": {
+      "name": "Herstellbare Totenköpfe!",
+      "description": "Mit den Materialien kannst du Mob-Schädel basteln!",
+      "lore1": "Umgeben Sie einen Knochenblock mit den folgenden Elementen, um einen Schädel zu erhalten:",
+      "lore2": "Zombie: Verrottendes Fleisch",
+      "lore3": "Skelett: Knochen",
+      "lore4": "Creeper: Schwarzpulver",
+      "lore5": "Wither: Netherziegel",
+      "lore6": "Drache: Der Atem des Drachen"
     }
   },
   "discovery": {
@@ -359,6 +404,21 @@
       "name": "Myzel des Kräuterkundlers",
       "description": "Ermöglicht die Herstellung von Mycelium",
       "lore1": "Jede Erde und einen braunen und roten Pilz zusammen kombiniert stellen Mycelium her"
+    },
+    "terralid": {
+      "name": "Terrarium des Kräutersammlers",
+      "description": "Ermöglicht die Herstellung von Grasblöcken",
+      "lore1": "Drei Samen über 3 Dreck ergeben 3 Grasblöcke."
+    },
+    "cobweb": {
+      "name": "Webby-Schöpfer",
+      "description": "Ermöglicht die Herstellung von Spinnenweben an einer Werkbank",
+      "lore1": "Vier Fäden ergeben Spinnenweben"
+    },
+    "mushroomblocks": {
+      "name": "Pilzmacher",
+      "description": "Ermöglicht die Herstellung von Pilzblöcken an einer Werkbank",
+      "lore1": "Vier Pilze für einen Block, oder ein Block für einen Stiel."
     },
     "droptoinventory": {
       "name": "Hacke Drop-Ins-Inventar"
