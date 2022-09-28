@@ -298,9 +298,9 @@
       "lore1": "Just toss it(rotten flesh) on the campfire!"
     },
     "backpacks": {
-      "name": "Craftable Backpacks! (64 slots)",
-      "description": "This just Brings the Mojang Bundle Backpacks into the game!",
-      "lore1": "Just toss it(rotten flesh) on the campfire!",
+      "name": "A Boutilier's Backpacks!",
+      "description": "This just Brings the Mojang Bundle into the game!",
+      "lore1": "You need to be in Survival to use this",
       "lore2": "XLX : Leather, Lead, Leather",
       "lore3": "XSX : Leather, Shulker Box, Leather",
       "lore4": "XCX : Leather, Chest, Leather"
