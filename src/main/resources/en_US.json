@@ -265,7 +265,7 @@
       "lore1": "Surround a saddle with the material you want to use to craft the armor"
     },
     "saddlecrafter": {
-      "name": "Craftable Horse Armor",
+      "name": "Craftable Saddle",
       "description": "Craft a Saddle with Leather",
       "lore1": "Craft a Saddle with Leather: \nX X X \n L X L \n L L L"
     },
