@@ -257,6 +257,16 @@
       "description": "Allows you to craft Chainmail Armor",
       "lore1": "The Crafting recipe is the same as any other, but with iron nuggets instead"
     },
+    "horsearmorer": {
+      "name": "Craftable Horse Armor",
+      "description": "Allows you to craft Chainmail Armor",
+      "lore1": "Surround a saddle with the material you want to use to craft the armor"
+    },
+    "saddlecrafter": {
+      "name": "Craftable Horse Armor",
+      "description": "Craft a Saddle with Leather",
+      "lore1": "Craft a Saddle with Leather: \nX X X \n L X L \n L L L"
+    },
     "multiarmor": {
       "name": "Multi-Armor",
       "description": "Bind Elytras to Armor",
@@ -279,6 +289,11 @@
       "name": "Crafting XP",
       "description": "Gain passive XP when crafting",
       "lore1": "Gain XP when crafting"
+    },
+    "leather": {
+      "name": "Craftable Leather",
+      "description": "Craft Leather from Rotten Flesh",
+      "lore1": "Just toss it(rotten flesh) on the campfire!"
     }
   },
   "discovery":{

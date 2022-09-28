@@ -46,7 +46,6 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
         registerRecipe(AdaptRecipe.shaped()
                 .key("herbalism-redmushblock")
                 .ingredient(new MaterialChar('I', Material.RED_MUSHROOM))
-                .ingredient(new MaterialChar(' ', Material.AIR))
                 .shapes(List.of(
                         "II",
                         "II"))
@@ -55,7 +54,6 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
         registerRecipe(AdaptRecipe.shaped()
                 .key("herbalism-brownmushblock")
                 .ingredient(new MaterialChar('I', Material.BROWN_MUSHROOM))
-                .ingredient(new MaterialChar(' ', Material.AIR))
                 .shapes(List.of(
                         "II",
                         "II"))

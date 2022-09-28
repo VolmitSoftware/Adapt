@@ -16,47 +16,54 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.content.adaptation.herbalism;
+package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
-import com.volmit.adapt.api.recipe.MaterialChar;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
+public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
 
-public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftableCobweb.Config> {
-
-    public HerbalismCraftableCobweb() {
-        super("herbalism-cobweb");
+    public CraftingLeather() {
+        super("crafting-leather");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("herbalism", "cobweb", "description"));
-        setDisplayName(Adapt.dLocalize("herbalism", "cobweb", "name"));
-        setIcon(Material.COBWEB);
+        setDescription(Adapt.dLocalize("crafting", "leather", "description"));
+        setDisplayName(Adapt.dLocalize("crafting", "leather", "name"));
+        setIcon(Material.MUDDY_MANGROVE_ROOTS);
         setBaseCost(getConfig().baseCost);
-        setMaxLevel(getConfig().maxLevel);
-        setInterval(17771);
-        setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        registerRecipe(AdaptRecipe.shaped()
-                .key("herbalism-cobwebBlock")
-                .ingredient(new MaterialChar('I', Material.STRING))
-                .shapes(List.of(
-                        "II",
-                        "II"))
-                .result(new ItemStack(Material.COBWEB, 1))
+        setMaxLevel(getConfig().maxLevel);
+        setInitialCost(getConfig().initialCost);
+        setInterval(17776);
+        registerRecipe(AdaptRecipe.campfire()
+                .key("crafting-leather")
+                .ingredient(Material.ROTTEN_FLESH)
+                .cookTime(100)
+                .experience(1)
+                .result(new ItemStack(Material.LEATHER, 1))
                 .build());
 
     }
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("herbalism", "cobweb", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("crafting", "leather", "lore1"));
+    }
+
+    @EventHandler
+    public void on(PlayerInteractEvent e) {
+        if (e.getItem() != null && e.getItem().getType() == Material.ROTTEN_FLESH && e.getClickedBlock() != null && e.getClickedBlock().getType() == Material.CAMPFIRE) {
+            if (!hasAdaptation(e.getPlayer())) {
+                e.setCancelled(true);
+            }
+        }
     }
 
 

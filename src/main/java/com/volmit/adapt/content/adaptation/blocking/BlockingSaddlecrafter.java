@@ -16,7 +16,7 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.content.adaptation.herbalism;
+package com.volmit.adapt.content.adaptation.blocking;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
@@ -30,33 +30,34 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftableCobweb.Config> {
+public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafter.Config> {
 
-    public HerbalismCraftableCobweb() {
-        super("herbalism-cobweb");
+    public BlockingSaddlecrafter() {
+        super("blocking-saddlecrafter");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("herbalism", "cobweb", "description"));
-        setDisplayName(Adapt.dLocalize("herbalism", "cobweb", "name"));
-        setIcon(Material.COBWEB);
+        setDescription(Adapt.dLocalize("blocking", "saddlecrafter", "description"));
+        setDisplayName(Adapt.dLocalize("blocking", "saddlecrafter", "name"));
+        setIcon(Material.CHAINMAIL_HELMET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(17771);
+        setInterval(17774);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         registerRecipe(AdaptRecipe.shaped()
-                .key("herbalism-cobwebBlock")
-                .ingredient(new MaterialChar('I', Material.STRING))
+                .key("blocking-saddlecrafter")
+                .ingredient(new MaterialChar('I', Material.LEATHER))
+                .ingredient(new MaterialChar(' ', Material.AIR))
                 .shapes(List.of(
-                        "II",
-                        "II"))
-                .result(new ItemStack(Material.COBWEB, 1))
+                        "I I",
+                        "III"))
+                .result(new ItemStack(Material.SADDLE, 1))
                 .build());
 
     }
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("herbalism", "cobweb", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("blocking", "chainarmorer", "lore1"));
     }
 
 
@@ -72,9 +73,9 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        int baseCost = 2;
+        int baseCost = 0;
         int maxLevel = 1;
-        int initialCost = 2;
-        double costFactor = 1;
+        int initialCost = 1;
+        double costFactor = 0;
     }
 }
