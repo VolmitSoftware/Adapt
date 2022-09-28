@@ -261,7 +261,7 @@
     },
     "horsearmorer": {
       "name": "Craftable Horse Armor",
-      "description": "Allows you to craft Chainmail Armor",
+      "description": "Allows you to craft Horse Armor",
       "lore1": "Surround a saddle with the material you want to use to craft the armor"
     },
     "saddlecrafter": {
