@@ -16,6 +16,7 @@
     },
     "adaptmenu": {
       "maynotunlearn": "THIS SKILL MAY NOT BE UNLEARNED, AND WILL BE PERMANENTLY DRAINING YOUR POWER!",
+      "mayunlearn": "This skill may be Learned / Unlearned at any time. ( Penalties not included )",
       "knowledgecost": "Knowledge Cost",
       "alreadylearned": "Already Learned",
       "unlearnrefund": "Click to Unlearn & Refund",
