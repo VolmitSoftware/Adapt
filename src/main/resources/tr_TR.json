@@ -15,6 +15,8 @@
       "unlearnedall": "hepsi öğrenilmemiş"
     },
     "adaptmenu": {
+      "maynotunlearn": "ÖĞRENMEYECEKSİNİZ",
+      "mayunlearn": "ÖĞRENEBİLİRSİNİZ/ÖĞRENEBİLİRSİNİZ",
       "knowledgecost": "Bilgi Maliyeti",
       "alreadylearned": "Zaten Öğrenildi",
       "unlearnrefund": "Öğrenimi Geri Almak ve Geri Ödemek İçin Tıklayın",
@@ -213,6 +215,11 @@
       "lore2": "Doğrama Bekleme Süresi",
       "lore3": "Takım Aşınması"
     },
+    "logswap": {
+      "name": "Lucy'nin Günlük Değiştiricisi",
+      "description": "Bir Üretim Tablosunda kütüklerin lezzetini değiştirin!",
+      "lore1": "1 adet her çeşit kütük + 1 adet fidan = 1 adet fidan tipi kütük"
+    },
     "droptoinventory": {
       "name": "Balta Envantere Düşürme"
     },
@@ -247,6 +254,21 @@
     }
   },
   "blocking": {
+    "chainarmorer": {
+      "name": "Mephistopheles Zincirleri",
+      "description": "Chainmail Armor üretmenize izin verir",
+      "lore1": "Crafting tarifi diğerleriyle aynıdır, ancak bunun yerine demir külçeler vardır."
+    },
+    "horsearmorer": {
+      "name": "Üretilebilir At Zırhı",
+      "description": "At Zırhı üretmenizi sağlar",
+      "lore1": "Zırh yapmak için kullanmak istediğiniz malzemeyle bir eyeri kuşatın"
+    },
+    "saddlecrafter": {
+      "name": "İşlenebilir Eyer",
+      "description": "Deri ile Eyer Yap",
+      "lore1": "Tarif: 5 Deri:"
+    },
     "multiarmor": {
       "name": "Çoklu Zırh",
       "description": "Elytras'ı Zırhla Bağlayın",
@@ -269,6 +291,29 @@
       "name": "XP işçiliği",
       "description": "Üretirken pasif XP kazanın",
       "lore1": "Üretirken XP kazanın"
+    },
+    "leather": {
+      "name": "İşlenebilir Deri",
+      "description": "Çürük Etten El İşi Deri",
+      "lore1": "Sadece onu (çürük eti) kamp ateşine at!"
+    },
+    "backpacks": {
+      "name": "Bir Boutilier'in Sırt Çantaları!",
+      "description": "Bu sadece Mojang Paketini oyuna getiriyor!",
+      "lore1": "Bunu kullanmak için Survival'da olmanız gerekir",
+      "lore2": "XLX : Deri, Kurşun, Deri",
+      "lore3": "XSX : Deri, Shulker Kutusu, Deri",
+      "lore4": "XCX : Deri, Göğüs, Deri"
+    },
+    "skulls": {
+      "name": "İşlenebilir kafatasları!",
+      "description": "Materyalleri kullanarak Mob Kafatasları Yapabilirsiniz!",
+      "lore1": "Bir kafatası elde etmek için bir Bone Block'u aşağıdakilerle çevreleyin:",
+      "lore2": "Zombi: Çürüyen Et",
+      "lore3": "İskelet: Kemik",
+      "lore4": "Creeper: Barut",
+      "lore5": "Wither: Cehennem Tuğlası",
+      "lore6": "Ejderha: Ejderhaların Nefesi"
     }
   },
   "discovery": {
@@ -359,6 +404,21 @@
       "name": "Bitki Uzmanı Myconid",
       "description": "Size Miselyum yapma yeteneği verir",
       "lore1": "Herhangi bir Kir ve bir Kahverengi ve Kırmızı Mantar, Miselyum üretecektir."
+    },
+    "terralid": {
+      "name": "Herbalist'in Terralid'i",
+      "description": "Size Çim Blokları yapma yeteneği verir",
+      "lore1": "3 Dirt üzerinde Three Seeds, 3 Grass Block üretecek."
+    },
+    "cobweb": {
+      "name": "Webbi Oluşturucu",
+      "description": "Bir Üretim Masasında Örümcek Ağı yapma yeteneği verir",
+      "lore1": "Four String, bir Örümcek Ağı yapacak."
+    },
+    "mushroomblocks": {
+      "name": "mantar makinesi",
+      "description": "Bir Üretim Masasında Mantar Blokları yapma yeteneği verir",
+      "lore1": "Bir blok yapmak için dört Mantar veya bir gövde yapmak için bir blok."
     },
     "droptoinventory": {
       "name": "Envantere Çapa Bırakma"
