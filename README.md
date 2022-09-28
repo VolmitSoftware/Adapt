@@ -1,4 +1,4 @@
-# Adapt
+# Adapt ( Currently 88 Adaptations to experience )
 
 [![image](https://github.com/VolmitSoftware/Adapt/raw/main/storepage/adapt-tc.png)](https://github.com/VolmitSoftware/Adapt/wiki/Why-did-you-click)
 
