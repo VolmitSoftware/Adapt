@@ -98,8 +98,14 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = true;
         boolean enabled = true;
         int baseCost = 0;
         int maxLevel = 1;

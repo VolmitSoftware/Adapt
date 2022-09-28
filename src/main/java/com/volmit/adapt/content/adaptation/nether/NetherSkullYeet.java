@@ -134,6 +134,12 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
+
     @Data
     @NoArgsConstructor
     public static class Config {

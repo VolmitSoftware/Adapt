@@ -84,6 +84,11 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
         }
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
 
     @Override
     public void onTick() {
@@ -91,6 +96,7 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
 
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 1;
         int maxLevel = 1;

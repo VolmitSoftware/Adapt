@@ -228,9 +228,14 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
 
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         public long duration = 3000;
         public int minBlocks = 9;
         public int maxBlocks = 35;

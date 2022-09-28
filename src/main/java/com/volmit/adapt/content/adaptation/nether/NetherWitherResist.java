@@ -93,6 +93,11 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
         return 0.0D;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @Data
     @NoArgsConstructor
     public static class Config {

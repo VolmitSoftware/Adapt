@@ -89,8 +89,14 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
     public void onTick() {
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 1;
         int maxLevel = 1;

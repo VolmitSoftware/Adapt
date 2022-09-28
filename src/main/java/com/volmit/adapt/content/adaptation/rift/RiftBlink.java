@@ -182,8 +182,14 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         boolean showParticles = true;
         int baseCost = 7;

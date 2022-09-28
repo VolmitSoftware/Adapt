@@ -215,8 +215,14 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 9;
         int initialCost = 8;

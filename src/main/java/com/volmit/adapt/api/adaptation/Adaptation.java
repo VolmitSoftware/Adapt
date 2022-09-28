@@ -132,6 +132,8 @@ public interface Adaptation<T> extends Ticked, Component {
 
     boolean isEnabled();
 
+    boolean isPermanent();
+
     T getConfig();
 
     AdaptAdvancement buildAdvancements();
@@ -379,6 +381,10 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default void unlearn(Player player, int lvl) {
+        if (isPermanent()) {
+            //todo message that this is permanent
+            return;
+        }
         int mylevel = getPlayer(player).getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
         int rc = getRefundCostFor(lvl - 1, mylevel);
 
@@ -387,6 +393,7 @@ public interface Adaptation<T> extends Ticked, Component {
         }
         getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl - 1);
     }
+
 
     default boolean isAdaptationRecipe(Recipe recipe) {
         if (!this.getSkill().isEnabled()) {

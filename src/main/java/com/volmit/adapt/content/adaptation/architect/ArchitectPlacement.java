@@ -119,7 +119,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                         runPlayerViewport(getBlockFace(p), p.getTargetBlock(null, 5), p.getInventory().getItemInMainHand().getType(), p);
                     }
                 } else {
-                    p.sendMessage(C.RED + Adapt.dLocalize("architect", "placement", "lore1") +" "+ C.GREEN + totalMap.get(p).size() + C.RED + " " + Adapt.dLocalize("architect", "placement", "lore2"));
+                    p.sendMessage(C.RED + Adapt.dLocalize("architect", "placement", "lore1") + " " + C.GREEN + totalMap.get(p).size() + C.RED + " " + Adapt.dLocalize("architect", "placement", "lore2"));
                 }
             }
         }
@@ -221,6 +221,11 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
 
     @Override
     public void onTick() {
@@ -247,6 +252,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         public int maxBlocks = 20;
         boolean enabled = true;
         boolean showParticles = true;

@@ -101,7 +101,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
             }
 
             if (p.isOnGround() && !p.isFlying()) {
-                if(isChestplate(chest)) {
+                if (isChestplate(chest)) {
                     return;
                 }
                 J.s(() -> p.getInventory().setChestplate(multiarmor.nextChestplate(chest)));
@@ -110,7 +110,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                 p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 0.5f, 0.77f);
 
             } else if (p.getFallDistance() > 4) {
-                if(isElytra(chest)) {
+                if (isElytra(chest)) {
                     return;
                 }
                 J.s(() -> p.getInventory().setChestplate(multiarmor.nextElytra(chest)));
@@ -211,8 +211,14 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
         return getConfig().startingSlots + level;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 10;
         int initialCost = 3;

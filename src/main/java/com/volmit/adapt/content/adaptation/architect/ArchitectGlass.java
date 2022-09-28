@@ -94,8 +94,14 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
     public void onTick() {
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         boolean showParticles = true;
         int baseCost = 5;
