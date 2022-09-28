@@ -297,6 +297,14 @@
       "description": "Craft Leather from Rotten Flesh",
       "lore1": "Just toss it(rotten flesh) on the campfire!"
     },
+    "backpacks": {
+      "name": "Craftable Backpacks! (64 slots)",
+      "description": "This just Brings the Mojang Bundle Backpacks into the game!",
+      "lore1": "Just toss it(rotten flesh) on the campfire!",
+      "lore2": "XLX : Leather, Lead, Leather",
+      "lore3": "XSX : Leather, Shulker Box, Leather",
+      "lore4": "XCX : Leather, Chest, Leather"
+    },
     "skulls": {
       "name": "Craftable skulls!",
       "description": "Using Materials you can Craft Mob Skulls!",
