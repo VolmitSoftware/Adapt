@@ -365,6 +365,16 @@
       "description": "Gives you the ability to craft Mycelium",
       "lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
     },
+    "cobweb": {
+      "name": "Webby Creator",
+      "description": "Gives you the ability to craft Cobwebs in a Crafting Table",
+      "lore1": "Four String, will craft a Cobweb."
+    },
+    "mushroomblocks": {
+      "name": "Mushroom Maker",
+      "description": "Gives you the ability to craft Mushroom Blocks in a Crafting Table",
+      "lore1": "Four Mushrooms to make a block, or a block to make a stem."
+    },
     "droptoinventory": {
       "name": "Hoe Drop-To-Inventory"
     },
