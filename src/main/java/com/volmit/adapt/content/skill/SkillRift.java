@@ -25,6 +25,7 @@ import com.volmit.adapt.content.adaptation.rift.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
+import net.minecraft.world.item.ItemEnderEye;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -90,7 +91,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
                 return;
             }
             xp(p, getConfig().throwEnderpearlXP);
-        } else if (e.getEntity() instanceof EnderSignal && e.getEntity().getShooter() instanceof Player p) {
+        } else if (e.getEntity() instanceof ItemEnderEye && e.getEntity().getShooter() instanceof Player p) {
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
