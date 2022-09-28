@@ -15,6 +15,8 @@
       "unlearnedall": "모두 학습하지 않음"
     },
     "adaptmenu": {
+      "maynotunlearn": "당신은 배울 수 없습니다",
+      "mayunlearn": "당신은 배울 수 있습니다 / 배우지 않을 수 있습니다",
       "knowledgecost": "지식 비용",
       "alreadylearned": "이미 배웠다",
       "unlearnrefund": "학습 취소 및 환불을 클릭하십시오.",
@@ -213,6 +215,11 @@
       "lore2": "찹 쿨다운",
       "lore3": "공구 마모"
     },
+    "logswap": {
+      "name": "Lucy의 로그 교환기",
+      "description": "Crafting Table에서 통나무의 맛을 변경하십시오!",
+      "lore1": "모든 종류의 통나무 1개 + 묘목 1개 = 묘목 종류의 통나무 1개"
+    },
     "droptoinventory": {
       "name": "도끼 인벤토리에 드롭"
     },
@@ -247,6 +254,21 @@
     }
   },
   "blocking": {
+    "chainarmorer": {
+      "name": "메피스토펠레스의 사슬",
+      "description": "사슬 갑옷을 제작할 수 있습니다.",
+      "lore1": "크래프팅 레시피는 다른 레시피와 동일하지만 대신 철 덩어리가 있습니다."
+    },
+    "horsearmorer": {
+      "name": "제작 가능한 말 갑옷",
+      "description": "말 갑옷을 만들 수 있습니다.",
+      "lore1": "갑옷 제작에 사용할 재료로 안장을 둘러쌉니다."
+    },
+    "saddlecrafter": {
+      "name": "제작 가능한 안장",
+      "description": "가죽으로 안장 만들기",
+      "lore1": "레시피: 5 가죽:"
+    },
     "multiarmor": {
       "name": "다중 갑옷",
       "description": "겉날개를 갑옷에 묶기",
@@ -269,6 +291,29 @@
       "name": "제작 경험치",
       "description": "제작 시 패시브 XP 획득",
       "lore1": "제작 시 XP 획득"
+    },
+    "leather": {
+      "name": "제작 가능한 가죽",
+      "description": "썩은 살로 가죽 만들기",
+      "lore1": "모닥불에 (썩은 살코기) 던지기만 하면 끝!"
+    },
+    "backpacks": {
+      "name": "부틸리에의 백팩!",
+      "description": "이것은 Mojang 번들을 게임으로 가져옵니다!",
+      "lore1": "이것을 사용하려면 서바이벌에 있어야 합니다.",
+      "lore2": "XLX : 가죽, 납, 가죽",
+      "lore3": "XSX : 가죽, 셜커 박스, 가죽",
+      "lore4": "XCX : 가죽, 가슴, 가죽"
+    },
+    "skulls": {
+      "name": "제작 가능한 해골!",
+      "description": "재료를 사용하여 몹 해골을 만들 수 있습니다!",
+      "lore1": "해골을 얻으려면 뼈 블록을 다음과 같이 둘러싸십시오.",
+      "lore2": "좀비: 썩어가는 살",
+      "lore3": "해골: 뼈",
+      "lore4": "크리퍼: 화약",
+      "lore5": "위더: 네더 벽돌",
+      "lore6": "드래곤: 드래곤 브레스"
     }
   },
   "discovery": {
@@ -359,6 +404,21 @@
       "name": "약초학자의 미코니드",
       "description": "균사체를 만드는 능력을 줍니다.",
       "lore1": "모든 흙, 그리고 갈색과 붉은 버섯은 균사체를 만들 것입니다."
+    },
+    "terralid": {
+      "name": "약초학자의 테랄리드",
+      "description": "잔디 블록을 만들 수 있는 능력 제공",
+      "lore1": "3개의 씨앗, 3개 이상의 흙으로 3개의 잔디 블록을 만들 수 있습니다."
+    },
+    "cobweb": {
+      "name": "웨비 크리에이터",
+      "description": "크래프팅 테이블에서 거미줄을 만드는 기능을 제공합니다.",
+      "lore1": "Four String은 거미줄을 만들 것입니다."
+    },
+    "mushroomblocks": {
+      "name": "버섯 제조기",
+      "description": "제작대에서 버섯 블록을 제작할 수 있습니다.",
+      "lore1": "4개의 버섯으로 블록을 만들거나 블록으로 줄기를 만듭니다."
     },
     "droptoinventory": {
       "name": "괭이 드롭-투-인벤토리"
