@@ -15,6 +15,8 @@
       "unlearnedall": "Tutto disimparato"
     },
     "adaptmenu": {
+      "maynotunlearn": "NON PUOI DISimparare",
+      "mayunlearn": "PUOI IMPARARE/DISimparare",
       "knowledgecost": "Costo della conoscenza",
       "alreadylearned": "Già appreso",
       "unlearnrefund": "Clicca per disimparare e rimborsare",
@@ -213,6 +215,11 @@
       "lore2": "Tempo di attesa per il taglio",
       "lore3": "Usura dell'attrezzo"
     },
+    "logswap": {
+      "name": "Lo scambiatore di log di Lucy",
+      "description": "Cambia il sapore dei tronchi in un tavolo da lavoro!",
+      "lore1": "1 ceppo di qualsiasi tipo + 1 alberello = 1 ceppo del tipo ad alberello"
+    },
     "droptoinventory": {
       "name": "Ascia caduta nell'inventario"
     },
@@ -247,6 +254,21 @@
     }
   },
   "blocking": {
+    "chainarmorer": {
+      "name": "Catene di Mefistofele",
+      "description": "Ti permette di creare un'armatura di cotta di maglia",
+      "lore1": "La ricetta del Crafting è la stessa di tutte le altre, ma con le pepite di ferro"
+    },
+    "horsearmorer": {
+      "name": "Armatura da cavallo artigianale",
+      "description": "Ti permette di creare armature per cavalli",
+      "lore1": "Circonda una sella con il materiale che vuoi usare per fabbricare l'armatura"
+    },
+    "saddlecrafter": {
+      "name": "Sella artigianale",
+      "description": "Crea una sella con pelle",
+      "lore1": "Ricetta: 5 Pelle:"
+    },
     "multiarmor": {
       "name": "Multi-armatura",
       "description": "Lega le Elitre all'Armatura",
@@ -269,6 +291,29 @@
       "name": "XP di artigianato",
       "description": "Guadagna XP passivi durante il crafting",
       "lore1": "Guadagna XP durante il crafting"
+    },
+    "leather": {
+      "name": "Pelle lavorabile",
+      "description": "Crea pelle dalla carne marcia",
+      "lore1": "Basta gettarlo (carne marcia) sul fuoco!"
+    },
+    "backpacks": {
+      "name": "Gli zaini di un Boutilier!",
+      "description": "Questo porta il pacchetto Mojang nel gioco!",
+      "lore1": "Devi essere in Survival per usarlo",
+      "lore2": "XLX: Pelle, Piombo, Pelle",
+      "lore3": "XSX: Pelle, Scatola Shulker, Pelle",
+      "lore4": "XCX : Pelle, Petto, Pelle"
+    },
+    "skulls": {
+      "name": "Teschi artigianali!",
+      "description": "Usando i materiali puoi creare teschi di mob!",
+      "lore1": "Circonda un blocco d'ossa con quanto segue per ottenere un teschio:",
+      "lore2": "Zombie: carne in decomposizione",
+      "lore3": "Scheletro: osso",
+      "lore4": "Rampicante: polvere da sparo",
+      "lore5": "Wither: mattone del Nether",
+      "lore6": "Drago: Il respiro del drago"
     }
   },
   "discovery": {
@@ -359,6 +404,21 @@
       "name": "Herbalist's Myconid",
       "description": "Gives you the ability to craft Mycelium",
       "lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
+    },
+    "terralid": {
+      "name": "Terralide dell'erborista",
+      "description": "Ti dà la possibilità di creare blocchi d'erba",
+      "lore1": "Tre semi, oltre 3 terriccio, creeranno 3 blocchi d'erba."
+    },
+    "cobweb": {
+      "name": "Creatore di Webby",
+      "description": "Ti dà la possibilità di creare ragnatele in un tavolo da lavoro",
+      "lore1": "Four String, creerà una ragnatela."
+    },
+    "mushroomblocks": {
+      "name": "Creatore di funghi",
+      "description": "Ti dà la possibilità di creare blocchi di funghi in un tavolo da lavoro",
+      "lore1": "Quattro funghi per fare un blocco, o un blocco per fare un gambo."
     },
     "droptoinventory": {
       "name": "Goccia di zappa nell'inventario"
