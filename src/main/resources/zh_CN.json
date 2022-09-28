@@ -15,6 +15,8 @@
       "unlearnedall": "已全部忘却"
     },
     "adaptmenu": {
+      "maynotunlearn": "你无法忘却此技能",
+      "mayunlearn": "可学习/忘却",
       "knowledgecost": "知识可用",
       "alreadylearned": "已学习",
       "unlearnrefund": "点击忘却此技能",
@@ -213,6 +215,11 @@
       "lore2": "冷却",
       "lore3": "耐久消耗"
     },
+    "logswap": {
+      "name": "露西的原木转换器",
+      "description": "在工作台中转换原木的种类吧！",
+      "lore1": "1块任意种类的原木 + 1株树苗 = 1块树苗对应种类的原木"
+    },
     "droptoinventory": {
       "name": "快速进入背包"
     },
@@ -247,6 +254,21 @@
     }
   },
   "blocking": {
+    "chainarmorer": {
+      "name": "梅菲斯特的锁链",
+      "description": "允许你合成锁链盔甲",
+      "lore1": "配方和其它盔甲一致，不过需要使用铁粒作为材料。"
+    },
+    "horsearmorer": {
+      "name": "可合成马铠",
+      "description": "允许你合成不同种类的马铠。",
+      "lore1": "在工作台中，使用材料围着马鞍一圈合成目标材质的马铠。"
+    },
+    "saddlecrafter": {
+      "name": "可合成马鞍",
+      "description": "用羽毛合成马鞍",
+      "lore1": "配方：5皮革："
+    },
     "multiarmor": {
       "name": "盔甲套组",
       "description": "在盔甲上绑定鞘翅",
@@ -269,6 +291,29 @@
       "name": "熟能生巧",
       "description": "合成物品时给予原版经验。",
       "lore1": "当合成完毕后自动给予"
+    },
+    "leather": {
+      "name": "可合成皮革",
+      "description": "将腐肉制成皮革",
+      "lore1": "只需要把腐肉丢到篝火上！"
+    },
+    "backpacks": {
+      "name": "布蒂利埃的背包",
+      "description": "将Mojang计划添加的收纳袋加入到游戏中！",
+      "lore1": "你需要在生存模式下才能使用它",
+      "lore2": "XLX : 皮革，拴绳，皮革",
+      "lore3": "XSX : 皮革，潜影盒，皮革",
+      "lore4": "XCX : 皮革，箱子，皮革"
+    },
+    "skulls": {
+      "name": "可合成头颅！",
+      "description": "用材料可以合成生物头颅！",
+      "lore1": "使用以下物品在工作台中围绕骨块一圈合成头颅：",
+      "lore2": "僵尸：腐肉",
+      "lore3": "骷髅：骨头",
+      "lore4": "苦力怕：火药",
+      "lore5": "凋灵骷髅：下界砖",
+      "lore6": "龙首：龙息"
     }
   },
   "discovery": {
@@ -359,6 +404,21 @@
       "name": "草药师的菌丝",
       "description": "给予你制作菌丝的能力。",
       "lore1": "所有泥土，和棕、红色蘑菇将会制作出菌丝。"
+    },
+    "terralid": {
+      "name": "草药师的地衣\n",
+      "description": "给予你合成草方块的能力。",
+      "lore1": "3个种子，加上3块泥土，可合成3块草方块。"
+    },
+    "cobweb": {
+      "name": "蛛网合成师",
+      "description": "你将获得在工作台中合成蛛网的能力",
+      "lore1": "四根线，合成一张蜘蛛网。"
+    },
+    "mushroomblocks": {
+      "name": "蘑菇包装厂",
+      "description": "你将获得在工作台中合成蘑菇方块的能力。",
+      "lore1": "四个蘑菇合成一个蘑菇块，或者使用一个蘑菇块进行分解。"
     },
     "droptoinventory": {
       "name": "快速进入背包"
