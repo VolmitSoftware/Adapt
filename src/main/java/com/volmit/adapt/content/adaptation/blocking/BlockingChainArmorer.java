@@ -37,7 +37,7 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("blocking", "chainarmorer", "description"));
         setDisplayName(Adapt.dLocalize("blocking", "chainarmorer", "name"));
-        setIcon(Material.CHAINMAIL_HELMET);
+        setIcon(Material.DIAMOND_HORSE_ARMOR);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(17774);

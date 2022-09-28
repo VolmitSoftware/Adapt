@@ -37,7 +37,7 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("blocking", "saddlecrafter", "description"));
         setDisplayName(Adapt.dLocalize("blocking", "saddlecrafter", "name"));
-        setIcon(Material.CHAINMAIL_HELMET);
+        setIcon(Material.SADDLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInterval(17774);

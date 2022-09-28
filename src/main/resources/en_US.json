@@ -15,6 +15,7 @@
       "unlearnedall": "Unlearned all"
     },
     "adaptmenu": {
+      "maynotunlearn": "THIS SKILL MAY NOT BE UNLEARNED, AND WILL BE PERMANENTLY DRAINING YOUR POWER!",
       "knowledgecost": "Knowledge Cost",
       "alreadylearned": "Already Learned",
       "unlearnrefund": "Click to Unlearn & Refund",
