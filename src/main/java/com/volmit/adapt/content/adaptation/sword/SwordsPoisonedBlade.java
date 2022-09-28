@@ -120,8 +120,14 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         public long cooldown = 5000;
         public long effectDuration = 1000;
         boolean enabled = true;

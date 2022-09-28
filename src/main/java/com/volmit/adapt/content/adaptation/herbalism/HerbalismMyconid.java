@@ -65,8 +65,14 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = true;
         boolean enabled = true;
         int baseCost = 8;
         int maxLevel = 1;

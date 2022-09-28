@@ -73,11 +73,16 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
     }
 
     public void unregisterAll() {
-        stopControllers();
-        unregisterListeners();
-        unregisterCommands();
-        unregisterPermissions();
-        unregisterInstance();
+        try {
+            stopControllers();
+            unregisterListeners();
+            unregisterCommands();
+            unregisterPermissions();
+            unregisterInstance();
+        } catch (Exception e) {
+            Adapt.error("Adapt: Failed to unregister all, You have a plugin that is not unloading properly. This is a bug in that plugin. Please report it to the developer. This is on shutdown however, so it's not a big deal.");
+            Adapt.error("Adapt: This is not a bug in Adapt. This is a bug in another plugin. Adapt is unloading ALL Command Nodes with Adapt ID's, If another plugin is unloading all or some of these nodes, it will cause this error.");
+        }
     }
 
     private void outputInfo() {

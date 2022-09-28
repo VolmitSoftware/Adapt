@@ -25,6 +25,7 @@ import com.volmit.adapt.content.adaptation.rift.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
+import net.minecraft.world.item.ItemEnderEye;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -41,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SkillRift extends SimpleSkill<SkillRift.Config> {
-    private final Map<Player, Long> lasttp = new HashMap<>();
+    private final Map<Player, Long> lasttp;
 
     public SkillRift() {
         super("rift", Adapt.dLocalize("skill", "rift", "icon"));
@@ -56,6 +57,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         registerAdaptation(new RiftEnderchest());
         registerAdaptation(new RiftGate());
         registerAdaptation(new RiftBlink());
+        lasttp = new HashMap<>();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -71,10 +73,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             return;
         }
         if (!lasttp.containsKey(p)) {
-            try {
-                xpSilent(p, getConfig().teleportXP);
-            } catch (Exception ignored) {
-            }
+            xpSilent(p, getConfig().teleportXP);
             lasttp.put(p, M.ms());
         }
     }
@@ -92,7 +91,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
                 return;
             }
             xp(p, getConfig().throwEnderpearlXP);
-        } else if (e.getEntity() instanceof EnderSignal && e.getEntity().getShooter() instanceof Player p) {
+        } else if (e.getEntity() instanceof ItemEnderEye && e.getEntity().getShooter() instanceof Player p) {
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
@@ -180,6 +179,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @Override
     public void onTick() {
+        if (!this.isEnabled()) {
+            return;
+        }
         for (Player i : lasttp.k()) {
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;

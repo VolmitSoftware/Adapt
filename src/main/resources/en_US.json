@@ -15,6 +15,8 @@
       "unlearnedall": "Unlearned all"
     },
     "adaptmenu": {
+      "maynotunlearn": "YOU MAY NOT UNLEARN",
+      "mayunlearn": "YOU MAY LEARN/UNLEARN",
       "knowledgecost": "Knowledge Cost",
       "alreadylearned": "Already Learned",
       "unlearnrefund": "Click to Unlearn & Refund",
@@ -73,12 +75,12 @@
       "icon": "▒",
       "description": "Sticks and stones Won't break your bones, But a shield will."
     },
-    "crafting":{
+    "crafting": {
       "name": "Crafting",
       "icon": "⌂",
       "description": "With no more pieces left to place, why not make another?"
     },
-    "discovery":{
+    "discovery": {
       "name": "Discovery",
       "icon": "⚛",
       "description": "As your Perception expands, your mind unravels to discover that which you did not"
@@ -93,7 +95,7 @@
       "icon": "✥",
       "description": "Diggey Diggey hole..."
     },
-    "herbalism":  {
+    "herbalism": {
       "name": "Herbalism",
       "icon": "⚘",
       "description": "I can't find any plants, but I can find some seeds and- is that... Weed?"
@@ -213,6 +215,11 @@
       "lore2": "Chop Cooldown",
       "lore3": "Tool Wear"
     },
+    "logswap": {
+      "name": "Lucy's Log-Swapper",
+      "description": "Change the flavor of logs in a Crafting Table!",
+      "lore1": "1 Log of any kind + 1 sapling = 1 log of the sapling's type"
+    },
     "droptoinventory": {
       "name": "Axe Drop-To-Inventory"
     },
@@ -247,6 +254,21 @@
     }
   },
   "blocking": {
+    "chainarmorer": {
+      "name": "Chains of Mephistopheles",
+      "description": "Allows you to craft Chainmail Armor",
+      "lore1": "The Crafting recipe is the same as any other, but with iron nuggets instead"
+    },
+    "horsearmorer": {
+      "name": "Craftable Horse Armor",
+      "description": "Allows you to craft Horse Armor",
+      "lore1": "Surround a saddle with the material you want to use to craft the armor"
+    },
+    "saddlecrafter": {
+      "name": "Craftable Saddle",
+      "description": "Craft a Saddle with Leather",
+      "lore1": "Recipe: 5 Leather:"
+    },
     "multiarmor": {
       "name": "Multi-Armor",
       "description": "Bind Elytras to Armor",
@@ -258,7 +280,7 @@
       "lore6": "I Don't need armor, It disappoints me..."
     }
   },
-  "crafting":{
+  "crafting": {
     "deconstruction": {
       "name": "Deconstruction",
       "description": "Deconstruct blocks & items into salvageable base components!",
@@ -269,9 +291,32 @@
       "name": "Crafting XP",
       "description": "Gain passive XP when crafting",
       "lore1": "Gain XP when crafting"
+    },
+    "leather": {
+      "name": "Craftable Leather",
+      "description": "Craft Leather from Rotten Flesh",
+      "lore1": "Just toss it(rotten flesh) on the campfire!"
+    },
+    "backpacks": {
+      "name": "A Boutilier's Backpacks!",
+      "description": "This just Brings the Mojang Bundle into the game!",
+      "lore1": "You need to be in Survival to use this",
+      "lore2": "XLX : Leather, Lead, Leather",
+      "lore3": "XSX : Leather, Shulker Box, Leather",
+      "lore4": "XCX : Leather, Chest, Leather"
+    },
+    "skulls": {
+      "name": "Craftable skulls!",
+      "description": "Using Materials you can Craft Mob Skulls!",
+      "lore1": "Surround a Bone Block with the following to get a skull:",
+      "lore2": "Zombie: Rotting Flesh",
+      "lore3": "Skeleton: Bone",
+      "lore4": "Creeper: Gunpowder",
+      "lore5": "Wither: Nether Brick",
+      "lore6": "Dragon: Dragons Breath"
     }
   },
-  "discovery":{
+  "discovery": {
     "armor": {
       "name": "World Armor",
       "description": "Passive armor depending on nearby block hardness.",
@@ -342,7 +387,7 @@
       "lore7": "you could use five or six tools, or just one!"
     }
   },
-  "herbalism":  {
+  "herbalism": {
     "growthaura": {
       "name": "Growth Aura",
       "description": "Grow nature around you in an aura",
@@ -359,6 +404,21 @@
       "name": "Herbalist's Myconid",
       "description": "Gives you the ability to craft Mycelium",
       "lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
+    },
+    "terralid": {
+      "name": "Herbalist's Terralid",
+      "description": "Gives you the ability to craft Grass Blocks",
+      "lore1": "Three Seeds, over 3 Dirt, will craft 3 Grass Blocks."
+    },
+    "cobweb": {
+      "name": "Webby Creator",
+      "description": "Gives you the ability to craft Cobwebs in a Crafting Table",
+      "lore1": "Four String, will craft a Cobweb."
+    },
+    "mushroomblocks": {
+      "name": "Mushroom Maker",
+      "description": "Gives you the ability to craft Mushroom Blocks in a Crafting Table",
+      "lore1": "Four Mushrooms to make a block, or a block to make a stem."
     },
     "droptoinventory": {
       "name": "Hoe Drop-To-Inventory"
@@ -592,7 +652,7 @@
       "description": "Swim like a dolphin, without the dolphins",
       "lore1": "+ Passive: gain ",
       "lore2": "x speed (dolphins grace)",
-      "lore3": "precision german engineeeri- wait that's not right..."
+      "lore3": "precision german engineeeri- wait that's not right... Not Compatible with Depth Strider"
     }
   },
   "stealth": {
@@ -638,7 +698,7 @@
     "poisonedblade": {
       "name": "Poisoned Blade",
       "description": "Strikes with your sword, cause Poison!",
-      "lore1": "Striking a Living entity with your Sword causes Poison" ,
+      "lore1": "Striking a Living entity with your Sword causes Poison",
       "lore2": "Poison Duration",
       "lore3": "Poison Cooldown"
     }

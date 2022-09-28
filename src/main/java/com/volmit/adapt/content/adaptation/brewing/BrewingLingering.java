@@ -140,8 +140,14 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 3;
         double costFactor = 0.75;

@@ -112,8 +112,14 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 2;
         int maxLevel = 7;

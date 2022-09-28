@@ -138,6 +138,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @Override
     public void onTick() {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (witherRoseCooldown > 0) {
             witherRoseCooldown--;
         }

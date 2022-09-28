@@ -102,7 +102,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                                                         if (getConfig().showParticles) {
                                                             p.spawnParticle(Particle.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);
                                                         }
-                                                        xp(p, 1);
+//                                                        xp(p, 1); // JESUS THIS IS FUCKING BUSTED
                                                     }
                                                 }
                                             }
@@ -126,8 +126,14 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         boolean showParticles = true;
         int baseCost = 8;

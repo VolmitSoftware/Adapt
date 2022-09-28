@@ -95,8 +95,14 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 6;
         int maxLevel = 5;

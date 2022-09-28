@@ -55,7 +55,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Adapt.dLocalize("discovery", "armor", "lore1") + C.GRAY + ", " + Adapt.dLocalize("discovery", "armor", "lore2"));
-        v.addLore(C.YELLOW + "~ " + Adapt.dLocalize("discovery", "armor", "lore3") + C.BLUE + " +"+ level * 0.25);
+        v.addLore(C.YELLOW + "~ " + Adapt.dLocalize("discovery", "armor", "lore3") + C.BLUE + " +" + level * 0.25);
     }
 
     public double getArmorPoints(Material m) {
@@ -146,8 +146,14 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         public int radiusFactor = 3;
         public double strengthExponent = 1.25;
         public boolean showParticles = true;

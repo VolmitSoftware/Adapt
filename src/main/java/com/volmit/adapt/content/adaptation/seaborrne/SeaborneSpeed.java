@@ -24,17 +24,14 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityAirChangeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
-    private final List<Integer> holds = new ArrayList<>();
 
     public SeaborneSpeed() {
         super("seaborne-speed");
@@ -60,6 +57,12 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
         if (e.isCancelled()) {
             return;
         }
+        if (e.getEntity() instanceof Player) {
+            Player p = (Player) e.getEntity();
+            if (p.getInventory().getBoots() != null && p.getInventory().getBoots().getEnchantments().containsKey(Enchantment.DEPTH_STRIDER)) {
+                return;
+            }
+        }
         if (e.getEntity() instanceof Player p && p.isSwimming() && hasAdaptation(p) && p.getWorld().getBlockAt(p.getLocation()).isLiquid()) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 50, getLevel(p)));
             p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, getLevel(p), getLevel(p)));
@@ -76,8 +79,14 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 3;
         int maxLevel = 7;

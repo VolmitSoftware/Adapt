@@ -21,7 +21,10 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.content.adaptation.blocking.BlockingChainArmorer;
+import com.volmit.adapt.content.adaptation.blocking.BlockingHorseArmorer;
 import com.volmit.adapt.content.adaptation.blocking.BlockingMultiArmor;
+import com.volmit.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -47,6 +50,9 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
         setInterval(5000);
         setIcon(Material.SHIELD);
         registerAdaptation(new BlockingMultiArmor());
+        registerAdaptation(new BlockingChainArmorer());
+        registerAdaptation(new BlockingSaddlecrafter());
+        registerAdaptation(new BlockingHorseArmorer());
         cooldowns = new HashMap<>();
     }
 
@@ -84,6 +90,9 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
     @Override
     public void onTick() {
+        if (!this.isEnabled()) {
+            return;
+        }
         for (Player i : Bukkit.getOnlinePlayers()) {
             checkStatTrackers(getPlayer(i));
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
@@ -91,9 +100,6 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             }
             if (i.getPlayer() != null && (i.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.SHIELD) || i.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.SHIELD))) {
                 if (!AdaptConfig.get().isXpInCreative() && (i.getGameMode().equals(GameMode.CREATIVE) || i.getGameMode().equals(GameMode.SPECTATOR))) {
-                    return;
-                }
-                if (!this.isEnabled()) {
                     return;
                 }
                 xpSilent(i, getConfig().passiveXpForUsingShield);
