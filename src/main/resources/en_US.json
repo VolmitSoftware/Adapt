@@ -247,6 +247,11 @@
     }
   },
   "blocking": {
+    "chainarmorer": {
+      "name": "Chains of Mephistopheles",
+      "description": "Allows you to craft Chainmail Armor",
+      "lore1": "The Crafting recipe is the same as any other, but with iron nuggets instead"
+    },
     "multiarmor": {
       "name": "Multi-Armor",
       "description": "Bind Elytras to Armor",

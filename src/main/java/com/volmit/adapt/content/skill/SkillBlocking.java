@@ -21,6 +21,7 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.content.adaptation.blocking.BlockingChainArmorer;
 import com.volmit.adapt.content.adaptation.blocking.BlockingMultiArmor;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
@@ -47,6 +48,7 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
         setInterval(5000);
         setIcon(Material.SHIELD);
         registerAdaptation(new BlockingMultiArmor());
+        registerAdaptation(new BlockingChainArmorer());
         cooldowns = new HashMap<>();
     }
 
