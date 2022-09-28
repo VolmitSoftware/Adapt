@@ -313,9 +313,9 @@ public interface Adaptation<T> extends Ticked, Component {
                     .setProgress(1D)
                     .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
                     .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost") + " " + (AdaptConfig.get().isHardcoreNoRefunds() ? C.DARK_RED + "" + C.BOLD + Adapt.dLocalize("snippets", "adaptmenu", "norefunds") : "")))
-                    .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Adapt.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.DARK_RED + "" + C.BOLD + Adapt.dLocalize("snippets", "adaptmenu", "norefunds")) : (C.GREEN + Adapt.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "unlearnrefund") + " " + C.GREEN + rc + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost")) : (k >= c ? (C.BLUE + Adapt.dLocalize("snippets", "adaptmenu", "clicklearn") + " " + getDisplayName(i)) : (k == 0 ? (C.RED + Adapt.dLocalize("snippets", "adaptmenu", "noknowledge")) : (C.RED + "(" + Adapt.dLocalize("snippets", "adaptmenu", "youonlyhave") + " " + C.WHITE + k + C.RED + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost") + ")"))))
+                    .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Adapt.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.DARK_RED + "" + C.BOLD + Adapt.dLocalize("snippets", "adaptmenu", "norefunds")) : (isPermanent() ? "" : (C.GREEN + Adapt.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "unlearnrefund") + " " + C.GREEN + rc + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost"))) : (k >= c ? (C.BLUE + Adapt.dLocalize("snippets", "adaptmenu", "clicklearn") + " " + getDisplayName(i)) : (k == 0 ? (C.RED + Adapt.dLocalize("snippets", "adaptmenu", "noknowledge")) : (C.RED + "(" + Adapt.dLocalize("snippets", "adaptmenu", "youonlyhave") + " " + C.WHITE + k + C.RED + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost") + ")"))))
                     .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("snippets", "adaptmenu", "powerdrain") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("snippets", "adaptmenu", "powerdrain") : C.RED + Adapt.dLocalize("snippets", "adaptmenu", "notenoughpower") + "\n" + C.RED + Adapt.dLocalize("snippets", "adaptmenu", "howtolevelup"))
-                    .addLore((isPermanent() ? C.RED + "" + C.BOLD  + Adapt.dLocalize("snippets", "adaptmenu", "maynotunlearn") : C.GREEN + "" + C.BOLD + Adapt.dLocalize("snippets", "adaptmenu", "mayunlearn")))
+                    .addLore((isPermanent() ? C.RED + "" + C.BOLD + Adapt.dLocalize("snippets", "adaptmenu", "maynotunlearn") : ""))
                     .onLeftClick((e) -> {
                         if (mylevel >= lvl) {
                             unlearn(player, lvl);
@@ -344,6 +344,7 @@ public interface Adaptation<T> extends Ticked, Component {
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
                                 if (isPermanent()) {
                                     player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.355f);
+                                    player.getWorld().playSound(player.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
                                 }
                                 w.close();
                                 if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
