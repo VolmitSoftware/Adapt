@@ -37,7 +37,7 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("crafting", "skulls", "description"));
         setDisplayName(Adapt.dLocalize("crafting", "skulls", "name"));
-        setIcon(Material.LEATHER);
+        setIcon(Material.WITHER_SKELETON_SKULL);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
@@ -124,7 +124,7 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
     protected static class Config {
         boolean permanent = true;
         boolean enabled = true;
-        int baseCost = 2;
+        int baseCost = 8;
         int maxLevel = 1;
         int initialCost = 2;
         double costFactor = 1;

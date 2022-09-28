@@ -78,7 +78,7 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
     protected static class Config {
         boolean permanent = true;
         boolean enabled = true;
-        int baseCost = 2;
+        int baseCost = 5;
         int maxLevel = 1;
         int initialCost = 2;
         double costFactor = 1;

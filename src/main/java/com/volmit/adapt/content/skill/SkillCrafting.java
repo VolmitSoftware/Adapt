@@ -23,10 +23,7 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
-import com.volmit.adapt.content.adaptation.crafting.CraftingDeconstruction;
-import com.volmit.adapt.content.adaptation.crafting.CraftingLeather;
-import com.volmit.adapt.content.adaptation.crafting.CraftingSkulls;
-import com.volmit.adapt.content.adaptation.crafting.CraftingXP;
+import com.volmit.adapt.content.adaptation.crafting.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
@@ -56,6 +53,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         registerAdaptation(new CraftingXP());
         registerAdaptation(new CraftingLeather());
         registerAdaptation(new CraftingSkulls());
+        registerAdaptation(new CraftingBackpacks());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.BRICK)
                 .key("challenge_craft_3k")
