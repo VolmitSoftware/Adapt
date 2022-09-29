@@ -65,7 +65,21 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                         .title("Sprint a 5K!")
                         .description("Sprint over 5,000 Blocks!")
                         .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                .icon(Material.IRON_BOOTS)
+                                .key("challenge_sprint_50k")
+                                .title("Sprint a 50K!")
+                                .description("Sprint over 50,000 Blocks!")
+                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                        .icon(Material.IRON_BOOTS)
+                                        .key("challenge_sprint_500k")
+                                        .title("Sprint a 500K!")
+                                        .description("Sprint over 500,000 Blocks!")
+                                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                        .build())
+                                .build())
                         .build())
                 .child(AdaptAdvancement.builder()
                         .icon(Material.GOLDEN_BOOTS)
@@ -78,6 +92,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                 .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_move_1k").goal(1000).stat("move").reward(getConfig().challengeMove1kReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_5k").goal(5000).stat("move").reward(getConfig().challengeSprint5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_50k").goal(50000).stat("move").reward(getConfig().challengeSprint5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_500k").goal(500000).stat("move").reward(getConfig().challengeSprint5kReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_marathon").goal(42195).stat("move").reward(getConfig().challengeSprintMarathonReward).build());
     }
 

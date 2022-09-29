@@ -54,9 +54,33 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
                 .title("So much to build!")
                 .description("Place over 1,000 blocks")
                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                        .icon(Material.BRICK)
+                        .key("challenge_place_10k")
+                        .title("Build your World!")
+                        .description("Place over 10,000 blocks")
+                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                .icon(Material.NETHER_BRICK)
+                                .key("challenge_place_100k")
+                                .title("Build your UNIVERSE!")
+                                .description("Place over 100,000 blocks")
+                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                        .icon(Material.IRON_INGOT)
+                                        .key("challenge_place_1m")
+                                        .title("Reality is your Playground")
+                                        .description("Place over 1 Million blocks")
+                                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                        .build())
+                                .build())
+                        .build())
                 .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(10000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(100000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
         setIcon(Material.SMITHING_TABLE);
         registerAdaptation(new ArchitectGlass());
         registerAdaptation(new ArchitectFoundation());
