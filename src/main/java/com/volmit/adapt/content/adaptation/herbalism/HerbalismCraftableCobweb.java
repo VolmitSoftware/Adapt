@@ -47,8 +47,9 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
                 .key("herbalism-cobwebBlock")
                 .ingredient(new MaterialChar('I', Material.STRING))
                 .shapes(List.of(
-                        "II",
-                        "II"))
+                        "III",
+                        "III",
+                        "III"))
                 .result(new ItemStack(Material.COBWEB, 1))
                 .build());
 
