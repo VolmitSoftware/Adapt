@@ -218,7 +218,7 @@
     "logswap": {
       "name": "Lucy's Log-Swapper",
       "description": "Change the flavor of logs in a Crafting Table!",
-      "lore1": "1 Log of any kind + 1 sapling = 1 log of the sapling's type"
+      "lore1": "8 Log of any kind + 1 sapling = 8 log of the sapling's type"
     },
     "droptoinventory": {
       "name": "Axe Drop-To-Inventory"

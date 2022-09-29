@@ -126,6 +126,12 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                                     || i.getType().equals(Material.CORNFLOWER)
                                     || i.getType().equals(Material.CHORUS_FLOWER)
                                     || i.getType().equals(Material.BAMBOO)
+                                    || i.getType().equals(Material.BAMBOO_SAPLING)
+                                    || i.getType().equals(Material.LILAC)
+                                    || i.getType().equals(Material.PEONY)
+                                    || i.getType().equals(Material.LILY_PAD)
+                                    || i.getType().equals(Material.COCOA)
+                                    || i.getType().equals(Material.MANGROVE_LEAVES)
 
                             ) {
                                 BlockBreakEvent ee = new BlockBreakEvent(i, p);
