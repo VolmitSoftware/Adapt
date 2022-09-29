@@ -81,7 +81,7 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
     protected static class Config {
         boolean permanent = true;
         boolean enabled = true;
-        int baseCost = 10;
+        int baseCost = 5;
         int maxLevel = 1;
         int initialCost = 1;
         double costFactor = 0;

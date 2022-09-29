@@ -232,11 +232,18 @@
       "lore4": "Smash Cooldown"
     },
     "leafminer": {
-      "name": "leafminer",
+      "name": "Leaf-miner",
       "description": "Allows you to break bulk leaves at once!",
       "lore1": "Sneak, and mine LEAVES",
       "lore2": "range of Leaf-mining",
       "lore3": "You will not get the drops from the leaves (Exploit Prevention)"
+    },
+    "woodminer": {
+      "name": "Wood-miner",
+      "description": "Allows you to break bulk wood at once!",
+      "lore1": "Sneak, and mine WOOD/LOGS ( Not Planks )",
+      "lore2": "range of Wood-mining",
+      "lore3": "Works with Drop to inventory"
     }
   },
   "brewing": {

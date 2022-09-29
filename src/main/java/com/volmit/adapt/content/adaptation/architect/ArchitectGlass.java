@@ -62,7 +62,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
             return;
         }
         Player p = e.getPlayer();
-        if (hasAdaptation(p) && (p.getInventory().getItemInMainHand().getType() == Material.AIR) && !e.isCancelled()) {
+        if (hasAdaptation(p) && (p.getInventory().getItemInMainHand().getType() == Material.AIR || !isTool(p.getInventory().getItemInMainHand())) && !e.isCancelled()) {
             BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), p, e.getBlock().getBlockData(), true);
             Bukkit.getServer().getPluginManager().callEvent(can);
 
@@ -101,10 +101,10 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
+        boolean permanent = true;
         boolean enabled = true;
         boolean showParticles = true;
-        int baseCost = 5;
+        int baseCost = 3;
         int maxLevel = 1;
         int initialCost = 0;
         double costFactor = 5;

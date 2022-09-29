@@ -48,6 +48,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         registerAdaptation(new AxeChop());
         registerAdaptation(new AxeDropToInventory());
         registerAdaptation(new AxeLeafVeinminer());
+        registerAdaptation(new AxeWoodVeinminer());
         registerAdaptation(new AxeCraftLogSwap());
     }
 

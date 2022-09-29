@@ -285,13 +285,13 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     public static class Config {
         public boolean enabled = true;
         public double harvestXpCooldown = 5000;
-        public double foodConsumeXP = 125;
-        public double shearXP = 95;
-        public double harvestPerAgeXP = 35;
+        public double foodConsumeXP = 101;
+        public double shearXP = 50;
+        public double harvestPerAgeXP = 15;
         public double plantCropSeedsXP = 4;
-        public double composterBaseXP = 51;
-        public double composterLevelXPMultiplier = 3;
-        public double composterNonZeroLevelBonus = 250;
+        public double composterBaseXP = 10;
+        public double composterLevelXPMultiplier = 2;
+        public double composterNonZeroLevelBonus = 150;
         public double challengeEat100Reward = 1250;
         public double challengeEat1kReward = 6250;
         public double challengeHarvest100Reward = 1250;
