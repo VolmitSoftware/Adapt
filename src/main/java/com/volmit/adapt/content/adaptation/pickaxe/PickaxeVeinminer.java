@@ -84,7 +84,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                 return;
             }
         }
-        
+
         Block block = e.getBlock();
         Map<Location, Block> blockMap = new HashMap<>();
         blockMap.put(block.getLocation(), block);
