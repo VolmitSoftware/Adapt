@@ -79,11 +79,21 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                         .title("Unquenchable Hunger!")
                         .description("Eat over 1,000 Items!")
                         .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                .icon(Material.COOKED_BEEF)
+                                .key("challenge_eat_10000")
+                                .title("INCONSUMABLE HUNGER!")
+                                .description("Eat over 10,000 Items!")
+                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .build())
                         .build())
                 .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_100").goal(100).stat("food.eaten").reward(getConfig().challengeEat100Reward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_1000").goal(1000).stat("food.eaten").reward(getConfig().challengeEat1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_eat_10000").goal(10000).stat("food.eaten").reward(getConfig().challengeEat1kReward).build());
+
+
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.COOKED_BEEF)
                 .key("challenge_harvest_100")
