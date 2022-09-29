@@ -79,10 +79,12 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
             return;
         }
 
-
-        if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE") || e.getBlock().getBlockData().getMaterial().name().endsWith("OBSIDIAN")) {
-            return;
+        if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE") ) {
+            if (!e.getBlock().getType().equals(Material.OBSIDIAN)) {
+                return;
+            }
         }
+        
         Block block = e.getBlock();
         Map<Location, Block> blockMap = new HashMap<>();
         blockMap.put(block.getLocation(), block);
