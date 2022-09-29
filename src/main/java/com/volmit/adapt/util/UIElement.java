@@ -221,7 +221,7 @@ public class UIElement implements Element {
             if (isEnchanted()) {
                 im.addEnchant(Enchantment.DURABILITY, 1, true);
             }
-
+            im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             is.setItemMeta(im);
             return is;
         } catch (Throwable e) {
