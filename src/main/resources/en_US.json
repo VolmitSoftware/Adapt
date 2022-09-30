@@ -66,7 +66,7 @@
       "description3": "instead, same end result!"
     },
     "brewing": {
-      "name": "Arewing",
+      "name": "Brewing",
       "icon": "❦",
       "description": "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
     },
@@ -218,7 +218,7 @@
     "logswap": {
       "name": "Lucy's Log-Swapper",
       "description": "Change the flavor of logs in a Crafting Table!",
-      "lore1": "1 Log of any kind + 1 sapling = 1 log of the sapling's type"
+      "lore1": "8 Log of any kind + 1 sapling = 8 log of the sapling's type"
     },
     "droptoinventory": {
       "name": "Axe Drop-To-Inventory"
@@ -232,11 +232,18 @@
       "lore4": "Smash Cooldown"
     },
     "leafminer": {
-      "name": "leafminer",
+      "name": "Leaf-miner",
       "description": "Allows you to break bulk leaves at once!",
       "lore1": "Sneak, and mine LEAVES",
       "lore2": "range of Leaf-mining",
       "lore3": "You will not get the drops from the leaves (Exploit Prevention)"
+    },
+    "woodminer": {
+      "name": "Wood-miner",
+      "description": "Allows you to break bulk wood at once!",
+      "lore1": "Sneak, and mine WOOD/LOGS ( Not Planks )",
+      "lore2": "range of Wood-mining",
+      "lore3": "Works with Drop to inventory"
     }
   },
   "brewing": {
@@ -302,7 +309,7 @@
       "description": "This just Brings the Mojang Bundle into the game!",
       "lore1": "You need to be in Survival to use this",
       "lore2": "XLX : Leather, Lead, Leather",
-      "lore3": "XSX : Leather, Shulker Box, Leather",
+      "lore3": "XSX : Leather, Barrel Box, Leather",
       "lore4": "XCX : Leather, Chest, Leather"
     },
     "skulls": {

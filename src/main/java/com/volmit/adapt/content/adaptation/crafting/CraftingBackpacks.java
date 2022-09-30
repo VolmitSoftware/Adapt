@@ -48,7 +48,7 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
                 .ingredient(new MaterialChar('I', Material.LEATHER))
                 .ingredient(new MaterialChar('L', Material.LEAD))
                 .ingredient(new MaterialChar('C', Material.CHEST))
-                .ingredient(new MaterialChar('X', Material.SHULKER_BOX))
+                .ingredient(new MaterialChar('X', Material.BARREL))
                 .shapes(List.of(
                         "ILI",
                         "IXI",
@@ -85,7 +85,7 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
     protected static class Config {
         boolean permanent = true;
         boolean enabled = true;
-        int baseCost = 15;
+        int baseCost = 5;
         int maxLevel = 1;
         int initialCost = 2;
         double costFactor = 1;

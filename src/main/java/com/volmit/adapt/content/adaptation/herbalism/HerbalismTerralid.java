@@ -79,7 +79,7 @@ public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config
     protected static class Config {
         boolean permanent = true;
         boolean enabled = true;
-        int baseCost = 8;
+        int baseCost = 4;
         int maxLevel = 1;
         int initialCost = 3;
         double costFactor = 0.75;

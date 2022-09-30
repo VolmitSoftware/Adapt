@@ -108,7 +108,8 @@ public interface AdaptComponent {
                         STRIPPED_BIRCH_LOG, STRIPPED_DARK_OAK_LOG, STRIPPED_JUNGLE_LOG, STRIPPED_OAK_LOG,
                         STRIPPED_SPRUCE_LOG, ACACIA_WOOD, BIRCH_WOOD, DARK_OAK_WOOD, JUNGLE_WOOD, OAK_WOOD,
                         SPRUCE_WOOD, STRIPPED_ACACIA_WOOD, STRIPPED_BIRCH_WOOD, STRIPPED_DARK_OAK_WOOD, STRIPPED_JUNGLE_WOOD,
-                        STRIPPED_OAK_WOOD, STRIPPED_SPRUCE_WOOD, MUSHROOM_STEM, BROWN_MUSHROOM_BLOCK, RED_MUSHROOM_BLOCK ->
+                        STRIPPED_OAK_WOOD, STRIPPED_SPRUCE_WOOD, MUSHROOM_STEM, BROWN_MUSHROOM_BLOCK, RED_MUSHROOM_BLOCK,
+                        MANGROVE_LOG, MANGROVE_ROOTS, MUDDY_MANGROVE_ROOTS, STRIPPED_MANGROVE_LOG, MANGROVE_WOOD, STRIPPED_MANGROVE_WOOD ->
                         true;
                 default -> false;
             };
@@ -120,7 +121,9 @@ public interface AdaptComponent {
     default boolean isLeaves(ItemStack it) {
         if (isItem(it)) {
             return switch (it.getType()) {
-                case OAK_LEAVES, SPRUCE_LEAVES, BIRCH_LEAVES, JUNGLE_LEAVES, ACACIA_LEAVES, DARK_OAK_LEAVES, MANGROVE_LEAVES, AZALEA_LEAVES, FLOWERING_AZALEA_LEAVES ->
+                case OAK_LEAVES, MANGROVE_ROOTS, MUDDY_MANGROVE_ROOTS, SPRUCE_LEAVES, BIRCH_LEAVES,
+                        JUNGLE_LEAVES, ACACIA_LEAVES, DARK_OAK_LEAVES, MANGROVE_LEAVES,
+                        AZALEA_LEAVES, FLOWERING_AZALEA_LEAVES ->
                         true;
                 default -> false;
             };

@@ -40,7 +40,13 @@ import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
+    private final Map<Player, Long> cooldowns;
+
+
     public SkillCrafting() {
         super("crafting", Adapt.dLocalize("skill", "crafting", "icon"));
         registerConfiguration(Config.class);
@@ -63,6 +69,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_3k").goal(3000).stat("crafted.items").reward(getConfig().challengeCraft3kReward).build());
+        cooldowns = new HashMap<>();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -80,11 +87,20 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
+
+        if (cooldowns.containsKey(p)) {
+            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                return;
+            } else {
+                cooldowns.remove(p);
+            }
+        }
+
         if (e.getInventory().getResult() != null && !e.isCancelled() && e.getInventory().getResult().getAmount() > 0) {
             if (e.getInventory().getResult() != null && e.getCursor() != null && e.getCursor().getAmount() < 64) {
                 if (p.getInventory().addItem(e.getCurrentItem()).isEmpty()) {
                     p.getInventory().removeItem(e.getCurrentItem());
-
+                    cooldowns.put(p, System.currentTimeMillis());
                     ItemStack test = e.getRecipe().getResult().clone();
                     int recipeAmount = e.getInventory().getResult().getAmount();
                     switch (e.getClick()) {
@@ -197,6 +213,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         double furnaceBaseXP = 24;
         double furnaceValueXPMultiplier = 4;
         int furnaceXPRadius = 32;
+        long cooldownDelay = 10000;
         long furnaceXPDuration = 10000;
         double craftingValueXPMultiplier = 1;
         double baseCraftingXP = 1;

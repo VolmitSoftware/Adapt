@@ -135,9 +135,9 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         boolean permanent = false;
         boolean enabled = true;
         int baseCost = 3;
-        double costFactor = 0.75;
-        int maxLevel = 3;
-        int initialCost = 5;
+        double costFactor = 0.35;
+        int maxLevel = 5;
+        int initialCost = 2;
         int rangeLevelMultiplier = 5;
         double cooldownTicksBase = 15;
         double cooldownTicksInverseLevelMultiplier = 16;

@@ -155,11 +155,11 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     @NoArgsConstructor
     public static class Config {
         private boolean enabled = true;
-        private double witherDamageXp = 1.0D;
-        private double witherAttackXp = 1.0D;
-        private double witherSkeletonKillXp = 1.0D;
-        private double witherKillXp = 1.0D;
-        private double witherRoseBreakXp = 1.0D;
+        private double witherDamageXp = 26.0D;
+        private double witherAttackXp = 23.0D;
+        private double witherSkeletonKillXp = 125.0D;
+        private double witherKillXp = 999.0D;
+        private double witherRoseBreakXp = 25.0D;
         private int witherRoseBreakCooldown = 60 * 20;
     }
 }

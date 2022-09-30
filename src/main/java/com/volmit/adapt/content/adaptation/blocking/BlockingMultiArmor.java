@@ -220,7 +220,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
     protected static class Config {
         boolean permanent = false;
         boolean enabled = true;
-        int baseCost = 10;
+        int baseCost = 1;
         int initialCost = 3;
         double costFactor = 1;
         int maxLevel = 1;

@@ -47,8 +47,9 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
                 .key("herbalism-cobwebBlock")
                 .ingredient(new MaterialChar('I', Material.STRING))
                 .shapes(List.of(
-                        "II",
-                        "II"))
+                        "III",
+                        "III",
+                        "III"))
                 .result(new ItemStack(Material.COBWEB, 1))
                 .build());
 
@@ -78,7 +79,7 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
     protected static class Config {
         boolean permanent = true;
         boolean enabled = true;
-        int baseCost = 5;
+        int baseCost = 4;
         int maxLevel = 1;
         int initialCost = 2;
         double costFactor = 1;

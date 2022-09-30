@@ -152,7 +152,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     @NoArgsConstructor
     protected static class Config {
         public double deathXpLoss = -500;
-        boolean takeAwaySkillsOnDeath = true;
+        boolean takeAwaySkillsOnDeath = false;
         boolean enabled = true;
         boolean showParticles = true;
         double damageReceivedXpMultiplier = 2.26;
