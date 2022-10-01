@@ -59,14 +59,17 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         if (!hasAdaptation(p)) {
             return;
         }
+
         int xp = e.getExpLevelCost();
         xp = xp + getLevel(p); // Add a level for each enchant
-        e.setExpLevelCost(xp);
-        int lapis = (int) (Math.random() * 1);
-        lapis = lapis + (int) (Math.random() * (getLevel(p) + 1));
-        p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, lapis));
-        xp(p, 15);
 
+        e.setExpLevelCost(xp * 2);
+
+        int lapis = (int) (Math.random() * 1);
+        lapis = lapis + (int) (Math.random() * (getLevel(p)));
+
+
+        p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, lapis));
 
     }
 
@@ -89,9 +92,9 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
     protected static class Config {
         boolean permanent = false;
         boolean enabled = true;
-        int baseCost = 1;
-        int maxLevel = 7;
+        int baseCost = 5;
+        int maxLevel = 3;
         int initialCost = 2;
-        double costFactor = 1.25;
+        double costFactor = 2.25;
     }
 }

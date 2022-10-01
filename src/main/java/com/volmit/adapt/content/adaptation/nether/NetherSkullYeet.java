@@ -78,6 +78,13 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
     @EventHandler
     public void onRightClick(PlayerInteractEvent e) {
+        if (!hasAdaptation(e.getPlayer())) {
+            return;
+        }
+        if (e.isCancelled()) {
+            return;
+        }
+
         if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK) {
             return;
         }
