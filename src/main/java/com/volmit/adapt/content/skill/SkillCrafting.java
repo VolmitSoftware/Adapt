@@ -95,12 +95,12 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                 cooldowns.remove(p);
             }
         }
+        cooldowns.put(p, System.currentTimeMillis());
 
         if (e.getInventory().getResult() != null && !e.isCancelled() && e.getInventory().getResult().getAmount() > 0) {
             if (e.getInventory().getResult() != null && e.getCursor() != null && e.getCursor().getAmount() < 64) {
                 if (p.getInventory().addItem(e.getCurrentItem()).isEmpty()) {
                     p.getInventory().removeItem(e.getCurrentItem());
-                    cooldowns.put(p, System.currentTimeMillis());
                     ItemStack test = e.getRecipe().getResult().clone();
                     int recipeAmount = e.getInventory().getResult().getAmount();
                     switch (e.getClick()) {
@@ -136,7 +136,6 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                     }
 
                     if (recipeAmount > 0 && !e.isCancelled()) {
-
                         double v = recipeAmount * getValue(test) * getConfig().craftingValueXPMultiplier;
                         getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.items", recipeAmount);
                         getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.value", v);
@@ -213,7 +212,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         double furnaceBaseXP = 24;
         double furnaceValueXPMultiplier = 4;
         int furnaceXPRadius = 32;
-        long cooldownDelay = 10000;
+        long cooldownDelay = 20000;
         long furnaceXPDuration = 10000;
         double craftingValueXPMultiplier = 1;
         double baseCraftingXP = 1;

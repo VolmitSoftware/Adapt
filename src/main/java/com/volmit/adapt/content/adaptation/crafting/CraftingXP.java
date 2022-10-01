@@ -28,9 +28,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
+    private final Map<Player, Long> cooldown = new HashMap<>();
+
+
     public CraftingXP() {
         super("crafting-xp");
         registerConfiguration(CraftingXP.Config.class);
@@ -49,6 +56,12 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
         v.addLore(C.GREEN + Adapt.dLocalize("crafting", "xp", "lore1"));
     }
 
+    @EventHandler
+    public void on(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+        cooldown.remove(p);
+    }
+
 
     @EventHandler(priority = EventPriority.LOW)
     public void on(CraftItemEvent e) {
@@ -60,7 +73,13 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
             if (e.getInventory().getResult() != null && e.getCursor() != null && e.getCursor().getAmount() < 64) {
                 if (p.getInventory().addItem(e.getCurrentItem()).isEmpty()) {
                     p.getInventory().removeItem(e.getCurrentItem());
-                    p.giveExp(e.getInventory().getResult().getAmount() * getLevel(p));
+                    if (cooldown.containsKey(p) && cooldown.get(p) + 20000 < System.currentTimeMillis()) {
+                        cooldown.remove(p);
+                    } else if (cooldown.containsKey(p) && cooldown.get(p) + 20000 > System.currentTimeMillis()) {
+                        return;
+                    }
+                    cooldown.put(p, System.currentTimeMillis());
+                    p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(getLevel(p) * 2);
                 }
             }
         }

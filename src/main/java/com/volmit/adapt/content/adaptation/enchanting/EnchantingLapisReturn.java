@@ -28,9 +28,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisReturn.Config> {
+    private final Map<Player, Long> cooldown = new HashMap<>();
 
     public EnchantingLapisReturn() {
         super("enchanting-lapis-return");
@@ -50,27 +55,34 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         v.addLore(C.GREEN + Adapt.dLocalize("enchanting", "lapisreturn", "lore1"));
     }
 
+    @EventHandler
+    public void on(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+        cooldown.remove(p);
+    }
+
+
     @EventHandler(priority = EventPriority.HIGH)
     public void on(EnchantItemEvent e) {
         if (e.isCancelled()) {
             return;
         }
+
         Player p = e.getEnchanter();
         if (!hasAdaptation(p)) {
             return;
         }
 
-        int xp = e.getExpLevelCost();
-        xp = xp + getLevel(p); // Add a level for each enchant
 
-        e.setExpLevelCost(xp * 2);
-
-        int lapis = (int) (Math.random() * 1);
-        lapis = lapis + (int) (Math.random() * (getLevel(p)));
-
-
-        p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, lapis));
-
+        if (Math.random() * 100 > 80) {
+            if (cooldown.containsKey(p) && cooldown.get(p) + 20000 < System.currentTimeMillis()) {
+                cooldown.remove(p);
+            } else if (cooldown.containsKey(p) && cooldown.get(p) + 20000 > System.currentTimeMillis()) {
+                return;
+            }
+            cooldown.put(p, System.currentTimeMillis());
+            p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, getLevel(p)));
+        }
     }
 
     @Override

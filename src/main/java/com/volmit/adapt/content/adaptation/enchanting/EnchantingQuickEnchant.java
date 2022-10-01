@@ -82,6 +82,8 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
                 && e.getCursor() != null
                 && e.getCurrentItem() != null
                 && e.getCursor().getType().equals(Material.ENCHANTED_BOOK)
+                && !e.getCurrentItem().getType().equals(Material.BOOK)
+                && !e.getCurrentItem().getType().equals(Material.ENCHANTED_BOOK)
                 && e.getCursor().getItemMeta() != null
                 && e.getCursor().getItemMeta() instanceof EnchantmentStorageMeta eb
                 && e.getCurrentItem().getItemMeta() != null

@@ -124,7 +124,6 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                                 }
                             }
                             l.getWorld().getBlockAt(l).setType(Material.AIR);
-                            e.getBlock().getDrops().clear();
                         } else {
                             b.breakNaturally(p.getItemInUse());
                             e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
