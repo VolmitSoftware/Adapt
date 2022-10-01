@@ -19,6 +19,7 @@
 package com.volmit.adapt.api;
 
 import com.google.common.collect.Lists;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.xp.XP;
@@ -234,7 +235,9 @@ public interface Component {
         Vector v = from.clone().subtract(to).toVector();
         double l = v.length();
         v.normalize();
-        from.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, to, 1, 6, 6, 6, 0.6);
+        if (AdaptConfig.get().isUseEnchantmentTableParticleForActiveEffects()) {
+            from.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, to, 1, 6, 6, 6, 0.6);
+        }
     }
 
     default void vfxParticleLine(Location start, Location end, Particle particle, int pointsPerLine, int particleCount, double offsetX, double offsetY, double offsetZ, double extra, @Nullable Double data, boolean forceDisplay,
@@ -444,11 +447,15 @@ public interface Component {
     }
 
     default void vfxXP(Player p, Location l, int amt) {
-        p.spawnParticle(Particle.ENCHANTMENT_TABLE, l, Math.min(amt / 10, 20), 0.5, 0.5, 0.5, 1);
+        if (AdaptConfig.get().isUseEnchantmentTableParticleForActiveEffects()) {
+            p.spawnParticle(Particle.ENCHANTMENT_TABLE, l, Math.min(amt / 10, 20), 0.5, 0.5, 0.5, 1);
+        }
     }
 
     default void vfxXP(Location l) {
-        l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l.add(0, 1.7, 0), 3, 0.1, 0.1, 0.1, 3);
+        if (AdaptConfig.get().isUseEnchantmentTableParticleForActiveEffects()) {
+            l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l.add(0, 1.7, 0), 3, 0.1, 0.1, 0.1, 3);
+        }
     }
 
     default void damageHand(Player p, int damage) {
