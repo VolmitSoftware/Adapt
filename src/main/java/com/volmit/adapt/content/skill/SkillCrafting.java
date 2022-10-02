@@ -23,8 +23,7 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
-import com.volmit.adapt.content.adaptation.crafting.CraftingDeconstruction;
-import com.volmit.adapt.content.adaptation.crafting.CraftingXP;
+import com.volmit.adapt.content.adaptation.crafting.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
@@ -41,7 +40,13 @@ import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
+    private final Map<Player, Long> cooldowns;
+
+
     public SkillCrafting() {
         super("crafting", Adapt.dLocalize("skill", "crafting", "icon"));
         registerConfiguration(Config.class);
@@ -52,6 +57,9 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         setIcon(Material.CRAFTING_TABLE);
         registerAdaptation(new CraftingDeconstruction());
         registerAdaptation(new CraftingXP());
+        registerAdaptation(new CraftingLeather());
+        registerAdaptation(new CraftingSkulls());
+        registerAdaptation(new CraftingBackpacks());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.BRICK)
                 .key("challenge_craft_3k")
@@ -61,6 +69,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_3k").goal(3000).stat("crafted.items").reward(getConfig().challengeCraft3kReward).build());
+        cooldowns = new HashMap<>();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -78,11 +87,20 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
+
+        if (cooldowns.containsKey(p)) {
+            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                return;
+            } else {
+                cooldowns.remove(p);
+            }
+        }
+        cooldowns.put(p, System.currentTimeMillis());
+
         if (e.getInventory().getResult() != null && !e.isCancelled() && e.getInventory().getResult().getAmount() > 0) {
             if (e.getInventory().getResult() != null && e.getCursor() != null && e.getCursor().getAmount() < 64) {
                 if (p.getInventory().addItem(e.getCurrentItem()).isEmpty()) {
                     p.getInventory().removeItem(e.getCurrentItem());
-
                     ItemStack test = e.getRecipe().getResult().clone();
                     int recipeAmount = e.getInventory().getResult().getAmount();
                     switch (e.getClick()) {
@@ -118,7 +136,6 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                     }
 
                     if (recipeAmount > 0 && !e.isCancelled()) {
-
                         double v = recipeAmount * getValue(test) * getConfig().craftingValueXPMultiplier;
                         getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.items", recipeAmount);
                         getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.value", v);
@@ -195,6 +212,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         double furnaceBaseXP = 24;
         double furnaceValueXPMultiplier = 4;
         int furnaceXPRadius = 32;
+        long cooldownDelay = 20000;
         long furnaceXPDuration = 10000;
         double craftingValueXPMultiplier = 1;
         double baseCraftingXP = 1;

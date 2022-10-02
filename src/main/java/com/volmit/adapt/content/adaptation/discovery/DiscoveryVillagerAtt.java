@@ -83,7 +83,7 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
                     p.setLevel((p.getLevel() - getXpTaken(getLevel(p))));
                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1f, 1f);
                     p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 10, 1, true, true));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 10, getLevel(p), true, true));
                 } else {
                     BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
                     blood.material = Material.STONE;
@@ -105,8 +105,14 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
         return getConfig().enabled;
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 1;
         int initialCost = 5;

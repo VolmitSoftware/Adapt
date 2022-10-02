@@ -22,10 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.content.adaptation.axe.AxeChop;
-import com.volmit.adapt.content.adaptation.axe.AxeDropToInventory;
-import com.volmit.adapt.content.adaptation.axe.AxeGroundSmash;
-import com.volmit.adapt.content.adaptation.axe.AxeLeafVeinminer;
+import com.volmit.adapt.content.adaptation.axe.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import lombok.NoArgsConstructor;
@@ -51,6 +48,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         registerAdaptation(new AxeChop());
         registerAdaptation(new AxeDropToInventory());
         registerAdaptation(new AxeLeafVeinminer());
+        registerAdaptation(new AxeWoodVeinminer());
+        registerAdaptation(new AxeCraftLogSwap());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

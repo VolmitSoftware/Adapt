@@ -72,7 +72,7 @@ public interface Skill<T> extends Ticked, Component {
         if (player.getPlayer().getClass().getSimpleName().equals("PlayerNPC")) {
             return;
         }
-        if (!player.getAdvancementHandler().isReady() ) {
+        if (!player.getAdvancementHandler().isReady()) {
             return;
         }
         if (!AdaptConfig.get().isAdvancements()) {
@@ -124,11 +124,9 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xp(Player p, Location at, double xp) {
-        if (!p.getClass().getSimpleName().equals("PlayerNPC")) {
-            XP.xp(p, this, xp);
-            if (xp > 50) {
-                vfxXP(p, at, (int) xp);
-            }
+        XP.xp(p, this, xp);
+        if (xp > 50) {
+            vfxXP(p, at, (int) xp);
         }
     }
 

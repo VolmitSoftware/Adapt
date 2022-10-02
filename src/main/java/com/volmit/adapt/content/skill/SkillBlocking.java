@@ -21,7 +21,10 @@ package com.volmit.adapt.content.skill;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.content.adaptation.blocking.BlockingChainArmorer;
+import com.volmit.adapt.content.adaptation.blocking.BlockingHorseArmorer;
 import com.volmit.adapt.content.adaptation.blocking.BlockingMultiArmor;
+import com.volmit.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
 import com.volmit.adapt.util.C;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -47,6 +50,9 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
         setInterval(5000);
         setIcon(Material.SHIELD);
         registerAdaptation(new BlockingMultiArmor());
+        registerAdaptation(new BlockingChainArmorer());
+        registerAdaptation(new BlockingSaddlecrafter());
+        registerAdaptation(new BlockingHorseArmorer());
         cooldowns = new HashMap<>();
     }
 

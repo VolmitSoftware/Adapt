@@ -15,6 +15,8 @@
       "unlearnedall": "Desaprendeu tudo"
     },
     "adaptmenu": {
+      "maynotunlearn": "VOCÊ NÃO PODE APRENDER",
+      "mayunlearn": "VOCÊ PODE APRENDER/DESAPRENDER",
       "knowledgecost": "Custo do Conhecimento",
       "alreadylearned": "Já aprendeu",
       "unlearnrefund": "Clique para desaprender e reembolsar",
@@ -213,6 +215,11 @@
       "lore2": "Chop Cooldown",
       "lore3": "Desgaste da ferramenta"
     },
+    "logswap": {
+      "name": "O trocador de toras de Lucy",
+      "description": "Mude o sabor dos logs em uma Crafting Table!",
+      "lore1": "1 tora de qualquer tipo + 1 muda = 1 tora do tipo da muda"
+    },
     "droptoinventory": {
       "name": "Axe drop-to-inventário"
     },
@@ -247,6 +254,21 @@
     }
   },
   "blocking": {
+    "chainarmorer": {
+      "name": "Correntes de Mefistófeles",
+      "description": "Permite que você crie uma armadura de cota de malha",
+      "lore1": "A receita de artesanato é a mesma de qualquer outra, mas com pepitas de ferro"
+    },
+    "horsearmorer": {
+      "name": "Armadura de Cavalo Fabricável",
+      "description": "Permite que você crie Armadura de Cavalo",
+      "lore1": "Envolva uma sela com o material que você deseja usar para criar a armadura"
+    },
+    "saddlecrafter": {
+      "name": "Sela Craftable",
+      "description": "Faça uma sela com couro",
+      "lore1": "Receita: 5 Couro:"
+    },
     "multiarmor": {
       "name": "Armadura múltipla",
       "description": "Ligar Elytras à Armadura",
@@ -269,6 +291,29 @@
       "name": "EXP de Criação",
       "description": "Ganhe XP passivo ao criar",
       "lore1": "Ganhe XP ao criar"
+    },
+    "leather": {
+      "name": "Couro Artesanal",
+      "description": "Artesanato de couro de carne podre",
+      "lore1": "Apenas jogue (carne podre) na fogueira!"
+    },
+    "backpacks": {
+      "name": "Mochilas de um Boutilier!",
+      "description": "Isso apenas traz o pacote Mojang para o jogo!",
+      "lore1": "Você precisa estar no Survival para usar isso",
+      "lore2": "XLX : Couro, Chumbo, Couro",
+      "lore3": "XSX : Couro, Caixa Shulker, Couro",
+      "lore4": "XCX : Couro, Peito, Couro"
+    },
+    "skulls": {
+      "name": "Crânios criáveis!",
+      "description": "Usando materiais, você pode criar crânios de mob!",
+      "lore1": "Cerque um Bone Block com o seguinte para obter uma caveira:",
+      "lore2": "Zumbi: Carne Apodrecida",
+      "lore3": "Esqueleto: Osso",
+      "lore4": "Creeper: Pólvora",
+      "lore5": "Wither: Tijolo do Nether",
+      "lore6": "Dragão: Sopro do Dragão"
     }
   },
   "discovery": {
@@ -359,6 +404,21 @@
       "name": "Myconid de Herbalist",
       "description": "Dá-lhe a capacidade de criar Micélio",
       "lore1": "Qualquer sujeira e um cogumelo marrom e vermelho criarão micélio."
+    },
+    "terralid": {
+      "name": "Terralid do Herbalista",
+      "description": "Dá-lhe a capacidade de criar blocos de grama",
+      "lore1": "Três Sementes, mais de 3 Dirt, criarão 3 Blocos de Grama."
+    },
+    "cobweb": {
+      "name": "Criador Webby",
+      "description": "Dá a você a capacidade de criar teias de aranha em uma mesa de artesanato",
+      "lore1": "Four String, criará uma teia de aranha."
+    },
+    "mushroomblocks": {
+      "name": "Fabricante de cogumelos",
+      "description": "Dá a você a capacidade de criar blocos de cogumelos em uma mesa de trabalho",
+      "lore1": "Quatro Cogumelos para fazer um bloco, ou um bloco para fazer um caule."
     },
     "droptoinventory": {
       "name": "Enxada Drop-To-Inventary"

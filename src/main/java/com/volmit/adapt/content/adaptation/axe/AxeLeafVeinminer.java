@@ -59,7 +59,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
 
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + Adapt.dLocalize("axe", "leafminer", "lore1"));
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " +  Adapt.dLocalize("axe", "leafminer", "lore2"));
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Adapt.dLocalize("axe", "leafminer", "lore2"));
         v.addLore(C.ITALIC + Adapt.dLocalize("axe", "leafminer", "lore3"));
     }
 
@@ -124,7 +124,6 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                                 }
                             }
                             l.getWorld().getBlockAt(l).setType(Material.AIR);
-                            e.getBlock().getDrops().clear();
                         } else {
                             b.breakNaturally(p.getItemInUse());
                             e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
@@ -146,8 +145,14 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     public void onTick() {
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
     @NoArgsConstructor
     protected static class Config {
+        boolean permanent = false;
         boolean enabled = true;
         boolean showParticles = true;
         int baseCost = 6;

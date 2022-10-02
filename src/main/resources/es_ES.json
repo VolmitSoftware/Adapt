@@ -15,6 +15,8 @@
       "unlearnedall": "desaprendido todo"
     },
     "adaptmenu": {
+      "maynotunlearn": "NO PUEDES DESAPRENDER",
+      "mayunlearn": "PUEDES APRENDER/DESAPRENDER",
       "knowledgecost": "Coste del conocimiento",
       "alreadylearned": "Ya aprendido",
       "unlearnrefund": "Haga clic para desaprender y reembolsar",
@@ -213,6 +215,11 @@
       "lore2": "Recarga del corte",
       "lore3": "Desgaste de la herramienta"
     },
+    "logswap": {
+      "name": "Intercambiador de troncos de Lucy",
+      "description": "¡Cambia el sabor de los troncos en una mesa de elaboración!",
+      "lore1": "1 tronco de cualquier tipo + 1 árbol joven = 1 tronco del tipo del árbol joven"
+    },
     "droptoinventory": {
       "name": "Hachas de caída al inventario"
     },
@@ -247,6 +254,21 @@
     }
   },
   "blocking": {
+    "chainarmorer": {
+      "name": "Cadenas de Mefistófeles",
+      "description": "Te permite fabricar una armadura de cota de malla.",
+      "lore1": "La receta de Elaboración es la misma que cualquier otra, pero con pepitas de hierro en su lugar."
+    },
+    "horsearmorer": {
+      "name": "Armadura de caballo fabricable",
+      "description": "Te permite fabricar armaduras de caballo.",
+      "lore1": "Rodea una silla de montar con el material que quieras usar para fabricar la armadura."
+    },
+    "saddlecrafter": {
+      "name": "Silla de montar fabricable",
+      "description": "Fabrica una silla de montar con cuero",
+      "lore1": "Receta: 5 Cuero:"
+    },
     "multiarmor": {
       "name": "Multi-Armadura",
       "description": "Vincular élitros a la armadura",
@@ -269,6 +291,29 @@
       "name": "XP de artesanía",
       "description": "Gana experiencia pasiva cuando construyes.",
       "lore1": "Gana XP al craftear"
+    },
+    "leather": {
+      "name": "Cuero artesanal",
+      "description": "Fabricar cuero a partir de carne podrida",
+      "lore1": "¡Solo tíralo (carne podrida) en la fogata!"
+    },
+    "backpacks": {
+      "name": "¡Mochilas de Boutilier!",
+      "description": "¡Esto solo trae el Mojang Bundle al juego!",
+      "lore1": "Necesitas estar en Supervivencia para usar esto",
+      "lore2": "XLX : Cuero, Plomo, Cuero",
+      "lore3": "XSX : Cuero, Caja Shulker, Cuero",
+      "lore4": "XCX : Cuero, Cofre, Cuero"
+    },
+    "skulls": {
+      "name": "Calaveras crafteables!",
+      "description": "¡Usando materiales puedes crear calaveras de la mafia!",
+      "lore1": "Rodea un bloque de huesos con lo siguiente para obtener una calavera:",
+      "lore2": "Zombi: carne podrida",
+      "lore3": "Esqueleto: Hueso",
+      "lore4": "Enredadera: pólvora",
+      "lore5": "Wither: Ladrillo abisal",
+      "lore6": "Dragón: Aliento de dragón"
     }
   },
   "discovery": {
@@ -359,6 +404,21 @@
       "name": "Hierbalismo de Hongo",
       "description": "Te da la capacidad de elaborar micelio",
       "lore1": "Cualquier tierra, y un hongo marrón y rojo crean micelio."
+    },
+    "terralid": {
+      "name": "Terralid de herbolario",
+      "description": "Te da la capacidad de crear bloques de hierba.",
+      "lore1": "Tres Semillas, sobre 3 Tierra, crearán 3 Bloques de Hierba."
+    },
+    "cobweb": {
+      "name": "Creador de telarañas",
+      "description": "Te da la habilidad de crear telarañas en una mesa de trabajo.",
+      "lore1": "Four String, creará una telaraña."
+    },
+    "mushroomblocks": {
+      "name": "fabricante de hongos",
+      "description": "Te da la capacidad de crear bloques de hongos en una mesa de trabajo.",
+      "lore1": "Cuatro Hongos para hacer un bloque, o un bloque para hacer un tallo."
     },
     "droptoinventory": {
       "name": "Azada de caída al inventario"

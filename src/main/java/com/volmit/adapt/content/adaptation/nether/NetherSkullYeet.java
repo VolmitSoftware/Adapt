@@ -78,6 +78,13 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
     @EventHandler
     public void onRightClick(PlayerInteractEvent e) {
+        if (!hasAdaptation(e.getPlayer())) {
+            return;
+        }
+        if (e.isCancelled()) {
+            return;
+        }
+
         if (e.getAction() != Action.LEFT_CLICK_AIR && e.getAction() != Action.LEFT_CLICK_BLOCK) {
             return;
         }
@@ -134,9 +141,16 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
     }
 
+    @Override
+    public boolean isPermanent() {
+        return getConfig().permanent;
+    }
+
+
     @Data
     @NoArgsConstructor
     public static class Config {
+        public boolean permanent = false;
         private boolean enabled = true;
         private int baseCooldown = 15;
         private int levelCooldown = 7;
