@@ -1,0 +1,277 @@
+{
+  "snippets": {
+    "gui": {
+    },
+    "adaptmenu": {
+    },
+    "knowledgeorb": {
+    },
+    "experienceorb": {
+    }
+  },
+  "skill": {
+    "agility": {
+    },
+    "architect": {
+    },
+    "axes": {
+    },
+    "brewing": {
+    },
+    "blocking": {
+    },
+    "crafting": {
+    },
+    "discovery": {
+    },
+    "enchanting": {
+    },
+    "excavation": {
+    },
+    "herbalism": {
+    },
+    "hunter": {
+    },
+    "nether": {
+    },
+    "pickaxe": {
+    },
+    "ranged": {
+    },
+    "rift": {
+    },
+    "seaborne": {
+    },
+    "stealth": {
+    },
+    "swords": {
+    },
+    "taming": {
+    },
+    "tragoul": {
+    },
+    "chronos": {
+    },
+    "unarmed": {
+      "icon": "⚜"
+    }
+  },
+  "agility": {
+    "armorup": {
+    },
+    "superjump": {
+    },
+    "walljump": {
+    },
+    "windup": {
+    }
+  },
+  "architect": {
+    "foundation": {
+    },
+    "glass": {
+    },
+    "placement": {
+    }
+  },
+  "axe": {
+    "chop": {
+    },
+    "logswap": {
+    },
+    "droptoinventory": {
+    },
+    "groundsmash": {
+    },
+    "leafminer": {
+    },
+    "woodminer": {
+    }
+  },
+  "brewing": {
+    "lingering": {
+    },
+    "superheated": {
+    }
+  },
+  "blocking": {
+    "chainarmorer": {
+    },
+    "horsearmorer": {
+    },
+    "saddlecrafter": {
+    },
+    "multiarmor": {
+    }
+  },
+  "crafting": {
+    "deconstruction": {
+    },
+    "xp": {
+    },
+    "leather": {
+    },
+    "backpacks": {
+    },
+    "skulls": {
+    }
+  },
+  "discovery": {
+    "armor": {
+    },
+    "unity": {
+    },
+    "resist": {
+    },
+    "villager": {
+    }
+  },
+  "enchanting": {
+    "lapisreturn": {
+    },
+    "quickenchant": {
+    },
+    "return": {
+    }
+  },
+  "excavation": {
+    "haste": {
+    },
+    "droptoinventory": {
+    },
+    "omnitool": {
+    }
+  },
+  "herbalism": {
+    "growthaura": {
+    },
+    "hippo": {
+    },
+    "myconid": {
+    },
+    "terralid": {
+    },
+    "cobweb": {
+    },
+    "mushroomblocks": {
+    },
+    "droptoinventory": {
+    },
+    "hungryshield": {
+    },
+    "luck": {
+    },
+    "replant": {
+    }
+  },
+  "hunter": {
+    "adrenaline": {
+    },
+    "penalty": {
+    },
+    "droptoinventory": {
+    },
+    "invisibility": {
+    },
+    "jumpboost": {
+    },
+    "luck": {
+    },
+    "regen": {
+    },
+    "resistance": {
+    },
+    "speed": {
+    },
+    "strength": {
+    }
+  },
+  "nether": {
+    "skulltoss": {
+    },
+    "witherresist": {
+    }
+  },
+  "pickaxe": {
+    "autosmelt": {
+    },
+    "chisel": {
+    },
+    "droptoinventory": {
+    },
+    "veinminer": {
+    }
+  },
+  "ranged": {
+    "arrowrecovery": {
+    },
+    "forceshot": {
+    },
+    "lungeshot": {
+    },
+    "arrowpiercing": {
+    }
+  },
+  "rift": {
+    "remoteaccess": {
+    },
+    "blink": {
+    },
+    "chest": {
+    },
+    "gate": {
+    },
+    "resist": {
+    }
+  },
+  "seaborn": {
+    "oxygen": {
+    },
+    "fishersfantasy": {
+    },
+    "haste": {
+    },
+    "nightvision": {
+    },
+    "dolphingrace": {
+    }
+  },
+  "stealth": {
+    "ghostarmor": {
+    },
+    "nightvision": {
+    },
+    "snatch": {
+    },
+    "speed": {
+    }
+  },
+  "sword": {
+    "machete": {
+    },
+    "bloodyblade": {
+    },
+    "poisonedblade": {
+    }
+  },
+  "taming": {
+    "damage": {
+    },
+    "health": {
+    },
+    "regeneration": {
+    }
+  },
+  "tragoul": {
+    "thorns": {
+    }
+  },
+  "unarmed": {
+    "glasscannon": {
+    },
+    "power": {
+    },
+    "suckerpunch": {
+    }
+  }
+}
