@@ -10,7 +10,7 @@
       "welcomeback": "欢迎回来！",
       "xpbonusfortime": "经验增益，持续",
       "unlockthisbyclicking": "右键Adapt方块以解锁！",
-      "back": "后退",
+      "back": "返回",
       "unlearnall": "忘却全部技能",
       "unlearnedall": "已全部忘却"
     },
@@ -237,6 +237,13 @@
       "lore1": "潜行，然后挖掘树叶。",
       "lore2": "树叶挖掘范围",
       "lore3": "由于防止漏洞滥用，挖掘树叶将不会获得掉落物。"
+    },
+    "woodminer": {
+      "name": "原木矿工",
+      "description": "允许你一次砍伐大量树木！",
+      "lore1": "潜行，然后砍伐 木头/原木（木板无效）",
+      "lore2": "有效距离",
+      "lore3": "与直接进入背包兼容。"
     }
   },
   "brewing": {
@@ -302,7 +309,7 @@
       "description": "将Mojang计划添加的收纳袋加入到游戏中！",
       "lore1": "你需要在生存模式下才能使用它",
       "lore2": "XLX : 皮革，拴绳，皮革",
-      "lore3": "XSX : 皮革，潜影盒，皮革",
+      "lore3": "XSX : 皮革，木桶，皮革",
       "lore4": "XCX : 皮革，箱子，皮革"
     },
     "skulls": {
