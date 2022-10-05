@@ -63,7 +63,7 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
         }
         if (e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
             if (p.getFoodLevel() == 0) {
-                addPotionStacks(p, PotionEffectType.POISON, getLevel(p), 50, true);
+                addPotionStacks(p, PotionEffectType.POISON, 2 + getLevel(p), 300, true);
 
             } else {
 

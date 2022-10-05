@@ -113,18 +113,26 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                     for (Location l : blockMap.keySet()) {
                         Block b = e.getBlock().getWorld().getBlockAt(l);
                         xp(p, 10);
-                        if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory").getLevel() > 0) {
+                        if (getPlayer(p).getData().getSkillLines() != null
+                                && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations() != null
+                                && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory") != null
+                                && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory").getLevel() > 0) {
                             Collection<ItemStack> items = e.getBlock().getDrops();
-                            for (ItemStack i : items) {
-                                p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.01f, 0.01f);
-                                xp(p, 2);
-                                HashMap<Integer, ItemStack> extra = p.getInventory().addItem(i);
-                                if (!extra.isEmpty()) {
-                                    p.getWorld().dropItem(p.getLocation(), extra.get(0));
+                            if (!isLog(new ItemStack(b.getType()))) {
+                                for (ItemStack i : items) {
+                                    p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.01f, 0.01f);
+                                    xp(p, 2);
+                                    HashMap<Integer, ItemStack> extra = p.getInventory().addItem(i);
+                                    if (!extra.isEmpty()) {
+                                        p.getWorld().dropItem(p.getLocation(), extra.get(0));
+                                    }
+                                }
+                            } else {
+                                if (!p.getInventory().addItem(new ItemStack(b.getType())).isEmpty()) {
+                                    p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(b.getType()));
                                 }
                             }
                             l.getWorld().getBlockAt(l).setType(Material.AIR);
-                            e.getBlock().getDrops().clear();
                         } else {
                             b.breakNaturally(p.getItemInUse());
                             e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);

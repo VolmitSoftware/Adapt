@@ -38,7 +38,7 @@ public interface AdaptComponent {
     }
 
     default boolean isTool(ItemStack is) {
-        return isAxe(is) || isPickaxe(is) || isHoe(is) || isShovel(is) || isSword(is);
+        return isAxe(is) || isPickaxe(is) || isHoe(is) || isShovel(is) || isSword(is)|| isTrident(is);
     }
 
     default boolean isMelee(ItemStack is) {
@@ -60,6 +60,17 @@ public interface AdaptComponent {
         if (isItem(it)) {
             return switch (it.getType()) {
                 case DIAMOND_SWORD, GOLDEN_SWORD, IRON_SWORD, NETHERITE_SWORD, STONE_SWORD, WOODEN_SWORD -> true;
+                default -> false;
+            };
+        }
+
+        return false;
+    }
+
+    default boolean isTrident(ItemStack it) {
+        if (isItem(it)) {
+            return switch (it.getType()) {
+                case TRIDENT, SEA_PICKLE -> true;
                 default -> false;
             };
         }

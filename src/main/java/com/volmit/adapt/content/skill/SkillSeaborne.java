@@ -32,13 +32,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.Drowned;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -155,13 +155,27 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         if (e.isCancelled()) {
             return;
         }
+
         if (e.getEntity() instanceof Drowned && e.getDamager() instanceof Player p) {
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
-            xp(p, getConfig().damagedrownxpmultiplier * Math.min(e.getDamage(), ((Drowned) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+            if (cooldowns.containsKey(p)) {
+                if (cooldowns.get(p) + getConfig().seaPickleCooldown > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    cooldowns.remove(p);
+                }
+            }
+            cooldowns.put(p, System.currentTimeMillis());
+            xp(p, getConfig().damagedrownxpmultiplier * Math.min(e.getDamage(), ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
-
+        if (e.getDamager() instanceof Projectile projectile && projectile instanceof Trident && ((Projectile) e.getDamager()).getShooter() instanceof Player p) {
+            xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+        }
+        if (e.getDamager() instanceof Player p && p.getInventory().getItemInMainHand().getType().equals(Material.TRIDENT)) {
+            xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+        }
     }
 
     @Override
@@ -172,6 +186,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     @NoArgsConstructor
     protected static class Config {
         public long seaPickleCooldown = 60000;
+        public double tridentxpmultiplier = 2.5;
         double damagedrownxpmultiplier = 4;
         boolean enabled = true;
         double challengeSwim1nmReward = 750;

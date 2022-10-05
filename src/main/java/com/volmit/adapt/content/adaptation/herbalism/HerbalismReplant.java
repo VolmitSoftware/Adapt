@@ -112,11 +112,9 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
                 for (Block i : c) {
                     J.s(() -> hit(p, i), M.irand(1, 6));
                 }
-                xp(p, 4);
                 p.getWorld().playSound(p.getLocation(), Sound.ITEM_SHOVEL_FLATTEN, 1f, 0.66f);
                 p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BAMBOO_SAPLING_BREAK, 1f, 0.66f);
                 if (getConfig().showParticles) {
-
                     p.spawnParticle(Particle.VILLAGER_HAPPY, p.getLocation().clone().add(0.5, 0.5, 0.5), getLevel(p) * 3, 0.3 * getLevel(p), 0.3 * getLevel(p), 0.3 * getLevel(p), 0.9);
                 }
             } else {
@@ -137,7 +135,6 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
                 Collection<ItemStack> items = b.getDrops();
                 for (ItemStack i : items) {
                     p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
-                    xp(p, 2);
                     i.setAmount(1);
                     if (!p.getInventory().addItem(i).isEmpty()) {
                         p.getWorld().dropItem(p.getLocation(), i);

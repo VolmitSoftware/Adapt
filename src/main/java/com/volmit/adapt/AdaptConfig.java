@@ -54,6 +54,7 @@ public class AdaptConfig {
     private boolean loginBonus = true;
     private boolean advancements = true;
     private boolean useSql = false;
+    private boolean useEnchantmentTableParticleForActiveEffects = true;
     private boolean escClosesAllGuis = false;
     private boolean guiBackButton = false;
     private int learnUnlearnButtonDelayTicks = 14;
