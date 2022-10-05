@@ -237,6 +237,13 @@
       "lore1": "Schleiche, und baue Blätter ab",
       "lore2": "Reichweite des BlätterMiners",
       "lore3": "Du erhältst hierfür keine Drops von den Blättern"
+    },
+    "woodminer": {
+      "name": "Holzfäller",
+      "description": "Ermöglicht es, große Mengen Holz auf einmal zu fällen!",
+      "lore1": "Sneak, und fälle HOLZ/LOGS (nicht Bretter)",
+      "lore2": "Reichweite des Holzabbaus",
+      "lore3": "Funktioniert mit Drop to Inventory"
     }
   },
   "brewing": {
