@@ -23,7 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.volmit.adapt.api.data.WorldData;
-import com.volmit.adapt.api.potion.BrewingListener;
+import com.volmit.adapt.api.potion.BrewingManager;
 import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptServer;
@@ -139,7 +139,7 @@ public class Adapt extends VolmitPlugin {
             sqlManager.establishConnection();
         }
         adaptServer = new AdaptServer();
-        registerListener(new BrewingListener());
+        registerListener(new BrewingManager());
         setupMetrics();
         startupPrint(); // Splash screen
     }

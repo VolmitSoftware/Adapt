@@ -1,6 +1,13 @@
 package com.volmit.adapt.api.potion;
 
-
+import lombok.Builder;
+import lombok.Data;
 import org.bukkit.inventory.ItemStack;
 
-public record BrewingRecipe(ItemStack basePotion, ItemStack ingredient, ItemStack result, int brewingTime, int fuelCost) { }
+@Data
+@Builder
+public class BrewingRecipe {
+    private final String id;
+    private final ItemStack basePotion, ingredient, result;
+    private final int brewingTime, fuelCost;
+}

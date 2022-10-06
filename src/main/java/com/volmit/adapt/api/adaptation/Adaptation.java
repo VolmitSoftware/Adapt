@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
@@ -157,6 +158,7 @@ public interface Adaptation<T> extends Ticked, Component {
     double getCostFactor();
 
     List<AdaptRecipe> getRecipes();
+    List<BrewingRecipe> getBrewingRecipes();
 
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
