@@ -152,16 +152,16 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         double blockValueMultiplier = 0.125;
         double maxHardnessBonus = 9;
         double maxBlastResistanceBonus = 10;
-        double coalBonus = 101;
-        double ironBonus = 251;
-        double redstoneBonus = 386;
-        double copperBonus = 166;
-        double goldBonus = 651;
-        double lapisBonus = 851;
-        double diamondBonus = 525;
-        double emeraldBonus = 721;
-        double netherGoldBonus = 770;
-        double netherQuartzBonus = 111;
+        double coalBonus = 25;
+        double ironBonus = 40;
+        double redstoneBonus = 75;
+        double copperBonus = 30;
+        double goldBonus = 50;
+        double lapisBonus = 105;
+        double diamondBonus = 250;
+        double emeraldBonus = 300;
+        double netherGoldBonus = 150;
+        double netherQuartzBonus = 175;
         double deepslateMultiplier = 1.35;
     }
 }

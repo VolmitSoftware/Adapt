@@ -89,6 +89,6 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double damageXPMultiplier = 13.26;
+        double damageXPMultiplier = 7.26;
     }
 }

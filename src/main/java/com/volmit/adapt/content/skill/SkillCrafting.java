@@ -212,10 +212,10 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         double furnaceBaseXP = 24;
         double furnaceValueXPMultiplier = 4;
         int furnaceXPRadius = 32;
-        long cooldownDelay = 20000;
+        long cooldownDelay = 10000;
         long furnaceXPDuration = 10000;
         double craftingValueXPMultiplier = 1;
-        double baseCraftingXP = 1;
+        double baseCraftingXP = 0.25;
         double challengeCraft3kReward = 4750;
     }
 }

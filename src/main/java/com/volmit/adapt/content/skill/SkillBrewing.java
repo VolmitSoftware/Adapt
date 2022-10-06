@@ -161,7 +161,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double splashXP = 115;
+        double splashXP = 100;
         double splashMultiplier = 0.25;
     }
 }

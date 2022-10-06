@@ -125,6 +125,6 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         double maxHardnessBonus = 9;
         double maxBlastResistanceBonus = 10;
         double valueXPMultiplier = 0.825;
-        double axeDamageXPMultiplier = 13.26;
+        double axeDamageXPMultiplier = 6.5;
     }
 }

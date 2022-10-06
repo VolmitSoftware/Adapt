@@ -187,7 +187,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     protected static class Config {
         public long seaPickleCooldown = 60000;
         public double tridentxpmultiplier = 2.5;
-        double damagedrownxpmultiplier = 4;
+        double damagedrownxpmultiplier = 3;
         boolean enabled = true;
         double challengeSwim1nmReward = 750;
         double swimXP = 28.7;
