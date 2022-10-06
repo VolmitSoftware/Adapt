@@ -61,7 +61,7 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
         }
         if (e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
             if (p.getFoodLevel() == 0) {
-                addPotionStacks(p, PotionEffectType.POISON, getLevel(p), 50, true);
+                addPotionStacks(p, PotionEffectType.POISON, 2 + getLevel(p), 300, true);
 
             } else {
                 addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
