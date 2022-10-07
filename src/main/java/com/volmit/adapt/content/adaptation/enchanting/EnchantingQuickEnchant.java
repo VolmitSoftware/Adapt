@@ -69,7 +69,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(InventoryClickEvent e) {
-        if (e.isCancelled()) {
+        if (e.getClickedInventory() == null || e.isCancelled()) {
             return;
         }
         if (e.getWhoClicked() instanceof Player p
