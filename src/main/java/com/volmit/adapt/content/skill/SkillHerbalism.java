@@ -138,6 +138,12 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
+        if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown < System.currentTimeMillis()) {
+            herbCooldown.remove(p);
+        } else if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
+            return;
+        }
+        herbCooldown.put(p, System.currentTimeMillis());
         xp(p, getConfig().foodConsumeXP);
         getPlayer(p).getData().addStat("food.eaten", 1);
     }
@@ -301,7 +307,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         public double plantCropSeedsXP = 2.5;
         public double composterBaseXP = 2.5;
         public double composterLevelXPMultiplier = 1.25;
-        public double composterNonZeroLevelBonus = 25;
+        public double composterNonZeroLevelBonus = 25 ;
         public double challengeEat100Reward = 1250;
         public double challengeEat1kReward = 6250;
         public double challengeHarvest100Reward = 1250;
