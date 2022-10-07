@@ -18,7 +18,7 @@ public class BrewingListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if(e.getClickedInventory().getType() != InventoryType.BREWING)
+        if(e.getClickedInventory() != null && e.getClickedInventory().getType() != InventoryType.BREWING)
             return;
 
         BrewerInventory inv = (BrewerInventory)e.getClickedInventory();
