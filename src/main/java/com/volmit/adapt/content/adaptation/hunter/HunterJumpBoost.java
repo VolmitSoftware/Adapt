@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
@@ -60,12 +61,25 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
             return;
         }
         if (e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
-            if (p.getFoodLevel() == 0) {
-                addPotionStacks(p, PotionEffectType.POISON, 2 + getLevel(p), 300, true);
+            if (!getConfig().useConsumable) {
 
+                if (p.getFoodLevel() == 0) {
+                    addPotionStacks(p, PotionEffectType.POISON, 2 + getLevel(p), 300, true);
+
+                } else {
+                    addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
+                    addPotionStacks(p, PotionEffectType.JUMP, getLevel(p), 50, false);
+                }
             } else {
-                addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
-                addPotionStacks(p, PotionEffectType.SPEED, getLevel(p), 50, false);
+                if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
+                    Material mat = Material.getMaterial(getConfig().consumable);
+                    if (p.getInventory().contains(mat)) {
+                        p.getInventory().removeItem(new ItemStack(mat, 1));
+                        addPotionStacks(p, PotionEffectType.JUMP, getLevel(p), 50, false);
+                    } else {
+                        addPotionStacks(p, PotionEffectType.POISON, 2 + getLevel(p), 300, true);
+                    }
+                }
             }
         }
     }
@@ -89,6 +103,8 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
     protected static class Config {
         boolean permanent = false;
         boolean enabled = true;
+        boolean useConsumable = false;
+        String consumable = "ROTTEN_FLESH";
         int baseCost = 4;
         int maxLevel = 5;
         int initialCost = 8;
