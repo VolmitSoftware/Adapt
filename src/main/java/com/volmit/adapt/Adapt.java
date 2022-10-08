@@ -130,9 +130,6 @@ public class Adapt extends VolmitPlugin {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PapiExpansion().register();
         }
-        if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
-            usingWorldguard = true;
-        }
         loadLanguageLocalization();
         printInformation();
         NMS.init();
