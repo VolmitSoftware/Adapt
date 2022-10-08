@@ -153,14 +153,14 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double turtleEggKillXP = 125;
-        int turtleEggSpatialRadius = 14;
+        double turtleEggKillXP = 100;
+        int turtleEggSpatialRadius = 5;
         long turtleEggSpatialDuration = 15000;
-        double creeperKillMultiplier = 4;
+        double creeperKillMultiplier = 2;
         double killMaxHealthSpatialXPMultiplier = 3;
-        double killMaxHealthXPMultiplier = 6;
-        int killSpatialRadius = 24;
-        long killSpatialDuration = 15000;
+        double killMaxHealthXPMultiplier = 4;
+        int killSpatialRadius = 25;
+        long killSpatialDuration = 10000;
         double spawnerMobReductionXpMultiplier = 0.5;
     }
 }

@@ -83,13 +83,6 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                 return;
             }
 
-            BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), p, e.getBlock().getBlockData(), true);
-            Bukkit.getServer().getPluginManager().callEvent(can);
-
-            if (!can.isBuildable()) {
-                return;
-            }
-
             if (isLog(new ItemStack(e.getBlock().getType()))) {
 
                 Block block = e.getBlock();
@@ -132,7 +125,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                                     p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(b.getType()));
                                 }
                             }
-                            l.getWorld().getBlockAt(l).setType(Material.AIR);
+                            p.breakBlock(l.getBlock());
                         } else {
                             b.breakNaturally(p.getItemInUse());
                             e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);

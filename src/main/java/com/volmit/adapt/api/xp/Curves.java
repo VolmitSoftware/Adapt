@@ -36,7 +36,7 @@ public enum Curves {
 //    SKYRIM(new SkyrimNewtonCurve()),// NOT WORKING
 //    WOW(new WOWNewtonCurve()), // NOT WORKING
 
-    //    XL05L7(level -> ((537 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
+    XL05L7(level -> ((537 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
     XL1L7(level -> ((1337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
     XL15L7(level -> ((1837 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
     XL2L7(level -> ((2337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
@@ -46,7 +46,12 @@ public enum Curves {
     XL6L7(level -> ((6337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
     XL7L7(level -> ((7337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
     XL8L7(level -> ((8337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
-    XL9L7(level -> ((8337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137); // Working
+    XL9L7(level -> ((9337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
+    XL20L7(level -> ((20337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
+    XL40L7(level -> ((40337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
+    XL80L7(level -> ((80337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
+    XL160L7(level -> ((160337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137), // Working
+    XL100L7(level -> ((1000337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137); // Working
 
     @Getter
     private final NewtonCurve curve;

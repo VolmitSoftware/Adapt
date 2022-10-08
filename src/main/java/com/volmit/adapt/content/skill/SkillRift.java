@@ -200,7 +200,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double destroyEndCrystalXP = 550;
+        double destroyEndCrystalXP = 350;
         double damageEndCrystalXP = 110;
         double damageEndermanXPMultiplier = 4;
         double damageEndermiteXPMultiplier = 2;

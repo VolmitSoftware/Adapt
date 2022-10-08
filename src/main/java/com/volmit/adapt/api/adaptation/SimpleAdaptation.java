@@ -22,6 +22,7 @@ import art.arcane.amulet.io.FileWatcher;
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
@@ -54,6 +55,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     private String name;
     private List<AdaptAdvancement> cachedAdvancements;
     private List<AdaptRecipe> recipes;
+    private List<BrewingRecipe> brewingRecipes;
     private Class<T> configType;
     private T config;
 
@@ -61,6 +63,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         super("adaptations", UUID.randomUUID() + "-" + name, 1000);
         cachedAdvancements = new ArrayList<>();
         recipes = new ArrayList<>();
+        brewingRecipes = new ArrayList<>();
         setMaxLevel(5);
         setCostFactor(0.35);
         setBaseCost(3);
@@ -138,6 +141,10 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
 
     public void registerRecipe(AdaptRecipe r) {
         recipes.add(r);
+    }
+
+    public void registerBrewingRecipe(BrewingRecipe r) {
+        brewingRecipes.add(r);
     }
 
     @Override

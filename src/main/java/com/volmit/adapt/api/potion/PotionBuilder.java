@@ -16,15 +16,26 @@ import java.util.List;
 public class PotionBuilder {
 
     private final List<PotionEffect> effects = Lists.newArrayList();
+    private final Type type;
 
-    private Type type = Type.REGULAR;
-    private Color color = Color.WHITE;
-    private String name = "Mysterious Potion";
+    private String name;
+    private Color color;
     private boolean upgraded, extended;
+    private PotionType baseType = PotionType.UNCRAFTABLE;
 
-    public PotionBuilder setType(Type type) {
+    public static ItemStack vanilla(Type type, PotionType potion, boolean extended, boolean upgraded) {
+        return of(type)
+                .setFlags(extended, upgraded)
+                .setBaseType(potion)
+                .build();
+    }
+
+    public static PotionBuilder of(Type type) {
+        return new PotionBuilder(type);
+    }
+
+    private PotionBuilder(Type type) {
         this.type = type;
-        return this;
     }
 
     public PotionBuilder setColor(Color color) {
@@ -48,14 +59,21 @@ public class PotionBuilder {
         return this;
     }
 
+    private PotionBuilder setBaseType(PotionType data) {
+        this.baseType = data;
+        return this;
+    }
+
     @SuppressWarnings("ConstantConditions")
     public ItemStack build() {
         ItemStack stack = new ItemStack(type.material);
         PotionMeta meta = (PotionMeta)stack.getItemMeta();
         effects.forEach(e -> meta.addCustomEffect(e, true));
-        meta.setColor(color);
-        meta.setBasePotionData(new PotionData(PotionType.UNCRAFTABLE, extended, upgraded));
-        meta.setDisplayName(name);
+        if(color != null)
+            meta.setColor(color);
+        meta.setBasePotionData(new PotionData(baseType, extended, upgraded));
+        if(name != null)
+            meta.setDisplayName("§r" + name);
         stack.setItemMeta(meta);
         return stack;
     }

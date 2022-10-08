@@ -118,8 +118,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double shootXP = 7;
-        double hitDamageXPMultiplier = 3.125;
+        double shootXP = 5;
+        double hitDamageXPMultiplier = 2.125;
         double hitDistanceXPMultiplier = 1.7;
     }
 }

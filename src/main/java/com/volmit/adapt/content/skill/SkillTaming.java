@@ -104,7 +104,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double tameXpBase = 55;
-        double tameDamageXPMultiplier = 9.85;
+        double tameXpBase = 30;
+        double tameDamageXPMultiplier = 7.85;
     }
 }

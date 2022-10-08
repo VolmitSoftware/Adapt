@@ -79,6 +79,6 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double enchantPowerXPMultiplier = 250;
+        double enchantPowerXPMultiplier = 70;
     }
 }

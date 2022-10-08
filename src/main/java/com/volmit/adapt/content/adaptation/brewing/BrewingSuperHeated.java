@@ -86,7 +86,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(InventoryClickEvent e) {
-        if (e.isCancelled()) {
+        if (e.getClickedInventory() == null || e.isCancelled()) {
             return;
         }
         if (e.getView().getTopInventory().getType().equals(InventoryType.BREWING)) {

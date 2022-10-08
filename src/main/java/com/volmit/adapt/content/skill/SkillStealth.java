@@ -83,7 +83,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double challengeSneak1kReward = 750;
-        double sneakXP = 15.48;
+        double challengeSneak1kReward = 1750;
+        double sneakXP = 10.5;
     }
 }

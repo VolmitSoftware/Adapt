@@ -115,8 +115,8 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
-        double xpOnBlockedAttack = 350;
+        double xpOnBlockedAttack = 10;
         long cooldownDelay = 3000;
-        long passiveXpForUsingShield = 5;
+        long passiveXpForUsingShield = 1;
     }
 }

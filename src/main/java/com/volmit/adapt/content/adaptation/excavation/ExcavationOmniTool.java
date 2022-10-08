@@ -276,7 +276,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         if (!hasAdaptation((Player) e.getWhoClicked())) {
             return;
         }
-        if (e.getClick().equals(ClickType.SHIFT_LEFT) && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
+        if (e.getClickedInventory() != null && e.getClick().equals(ClickType.SHIFT_LEFT) && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
             ItemStack cursor = e.getWhoClicked().getItemOnCursor().clone();
             ItemStack clicked = e.getClickedInventory().getItem(e.getSlot()).clone();
 

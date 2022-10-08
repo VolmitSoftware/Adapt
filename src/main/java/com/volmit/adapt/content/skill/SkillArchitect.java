@@ -147,6 +147,6 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         boolean enabled = true;
         double challengePlace1kReward = 1750;
         double xpValueMultiplier = 1;
-        double xpBase = 3;
+        double xpBase = 1;
     }
 }

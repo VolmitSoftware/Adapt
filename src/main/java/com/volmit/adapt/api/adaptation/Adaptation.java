@@ -18,10 +18,17 @@
 
 package com.volmit.adapt.api.adaptation;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
@@ -29,10 +36,7 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.event.AdaptAdaptationUseEvent;
 import com.volmit.adapt.util.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -157,18 +161,37 @@ public interface Adaptation<T> extends Ticked, Component {
     double getCostFactor();
 
     List<AdaptRecipe> getRecipes();
+    List<BrewingRecipe> getBrewingRecipes();
 
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
+
+    private boolean canBuild(Player p, Location l) {
+        RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
+        com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(l);
+        if (!hasBypass(p, l)) {
+            return query.testState(loc, WorldGuardPlugin.inst().wrapPlayer(p), Flags.BUILD);
+        }else {
+            return true;
+        }
+    }
+
+    private boolean hasBypass(Player p, Location l) {
+        LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
+        com.sk89q.worldedit.world.World world = BukkitAdapter.adapt(l.getWorld());
+        return WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, world);
+    }
 
     default boolean hasAdaptation(Player p) {
         if (!this.getSkill().isEnabled()) {
             this.unregister();
         }
-
         if (p.getClass().getSimpleName().equals("PlayerNPC")) {
             return false;
         }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return false;
+        }
+        if (AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()  && !canBuild(p, p.getLocation())) {
             return false;
         }
         return getLevel(p) > 0;

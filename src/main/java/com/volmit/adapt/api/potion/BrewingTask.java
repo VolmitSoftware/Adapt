@@ -11,6 +11,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class BrewingTask extends BukkitRunnable {
 
+    private static final int DEFAULT_BREW_TIME = 400;
+
     private final BrewingRecipe recipe;
     private final BrewerInventory inventory;
     private final BrewingStand block;
@@ -22,15 +24,17 @@ public class BrewingTask extends BukkitRunnable {
         this.inventory = inventory;
         this.block = block;
 
-        this.brewTime = recipe.brewingTime();
+        this.brewTime = recipe.getBrewingTime();
 
-        if(block.getFuelLevel() > recipe.fuelCost()) {
-            block.setFuelLevel(block.getFuelLevel() - recipe.fuelCost());
+        if(block.getFuelLevel() > recipe.getFuelCost()) {
+            block.setFuelLevel(block.getFuelLevel() - recipe.getFuelCost());
         } else {
-            int rest = recipe.fuelCost() - block.getFuelLevel();
+            int rest = recipe.getFuelCost() - block.getFuelLevel();
             inventory.setFuel(decrease(inventory.getFuel(), rest / 20));
             block.setFuelLevel(20 - rest % 20);
         }
+
+        block.setBrewingTime(DEFAULT_BREW_TIME);
 
         runTaskTimer(Adapt.instance, 0L, 1L);
     }
@@ -41,8 +45,8 @@ public class BrewingTask extends BukkitRunnable {
             inventory.setIngredient(decrease(inventory.getIngredient(), 1));
 
             for(int i = 0; i < 3; i++) {
-                if(recipe.basePotion().equals(inventory.getItem(i)))
-                    inventory.setItem(i, recipe.result());
+                if(recipe.getBasePotion().equals(inventory.getItem(i)))
+                    inventory.setItem(i, recipe.getResult());
             }
 
             inventory.getViewers().forEach(e -> {
@@ -54,11 +58,11 @@ public class BrewingTask extends BukkitRunnable {
         }
 
         brewTime--;
-        block.setBrewingTime(brewTime);
+        block.setBrewingTime(getRemainingTime());
         block.update(true);
     }
 
-    private ItemStack decrease(ItemStack source, int amount) {
+    public static ItemStack decrease(ItemStack source, int amount) {
         if(source.getAmount() > amount) {
             source.setAmount(source.getAmount() - amount);
             return source;
@@ -68,18 +72,22 @@ public class BrewingTask extends BukkitRunnable {
 
     public static boolean isValid(BrewingRecipe recipe, BrewingStand block) {
         BrewerInventory inv = block.getInventory();
-        if(!recipe.ingredient().equals(inv.getIngredient()))
+        if(!recipe.getIngredient().isSimilar(inv.getIngredient()))
             return false;
 
         int totalFuel = (inv.getFuel() != null && inv.getFuel().getType() != Material.AIR ? inv.getFuel().getAmount() * 20 : 0) + block.getFuelLevel();
-        if(totalFuel < recipe.fuelCost())
+        if(totalFuel < recipe.getFuelCost())
             return false;
 
         for(int i = 0; i < 3; i++) {
-            if(recipe.basePotion().equals(inv.getItem(i)))
+            if(recipe.getBasePotion().isSimilar(inv.getItem(i)))
                 return true;
         }
 
         return false;
+    }
+
+    private int getRemainingTime() {
+        return (int)(DEFAULT_BREW_TIME * (brewTime / (float)recipe.getBrewingTime()));
     }
 }

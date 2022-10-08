@@ -139,8 +139,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         boolean enabled = true;
         double maxHardnessBonus = 9;
         double maxBlastResistanceBonus = 10;
-        double logOrWoodXPMultiplier = 9.67;
-        double leavesMultiplier = 3.11;
+        double logOrWoodXPMultiplier = 2.67;
+        double leavesMultiplier = 1.11;
         double valueXPMultiplier = 0.225;
         double axeDamageXPMultiplier = 13.26;
     }

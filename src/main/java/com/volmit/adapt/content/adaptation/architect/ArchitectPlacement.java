@@ -87,13 +87,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         Player p = e.getPlayer();
 
         if (hasAdaptation(p) && !totalMap.isEmpty() && totalMap.get(p) != null && totalMap.get(p).size() > 0) {
-            BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), p, e.getBlock().getBlockData(), true);
-            Bukkit.getServer().getPluginManager().callEvent(can);
-            if (!can.isBuildable()) {
-                return;
-            }
-
-
             ItemStack is = p.getInventory().getItemInMainHand().clone();
             ItemStack hand = p.getInventory().getItemInMainHand();
             if (p.isSneaking() && is.getType().isBlock()) {

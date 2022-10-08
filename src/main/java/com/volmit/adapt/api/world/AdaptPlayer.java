@@ -238,6 +238,11 @@ public class AdaptPlayer extends TickedObject {
         return speed.getAverage();
     }
 
+    public boolean hasAdaptation(String id) {
+        String skillLine = id.split("-")[0];
+        return getData().getSkillLine(skillLine).getAdaptationLevel(id) > 0;
+    }
+
     public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {
         for (PlayerSkillLine i : p.getData().getSkillLines().v()) {
             if (M.ms() - i.getLast() < ms) {
