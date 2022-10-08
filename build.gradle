@@ -71,10 +71,8 @@ repositories {
             includeGroup("org.spigotmc")
         }
     }
-    maven { url "https://arcanearts.jfrog.io/artifactory/archives" } // Artifactory
-    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' } // PAPI
-    maven { url "https://maven.enginehub.org/repo/" } // WorldGuard
-
+    maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
+    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
 }
 
 /**
@@ -134,7 +132,7 @@ dependencies {
     testAnnotationProcessor 'systems.manifold:manifold-ext:2022.1.19'
     implementation 'systems.manifold:manifold-rt:2022.1.19'
     implementation 'com.elmakers.mine.bukkit:EffectLib:9.4'
-    compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.7'
+    implementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.7'
 
     // Shaded
     implementation 'io.papermc:paperlib:1.0.5'

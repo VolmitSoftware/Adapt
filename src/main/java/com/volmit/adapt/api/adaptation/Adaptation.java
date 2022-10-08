@@ -191,7 +191,7 @@ public interface Adaptation<T> extends Ticked, Component {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return false;
         }
-        if (AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()  && !canBuild(p, p.getLocation())) {
+        if (Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null  && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()  && !canBuild(p, p.getLocation())) {
             return false;
         }
         return getLevel(p) > 0;
