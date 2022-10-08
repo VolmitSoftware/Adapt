@@ -83,51 +83,46 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
                 return;
             }
 
-            BlockCanBuildEvent can = new BlockCanBuildEvent(e.getClickedBlock(), p, e.getClickedBlock().getBlockData(), true);
-            Bukkit.getServer().getPluginManager().callEvent(can);
 
-            if (can.isBuildable()) {
-                xp(p, 3);
-                BlockData b = e.getClickedBlock().getBlockData();
-                if (isOre(b)) {
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f);
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_METAL_HIT, 1.25f, 1.7f);
+            xp(p, 3);
+            BlockData b = e.getClickedBlock().getBlockData();
+            if (isOre(b)) {
+                p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f);
+                p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_METAL_HIT, 1.25f, 1.7f);
 
-                    getSkill().xp(p, 37);
-                    p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
-                    damageHand(p, getDamagePerBlock(getLevelPercent(p)));
+                getSkill().xp(p, 37);
+                p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
+                damageHand(p, getDamagePerBlock(getLevelPercent(p)));
 
-                    Location c = p.rayTraceBlocks(8).getHitPosition().toLocation(p.getWorld());
+                Location c = p.rayTraceBlocks(8).getHitPosition().toLocation(p.getWorld());
 
-                    ItemStack is = getDropFor(b);
-                    if (M.r(getDropChance(getLevelPercent(p)))) {
-                        xp(p, 5);
-                        if (getConfig().showParticles) {
+                ItemStack is = getDropFor(b);
+                if (M.r(getDropChance(getLevelPercent(p)))) {
+                    xp(p, 5);
+                    if (getConfig().showParticles) {
 
-                            e.getClickedBlock().getWorld().spawnParticle(Particle.ITEM_CRACK, c, 14, 0.10, 0.01, 0.01, 0.1, is);
+                        e.getClickedBlock().getWorld().spawnParticle(Particle.ITEM_CRACK, c, 14, 0.10, 0.01, 0.01, 0.1, is);
 
-                        }
-                        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
-                        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
-                        e.getClickedBlock().getWorld().dropItemNaturally(c.clone().subtract(p.getLocation().getDirection().clone().multiply(0.1)), is);
-                    } else {
-                        if (getConfig().showParticles) {
-
-                            e.getClickedBlock().getWorld().spawnParticle(Particle.ITEM_CRACK, c, 3, 0.01, 0.01, 0.01, 0.1, is);
-                            e.getClickedBlock().getWorld().spawnParticle(Particle.BLOCK_CRACK, c, 9, 0.1, 0.1, 0.1, e.getClickedBlock().getBlockData());
-                        }
                     }
+                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
+                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
+                    e.getClickedBlock().getWorld().dropItemNaturally(c.clone().subtract(p.getLocation().getDirection().clone().multiply(0.1)), is);
+                } else {
+                    if (getConfig().showParticles) {
 
-                    if (M.r(getBreakChance(getLevelPercent(p)))) {
-                        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BASALT_BREAK, 1.25f, 0.4f);
-                        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.887f);
-
-                        e.getClickedBlock().breakNaturally(p.getInventory().getItemInMainHand());
+                        e.getClickedBlock().getWorld().spawnParticle(Particle.ITEM_CRACK, c, 3, 0.01, 0.01, 0.01, 0.1, is);
+                        e.getClickedBlock().getWorld().spawnParticle(Particle.BLOCK_CRACK, c, 9, 0.1, 0.1, 0.1, e.getClickedBlock().getBlockData());
                     }
                 }
-            } else {
-                Adapt.verbose("Cancelled (Region?)");
+
+                if (M.r(getBreakChance(getLevelPercent(p)))) {
+                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BASALT_BREAK, 1.25f, 0.4f);
+                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.887f);
+
+                    e.getClickedBlock().breakNaturally(p.getInventory().getItemInMainHand());
+                }
             }
+
         }
     }
 

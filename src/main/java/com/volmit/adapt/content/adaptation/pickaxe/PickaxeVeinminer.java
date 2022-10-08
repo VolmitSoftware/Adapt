@@ -72,13 +72,6 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
             return;
         }
 
-        BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), p, e.getBlock().getBlockData(), true);
-        Bukkit.getServer().getPluginManager().callEvent(can);
-
-        if (!can.isBuildable()) {
-            return;
-        }
-
         if (!e.getBlock().getBlockData().getMaterial().name().endsWith("_ORE") ) {
             if (!e.getBlock().getType().equals(Material.OBSIDIAN)) {
                 return;

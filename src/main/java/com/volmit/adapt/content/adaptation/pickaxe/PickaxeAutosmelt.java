@@ -59,7 +59,6 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         }
         switch (b.getType()) {
             case IRON_ORE, DEEPSLATE_IRON_ORE -> {
-
                 if (b.getLocation().getWorld() == null) {
                     return;
                 }

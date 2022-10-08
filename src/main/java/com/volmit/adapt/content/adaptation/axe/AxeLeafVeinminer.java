@@ -74,7 +74,6 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
         }
         Player p = e.getPlayer();
         if (hasAdaptation(p)) {
-
             if (!p.isSneaking()) {
                 return;
             }
@@ -83,15 +82,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                 return;
             }
 
-            BlockCanBuildEvent can = new BlockCanBuildEvent(e.getBlock(), p, e.getBlock().getBlockData(), true);
-            Bukkit.getServer().getPluginManager().callEvent(can);
-
-            if (!can.isBuildable()) {
-                return;
-            }
-
             if (isLeaves(new ItemStack(e.getBlock().getType()))) {
-
                 Block block = e.getBlock();
                 Map<Location, Block> blockMap = new HashMap<>();
                 blockMap.put(block.getLocation(), block);
@@ -123,7 +114,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                                     p.getWorld().dropItem(p.getLocation(), extra.get(0));
                                 }
                             }
-                            l.getWorld().getBlockAt(l).setType(Material.AIR);
+                            p.breakBlock(l.getBlock());
                         } else {
                             b.breakNaturally(p.getItemInUse());
                             e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
