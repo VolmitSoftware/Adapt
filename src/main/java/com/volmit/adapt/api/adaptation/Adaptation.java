@@ -191,7 +191,10 @@ public interface Adaptation<T> extends Ticked, Component {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return false;
         }
-        if (AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()  && !canBuild(p, p.getLocation())) {
+        if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null &&  Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
+                && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()
+                && !canBuild(p, p.getLocation())) {
+            Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have worldguard build permission.");
             return false;
         }
         return getLevel(p) > 0;
