@@ -71,14 +71,16 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
-            }
             if (p.isBlocking()) {
+                getPlayer(p).getData().addStat("blocked.hits", 1);
+                getPlayer(p).getData().addStat("blocked.damage", e.getDamage());
+                if (cooldowns.containsKey(p)) {
+                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                        return;
+                    } else {
+                        cooldowns.remove(p);
+                    }
+                }
                 xp(p, getConfig().xpOnBlockedAttack);
                 cooldowns.put(p, System.currentTimeMillis());
                 p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_CLOSE, 0.5f, 0.77f);

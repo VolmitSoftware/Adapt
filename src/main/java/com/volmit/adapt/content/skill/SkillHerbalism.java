@@ -82,7 +82,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.COOKED_BEEF)
                                 .key("challenge_eat_10000")
-                                .title("INCONSUMABLE HUNGER!")
+                                .title("EVERLASTING HUNGER!")
                                 .description("Eat over 10,000 Items!")
                                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)

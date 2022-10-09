@@ -45,9 +45,10 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            checkStatTrackers(getPlayer(i));
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            getPlayer(p).getData().addStat("minutes.online", 10);
+            checkStatTrackers(getPlayer(p));
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
         }

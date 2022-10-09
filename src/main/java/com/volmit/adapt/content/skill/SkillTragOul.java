@@ -72,6 +72,8 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                     return;
                 }
                 AdaptPlayer a = getPlayer(p);
+                getPlayer(p).getData().addStat("trag.hitsrecieved", 1);
+                getPlayer(p).getData().addStat("trag.damage", e.getDamage());
                 xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
             }
         }

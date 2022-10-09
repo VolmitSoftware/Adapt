@@ -70,6 +70,8 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
                 ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
                 if (isSword(hand)) {
+                    getPlayer(p).getData().addStat("sword.hits", 1);
+                    getPlayer(p).getData().addStat("sword.damage", e.getDamage());
                     xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
                 }
             }
