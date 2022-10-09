@@ -44,7 +44,7 @@ public class CommandTestParticle extends MortarCommand {
     public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
         if (args.length < 2) {
             String query = args.length == 1 ? args[0] : null;
-            list.addAll(Arrays.stream(Particle.values()).filter(i -> query != null ? i.name().contains(query.toUpperCase(Locale.ROOT)) : true).map(i -> i.name()).collect(Collectors.toList()));
+            list.addAll(Arrays.stream(Particle.values()).filter(i -> query == null || i.name().contains(query.toUpperCase(Locale.ROOT))).map(i -> i.name()).collect(Collectors.toList()));
         }
     }
 

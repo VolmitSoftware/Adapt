@@ -33,7 +33,7 @@ import java.util.stream.StreamSupport;
  */
 public class AdvancementProgress {
 
-    private net.minecraft.advancements.AdvancementProgress nmsProgress = new net.minecraft.advancements.AdvancementProgress();
+    private final net.minecraft.advancements.AdvancementProgress nmsProgress = new net.minecraft.advancements.AdvancementProgress();
     private long lastUpdate = -1;
 
     /**

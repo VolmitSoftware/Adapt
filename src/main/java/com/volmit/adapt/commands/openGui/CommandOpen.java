@@ -27,7 +27,7 @@ import java.util.List;
 public class CommandOpen extends MortarCommand {
     private static final List<String> permission = List.of("adapt.opengui");
     @Command
-    private CommandOpenGUI gui = new CommandOpenGUI();
+    private final CommandOpenGUI gui = new CommandOpenGUI();
 
 
     public CommandOpen() {

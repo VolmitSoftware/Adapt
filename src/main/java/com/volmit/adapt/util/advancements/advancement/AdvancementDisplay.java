@@ -375,7 +375,7 @@ public class AdvancementDisplay {
     public boolean isVisible(Player player, Advancement advancement) {
         AdvancementVisibility visibility = getVisibility();
         Advancement parent = advancement.getParent();
-        boolean parentVisible = parent == null ? true : parent.getDisplay().isVisible(player, parent);
+        boolean parentVisible = parent == null || parent.getDisplay().isVisible(player, parent);
         return parentVisible && visibility.isVisible(player, advancement) || advancement.isGranted(player) || (visibility.isAlwaysVisibleWhenAnyChildIsGranted() && advancement.isAnythingGrantedAfter(player));
     }
 
@@ -411,7 +411,7 @@ public class AdvancementDisplay {
      *
      * @author Axel
      */
-    public static enum AdvancementFrame {
+    public enum AdvancementFrame {
 
         /**
          * A Task has the default Frame and defaults to a green Color in Completion Messages
@@ -426,9 +426,9 @@ public class AdvancementDisplay {
          */
         CHALLENGE(AdvancementFrameType.b);
 
-        private AdvancementFrameType nms;
+        private final AdvancementFrameType nms;
 
-        private AdvancementFrame(AdvancementFrameType nms) {
+        AdvancementFrame(AdvancementFrameType nms) {
             this.nms = nms;
         }
 

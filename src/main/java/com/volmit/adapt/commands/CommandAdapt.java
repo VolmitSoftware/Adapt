@@ -31,13 +31,13 @@ import java.util.List;
 public class CommandAdapt extends MortarCommand {
     private static final List<String> permission = List.of("adapt.main");
     @Command
-    private CommandBoost boost = new CommandBoost();
+    private final CommandBoost boost = new CommandBoost();
     @Command
-    private CommandOpen openGui = new CommandOpen();
+    private final CommandOpen openGui = new CommandOpen();
     @Command
-    private CommandItem item = new CommandItem();
+    private final CommandItem item = new CommandItem();
     @Command
-    private CommandTest test = new CommandTest();
+    private final CommandTest test = new CommandTest();
 
     public CommandAdapt() {
         super("adapt", "ada", "a");

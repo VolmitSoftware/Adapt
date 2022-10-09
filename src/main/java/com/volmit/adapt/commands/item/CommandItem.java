@@ -27,9 +27,9 @@ import java.util.List;
 public class CommandItem extends MortarCommand {
     private static final List<String> permission = List.of("adapt.cheatitem");
     @Command
-    private CommandItemKnowledgeOrb skillOrb = new CommandItemKnowledgeOrb();
+    private final CommandItemKnowledgeOrb skillOrb = new CommandItemKnowledgeOrb();
     @Command
-    private CommandItemExperienceOrb xpOrb = new CommandItemExperienceOrb();
+    private final CommandItemExperienceOrb xpOrb = new CommandItemExperienceOrb();
 
 
     public CommandItem() {

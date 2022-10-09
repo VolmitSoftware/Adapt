@@ -27,9 +27,9 @@ import java.util.List;
 public class CommandTest extends MortarCommand {
     private static final List<String> permission = List.of("adapt.idontknowwhatimdoingiswear");
     @Command
-    private CommandTestParticle particle = new CommandTestParticle();
+    private final CommandTestParticle particle = new CommandTestParticle();
     @Command
-    private CommandTestSound sound = new CommandTestSound();
+    private final CommandTestSound sound = new CommandTestSound();
 
     public CommandTest() {
         super("test", "t");

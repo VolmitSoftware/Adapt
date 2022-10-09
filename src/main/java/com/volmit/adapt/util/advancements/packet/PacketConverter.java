@@ -36,8 +36,8 @@ public class PacketConverter {
 
     private static final AdvancementRewards advancementRewards = new AdvancementRewards(0, new MinecraftKey[0], new MinecraftKey[0], null);
 
-    private static HashMap<NameKey, Float> smallestX = new HashMap<>();
-    private static HashMap<NameKey, Float> smallestY = new HashMap<>();
+    private static final HashMap<NameKey, Float> smallestX = new HashMap<>();
+    private static final HashMap<NameKey, Float> smallestY = new HashMap<>();
 
     public static void setSmallestX(NameKey tab, float smallestX) {
         PacketConverter.smallestX.put(tab, smallestX);

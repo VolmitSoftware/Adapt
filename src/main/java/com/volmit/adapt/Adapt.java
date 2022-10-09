@@ -52,7 +52,7 @@ public class Adapt extends VolmitPlugin {
     public static BukkitAudiences audiences;
     public final EffectManager adaptEffectManager = new EffectManager(this);
     @Command
-    private CommandAdapt commandAdapt = new CommandAdapt();
+    private final CommandAdapt commandAdapt = new CommandAdapt();
     @Getter
     private Ticker ticker;
     @Getter

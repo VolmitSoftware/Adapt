@@ -163,11 +163,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     }
 
     private boolean isBound(ItemStack stack) {
-        if (stack.getType().equals(Material.ENDER_EYE) && BoundEyeOfEnder.getLocation(stack) != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return stack.getType().equals(Material.ENDER_EYE) && BoundEyeOfEnder.getLocation(stack) != null;
     }
 
 

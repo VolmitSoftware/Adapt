@@ -40,7 +40,7 @@ public class SerializedMessage {
     private final HoverEvent hoverEvent;
     private final ClickEvent clickEvent;
 
-    private List<SerializedMessage> extra;
+    private final List<SerializedMessage> extra;
 
     public SerializedMessage(String text, String selector, String keybind, String color, boolean bold, boolean italic, boolean underlined, HoverEvent hoverEvent, ClickEvent clickEvent, List<SerializedMessage> extra) {
         this.text = text;
