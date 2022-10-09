@@ -40,10 +40,28 @@
     "challenge_place_5m": {
       "title": "Symmetry's Acolyte!",
       "description": "REALITY IS YOUR PLAYGROUND! (5 Million Blocks)"
+    },
+
+    "challenge_chop_1k": {
+      "title": "Novice Lumberjack!",
+      "description": "Place 1,000 Blocks"
+    },
+    "challenge_chop_5k": {
+      "title": "Intermediate Lumberjack!",
+      "description": "Place 5,000 Blocks"
+    },
+    "challenge_chop_50k": {
+      "title": "Advanced Lumberjack!",
+      "description": "Place 50,000 Blocks"
+    },
+    "challenge_chop_500k": {
+      "title": "Master Lumberjack!",
+      "description": "Place 500,000 Blocks"
+    },
+    "challenge_chop_5m": {
+      "title": "Jackson the Dog",
+      "description": "The bestest good Boy! (5 Million Blocks)"
     }
-
-
-
   },
   "snippets": {
     "gui": {
