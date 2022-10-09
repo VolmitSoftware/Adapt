@@ -29,6 +29,7 @@ import com.volmit.adapt.util.MortarSender;
 import java.util.List;
 
 public class CommandAdapt extends MortarCommand {
+    private static final List<String> permission = List.of("adapt.main");
     @Command
     private CommandBoost boost = new CommandBoost();
     @Command
@@ -37,8 +38,6 @@ public class CommandAdapt extends MortarCommand {
     private CommandItem item = new CommandItem();
     @Command
     private CommandTest test = new CommandTest();
-
-    private static final List<String> permission = List.of("adapt.main");
 
     public CommandAdapt() {
         super("adapt", "ada", "a");

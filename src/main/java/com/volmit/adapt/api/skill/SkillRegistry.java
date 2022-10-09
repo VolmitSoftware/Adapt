@@ -180,12 +180,14 @@ public class SkillRegistry extends TickedObject {
 
     private void unregisterRecipes(Skill<?> s) {
         s.getRecipes().forEach(AdaptRecipe::unregister);
-        s.getAdaptations().forEach(i -> { i.getRecipes().forEach(AdaptRecipe::unregister); });
+        s.getAdaptations().forEach(i -> {
+            i.getRecipes().forEach(AdaptRecipe::unregister);
+        });
     }
 
     private void registerRecipes(Skill<?> s) {
         s.getRecipes().forEach(AdaptRecipe::register);
-        s.getAdaptations().forEach(i ->{
+        s.getAdaptations().forEach(i -> {
             i.getRecipes().forEach(AdaptRecipe::register);
             i.getBrewingRecipes().forEach(r -> BrewingManager.registerRecipe(i.getId(), r));
         });

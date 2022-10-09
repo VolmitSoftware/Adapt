@@ -24,7 +24,6 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
@@ -73,7 +72,7 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
             } else {
                 if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
                     Material mat = Material.getMaterial(getConfig().consumable);
-                    if (p.getInventory().contains(mat)){
+                    if (p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));
                         addPotionStacks(p, PotionEffectType.INCREASE_DAMAGE, getLevel(p), 50, false);
                     } else {

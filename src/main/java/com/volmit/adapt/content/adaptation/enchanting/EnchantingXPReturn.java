@@ -100,8 +100,8 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
         public int xpReturn = 2;
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 1;
         int maxLevel = 7;

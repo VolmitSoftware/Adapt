@@ -235,7 +235,8 @@ public class AdaptServer extends TickedObject {
         if (f.exists()) {
             try {
                 return new Gson().fromJson(IO.readAll(f), PlayerData.class);
-            } catch (Throwable ignored) { }
+            } catch (Throwable ignored) {
+            }
         }
 
         return new PlayerData();

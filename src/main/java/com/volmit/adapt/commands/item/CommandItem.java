@@ -25,12 +25,11 @@ import com.volmit.adapt.util.MortarSender;
 import java.util.List;
 
 public class CommandItem extends MortarCommand {
+    private static final List<String> permission = List.of("adapt.cheatitem");
     @Command
     private CommandItemKnowledgeOrb skillOrb = new CommandItemKnowledgeOrb();
     @Command
     private CommandItemExperienceOrb xpOrb = new CommandItemExperienceOrb();
-
-    private static final List<String> permission = List.of("adapt.cheatitem");
 
 
     public CommandItem() {

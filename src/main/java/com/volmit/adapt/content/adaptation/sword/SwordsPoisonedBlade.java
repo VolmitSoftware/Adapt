@@ -128,9 +128,9 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
         public long cooldown = 5000;
         public long effectDuration = 1000;
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 7;
         int maxLevel = 7;

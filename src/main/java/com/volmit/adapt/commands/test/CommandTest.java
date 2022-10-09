@@ -25,12 +25,11 @@ import com.volmit.adapt.util.MortarSender;
 import java.util.List;
 
 public class CommandTest extends MortarCommand {
+    private static final List<String> permission = List.of("adapt.idontknowwhatimdoingiswear");
     @Command
     private CommandTestParticle particle = new CommandTestParticle();
     @Command
     private CommandTestSound sound = new CommandTestSound();
-
-    private static final List<String> permission = List.of("adapt.idontknowwhatimdoingiswear");
 
     public CommandTest() {
         super("test", "t");

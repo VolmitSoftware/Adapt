@@ -26,7 +26,7 @@ public class BrewingTask extends BukkitRunnable {
 
         this.brewTime = recipe.getBrewingTime();
 
-        if(block.getFuelLevel() > recipe.getFuelCost()) {
+        if (block.getFuelLevel() > recipe.getFuelCost()) {
             block.setFuelLevel(block.getFuelLevel() - recipe.getFuelCost());
         } else {
             int rest = recipe.getFuelCost() - block.getFuelLevel();
@@ -39,18 +39,43 @@ public class BrewingTask extends BukkitRunnable {
         runTaskTimer(Adapt.instance, 0L, 1L);
     }
 
+    public static ItemStack decrease(ItemStack source, int amount) {
+        if (source.getAmount() > amount) {
+            source.setAmount(source.getAmount() - amount);
+            return source;
+        } else
+            return new ItemStack(Material.AIR);
+    }
+
+    public static boolean isValid(BrewingRecipe recipe, BrewingStand block) {
+        BrewerInventory inv = block.getInventory();
+        if (!recipe.getIngredient().isSimilar(inv.getIngredient()))
+            return false;
+
+        int totalFuel = (inv.getFuel() != null && inv.getFuel().getType() != Material.AIR ? inv.getFuel().getAmount() * 20 : 0) + block.getFuelLevel();
+        if (totalFuel < recipe.getFuelCost())
+            return false;
+
+        for (int i = 0; i < 3; i++) {
+            if (recipe.getBasePotion().isSimilar(inv.getItem(i)))
+                return true;
+        }
+
+        return false;
+    }
+
     @Override
     public void run() {
-        if(brewTime <= 0) {
+        if (brewTime <= 0) {
             inventory.setIngredient(decrease(inventory.getIngredient(), 1));
 
-            for(int i = 0; i < 3; i++) {
-                if(recipe.getBasePotion().equals(inventory.getItem(i)))
+            for (int i = 0; i < 3; i++) {
+                if (recipe.getBasePotion().equals(inventory.getItem(i)))
                     inventory.setItem(i, recipe.getResult());
             }
 
             inventory.getViewers().forEach(e -> {
-                if(e instanceof Player p)
+                if (e instanceof Player p)
                     p.playSound(block.getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1, 1);
             });
             cancel();
@@ -62,32 +87,7 @@ public class BrewingTask extends BukkitRunnable {
         block.update(true);
     }
 
-    public static ItemStack decrease(ItemStack source, int amount) {
-        if(source.getAmount() > amount) {
-            source.setAmount(source.getAmount() - amount);
-            return source;
-        } else
-            return new ItemStack(Material.AIR);
-    }
-
-    public static boolean isValid(BrewingRecipe recipe, BrewingStand block) {
-        BrewerInventory inv = block.getInventory();
-        if(!recipe.getIngredient().isSimilar(inv.getIngredient()))
-            return false;
-
-        int totalFuel = (inv.getFuel() != null && inv.getFuel().getType() != Material.AIR ? inv.getFuel().getAmount() * 20 : 0) + block.getFuelLevel();
-        if(totalFuel < recipe.getFuelCost())
-            return false;
-
-        for(int i = 0; i < 3; i++) {
-            if(recipe.getBasePotion().isSimilar(inv.getItem(i)))
-                return true;
-        }
-
-        return false;
-    }
-
     private int getRemainingTime() {
-        return (int)(DEFAULT_BREW_TIME * (brewTime / (float)recipe.getBrewingTime()));
+        return (int) (DEFAULT_BREW_TIME * (brewTime / (float) recipe.getBrewingTime()));
     }
 }

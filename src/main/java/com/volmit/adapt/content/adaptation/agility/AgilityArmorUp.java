@@ -77,52 +77,52 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            for (AttributeModifier j : i.getAttribute(Attribute.GENERIC_ARMOR).getModifiers()) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            for (AttributeModifier j : p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers()) {
                 if (j.getName().equals("adapt-armor-up")) {
-                    i.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(j);
+                    p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(j);
                 }
             }
 
-            if (i.isSwimming() || i.isFlying() || i.isGliding() || i.isSneaking()) {
-                ticksRunning.remove(i);
+            if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSneaking()) {
+                ticksRunning.remove(p);
                 return;
             }
 
-            if (i.isSprinting() && hasAdaptation(i)) {
+            if (p.isSprinting() && hasAdaptation(p)) {
 
 
-                ticksRunning.compute(i, (k, v) -> {
+                ticksRunning.compute(p, (k, v) -> {
                     if (v == null) {
                         return 1;
                     }
                     return v + 1;
                 });
 
-                Integer tr = ticksRunning.get(i);
+                Integer tr = ticksRunning.get(p);
 
                 if (tr == null || tr <= 0) {
                     continue;
                 }
 
-                double factor = getLevelPercent(i);
+                double factor = getLevelPercent(p);
                 double ticksToMax = getWindupTicks(factor);
                 double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
                 double armorInc = M.lerp(0, getWindupArmor(factor), progress);
 
                 if (getConfig().showParticles) {
                     if (M.r(0.2 * progress)) {
-                        i.getWorld().spawnParticle(Particle.END_ROD, i.getLocation(), 1);
+                        p.getWorld().spawnParticle(Particle.END_ROD, p.getLocation(), 1);
                     }
 
                     if (M.r(0.25 * progress)) {
-                        i.getWorld().spawnParticle(Particle.WAX_ON, i.getLocation(), 1, 0, 0, 0, 0);
+                        p.getWorld().spawnParticle(Particle.WAX_ON, p.getLocation(), 1, 0, 0, 0, 0);
                     }
                 }
-                i.getAttribute(Attribute.GENERIC_ARMOR).addModifier(new AttributeModifier("adapt-armor-up", armorInc * 10, AttributeModifier.Operation.ADD_NUMBER));
+                p.getAttribute(Attribute.GENERIC_ARMOR).addModifier(new AttributeModifier("adapt-armor-up", armorInc * 10, AttributeModifier.Operation.ADD_NUMBER));
 
             } else {
-                ticksRunning.remove(i);
+                ticksRunning.remove(p);
             }
         }
     }

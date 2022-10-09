@@ -91,65 +91,65 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            int level = getLevel(i);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            int level = getLevel(p);
             if (level <= 0) {
                 continue;
             }
 
-            Double j = airjumps.get(i);
+            Double j = airjumps.get(p);
 
             if (j != null && j - 0.25 >= getMaxJumps(level)) {
-                i.setGravity(true);
+                p.setGravity(true);
                 continue;
             }
 
-            if (i.isFlying() || !i.isSneaking() || i.getFallDistance() < 0.3) {
+            if (p.isFlying() || !p.isSneaking() || p.getFallDistance() < 0.3) {
                 boolean jumped = false;
 
-                if (!i.hasGravity() && i.getFallDistance() > 0.45 && canStick(i)) {
+                if (!p.hasGravity() && p.getFallDistance() > 0.45 && canStick(p)) {
                     j = j == null ? 0 : j;
                     j++;
 
                     if (j - 0.25 <= getMaxJumps(level)) {
                         jumped = true;
-                        i.setVelocity(i.getVelocity().setY(getJumpHeight(level)));
+                        p.setVelocity(p.getVelocity().setY(getJumpHeight(level)));
                         if (getConfig().showParticles) {
 
-                            i.getWorld().spawnParticle(Particle.BLOCK_CRACK, i.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, getStick(i).getBlockData());
+                            p.getWorld().spawnParticle(Particle.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, getStick(p).getBlockData());
                         }
                     }
-                    xp(i, 2);
-                    airjumps.put(i, j);
+                    xp(p, 2);
+                    airjumps.put(p, j);
                 }
 
-                if (!jumped && !i.hasGravity()) {
-                    i.setGravity(true);
-                    i.getLocation().getWorld().playSound(i.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.439f);
+                if (!jumped && !p.hasGravity()) {
+                    p.setGravity(true);
+                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.439f);
                 }
                 continue;
             }
 
-            if (canStick(i)) {
-                if (i.hasGravity()) {
-                    i.getLocation().getWorld().playSound(i.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
-                    i.getLocation().getWorld().playSound(i.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
+            if (canStick(p)) {
+                if (p.hasGravity()) {
+                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
+                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
                     if (getConfig().showParticles) {
-                        i.getWorld().spawnParticle(Particle.BLOCK_CRACK, i.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.2, 0.1, 0.1, getStick(i).getBlockData());
+                        p.getWorld().spawnParticle(Particle.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.2, 0.1, 0.1, getStick(p).getBlockData());
                     }
                 }
 
-                i.setGravity(false);
-                Vector c = i.getVelocity();
-                i.setVelocity(i.getVelocity().setY((c.getY() * 0.35) - 0.0025));
-                Double vv = airjumps.get(i);
+                p.setGravity(false);
+                Vector c = p.getVelocity();
+                p.setVelocity(p.getVelocity().setY((c.getY() * 0.35) - 0.0025));
+                Double vv = airjumps.get(p);
                 vv = vv == null ? 0 : vv;
                 vv += 0.0127;
-                airjumps.put(i, vv);
+                airjumps.put(p, vv);
             }
 
-            if (!canStick(i) && !i.hasGravity()) {
-                i.setGravity(true);
+            if (!canStick(p) && !p.hasGravity()) {
+                p.setGravity(true);
             }
         }
     }

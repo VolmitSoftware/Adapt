@@ -83,7 +83,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
             return;
         }
 
-        if (e.getDamager() instanceof Tameable &&  ((Tameable) e.getDamager()).isTamed() &&  ((Tameable) e.getDamager()).getOwner() instanceof Player p) {
+        if (e.getDamager() instanceof Tameable && ((Tameable) e.getDamager()).isTamed() && ((Tameable) e.getDamager()).getOwner() instanceof Player p) {
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             } else {

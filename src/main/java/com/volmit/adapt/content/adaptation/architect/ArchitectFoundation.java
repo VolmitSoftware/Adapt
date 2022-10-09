@@ -234,11 +234,11 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
         public long duration = 3000;
         public int minBlocks = 9;
         public int maxBlocks = 35;
         public int cooldown = 5000;
+        boolean permanent = false;
         boolean showParticles = true;
         boolean enabled = true;
         int baseCost = 5;

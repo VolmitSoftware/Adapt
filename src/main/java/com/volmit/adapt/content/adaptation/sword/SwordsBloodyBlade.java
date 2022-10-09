@@ -131,10 +131,10 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
         public long cooldown = 5000;
         public double damagePerBleedProc = 0.5;
         public long effectDuration = 1000;
+        boolean permanent = false;
         boolean enabled = true;
         boolean showParticles = true;
         int baseCost = 7;

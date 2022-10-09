@@ -37,7 +37,7 @@ public class BrewingManager implements Listener {
     public static void registerRecipe(String adaptation, BrewingRecipe recipe) {
         recipes.putIfAbsent(recipe, Lists.newArrayList(adaptation));
         recipes.computeIfPresent(recipe, (k, v) -> {
-            if(!v.contains(adaptation))
+            if (!v.contains(adaptation))
                 v.add(adaptation);
             return v;
         });
@@ -45,17 +45,17 @@ public class BrewingManager implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if(e.getClickedInventory() == null || e.getClickedInventory().getType() != InventoryType.BREWING || e.getClickedInventory().getHolder() == null)
+        if (e.getClickedInventory() == null || e.getClickedInventory().getType() != InventoryType.BREWING || e.getClickedInventory().getHolder() == null)
             return;
 
         J.s(() -> {
-            BrewerInventory inv = (BrewerInventory)e.getClickedInventory();
+            BrewerInventory inv = (BrewerInventory) e.getClickedInventory();
             BrewingStand stand = inv.getHolder();
-            AdaptPlayer p = Adapt.instance.getAdaptServer().getPlayer((Player)e.getWhoClicked());
+            AdaptPlayer p = Adapt.instance.getAdaptServer().getPlayer((Player) e.getWhoClicked());
             recipes.keySet().stream().filter(r -> BrewingTask.isValid(r, stand)).findFirst().ifPresent(r -> {
-                if(activeTasks.containsKey(stand.getLocation()))
+                if (activeTasks.containsKey(stand.getLocation()))
                     activeTasks.remove(stand.getLocation()).cancel();
-                if(recipes.get(r).stream().noneMatch(p::hasAdaptation))
+                if (recipes.get(r).stream().noneMatch(p::hasAdaptation))
                     return;
                 activeTasks.put(stand.getLocation(), new BrewingTask(r, inv, stand));
             });

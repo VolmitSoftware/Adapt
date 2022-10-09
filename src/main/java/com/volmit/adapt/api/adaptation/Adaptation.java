@@ -36,7 +36,10 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.event.AdaptAdaptationUseEvent;
 import com.volmit.adapt.util.*;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -161,6 +164,7 @@ public interface Adaptation<T> extends Ticked, Component {
     double getCostFactor();
 
     List<AdaptRecipe> getRecipes();
+
     List<BrewingRecipe> getBrewingRecipes();
 
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
@@ -170,7 +174,7 @@ public interface Adaptation<T> extends Ticked, Component {
         com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(l);
         if (!hasBypass(p, l)) {
             return query.testState(loc, WorldGuardPlugin.inst().wrapPlayer(p), Flags.BUILD);
-        }else {
+        } else {
             return true;
         }
     }
@@ -191,7 +195,9 @@ public interface Adaptation<T> extends Ticked, Component {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return false;
         }
-        if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null &&  Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
+        Adapt.verbose("Player: " + p.getName() + " Attempting adaptation: " + this.getName() + " level: " + getLevel(p));
+
+        if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null && Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
                 && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()
                 && !canBuild(p, p.getLocation())) {
             Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have worldguard build permission.");

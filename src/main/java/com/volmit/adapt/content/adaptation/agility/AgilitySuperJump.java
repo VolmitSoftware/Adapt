@@ -117,7 +117,6 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
                 } else if (lastJump.get(p) != null && M.ms() - lastJump.get(p) > 1500) {
                     lastJump.remove(p);
                 }
-
                 if (p.getLocation().getBlock().getType() != Material.LADDER && velocity.getY() > jumpVelocity && p.isOnline()) {
                     p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.25f, 0.7f);
                     p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.25f, 1.7f);

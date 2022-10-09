@@ -75,21 +75,21 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            if (i.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED) == null) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED) == null) {
                 return;
             }
-            for (AttributeModifier j : i.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
+            for (AttributeModifier j : p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
                 if (j.getName().equals("adapt-wind-up")) {
-                    i.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(j);
+                    p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(j);
                 }
             }
-            if (i.isSwimming() || i.isFlying() || i.isGliding() || i.isSneaking()) {
-                ticksRunning.remove(i);
+            if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSneaking()) {
+                ticksRunning.remove(p);
                 return;
             }
-            if (i.isSprinting() && getLevel(i) > 0) {
-                ticksRunning.compute(i, (k, v) -> {
+            if (p.isSprinting() && getLevel(p) > 0) {
+                ticksRunning.compute(p, (k, v) -> {
                     if (v == null) {
                         return 1;
                     }
@@ -97,28 +97,29 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
                     return v + 1;
                 });
 
-                Integer tr = ticksRunning.get(i);
+                Integer tr = ticksRunning.get(p);
 
                 if (tr == null || tr <= 0) {
                     continue;
                 }
-                double factor = getLevelPercent(i);
+                double factor = getLevelPercent(p);
                 double ticksToMax = getWindupTicks(factor);
                 double progress = Math.min(M.lerpInverse(0, ticksToMax, tr), 1);
                 double speedIncrease = M.lerp(0, getWindupSpeed(factor), progress);
+
                 if (getConfig().showParticles) {
 
                     if (M.r(0.2 * progress)) {
-                        i.getWorld().spawnParticle(Particle.LAVA, i.getLocation(), 1);
+                        p.getWorld().spawnParticle(Particle.LAVA, p.getLocation(), 1);
                     }
 
                     if (M.r(0.25 * progress)) {
-                        i.getWorld().spawnParticle(Particle.FLAME, i.getLocation(), 1, 0, 0, 0, 0);
+                        p.getWorld().spawnParticle(Particle.FLAME, p.getLocation(), 1, 0, 0, 0, 0);
                     }
                 }
-                i.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(new AttributeModifier("adapt-wind-up", speedIncrease, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(new AttributeModifier("adapt-wind-up", speedIncrease, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
             } else {
-                ticksRunning.remove(i);
+                ticksRunning.remove(p);
             }
         }
     }

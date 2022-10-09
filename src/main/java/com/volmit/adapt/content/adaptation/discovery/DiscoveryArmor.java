@@ -152,10 +152,10 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
         public int radiusFactor = 3;
         public double strengthExponent = 1.25;
         public boolean showParticles = true;
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 2;
         int initialCost = 3;
