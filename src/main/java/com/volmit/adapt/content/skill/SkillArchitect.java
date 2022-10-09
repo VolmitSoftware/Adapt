@@ -51,36 +51,44 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         setIcon(Material.IRON_BARS);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.BRICK).key("challenge_place_1k")
-                .title("So much to build!")
-                .description("Place over 1,000 blocks")
+                .title(Adapt.dLocalize("advancement", "challenge_place_1k", "title"))
+                .description(Adapt.dLocalize("advancement", "challenge_place_1k", "description"))
                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.BRICK)
-                        .key("challenge_place_10k")
-                        .title("Build your World!")
-                        .description("Place over 10,000 blocks")
+                        .key("challenge_place_5k")
+                        .title(Adapt.dLocalize("advancement", "challenge_place_5k", "title"))
+                        .description(Adapt.dLocalize("advancement", "challenge_place_5k", "description"))
                         .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.NETHER_BRICK)
-                                .key("challenge_place_100k")
-                                .title("Build your UNIVERSE!")
-                                .description("Place over 100,000 blocks")
+                                .key("challenge_place_50k")
+                                .title(Adapt.dLocalize("advancement", "challenge_place_50k", "title"))
+                                .description(Adapt.dLocalize("advancement", "challenge_place_50k", "description"))
                                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                                        .icon(Material.IRON_INGOT)
-                                        .key("challenge_place_1m")
-                                        .title("Reality is your Playground")
-                                        .description("Place over 1 Million blocks")
+                                        .icon(Material.NETHER_BRICK)
+                                        .key("challenge_place_500k")
+                                        .title(Adapt.dLocalize("advancement", "challenge_place_500k", "title"))
+                                        .description(Adapt.dLocalize("advancement", "challenge_place_500k", "description"))
                                         .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
-                                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                                .icon(Material.IRON_INGOT)
+                                                .key("challenge_place_5m")
+                                                .title(Adapt.dLocalize("advancement", "challenge_place_5m", "title"))
+                                                .description(Adapt.dLocalize("advancement", "challenge_place_5m", "description"))
+                                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                                .build())
                                         .build())
                                 .build())
                         .build())
                 .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(10000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(100000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_1k").goal(1000000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_5k").goal(5000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_50k").goal(50000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_500k").goal(500000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_5m").goal(5000000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
         setIcon(Material.SMITHING_TABLE);
         registerAdaptation(new ArchitectGlass());
         registerAdaptation(new ArchitectFoundation());

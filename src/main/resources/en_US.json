@@ -19,7 +19,31 @@
     "challenge_sprint_marathon": {
       "title": "Sprint a (literal) Marathon!",
       "description": "Sprint over 42,195 Blocks!"
+    },
+
+    "challenge_place_1k": {
+      "title": "Novice Builder!",
+      "description": "Place 1,000 Blocks"
+    },
+    "challenge_place_5k": {
+      "title": "Intermediate Builder!",
+      "description": "Place 5,000 Blocks"
+    },
+    "challenge_place_50k": {
+      "title": "Advanced Builder!",
+      "description": "Place 50,000 Blocks"
+    },
+    "challenge_place_500k": {
+      "title": "Master Builder!",
+      "description": "Place 500,000 Blocks"
+    },
+    "challenge_place_5m": {
+      "title": "Symmetry's Acolyte!",
+      "description": "REALITY IS YOUR PLAYGROUND! (5 Million Blocks)"
     }
+
+
+
   },
   "snippets": {
     "gui": {
