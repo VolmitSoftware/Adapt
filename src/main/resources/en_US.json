@@ -1,4 +1,26 @@
 {
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "Gotta Move!",
+      "description": "Walk over 1 Kilometer (1,000 blocks)"
+    },
+    "challenge_sprint_5k": {
+      "title": "Sprint a 5K!",
+      "description": "Walk over 5 Kilometers (5,000 blocks)"
+    },
+    "challenge_sprint_50k": {
+      "title": "Zoom a 50K!",
+      "description": "Walk over 50 Kilometers (50,000 blocks)"
+    },
+    "challenge_sprint_500k": {
+      "title": "Traverse the Universe!!",
+      "description": "Walk over 500 Kilometers (500,000 blocks)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "Sprint a (literal) Marathon!",
+      "description": "Sprint over 42,195 Blocks!"
+    }
+  },
   "snippets": {
     "gui": {
       "level": "level",
