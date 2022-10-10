@@ -36,10 +36,7 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.event.AdaptAdaptationUseEvent;
 import com.volmit.adapt.util.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -193,6 +190,9 @@ public interface Adaptation<T> extends Ticked, Component {
             return false;
         }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return false;
+        }
+        if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
             return false;
         }
         Adapt.verbose("Player: " + p.getName() + " Attempting adaptation: " + this.getName() + " level: " + getLevel(p));

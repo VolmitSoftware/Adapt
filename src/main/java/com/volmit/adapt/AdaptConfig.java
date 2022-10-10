@@ -38,6 +38,7 @@ public class AdaptConfig {
     public boolean debug = false;
     public boolean splashScreen = true;
     public boolean xpInCreative = false;
+    public boolean allowAdaptationsInCreative = false;
     public String adaptActivatorBlock = "BOOKSHELF";
     public List<String> blacklistedWorlds = List.of("some_world_adapt_should_not_run_in", "anotherWorldFolderName");
     private ValueConfig value = new ValueConfig();
