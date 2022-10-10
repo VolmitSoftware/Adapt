@@ -240,7 +240,8 @@ public class AdaptPlayer extends TickedObject {
 
     public boolean hasAdaptation(String id) {
         String skillLine = id.split("-")[0];
-        return getData().getSkillLine(skillLine).getAdaptationLevel(id) > 0;
+        PlayerSkillLine line = getData().getSkillLine(skillLine);
+        return line != null && line.getAdaptation(id).getLevel() > 0;
     }
 
     public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {

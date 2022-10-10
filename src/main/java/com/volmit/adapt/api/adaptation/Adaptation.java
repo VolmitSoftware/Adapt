@@ -34,6 +34,7 @@ import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerData;
+import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.event.AdaptAdaptationUseEvent;
 import com.volmit.adapt.util.*;
 import org.bukkit.*;
@@ -214,6 +215,9 @@ public interface Adaptation<T> extends Ticked, Component {
             this.unregister();
             return 0;
         } else {
+            PlayerSkillLine line = getPlayer(p).getData().getSkillLine(getSkill().getName());
+            if(line == null)
+                return 0;
             return getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
         }
     }

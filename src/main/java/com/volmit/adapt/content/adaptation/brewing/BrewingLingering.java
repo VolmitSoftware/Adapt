@@ -106,7 +106,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
                     }
                 });
             } else {
-                Adapt.info("No Owner");
+                Adapt.verbose("No Owner");
             }
         }
     }
