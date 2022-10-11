@@ -159,10 +159,10 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
         boolean permanent = false;
         boolean enabled = true;
         boolean showParticles = true;
-        int baseCost = 6;
+        int baseCost = 3;
         int maxLevel = 5;
         int initialCost = 4;
         double costFactor = 2.325;
-        int baseRange = 5;
+        int baseRange = 3;
     }
 }
