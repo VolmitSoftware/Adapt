@@ -38,14 +38,12 @@ import java.util.Set;
 
 
 public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
-    private final Set<Block> activeStands = new HashSet<>();
-
     public BrewingDarkness() {
         super("brewing-darkness");
         registerConfiguration(Config.class);
         setDescription(Adapt.dLocalize("brewing", "darkness", "description"));
         setDisplayName(Adapt.dLocalize("brewing", "darkness", "name"));
-        setIcon(Material.LAVA_BUCKET);
+        setIcon(Material.BLACK_CONCRETE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
@@ -53,14 +51,14 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
         setInterval(1333);
         setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
                         .id("brewing-darkness")
-                        .brewingTime(160)
-                        .fuelCost(8)
+                        .brewingTime(320)
+                        .fuelCost(16)
                         .ingredient(new ItemStack(Material.BLACK_CONCRETE))
                         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.NIGHT_VISION, false, false))
                         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                                 .setName("Bottled Darkness")
                                 .setColor(Color.BLACK)
-                                .addEffect(PotionEffectType.DARKNESS, 600, 5, true, true, true)
+                                .addEffect(PotionEffectType.DARKNESS, 600, 100, true, true, true)
                                 .build())
                         .build()));
     }
@@ -68,12 +66,12 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "darkness", "lore1"));
+        v.addLore(C.GRAY + "- " + Adapt.dLocalize("brewing", "darkness", "lore2"));
     }
 
 
     @Override
     public void onTick() {
-
     }
 
 

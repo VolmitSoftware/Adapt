@@ -326,7 +326,8 @@
     "darkness": {
       "name": "Brewable Darkness",
       "description": "Not sure why you need this, but here you go!",
-      "lore1": "NightVision Potion + Black Concrete Powder = Potion of Darkness"
+      "lore1": "NightVision Potion + Black Concrete = Potion of Darkness (30 seconds)",
+      "lore2": "It Should be noted that This prevents anyone from Sprinting"
     }
   },
   "blocking": {
