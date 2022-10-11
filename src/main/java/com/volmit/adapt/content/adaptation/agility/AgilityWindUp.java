@@ -79,10 +79,14 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
             if (p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED) == null) {
                 return;
             }
-            for (AttributeModifier j : p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
-                if (j.getName().equals("adapt-wind-up")) {
-                    p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(j);
+            try {
+                for (AttributeModifier j : p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
+                    if (j.getName().equals("adapt-wind-up")) {
+                        p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(j);
+                    }
                 }
+            } catch (Exception e) {
+                Adapt.verbose("Failed to remove windup modifier: " + e.getMessage());
             }
             if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSneaking()) {
                 ticksRunning.remove(p);
@@ -93,12 +97,9 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
                     if (v == null) {
                         return 1;
                     }
-
                     return v + 1;
                 });
-
                 Integer tr = ticksRunning.get(p);
-
                 if (tr == null || tr <= 0) {
                     continue;
                 }
