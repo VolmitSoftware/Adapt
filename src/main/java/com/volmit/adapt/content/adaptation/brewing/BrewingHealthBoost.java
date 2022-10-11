@@ -28,45 +28,41 @@ import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
-import java.util.HashSet;
-import java.util.Set;
 
-
-public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
-    public BrewingDarkness() {
-        super("brewing-darkness");
+public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Config> {
+    public BrewingHealthBoost() {
+        super("brewing-healthboost");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("brewing", "darkness", "description"));
-        setDisplayName(Adapt.dLocalize("brewing", "darkness", "name"));
-        setIcon(Material.BLACK_CONCRETE);
+        setDescription(Adapt.dLocalize("brewing", "healthboost", "description"));
+        setDisplayName(Adapt.dLocalize("brewing", "healthboost", "name"));
+        setIcon(Material.ENCHANTED_GOLDEN_APPLE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
-        setInterval(1335);
+        setInterval(1330);
         setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
-                        .id("brewing-darkness")
+                        .id("brewing-healthboost")
                         .brewingTime(320)
                         .fuelCost(16)
-                        .ingredient(new ItemStack(Material.BLACK_CONCRETE))
-                        .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.NIGHT_VISION, false, false))
+                        .ingredient(new ItemStack(Material.GOLDEN_APPLE))
+                        .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.INSTANT_HEAL, false, false))
                         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-                                .setName("Bottled Darkness")
-                                .setColor(Color.BLACK)
-                                .addEffect(PotionEffectType.DARKNESS, 600, 100, true, true, true)
+                                .setName("Bottled Life")
+                                .setColor(Color.RED)
+                                .addEffect(PotionEffectType.HEALTH_BOOST, 1200, 1, true, true, true)
                                 .build())
                         .build()));
     }
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "darkness", "lore1"));
-        v.addLore(C.GRAY + "- " + Adapt.dLocalize("brewing", "darkness", "lore2"));
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "healthboost", "lore1"));
+//        v.addLore(C.GRAY + "- " + Adapt.dLocalize("brewing", "darkness", "lore2"));
     }
 
 

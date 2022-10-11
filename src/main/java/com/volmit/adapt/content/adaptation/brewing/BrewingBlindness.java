@@ -28,45 +28,53 @@ import com.volmit.adapt.util.Element;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
-import java.util.HashSet;
-import java.util.Set;
 
-
-public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
-    public BrewingDarkness() {
-        super("brewing-darkness");
+public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> {
+    public BrewingBlindness() {
+        super("brewing-blindness");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("brewing", "darkness", "description"));
-        setDisplayName(Adapt.dLocalize("brewing", "darkness", "name"));
-        setIcon(Material.BLACK_CONCRETE);
+        setDescription(Adapt.dLocalize("brewing", "blindness", "description"));
+        setDisplayName(Adapt.dLocalize("brewing", "blindness", "name"));
+        setIcon(Material.INK_SAC);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
-        setInterval(1335);
+        setInterval(1333);
         setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
-                        .id("brewing-darkness")
-                        .brewingTime(320)
-                        .fuelCost(16)
-                        .ingredient(new ItemStack(Material.BLACK_CONCRETE))
-                        .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.NIGHT_VISION, false, false))
-                        .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-                                .setName("Bottled Darkness")
-                                .setColor(Color.BLACK)
-                                .addEffect(PotionEffectType.DARKNESS, 600, 100, true, true, true)
-                                .build())
-                        .build()));
+                .id("brewing-blindness-1")
+                .brewingTime(320)
+                .fuelCost(16)
+                .ingredient(new ItemStack(Material.INK_SAC))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD, false, false))
+                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+                        .setName("Bottled Blindness")
+                        .setColor(Color.OLIVE)
+                        .addEffect(PotionEffectType.BLINDNESS, 600, 1, true, true, true)
+                        .build())
+                .build()));
+//        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
+//                .id("brewing-blindness-2")
+//                .brewingTime(320)
+//                .fuelCost(32)
+//                .ingredient(new ItemStack(Material.GLOW_INK_SAC))
+//                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD, false, false))
+//                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+//                        .setName("Bottled Blindness 2")
+//                        .setColor(Color.OLIVE)
+//                        .addEffect(PotionEffectType.BLINDNESS, 300, 3, true, true, true)
+//                        .build())
+//                .build()));
     }
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "darkness", "lore1"));
-        v.addLore(C.GRAY + "- " + Adapt.dLocalize("brewing", "darkness", "lore2"));
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "blindness", "lore1"));
+//        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "blindness", "lore2"));
     }
 
 

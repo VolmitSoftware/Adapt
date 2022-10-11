@@ -154,7 +154,6 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         Adapt.verbose("EntityType " + e.name() + "wasChecked");
         return !e.isAlive() || !ItemListings.getInvalidDamageableEntities().contains(e);
     }
-
     @Override
     public String getDisplayName() {
         return displayName == null ? Skill.super.getDisplayName() : (C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName() + " " + displayName);
