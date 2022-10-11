@@ -65,7 +65,8 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                         || e.getEntity().isDead()
                         || e.getEntity().isInvulnerable()
                         || p.isDead()
-                        || p.isInvulnerable()) {
+                        || p.isInvulnerable()
+                && !checkValidEntity(e.getEntity().getType())) {
                     return;
                 }
                 if (p.isBlocking() || p.isDead() || p.isInvulnerable()) {
