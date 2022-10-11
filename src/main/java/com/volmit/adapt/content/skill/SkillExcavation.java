@@ -58,7 +58,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
             return;
         }
         if (!e.isCancelled()) {
-            if (e.getDamager() instanceof Player p) {
+            if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
                 if (e.isCancelled()) {
                     return;
                 }

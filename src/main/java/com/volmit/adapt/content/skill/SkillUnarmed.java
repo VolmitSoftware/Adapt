@@ -64,6 +64,9 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
                         || p.isInvulnerable()) {
                     return;
                 }
+                if (!checkValidEntity(e.getEntity().getType())) {
+                    return;
+                }
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
                 ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
                 if (!isMelee(hand)) {

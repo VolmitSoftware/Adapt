@@ -20,6 +20,7 @@ package com.volmit.adapt.content.item;
 
 import lombok.Getter;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 
 import java.util.List;
 
@@ -35,6 +36,25 @@ public class ItemListings {
             Material.OAK_LEAVES,
             Material.SPRUCE_LEAVES,
             Material.MANGROVE_LEAVES
+    );
+
+    @Getter
+    public static List<EntityType> invalidDamageableEntities = List.of(
+            EntityType.ARMOR_STAND,
+            EntityType.BOAT,
+            EntityType.ITEM_FRAME,
+            EntityType.MINECART,
+            EntityType.MINECART_CHEST,
+            EntityType.MINECART_COMMAND,
+            EntityType.MINECART_FURNACE,
+            EntityType.MINECART_HOPPER,
+            EntityType.MINECART_MOB_SPAWNER,
+            EntityType.MINECART_TNT,
+            EntityType.PAINTING,
+            EntityType.CHEST_BOAT,
+            EntityType.LEASH_HITCH,
+            EntityType.EVOKER_FANGS,
+            EntityType.MARKER
     );
 
     @Getter

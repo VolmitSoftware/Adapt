@@ -55,7 +55,7 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
             return;
         }
         if (!e.isCancelled()) {
-            if (e.getDamager() instanceof Player p) {
+            if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
                 if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                     return;
                 }

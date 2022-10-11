@@ -83,8 +83,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
-            Player p = ((Player) ((Projectile) e.getDamager()).getShooter());
+        if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
             if (e.isCancelled()) {
                 return;
             }

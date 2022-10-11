@@ -322,6 +322,11 @@
       "description": "Brewing stands work faster the hotter they are.",
       "lore1": "Per Touching Fire Block",
       "lore2": "Per Touching Lava Block"
+    },
+    "darkness": {
+      "name": "Brewable Darkness",
+      "description": "Not sure why you need this, but here you go!",
+      "lore1": "NightVision Potion + Black Concrete Powder = Potion of Darkness"
     }
   },
   "blocking": {

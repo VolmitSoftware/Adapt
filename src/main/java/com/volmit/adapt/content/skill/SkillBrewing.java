@@ -24,6 +24,7 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.content.adaptation.brewing.BrewingDarkness;
 import com.volmit.adapt.content.adaptation.brewing.BrewingLingering;
 import com.volmit.adapt.content.adaptation.brewing.BrewingSuperHeated;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
@@ -52,6 +53,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         setIcon(Material.LINGERING_POTION);
         registerAdaptation(new BrewingLingering());
         registerAdaptation(new BrewingSuperHeated());
+        registerAdaptation(new BrewingDarkness());
         SpatialMatter.registerSliceType(new BrewingStandOwnerMatter());
     }
 

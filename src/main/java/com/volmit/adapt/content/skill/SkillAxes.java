@@ -102,7 +102,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             return;
         }
         if (!e.isCancelled()) {
-            if (e.getDamager() instanceof Player p) {
+            if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
                 if (e.isCancelled()) {
                     return;
                 }
