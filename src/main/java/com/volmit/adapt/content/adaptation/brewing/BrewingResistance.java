@@ -45,7 +45,7 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(1333);
-        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
+        registerBrewingRecipe(BrewingRecipe.builder()
                 .id("brewing-resistance-1")
                 .brewingTime(320)
                 .fuelCost(16)
@@ -54,27 +54,27 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Resistance")
                         .setColor(Color.WHITE)
-                        .addEffect(PotionEffectType.ABSORPTION, 600, 1, true, true, true)
+                        .addEffect(PotionEffectType.ABSORPTION, 1200, 1, true, true, true)
                         .build())
-                .build()));
-//        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
-//                .id("brewing-resistance-2")
-//                .brewingTime(320)
-//                .fuelCost(32)
-//                .ingredient(new ItemStack(Material.IRON_BLOCK))
-//                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD, false, false))
-//                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-//                        .setName("Bottled Resistance 2")
-//                        .setColor(Color.WHITE)
-//                        .addEffect(PotionEffectType.ABSORPTION, 600, 2, true, true, true)
-//                        .build())
-//                .build()));
+                .build());
+        registerBrewingRecipe(BrewingRecipe.builder()
+                .id("brewing-resistance-2")
+                .brewingTime(320)
+                .fuelCost(32)
+                .ingredient(new ItemStack(Material.IRON_BLOCK))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD, false, false))
+                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+                        .setName("Bottled Resistance 2")
+                        .setColor(Color.WHITE)
+                        .addEffect(PotionEffectType.ABSORPTION, 600, 2, true, true, true)
+                        .build())
+                .build());
     }
 
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "resistance", "lore1"));
-//        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "resistance", "lore2"));
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "resistance", "lore2"));
     }
 
 

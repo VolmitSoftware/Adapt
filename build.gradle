@@ -73,6 +73,7 @@ repositories {
     }
     maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
     maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+    mavenCentral()
 }
 
 /**
@@ -128,12 +129,12 @@ dependencies {
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
     implementation 'art.arcane:Fukkit:22.7.5'
-    annotationProcessor 'systems.manifold:manifold-ext:2022.1.19'
-    testAnnotationProcessor 'systems.manifold:manifold-ext:2022.1.19'
-    implementation 'systems.manifold:manifold-rt:2022.1.19'
+    annotationProcessor 'systems.manifold:manifold-ext:2022.1.21'
+    testAnnotationProcessor 'systems.manifold:manifold-ext:2022.1.21'
+    implementation 'systems.manifold:manifold-rt:2022.1.20'
     implementation 'com.elmakers.mine.bukkit:EffectLib:9.4'
     implementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.7'
-    compileOnly "com.github.FrancoBM12:API-MagicCosmetics:1.9.85"
+    implementation "com.github.FrancoBM12:API-MagicCosmetics:1.9.85"
 
     // Shaded
     implementation 'io.papermc:paperlib:1.0.5'

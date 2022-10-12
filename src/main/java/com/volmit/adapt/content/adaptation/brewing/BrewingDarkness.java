@@ -49,7 +49,7 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(1335);
-        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
+        registerBrewingRecipe(BrewingRecipe.builder()
                         .id("brewing-darkness")
                         .brewingTime(320)
                         .fuelCost(16)
@@ -60,7 +60,7 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
                                 .setColor(Color.BLACK)
                                 .addEffect(PotionEffectType.DARKNESS, 600, 100, true, true, true)
                                 .build())
-                        .build()));
+                        .build());
     }
 
     @Override

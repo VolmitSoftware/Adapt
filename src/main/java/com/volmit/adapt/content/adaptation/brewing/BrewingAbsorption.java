@@ -45,7 +45,7 @@ public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(1333);
-        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
+        registerBrewingRecipe(BrewingRecipe.builder()
                 .id("brewing-absorption-1")
                 .brewingTime(320)
                 .fuelCost(16)
@@ -56,25 +56,26 @@ public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config
                         .setColor(Color.GRAY)
                         .addEffect(PotionEffectType.ABSORPTION, 1200, 1, true, true, true)
                         .build())
-                .build()));
-//        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
-//                .id("brewing-absorption-2")
-//                .brewingTime(320)
-//                .fuelCost(32)
-//                .ingredient(new ItemStack(Material.QUARTZ_BLOCK))
-//                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.INSTANT_HEAL, false, false))
-//                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-//                        .setName("Bottled Haste 2")
-//                        .setColor(Color.GRAY)
-//                        .addEffect(PotionEffectType.ABSORPTION, 600, 2, true, true, true)
-//                        .build())
-//                .build()));
+                .build()
+        );
+        registerBrewingRecipe(BrewingRecipe.builder()
+                .id("brewing-absorption-2")
+                .brewingTime(320)
+                .fuelCost(32)
+                .ingredient(new ItemStack(Material.QUARTZ_BLOCK))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.INSTANT_HEAL, false, false))
+                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+                        .setName("Bottled Haste 2")
+                        .setColor(Color.GRAY)
+                        .addEffect(PotionEffectType.ABSORPTION, 600, 2, true, true, true)
+                        .build())
+                .build());
     }
 
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "absorption", "lore1"));
-//        v.addLore(C.GRAY + "- " + Adapt.dLocalize("brewing", "absorption", "lore2"));
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "absorption", "lore2"));
     }
 
 

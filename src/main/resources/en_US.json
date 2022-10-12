@@ -366,14 +366,14 @@
     "resistance": {
       "name": "Bottled Resistance",
       "description": "Fortification at its finest!",
-      "lore1": "Awkward Potion + Iron Ingot = Potion of Resistance (30 seconds)",
+      "lore1": "Awkward Potion + Iron Ingot = Potion of Resistance (60 seconds)",
       "lore2": "Awkward Potion + Iron Block = Potion of Resistance-2 (30 seconds)"
     },
     "healthboost": {
       "name": "Bottled Life",
       "description": "When Maximum health is not enough...",
-      "lore1": "Instant-Healing Potion + Golden Apple = Potion of Health Boost-2 (120 seconds)",
-      "lore2": "Instant-Healing Potion + Enchanted Golden Apple = Potion of Health Boost-4 (60 seconds)"
+      "lore1": "Instant-Healing Potion + Golden Apple = Potion of Health Boost (120 seconds)",
+      "lore2": "Instant-Healing Potion + Enchanted Golden Apple = Potion of Health Boost-2 (120 seconds)"
     }
   },
   "blocking": {

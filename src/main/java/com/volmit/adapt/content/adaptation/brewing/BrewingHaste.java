@@ -45,7 +45,7 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(1334);
-        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
+        registerBrewingRecipe(BrewingRecipe.builder()
                 .id("brewing-haste-1")
                 .brewingTime(320)
                 .fuelCost(16)
@@ -56,25 +56,25 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
                         .setColor(Color.YELLOW)
                         .addEffect(PotionEffectType.FAST_DIGGING, 1200, 1, true, true, true)
                         .build())
-                .build()));
-//        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
-//                .id("brewing-haste-2")
-//                .brewingTime(320)
-//                .fuelCost(32)
-//                .ingredient(new ItemStack(Material.AMETHYST_BLOCK))
-//                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.SPEED, false, false))
-//                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-//                        .setName("Bottled Haste 2")
-//                        .setColor(Color.YELLOW)
-//                        .addEffect(PotionEffectType.FAST_DIGGING, 600, 2, true, true, true)
-//                        .build())
-//                .build()));
+                .build());
+        registerBrewingRecipe(BrewingRecipe.builder()
+                .id("brewing-haste-2")
+                .brewingTime(320)
+                .fuelCost(32)
+                .ingredient(new ItemStack(Material.AMETHYST_BLOCK))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.SPEED, false, false))
+                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+                        .setName("Bottled Haste 2")
+                        .setColor(Color.YELLOW)
+                        .addEffect(PotionEffectType.FAST_DIGGING, 600, 2, true, true, true)
+                        .build())
+                .build());
     }
 
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "haste", "lore1"));
-//        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "haste", "lore2"));
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "haste", "lore2"));
     }
 
 

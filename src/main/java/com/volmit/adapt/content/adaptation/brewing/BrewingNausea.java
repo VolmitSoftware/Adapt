@@ -45,7 +45,7 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(1333);
-        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
+        registerBrewingRecipe(BrewingRecipe.builder()
                 .id("brewing-nausea-1")
                 .brewingTime(320)
                 .fuelCost(16)
@@ -56,25 +56,25 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
                         .setColor(Color.LIME)
                         .addEffect(PotionEffectType.ABSORPTION, 600, 1, true, true, true)
                         .build())
-                .build()));
-//        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
-//                .id("brewing-absorption-2")
-//                .brewingTime(320)
-//                .fuelCost(32)
-//                .ingredient(new ItemStack(Material.CRIMSON_FUNGUS))
-//                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD, false, false))
-//                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-//                        .setName("Bottled Nausea 2")
-//                        .setColor(Color.LIME)
-//                        .addEffect(PotionEffectType.ABSORPTION, 300, 2, true, true, true)
-//                        .build())
-//                .build()));
+                .build());
+        registerBrewingRecipe(BrewingRecipe.builder()
+                .id("brewing-absorption-2")
+                .brewingTime(320)
+                .fuelCost(32)
+                .ingredient(new ItemStack(Material.CRIMSON_FUNGUS))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD, false, false))
+                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+                        .setName("Bottled Nausea 2")
+                        .setColor(Color.LIME)
+                        .addEffect(PotionEffectType.ABSORPTION, 300, 2, true, true, true)
+                        .build())
+                .build());
     }
 
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "nausea", "lore1"));
-//        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "nausea", "lore2"));
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "nausea", "lore2"));
     }
 
 

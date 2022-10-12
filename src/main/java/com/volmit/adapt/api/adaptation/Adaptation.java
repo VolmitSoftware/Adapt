@@ -191,9 +191,11 @@ public interface Adaptation<T> extends Ticked, Component {
             return false;
         }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            Adapt.verbose("Blacklisted World: " + p.getWorld().getName());
             return false;
         }
         if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
+            Adapt.verbose("Player " + p.getName() + " is in creative mode, skipping adaptation " + getName());
             return false;
         }
         Adapt.verbose("Player: " + p.getName() + " Attempting adaptation: " + this.getName() + " level: " + getLevel(p));

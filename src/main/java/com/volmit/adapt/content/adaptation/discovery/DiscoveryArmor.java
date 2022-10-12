@@ -117,25 +117,24 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
                         p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
                     }
                 }
-                continue;
-            }
-            double oldArmor = 0;
-            double armor = getArmor(p.getLocation(), getLevel(p));
-            armor = Double.isNaN(armor) ? 0 : armor;
+            } else {
+                double oldArmor = 0;
+                double armor = getArmor(p.getLocation(), getLevel(p));
+                armor = Double.isNaN(armor) ? 0 : armor;
 
-            Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
-            for (AttributeModifier i : new ArrayList<>(c)) {
-                if (i.getName().equals("adapt-discovery-armor")) {
-                    oldArmor = i.getAmount();
-                    oldArmor = Double.isNaN(oldArmor) ? 0 : oldArmor;
-                    p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
+                Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
+                for (AttributeModifier i : new ArrayList<>(c)) {
+                    if (i.getName().equals("adapt-discovery-armor")) {
+                        oldArmor = i.getAmount();
+                        oldArmor = Double.isNaN(oldArmor) ? 0 : oldArmor;
+                        p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
+                    }
                 }
+                double lArmor = M.lerp(oldArmor, armor, 0.3);
+                lArmor = Double.isNaN(lArmor) ? 0 : lArmor;
+                p.getAttribute(Attribute.GENERIC_ARMOR).addModifier(new AttributeModifier("adapt-discovery-armor", lArmor, AttributeModifier.Operation.ADD_NUMBER));
 
             }
-            double lArmor = M.lerp(oldArmor, armor, 0.3);
-            lArmor = Double.isNaN(lArmor) ? 0 : lArmor;
-            p.getAttribute(Attribute.GENERIC_ARMOR).addModifier(new AttributeModifier("adapt-discovery-armor", lArmor, AttributeModifier.Operation.ADD_NUMBER));
-
         }
 
     }

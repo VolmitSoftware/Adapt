@@ -45,24 +45,36 @@ public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Conf
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(1330);
-        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
-                        .id("brewing-healthboost")
-                        .brewingTime(320)
-                        .fuelCost(16)
-                        .ingredient(new ItemStack(Material.GOLDEN_APPLE))
-                        .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.INSTANT_HEAL, false, false))
-                        .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-                                .setName("Bottled Life")
-                                .setColor(Color.RED)
-                                .addEffect(PotionEffectType.HEALTH_BOOST, 1200, 1, true, true, true)
-                                .build())
-                        .build()));
+        registerBrewingRecipe(BrewingRecipe.builder()
+                .id("brewing-healthboost")
+                .brewingTime(320)
+                .fuelCost(16)
+                .ingredient(new ItemStack(Material.GOLDEN_APPLE))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.INSTANT_HEAL, false, false))
+                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+                        .setName("Bottled Life")
+                        .setColor(Color.RED)
+                        .addEffect(PotionEffectType.HEALTH_BOOST, 1200, 1, true, true, true)
+                        .build())
+                .build());
+        registerBrewingRecipe(BrewingRecipe.builder()
+                .id("brewing-healthboost")
+                .brewingTime(320)
+                .fuelCost(16)
+                .ingredient(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.INSTANT_HEAL, false, false))
+                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+                        .setName("Bottled Life")
+                        .setColor(Color.RED)
+                        .addEffect(PotionEffectType.HEALTH_BOOST, 1200, 2, true, true, true)
+                        .build())
+                .build());
     }
 
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "healthboost", "lore1"));
-//        v.addLore(C.GRAY + "- " + Adapt.dLocalize("brewing", "darkness", "lore2"));
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "healthboost", "lore2"));
     }
 
 

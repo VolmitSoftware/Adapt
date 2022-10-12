@@ -45,7 +45,7 @@ public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> 
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(1333);
-        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
+        registerBrewingRecipe(BrewingRecipe.builder()
                 .id("brewing-blindness-1")
                 .brewingTime(320)
                 .fuelCost(16)
@@ -56,19 +56,19 @@ public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> 
                         .setColor(Color.OLIVE)
                         .addEffect(PotionEffectType.BLINDNESS, 600, 1, true, true, true)
                         .build())
-                .build()));
-//        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
-//                .id("brewing-blindness-2")
-//                .brewingTime(320)
-//                .fuelCost(32)
-//                .ingredient(new ItemStack(Material.GLOW_INK_SAC))
-//                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD, false, false))
-//                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-//                        .setName("Bottled Blindness 2")
-//                        .setColor(Color.OLIVE)
-//                        .addEffect(PotionEffectType.BLINDNESS, 300, 3, true, true, true)
-//                        .build())
-//                .build()));
+                .build());
+        registerBrewingRecipe(BrewingRecipe.builder()
+                .id("brewing-blindness-2")
+                .brewingTime(320)
+                .fuelCost(32)
+                .ingredient(new ItemStack(Material.GLOW_INK_SAC))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD, false, false))
+                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+                        .setName("Bottled Blindness 2")
+                        .setColor(Color.OLIVE)
+                        .addEffect(PotionEffectType.BLINDNESS, 300, 3, true, true, true)
+                        .build())
+                .build());
     }
 
     @Override

@@ -45,7 +45,7 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(1332);
-        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
+        registerBrewingRecipe(BrewingRecipe.builder()
                 .id("brewing-fatigue-1")
                 .brewingTime(320)
                 .fuelCost(16)
@@ -56,25 +56,25 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
                         .setColor(Color.fromRGB(0, 66, 0))
                         .addEffect(PotionEffectType.SLOW_DIGGING, 1200, 1, true, true, true)
                         .build())
-                .build()));
-//        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
-//                .id("brewing-fatigue-2")
-//                .brewingTime(320)
-//                .fuelCost(32)
-//                .ingredient(new ItemStack(Material.SLIME_BLOCK))
-//                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.WEAKNESS, false, false))
-//                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-//                        .setName("Bottled Fatigue 2")
-//                        .setColor(Color.fromRGB(0, 66, 0))
-//                        .addEffect(PotionEffectType.SLOW_DIGGING, 600, 2, true, true, true)
-//                        .build())
-//                .build()));
+                .build());
+        registerBrewingRecipe(BrewingRecipe.builder()
+                .id("brewing-fatigue-2")
+                .brewingTime(320)
+                .fuelCost(32)
+                .ingredient(new ItemStack(Material.SLIME_BLOCK))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.WEAKNESS, false, false))
+                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+                        .setName("Bottled Fatigue 2")
+                        .setColor(Color.fromRGB(0, 66, 0))
+                        .addEffect(PotionEffectType.SLOW_DIGGING, 600, 2, true, true, true)
+                        .build())
+                .build());
     }
 
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "absorption", "lore1"));
-//        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "absorption", "lore2"));
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "absorption", "lore2"));
     }
 
 

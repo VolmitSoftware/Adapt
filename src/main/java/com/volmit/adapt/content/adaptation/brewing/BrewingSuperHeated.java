@@ -63,18 +63,6 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(253);
-        setBrewingRecipes(Lists.newArrayList(BrewingRecipe.builder()
-                        .id("rod-potion")
-                        .brewingTime(80)
-                        .fuelCost(4)
-                        .ingredient(new ItemStack(Material.POLISHED_GRANITE))
-                        .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.WATER, false, false))
-                        .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-                                .setName("Rod Potion")
-                                .setColor(Color.GRAY)
-                                .addEffect(PotionEffectType.BAD_OMEN, 200, 1, true, true, true)
-                                .build())
-                        .build()));
     }
 
     @Override
