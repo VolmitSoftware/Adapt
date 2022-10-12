@@ -7,6 +7,7 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.J;
 import org.bukkit.Location;
 import org.bukkit.block.BrewingStand;
+import org.bukkit.block.Furnace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,10 +39,10 @@ public class BrewingManager implements Listener {
         if(e.getView().getTopInventory().getType() != InventoryType.BREWING || e.getView().getTopInventory().getHolder() == null)
             return;
 
-        BrewerInventory inv = (BrewerInventory)e.getView().getTopInventory();
+        BrewerInventory inv = (BrewerInventory)e.getInventory();
         boolean doTheThing = inv.getIngredient() == null && e.getCursor() != null && e.getSlot() == 3 && e.getClick() == ClickType.LEFT;
         if(doTheThing)
-            e.setCancelled(true);
+             e.setCancelled(true);
 
         J.s(() -> {
             if(doTheThing) {
@@ -58,12 +59,12 @@ public class BrewingManager implements Listener {
                         activeTasks.remove(stand.getLocation()).cancel();
                         if(recipes.get(r).stream().noneMatch(p::hasAdaptation))
                             return;
-                        activeTasks.put(stand.getLocation(), new BrewingTask(r, inv, stand));
+                        activeTasks.put(stand.getLocation(), new BrewingTask(r, stand));
                     }
                 } else {
                     if(recipes.get(r).stream().noneMatch(p::hasAdaptation))
                         return;
-                    activeTasks.put(stand.getLocation(), new BrewingTask(r, inv, stand));
+                    activeTasks.put(stand.getLocation(), new BrewingTask(r, stand));
                 }
             });
             if(recipe.isEmpty() && activeTasks.containsKey(stand.getLocation())) {

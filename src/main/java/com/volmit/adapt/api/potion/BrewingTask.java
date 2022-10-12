@@ -2,6 +2,7 @@ package com.volmit.adapt.api.potion;
 
 import com.volmit.adapt.Adapt;
 import lombok.Getter;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.BrewingStand;
@@ -15,15 +16,15 @@ public class BrewingTask extends BukkitRunnable {
     private static final int DEFAULT_BREW_TIME = 400;
 
     @Getter private final BrewingRecipe recipe;
-    private final BrewerInventory inventory;
     private final BrewingStand block;
 
     private int brewTime;
 
-    public BrewingTask(BrewingRecipe recipe, BrewerInventory inventory, BrewingStand block) {
+    public BrewingTask(BrewingRecipe recipe, BrewingStand block) {
         this.recipe = recipe;
-        this.inventory = inventory;
         this.block = block;
+
+        Adapt.info("Constructed: " + block);
 
         this.brewTime = recipe.getBrewingTime();
 
@@ -31,7 +32,7 @@ public class BrewingTask extends BukkitRunnable {
             block.setFuelLevel(block.getFuelLevel() - recipe.getFuelCost());
         } else {
             int rest = recipe.getFuelCost() - block.getFuelLevel();
-            inventory.setFuel(decrease(inventory.getFuel(), rest / 20));
+            block.getInventory().setFuel(decrease(block.getInventory().getFuel(), 1 + rest / 20));
             block.setFuelLevel(20 - rest % 20);
         }
 
@@ -67,6 +68,8 @@ public class BrewingTask extends BukkitRunnable {
 
     @Override
     public void run() {
+        Adapt.warn("First: " + block.toString());
+        BrewerInventory inventory = block.getInventory();
         if (brewTime <= 0) {
             inventory.setIngredient(decrease(inventory.getIngredient(), 1));
 
@@ -79,13 +82,14 @@ public class BrewingTask extends BukkitRunnable {
                 if (e instanceof Player p)
                     p.playSound(block.getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1, 1);
             });
+
+            Adapt.warn("Done: " + inventory.getHolder().toString());
             cancel();
             return;
         }
-
         brewTime--;
         block.setBrewingTime(getRemainingTime());
-        block.update(true);
+        Adapt.warn("Holder: " + block.getInventory().getHolder().toString());
     }
 
     private int getRemainingTime() {
