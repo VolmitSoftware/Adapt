@@ -18,12 +18,17 @@
 
 package com.volmit.adapt.commands.item;
 
+import com.volmit.adapt.api.skill.Skill;
+import com.volmit.adapt.api.skill.SkillRegistry;
+import com.volmit.adapt.content.item.ExperienceOrb;
 import com.volmit.adapt.content.item.KnowledgeOrb;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
+import org.bukkit.Bukkit;
 
 import java.util.List;
+import java.util.Objects;
 
 public class CommandItemKnowledgeOrb extends MortarCommand {
     public CommandItemKnowledgeOrb() {
@@ -32,19 +37,44 @@ public class CommandItemKnowledgeOrb extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
+        if (Objects.equals(args[0], "[all]")) {
+            for (Skill skill : SkillRegistry.skills.sortV()) {
+                args.toList().set(0, skill.getName());
+                giveOrb(sender, args);
+            }
+        } else {
+            giveOrb(sender, args);
+        }
+        return true;
+    }
+
+    private boolean giveOrb(MortarSender sender, String[] args) {
         try {
-            sender.player().getInventory().addItem(KnowledgeOrb.with(args[0], Integer.parseInt(args[1])));
+            if (args.toList().size() > 2) {
+                if (Bukkit.getPlayer(args[2]) != null && Bukkit.getPlayer(args[2]).getPlayer() != null) {
+                    Bukkit.getPlayer(args[2]).getPlayer().getInventory().addItem(KnowledgeOrb.with(args[0], Integer.parseInt(args[1])));
+                }
+            } else if (args.toList().size() == 2) {
+                sender.player().getInventory().addItem(KnowledgeOrb.with(args[0], Integer.parseInt(args[1])));
+            }
             return true;
         } catch (Exception ignored) {
             printHelp(sender);
-            sender.sendMessage(C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item knowledge <Skill> <XP Amount>");
+            sender.sendMessage(C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item knowledge <Skill> <Knowledge Amount>");
             return true;
         }
     }
-
     @Override
     public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
-
+        if (args.length == 0) {
+            for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+                list.add(skill.getName());
+            }
+            list.add("[all]");
+        }
+        if (args.length == 1) {
+            list.add(List.of("1", "10", "100", "1000", "10000", "100000", "1000000"));
+        }
     }
 
     @Override

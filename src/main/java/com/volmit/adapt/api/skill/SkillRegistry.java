@@ -52,7 +52,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SkillRegistry extends TickedObject {
-    private final Map<String, Skill<?>> skills = new HashMap<>();
+    public static final Map<String, Skill<?>> skills = new HashMap<>();
 
     public SkillRegistry() throws IOException {
         super("registry", UUID.randomUUID() + "-sk", 1250);
