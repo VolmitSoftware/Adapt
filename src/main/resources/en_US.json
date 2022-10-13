@@ -374,6 +374,18 @@
       "description": "When Maximum health is not enough...",
       "lore1": "Instant-Healing Potion + Golden Apple = Potion of Health Boost (120 seconds)",
       "lore2": "Instant-Healing Potion + Enchanted Golden Apple = Potion of Health Boost-2 (120 seconds)"
+    },
+    "decay": {
+      "name": "Bottled Decay",
+      "description": "Who knew Detritus would be so useful?",
+      "lore1": "Weakness Potion + Poisonous Potato = Potion of Wither (16 seconds)",
+      "lore2": "Weakness Potion + Crimson Roots = Potion of Wither (8 seconds)"
+    },
+    "saturation": {
+      "name": "Bottled Saturation",
+      "description": "Ya know... Im not even Hungry...",
+      "lore1": "Regen Potion + Baked Potato = Potion of Saturation (120 seconds)",
+      "lore2": "Regen Potion + Hay Bale = Potion of Saturation (120 seconds)"
     }
   },
   "blocking": {

@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.adaptation.brewing;
 
-import com.google.common.collect.Lists;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.potion.BrewingRecipe;
@@ -33,48 +32,48 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
 
-public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
-    public BrewingNausea() {
-        super("brewing-nausea");
+public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config> {
+    public BrewingSaturation() {
+        super("brewing-saturation");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("brewing", "nausea", "description"));
-        setDisplayName(Adapt.dLocalize("brewing", "nausea", "name"));
-        setIcon(Material.CRIMSON_FUNGUS);
+        setDescription(Adapt.dLocalize("brewing", "saturation", "description"));
+        setDisplayName(Adapt.dLocalize("brewing", "saturation", "name"));
+        setIcon(Material.BAKED_POTATO);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
-        setInterval(1333);
+        setInterval(1334);
         registerBrewingRecipe(BrewingRecipe.builder()
-                .id("brewing-nausea-1")
+                .id("brewing-saturation-1")
                 .brewingTime(320)
                 .fuelCost(16)
-                .ingredient(new ItemStack(Material.BROWN_MUSHROOM))
-                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD, false, false))
+                .ingredient(new ItemStack(Material.BAKED_POTATO))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.REGEN, false, false))
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-                        .setName("Bottled Nausea")
-                        .setColor(Color.LIME)
-                        .addEffect(PotionEffectType.ABSORPTION, 600, 1, true, true, true)
+                        .setName("Bottled Saturation")
+                        .setColor(Color.ORANGE)
+                        .addEffect(PotionEffectType.SATURATION, 1200, 1, true, true, true)
                         .build())
                 .build());
         registerBrewingRecipe(BrewingRecipe.builder()
-                .id("brewing-nausea-2")
+                .id("brewing-saturation-2")
                 .brewingTime(320)
                 .fuelCost(32)
-                .ingredient(new ItemStack(Material.CRIMSON_FUNGUS))
-                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.AWKWARD, false, false))
+                .ingredient(new ItemStack(Material.HAY_BLOCK))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.REGEN, false, false))
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-                        .setName("Bottled Nausea 2")
-                        .setColor(Color.LIME)
-                        .addEffect(PotionEffectType.ABSORPTION, 300, 2, true, true, true)
+                        .setName("Bottled Saturation 2")
+                        .setColor(Color.ORANGE)
+                        .addEffect(PotionEffectType.SATURATION, 1200, 2, true, true, true)
                         .build())
                 .build());
     }
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "nausea", "lore1"));
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "nausea", "lore2"));
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "saturation", "lore1"));
+        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "saturation", "lore2"));
     }
 
 

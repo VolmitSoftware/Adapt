@@ -49,16 +49,20 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         setDisplayName(Adapt.dLocalize("skill", "brewing", "name"));
         setInterval(5851);
         setIcon(Material.LINGERING_POTION);
+        registerAdaptation(new BrewingAbsorption());
+        registerAdaptation(new BrewingBlindness());
+        registerAdaptation(new BrewingDarkness()); // WIP
+        registerAdaptation(new BrewingDecay()); // WIP
+        registerAdaptation(new BrewingFatigue());
+        registerAdaptation(new BrewingHaste());
+        registerAdaptation(new BrewingHealthBoost());
+        registerAdaptation(new BrewingHunger());
+        registerAdaptation(new BrewingNausea());
+        registerAdaptation(new BrewingResistance());
+        registerAdaptation(new BrewingSaturation());
+
         registerAdaptation(new BrewingLingering());
         registerAdaptation(new BrewingSuperHeated());
-//        registerAdaptation(new BrewingDarkness()); // WIP
-//        registerAdaptation(new BrewingHaste());
-//        registerAdaptation(new BrewingAbsorption());
-//        registerAdaptation(new BrewingFatigue());
-//        registerAdaptation(new BrewingHunger());
-//        registerAdaptation(new BrewingNausea());
-//        registerAdaptation(new BrewingResistance());
-//        registerAdaptation(new BrewingHealthBoost());
         SpatialMatter.registerSliceType(new BrewingStandOwnerMatter());
     }
 
