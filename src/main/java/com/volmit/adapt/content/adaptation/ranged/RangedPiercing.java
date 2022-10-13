@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.content.adaptation.ranged;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
@@ -38,8 +38,8 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
     public RangedPiercing() {
         super("ranged-piercing");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("ranged", "arrowpiercing", "description"));
-        setDisplayName(Adapt.dLocalize("ranged", "arrowpiercing", "name"));
+        setDescription(Localizer.dLocalize("ranged", "arrowpiercing", "description"));
+        setDisplayName(Localizer.dLocalize("ranged", "arrowpiercing", "name"));
         setIcon(Material.SHEARS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -50,7 +50,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + " " + Adapt.dLocalize("ranged", "arrowpiercing", "lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + " " + Localizer.dLocalize("ranged", "arrowpiercing", "lore1"));
     }
 
     @EventHandler

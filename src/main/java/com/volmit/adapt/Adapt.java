@@ -19,9 +19,6 @@
 package com.volmit.adapt;
 
 import art.arcane.amulet.io.FolderWatcher;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.potion.BrewingManager;
 import com.volmit.adapt.api.tick.Ticker;
@@ -33,7 +30,6 @@ import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.secret.SecretSplash;
 import de.slikey.effectlib.EffectManager;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -41,10 +37,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.Random;
 
 public class Adapt extends VolmitPlugin {
@@ -122,82 +115,7 @@ public class Adapt extends VolmitPlugin {
         }
     }
 
-    @SneakyThrows
-    private static void updateLanguageFile() {
-        verbose("Attempting to update Language File");
-        File langFolder = new File(Adapt.instance.getDataFolder() + "/languages");
-        if (!langFolder.exists()) {
-            langFolder.mkdir();
-        }
 
-        File langFile = new File(langFolder, AdaptConfig.get().getLanguage() + ".json");
-        verbose("Updating Primary Language File: " + AdaptConfig.get().getLanguage());
-        InputStream in = Adapt.instance.getResource(AdaptConfig.get().getLanguage() + ".json");
-        Files.deleteIfExists(langFile.toPath());
-        Files.copy(in, langFile.toPath());
-        verbose("Loaded Primary Language: " + AdaptConfig.get().getLanguage());
-
-        if (!Objects.equals(AdaptConfig.get().getLanguage(), AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing())) {
-            verbose("Updating Fallback Language File: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
-            File langFileFallback = new File(langFolder, AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
-            InputStream inFB = Adapt.instance.getResource(AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
-            Files.deleteIfExists(langFileFallback.toPath());
-            Files.copy(inFB, langFileFallback.toPath());
-            verbose("Loaded Fallback: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
-        }
-    }
-
-
-    @SneakyThrows
-    public static String dLocalize(String s1, String s2, String s3) {
-        if (!wordKey.containsKey(s1 + s2 + s3)) { // Not in cache or Not in file
-
-            JsonObject jsonObj;
-            File langFile = new File(instance.getDataFolder() + "/languages", AdaptConfig.get().getLanguage() + ".json");
-            String jsonFromFile = Files.readString(langFile.toPath());
-            JsonElement jsonElement = JsonParser.parseString(jsonFromFile);
-            jsonObj = jsonElement.getAsJsonObject();
-
-            if (jsonObj.get(s1) == null
-                    || jsonObj.get(s1).getAsJsonObject().get(s2) == null
-                    || jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3) == null
-                    || jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString() == null) {
-
-                updateLanguageFile();
-                if (jsonObj.get(s1) == null
-                        || jsonObj.get(s1).getAsJsonObject().get(s2) == null
-                        || jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3) == null
-                        || jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString() == null) {
-
-                    verbose("Your Language File is missing the following key: " + s1 + "." + s2 + "." + s3);
-                    verbose("Loading English Language File FallBack");
-
-                    JsonObject jsonObjFallback;
-                    File langFileFallback = new File(instance.getDataFolder() + "/languages", AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
-                    String jsonFromFileFallback = Files.readString(langFileFallback.toPath());
-                    JsonElement jsonElementFallback = JsonParser.parseString(jsonFromFileFallback);
-                    jsonObjFallback = jsonElementFallback.getAsJsonObject();
-
-                    if (jsonObjFallback.get(s1) == null
-                            || jsonObjFallback.get(s1).getAsJsonObject().get(s2) == null
-                            || jsonObjFallback.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3) == null
-                            || jsonObjFallback.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString() == null) {
-                        String f = SecretSplash.randomString7();
-                        wordKey.put(s1 + s2 + s3, f);
-                        verbose("Your Fallback Language File is missing the following key: " + s1 + "." + s2 + "." + s3);
-                        verbose("New Assignement: " + f);
-                        verbose("Please report this to the developer!");
-                    } else {
-                        wordKey.put(s1 + s2 + s3, jsonObjFallback.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
-                        verbose("Loaded Fallback: " + jsonObjFallback.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString() + " for key: " + s1 + "." + s2 + "." + s3);
-                    }
-                }
-            } else {
-                wordKey.put(s1 + s2 + s3, jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
-            }
-        }
-        return wordKey.get(s1 + s2 + s3);
-    }
 
     public static int getJavaVersion() {
         String version = System.getProperty("java.version");
@@ -219,7 +137,7 @@ public class Adapt extends VolmitPlugin {
     @Override
     public void start() {
         NMS.init();
-        updateLanguageFile();
+        Localizer.updateLanguageFile();
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PapiExpansion().register();
         }

@@ -18,13 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.brewing;
 
-import com.google.common.collect.Lists;
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.potion.PotionBuilder;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -37,8 +36,8 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
     public BrewingFatigue() {
         super("brewing-fatigue");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("brewing", "fatigue", "description"));
-        setDisplayName(Adapt.dLocalize("brewing", "fatigue", "name"));
+        setDescription(Localizer.dLocalize("brewing", "fatigue", "description"));
+        setDisplayName(Localizer.dLocalize("brewing", "fatigue", "name"));
         setIcon(Material.SLIME_BALL);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -73,8 +72,8 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "absorption", "lore1"));
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "absorption", "lore2"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "absorption", "lore1"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "absorption", "lore2"));
     }
 
 

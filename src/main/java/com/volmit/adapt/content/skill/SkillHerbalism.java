@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -26,6 +25,7 @@ import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.herbalism.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
@@ -49,12 +49,12 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     private final Map<Player, Long> herbCooldown = new HashMap<>();
 
     public SkillHerbalism() {
-        super("herbalism", Adapt.dLocalize("skill", "herbalism", "icon"));
+        super("herbalism", Localizer.dLocalize("skill", "herbalism", "icon"));
         registerConfiguration(Config.class);
         setColor(C.GREEN);
         setInterval(3990);
-        setDescription(Adapt.dLocalize("skill", "herbalism", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "herbalism", "name"));
+        setDescription(Localizer.dLocalize("skill", "herbalism", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "herbalism", "name"));
         setIcon(Material.WHEAT);
         registerAdaptation(new HerbalismGrowthAura());
         registerAdaptation(new HerbalismReplant());

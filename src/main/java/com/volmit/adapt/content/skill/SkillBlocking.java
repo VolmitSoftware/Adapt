@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.blocking.BlockingChainArmorer;
@@ -26,6 +25,7 @@ import com.volmit.adapt.content.adaptation.blocking.BlockingHorseArmorer;
 import com.volmit.adapt.content.adaptation.blocking.BlockingMultiArmor;
 import com.volmit.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -42,11 +42,11 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillBlocking() {
-        super("blocking", Adapt.dLocalize("skill", "blocking", "icon"));
+        super("blocking", Localizer.dLocalize("skill", "blocking", "icon"));
         registerConfiguration(Config.class);
         setColor(C.DARK_GRAY);
-        setDescription(Adapt.dLocalize("skill", "blocking", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "blocking", "name"));
+        setDescription(Localizer.dLocalize("skill", "blocking", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "blocking", "name"));
         setInterval(5000);
         setIcon(Material.SHIELD);
         registerAdaptation(new BlockingMultiArmor());

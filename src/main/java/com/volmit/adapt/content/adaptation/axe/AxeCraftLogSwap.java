@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.axe;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -32,8 +32,8 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
     public AxeCraftLogSwap() {
         super("axe-logswap");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("axe", "logswap", "description"));
-        setDisplayName(Adapt.dLocalize("axe", "logswap", "name"));
+        setDescription(Localizer.dLocalize("axe", "logswap", "description"));
+        setDisplayName(Localizer.dLocalize("axe", "logswap", "name"));
         setIcon(Material.MUDDY_MANGROVE_ROOTS);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -569,7 +569,7 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("axe", "logswap", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("axe", "logswap", "lore1"));
     }
 
 

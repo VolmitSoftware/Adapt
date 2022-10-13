@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.hunter;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -42,8 +42,8 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
     public HunterDropToInventory() {
         super("hunter-drop-to-inventory");
         registerConfiguration(HunterDropToInventory.Config.class);
-        setDescription(Adapt.dLocalize("hunter", "droptoinventory", "description"));
-        setDisplayName(Adapt.dLocalize("hunter", "droptoinventory", "name"));
+        setDescription(Localizer.dLocalize("hunter", "droptoinventory", "description"));
+        setDisplayName(Localizer.dLocalize("hunter", "droptoinventory", "name"));
         setIcon(Material.DIRT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -59,7 +59,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("hunter", "droptoinventory", "lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("hunter", "droptoinventory", "lore1"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.content.adaptation.enchanting;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -40,8 +40,8 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
     public EnchantingLapisReturn() {
         super("enchanting-lapis-return");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("enchanting", "lapisreturn", "description"));
-        setDisplayName(Adapt.dLocalize("enchanting", "lapisreturn", "name"));
+        setDescription(Localizer.dLocalize("enchanting", "lapisreturn", "description"));
+        setDisplayName(Localizer.dLocalize("enchanting", "lapisreturn", "name"));
         setIcon(Material.LAPIS_LAZULI);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -52,7 +52,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("enchanting", "lapisreturn", "lore1"));
+        v.addLore(C.GREEN + Localizer.dLocalize("enchanting", "lapisreturn", "lore1"));
     }
 
     @EventHandler

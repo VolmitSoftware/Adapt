@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.stealth;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -35,8 +35,8 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     public StealthSpeed() {
         super("stealth-speed");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("stealth", "speed", "description"));
-        setDisplayName(Adapt.dLocalize("stealth", "speed", "name"));
+        setDescription(Localizer.dLocalize("stealth", "speed", "description"));
+        setDisplayName(Localizer.dLocalize("stealth", "speed", "name"));
         setIcon(Material.MUSHROOM_STEW);
         setBaseCost(getConfig().baseCost);
         setInterval(2000);
@@ -46,7 +46,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + Adapt.dLocalize("stealth", "speed", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + Localizer.dLocalize("stealth", "speed", "lore1"));
     }
 
     @EventHandler

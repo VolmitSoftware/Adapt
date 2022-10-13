@@ -2,7 +2,6 @@ package com.volmit.adapt.api.potion;
 
 import com.volmit.adapt.Adapt;
 import lombok.Getter;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.BrewingStand;

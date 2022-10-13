@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.rift.*;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import net.minecraft.world.item.ItemEnderEye;
@@ -45,10 +45,10 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     private final Map<Player, Long> lasttp;
 
     public SkillRift() {
-        super("rift", Adapt.dLocalize("skill", "rift", "icon"));
+        super("rift", Localizer.dLocalize("skill", "rift", "icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("skill", "rift", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "rift", "name"));
+        setDescription(Localizer.dLocalize("skill", "rift", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "rift", "name"));
         setColor(C.DARK_PURPLE);
         setInterval(1154);
         setIcon(Material.ENDER_EYE);

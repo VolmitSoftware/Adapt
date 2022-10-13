@@ -18,12 +18,12 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.nether.NetherSkullYeet;
 import com.volmit.adapt.content.adaptation.nether.NetherWitherResist;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
@@ -42,10 +42,10 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     private int witherRoseCooldown;
 
     public SkillNether() {
-        super("nether", Adapt.dLocalize("skill", "nether", "icon"));
+        super("nether", Localizer.dLocalize("skill", "nether", "icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("skill", "nether", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "nether", "name"));
+        setDescription(Localizer.dLocalize("skill", "nether", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "nether", "name"));
         setInterval(7425);
         setColor(C.DARK_GRAY);
         setIcon(Material.NETHER_STAR);

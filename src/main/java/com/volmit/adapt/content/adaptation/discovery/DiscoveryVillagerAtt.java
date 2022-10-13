@@ -23,6 +23,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -40,8 +41,8 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
     public DiscoveryVillagerAtt() {
         super("discovery-villager-att");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("discovery", "villager", "description"));
-        setDisplayName(Adapt.dLocalize("discovery", "villager", "name"));
+        setDescription(Localizer.dLocalize("discovery", "villager", "description"));
+        setDisplayName(Localizer.dLocalize("discovery", "villager", "name"));
         setIcon(Material.GLASS_BOTTLE);
         setInterval(5832);
         setBaseCost(getConfig().baseCost);
@@ -53,9 +54,9 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("discovery", "villager", "lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("discovery", "villager", "lore2"));
-        v.addLore(C.GREEN + "+ " + getXpTaken(level) + " " + C.GRAY + Adapt.dLocalize("discovery", "villager", "lore3"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("discovery", "villager", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("discovery", "villager", "lore2"));
+        v.addLore(C.GREEN + "+ " + getXpTaken(level) + " " + C.GRAY + Localizer.dLocalize("discovery", "villager", "lore3"));
     }
 
     private double getEffectiveness(double multiplier) {

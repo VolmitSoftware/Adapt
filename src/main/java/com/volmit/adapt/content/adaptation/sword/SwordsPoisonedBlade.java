@@ -25,6 +25,7 @@ import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -45,8 +46,8 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
     public SwordsPoisonedBlade() {
         super("sword-poison-blade");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("sword", "poisonedblade", "description"));
-        setDisplayName(Adapt.dLocalize("sword", "poisonedblade", "name"));
+        setDescription(Localizer.dLocalize("sword", "poisonedblade", "description"));
+        setDisplayName(Localizer.dLocalize("sword", "poisonedblade", "name"));
         setIcon(Material.GREEN_DYE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -58,9 +59,9 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + " " + Adapt.dLocalize("sword", "poisonedblade", "lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getDurationOfEffect(level), 1) + C.GRAY + " " + Adapt.dLocalize("sword", "poisonedblade", "lore2"));
-        v.addLore(C.RED + "* " + Form.duration(getCooldown(level), 1) + C.GRAY + " " + Adapt.dLocalize("sword", "poisonedblade", "lore3"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + " " + Localizer.dLocalize("sword", "poisonedblade", "lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getDurationOfEffect(level), 1) + C.GRAY + " " + Localizer.dLocalize("sword", "poisonedblade", "lore2"));
+        v.addLore(C.RED + "* " + Form.duration(getCooldown(level), 1) + C.GRAY + " " + Localizer.dLocalize("sword", "poisonedblade", "lore3"));
     }
 
     public long getCooldown(int level) {

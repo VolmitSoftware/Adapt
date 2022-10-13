@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -28,6 +27,7 @@ import com.volmit.adapt.content.adaptation.architect.ArchitectGlass;
 import com.volmit.adapt.content.adaptation.architect.ArchitectPlacement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
@@ -42,41 +42,41 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     public SkillArchitect() {
-        super("architect", Adapt.dLocalize("skill", "architect", "icon"));
+        super("architect", Localizer.dLocalize("skill", "architect", "icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setDescription(Adapt.dLocalize("skill", "architect", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "architect", "name"));
+        setDescription(Localizer.dLocalize("skill", "architect", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "architect", "name"));
         setInterval(3100);
         setIcon(Material.IRON_BARS);
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.BRICK).key("challenge_place_1k")
-                .title(Adapt.dLocalize("advancement", "challenge_place_1k", "title"))
-                .description(Adapt.dLocalize("advancement", "challenge_place_1k", "description"))
+                .title(Localizer.dLocalize("advancement", "challenge_place_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_place_1k", "description"))
                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.BRICK)
                         .key("challenge_place_5k")
-                        .title(Adapt.dLocalize("advancement", "challenge_place_5k", "title"))
-                        .description(Adapt.dLocalize("advancement", "challenge_place_5k", "description"))
+                        .title(Localizer.dLocalize("advancement", "challenge_place_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_place_5k", "description"))
                         .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.NETHER_BRICK)
                                 .key("challenge_place_50k")
-                                .title(Adapt.dLocalize("advancement", "challenge_place_50k", "title"))
-                                .description(Adapt.dLocalize("advancement", "challenge_place_50k", "description"))
+                                .title(Localizer.dLocalize("advancement", "challenge_place_50k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_place_50k", "description"))
                                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                         .icon(Material.NETHER_BRICK)
                                         .key("challenge_place_500k")
-                                        .title(Adapt.dLocalize("advancement", "challenge_place_500k", "title"))
-                                        .description(Adapt.dLocalize("advancement", "challenge_place_500k", "description"))
+                                        .title(Localizer.dLocalize("advancement", "challenge_place_500k", "title"))
+                                        .description(Localizer.dLocalize("advancement", "challenge_place_500k", "description"))
                                         .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                                 .icon(Material.IRON_INGOT)
                                                 .key("challenge_place_5m")
-                                                .title(Adapt.dLocalize("advancement", "challenge_place_5m", "title"))
-                                                .description(Adapt.dLocalize("advancement", "challenge_place_5m", "description"))
+                                                .title(Localizer.dLocalize("advancement", "challenge_place_5m", "title"))
+                                                .description(Localizer.dLocalize("advancement", "challenge_place_5m", "description"))
                                                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                                 .build())

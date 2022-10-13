@@ -16,25 +16,40 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.content.gui;
+package com.volmit.adapt.commands.test;
 
-import com.volmit.adapt.Adapt;
-import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.api.xp.XP;
-import com.volmit.adapt.util.*;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import com.volmit.adapt.AdaptConfig;
+import com.volmit.adapt.util.MortarCommand;
+import com.volmit.adapt.util.MortarSender;
 
-public class CorruptionGui {
-    public static void open(Player player) {
-        Window w = new UIWindow(player);
-        w.setResolution(WindowResolution.W9_H6);
-        w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
+import java.util.List;
 
-        AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        int ind = 0;
+public class CommandVerbose extends MortarCommand {
+    private static final List<String> permission = List.of("adapt.idontknowwhatimdoingiswear");
 
-        w.setTitle(Localizer.dLocalize("snippets", "gui", "level") + " " + (int) XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " " + Localizer.dLocalize("snippets", "gui", "powerused") + ")");
-        w.open();
+    public CommandVerbose() {
+        super("verbose", "v");
+    }
+
+    @Override
+    public List<String> getRequiredPermissions() {
+        return permission;
+    }
+
+    @Override
+    public boolean handle(MortarSender sender, String[] args) {
+        AdaptConfig.get().setVerbose(!AdaptConfig.get().isVerbose());
+        sender.sendMessage("Verbose: " + AdaptConfig.get().isVerbose());
+        return true;
+    }
+
+    @Override
+    public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
+
+    }
+
+    @Override
+    protected String getArgsUsage() {
+        return "";
     }
 }

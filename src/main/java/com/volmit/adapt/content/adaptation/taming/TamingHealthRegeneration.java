@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.adaptation.taming;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -45,8 +44,8 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
     public TamingHealthRegeneration() {
         super("tame-health-regeneration");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("taming", "regeneration", "description"));
-        setDisplayName(Adapt.dLocalize("taming", "regeneration", "name"));
+        setDescription(Localizer.dLocalize("taming", "regeneration", "description"));
+        setDisplayName(Localizer.dLocalize("taming", "regeneration", "name"));
         setIcon(Material.GOLDEN_APPLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -57,7 +56,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRegenSpeed(level), 0) + C.GRAY + " " + Adapt.dLocalize("taming", "regeneration", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getRegenSpeed(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming", "regeneration", "lore1"));
     }
 
     @EventHandler

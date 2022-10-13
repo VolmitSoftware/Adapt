@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -26,6 +25,7 @@ import com.volmit.adapt.content.adaptation.unarmed.UnarmedGlassCannon;
 import com.volmit.adapt.content.adaptation.unarmed.UnarmedPower;
 import com.volmit.adapt.content.adaptation.unarmed.UnarmedSuckerPunch;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -37,11 +37,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     public SkillUnarmed() {
-        super("unarmed", Adapt.dLocalize("skill", "unarmed", "icon"));
+        super("unarmed", Localizer.dLocalize("skill", "unarmed", "icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription(Adapt.dLocalize("skill", "unarmed", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "unarmed", "name"));
+        setDescription(Localizer.dLocalize("skill", "unarmed", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "unarmed", "name"));
         setInterval(2579);
         registerAdaptation(new UnarmedSuckerPunch());
         registerAdaptation(new UnarmedPower());

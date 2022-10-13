@@ -18,13 +18,13 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.crafting.*;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
@@ -48,11 +48,11 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
 
     public SkillCrafting() {
-        super("crafting", Adapt.dLocalize("skill", "crafting", "icon"));
+        super("crafting", Localizer.dLocalize("skill", "crafting", "icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription(Adapt.dLocalize("skill", "crafting", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "crafting", "name"));
+        setDescription(Localizer.dLocalize("skill", "crafting", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "crafting", "name"));
         setInterval(3789);
         setIcon(Material.CRAFTING_TABLE);
         registerAdaptation(new CraftingDeconstruction());

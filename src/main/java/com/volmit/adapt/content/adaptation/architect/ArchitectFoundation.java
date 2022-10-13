@@ -18,12 +18,8 @@
 
 package com.volmit.adapt.content.adaptation.architect;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -51,8 +47,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     public ArchitectFoundation() {
         super("architect-foundation");
         registerConfiguration(ArchitectFoundation.Config.class);
-        setDescription(Adapt.dLocalize("architect", "foundation", "description"));
-        setDisplayName(Adapt.dLocalize("architect", "foundation", "name"));
+        setDescription(Localizer.dLocalize("architect", "foundation", "description"));
+        setDisplayName(Localizer.dLocalize("architect", "foundation", "name"));
         setIcon(Material.TINTED_GLASS);
         setInterval(988);
         setBaseCost(getConfig().baseCost);
@@ -67,7 +63,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("architect", "foundation", "lore1") + (getBlockPower(getLevelPercent(level))) + C.GRAY + " " + Adapt.dLocalize("architect", "foundation", "lore2"));
+        v.addLore(C.GREEN + Localizer.dLocalize("architect", "foundation", "lore1") + (getBlockPower(getLevelPercent(level))) + C.GRAY + " " + Localizer.dLocalize("architect", "foundation", "lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

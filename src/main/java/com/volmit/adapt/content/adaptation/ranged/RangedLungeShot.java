@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.ranged;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -42,8 +42,8 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     public RangedLungeShot() {
         super("ranged-lunge-shot");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("ranged", "lungeshot", "description"));
-        setDisplayName(Adapt.dLocalize("ranged", "lungeshot", "name"));
+        setDescription(Localizer.dLocalize("ranged", "lungeshot", "description"));
+        setDisplayName(Localizer.dLocalize("ranged", "lungeshot", "name"));
         setIcon(Material.FEATHER);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -58,7 +58,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("ranged", "lungeshot", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("ranged", "lungeshot", "lore1"));
     }
 
     @EventHandler

@@ -25,6 +25,7 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.seaborrne.*;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
@@ -46,11 +47,11 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillSeaborne() {
-        super("seaborne", Adapt.dLocalize("skill", "seaborne", "icon"));
+        super("seaborne", Localizer.dLocalize("skill", "seaborne", "icon"));
         registerConfiguration(Config.class);
         setColor(C.BLUE);
-        setDescription(Adapt.dLocalize("skill", "seaborne", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "seaborne", "name"));
+        setDescription(Localizer.dLocalize("skill", "seaborne", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "seaborne", "name"));
         setInterval(2120);
         setIcon(Material.TRIDENT);
         registerAdaptation(new SeaborneOxygen());

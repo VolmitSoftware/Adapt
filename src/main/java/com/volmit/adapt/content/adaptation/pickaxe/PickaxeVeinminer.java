@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.pickaxe;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -41,8 +41,8 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     public PickaxeVeinminer() {
         super("pickaxe-veinminer");
         registerConfiguration(PickaxeVeinminer.Config.class);
-        setDescription(Adapt.dLocalize("pickaxe", "veinminer", "description"));
-        setDisplayName(Adapt.dLocalize("pickaxe", "veinminer", "name"));
+        setDescription(Localizer.dLocalize("pickaxe", "veinminer", "description"));
+        setDisplayName(Localizer.dLocalize("pickaxe", "veinminer", "name"));
         setIcon(Material.IRON_PICKAXE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -52,9 +52,9 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("pickaxe", "veinminer", "lore1"));
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Adapt.dLocalize("pickaxe", "veinminer", "lore2"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("pickaxe", "veinminer", "lore3"));
+        v.addLore(C.GREEN + Localizer.dLocalize("pickaxe", "veinminer", "lore1"));
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Localizer.dLocalize("pickaxe", "veinminer", "lore2"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("pickaxe", "veinminer", "lore3"));
     }
 
     private int getRadius(int lvl) {

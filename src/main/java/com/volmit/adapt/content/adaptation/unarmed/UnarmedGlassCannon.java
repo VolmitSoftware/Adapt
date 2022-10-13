@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.unarmed;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -33,8 +33,8 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
     public UnarmedGlassCannon() {
         super("unarmed-glass-cannon");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("unarmed", "glasscannon", "description"));
-        setDisplayName(Adapt.dLocalize("unarmed", "glasscannon", "name"));
+        setDescription(Localizer.dLocalize("unarmed", "glasscannon", "description"));
+        setDisplayName(Localizer.dLocalize("unarmed", "glasscannon", "name"));
         setIcon(Material.DISC_FRAGMENT_5);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -46,8 +46,8 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + (getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier)) + C.GRAY + " " + Adapt.dLocalize("unarmed", "glasscannon", "lore1"));
-        v.addLore(C.GREEN + "+ " + Form.f(level * getConfig().perLevelBonusMultiplier) + C.GRAY + " " + Adapt.dLocalize("unarmed", "glasscannon", "lore2"));
+        v.addLore(C.GREEN + "+ " + (getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier)) + C.GRAY + " " + Localizer.dLocalize("unarmed", "glasscannon", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(level * getConfig().perLevelBonusMultiplier) + C.GRAY + " " + Localizer.dLocalize("unarmed", "glasscannon", "lore2"));
     }
 
     @EventHandler

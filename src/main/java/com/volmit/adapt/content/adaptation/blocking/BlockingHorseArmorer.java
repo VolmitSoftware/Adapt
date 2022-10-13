@@ -18,12 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.blocking;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -35,8 +35,8 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
     public BlockingHorseArmorer() {
         super("blocking-horsearmorer");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("blocking", "horsearmorer", "description"));
-        setDisplayName(Adapt.dLocalize("blocking", "horsearmorer", "name"));
+        setDescription(Localizer.dLocalize("blocking", "horsearmorer", "description"));
+        setDisplayName(Localizer.dLocalize("blocking", "horsearmorer", "name"));
         setIcon(Material.GOLDEN_HORSE_ARMOR);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -87,7 +87,7 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("blocking", "horsearmorer", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("blocking", "horsearmorer", "lore1"));
         v.addLore("XXX");
         v.addLore("XSX");
         v.addLore("XXX");

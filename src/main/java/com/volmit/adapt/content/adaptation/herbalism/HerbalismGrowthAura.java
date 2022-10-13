@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.adaptation.herbalism;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -38,8 +37,8 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     public HerbalismGrowthAura() {
         super("herbalism-growth-aura");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("herbalism", "growthaura", "description"));
-        setDisplayName(Adapt.dLocalize("herbalism", "growthaura", "name"));
+        setDescription(Localizer.dLocalize("herbalism", "growthaura", "description"));
+        setDisplayName(Localizer.dLocalize("herbalism", "growthaura", "name"));
         setIcon(Material.BONE_MEAL);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -50,9 +49,9 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRadius(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("herbalism", "growthaura", "lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getStrength(level), 0) + C.GRAY + " " + Adapt.dLocalize("herbalism", "growthaura", "lore2"));
-        v.addLore(C.YELLOW + "+ " + Form.f(getFoodCost(getLevelPercent(level)), 2) + C.GRAY + " " + Adapt.dLocalize("herbalism", "growthaura", "lore3"));
+        v.addLore(C.GREEN + "+ " + Form.f(getRadius(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("herbalism", "growthaura", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getStrength(level), 0) + C.GRAY + " " + Localizer.dLocalize("herbalism", "growthaura", "lore2"));
+        v.addLore(C.YELLOW + "+ " + Form.f(getFoodCost(getLevelPercent(level)), 2) + C.GRAY + " " + Localizer.dLocalize("herbalism", "growthaura", "lore3"));
     }
 
     private double getRadius(double factor) {

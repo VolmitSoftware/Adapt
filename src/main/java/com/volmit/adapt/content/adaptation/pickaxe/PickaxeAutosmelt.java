@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.pickaxe;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -40,8 +40,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     public PickaxeAutosmelt() {
         super("pickaxe-autosmelt");
         registerConfiguration(PickaxeAutosmelt.Config.class);
-        setDescription(Adapt.dLocalize("pickaxe", "autosmelt", "description"));
-        setDisplayName(Adapt.dLocalize("pickaxe", "autosmelt", "name"));
+        setDescription(Localizer.dLocalize("pickaxe", "autosmelt", "description"));
+        setDisplayName(Localizer.dLocalize("pickaxe", "autosmelt", "name"));
         setIcon(Material.RAW_GOLD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -145,8 +145,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("pickaxe", "autosmelt", "lore1"));
-        v.addLore(C.GREEN + "" + (level * 1.25) + C.GRAY + Adapt.dLocalize("pickaxe", "autosmelt", "lore2"));
+        v.addLore(C.GREEN + Localizer.dLocalize("pickaxe", "autosmelt", "lore1"));
+        v.addLore(C.GREEN + "" + (level * 1.25) + C.GRAY + Localizer.dLocalize("pickaxe", "autosmelt", "lore2"));
     }
 
     @EventHandler

@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.pickaxe;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -39,8 +39,8 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
     public PickaxeDropToInventory() {
         super("pickaxe-drop-to-inventory");
         registerConfiguration(PickaxeDropToInventory.Config.class);
-        setDescription(Adapt.dLocalize("pickaxe", "droptoinventory", "description"));
-        setDisplayName(Adapt.dLocalize("pickaxe", "droptoinventory", "name"));
+        setDescription(Localizer.dLocalize("pickaxe", "droptoinventory", "description"));
+        setDisplayName(Localizer.dLocalize("pickaxe", "droptoinventory", "name"));
         setIcon(Material.DIRT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -55,7 +55,7 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("pickaxe", "droptoinventory", "lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("pickaxe", "droptoinventory", "lore1"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

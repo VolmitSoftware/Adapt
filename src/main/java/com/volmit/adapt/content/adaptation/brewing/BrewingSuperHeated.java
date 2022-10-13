@@ -18,17 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.brewing;
 
-import com.google.common.collect.Lists;
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.data.WorldData;
-import com.volmit.adapt.api.potion.BrewingRecipe;
-import com.volmit.adapt.api.potion.PotionBuilder;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -40,9 +35,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -55,8 +47,8 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
     public BrewingSuperHeated() {
         super("brewing-super-heated");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("brewing", "superheated", "description"));
-        setDisplayName(Adapt.dLocalize("brewing", "superheated", "name"));
+        setDescription(Localizer.dLocalize("brewing", "superheated", "description"));
+        setDisplayName(Localizer.dLocalize("brewing", "superheated", "name"));
         setIcon(Material.LAVA_BUCKET);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -67,8 +59,8 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getFireBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("brewing", "superheated", "lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getLavaBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("brewing", "superheated", "lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getFireBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("brewing", "superheated", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getLavaBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("brewing", "superheated", "lore2"));
     }
 
     public double getLavaBoost(double factor) {

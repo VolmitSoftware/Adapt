@@ -18,12 +18,8 @@
 
 package com.volmit.adapt.content.adaptation.discovery;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.M;
-import com.volmit.adapt.util.VectorMath;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -42,8 +38,8 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     public DiscoveryArmor() {
         super("discovery-world-armor");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("discovery", "armor", "description"));
-        setDisplayName(Adapt.dLocalize("discovery", "armor", "name"));
+        setDescription(Localizer.dLocalize("discovery", "armor", "description"));
+        setDisplayName(Localizer.dLocalize("discovery", "armor", "name"));
         setIcon(Material.TURTLE_HELMET);
         setInterval(1305);
         setBaseCost(getConfig().baseCost);
@@ -54,8 +50,8 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("discovery", "armor", "lore1") + C.GRAY + ", " + Adapt.dLocalize("discovery", "armor", "lore2"));
-        v.addLore(C.YELLOW + "~ " + Adapt.dLocalize("discovery", "armor", "lore3") + C.BLUE + " +" + level * 0.25);
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("discovery", "armor", "lore1") + C.GRAY + ", " + Localizer.dLocalize("discovery", "armor", "lore2"));
+        v.addLore(C.YELLOW + "~ " + Localizer.dLocalize("discovery", "armor", "lore3") + C.BLUE + " +" + level * 0.25);
     }
 
     public double getArmorPoints(Material m) {

@@ -18,13 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.brewing;
 
-import com.google.common.collect.Lists;
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.potion.PotionBuilder;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -37,8 +36,8 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
     public BrewingResistance() {
         super("brewing-resistance");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("brewing", "resistance", "description"));
-        setDisplayName(Adapt.dLocalize("brewing", "resistance", "name"));
+        setDescription(Localizer.dLocalize("brewing", "resistance", "description"));
+        setDisplayName(Localizer.dLocalize("brewing", "resistance", "name"));
         setIcon(Material.IRON_BLOCK);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -73,8 +72,8 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "resistance", "lore1"));
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "resistance", "lore2"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "resistance", "lore1"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "resistance", "lore2"));
     }
 
 

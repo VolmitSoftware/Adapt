@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.world.PlayerSkillLine;
+import com.volmit.adapt.util.Localizer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +26,7 @@ public class PapiExpansion extends PlaceholderExpansion {
         skillMap.put("xp", skill -> String.format("%.2f", skill.getXp()).equals("-5000.00") ? "0" : String.format("%.2f", skill.getXp()));
         skillMap.put("freshness", skill -> String.valueOf(skill.getFreshness()).equals("-5000") ? "0" : String.valueOf(skill.getFreshness()));
         skillMap.put("multiplier", skill -> String.valueOf(skill.getMultiplier()).equals("-5000") ? "0" : String.valueOf(skill.getMultiplier()));
-        skillMap.put("name", skill -> Adapt.dLocalize("skill", skill.getLine(), "name"));
+        skillMap.put("name", skill -> Localizer.dLocalize("skill", skill.getLine(), "name"));
 
         playerMap.put("multiplier", playerData -> String.valueOf(playerData.getMultiplier()).equals("-5000") ? "0" : String.valueOf(playerData.getMultiplier()));
         playerMap.put("availablepower", playerData -> String.valueOf(playerData.getAvailablePower()).equals("-5000") ? "0" : String.valueOf(playerData.getAvailablePower()));
@@ -44,7 +45,7 @@ public class PapiExpansion extends PlaceholderExpansion {
                 + playerData.getSeenPotionEffects().getSeen().size() + playerData.getSeenRecipes().getSeen().size()
                 + playerData.getSeenPotionEffects().getSeen().size() + playerData.getSeenWorlds().getSeen().size()));
 
-        adaptationMap.put("name", (skillLine, adaptation) -> Adapt.dLocalize(skillLine.getLine(), adaptation.getId(), "name"));
+        adaptationMap.put("name", (skillLine, adaptation) -> Localizer.dLocalize(skillLine.getLine(), adaptation.getId(), "name"));
         adaptationMap.put("level", (skillLine, adaptation) -> String.valueOf(adaptation.getLevel()).equals("-5000") ? "0" : String.valueOf(adaptation.getLevel()));
     }
 

@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.agility;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -45,8 +45,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     public AgilityWallJump() {
         super("agility-wall-jump");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("agility", "walljump", "description"));
-        setDisplayName(Adapt.dLocalize("agility", "walljump", "name"));
+        setDescription(Localizer.dLocalize("agility", "walljump", "description"));
+        setDisplayName(Localizer.dLocalize("agility", "walljump", "name"));
         setIcon(Material.LADDER);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -58,8 +58,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getMaxJumps(level) + C.GRAY + " " + Adapt.dLocalize("agility", "walljump", "lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + " " + Adapt.dLocalize("agility", "walljump", "lore2"));
+        v.addLore(C.GREEN + "+ " + getMaxJumps(level) + C.GRAY + " " + Localizer.dLocalize("agility", "walljump", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + " " + Localizer.dLocalize("agility", "walljump", "lore2"));
     }
 
     @EventHandler

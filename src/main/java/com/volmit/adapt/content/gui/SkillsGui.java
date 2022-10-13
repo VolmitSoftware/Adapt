@@ -57,8 +57,8 @@ public class SkillsGui {
                         .setName(sk.getDisplayName(i.getLevel()))
                         .setProgress(1D)
                         .addLore(C.ITALIC + "" + C.GRAY + sk.getDescription())
-                        .addLore(C.UNDERLINE + "" + C.WHITE + i.getKnowledge() + C.RESET + " " + C.GRAY + Adapt.dLocalize("snippets", "gui", "knowledge"))
-                        .addLore(C.ITALIC + "" + C.GRAY + Adapt.dLocalize("snippets", "gui", "powerused") + " " + C.DARK_GREEN + adaptationLevel)
+                        .addLore(C.UNDERLINE + "" + C.WHITE + i.getKnowledge() + C.RESET + " " + C.GRAY + Localizer.dLocalize("snippets", "gui", "knowledge"))
+                        .addLore(C.ITALIC + "" + C.GRAY + Localizer.dLocalize("snippets", "gui", "powerused") + " " + C.DARK_GREEN + adaptationLevel)
                         .onLeftClick((e) -> sk.openGui(player)));
                 ind++;
             }
@@ -69,9 +69,9 @@ public class SkillsGui {
                 if (w.getElement(unlearnAllPos, unlearnAllRow) != null) unlearnAllRow++;
                 w.setElement(unlearnAllPos, unlearnAllRow, new UIElement("unlearn-all")
                         .setMaterial(new MaterialBlock(Material.BARRIER))
-                        .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "unlearnall")
+                        .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets", "gui", "unlearnall")
                                 + (AdaptConfig.get().isHardcoreNoRefunds()
-                                ? " " + C.DARK_RED + "" + C.BOLD + Adapt.dLocalize("snippets", "adaptmenu", "norefunds")
+                                ? " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "norefunds")
                                 : ""))
                         .onLeftClick((e) -> {
                             Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> skill.getAdaptations().forEach(adaptation -> adaptation.unlearn(player, 1)));
@@ -79,13 +79,13 @@ public class SkillsGui {
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
                             w.close();
                             if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
-                                player.sendTitle(" ", C.GRAY + Adapt.dLocalize("snippets", "gui", "unlearnedall"), 1, 5, 11);
+                                player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets", "gui", "unlearnedall"), 1, 5, 11);
                             }
                             J.s(() -> open(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
                         }));
             }
 
-            w.setTitle(Adapt.dLocalize("snippets", "gui", "level") + " " + (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp()) + " (" + adaptPlayer.getData().getUsedPower() + "/" + adaptPlayer.getData().getMaxPower() + " " + Adapt.dLocalize("snippets", "gui", "powerused") + ")");
+            w.setTitle(Localizer.dLocalize("snippets", "gui", "level") + " " + (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp()) + " (" + adaptPlayer.getData().getUsedPower() + "/" + adaptPlayer.getData().getMaxPower() + " " + Localizer.dLocalize("snippets", "gui", "powerused") + ")");
             w.open();
         }
     }

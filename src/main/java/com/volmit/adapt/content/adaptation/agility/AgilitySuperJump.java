@@ -18,12 +18,8 @@
 
 package com.volmit.adapt.content.adaptation.agility;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -48,8 +44,8 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     public AgilitySuperJump() {
         super("agility-super-jump");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("agility", "superjump", "description"));
-        setDisplayName(Adapt.dLocalize("agility", "superjump", "name"));
+        setDescription(Localizer.dLocalize("agility", "superjump", "description"));
+        setDisplayName(Localizer.dLocalize("agility", "superjump", "name"));
         setIcon(Material.LEATHER_BOOTS);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -65,8 +61,8 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + " " + Adapt.dLocalize("agility", "superjump", "lore1"));
-        v.addLore(C.LIGHT_PURPLE + " " + Adapt.dLocalize("agility", "superjump", "lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + " " + Localizer.dLocalize("agility", "superjump", "lore1"));
+        v.addLore(C.LIGHT_PURPLE + " " + Localizer.dLocalize("agility", "superjump", "lore2"));
 
     }
 

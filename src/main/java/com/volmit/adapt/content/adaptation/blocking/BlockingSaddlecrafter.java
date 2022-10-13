@@ -18,12 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.blocking;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -35,8 +35,8 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
     public BlockingSaddlecrafter() {
         super("blocking-saddlecrafter");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("blocking", "saddlecrafter", "description"));
-        setDisplayName(Adapt.dLocalize("blocking", "saddlecrafter", "name"));
+        setDescription(Localizer.dLocalize("blocking", "saddlecrafter", "description"));
+        setDisplayName(Localizer.dLocalize("blocking", "saddlecrafter", "name"));
         setIcon(Material.SADDLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -57,7 +57,7 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("blocking", "saddlecrafter", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("blocking", "saddlecrafter", "lore1"));
         v.addLore("X-X");
         v.addLore("XXX");
     }

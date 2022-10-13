@@ -18,13 +18,13 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.taming.TamingDamage;
 import com.volmit.adapt.content.adaptation.taming.TamingHealthBoost;
 import com.volmit.adapt.content.adaptation.taming.TamingHealthRegeneration;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -38,10 +38,10 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     public SkillTaming() {
-        super("taming", Adapt.dLocalize("skill", "taming", "icon"));
+        super("taming", Localizer.dLocalize("skill", "taming", "icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("skill", "taming", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "taming", "name"));
+        setDescription(Localizer.dLocalize("skill", "taming", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "taming", "name"));
         setColor(C.GOLD);
         setInterval(3480);
         setIcon(Material.LEAD);

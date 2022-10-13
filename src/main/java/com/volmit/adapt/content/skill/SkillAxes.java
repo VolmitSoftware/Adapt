@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -27,6 +26,7 @@ import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.axe.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
@@ -41,11 +41,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     public SkillAxes() {
-        super("axes", Adapt.dLocalize("skill", "axes", "icon"));
+        super("axes", Localizer.dLocalize("skill", "axes", "icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription(Adapt.dLocalize("skill", "axes", "description1") + C.ITALIC + Adapt.dLocalize("skill", "axes", "description2") + C.GRAY + " " + Adapt.dLocalize("skill", "axes", "description3"));
-        setDisplayName(Adapt.dLocalize("skill", "axes", "name"));
+        setDescription(Localizer.dLocalize("skill", "axes", "description1") + C.ITALIC + Localizer.dLocalize("skill", "axes", "description2") + C.GRAY + " " + Localizer.dLocalize("skill", "axes", "description3"));
+        setDisplayName(Localizer.dLocalize("skill", "axes", "name"));
         setInterval(5251);
         setIcon(Material.GOLDEN_AXE);
         registerAdaptation(new AxeGroundSmash());
@@ -56,32 +56,32 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         registerAdaptation(new AxeCraftLogSwap());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WOODEN_AXE).key("challenge_chop_1k")
-                .title(Adapt.dLocalize("advancement", "challenge_chop_1k", "title"))
-                .description(Adapt.dLocalize("advancement", "challenge_chop_1k", "description"))
+                .title(Localizer.dLocalize("advancement", "challenge_chop_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_chop_1k", "description"))
                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.STONE_AXE)
                         .key("challenge_chop_5k")
-                        .title(Adapt.dLocalize("advancement", "challenge_chop_5k", "title"))
-                        .description(Adapt.dLocalize("advancement", "challenge_chop_5k", "description"))
+                        .title(Localizer.dLocalize("advancement", "challenge_chop_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_chop_5k", "description"))
                         .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.IRON_AXE)
                                 .key("challenge_chop_50k")
-                                .title(Adapt.dLocalize("advancement", "challenge_chop_50k", "title"))
-                                .description(Adapt.dLocalize("advancement", "challenge_chop_50k", "description"))
+                                .title(Localizer.dLocalize("advancement", "challenge_chop_50k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_chop_50k", "description"))
                                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                         .icon(Material.DIAMOND_AXE)
                                         .key("challenge_chop_500k")
-                                        .title(Adapt.dLocalize("advancement", "challenge_chop_500k", "title"))
-                                        .description(Adapt.dLocalize("advancement", "challenge_chop_500k", "description"))
+                                        .title(Localizer.dLocalize("advancement", "challenge_chop_500k", "title"))
+                                        .description(Localizer.dLocalize("advancement", "challenge_chop_500k", "description"))
                                         .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                                 .icon(Material.NETHERITE_AXE)
                                                 .key("challenge_chop_5m")
-                                                .title(Adapt.dLocalize("advancement", "challenge_chop_5m", "title"))
-                                                .description(Adapt.dLocalize("advancement", "challenge_chop_5m", "description"))
+                                                .title(Localizer.dLocalize("advancement", "challenge_chop_5m", "title"))
+                                                .description(Localizer.dLocalize("advancement", "challenge_chop_5m", "description"))
                                                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                                 .build())

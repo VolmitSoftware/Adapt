@@ -18,12 +18,8 @@
 
 package com.volmit.adapt.content.adaptation.agility;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -44,9 +40,9 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     public AgilityArmorUp() {
         super("agility-armor-up");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("agility", "armorup", "description"));
+        setDescription(Localizer.dLocalize("agility", "armorup", "description"));
         setIcon(Material.IRON_CHESTPLATE);
-        setDisplayName(Adapt.dLocalize("agility", "armorup", "name"));
+        setDisplayName(Localizer.dLocalize("agility", "armorup", "name"));
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
@@ -56,8 +52,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getWindupArmor(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("agility", "armorup", "lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + " " + C.GRAY + Adapt.dLocalize("agility", "armorup", "lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getWindupArmor(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("agility", "armorup", "lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + " " + C.GRAY + Localizer.dLocalize("agility", "armorup", "lore2"));
     }
 
     @EventHandler

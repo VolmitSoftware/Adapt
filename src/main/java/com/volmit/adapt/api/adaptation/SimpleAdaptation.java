@@ -26,10 +26,7 @@ import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.IO;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.JSONObject;
+import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -172,7 +169,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         return AdaptAdvancement.builder()
                 .key("adaptation_" + getName())
                 .title(C.WHITE + "[     " + getDisplayName() + C.WHITE + "     ]")
-                .description(getDescription() + ". " + Adapt.dLocalize("snippets", "gui", "unlockthisbyclicking"))
+                .description(getDescription() + ". " + Localizer.dLocalize("snippets", "gui", "unlockthisbyclicking"))
                 .icon(getIcon())
                 .children(a)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)

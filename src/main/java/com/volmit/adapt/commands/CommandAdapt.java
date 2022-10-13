@@ -22,6 +22,7 @@ import com.volmit.adapt.commands.boost.CommandBoost;
 import com.volmit.adapt.commands.item.CommandItem;
 import com.volmit.adapt.commands.openGui.CommandOpen;
 import com.volmit.adapt.commands.test.CommandTest;
+import com.volmit.adapt.commands.test.CommandVerbose;
 import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
@@ -38,6 +39,8 @@ public class CommandAdapt extends MortarCommand {
     private final CommandItem item = new CommandItem();
     @Command
     private final CommandTest test = new CommandTest();
+    @Command
+    private final CommandVerbose verbose = new CommandVerbose();
 
     public CommandAdapt() {
         super("adapt", "ada", "a");

@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -40,8 +41,8 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
     public TragoulThorns() {
         super("tragoul-thorns");
         registerConfiguration(TragoulThorns.Config.class);
-        setDescription(Adapt.dLocalize("tragoul", "thorns", "description"));
-        setDisplayName(Adapt.dLocalize("tragoul", "thorns", "name"));
+        setDescription(Localizer.dLocalize("tragoul", "thorns", "description"));
+        setDisplayName(Localizer.dLocalize("tragoul", "thorns", "name"));
         setIcon(Material.ECHO_SHARD);
         setInterval(25000);
         setBaseCost(getConfig().baseCost);
@@ -54,7 +55,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "" + getConfig().damageMultiplierPerLevel * level + "x " + Adapt.dLocalize("tragoul", "thorns", "lore1"));
+        v.addLore(C.GREEN + "" + getConfig().damageMultiplierPerLevel * level + "x " + Localizer.dLocalize("tragoul", "thorns", "lore1"));
     }
 
 

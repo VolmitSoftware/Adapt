@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.adaptation.rift;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundEnderPearl;
@@ -26,6 +25,7 @@ import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -50,8 +50,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     public RiftAccess() {
         super("rift-access");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("rift", "remoteaccess", "description"));
-        setDisplayName(Adapt.dLocalize("rift", "remoteaccess", "name"));
+        setDescription(Localizer.dLocalize("rift", "remoteaccess", "description"));
+        setDisplayName(Localizer.dLocalize("rift", "remoteaccess", "name"));
         setMaxLevel(1);
         setIcon(Material.NETHER_STAR);
         setBaseCost(getConfig().baseCost);
@@ -68,9 +68,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Adapt.dLocalize("rift", "remoteaccess", "lore1"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("rift", "remoteaccess", "lore2"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("rift", "remoteaccess", "lore3"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "remoteaccess", "lore1"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "remoteaccess", "lore2"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "remoteaccess", "lore3"));
     }
 
 
@@ -107,7 +107,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                     }
                 } else if (block != null && !isStorage(block.getBlockData())) {
                     if (p.isSneaking()) { //(Sneak NOT Container)
-                        p.sendMessage(C.LIGHT_PURPLE + Adapt.dLocalize("rift", "remoteaccess", "notcontainer"));
+                        p.sendMessage(C.LIGHT_PURPLE + Localizer.dLocalize("rift", "remoteaccess", "notcontainer"));
                     } else if (!p.isSneaking() && isBound(hand)) {
                         openPearl(p);
                     }

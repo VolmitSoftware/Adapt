@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -27,6 +26,7 @@ import com.volmit.adapt.content.adaptation.excavation.ExcavationHaste;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationOmniTool;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -39,10 +39,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     public SkillExcavation() {
-        super("excavation", Adapt.dLocalize("skill", "excavation", "icon"));
+        super("excavation", Localizer.dLocalize("skill", "excavation", "icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("skill", "excavation", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "excavation", "name"));
+        setDescription(Localizer.dLocalize("skill", "excavation", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "excavation", "name"));
         setColor(C.YELLOW);
         setInterval(5953);
         setIcon(Material.DIAMOND_SHOVEL);

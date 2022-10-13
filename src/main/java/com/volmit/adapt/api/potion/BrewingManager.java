@@ -7,7 +7,6 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.J;
 import org.bukkit.Location;
 import org.bukkit.block.BrewingStand;
-import org.bukkit.block.Furnace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

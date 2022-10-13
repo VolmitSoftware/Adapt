@@ -18,12 +18,8 @@
 
 package com.volmit.adapt.content.adaptation.rift;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -46,8 +42,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     public RiftBlink() {
         super("rift-blink");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("rift", "blink", "description"));
-        setDisplayName(Adapt.dLocalize("rift", "blink", "name"));
+        setDescription(Localizer.dLocalize("rift", "blink", "description"));
+        setDisplayName(Localizer.dLocalize("rift", "blink", "name"));
         setIcon(Material.FEATHER);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -66,8 +62,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " " + Adapt.dLocalize("rift", "blink", "lore1"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("rift", "blink", "lore2") + C.DARK_PURPLE + Adapt.dLocalize("rift", "blink", "lore3"));
+        v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " " + Localizer.dLocalize("rift", "blink", "lore1"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "blink", "lore2") + C.DARK_PURPLE + Localizer.dLocalize("rift", "blink", "lore3"));
     }
 
     @EventHandler

@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.architect;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -48,8 +48,8 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     public ArchitectPlacement() {
         super("architect-placement");
         registerConfiguration(ArchitectPlacement.Config.class);
-        setDescription(Adapt.dLocalize("architect", "placement", "description"));
-        setDisplayName(Adapt.dLocalize("architect", "placement", "name"));
+        setDescription(Localizer.dLocalize("architect", "placement", "description"));
+        setDisplayName(Localizer.dLocalize("architect", "placement", "name"));
         setIcon(Material.SCAFFOLDING);
         setInterval(360);
         setBaseCost(getConfig().baseCost);
@@ -60,7 +60,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("architect", "placement", "lore3"));
+        v.addLore(C.GREEN + Localizer.dLocalize("architect", "placement", "lore3"));
     }
 
     private BlockFace getBlockFace(Player player) {
@@ -110,7 +110,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                         runPlayerViewport(getBlockFace(p), p.getTargetBlock(null, 5), p.getInventory().getItemInMainHand().getType(), p);
                     }
                 } else {
-                    p.sendMessage(C.RED + Adapt.dLocalize("architect", "placement", "lore1") + " " + C.GREEN + totalMap.get(p).size() + C.RED + " " + Adapt.dLocalize("architect", "placement", "lore2"));
+                    p.sendMessage(C.RED + Localizer.dLocalize("architect", "placement", "lore1") + " " + C.GREEN + totalMap.get(p).size() + C.RED + " " + Localizer.dLocalize("architect", "placement", "lore2"));
                 }
             }
         }

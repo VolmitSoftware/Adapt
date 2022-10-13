@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.herbalism;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -32,8 +32,8 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
     public HerbalismMyconid() {
         super("herbalism-myconid");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("herbalism", "myconid", "description"));
-        setDisplayName(Adapt.dLocalize("herbalism", "myconid", "name"));
+        setDescription(Localizer.dLocalize("herbalism", "myconid", "description"));
+        setDisplayName(Localizer.dLocalize("herbalism", "myconid", "name"));
         setIcon(Material.MYCELIUM);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -52,7 +52,7 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("herbalism", "myconid", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism", "myconid", "lore1"));
     }
 
 

@@ -18,12 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.brewing;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.potion.PotionBuilder;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -36,8 +36,8 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
     public BrewingSaturation() {
         super("brewing-saturation");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("brewing", "saturation", "description"));
-        setDisplayName(Adapt.dLocalize("brewing", "saturation", "name"));
+        setDescription(Localizer.dLocalize("brewing", "saturation", "description"));
+        setDisplayName(Localizer.dLocalize("brewing", "saturation", "name"));
         setIcon(Material.BAKED_POTATO);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -72,8 +72,8 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "saturation", "lore1"));
-        v.addLore(C.GREEN + "+ " + Adapt.dLocalize("brewing", "saturation", "lore2"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "saturation", "lore1"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "saturation", "lore2"));
     }
 
 

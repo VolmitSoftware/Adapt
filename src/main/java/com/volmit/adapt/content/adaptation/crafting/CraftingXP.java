@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.content.adaptation.crafting;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -41,8 +41,8 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
     public CraftingXP() {
         super("crafting-xp");
         registerConfiguration(CraftingXP.Config.class);
-        setDisplayName(Adapt.dLocalize("crafting", "xp", "name"));
-        setDescription(Adapt.dLocalize("crafting", "xp", "description"));
+        setDisplayName(Localizer.dLocalize("crafting", "xp", "name"));
+        setDescription(Localizer.dLocalize("crafting", "xp", "description"));
         setIcon(Material.EXPERIENCE_BOTTLE);
         setInterval(5580);
         setBaseCost(getConfig().baseCost);
@@ -53,7 +53,7 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("crafting", "xp", "lore1"));
+        v.addLore(C.GREEN + Localizer.dLocalize("crafting", "xp", "lore1"));
     }
 
     @EventHandler

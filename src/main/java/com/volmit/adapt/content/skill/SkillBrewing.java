@@ -28,6 +28,7 @@ import com.volmit.adapt.content.adaptation.brewing.*;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.content.matter.BrewingStandOwnerMatter;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -42,11 +43,11 @@ import org.bukkit.inventory.meta.PotionMeta;
 
 public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     public SkillBrewing() {
-        super("brewing", Adapt.dLocalize("skill", "brewing", "icon"));
+        super("brewing", Localizer.dLocalize("skill", "brewing", "icon"));
         registerConfiguration(Config.class);
         setColor(C.LIGHT_PURPLE);
-        setDescription(Adapt.dLocalize("skill", "brewing", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "brewing", "name"));
+        setDescription(Localizer.dLocalize("skill", "brewing", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "brewing", "name"));
         setInterval(5851);
         setIcon(Material.LINGERING_POTION);
         registerAdaptation(new BrewingAbsorption());

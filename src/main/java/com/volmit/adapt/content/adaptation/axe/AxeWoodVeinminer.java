@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.axe;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -43,8 +43,8 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     public AxeWoodVeinminer() {
         super("axe-wood-veinminer");
         registerConfiguration(AxeWoodVeinminer.Config.class);
-        setDescription(Adapt.dLocalize("axe", "woodminer", "description"));
-        setDisplayName(Adapt.dLocalize("axe", "woodminer", "name"));
+        setDescription(Localizer.dLocalize("axe", "woodminer", "description"));
+        setDisplayName(Localizer.dLocalize("axe", "woodminer", "name"));
         setIcon(Material.DIAMOND_AXE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -60,9 +60,9 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("axe", "woodminer", "lore1"));
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Adapt.dLocalize("axe", "woodminer", "lore2"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("axe", "woodminer", "lore3"));
+        v.addLore(C.GREEN + Localizer.dLocalize("axe", "woodminer", "lore1"));
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Localizer.dLocalize("axe", "woodminer", "lore2"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("axe", "woodminer", "lore3"));
     }
 
     private int getRadius(int lvl) {

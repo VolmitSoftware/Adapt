@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -26,6 +25,7 @@ import com.volmit.adapt.content.adaptation.sword.SwordsBloodyBlade;
 import com.volmit.adapt.content.adaptation.sword.SwordsMachete;
 import com.volmit.adapt.content.adaptation.sword.SwordsPoisonedBlade;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -37,11 +37,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     public SkillSwords() {
-        super("swords", Adapt.dLocalize("skill", "swords", "icon"));
+        super("swords", Localizer.dLocalize("skill", "swords", "icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription(Adapt.dLocalize("skill", "swords", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "swords", "name"));
+        setDescription(Localizer.dLocalize("skill", "swords", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "swords", "name"));
         setInterval(2150);
         setIcon(Material.DIAMOND_SWORD);
         registerAdaptation(new SwordsMachete());
