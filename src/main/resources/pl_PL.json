@@ -1,4 +1,36 @@
 {
+  "advancement": {
+    "challenge_move_1k": {
+    },
+    "challenge_sprint_5k": {
+    },
+    "challenge_sprint_50k": {
+    },
+    "challenge_sprint_500k": {
+    },
+    "challenge_sprint_marathon": {
+    },
+    "challenge_place_1k": {
+    },
+    "challenge_place_5k": {
+    },
+    "challenge_place_50k": {
+    },
+    "challenge_place_500k": {
+    },
+    "challenge_place_5m": {
+    },
+    "challenge_chop_1k": {
+    },
+    "challenge_chop_5k": {
+    },
+    "challenge_chop_50k": {
+    },
+    "challenge_chop_500k": {
+    },
+    "challenge_chop_5m": {
+    }
+  },
   "snippets": {
     "gui": {
       "level": "Poziom",
@@ -70,6 +102,7 @@
     },
     "blocking": {
       "name": "Bloking",
+      "icon": "▒",
       "description": "Kije i kamienie nie złamią twoich kości, ale tarcza złamie."
     },
     "crafting": {
@@ -212,6 +245,8 @@
       "lore2": "Czas odnowienia siekania",
       "lore3": "Zużycie Narzędzi"
     },
+    "logswap": {
+    },
     "droptoinventory": {
       "name": "Topór wrzuć do ekwipunku"
     },
@@ -229,6 +264,8 @@
       "lore1": "Skradaj się i moje LIŚCIE",
       "lore2": "zakres wydobycia liści",
       "lore3": "Nie otrzymasz dropów z liści (Aby zapobiec nadużyciu)"
+    },
+    "woodminer": {
     }
   },
   "brewing": {
@@ -243,9 +280,37 @@
       "description": "Stojaki piwowarskie działają szybciej, im są cieplejsze.",
       "lore1": "Za dotknięcie bloku ognia",
       "lore2": "Za dotknięcie bloku lawy"
+    },
+    "darkness": {
+    },
+    "haste": {
+    },
+    "absorption": {
+    },
+    "fatigue": {
+    },
+    "hunger": {
+    },
+    "nausea": {
+    },
+    "blindness": {
+    },
+    "resistance": {
+    },
+    "healthboost": {
+    },
+    "decay": {
+    },
+    "saturation": {
     }
   },
   "blocking": {
+    "chainarmorer": {
+    },
+    "horsearmorer": {
+    },
+    "saddlecrafter": {
+    },
     "multiarmor": {
       "name": "Wielopancerz",
       "description": "Powiąż Elytry ze zbroją",
@@ -268,6 +333,12 @@
       "name": "PD rzemieślnicze",
       "description": "Zdobywaj pasywne PD podczas tworzenia",
       "lore1": "Zdobywaj PD podczas tworzenia"
+    },
+    "leather": {
+    },
+    "backpacks": {
+    },
+    "skulls": {
     }
   },
   "discovery": {
@@ -358,6 +429,12 @@
       "name": "Mykonid zielarza",
       "description": "Daje możliwość tworzenia grzybni",
       "lore1": "Dowolny brud i brązowy i czerwony grzyb stworzy grzybnię."
+    },
+    "terralid": {
+    },
+    "cobweb": {
+    },
+    "mushroomblocks": {
     },
     "droptoinventory": {
       "name": "Hoe Drop-to-Inwentarz"
