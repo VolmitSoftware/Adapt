@@ -35,12 +35,6 @@ public class BrewingManager implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (e.getClickedInventory().getLocation() != null && activeTasks.containsKey(e.getClickedInventory().getLocation())) {
-            if (e.getClickedInventory() instanceof BrewerInventory && (e.getSlotType() == InventoryType.SlotType.FUEL)) {
-                e.setCancelled(true);
-            }
-        }
-
         if (e.getView().getTopInventory().getType() != InventoryType.BREWING || e.getView().getTopInventory().getHolder() == null) {
             return;
         }
@@ -58,21 +52,22 @@ public class BrewingManager implements Listener {
             }
             BrewingStand stand = inv.getHolder();
             AdaptPlayer p = Adapt.instance.getAdaptServer().getPlayer((Player) e.getWhoClicked());
-            Optional<BrewingRecipe> recipe = recipes.keySet().stream().filter(r -> BrewingTask.isValid(r, stand)).findFirst();
+            Optional<BrewingRecipe> recipe = recipes.keySet().stream().filter(r -> BrewingTask.isValid(r, stand.getLocation())).findFirst();
             recipe.ifPresent(r -> {
                 if (activeTasks.containsKey(stand.getLocation())) {
                     BrewingTask t = activeTasks.get(stand.getLocation());
                     if (!t.getRecipe().getId().equals(r.getId())) {
                         activeTasks.remove(stand.getLocation()).cancel();
-                        if (recipes.get(r).stream().noneMatch(p::hasAdaptation))
+                        if (recipes.get(r).stream().noneMatch(p::hasAdaptation)) {
                             return;
-                        activeTasks.put(stand.getLocation(), new BrewingTask(r, stand));
+                        }
+                        activeTasks.put(stand.getLocation(), new BrewingTask(r, stand.getLocation()));
                     }
                 } else {
                     if (recipes.get(r).stream().noneMatch(p::hasAdaptation)) {
                         return;
                     }
-                    activeTasks.put(stand.getLocation(), new BrewingTask(r, stand));
+                    activeTasks.put(stand.getLocation(), new BrewingTask(r, stand.getLocation()));
                 }
             });
             if (recipe.isEmpty() && activeTasks.containsKey(stand.getLocation())) {
