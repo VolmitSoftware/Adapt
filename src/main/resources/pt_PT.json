@@ -1,4 +1,66 @@
 {
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "Tem que se mexer!",
+      "description": "Caminhe mais de 1 quilômetro (1.000 quarteirões)"
+    },
+    "challenge_sprint_5k": {
+      "title": "Corra 5K!",
+      "description": "Caminhe mais de 5 quilômetros (5.000 quarteirões)"
+    },
+    "challenge_sprint_50k": {
+      "title": "Zoom de 50K!",
+      "description": "Caminhe mais de 50 quilômetros (50.000 quarteirões)"
+    },
+    "challenge_sprint_500k": {
+      "title": "Atravesse o Universo!!",
+      "description": "Caminhe mais de 500 quilômetros (500.000 quarteirões)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "Corra uma maratona (literal)!",
+      "description": "Corra mais de 42.195 blocos!"
+    },
+    "challenge_place_1k": {
+      "title": "Construtor iniciante!",
+      "description": "Coloque 1.000 Blocos"
+    },
+    "challenge_place_5k": {
+      "title": "Construtor intermediário!",
+      "description": "Coloque 5.000 Blocos"
+    },
+    "challenge_place_50k": {
+      "title": "Construtor Avançado!",
+      "description": "Coloque 50.000 Blocos"
+    },
+    "challenge_place_500k": {
+      "title": "Mestre de obras!",
+      "description": "Coloque 500.000 Blocos"
+    },
+    "challenge_place_5m": {
+      "title": "Acólito da Simetria!",
+      "description": "A REALIDADE É O SEU PLAYGROUND! (5 milhões de blocos)"
+    },
+    "challenge_chop_1k": {
+      "title": "Lenhador Iniciante!",
+      "description": "Coloque 1.000 Blocos"
+    },
+    "challenge_chop_5k": {
+      "title": "Lenhador intermediário!",
+      "description": "Coloque 5.000 Blocos"
+    },
+    "challenge_chop_50k": {
+      "title": "Lenhador Avançado!",
+      "description": "Coloque 50.000 Blocos"
+    },
+    "challenge_chop_500k": {
+      "title": "Mestre Lenhador!",
+      "description": "Coloque 500.000 Blocos"
+    },
+    "challenge_chop_5m": {
+      "title": "Jackson, o cachorro",
+      "description": "O melhor menino bom! (5 milhões de blocos)"
+    }
+  },
   "snippets": {
     "gui": {
       "level": "Nível",
@@ -237,6 +299,13 @@
       "lore1": "Esgueirar-se, e minhas FOLHAS",
       "lore2": "gama de mineração de folhas",
       "lore3": "Você não obterá as gotas das folhas (Prevenção de Exploit)"
+    },
+    "woodminer": {
+      "name": "Mineiro de madeira",
+      "description": "Permite quebrar madeira a granel de uma só vez!",
+      "lore1": "Esgueirar-se e minerar MADEIRA/TORAS (Não Tábuas)",
+      "lore2": "gama de mineração de madeira",
+      "lore3": "Funciona com Drop to Inventory"
     }
   },
   "brewing": {
@@ -251,6 +320,72 @@
       "description": "Os suportes de fabricação de cerveja funcionam mais rápido quanto mais quentes estiverem.",
       "lore1": "Por Bloco de Fogo Tocante",
       "lore2": "Por Tocar Bloco de Lava"
+    },
+    "darkness": {
+      "name": "Escuridão engarrafada",
+      "description": "Não sei por que você precisa disso, mas aqui está!",
+      "lore1": "Poção Visão Noturna + Concreto Negro = Poção das Trevas (30 segundos)",
+      "lore2": "Deve-se notar que isso impede o usuário de correr!"
+    },
+    "haste": {
+      "name": "pressa engarrafada",
+      "description": "Quando a eficiência não é suficiente",
+      "lore1": "Poção de Velocidade + Fragmento de Ametista = Poção de Aceleração (60 segundos)",
+      "lore2": "Poção de Velocidade + Bloco de Ametista = Poção de Aceleração-2 (30 segundos)"
+    },
+    "absorption": {
+      "name": "Absorção engarrafada",
+      "description": "Endureça o corpo!",
+      "lore1": "Poção de Velocidade + Quartzo = Poção de Absorção (60 segundos)",
+      "lore2": "Poção de Velocidade + Bloco de Quartzo = Poção de Absorção-2 (30 segundos)"
+    },
+    "fatigue": {
+      "name": "Fadiga engarrafada",
+      "description": "Enfraqueça o corpo!",
+      "lore1": "Poção de Fraqueza + Bola de Gosma = Poção de Fadiga (30 segundos)",
+      "lore2": "Poção de Fraqueza + Bloco de Slime = Poção de Fadiga-2 (15 segundos)"
+    },
+    "hunger": {
+      "name": "Fome engarrafada",
+      "description": "Alimente o insaciável!",
+      "lore1": "Poção Estranha + Carne Podre = Poção da Fome (30 segundos)",
+      "lore2": "Poção de Fraqueza + Carne Podre = Poção da Fome-3 (15 segundos)"
+    },
+    "nausea": {
+      "name": "Náusea engarrafada",
+      "description": "Você é uma pessoa horrível...",
+      "lore1": "Poção Estranha + Cogumelo Marrom = Poção de Náusea (16 segundos)",
+      "lore2": "Poção Estranha + Fungo Carmesim = Poção de Náusea-2 (8 segundos)"
+    },
+    "blindness": {
+      "name": "Cegueira engarrafada",
+      "description": "Você é uma pessoa horrível...",
+      "lore1": "Poção Estranha + Saco de Tinta = Poção da Cegueira (30 segundos)",
+      "lore2": "Poção Estranha + Saco de Tinta Brilhante = Poção da Cegueira-2 (15 segundos)"
+    },
+    "resistance": {
+      "name": "Resistência engarrafada",
+      "description": "Fortificação no seu melhor!",
+      "lore1": "Poção Estranha + Lingote de Ferro = Poção de Resistência (60 segundos)",
+      "lore2": "Poção Estranha + Bloco de Ferro = Poção de Resistência-2 (30 segundos)"
+    },
+    "healthboost": {
+      "name": "Vida engarrafada",
+      "description": "Quando a saúde máxima não é suficiente...",
+      "lore1": "Poção de Cura Instantânea + Maçã Dourada = Poção de Aumento de Saúde (120 segundos)",
+      "lore2": "Poção de Cura Instantânea + Maçã Dourada Encantada = Poção de Aumento de Saúde-2 (120 segundos)"
+    },
+    "decay": {
+      "name": "Deterioração engarrafada",
+      "description": "Quem diria que Detritus seria tão útil?",
+      "lore1": "Poção de Fraqueza + Batata Venenosa = Poção de Murchar (16 segundos)",
+      "lore2": "Poção de Fraqueza + Raízes Carmesim = Poção de Murchar (8 segundos)"
+    },
+    "saturation": {
+      "name": "Saturação engarrafada",
+      "description": "Você sabe... nem estou com fome...",
+      "lore1": "Poção de Regeneração + Batata Assada = Poção de Saturação (120 segundos)",
+      "lore2": "Poção de Regeneração + Fardo de Feno = Poção de Saturação (120 segundos)"
     }
   },
   "blocking": {
