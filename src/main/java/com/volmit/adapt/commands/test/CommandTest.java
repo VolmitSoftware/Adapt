@@ -33,6 +33,7 @@ public class CommandTest extends MortarCommand {
 
     public CommandTest() {
         super("test", "t");
+        this.setDescription("This allows to test Sounds and Particles (adapt.idontknowwhatimdoingiswear)");
     }
 
     @Override

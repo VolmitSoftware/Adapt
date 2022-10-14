@@ -19,6 +19,7 @@
 package com.volmit.adapt.util.advancements;
 
 import com.google.gson.*;
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.advancements.advancement.*;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay.AdvancementFrame;
 import com.volmit.adapt.util.advancements.advancement.criteria.CriteriaType;
@@ -450,24 +451,24 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
                                     toast.send(player);
                                 }
 
-                                sender.sendMessage(players.size() == 1 ? "Successfully displayed Toast to " + players.get(0).getName() + "!" : "Successfully displayed Toast to " + players.size() + "Players!");
+                                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), players.size() == 1 ? "Successfully displayed Toast to " + players.get(0).getName() + "!" : "Successfully displayed Toast to " + players.size() + "Players!");
                             } else {
-                                sender.sendMessage("'" + args[1] + "' isn't a valid Item Material");
+                                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "'" + args[1] + "' isn't a valid Item Material");
                             }
                         } else {
-                            sender.sendMessage(args[0].startsWith("@") ? "No Player found for Selector " + args[0] + "" : "Can't find Player '" + args[0] + "'");
+                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), args[0].startsWith("@") ? "No Player found for Selector " + args[0] + "" : "Can't find Player '" + args[0] + "'");
                         }
                     } catch (Exception ex) {
                         ex.printStackTrace();
-                        sender.sendMessage(commandIncompatible);
+                        Adapt.msgp(sender.getServer().getPlayer(sender.getName()), commandIncompatible);
                     }
 
 
                 } else {
-                    sender.sendMessage("Usage: " + cmd.getUsage());
+                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Usage: " + cmd.getUsage());
                 }
             } else {
-                sender.sendMessage(noPermission);
+                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), noPermission);
             }
             return true;
         }
@@ -521,9 +522,9 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
                                                     if (fileAdvancementManager.equals(manager)) {
                                                         fileAdvancementManager.saveProgress(player, advancement);
                                                     }
-                                                    sender.sendMessage("Successfully " + (grant ? "granted" : "revoked") + " Criteria " + criteriaString + " for '" + advancement.getName() + "' " + (grant ? "to" : "from") + " " + player.getName());
+                                                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Successfully " + (grant ? "granted" : "revoked") + " Criteria " + criteriaString + " for '" + advancement.getName() + "' " + (grant ? "to" : "from") + " " + player.getName());
                                                 } else {
-                                                    sender.sendMessage("Criteria " + criteriaString + " for '" + advancement.getName() + "' " + (grant ? "is already granted to" : "is already not granted to") + " " + player.getName());
+                                                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Criteria " + criteriaString + " for '" + advancement.getName() + "' " + (grant ? "is already granted to" : "is already not granted to") + " " + player.getName());
                                                 }
 
                                             } else {
@@ -543,36 +544,36 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
                                                     if (fileAdvancementManager.equals(manager)) {
                                                         fileAdvancementManager.saveProgress(player, advancement);
                                                     }
-                                                    sender.sendMessage("Successfully " + (grant ? "granted" : "revoked") + " Advancement '" + advancement.getName() + "' " + (grant ? "to" : "from") + " " + player.getName());
+                                                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Successfully " + (grant ? "granted" : "revoked") + " Advancement '" + advancement.getName() + "' " + (grant ? "to" : "from") + " " + player.getName());
                                                 } else {
-                                                    sender.sendMessage("Advancement '" + advancement.getName() + "' " + (grant ? "is already granted to" : "is already not granted to") + " " + player.getName());
+                                                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Advancement '" + advancement.getName() + "' " + (grant ? "is already granted to" : "is already not granted to") + " " + player.getName());
                                                 }
                                             }
 
                                         } else {
-                                            sender.sendMessage("Advancement with Name '" + args[2] + "' does not exist in '" + args[1] + "'");
+                                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Advancement with Name '" + args[2] + "' does not exist in '" + args[1] + "'");
                                         }
                                     } else {
-                                        sender.sendMessage("'" + args[1] + "' does not contain Player '" + args[0] + "'");
+                                        Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "'" + args[1] + "' does not contain Player '" + args[0] + "'");
                                     }
                                 }
                             } else {
-                                sender.sendMessage("Manager with Name '" + args[1] + "' does not exist");
+                                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Manager with Name '" + args[1] + "' does not exist");
                             }
                         } else {
-                            sender.sendMessage(args[0].startsWith("@") ? "No Player found for Selector " + args[0] + "" : "Can't find Player '" + args[0] + "'");
+                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), args[0].startsWith("@") ? "No Player found for Selector " + args[0] + "" : "Can't find Player '" + args[0] + "'");
                         }
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
-                        sender.sendMessage(commandIncompatible);
+                        Adapt.msgp(sender.getServer().getPlayer(sender.getName()), commandIncompatible);
                     }
 
                 } else {
-                    sender.sendMessage("Usage: " + cmd.getUsage());
+                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Usage: " + cmd.getUsage());
                 }
             } else {
-                sender.sendMessage(noPermission);
+                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), noPermission);
             }
             return true;
         }
@@ -610,34 +611,34 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
                                                     fileAdvancementManager.saveProgress(player, advancement);
                                                 }
 
-                                                sender.sendMessage("Successfully updated Criteria Progress for Advancement '" + advancement.getName() + "' for Player " + player.getName());
+                                                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Successfully updated Criteria Progress for Advancement '" + advancement.getName() + "' for Player " + player.getName());
                                             }
 
                                         } else {
-                                            sender.sendMessage("Advancement with Name '" + args[2] + "' does not exist in '" + args[1] + "'");
+                                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Advancement with Name '" + args[2] + "' does not exist in '" + args[1] + "'");
                                         }
 
                                     } else {
-                                        sender.sendMessage("'" + args[1] + "' does not contain Player '" + args[0] + "'");
+                                        Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "'" + args[1] + "' does not contain Player '" + args[0] + "'");
                                     }
                                 }
                             } else {
-                                sender.sendMessage("Manager with Name '" + args[1] + "' does not exist");
+                                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Manager with Name '" + args[1] + "' does not exist");
                             }
                         } else {
-                            sender.sendMessage(args[0].startsWith("@") ? "No Player found for Selector " + args[0] + "" : "Can't find Player '" + args[0] + "'");
+                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), args[0].startsWith("@") ? "No Player found for Selector " + args[0] + "" : "Can't find Player '" + args[0] + "'");
                         }
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
-                        sender.sendMessage(commandIncompatible);
+                        Adapt.msgp(sender.getServer().getPlayer(sender.getName()), commandIncompatible);
                     }
 
                 } else {
-                    sender.sendMessage("Usage: " + cmd.getUsage());
+                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Usage: " + cmd.getUsage());
                 }
             } else {
-                sender.sendMessage(noPermission);
+                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), noPermission);
             }
             return true;
         }
@@ -648,23 +649,23 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
                     switch (args[0].toLowerCase()) {
                         case "all":
                             reload();
-                            sender.sendMessage("Crazy Advancements API was reloaded");
+                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Crazy Advancements API was reloaded");
                             break;
                         case "advancements":
                             reloadFileAdvancements();
-                            sender.sendMessage("JSON Advancements have been reloaded");
+                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "JSON Advancements have been reloaded");
                             break;
                         case "items":
                             loadCustomItems();
-                            sender.sendMessage("Custom Items have been reloaded");
+                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Custom Items have been reloaded");
                             break;
                         default:
-                            sender.sendMessage("Invalid Reload Category '" + args[0] + "'. Valid categories are all, advancements, items");
+                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Invalid Reload Category '" + args[0] + "'. Valid categories are all, advancements, items");
                             break;
                     }
                 } else {
                     reload();
-                    sender.sendMessage("Crazy Advancements API was reloaded");
+                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Crazy Advancements API was reloaded");
                 }
             }
         }

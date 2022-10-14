@@ -34,6 +34,7 @@ public class CommandItem extends MortarCommand {
 
     public CommandItem() {
         super("item", "i");
+        this.setDescription("This is how you get either a knowledge orb or an xp orb");
     }
 
     @Override

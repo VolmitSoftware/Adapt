@@ -32,6 +32,7 @@ public class CommandOpen extends MortarCommand {
 
     public CommandOpen() {
         super("open", "o");
+        this.setDescription("This is the main command for Adapt's GUI (adapt.opengui)");
     }
 
     @Override

@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.commands.item;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.content.item.ExperienceOrb;
@@ -59,7 +60,7 @@ public class CommandItemExperienceOrb extends MortarCommand {
             return true;
         } catch (Exception ignored) {
             printHelp(sender);
-            sender.sendMessage(C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item knowledge <Skill> <XP Amount>");
+            sender.sendMessage(C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item knowledge <Skill> <XP Amount>");
             return true;
         }
     }
@@ -79,6 +80,6 @@ public class CommandItemExperienceOrb extends MortarCommand {
 
     @Override
     protected String getArgsUsage() {
-        return "<skill> <xp>";
+        return "/adapt item experience <Skill> <XP Amount>";
     }
 }

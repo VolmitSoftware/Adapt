@@ -44,6 +44,7 @@ public class CommandAdapt extends MortarCommand {
 
     public CommandAdapt() {
         super("adapt", "ada", "a");
+        this.setDescription("This is the main command for Adapt");
     }
 
     @Override

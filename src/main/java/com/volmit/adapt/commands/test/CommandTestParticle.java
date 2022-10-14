@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class CommandTestParticle extends MortarCommand {
     public CommandTestParticle() {
         super("particle", "p");
+        this.setDescription("This allows to test Particles");
     }
 
     @Override

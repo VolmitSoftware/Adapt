@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.commands.test;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
@@ -29,6 +30,7 @@ public class CommandVerbose extends MortarCommand {
 
     public CommandVerbose() {
         super("verbose", "v");
+        this.setDescription("This Toggles the Debug mode(Console Spam mode)");
     }
 
     @Override
@@ -39,7 +41,7 @@ public class CommandVerbose extends MortarCommand {
     @Override
     public boolean handle(MortarSender sender, String[] args) {
         AdaptConfig.get().setVerbose(!AdaptConfig.get().isVerbose());
-        sender.sendMessage("Verbose: " + AdaptConfig.get().isVerbose());
+        Adapt.msgp(sender.player(), "Verbose: " + AdaptConfig.get().isVerbose());
         return true;
     }
 

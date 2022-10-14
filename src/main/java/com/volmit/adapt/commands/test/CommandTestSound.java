@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 public class CommandTestSound extends MortarCommand {
     public CommandTestSound() {
         super("sound", "s");
+        this.setDescription("This allows to test Sounds");
     }
 
     @Override

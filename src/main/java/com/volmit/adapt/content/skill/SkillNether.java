@@ -54,7 +54,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityDamage(EntityDamageEvent e) {
+    public void on(EntityDamageEvent e) {
         if (!this.isEnabled()) {
             return;
         }
@@ -73,7 +73,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockBreak(BlockBreakEvent e) {
+    public void on(BlockBreakEvent e) {
         if (!this.isEnabled()) {
             return;
         }
@@ -94,7 +94,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityDeath(EntityDeathEvent e) {
+    public void on(EntityDeathEvent e) {
         if (!this.isEnabled()) {
             return;
         }
@@ -115,7 +115,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityDamage(EntityDamageByEntityEvent e) {
+    public void on(EntityDamageByEntityEvent e) {
         if (!this.isEnabled()) {
             return;
         }

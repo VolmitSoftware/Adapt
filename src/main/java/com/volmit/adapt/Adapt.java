@@ -53,86 +53,8 @@ public class Adapt extends VolmitPlugin {
     @Getter
     private AdaptServer adaptServer;
     private FolderWatcher configWatcher;
-
     @Getter
     private SQLManager sqlManager;
-
-    public Adapt() {
-        super();
-        instance = this;
-    }
-
-    public static void actionbar(Player p, String msg) {
-        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(msg));
-    }
-
-    public static void printInformation() {
-        debug("XP Curve: " + AdaptConfig.get().getXpCurve());
-        debug("XP/Level base: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
-        debug("XP/Level multiplier: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier());
-        info("Language: " + AdaptConfig.get().getLanguage() + " - Language Fallback: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
-    }
-
-    public static void warn(String string) {
-        msg(C.YELLOW + string);
-    }
-
-    public static void error(String string) {
-        msg(C.RED + string);
-    }
-
-    public static void verbose(String string) {
-        if (AdaptConfig.get().isVerbose()) {
-            msg(C.LIGHT_PURPLE + string);
-        }
-    }
-
-    public static void msg(String string) {
-        try {
-            if (instance == null) {
-                System.out.println("[Adapt]: " + string);
-                return;
-            }
-
-            String msg = C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + string;
-            Bukkit.getConsoleSender().sendMessage(msg);
-        } catch (Throwable e) {
-            System.out.println("[Adapt]: " + string);
-        }
-    }
-
-    public static void success(String string) {
-        msg(C.GREEN + string);
-    }
-
-    public static void info(String string) {
-        msg(C.WHITE + string);
-    }
-
-    public static void debug(String string) {
-        if (AdaptConfig.get().isDebug()) {
-            msg(C.DARK_PURPLE + string);
-        }
-    }
-
-
-
-    public static int getJavaVersion() {
-        String version = System.getProperty("java.version");
-        if (version.startsWith("1.")) {
-            version = version.substring(2, 3);
-        } else {
-            int dot = version.indexOf(".");
-            if (dot != -1) {
-                version = version.substring(0, dot);
-            }
-        }
-        return Integer.parseInt(version);
-    }
-
-    public File getJarFile() {
-        return getFile();
-    }
 
     @Override
     public void start() {
@@ -153,10 +75,17 @@ public class Adapt extends VolmitPlugin {
         startupPrint(); // Splash screen
     }
 
-    private void setupMetrics() {
-        if (AdaptConfig.get().isMetrics()) {
-            new Metrics(this, 13412);
+    public static int getJavaVersion() {
+        String version = System.getProperty("java.version");
+        if (version.startsWith("1.")) {
+            version = version.substring(2, 3);
+        } else {
+            int dot = version.indexOf(".");
+            if (dot != -1) {
+                version = version.substring(0, dot);
+            }
         }
+        return Integer.parseInt(version);
     }
 
     @Override
@@ -167,33 +96,105 @@ public class Adapt extends VolmitPlugin {
         WorldData.stop();
     }
 
-    @Override
-    public String getTag(String subTag) {
-        return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.LIGHT_PURPLE + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
-    }
-
     private void startupPrint() {
         if (!AdaptConfig.get().isSplashScreen()) {
             return;
         }
         Random r = new Random();
         int game = r.nextInt(100);
-
-        if (game < 90) { // 90%
-            Adapt.info(
-                    "\n" +
-                            C.GRAY + " █████" + C.DARK_RED + "╗ " + C.GRAY + "██████" + C.DARK_RED + "╗  " + C.GRAY + "█████" + C.DARK_RED + "╗ " + C.GRAY + "██████" + C.DARK_RED + "╗ " + C.GRAY + "████████" + C.DARK_RED + "╗\n" +
-                            C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗╚══" + C.GRAY + "██" + C.DARK_RED + "╔══╝" + C.WHITE + "         Version: " + C.DARK_RED + instance.getDescription().getVersion() + "     \n" +
-                            C.GRAY + "███████" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "███████" + C.DARK_RED + "║" + C.GRAY + "██████" + C.DARK_RED + "╔╝   " + C.GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            By: " + C.RED + "A" + C.GOLD + "r" + C.YELLOW + "c" + C.GREEN + "a" + C.DARK_GRAY + "n" + C.AQUA + "e " + C.AQUA + "A" + C.BLUE + "r" + C.DARK_BLUE + "t" + C.DARK_PURPLE + "s" + C.WHITE + " (Volmit Software)\n" +
-                            C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "╔═══╝    " + C.GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Java Version: " + C.DARK_RED + getJavaVersion() + "     \n" +
-                            C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██████" + C.DARK_RED + "╔╝" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║        " + C.GRAY + "██" + C.DARK_RED + "║   \n" +
-                            C.DARK_RED + "╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝        ╚═╝   \n"
-            );
+        if (game < 90) {
+            Adapt.info("\n" + C.GRAY + " █████" + C.DARK_RED + "╗ " + C.GRAY + "██████" + C.DARK_RED + "╗  " + C.GRAY + "█████" + C.DARK_RED + "╗ " + C.GRAY + "██████" + C.DARK_RED + "╗ " + C.GRAY + "████████" + C.DARK_RED + "╗\n" +
+                    C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗╚══" + C.GRAY + "██" + C.DARK_RED + "╔══╝" + C.WHITE + "         Version: " + C.DARK_RED + instance.getDescription().getVersion() + "     \n" +
+                    C.GRAY + "███████" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "███████" + C.DARK_RED + "║" + C.GRAY + "██████" + C.DARK_RED + "╔╝   " + C.GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            By: " + C.RED + "A" + C.GOLD + "r" + C.YELLOW + "c" + C.GREEN + "a" + C.DARK_GRAY + "n" + C.AQUA + "e " + C.AQUA + "A" + C.BLUE + "r" + C.DARK_BLUE + "t" + C.DARK_PURPLE + "s" + C.WHITE + " (Volmit Software)\n" +
+                    C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "╔═══╝    " + C.GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Java Version: " + C.DARK_RED + getJavaVersion() + "     \n" +
+                    C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██████" + C.DARK_RED + "╔╝" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║        " + C.GRAY + "██" + C.DARK_RED + "║   \n" +
+                    C.DARK_RED + "╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝        ╚═╝   \n");
         } else {
             info(SecretSplash.getSecretSplash().getRandom());
         }
-
-
     }
+
+    public static void printInformation() {
+        debug("XP Curve: " + AdaptConfig.get().getXpCurve());
+        debug("XP/Level base: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
+        debug("XP/Level multiplier: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier());
+        info("Language: " + AdaptConfig.get().getLanguage() + " - Language Fallback: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
+    }
+
+    public Adapt() {
+        super();
+        instance = this;
+    }
+
+    public File getJarFile() {
+        return getFile();
+    }
+
+    @Override
+    public String getTag(String subTag) {
+        return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.DARK_RED + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
+    }
+
+    public static void actionbar(Player p, String msg) {
+        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(msg));
+    }
+
+    public static void debug(String string) {
+        if (AdaptConfig.get().isDebug()) {
+            msg(C.DARK_PURPLE + string);
+        }
+    }
+
+    public static void warn(String string) {
+        msg(C.YELLOW + string);
+    }
+
+    public static void error(String string) {
+        msg(C.RED + string);
+    }
+
+    public static void playerMessage(Player p, String string) {
+        msgp(p, C.BOLD + string);
+    }
+
+    public static void verbose(String string) {
+        if (AdaptConfig.get().isVerbose()) {
+            msg(C.LIGHT_PURPLE + string);
+        }
+    }
+
+    public static void success(String string) {
+        msg(C.GREEN + string);
+    }
+
+    public static void info(String string) {
+        msg(C.WHITE + string);
+    }
+
+    public static void msgp(Player p, String string) {
+        String msg = C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + string;
+        Adapt.msgp(p,msg + string);
+    }
+
+    private void setupMetrics() {
+        if (AdaptConfig.get().isMetrics()) {
+            new Metrics(this, 13412);
+        }
+    }
+
+    public static void msg(String string) {
+        try {
+            if (instance == null) {
+                System.out.println("[Adapt]: " + string);
+                return;
+            }
+
+            String msg = C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + string;
+            Bukkit.getConsoleSender().sendMessage(msg);
+        } catch (Throwable e) {
+            System.out.println("[Adapt]: " + string);
+        }
+    }
+
 
 }

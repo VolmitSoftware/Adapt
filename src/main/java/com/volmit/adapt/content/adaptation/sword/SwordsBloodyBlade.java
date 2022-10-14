@@ -96,7 +96,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
                 blood.period = 5; //5 Every second, make a proc
                 blood.hurt = false;
 //                blood.callback = () -> {
-//                    p.sendMessage("You bled out..");
+//                    Adapt.msgp(p,"You bled out..");
 //                    p.setHealth(1d);
 //                };
                 blood.start();

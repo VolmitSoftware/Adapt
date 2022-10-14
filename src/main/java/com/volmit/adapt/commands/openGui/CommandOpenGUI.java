@@ -28,6 +28,7 @@ import java.util.List;
 public class CommandOpenGUI extends MortarCommand {
     public CommandOpenGUI() {
         super("gui", "g");
+        this.setDescription("Opens the GUI");
     }
 
     @Override
