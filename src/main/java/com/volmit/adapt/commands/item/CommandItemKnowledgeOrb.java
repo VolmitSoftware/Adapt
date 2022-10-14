@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.commands.item;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.content.item.KnowledgeOrb;
@@ -28,7 +27,6 @@ import com.volmit.adapt.util.MortarSender;
 import org.bukkit.Bukkit;
 
 import java.util.List;
-import java.util.Objects;
 
 public class CommandItemKnowledgeOrb extends MortarCommand {
     public CommandItemKnowledgeOrb() {
@@ -37,33 +35,36 @@ public class CommandItemKnowledgeOrb extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        if (Objects.equals(args[0], "[all]")) {
-            for (Skill skill : SkillRegistry.skills.sortV()) {
-                args.toList().set(0, skill.getName());
+        try {
+            if (args[0] != null && args[0].equals("[all]")) {
+                for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+                    args.toList().set(0, skill.getName());
+                    giveOrb(sender, args);
+                }
+            } else {
                 giveOrb(sender, args);
             }
-        } else {
-            giveOrb(sender, args);
+            return true;
+        } catch (Exception e) {
+            sender.sendMessage(C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item knowledge <Skill> <XP Amount>");
+            return true;
         }
-        return true;
     }
 
-    private boolean giveOrb(MortarSender sender, String[] args) {
-        try {
-            if (args.toList().size() > 2) {
-                if (Bukkit.getPlayer(args[2]) != null && Bukkit.getPlayer(args[2]).getPlayer() != null) {
-                    Bukkit.getPlayer(args[2]).getPlayer().getInventory().addItem(KnowledgeOrb.with(args[0], Integer.parseInt(args[1])));
-                }
-            } else if (args.toList().size() == 2) {
-                sender.player().getInventory().addItem(KnowledgeOrb.with(args[0], Integer.parseInt(args[1])));
+    private void giveOrb(MortarSender sender, String[] args) {
+        if (args.toList().size() > 2) {
+            if (Bukkit.getPlayer(args[2]) != null && Bukkit.getPlayer(args[2]).getPlayer() != null) {
+                Bukkit.getPlayer(args[2]).getPlayer().getInventory().addItem(KnowledgeOrb.with(args[0], Integer.parseInt(args[1])));
             }
-            return true;
-        } catch (Exception ignored) {
+        } else if (args.toList().size() == 2) {
+            sender.player().getInventory().addItem(KnowledgeOrb.with(args[0], Integer.parseInt(args[1])));
+        } else {
             printHelp(sender);
-            Adapt.msgp(sender.player(),C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item knowledge <Skill> <Knowledge Amount>");
-            return true;
+            sender.sendMessage(C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item knowledge <Skill> <XP Amount>");
         }
+        sender.sendMessage(C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item knowledge <Skill> <XP Amount>");
     }
+
     @Override
     public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
         if (args.length == 0) {
