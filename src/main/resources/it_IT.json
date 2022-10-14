@@ -1,4 +1,66 @@
 {
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "Devo muoverti!",
+      "description": "Cammina per 1 chilometro (1.000 blocchi)"
+    },
+    "challenge_sprint_5k": {
+      "title": "Scatta un 5K!",
+      "description": "Cammina per 5 chilometri (5.000 blocchi)"
+    },
+    "challenge_sprint_50k": {
+      "title": "Zoom a 50K!",
+      "description": "Cammina per oltre 50 chilometri (50.000 blocchi)"
+    },
+    "challenge_sprint_500k": {
+      "title": "Attraversa l'universo!!",
+      "description": "Cammina per oltre 500 chilometri (500.000 blocchi)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "Sprint una maratona (letterale)!",
+      "description": "Sprint su 42.195 blocchi!"
+    },
+    "challenge_place_1k": {
+      "title": "Costruttore alle prime armi!",
+      "description": "Posiziona 1.000 blocchi"
+    },
+    "challenge_place_5k": {
+      "title": "Costruttore intermedio!",
+      "description": "Posiziona 5.000 blocchi"
+    },
+    "challenge_place_50k": {
+      "title": "Costruttore avanzato!",
+      "description": "Posiziona 50.000 blocchi"
+    },
+    "challenge_place_500k": {
+      "title": "Mastro costruttore!",
+      "description": "Posiziona 500.000 blocchi"
+    },
+    "challenge_place_5m": {
+      "title": "Accolito di Simmetria!",
+      "description": "LA REALTÀ È IL TUO PARCO GIOCHI! (5 milioni di blocchi)"
+    },
+    "challenge_chop_1k": {
+      "title": "Boscaiolo principiante!",
+      "description": "Posiziona 1.000 blocchi"
+    },
+    "challenge_chop_5k": {
+      "title": "Taglialegna intermedio!",
+      "description": "Posiziona 5.000 blocchi"
+    },
+    "challenge_chop_50k": {
+      "title": "Boscaiolo avanzato!",
+      "description": "Posiziona 50.000 blocchi"
+    },
+    "challenge_chop_500k": {
+      "title": "Maestro taglialegna!",
+      "description": "Posiziona 500.000 blocchi"
+    },
+    "challenge_chop_5m": {
+      "title": "Jackson il cane",
+      "description": "Il miglior bravo ragazzo! (5 milioni di blocchi)"
+    }
+  },
   "snippets": {
     "gui": {
       "level": "Livello",
@@ -237,6 +299,13 @@
       "lore1": "Sgattaiolare, e le mie FOGLIE",
       "lore2": "gamma di estrazione di foglie",
       "lore3": "Non otterrai le gocce dalle foglie (Exploit Prevention)"
+    },
+    "woodminer": {
+      "name": "Minatore di legno",
+      "description": "Ti permette di rompere il legno sfuso in una volta!",
+      "lore1": "Sneak, and mine WOOD/LOGS (non tavole)",
+      "lore2": "gamma di estrazione del legno",
+      "lore3": "Funziona con Drop to inventory"
     }
   },
   "brewing": {
@@ -251,6 +320,72 @@
       "description": "I banchi di infusione funzionano tanto più velocemente quanto più sono caldi.",
       "lore1": "Per ogni blocco di fuoco toccato",
       "lore2": "Per ogni blocco di lava toccato"
+    },
+    "darkness": {
+      "name": "Oscurità imbottigliata",
+      "description": "Non sono sicuro del motivo per cui ne hai bisogno, ma ecco qua!",
+      "lore1": "Pozione Visione Notturna + Cemento Nero = Pozione dell'Oscurità (30 secondi)",
+      "lore2": "Va notato che Ciò impedisce all'utente di Sprint!"
+    },
+    "haste": {
+      "name": "Fretta in bottiglia",
+      "description": "Quando l'efficienza non basta",
+      "lore1": "Pozione della velocità + Frammento di ametista = Pozione della fretta (60 secondi)",
+      "lore2": "Pozione della velocità + Blocco di ametista = Pozione della fretta-2 (30 secondi)"
+    },
+    "absorption": {
+      "name": "Assorbimento in bottiglia",
+      "description": "Rafforza il corpo!",
+      "lore1": "Pozione della velocità + Quarzo = Pozione dell'assorbimento (60 secondi)",
+      "lore2": "Pozione di velocità + Blocco di quarzo = Pozione di assorbimento-2 (30 secondi)"
+    },
+    "fatigue": {
+      "name": "Fatica in bottiglia",
+      "description": "Indebolisci il corpo!",
+      "lore1": "Pozione della debolezza + Palla di melma = Pozione della fatica (30 secondi)",
+      "lore2": "Pozione della debolezza + Blocco di melma = Pozione della fatica-2 (15 secondi)"
+    },
+    "hunger": {
+      "name": "Fame in bottiglia",
+      "description": "Dai da mangiare all'insaziabile!",
+      "lore1": "Pozione imbarazzante + Carne marcia = Pozione della fame (30 secondi)",
+      "lore2": "Pozione della debolezza + Carne marcia = Pozione della fame-3 (15 secondi)"
+    },
+    "nausea": {
+      "name": "Nausea in bottiglia",
+      "description": "sei una persona orribile...",
+      "lore1": "Pozione imbarazzante + Fungo marrone = Pozione della nausea (16 secondi)",
+      "lore2": "Pozione imbarazzante + Fungo cremisi = Pozione della nausea-2 (8 secondi)"
+    },
+    "blindness": {
+      "name": "Cecità in bottiglia",
+      "description": "sei una persona orribile...",
+      "lore1": "Pozione imbarazzante + Sacco d'inchiostro = Pozione della cecità (30 secondi)",
+      "lore2": "Pozione imbarazzante + Sacco d'inchiostro luminoso = Pozione della cecità-2 (15 secondi)"
+    },
+    "resistance": {
+      "name": "Resistenza in bottiglia",
+      "description": "Fortificazione al suo meglio!",
+      "lore1": "Pozione imbarazzante + Lingotto di ferro = Pozione di resistenza (60 secondi)",
+      "lore2": "Pozione imbarazzante + Blocco di ferro = Pozione di resistenza-2 (30 secondi)"
+    },
+    "healthboost": {
+      "name": "Vita in bottiglia",
+      "description": "Quando la massima salute non basta...",
+      "lore1": "Pozione di guarigione istantanea + Mela d'oro = Potenziamento della pozione della salute (120 secondi)",
+      "lore2": "Pozione di guarigione istantanea + Mela d'oro incantata = Pozione della salute Boost-2 (120 secondi)"
+    },
+    "decay": {
+      "name": "Decadimento in bottiglia",
+      "description": "Chi sapeva che Detritus sarebbe stato così utile?",
+      "lore1": "Pozione di debolezza + Patata velenosa = Pozione di avvizzimento (16 secondi)",
+      "lore2": "Pozione di debolezza + Radici cremisi = Pozione di avvizzire (8 secondi)"
+    },
+    "saturation": {
+      "name": "Saturazione in bottiglia",
+      "description": "Sai... non ho nemmeno fame...",
+      "lore1": "Pozione Regen + Patata al Forno = Pozione della Saturazione (120 secondi)",
+      "lore2": "Pozione rigenerante + Balla di fieno = Pozione della saturazione (120 secondi)"
     }
   },
   "blocking": {
