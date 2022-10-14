@@ -1,0 +1,410 @@
+{
+  "advancement": {
+    "challenge_move_1k": {
+    },
+    "challenge_sprint_5k": {
+    },
+    "challenge_sprint_50k": {
+    },
+    "challenge_sprint_500k": {
+    },
+    "challenge_sprint_marathon": {
+    },
+    "challenge_place_1k": {
+    },
+    "challenge_place_5k": {
+    },
+    "challenge_place_50k": {
+    },
+    "challenge_place_500k": {
+    },
+    "challenge_place_5m": {
+    },
+    "challenge_chop_1k": {
+    },
+    "challenge_chop_5k": {
+    },
+    "challenge_chop_50k": {
+    },
+    "challenge_chop_500k": {
+    },
+    "challenge_chop_5m": {
+    }
+  },
+  "snippets": {
+    "gui": {
+      "level": "leveli",
+      "knowledge": "tietämys",
+      "powerused": "Voimaa käytetty",
+      "notlearned": "Et ole oppinut",
+      "welcome": "Tervetuloa!",
+      "welcomeback": "Tervetuloa takaisin!",
+      "back": "Takaisin",
+      "unlearnall": "Unohda kaikki oppimasi",
+      "unlearnedall": "Unohda kaikki oppimasi"
+    },
+    "adaptmenu": {
+      "knowledgecost": "Tietämys Hinta",
+      "alreadylearned": "Olet jo oppinut",
+      "knowledge": "Tietämys",
+      "clicklearn": "Klikkaa oppiaksesi",
+      "noknowledge": "(Sinulla ei ole tarpeeksi tietämystä)",
+      "youonlyhave": "Sinulla on vain",
+      "power": "voima",
+      "learned": "Oppinut",
+      "unlearned": "Unohda oppimasi"
+    },
+    "knowledgeorb": {
+      "contains": "sisältää",
+      "knowledge": "Tietämys",
+      "rightclick": "Oikea-Klikkaa"
+    },
+    "experienceorb": {
+      "contains": "sisältää",
+      "xp": "Kokemus",
+      "rightclick": "Oikea Klikkaa"
+    }
+  },
+  "skill": {
+    "agility": {
+      "icon": "⇉"
+    },
+    "architect": {
+      "name": "Arkkitehti",
+      "icon": "⬧"
+    },
+    "axes": {
+      "name": "Kirveet",
+      "icon": "❖",
+      "description2": "asiat"
+    },
+    "brewing": {
+      "icon": "❦"
+    },
+    "blocking": {
+      "icon": "▒"
+    },
+    "crafting": {
+      "icon": "⌂"
+    },
+    "discovery": {
+      "icon": "⚛"
+    },
+    "enchanting": {
+      "name": "Lumoaminen",
+      "icon": "♰"
+    },
+    "excavation": {
+      "icon": "✥"
+    },
+    "herbalism": {
+      "icon": "⚘"
+    },
+    "hunter": {
+      "name": "Metsästäjä",
+      "icon": "☠"
+    },
+    "nether": {
+      "name": "Horna",
+      "icon": "₪"
+    },
+    "pickaxe": {
+      "name": "Hakku",
+      "icon": "⛏"
+    },
+    "ranged": {
+      "icon": "🏹"
+    },
+    "rift": {
+      "icon": "❍"
+    },
+    "seaborne": {
+      "icon": "🌊"
+    },
+    "stealth": {
+      "icon": "✠"
+    },
+    "swords": {
+      "name": "Miekat",
+      "icon": "⚔"
+    },
+    "taming": {
+      "icon": "♥"
+    },
+    "tragoul": {
+      "icon": "▼"
+    },
+    "chronos": {
+      "icon": "۞"
+    },
+    "unarmed": {
+      "icon": "⚜"
+    }
+  },
+  "agility": {
+    "armorup": {
+      "lore1": "Maximi Armori"
+    },
+    "superjump": {
+      "name": "Super hyppy",
+      "lore1": "Maksimi Hyppy Korkaus"
+    },
+    "walljump": {
+    },
+    "windup": {
+      "lore1": "Maksimi nopeus"
+    }
+  },
+  "architect": {
+    "foundation": {
+      "lore1": "Maagisesti luo: "
+    },
+    "glass": {
+    },
+    "placement": {
+      "name": "Rakentajan Sauva",
+      "lore1": "Sinä tarvitset"
+    }
+  },
+  "axe": {
+    "chop": {
+    },
+    "logswap": {
+    },
+    "droptoinventory": {
+    },
+    "groundsmash": {
+      "lore1": "Vahinko"
+    },
+    "leafminer": {
+    },
+    "woodminer": {
+    }
+  },
+  "brewing": {
+    "lingering": {
+      "lore1": "Kesto",
+      "lore2": "Kesto"
+    },
+    "superheated": {
+    },
+    "darkness": {
+    },
+    "haste": {
+    },
+    "absorption": {
+    },
+    "fatigue": {
+    },
+    "hunger": {
+    },
+    "nausea": {
+    },
+    "blindness": {
+    },
+    "resistance": {
+    },
+    "healthboost": {
+    },
+    "decay": {
+    },
+    "saturation": {
+    }
+  },
+  "blocking": {
+    "chainarmorer": {
+    },
+    "horsearmorer": {
+    },
+    "saddlecrafter": {
+    },
+    "multiarmor": {
+    }
+  },
+  "crafting": {
+    "deconstruction": {
+    },
+    "xp": {
+    },
+    "leather": {
+    },
+    "backpacks": {
+    },
+    "skulls": {
+    }
+  },
+  "discovery": {
+    "armor": {
+      "name": "Maailman Armori"
+    },
+    "unity": {
+    },
+    "resist": {
+    },
+    "villager": {
+    }
+  },
+  "enchanting": {
+    "lapisreturn": {
+    },
+    "quickenchant": {
+      "lore3": "voima"
+    },
+    "return": {
+    }
+  },
+  "excavation": {
+    "haste": {
+    },
+    "droptoinventory": {
+    },
+    "omnitool": {
+    }
+  },
+  "herbalism": {
+    "growthaura": {
+      "lore3": "Ruuan Hinta"
+    },
+    "hippo": {
+    },
+    "myconid": {
+    },
+    "terralid": {
+    },
+    "cobweb": {
+    },
+    "mushroomblocks": {
+      "name": "Sienien Tekijä"
+    },
+    "droptoinventory": {
+    },
+    "hungryshield": {
+    },
+    "luck": {
+    },
+    "replant": {
+    }
+  },
+  "hunter": {
+    "adrenaline": {
+      "name": "Adrenaliini",
+      "lore1": "Maksimi Vahinko"
+    },
+    "penalty": {
+    },
+    "droptoinventory": {
+    },
+    "invisibility": {
+    },
+    "jumpboost": {
+    },
+    "luck": {
+      "name": "Metsästäjän tuuri"
+    },
+    "regen": {
+    },
+    "resistance": {
+    },
+    "speed": {
+    },
+    "strength": {
+    }
+  },
+  "nether": {
+    "skulltoss": {
+    },
+    "witherresist": {
+    }
+  },
+  "pickaxe": {
+    "autosmelt": {
+      "name": "Automaattinen sulatus"
+    },
+    "chisel": {
+      "lore1": "Mahdollisuus Tippua"
+    },
+    "droptoinventory": {
+    },
+    "veinminer": {
+    }
+  },
+  "ranged": {
+    "arrowrecovery": {
+    },
+    "forceshot": {
+    },
+    "lungeshot": {
+    },
+    "arrowpiercing": {
+    }
+  },
+  "rift": {
+    "remoteaccess": {
+    },
+    "blink": {
+    },
+    "chest": {
+    },
+    "gate": {
+      "lore2": "Lue ennen käyttöä!"
+    },
+    "resist": {
+    }
+  },
+  "seaborn": {
+    "oxygen": {
+    },
+    "fishersfantasy": {
+    },
+    "haste": {
+    },
+    "nightvision": {
+    },
+    "dolphingrace": {
+    }
+  },
+  "stealth": {
+    "ghostarmor": {
+      "lore1": "Maksimi Armori",
+      "lore2": "Nopeus\n"
+    },
+    "nightvision": {
+      "lore2": "yönäkö"
+    },
+    "snatch": {
+    },
+    "speed": {
+    }
+  },
+  "sword": {
+    "machete": {
+    },
+    "bloodyblade": {
+    },
+    "poisonedblade": {
+      "lore2": "Myrkyn kesto"
+    }
+  },
+  "taming": {
+    "damage": {
+    },
+    "health": {
+    },
+    "regeneration": {
+    }
+  },
+  "tragoul": {
+    "thorns": {
+    }
+  },
+  "unarmed": {
+    "glasscannon": {
+    },
+    "power": {
+      "lore1": "Vahinko"
+    },
+    "suckerpunch": {
+      "lore1": "Vahinko"
+    }
+  }
+}
