@@ -1,4 +1,66 @@
 {
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "Muszę się ruszać!",
+      "description": "Przejdź przez 1 kilometr (1000 bloków)"
+    },
+    "challenge_sprint_5k": {
+      "title": "Sprint 5K!",
+      "description": "Przejdź przez 5 kilometrów (5000 bloków)"
+    },
+    "challenge_sprint_50k": {
+      "title": "Powiększ 50K!",
+      "description": "Przejdź przez 50 kilometrów (50 000 bloków)"
+    },
+    "challenge_sprint_500k": {
+      "title": "Przemierzaj Wszechświat !!",
+      "description": "Przejdź przez 500 kilometrów (500 000 bloków)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "Sprint (dosłowny) maraton!",
+      "description": "Sprint ponad 42 195 bloków!"
+    },
+    "challenge_place_1k": {
+      "title": "Początkujący budowlaniec!",
+      "description": "Umieść 1000 bloków"
+    },
+    "challenge_place_5k": {
+      "title": "Pośredni Konstruktor!",
+      "description": "Umieść 5000 bloków"
+    },
+    "challenge_place_50k": {
+      "title": "Zaawansowany Konstruktor!",
+      "description": "Umieść 50 000 bloków"
+    },
+    "challenge_place_500k": {
+      "title": "Mistrz budownictwa!",
+      "description": "Umieść 500 000 bloków"
+    },
+    "challenge_place_5m": {
+      "title": "Akolita Symetrii!",
+      "description": "RZECZYWISTOŚĆ TO TWÓJ PLAC ZABAW! (5 milionów bloków)"
+    },
+    "challenge_chop_1k": {
+      "title": "Nowicjusz drwal!",
+      "description": "Umieść 1000 bloków"
+    },
+    "challenge_chop_5k": {
+      "title": "Drwal średni!",
+      "description": "Umieść 5000 bloków"
+    },
+    "challenge_chop_50k": {
+      "title": "Zaawansowany drwal!",
+      "description": "Umieść 50 000 bloków"
+    },
+    "challenge_chop_500k": {
+      "title": "Mistrzu drwala!",
+      "description": "Umieść 500 000 bloków"
+    },
+    "challenge_chop_5m": {
+      "title": "Pies Jackson",
+      "description": "Najlepszy dobry chłopak! (5 milionów bloków)"
+    }
+  },
   "snippets": {
     "gui": {
       "level": "Poziom",
@@ -15,6 +77,8 @@
       "unlearnedall": "Wszystko oduczone"
     },
     "adaptmenu": {
+      "maynotunlearn": "NIE MOŻESZ SIĘ ODUCZYĆ",
+      "mayunlearn": "MOŻESZ SIĘ UCZYĆ/ODUCZYĆ",
       "knowledgecost": "Koszt Wiedzy",
       "alreadylearned": "Już Nauczono",
       "unlearnrefund": "Kliknij, aby się oduczyć i otrzymać zwrot XP",
@@ -70,6 +134,7 @@
     },
     "blocking": {
       "name": "Bloking",
+      "icon": "▒",
       "description": "Kije i kamienie nie złamią twoich kości, ale tarcza złamie."
     },
     "crafting": {
@@ -212,6 +277,11 @@
       "lore2": "Czas odnowienia siekania",
       "lore3": "Zużycie Narzędzi"
     },
+    "logswap": {
+      "name": "Wymieniacz dzienników Lucy",
+      "description": "Zmień smak dzienników na stole rzemieślniczym!",
+      "lore1": "1 kłoda dowolnego rodzaju + 1 drzewko = 1 kłoda typu drzewka"
+    },
     "droptoinventory": {
       "name": "Topór wrzuć do ekwipunku"
     },
@@ -229,6 +299,13 @@
       "lore1": "Skradaj się i moje LIŚCIE",
       "lore2": "zakres wydobycia liści",
       "lore3": "Nie otrzymasz dropów z liści (Aby zapobiec nadużyciu)"
+    },
+    "woodminer": {
+      "name": "Górnik",
+      "description": "Umożliwia natychmiastowe rozbicie drewna luzem!",
+      "lore1": "Skradaj się i wykop DREWNO/LOGI (nie deski)",
+      "lore2": "zakres wydobycia drewna",
+      "lore3": "Współpracuje z Drop to Inventory"
     }
   },
   "brewing": {
@@ -243,9 +320,90 @@
       "description": "Stojaki piwowarskie działają szybciej, im są cieplejsze.",
       "lore1": "Za dotknięcie bloku ognia",
       "lore2": "Za dotknięcie bloku lawy"
+    },
+    "darkness": {
+      "name": "Butelkowa Ciemność",
+      "description": "Nie wiem, dlaczego tego potrzebujesz, ale proszę bardzo!",
+      "lore1": "Mikstura Noktowizora + Czarny Beton = Mikstura Ciemności (30 sekund)",
+      "lore2": "Należy zauważyć, że uniemożliwia to użytkownikowi Sprint!"
+    },
+    "haste": {
+      "name": "Butelkowy Pośpiech",
+      "description": "Kiedy Wydajność to za mało",
+      "lore1": "Mikstura Szybkości + Odłamek Ametystu = Mikstura Pośpiechu (60 sekund)",
+      "lore2": "Mikstura Szybkości + Blok Ametystu = Mikstura Pośpiechu-2 (30 sekund)"
+    },
+    "absorption": {
+      "name": "Absorpcja butelkowa",
+      "description": "Utwardź ciało!",
+      "lore1": "Mikstura Szybkości + Kwarc = Mikstura Wchłonięcia (60 sekund)",
+      "lore2": "Mikstura Szybkości + Blok Kwarcowy = Mikstura Wchłonięcia-2 (30 sekund)"
+    },
+    "fatigue": {
+      "name": "Zmęczenie butelkowe",
+      "description": "Osłab ciało!",
+      "lore1": "Mikstura Słabości + Śluzowa Kula = Mikstura Zmęczenia (30 sekund)",
+      "lore2": "Mikstura Słabości + Blok Śluzu = Mikstura Zmęczenia-2 (15 sekund)"
+    },
+    "hunger": {
+      "name": "Butelkowy Głód",
+      "description": "Nakarm Nienasyconego!",
+      "lore1": "Niezręczna Mikstura + Zgniłe Ciało = Mikstura Głodu (30 sekund)",
+      "lore2": "Mikstura Słabości + Zgniłe Ciało = Mikstura Głodu-3 (15 sekund)"
+    },
+    "nausea": {
+      "name": "Butelkowe nudności",
+      "description": "Jesteś okropną osobą...",
+      "lore1": "Niezręczna Mikstura + Brązowy Grzyb = Mikstura Mdłości (16 sekund)",
+      "lore2": "Niezręczna Mikstura + Karmazynowy Grzyb = Mikstura Mdłości-2 (8 sekund)"
+    },
+    "blindness": {
+      "name": "Butelkowa ślepota",
+      "description": "Jesteś okropną osobą...",
+      "lore1": "Niezręczna Mikstura + Worek Atramentu = Mikstura Oślepienia (30 sekund)",
+      "lore2": "Niezręczna Mikstura + Świecący Worek Atramentu = Mikstura Oślepienia-2 (15 sekund)"
+    },
+    "resistance": {
+      "name": "Odporność na butelkowanie",
+      "description": "Fortyfikacja w najlepszym wydaniu!",
+      "lore1": "Niezręczna Mikstura + Sztabka Żelaza = Mikstura Odporności (60 sekund)",
+      "lore2": "Niezręczna Mikstura + Żelazny Blok = Mikstura Odporności-2 (30 sekund)"
+    },
+    "healthboost": {
+      "name": "Życie w butelkach",
+      "description": "Kiedy Maksymalne zdrowie to za mało...",
+      "lore1": "Mikstura natychmiastowego leczenia + Złote Jabłko = Mikstura Wzmocnienia Zdrowia (120 sekund)",
+      "lore2": "Mikstura natychmiastowego leczenia + Zaczarowane Złote Jabłko = Mikstura Zdrowia Wzmocnienie-2 (120 sekund)"
+    },
+    "decay": {
+      "name": "Butelkowy próchnica",
+      "description": "Kto by pomyślał, że Detrytus będzie tak przydatny?",
+      "lore1": "Mikstura Słabości + Trujący Ziemniak = Mikstura Zamętu (16 sekund)",
+      "lore2": "Mikstura Słabości + Karmazynowe Korzenie = Mikstura Zwiędłości (8 sekund)"
+    },
+    "saturation": {
+      "name": "Nasycenie w butelkach",
+      "description": "Wiesz... nawet nie jestem głodny...",
+      "lore1": "Mikstura Regeneracji + Pieczony Ziemniak = Mikstura Nasycenia (120 sekund)",
+      "lore2": "Mikstura Regeneracji + Bale Siana = Mikstura Nasycenia (120 sekund)"
     }
   },
   "blocking": {
+    "chainarmorer": {
+      "name": "Łańcuchy Mefistofelesa",
+      "description": "Umożliwia tworzenie zbroi kolczugi",
+      "lore1": "Przepis rzemieślniczy jest taki sam jak każdy inny, ale zawiera bryłki żelaza"
+    },
+    "horsearmorer": {
+      "name": "Zbroja konia do wykonania",
+      "description": "Umożliwia tworzenie zbroi konia",
+      "lore1": "Otocz siodło materiałem, którego chcesz użyć do stworzenia zbroi"
+    },
+    "saddlecrafter": {
+      "name": "Siodło do wytworzenia",
+      "description": "Stwórz siodło ze skóry",
+      "lore1": "Przepis: 5 Skóra:"
+    },
     "multiarmor": {
       "name": "Wielopancerz",
       "description": "Powiąż Elytry ze zbroją",
@@ -268,6 +426,29 @@
       "name": "PD rzemieślnicze",
       "description": "Zdobywaj pasywne PD podczas tworzenia",
       "lore1": "Zdobywaj PD podczas tworzenia"
+    },
+    "leather": {
+      "name": "Skóra do wytworzenia",
+      "description": "Skóra rzemieślnicza z Rotten Flesh",
+      "lore1": "Po prostu wrzuć to (zgniłe mięso) na ognisko!"
+    },
+    "backpacks": {
+      "name": "Plecaki Butiliera!",
+      "description": "To właśnie wprowadza do gry pakiet Mojang!",
+      "lore1": "Aby z tego skorzystać, musisz być w trybie Survival",
+      "lore2": "XLX: Skóra, Ołów, Skóra",
+      "lore3": "XSX: Skóra, Pudełko Shulkera, Skóra",
+      "lore4": "XCX: skóra, klatka piersiowa, skóra"
+    },
+    "skulls": {
+      "name": "Czaszki do wytworzenia!",
+      "description": "Używając materiałów możesz tworzyć czaszki mobów!",
+      "lore1": "Otocz blok kości następującymi elementami, aby uzyskać czaszkę:",
+      "lore2": "Zombie: Gnijące Ciało",
+      "lore3": "Szkielet: kość",
+      "lore4": "Pnącze: proch strzelniczy",
+      "lore5": "Więdnięcie: Netherowa cegła",
+      "lore6": "Smok: Oddech Smoka"
     }
   },
   "discovery": {
@@ -358,6 +539,21 @@
       "name": "Mykonid zielarza",
       "description": "Daje możliwość tworzenia grzybni",
       "lore1": "Dowolny brud i brązowy i czerwony grzyb stworzy grzybnię."
+    },
+    "terralid": {
+      "name": "Terralid Zielarza",
+      "description": "Daje możliwość tworzenia bloków trawy",
+      "lore1": "Trzy nasiona, ponad 3 brud, stworzą 3 bloki trawy."
+    },
+    "cobweb": {
+      "name": "Webby Creator",
+      "description": "Daje możliwość tworzenia pajęczyn na stole rzemieślniczym",
+      "lore1": "Four String, stworzy pajęczynę."
+    },
+    "mushroomblocks": {
+      "name": "Pieczarka",
+      "description": "Daje możliwość tworzenia bloków grzybów na stole rzemieślniczym",
+      "lore1": "Cztery grzyby do zrobienia bloku lub blok do zrobienia łodygi."
     },
     "droptoinventory": {
       "name": "Hoe Drop-to-Inwentarz"
