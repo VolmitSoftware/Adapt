@@ -1,8 +1,10 @@
-# Adapt
+# Adapt 
 
 [![image](https://github.com/VolmitSoftware/Adapt/raw/main/storepage/adapt-tc.png)](https://github.com/VolmitSoftware/Adapt/wiki/Why-did-you-click)
 
 ## Overview
+
+[![gitlocalized ](https://gitlocalize.com/repo/7882/whole_project/badge.svg)](https://gitlocalize.com/repo/7882/whole_project?utm_source=badge)
 
 _Adapt is a drag and drop solution for balanced passive abilities and skills that players can enjoy on a server._
 

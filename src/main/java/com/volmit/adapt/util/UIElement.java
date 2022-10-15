@@ -228,6 +228,7 @@ public class UIElement implements Element {
             im.addItemFlags(ItemFlag.HIDE_DYE);
             im.addItemFlags(ItemFlag.HIDE_DESTROYS);
             im.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+
             is.setItemMeta(im);
             return is;
         } catch (Throwable e) {
