@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -28,6 +27,7 @@ import com.volmit.adapt.content.adaptation.pickaxe.PickaxeDropToInventory;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeVeinminer;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -41,10 +41,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     public SkillPickaxes() {
-        super("pickaxe", Adapt.dLocalize("skill", "pickaxe", "icon"));
+        super("pickaxe", Localizer.dLocalize("skill", "pickaxe", "icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("skill", "pickaxe", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "pickaxe", "name"));
+        setDescription(Localizer.dLocalize("skill", "pickaxe", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "pickaxe", "name"));
         setColor(C.GOLD);
         setInterval(2750);
         setIcon(Material.NETHERITE_PICKAXE);

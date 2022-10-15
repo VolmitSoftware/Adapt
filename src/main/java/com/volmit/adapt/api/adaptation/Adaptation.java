@@ -34,6 +34,7 @@ import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerData;
+import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.event.AdaptAdaptationUseEvent;
 import com.volmit.adapt.util.*;
 import org.bukkit.*;
@@ -161,6 +162,7 @@ public interface Adaptation<T> extends Ticked, Component {
     double getCostFactor();
 
     List<AdaptRecipe> getRecipes();
+
     List<BrewingRecipe> getBrewingRecipes();
 
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
@@ -170,7 +172,7 @@ public interface Adaptation<T> extends Ticked, Component {
         com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(l);
         if (!hasBypass(p, l)) {
             return query.testState(loc, WorldGuardPlugin.inst().wrapPlayer(p), Flags.BUILD);
-        }else {
+        } else {
             return true;
         }
     }
@@ -191,7 +193,12 @@ public interface Adaptation<T> extends Ticked, Component {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return false;
         }
-        if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null &&  Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
+        if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
+            return false;
+        }
+        Adapt.verbose("Player: " + p.getName() + " Attempting adaptation: " + this.getName() + " level: " + getLevel(p));
+
+        if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null && Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
                 && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()
                 && !canBuild(p, p.getLocation())) {
             Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have worldguard build permission.");
@@ -208,6 +215,9 @@ public interface Adaptation<T> extends Ticked, Component {
             this.unregister();
             return 0;
         } else {
+            PlayerSkillLine line = getPlayer(p).getData().getSkillLine(getSkill().getName());
+            if(line == null)
+                return 0;
             return getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
         }
     }
@@ -302,7 +312,7 @@ public interface Adaptation<T> extends Ticked, Component {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
         Window w = new UIWindow(player);
-        w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE)));
+        w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
         w.setResolution(WindowResolution.W9_H6);
         int o = 0;
 
@@ -338,10 +348,10 @@ public interface Adaptation<T> extends Ticked, Component {
                     .setEnchanted(mylevel >= lvl)
                     .setProgress(1D)
                     .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
-                    .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost") + " " + (AdaptConfig.get().isHardcoreNoRefunds() ? C.DARK_RED + "" + C.BOLD + Adapt.dLocalize("snippets", "adaptmenu", "norefunds") : "")))
-                    .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Adapt.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.DARK_RED + "" + C.BOLD + Adapt.dLocalize("snippets", "adaptmenu", "norefunds")) : (isPermanent() ? "" : (C.GREEN + Adapt.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "unlearnrefund") + " " + C.GREEN + rc + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost"))) : (k >= c ? (C.BLUE + Adapt.dLocalize("snippets", "adaptmenu", "clicklearn") + " " + getDisplayName(i)) : (k == 0 ? (C.RED + Adapt.dLocalize("snippets", "adaptmenu", "noknowledge")) : (C.RED + "(" + Adapt.dLocalize("snippets", "adaptmenu", "youonlyhave") + " " + C.WHITE + k + C.RED + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledgecost") + ")"))))
-                    .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("snippets", "adaptmenu", "powerdrain") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Adapt.dLocalize("snippets", "adaptmenu", "powerdrain") : C.RED + Adapt.dLocalize("snippets", "adaptmenu", "notenoughpower") + "\n" + C.RED + Adapt.dLocalize("snippets", "adaptmenu", "howtolevelup"))
-                    .addLore((isPermanent() ? C.RED + "" + C.BOLD + Adapt.dLocalize("snippets", "adaptmenu", "maynotunlearn") : ""))
+                    .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledgecost") + " " + (AdaptConfig.get().isHardcoreNoRefunds() ? C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "norefunds") : "")))
+                    .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Localizer.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "norefunds")) : (isPermanent() ? "" : (C.GREEN + Localizer.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.GRAY + Localizer.dLocalize("snippets", "adaptmenu", "unlearnrefund") + " " + C.GREEN + rc + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledgecost"))) : (k >= c ? (C.BLUE + Localizer.dLocalize("snippets", "adaptmenu", "clicklearn") + " " + getDisplayName(i)) : (k == 0 ? (C.RED + Localizer.dLocalize("snippets", "adaptmenu", "noknowledge")) : (C.RED + "(" + Localizer.dLocalize("snippets", "adaptmenu", "youonlyhave") + " " + C.WHITE + k + C.RED + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledgecost") + ")"))))
+                    .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets", "adaptmenu", "powerdrain") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets", "adaptmenu", "powerdrain") : C.RED + Localizer.dLocalize("snippets", "adaptmenu", "notenoughpower") + "\n" + C.RED + Localizer.dLocalize("snippets", "adaptmenu", "howtolevelup"))
+                    .addLore((isPermanent() ? C.RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "maynotunlearn") : ""))
                     .onLeftClick((e) -> {
                         if (mylevel >= lvl) {
                             unlearn(player, lvl);
@@ -352,9 +362,9 @@ public interface Adaptation<T> extends Ticked, Component {
                             if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
                                 if (isPermanent()) {
                                     player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
-                                    player.sendTitle(" ", C.RED + "" + C.BOLD + Adapt.dLocalize("snippets", "adaptmenu", "maynotunlearn") + " " + getDisplayName(mylevel), 1, 10, 11);
+                                    player.sendTitle(" ", C.RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "maynotunlearn") + " " + getDisplayName(mylevel), 1, 10, 11);
                                 } else {
-                                    player.sendTitle(" ", C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "unlearned") + " " + getDisplayName(mylevel), 1, 10, 11);
+                                    player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets", "adaptmenu", "unlearned") + " " + getDisplayName(mylevel), 1, 10, 11);
                                 }
                             }
                             J.s(() -> openGui(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
@@ -374,7 +384,7 @@ public interface Adaptation<T> extends Ticked, Component {
                                 }
                                 w.close();
                                 if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
-                                    player.sendTitle(" ", C.GRAY + Adapt.dLocalize("snippets", "adaptmenu", "learned") + " " + getDisplayName(lvl), 1, 5, 11);
+                                    player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets", "adaptmenu", "learned") + " " + getDisplayName(lvl), 1, 5, 11);
                                 }
                                 J.s(() -> openGui(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
                             } else {
@@ -394,7 +404,7 @@ public interface Adaptation<T> extends Ticked, Component {
             int backRow = w.getViewportHeight() - 1;
             w.setElement(backPos, backRow, new UIElement("back")
                     .setMaterial(new MaterialBlock(Material.RED_BED))
-                    .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "back"))
+                    .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets", "gui", "back"))
                     .onLeftClick((e) -> {
                         w.close();
                         onGuiClose(player, true);
@@ -402,7 +412,7 @@ public interface Adaptation<T> extends Ticked, Component {
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle(getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " " + Adapt.dLocalize("snippets", "adaptmenu", "knowledge"));
+        w.setTitle(getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledge"));
         w.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
         w.open();
     }

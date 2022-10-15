@@ -25,15 +25,13 @@ import com.volmit.adapt.util.MortarSender;
 import java.util.List;
 
 public class CommandBoost extends MortarCommand {
-    @Command
-    private CommandBoostPlayer player = new CommandBoostPlayer();
-
     private static final List<String> permission = List.of("adapt.boost");
+    @Command
+    private final CommandBoostPlayer player = new CommandBoostPlayer();
 
     public CommandBoost() {
         super("boost", "b");
     }
-
 
 
     @Override

@@ -1,4 +1,66 @@
 {
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "Gotta Move!",
+      "description": "Walk over 1 Kilometer (1,000 blocks)"
+    },
+    "challenge_sprint_5k": {
+      "title": "Sprint a 5K!",
+      "description": "Walk over 5 Kilometers (5,000 blocks)"
+    },
+    "challenge_sprint_50k": {
+      "title": "Zoom a 50K!",
+      "description": "Walk over 50 Kilometers (50,000 blocks)"
+    },
+    "challenge_sprint_500k": {
+      "title": "Traverse the Universe!!",
+      "description": "Walk over 500 Kilometers (500,000 blocks)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "Sprint a (literal) Marathon!",
+      "description": "Sprint over 42,195 Blocks!"
+    },
+    "challenge_place_1k": {
+      "title": "Novice Builder!",
+      "description": "Place 1,000 Blocks"
+    },
+    "challenge_place_5k": {
+      "title": "Intermediate Builder!",
+      "description": "Place 5,000 Blocks"
+    },
+    "challenge_place_50k": {
+      "title": "Advanced Builder!",
+      "description": "Place 50,000 Blocks"
+    },
+    "challenge_place_500k": {
+      "title": "Master Builder!",
+      "description": "Place 500,000 Blocks"
+    },
+    "challenge_place_5m": {
+      "title": "Symmetry's Acolyte!",
+      "description": "REALITY IS YOUR PLAYGROUND! (5 Million Blocks)"
+    },
+    "challenge_chop_1k": {
+      "title": "Novice Lumberjack!",
+      "description": "Place 1,000 Blocks"
+    },
+    "challenge_chop_5k": {
+      "title": "Intermediate Lumberjack!",
+      "description": "Place 5,000 Blocks"
+    },
+    "challenge_chop_50k": {
+      "title": "Advanced Lumberjack!",
+      "description": "Place 50,000 Blocks"
+    },
+    "challenge_chop_500k": {
+      "title": "Master Lumberjack!",
+      "description": "Place 500,000 Blocks"
+    },
+    "challenge_chop_5m": {
+      "title": "Jackson the Dog",
+      "description": "The bestest good Boy! (5 Million Blocks)"
+    }
+  },
   "snippets": {
     "gui": {
       "level": "level",
@@ -258,6 +320,72 @@
       "description": "Brewing stands work faster the hotter they are.",
       "lore1": "Per Touching Fire Block",
       "lore2": "Per Touching Lava Block"
+    },
+    "darkness": {
+      "name": "Bottled Darkness",
+      "description": "Not sure why you need this, but here you go!",
+      "lore1": "NightVision Potion + Black Concrete = Potion of Darkness (30 seconds)",
+      "lore2": "It Should be noted that This prevents the user from Sprinting!"
+    },
+    "haste": {
+      "name": "Bottled Haste",
+      "description": "When Efficiency is not enough",
+      "lore1": "Speed Potion + Amethyst Shard = Potion of Haste (60 seconds)",
+      "lore2": "Speed Potion + Amethyst Block = Potion of Haste-2 (30 seconds)"
+    },
+    "absorption": {
+      "name": "Bottled Absorption",
+      "description": "Harden the body!",
+      "lore1": "Speed Potion + Quartz = Potion of Absorption (60 seconds)",
+      "lore2": "Speed Potion + Quartz Block = Potion of Absorption-2 (30 seconds)"
+    },
+    "fatigue": {
+      "name": "Bottled Fatigue",
+      "description": "Weaken the body!",
+      "lore1": "Weakness Potion + Slime Ball = Potion of Fatigue (30 seconds)",
+      "lore2": "Weakness Potion + Slime Block = Potion of Fatigue-2 (15 seconds)"
+    },
+    "hunger": {
+      "name": "Bottled Hunger",
+      "description": "Feed the Insatiable!",
+      "lore1": "Awkward Potion + Rotten Flesh = Potion of Hunger (30 seconds)",
+      "lore2": "Weakness Potion + Rotten Flesh = Potion of Hunger-3 (15 seconds)"
+    },
+    "nausea": {
+      "name": "Bottled Nausea",
+      "description": "You make me sick!",
+      "lore1": "Awkward Potion + Brown Mushroom = Potion of Nausea (16 seconds)",
+      "lore2": "Awkward Potion + Crimson Fungus = Potion of Nausea-2 (8 seconds)"
+    },
+    "blindness": {
+      "name": "Bottled Blindness",
+      "description": "You're a horrible person...",
+      "lore1": "Awkward Potion + Ink sack = Potion of Blindness (30 seconds)",
+      "lore2": "Awkward Potion + Glowing Ink Sack = Potion of Blindness-2 (15 seconds)"
+    },
+    "resistance": {
+      "name": "Bottled Resistance",
+      "description": "Fortification at its finest!",
+      "lore1": "Awkward Potion + Iron Ingot = Potion of Resistance (60 seconds)",
+      "lore2": "Awkward Potion + Iron Block = Potion of Resistance-2 (30 seconds)"
+    },
+    "healthboost": {
+      "name": "Bottled Life",
+      "description": "When Maximum health is not enough...",
+      "lore1": "Instant-Healing Potion + Golden Apple = Potion of Health Boost (120 seconds)",
+      "lore2": "Instant-Healing Potion + Enchanted Golden Apple = Potion of Health Boost-2 (120 seconds)"
+    },
+    "decay": {
+      "name": "Bottled Decay",
+      "description": "Who knew Detritus would be so useful?",
+      "lore1": "Weakness Potion + Poisonous Potato = Potion of Wither (16 seconds)",
+      "lore2": "Weakness Potion + Crimson Roots = Potion of Wither (8 seconds)"
+    },
+    "saturation": {
+      "name": "Bottled Saturation",
+      "description": "Ya know... Im not even Hungry...",
+      "lore1": "Regen Potion + Baked Potato = Potion of Saturation (120 seconds)",
+      "lore2": "Regen Potion + Hay Bale = Potion of Saturation (120 seconds)"
     }
   },
   "blocking": {

@@ -26,8 +26,8 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 public class AdaptEvent extends Event implements Cancellable {
-    private boolean canceled;
     private static final HandlerList handlers = new HandlerList();
+    private boolean canceled;
 
 
     public AdaptEvent(boolean async) {

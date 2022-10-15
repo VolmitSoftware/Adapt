@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.adaptation.stealth;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -38,8 +37,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     public StealthGhostArmor() {
         super("stealth-ghost-armor");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("stealth", "ghostarmor", "description"));
-        setDisplayName(Adapt.dLocalize("stealth", "ghostarmor", "name"));
+        setDescription(Localizer.dLocalize("stealth", "ghostarmor", "description"));
+        setDisplayName(Localizer.dLocalize("stealth", "ghostarmor", "name"));
         setIcon(Material.NETHERITE_CHESTPLATE);
         setInterval(5353);
         setBaseCost(getConfig().baseCost);
@@ -50,8 +49,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("stealth", "ghostarmor", "lore1"));
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + " " + Adapt.dLocalize("stealth", "ghostarmor", "lore2"));
+        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("stealth", "ghostarmor", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + " " + Localizer.dLocalize("stealth", "ghostarmor", "lore2"));
     }
 
     public double getMaxArmorPoints(double factor) {

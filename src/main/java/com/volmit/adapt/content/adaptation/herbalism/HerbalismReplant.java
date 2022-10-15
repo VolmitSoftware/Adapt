@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.adaptation.herbalism;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.skill.SkillHerbalism;
 import com.volmit.adapt.util.*;
@@ -42,8 +41,8 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     public HerbalismReplant() {
         super("herbalism-replant");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("herbalism", "replant", "description"));
-        setDisplayName(Adapt.dLocalize("herbalism", "replant", "name"));
+        setDescription(Localizer.dLocalize("herbalism", "replant", "description"));
+        setDisplayName(Localizer.dLocalize("herbalism", "replant", "name"));
         setIcon(Material.PUMPKIN_SEEDS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -54,7 +53,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + Adapt.dLocalize("herbalism", "replant", "lore1"));
+        v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + Localizer.dLocalize("herbalism", "replant", "lore1"));
     }
 
 

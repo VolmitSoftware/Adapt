@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -26,6 +25,7 @@ import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.herbalism.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
@@ -49,12 +49,12 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     private final Map<Player, Long> herbCooldown = new HashMap<>();
 
     public SkillHerbalism() {
-        super("herbalism", Adapt.dLocalize("skill", "herbalism", "icon"));
+        super("herbalism", Localizer.dLocalize("skill", "herbalism", "icon"));
         registerConfiguration(Config.class);
         setColor(C.GREEN);
         setInterval(3990);
-        setDescription(Adapt.dLocalize("skill", "herbalism", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "herbalism", "name"));
+        setDescription(Localizer.dLocalize("skill", "herbalism", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "herbalism", "name"));
         setIcon(Material.WHEAT);
         registerAdaptation(new HerbalismGrowthAura());
         registerAdaptation(new HerbalismReplant());
@@ -82,7 +82,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.COOKED_BEEF)
                                 .key("challenge_eat_10000")
-                                .title("INCONSUMABLE HUNGER!")
+                                .title("EVERLASTING HUNGER!")
                                 .description("Eat over 10,000 Items!")
                                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
@@ -307,7 +307,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         public double plantCropSeedsXP = 2.5;
         public double composterBaseXP = 2.5;
         public double composterLevelXPMultiplier = 1.25;
-        public double composterNonZeroLevelBonus = 25 ;
+        public double composterNonZeroLevelBonus = 25;
         public double challengeEat100Reward = 1250;
         public double challengeEat1kReward = 6250;
         public double challengeHarvest100Reward = 1250;

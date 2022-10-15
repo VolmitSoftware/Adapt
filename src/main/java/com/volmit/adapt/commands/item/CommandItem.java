@@ -25,16 +25,16 @@ import com.volmit.adapt.util.MortarSender;
 import java.util.List;
 
 public class CommandItem extends MortarCommand {
-    @Command
-    private CommandItemKnowledgeOrb skillOrb = new CommandItemKnowledgeOrb();
-    @Command
-    private CommandItemExperienceOrb xpOrb = new CommandItemExperienceOrb();
-
     private static final List<String> permission = List.of("adapt.cheatitem");
+    @Command
+    private final CommandItemKnowledgeOrb skillOrb = new CommandItemKnowledgeOrb();
+    @Command
+    private final CommandItemExperienceOrb xpOrb = new CommandItemExperienceOrb();
 
 
     public CommandItem() {
         super("item", "i");
+        this.setDescription("This is how you get either a knowledge orb or an xp orb");
     }
 
     @Override

@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.crafting;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -43,8 +43,8 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
     public CraftingDeconstruction() {
         super("crafting-deconstruction");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("crafting", "deconstruction", "description"));
-        setDisplayName(Adapt.dLocalize("crafting", "deconstruction", "name"));
+        setDescription(Localizer.dLocalize("crafting", "deconstruction", "description"));
+        setDisplayName(Localizer.dLocalize("crafting", "deconstruction", "name"));
         setIcon(Material.SHEARS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(1);
@@ -55,8 +55,8 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("crafting", "deconstruction", "lore1"));
-        v.addLore(C.GREEN + Adapt.dLocalize("crafting", "deconstruction", "lore2"));
+        v.addLore(C.GREEN + Localizer.dLocalize("crafting", "deconstruction", "lore1"));
+        v.addLore(C.GREEN + Localizer.dLocalize("crafting", "deconstruction", "lore2"));
     }
 
     public ItemStack getDeconstructionOffering(ItemStack forStuff) {

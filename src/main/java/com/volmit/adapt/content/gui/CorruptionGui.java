@@ -29,12 +29,12 @@ public class CorruptionGui {
     public static void open(Player player) {
         Window w = new UIWindow(player);
         w.setResolution(WindowResolution.W9_H6);
-        w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE)));
+        w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
         int ind = 0;
 
-        w.setTitle(Adapt.dLocalize("snippets", "gui", "level") + " " + (int) XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " " + Adapt.dLocalize("snippets", "gui", "powerused") + ")");
+        w.setTitle(Localizer.dLocalize("snippets", "gui", "level") + " " + (int) XP.getLevelForXp(a.getData().getMasterXp()) + " (" + a.getData().getUsedPower() + "/" + a.getData().getMaxPower() + " " + Localizer.dLocalize("snippets", "gui", "powerused") + ")");
         w.open();
     }
 }

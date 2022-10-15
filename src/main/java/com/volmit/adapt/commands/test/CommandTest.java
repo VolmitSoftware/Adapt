@@ -25,15 +25,15 @@ import com.volmit.adapt.util.MortarSender;
 import java.util.List;
 
 public class CommandTest extends MortarCommand {
-    @Command
-    private CommandTestParticle particle = new CommandTestParticle();
-    @Command
-    private CommandTestSound sound = new CommandTestSound();
-
     private static final List<String> permission = List.of("adapt.idontknowwhatimdoingiswear");
+    @Command
+    private final CommandTestParticle particle = new CommandTestParticle();
+    @Command
+    private final CommandTestSound sound = new CommandTestSound();
 
     public CommandTest() {
         super("test", "t");
+        this.setDescription("This allows to test Sounds and Particles (adapt.idontknowwhatimdoingiswear)");
     }
 
     @Override

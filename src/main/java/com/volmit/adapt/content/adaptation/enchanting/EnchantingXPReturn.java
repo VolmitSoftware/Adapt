@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.content.adaptation.enchanting;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -39,8 +39,8 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
     public EnchantingXPReturn() {
         super("enchanting-xp-return");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("enchanting", "return", "description"));
-        setDisplayName(Adapt.dLocalize("enchanting", "return", "name"));
+        setDescription(Localizer.dLocalize("enchanting", "return", "description"));
+        setDisplayName(Localizer.dLocalize("enchanting", "return", "name"));
         setIcon(Material.EXPERIENCE_BOTTLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -51,8 +51,8 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("enchanting", "return", "lore1"));
-        v.addLore(C.GREEN + "" + getConfig().xpReturn * (level * level) + Adapt.dLocalize("enchanting", "return", "lore2"));
+        v.addLore(C.GRAY + Localizer.dLocalize("enchanting", "return", "lore1"));
+        v.addLore(C.GREEN + "" + getConfig().xpReturn * (level * level) + Localizer.dLocalize("enchanting", "return", "lore2"));
     }
 
     @EventHandler
@@ -100,8 +100,8 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
         public int xpReturn = 2;
+        boolean permanent = false;
         boolean enabled = true;
         int baseCost = 1;
         int maxLevel = 7;

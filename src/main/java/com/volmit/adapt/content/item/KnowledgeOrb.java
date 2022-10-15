@@ -21,6 +21,7 @@ package com.volmit.adapt.content.item;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.item.DataItem;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Material;
@@ -77,15 +78,15 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Adapt.dLocalize("snippets", "knowledgeorb", "contains") + " " + C.UNDERLINE + C.WHITE + "" + data.knowledge + " " + Adapt.dLocalize("snippets", "knowledgeorb", "knowledge"));
-        lore.add(C.LIGHT_PURPLE + Adapt.dLocalize("snippets", "knowledgeorb", "rightclick") + " " + C.GRAY + Adapt.dLocalize("snippets", "knowledgeorb", "togainknowledge"));
+        lore.add(C.WHITE + Localizer.dLocalize("snippets", "knowledgeorb", "contains") + " " + C.UNDERLINE + C.WHITE + "" + data.knowledge + " " + Localizer.dLocalize("snippets", "knowledgeorb", "knowledge"));
+        lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("snippets", "knowledgeorb", "rightclick") + " " + C.GRAY + Localizer.dLocalize("snippets", "knowledgeorb", "togainknowledge"));
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " " + Adapt.dLocalize("snippets", "knowledgeorb", "knowledgeorb"));
+        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " " + Localizer.dLocalize("snippets", "knowledgeorb", "knowledgeorb"));
     }
 
     @AllArgsConstructor

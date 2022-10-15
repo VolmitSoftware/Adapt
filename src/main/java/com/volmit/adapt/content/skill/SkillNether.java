@@ -18,12 +18,12 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.nether.NetherSkullYeet;
 import com.volmit.adapt.content.adaptation.nether.NetherWitherResist;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
@@ -42,10 +42,10 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     private int witherRoseCooldown;
 
     public SkillNether() {
-        super("nether", Adapt.dLocalize("skill", "nether", "icon"));
+        super("nether", Localizer.dLocalize("skill", "nether", "icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("skill", "nether", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "nether", "name"));
+        setDescription(Localizer.dLocalize("skill", "nether", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "nether", "name"));
         setInterval(7425);
         setColor(C.DARK_GRAY);
         setIcon(Material.NETHER_STAR);
@@ -54,7 +54,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityDamage(EntityDamageEvent e) {
+    public void on(EntityDamageEvent e) {
         if (!this.isEnabled()) {
             return;
         }
@@ -73,7 +73,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockBreak(BlockBreakEvent e) {
+    public void on(BlockBreakEvent e) {
         if (!this.isEnabled()) {
             return;
         }
@@ -94,7 +94,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityDeath(EntityDeathEvent e) {
+    public void on(EntityDeathEvent e) {
         if (!this.isEnabled()) {
             return;
         }
@@ -115,7 +115,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityDamage(EntityDamageByEntityEvent e) {
+    public void on(EntityDamageByEntityEvent e) {
         if (!this.isEnabled()) {
             return;
         }

@@ -23,6 +23,7 @@ import com.volmit.adapt.api.xp.Curves;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.JSONObject;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Material;
 
 import java.io.File;
@@ -38,12 +39,13 @@ public class AdaptConfig {
     public boolean debug = false;
     public boolean splashScreen = true;
     public boolean xpInCreative = false;
+    public boolean allowAdaptationsInCreative = false;
     public String adaptActivatorBlock = "BOOKSHELF";
     public List<String> blacklistedWorlds = List.of("some_world_adapt_should_not_run_in", "anotherWorldFolderName");
     private ValueConfig value = new ValueConfig();
-    private boolean verbose = false;
     private boolean metrics = true;
     private String language = "en_US";
+    private String fallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing = "en_US";
     private Curves xpCurve = Curves.XL3L7;
     private double playerXpPerSkillLevelUpBase = 489;
     private double playerXpPerSkillLevelUpLevelMultiplier = 44;
@@ -62,6 +64,9 @@ public class AdaptConfig {
     private boolean actionbarNotifyLevel = true;
     private boolean unlearnAllButton = false;
     private SqlSettings sql = new SqlSettings();
+
+    @Setter
+    private boolean verbose = false;
 
     public static AdaptConfig get() {
         if (config == null) {

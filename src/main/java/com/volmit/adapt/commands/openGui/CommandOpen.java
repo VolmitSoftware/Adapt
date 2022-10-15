@@ -25,14 +25,14 @@ import com.volmit.adapt.util.MortarSender;
 import java.util.List;
 
 public class CommandOpen extends MortarCommand {
-    @Command
-    private CommandOpenGUI gui = new CommandOpenGUI();
-
     private static final List<String> permission = List.of("adapt.opengui");
+    @Command
+    private final CommandOpenGUI gui = new CommandOpenGUI();
 
 
     public CommandOpen() {
         super("open", "o");
+        this.setDescription("This is the main command for Adapt's GUI (adapt.opengui)");
     }
 
     @Override

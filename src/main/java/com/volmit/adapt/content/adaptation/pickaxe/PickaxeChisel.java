@@ -18,20 +18,18 @@
 
 package com.volmit.adapt.content.adaptation.pickaxe;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -39,8 +37,8 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     public PickaxeChisel() {
         super("pickaxe-chisel");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("pickaxe", "chisel", "description"));
-        setDisplayName(Adapt.dLocalize("pickaxe", "chisel", "name"));
+        setDescription(Localizer.dLocalize("pickaxe", "chisel", "description"));
+        setDisplayName(Localizer.dLocalize("pickaxe", "chisel", "name"));
         setIcon(Material.IRON_NUGGET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -51,8 +49,8 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDropChance(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("pickaxe", "chisel", "lore1"));
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Adapt.dLocalize("pickaxe", "chisel", "lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getDropChance(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("pickaxe", "chisel", "lore1"));
+        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Localizer.dLocalize("pickaxe", "chisel", "lore2"));
     }
 
     private int getCooldownTime(double levelPercent) {

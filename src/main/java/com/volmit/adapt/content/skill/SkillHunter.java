@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -40,11 +40,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     public SkillHunter() {
-        super("hunter", Adapt.dLocalize("skill", "hunter", "icon"));
+        super("hunter", Localizer.dLocalize("skill", "hunter", "icon"));
         registerConfiguration(Config.class);
         setColor(C.RED);
-        setDescription(Adapt.dLocalize("skill", "hunter", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "hunter", "name"));
+        setDescription(Localizer.dLocalize("skill", "hunter", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "hunter", "name"));
         setInterval(4150);
         setIcon(Material.BONE);
         registerAdaptation(new HunterAdrenaline());

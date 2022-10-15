@@ -25,6 +25,7 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulThorns;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import de.slikey.effectlib.effect.CloudEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
@@ -36,11 +37,11 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     public SkillTragOul() {
-        super("tragoul", Adapt.dLocalize("skill", "tragoul", "icon"));
+        super("tragoul", Localizer.dLocalize("skill", "tragoul", "icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setDescription(Adapt.dLocalize("skill", "tragoul", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "tragoul", "name"));
+        setDescription(Localizer.dLocalize("skill", "tragoul", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "tragoul", "name"));
         setInterval(2755);
         setIcon(Material.CRIMSON_ROOTS);
         registerAdaptation(new TragoulThorns());
@@ -65,13 +66,16 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                         || e.getEntity().isDead()
                         || e.getEntity().isInvulnerable()
                         || p.isDead()
-                        || p.isInvulnerable()) {
+                        || p.isInvulnerable()
+                && !checkValidEntity(e.getEntity().getType())) {
                     return;
                 }
                 if (p.isBlocking() || p.isDead() || p.isInvulnerable()) {
                     return;
                 }
                 AdaptPlayer a = getPlayer(p);
+                getPlayer(p).getData().addStat("trag.hitsrecieved", 1);
+                getPlayer(p).getData().addStat("trag.damage", e.getDamage());
                 xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
             }
         }

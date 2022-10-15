@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.ranged.RangedArrowRecovery;
@@ -26,6 +25,7 @@ import com.volmit.adapt.content.adaptation.ranged.RangedForce;
 import com.volmit.adapt.content.adaptation.ranged.RangedLungeShot;
 import com.volmit.adapt.content.adaptation.ranged.RangedPiercing;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -41,10 +41,10 @@ import java.util.Locale;
 
 public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     public SkillRanged() {
-        super("ranged", Adapt.dLocalize("skill", "ranged", "icon"));
+        super("ranged", Localizer.dLocalize("skill", "ranged", "icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("skill", "ranged", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "ranged", "name"));
+        setDescription(Localizer.dLocalize("skill", "ranged", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "ranged", "name"));
         setColor(C.DARK_GREEN);
         setInterval(3044);
         registerAdaptation(new RangedForce());
@@ -83,8 +83,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
-            Player p = ((Player) ((Projectile) e.getDamager()).getShooter());
+        if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
             if (e.isCancelled()) {
                 return;
             }

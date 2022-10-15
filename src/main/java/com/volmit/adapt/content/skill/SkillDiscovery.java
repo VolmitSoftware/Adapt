@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
@@ -28,6 +27,7 @@ import com.volmit.adapt.content.adaptation.discovery.DiscoveryVillagerAtt;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryXpResist;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
@@ -51,11 +51,11 @@ import java.util.Map;
 
 public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     public SkillDiscovery() {
-        super("discovery", Adapt.dLocalize("skill", "discovery", "icon"));
+        super("discovery", Localizer.dLocalize("skill", "discovery", "icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setDescription(Adapt.dLocalize("skill", "discovery", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "discovery", "name"));
+        setDescription(Localizer.dLocalize("skill", "discovery", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "discovery", "name"));
         setInterval(500);
         setIcon(Material.FILLED_MAP);
         registerAdaptation(new DiscoveryUnity());

@@ -68,7 +68,7 @@ public class SQLManager {
         J.a(() -> {
             try {
                 connection.createStatement().executeUpdate(String.format(DELETE_QUERY, uuid.toString()));
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 Adapt.error("Failed to delete data from the SQL server!");
                 Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
             }

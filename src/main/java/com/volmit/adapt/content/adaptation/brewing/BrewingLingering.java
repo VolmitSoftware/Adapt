@@ -24,10 +24,7 @@ import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -43,8 +40,8 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
     public BrewingLingering() {
         super("brewing-lingering");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("brewing", "lingering", "description"));
-        setDisplayName(Adapt.dLocalize("brewing", "lingering", "name"));
+        setDescription(Localizer.dLocalize("brewing", "lingering", "description"));
+        setDisplayName(Localizer.dLocalize("brewing", "lingering", "name"));
         setIcon(Material.CLOCK);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -55,8 +52,8 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.duration((long) getDurationBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("brewing", "lingering", "lore1"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getPercentBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("brewing", "lingering", "lore2"));
+        v.addLore(C.GREEN + "+ " + Form.duration((long) getDurationBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("brewing", "lingering", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getPercentBoost(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("brewing", "lingering", "lore2"));
     }
 
     public double getDurationBoost(double factor) {
@@ -106,7 +103,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
                     }
                 });
             } else {
-                Adapt.info("No Owner");
+                Adapt.verbose("No Owner");
             }
         }
     }

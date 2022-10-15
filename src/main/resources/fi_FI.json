@@ -1,0 +1,882 @@
+{
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "Täytyy liikkua!",
+      "description": "Kävele yli 1 kilometri (1 000 korttelin)"
+    },
+    "challenge_sprint_5k": {
+      "title": "Sprint 5K!",
+      "description": "Kävele yli 5 kilometriä (5 000 lohkoa)"
+    },
+    "challenge_sprint_50k": {
+      "title": "Zoomaa 50K!",
+      "description": "Kävele yli 50 kilometriä (50 000 korttelia)"
+    },
+    "challenge_sprint_500k": {
+      "title": "Läpi universumissa!!",
+      "description": "Kävele yli 500 kilometriä (500 000 korttelia)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "Sprintti (kirjaimellinen) maraton!",
+      "description": "Sprint yli 42 195 lohkoa!"
+    },
+    "challenge_place_1k": {
+      "title": "Aloitteleva rakentaja!",
+      "description": "Aseta 1 000 Palikkaa\n"
+    },
+    "challenge_place_5k": {
+      "title": "Keskitason rakentaja!",
+      "description": "Aseta 5 000 Palikkaa"
+    },
+    "challenge_place_50k": {
+      "title": "Edistynyt rakentaja!",
+      "description": "Aseta 50 000 Palikkaa"
+    },
+    "challenge_place_500k": {
+      "title": "Rakennusmestari!",
+      "description": "Aseta 500 000 Palikkaa"
+    },
+    "challenge_place_5m": {
+      "title": "Symmetry's Acolyte!",
+      "description": "TODELLISUUS ON LEIKKIPENTÄSI! (5 miljoonaa lohkoa)"
+    },
+    "challenge_chop_1k": {
+      "title": "Aloitteleva metsämies!",
+      "description": "Aseta 1000 Palikkaa"
+    },
+    "challenge_chop_5k": {
+      "title": "Keskitason metsuri!",
+      "description": "Aseta 5 000 palikkaa"
+    },
+    "challenge_chop_50k": {
+      "title": "Edistynyt metsuri!",
+      "description": "Aseta 50 000 palikkaa\n"
+    },
+    "challenge_chop_500k": {
+      "title": "Mestari Metsuri!",
+      "description": "Aseta 500 000 Palikkaa"
+    },
+    "challenge_chop_5m": {
+      "title": "Koira Jackson",
+      "description": "Paras hyvä Poika! (5 miljoonaa lohkoa)"
+    }
+  },
+  "snippets": {
+    "gui": {
+      "level": "leveli",
+      "knowledge": "tietämys",
+      "powerused": "Voimaa käytetty",
+      "notlearned": "Et ole oppinut",
+      "xp": "XP to",
+      "welcome": "Tervetuloa!",
+      "welcomeback": "Tervetuloa takaisin!",
+      "xpbonusfortime": "XP varten",
+      "unlockthisbyclicking": "Avaa tämä napsauttamalla hiiren oikealla painikkeella Adapt Blockia!",
+      "back": "Takaisin",
+      "unlearnall": "Unohda kaikki oppimasi",
+      "unlearnedall": "Unohda kaikki oppimasi"
+    },
+    "adaptmenu": {
+      "maynotunlearn": "ET VOI POISTAA OPPIMISTA",
+      "mayunlearn": "SAAT OPPIA/POISTAA",
+      "knowledgecost": "Tietämys Hinta",
+      "alreadylearned": "Olet jo oppinut",
+      "unlearnrefund": "Napsauta lopettaaksesi oppimisen ja hyvityksen",
+      "norefunds": "HARDCORE, REFUNDIT POIS PÄÄLTÄ",
+      "knowledge": "Tietämys",
+      "clicklearn": "Klikkaa oppiaksesi",
+      "noknowledge": "(Sinulla ei ole tarpeeksi tietämystä)",
+      "youonlyhave": "Sinulla on vain",
+      "howtolevelup": "Nosta taitojasi lisätäksesi maksimitehoasi.",
+      "notenoughpower": "Teho ei riitä! Jokainen kykytaso maksaa 1 tehon.",
+      "power": "voima",
+      "powerdrain": "Virran tyhjennys",
+      "learned": "Oppinut",
+      "unlearned": "Unohda oppimasi"
+    },
+    "knowledgeorb": {
+      "contains": "sisältää",
+      "knowledge": "Tietämys",
+      "rightclick": "Oikea-Klikkaa",
+      "togainknowledge": "saadakseen tämän tiedon",
+      "knowledgeorb": "Knowledge Orb"
+    },
+    "experienceorb": {
+      "contains": "sisältää",
+      "xp": "Kokemus",
+      "rightclick": "Oikea Klikkaa",
+      "togainxp": "saadakseen tämän kokemuksen",
+      "xporb": "Koe Orb"
+    }
+  },
+  "skill": {
+    "agility": {
+      "name": "Ketteryys",
+      "icon": "⇉",
+      "description": "Agility on kykyä liikkua nopeasti ja sujuvasti esteiden edessä."
+    },
+    "architect": {
+      "name": "Arkkitehti",
+      "icon": "⬧",
+      "description": "Rakenteet ovat maailman rakennuspalikoita. Todellisuus on sinun käsissäsi, sinun hallussasi."
+    },
+    "axes": {
+      "name": "Kirveet",
+      "icon": "❖",
+      "description1": "Miksi kaataa puita, kun voisi kaataa",
+      "description2": "asiat",
+      "description3": "sen sijaan sama lopputulos!"
+    },
+    "brewing": {
+      "name": "Panimo",
+      "icon": "❦",
+      "description": "Double Bubble, Triple Bubble, Quadruple Bubble - En edelleenkään voi laittaa tätä juomaa kattilaan"
+    },
+    "blocking": {
+      "name": "Estäminen",
+      "icon": "▒",
+      "description": "Kepit ja kivet eivät riko luita, mutta kilpi sen tekee."
+    },
+    "crafting": {
+      "name": "Askartelu",
+      "icon": "⌂",
+      "description": "Kun ei ole enää kappaleita jäljellä, miksi et tekisi uusia?"
+    },
+    "discovery": {
+      "name": "Löytö",
+      "icon": "⚛",
+      "description": "Kun havaintosi laajenee, mielesi purkautuu löytääkseen sen, mitä et tehnyt"
+    },
+    "enchanting": {
+      "name": "Lumoaminen",
+      "icon": "♰",
+      "description": "Mitä sinä oikein teet? Profetiat, näyt, taikauskoinen juoruilu?"
+    },
+    "excavation": {
+      "name": "Kaivaminen",
+      "icon": "✥",
+      "description": "Diggey Diggey reikä..."
+    },
+    "herbalism": {
+      "name": "Herbalismi",
+      "icon": "⚘",
+      "description": "En löydä kasveja, mutta voin löytää siemeniä ja - onko se... Rikkaruoho?"
+    },
+    "hunter": {
+      "name": "Metsästäjä",
+      "icon": "☠",
+      "description": "Metsästyksessä on kyse matkasta, ei tuloksesta."
+    },
+    "nether": {
+      "name": "Horna",
+      "icon": "₪",
+      "description": "Itse Alankomaiden syvyyksistä."
+    },
+    "pickaxe": {
+      "name": "Hakku",
+      "icon": "⛏",
+      "description": "Kääpiöt ovat kaivostyöläisiä, mutta olen oppinut aikanani pari asiaa. IM RUOTSIN"
+    },
+    "ranged": {
+      "name": "Etäisyys",
+      "icon": "🏹",
+      "description": "Etäisyys on avain voittoon ja avain selviytymiseen."
+    },
+    "rift": {
+      "name": "Rift",
+      "icon": "❍",
+      "description": "Rift on syövyttävä valjaat, mutta olet valjastanut valjaat."
+    },
+    "seaborne": {
+      "name": "Merellä",
+      "icon": "🌊",
+      "description": "Tällä taidolla voit tehdä veden ihmeitä"
+    },
+    "stealth": {
+      "name": "Stealth",
+      "icon": "✠",
+      "description": "Näkymättömän taide. Kävele varjoissa."
+    },
+    "swords": {
+      "name": "Miekat",
+      "icon": "⚔",
+      "description": "GreyStonen voimalla!"
+    },
+    "taming": {
+      "name": "Kesyttäminen",
+      "icon": "♥",
+      "description": "Papukaijat ja mehiläiset... ja sinä?"
+    },
+    "tragoul": {
+      "name": "TragOul",
+      "icon": "▼",
+      "description": "Veri virtaa universumin suonissa. Käsien puristama."
+    },
+    "chronos": {
+      "name": "Chronos",
+      "icon": "۞",
+      "description": "Pyöritä universumin kelloa, koe virtaus. Riko kello, tule siitä."
+    },
+    "unarmed": {
+      "name": "Aseeton",
+      "icon": "⚜",
+      "description": "Ilman asetta ei ole ilman voimaa"
+    }
+  },
+  "agility": {
+    "armorup": {
+      "name": "Armor-Up",
+      "description": "Hanki enemmän panssaria, mitä pidempään sprintit!",
+      "lore1": "Maximi Armori",
+      "lore2": "Armor-up-aika"
+    },
+    "superjump": {
+      "name": "Super hyppy",
+      "description": "Poikkeuksellinen korkeusetu",
+      "lore1": "Maksimi Hyppy Korkaus",
+      "lore2": "Sneak + hyppää superhypyyn!"
+    },
+    "walljump": {
+      "name": "Seinähyppy",
+      "description": "Pidä vaihtoa painettuna seinää vasten ja hyppää!",
+      "lore1": "Max hyppää",
+      "lore2": "Hyppykorkeus"
+    },
+    "windup": {
+      "name": "Päästä ylös",
+      "description": "Ole nopeampi mitä pidempään sprintit!",
+      "lore1": "Maksimi nopeus",
+      "lore2": "Päättymisaika"
+    }
+  },
+  "architect": {
+    "foundation": {
+      "name": "Magic Foundation",
+      "description": "Näin voit livahtaa ja asettaa alallesi väliaikaisen perustan!",
+      "lore1": "Maagisesti luo: ",
+      "lore2": "Lohkot allasi!"
+    },
+    "glass": {
+      "name": "Silkkikosketuslasi",
+      "description": "Näin voit olennaisesti estää lasipalojen katoamisen, kun rikot ne tyhjällä kädellä!",
+      "lore1": "Kätesi saavat silkkisen kosketuksen Glassia varten"
+    },
+    "placement": {
+      "name": "Rakentajan Sauva",
+      "description": "Voit asettaa useita lohkoja kerralla aktivoidaksesi Sneakin, ja pidä lohkoa, joka vastaa ulkonäköäsi lohkoa ja paikkaa! Muista, että saatat joutua liikkumaan hieman laatikoiden rajaamisen käynnistämiseksi!",
+      "lore1": "Sinä tarvitset",
+      "lore2": "lohkoja kädessäsi tämän sijoittamiseksi",
+      "lore3": "Material Builders Wand"
+    }
+  },
+  "axe": {
+    "chop": {
+      "name": "Kirves Chop",
+      "description": "Katkaise puita hiiren oikealla painikkeella pohjalokia!",
+      "lore1": "Blocks per Chop",
+      "lore2": "Leikkaa Cooldown",
+      "lore3": "Työkalujen kuluminen"
+    },
+    "logswap": {
+      "name": "Lucy's Log-Swappper",
+      "description": "Muuta hirsien makua askartelupöydässä!",
+      "lore1": "8 tukki mitä tahansa + 1 taimi = 8 tukki taimen tyyppiä"
+    },
+    "droptoinventory": {
+      "name": "Axe Drop-To-Inventory"
+    },
+    "groundsmash": {
+      "name": "Axe Ground Smash",
+      "description": "Hyppää, kyyristy ja murskaa kaikki lähellä olevat viholliset.",
+      "lore1": "Vahinko",
+      "lore2": "Estä säde",
+      "lore3": "Pakottaa",
+      "lore4": "Isku Odotusaika"
+    },
+    "leafminer": {
+      "name": "Lehtien kaivosmies",
+      "description": "Voit katkaista lehtiä kerralla!",
+      "lore1": "Hiipiä, ja MINUN LÄHTEENI",
+      "lore2": "valikoima Leaf-kaivostoimintaa",
+      "lore3": "Et saa pisaroita lehdistä (Exploit Prevention)"
+    },
+    "woodminer": {
+      "name": "Puun kaivosmies",
+      "description": "Mahdollistaa irtopuun murtamisen kerralla!",
+      "lore1": "Hiipiä ja louhi PUU/TUKKI (ei lankkuja)",
+      "lore2": "valikoima puunlouhintaa",
+      "lore3": "Toimii pudottamalla varastoon"
+    }
+  },
+  "brewing": {
+    "lingering": {
+      "name": "Viipyvä Brew",
+      "description": "Valmistetut juomat kestävät pidempään!",
+      "lore1": "Kesto",
+      "lore2": "Kesto"
+    },
+    "superheated": {
+      "name": "Super lämmitetty olut",
+      "description": "Keittotelineet toimivat sitä nopeammin mitä kuumempia ne ovat.",
+      "lore1": "Koskettavan palolohkon mukaan",
+      "lore2": "Koskettavaa laavalohkoa kohden"
+    },
+    "darkness": {
+      "name": "Pullotettu pimeys",
+      "description": "Etkö ole varma, miksi tarvitset tätä, mutta ole hyvä!",
+      "lore1": "Yönäkö Taikajuoma + musta betoni = Pimeyden taikajuoma (30 sekuntia)",
+      "lore2": "On huomattava, että tämä estää pelaajaa Juoksemasta!"
+    },
+    "haste": {
+      "name": "Pullotettu kiire",
+      "description": "Kun tehokkuus ei riitä",
+      "lore1": "Speed Potion + ametistin sirpale = Potion of Haste (60 sekuntia)",
+      "lore2": "Speed Potion + Ametistipala = Potion of Haste-2 (30 sekuntia)"
+    },
+    "absorption": {
+      "name": "Pullotettu imeytyminen",
+      "description": "Koveta kehoa!",
+      "lore1": "Speed Potion + Quartz = Potion of Absorptio (60 sekuntia)",
+      "lore2": "Speed Potion + Quartz Block = Potion of Absorption-2 (30 sekuntia)"
+    },
+    "fatigue": {
+      "name": "Pullotettu väsymys",
+      "description": "Heikentää kehoa!",
+      "lore1": "Heikkousjuoma + Limapallo = Väsymysjuoma (30 sekuntia)",
+      "lore2": "Heikkousjuoma + Slime Block = Väsymysjuoma-2 (15 sekuntia)"
+    },
+    "hunger": {
+      "name": "Pullotettu nälkä",
+      "description": "Ruoki kyltymättömiä!",
+      "lore1": "Kiusallinen juoma + mätä liha = nälkäjuoma (30 sekuntia)",
+      "lore2": "Heikkousjuoma + Mätä liha = Nälkäjuoma-3 (15 sekuntia)"
+    },
+    "nausea": {
+      "name": "Pullotettu pahoinvointi",
+      "description": "Olet kauhea ihminen...",
+      "lore1": "Kiusallinen juoma + ruskea sieni = pahoinvointijuoma (16 sekuntia)",
+      "lore2": "Awkward Potion + Crimson Fungus = Pahoinvointijuoma-2 (8 sekuntia)"
+    },
+    "blindness": {
+      "name": "Pullotettu sokeus",
+      "description": "Olet kauhea ihminen...",
+      "lore1": "Awkward Potion + mustesäkki = Potion of Blindness (30 sekuntia)",
+      "lore2": "Hankala juoma + hehkuva mustesäkki = sokeuden juoma-2 (15 sekuntia)"
+    },
+    "resistance": {
+      "name": "Pullotettu vastustuskyky",
+      "description": "Linnoitus parhaimmillaan!",
+      "lore1": "Hankala juoma + rautaharkko = vastustusjuoma (60 sekuntia)",
+      "lore2": "Awkward Potion + Iron Block = Potion of Resistance-2 (30 sekuntia)"
+    },
+    "healthboost": {
+      "name": "Pullotettu elämä",
+      "description": "Kun maksimaalinen terveys ei riitä...",
+      "lore1": "Välittömästi parantava juoma + kultainen omena = terveyttä vahvistava juoma (120 sekuntia)",
+      "lore2": "Välittömästi parantava juoma + Lumottu kultainen omena = Potion of Health Boost-2 (120 sekuntia)"
+    },
+    "decay": {
+      "name": "Pullotettu hajoaminen",
+      "description": "Kuka tiesi, että Detritus olisi niin hyödyllinen?",
+      "lore1": "Heikkousjuoma + Myrkyllinen peruna = Säkäjuoma (16 sekuntia)",
+      "lore2": "Heikkousjuoma + Crimson Roots = Säkäjuoma (8 sekuntia)"
+    },
+    "saturation": {
+      "name": "Pullotettu kylläisyys",
+      "description": "Tiedätkö, minulla ei ole edes nälkä...",
+      "lore1": "Regen-juoma + uuniperuna = kyllästysjuoma (120 sekuntia)",
+      "lore2": "Regen Potion + Hay Bale = Kyllästysjuoma (120 sekuntia)"
+    }
+  },
+  "blocking": {
+    "chainarmorer": {
+      "name": "Mefistofeleen ketjut",
+      "description": "Mahdollistaa Chainmail Armorin luomisen",
+      "lore1": "Crafting-resepti on sama kuin mikä tahansa muu, mutta sen sijaan rautahippuja"
+    },
+    "horsearmorer": {
+      "name": "Muokattava hevospanssari",
+      "description": "Mahdollistaa hevospanssarin luomisen",
+      "lore1": "Ympäröi satula materiaalilla, jota haluat käyttää panssarin tekemiseen"
+    },
+    "saddlecrafter": {
+      "name": "Muodostettava satula",
+      "description": "Valmista satula nahalla",
+      "lore1": "Resepti: 5 Nahkaa:"
+    },
+    "multiarmor": {
+      "name": "Multi-Armor",
+      "description": "Sido Elytras panssariin",
+      "lore1": "Tämä on uskomaton taito matkustamiseen.",
+      "lore2": "yhdistä ja muuta Armor/Elytra dynaamisesti lennossa!",
+      "lore3": "yhdistääksesi siirrä napsautusluettelon kohdetta toisen päälle.",
+      "lore4": "Irrota Armor, Sneak-Drop esine, niin se puretaan.",
+      "lore5": "Jos MultiArmorisi tuhoutuu, menetät kaikki siinä olevat esineet.",
+      "lore6": "En tarvitse panssaria, se tuottaa minulle pettymyksen..."
+    }
+  },
+  "crafting": {
+    "deconstruction": {
+      "name": "Dekonstruktio",
+      "description": "Pura lohkot ja esineet pelastettaviksi peruskomponenteiksi!",
+      "lore1": "Aseta mikä tahansa esine + sakset",
+      "lore2": "seppäpöydässä purkamaan."
+    },
+    "xp": {
+      "name": "XP:n tekeminen",
+      "description": "Hanki passiivinen XP luomisen aikana",
+      "lore1": "Hanki XP:tä luodessasi"
+    },
+    "leather": {
+      "name": "Muodostettava nahka",
+      "description": "Rotten Fleshin käsityönahkaa",
+      "lore1": "Heitä se (mätä liha) nuotiolle!"
+    },
+    "backpacks": {
+      "name": "Boutilierin reput!",
+      "description": "Tämä vain tuo Mojang Bundlen peliin!",
+      "lore1": "Sinun on oltava Survivalissa käyttääksesi tätä",
+      "lore2": "XLX: Nahka, Lyijy, Nahka",
+      "lore3": "XSX: Nahka, tynnyrilaatikko, nahka",
+      "lore4": "XCX: Nahka, rintakehä, nahka"
+    },
+    "skulls": {
+      "name": "Muodostettavat pääkallot!",
+      "description": "Materiaalien avulla voit valmistaa Mob-kalloja!",
+      "lore1": "Ympäröi luulohko seuraavilla aineilla saadaksesi kallon:",
+      "lore2": "Zombie: Rotting Flesh",
+      "lore3": "Luuranko: Luu",
+      "lore4": "Creeper: Gunpowder",
+      "lore5": "Säkä: Nether Brick",
+      "lore6": "Dragon: Dragons Breath"
+    }
+  },
+  "discovery": {
+    "armor": {
+      "name": "Maailman Armori",
+      "description": "Passiivinen panssari riippuen läheisen lohkon kovuudesta.",
+      "lore1": "Passiivinen panssari",
+      "lore2": "Perustuu läheisen lohkon kovuuteen",
+      "lore3": "Panssarin vahvuus:"
+    },
+    "unity": {
+      "name": "Kokeellinen yhtenäisyys",
+      "description": "Kokemuspallojen kerääminen lisää XP:tä satunnaisiin taitoihin.",
+      "lore1": "XP",
+      "lore2": "Per Orb"
+    },
+    "resist": {
+      "name": "Kokeellinen vastustuskyky",
+      "description": "Käytä kokemusta lieventämään kaikista lähteistä aiheutuvia vahinkoja",
+      "lore0": "Tämä voi tapahtua vain kerran 15 sekunnissa",
+      "lore1": " Vähentynyt vahinko",
+      "lore2": "kokemus loppunut"
+    },
+    "villager": {
+      "name": "Kyläläisen nähtävyys",
+      "description": "Mahdollistaa paremman kaupankäynnin kyläläisten kanssa!",
+      "lore1": "Tämä kuluttaa XP:tä per vuorovaikutus kyläläisten kanssa",
+      "lore2": "Mahdollisuus vuorovaikutusta kohti kuluttaa XP:tä ja parantaa kauppoja",
+      "lore3": "vaaditaan XP:n tyhjennys vuorovaikutusta kohti"
+    }
+  },
+  "enchanting": {
+    "lapisreturn": {
+      "name": "Lapin paluu",
+      "description": "Hintaan vielä 1 XP-taso, ja sinulla on mahdollisuus antaa sinulle ilmaisia lapeja vastineeksi",
+      "lore1": "Jokaisella tasolla se lisää lumoamisen kustannuksia yhdellä, mutta voi palauttaa jopa 3 lappia"
+    },
+    "quickenchant": {
+      "name": "Pikanapsautus Enchant",
+      "description": "Lumo esineitä napsauttamalla lumoa kirjoja suoraan niiden päällä.",
+      "lore1": "Yhdistetyt enimmäistasot",
+      "lore2": "Kohdetta ei voi lumoaa enemmän kuin",
+      "lore3": "voima"
+    },
+    "return": {
+      "name": "XP:n palautus",
+      "description": "Lumoava XP palautetaan sinulle, kun lumoat kohteen.",
+      "lore1": "Käytetyllä kokemuksella on mahdollisuus saada rahat takaisin, kun lumoat kohteen",
+      "lore2": "Kokemus per Enchant"
+    }
+  },
+  "excavation": {
+    "haste": {
+      "name": "Kiireinen kaivinkone",
+      "description": "Tämä nopeuttaa louhintaprosessia HASTE:lla!",
+      "lore1": "Pidä kiirettä kaivaessasi",
+      "lore2": "x Kiirettä, kun alat louhia MITÄ tahansa lohkoa."
+    },
+    "droptoinventory": {
+      "name": "Lapio Drop-To-Inventory"
+    },
+    "omnitool": {
+      "name": "OMNI - T.O.O.L.",
+      "description": "Tacklen ylisuunniteltu ylellinen Leatherman",
+      "lore1": "Luultavasti tehokkain monista antaa sinulle mahdollisuuden",
+      "lore2": "yhdistä ja muuta työkaluja dynaamisesti lennossa tarpeidesi mukaan.",
+      "lore3": "yhdistääksesi siirrä napsautusluettelon kohdetta toisen päälle.",
+      "lore4": "irrota työkalut Sneak-Drop -pudottamalla esine, niin se puretaan.",
+      "lore5": "et voi rikkoa työkaluja tässä Leathermanissa, mutta et voi käyttää rikkinäisiä työkaluja",
+      "lore6": "yhdistettävissä olevat kohteet yhteensä",
+      "lore7": "voit käyttää viittä tai kuutta työkalua tai vain yhtä!"
+    }
+  },
+  "herbalism": {
+    "growthaura": {
+      "name": "Kasvu Aura",
+      "description": "Kasvata luontoa ympärilläsi aurassa",
+      "lore1": "Estä säde",
+      "lore2": "Kasvu Aura Vahvuus",
+      "lore3": "Ruuan Hinta"
+    },
+    "hippo": {
+      "name": "Herbalistin virtahepo",
+      "description": "Ruoan syöminen antaa sinulle enemmän kylläisyyttä",
+      "lore1": "Ruoka) lisäkyllästyspisteitä kulutuksessa"
+    },
+    "myconid": {
+      "name": "Herbalist's Myconid",
+      "description": "Antaa sinulle mahdollisuuden valmistaa rihmastoa",
+      "lore1": "Kaikki lika ja ruskea ja punainen sieni luovat rihmastoa."
+    },
+    "terralid": {
+      "name": "Herbalistin Terralid",
+      "description": "Antaa sinulle mahdollisuuden tehdä ruoholohkoja",
+      "lore1": "Kolme siementä, yli 3 likaa, muodostaa 3 ruoholohkoa."
+    },
+    "cobweb": {
+      "name": "Webby Creator",
+      "description": "Antaa sinulle mahdollisuuden luoda hämähäkinverkkoja askartelupöydässä",
+      "lore1": "Four String, luo hämähäkinseitin."
+    },
+    "mushroomblocks": {
+      "name": "Sienien Tekijä",
+      "description": "Antaa sinulle mahdollisuuden tehdä sienipalikoita askartelupöydässä",
+      "lore1": "Neljä sientä lohkon tekemiseksi tai lohko varren tekemiseksi."
+    },
+    "droptoinventory": {
+      "name": "Hoe Drop-To-Inventory"
+    },
+    "hungryshield": {
+      "name": "Hungry Shield",
+      "description": "Tee vahinkoa nälkällesi ennen terveyttäsi.",
+      "lore1": "Nälkä vastusti"
+    },
+    "luck": {
+      "name": "Herbalistien onni",
+      "description": "Kun rikot Grass/Flowersin, sinulla on mahdollisuus saada satunnainen esine",
+      "lore0": "Kukat = ruoka ja ruoho = siemenet",
+      "lore1": "Mahdollisuus saada esine rikkoutuneesta Flowersista",
+      "lore2": "Mahdollisuus saada esine rikkoutuneesta ruohosta"
+    },
+    "replant": {
+      "name": "Sadonkorjuu ja uudelleenistutus",
+      "description": "Napsauta hiiren kakkospainikkeella satoa kuokalla korjataksesi ja istuttaaksesi sen.",
+      "lore1": "Estää uudelleenistutussäteen"
+    }
+  },
+  "hunter": {
+    "adrenaline": {
+      "name": "Adrenaliini",
+      "description": "Tee enemmän vahinkoa mitä heikompi terveydesi olet (Melee)",
+      "lore1": "Maksimi Vahinko"
+    },
+    "penalty": {
+      "lore1": "Saat Poison-pinot, jos nälkä loppuu"
+    },
+    "droptoinventory": {
+      "name": "Tuotteet pudotetaan varastoon",
+      "description": "Kun tapat jotain / rikot lohkon miekalla, se teleporttaa pisarat varastoosi",
+      "lore1": "Aina kun esine putoaa väkijoukosta/blokista, rikot, se menee varastoosi, jos mahdollista."
+    },
+    "invisibility": {
+      "name": "Kadonnut askel",
+      "description": "Kun saat iskun, saavutat näkymättömyyden nälän kustannuksella",
+      "lore1": "Saavuta passiivinen näkymättömyys, kun lyötiin",
+      "lore2": "x Näkyvyys pinoaa 3 sekuntia osuman jälkeen",
+      "lore3": "x Pinottava nälkä",
+      "lore4": "Nälkäpinojen kesto ja kerroin.",
+      "lore5": "Näkymättömyyden kesto"
+    },
+    "jumpboost": {
+      "name": "Hunter's Heights",
+      "description": "Kun saat iskun, saat hyppylisäyksen nälän kustannuksella",
+      "lore1": "Saa passiivista hyppytehoa iskun yhteydessä",
+      "lore2": "x Jump-Boost pinoaa 3 sekuntia osuman jälkeen",
+      "lore3": "x Pinottava nälkä",
+      "lore4": "Nälkäpinojen kesto ja kerroin.",
+      "lore5": "Jump-Boost pinojen kerroin, ei kesto."
+    },
+    "luck": {
+      "name": "Metsästäjän tuuri",
+      "description": "Kun sinua lyö, voitat onnea nälän kustannuksella",
+      "lore1": "Saa passiivista onnea osuessaan",
+      "lore2": "x Onni pinoutuu 3 sekunniksi osuman jälkeen",
+      "lore3": "x Pinottava nälkä",
+      "lore4": "Nälkäpinojen kesto ja kerroin.",
+      "lore5": "Onnenpinojen kerroin, ei kesto."
+    },
+    "regen": {
+      "name": "Hunter's Regen",
+      "description": "Kun olet iskenyt, saavutat uudistumisen nälän kustannuksella",
+      "lore1": "Saavuta passiivista regeneraatiota iskussa",
+      "lore2": "x Regenerointi pinoaa 3 sekuntia osuman jälkeen",
+      "lore3": "x Pinottava nälkä",
+      "lore4": "Nälkäpinojen kesto ja kerroin.",
+      "lore5": "Regenerointipinojen kerroin, ei kesto."
+    },
+    "resistance": {
+      "name": "Hunter's Resistance",
+      "description": "Kun saat iskun, saavutat vastustusta nälän kustannuksella",
+      "lore1": "Saavuta passiivinen vastus, kun se osuu",
+      "lore2": "x Resistanssi pinoaa 3 sekuntia osuman jälkeen",
+      "lore3": "x Pinottava nälkä",
+      "lore4": "Nälkäpinojen kesto ja kerroin.",
+      "lore5": "Resistanssipinojen kerroin, ei kesto."
+    },
+    "speed": {
+      "name": "Hunter's Speed",
+      "description": "Kun saat iskun, saat vauhtia nälän kustannuksella",
+      "lore1": "Lisää passiivista nopeutta törmäyksessä",
+      "lore2": "x Nopeus pinoaa 3 sekuntia osuman jälkeen",
+      "lore3": "x Pinottava nälkä",
+      "lore4": "Nälkäpinojen kesto ja kerroin.",
+      "lore5": "Nopeuspinojen kerroin, ei kesto."
+    },
+    "strength": {
+      "name": "Hunterin vahvuus",
+      "description": "Kun saat iskun, saat voimaa nälän kustannuksella",
+      "lore1": "Saa passiivista voimaa iskussa",
+      "lore2": "x Voimapinot 3 sekuntia osuman jälkeen",
+      "lore3": "x Pinottava nälkä",
+      "lore4": "Nälkäpinojen kesto ja kerroin.",
+      "lore5": "Vahvuuspinojen kerroin, ei kesto."
+    }
+  },
+  "nether": {
+    "skulltoss": {
+      "name": "Wither Skull Throw",
+      "description1": "Vapauta sisäinen kuoppasi käyttämällä",
+      "description2": "joku",
+      "description3": "pää.",
+      "lore1": "Sekuntia jäähdyttelyä kallonheittojen välillä.",
+      "lore2": "Wither Skullin käyttäminen: Heitä a",
+      "lore3": "Kuihtuva kallo",
+      "lore4": "räjähtää törmäyksessä."
+    },
+    "witherresist": {
+      "name": "Kuihtumisvastus",
+      "description": "Vastustaa kuihtumista netheriitin voimalla.",
+      "lore1": "mahdollisuus estää kuihtuminen (per kappale).",
+      "lore2": "Passiivinen: Netherite-panssarin käyttämisellä on mahdollisuus tehdä tyhjäksi",
+      "lore3": "musertava."
+    }
+  },
+  "pickaxe": {
+    "autosmelt": {
+      "name": "Automaattinen sulatus",
+      "description": "Voit sulattaa louhittuja vaniljamalmeja",
+      "lore1": "Malmit, jotka voidaan sulattaa, sulatetaan automaattisesti",
+      "lore2": "% mahdollisuus ylimääräiseen"
+    },
+    "chisel": {
+      "name": "Malmitaltta",
+      "description": "Napsauta malmeja hiiren oikealla painikkeella talttataksesi niistä lisää malmia kovilla kestävyyskustannuksilla.",
+      "lore1": "Mahdollisuus Tippua",
+      "lore2": "Työkalujen kuluminen"
+    },
+    "droptoinventory": {
+      "name": "Pickaxe Drop-To-Inventory",
+      "description": "Kun rikot lohkon, se teleporttaa kohteen varastoosi",
+      "lore1": "Aina kun esine pudotetaan lohkosta, rikot, se menee varastoosi, jos mahdollista."
+    },
+    "veinminer": {
+      "name": "Veinminer",
+      "description": "Voit murtaa lohkoja vaniljamalmien suonessa/klusterissa",
+      "lore1": "Hiipiä ja kaivaa malmia",
+      "lore2": "valikoima suonten louhintaa",
+      "lore3": "Tämä taito EI ryhmittele kaikkia pisaroita yhteen!"
+    }
+  },
+  "ranged": {
+    "arrowrecovery": {
+      "name": "Arrow Recovery",
+      "description": "Palauta nuolet, kun olet tappanut vihollisen.",
+      "lore1": "Mahdollisuus palauttaa nuolet osumaan/tappamiseen"
+    },
+    "forceshot": {
+      "name": "Voimalaukaus",
+      "description": "Ammu ammukset pidemmälle, nopeammin!",
+      "advancementname": "Pitkä laukaus",
+      "advancementlore": "Laske laukaus yli 30 korttelin päästä!",
+      "lore1": "Ammuksen nopeus"
+    },
+    "lungeshot": {
+      "name": "Metsästyslaukaus",
+      "description": "Pudotessaan nuolet heittävät sinua satunnaiseen suuntaan",
+      "lore1": "Satunnainen sarjanopeus"
+    },
+    "arrowpiercing": {
+      "name": "Nuoli lävistykset",
+      "description": "Lisää lävistyksiä ammuksiin! Ammu asioita läpi!",
+      "lore1": "Pierce Targets"
+    }
+  },
+  "rift": {
+    "remoteaccess": {
+      "name": "Etäyhteys",
+      "description": "Vedä tyhjiöstä ja mene merkittyyn astiaan.",
+      "lore1": "Enderpearl + kompassi = Reliquary Portkey",
+      "lore2": "Tämän kohteen avulla voit käyttää säiliöitä etänä",
+      "lore3": "Kun olet valmis, katso tuotetta käyttääksesi",
+      "notcontainer": "Se ei ole säiliö"
+    },
+    "blink": {
+      "name": "Rift Blink",
+      "description": "Lyhyen matkan välitön teleportaatio, vain silmänräpäyksen päässä!",
+      "lore1": "Blocks vilkkuessa (2x pystysuora)",
+      "lore2": "Sprintin aikana: Kaksoisnapauta Jump to",
+      "lore3": "Räpäytys"
+    },
+    "chest": {
+      "name": "Helppo Enderchest",
+      "description": "Avaa enderchest napsauttamalla sitä hiiren vasemmalla painikkeella kädessäsi.",
+      "lore1": "Napsauta kädessäsi olevaa Enderchestiä avataksesi (älä vain aseta sitä)"
+    },
+    "gate": {
+      "name": "Rift Gate",
+      "description": "Teleportoi merkittyyn paikkaan.",
+      "lore1": "KÄSITTELY: Emerald + ametistin sirpale + Ender Pearl",
+      "lore2": "Lue ennen käyttöä!",
+      "lore3": "5s viive,",
+      "lore4": "voit kuolla ollessasi tässä animaatiossa"
+    },
+    "resist": {
+      "name": "Rift Resistance",
+      "description": "Saavuta vastus, kun käytät Ender Items & Abilities -tuotteita",
+      "lore1": "+ Passiivinen: Tarjoaa vastusta, kun käytät rift-kykyjä tai Ender-esineitä",
+      "lore2": "EI sisällä kannettavaa Enderchestiä, vain asioita, joita voit kuluttaa"
+    }
+  },
+  "seaborn": {
+    "oxygen": {
+      "name": "Orgaaninen happisäiliö",
+      "description": "Pidä enemmän happea pienissä keuhkoissasi!",
+      "lore1": "Happi"
+    },
+    "fishersfantasy": {
+      "name": "Kalastajan Fantasia",
+      "description": "ansaitse enemmän XP:tä kalastuksesta ja hanki enemmän kalaa!",
+      "lore1": "Jokaisella tasolla on mahdollisuus saada lisää XP:tä ja kalaa!"
+    },
+    "haste": {
+      "name": "Kilpikonnakaivosmies",
+      "description": "Kun louhit veden alla, saat kiirettä!",
+      "lore1": "Haste 3 levitetään veden alle kaivostoiminnan aikana (pinotaan AquaAffinityllä) sen jälkeen, kun vesihengitysvaikutuksesi loppuu!"
+    },
+    "nightvision": {
+      "name": "Kilpikonnan visio",
+      "description": "Veden alla ollessasi saat Night Visionin",
+      "lore1": "Hanki vain Night Vision veden alla, kun vesihengitysvaikutuksesi loppuu!"
+    },
+    "dolphingrace": {
+      "name": "Dolphin's Grace",
+      "description": "Ui kuin delfiini, ilman delfiinejä",
+      "lore1": "+ Passiivinen: vahvistus",
+      "lore2": "x nopeus (delphins grace)",
+      "lore3": "tarkkuus saksalainen insinööri - odota, se ei ole oikein... Ei yhteensopiva Depth Striderin kanssa"
+    }
+  },
+  "stealth": {
+    "ghostarmor": {
+      "name": "Ghost's Armor",
+      "description": "Hidas panssarin rakentaminen, kun se ei ota vahinkoa, kestää 1 osuman",
+      "lore1": "Maksimi Armori",
+      "lore2": "Nopeus\n"
+    },
+    "nightvision": {
+      "name": "Stealth Vision",
+      "description": "Saat hämäränäköä hiipiessäsi",
+      "lore1": "Hanki räjähdys",
+      "lore2": "yönäkö",
+      "lore3": "hiipiessään"
+    },
+    "snatch": {
+      "name": "Tuote Snatch",
+      "description": "Nappaa pudonneet tavarat heti livahdellessa!",
+      "lore1": "Snatch Radius"
+    },
+    "speed": {
+      "name": "Sneak Speed",
+      "description": "Lisää nopeutta hiipiessäsi",
+      "lore1": "Sneaking Speed"
+    }
+  },
+  "sword": {
+    "machete": {
+      "name": "Viidakkoveitsi",
+      "description": "Leikkaa lehtien läpi helposti!",
+      "lore1": "Viisasäde",
+      "lore2": "Leikkaa Odotusaika",
+      "lore3": "Työkalujen kuluminen"
+    },
+    "bloodyblade": {
+      "name": "Verinen Blade",
+      "description": "Iske miekallasi, aiheuta verenvuotoa!",
+      "lore1": "Elävän olennon lyöminen miekalla aiheuttaa verenvuotoa",
+      "lore2": "Verenvuodon kesto",
+      "lore3": "Bleed Cooldown"
+    },
+    "poisonedblade": {
+      "name": "Myrkytetty terä",
+      "description": "Iske miekallasi, aiheuta myrkkyä!",
+      "lore1": "Elävän olennon lyöminen miekalla aiheuttaa myrkkyä",
+      "lore2": "Myrkyn kesto",
+      "lore3": "Poison Cooldown"
+    }
+  },
+  "taming": {
+    "damage": {
+      "name": "Kesytä vahinko",
+      "description": "Kasvata kesytettyjen eläinten aiheuttamaa vahinkoa.",
+      "lore1": "Lisääntynyt vahinko"
+    },
+    "health": {
+      "name": "Kesy Terveys",
+      "description": "Lisää kesytettyjen eläinten terveyttä.",
+      "lore1": "Lisääntynyt terveys"
+    },
+    "regeneration": {
+      "name": "Kesytä Regeneraatio",
+      "description": "Lisää kesytetyn eläimen uudistumista.",
+      "lore1": "HP/s"
+    }
+  },
+  "tragoul": {
+    "thorns": {
+      "name": "Piikkejä",
+      "description": "Heijasta vahinko takaisin hyökkääjällesi!",
+      "lore1": "Vahinko kosti iskulla"
+    }
+  },
+  "unarmed": {
+    "glasscannon": {
+      "name": "Lasinen tykki",
+      "description": "Bonus aseeton vahinko, mitä pienempi panssariarvosi on",
+      "lore1": "x Vahinko 0 panssarin kohdalla",
+      "lore2": "PerLevel-bonusvaurio"
+    },
+    "power": {
+      "name": "Aseeton voima",
+      "description": "Parannettu aseeton vahinko",
+      "lore1": "Vahinko"
+    },
+    "suckerpunch": {
+      "name": "Sucker Punch",
+      "description": "Sprinttilyöntejä, mutta tappavampia.",
+      "lore1": "Vahinko",
+      "lore2": "Vahinko kasvaa nopeuden myötä lyönnin aikana"
+    }
+  }
+}

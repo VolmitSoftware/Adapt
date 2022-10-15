@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.blocking.BlockingChainArmorer;
@@ -26,6 +25,7 @@ import com.volmit.adapt.content.adaptation.blocking.BlockingHorseArmorer;
 import com.volmit.adapt.content.adaptation.blocking.BlockingMultiArmor;
 import com.volmit.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -42,11 +42,11 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillBlocking() {
-        super("blocking", Adapt.dLocalize("skill", "blocking", "icon"));
+        super("blocking", Localizer.dLocalize("skill", "blocking", "icon"));
         registerConfiguration(Config.class);
         setColor(C.DARK_GRAY);
-        setDescription(Adapt.dLocalize("skill", "blocking", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "blocking", "name"));
+        setDescription(Localizer.dLocalize("skill", "blocking", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "blocking", "name"));
         setInterval(5000);
         setIcon(Material.SHIELD);
         registerAdaptation(new BlockingMultiArmor());
@@ -71,14 +71,16 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
-            }
             if (p.isBlocking()) {
+                getPlayer(p).getData().addStat("blocked.hits", 1);
+                getPlayer(p).getData().addStat("blocked.damage", e.getDamage());
+                if (cooldowns.containsKey(p)) {
+                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                        return;
+                    } else {
+                        cooldowns.remove(p);
+                    }
+                }
                 xp(p, getConfig().xpOnBlockedAttack);
                 cooldowns.put(p, System.currentTimeMillis());
                 p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_CLOSE, 0.5f, 0.77f);

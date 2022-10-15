@@ -1,4 +1,66 @@
 {
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "Hareket Etmeliyim!",
+      "description": "1 Kilometreden fazla yürüyün (1.000 blok)"
+    },
+    "challenge_sprint_5k": {
+      "title": "5K depar at!",
+      "description": "5 Kilometreden Fazla Yürüyün (5.000 blok)"
+    },
+    "challenge_sprint_50k": {
+      "title": "50K yakınlaştırın!",
+      "description": "50 Kilometreden fazla yürüyün (50.000 blok)"
+    },
+    "challenge_sprint_500k": {
+      "title": "Evreni Geçin!!",
+      "description": "500 Kilometreden fazla yürüyün (500.000 blok)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "Bir (gerçek) Maraton Sprint!",
+      "description": "42.195 Blok üzerinde Sprint!"
+    },
+    "challenge_place_1k": {
+      "title": "Acemi Oluşturucu!",
+      "description": "1.000 Blok Yerleştir"
+    },
+    "challenge_place_5k": {
+      "title": "Orta Düzey Oluşturucu!",
+      "description": "5.000 Blok Yerleştir"
+    },
+    "challenge_place_50k": {
+      "title": "Gelişmiş Oluşturucu!",
+      "description": "50.000 Blok Yerleştir"
+    },
+    "challenge_place_500k": {
+      "title": "Usta İnşaatçı!",
+      "description": "500.000 Blok Yerleştir"
+    },
+    "challenge_place_5m": {
+      "title": "Simetrinin Yardımcısı!",
+      "description": "GERÇEKLİK SİZİN OYUN ALANINIZDIR! (5 Milyon Blok)"
+    },
+    "challenge_chop_1k": {
+      "title": "Acemi Oduncu!",
+      "description": "1.000 Blok Yerleştir"
+    },
+    "challenge_chop_5k": {
+      "title": "Orta seviye oduncu!",
+      "description": "5.000 Blok Yerleştir"
+    },
+    "challenge_chop_50k": {
+      "title": "Gelişmiş Oduncu!",
+      "description": "50.000 Blok Yerleştir"
+    },
+    "challenge_chop_500k": {
+      "title": "Usta Oduncu!",
+      "description": "500.000 Blok Yerleştir"
+    },
+    "challenge_chop_5m": {
+      "title": "Köpek Jackson",
+      "description": "En iyi iyi çocuk! (5 Milyon Blok)"
+    }
+  },
   "snippets": {
     "gui": {
       "level": "Seviye",
@@ -237,6 +299,13 @@
       "lore1": "Gizlice ve benim YAPRAKLAR",
       "lore2": "yaprak madenciliği aralığı",
       "lore3": "Yapraklardan damla alamayacaksınız (Sömürü Önleme)"
+    },
+    "woodminer": {
+      "name": "Odun madenci",
+      "description": "Toplu ahşabı bir kerede kırmanıza izin verir!",
+      "lore1": "Gizlice ilerleyin ve AHŞAP/KÜTÜKLER (Kalkalar Değil) madenciliği yapın",
+      "lore2": "Odun madenciliği yelpazesi",
+      "lore3": "Envantere bırak ile çalışır"
     }
   },
   "brewing": {
@@ -251,6 +320,72 @@
       "description": "Bira stantları ne kadar sıcaksa o kadar hızlı çalışır.",
       "lore1": "Ateş Bloğuna Dokunma Başına",
       "lore2": "Lav Bloğuna Dokunma Başına"
+    },
+    "darkness": {
+      "name": "şişelenmiş karanlık",
+      "description": "Buna neden ihtiyacın olduğundan emin değilim, ama işte başlıyorsun!",
+      "lore1": "NightVision İksiri + Siyah Beton = Karanlığın İksiri (30 saniye)",
+      "lore2": "Unutulmamalıdır ki Bu, kullanıcının Sprint yapmasını engeller!"
+    },
+    "haste": {
+      "name": "şişelenmiş acele",
+      "description": "Verimlilik yeterli olmadığında",
+      "lore1": "Hız İksiri + Ametist Parçası = Haste İksiri (60 saniye)",
+      "lore2": "Hız İksiri + Ametist Blok = Haste-2 İksiri (30 saniye)"
+    },
+    "absorption": {
+      "name": "şişelenmiş Absorpsiyon",
+      "description": "Vücudu sertleştirin!",
+      "lore1": "Hız İksiri + Kuvars = Emilim İksiri (60 saniye)",
+      "lore2": "Hız İksiri + Kuvars Blok = Absorpsiyon İksiri-2 (30 saniye)"
+    },
+    "fatigue": {
+      "name": "şişelenmiş yorgunluk",
+      "description": "Vücudu zayıflatın!",
+      "lore1": "Zayıflık İksiri + Balçık Top = Yorgunluk İksiri (30 saniye)",
+      "lore2": "Zayıflık İksiri + Balçık Bloğu = Yorgunluk İksiri-2 (15 saniye)"
+    },
+    "hunger": {
+      "name": "şişelenmiş açlık",
+      "description": "Doyumsuzları besleyin!",
+      "lore1": "Garip İksir + Çürük Et = Açlık İksiri (30 saniye)",
+      "lore2": "Zayıflık İksiri + Çürük Et = Açlık İksiri-3 (15 saniye)"
+    },
+    "nausea": {
+      "name": "şişelenmiş mide bulantısı",
+      "description": "Korkunç bir insansın...",
+      "lore1": "Garip İksir + Kahverengi Mantar = Bulantı İksiri (16 saniye)",
+      "lore2": "Garip İksir + Kızıl Mantar = Bulantı İksiri-2 (8 saniye)"
+    },
+    "blindness": {
+      "name": "Şişe Körlüğü",
+      "description": "Korkunç bir insansın...",
+      "lore1": "Garip İksir + Mürekkep torbası = Körlük İksiri (30 saniye)",
+      "lore2": "Garip İksir + Parlayan Mürekkep Torbası = Körlük İksiri-2 (15 saniye)"
+    },
+    "resistance": {
+      "name": "şişelenmiş Direnç",
+      "description": "En iyi şekilde güçlendirme!",
+      "lore1": "Garip İksir + Demir Külçe = Direnç İksiri (60 saniye)",
+      "lore2": "Garip İksir + Demir Blok = Direnç İksiri-2 (30 saniye)"
+    },
+    "healthboost": {
+      "name": "Şişe Ömrü",
+      "description": "Maksimum sağlık yeterli olmadığında...",
+      "lore1": "Anında İyileştirme İksiri + Altın Elma = Sağlık Artışı İksiri (120 saniye)",
+      "lore2": "Anında İyileştirme İksiri + Büyülü Altın Elma = Sağlık Artışı İksiri-2 (120 saniye)"
+    },
+    "decay": {
+      "name": "şişelenmiş çürüme",
+      "description": "Detritus'un bu kadar faydalı olacağını kim bilebilirdi?",
+      "lore1": "Zayıflık İksiri + Zehirli Patates = Solma İksiri (16 saniye)",
+      "lore2": "Zayıflık İksiri + Kızıl Kökler = Solma İksiri (8 saniye)"
+    },
+    "saturation": {
+      "name": "Şişelenmiş Doygunluk",
+      "description": "Biliyor musun... Aç bile değilim...",
+      "lore1": "Yenilenme İksiri + Fırında Patates = Doygunluk İksiri (120 saniye)",
+      "lore2": "Yenilenme İksiri + Saman Balyası = Doygunluk İksiri (120 saniye)"
     }
   },
   "blocking": {

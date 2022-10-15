@@ -24,11 +24,11 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.content.adaptation.brewing.BrewingLingering;
-import com.volmit.adapt.content.adaptation.brewing.BrewingSuperHeated;
+import com.volmit.adapt.content.adaptation.brewing.*;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.content.matter.BrewingStandOwnerMatter;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -43,15 +43,27 @@ import org.bukkit.inventory.meta.PotionMeta;
 
 public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     public SkillBrewing() {
-        super("brewing", Adapt.dLocalize("skill", "brewing", "icon"));
+        super("brewing", Localizer.dLocalize("skill", "brewing", "icon"));
         registerConfiguration(Config.class);
         setColor(C.LIGHT_PURPLE);
-        setDescription(Adapt.dLocalize("skill", "brewing", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "brewing", "name"));
+        setDescription(Localizer.dLocalize("skill", "brewing", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "brewing", "name"));
         setInterval(5851);
         setIcon(Material.LINGERING_POTION);
-        registerAdaptation(new BrewingLingering());
+        registerAdaptation(new BrewingLingering()); // Features
         registerAdaptation(new BrewingSuperHeated());
+
+        registerAdaptation(new BrewingAbsorption()); // Brews
+        registerAdaptation(new BrewingBlindness());
+        registerAdaptation(new BrewingDarkness());
+        registerAdaptation(new BrewingDecay());
+        registerAdaptation(new BrewingFatigue());
+        registerAdaptation(new BrewingHaste());
+        registerAdaptation(new BrewingHealthBoost());
+        registerAdaptation(new BrewingHunger());
+        registerAdaptation(new BrewingNausea());
+        registerAdaptation(new BrewingResistance());
+        registerAdaptation(new BrewingSaturation());
         SpatialMatter.registerSliceType(new BrewingStandOwnerMatter());
     }
 

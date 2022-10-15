@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.content.adaptation.seaborrne;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -35,8 +35,8 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
     public SeaborneTurtlesMiningSpeed() {
         super("seaborne-turtles-mining-speed");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("seaborn", "haste", "description"));
-        setDisplayName(Adapt.dLocalize("seaborn", "haste", "name"));
+        setDescription(Localizer.dLocalize("seaborn", "haste", "description"));
+        setDisplayName(Localizer.dLocalize("seaborn", "haste", "name"));
         setIcon(Material.GOLDEN_HORSE_ARMOR);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -47,7 +47,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("seaborn", "haste", "lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("seaborn", "haste", "lore1"));
     }
 
     @EventHandler

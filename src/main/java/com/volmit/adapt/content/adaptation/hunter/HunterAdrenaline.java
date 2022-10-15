@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.hunter;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -33,8 +33,8 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
     public HunterAdrenaline() {
         super("hunter-adrenaline");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("hunter", "adrenaline", "description"));
-        setDisplayName(Adapt.dLocalize("hunter", "adrenaline", "name"));
+        setDescription(Localizer.dLocalize("hunter", "adrenaline", "description"));
+        setDisplayName(Localizer.dLocalize("hunter", "adrenaline", "name"));
         setIcon(Material.LEATHER_HELMET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -46,7 +46,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDamage(level), 0) + C.GRAY + " " + Adapt.dLocalize("hunter", "adrenaline", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getDamage(level), 0) + C.GRAY + " " + Localizer.dLocalize("hunter", "adrenaline", "lore1"));
     }
 
     private double getDamage(int level) {

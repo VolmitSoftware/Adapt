@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -29,12 +29,12 @@ import org.bukkit.entity.Player;
 
 public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     public SkillChronos() {
-        super("chronos", Adapt.dLocalize("skill", "chronos", "icon"));
+        super("chronos", Localizer.dLocalize("skill", "chronos", "icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
         setInterval(10000);
-        setDescription(Adapt.dLocalize("skill", "chronos", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "chronos", "name"));
+        setDescription(Localizer.dLocalize("skill", "chronos", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "chronos", "name"));
         setInterval(getConfig().setInterval);
         setIcon(Material.CLOCK);
     }
@@ -45,9 +45,10 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            checkStatTrackers(getPlayer(i));
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            getPlayer(p).getData().addStat("minutes.online", 10);
+            checkStatTrackers(getPlayer(p));
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
         }

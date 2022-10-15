@@ -18,13 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.hunter;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
@@ -34,8 +33,8 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
     public HunterStrength() {
         super("hunter-strength");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("hunter", "strength", "description"));
-        setDisplayName(Adapt.dLocalize("hunter", "strength", "name"));
+        setDescription(Localizer.dLocalize("hunter", "strength", "description"));
+        setDisplayName(Localizer.dLocalize("hunter", "strength", "name"));
         setIcon(Material.COD_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -46,12 +45,12 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("hunter", "strength", "lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("hunter", "strength", "lore2"));
-        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("hunter", "strength", "lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "strength", "lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "strength", "lore5"));
-        v.addLore(C.GRAY + "- " + level + C.RED + " " + Adapt.dLocalize("hunter", "penalty", "lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("hunter", "strength", "lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter", "strength", "lore2"));
+        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Localizer.dLocalize("hunter", "strength", "lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "strength", "lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "strength", "lore5"));
+        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter", "penalty", "lore1"));
 
     }
 
@@ -73,7 +72,7 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
             } else {
                 if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
                     Material mat = Material.getMaterial(getConfig().consumable);
-                    if (p.getInventory().contains(mat)){
+                    if (p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));
                         addPotionStacks(p, PotionEffectType.INCREASE_DAMAGE, getLevel(p), 50, false);
                     } else {

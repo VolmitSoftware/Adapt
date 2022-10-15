@@ -35,7 +35,7 @@ def main = 'com.volmit.adapt.Adapt'
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
 registerCustomOutputTask('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins')
-registerCustomOutputTask('Psycho', 'D://Dan/MinecraftDevelopment/server/plugins')
+registerCustomOutputTask('Psycho', 'C://Dan/MinecraftDevelopment/Server/plugins')
 registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins')
 registerCustomOutputTask('Vatuu', 'D://Minecraft/Servers/1.19.2/plugins')
 registerCustomOutputTask('Nowhere', 'E://Desktop/server/plugins')
@@ -73,6 +73,7 @@ repositories {
     }
     maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
     maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+    mavenCentral()
 }
 
 /**
@@ -128,11 +129,12 @@ dependencies {
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
     implementation 'art.arcane:Fukkit:22.7.5'
-    annotationProcessor 'systems.manifold:manifold-ext:2022.1.19'
-    testAnnotationProcessor 'systems.manifold:manifold-ext:2022.1.19'
-    implementation 'systems.manifold:manifold-rt:2022.1.19'
+    annotationProcessor 'systems.manifold:manifold-ext:2022.1.21'
+    testAnnotationProcessor 'systems.manifold:manifold-ext:2022.1.21'
+    implementation 'systems.manifold:manifold-rt:2022.1.20'
     implementation 'com.elmakers.mine.bukkit:EffectLib:9.4'
     implementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.7'
+    implementation "com.github.FrancoBM12:API-MagicCosmetics:1.9.85"
 
     // Shaded
     implementation 'io.papermc:paperlib:1.0.5'

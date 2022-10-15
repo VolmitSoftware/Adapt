@@ -18,13 +18,13 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingLapisReturn;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingQuickEnchant;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingXPReturn;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -34,11 +34,11 @@ import org.bukkit.event.enchantment.EnchantItemEvent;
 
 public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
     public SkillEnchanting() {
-        super("enchanting", Adapt.dLocalize("skill", "enchanting", "icon"));
+        super("enchanting", Localizer.dLocalize("skill", "enchanting", "icon"));
         registerConfiguration(Config.class);
         setColor(C.LIGHT_PURPLE);
-        setDescription(Adapt.dLocalize("skill", "enchanting", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "enchanting", "name"));
+        setDescription(Localizer.dLocalize("skill", "enchanting", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "enchanting", "name"));
         setInterval(3909);
         setIcon(Material.KNOWLEDGE_BOOK);
         registerAdaptation(new EnchantingQuickEnchant());

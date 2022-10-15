@@ -38,7 +38,7 @@ public interface AdaptComponent {
     }
 
     default boolean isTool(ItemStack is) {
-        return isAxe(is) || isPickaxe(is) || isHoe(is) || isShovel(is) || isSword(is)|| isTrident(is);
+        return isAxe(is) || isPickaxe(is) || isHoe(is) || isShovel(is) || isSword(is) || isTrident(is);
     }
 
     default boolean isMelee(ItemStack is) {
@@ -134,8 +134,7 @@ public interface AdaptComponent {
             return switch (it.getType()) {
                 case OAK_LEAVES, MANGROVE_ROOTS, MUDDY_MANGROVE_ROOTS, SPRUCE_LEAVES, BIRCH_LEAVES,
                         JUNGLE_LEAVES, ACACIA_LEAVES, DARK_OAK_LEAVES, MANGROVE_LEAVES,
-                        AZALEA_LEAVES, FLOWERING_AZALEA_LEAVES ->
-                        true;
+                        AZALEA_LEAVES, FLOWERING_AZALEA_LEAVES -> true;
                 default -> false;
             };
         }
@@ -193,8 +192,7 @@ public interface AdaptComponent {
     default boolean isElytra(ItemStack it) {
         if (isItem(it)) {
             return switch (it.getType()) {
-                case ELYTRA, LEGACY_ELYTRA->
-                        true;
+                case ELYTRA, LEGACY_ELYTRA -> true;
                 default -> false;
             };
         }

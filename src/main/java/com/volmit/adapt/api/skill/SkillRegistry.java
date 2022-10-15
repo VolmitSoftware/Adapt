@@ -52,7 +52,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SkillRegistry extends TickedObject {
-    private final Map<String, Skill<?>> skills = new HashMap<>();
+    public static final Map<String, Skill<?>> skills = new HashMap<>();
 
     public SkillRegistry() throws IOException {
         super("registry", UUID.randomUUID() + "-sk", 1250);
@@ -180,14 +180,16 @@ public class SkillRegistry extends TickedObject {
 
     private void unregisterRecipes(Skill<?> s) {
         s.getRecipes().forEach(AdaptRecipe::unregister);
-        s.getAdaptations().forEach(i -> { i.getRecipes().forEach(AdaptRecipe::unregister); });
+        s.getAdaptations().forEach(i -> {
+            i.getRecipes().forEach(AdaptRecipe::unregister);
+        });
     }
 
     private void registerRecipes(Skill<?> s) {
         s.getRecipes().forEach(AdaptRecipe::register);
-        s.getAdaptations().forEach(i ->{
+        s.getAdaptations().forEach(i -> {
             i.getRecipes().forEach(AdaptRecipe::register);
-            i.getBrewingRecipes().forEach(r -> BrewingManager.registerRecipe(i.getId(), r));
+            i.getBrewingRecipes().forEach(r -> BrewingManager.registerRecipe(i.getName(), r));
         });
     }
 

@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.seaborrne;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -37,8 +37,8 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     public SeaborneOxygen() {
         super("seaborne-oxygen");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("seaborn", "oxygen", "description"));
-        setDisplayName(Adapt.dLocalize("seaborn", "oxygen", "name"));
+        setDescription(Localizer.dLocalize("seaborn", "oxygen", "description"));
+        setDisplayName(Localizer.dLocalize("seaborn", "oxygen", "name"));
         setIcon(Material.GLASS_PANE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -49,7 +49,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getAirBoost(level), 0) + C.GRAY + Adapt.dLocalize("seaborn", "oxygen", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getAirBoost(level), 0) + C.GRAY + Localizer.dLocalize("seaborn", "oxygen", "lore1"));
     }
 
     public int getRealMaxAir(int level) {

@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -28,6 +27,7 @@ import com.volmit.adapt.content.adaptation.agility.AgilitySuperJump;
 import com.volmit.adapt.content.adaptation.agility.AgilityWallJump;
 import com.volmit.adapt.content.adaptation.agility.AgilityWindUp;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
@@ -41,10 +41,10 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     public SkillAgility() {
-        super("agility", Adapt.dLocalize("skill", "agility", "icon"));
+        super("agility", Localizer.dLocalize("skill", "agility", "icon"));
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("skill", "agility", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "agility", "name"));
+        setDescription(Localizer.dLocalize("skill", "agility", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "agility", "name"));
         setColor(C.GREEN);
         setInterval(975);
         setIcon(Material.FEATHER);
@@ -55,27 +55,27 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LEATHER_BOOTS)
                 .key("challenge_move_1k")
-                .title("Gotta Move!")
-                .description("Walk over 1 Kilometer (1,000 blocks)")
+                .title(Localizer.dLocalize("advancement", "challenge_move_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_move_1k", "description"))
                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.IRON_BOOTS)
                         .key("challenge_sprint_5k")
-                        .title("Sprint a 5K!")
-                        .description("Sprint over 5,000 Blocks!")
+                        .title(Localizer.dLocalize("advancement", "challenge_sprint_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_sprint_5k", "description"))
                         .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                                .icon(Material.IRON_BOOTS)
+                                .icon(Material.DIAMOND_BOOTS)
                                 .key("challenge_sprint_50k")
-                                .title("Sprint a 50K!")
-                                .description("Sprint over 50,000 Blocks!")
+                                .title(Localizer.dLocalize("advancement", "challenge_sprint_50k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_sprint_50k", "description"))
                                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
-                                        .icon(Material.IRON_BOOTS)
+                                        .icon(Material.NETHERITE_BOOTS)
                                         .key("challenge_sprint_500k")
-                                        .title("Sprint a 500K!")
-                                        .description("Sprint over 500,000 Blocks!")
+                                        .title(Localizer.dLocalize("advancement", "challenge_sprint_500k", "title"))
+                                        .description(Localizer.dLocalize("advancement", "challenge_sprint_500k", "description"))
                                         .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                                         .build())
@@ -84,8 +84,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                 .child(AdaptAdvancement.builder()
                         .icon(Material.GOLDEN_BOOTS)
                         .key("challenge_sprint_marathon")
-                        .title("Sprint a Marathon!")
-                        .description("Sprint over 42,195 Blocks!")
+                        .title(Localizer.dLocalize("advancement", "challenge_sprint_marathon", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_sprint_marathon", "description"))
                         .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())

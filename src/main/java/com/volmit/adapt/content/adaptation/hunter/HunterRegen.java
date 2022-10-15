@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.content.adaptation.hunter;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -33,8 +33,8 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
     public HunterRegen() {
         super("hunter-regen");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("hunter", "regen", "description"));
-        setDisplayName(Adapt.dLocalize("hunter", "regen", "name"));
+        setDescription(Localizer.dLocalize("hunter", "regen", "description"));
+        setDisplayName(Localizer.dLocalize("hunter", "regen", "name"));
         setIcon(Material.AXOLOTL_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -45,12 +45,12 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("hunter", "regen", "lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("hunter", "regen", "lore2"));
-        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("hunter", "regen", "lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "regen", "lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "regen", "lore5"));
-        v.addLore(C.GRAY + "- " + level + C.RED + " " + Adapt.dLocalize("hunter", "penalty", "lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("hunter", "regen", "lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter", "regen", "lore2"));
+        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Localizer.dLocalize("hunter", "regen", "lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "regen", "lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "regen", "lore5"));
+        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter", "penalty", "lore1"));
 
     }
 

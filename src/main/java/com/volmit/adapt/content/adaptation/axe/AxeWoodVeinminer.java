@@ -18,19 +18,21 @@
 
 package com.volmit.adapt.content.adaptation.axe;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
@@ -41,8 +43,8 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     public AxeWoodVeinminer() {
         super("axe-wood-veinminer");
         registerConfiguration(AxeWoodVeinminer.Config.class);
-        setDescription(Adapt.dLocalize("axe", "woodminer", "description"));
-        setDisplayName(Adapt.dLocalize("axe", "woodminer", "name"));
+        setDescription(Localizer.dLocalize("axe", "woodminer", "description"));
+        setDisplayName(Localizer.dLocalize("axe", "woodminer", "name"));
         setIcon(Material.DIAMOND_AXE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -58,9 +60,9 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("axe", "woodminer", "lore1"));
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Adapt.dLocalize("axe", "woodminer", "lore2"));
-        v.addLore(C.ITALIC + Adapt.dLocalize("axe", "woodminer", "lore3"));
+        v.addLore(C.GREEN + Localizer.dLocalize("axe", "woodminer", "lore1"));
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Localizer.dLocalize("axe", "woodminer", "lore2"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("axe", "woodminer", "lore3"));
     }
 
     private int getRadius(int lvl) {
@@ -157,10 +159,10 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
         boolean permanent = false;
         boolean enabled = true;
         boolean showParticles = true;
-        int baseCost = 6;
+        int baseCost = 3;
         int maxLevel = 5;
         int initialCost = 4;
         double costFactor = 2.325;
-        int baseRange = 5;
+        int baseRange = 3;
     }
 }

@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.content.adaptation.nether;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -40,8 +40,8 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     public NetherWitherResist() {
         super("nether-wither-resist");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("nether", "witherresist", "description"));
-        setDisplayName(Adapt.dLocalize("nether", "witherresist", "name"));
+        setDescription(Localizer.dLocalize("nether", "witherresist", "description"));
+        setDisplayName(Localizer.dLocalize("nether", "witherresist", "name"));
         setIcon(Material.NETHERITE_CHESTPLATE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -53,8 +53,8 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     @Override
     public void addStats(int level, Element v) {
         int chance = (int) (getConfig().basePieceChance + getConfig().getChanceAddition() * level);
-        v.addLore(C.GREEN + "+ " + chance + "%" + C.GRAY + Adapt.dLocalize("nether", "witherresist", "lore1"));
-        v.addLore(C.GRAY + " " + Adapt.dLocalize("nether", "witherresist", "lore1") + C.DARK_GRAY + Adapt.dLocalize("nether", "witherresist", "lore2"));
+        v.addLore(C.GREEN + "+ " + chance + "%" + C.GRAY + Localizer.dLocalize("nether", "witherresist", "lore1"));
+        v.addLore(C.GRAY + " " + Localizer.dLocalize("nether", "witherresist", "lore1") + C.DARK_GRAY + Localizer.dLocalize("nether", "witherresist", "lore2"));
     }
 
     @EventHandler

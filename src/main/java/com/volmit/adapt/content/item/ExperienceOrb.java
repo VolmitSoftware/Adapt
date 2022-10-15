@@ -23,6 +23,7 @@ import com.volmit.adapt.api.item.DataItem;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Material;
@@ -64,15 +65,15 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
     @Override
     public void applyLore(Data data, List<String> lore) {
         Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill);
-        lore.add(C.WHITE + Adapt.dLocalize("snippets", "experienceorb", "contains") + " " + C.UNDERLINE + C.WHITE + Form.f(data.experience, 0) + " " + skill.getDisplayName() + C.GRAY + " " + Adapt.dLocalize("snippets", "experienceorb", "xp"));
-        lore.add(C.LIGHT_PURPLE + Adapt.dLocalize("snippets", "experienceorb", "rightclick") + " " + C.GRAY + Adapt.dLocalize("snippets", "experienceorb", "togainxp"));
+        lore.add(C.WHITE + Localizer.dLocalize("snippets", "experienceorb", "contains") + " " + C.UNDERLINE + C.WHITE + Form.f(data.experience, 0) + " " + skill.getDisplayName() + C.GRAY + " " + Localizer.dLocalize("snippets", "experienceorb", "xp"));
+        lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("snippets", "experienceorb", "rightclick") + " " + C.GRAY + Localizer.dLocalize("snippets", "experienceorb", "togainxp"));
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " " + Adapt.dLocalize("snippets", "experienceorb", "xporb"));
+        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " " + Localizer.dLocalize("snippets", "experienceorb", "xporb"));
     }
 
     @AllArgsConstructor

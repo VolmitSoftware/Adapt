@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -28,6 +27,7 @@ import com.volmit.adapt.content.adaptation.stealth.StealthSight;
 import com.volmit.adapt.content.adaptation.stealth.StealthSnatch;
 import com.volmit.adapt.content.adaptation.stealth.StealthSpeed;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
@@ -38,13 +38,13 @@ import org.bukkit.entity.Player;
 
 public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     public SkillStealth() {
-        super("stealth", Adapt.dLocalize("skill", "stealth", "icon"));
+        super("stealth", Localizer.dLocalize("skill", "stealth", "icon"));
         registerConfiguration(Config.class);
         setColor(C.DARK_GRAY);
         setInterval(1412);
         setIcon(Material.WITHER_ROSE);
-        setDescription(Adapt.dLocalize("skill", "stealth", "description"));
-        setDisplayName(Adapt.dLocalize("skill", "stealth", "name"));
+        setDescription(Localizer.dLocalize("skill", "stealth", "description"));
+        setDisplayName(Localizer.dLocalize("skill", "stealth", "name"));
         registerAdaptation(new StealthSpeed());
         registerAdaptation(new StealthSnatch());
         registerAdaptation(new StealthGhostArmor());

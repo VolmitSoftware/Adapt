@@ -18,13 +18,13 @@
 
 package com.volmit.adapt.content.adaptation.ranged;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
@@ -42,8 +42,8 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
     public RangedForce() {
         super("ranged-force");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("ranged", "forceshot", "description"));
-        setDisplayName(Adapt.dLocalize("ranged", "forceshot", "name"));
+        setDescription(Localizer.dLocalize("ranged", "forceshot", "description"));
+        setDisplayName(Localizer.dLocalize("ranged", "forceshot", "name"));
         setIcon(Material.ARROW);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -53,8 +53,8 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SPECTRAL_ARROW)
                 .key("challenge_force_30")
-                .title(Adapt.dLocalize("ranged", "forceshot", "advancementname"))
-                .description(Adapt.dLocalize("ranged", "forceshot", "advancementlore"))
+                .title(Localizer.dLocalize("ranged", "forceshot", "advancementname"))
+                .description(Localizer.dLocalize("ranged", "forceshot", "advancementlore"))
                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
@@ -62,7 +62,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Adapt.dLocalize("ranged", "forceshot", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("ranged", "forceshot", "lore1"));
     }
 
     private double getSpeed(double factor) {

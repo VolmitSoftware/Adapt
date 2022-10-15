@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.content.adaptation.hunter;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -33,8 +33,8 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
     public HunterSpeed() {
         super("hunter-speed");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("hunter", "speed", "description"));
-        setDisplayName(Adapt.dLocalize("hunter", "speed", "name"));
+        setDescription(Localizer.dLocalize("hunter", "speed", "description"));
+        setDisplayName(Localizer.dLocalize("hunter", "speed", "name"));
         setIcon(Material.LAVA_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -45,12 +45,12 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("hunter", "speed", "lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Adapt.dLocalize("hunter", "speed", "lore2"));
-        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Adapt.dLocalize("hunter", "speed", "lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "speed", "lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Adapt.dLocalize("hunter", "speed", "lore5"));
-        v.addLore(C.GRAY + "- " + level + C.RED + " " + Adapt.dLocalize("hunter", "penalty", "lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("hunter", "speed", "lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter", "speed", "lore2"));
+        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Localizer.dLocalize("hunter", "speed", "lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "speed", "lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "speed", "lore5"));
+        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter", "penalty", "lore1"));
 
     }
 
@@ -73,7 +73,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
             } else {
                 if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
                     Material mat = Material.getMaterial(getConfig().consumable);
-                    if (p.getInventory().contains(mat)){
+                    if (p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));
                         addPotionStacks(p, PotionEffectType.SPEED, getLevel(p), 50, false);
                     } else {

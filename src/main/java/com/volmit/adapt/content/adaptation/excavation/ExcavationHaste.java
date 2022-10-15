@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.content.adaptation.excavation;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -35,8 +35,8 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
     public ExcavationHaste() {
         super("excavation-haste");
         registerConfiguration(ExcavationHaste.Config.class);
-        setDisplayName(Adapt.dLocalize("excavation", "haste", "name"));
-        setDescription(Adapt.dLocalize("excavation", "haste", "description"));
+        setDisplayName(Localizer.dLocalize("excavation", "haste", "name"));
+        setDescription(Localizer.dLocalize("excavation", "haste", "description"));
         setIcon(Material.GOLDEN_PICKAXE);
         setInterval(4388);
         setBaseCost(getConfig().baseCost);
@@ -47,8 +47,8 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Adapt.dLocalize("excavation", "haste", "lore1"));
-        v.addLore(C.GREEN + "" + (level) + C.GRAY + Adapt.dLocalize("excavation", "haste", "lore2"));
+        v.addLore(C.GREEN + Localizer.dLocalize("excavation", "haste", "lore1"));
+        v.addLore(C.GREEN + "" + (level) + C.GRAY + Localizer.dLocalize("excavation", "haste", "lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

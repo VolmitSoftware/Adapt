@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.adaptation.stealth;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -41,8 +40,8 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     public StealthSnatch() {
         super("stealth-snatch");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("stealth", "snatch", "description"));
-        setDisplayName(Adapt.dLocalize("stealth", "snatch", "name"));
+        setDescription(Localizer.dLocalize("stealth", "snatch", "description"));
+        setDisplayName(Localizer.dLocalize("stealth", "snatch", "name"));
         setIcon(Material.CHEST_MINECART);
         setBaseCost(getConfig().baseCost);
         setInterval(100);
@@ -53,7 +52,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRange(getLevelPercent(level)), 1) + C.GRAY + " " + Adapt.dLocalize("stealth", "snatch", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getRange(getLevelPercent(level)), 1) + C.GRAY + " " + Localizer.dLocalize("stealth", "snatch", "lore1"));
     }
 
     @EventHandler

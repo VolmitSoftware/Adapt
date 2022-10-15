@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.content.adaptation.stealth;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -35,8 +35,8 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     public StealthSight() {
         super("stealth-vision");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("stealth", "nightvision", "description"));
-        setDisplayName(Adapt.dLocalize("stealth", "nightvision", "name"));
+        setDescription(Localizer.dLocalize("stealth", "nightvision", "description"));
+        setDisplayName(Localizer.dLocalize("stealth", "nightvision", "name"));
         setIcon(Material.POTION);
         setBaseCost(getConfig().baseCost);
         setInterval(5252);
@@ -48,7 +48,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Adapt.dLocalize("stealth", "nightvision", "lore1") + C.GREEN + Adapt.dLocalize("stealth", "nightvision", "lore2") + C.GRAY + Adapt.dLocalize("stealth", "nightvision", "lore3"));
+        v.addLore(C.GRAY + Localizer.dLocalize("stealth", "nightvision", "lore1") + C.GREEN + Localizer.dLocalize("stealth", "nightvision", "lore2") + C.GRAY + Localizer.dLocalize("stealth", "nightvision", "lore3"));
     }
 
     @EventHandler

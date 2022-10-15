@@ -18,10 +18,10 @@
 
 package com.volmit.adapt.content.adaptation.rift;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -39,8 +39,8 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
     public RiftResist() {
         super("rift-resist");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("rift", "resist", "description"));
-        setDisplayName(Adapt.dLocalize("rift", "resist", "name"));
+        setDescription(Localizer.dLocalize("rift", "resist", "description"));
+        setDisplayName(Localizer.dLocalize("rift", "resist", "name"));
         setIcon(Material.SCULK_VEIN);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -61,8 +61,8 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Adapt.dLocalize("rift", "resist", "lore1"));
-        v.addLore(C.UNDERLINE + Adapt.dLocalize("rift", "resist", "lore2"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "resist", "lore1"));
+        v.addLore(C.UNDERLINE + Localizer.dLocalize("rift", "resist", "lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

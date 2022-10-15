@@ -240,7 +240,13 @@ public class AdaptPlayer extends TickedObject {
 
     public boolean hasAdaptation(String id) {
         String skillLine = id.split("-")[0];
-        return getData().getSkillLine(skillLine).getAdaptationLevel(id) > 0;
+        if(skillLine == null)
+            return false;
+        PlayerSkillLine line = getData().getSkillLine(skillLine);
+        if (line.getAdaptation(id) == null || line.getAdaptation(id).getLevel() == 0) {
+            return false;
+        }
+        return line.getAdaptation(id).getLevel() > 0;
     }
 
     public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {
@@ -279,8 +285,8 @@ public class AdaptPlayer extends TickedObject {
             double boostAmount = M.lerp(0.1, 0.25, (double) boostTime / (double) TimeUnit.HOURS.toMillis(1));
             getData().globalXPMultiplier(boostAmount, (int) boostTime);
             getNot().queue(AdvancementNotification.builder()
-                    .title(first ? Adapt.dLocalize("snippets", "gui", "welcome") : Adapt.dLocalize("snippets", "gui", "welcomeback"))
-                    .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " " + Adapt.dLocalize("snippets", "gui", "xpbonusfortime") + " " + C.AQUA + Form.duration(boostTime, 0))
+                    .title(first ? Localizer.dLocalize("snippets", "gui", "welcome") : Localizer.dLocalize("snippets", "gui", "welcomeback"))
+                    .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " " + Localizer.dLocalize("snippets", "gui", "xpbonusfortime") + " " + C.AQUA + Form.duration(boostTime, 0))
                     .build());
         }
     }

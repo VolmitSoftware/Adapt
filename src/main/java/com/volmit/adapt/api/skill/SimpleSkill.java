@@ -26,6 +26,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptStatTracker;
+import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.J;
@@ -34,6 +35,7 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 
 import java.io.File;
 import java.io.IOException;
@@ -148,6 +150,10 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         cachedAdvancements.add(a);
     }
 
+    public boolean checkValidEntity(EntityType e) {
+        Adapt.verbose("EntityType " + e.name() + "wasChecked");
+        return !e.isAlive() || !ItemListings.getInvalidDamageableEntities().contains(e);
+    }
     @Override
     public String getDisplayName() {
         return displayName == null ? Skill.super.getDisplayName() : (C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName() + " " + displayName);

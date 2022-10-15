@@ -25,6 +25,7 @@ import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -44,8 +45,8 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
     public SwordsBloodyBlade() {
         super("sword-bloody-blade");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("sword", "bloodyblade", "description"));
-        setDisplayName(Adapt.dLocalize("sword", "bloodyblade", "name"));
+        setDescription(Localizer.dLocalize("sword", "bloodyblade", "description"));
+        setDisplayName(Localizer.dLocalize("sword", "bloodyblade", "name"));
         setIcon(Material.RED_DYE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -57,9 +58,9 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + " " + Adapt.dLocalize("sword", "bloodyblade", "lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getDurationOfEffect(level), 1) + C.GRAY + " " + Adapt.dLocalize("sword", "bloodyblade", "lore2"));
-        v.addLore(C.RED + "* " + Form.duration(getCooldown(level), 1) + C.GRAY + " " + Adapt.dLocalize("sword", "bloodyblade", "lore3"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + " " + Localizer.dLocalize("sword", "bloodyblade", "lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getDurationOfEffect(level), 1) + C.GRAY + " " + Localizer.dLocalize("sword", "bloodyblade", "lore2"));
+        v.addLore(C.RED + "* " + Form.duration(getCooldown(level), 1) + C.GRAY + " " + Localizer.dLocalize("sword", "bloodyblade", "lore3"));
     }
 
     public long getCooldown(int level) {
@@ -95,7 +96,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
                 blood.period = 5; //5 Every second, make a proc
                 blood.hurt = false;
 //                blood.callback = () -> {
-//                    p.sendMessage("You bled out..");
+//                    Adapt.msgp(p,"You bled out..");
 //                    p.setHealth(1d);
 //                };
                 blood.start();
@@ -131,10 +132,10 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
         public long cooldown = 5000;
         public double damagePerBleedProc = 0.5;
         public long effectDuration = 1000;
+        boolean permanent = false;
         boolean enabled = true;
         boolean showParticles = true;
         int baseCost = 7;

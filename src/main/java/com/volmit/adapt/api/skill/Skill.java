@@ -160,7 +160,7 @@ public interface Skill<T> extends Ticked, Component {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
         Window w = new UIWindow(player);
-        w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE)));
+        w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
 
         int ind = 0;
 
@@ -172,7 +172,7 @@ public interface Skill<T> extends Ticked, Component {
                     .setMaterial(new MaterialBlock(i.getIcon()))
                     .setName(i.getDisplayName(lvl))
                     .addLore(Form.wrapWordsPrefixed(i.getDescription(), "" + C.GRAY, 45)) // Set to the actual Description
-                    .addLore(lvl == 0 ? (C.DARK_GRAY + Adapt.dLocalize("snippets", "gui", "notlearned")) : (C.GRAY + Adapt.dLocalize("snippets", "gui", "level") + " " + C.WHITE + Form.toRoman(lvl)))
+                    .addLore(lvl == 0 ? (C.DARK_GRAY + Localizer.dLocalize("snippets", "gui", "notlearned")) : (C.GRAY + Localizer.dLocalize("snippets", "gui", "level") + " " + C.WHITE + Form.toRoman(lvl)))
                     .setProgress(1D)
                     .onLeftClick((e) -> {
                         w.close();
@@ -187,7 +187,7 @@ public interface Skill<T> extends Ticked, Component {
             if (w.getElement(backPos, backRow) != null) backRow++;
             w.setElement(backPos, backRow, new UIElement("back")
                     .setMaterial(new MaterialBlock(Material.RED_BED))
-                    .setName("" + C.RESET + C.GRAY + Adapt.dLocalize("snippets", "gui", "back"))
+                    .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets", "gui", "back"))
                     .onLeftClick((e) -> {
                         w.close();
                         onGuiClose(player, true);
@@ -195,7 +195,7 @@ public interface Skill<T> extends Ticked, Component {
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Adapt.dLocalize("snippets", "gui", "xp") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")");
+        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Localizer.dLocalize("snippets", "gui", "xp") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")");
         w.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
         w.open();
     }

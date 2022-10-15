@@ -39,7 +39,7 @@ import java.util.List;
 
 public class AdvancementPacketReceiver {
 
-    private static HashMap<String, ChannelHandler> handlers = new HashMap<>();
+    private static final HashMap<String, ChannelHandler> handlers = new HashMap<>();
     private static Field channelField;
 
     {
@@ -134,7 +134,7 @@ public class AdvancementPacketReceiver {
     }
 
     interface PacketReceivingHandler {
-        public boolean handle(Player p, PacketPlayInAdvancements packet);
+        boolean handle(Player p, PacketPlayInAdvancements packet);
     }
 
 }

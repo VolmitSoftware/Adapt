@@ -18,13 +18,17 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.axe.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -37,11 +41,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     public SkillAxes() {
-        super("axes", Adapt.dLocalize("skill", "axes", "icon"));
+        super("axes", Localizer.dLocalize("skill", "axes", "icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription(Adapt.dLocalize("skill", "axes", "description1") + C.ITALIC + Adapt.dLocalize("skill", "axes", "description2") + C.GRAY + " " + Adapt.dLocalize("skill", "axes", "description3"));
-        setDisplayName(Adapt.dLocalize("skill", "axes", "name"));
+        setDescription(Localizer.dLocalize("skill", "axes", "description1") + C.ITALIC + Localizer.dLocalize("skill", "axes", "description2") + C.GRAY + " " + Localizer.dLocalize("skill", "axes", "description3"));
+        setDisplayName(Localizer.dLocalize("skill", "axes", "name"));
         setInterval(5251);
         setIcon(Material.GOLDEN_AXE);
         registerAdaptation(new AxeGroundSmash());
@@ -50,6 +54,46 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         registerAdaptation(new AxeLeafVeinminer());
         registerAdaptation(new AxeWoodVeinminer());
         registerAdaptation(new AxeCraftLogSwap());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WOODEN_AXE).key("challenge_chop_1k")
+                .title(Localizer.dLocalize("advancement", "challenge_chop_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_chop_1k", "description"))
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                        .icon(Material.STONE_AXE)
+                        .key("challenge_chop_5k")
+                        .title(Localizer.dLocalize("advancement", "challenge_chop_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_chop_5k", "description"))
+                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                .icon(Material.IRON_AXE)
+                                .key("challenge_chop_50k")
+                                .title(Localizer.dLocalize("advancement", "challenge_chop_50k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_chop_50k", "description"))
+                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                        .icon(Material.DIAMOND_AXE)
+                                        .key("challenge_chop_500k")
+                                        .title(Localizer.dLocalize("advancement", "challenge_chop_500k", "title"))
+                                        .description(Localizer.dLocalize("advancement", "challenge_chop_500k", "description"))
+                                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                                .icon(Material.NETHERITE_AXE)
+                                                .key("challenge_chop_5m")
+                                                .title(Localizer.dLocalize("advancement", "challenge_chop_5m", "title"))
+                                                .description(Localizer.dLocalize("advancement", "challenge_chop_5m", "description"))
+                                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chop_1k").goal(1000).stat("axes.blocks.broken").reward(getConfig().challengeChopReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chop_5k").goal(5000).stat("axes.blocks.broken").reward(getConfig().challengeChopReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chop_50k").goal(50000).stat("axes.blocks.broken").reward(getConfig().challengeChopReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chop_500k").goal(500000).stat("axes.blocks.broken").reward(getConfig().challengeChopReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chop_5m").goal(5000000).stat("axes.blocks.broken").reward(getConfig().challengeChopReward).build());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -58,7 +102,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             return;
         }
         if (!e.isCancelled()) {
-            if (e.getDamager() instanceof Player p) {
+            if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
                 if (e.isCancelled()) {
                     return;
                 }
@@ -100,7 +144,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
-        if (isAxe(p.getInventory().getItemInMainHand())) {
+        if (isAxe(p.getInventory().getItemInMainHand()) && isLog(new ItemStack(e.getBlock().getType()))) {
             double v = getValue(e.getBlock().getType());
             getPlayer(p).getData().addStat("axes.blocks.broken", 1);
             getPlayer(p).getData().addStat("axes.blocks.value", getValue(e.getBlock().getBlockData()));
@@ -139,6 +183,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         boolean enabled = true;
         double maxHardnessBonus = 9;
         double maxBlastResistanceBonus = 10;
+        double challengeChopReward = 1750;
         double logOrWoodXPMultiplier = 2.67;
         double leavesMultiplier = 1.11;
         double valueXPMultiplier = 0.225;

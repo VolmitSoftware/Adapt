@@ -18,11 +18,11 @@
 
 package com.volmit.adapt.content.adaptation.unarmed;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -33,8 +33,8 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
     public UnarmedPower() {
         super("unarmed-power");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("unarmed", "power", "description"));
-        setDisplayName(Adapt.dLocalize("unarmed", "power", "name"));
+        setDescription(Localizer.dLocalize("unarmed", "power", "description"));
+        setDisplayName(Localizer.dLocalize("unarmed", "power", "name"));
         setIcon(Material.LEATHER_HELMET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -45,7 +45,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getUnarmedDamage(level), 0) + C.GRAY + Adapt.dLocalize("unarmed", "power", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getUnarmedDamage(level), 0) + C.GRAY + Localizer.dLocalize("unarmed", "power", "lore1"));
     }
 
     @EventHandler
@@ -57,7 +57,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
             if (!hasAdaptation(p)) {
                 return;
             }
-            if (p.getInventory().getItemInMainHand().getType() != Material.AIR || p.getInventory().getItemInOffHand().getType() != Material.AIR) {
+            if (p.getInventory().getItemInMainHand().getType() != Material.AIR && p.getInventory().getItemInOffHand().getType() != Material.AIR) {
                 return;
             }
             double factor = getLevelPercent(p);

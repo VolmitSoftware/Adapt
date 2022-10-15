@@ -18,12 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.herbalism;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -35,8 +35,8 @@ public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config
     public HerbalismTerralid() {
         super("herbalism-terralid");
         registerConfiguration(Config.class);
-        setDescription(Adapt.dLocalize("herbalism", "terralid", "description"));
-        setDisplayName(Adapt.dLocalize("herbalism", "terralid", "name"));
+        setDescription(Localizer.dLocalize("herbalism", "terralid", "description"));
+        setDisplayName(Localizer.dLocalize("herbalism", "terralid", "name"));
         setIcon(Material.GRASS_BLOCK);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -57,7 +57,7 @@ public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Adapt.dLocalize("herbalism", "terralid", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism", "terralid", "lore1"));
     }
 
 

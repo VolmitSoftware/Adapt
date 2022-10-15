@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.util;
 
+import com.volmit.adapt.Adapt;
 import org.bukkit.Sound;
 
 import java.lang.reflect.Field;

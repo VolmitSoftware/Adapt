@@ -23,6 +23,10 @@ public class PotionBuilder {
     private boolean upgraded, extended;
     private PotionType baseType = PotionType.UNCRAFTABLE;
 
+    private PotionBuilder(Type type) {
+        this.type = type;
+    }
+
     public static ItemStack vanilla(Type type, PotionType potion, boolean extended, boolean upgraded) {
         return of(type)
                 .setFlags(extended, upgraded)
@@ -32,10 +36,6 @@ public class PotionBuilder {
 
     public static PotionBuilder of(Type type) {
         return new PotionBuilder(type);
-    }
-
-    private PotionBuilder(Type type) {
-        this.type = type;
     }
 
     public PotionBuilder setColor(Color color) {
@@ -67,12 +67,12 @@ public class PotionBuilder {
     @SuppressWarnings("ConstantConditions")
     public ItemStack build() {
         ItemStack stack = new ItemStack(type.material);
-        PotionMeta meta = (PotionMeta)stack.getItemMeta();
+        PotionMeta meta = (PotionMeta) stack.getItemMeta();
         effects.forEach(e -> meta.addCustomEffect(e, true));
-        if(color != null)
+        if (color != null)
             meta.setColor(color);
         meta.setBasePotionData(new PotionData(baseType, extended, upgraded));
-        if(name != null)
+        if (name != null)
             meta.setDisplayName("§r" + name);
         stack.setItemMeta(meta);
         return stack;
