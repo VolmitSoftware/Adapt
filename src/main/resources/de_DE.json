@@ -1,4 +1,66 @@
 {
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "Muss mich bewegen!",
+      "description": "Gehen über 1 Kilometer (1.000 Blöcke)"
+    },
+    "challenge_sprint_5k": {
+      "title": "Sprinte 5K!",
+      "description": "Gehen über 5 Kilometer (5.000 Blöcke)"
+    },
+    "challenge_sprint_50k": {
+      "title": "Sprinte 50K!",
+      "description": "Gehen über 50 Kilometer (50.000 Blöcke)"
+    },
+    "challenge_sprint_500k": {
+      "title": "Durchquere das Universum!!",
+      "description": "Gehen über 500 Kilometer (500.000 Blöcke)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "Sprinte einen (buchstäblichen) Marathon!",
+      "description": "Sprinte über 42.195 Blöcke!"
+    },
+    "challenge_place_1k": {
+      "title": "Bauanfänger!",
+      "description": "Platziere 1.000 Blöcke"
+    },
+    "challenge_place_5k": {
+      "title": "Fortgeschrittener Bauer!",
+      "description": "Platziere 5.000 Blöcke"
+    },
+    "challenge_place_50k": {
+      "title": "Fortgeschrittener Baumeister!",
+      "description": "Platziere 50.000 Blöcke"
+    },
+    "challenge_place_500k": {
+      "title": "Baumeister!",
+      "description": "Platziere 500.000 Blöcke"
+    },
+    "challenge_place_5m": {
+      "title": "Der Akolyth der Symmetrie!",
+      "description": "REALITÄT IST DEIN SPIELPLATZ! (5 Millionen Blöcke)"
+    },
+    "challenge_chop_1k": {
+      "title": "Neuling Holzfäller!",
+      "description": "Platziere 1.000 Blöcke"
+    },
+    "challenge_chop_5k": {
+      "title": "Fortgeschrittener Holzfäller!",
+      "description": "Platziere 5.000 Blöcke"
+    },
+    "challenge_chop_50k": {
+      "title": "Fortgeschrittener Holzfällermeister!",
+      "description": "Platziere 50.000 Blöcke"
+    },
+    "challenge_chop_500k": {
+      "title": "Meister Holzfäller!",
+      "description": "Platziere 500.000 Blöcke"
+    },
+    "challenge_chop_5m": {
+      "title": "Jackson the Dog",
+      "description": "Der besteste gute Junge! (5 Millionen Blöcke)"
+    }
+  },
   "snippets": {
     "gui": {
       "level": "Level",
@@ -258,6 +320,72 @@
       "description": "Je heißer der Braustand ist, desto schneller verarbeitet er",
       "lore1": "Pro berührendem Feuerblock",
       "lore2": "Pro berührendem Feuerblock"
+    },
+    "darkness": {
+      "name": "Abgefüllte Dunkelheit",
+      "description": "Nicht sicher, warum du das brauchen, aber los geht's!",
+      "lore1": "Nachtsichttrunk + Schwarzer Beton = Trank der Nachtsicht (30 Sekunden)",
+      "lore2": "Es sollte beachtet werden, dass dies den Benutzer am Sprinten hindert!"
+    },
+    "haste": {
+      "name": "Eile in Flaschen",
+      "description": "Wenn Effizienz nicht ausreicht",
+      "lore1": "Schnelligkeitstrank + Amethyst-Scherbe = Trank der Eile (60 Sekunden)",
+      "lore2": "Schnelligkeitstrank + Amethyst-Block = Trank der Eile-2 (30 Sekunden)"
+    },
+    "absorption": {
+      "name": "Absorption in Flaschen",
+      "description": "Härtet den Körper!",
+      "lore1": "Schnelligkeitstrank + Quartz = Trank der Absorption (60 Sekunden)",
+      "lore2": "Schnelligkeitstrank + Quartz Block = Trank der Absorption-2 (30 Sekunden)"
+    },
+    "fatigue": {
+      "name": "Abgefüllte Müdigkeit",
+      "description": "Schwächt den Körper!",
+      "lore1": "Schwächungstrank + Schleimball = Trank der Müdigkeit (30 Sekunden)",
+      "lore2": "Trank der Schwäche + Schleimblock = Trank der Trägheit-2 (15 Sekunden)"
+    },
+    "hunger": {
+      "name": "Hunger in Flaschen",
+      "description": "Füttere die Unersättlichen!",
+      "lore1": "Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (30 Sekunden)",
+      "lore2": "Trank der Schwäche + Verrottetes Fleisch = Trank des Hungers-3 (15 Sekunden)"
+    },
+    "nausea": {
+      "name": "Übelkeit in Flaschen",
+      "description": "Du machst mich krank!",
+      "lore1": "Seltsamer Trank + Brauner Pilz = Trank der Übelkeit (16 Sekunden)",
+      "lore2": "Seltsamer Trank + Netherpilz = Trank der Übelkeit-2 (8 Sekunden)"
+    },
+    "blindness": {
+      "name": "Abgefüllte Blindheit",
+      "description": "Du bist ein schrecklicher Mensch...",
+      "lore1": "Seltsamer Trank + Tintenbeutel = Trank der Blindheit (30 Sekunden)",
+      "lore2": "Seltsamer Trank + Leuchttintenbeutel = Trank der Blindheit-2 (15 Sekunden)"
+    },
+    "resistance": {
+      "name": "Widerstand in Flaschen",
+      "description": "Anreicherung in Reinkultur!",
+      "lore1": "Seltsamer Trank + Eisen Barren = Trank der Resistenz (60 Sekunden)",
+      "lore2": "Seltsamer Trank + Eisenblock = Trank der Resistenz-2 (30 Sekunden)"
+    },
+    "healthboost": {
+      "name": "Leben in Flaschen",
+      "description": "Wenn maximale Gesundheit nicht ausreicht ...",
+      "lore1": "Trank der Heilung + Goldener Apfel = Trank der Gesundheitssteigerung (120 Sekunden)",
+      "lore2": "Trank der Heilung + Verzauberter Goldener Apfel = Trank der Gesundheitssteigerung-2 (120 Sekunden)"
+    },
+    "decay": {
+      "name": "Verfall in Flaschen",
+      "description": "Wer hätte gedacht, dass Detritus so nützlich sein würde?",
+      "lore1": "Trank der Schwäche + Giftige Kartoffel = Trank des Wither (16 Sekunden)",
+      "lore2": "Trank der Schwäche + Netherwurzeln = Trank des Wither (8 Sekunden)"
+    },
+    "saturation": {
+      "name": "Sättigung in Flaschen",
+      "description": "Weißt du ... Ich habe nicht einmal Hunger ...",
+      "lore1": "Regenerationstrank + Gebackene Kartoffel = Trank der Sättigung (120 Sekunden)",
+      "lore2": "Trank der Regeneration + Heuballen = Trank der Sättigung (120 Sekunden)"
     }
   },
   "blocking": {
