@@ -1,9 +1,60 @@
 {
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "得走啦！",
+      "description": "总计走过1千米的距离。（1,000 方块）"
+    },
+    "challenge_sprint_5k": {
+      "title": "长跑运动员",
+      "description": "总计走过 5 公里（5,000 方块）"
+    },
+    "challenge_sprint_50k": {
+      "title": "五万变焦",
+      "description": "总计走过5万千米（50,000 方块）"
+    },
+    "challenge_sprint_500k": {
+      "title": "穿越宇宙！",
+      "description": "总计走过500千米（500,000方块）"
+    },
+    "challenge_sprint_marathon": {
+      "title": "冲刺（字面意思）马拉松！",
+      "description": "以疾跑的方式跑过 42,195 个方块。"
+    },
+    "challenge_place_1k": {
+      "title": "初学建筑师！"
+    },
+    "challenge_place_5k": {
+      "title": "中级建筑师！"
+    },
+    "challenge_place_50k": {
+      "title": "职业建筑师！",
+      "description": "总计放置 50,000 个方块"
+    },
+    "challenge_place_500k": {
+    },
+    "challenge_place_5m": {
+      "title": "对称主义",
+      "description": "世界是你的天地！ （放置超过5百万个方块）"
+    },
+    "challenge_chop_1k": {
+      "title": "初学伐木工"
+    },
+    "challenge_chop_5k": {
+    },
+    "challenge_chop_50k": {
+      "title": "职业伐木工！"
+    },
+    "challenge_chop_500k": {
+    },
+    "challenge_chop_5m": {
+      "title": "狗狗杰克逊"
+    }
+  },
   "snippets": {
     "gui": {
       "level": "等级",
       "knowledge": "知识",
-      "powerused": "已使用的 能力",
+      "powerused": "能力",
       "notlearned": "尚未学习",
       "xp": "至下一级经验",
       "welcome": "欢迎！",
@@ -26,7 +77,7 @@
       "noknowledge": "（你没有任何知识可用）",
       "youonlyhave": "你只有",
       "howtolevelup": "升级技能来扩大能力上限",
-      "notenoughpower": "能力不足！",
+      "notenoughpower": "能力不足！每级需要花费 1 能力。",
       "power": "能力",
       "powerdrain": "耗费能力",
       "learned": "已学习 ",
@@ -258,6 +309,72 @@
       "description": "酿造台越热，它的工作效率就越高！",
       "lore1": "酿造台每贴近火焰",
       "lore2": "酿造台每贴近岩浆"
+    },
+    "darkness": {
+      "name": "瓶装黑暗",
+      "description": "不知道你为什么要这个，反正给你就是了！",
+      "lore1": "夜视药水 + 混凝土方块 = 黑暗药水（30秒）",
+      "lore2": "不过得先说好，药水效果生效期间不能冲刺。"
+    },
+    "haste": {
+      "name": "瓶装急迫",
+      "description": "效率附魔难道不够用吗？！",
+      "lore1": "速度药水 + 紫水晶碎片 = 急迫药水（60秒）",
+      "lore2": "速度药水 + 紫水晶方块 = 急迫 II 药水（30秒）"
+    },
+    "absorption": {
+      "name": "瓶装抗性提升",
+      "description": "来硬的！",
+      "lore1": "速度药水 + 石英 = 抗性提升药水（60秒）",
+      "lore2": "速度药水 + 石英块 = 抗性提升 II 药水（30秒）"
+    },
+    "fatigue": {
+      "name": "瓶装疲劳",
+      "description": "来软的！",
+      "lore1": "虚弱药水 + 史莱姆球 = 挖掘疲劳药水（30秒）",
+      "lore2": "虚弱药水 + 史莱姆块 = 挖掘疲劳 II 药水（15秒）"
+    },
+    "hunger": {
+      "name": "反胃饥饿",
+      "description": "喂饱贪心的人吧！",
+      "lore1": "粗制的药水 + 腐肉 = 饥饿药水（30秒）",
+      "lore2": "虚弱药水 + 腐肉 = 饥饿 III 药水（15秒）"
+    },
+    "nausea": {
+      "name": "瓶装反胃",
+      "description": "真令我恶心。",
+      "lore1": "粗制的药水 + 棕色蘑菇 = 反胃药水（16秒） ",
+      "lore2": "粗制的药水 + 绯红菌 = 反胃药水 II（8秒）"
+    },
+    "blindness": {
+      "name": "瓶装失明",
+      "description": "你真是可怕的人...",
+      "lore1": "粗制的药水 + 墨囊 = 失明药水（30秒）",
+      "lore2": "粗制的药水 + 荧光墨囊 = 失明 II 药水（15秒）"
+    },
+    "resistance": {
+      "name": "瓶装抗性",
+      "description": "最佳防御！",
+      "lore1": "粗制的药水 + 铁锭  = 抗性提升药水（60秒）",
+      "lore2": "粗制的药水 + 铁块  = 抗性提升 II 药水（60秒）"
+    },
+    "healthboost": {
+      "name": "瓶装生命",
+      "description": "有的时候感觉最大生命值不够用...",
+      "lore1": "瞬间治疗药水 = 金苹果 = 生命提升药水（120秒）",
+      "lore2": "瞬间治疗药水 + 附魔金苹果 = 生命提升 II 药水（120秒）"
+    },
+    "decay": {
+      "name": "瓶装腐朽",
+      "description": "谁知道Detritus为什么这么有用？",
+      "lore1": "虚弱药水 + 毒马铃薯 = 凋零药水（16秒）",
+      "lore2": "虚弱药水 + 绯红菌索 = 凋零药水（8秒）"
+    },
+    "saturation": {
+      "name": "瓶装饱和",
+      "description": "哦，我知道... 我其实还没那么饿...",
+      "lore1": "生命恢复药水 + 烤马铃薯 = 饱和药水（120秒）",
+      "lore2": "生命恢复药水 + 干草块= 饱和药水（120秒）"
     }
   },
   "blocking": {
