@@ -21,33 +21,44 @@
       "description": "以疾跑的方式跑过 42,195 个方块。"
     },
     "challenge_place_1k": {
-      "title": "初学建筑师！"
+      "title": "初学建筑师！",
+      "description": "放置 1,000 个方块"
     },
     "challenge_place_5k": {
-      "title": "中级建筑师！"
+      "title": "中级建筑师！",
+      "description": "放置 5,000 个方块"
     },
     "challenge_place_50k": {
       "title": "职业建筑师！",
       "description": "总计放置 50,000 个方块"
     },
     "challenge_place_500k": {
+      "title": "建筑大师！",
+      "description": "放置 500,000 个方块"
     },
     "challenge_place_5m": {
       "title": "对称主义",
       "description": "世界是你的天地！ （放置超过5百万个方块）"
     },
     "challenge_chop_1k": {
-      "title": "初学伐木工"
+      "title": "初学伐木工",
+      "description": "放置 1,000 个方块"
     },
     "challenge_chop_5k": {
+      "title": "中级伐木工！",
+      "description": "放置 5,000 个方块"
     },
     "challenge_chop_50k": {
-      "title": "职业伐木工！"
+      "title": "职业伐木工！",
+      "description": "放置 50,000 个方块"
     },
     "challenge_chop_500k": {
+      "title": "伐木大师！",
+      "description": "放置 500,000 个方块"
     },
     "challenge_chop_5m": {
-      "title": "狗狗杰克逊"
+      "title": "狗狗杰克逊",
+      "description": "最棒的好孩子！ （500 万块）"
     }
   },
   "snippets": {
