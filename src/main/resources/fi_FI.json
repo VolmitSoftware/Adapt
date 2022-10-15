@@ -22,19 +22,19 @@
     },
     "challenge_place_1k": {
       "title": "Aloitteleva rakentaja!",
-      "description": "Sijoita 1 000 lohkoa"
+      "description": "Aseta 1 000 Palikkaa\n"
     },
     "challenge_place_5k": {
       "title": "Keskitason rakentaja!",
-      "description": "Sijoita 5 000 lohkoa"
+      "description": "Aseta 5 000 Palikkaa"
     },
     "challenge_place_50k": {
       "title": "Edistynyt rakentaja!",
-      "description": "Sijoita 50 000 lohkoa"
+      "description": "Aseta 50 000 Palikkaa"
     },
     "challenge_place_500k": {
       "title": "Rakennusmestari!",
-      "description": "Sijoita 500 000 lohkoa"
+      "description": "Aseta 500 000 Palikkaa"
     },
     "challenge_place_5m": {
       "title": "Symmetry's Acolyte!",
@@ -42,19 +42,19 @@
     },
     "challenge_chop_1k": {
       "title": "Aloitteleva metsämies!",
-      "description": "Sijoita 1 000 lohkoa"
+      "description": "Aseta 1000 Palikkaa"
     },
     "challenge_chop_5k": {
       "title": "Keskitason metsuri!",
-      "description": "Sijoita 5 000 lohkoa"
+      "description": "Aseta 5 000 palikkaa"
     },
     "challenge_chop_50k": {
       "title": "Edistynyt metsuri!",
-      "description": "Sijoita 50 000 lohkoa"
+      "description": "Aseta 50 000 palikkaa\n"
     },
     "challenge_chop_500k": {
       "title": "Mestari Metsuri!",
-      "description": "Sijoita 500 000 lohkoa"
+      "description": "Aseta 500 000 Palikkaa"
     },
     "challenge_chop_5m": {
       "title": "Koira Jackson",
@@ -82,7 +82,7 @@
       "knowledgecost": "Tietämys Hinta",
       "alreadylearned": "Olet jo oppinut",
       "unlearnrefund": "Napsauta lopettaaksesi oppimisen ja hyvityksen",
-      "norefunds": "HARDCORE, REFUNDS POIS PÄÄLTÄ",
+      "norefunds": "HARDCORE, REFUNDIT POIS PÄÄLTÄ",
       "knowledge": "Tietämys",
       "clicklearn": "Klikkaa oppiaksesi",
       "noknowledge": "(Sinulla ei ole tarpeeksi tietämystä)",
@@ -271,7 +271,7 @@
   },
   "axe": {
     "chop": {
-      "name": "Ax Chop",
+      "name": "Kirves Chop",
       "description": "Katkaise puita hiiren oikealla painikkeella pohjalokia!",
       "lore1": "Blocks per Chop",
       "lore2": "Leikkaa Cooldown",
@@ -291,7 +291,7 @@
       "lore1": "Vahinko",
       "lore2": "Estä säde",
       "lore3": "Pakottaa",
-      "lore4": "Smash Cooldown"
+      "lore4": "Isku Odotusaika"
     },
     "leafminer": {
       "name": "Lehtien kaivosmies",
@@ -324,8 +324,8 @@
     "darkness": {
       "name": "Pullotettu pimeys",
       "description": "Etkö ole varma, miksi tarvitset tätä, mutta ole hyvä!",
-      "lore1": "NightVision Potion + musta betoni = Pimeyden juoma (30 sekuntia)",
-      "lore2": "On huomattava, että tämä estää käyttäjää Sprinting!"
+      "lore1": "Yönäkö Taikajuoma + musta betoni = Pimeyden taikajuoma (30 sekuntia)",
+      "lore2": "On huomattava, että tämä estää pelaajaa Juoksemasta!"
     },
     "haste": {
       "name": "Pullotettu kiire",
@@ -639,7 +639,7 @@
       "name": "Hunter's Speed",
       "description": "Kun saat iskun, saat vauhtia nälän kustannuksella",
       "lore1": "Lisää passiivista nopeutta törmäyksessä",
-      "lore2": "x Speed pinoaa 3 sekuntia osuman jälkeen",
+      "lore2": "x Nopeus pinoaa 3 sekuntia osuman jälkeen",
       "lore3": "x Pinottava nälkä",
       "lore4": "Nälkäpinojen kesto ja kerroin.",
       "lore5": "Nopeuspinojen kerroin, ei kesto."
@@ -766,7 +766,7 @@
       "lore1": "Happi"
     },
     "fishersfantasy": {
-      "name": "Fisherin fantasia",
+      "name": "Kalastajan Fantasia",
       "description": "ansaitse enemmän XP:tä kalastuksesta ja hanki enemmän kalaa!",
       "lore1": "Jokaisella tasolla on mahdollisuus saada lisää XP:tä ja kalaa!"
     },
@@ -818,7 +818,7 @@
       "name": "Viidakkoveitsi",
       "description": "Leikkaa lehtien läpi helposti!",
       "lore1": "Viisasäde",
-      "lore2": "Leikkaa Cooldown",
+      "lore2": "Leikkaa Odotusaika",
       "lore3": "Työkalujen kuluminen"
     },
     "bloodyblade": {
