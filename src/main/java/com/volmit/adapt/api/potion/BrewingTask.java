@@ -52,7 +52,7 @@ public class BrewingTask extends BukkitRunnable {
     public static boolean isValid(BrewingRecipe recipe, Location loc) {
         BrewingStand block = (BrewingStand) loc.getBlock().getState();
         BrewerInventory inv = block.getInventory();
-        if (!recipe.getIngredient().isSimilar(inv.getIngredient())) {
+        if (inv.getIngredient() == null || recipe.getIngredient() != inv.getIngredient().getType()) {
             return false;
         }
 

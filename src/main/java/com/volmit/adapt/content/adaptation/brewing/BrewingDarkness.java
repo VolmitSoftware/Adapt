@@ -48,7 +48,7 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
                         .id("brewing-darkness")
                         .brewingTime(320)
                         .fuelCost(16)
-                        .ingredient(new ItemStack(Material.BLACK_CONCRETE))
+                        .ingredient(Material.BLACK_CONCRETE)
                         .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.NIGHT_VISION, false, false))
                         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                                 .setName("Bottled Darkness")
