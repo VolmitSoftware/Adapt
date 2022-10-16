@@ -21,7 +21,6 @@ package com.volmit.adapt.api;
 import com.francobm.magicosmetics.api.CosmeticType;
 import com.francobm.magicosmetics.api.MagicAPI;
 import com.google.common.collect.Lists;
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.value.MaterialValue;
@@ -30,7 +29,10 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -246,6 +248,34 @@ public interface Component {
             from.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, to, 1, 6, 6, 6, 0.6);
         }
     }
+
+    default boolean safeGiveItem(Player player, Entity droppedItemEntity, ItemStack is) {
+        EntityPickupItemEvent e = new EntityPickupItemEvent(player, (Item) droppedItemEntity, 0);
+        Bukkit.getPluginManager().callEvent(e);
+        if (!e.isCancelled()) {
+            droppedItemEntity.remove();
+            if (player.getInventory().addItem(is).isEmpty()) {
+                player.getWorld().dropItem(player.getLocation(), is);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    default boolean safeGiveItem(Player player, Item droppedItemEntity, ItemStack is) {
+        EntityPickupItemEvent e = new EntityPickupItemEvent(player, droppedItemEntity, 0);
+        Bukkit.getPluginManager().callEvent(e);
+        if (!e.isCancelled()) {
+            droppedItemEntity.remove();
+            if (!player.getInventory().addItem(is).isEmpty()) {
+                player.getWorld().dropItem(player.getLocation(), is);
+            }            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     default void vfxParticleLine(Location start, Location end, Particle particle, int pointsPerLine, int particleCount, double offsetX, double offsetY, double offsetZ, double extra, @Nullable Double data, boolean forceDisplay,
                                  @Nullable Predicate<Location> operationPerPoint) {
