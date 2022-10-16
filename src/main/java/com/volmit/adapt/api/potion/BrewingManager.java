@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.J;
+import net.minecraft.world.inventory.InventoryClickType;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BrewingStand;
@@ -16,6 +17,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.BrewerInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
@@ -44,10 +46,17 @@ public class BrewingManager implements Listener {
         if (e.getView().getTopInventory().getType() != InventoryType.BREWING || e.getView().getTopInventory().getHolder() == null) {
             return;
         }
+        Adapt.info("Brewing click: " + e.getRawSlot());
 
         BrewerInventory inv = (BrewerInventory) e.getInventory();
-        boolean doTheThing = inv.getIngredient() == null && e.getCursor() != null && e.getSlot() == 3 && e.getClick() == ClickType.LEFT;
+        boolean doTheThing = inv.getIngredient() == null
+                && e.getCursor() != null
+                && e.getRawSlot() == 3
+                && e.getClickedInventory() != null
+                && e.getClickedInventory().getType().equals(InventoryType.BREWING)
+                && (e.getClick() == ClickType.LEFT);
         if (doTheThing) {
+            Adapt.info("Brewing Stand Ingredient Clicked");
             e.setCancelled(true);
         }
 
