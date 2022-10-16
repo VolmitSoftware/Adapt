@@ -62,7 +62,6 @@ public class CommandItemKnowledgeOrb extends MortarCommand {
             printHelp(sender);
             sender.sendMessage(C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item knowledge <Skill> <XP Amount>");
         }
-        sender.sendMessage(C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item knowledge <Skill> <XP Amount>");
     }
 
     @Override

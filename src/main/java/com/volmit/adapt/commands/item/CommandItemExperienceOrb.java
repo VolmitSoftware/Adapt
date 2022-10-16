@@ -52,17 +52,16 @@ public class CommandItemExperienceOrb extends MortarCommand {
     }
 
     private void giveOrb(MortarSender sender, String[] args) {
-            if (args.toList().size() > 2) {
-                if (Bukkit.getPlayer(args[2]) != null && Bukkit.getPlayer(args[2]).getPlayer() != null) {
-                    Bukkit.getPlayer(args[2]).getPlayer().getInventory().addItem(ExperienceOrb.with(args[0], Integer.parseInt(args[1])));
-                }
-            } else if (args.toList().size() == 2) {
-                sender.player().getInventory().addItem(ExperienceOrb.with(args[0], Integer.parseInt(args[1])));
-            } else {
-                printHelp(sender);
-                sender.sendMessage(C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item experience <Skill> <XP Amount>");
+        if (args.toList().size() > 2) {
+            if (Bukkit.getPlayer(args[2]) != null && Bukkit.getPlayer(args[2]).getPlayer() != null) {
+                Bukkit.getPlayer(args[2]).getPlayer().getInventory().addItem(ExperienceOrb.with(args[0], Integer.parseInt(args[1])));
             }
-        sender.sendMessage(C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item experience <Skill> <XP Amount>");
+        } else if (args.toList().size() == 2) {
+            sender.player().getInventory().addItem(ExperienceOrb.with(args[0], Integer.parseInt(args[1])));
+        } else {
+            printHelp(sender);
+            sender.sendMessage(C.RED + "Invalid arguments!" + C.GRAY + " Command: /adapt item experience <Skill> <XP Amount>");
+        }
     }
 
     @Override
