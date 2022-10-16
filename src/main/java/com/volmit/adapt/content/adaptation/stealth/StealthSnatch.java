@@ -94,9 +94,10 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (Math.random() / 3)));
                             }
 
-                            player.getInventory().addItem(is);
+                            j.teleport(player.getLocation());
+//                            player.getInventory().addItem(is);
                             sendCollected(player, (Item) j);
-                            j.remove();
+//                            j.remove();
                             getSkill().xp(player, 1.27);
 
                             int id = j.getEntityId();
