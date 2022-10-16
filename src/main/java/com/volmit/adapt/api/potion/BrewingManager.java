@@ -46,8 +46,7 @@ public class BrewingManager implements Listener {
         if (e.getView().getTopInventory().getType() != InventoryType.BREWING || e.getView().getTopInventory().getHolder() == null) {
             return;
         }
-        Adapt.info("Brewing click: " + e.getRawSlot());
-
+        Adapt.verbose("Brewing click: " + e.getRawSlot());
         BrewerInventory inv = (BrewerInventory) e.getInventory();
         boolean doTheThing = inv.getIngredient() == null
                 && e.getCursor() != null
@@ -56,10 +55,9 @@ public class BrewingManager implements Listener {
                 && e.getClickedInventory().getType().equals(InventoryType.BREWING)
                 && (e.getClick() == ClickType.LEFT);
         if (doTheThing) {
-            Adapt.info("Brewing Stand Ingredient Clicked");
+            Adapt.verbose("Brewing Stand Ingredient Clicked");
             e.setCancelled(true);
         }
-
         J.s(() -> {
             if (doTheThing) {
                 inv.setIngredient(e.getCursor());

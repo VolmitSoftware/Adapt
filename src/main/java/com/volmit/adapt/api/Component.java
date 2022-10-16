@@ -254,7 +254,7 @@ public interface Component {
         Bukkit.getPluginManager().callEvent(e);
         if (!e.isCancelled()) {
             droppedItemEntity.remove();
-            if (player.getInventory().addItem(is).isEmpty()) {
+            if (!player.getInventory().addItem(is).isEmpty()) {
                 player.getWorld().dropItem(player.getLocation(), is);
             }
             return true;
