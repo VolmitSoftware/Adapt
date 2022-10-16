@@ -88,11 +88,11 @@ public class BrewingManager implements Listener {
         if(m != Material.GUNPOWDER && m != Material.DRAGON_BREATH) {
             return;
         }
-
         for(int i = 0; i < 3; i++) {
             ItemStack s = e.getContents().getItem(i);
-            if(s == null || ((PotionMeta)s.getItemMeta()).getBasePotionData().getType() != PotionType.UNCRAFTABLE)
+            if(s == null || ((PotionMeta)s.getItemMeta()).getBasePotionData().getType() != PotionType.UNCRAFTABLE) {
                 continue;
+            }
             ItemStack newStack = s.clone();
             if(m == Material.GUNPOWDER) {
                 newStack.setType(Material.SPLASH_POTION);
