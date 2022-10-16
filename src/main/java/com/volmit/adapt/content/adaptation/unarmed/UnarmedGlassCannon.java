@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.unarmed;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -59,7 +60,7 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
             if (!hasAdaptation(p)) {
                 return;
             }
-            if (p.getInventory().getItemInMainHand().getType() != Material.AIR && p.getInventory().getItemInOffHand().getType() != Material.AIR) {
+            if ( isTool(p.getInventory().getItemInMainHand()) && isTool(p.getInventory().getItemInOffHand())) {
                 return;
             }
             double armor = getArmorValue(p);

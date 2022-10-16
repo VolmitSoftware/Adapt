@@ -45,6 +45,7 @@ public class Adapt extends VolmitPlugin {
     public static HashMap<String, String> wordKey = new HashMap<>();
     public static HashMap<String, String> wordKeyOverride = new HashMap<>();
     public static BukkitAudiences audiences;
+    public boolean usingMagicCosmetics = Bukkit.getServer().getPluginManager().getPlugin("MagicCosmetics") != null;
     public final EffectManager adaptEffectManager = new EffectManager(this);
     @Command
     private final CommandAdapt commandAdapt = new CommandAdapt();
