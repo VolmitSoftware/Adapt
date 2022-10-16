@@ -107,11 +107,11 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) || isStorage(e.getBlock().getType().createBlockData())) {
             return;
         }
         double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
-        J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));
+        try {J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));} catch (Exception ignored) {}
         getPlayer(p).getData().addStat("blocks.placed", 1);
         getPlayer(p).getData().addStat("blocks.placed.value", v);
 
