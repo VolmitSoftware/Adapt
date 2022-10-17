@@ -27,7 +27,6 @@ import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
@@ -48,7 +47,7 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
                 .id("brewing-haste-1")
                 .brewingTime(320)
                 .fuelCost(16)
-                .ingredient(new ItemStack(Material.AMETHYST_SHARD))
+                .ingredient(Material.AMETHYST_SHARD)
                 .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.SPEED, false, false))
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Haste")
@@ -60,7 +59,7 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
                 .id("brewing-haste-2")
                 .brewingTime(320)
                 .fuelCost(32)
-                .ingredient(new ItemStack(Material.AMETHYST_BLOCK))
+                .ingredient(Material.AMETHYST_BLOCK)
                 .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.SPEED, false, false))
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Haste 2")

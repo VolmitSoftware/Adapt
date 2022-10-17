@@ -107,7 +107,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                 J.s(() -> {
                     for (Location l : blockMap.keySet()) {
                         Block b = e.getBlock().getWorld().getBlockAt(l);
-                        xp(p, 10);
+                        xp(p, 2);
                         if (getPlayer(p).getData().getSkillLines() != null
                                 && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations() != null
                                 && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory") != null

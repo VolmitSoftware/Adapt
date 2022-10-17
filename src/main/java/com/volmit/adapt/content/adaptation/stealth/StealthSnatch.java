@@ -23,6 +23,7 @@ import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -80,28 +81,27 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         if (!player.isDead()) {
             double range = getRange(factor);
 
-            for (Entity j : player.getWorld().getNearbyEntities(player.getLocation(), range, range / 1.5, range)) {
-                if (j instanceof Item && !holds.contains(j.getEntityId())) {
-                    double dist = j.getLocation().distanceSquared(player.getLocation());
+            for (Entity droppedItemEntity : player.getWorld().getNearbyEntities(player.getLocation(), range, range / 1.5, range)) {
+                if (droppedItemEntity instanceof Item && !holds.contains(droppedItemEntity.getEntityId())) {
+                    double dist = droppedItemEntity.getLocation().distanceSquared(player.getLocation());
 
-                    if (dist < range * range && player.isSneaking() && j.getTicksLived() > 1) {
-                        ItemStack is = ((Item) j).getItemStack().clone();
+                    if (dist < range * range && player.isSneaking() && droppedItemEntity.getTicksLived() > 1) {
+                        ItemStack is = ((Item) droppedItemEntity).getItemStack().clone();
 
                         if (Inventories.hasSpace(player.getInventory(), is)) {
-                            holds.add(j.getEntityId());
+                            holds.add(droppedItemEntity.getEntityId());
 
                             if (player.isSneaking()) {
                                 player.getWorld().playSound(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (Math.random() / 3)));
                             }
+                            vfxParticleLine(droppedItemEntity.getLocation(), player.getLocation().add(0, 0.25, 0), Particle.ASH, 15, 8, 0D, 0D, 0D, 0D, null, true, l -> l.getBlock().isPassable());
+                            safeGiveItem(player, droppedItemEntity, is);
 
-                            player.getInventory().addItem(is);
-                            sendCollected(player, (Item) j);
-                            j.remove();
-                            getSkill().xp(player, 1.27);
-
-                            int id = j.getEntityId();
-
+                            sendCollected(player, (Item) droppedItemEntity);
+                            getSkill().xpSilent(player, 1.27);
+                            int id = droppedItemEntity.getEntityId();
                             J.s(() -> holds.remove(Integer.valueOf(id)));
+
                         }
                     }
                 }

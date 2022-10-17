@@ -216,7 +216,7 @@ public interface Adaptation<T> extends Ticked, Component {
             return 0;
         } else {
             PlayerSkillLine line = getPlayer(p).getData().getSkillLine(getSkill().getName());
-            if(line == null)
+            if (line == null)
                 return 0;
             return getPlayer(p).getData().getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
         }

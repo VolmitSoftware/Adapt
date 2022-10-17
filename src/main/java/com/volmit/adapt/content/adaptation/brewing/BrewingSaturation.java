@@ -27,7 +27,6 @@ import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
@@ -48,24 +47,24 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
                 .id("brewing-saturation-1")
                 .brewingTime(320)
                 .fuelCost(16)
-                .ingredient(new ItemStack(Material.BAKED_POTATO))
+                .ingredient(Material.BAKED_POTATO)
                 .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.REGEN, false, false))
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Saturation")
                         .setColor(Color.ORANGE)
-                        .addEffect(PotionEffectType.SATURATION, 1200, 1, true, true, true)
+                        .addEffect(PotionEffectType.SATURATION, 1, 4, true, true, true)
                         .build())
                 .build());
         registerBrewingRecipe(BrewingRecipe.builder()
                 .id("brewing-saturation-2")
                 .brewingTime(320)
                 .fuelCost(32)
-                .ingredient(new ItemStack(Material.HAY_BLOCK))
+                .ingredient(Material.HAY_BLOCK)
                 .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.REGEN, false, false))
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Saturation 2")
                         .setColor(Color.ORANGE)
-                        .addEffect(PotionEffectType.SATURATION, 1200, 2, true, true, true)
+                        .addEffect(PotionEffectType.SATURATION, 1, 8, true, true, true)
                         .build())
                 .build());
     }

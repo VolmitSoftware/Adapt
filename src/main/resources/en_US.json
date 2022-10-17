@@ -330,8 +330,8 @@
     "haste": {
       "name": "Bottled Haste",
       "description": "When Efficiency is not enough",
-      "lore1": "Speed Potion + Amethyst Shard = Potion of Haste (60 seconds)",
-      "lore2": "Speed Potion + Amethyst Block = Potion of Haste-2 (30 seconds)"
+      "lore1": "Instant Heal Potion + Amethyst Shard = Potion of Haste (60 seconds)",
+      "lore2": "Instant Heal + Amethyst Block = Potion of Haste-2 (30 seconds)"
     },
     "absorption": {
       "name": "Bottled Absorption",
@@ -384,8 +384,8 @@
     "saturation": {
       "name": "Bottled Saturation",
       "description": "Ya know... Im not even Hungry...",
-      "lore1": "Regen Potion + Baked Potato = Potion of Saturation (120 seconds)",
-      "lore2": "Regen Potion + Hay Bale = Potion of Saturation (120 seconds)"
+      "lore1": "Regen Potion + Baked Potato = Potion of Saturation",
+      "lore2": "Regen Potion + Hay Bale = Potion of Saturation-2"
     }
   },
   "blocking": {
