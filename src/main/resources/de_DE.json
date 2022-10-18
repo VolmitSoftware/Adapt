@@ -1,371 +1,882 @@
 {
   "advancement": {
     "challenge_move_1k": {
-      "title": "Muss mich bewegen!"
+      "title": "Muss mich bewegen!",
+      "description": "Gehen über 1 Kilometer (1.000 Blöcke)"
     },
     "challenge_sprint_5k": {
+      "title": "Sprinte 5K!",
+      "description": "Gehen über 5 Kilometer (5.000 Blöcke)"
     },
     "challenge_sprint_50k": {
+      "title": "Sprinte 50K!",
+      "description": "Gehen über 50 Kilometer (50.000 Blöcke)"
     },
     "challenge_sprint_500k": {
+      "title": "Durchquere das Universum!!",
+      "description": "Gehen über 500 Kilometer (500.000 Blöcke)"
     },
     "challenge_sprint_marathon": {
+      "title": "Sprinte einen (buchstäblichen) Marathon!",
+      "description": "Sprinte über 42.195 Blöcke!"
     },
     "challenge_place_1k": {
+      "title": "Bauanfänger!",
+      "description": "Platziere 1.000 Blöcke"
     },
     "challenge_place_5k": {
+      "title": "Fortgeschrittener Bauer!",
+      "description": "Platziere 5.000 Blöcke"
     },
     "challenge_place_50k": {
+      "title": "Fortgeschrittener Baumeister!",
+      "description": "Platziere 50.000 Blöcke"
     },
     "challenge_place_500k": {
+      "title": "Baumeister!",
+      "description": "Platziere 500.000 Blöcke"
     },
     "challenge_place_5m": {
+      "title": "Der Akolyth der Symmetrie!",
+      "description": "REALITÄT IST DEIN SPIELPLATZ! (5 Millionen Blöcke)"
     },
     "challenge_chop_1k": {
+      "title": "Neuling Holzfäller!",
+      "description": "Platziere 1.000 Blöcke"
     },
     "challenge_chop_5k": {
+      "title": "Fortgeschrittener Holzfäller!",
+      "description": "Platziere 5.000 Blöcke"
     },
     "challenge_chop_50k": {
+      "title": "Fortgeschrittener Holzfällermeister!",
+      "description": "Platziere 50.000 Blöcke"
     },
     "challenge_chop_500k": {
+      "title": "Meister Holzfäller!",
+      "description": "Platziere 500.000 Blöcke"
     },
     "challenge_chop_5m": {
-    },
-    "challenge_block_1k": {
-    },
-    "challenge_block_5k": {
-    },
-    "challenge_block_50k": {
-    },
-    "challenge_block_500k": {
-    },
-    "challenge_block_5m": {
-    },
-    "challenge_brew_1k": {
-    },
-    "challenge_brew_5k": {
-    },
-    "challenge_brew_50k": {
-    },
-    "challenge_brew_500k": {
-    },
-    "challenge_brew_5m": {
-    },
-    "challenge_brewsplash_1k": {
-    },
-    "challenge_brewsplash_5k": {
-    },
-    "challenge_brewsplash_50k": {
-    },
-    "challenge_brewsplash_500k": {
-    },
-    "challenge_brewsplash_5m": {
-    },
-    "challenge_craft_1k": {
-    },
-    "challenge_craft_5k": {
-    },
-    "challenge_craft_50k": {
-    },
-    "challenge_craft_500k": {
-    },
-    "challenge_craft_5m": {
+      "title": "Jackson the Dog",
+      "description": "Der besteste gute Junge! (5 Millionen Blöcke)"
     }
   },
   "snippets": {
     "gui": {
+      "level": "Level",
+      "knowledge": "Wissen",
+      "powerused": "belegte Energie",
+      "notlearned": "Noch nicht gelernt",
+      "xp": " XP bis",
+      "welcome": "Herzlich willkommen!",
+      "welcomeback": "Willkommen zurück!",
+      "xpbonusfortime": "XP für",
+      "unlockthisbyclicking": "Schalte dies frei, indem du mit der rechten Maustaste auf den Adapt-Block klickst!",
+      "back": "Der Rücken",
+      "unlearnall": "Alles verlernen",
+      "unlearnedall": "Alles verlernt"
     },
     "adaptmenu": {
+      "maynotunlearn": "KANN MAN NICHT VERLERNEN",
+      "mayunlearn": "SIE KÖNNEN LERNEN/VERLERNEN",
+      "knowledgecost": "Wissenskosten",
+      "alreadylearned": "Bereits gelernt!",
+      "unlearnrefund": "Klicken zum Verlernen & für Rückerstattung",
+      "norefunds": "HARDCORE, ERSTATTUNGEN DEAKTIVIERT",
+      "knowledge": "Wissen",
+      "clicklearn": "Klicken zum erlernen von",
+      "noknowledge": "(Du hast kein Wissen)",
+      "youonlyhave": "Du hast nur",
+      "howtolevelup": "Verbessere deine Fähigkeiten, um dein maximales Level zu erhöhen!",
+      "notenoughpower": "Nicht genug Energie! Jede Fähigkeitsstufe kostet 1 Energie.",
+      "power": "Energie",
+      "powerdrain": "Power Drain",
+      "learned": "Gelernt ",
+      "unlearned": "Verlernt "
     },
     "knowledgeorb": {
+      "contains": "Enthält",
+      "knowledge": "Wissen",
+      "rightclick": "Rechtsklick",
+      "togainknowledge": "um dieses Wissen zu erlangen",
+      "knowledgeorb": "Wissenskugel"
     },
     "experienceorb": {
+      "contains": "Enthält",
+      "xp": "Erfahrung",
+      "rightclick": "Rechtsklick",
+      "togainxp": "um Erfahrung zu sammeln",
+      "xporb": "Erfahrungskugeln"
     }
   },
   "skill": {
     "agility": {
+      "name": "Agilität",
+      "icon": "⇉",
+      "description": "Agilität ist die Fähigkeit, sich im Angesichte von Hindernissen schnell und flüssig zu bewegen!"
     },
     "architect": {
+      "name": "Architekt",
+      "icon": "⬧",
+      "description": "Strukturen sind die Bausteine der Welt. Die Realität liegt in Ihren Händen, Sie können sie kontrollieren!"
     },
     "axes": {
+      "name": "Äxte",
+      "icon": "✥",
+      "description1": "Warum sollte man Bäume fällen, ",
+      "description2": "wenn man stattdessen auch Dinge",
+      "description3": "fällen kann - mit demselben Ergebnis!"
     },
     "brewing": {
+      "name": "Brauen",
+      "icon": "✥",
+      "description": "Doppelte Blase, dreifache Blase, vierfache Blase - Ich kann diesen Trank immer noch nicht in einen Kessel geben!"
     },
     "blocking": {
+      "name": "Blockierung",
+      "icon": "▒",
+      "description": "Stöcke und Steine werden deine Knochen nicht brechen, aber ein Schild wird es tun."
     },
     "crafting": {
+      "name": "Handwerk",
+      "icon": "❖",
+      "description": "Da es nichts mehr zu platzieren gibt, warum nicht neues erschaffen?"
     },
     "discovery": {
+      "name": "Entdeckung",
+      "icon": "⚛",
+      "description": "Wenn sich deine Wahrnehmung erweitert, wird dein Verstand enträtseln, um das zu entdecken, was du nicht wusstest!"
     },
     "enchanting": {
+      "name": "Verzauberung",
+      "icon": "⚜",
+      "description": "Wovon reden Sie eigentlich? Prophezeiungen, Visionen, abergläubisches Gefasel?"
     },
     "excavation": {
+      "name": "Ausgrabung",
+      "icon": "✥",
+      "description": "Diggey Diggey Hole...!"
     },
     "herbalism": {
+      "name": "Kräuterkunde",
+      "icon": "⚘",
+      "description": "Ich kann keine Plfanzen finden, aber ich finde eine paar Samen und - ist das... Unkraut?"
     },
     "hunter": {
+      "name": "Jäger",
+      "icon": "☠",
+      "description": "Bei der Jagd geht es um den Weg, nicht um das Resultat!"
     },
     "nether": {
+      "name": "nether",
+      "icon": "₪",
+      "description": "Aus den Tiefen des Nethergebietes selbst!"
     },
     "pickaxe": {
+      "name": "Spitzhacke",
+      "icon": "⛏",
+      "description": "Zwerge sind die Bergleute, aber ich habe in meiner Zeit auch einiges gelernt. ICH BIN SCHWEDE!"
     },
     "ranged": {
+      "name": "Reichweite",
+      "icon": "🏹",
+      "description": "Die Entfernung ist der Schlüssel zum Sieg... und zum Überleben!"
     },
     "rift": {
+      "name": "Rift",
+      "icon": "❍",
+      "description": "Rift ist ein ätzendes Gurtzeug, aber Sie haben das Gurtzeug angeschnallt!"
     },
     "seaborne": {
+      "name": "Seefahrt",
+      "icon": "🌊",
+      "description": "Mit dieser Fähigkeit kannst du die Wunder des Wassers erleben!"
     },
     "stealth": {
+      "name": "Heimlichkeit",
+      "icon": "✠",
+      "description": "Die Kunst des Unsichtbaren - Sei der Schatten!"
     },
     "swords": {
+      "name": "Schwerter",
+      "icon": "⚔",
+      "description": "Mit der Kraft von GreyStone!"
     },
     "taming": {
+      "name": "Zähmung",
+      "icon": "♥",
+      "description": "Die Papageien und die Bienen... und du?"
     },
     "tragoul": {
+      "name": "TragOul",
+      "icon": "▼",
+      "description": "Blut fließt durch die Adern des Universums. Entfesselt durch deine Hände!"
     },
     "chronos": {
+      "name": "Chronos",
+      "icon": "۞",
+      "description": "Zieh die Uhr des Universums auf und erlebe den Zeitenfluss!"
     },
     "unarmed": {
+      "name": "Unbewaffnet",
+      "icon": "⚜",
+      "description": "Ohne Waffe bedeutet nicht ohne Stärke!"
     }
   },
   "agility": {
     "armorup": {
+      "name": "Aufrüsten",
+      "description": "Je länger du sprintest, desto mehr Rüstung erhältst du",
+      "lore1": "Maximale Rüstung",
+      "lore2": "Aufrüstungszeit"
     },
     "superjump": {
+      "name": "Supersprung",
+      "description": "Außergewöhnlicher Höhenvorteil",
+      "lore1": "Maximale Sprunghöhe",
+      "lore2": "* Schleichen +  Springen zum Supersprung"
     },
     "walljump": {
+      "name": "Wandsprung",
+      "description": "Halte Shift gedrückt, während du dich in der Luft an einer Wand befindet, um dich an der Wand festzuhalten und zu springen",
+      "lore1": "Maximal Sprunge",
+      "lore2": "Sprunghöge"
     },
     "windup": {
+      "name": "Aufwind",
+      "description": "Je länger du sprintest, desto schneller wirst du",
+      "lore1": "Maximale Geschwindigkeit",
+      "lore2": "Aufwindzeit"
     }
   },
   "architect": {
     "foundation": {
+      "name": "Magische Grundlage",
+      "description": "Schleiche um ein provisorisches Fundament unter dir zu erschaffen",
+      "lore1": "Magie erzeugen: ",
+      "lore2": "Blöcke unter dir!"
     },
     "glass": {
+      "name": "Behutsames Glass",
+      "description": "Auf diese Weise kannst du den Verlust von Glassblöcken verhindern, wenn du sie mit leeren Händen zerbrichst",
+      "lore1": "Deine Hände erhalten Silk Touch für Glass"
     },
     "placement": {
+      "name": "Baumeister Stab",
+      "description": "Ermöglicht es dir, mehrere Blöcke auf einmal zu plazieren. Zum Aktivieren schleiche und halte einen Block, der zu deinem gewünschten Block passt, dann plaziere den Block. Denk daran, dass du dich ein wenig bewegen musst, um die Begrenzung der Blöcke auszulösen",
+      "lore1": "Du brauchst",
+      "lore2": "Blöcke in deiner Hand, um diese zu plazieren",
+      "lore3": "Ein Baumeister Stab für Materialerstellung"
     }
   },
   "axe": {
     "chop": {
+      "name": "Axtschlag",
+      "description": "Fälle Bäume, indem du mit der rechten Maustaste auf den Stamm klickst",
+      "lore1": "Blöcke pro Hieb",
+      "lore2": "Hieb Abklingzeit",
+      "lore3": "Werkzeugverschleiß"
     },
     "logswap": {
+      "name": "Lucys Stammtauscher",
+      "description": "Ändere die Art von Holzscheiten an einer Werkbank!",
+      "lore1": "1 Holzscheit beliebiger Art + 1 Setzling = 1 Holzscheit der Art des Setzlings"
     },
     "droptoinventory": {
+      "name": "Axt Drop-Ins-Inventar"
     },
     "groundsmash": {
+      "name": "Axt-Bodenschlag",
+      "description": "Springe, dann gehe in die Hocke und zerschlage deine Gegner in der Nähe",
+      "lore1": "Schaden",
+      "lore2": "Block Radius",
+      "lore3": "Kraft",
+      "lore4": "Schlag Abklingzeit"
     },
     "leafminer": {
+      "name": "BlattMiner",
+      "description": "Ermöglicht es, große Mengen an Blättern auf einmal zu entfernen!",
+      "lore1": "Schleiche, und baue Blätter ab",
+      "lore2": "Reichweite des BlätterMiners",
+      "lore3": "Du erhältst hierfür keine Drops von den Blättern"
     },
     "woodminer": {
+      "name": "Holzfäller",
+      "description": "Ermöglicht es, große Mengen Holz auf einmal zu fällen!",
+      "lore1": "Sneak, und fälle HOLZ/LOGS (nicht Bretter)",
+      "lore2": "Reichweite des Holzabbaus",
+      "lore3": "Funktioniert mit Drop to Inventory"
     }
   },
   "brewing": {
     "lingering": {
+      "name": "Nachhaltendes Gebräu",
+      "description": "Gebraute Tränke halten länger",
+      "lore1": "Dauer",
+      "lore2": "Dauer"
     },
     "superheated": {
+      "name": "Superheißes Gebräu",
+      "description": "Je heißer der Braustand ist, desto schneller verarbeitet er",
+      "lore1": "Pro berührendem Feuerblock",
+      "lore2": "Pro berührendem Feuerblock"
     },
     "darkness": {
+      "name": "Abgefüllte Dunkelheit",
+      "description": "Nicht sicher, warum du das brauchen, aber los geht's!",
+      "lore1": "Nachtsichttrunk + Schwarzer Beton = Trank der Nachtsicht (30 Sekunden)",
+      "lore2": "Es sollte beachtet werden, dass dies den Benutzer am Sprinten hindert!"
     },
     "haste": {
+      "name": "Eile in Flaschen",
+      "description": "Wenn Effizienz nicht ausreicht",
+      "lore1": "Schnelligkeitstrank + Amethyst-Scherbe = Trank der Eile (60 Sekunden)",
+      "lore2": "Schnelligkeitstrank + Amethyst-Block = Trank der Eile-2 (30 Sekunden)"
     },
     "absorption": {
+      "name": "Absorption in Flaschen",
+      "description": "Härtet den Körper!",
+      "lore1": "Schnelligkeitstrank + Quartz = Trank der Absorption (60 Sekunden)",
+      "lore2": "Schnelligkeitstrank + Quartz Block = Trank der Absorption-2 (30 Sekunden)"
     },
     "fatigue": {
+      "name": "Abgefüllte Müdigkeit",
+      "description": "Schwächt den Körper!",
+      "lore1": "Schwächungstrank + Schleimball = Trank der Müdigkeit (30 Sekunden)",
+      "lore2": "Trank der Schwäche + Schleimblock = Trank der Trägheit-2 (15 Sekunden)"
     },
     "hunger": {
+      "name": "Hunger in Flaschen",
+      "description": "Füttere die Unersättlichen!",
+      "lore1": "Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (30 Sekunden)",
+      "lore2": "Trank der Schwäche + Verrottetes Fleisch = Trank des Hungers-3 (15 Sekunden)"
     },
     "nausea": {
+      "name": "Übelkeit in Flaschen",
+      "description": "Du machst mich krank!",
+      "lore1": "Seltsamer Trank + Brauner Pilz = Trank der Übelkeit (16 Sekunden)",
+      "lore2": "Seltsamer Trank + Netherpilz = Trank der Übelkeit-2 (8 Sekunden)"
     },
     "blindness": {
+      "name": "Abgefüllte Blindheit",
+      "description": "Du bist ein schrecklicher Mensch...",
+      "lore1": "Seltsamer Trank + Tintenbeutel = Trank der Blindheit (30 Sekunden)",
+      "lore2": "Seltsamer Trank + Leuchttintenbeutel = Trank der Blindheit-2 (15 Sekunden)"
     },
     "resistance": {
+      "name": "Widerstand in Flaschen",
+      "description": "Anreicherung in Reinkultur!",
+      "lore1": "Seltsamer Trank + Eisen Barren = Trank der Resistenz (60 Sekunden)",
+      "lore2": "Seltsamer Trank + Eisenblock = Trank der Resistenz-2 (30 Sekunden)"
     },
     "healthboost": {
+      "name": "Leben in Flaschen",
+      "description": "Wenn maximale Gesundheit nicht ausreicht ...",
+      "lore1": "Trank der Heilung + Goldener Apfel = Trank der Gesundheitssteigerung (120 Sekunden)",
+      "lore2": "Trank der Heilung + Verzauberter Goldener Apfel = Trank der Gesundheitssteigerung-2 (120 Sekunden)"
     },
     "decay": {
+      "name": "Verfall in Flaschen",
+      "description": "Wer hätte gedacht, dass Detritus so nützlich sein würde?",
+      "lore1": "Trank der Schwäche + Giftige Kartoffel = Trank des Wither (16 Sekunden)",
+      "lore2": "Trank der Schwäche + Netherwurzeln = Trank des Wither-2 (8 Sekunden)"
     },
     "saturation": {
+      "name": "Sättigung in Flaschen",
+      "description": "Weißt du ... Ich habe nicht einmal Hunger ...",
+      "lore1": "Regenerationstrank + Gebackene Kartoffel = Trank der Sättigung (120 Sekunden)",
+      "lore2": "Trank der Regeneration + Heuballen = Trank der Sättigung (120 Sekunden)"
     }
   },
   "blocking": {
     "chainarmorer": {
+      "name": "Die Ketten des Mephistopheles",
+      "description": "Ermöglicht die Herstellung von Kettenhemd-Rüstung",
+      "lore1": "Das Handwerksrezept ist dasselbe wie jedes andere, aber mit Eisennuggets"
     },
     "horsearmorer": {
+      "name": "Herstellbare Pferderüstung",
+      "description": "Ermöglicht die Herstellung von Rossharnisch an einer Werkbank",
+      "lore1": "Umgeben Sie einen Sattel mit dem Material, das Sie für die Herstellung der Rüstung verwenden möchten"
     },
     "saddlecrafter": {
+      "name": "Herstellbarer Sattel",
+      "description": "Herstellung eines Sattels mit Leder",
+      "lore1": "Rezept: 5 Leder:"
     },
     "multiarmor": {
+      "name": "Multi-Rüstung",
+      "description": "Binde Elytra an die Rüstung",
+      "lore1": "Dies ist eine erstaunliche Fähigkeit zum Reisen.",
+      "lore2": "Dynamisches Zusammenführen und Ändern von Rüstungen/Elytra während des Spiels!",
+      "lore3": "Klick zum Zusammenführen mit der Umschalttaste auf einen Gegenstand über einem anderen im Inventar.",
+      "lore4": "Um die Rüstung zu lösen, lass den Gegenstand während des Schleichens fallen und er wird zerlegt.",
+      "lore5": "Wenn Ihre Multi-Rüstung zerstört wird, verlieren Sie alle darin enthaltenen Gegenstände.",
+      "lore6": "Ich brauche keine Rüstung, sie enttäuscht mich..."
     }
   },
   "crafting": {
     "deconstruction": {
+      "name": "Dekonstruktion",
+      "description": "Zerlege Blöcke und Gegenstände in wiederverwertbare Komponenten",
+      "lore1": "Lege einen beliebigen Gegenstand + Schere ",
+      "lore2": "auf einen Schmiedetisch um ihn zu zerlegen."
     },
     "xp": {
+      "name": "Herstellungserfahrung",
+      "description": "Passiv Erfahrung beim Craften erhalten",
+      "lore1": "Erfahrung beim Craften erhalten"
     },
     "leather": {
+      "name": "Handwerkliches Leder",
+      "description": "Leder aus verfaultem Fleisch herstellen",
+      "lore1": "Wirf es (das verfaulte Fleisch) einfach auf das Lagerfeuer!"
     },
     "backpacks": {
+      "name": "Die Rucksäcke eines Boutiliers!",
+      "description": "Das bringt das Mojang-Bundle ins Spiel!",
+      "lore1": "Sie müssen in Survival sein, um dies zu nutzen",
+      "lore2": "XLX : Leder, Leine, Leder",
+      "lore3": "XSX : Leder, Shulker Kiste, Leder",
+      "lore4": "XCX : Leder, Kiste, Leder"
     },
     "skulls": {
+      "name": "Herstellbare Totenköpfe!",
+      "description": "Mit den Materialien kannst du Mob-Schädel basteln!",
+      "lore1": "Umgeben Sie einen Knochenblock mit den folgenden Elementen, um einen Schädel zu erhalten:",
+      "lore2": "Zombie: Verrottendes Fleisch",
+      "lore3": "Skelett: Knochen",
+      "lore4": "Creeper: Schwarzpulver",
+      "lore5": "Wither: Netherziegel",
+      "lore6": "Drache: Der Atem des Drachen"
     }
   },
   "discovery": {
     "armor": {
+      "name": "Weltweite Rüstung",
+      "description": "Passive Rüstung, abhängig von der Härte der in der Nähe befindlichen Blöcken",
+      "lore1": "Passive Rüstung",
+      "lore2": "basiert auf der Härter des benachbarten Blocks",
+      "lore3": "Stärke der Rüstung: +"
     },
     "unity": {
+      "name": "Experimentelle Einheitlichkeit",
+      "description": "Durch Sammeln von Erfahrungskugeln erhält man Erfahrungspunkte für zufällige Fähigkeiten",
+      "lore1": "Erfahrung ",
+      "lore2": "Pro Kugel"
     },
     "resist": {
+      "name": "Experimentelle Widerstand",
+      "description": "Verbrauche Erfahrung, um Schaden abzudämpfen",
+      "lore0": "Dies kann nur einmal alle 15 Sekunden erfolgen",
+      "lore1": "% Weniger Schaden",
+      "lore2": "Erfahrung verbraucht"
     },
     "villager": {
+      "name": "Dorfbewohner-Attraktion",
+      "description": "Ermöglicht Ihnen bessere Geschäfte mit Dorfbewohnern!",
+      "lore1": "Verbraucht EP pro Interaktion mit Dorfbewohnern",
+      "lore2": "Chance pro Interaktion, XP zu verbrauchen und Trades zu verbessern",
+      "lore3": "Erforderlicher XP-Abfluss pro Interaktion"
     }
   },
   "enchanting": {
     "lapisreturn": {
+      "name": "Lapis Rückkehr",
+      "description": "Die Chance Lapis zurückzubekommen auf Kosten von 1 Level Erfahrung",
+      "lore1": "Für jede Stufe erhöht es die Kosten der Verzauberung um 1, kann aber bis zu 3 Lapis zurückgeben"
     },
     "quickenchant": {
+      "name": "Schnell-Klick Verzaubern",
+      "description": "Verzaubert Gegenstände, wenn Verzauberungsbücher auf sie gezogen werden",
+      "lore1": "Maximale kombinierte Level",
+      "lore2": "Kann einen Gegenstand nicht mit mehr als ",
+      "lore3": "Macht"
     },
     "return": {
+      "name": "Erfahrung Rückkehr",
+      "description": "Wenn ein Gegenstand verzaubert wird erhalte Verzauberungs-Erfahrung zurück",
+      "lore1": "Erfahrung kann zurückerstattet werden, wenn Gegenstände verzaubert werden",
+      "lore2": "Erfahrung pro Verzauberung"
     }
   },
   "excavation": {
     "haste": {
+      "name": "Hastiges Schaufeln",
+      "description": "Dadurch wir das Graben beschleunigt, mit HAST!",
+      "lore1": "Beim Graben Eile gewinnen",
+      "lore2": "x Stufen der Eile, wenn mit dem Abbau von Blöcken begonnen wird"
     },
     "droptoinventory": {
+      "name": "Schaufel Drop-Ins-Inventar"
     },
     "omnitool": {
+      "name": "Schweizer Taschenmesser",
+      "description": "Schweizer überdimensioniertes mannigfaltiges Taschenmesser",
+      "lore1": "Die Leistungsfähigkeit von vielen ermöglicht es",
+      "lore2": "Werkzeuge dynmaoisch zusammenzufügen und je nach Bedarf zu ändern.",
+      "lore3": "Zum Zussamenfügen klicke mit gedrückter Umschalttaste auf einen Gegenstand über einem anderen im Inventar.",
+      "lore4": "Um Werkzeuge zu trennen, lass den Gegenstand während des schleichens fallen.",
+      "lore5": "In diesem Taschenmesser können keine Werkzeuge zerbrechen, aber auch keine zerbrochenen Werkzeuge nutzen",
+      "lore6": "Zusammenfügbare Gegenstände insgesamt",
+      "lore7": "Warum fünf oder secks Werkzeuge, wenn auch eins geht!"
     }
   },
   "herbalism": {
     "growthaura": {
+      "name": "Aura des Wachstums",
+      "description": "Lässt die Natur um dich herum wachsen",
+      "lore1": "Block Radius",
+      "lore2": "Stärke der Wachstumsaura",
+      "lore3": "Lebensmittelkosten"
     },
     "hippo": {
+      "name": "Raupe Nimmersatt",
+      "description": "Verzehr von Lebensmittel führt zu mehr Sättigung",
+      "lore1": "+ Lebensmittel) zusätzliche Sättigungspunkte beim Verbrauch"
     },
     "myconid": {
+      "name": "Myzel des Kräuterkundlers",
+      "description": "Ermöglicht die Herstellung von Mycelium",
+      "lore1": "Jede Erde und einen braunen und roten Pilz zusammen kombiniert stellen Mycelium her"
     },
     "terralid": {
+      "name": "Terrarium des Kräutersammlers",
+      "description": "Ermöglicht die Herstellung von Grasblöcken",
+      "lore1": "Drei Samen über 3 Dreck ergeben 3 Grasblöcke."
     },
     "cobweb": {
+      "name": "Webby-Schöpfer",
+      "description": "Ermöglicht die Herstellung von Spinnenweben an einer Werkbank",
+      "lore1": "Vier Fäden ergeben Spinnenweben"
     },
     "mushroomblocks": {
+      "name": "Pilzmacher",
+      "description": "Ermöglicht die Herstellung von Pilzblöcken an einer Werkbank",
+      "lore1": "Vier Pilze für einen Block, oder ein Block für einen Stiel."
     },
     "droptoinventory": {
+      "name": "Hacke Drop-Ins-Inventar"
     },
     "hungryshield": {
+      "name": "Hungriges Schild",
+      "description": "Nimm Schaden an deiner Sättigung statt deiner Gesundheit",
+      "lore1": "Widerstand durch Sättigung"
     },
     "luck": {
+      "name": "Glück des Kräuterkundlers",
+      "description": "Wenn du Gras/Blumen zerbrichst, hast du die Chance, einen zufälligen Gegenstand zu erhalten",
+      "lore0": "Blumchen = Nahrung, und Gras = Samen",
+      "lore1": "Chance, einen Gegenstand aus zerbrechenden Blumen zu erhalten",
+      "lore2": "Chance, einen Gegenstand aus zerbrechendem Gras zu erhalten"
     },
     "replant": {
+      "name": "Ernte & Wiederbepflanze",
+      "description": "Rechtsklicke mit einer Hacke auf eine Planze um sie zu ernten und neu zu pflanzen",
+      "lore1": "Wiederbepflanzungsradius in Blöcken"
     }
   },
   "hunter": {
     "adrenaline": {
+      "name": "Adrenalin",
+      "description": "Verursache mehr Schaden, je weniger Gesundheit du hast (Nahkampf)",
+      "lore1": "Maximaler Schaden"
     },
     "penalty": {
+      "lore1": "Du erhältst Giftstapel, wenn du keine Sättigung mehr hast"
     },
     "droptoinventory": {
+      "name": "Items Drop-Ins-Inventar",
+      "description": "Wenn du etwas tötest / einen Block mit dem Schwert zerstörst, werden die Drops in dein Inventar teleopiert",
+      "lore1": "Jedes Mal, wenn ein Gegenstand von einem Mob/Block fallen gelassen wird, landet er in deinem Inventar"
     },
     "invisibility": {
+      "name": "Verschwindender Schritt",
+      "description": "Wenn du getroffen wirst, erhältst du einen Unsichtbarkeits-Boost auf Kosten deiner Sättigung",
+      "lore1": "Erhalte passive Unsichtbarkeit bei Schaden",
+      "lore2": "x Unsichtbarkeit stapelt sich bei einem Treffer für 3 Sekunden",
+      "lore3": "x Stapel Sättigung",
+      "lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "lore5": "Dauer der Unsichtbarkeit"
     },
     "jumpboost": {
+      "name": "Jägersprung",
+      "description": "Wenn du getroffen wirst, erhältst du einen Sprung-Boost auf Kosten deiner Sättigung",
+      "lore1": "Erhalte Sprung-Boost bei Schaden",
+      "lore2": "x Sprung-Boost stapelt sich bei einem Treffer für 3 Sekunden",
+      "lore3": "x Stapel Sättigung",
+      "lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "lore5": "Sprung-Boost stapelt Multiplikator, nicht Dauer"
     },
     "luck": {
+      "name": "Glück des Jägers",
+      "description": "Wenn du getroffen wirst, erhältst du Glück auf Kosten deiner Sättigung",
+      "lore1": "Erhalte passive Glück bei Schaden",
+      "lore2": "x Glück stapelt sich bei einem Treffer für 3 Sekunden",
+      "lore3": "x Stapel Sättigung",
+      "lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "lore5": "Glück stapelt Multiplikator, nicht Dauer"
     },
     "regen": {
+      "name": "Regeneration des Jägers",
+      "description": "Wenn du getroffen wirst, erhälst du Regeneration auf Kosten deiner Sättigung",
+      "lore1": "Erhalte passive Regeneration bei Schaden",
+      "lore2": "x Regeneration stapelt sich bei einem Treffer für 3 Sekunden",
+      "lore3": "x Stapel Sättigung",
+      "lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "lore5": "Regeneration stapelt Multiplikator, nicht Dauer"
     },
     "resistance": {
+      "name": "Widerstandsfähigkeit des Jägers",
+      "description": "Wenn du getroffen wirst, erhältst du Widerstandsfähigkeit auf Kosten deiner Sättigung",
+      "lore1": "Erhalte passive Resistenz bei Schaden",
+      "lore2": "x Resistenz stapelt sich bei einem Treffer für 3 Sekunden",
+      "lore3": "x Stapel Sättigung",
+      "lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "lore5": "Resistenz stapelt Multiplikator, nicht Dauer"
     },
     "speed": {
+      "name": "Geschwindigkeit des Jägers",
+      "description": "Wenn du getroffen wirst, erhältst du Geschwindigkeit auf Kosten deiner Sättigung",
+      "lore1": "Erhalte passive Geschwindigkeit bei Schaden",
+      "lore2": "x Geschwindigkeit stapelt sich bei einem Treffer für 3 Sekunden",
+      "lore3": "x Stapel Sättigung",
+      "lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "lore5": "Geschwindigkeit stapelt Multiplikator, nicht Dauer"
     },
     "strength": {
+      "name": "Stärke des Jägers",
+      "description": "Wenn du getroffen wirst, erhälst du Stärke auf Kosten deiner Sättigung",
+      "lore1": "Erhalte passive Stärke beim Schäden",
+      "lore2": "x Stärke stapelt sich bei einem Treffer für 3 Sekunden",
+      "lore3": "x Stapel Sättigung",
+      "lore4": "Sättigung stapelt Dauer und Multiplikator",
+      "lore5": "Stärke stapelt Multiplikator, nicht Dauer"
     }
   },
   "nether": {
     "skulltoss": {
+      "name": "Wither Schädel Wurf",
+      "description1": "Entfessel den inneren Wither, indem du ",
+      "description2": "jemandes",
+      "description3": "Kopf",
+      "lore1": "Sekunden Abkühlzeit zwischen Schädelwürfen.",
+      "lore2": "Wither Skull verwenden: Wirf einen ",
+      "lore3": "Wither Skull",
+      "lore4": "beim Aufprall explodieren"
     },
     "witherresist": {
+      "name": "Wither Widerstandsfähigkeit",
+      "description": "Widerstehe dem Wither durch die Kraft des Netherite",
+      "lore1": "Chance, Wither zu negieren (pro Stück).",
+      "lore2": "Passiv: Tragen von Netherite Rüstung hat eine Chance, folgende Eigenschaften zu negieren ",
+      "lore3": "withering"
     }
   },
   "pickaxe": {
     "autosmelt": {
+      "name": "Automatisches Schmelzen",
+      "description": "Ermöglicht das Schmelzen von abgebauten Erzen",
+      "lore1": "Erze, die geschmolzen werden können, werden automatisch geschmolzen",
+      "lore2": "% Chance auf ein Extra"
     },
     "chisel": {
+      "name": "Erzmeißel",
+      "description": "Rechtsklick auf Erze, um mehr Erz herauszumeißel! Dies ist mit erheblichen Verlust der Haltbarkeit verbunden",
+      "lore1": "Chance auf Abwurf",
+      "lore2": "Werkzeugverschleiß"
     },
     "droptoinventory": {
+      "name": "Block Drop-Ins-Inventar",
+      "description": "Wenn du einen Block zerbrichst, wird der Gegenstand in dein Inventar teleportiert",
+      "lore1": "Jedes Mal, wenn ein Gegenstand von einem Block droppt, landet er in deinem Inventar"
     },
     "veinminer": {
+      "name": "Minenräumer",
+      "description": "Ermöglicht das zeitgleiche Zerbrechen von Blöcken in einer Ader/einem Cluster von Erzen",
+      "lore1": "Schleichen und Erze abbauen",
+      "lore2": "Reichweite des Mienenräumens",
+      "lore3": "Diese Fähigkeit fasst nicht alle Drops zusammen!"
     }
   },
   "ranged": {
     "arrowrecovery": {
+      "name": "Pfeilbergung",
+      "description": "Sammelt Peife ein, nachdem du einen Feind erledigt hast",
+      "lore1": "Chance auf Wiederherstellung von Pfeilen bei Treffern/Tötung"
     },
     "forceshot": {
+      "name": "Kraftschuss",
+      "description": "Schießt Projektile schneller und weiter!",
+      "advancementname": "Weitschuss",
+      "advancementlore": "Schieße aus über 30 Blöcken Entfernung!",
+      "lore1": "Geschossgeschwindigkeit"
     },
     "lungeshot": {
+      "name": "Ausfallschritt",
+      "description": "Beim Fallen schleudern dich deine Pfeile in eine zufällige Richtung",
+      "lore1": "Zufällige Burst-Geschwindigkeit"
     },
     "arrowpiercing": {
+      "name": "Pfeildurchbohren",
+      "description": "Fügt Projektilen Durchschlagskraft hinzu. Schieß durch Dinge hindurch!",
+      "lore1": "Ziele durchschlagen"
     }
   },
   "rift": {
     "remoteaccess": {
+      "name": "Fernzugriff",
+      "description": "In die Leere greifen um auf einen markierte Behälter zuzugreifen",
+      "lore1": "Enderpele + Kompass = Reliquienportschlüssel",
+      "lore2": "Dieser Gegenstand ermöglicht es aus der Ferne auf Behälter zuzugreifen",
+      "lore3": "Sieh dir den Gegenstand nach der Herstellung an um ihn zu verstehen",
+      "notcontainer": "Das ist kein Behälter"
     },
     "blink": {
+      "name": "Rift Blinzeln",
+      "description": "Teleportation auf kurze Distanz. Nur ein Wimpernschlag entfernt!",
+      "lore1": "Blöcke auf Blinken (2x vertikal)",
+      "lore2": "Beim Sprinten: Doppelklick auf Springen, um ",
+      "lore3": "zu Blink"
     },
     "chest": {
+      "name": "Einfache Endertruhe",
+      "description": "Linksklick um eine Endertruhe in deiner Hand zu öffnen",
+      "lore1": "Klick auf eine Endertruhe in deiner Hand, um sie zu öffnen (nicht plazieren)"
     },
     "gate": {
+      "name": "Rift Gate",
+      "description": "Teleportiere dich zu einen markierten Ort",
+      "lore1": "CRAFTING: Smaragd + Amethystscherbe + Enderperle",
+      "lore2": "Vor Gebrauch lesen!",
+      "lore3": "5s Verzögerung, ",
+      "lore4": "Du kannst während der Animation sterben"
     },
     "resist": {
+      "name": "Rift Widerstand",
+      "description": "Erhalte Resistenz bei der Verwendung von Ender Gegenständen & Fähigkeiten",
+      "lore1": "+ Passiv: Bietet Widerstand, wenn du Rift-Fähigkeiten oder Ender Gegenstände benutzt",
+      "lore2": "Beinhält NICHT die tragbare Endertruhe, nur Dinge, die du verbrauchen kannst"
     }
   },
   "seaborn": {
     "oxygen": {
+      "name": "Organischer Sauerstofftank",
+      "description": "Halte mehr Sauerstoff in deinen kleinen Lungen!",
+      "lore1": "Sauerstoff"
     },
     "fishersfantasy": {
+      "name": "Phantasie des Fischers",
+      "description": "Erhalte mehr Erfahrung und mehr Fische beim Fischen!",
+      "lore1": "Für jedes Level gibt es eine Chance mehr Erfahrung und Fische zu erhalten"
     },
     "haste": {
+      "name": "Schildkröten Miner",
+      "description": "Erhalte Eile beim Bergbau unter Wasser!",
+      "lore1": "Eile 3 wird während des Abbaus unter Wasser angewendet (stapelt sich mit Wasseraffinität), nachdem der Effekt der Wasseratmung nachlässt!"
     },
     "nightvision": {
+      "name": "Vision der Schildkröte",
+      "description": "Erhalte Nachsicht, wenn du unter Wasser bist",
+      "lore1": "Erhalte Nachtsicht unter Wasser, wenn der Effekt der Wasseratmung nachlässt!"
     },
     "dolphingrace": {
+      "name": "Gunst des Delfins",
+      "description": "Schwimm wie ein Delphin, ohne einen Delphin!",
+      "lore1": "+ Passiv: erhalte ",
+      "lore2": "x Geschwindigkeit (Gunst des Delfins)",
+      "lore3": "Präzise deutsche Ingenieeee.. - Moment, das ist nicht richtig..."
     }
   },
   "stealth": {
     "ghostarmor": {
+      "name": "Geister Rüstung",
+      "description": "Langsamer Aufbau von Rüstung, wenn kein Schaden erhalten wird. Hält für 1 Treffer an!",
+      "lore1": "Maximale Rüstung",
+      "lore2": "Geschwindigkeit"
     },
     "nightvision": {
+      "name": "Heimliche Vision",
+      "description": "Erhalte Nachtsicht beim Schleichen",
+      "lore1": "Erhalte einen Schub von ",
+      "lore2": "night vision",
+      "lore3": "während dem Schleichen"
     },
     "snatch": {
+      "name": "Schnappen",
+      "description": "Nimm sofort fallen gelassene Gegenstände auf während du schleichst ",
+      "lore1": "Schnappradius"
     },
     "speed": {
+      "name": "Schleichgeschwindigkeit",
+      "description": "Gewinne an Geschwindigkeit beim Schleichen",
+      "lore1": "Schleichgeschwindigkeit"
     }
   },
   "sword": {
     "machete": {
+      "name": "Die Machete",
+      "description": "Schneide mit Leichtigkeit durchs Laub!",
+      "lore1": "Slash Radius",
+      "lore2": "Schlag Abklingzeit",
+      "lore3": "Werkzeugverschleiß"
     },
     "bloodyblade": {
+      "name": "Blutige Klinge",
+      "description": "Schläge mit deinem Schwert verursachen Blutungen!",
+      "lore1": "Das Schlagen eines Lebewesens mit deinem Schwert verursacht Bluten",
+      "lore2": "Blutungsdauer",
+      "lore3": "Blutungs-Abklingzeit"
     },
     "poisonedblade": {
+      "name": "Vergiftete Klinge",
+      "description": "Schläge mit deinem Schwert, verursachen Vergiftung!",
+      "lore1": "Das Schlagen eines Lebewesens mit deinem Schwert verursacht Vergiftung",
+      "lore2": "Vergiftungsdauer",
+      "lore3": "Vergiftungs-Abklingzeit"
     }
   },
   "taming": {
     "damage": {
+      "name": "Zähmbarer Schaden",
+      "description": "Erhöht den Schaden von gezähmten Tieren",
+      "lore1": "Erhöhter Schaden"
     },
     "health": {
+      "name": "Zähmbare Gesundheit",
+      "description": "Erhöht die Gesundheit von gezähmten Tieren",
+      "lore1": "Erhöte Gesundheit"
     },
     "regeneration": {
+      "name": "Gezähmte Regeneration",
+      "description": "Erhöht die Gesundheitsregeneration von gezähmten Tieren",
+      "lore1": "HP/s"
     }
   },
   "tragoul": {
     "thorns": {
+      "name": "Dornen",
+      "description": "Reflektiert Schaden zurück auf den Angreifer!",
+      "lore1": "Schaden vergelten, wenn man getroffen wird"
     }
   },
   "unarmed": {
     "glasscannon": {
+      "name": "Glaskanone",
+      "description": "Bonus auf unbewaffneten Schaden, je niedriger dein Rüstungswert ist",
+      "lore1": "x Schaden bei 0 Rüstung",
+      "lore2": "Pro Level Bonus Schaden"
     },
     "power": {
+      "name": "Unbewaffnete Macht",
+      "description": "Verbessert unbewaffeten Schaden",
+      "lore1": "Schaden"
     },
     "suckerpunch": {
+      "name": "Sucker Punch",
+      "description": "Sprint Schläge, aber tödlicher!",
+      "lore1": "Schaden",
+      "lore2": "Schaden erhöht sich mit der Geschwindigkeit beim Schlagen"
     }
   }
 }
