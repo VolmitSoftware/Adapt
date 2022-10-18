@@ -121,26 +121,25 @@
       "description": "Splash 5,000,000 Potions"
     },
     "challenge_craft_1k": {
-        "title": "Crafty Crafter!",
-        "description": "Craft 1000 Items"
+      "title": "Crafty Crafter!",
+      "description": "Craft 1000 Items"
     },
     "challenge_craft_5k": {
-        "title": "Cantankerous Crafter!",
-        "description": "Craft 5000 Items"
+      "title": "Cantankerous Crafter!",
+      "description": "Craft 5000 Items"
     },
     "challenge_craft_50k": {
-        "title": "Cervile Crafter!",
-        "description": "Craft 50,000 Items"
+      "title": "Cervile Crafter!",
+      "description": "Craft 50,000 Items"
     },
     "challenge_craft_500k": {
-        "title": "Cacophonous Crafter!",
-        "description": "Craft 500,000 Items"
+      "title": "Cacophonous Crafter!",
+      "description": "Craft 500,000 Items"
     },
     "challenge_craft_5m": {
-        "title": "Calamitous McCraftface",
-        "description": "Craft 5,000,000 Items"
+      "title": "Calamitous McCraftface",
+      "description": "Craft 5,000,000 Items"
     }
-
   },
   "snippets": {
     "gui": {
