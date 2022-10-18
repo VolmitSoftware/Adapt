@@ -111,7 +111,10 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
             return;
         }
         double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
-        try {J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));} catch (Exception ignored) {}
+        try {
+            J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));
+        } catch (Exception ignored) {
+        }
         getPlayer(p).getData().addStat("blocks.placed", 1);
         getPlayer(p).getData().addStat("blocks.placed.value", v);
 

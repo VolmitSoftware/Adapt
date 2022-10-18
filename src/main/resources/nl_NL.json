@@ -36,7 +36,6 @@
       "xporb": "Experience Orb"
     }
   },
-
   "skill": {
     "agility": {
       "name": "Wendbaarheid",
@@ -60,12 +59,12 @@
       "icon": "❖",
       "description": "Dubbel Bubbel, Tripel Bubbel, Vierdubbel Bubbel - Ik kan dit drankje nog steeds niet in een pot doen"
     },
-    "crafting":{
+    "crafting": {
       "name": "Crafting",
       "icon": "❖",
       "description": "Als je alles hebt geplaatst, maak je toch gewoon een nieuwe?"
     },
-    "discovery":{
+    "discovery": {
       "name": "Ontdekking",
       "icon": "⚛",
       "description": "Met een betere perceptie zie en begrijp je meer van de wereld om je heen!"
@@ -80,7 +79,7 @@
       "icon": "✥",
       "description": "Diggy Diggy hole!"
     },
-    "herbalism":  {
+    "herbalism": {
       "name": "Kruiden",
       "icon": "⚘",
       "description": "Ik kan mijn planten niet vinden, maar wel wat zaadjes... is dat... wiet?"
@@ -226,7 +225,7 @@
       "lore2": "Per aanrakend Lava Blok"
     }
   },
-  "crafting":{
+  "crafting": {
     "deconstruction": {
       "name": "Deconstructie",
       "description": "Ontmantel blokken & items tot bruikbare componenten!",
@@ -239,7 +238,7 @@
       "lore1": "Krijg XP tijdens het craften"
     }
   },
-  "discovery":{
+  "discovery": {
     "armor": {
       "name": "Wereld Pantser",
       "description": "Passief pantser (armor) afhankelijk van de hardheid van bijzijnde blokken.",
@@ -303,7 +302,7 @@
       "lore7": "je kan vijf of zes tools gebruiken, of slechts een!"
     }
   },
-  "herbalism":  {
+  "herbalism": {
     "growthaura": {
       "name": "Growth Aura",
       "description": "Laat planen binnen je aura groeien",
