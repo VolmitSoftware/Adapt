@@ -59,6 +59,86 @@
     "challenge_chop_5m": {
       "title": "Jackson, o cachorro",
       "description": "O melhor menino bom! (5 milhões de blocos)"
+    },
+    "challenge_block_1k": {
+      "title": "Balrely Bloqueando!",
+      "description": "Bloquear 1.000 hits"
+    },
+    "challenge_block_5k": {
+      "title": "Bloquear é divertido!",
+      "description": "Bloquear 5.000 hits"
+    },
+    "challenge_block_50k": {
+      "title": "Bloquear é minha vida!",
+      "description": "Bloquear 50.000 hits"
+    },
+    "challenge_block_500k": {
+      "title": "Bloquear é o meu propósito!",
+      "description": "Bloquear 500.000 hits"
+    },
+    "challenge_block_5m": {
+      "title": "Die Hand Die Verletzt",
+      "description": "Bloquear 5.000.000 hits"
+    },
+    "challenge_brew_1k": {
+      "title": "Alquimista Iniciante!",
+      "description": "Consuma 1000 Poções"
+    },
+    "challenge_brew_5k": {
+      "title": "Alquimista Intermediário!",
+      "description": "Consuma 5000 Poções"
+    },
+    "challenge_brew_50k": {
+      "title": "Alquimista Avançado!",
+      "description": "Consuma 50.000 Poções"
+    },
+    "challenge_brew_500k": {
+      "title": "Mestre Alquimista!",
+      "description": "Consuma 500.000 Poções"
+    },
+    "challenge_brew_5m": {
+      "title": "O Alquimista",
+      "description": "Consuma 5.000.000 Poções"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "Lançador de Poções Iniciante!",
+      "description": "Splash 1000 poções"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "Espalhador de Poções Intermediário!",
+      "description": "Splash 5000 Poções"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "Lançador de Poções Avançado!",
+      "description": "Splash 50.000 Poções"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "Mestre Espalhador de Poções!",
+      "description": "Splash 500.000 Poções"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "O Mestre do Respingo",
+      "description": "Splash 5.000.000 Poções"
+    },
+    "challenge_craft_1k": {
+      "title": "Artesão astuto!",
+      "description": "Crie 1.000 itens"
+    },
+    "challenge_craft_5k": {
+      "title": "Artífice Cantante!",
+      "description": "Crie 5.000 itens"
+    },
+    "challenge_craft_50k": {
+      "title": "Cervile Crafter!",
+      "description": "Crie 50.000 itens"
+    },
+    "challenge_craft_500k": {
+      "title": "Artesão Cacofônico!",
+      "description": "Crie 500.000 itens"
+    },
+    "challenge_craft_5m": {
+      "title": "Calamitoso McCraftface",
+      "description": "Crie 5.000.000 itens"
     }
   },
   "snippets": {
