@@ -19,13 +19,17 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.AdaptConfig;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.blocking.BlockingChainArmorer;
 import com.volmit.adapt.content.adaptation.blocking.BlockingHorseArmorer;
 import com.volmit.adapt.content.adaptation.blocking.BlockingMultiArmor;
 import com.volmit.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -53,6 +57,46 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
         registerAdaptation(new BlockingChainArmorer());
         registerAdaptation(new BlockingSaddlecrafter());
         registerAdaptation(new BlockingHorseArmorer());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LEATHER_CHESTPLATE).key("challenge_block_1k")
+                .title(Localizer.dLocalize("advancement", "challenge_block_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_block_1k", "description"))
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                        .icon(Material.CHAINMAIL_CHESTPLATE)
+                        .key("challenge_block_5k")
+                        .title(Localizer.dLocalize("advancement", "challenge_block_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_block_5k", "description"))
+                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                .icon(Material.IRON_CHESTPLATE)
+                                .key("challenge_block_50k")
+                                .title(Localizer.dLocalize("advancement", "challenge_block_50k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_block_50k", "description"))
+                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                        .icon(Material.GOLDEN_CHESTPLATE)
+                                        .key("challenge_block_500k")
+                                        .title(Localizer.dLocalize("advancement", "challenge_block_500k", "title"))
+                                        .description(Localizer.dLocalize("advancement", "challenge_block_500k", "description"))
+                                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                                .icon(Material.DIAMOND_CHESTPLATE)
+                                                .key("challenge_block_5m")
+                                                .title(Localizer.dLocalize("advancement", "challenge_block_5m", "title"))
+                                                .description(Localizer.dLocalize("advancement", "challenge_block_5m", "description"))
+                                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_1k").goal(1000).stat("blocked.hits").reward(getConfig().challengeBlock1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_5k").goal(5000).stat("blocked.hits").reward(getConfig().challengeBlock1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_50k").goal(50000).stat("blocked.hits").reward(getConfig().challengeBlock5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_500k").goal(500000).stat("blocked.hits").reward(getConfig().challengeBlock5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_5m").goal(5000000).stat("blocked.hits").reward(getConfig().challengeBlock5kReward).build());
         cooldowns = new HashMap<>();
     }
 
@@ -118,6 +162,8 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     protected static class Config {
         boolean enabled = true;
         double xpOnBlockedAttack = 10;
+        double challengeBlock1kReward = 500;
+        double challengeBlock5kReward = 2000;
         long cooldownDelay = 3000;
         long passiveXpForUsingShield = 1;
     }
