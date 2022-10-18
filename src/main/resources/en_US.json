@@ -20,7 +20,6 @@
       "title": "Sprint a (literal) Marathon!",
       "description": "Sprint over 42,195 Blocks!"
     },
-
     "challenge_place_1k": {
       "title": "Novice Builder!",
       "description": "Place 1,000 Blocks"
@@ -41,7 +40,6 @@
       "title": "Symmetry's Acolyte!",
       "description": "REALITY IS YOUR PLAYGROUND! (5 Million Blocks)"
     },
-
     "challenge_chop_1k": {
       "title": "Novice Lumberjack!",
       "description": "Chop 1,000 Blocks"
@@ -62,7 +60,6 @@
       "title": "Jackson the Dog",
       "description": "The bestest good Boy! (5 Million Blocks)"
     },
-
     "challenge_block_1k": {
       "title": "Balrely Blocking!",
       "description": "Block 1000 Hits"
@@ -83,7 +80,6 @@
       "title": "Die Hand Die Verletzt",
       "description": "Block 5,000,000 Hits"
     },
-
     "challenge_brew_1k": {
       "title": "Novice Alchemist!",
       "description": "Consume 1000 Potions"
@@ -124,8 +120,6 @@
       "title": "The Splash Meister",
       "description": "Splash 5,000,000 Potions"
     }
-
-
   },
   "snippets": {
     "gui": {
