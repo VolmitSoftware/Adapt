@@ -61,14 +61,46 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         registerAdaptation(new CraftingSkulls());
         registerAdaptation(new CraftingBackpacks());
         registerAdvancement(AdaptAdvancement.builder()
-                .icon(Material.BRICK)
-                .key("challenge_craft_3k")
-                .title("MacGyver Man")
-                .description("Craft over 3,000 items")
+                .icon(Material.CRAFTING_TABLE).key("challenge_craft_1k")
+                .title(Localizer.dLocalize("advancement", "challenge_craft_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_craft_1k", "description"))
                 .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
-                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                        .icon(Material.CRAFTING_TABLE)
+                        .key("challenge_craft_5k")
+                        .title(Localizer.dLocalize("advancement", "challenge_craft_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_craft_5k", "description"))
+                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                .icon(Material.CRAFTING_TABLE)
+                                .key("challenge_craft_50k")
+                                .title(Localizer.dLocalize("advancement", "challenge_craft_50k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_craft_50k", "description"))
+                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                        .icon(Material.CRAFTING_TABLE)
+                                        .key("challenge_craft_500k")
+                                        .title(Localizer.dLocalize("advancement", "challenge_craft_500k", "title"))
+                                        .description(Localizer.dLocalize("advancement", "challenge_craft_500k", "description"))
+                                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                                .icon(Material.CRAFTING_TABLE)
+                                                .key("challenge_craft_5m")
+                                                .title(Localizer.dLocalize("advancement", "challenge_craft_5m", "title"))
+                                                .description(Localizer.dLocalize("advancement", "challenge_craft_5m", "description"))
+                                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_3k").goal(3000).stat("crafted.items").reward(getConfig().challengeCraft3kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_1k").goal(1000).stat("blocked.hits").reward(getConfig().challengeCraft1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_5k").goal(5000).stat("blocked.hits").reward(getConfig().challengeCraft1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_50k").goal(50000).stat("blocked.hits").reward(getConfig().challengeCraft1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_500k").goal(500000).stat("blocked.hits").reward(getConfig().challengeCraft1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_5m").goal(5000000).stat("blocked.hits").reward(getConfig().challengeCraft1kReward).build());
+
         cooldowns = new HashMap<>();
     }
 
@@ -216,6 +248,6 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         long furnaceXPDuration = 10000;
         double craftingValueXPMultiplier = 1;
         double baseCraftingXP = 0.25;
-        double challengeCraft3kReward = 4750;
+        double challengeCraft1kReward = 1200;
     }
 }
