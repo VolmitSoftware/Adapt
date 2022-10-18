@@ -59,6 +59,86 @@
     "challenge_chop_5m": {
       "title": "Köpek Jackson",
       "description": "En iyi iyi çocuk! (5 Milyon Blok)"
+    },
+    "challenge_block_1k": {
+      "title": "Balrely Engelleme!",
+      "description": "1000 İsabeti Engelle"
+    },
+    "challenge_block_5k": {
+      "title": "Engellemek Eğlencelidir!",
+      "description": "5000 İsabeti Engelle"
+    },
+    "challenge_block_50k": {
+      "title": "Engellemek benim hayatım!",
+      "description": "50.000 İsabeti Engelle"
+    },
+    "challenge_block_500k": {
+      "title": "Engellemek Benim Amacım!",
+      "description": "500.000 İsabeti Engelle"
+    },
+    "challenge_block_5m": {
+      "title": "Die El Die Verletzt",
+      "description": "5.000.000 Hit'i Engelle"
+    },
+    "challenge_brew_1k": {
+      "title": "Acemi Kimyager!",
+      "description": "1000 İksir tüket"
+    },
+    "challenge_brew_5k": {
+      "title": "Orta Düzey Kimyager!",
+      "description": "5000 İksir tüket"
+    },
+    "challenge_brew_50k": {
+      "title": "Gelişmiş Simyacı!",
+      "description": "50.000 İksir tüket"
+    },
+    "challenge_brew_500k": {
+      "title": "Usta Kimyager!",
+      "description": "500.000 İksir tüket"
+    },
+    "challenge_brew_5m": {
+      "title": "Kimyager",
+      "description": "5.000.000 İksir tüket"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "Acemi İksir-Sıçrayan!",
+      "description": "1000 İksir Sıçrama"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "Orta Seviye İksir-Sıçrayan!",
+      "description": "Sıçrayan 5000 İksir"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "Gelişmiş İksir-Sıçrama!",
+      "description": "50.000 İksir Sıçrat"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "Usta İksir-Sıçrayan!",
+      "description": "500.000 İksir Sıçrat"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "Sıçrayan Meister",
+      "description": "5.000.000 İksir Sıçrat"
+    },
+    "challenge_craft_1k": {
+      "title": "Kurnaz Zanaatkar!",
+      "description": "1000 Öğe Üret"
+    },
+    "challenge_craft_5k": {
+      "title": "Huysuz Zanaatkar!",
+      "description": "5000 Öğe Üret"
+    },
+    "challenge_craft_50k": {
+      "title": "Rahim Ağzı Yapan!",
+      "description": "50.000 Öğe Üret"
+    },
+    "challenge_craft_500k": {
+      "title": "Kakofonik Zanaatkar!",
+      "description": "500.000 Öğe Üret"
+    },
+    "challenge_craft_5m": {
+      "title": "belalı McCraftface",
+      "description": "5.000.000 Eşya Üret"
     }
   },
   "snippets": {
