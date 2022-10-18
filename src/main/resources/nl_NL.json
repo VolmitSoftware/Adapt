@@ -214,6 +214,7 @@
     },
     "blocking": {
       "name": "Blokkeren",
+      "icon": "▒",
       "description": "Stokken en stenen zullen je botten niet breken, maar een schild wel."
     },
     "crafting": {
