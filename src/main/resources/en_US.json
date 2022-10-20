@@ -139,6 +139,46 @@
     "challenge_craft_5m": {
       "title": "Calamitous McCraftface",
       "description": "Craft 5,000,000 Items"
+    },
+    "challenge_enchant_1k": {
+      "title": "Novice Enchanter!",
+      "description": "Enchant 1000 Items"
+    },
+    "challenge_enchant_5k": {
+      "title": "Intermediate Enchanter!",
+      "description": "Enchant 5000 Items"
+    },
+    "challenge_enchant_50k": {
+      "title": "Advanced Enchanter!",
+      "description": "Enchant 50,000 Items"
+    },
+    "challenge_enchant_500k": {
+      "title": "Master Enchanter!",
+      "description": "Enchant 500,000 Items"
+    },
+    "challenge_enchant_5m": {
+      "title": "Enigmatic Enchanter",
+      "description": "Enchant 5,000,000 Items"
+    },
+    "challenge_excavate_1k": {
+      "title": "Enticed Excavator!",
+      "description": "Excavate 1000 Blocks"
+    },
+    "challenge_excavate_5k": {
+      "title": "Intermediate Excavator!",
+      "description": "Excavate 5000 Blocks"
+    },
+    "challenge_excavate_50k": {
+      "title": "Advanced Excavator!",
+      "description": "Excavate 50,000 Blocks"
+    },
+    "challenge_excavate_500k": {
+      "title": "Master Excavator!",
+      "description": "Excavate 500,000 Blocks"
+    },
+    "challenge_excavate_5m": {
+      "title": "Enigmatic Excavator",
+      "description": "Excavate 5,000,000 Blocks"
     }
   },
   "snippets": {
