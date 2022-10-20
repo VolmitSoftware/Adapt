@@ -1,4 +1,146 @@
 {
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "¡Tengo que moverme!",
+      "description": "Camine más de 1 kilómetro (1,000 cuadras)"
+    },
+    "challenge_sprint_5k": {
+      "title": "¡Corre 5K!",
+      "description": "Camine más de 5 kilómetros (5.000 cuadras)"
+    },
+    "challenge_sprint_50k": {
+      "title": "¡Zoom 50K!",
+      "description": "Camine más de 50 kilómetros (50,000 cuadras)"
+    },
+    "challenge_sprint_500k": {
+      "title": "¡¡Atraviesa el Universo!!",
+      "description": "Camine más de 500 kilómetros (500.000 cuadras)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "¡Corre un maratón (literal)!",
+      "description": "¡Corre sobre 42,195 bloques!"
+    },
+    "challenge_place_1k": {
+      "title": "¡Constructor novicio!",
+      "description": "Coloca 1000 bloques"
+    },
+    "challenge_place_5k": {
+      "title": "¡Constructor intermedio!",
+      "description": "Coloca 5000 bloques"
+    },
+    "challenge_place_50k": {
+      "title": "¡Constructor avanzado!",
+      "description": "Coloque 50,000 bloques"
+    },
+    "challenge_place_500k": {
+      "title": "¡Maestro constructor!",
+      "description": "Coloque 500.000 bloques"
+    },
+    "challenge_place_5m": {
+      "title": "¡Acólito de Symmetry!",
+      "description": "¡LA REALIDAD ES TU PATIO DE JUEGO! (5 millones de bloques)"
+    },
+    "challenge_chop_1k": {
+      "title": "Leñador novato!",
+      "description": "Cortar 1000 bloques"
+    },
+    "challenge_chop_5k": {
+      "title": "Leñador intermedio!",
+      "description": "Cortar 5000 bloques"
+    },
+    "challenge_chop_50k": {
+      "title": "Leñador avanzado!",
+      "description": "Corta 50 000 bloques"
+    },
+    "challenge_chop_500k": {
+      "title": "¡Maestro leñador!",
+      "description": "Cortar 500.000 bloques"
+    },
+    "challenge_chop_5m": {
+      "title": "jackson el perro",
+      "description": "¡El mejor chico bueno! (5 millones de bloques)"
+    },
+    "challenge_block_1k": {
+      "title": "¡Balrely bloqueando!",
+      "description": "Bloque 1000 visitas"
+    },
+    "challenge_block_5k": {
+      "title": "¡Bloquear es divertido!",
+      "description": "Bloque 5000 visitas"
+    },
+    "challenge_block_50k": {
+      "title": "¡El bloqueo es mi vida!",
+      "description": "Bloque 50,000 Visitas"
+    },
+    "challenge_block_500k": {
+      "title": "¡El bloqueo es mi propósito!",
+      "description": "Bloque 500,000 Visitas"
+    },
+    "challenge_block_5m": {
+      "title": "Die Hand Die Verletzt",
+      "description": "Bloque 5,000,000 Visitas"
+    },
+    "challenge_brew_1k": {
+      "title": "¡Alquimista novato!",
+      "description": "Consume 1000 pociones"
+    },
+    "challenge_brew_5k": {
+      "title": "¡Alquimista intermedio!",
+      "description": "Consume 5000 pociones"
+    },
+    "challenge_brew_50k": {
+      "title": "¡Alquimista avanzado!",
+      "description": "Consume 50,000 Pociones"
+    },
+    "challenge_brew_500k": {
+      "title": "¡Maestro alquimista!",
+      "description": "Consume 500,000 Pociones"
+    },
+    "challenge_brew_5m": {
+      "title": "El alquimista",
+      "description": "Consume 5,000,000 Pociones"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "¡Salpicador de pociones novato!",
+      "description": "Salpicar 1000 pociones"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "¡Salpicador de pociones intermedio!",
+      "description": "Salpicar 5000 pociones"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "¡Salpicador de pociones avanzado!",
+      "description": "Salpica 50.000 pociones"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "¡Maestro salpicador de pociones!",
+      "description": "Salpica 500.000 pociones"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "El maestro de las salpicaduras",
+      "description": "Salpica 5.000.000 de pociones"
+    },
+    "challenge_craft_1k": {
+      "title": "¡Artesano astuto!",
+      "description": "Crea 1000 artículos"
+    },
+    "challenge_craft_5k": {
+      "title": "¡Artesanía cascarrabias!",
+      "description": "Crea 5000 artículos"
+    },
+    "challenge_craft_50k": {
+      "title": "¡Cervile Crafter!",
+      "description": "Crea 50,000 artículos"
+    },
+    "challenge_craft_500k": {
+      "title": "¡Artesano cacofónico!",
+      "description": "Crea 500,000 artículos"
+    },
+    "challenge_craft_5m": {
+      "title": "McCraftface calamitoso",
+      "description": "Crea 5,000,000 artículos"
+    }
+  },
   "snippets": {
     "gui": {
       "level": "Nivel",
@@ -237,6 +379,13 @@
       "lore1": "Shiftea, y las mías HOJAS",
       "lore2": "gama de Leaf-mining",
       "lore3": "No obtendrás los drops de las hojas (Prevención de exploits)"
+    },
+    "woodminer": {
+      "name": "minero de madera",
+      "description": "¡Le permite romper madera a granel a la vez!",
+      "lore1": "Escabullirse y extraer MADERA/TRONCOS (no tablones)",
+      "lore2": "gama de madera-minería",
+      "lore3": "Funciona con Drop to Inventory"
     }
   },
   "brewing": {
@@ -251,6 +400,72 @@
       "description": "Los puestos de elaboración de cerveza funcionan más rápido cuanto más calientes estén.",
       "lore1": "Por tocar el bloque de fuego",
       "lore2": "Por tocar el bloque de lava"
+    },
+    "darkness": {
+      "name": "Oscuridad embotellada",
+      "description": "No estoy seguro de por qué necesitas esto, ¡pero aquí tienes!",
+      "lore1": "Poción de visión nocturna + Concreto negro = Poción de oscuridad (30 segundos)",
+      "lore2": "Cabe señalar que ¡Esto evita que el usuario Sprinte!"
+    },
+    "haste": {
+      "name": "Prisa embotellada",
+      "description": "Cuando la eficiencia no es suficiente",
+      "lore1": "Poción de curación instantánea + Fragmento de amatista = Poción de celeridad (60 segundos)",
+      "lore2": "Curación instantánea + Bloque de amatista = Poción de celeridad-2 (30 segundos)"
+    },
+    "absorption": {
+      "name": "Absorción embotellada",
+      "description": "¡Endurezca el cuerpo!",
+      "lore1": "Poción de velocidad + Cuarzo = Poción de absorción (60 segundos)",
+      "lore2": "Poción de velocidad + Bloque de cuarzo = Poción de absorción-2 (30 segundos)"
+    },
+    "fatigue": {
+      "name": "Fatiga embotellada",
+      "description": "¡Debilita el cuerpo!",
+      "lore1": "Poción de debilidad + Bola de baba = Poción de fatiga (30 segundos)",
+      "lore2": "Poción de debilidad + Bloque de limo = Poción de fatiga-2 (15 segundos)"
+    },
+    "hunger": {
+      "name": "Hambre embotellada",
+      "description": "¡Alimenta a los insaciables!",
+      "lore1": "Poción incómoda + Carne podrida = Poción de hambre (30 segundos)",
+      "lore2": "Poción de debilidad + Carne podrida = Poción de hambre-3 (15 segundos)"
+    },
+    "nausea": {
+      "name": "náuseas embotelladas",
+      "description": "¡Me das asco!",
+      "lore1": "Poción incómoda + Champiñón marrón = Poción de náuseas (16 segundos)",
+      "lore2": "Poción incómoda + Hongo carmesí = Poción de náuseas-2 (8 segundos)"
+    },
+    "blindness": {
+      "name": "Ceguera embotellada",
+      "description": "Eres una persona horrible...",
+      "lore1": "Poción incómoda + Saco de tinta = Poción de ceguera (30 segundos)",
+      "lore2": "Poción incómoda + Saco de tinta brillante = Poción de ceguera-2 (15 segundos)"
+    },
+    "resistance": {
+      "name": "Resistencia embotellada",
+      "description": "¡Fortificación en su máxima expresión!",
+      "lore1": "Poción incómoda + Lingote de hierro = Poción de resistencia (60 segundos)",
+      "lore2": "Poción incómoda + Bloque de hierro = Poción de resistencia-2 (30 segundos)"
+    },
+    "healthboost": {
+      "name": "Vida embotellada",
+      "description": "Cuando la salud máxima no es suficiente...",
+      "lore1": "Poción de curación instantánea + Manzana dorada = Poción de mejora de la salud (120 segundos)",
+      "lore2": "Poción de curación instantánea + Manzana dorada encantada = Poción de potenciador de salud-2 (120 segundos)"
+    },
+    "decay": {
+      "name": "Deterioro embotellado",
+      "description": "¿Quién sabía que Detritus sería tan útil?",
+      "lore1": "Poción de debilidad + Patata venenosa = Poción de Wither (16 segundos)",
+      "lore2": "Poción de debilidad + Raíces carmesí = Poción de Wither-2 (8 segundos)"
+    },
+    "saturation": {
+      "name": "Saturación embotellada",
+      "description": "Ya sabes... ni siquiera tengo hambre...",
+      "lore1": "Poción de regeneración + Patata al horno = Poción de saturación",
+      "lore2": "Regen Potion + Hay Bale = Poción de saturación-2"
     }
   },
   "blocking": {
