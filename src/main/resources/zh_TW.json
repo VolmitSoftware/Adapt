@@ -57,8 +57,88 @@
       "description": "砍伐 500,000 格方塊"
     },
     "challenge_chop_5m": {
-      "title": "狗狗傑克遜",
+      "title": "吳剛傳人",
       "description": "最棒的好孩子！ （500 萬格）"
+    },
+    "challenge_block_1k": {
+      "title": "初學格擋!",
+      "description": "格擋1000次傷害"
+    },
+    "challenge_block_5k": {
+      "title": "格擋真有趣!",
+      "description": "格擋5000次傷害"
+    },
+    "challenge_block_50k": {
+      "title": "為格擋而生!",
+      "description": "格擋50,000次傷害"
+    },
+    "challenge_block_500k": {
+      "title": "意志即為格擋!",
+      "description": "格擋500,000次傷害"
+    },
+    "challenge_block_5m": {
+      "title": "巨盾勇士",
+      "description": "格擋5,000,000次傷害"
+    },
+    "challenge_brew_1k": {
+      "title": "煉金實習生!",
+      "description": "飲用1000瓶藥水"
+    },
+    "challenge_brew_5k": {
+      "title": "業餘-煉金術士!",
+      "description": "飲用5000瓶藥水"
+    },
+    "challenge_brew_50k": {
+      "title": "專業級-煉金術士!",
+      "description": "飲用50,000瓶藥水"
+    },
+    "challenge_brew_500k": {
+      "title": "家傳級煉金術士!",
+      "description": "飲用500,000瓶藥水"
+    },
+    "challenge_brew_5m": {
+      "title": "大煉金術師",
+      "description": "飲用5,000,000瓶藥水"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "初學-藥水投擲手!",
+      "description": "投擲1000瓶藥水"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "業餘-藥水投擲手!",
+      "description": "投擲5000瓶藥水"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "專業級-藥水投擲手!",
+      "description": "投擲50,000瓶藥水"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "家傳級-藥水投擲手!",
+      "description": "投擲500,000瓶藥水"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "藥水投擲大師",
+      "description": "投擲5,000,000瓶藥水"
+    },
+    "challenge_craft_1k": {
+      "title": "初入-製造匠!",
+      "description": "製作1000件物品"
+    },
+    "challenge_craft_5k": {
+      "title": "逐漸成熟-製造匠!",
+      "description": "製作5000件物品"
+    },
+    "challenge_craft_50k": {
+      "title": "鑽研精熟-製造匠!",
+      "description": "製作50,000件物品"
+    },
+    "challenge_craft_500k": {
+      "title": "巧奪天工-製造匠!",
+      "description": "製作500,000件物品"
+    },
+    "challenge_craft_5m": {
+      "title": "好似魯班再世",
+      "description": "製作5,000,000件物品"
     }
   },
   "snippets": {
@@ -447,7 +527,7 @@
       "lore2": "殭屍：腐肉",
       "lore3": "骷髏：骨頭",
       "lore4": "苦力怕：火藥",
-      "lore5": "凋零骷髏：下界磚",
+      "lore5": "凋零骷髏：地獄磚",
       "lore6": "龍首：龍息"
     }
   },
@@ -583,8 +663,6 @@
       "lore1": "最大傷害"
     },
     "penalty": {
-      "name": "",
-      "description": "",
       "lore1": "如果飢餓度歸零，將給予劇毒效果！"
     },
     "droptoinventory": {
