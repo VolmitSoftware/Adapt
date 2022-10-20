@@ -59,6 +59,86 @@
     "challenge_chop_5m": {
       "title": "Jackson il cane",
       "description": "Il miglior bravo ragazzo! (5 milioni di blocchi)"
+    },
+    "challenge_block_1k": {
+      "title": "Blocco a malapena!",
+      "description": "Blocca 1000 colpi"
+    },
+    "challenge_block_5k": {
+      "title": "Bloccare è divertente!",
+      "description": "Blocca 5000 colpi"
+    },
+    "challenge_block_50k": {
+      "title": "Il blocco è la mia vita!",
+      "description": "Blocca 50.000 visite"
+    },
+    "challenge_block_500k": {
+      "title": "Il blocco è il mio scopo!",
+      "description": "Blocca 500.000 visite"
+    },
+    "challenge_block_5m": {
+      "title": "Die Hand Die Verletzt",
+      "description": "Blocca 5.000.000 di visite"
+    },
+    "challenge_brew_1k": {
+      "title": "Alchimista alle prime armi!",
+      "description": "Consuma 1000 pozioni"
+    },
+    "challenge_brew_5k": {
+      "title": "Alchimista Intermedio!",
+      "description": "Consuma 5000 pozioni"
+    },
+    "challenge_brew_50k": {
+      "title": "Alchimista avanzato!",
+      "description": "Consuma 50.000 pozioni"
+    },
+    "challenge_brew_500k": {
+      "title": "Maestro Alchimista!",
+      "description": "Consuma 500.000 pozioni"
+    },
+    "challenge_brew_5m": {
+      "title": "L'alchimista",
+      "description": "Consuma 5.000.000 di pozioni"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "Spruzzatore di pozioni per principianti!",
+      "description": "Spruzza 1000 pozioni"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "Spruzzatore di pozioni intermedio!",
+      "description": "Spruzza 5000 pozioni"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "Spruzzatore di pozioni avanzato!",
+      "description": "Spruzza 50.000 pozioni"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "Maestro spruzzatore di pozioni!",
+      "description": "Spruzza 500.000 pozioni"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "Il maestro degli schizzi",
+      "description": "Spruzza 5.000.000 di pozioni"
+    },
+    "challenge_craft_1k": {
+      "title": "Artigiano furbo!",
+      "description": "Crea 1000 oggetti"
+    },
+    "challenge_craft_5k": {
+      "title": "Artigiano irascibile!",
+      "description": "Crea 5000 oggetti"
+    },
+    "challenge_craft_50k": {
+      "title": "Artigiano del Cervile!",
+      "description": "Crea 50.000 oggetti"
+    },
+    "challenge_craft_500k": {
+      "title": "Artigiano cacofonico!",
+      "description": "Crea 500.000 oggetti"
+    },
+    "challenge_craft_5m": {
+      "title": "Il calamitoso McCraftface",
+      "description": "Crea 5.000.000 di oggetti"
     }
   },
   "snippets": {
