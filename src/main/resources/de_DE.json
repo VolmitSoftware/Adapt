@@ -59,6 +59,86 @@
     "challenge_chop_5m": {
       "title": "Jackson the Dog",
       "description": "Der besteste gute Junge! (5 Millionen Blöcke)"
+    },
+    "challenge_block_1k": {
+      "title": "Kaum Blockieren!",
+      "description": "Blockiere 1000 Treffer"
+    },
+    "challenge_block_5k": {
+      "title": "Blockieren macht Spaß!",
+      "description": "Blockiere 5000 Treffer"
+    },
+    "challenge_block_50k": {
+      "title": "Blockieren ist mein Leben!",
+      "description": "Blockiere 50.000 Treffer"
+    },
+    "challenge_block_500k": {
+      "title": "Blockieren ist mein Zweck!",
+      "description": "Blockiere 500.000 Treffer"
+    },
+    "challenge_block_5m": {
+      "title": "Die Hand Die Verletzt",
+      "description": "Blockiere 5.000.000 Treffer"
+    },
+    "challenge_brew_1k": {
+      "title": "Anfänger Alchemist!",
+      "description": "Konsumiere 1000 Tränke"
+    },
+    "challenge_brew_5k": {
+      "title": "Fortgeschrittener Alchemist!",
+      "description": "Konsumiere 5000 Tränke"
+    },
+    "challenge_brew_50k": {
+      "title": "Fortgeschrittener Alchemist!",
+      "description": "Konsumiere 50.000 Tränke"
+    },
+    "challenge_brew_500k": {
+      "title": "Meister Alchemist!",
+      "description": "Konsumiere 500.000 Tränke"
+    },
+    "challenge_brew_5m": {
+      "title": "Der Alchemist",
+      "description": "Konsumiere 5.000.000 Tränke"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "Anfänger-Trankspritzer!",
+      "description": "Spritze 1000 Tränke"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "Fortgeschrittener Trank-Splasher!",
+      "description": "Spritze 5000 Tränke"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "Fortgeschrittener Potion-Splasher!",
+      "description": "Spritze 50.000 Tränke"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "Meistertrankspritzer!",
+      "description": "Spritze 500.000 Tränke"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "Der Splash-Meister",
+      "description": "Spritze 5.000.000 Tränke"
+    },
+    "challenge_craft_1k": {
+      "title": "Schlauer Handwerker!",
+      "description": "Stelle 1000 Gegenstände her"
+    },
+    "challenge_craft_5k": {
+      "title": "Miserabler Handwerker!",
+      "description": "Stelle 5000 Gegenstände her"
+    },
+    "challenge_craft_50k": {
+      "title": "Cervile Crafter!",
+      "description": "Stelle 50.000 Gegenstände her"
+    },
+    "challenge_craft_500k": {
+      "title": "Kakophonischer Handwerker!",
+      "description": "Stelle 500.000 Gegenstände her"
+    },
+    "challenge_craft_5m": {
+      "title": "Verhängnisvolles McCraftface",
+      "description": "Stelle 5.000.000 Gegenstände her"
     }
   },
   "snippets": {
