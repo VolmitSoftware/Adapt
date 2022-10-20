@@ -59,6 +59,86 @@
     "challenge_chop_5m": {
       "title": "Пёс Джексон",
       "description": "Самый лучший добрый мальчик! (5 миллионов блоков)"
+    },
+    "challenge_block_1k": {
+      "title": "Ясно блокирую!",
+      "description": "Заблокировать 1000 обращений"
+    },
+    "challenge_block_5k": {
+      "title": "Блокировка — это весело!",
+      "description": "Блокировать 5000 обращений"
+    },
+    "challenge_block_50k": {
+      "title": "Блокировка - это моя жизнь!",
+      "description": "Заблокировать 50 000 показов"
+    },
+    "challenge_block_500k": {
+      "title": "Блокировка - моя цель!",
+      "description": "Заблокировать 500 000 показов"
+    },
+    "challenge_block_5m": {
+      "title": "Die Hand Die Verletzt",
+      "description": "Заблокировать 5 000 000 показов"
+    },
+    "challenge_brew_1k": {
+      "title": "Начинающий алхимик!",
+      "description": "Выпейте 1000 зелий"
+    },
+    "challenge_brew_5k": {
+      "title": "Алхимик среднего уровня!",
+      "description": "Выпейте 5000 зелий"
+    },
+    "challenge_brew_50k": {
+      "title": "Продвинутый алхимик!",
+      "description": "Выпейте 50 000 зелий"
+    },
+    "challenge_brew_500k": {
+      "title": "Мастер Алхимик!",
+      "description": "Выпейте 500 000 зелий"
+    },
+    "challenge_brew_5m": {
+      "title": "Алхимик",
+      "description": "Выпейте 5 000 000 зелий"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "Новичок Зельебрызг!",
+      "description": "Всплеск 1000 зелий"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "Промежуточный Зелье-Брызги!",
+      "description": "Всплеск 5000 зелий"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "Продвинутый Зелье-Брызги!",
+      "description": "Выплеснуть 50 000 зелий"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "Мастер зельеварения!",
+      "description": "Выплеснуть 500 000 зелий"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "Всплеск Мейстер",
+      "description": "Всплеск 5 000 000 зелий"
+    },
+    "challenge_craft_1k": {
+      "title": "Крутой крафтер!",
+      "description": "Создать 1000 предметов"
+    },
+    "challenge_craft_5k": {
+      "title": "Сварливый ремесленник!",
+      "description": "Создать 5000 предметов"
+    },
+    "challenge_craft_50k": {
+      "title": "Сервил Крафтер!",
+      "description": "Создать 50 000 предметов"
+    },
+    "challenge_craft_500k": {
+      "title": "Какофонический Crafter!",
+      "description": "Создать 500 000 предметов"
+    },
+    "challenge_craft_5m": {
+      "title": "Катастрофический Маккрафтфейс",
+      "description": "Создать 5 000 000 предметов"
     }
   },
   "snippets": {
