@@ -59,6 +59,86 @@
     "challenge_chop_5m": {
       "title": "Koira Jackson",
       "description": "Paras hyvä Poika! (5 miljoonaa lohkoa)"
+    },
+    "challenge_block_1k": {
+      "title": "Huonosti esto!",
+      "description": "Estä 1000 osumaa"
+    },
+    "challenge_block_5k": {
+      "title": "Estäminen on hauskaa!",
+      "description": "Estä 5000 osumaa"
+    },
+    "challenge_block_50k": {
+      "title": "Estäminen on elämäni!",
+      "description": "Estä 50 000 osumaa"
+    },
+    "challenge_block_500k": {
+      "title": "Estäminen on tarkoitukseni!",
+      "description": "Estä 500 000 osumaa"
+    },
+    "challenge_block_5m": {
+      "title": "Die Hand Die Verletzt",
+      "description": "Estä 5 000 000 osumaa"
+    },
+    "challenge_brew_1k": {
+      "title": "Aloitteleva alkemisti!",
+      "description": "Käytä 1000 juomaa"
+    },
+    "challenge_brew_5k": {
+      "title": "Keskitason alkemisti!",
+      "description": "Käytä 5000 juomaa"
+    },
+    "challenge_brew_50k": {
+      "title": "Edistynyt alkemisti!",
+      "description": "Käytä 50 000 juomaa"
+    },
+    "challenge_brew_500k": {
+      "title": "Mestari alkemisti!",
+      "description": "Käytä 500 000 juomaa"
+    },
+    "challenge_brew_5m": {
+      "title": "Alkemisti",
+      "description": "Käytä 5 000 000 juomaa"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "Noviisi Potion-Splasher!",
+      "description": "Splash 1000 juomaa"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "Keskitason Potion-Splasher!",
+      "description": "Splash 5000 juomaa"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "Advanced Potion-Splasher!",
+      "description": "Suihkuta 50 000 juomaa"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "Mestari Potion-Splasher!",
+      "description": "Purista 500 000 juomaa"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "Splash Meister",
+      "description": "Suihkuta 5 000 000 juomaa"
+    },
+    "challenge_craft_1k": {
+      "title": "Taitava käsityöläinen!",
+      "description": "Käsityö 1000 esinettä"
+    },
+    "challenge_craft_5k": {
+      "title": "Pirteä käsityöläinen!",
+      "description": "Käsityö 5000 esinettä"
+    },
+    "challenge_craft_50k": {
+      "title": "Cervile Crafter!",
+      "description": "Käsityö 50 000 esinettä"
+    },
+    "challenge_craft_500k": {
+      "title": "Kakofoninen käsityöläinen!",
+      "description": "Käsityö 500 000 esinettä"
+    },
+    "challenge_craft_5m": {
+      "title": "Surkea McCraftface",
+      "description": "Käsittele 5 000 000 esinettä"
     }
   },
   "snippets": {
