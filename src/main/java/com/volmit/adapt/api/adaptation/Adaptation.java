@@ -183,28 +183,38 @@ public interface Adaptation<T> extends Ticked, Component {
         return WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, world);
     }
 
-    default boolean hasAdaptation(Player p) {
-        if (!this.getSkill().isEnabled()) {
-            this.unregister();
-        }
-        if (p.getClass().getSimpleName().equals("PlayerNPC")) {
-            return false;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return false;
-        }
-        if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
-            return false;
-        }
-        Adapt.verbose("Player: " + p.getName() + " Attempting adaptation: " + this.getName() + " level: " + getLevel(p));
 
-        if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null && Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
-                && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()
-                && !canBuild(p, p.getLocation())) {
-            Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have worldguard build permission.");
-            return false;
+    default boolean hasAdaptation(Player p) {
+        try {
+            if (!this.getSkill().isEnabled()) {
+                this.unregister();
+            }
+            if (p.getClass().getSimpleName().equals("PlayerNPC")) {
+                return false;
+            }
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return false;
+            }
+            if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
+                return false;
+            }
+            Adapt.verbose("Player: " + p.getName() + " Attempting adaptation: " + this.getName() + " level: " + getLevel(p));
+            if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null && Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
+                    && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()
+                    && !canBuild(p, p.getLocation())) {
+                Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have worldguard build permission.");
+                return false;
+            }
+            return getLevel(p) > 0;
+        } catch (Exception e) {
+            if (e instanceof IndexOutOfBoundsException) { // This is that fucking bug with Citizens Spoofing Players. I hate it.
+                Adapt.verbose("Citizens/PacketSpoofing is Messing stuff up again. I hate it.");
+                Adapt.verbose(e.getMessage());
+            } else {
+                e.printStackTrace();
+            }
+            return getLevel(p) > 0;
         }
-        return getLevel(p) > 0;
     }
 
     default int getLevel(Player p) {
