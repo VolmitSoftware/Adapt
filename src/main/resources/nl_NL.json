@@ -1,16 +1,168 @@
 {
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "Moet verhuizen!",
+      "description": "Loop meer dan 1 kilometer (1.000 blokken)"
+    },
+    "challenge_sprint_5k": {
+      "title": "Sprint een 5K!",
+      "description": "Loop meer dan 5 kilometer (5.000 blokken)"
+    },
+    "challenge_sprint_50k": {
+      "title": "Zoom een 50K!",
+      "description": "Loop meer dan 50 kilometer (50.000 blokken)"
+    },
+    "challenge_sprint_500k": {
+      "title": "Doorkruis het heelal!!",
+      "description": "Loop meer dan 500 kilometer (500.000 blokken)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "Sprint een (letterlijke) Marathon!",
+      "description": "Sprint meer dan 42.195 blokken!"
+    },
+    "challenge_place_1k": {
+      "title": "Beginnende bouwer!",
+      "description": "Plaats 1.000 blokken"
+    },
+    "challenge_place_5k": {
+      "title": "Intermediate bouwer!",
+      "description": "Plaats 5.000 blokken"
+    },
+    "challenge_place_50k": {
+      "title": "Geavanceerde bouwer!",
+      "description": "Plaats 50.000 blokken"
+    },
+    "challenge_place_500k": {
+      "title": "Meester bouwer!",
+      "description": "Plaats 500.000 blokken"
+    },
+    "challenge_place_5m": {
+      "title": "Acoliet van Symmetry!",
+      "description": "REALITEIT IS JOUW SPEELPLAATS! (5 miljoen blokken)"
+    },
+    "challenge_chop_1k": {
+      "title": "Beginnende houthakker!",
+      "description": "Hak 1.000 blokken"
+    },
+    "challenge_chop_5k": {
+      "title": "Middelbare houthakker!",
+      "description": "Hak 5.000 blokken"
+    },
+    "challenge_chop_50k": {
+      "title": "Geavanceerde houthakker!",
+      "description": "Hak 50.000 blokken"
+    },
+    "challenge_chop_500k": {
+      "title": "Meester houthakker!",
+      "description": "Hak 500.000 blokken"
+    },
+    "challenge_chop_5m": {
+      "title": "Jackson de hond",
+      "description": "De beste goede jongen! (5 miljoen blokken)"
+    },
+    "challenge_block_1k": {
+      "title": "Blokkerend!",
+      "description": "Blokkeer 1000 treffers"
+    },
+    "challenge_block_5k": {
+      "title": "Blokkeren is leuk!",
+      "description": "Blokkeer 5000 treffers"
+    },
+    "challenge_block_50k": {
+      "title": "Blokkeren is mijn leven!",
+      "description": "Blokkeer 50.000 treffers"
+    },
+    "challenge_block_500k": {
+      "title": "Blokkeren is mijn doel!",
+      "description": "Blokkeer 500.000 treffers"
+    },
+    "challenge_block_5m": {
+      "title": "Die Hand Die Verletzt",
+      "description": "5.000.000 treffers blokkeren"
+    },
+    "challenge_brew_1k": {
+      "title": "Beginnende alchemist!",
+      "description": "Verbruik 1000 drankjes"
+    },
+    "challenge_brew_5k": {
+      "title": "Intermediaire alchemist!",
+      "description": "Consumeer 5000 drankjes"
+    },
+    "challenge_brew_50k": {
+      "title": "Geavanceerde alchemist!",
+      "description": "Consumeer 50.000 drankjes"
+    },
+    "challenge_brew_500k": {
+      "title": "Meester Alchemist!",
+      "description": "Consumeer 500.000 drankjes"
+    },
+    "challenge_brew_5m": {
+      "title": "De Alchemist",
+      "description": "Consumeer 5.000.000 drankjes"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "Beginnende Potion-Splasher!",
+      "description": "Splash 1000 drankjes"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "Intermediaire Potion-Splasher!",
+      "description": "Splash 5000 drankjes"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "Geavanceerde Potion-Splasher!",
+      "description": "Spat 50.000 drankjes"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "Meester Potion-Splasher!",
+      "description": "Splash 500.000 drankjes"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "The Splash Meister",
+      "description": "Splash 5.000.000 drankjes"
+    },
+    "challenge_craft_1k": {
+      "title": "Handige knutselaar!",
+      "description": "Maak 1000 items"
+    },
+    "challenge_craft_5k": {
+      "title": "Kankerige Crafter!",
+      "description": "Maak 5000 items"
+    },
+    "challenge_craft_50k": {
+      "title": "Cervile Crafter!",
+      "description": "Maak 50.000 items"
+    },
+    "challenge_craft_500k": {
+      "title": "Kakofone Crafter!",
+      "description": "Maak 500.000 items"
+    },
+    "challenge_craft_5m": {
+      "title": "Calamitous McCraftface",
+      "description": "Maak 5.000.000 items"
+    }
+  },
   "snippets": {
     "gui": {
       "level": "Niveau",
       "knowledge": "Kennis",
       "powerused": "Kracht Gebruikt",
       "notlearned": "Niet Geleerd",
-      "xp": "XP voor"
+      "xp": "XP voor",
+      "welcome": "Welkom!",
+      "welcomeback": "Welkom terug!",
+      "xpbonusfortime": "XP voor",
+      "unlockthisbyclicking": "Ontgrendel dit door met de rechtermuisknop op het Adapt Block te klikken!",
+      "back": "Rug",
+      "unlearnall": "Alles afleren",
+      "unlearnedall": "Alles afgeleerd"
     },
     "adaptmenu": {
+      "maynotunlearn": "JE MAG NIET LEREN",
+      "mayunlearn": "JE MAG LEREN/AFLEREN",
       "knowledgecost": "Kennis Kosten",
       "alreadylearned": "Geleerd",
       "unlearnrefund": "Klik om te vergeten en terug te krijgen",
+      "norefunds": "HARDCORE, TERUGBETALINGEN UITGESCHAKELD",
       "knowledge": "Kennis",
       "clicklearn": "Klik om te leren",
       "noknowledge": "(Je hebt geen Kennis)",
@@ -18,6 +170,7 @@
       "howtolevelup": "Level-up skills om je maximale kracht te verhogen.",
       "notenoughpower": "Niet genoeg Kracht! Elk niveau kost 1 kracht.",
       "power": "Kracht",
+      "powerdrain": "Stroomverbruik",
       "learned": "Geleerd ",
       "unlearned": "Vergeten "
     },
@@ -59,12 +212,17 @@
       "icon": "❖",
       "description": "Dubbel Bubbel, Tripel Bubbel, Vierdubbel Bubbel - Ik kan dit drankje nog steeds niet in een pot doen"
     },
-    "crafting":{
+    "blocking": {
+      "name": "Blokkeren",
+      "icon": "▒",
+      "description": "Stokken en stenen zullen je botten niet breken, maar een schild wel."
+    },
+    "crafting": {
       "name": "Crafting",
       "icon": "❖",
       "description": "Als je alles hebt geplaatst, maak je toch gewoon een nieuwe?"
     },
-    "discovery":{
+    "discovery": {
       "name": "Ontdekking",
       "icon": "⚛",
       "description": "Met een betere perceptie zie en begrijp je meer van de wereld om je heen!"
@@ -79,7 +237,7 @@
       "icon": "✥",
       "description": "Diggy Diggy hole!"
     },
-    "herbalism":  {
+    "herbalism": {
       "name": "Kruiden",
       "icon": "⚘",
       "description": "Ik kan mijn planten niet vinden, maar wel wat zaadjes... is dat... wiet?"
@@ -199,6 +357,11 @@
       "lore2": "Chop Cooldown",
       "lore3": "Gereedschapskosten"
     },
+    "logswap": {
+      "name": "Lucy's Log-Swapper",
+      "description": "Verander de smaak van houtblokken in een Crafting Table!",
+      "lore1": "8 stam van welke soort dan ook + 1 jonge boom = 8 stam van het type van de jonge boom"
+    },
     "droptoinventory": {
       "name": "Axe Drop-To-Inventory"
     },
@@ -209,6 +372,20 @@
       "lore2": "Blokken Radius",
       "lore3": "Kracht",
       "lore4": "Smash Cooldown"
+    },
+    "leafminer": {
+      "name": "Mineervlieg",
+      "description": "Hiermee kunt u bulkbladeren in één keer breken!",
+      "lore1": "Sluip, en de mijne BLADEREN",
+      "lore2": "bereik van Leaf-mining",
+      "lore3": "Je krijgt de druppels niet van de bladeren (Exploit Preventie)"
+    },
+    "woodminer": {
+      "name": "Mijnwerker",
+      "description": "Hiermee kunt u bulkhout in één keer breken!",
+      "lore1": "Sluip, en mijne HOUT/LOGS (geen planken)",
+      "lore2": "bereik van houtwinning",
+      "lore3": "Werkt met Drop to inventory"
     }
   },
   "brewing": {
@@ -223,9 +400,102 @@
       "description": "Brouwstandaarden werken sneller des te heter ze zijn.",
       "lore1": "Per aanrakend Vuur Blok",
       "lore2": "Per aanrakend Lava Blok"
+    },
+    "darkness": {
+      "name": "Gebottelde duisternis",
+      "description": "Ik weet niet zeker waarom je dit nodig hebt, maar hier ga je!",
+      "lore1": "NightVision Potion + Black Concrete = Potion of Darkness (30 seconden)",
+      "lore2": "Opgemerkt moet worden dat Dit voorkomt dat de gebruiker Sprinten!"
+    },
+    "haste": {
+      "name": "Gebotteld Haast",
+      "description": "Wanneer efficiëntie niet genoeg is",
+      "lore1": "Instant Heal Potion + Amethyst Shard = Potion of Haste (60 seconden)",
+      "lore2": "Instant Heal + Amethist Block = Potion of Haste-2 (30 seconden)"
+    },
+    "absorption": {
+      "name": "Gebottelde absorptie",
+      "description": "Verhard het lichaam!",
+      "lore1": "Speed Potion + Quartz = Drankje van Absorptie (60 seconden)",
+      "lore2": "Speed Potion + Quartz Block = Drankje van Absorptie-2 (30 seconden)"
+    },
+    "fatigue": {
+      "name": "Vermoeidheid in flessen",
+      "description": "Verzwak het lichaam!",
+      "lore1": "Zwaktedrank + Slijmbal = Vermoeidheidsdrank (30 seconden)",
+      "lore2": "Zwaktedrank + Slijmblok = Vermoeidheidsdrank-2 (15 seconden)"
+    },
+    "hunger": {
+      "name": "Gebottelde Honger",
+      "description": "Voed de onverzadigbare!",
+      "lore1": "Awkward Potion + Rotten Flesh = Potion of Hunger (30 seconden)",
+      "lore2": "Zwaktedrank + Rottend vlees = Hongerdrank-3 (15 seconden)"
+    },
+    "nausea": {
+      "name": "Misselijkheid in flessen",
+      "description": "Je maakt me ziek!",
+      "lore1": "Awkward Potion + Brown Mushroom = Potion of Misselijkheid (16 seconden)",
+      "lore2": "Awkward Potion + Crimson Fungus = Potion of Misselijkheid-2 (8 seconden)"
+    },
+    "blindness": {
+      "name": "Blindheid in flessen",
+      "description": "Je bent een verschrikkelijk persoon...",
+      "lore1": "Awkward Potion + Ink sack = Potion of Blindness (30 seconden)",
+      "lore2": "Awkward Potion + Glowing Ink Sack = Potion of Blindness-2 (15 seconden)"
+    },
+    "resistance": {
+      "name": "Weerstand in flessen",
+      "description": "Vestingwerk op zijn best!",
+      "lore1": "Awkward Potion + Iron Ingot = Weerstandsdrankje (60 seconden)",
+      "lore2": "Awkward Potion + Iron Block = Potion of Resistance-2 (30 seconden)"
+    },
+    "healthboost": {
+      "name": "Leven op fles",
+      "description": "Wanneer maximale gezondheid niet genoeg is...",
+      "lore1": "Instant-Healing Potion + Golden Apple = Potion of Health Boost (120 seconden)",
+      "lore2": "Instant-Healing Potion + Betoverde Gouden Appel = Potion of Health Boost-2 (120 seconden)"
+    },
+    "decay": {
+      "name": "Gebotteld verval",
+      "description": "Wie wist dat Detritus zo nuttig zou zijn?",
+      "lore1": "Zwaktedrank + Giftige Aardappel = Verdorvendrank (16 seconden)",
+      "lore2": "Zwaktedrank + Crimson Roots = Witherdrank-2 (8 seconden)"
+    },
+    "saturation": {
+      "name": "Verzadiging in flessen",
+      "description": "Weet je... ik heb niet eens honger...",
+      "lore1": "Regendrank + Gepofte Aardappel = Verzadigingsdrankje",
+      "lore2": "Regendrank + hooibaal = verzadigingsdrankje-2"
     }
   },
-  "crafting":{
+  "blocking": {
+    "chainarmorer": {
+      "name": "Ketens van Mefistofeles",
+      "description": "Hiermee kunt u Chainmail Armor maken",
+      "lore1": "Het Crafting-recept is hetzelfde als alle andere, maar met ijzeren klompjes in plaats daarvan"
+    },
+    "horsearmorer": {
+      "name": "Maakbaar paardenharnas",
+      "description": "Hiermee kun je paardenpantser maken",
+      "lore1": "Omring een zadel met het materiaal dat je wilt gebruiken om het harnas te maken"
+    },
+    "saddlecrafter": {
+      "name": "Bewerkbaar zadel",
+      "description": "Maak een zadel met leer",
+      "lore1": "Recept: 5 Leer:"
+    },
+    "multiarmor": {
+      "name": "Multi-pantser",
+      "description": "Bind Elytras aan Armor",
+      "lore1": "Dit is een geweldige vaardigheid om te reizen.",
+      "lore2": "dynamisch samenvoegen en veranderen Armor/Elytra on the Fly!",
+      "lore3": "om samen te voegen, schuif je een item over een ander item in je inventaris.",
+      "lore4": "om Armor los te maken, Sneak-Drop het item, en het zal demonteren.",
+      "lore5": "Als je MultiArmor wordt vernietigd, verlies je alle items erin.",
+      "lore6": "Ik heb geen harnas nodig, het stelt me teleur..."
+    }
+  },
+  "crafting": {
     "deconstruction": {
       "name": "Deconstructie",
       "description": "Ontmantel blokken & items tot bruikbare componenten!",
@@ -236,9 +506,32 @@
       "name": "Crafting XP",
       "description": "Krijg passief XP voor craften",
       "lore1": "Krijg XP tijdens het craften"
+    },
+    "leather": {
+      "name": "Bewerkbaar leer",
+      "description": "Ambachtelijk leer van Rotten Flesh",
+      "lore1": "Gooi het (rotte vlees) gewoon op het kampvuur!"
+    },
+    "backpacks": {
+      "name": "De rugzakken van een Boutilier!",
+      "description": "Dit brengt gewoon de Mojang-bundel in het spel!",
+      "lore1": "Je moet in Survival zijn om dit te gebruiken",
+      "lore2": "XLX: leer, lood, leer",
+      "lore3": "XSX: leer, vatdoos, leer",
+      "lore4": "XCX: leer, borst, leer"
+    },
+    "skulls": {
+      "name": "Bewerkbare schedels!",
+      "description": "Met behulp van materialen kun je maffia-schedels maken!",
+      "lore1": "Omring een botblok met het volgende om een schedel te krijgen:",
+      "lore2": "Zombie: rottend vlees",
+      "lore3": "Skelet: bot",
+      "lore4": "Klimplant: Buskruit",
+      "lore5": "Verdorren: Nether Brick",
+      "lore6": "Draak: Draken Adem"
     }
   },
-  "discovery":{
+  "discovery": {
     "armor": {
       "name": "Wereld Pantser",
       "description": "Passief pantser (armor) afhankelijk van de hardheid van bijzijnde blokken.",
@@ -258,6 +551,13 @@
       "lore0": "Kan slechts elke 15 seconden worden gebruikt",
       "lore1": "% Verminderde Schade",
       "lore2": "experience gebruikt"
+    },
+    "villager": {
+      "name": "Dorpsattractie",
+      "description": "Hiermee kunt u betere transacties met dorpelingen krijgen!",
+      "lore1": "Dit verbruikt XP per interactie met dorpelingen",
+      "lore2": "Kans per interactie om XP te verbruiken en transacties te verbeteren",
+      "lore3": "vereiste XP-afvoer per interactie"
     }
   },
   "enchanting": {
@@ -302,7 +602,7 @@
       "lore7": "je kan vijf of zes tools gebruiken, of slechts een!"
     }
   },
-  "herbalism":  {
+  "herbalism": {
     "growthaura": {
       "name": "Growth Aura",
       "description": "Laat planen binnen je aura groeien",
@@ -310,15 +610,30 @@
       "lore2": "Growth Aura Kracht",
       "lore3": "Voedsel Kosten"
     },
+    "hippo": {
+      "name": "Herbalist's Nijlpaard",
+      "description": "Eten geeft meer voeding!",
+      "lore1": "+ Voedsel) extra voedingspunten bij het consumeren"
+    },
     "myconid": {
       "name": "Herbalist's Myconid",
       "description": "Gives you the ability to craft Mycelium",
       "lore1": "Any Dirt, and a Brown & Red Mushroom will craft Mycelium."
     },
-    "hippo": {
-      "name": "Herbalist's Nijlpaard",
-      "description": "Eten geeft meer voeding!",
-      "lore1": "+ Voedsel) extra voedingspunten bij het consumeren"
+    "terralid": {
+      "name": "Herbalist's Terralid",
+      "description": "Geeft je de mogelijkheid om grasblokken te maken",
+      "lore1": "Three Seeds, meer dan 3 Dirt, zullen 3 Grass Blocks maken."
+    },
+    "cobweb": {
+      "name": "Webby Creator",
+      "description": "Geeft je de mogelijkheid om spinnenwebben te maken in een werktafel",
+      "lore1": "Four String, zal een spinnenweb maken."
+    },
+    "mushroomblocks": {
+      "name": "Paddenstoelenmaker",
+      "description": "Geeft je de mogelijkheid om paddenstoelenblokken te maken in een werktafel",
+      "lore1": "Vier Paddestoelen om een blok te maken, of een blok om een stengel te maken."
     },
     "droptoinventory": {
       "name": "Hoe Drop-To-Inventory"
@@ -347,15 +662,13 @@
       "description": "Doe meer schade op lagere levenspunten (Korteafstand)",
       "lore1": "Max Schade"
     },
+    "penalty": {
+      "lore1": "You will Gain Poison stacks if you run out of hunger"
+    },
     "droptoinventory": {
       "name": "Items Drop-To-Inventory",
       "description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
       "lore1": "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."
-    },
-    "penalty": {
-      "name": "",
-      "description": "",
-      "lore1": "You will Gain Poison stacks if you run out of hunger"
     },
     "invisibility": {
       "name": "Vanishing Step",
@@ -532,6 +845,21 @@
       "description": "Hold more oxygen in your tiny lungs!",
       "lore1": "Oxygen"
     },
+    "fishersfantasy": {
+      "name": "Fisher's Fantasie",
+      "description": "verdien meer XP door te vissen en krijg meer vis!",
+      "lore1": "Voor elk niveau is er een kans om meer XP en Fish te krijgen!"
+    },
+    "haste": {
+      "name": "Schildpad mijnwerker",
+      "description": "Tijdens het mijnen onder water krijg je haast!",
+      "lore1": "Haste 3 wordt onder water toegepast tijdens mijnbouw (stapelt met AquaAffinity) nadat je waterademhalingseffect is uitgewerkt!"
+    },
+    "nightvision": {
+      "name": "Schildpad's visie",
+      "description": "Onder water krijg je Nachtzicht",
+      "lore1": "Krijg gewoon Nachtzicht terwijl u onder water bent nadat uw waterademhalingseffect is uitgewerkt!"
+    },
     "dolphingrace": {
       "name": "Dolphin's Grace",
       "description": "Swim like a dolphin, without the dolphins",
@@ -572,6 +900,20 @@
       "lore1": "Slash Radius",
       "lore2": "Chop Cooldown",
       "lore3": "Tool Wear"
+    },
+    "bloodyblade": {
+      "name": "Bloedig mes",
+      "description": "Slaat met je zwaard, oorzaak Bloeden!",
+      "lore1": "Een levend wezen slaan met je zwaard veroorzaakt bloedingen",
+      "lore2": "Bloedingsduur",
+      "lore3": "Afkoelen bloeding"
+    },
+    "poisonedblade": {
+      "name": "Vergiftigd mes",
+      "description": "Stakingen met je zwaard, veroorzaken Poison!",
+      "lore1": "Een levend wezen slaan met je zwaard veroorzaakt vergif",
+      "lore2": "Vergif Duur",
+      "lore3": "Vergif Cooldown"
     }
   },
   "taming": {
@@ -589,6 +931,13 @@
       "name": "Tame Regeneration",
       "description": "Increase your tamed animal regeneration.",
       "lore1": "HP/s"
+    }
+  },
+  "tragoul": {
+    "thorns": {
+      "name": "doornen",
+      "description": "Reflecteer schade terug naar je aanvaller!",
+      "lore1": "Schade wordt vergoed bij aanrijding"
     }
   },
   "unarmed": {

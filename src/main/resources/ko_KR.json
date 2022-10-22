@@ -1,4 +1,146 @@
 {
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "움직여야 해!",
+      "description": "1km 이상 걷기(1,000블록)"
+    },
+    "challenge_sprint_5k": {
+      "title": "5K를 질주하세요!",
+      "description": "5km 이상 걷기(5,000블록)"
+    },
+    "challenge_sprint_50k": {
+      "title": "50K 줌!",
+      "description": "50km 이상 걷기(50,000블록)"
+    },
+    "challenge_sprint_500k": {
+      "title": "우주를 횡단하라!!",
+      "description": "500km 이상 걷기(500,000블록)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "(문자 그대로) 마라톤을 질주하십시오!",
+      "description": "42,195블록을 질주하세요!"
+    },
+    "challenge_place_1k": {
+      "title": "초보 빌더!",
+      "description": "1,000 블록 배치"
+    },
+    "challenge_place_5k": {
+      "title": "중급 빌더!",
+      "description": "5,000 블록 배치"
+    },
+    "challenge_place_50k": {
+      "title": "고급 빌더!",
+      "description": "50,000 블록 배치"
+    },
+    "challenge_place_500k": {
+      "title": "마스터 빌더!",
+      "description": "500,000 블록 배치"
+    },
+    "challenge_place_5m": {
+      "title": "대칭의 수행사제!",
+      "description": "현실은 당신의 놀이터입니다! (5백만 블록)"
+    },
+    "challenge_chop_1k": {
+      "title": "초보 나무꾼!",
+      "description": "1,000 블록 자르기"
+    },
+    "challenge_chop_5k": {
+      "title": "중급 벌목꾼!",
+      "description": "5,000 블록 자르기"
+    },
+    "challenge_chop_50k": {
+      "title": "고급 나무꾼!",
+      "description": "50,000 블록 자르기"
+    },
+    "challenge_chop_500k": {
+      "title": "나무꾼 마스터!",
+      "description": "500,000 블록 자르기"
+    },
+    "challenge_chop_5m": {
+      "title": "잭슨 개",
+      "description": "최고의 착한 소년! (5백만 블록)"
+    },
+    "challenge_block_1k": {
+      "title": "발리 블로킹!",
+      "description": "1000 히트 차단"
+    },
+    "challenge_block_5k": {
+      "title": "차단은 재미있다!",
+      "description": "5000 히트 차단"
+    },
+    "challenge_block_50k": {
+      "title": "차단은 내 인생이다!",
+      "description": "50,000 히트 차단"
+    },
+    "challenge_block_500k": {
+      "title": "차단하는 것이 내 목적입니다!",
+      "description": "500,000 히트 차단"
+    },
+    "challenge_block_5m": {
+      "title": "다이 핸드 다이 Verletzt",
+      "description": "5,000,000 히트 차단"
+    },
+    "challenge_brew_1k": {
+      "title": "초보 연금술사!",
+      "description": "물약 1000개 소모"
+    },
+    "challenge_brew_5k": {
+      "title": "중급 연금술사!",
+      "description": "물약 5000개 소모"
+    },
+    "challenge_brew_50k": {
+      "title": "고급 연금술사!",
+      "description": "물약 50,000개 소모"
+    },
+    "challenge_brew_500k": {
+      "title": "마스터 연금술사!",
+      "description": "물약 500,000개 소모"
+    },
+    "challenge_brew_5m": {
+      "title": "연금술사",
+      "description": "물약 5,000,000개 소모"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "초보자 물약 스플래셔!",
+      "description": "스플래쉬 1000 포션"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "중급 물약 스플래셔!",
+      "description": "스플래쉬 5000 포션"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "고급 물약 스플래셔!",
+      "description": "물약 50,000개 튀기기"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "마스터 포션 스플래셔!",
+      "description": "물약 500,000개 튀기기"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "스플래쉬 마이스터",
+      "description": "물약 5,000,000개 튀기기"
+    },
+    "challenge_craft_1k": {
+      "title": "교활한 크래프터!",
+      "description": "아이템 1000개 제작"
+    },
+    "challenge_craft_5k": {
+      "title": "광란의 크래프터!",
+      "description": "아이템 5000개 제작"
+    },
+    "challenge_craft_50k": {
+      "title": "서빌 크래프터!",
+      "description": "아이템 50,000개 제작"
+    },
+    "challenge_craft_500k": {
+      "title": "불협화음 크래프터!",
+      "description": "500,000개 아이템 제작"
+    },
+    "challenge_craft_5m": {
+      "title": "재앙의 맥크래프트페이스",
+      "description": "5,000,000개 아이템 제작"
+    }
+  },
   "snippets": {
     "gui": {
       "level": "수준",
@@ -258,6 +400,72 @@
       "description": "양조 스탠드는 뜨거울수록 더 빨리 작동합니다.",
       "lore1": "터치 파이어 블록당",
       "lore2": "닿는 용암 블록당"
+    },
+    "darkness": {
+      "name": "병에 담긴 어둠",
+      "description": "이것이 왜 필요한지 잘 모르겠지만 여기 있습니다!",
+      "lore1": "나이트비전 포션 + 블랙 콘크리트 = 어둠의 포션 (30초)",
+      "lore2": "이것은 사용자가 전력 질주를 방지한다는 점에 유의해야 합니다!"
+    },
+    "haste": {
+      "name": "병에 담긴 가속",
+      "description": "효율성이 충분하지 않을 때",
+      "lore1": "즉시 치유 물약 + 자수정 조각 = 가속의 물약(60초)",
+      "lore2": "Instant Heal + Amethyst Block = 가속의 물약-2 (30초)"
+    },
+    "absorption": {
+      "name": "병에 담긴 흡수",
+      "description": "몸을 굳혀라!",
+      "lore1": "스피드 포션 + 석영 = 흡수 포션 (60초)",
+      "lore2": "스피드 포션 + 석영 블록 = 흡수의 포션-2 (30초)"
+    },
+    "fatigue": {
+      "name": "병에 담긴 피로",
+      "description": "몸을 약하게!",
+      "lore1": "약점포션 + 슬라임볼 = 피로의 포션 (30초)",
+      "lore2": "약점 물약 + 슬라임 블록 = 피로의 물약-2 (15초)"
+    },
+    "hunger": {
+      "name": "병에 담긴 기아",
+      "description": "만족할 줄 모르는 피드!",
+      "lore1": "어색한 물약 + 썩은 살점 = 굶주림의 물약(30초)",
+      "lore2": "약점 물약 + 썩은 살 = 굶주림의 물약-3 (15초)"
+    },
+    "nausea": {
+      "name": "병에 담긴 메스꺼움",
+      "description": "당신이 나를 아프게!",
+      "lore1": "어색한 물약 + 갈색 버섯 = 메스꺼움의 물약(16초)",
+      "lore2": "어색한 물약 + 진홍색 곰팡이 = 메스꺼움의 물약-2 (8초)"
+    },
+    "blindness": {
+      "name": "병에 담긴 실명",
+      "description": "당신은 무서운 사람입니다 ...",
+      "lore1": "어색한 물약 + 잉크 자루 = 실명의 물약(30초)",
+      "lore2": "어색한 물약 + 빛나는 잉크 자루 = 실명의 물약-2 (15초)"
+    },
+    "resistance": {
+      "name": "병에 담긴 저항",
+      "description": "최강의 강화!",
+      "lore1": "어색한 물약 + 철 주괴 = 저항의 물약(60초)",
+      "lore2": "어색한 물약 + 철 블록 = 저항의 물약-2 (30초)"
+    },
+    "healthboost": {
+      "name": "병에 든 생명",
+      "description": "최대 체력이 부족할 때...",
+      "lore1": "즉시 치유 물약 + 황금 사과 = 건강 증진 물약(120초)",
+      "lore2": "즉시 치유 물약 + 마법에 걸린 황금 사과 = 건강 증진 물약-2 (120초)"
+    },
+    "decay": {
+      "name": "병에 담긴 부패",
+      "description": "누가 Detritus가 그렇게 유용할 줄 알았습니까?",
+      "lore1": "약점 물약 + 독 감자 = 시들기의 물약 (16초)",
+      "lore2": "약점 물약 + 크림슨 뿌리 = 위더-2의 물약(8초)"
+    },
+    "saturation": {
+      "name": "병에 담긴 포화도",
+      "description": "알겠어... 배고프지도 않아...",
+      "lore1": "재생 물약 + 구운 감자 = 포화 물약",
+      "lore2": "재생 물약 + 건초 베일 = 포화 물약-2"
     }
   },
   "blocking": {

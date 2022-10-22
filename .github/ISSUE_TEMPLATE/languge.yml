@@ -1,0 +1,47 @@
+name: Adapt Language Error Report
+description: Report isses with the Language System
+labels: [ language ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill this out!
+        If this does not work for you, feel free to use the [blank](https://github.com/VolmitSoftware/Adapt/issues/new) format.
+  - type: textarea
+    id: how
+    attributes:
+      label: Problem
+      description: Please Describe the problem
+      value: |
+        1. This key.... says "blabla" it needs to say "Blablabla"
+        2. This is hard to read / makes no sense
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: Discord Username
+      description: Put you DiscordID#0000 here in the VolmitSoftware Discord
+      placeholder: ⋈-NextdoorPsycho-⋈#0001
+    validations:
+      required: true
+  - type: input
+    id: Adaptversion
+    attributes:
+      label: Adapt Version
+      description: What version of Adapt are you running?
+      placeholder: DO NOT SAY "LATEST"
+    validations:
+      required: true
+  - type: input
+    id: screenshot
+    attributes:
+      label: Screenshot
+      description: Please Send a Screenshot of what it looks like ingame!
+      placeholder: https://imgur.com/gallery/VWjRf
+    validations:
+      required: true
+  - type: markdown
+    id: thanks
+    attributes:
+      value: "Thank you for filling out the form! We will be with you soon. Please do not ask support to review your report."

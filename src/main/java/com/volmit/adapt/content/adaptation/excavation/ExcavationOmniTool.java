@@ -140,14 +140,13 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     @EventHandler(priority = EventPriority.HIGH)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) && validateTool(p.getInventory().getItemInMainHand())) {
-            e.setCancelled(true);
-            return;
-        }
         if (!hasAdaptation(p)) {
             return;
         }
-
+        if (validateTool(p.getInventory().getItemInMainHand())) {
+            e.setCancelled(true);
+            return;
+        }
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && hasAdaptation(p)) {
             ItemStack hand = p.getInventory().getItemInMainHand();
             if (!validateTool(hand)) {

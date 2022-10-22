@@ -19,14 +19,18 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.AdaptConfig;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationDropToInventory;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationHaste;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationOmniTool;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -49,7 +53,46 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         registerAdaptation(new ExcavationHaste());
         registerAdaptation(new ExcavationOmniTool());
         registerAdaptation(new ExcavationDropToInventory());
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WOODEN_SHOVEL).key("challenge_excavate_1k")
+                .title(Localizer.dLocalize("advancement", "challenge_excavate_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_excavate_1k", "description"))
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                        .icon(Material.KNOWLEDGE_BOOK)
+                        .key("challenge_excavate_5k")
+                        .title(Localizer.dLocalize("advancement", "challenge_excavate_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_excavate_5k", "description"))
+                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                .icon(Material.STONE_SHOVEL)
+                                .key("challenge_excavate_50k")
+                                .title(Localizer.dLocalize("advancement", "challenge_excavate_50k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_excavate_50k", "description"))
+                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                        .icon(Material.IRON_SHOVEL)
+                                        .key("challenge_excavate_500k")
+                                        .title(Localizer.dLocalize("advancement", "challenge_excavate_500k", "title"))
+                                        .description(Localizer.dLocalize("advancement", "challenge_excavate_500k", "description"))
+                                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                                .icon(Material.DIAMOND_SHOVEL)
+                                                .key("challenge_excavate_5m")
+                                                .title(Localizer.dLocalize("advancement", "challenge_excavate_5m", "title"))
+                                                .description(Localizer.dLocalize("advancement", "challenge_excavate_5m", "description"))
+                                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavate_1k").goal(1000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavate_5k").goal(5000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavate_50k").goal(50000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_500k").goal(500000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavate_5m").goal(5000000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -124,6 +167,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         boolean enabled = true;
         double maxHardnessBonus = 9;
         double maxBlastResistanceBonus = 10;
+        double challengeExcavationReward = 1200;
         double valueXPMultiplier = 0.825;
         double axeDamageXPMultiplier = 6.5;
     }

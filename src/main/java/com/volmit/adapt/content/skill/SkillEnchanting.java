@@ -19,12 +19,16 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.AdaptConfig;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingLapisReturn;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingQuickEnchant;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingXPReturn;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -44,6 +48,46 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         registerAdaptation(new EnchantingQuickEnchant());
         registerAdaptation(new EnchantingLapisReturn());
         registerAdaptation(new EnchantingXPReturn()); //
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CRAFTING_TABLE).key("challenge_enchant_1k")
+                .title(Localizer.dLocalize("advancement", "challenge_enchant_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_enchant_1k", "description"))
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                        .icon(Material.KNOWLEDGE_BOOK)
+                        .key("challenge_enchant_5k")
+                        .title(Localizer.dLocalize("advancement", "challenge_enchant_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_enchant_5k", "description"))
+                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                .icon(Material.KNOWLEDGE_BOOK)
+                                .key("challenge_enchant_50k")
+                                .title(Localizer.dLocalize("advancement", "challenge_enchant_50k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_enchant_50k", "description"))
+                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                        .icon(Material.KNOWLEDGE_BOOK)
+                                        .key("challenge_enchant_500k")
+                                        .title(Localizer.dLocalize("advancement", "challenge_enchant_500k", "title"))
+                                        .description(Localizer.dLocalize("advancement", "challenge_enchant_500k", "description"))
+                                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+                                                .icon(Material.KNOWLEDGE_BOOK)
+                                                .key("challenge_enchant_5m")
+                                                .title(Localizer.dLocalize("advancement", "challenge_enchant_5m", "title"))
+                                                .description(Localizer.dLocalize("advancement", "challenge_enchant_5m", "description"))
+                                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_1k").goal(1000).stat("enchanted.items").reward(getConfig().challengeEnchantReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_5k").goal(5000).stat("enchanted.items").reward(getConfig().challengeEnchantReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_50k").goal(50000).stat("enchanted.items").reward(getConfig().challengeEnchantReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_500k").goal(500000).stat("enchanted.items").reward(getConfig().challengeEnchantReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_5m").goal(5000000).stat("enchanted.items").reward(getConfig().challengeEnchantReward).build());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -80,5 +124,6 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
     protected static class Config {
         boolean enabled = true;
         double enchantPowerXPMultiplier = 70;
+        double challengeEnchantReward  = 2500;
     }
 }
