@@ -65,7 +65,8 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
-            if (p.getLocation().distance(e.getEntity().getLocation()) <= 15) {
+            if ((p.getWorld() == e.getEntity().getWorld())  // Fixed Cannot measure distance between world_nether and world etc...
+                    && p.getLocation().distance(e.getEntity().getLocation()) <= 15) {
                 xp(p, getConfig().tameXpBase);
             }
         }
