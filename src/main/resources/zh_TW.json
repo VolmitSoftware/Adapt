@@ -139,6 +139,46 @@
     "challenge_craft_5m": {
       "title": "好似魯班再世",
       "description": "製作5,000,000件物品"
+    },
+    "challenge_enchant_1k": {
+      "title": "初入-附魔師!",
+      "description": "附魔1000件物品"
+    },
+    "challenge_enchant_5k": {
+      "title": "業餘-附魔師!",
+      "description": "附魔5000件物品"
+    },
+    "challenge_enchant_50k": {
+      "title": "專業級-附魔師!",
+      "description": "附魔50,000件物品"
+    },
+    "challenge_enchant_500k": {
+      "title": "附魔大師!",
+      "description": "附魔500,000件物品"
+    },
+    "challenge_enchant_5m": {
+      "title": "神秘的大附魔家",
+      "description": "附魔5,000,000件物品"
+    },
+    "challenge_excavate_1k": {
+      "title": "初入-挖掘者!",
+      "description": "挖掘1000格方塊"
+    },
+    "challenge_excavate_5k": {
+      "title": "業餘-挖掘者!",
+      "description": "挖掘5000格方塊"
+    },
+    "challenge_excavate_50k": {
+      "title": "專業級-挖掘者!",
+      "description": "挖掘50,000格方塊"
+    },
+    "challenge_excavate_500k": {
+      "title": "盜墓者!",
+      "description": "挖掘500,000格方塊"
+    },
+    "challenge_excavate_5m": {
+      "title": "挖掘機專業",
+      "description": "挖掘5,000,000格方塊"
     }
   },
   "snippets": {
@@ -151,7 +191,7 @@
       "welcome": "歡迎！",
       "welcomeback": "歡迎回來！",
       "xpbonusfortime": "經驗增益，持續",
-      "unlockthisbyclicking": "右鍵Adapt方塊以解鎖！",
+      "unlockthisbyclicking": "右鍵書櫃以解鎖！",
       "back": "返回",
       "unlearnall": "遺忘全部技能",
       "unlearnedall": "已全部遺忘"

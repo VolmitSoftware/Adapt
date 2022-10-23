@@ -149,6 +149,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         try {
             return displayName == null ? Adaptation.super.getDisplayName() : (C.RESET + "" + C.BOLD + getSkill().getColor().toString() + displayName);
         } catch (Exception ignored) {
+            Adapt.verbose("Failed to get display name for " + getName());
             return null;
         }
     }

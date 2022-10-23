@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.commands.openGui;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
@@ -39,6 +40,7 @@ public class CommandOpenGUI extends MortarCommand {
             SkillsGui.open(sender.player());
             return true;
         } catch (Exception ignored) {
+            Adapt.verbose("GUI FAILED");
             printHelp(sender);
             return true;
         }

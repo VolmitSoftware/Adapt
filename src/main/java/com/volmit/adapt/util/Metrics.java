@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.util;
 
+import com.volmit.adapt.Adapt;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -79,6 +80,7 @@ public class Metrics {
             try {
                 config.save(configFile);
             } catch (IOException ignored) {
+                Adapt.verbose("Failed to save bStats config file.");
             }
         }
         // Load the data

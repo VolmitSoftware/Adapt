@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.architect;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
@@ -111,6 +114,31 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         }
 
         blockPower.put(p, power);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(BlockPistonExtendEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        e.getBlocks().forEach(b -> {
+            if (activeBlocks.contains(b)) {
+                Adapt.verbose("Cancelled Piston Extend on Adaptation Foundation Block");
+                e.setCancelled(true);
+            }
+        });
+    }
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(BlockPistonRetractEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        e.getBlocks().forEach(b -> {
+            if (activeBlocks.contains(b)) {
+                Adapt.verbose("Cancelled Piston Retract on Adaptation Foundation Block");
+                e.setCancelled(true);
+            }
+        });
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
