@@ -93,6 +93,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
             outputCommandInfo();
             outputPermissionInfo();
         } catch (Throwable ignored) {
+            Adapt.verbose("Failed to output info");
 
         }
     }
@@ -175,6 +176,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
             try {
                 Bukkit.getPluginManager().addPermission(i);
             } catch (Throwable ignored) {
+                Adapt.verbose("Failed to register permission " + i.getName());
 
             }
         }
@@ -547,7 +549,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
             try {
                 unregisterCommand(i.getCommand());
             } catch (Throwable ignored) {
-
+                Adapt.verbose("Failed to unregister command " + i.getCommand().getNode());
             }
         }
     }

@@ -50,6 +50,7 @@ public class CommandBoostPlayer extends MortarCommand {
 
             return true;
         } catch (Exception ignored) {
+            Adapt.verbose("BOOST FAILED");
             printHelp(sender);
             return true;
         }

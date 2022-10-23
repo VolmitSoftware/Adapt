@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -114,6 +115,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         try {
             J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));
         } catch (Exception ignored) {
+            Adapt.verbose("Failed to give XP to " + p.getName() + " for placing " + e.getBlock().getType().name());
         }
         getPlayer(p).getData().addStat("blocks.placed", 1);
         getPlayer(p).getData().addStat("blocks.placed.value", v);

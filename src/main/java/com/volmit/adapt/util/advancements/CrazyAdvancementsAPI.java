@@ -903,6 +903,7 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
                         meta.setDamage(damage);
                         stack.setItemMeta(meta);
                     } catch (ClassCastException | NumberFormatException ignored) {
+                        Adapt.verbose("Invalid damage value for item " + input);
                     }
                 }
                 return stack;

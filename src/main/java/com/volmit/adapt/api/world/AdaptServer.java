@@ -80,6 +80,7 @@ public class AdaptServer extends TickedObject {
             }
             spatialTickets.add(xp);
         } catch (Exception ignored) {
+            Adapt.verbose("Failed to offer spatial xp");
         }
     }
 
@@ -236,6 +237,7 @@ public class AdaptServer extends TickedObject {
             try {
                 return new Gson().fromJson(IO.readAll(f), PlayerData.class);
             } catch (Throwable ignored) {
+                Adapt.verbose("Failed to load player data for " + player);
             }
         }
 

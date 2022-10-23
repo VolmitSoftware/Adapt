@@ -198,6 +198,7 @@ public class AdaptPlayer extends TickedObject {
                 }
                 return new Gson().fromJson(text, PlayerData.class);
             } catch (Throwable ignored) {
+                Adapt.verbose("Failed to load player data for " + player.getName() + " (" + player.getUniqueId() + ")");
             }
         }
 

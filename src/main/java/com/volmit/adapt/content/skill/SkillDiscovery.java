@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
@@ -138,6 +139,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
                     seeRecipe(p, key.toString());
                 }
             } catch (Throwable ignored) {
+                Adapt.verbose("Failed to get recipe key");
 
             }
         }
@@ -317,7 +319,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
                 }
 
             } catch (Throwable ignored) {
-
+                Adapt.verbose("Failed to get target block for " + i.getName());
             }
         }
     }
