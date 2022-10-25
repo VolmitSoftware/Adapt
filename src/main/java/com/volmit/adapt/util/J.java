@@ -76,7 +76,7 @@ public class J {
         try {
             return r.run(param);
         } catch (Throwable e) {
-
+            Adapt.verbose("Failed to run function: " + e.getMessage());
         }
 
         return onError;

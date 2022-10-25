@@ -189,7 +189,9 @@ public interface Adaptation<T> extends Ticked, Component {
             if (!this.getSkill().isEnabled()) {
                 this.unregister();
             }
-            if (p.getClass().getSimpleName().equals("PlayerNPC")) {
+            if (p.getClass().getSimpleName().equals("PlayerNPC")
+            || p == null
+            || !p.getClass().getSimpleName().equals("CraftPlayer")) {
                 return false;
             }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {

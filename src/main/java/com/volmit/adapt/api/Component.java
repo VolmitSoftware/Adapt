@@ -21,6 +21,7 @@ package com.volmit.adapt.api;
 import com.francobm.magicosmetics.api.CosmeticType;
 import com.francobm.magicosmetics.api.MagicAPI;
 import com.google.common.collect.Lists;
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.value.MaterialValue;
@@ -202,7 +203,12 @@ public interface Component {
     }
 
     default double blockXP(Block block, double xp) {
+        try {
         return Math.round(xp * getBlockMultiplier(block));
+        } catch (Exception e) {
+            Adapt.verbose("Error in blockXP: " + e.getMessage());
+        }
+        return xp;
     }
 
     default double getBlockMultiplier(Block block) {

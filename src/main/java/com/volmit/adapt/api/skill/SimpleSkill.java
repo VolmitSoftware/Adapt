@@ -136,7 +136,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
                 }
             }
         } catch (Throwable e) {
-
+            Adapt.verbose("Failed to load config for " + getName());
         }
 
         return config;

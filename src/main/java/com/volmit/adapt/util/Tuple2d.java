@@ -311,9 +311,7 @@ public abstract class Tuple2d implements java.io.Serializable, Cloneable {
         try {
             Tuple2d t2 = (Tuple2d) t1;
             return (this.x == t2.x && this.y == t2.y);
-        } catch (NullPointerException e2) {
-            return false;
-        } catch (ClassCastException e1) {
+        } catch (NullPointerException | ClassCastException e2) {
             return false;
         }
 

@@ -139,7 +139,7 @@ public class IO {
      *
      * @param in     the input
      * @param out    the output
-     * @param amount the buffer and size to use
+     * @param buffer the buffer and size to use
      * @return the actual transfered amount
      * @throws IOException shit happens
      */
@@ -449,16 +449,10 @@ public class IO {
             throw new IOException("Destination '" + destFile + "' exists but is a directory");
         }
 
-        FileInputStream input = new FileInputStream(srcFile);
-        try {
-            FileOutputStream output = new FileOutputStream(destFile);
-            try {
+        try (FileInputStream input = new FileInputStream(srcFile)) {
+            try (FileOutputStream output = new FileOutputStream(destFile)) {
                 IO.copy(input, output);
-            } finally {
-                output.close();
             }
-        } finally {
-            input.close();
         }
 
         if (srcFile.length() != destFile.length()) {
