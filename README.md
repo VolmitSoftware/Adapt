@@ -4,7 +4,7 @@
 
 ## Overview
 
-[![gitlocalized ](https://gitlocalize.com/repo/7882/whole_project/badge.svg)](https://gitlocalize.com/repo/7882/whole_project?utm_source=badge)
+[![gitlocalized ](https://gitlocalize.com/repo/8085/whole_project/badge.svg)](https://gitlocalize.com/repo/8085/whole_project?utm_source=badge)
 
 _Adapt is a drag and drop solution for balanced passive abilities and skills that players can enjoy on a server._
 
@@ -16,7 +16,7 @@ The master branch is for the latest version of minecraft.
 
 ### Language and Localization
 
-Do you know a language other than english? do you want to be a big part in Adapt's localization into different languages? Join the discord and let us know, or [Click Here](https://gitlocalize.com/repo/7882), and you can help is remotely with language localizations! if you don't see a language you can easily add it, or let us know here in discussions! We take this on an Honor System, so please only if you are confident in the language submit a translation key, they will be verified.
+Do you know a language other than english? do you want to be a big part in Adapt's localization into different languages? Join the discord and let us know, or [Click Here](https://gitlocalize.com/repo/8085), and you can help is remotely with language localizations! if you don't see a language you can easily add it, or let us know here in discussions! We take this on an Honor System, so please only if you are confident in the language submit a translation key, they will be verified.
 
 # [Support](https://discord.gg/volmit) **|** [Documentation](https://docs.volmit.com/adapt/)
 
