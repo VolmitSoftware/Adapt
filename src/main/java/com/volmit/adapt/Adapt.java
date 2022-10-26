@@ -154,10 +154,6 @@ public class Adapt extends VolmitPlugin {
         msg(C.RED + string);
     }
 
-    public static void playerMessage(Player p, String string) {
-        msgp(p, C.BOLD + string);
-    }
-
     public static void verbose(String string) {
         if (AdaptConfig.get().isVerbose()) {
             msg(C.LIGHT_PURPLE + string);
@@ -172,9 +168,9 @@ public class Adapt extends VolmitPlugin {
         msg(C.WHITE + string);
     }
 
-    public static void msgp(Player p, String string) {
+    public static void messagePlayer(Player p, String string) {
         String msg = C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + string;
-        Adapt.msgp(p,msg + string);
+        p.sendMessage(msg);
     }
 
     private void setupMetrics() {

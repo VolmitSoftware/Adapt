@@ -451,24 +451,24 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
                                     toast.send(player);
                                 }
 
-                                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), players.size() == 1 ? "Successfully displayed Toast to " + players.get(0).getName() + "!" : "Successfully displayed Toast to " + players.size() + "Players!");
+                                Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), players.size() == 1 ? "Successfully displayed Toast to " + players.get(0).getName() + "!" : "Successfully displayed Toast to " + players.size() + "Players!");
                             } else {
-                                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "'" + args[1] + "' isn't a valid Item Material");
+                                Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "'" + args[1] + "' isn't a valid Item Material");
                             }
                         } else {
-                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), args[0].startsWith("@") ? "No Player found for Selector " + args[0] + "" : "Can't find Player '" + args[0] + "'");
+                            Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), args[0].startsWith("@") ? "No Player found for Selector " + args[0] + "" : "Can't find Player '" + args[0] + "'");
                         }
                     } catch (Exception ex) {
                         ex.printStackTrace();
-                        Adapt.msgp(sender.getServer().getPlayer(sender.getName()), commandIncompatible);
+                        Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), commandIncompatible);
                     }
 
 
                 } else {
-                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Usage: " + cmd.getUsage());
+                    Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Usage: " + cmd.getUsage());
                 }
             } else {
-                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), noPermission);
+                Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), noPermission);
             }
             return true;
         }
@@ -522,9 +522,9 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
                                                     if (fileAdvancementManager.equals(manager)) {
                                                         fileAdvancementManager.saveProgress(player, advancement);
                                                     }
-                                                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Successfully " + (grant ? "granted" : "revoked") + " Criteria " + criteriaString + " for '" + advancement.getName() + "' " + (grant ? "to" : "from") + " " + player.getName());
+                                                    Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Successfully " + (grant ? "granted" : "revoked") + " Criteria " + criteriaString + " for '" + advancement.getName() + "' " + (grant ? "to" : "from") + " " + player.getName());
                                                 } else {
-                                                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Criteria " + criteriaString + " for '" + advancement.getName() + "' " + (grant ? "is already granted to" : "is already not granted to") + " " + player.getName());
+                                                    Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Criteria " + criteriaString + " for '" + advancement.getName() + "' " + (grant ? "is already granted to" : "is already not granted to") + " " + player.getName());
                                                 }
 
                                             } else {
@@ -544,36 +544,36 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
                                                     if (fileAdvancementManager.equals(manager)) {
                                                         fileAdvancementManager.saveProgress(player, advancement);
                                                     }
-                                                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Successfully " + (grant ? "granted" : "revoked") + " Advancement '" + advancement.getName() + "' " + (grant ? "to" : "from") + " " + player.getName());
+                                                    Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Successfully " + (grant ? "granted" : "revoked") + " Advancement '" + advancement.getName() + "' " + (grant ? "to" : "from") + " " + player.getName());
                                                 } else {
-                                                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Advancement '" + advancement.getName() + "' " + (grant ? "is already granted to" : "is already not granted to") + " " + player.getName());
+                                                    Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Advancement '" + advancement.getName() + "' " + (grant ? "is already granted to" : "is already not granted to") + " " + player.getName());
                                                 }
                                             }
 
                                         } else {
-                                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Advancement with Name '" + args[2] + "' does not exist in '" + args[1] + "'");
+                                            Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Advancement with Name '" + args[2] + "' does not exist in '" + args[1] + "'");
                                         }
                                     } else {
-                                        Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "'" + args[1] + "' does not contain Player '" + args[0] + "'");
+                                        Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "'" + args[1] + "' does not contain Player '" + args[0] + "'");
                                     }
                                 }
                             } else {
-                                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Manager with Name '" + args[1] + "' does not exist");
+                                Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Manager with Name '" + args[1] + "' does not exist");
                             }
                         } else {
-                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), args[0].startsWith("@") ? "No Player found for Selector " + args[0] + "" : "Can't find Player '" + args[0] + "'");
+                            Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), args[0].startsWith("@") ? "No Player found for Selector " + args[0] + "" : "Can't find Player '" + args[0] + "'");
                         }
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
-                        Adapt.msgp(sender.getServer().getPlayer(sender.getName()), commandIncompatible);
+                        Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), commandIncompatible);
                     }
 
                 } else {
-                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Usage: " + cmd.getUsage());
+                    Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Usage: " + cmd.getUsage());
                 }
             } else {
-                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), noPermission);
+                Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), noPermission);
             }
             return true;
         }
@@ -611,34 +611,34 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
                                                     fileAdvancementManager.saveProgress(player, advancement);
                                                 }
 
-                                                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Successfully updated Criteria Progress for Advancement '" + advancement.getName() + "' for Player " + player.getName());
+                                                Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Successfully updated Criteria Progress for Advancement '" + advancement.getName() + "' for Player " + player.getName());
                                             }
 
                                         } else {
-                                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Advancement with Name '" + args[2] + "' does not exist in '" + args[1] + "'");
+                                            Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Advancement with Name '" + args[2] + "' does not exist in '" + args[1] + "'");
                                         }
 
                                     } else {
-                                        Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "'" + args[1] + "' does not contain Player '" + args[0] + "'");
+                                        Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "'" + args[1] + "' does not contain Player '" + args[0] + "'");
                                     }
                                 }
                             } else {
-                                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Manager with Name '" + args[1] + "' does not exist");
+                                Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Manager with Name '" + args[1] + "' does not exist");
                             }
                         } else {
-                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), args[0].startsWith("@") ? "No Player found for Selector " + args[0] + "" : "Can't find Player '" + args[0] + "'");
+                            Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), args[0].startsWith("@") ? "No Player found for Selector " + args[0] + "" : "Can't find Player '" + args[0] + "'");
                         }
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
-                        Adapt.msgp(sender.getServer().getPlayer(sender.getName()), commandIncompatible);
+                        Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), commandIncompatible);
                     }
 
                 } else {
-                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Usage: " + cmd.getUsage());
+                    Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Usage: " + cmd.getUsage());
                 }
             } else {
-                Adapt.msgp(sender.getServer().getPlayer(sender.getName()), noPermission);
+                Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), noPermission);
             }
             return true;
         }
@@ -649,23 +649,23 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
                     switch (args[0].toLowerCase()) {
                         case "all":
                             reload();
-                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Crazy Advancements API was reloaded");
+                            Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Crazy Advancements API was reloaded");
                             break;
                         case "advancements":
                             reloadFileAdvancements();
-                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "JSON Advancements have been reloaded");
+                            Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "JSON Advancements have been reloaded");
                             break;
                         case "items":
                             loadCustomItems();
-                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Custom Items have been reloaded");
+                            Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Custom Items have been reloaded");
                             break;
                         default:
-                            Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Invalid Reload Category '" + args[0] + "'. Valid categories are all, advancements, items");
+                            Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Invalid Reload Category '" + args[0] + "'. Valid categories are all, advancements, items");
                             break;
                     }
                 } else {
                     reload();
-                    Adapt.msgp(sender.getServer().getPlayer(sender.getName()), "Crazy Advancements API was reloaded");
+                    Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Crazy Advancements API was reloaded");
                 }
             }
         }
