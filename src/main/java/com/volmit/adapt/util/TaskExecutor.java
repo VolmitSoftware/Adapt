@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.util;
 
+import com.volmit.adapt.Adapt;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -131,7 +132,7 @@ public class TaskExecutor {
                 try {
                     Thread.sleep(0);
                 } catch (InterruptedException e1) {
-
+                    Adapt.verbose("Interrupted while waiting for tasks to complete");
                 }
 
                 for (AssignedTask i : tasks) {

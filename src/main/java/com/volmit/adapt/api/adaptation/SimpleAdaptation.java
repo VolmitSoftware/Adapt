@@ -130,7 +130,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
                 }
             }
         } catch (Throwable e) {
-
+            Adapt.verbose("Failed to load config for " + getName());
         }
 
         return config;

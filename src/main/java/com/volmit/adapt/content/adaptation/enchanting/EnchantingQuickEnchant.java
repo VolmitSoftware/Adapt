@@ -127,8 +127,8 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
                 if (im instanceof EnchantmentStorageMeta sm) {
                     sm.getStoredEnchants().keySet().forEach(sm::removeStoredEnchant);
                     newEnchants.forEach((ec, l) -> sm.addStoredEnchant(ec, l, true));
-                    Adapt.msgp(p,"---");
-                    sm.getStoredEnchants().forEach((k, v) -> Adapt.msgp(p,k.getKey().getKey() + " " + v));
+                    Adapt.messagePlayer(p,"---");
+                    sm.getStoredEnchants().forEach((k, v) -> Adapt.messagePlayer(p,k.getKey().getKey() + " " + v));
                 } else {
                     im.getEnchants().keySet().forEach(im::removeEnchant);
                     newEnchants.forEach((ec, l) -> im.addEnchant(ec, l, true));

@@ -47,8 +47,8 @@ public class MaterialValue {
                 if (m != null) {
                     valueMultipliers.put(m, v);
                 }
-            } catch (Throwable e) {
-
+            } catch (Exception e) {
+                Adapt.verbose("Invalid material value multiplier: " + k);
             }
         });
     }
@@ -64,7 +64,7 @@ public class MaterialValue {
         try {
             IO.writeAll(l, new JSONObject(new Gson().toJson(valueCache)).toString(4));
         } catch (IOException e) {
-            e.printStackTrace();
+            Adapt.verbose("Failed to save value cache");
         }
     }
 
@@ -180,7 +180,7 @@ public class MaterialValue {
             try {
                 is.setDurability((short) -1);
             } catch (Throwable e) {
-
+                Adapt.verbose("Failed to set durability of " + mat.name());
             }
 
             Bukkit.getRecipesFor(is).forEach(i -> {
@@ -191,7 +191,7 @@ public class MaterialValue {
                 }
             });
         } catch (Throwable e) {
-
+            Adapt.verbose("Failed to get recipes for " + mat.name());
         }
 
         return r;

@@ -108,7 +108,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                     }
                 } else if (block != null && !isStorage(block.getBlockData())) {
                     if (p.isSneaking()) { //(Sneak NOT Container)
-                        Adapt.msgp(p,C.LIGHT_PURPLE + Localizer.dLocalize("rift", "remoteaccess", "notcontainer"));
+                        Adapt.messagePlayer(p,C.LIGHT_PURPLE + Localizer.dLocalize("rift", "remoteaccess", "notcontainer"));
                     } else if (!p.isSneaking() && isBound(hand)) {
                         openPearl(p);
                     }

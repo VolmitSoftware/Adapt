@@ -41,7 +41,7 @@ public class CommandVerbose extends MortarCommand {
     @Override
     public boolean handle(MortarSender sender, String[] args) {
         AdaptConfig.get().setVerbose(!AdaptConfig.get().isVerbose());
-        Adapt.msgp(sender.player(), "Verbose: " + AdaptConfig.get().isVerbose());
+        Adapt.messagePlayer(sender.player(), "Verbose: " + AdaptConfig.get().isVerbose());
         return true;
     }
 

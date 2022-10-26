@@ -124,9 +124,13 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xp(Player p, Location at, double xp) {
-        XP.xp(p, this, xp);
-        if (xp > 50) {
-            vfxXP(p, at, (int) xp);
+        try {
+            XP.xp(p, this, xp);
+            if (xp > 50) {
+                vfxXP(p, at, (int) xp);
+            }
+        } catch (Exception e) {
+            Adapt.verbose("Failed to give xp to " + p.getName() + " for " + getName() + " (" + xp + ")");
         }
     }
 

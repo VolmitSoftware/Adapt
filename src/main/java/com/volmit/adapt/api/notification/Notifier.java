@@ -90,7 +90,7 @@ public class Notifier extends TickedObject {
                     .group("xp")
                     .build());
         } catch (Throwable e) {
-            e.printStackTrace();
+            Adapt.verbose("Failed to notify xp: " + e.getMessage());
         }
     }
 
