@@ -2,23 +2,23 @@
   "advancement": {
     "challenge_move_1k": {
       "title": "得走啦！",
-      "description": "总计走过1千米的距离。（1,000 方块）"
+      "description": "走过总计 1 千米的距离。（1,000 格方块）"
     },
     "challenge_sprint_5k": {
       "title": "长跑运动员",
-      "description": "总计走过 5 公里（5,000 方块）"
+      "description": "走过总计 5 千米的距离。（5,000 格方块）"
     },
     "challenge_sprint_50k": {
       "title": "五万变焦",
-      "description": "总计走过5万千米（50,000 方块）"
+      "description": "走过总计 50 千米的距离。（50,000 格方块）"
     },
     "challenge_sprint_500k": {
       "title": "穿越宇宙！",
-      "description": "总计走过500千米（500,000方块）"
+      "description": "走过总计 500 千米的距离。（50万格方块）"
     },
     "challenge_sprint_marathon": {
-      "title": "冲刺（字面意思）马拉松！",
-      "description": "以疾跑的方式跑过 42,195 个方块。"
+      "title": "疾跑马拉松！",
+      "description": "以疾跑的方式跑过 42,195 格方块"
     },
     "challenge_place_1k": {
       "title": "初学建筑师！",
@@ -34,23 +34,23 @@
     },
     "challenge_place_500k": {
       "title": "建筑大师！",
-      "description": "放置 500,000 个方块"
+      "description": "总计放置 500,000 个方块"
     },
     "challenge_place_5m": {
       "title": "对称主义",
-      "description": "世界是你的天地！ （放置超过5百万个方块）"
+      "description": "世界就是你的天地！（放置超过 500 万个方块）"
     },
     "challenge_chop_1k": {
       "title": "初学伐木工",
-      "description": "放置 1,000 个方块"
+      "description": "砍伐 1,000 个方块"
     },
     "challenge_chop_5k": {
       "title": "中级伐木工！",
-      "description": "放置 5,000 个方块"
+      "description": "砍伐 5,000 个方块"
     },
     "challenge_chop_50k": {
       "title": "职业伐木工！",
-      "description": "放置 50,000 个方块"
+      "description": "砍伐 50,000 个方块"
     },
     "challenge_chop_500k": {
       "title": "伐木大师！",
@@ -59,6 +59,126 @@
     "challenge_chop_5m": {
       "title": "狗狗杰克逊",
       "description": "最棒的好孩子！ （500 万块）"
+    },
+    "challenge_block_1k": {
+      "title": "防御入门",
+      "description": "防御 1000 次攻击"
+    },
+    "challenge_block_5k": {
+      "title": "防御之乐！",
+      "description": "防御 5000 次攻击"
+    },
+    "challenge_block_50k": {
+      "title": "防御即为一生！",
+      "description": "防御 50,000 次攻击"
+    },
+    "challenge_block_500k": {
+      "title": "防御代表我的决心！",
+      "description": "防御 500,000 次攻击"
+    },
+    "challenge_block_5m": {
+      "title": "巨盾之手",
+      "description": "防御 500,000 次攻击"
+    },
+    "challenge_brew_1k": {
+      "title": "初学炼金术士！",
+      "description": "饮用 1000 瓶药水"
+    },
+    "challenge_brew_5k": {
+      "title": "中级炼金术士！",
+      "description": "饮用 5000 瓶药水"
+    },
+    "challenge_brew_50k": {
+      "title": "职业炼金术士！",
+      "description": "引用 50,000 瓶药水"
+    },
+    "challenge_brew_500k": {
+      "title": "炼金大师！",
+      "description": "饮用 500,000 瓶药水"
+    },
+    "challenge_brew_5m": {
+      "title": "炼金师",
+      "description": "饮用 5,000,000 瓶药水"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "投掷喷溅药水入门！",
+      "description": "投掷 1,000 瓶喷溅药水"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "中级喷溅药水投掷者！",
+      "description": "投掷 5000 瓶喷溅药水"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "职业喷溅药水投掷者！",
+      "description": "投掷 50,000 瓶喷溅药水"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "喷溅药水投掷大师！",
+      "description": "投掷 500,000 瓶喷溅药水"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "投掷师傅",
+      "description": "投掷 5,000,000 瓶喷溅药水"
+    },
+    "challenge_craft_1k": {
+      "title": "精妙绝伦",
+      "description": "合成 1000 个物品"
+    },
+    "challenge_craft_5k": {
+      "title": "独具妙心",
+      "description": "合成 5000 个物品"
+    },
+    "challenge_craft_50k": {
+      "title": "成风之斫",
+      "description": "合成 50,000 个物品"
+    },
+    "challenge_craft_500k": {
+      "title": "巧夺天工",
+      "description": "合成 500,000 个物品"
+    },
+    "challenge_craft_5m": {
+      "title": "出神入化",
+      "description": "合成 5,000,000 个物品"
+    },
+    "challenge_enchant_1k": {
+      "title": "挖掘入门！",
+      "description": "附魔 1000 件物品"
+    },
+    "challenge_enchant_5k": {
+      "title": "中级附魔师！",
+      "description": "附魔 5000 件物品"
+    },
+    "challenge_enchant_50k": {
+      "title": "职业附魔师！",
+      "description": "附魔 50,000 件物品"
+    },
+    "challenge_enchant_500k": {
+      "title": "附魔大师",
+      "description": "附魔 500,000 件物品"
+    },
+    "challenge_enchant_5m": {
+      "title": "神秘附魔师",
+      "description": "附魔 5,000,000 件物品"
+    },
+    "challenge_excavate_1k": {
+      "title": "初级挖掘机！",
+      "description": "挖掘 1000 个方块"
+    },
+    "challenge_excavate_5k": {
+      "title": "中级挖掘机！",
+      "description": "挖掘 5000 个方块"
+    },
+    "challenge_excavate_50k": {
+      "title": "职业挖掘机！",
+      "description": "挖掘 50,000 个方块"
+    },
+    "challenge_excavate_500k": {
+      "title": "挖掘大师！",
+      "description": "挖掘 500,000 个方块"
+    },
+    "challenge_excavate_5m": {
+      "title": "神秘挖掘机",
+      "description": "挖掘 5,000,000 个方块"
     }
   },
   "snippets": {
@@ -77,12 +197,12 @@
       "unlearnedall": "已全部忘却"
     },
     "adaptmenu": {
-      "maynotunlearn": "你无法忘却此技能",
+      "maynotunlearn": "无法忘却此技能",
       "mayunlearn": "可学习/忘却",
-      "knowledgecost": "知识可用",
+      "knowledgecost": "知识花费",
       "alreadylearned": "已学习",
       "unlearnrefund": "点击忘却此技能",
-      "norefunds": "极限模式将禁用点数返还",
+      "norefunds": "极限模式禁用点数返还",
       "knowledge": "知识",
       "clicklearn": "点击以学习",
       "noknowledge": "（你没有任何知识可用）",
@@ -118,22 +238,22 @@
     "architect": {
       "name": "建筑师",
       "icon": "⬧",
-      "description": "结构是万物之本。现实在你手中，由你掌握。"
+      "description": "结构是万物之本。现实在你手中，由你掌控。"
     },
     "axes": {
       "name": "斧技",
       "icon": "❖",
       "description1": "如果说你可以砍掉什么东西",
-      "description2": "来取代掉砍树",
+      "description2": "以替代砍树",
       "description3": "有什么不一样的吗？"
     },
     "brewing": {
       "name": "酿造",
       "icon": "❦",
-      "description": "咕嘟，咕嘟，咕嘟- 我最终还是不敢将这瓶药水丢进炼药锅中。"
+      "description": "咕嘟，咕嘟，咕嘟- 我依然不敢把这瓶药水丢进炼药锅中。"
     },
     "blocking": {
-      "name": "窒碍",
+      "name": "防御",
       "icon": "▒",
       "description": "棍棒与石头不会折断你的骨头，但是盾牌会。"
     },
@@ -160,7 +280,7 @@
     "herbalism": {
       "name": "草药学",
       "icon": "⚘",
-      "description": "我见不到植物，不过我能找到一些种子还有—— 呃，杂草？"
+      "description": "我见不到植物，不过我能找到一些种子还有- 呃......那是杂草吗？"
     },
     "hunter": {
       "name": "狩猎",
@@ -190,22 +310,22 @@
     "seaborne": {
       "name": "激流",
       "icon": "🌊",
-      "description": "别忘了带着这个技能，也许有一天你能见到由水组成的奇观。"
+      "description": "带着它吧，也许有一天你会见到由水组成的奇观。"
     },
     "stealth": {
       "name": "隐形",
       "icon": "✠",
-      "description": "当行走于阴影里，这是看不见的艺术。"
+      "description": "当行走于阴影里，隐藏于阴影中的艺术。"
     },
     "swords": {
       "name": "剑术",
       "icon": "⚔",
-      "description": "一份来自玄武石的力量！"
+      "description": "来自玄武石的力量！"
     },
     "taming": {
       "name": "驯兽",
       "icon": "♥",
-      "description": "鹦鹉、蜜蜂，以及......你？"
+      "description": "鹦鹉、蜜蜂、以及......你？"
     },
     "tragoul": {
       "name": "塔格奥",
@@ -228,13 +348,13 @@
       "name": "装甲加速",
       "description": "冲刺的越快，给予的护甲值就越多！",
       "lore1": "最大护甲值",
-      "lore2": "所需的加速时间"
+      "lore2": "加速时间"
     },
     "superjump": {
       "name": "高跳",
-      "description": "一览众山小。",
+      "description": "一览众山小",
       "lore1": "最大跳跃高度",
-      "lore2": "同时按下 潜行 + 跳跃 按键进行高跳！"
+      "lore2": "按下 潜行 + 跳跃 键进行高跳！"
     },
     "walljump": {
       "name": "攀跳",
@@ -252,18 +372,18 @@
   "architect": {
     "foundation": {
       "name": "魔法基建",
-      "description": "当你潜行时，可以临时在脚下放置方块。",
-      "lore1": "最多可在脚下生成：",
+      "description": "潜行时在脚下放置临时方块。",
+      "lore1": "神奇地生成：",
       "lore2": "块临时方块"
     },
     "glass": {
       "name": "丝质手套",
-      "description": "徒手打破玻璃后将会掉落玻璃方块！",
-      "lore1": "当手触摸到玻璃时有丝绸般的触感"
+      "description": "徒手打破玻璃后将掉落玻璃方块！",
+      "lore1": "当触摸到玻璃时有丝绸般的触感。"
     },
     "placement": {
       "name": "建筑师之杖",
-      "description": "手持多个方块，按住潜行键瞄准目标方块。根据预览摆放方块，持续调整以达到最好效果！请注意：可能需要移动来调整边界。",
+      "description": "手持多个方块，按住潜行对准目标方块。根据预览摆放方块，持续调整以达到最好效果！请注意：可能需要移动来调整边界。",
       "lore1": "手中必须持有多于",
       "lore2": "个方块才能使用",
       "lore3": "建筑师之杖。"
@@ -280,7 +400,7 @@
     "logswap": {
       "name": "露西的原木转换器",
       "description": "在工作台中转换原木的种类吧！",
-      "lore1": "1块任意种类的原木 + 1株树苗 = 1块树苗对应种类的原木"
+      "lore1": "8块任意种类的原木 + 1株树苗 = 8块树苗对应种类的原木"
     },
     "droptoinventory": {
       "name": "快速进入背包"
@@ -295,10 +415,10 @@
     },
     "leafminer": {
       "name": "花匠",
-      "description": "同时剪断大量树叶。",
+      "description": "一次剪断大量树叶！",
       "lore1": "潜行，然后挖掘树叶。",
       "lore2": "树叶挖掘范围",
-      "lore3": "由于防止漏洞滥用，挖掘树叶将不会获得掉落物。"
+      "lore3": "为防止漏洞滥用，树叶将不会掉落。"
     },
     "woodminer": {
       "name": "原木矿工",
@@ -353,7 +473,7 @@
     },
     "nausea": {
       "name": "瓶装反胃",
-      "description": "真令我恶心。",
+      "description": "真令我恶心！",
       "lore1": "粗制的药水 + 棕色蘑菇 = 反胃药水（16秒） ",
       "lore2": "粗制的药水 + 绯红菌 = 反胃药水 II（8秒）"
     },
@@ -371,7 +491,7 @@
     },
     "healthboost": {
       "name": "瓶装生命",
-      "description": "有的时候感觉最大生命值不够用...",
+      "description": "是不是总会感觉最大生命值不够用...",
       "lore1": "瞬间治疗药水 = 金苹果 = 生命提升药水（120秒）",
       "lore2": "瞬间治疗药水 + 附魔金苹果 = 生命提升 II 药水（120秒）"
     },
@@ -379,13 +499,13 @@
       "name": "瓶装腐朽",
       "description": "谁知道Detritus为什么这么有用？",
       "lore1": "虚弱药水 + 毒马铃薯 = 凋零药水（16秒）",
-      "lore2": "虚弱药水 + 绯红菌索 = 凋零药水（8秒）"
+      "lore2": "虚弱药水 + 绯红菌索 = 凋零药水 II（8秒）"
     },
     "saturation": {
       "name": "瓶装饱和",
-      "description": "哦，我知道... 我其实还没那么饿...",
-      "lore1": "生命恢复药水 + 烤马铃薯 = 饱和药水（120秒）",
-      "lore2": "生命恢复药水 + 干草块= 饱和药水（120秒）"
+      "description": "哦，我清楚... 实际上我还没那么饿...",
+      "lore1": "生命恢复药水 + 烤马铃薯 = 饱和药水",
+      "lore2": "生命恢复药水 + 干草块= 饱和药水 II"
     }
   },
   "blocking": {
@@ -397,7 +517,7 @@
     "horsearmorer": {
       "name": "可合成马铠",
       "description": "允许你合成不同种类的马铠。",
-      "lore1": "在工作台中，使用材料围着马鞍一圈合成目标材质的马铠。"
+      "lore1": "在工作台中，使用合成材料围着马鞍一圈以合成目标材质的马铠。"
     },
     "saddlecrafter": {
       "name": "可合成马鞍",
@@ -424,8 +544,8 @@
     },
     "xp": {
       "name": "熟能生巧",
-      "description": "合成物品时给予原版经验。",
-      "lore1": "当合成完毕后自动给予"
+      "description": "合成物品时获得经验。",
+      "lore1": "合成将给予经验"
     },
     "leather": {
       "name": "可合成皮革",
@@ -457,26 +577,26 @@
       "description": "根据附近方块硬度给予被动防御。",
       "lore1": "被动防御",
       "lore2": "由附近方块硬度决定",
-      "lore3": "防御： +"
+      "lore3": "防御："
     },
     "unity": {
       "name": "实验性统合",
-      "description": "收集经验球，随机为其它技能增长经验。",
+      "description": "收集经验球时随机给予其它技能的经验。",
       "lore1": "点经验 ",
       "lore2": "每个经验球"
     },
     "resist": {
       "name": "实验性电阻",
-      "description": "减少来自任何方面的伤害\n",
+      "description": "减少来自任何方式其造成的伤害",
       "lore0": "每 15秒 发生一次",
-      "lore1": " 减少伤害",
+      "lore1": "减少伤害",
       "lore2": "经验消耗"
     },
     "villager": {
       "name": "村庄聚光灯",
       "description": "与村民交易时将提升交易质量！",
       "lore1": "每次与村民互动时都会减少获得的经验",
-      "lore2": "以减少和村民互动时获得的经验为代价，提高交易质量",
+      "lore2": "以减少和村民互动时获得的经验为代价，提升交易质量",
       "lore3": "交互经验削减"
     }
   },
@@ -487,7 +607,7 @@
       "lore1": "每升一级都会额外消耗1经验，最高可以返还3青金石。"
     },
     "quickenchant": {
-      "name": "快速附魔",
+      "name": "快捷附魔",
       "description": "在物品栏用附魔书点击被附魔的物品以快速附魔。",
       "lore1": "累计最大等级",
       "lore2": "此物品应用的附魔总等级不能超过 ",
@@ -537,12 +657,11 @@
     },
     "myconid": {
       "name": "草药师的菌丝",
-      "description": "给予你制作菌丝的能力。",
+      "description": "给予制作菌丝的能力。",
       "lore1": "所有泥土，和棕、红色蘑菇将会制作出菌丝。"
     },
     "terralid": {
-      "name": "草药师的地衣\n",
-      "description": "给予你合成草方块的能力。",
+      "description": "给予合成草方块的能力。",
       "lore1": "3个种子，加上3块泥土，可合成3块草方块。"
     },
     "cobweb": {
@@ -552,7 +671,7 @@
     },
     "mushroomblocks": {
       "name": "蘑菇包装厂",
-      "description": "你将获得在工作台中合成蘑菇方块的能力。",
+      "description": "给予合成蘑菇方块的能力。",
       "lore1": "四个蘑菇合成一个蘑菇块，或者使用一个蘑菇块进行分解。"
     },
     "droptoinventory": {
@@ -566,13 +685,13 @@
     "luck": {
       "name": "草药师的祝福",
       "description": "当你破坏花或草时，你将有概率获得随机物品。",
-      "lore0": "花将收获食物，草将收获种子",
+      "lore0": "花 = 食物，草 = 种子",
       "lore1": "破坏花获得随机物品的概率",
       "lore2": "破坏草获得随机物品的概率"
     },
     "replant": {
       "name": "收割者",
-      "description": "手持锄头，右键庄稼进行自动收割和重新种植。",
+      "description": "手持锄头，右键庄稼来自动收割与重新种植。",
       "lore1": " 有效范围半径"
     }
   },
@@ -588,7 +707,7 @@
     "droptoinventory": {
       "name": "快速进入背包",
       "description": "当你击杀生物/破坏某方块，它的掉落物将会自动进入背包。",
-      "lore1": "如果允许，击杀生物/破坏某方块的掉落物将会自动进入背包。"
+      "lore1": "如果可以，击杀生物/破坏某方块的掉落物将会自动进入背包。"
     },
     "invisibility": {
       "name": "隐形之步",
@@ -630,7 +749,7 @@
       "name": "狩猎者之盾",
       "description": "以饥饿为代价，当你受伤时给予抗性提升效果。",
       "lore1": "受伤时自动给予抗性提升效果。",
-      "lore2": "x3 抗性提升效果，持续三秒",
+      "lore2": "x 抗性提升效果，持续三秒",
       "lore3": "x 叠加饥饿效果",
       "lore4": "饥饿感叠加持续时间和倍数",
       "lore5": "抗性提升叠加倍数"
@@ -657,7 +776,7 @@
   "nether": {
     "skulltoss": {
       "name": "凋灵发射器",
-      "description1": "发射凋灵的头",
+      "description1": "发射凋灵的头颅",
       "description2": "展现内心中的",
       "description3": "枯竭。",
       "lore1": "秒发射冷却时间。",
@@ -668,8 +787,8 @@
     "witherresist": {
       "name": "凋零抑制器",
       "description": "通过下界合金的力量抑制凋零",
-      "lore1": "的概率避免凋零效果",
-      "lore2": "被动效果：穿着下界套装有概率避免",
+      "lore1": "免疫凋零效果概率",
+      "lore2": "被动效果：穿着下界合金套装有概率避免",
       "lore3": "凋零效果。"
     }
   },
@@ -677,26 +796,26 @@
     "autosmelt": {
       "name": "自动熔炼",
       "description": "当你挖掘（曾经）需要冶炼的矿物",
-      "lore1": "时将自动熔炼成熔炼后的产物。",
-      "lore2": " 的概率获得额外产物。"
+      "lore1": "将自动熔炼矿石",
+      "lore2": " % 的概率获得额外产物。"
     },
     "chisel": {
       "name": "破碎锤",
-      "description": "右键单击目标矿石，将有概率获得额外产物。这可能会严重消耗耐久度。",
-      "lore1": "概率掉落额外产物",
+      "description": "右键单击目标矿石，概率获得额外掉落物。可能会严重消耗耐久度。",
+      "lore1": "额外掉落概率",
       "lore2": "耐久消耗"
     },
     "droptoinventory": {
       "name": "快速进入背包",
       "description": "当你击杀生物/破坏某方块，它的掉落物将会自动进入背包。",
-      "lore1": "如果允许，击杀生物/破坏某方块的掉落物将会自动进入背包。"
+      "lore1": "如果可以，击杀生物/破坏某方块的掉落物将会自动进入背包。"
     },
     "veinminer": {
       "name": "连锁挖矿",
       "description": "允许你遇到原版矿物的矿脉时候连锁挖矿。",
       "lore1": "按住潜行键，并挖掘矿物",
       "lore2": "来使用连锁挖矿。",
-      "lore3": "此技能不会将掉落物合并在一起。"
+      "lore3": "此技能不会将掉落物合并在一起！"
     }
   },
   "ranged": {
@@ -706,10 +825,10 @@
       "lore1": "概率在击杀生物时回收箭矢"
     },
     "forceshot": {
-      "name": "暴力投掷",
+      "name": "大力投掷手",
       "description": "射出的投掷物又快又远！",
       "advancementname": "远距离射击",
-      "advancementlore": "投掷物可以在超过30个方块外着陆",
+      "advancementlore": "投掷物可以在超过30格方块外着陆",
       "lore1": "射击速度"
     },
     "lungeshot": {
@@ -720,7 +839,7 @@
     "arrowpiercing": {
       "name": "精准穿透",
       "description": "提升投掷物或箭矢的穿透力，甚至可以穿透物体。",
-      "lore1": "可穿透目标"
+      "lore1": "穿透目标"
     }
   },
   "rift": {
@@ -730,12 +849,12 @@
       "lore1": "末影珍珠 + 指南针 = Reliquary Portkey",
       "lore2": "这个物品允许你远程访问被标记的容器。",
       "lore3": "制作完成后，查看物品来使用该技能",
-      "notcontainer": "这个物品不是可用的容器"
+      "notcontainer": "该物品不是可用容器"
     },
     "blink": {
       "name": "裂痕闪烁",
-      "description": "眨个眼的功夫，短距离即可瞬间传送",
-      "lore1": "个方块（传送距离）",
+      "description": "眨个眼的功夫，在短距离之内瞬间传送！",
+      "lore1": "格方块（2x 垂直）",
       "lore2": "当疾跑时：跳跃两次以",
       "lore3": "传送"
     },
@@ -748,8 +867,8 @@
       "name": "裂痕之门",
       "description": "传送到标记位置",
       "lore1": "制作：末影珍珠 + 紫水晶碎片 + 绿宝石",
-      "lore2": "请注意：",
-      "lore3": "有五秒延迟，",
+      "lore2": "使用前注意！",
+      "lore3": "将有五秒延迟，",
       "lore4": "在进行五秒延迟等待时，你可以在动画中死亡。"
     },
     "resist": {
@@ -776,7 +895,7 @@
       "lore1": "当水下呼吸效果消失时，在水下挖掘时将给予急迫3效果（可与水下速掘效果叠加）。"
     },
     "nightvision": {
-      "name": "海龟夜视\n",
+      "name": "海龟视野",
       "description": "当你在水下时给予夜视效果！",
       "lore1": "当水下呼吸效果消失时，在水下时将给予夜视效果！"
     },
@@ -784,28 +903,28 @@
       "name": "海豚的祝福",
       "description": "无需海豚相伴也能快速游动了。",
       "lore1": "+ 被动技能：给予 ",
-      "lore2": "x 在水中速度 (海豚的恩惠效果)",
-      "lore3": "精准的德国工程师- 等等，这好像不对..."
+      "lore2": "x 游动速度 (海豚的恩惠效果)",
+      "lore3": "精准的德国工程师- 等等，这好像不对... 不与深海探索者兼容"
     }
   },
   "stealth": {
     "ghostarmor": {
       "name": "幽灵战甲",
-      "description": "潜行时缓慢的构建幽灵战甲- 受伤后清空",
+      "description": "潜行时缓慢的构建幽灵战甲，将给予防御效果，受伤后失效。",
       "lore1": "最大护甲值",
-      "lore2": "构建时间"
+      "lore2": "速度"
     },
     "nightvision": {
       "name": "鹰眼",
-      "description": "当潜行时给予夜视效果",
-      "lore1": "当保持潜行状态时",
-      "lore2": "给予",
+      "description": "潜行时给予夜视效果",
+      "lore1": "当潜行时",
+      "lore2": "突发给予",
       "lore3": "夜视效果"
     },
     "snatch": {
       "name": "物品夺取",
-      "description": "潜行时立即夺取半径内的掉落物",
-      "lore1": "夺取半径"
+      "description": "潜行时立即拾取半径内的掉落物",
+      "lore1": "拾取半径"
     },
     "speed": {
       "name": "潜行加速",
@@ -816,7 +935,7 @@
   "sword": {
     "machete": {
       "name": "弯刀",
-      "description": "让剑斩开树叶。",
+      "description": "让剑斩开树叶！",
       "lore1": "有效范围半径",
       "lore2": "斩击冷却",
       "lore3": "耐久消耗"
@@ -844,39 +963,39 @@
     },
     "health": {
       "name": "驯化生命",
-      "description": "提高你驯养的生物的生命值",
-      "lore1": "生命增长"
+      "description": "提高所驯养生物的生命值",
+      "lore1": "额外生命"
     },
     "regeneration": {
       "name": "驯化再生",
-      "description": "提高你驯养的生物的再生效果",
+      "description": "提升你所驯养的生物的回血速度",
       "lore1": "生命/秒"
     }
   },
   "tragoul": {
     "thorns": {
       "name": "荆棘",
-      "description": "受伤时将伤害返回给攻击者！",
-      "lore1": "伤害返回倍数"
+      "description": "受伤时将伤害反弹给攻击者！",
+      "lore1": "伤害反弹倍数"
     }
   },
   "unarmed": {
     "glasscannon": {
       "name": "玻璃大炮",
       "description": "你的护甲值越低，空手造成的伤害越高",
-      "lore1": "x 伤害（至0护甲值）",
+      "lore1": "x 伤害（当0护甲值时）",
       "lore2": "每级造成的额外伤害"
     },
     "power": {
       "name": "钢铁之力",
-      "description": "提升空手造成的伤害",
+      "description": "提升当空手时所造成的伤害",
       "lore1": "伤害"
     },
     "suckerpunch": {
       "name": "杀客同萌",
       "description": "疾跑时可以攻击，将更加致命",
       "lore1": "伤害",
-      "lore2": "攻击时伤害随移动速度增加"
+      "lore2": "攻击时伤害将随移动速度的增加而增加"
     }
   }
 }
