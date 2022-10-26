@@ -135,6 +135,7 @@ dependencies {
     implementation 'com.elmakers.mine.bukkit:EffectLib:9.4'
     implementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.7'
     implementation "com.github.FrancoBM12:API-MagicCosmetics:1.9.85"
+    implementation "io.papermc:paperlib:1.0.7"
 
     // Shaded
     implementation 'io.papermc:paperlib:1.0.5'

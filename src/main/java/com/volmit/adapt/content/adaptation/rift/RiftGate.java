@@ -83,8 +83,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             return;
         }
 
-        Location location = null;
-
+        Location location;
         if (e.getClickedBlock() == null) {
             location = p.getLocation();
 

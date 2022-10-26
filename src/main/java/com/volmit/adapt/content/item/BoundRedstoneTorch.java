@@ -34,8 +34,8 @@ import java.util.List;
 
 @AllArgsConstructor
 @Data
-public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
-    public static BoundEyeOfEnder io = new BoundEyeOfEnder();
+public class BoundRedstoneTorch implements DataItem<BoundRedstoneTorch.Data> {
+    public static BoundRedstoneTorch io = new BoundRedstoneTorch();
 
     public static Location getLocation(ItemStack stack) {
         if (io.getData(stack) != null) {
@@ -55,35 +55,34 @@ public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
 
     @Override
     public Material getMaterial() {
-        return Material.ENDER_EYE;
+        return Material.REDSTONE_TORCH;
     }
 
     @Override
     public Class<Data> getType() {
-        return BoundEyeOfEnder.Data.class;
+        return BoundRedstoneTorch.Data.class;
     }
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Localizer.dLocalize("items", "boundeyeofender", "name"));
-        lore.add(C.GRAY + Localizer.dLocalize("items", "boundeyeofender", "usage1"));
-        lore.add(C.GRAY + Localizer.dLocalize("items", "boundeyeofender", "usage2"));
+        lore.add(C.WHITE + Localizer.dLocalize("items", "boundredstonetorch", "name"));
+        lore.add(C.GRAY + Localizer.dLocalize("items", "boundredstonetorch", "usage1"));
+        lore.add(C.GRAY + Localizer.dLocalize("items", "boundredstonetorch", "usage2"));
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE);
-        meta.setDisplayName("Ocular Anchor");
+        meta.setDisplayName("Redstone Remote");
     }
 
     @AllArgsConstructor
     @lombok.Data
     public static class Data {
         private Location location;
-
-        public static BoundEyeOfEnder.Data at(Location l) {
-            return new BoundEyeOfEnder.Data(l);
+        public static BoundRedstoneTorch.Data at(Location l) {
+            return new BoundRedstoneTorch.Data(l);
         }
     }
 }

@@ -45,6 +45,8 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.volmit.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
+
 public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     private final List<InventoryView> activeViews = new ArrayList<>();
 
@@ -144,7 +146,11 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     private void openPearl(Player p) {
         Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
-        if (b != null && b.getState() instanceof InventoryHolder holder) {
+        if (b == null) {
+            return;
+        }
+        loadChunkAsync(b.getLocation(), chunk -> {
+        if (b.getState() instanceof InventoryHolder holder) {
             activeViews.add(p.openInventory(holder.getInventory()));
             if (getConfig().showParticles) {
 
@@ -152,6 +158,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                 p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
             }
         }
+        });
     }
 
     private boolean isBound(ItemStack stack) {

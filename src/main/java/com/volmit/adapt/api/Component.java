@@ -375,6 +375,14 @@ public interface Component {
         }
     }
 
+    default void vfxSingleCuboidOutline(Block blockStart, Block blockEnd, Color color, int size) {
+        List<Location> hollowCube = getHollowCuboid(blockStart.getLocation(), blockEnd.getLocation(), 0.25);
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, size);
+        for (Location l : hollowCube) {
+            blockStart.getWorld().spawnParticle(Particle.REDSTONE, l, 2, 0F, 0F, 0F, 0.000, dustOptions);
+        }
+    }
+
     default void vfxPrismOutline(Location placer, double outset, Particle particle, int particleCount) {
 
         Location top = new Location(placer.getWorld(), placer.getX(), placer.getY() + outset, placer.getZ());

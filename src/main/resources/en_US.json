@@ -181,9 +181,26 @@
       "description": "Excavate 5,000,000 Blocks"
     }
   },
+  "items": {
+    "boundenderperal": {
+      "name": "Reliquary Portkey",
+      "usage1": "Shift + Left Click to bind",
+      "usage2": "Right Click to access the bound Inventory"
+    },
+    "boundeyeofender": {
+      "name": "Ocular Anchor",
+      "usage1": "Right Click to consume and teleport to the bound location",
+      "usage2": "Shift + Left Click to bind to a block"
+    },
+    "boundredstonetorch": {
+      "name": "Redstone Remote",
+      "usage1": "Right Click to create a 1-Tick Redstone pulse",
+      "usage2": "Shift + Left Click on a 'Target' Block to bind"
+    }
+  },
   "snippets": {
     "gui": {
-      "level": "level",
+      "level": "Level",
       "knowledge": "knowledge",
       "powerused": "Power Used",
       "notlearned": "Not Learned",
@@ -380,6 +397,11 @@
       "name": "Silk-Touch Glass",
       "description": "This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand!",
       "lore1": "Your hands gain silk touch for Glass"
+    },
+    "wirelessredstone": {
+      "name": "Redstone Remote",
+      "description": "This allows for you to use a redstone torch to toggle redstone, remotely!",
+      "lore1": "Target + Redstone Torch + Enderperal = 1 Redstone Remote"
     },
     "placement": {
       "name": "Builders Wand",
