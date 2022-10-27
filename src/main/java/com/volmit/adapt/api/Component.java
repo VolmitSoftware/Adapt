@@ -102,6 +102,14 @@ public interface Component {
         }
     }
 
+    default void decrementItemstack(ItemStack hand, Player p) {
+        if (hand.getAmount() > 1) {
+            hand.setAmount(hand.getAmount() - 1);
+        } else {
+            p.getInventory().setItemInMainHand(null);
+        }
+    }
+
     default double getArmorValue(Player player) {
         org.bukkit.inventory.PlayerInventory inv = player.getInventory();
         ItemStack boots = inv.getBoots();
