@@ -23,12 +23,16 @@ import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundRedstoneTorch;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.util.profiling.jfr.event.PacketReceivedEvent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.AnaloguePowerable;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -82,7 +86,6 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             return;
         }
         e.setCancelled(true);
-
         if (hasCooldown(p)) {
             p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.25f, 0.9f);
             return;
@@ -148,21 +151,23 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         Location l = BoundRedstoneTorch.getLocation(p.getInventory().getItemInMainHand());
         if (l != null) {
             loadChunkAsync(l, chunk -> {
-                p.getWorld().playSound(l, Sound.BLOCK_BELL_USE, 0.5f, 0.5f);
-                p.getWorld().playSound(l, Sound.ENCHANT_THORNS_HIT, 0.5f, 0.9f);
                 Block b = l.getBlock();
                 BlockData data = b.getBlockData();
                 if (data instanceof AnaloguePowerable redBlock && b.getType().equals(Material.TARGET)) {
+                    p.getWorld().playSound(l, Sound.ENCHANT_THORNS_HIT, 0.5f, 0.1f);
                     redBlock.setPower(15);
                     b.setBlockData(redBlock);
                     J.s(() -> {
                         redBlock.setPower(0);
                         b.setBlockData(redBlock);
                     }, 2);
+                } else {
+                    p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.25f, 0.55f);
                 }
             });
         } else {
-            p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.25f, 0.9f);
+            p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.25f, 0.5f);
+
         }
     }
 
