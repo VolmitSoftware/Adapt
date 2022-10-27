@@ -72,28 +72,23 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
-            return;
-        }
         ItemStack hand = p.getInventory().getItemInMainHand();
+        Location location;
         if (hand.getItemMeta() == null || hand.getItemMeta().getLore() == null) {
             return;
         }
         if (!hand.getItemMeta().getLore().contains("Ocular Anchor") && !hand.getType().equals(Material.ENDER_EYE)) {
             return;
         }
-
-        Location location;
+        e.setCancelled(true);
+        if (!hasAdaptation(p)) {
+            return;
+        }
         if (e.getClickedBlock() == null) {
             location = p.getLocation();
-
         } else {
-            location = new Location(e.getClickedBlock().getLocation().getWorld(),
-                    e.getClickedBlock().getLocation().getX() + 0.5,
-                    e.getClickedBlock().getLocation().getY() + 1,
-                    e.getClickedBlock().getLocation().getZ() + 0.5);
+            location = new Location(e.getClickedBlock().getLocation().getWorld(), e.getClickedBlock().getLocation().getX() + 0.5, e.getClickedBlock().getLocation().getY() + 1, e.getClickedBlock().getLocation().getZ() + 0.5);
         }
-        e.setCancelled(true);
         switch (e.getAction()) {
             case LEFT_CLICK_BLOCK -> {
                 if (p.isSneaking()) {
@@ -107,12 +102,9 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
                     linkEye(p, location);
                 }
             }
-
             case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> // use
                     openEye(p);
-
         }
-
     }
 
 
@@ -121,11 +113,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         ItemStack hand = p.getInventory().getItemInMainHand();
 
         xp(p, 75);
-        if (hand.getAmount() > 1) { // consume the hand
-            hand.setAmount(hand.getAmount() - 1);
-        } else {
-            p.getInventory().setItemInMainHand(null);
-        }
+        decrementItemstack(hand, p);
         if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null
                 && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
             RiftResist.riftResistStackAdd(p, 150, 3);
@@ -147,7 +135,6 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
                                 .add(Vector.getRandom().subtract(Vector.getRandom()).setY(y).normalize().multiply(d)), 1, 0, 0, 0, 0);
                     }
                 }
-
                 pcd = pcd - 20;
                 d = d - 0.04;
                 y = y * 1.07;
@@ -155,10 +142,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             }
             vfxLevelUp(p);
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
-
             J.s(() -> p.teleport(l, PlayerTeleportEvent.TeleportCause.PLUGIN));
         });
-
     }
 
     private boolean isBound(ItemStack stack) {
@@ -168,13 +153,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
     private void unlinkEye(Player p) {
         ItemStack hand = p.getInventory().getItemInMainHand();
-
-        if (hand.getAmount() > 1) {
-            hand.setAmount(hand.getAmount() - 1);
-        } else {
-            p.getInventory().setItemInMainHand(null);
-        }
-
+        decrementItemstack(hand, p);
         ItemStack eye = new ItemStack(Material.ENDER_EYE);
         p.getInventory().addItem(eye).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
     }
