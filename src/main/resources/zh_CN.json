@@ -202,7 +202,7 @@
       "knowledgecost": "知识花费",
       "alreadylearned": "已学习",
       "unlearnrefund": "点击忘却此技能",
-      "norefunds": "极限模式禁用点数返还",
+      "norefunds": "极限模式将禁用点数返还",
       "knowledge": "知识",
       "clicklearn": "点击以学习",
       "noknowledge": "（你没有任何知识可用）",
