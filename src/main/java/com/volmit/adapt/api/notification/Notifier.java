@@ -149,6 +149,9 @@ public class Notifier extends TickedObject {
 
     private void cleanupSkills() {
         for (String i : lastSkills.k()) {
+            if (lastSkills.get(i) == null) { // Shouldn't happen, but just in case I guess.
+                return;
+            }
             if (M.ms() - lastSkills.get(i) > 10000 || (M.ms() - lastInstance > 3100 && M.ms() - lastSkills.get(i) > 3100)) {
                 lastSkills.remove(i);
                 lastSkillValues.remove(i);
