@@ -90,7 +90,7 @@
     },
     "challenge_brew_50k": {
       "title": "职业炼金术士！",
-      "description": "引用 50,000 瓶药水"
+      "description": "饮用 50,000 瓶药水"
     },
     "challenge_brew_500k": {
       "title": "炼金大师！",
@@ -179,6 +179,23 @@
     "challenge_excavate_5m": {
       "title": "神秘挖掘机",
       "description": "挖掘 5,000,000 个方块"
+    }
+  },
+  "items": {
+    "boundenderperal": {
+      "name": "遗物之钥",
+      "usage1": "潜行 + 左键绑定",
+      "usage2": "右键访问已绑定的物品栏。"
+    },
+    "boundeyeofender": {
+      "name": "视觉锚点",
+      "usage1": "右键消耗该物品并传送至已绑定的位置。",
+      "usage2": "潜行 + 左键绑定方块"
+    },
+    "boundredstonetorch": {
+      "name": "红石遥控器",
+      "usage1": "右键创建一个 1 Tick 的红石脉冲",
+      "usage2": "潜行 + 左键 '目标' 方块以绑定"
     }
   },
   "snippets": {
@@ -380,6 +397,11 @@
       "name": "丝质手套",
       "description": "徒手打破玻璃后将掉落玻璃方块！",
       "lore1": "当触摸到玻璃时有丝绸般的触感。"
+    },
+    "wirelessredstone": {
+      "name": "红石遥控器",
+      "description": "允许你使用红石火把远程控制红石，远程控制！",
+      "lore1": "标靶 + 红石火把 + 末影珍珠 = 1 红石遥控器"
     },
     "placement": {
       "name": "建筑师之杖",
@@ -661,6 +683,7 @@
       "lore1": "所有泥土，和棕、红色蘑菇将会制作出菌丝。"
     },
     "terralid": {
+      "name": "草药师的地衣",
       "description": "给予合成草方块的能力。",
       "lore1": "3个种子，加上3块泥土，可合成3块草方块。"
     },
