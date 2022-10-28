@@ -74,7 +74,7 @@ public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE);
-        meta.setDisplayName("Ocular Anchor");
+        meta.setDisplayName(Localizer.dLocalize("items", "boundeyeofender", "name"));
     }
 
     @AllArgsConstructor

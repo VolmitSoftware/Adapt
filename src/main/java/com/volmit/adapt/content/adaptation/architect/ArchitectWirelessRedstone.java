@@ -18,22 +18,19 @@
 
 package com.volmit.adapt.content.adaptation.architect;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundRedstoneTorch;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.AnaloguePowerable;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -51,7 +48,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         setDescription(Localizer.dLocalize("architect", "wirelessredstone", "description"));
         setDisplayName(Localizer.dLocalize("architect", "wirelessredstone", "name"));
         setIcon(Material.REDSTONE_TORCH);
-        setInterval(10500);
+        setInterval(100);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
@@ -73,21 +70,18 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
-
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
-        if (hand.getItemMeta() == null || hand.getItemMeta().getLore() == null) {
+        if (hand.getItemMeta() == null || hand.getItemMeta().getLore() == null || !isBound(hand)) {
             return;
         }
-        if (!hand.getItemMeta().getLore().contains("Redstone Remote") && !hand.getType().equals(Material.REDSTONE_TORCH)) {
+        if (!hasAdaptation(p)) {
             return;
         }
         switch (e.getAction()) {
             case LEFT_CLICK_BLOCK -> {
                 if (p.isSneaking()) {
-                    if (!hasAdaptation(p)) {
-                        return;
-                    }
+
                     Location location;
                     if (e.getClickedBlock() == null) {
                         p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
@@ -102,12 +96,11 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                 }
             }
             case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
-                e.setCancelled(true);
-                if (hasCooldown(p)) {
-                    p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
-                } else {
+
+                if (!hasCooldown(p)) {
                     cooldowns.put(p, System.currentTimeMillis() + getConfig().cooldown);
                     triggerPulse(p);
+                    e.setCancelled(true);
                 }
             }
         }
@@ -132,7 +125,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             vfxSingleCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
         }
         p.getWorld().playSound(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
-        p.getWorld().playSound(l, Sound.ENTITY_ENDER_EYE_DEATH, 0.1f, 0.22f);
+        p.getWorld().playSound(l, Sound.ENTITY_ENDER_EYE_DEATH, 0.2f, 0.48f);
         ItemStack hand = p.getInventory().getItemInMainHand();
         if (hand.getAmount() == 1) {
             BoundRedstoneTorch.setData(hand, l);
@@ -149,13 +142,14 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             return;
         }
         Location l = BoundRedstoneTorch.getLocation(p.getInventory().getItemInMainHand());
-        if (isBound(p.getInventory().getItemInMainHand())) {
+        if (isBound(p.getInventory().getItemInMainHand()) && l != null) {
             loadChunkAsync(l, chunk -> {
                 Block b = l.getBlock();
                 BlockData data = b.getBlockData();
                 if (data instanceof AnaloguePowerable redBlock && b.getType().equals(Material.TARGET)) {
                     p.getWorld().playSound(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
                     redBlock.setPower(15);
+                    vfxSingleCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
                     b.setBlockData(redBlock);
                     J.s(() -> {
                         redBlock.setPower(0);
@@ -165,13 +159,11 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                     p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
                 }
             });
-        } else {
-            p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
         }
     }
 
     private boolean isBound(ItemStack stack) {
-        return stack.getType().equals(Material.REDSTONE_TORCH) && BoundRedstoneTorch.getLocation(stack) != null;
+        return (stack.getType().equals(Material.REDSTONE_TORCH) && BoundRedstoneTorch.getLocation(stack) != null);
     }
 
     @Override
@@ -179,9 +171,30 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         return getConfig().enabled;
     }
 
+    @EventHandler
+    public void on(PlayerItemHeldEvent e) {
+        Player p = e.getPlayer();
+        ItemStack hand = p.getInventory().getItemInMainHand();
+        ItemStack offhand = p.getInventory().getItemInOffHand();
+
+        if (isBound(hand)) {
+            p.setCooldown(Material.REDSTONE_TORCH, 50000);
+        } else {
+            p.setCooldown(Material.REDSTONE_TORCH, 0);
+        }
+    }
 
     @Override
     public void onTick() {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            ItemStack hand = p.getInventory().getItemInMainHand();
+            ItemStack offhand = p.getInventory().getItemInOffHand();
+            if (!isBound(hand)) {
+                J.s(() -> p.setCooldown(Material.REDSTONE_TORCH, 0));
+            } else {
+                J.s(() -> p.setCooldown(Material.REDSTONE_TORCH, 50000));
+            }
+        }
     }
 
     @Override
