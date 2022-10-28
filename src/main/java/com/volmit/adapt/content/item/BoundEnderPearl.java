@@ -20,6 +20,7 @@ package com.volmit.adapt.content.item;
 
 import com.volmit.adapt.api.item.DataItem;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Localizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Material;
@@ -64,9 +65,9 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.UNDERLINE + "Portkey");
-        lore.add(C.LIGHT_PURPLE + "Shift + Left Click " + C.GRAY + "to bind/unbind");
-        lore.add(C.LIGHT_PURPLE + "Right Click " + C.GRAY + "to access the bound Inventory");
+        lore.add(C.WHITE + Localizer.dLocalize("items", "boundenderperal", "name"));
+        lore.add(C.GRAY + Localizer.dLocalize("items", "boundenderperal", "usage1"));
+        lore.add(C.GRAY + Localizer.dLocalize("items", "boundenderperal", "usage2"));
     }
 
     @Override

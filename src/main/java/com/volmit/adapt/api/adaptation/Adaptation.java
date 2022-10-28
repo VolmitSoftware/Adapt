@@ -189,9 +189,7 @@ public interface Adaptation<T> extends Ticked, Component {
             if (!this.getSkill().isEnabled()) {
                 this.unregister();
             }
-            if (p.getClass().getSimpleName().equals("PlayerNPC")
-            || p == null
-            || !p.getClass().getSimpleName().equals("CraftPlayer")) {
+            if (p.getClass().getSimpleName().equals("PlayerNPC") || !p.getClass().getSimpleName().equals("CraftPlayer")) {
                 return false;
             }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
@@ -200,12 +198,16 @@ public interface Adaptation<T> extends Ticked, Component {
             if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
                 return false;
             }
-            Adapt.verbose("Player: " + p.getName() + " Attempting adaptation: " + this.getName() + " level: " + getLevel(p));
             if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null && Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
                     && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()
                     && !canBuild(p, p.getLocation())) {
-                Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have worldguard build permission.");
+                if (getLevel(p) > 0) {
+                    Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have worldguard build permission.");
+                }
                 return false;
+            }
+            if (getLevel(p) > 0) {
+                Adapt.verbose("Player: " + p.getName() + " Attempting adaptation: " + this.getName() + " level: " + getLevel(p));
             }
             return getLevel(p) > 0;
         } catch (Exception e) {

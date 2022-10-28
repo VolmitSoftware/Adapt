@@ -26,6 +26,7 @@ import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.architect.ArchitectFoundation;
 import com.volmit.adapt.content.adaptation.architect.ArchitectGlass;
 import com.volmit.adapt.content.adaptation.architect.ArchitectPlacement;
+import com.volmit.adapt.content.adaptation.architect.ArchitectWirelessRedstone;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
@@ -94,6 +95,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         registerAdaptation(new ArchitectGlass());
         registerAdaptation(new ArchitectFoundation());
         registerAdaptation(new ArchitectPlacement());
+        registerAdaptation(new ArchitectWirelessRedstone());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

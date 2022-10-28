@@ -35,6 +35,8 @@ import org.bukkit.util.Vector;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.volmit.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
+
 
 public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     private final Map<Player, Long> lastJump = new HashMap<>();
@@ -112,15 +114,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
                     vfxParticleLine(locOG, loc, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
                 }
-                J.s(() -> {
-                    Vector v = p.getVelocity().clone();
-                    p.teleport(loc.add(0, 1, 0), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    try {
-                        Thread.sleep(5);
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                    p.setVelocity(v.multiply(3));
+                Vector v = p.getVelocity().clone();
+                loadChunkAsync(loc, chunk -> {
+                J.s(() -> p.teleport(loc.add(0, 1, 0), PlayerTeleportEvent.TeleportCause.PLUGIN));
+                J.s(() -> p.setVelocity(v.multiply(3)), 2);
                 });
 
                 lastJump.put(p, M.ms());

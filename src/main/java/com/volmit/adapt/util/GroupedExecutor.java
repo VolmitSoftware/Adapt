@@ -102,8 +102,7 @@ public class GroupedExecutor {
     public void close() {
         J.a(() ->
         {
-            J.sleep(100);
-            service.shutdown();
+            J.sleep(100);service.shutdown();
         });
     }
 

@@ -64,10 +64,7 @@ public class SecretSplash {
                     C.GRAY + "▒██▀▀██░▒███   ▒██░    ▓██░ ██▓▒   ▓██    ▓██░▒███         " + C.GRAY + "Version: " + C.DARK_RED + Adapt.instance.getDescription().getVersion() + "     \n" +
                     C.GRAY + "░▓█ ░██ ▒▓█  ▄ ▒██░    ▒██▄█▓▒ ▒   ▒██    ▒██ ▒▓█  ▄       " + C.GRAY + "By: " + C.RED + "A" + C.GOLD + "r" + C.YELLOW + "c" + C.GREEN + "a" + C.DARK_GRAY + "n" + C.AQUA + "e " + C.AQUA + "A" + C.BLUE + "r" + C.DARK_BLUE + "t" + C.DARK_PURPLE + "s" + C.WHITE + " (Volmit Software)\n" +
                     C.GRAY + "░▓█▒░██▓░▒████▒░██████▒▒██▒ ░  ░   ▒██▒   ░██▒░▒████▒      " + C.GRAY + "Java Version: " + C.DARK_RED + Adapt.getJavaVersion() + "     \n" +
-                    C.GRAY + " ▒ ░░▒░▒░░ ▒░ ░░ ▒░▓  ░▒▓▒░ ░  ░   ░ ▒░   ░  ░░░ ▒░ ░      \n" +
-                    C.GRAY + " ▒ ░▒░ ░ ░ ░  ░░ ░ ▒  ░░▒ ░        ░  ░      ░ ░ ░  ░      \n" +
-                    C.GRAY + " ░  ░░ ░   ░     ░ ░   ░░          ░      ░      ░         \n" +
-                    C.GRAY + " ░  ░  ░   ░  ░    ░  ░                   ░      ░  ░      ",
+                    C.GRAY + " ▒ ░░▒░▒░░ ▒░ ░░ ▒░▓  ░▒▓▒░ ░  ░   ░ ▒░   ░  ░░░ ▒░ ░      ",
 
             C.GRAY + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣴⣶⣿⣿⣷⣶⣄⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
                     C.GRAY + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣾⣿⣿⡿⢿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀   ⠀\n" +

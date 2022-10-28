@@ -30,13 +30,17 @@ import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.secret.SecretSplash;
 import de.slikey.effectlib.EffectManager;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -74,6 +78,7 @@ public class Adapt extends VolmitPlugin {
         registerListener(new BrewingManager());
         setupMetrics();
         startupPrint(); // Splash screen
+        autoUpdateCheck();
     }
 
     public static int getJavaVersion() {
@@ -120,6 +125,30 @@ public class Adapt extends VolmitPlugin {
         debug("XP/Level base: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
         debug("XP/Level multiplier: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier());
         info("Language: " + AdaptConfig.get().getLanguage() + " - Language Fallback: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
+    }
+
+    @SneakyThrows
+    public static void autoUpdateCheck() {
+        info("Checking for updates...");
+        URL url = new URL("https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle");
+        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            if (inputLine.contains("version '")) {
+                if (inputLine.contains("development")) {
+                    info("Development build detected. Skipping update check.");
+                    break;
+                }
+                String version = inputLine.remove("version '").remove("'").remove("// Needs to be version specific").remove(" ");
+                if (!version.equals(instance.getDescription().getVersion())) {
+                    info("A new version of Adapt is available: " + version);
+                } else {
+                    info("You are running the latest version of Adapt!");
+                }
+                break;
+            }
+        }
+        in.close();
     }
 
     public Adapt() {

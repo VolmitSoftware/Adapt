@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.excavation;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.content.item.multiItems.OmniTool;
@@ -128,56 +129,47 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             e.setCancelled(true);
             return;
         }
-        if (!hasAdaptation(p)) {
-            return;
-        }
-        if (!validateTool(p.getInventory().getItemInMainHand())) {
-            return;
-        }
         xp(p, 3);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
-            return;
-        }
         if (validateTool(p.getInventory().getItemInMainHand())) {
-            e.setCancelled(true);
-            return;
-        }
-        if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && hasAdaptation(p)) {
-            ItemStack hand = p.getInventory().getItemInMainHand();
-            if (!validateTool(hand)) {
+            if (!hasAdaptation(p)) {
                 return;
             }
-            Damageable imHand = (Damageable) hand.getItemMeta();
-            Block block = e.getClickedBlock();
-            if (block == null) {
-                return;
-            }
-            if (ItemListings.farmable.contains(block.getType())) {
-                J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextHoe(hand)));
-                p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
-                if (imHand != null && imHand.hasDamage()) {
-                    if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
-                        e.setCancelled(true);
-                        p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+            if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+                ItemStack hand = p.getInventory().getItemInMainHand();
+                Damageable imHand = (Damageable) hand.getItemMeta();
+                Block block = e.getClickedBlock();
+                if (block != null) {
+                    if (ItemListings.farmable.contains(block.getType())) {
+                        if (isShovel(hand)) {
+                            J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextHoe(hand)));
+                            p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                        } else {
+                            J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextShovel(hand)));
+                            p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                        }
+                        if (imHand != null && imHand.hasDamage()) {
+                            if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
+                                e.setCancelled(true);
+                                p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+                            }
+                        }
+                    } else if (ItemListings.burnable.contains(block.getType())) {
+                        J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextFnS(hand)));
+                        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                        if (imHand != null && imHand.hasDamage()) {
+                            if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
+                                e.setCancelled(true);
+                                p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+                            }
+                        }
                     }
                 }
-            } else if (ItemListings.farmable.contains(block.getType())) {
-                J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextFnS(hand)));
-                p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
-                if (imHand != null && imHand.hasDamage()) {
-                    if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
-                        e.setCancelled(true);
-                        p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
-                    }
-                }
-
             }
-
         }
 
     }
@@ -227,46 +219,51 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockDamageEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
-            return;
-        }
         org.bukkit.block.Block b = e.getBlock(); // nms block for pref tool
         ItemStack hand = p.getInventory().getItemInMainHand();
 
-        if (!validateTool(hand)) {
-            return;
-        }
-        Damageable imHand = (Damageable) hand.getItemMeta();
-        if (ItemListings.getAxe().contains(b.getType())) {
-            if (hand.getType().toString().contains("_AXE")) {
+        if (validateTool(hand)) {
+            if (e.isCancelled()) {
                 return;
             }
-            J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextAxe(hand)));
-            itemDelegate(e, hand, imHand);
-        } else if (ItemListings.getShovel().contains(b.getType())) {
-            if (hand.getType().toString().contains("_SHOVEL")) {
+            if (!hasAdaptation(p)) {
                 return;
             }
-            J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextShovel(hand)));
-            itemDelegate(e, hand, imHand);
-        } else if (ItemListings.getSwordBreakables().contains(b.getType())) {
-            if (hand.getType().toString().contains("_SWORD")) {
-                return;
-            }
-            J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
-            itemDelegate(e, hand, imHand);
-        } else { // Default to pickaxe
-            if (hand.getType().toString().contains("_PICKAXE")) {
-                return;
-            }
-            J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextPickaxe(hand)));
-            itemDelegate(e, hand, imHand);
-        }
 
+            Damageable imHand = (Damageable) hand.getItemMeta();
+            if (ItemListings.getAxePreference().contains(b.getType())) {
+                if (!isAxe(hand)) {
+                    Adapt.verbose("Omnitool for " + p.getName() + " changed to axe");
+                    J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextAxe(hand)));
+                    itemDelegate(e, hand, imHand);
+                } else {
+                    Adapt.verbose("Omnitool for " + p.getName() + " is already axe");
+                }
+            } else if (ItemListings.getShovelPreference().contains(b.getType())) {
+                if (!isShovel(hand)) {
+                    Adapt.verbose("Omnitool for " + p.getName() + " changed to shovel");
+                    J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextShovel(hand)));
+                    itemDelegate(e, hand, imHand);
+                } else {
+                    Adapt.verbose("Omnitool for " + p.getName() + " is already shovel");
+                }
+            } else if (ItemListings.getSwordPreference().contains(b.getType())) {
+                if (!isSword(hand)) {
+                    Adapt.verbose("Omnitool for " + p.getName() + " changed to sword");
+                    J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
+                    itemDelegate(e, hand, imHand);
+                } else {
+                    Adapt.verbose("Omnitool for " + p.getName() + " is already sword");
+                }
+            } else { // Default to pickaxe
+                if (!isPickaxe(hand)) {
+                    Adapt.verbose("Omnitool for " + p.getName() + " changed to pickaxe");
+                    J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextPickaxe(hand)));
+                    itemDelegate(e, hand, imHand);
+                }
+            }
+        }
     }
 
 
@@ -310,11 +307,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     }
 
     private boolean validateTool(ItemStack item) {
-        if (item.getItemMeta() != null && item.getItemMeta().getLore() != null && item.getItemMeta().getLore().get(0) != null) {
-            return (item.getItemMeta().getLore().get(0).contains("Leatherman"));
-        } else {
-            return false;
-        }
+        return (item.getItemMeta() != null && item.getItemMeta().getLore() != null && item.getItemMeta().getLore().get(0) != null && item.getItemMeta().getLore().get(0).contains("Leatherman"));
     }
 
     private double getSlots(double level) {

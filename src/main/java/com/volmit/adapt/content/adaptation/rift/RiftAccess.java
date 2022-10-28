@@ -45,6 +45,8 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.volmit.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
+
 public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     private final List<InventoryView> activeViews = new ArrayList<>();
 
@@ -78,50 +80,42 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
-            return;
-        }
-
         ItemStack hand = p.getInventory().getItemInMainHand();
         ItemMeta handMeta = hand.getItemMeta();
         Block block = e.getClickedBlock();
-
         if (handMeta == null || handMeta.getLore() == null || !hand.hasItemMeta() || !handMeta.getLore().get(0).equals(C.UNDERLINE + "Portkey")) {
             return;
         }
-        if (p.hasCooldown(hand.getType())) {
-            e.setCancelled(true);
+        e.setCancelled(true);
+        if (!hasAdaptation(p)) {
+            p.playSound(p.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 0.50f, 0.01f);
             return;
-        } else {
-            NMS.get().sendCooldown(p, Material.ENDER_PEARL, 100);
-            p.setCooldown(Material.ENDER_PEARL, 100);
         }
 
-        xp(p, 1);
         switch (e.getAction()) {
             case LEFT_CLICK_BLOCK -> {
                 if (block != null && isStorage(block.getBlockData())) { // Ensure its a container
                     if (p.isSneaking()) { // Binding (Sneak Container)
-                        e.setCancelled(true);
-                        p.playSound(p.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 0.50f, 0.22f);
                         linkPearl(p, block);
                     }
                 } else if (block != null && !isStorage(block.getBlockData())) {
                     if (p.isSneaking()) { //(Sneak NOT Container)
-                        Adapt.messagePlayer(p,C.LIGHT_PURPLE + Localizer.dLocalize("rift", "remoteaccess", "notcontainer"));
+                        Adapt.messagePlayer(p, C.LIGHT_PURPLE + Localizer.dLocalize("rift", "remoteaccess", "notcontainer"));
                     } else if (!p.isSneaking() && isBound(hand)) {
                         openPearl(p);
                     }
                 }
-                e.setCancelled(true);
-
             }
-            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK, LEFT_CLICK_AIR -> {
+            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
+                if (p.hasCooldown(hand.getType())) {
+                    return;
+                } else {
+                    NMS.get().sendCooldown(p, Material.ENDER_PEARL, 100);
+                    p.setCooldown(Material.ENDER_PEARL, 100);
+                }
                 if (isBound(hand)) {
                     openPearl(p);
                 }
-                e.setCancelled(true);
-
             }
         }
     }
@@ -144,14 +138,16 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     private void openPearl(Player p) {
         Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
-        if (b != null && b.getState() instanceof InventoryHolder holder) {
-            activeViews.add(p.openInventory(holder.getInventory()));
-            if (getConfig().showParticles) {
-
+        if (b == null) {
+            return;
+        }
+        loadChunkAsync(b.getLocation(), chunk -> {
+            if (b.getState() instanceof InventoryHolder holder) {
+                activeViews.add(p.openInventory(holder.getInventory()));
                 p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
                 p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
             }
-        }
+        });
     }
 
     private boolean isBound(ItemStack stack) {

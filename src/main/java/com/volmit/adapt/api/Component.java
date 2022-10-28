@@ -102,6 +102,14 @@ public interface Component {
         }
     }
 
+    default void decrementItemstack(ItemStack hand, Player p) {
+        if (hand.getAmount() > 1) {
+            hand.setAmount(hand.getAmount() - 1);
+        } else {
+            p.getInventory().setItemInMainHand(null);
+        }
+    }
+
     default double getArmorValue(Player player) {
         org.bukkit.inventory.PlayerInventory inv = player.getInventory();
         ItemStack boots = inv.getBoots();
@@ -372,6 +380,14 @@ public interface Component {
         List<Location> hollowCube = getHollowCuboid(blockStart.getLocation(), blockEnd.getLocation(), 0.25);
         for (Location l : hollowCube) {
             blockStart.getWorld().spawnParticle(particle, l, 2, 0F, 0F, 0F, 0.000);
+        }
+    }
+
+    default void vfxSingleCuboidOutline(Block blockStart, Block blockEnd, Color color, int size) {
+        List<Location> hollowCube = getHollowCuboid(blockStart.getLocation(), blockEnd.getLocation(), 0.25);
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, size);
+        for (Location l : hollowCube) {
+            blockStart.getWorld().spawnParticle(Particle.REDSTONE, l, 2, 0F, 0F, 0F, 0.000, dustOptions);
         }
     }
 
