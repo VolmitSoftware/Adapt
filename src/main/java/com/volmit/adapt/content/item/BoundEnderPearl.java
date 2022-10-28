@@ -74,7 +74,7 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName("Reliquary Portkey");
+        meta.setDisplayName(Localizer.dLocalize("items", "boundenderperal", "name"));
 
     }
 

@@ -74,7 +74,7 @@ public class BoundRedstoneTorch implements DataItem<BoundRedstoneTorch.Data> {
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE);
-        meta.setDisplayName("Redstone Remote");
+        meta.setDisplayName(Localizer.dLocalize("items", "boundredstonetorch", "name"));
     }
 
     @AllArgsConstructor

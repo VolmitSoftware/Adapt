@@ -28,6 +28,7 @@ import com.volmit.adapt.content.adaptation.discovery.DiscoveryVillagerAtt;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryXpResist;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
@@ -77,7 +78,11 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
-        seeWorld(p, p.getWorld());
+        try {
+            J.a(() -> seeWorld(p, p.getWorld()), 15);
+        } catch (Exception ignored) {
+            Adapt.error("Failed to discover world " + p.getWorld().getName());
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

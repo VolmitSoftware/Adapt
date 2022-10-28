@@ -151,7 +151,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     }
 
     private boolean isBound(ItemStack stack) {
-        return BoundEnderPearl.getBlock(stack) != null;
+        return (stack.getType().equals(Material.ENDER_PEARL) && BoundEnderPearl.getBlock(stack) != null);
     }
 
     @Override
