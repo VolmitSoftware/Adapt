@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.content.item.BoundEyeOfEnder;
 import com.volmit.adapt.content.item.BoundRedstoneTorch;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -95,7 +96,9 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                 }
             }
             case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
-                if (!hasCooldown(p)) {
+                if (hasCooldown(p)) {
+                    p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
+                } else {
                     e.setCancelled(true);
                     cooldowns.put(p, System.currentTimeMillis() + getConfig().cooldown);
                     triggerPulse(p);
