@@ -288,7 +288,7 @@ task adapt(type: Copy)
     from ssJar
     into buildDir
     rename { String fileName ->
-        fileName.replace('Adapt-' + version + '-rma.jar', "Adapt-" + version + ".jar")
+        fileName.replace('Adapt-' + version + '-rma.jar', "Adapt.jar")
     }
     dependsOn(specialSourceRemap)
 }
@@ -302,10 +302,10 @@ def registerCustomOutputTask(name, path) {
         group('development')
         outputs.upToDateWhen { false }
         dependsOn(adapt)
-        from(new File(buildDir, "Adapt-" + version + ".jar"))
+        from(new File(buildDir, "Adapt.jar"))
         into(file(path))
         rename { String fileName ->
-            fileName.replace("Adapt-" + version + ".jar", "Adapt-" + version + ".jar")
+            fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
         }
     }
 }
@@ -319,10 +319,10 @@ def registerCustomOutputTaskUnix(name, path) {
         group('development')
         outputs.upToDateWhen { false }
         dependsOn(adapt)
-        from(new File(buildDir, "Adapt-" + version + ".jar"))
+        from(new File(buildDir, "Adapt.jar"))
         into(file(path))
         rename { String fileName ->
-            fileName.replace("Adapt-" + version + ".jar", "Adapt-" + version + ".jar")
+            fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
         }
     }
 }
