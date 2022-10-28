@@ -20,7 +20,6 @@ package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
-import com.volmit.adapt.content.item.BoundEyeOfEnder;
 import com.volmit.adapt.content.item.BoundRedstoneTorch;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -73,15 +72,16 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
-        if (hand.getItemMeta() == null || hand.getItemMeta().getLore() == null) {
+        if (hand.getItemMeta() == null || hand.getItemMeta().getLore() == null || !isBound(hand)) {
+            return;
+        }
+        if (!hasAdaptation(p)) {
             return;
         }
         switch (e.getAction()) {
             case LEFT_CLICK_BLOCK -> {
                 if (p.isSneaking()) {
-                    if (!hasAdaptation(p)) {
-                        return;
-                    }
+
                     Location location;
                     if (e.getClickedBlock() == null) {
                         p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
@@ -96,12 +96,11 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                 }
             }
             case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
-                if (hasCooldown(p)) {
-                    p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
-                } else {
-                    e.setCancelled(true);
+
+                if (!hasCooldown(p)) {
                     cooldowns.put(p, System.currentTimeMillis() + getConfig().cooldown);
                     triggerPulse(p);
+                    e.setCancelled(true);
                 }
             }
         }
@@ -178,14 +177,10 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         ItemStack hand = p.getInventory().getItemInMainHand();
         ItemStack offhand = p.getInventory().getItemInOffHand();
 
-        if (!hasAdaptation(p)) {
-            if (p.getCooldown(Material.REDSTONE_TORCH) > 0) {
-                p.setCooldown(Material.REDSTONE_TORCH, 0);
-            }
-            return;
-        }
         if (isBound(hand)) {
             p.setCooldown(Material.REDSTONE_TORCH, 50000);
+        } else {
+            p.setCooldown(Material.REDSTONE_TORCH, 0);
         }
     }
 
@@ -196,14 +191,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             ItemStack offhand = p.getInventory().getItemInOffHand();
             if (!isBound(hand)) {
                 J.s(() -> p.setCooldown(Material.REDSTONE_TORCH, 0));
-                continue;
-            }
-
-            if (!hasAdaptation(p)) {
-                continue;
-            }
-
-            if (isBound(hand)) {
+            } else {
                 J.s(() -> p.setCooldown(Material.REDSTONE_TORCH, 50000));
             }
         }

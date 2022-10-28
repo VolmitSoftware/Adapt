@@ -83,7 +83,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         ItemStack hand = p.getInventory().getItemInMainHand();
         ItemMeta handMeta = hand.getItemMeta();
         Block block = e.getClickedBlock();
-        if (handMeta == null || handMeta.getLore() == null || !hand.hasItemMeta() || !handMeta.getLore().get(0).equals(C.UNDERLINE + "Portkey")) {
+        if (handMeta == null || !hand.hasItemMeta() || !isBound(hand)) {
             return;
         }
         e.setCancelled(true);
