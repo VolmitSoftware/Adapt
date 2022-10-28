@@ -76,7 +76,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> swordBreakables = List.of(
+    public static List<Material> swordPreference = List.of(
             Material.COBWEB,
             Material.CAVE_VINES,
             Material.CAVE_VINES_PLANT,
@@ -241,7 +241,43 @@ public class ItemListings {
             Material.POTATOES,
             Material.SWEET_BERRY_BUSH,
             Material.CARROTS,
-            Material.BEETROOTS
+            Material.BEETROOTS,
+            Material.DIRT_PATH
+
+    );
+
+    @Getter
+    public static List<Material> tillable = List.of(
+    );
+
+    @Getter
+    public static List<Material> burnable = List.of(
+            Material.OBSIDIAN,
+            Material.NETHERRACK,
+            Material.SOUL_SAND,
+            Material.ACACIA_LEAVES,
+            Material.BIRCH_LEAVES,
+            Material.DARK_OAK_LEAVES,
+            Material.JUNGLE_LEAVES,
+            Material.OAK_LEAVES,
+            Material.SPRUCE_LEAVES,
+            Material.MANGROVE_LEAVES,
+            Material.WHITE_WOOL,
+            Material.ORANGE_WOOL,
+            Material.MAGENTA_WOOL,
+            Material.LIGHT_BLUE_WOOL,
+            Material.YELLOW_WOOL,
+            Material.LIME_WOOL,
+            Material.PINK_WOOL,
+            Material.GRAY_WOOL,
+            Material.LIGHT_GRAY_WOOL,
+            Material.CYAN_WOOL,
+            Material.PURPLE_WOOL,
+            Material.BLUE_WOOL,
+            Material.BROWN_WOOL,
+            Material.GREEN_WOOL,
+            Material.RED_WOOL,
+            Material.BLACK_WOOL
     );
 
     @Getter
@@ -336,7 +372,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> shovel = List.of(
+    public static List<Material> shovelPreference = List.of(
             Material.CLAY,
             Material.DIRT,
             Material.FARMLAND,
@@ -434,7 +470,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> axe = List.of(
+    public static List<Material> axePreference = List.of(
             //FENCES
             Material.ACACIA_FENCE,
             Material.BIRCH_FENCE,
