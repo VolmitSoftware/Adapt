@@ -150,6 +150,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                 if (data instanceof AnaloguePowerable redBlock && b.getType().equals(Material.TARGET)) {
                     p.getWorld().playSound(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
                     redBlock.setPower(15);
+                    vfxSingleCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
                     b.setBlockData(redBlock);
                     J.s(() -> {
                         redBlock.setPower(0);
