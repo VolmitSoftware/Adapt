@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.architect;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundRedstoneTorch;
@@ -63,7 +64,6 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                 .result(BoundRedstoneTorch.io.withData(new BoundRedstoneTorch.Data(null)))
                 .build());
         cooldowns = new HashMap<>();
-
     }
 
     @Override
@@ -73,6 +73,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
     @EventHandler
     public void on(PlayerInteractEvent e) {
+
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
         if (hand.getItemMeta() == null || hand.getItemMeta().getLore() == null) {
@@ -81,8 +82,6 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         if (!hand.getItemMeta().getLore().contains("Redstone Remote") && !hand.getType().equals(Material.REDSTONE_TORCH)) {
             return;
         }
-
-
         switch (e.getAction()) {
             case LEFT_CLICK_BLOCK -> {
                 if (p.isSneaking()) {
@@ -104,7 +103,12 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             }
             case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
                 e.setCancelled(true);
-                triggerPulse(p);
+                if (hasCooldown(p)) {
+                    p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
+                } else {
+                    cooldowns.put(p, System.currentTimeMillis() + getConfig().cooldown);
+                    triggerPulse(p);
+                }
             }
         }
     }
@@ -124,15 +128,12 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         if (!l.getBlock().getType().equals(Material.TARGET)) {
             return;
         }
-
         if (getConfig().showParticles) {
             vfxSingleCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
         }
-
-        p.getWorld().playSound(l, Sound.BLOCK_CHEST_OPEN, 0.15f, 9f);
+        p.getWorld().playSound(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
         p.getWorld().playSound(l, Sound.ENTITY_ENDER_EYE_DEATH, 0.1f, 0.22f);
         ItemStack hand = p.getInventory().getItemInMainHand();
-
         if (hand.getAmount() == 1) {
             BoundRedstoneTorch.setData(hand, l);
         } else {
@@ -148,18 +149,13 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             return;
         }
         Location l = BoundRedstoneTorch.getLocation(p.getInventory().getItemInMainHand());
-        if (hasCooldown(p)) {
-            p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
-            return;
-        } else {
-            cooldowns.put(p, System.currentTimeMillis() + getConfig().cooldown);
-        }
-        if (l != null) {
+        if (isBound(p.getInventory().getItemInMainHand())) {
             loadChunkAsync(l, chunk -> {
                 Block b = l.getBlock();
                 BlockData data = b.getBlockData();
                 if (data instanceof AnaloguePowerable redBlock && b.getType().equals(Material.TARGET)) {
-                    p.getWorld().playSound(l, Sound.BLOCK_CHEST_OPEN, 0.15f, 9f);
+                    p.getWorld().playSound(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
+                    redBlock.setPower(15);
                     b.setBlockData(redBlock);
                     J.s(() -> {
                         redBlock.setPower(0);
@@ -171,7 +167,6 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             });
         } else {
             p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
-
         }
     }
 
