@@ -307,7 +307,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     }
 
     private boolean validateTool(ItemStack item) {
-        return (item.getItemMeta() != null && item.getItemMeta().getLore() != null && item.getItemMeta().getLore().get(0) != null && item.getItemMeta().getLore().get(0).contains("Leatherman"));
+        return (item.getItemMeta() != null
+                && item.getItemMeta().getLore() != null
+                && item.getItemMeta().getLore().toString().contains("Leatherman"));
     }
 
     private double getSlots(double level) {
