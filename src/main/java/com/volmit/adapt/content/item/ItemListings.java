@@ -435,15 +435,6 @@ public class ItemListings {
 
     @Getter
     public static List<Material> axe = List.of(
-            Material.COCOA,
-            Material.JACK_O_LANTERN,
-            Material.PUMPKIN,
-            Material.MELON,
-            Material.BOOKSHELF,
-            Material.CHEST,
-            Material.CRAFTING_TABLE,
-            Material.LADDER,
-            Material.TRAPPED_CHEST,
             //FENCES
             Material.ACACIA_FENCE,
             Material.BIRCH_FENCE,
@@ -504,7 +495,25 @@ public class ItemListings {
             Material.CRIMSON_STEM,
             Material.CRIMSON_HYPHAE,
             Material.WARPED_SIGN,
-
+            //SIGNS
+            Material.ACACIA_SIGN,
+            Material.ACACIA_WALL_SIGN,
+            Material.BIRCH_SIGN,
+            Material.BIRCH_WALL_SIGN,
+            Material.DARK_OAK_SIGN,
+            Material.DARK_OAK_WALL_SIGN,
+            Material.JUNGLE_SIGN,
+            Material.JUNGLE_WALL_SIGN,
+            Material.OAK_SIGN,
+            Material.OAK_WALL_SIGN,
+            Material.SPRUCE_SIGN,
+            Material.SPRUCE_WALL_SIGN,
+            Material.MANGROVE_SIGN,
+            Material.MANGROVE_WALL_SIGN,
+            Material.CRIMSON_SIGN,
+            Material.CRIMSON_WALL_SIGN,
+            Material.WARPED_SIGN,
+            Material.WARPED_WALL_SIGN,
             //WOODEN_BUTTONS
             Material.ACACIA_BUTTON,
             Material.BIRCH_BUTTON,
@@ -574,7 +583,29 @@ public class ItemListings {
             Material.SPRUCE_PLANKS,
             Material.MANGROVE_PLANKS,
             Material.CRIMSON_PLANKS,
-            Material.WARPED_PLANKS);
-
-
+            Material.WARPED_PLANKS,
+            //MISC
+            Material.BEE_NEST,
+            Material.DRIED_KELP_BLOCK,
+            Material.BEEHIVE,
+            Material.CHEST,
+            Material.CRAFTING_TABLE,
+            Material.JUKEBOX,
+            Material.LADDER,
+            Material.LOOM,
+            Material.NOTE_BLOCK,
+            Material.BARREL,
+            Material.BOOKSHELF,
+            Material.CARTOGRAPHY_TABLE,
+            Material.FLETCHING_TABLE,
+            Material.CAMPFIRE,
+            Material.SOUL_CAMPFIRE,
+            Material.HONEYCOMB,
+            Material.LECTERN,
+            Material.COCOA,
+            Material.JACK_O_LANTERN,
+            Material.PUMPKIN,
+            Material.MELON,
+            Material.TRAPPED_CHEST
+    );
 }

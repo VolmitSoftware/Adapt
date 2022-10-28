@@ -201,10 +201,14 @@ public interface Adaptation<T> extends Ticked, Component {
             if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null && Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
                     && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()
                     && !canBuild(p, p.getLocation())) {
-                Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have worldguard build permission.");
+                if (getLevel(p) > 0) {
+                    Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have worldguard build permission.");
+                }
                 return false;
             }
-            Adapt.verbose("Player: " + p.getName() + " Attempting adaptation: " + this.getName() + " level: " + getLevel(p));
+            if (getLevel(p) > 0) {
+                Adapt.verbose("Player: " + p.getName() + " Attempting adaptation: " + this.getName() + " level: " + getLevel(p));
+            }
             return getLevel(p) > 0;
         } catch (Exception e) {
             if (e instanceof IndexOutOfBoundsException) { // This is that fucking bug with Citizens Spoofing Players. I hate it.
