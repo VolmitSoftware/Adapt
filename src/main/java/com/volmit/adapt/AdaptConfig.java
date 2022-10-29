@@ -60,6 +60,7 @@ public class AdaptConfig {
     private boolean escClosesAllGuis = false;
     private boolean guiBackButton = false;
     private int learnUnlearnButtonDelayTicks = 14;
+    private int maxRecipeListPrecaution = 25;
     private boolean actionbarNotifyXp = true;
     private boolean actionbarNotifyLevel = true;
     private boolean unlearnAllButton = false;
@@ -109,9 +110,9 @@ public class AdaptConfig {
     @Getter
     public static class ValueConfig {
         private double baseValue = 1;
-        private Map<String, Double> valueMutlipliers = defaultValueMultipliers();
+        private Map<String, Double> valueMutlipliers = defaultValueMultipliersOverrides();
 
-        private Map<String, Double> defaultValueMultipliers() {
+        private Map<String, Double> defaultValueMultipliersOverrides() {
             Map<String, Double> f = new HashMap<>();
             f.put(Material.BLAZE_ROD.name(), 50D);
             f.put(Material.ENDER_PEARL.name(), 75D);

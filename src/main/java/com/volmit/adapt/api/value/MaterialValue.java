@@ -21,6 +21,7 @@ package com.volmit.adapt.api.value;
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
+import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.JSONObject;
@@ -43,10 +44,7 @@ public class MaterialValue {
         AdaptConfig.get().getValue().getValueMutlipliers().forEach((k, v) -> {
             try {
                 Material m = Material.valueOf(k.toUpperCase());
-
-                if (m != null) {
-                    valueMultipliers.put(m, v);
-                }
+                valueMultipliers.put(m, v);
             } catch (Exception e) {
                 Adapt.verbose("Invalid material value multiplier: " + k);
             }
@@ -100,7 +98,7 @@ public class MaterialValue {
 
     private static void debugValue(Material m, int ind, int x, Set<MaterialRecipe> ignore) {
         PrecisionStopwatch p = PrecisionStopwatch.start();
-        Adapt.info(Form.repeat("  ", ind) + m.name() + ": " + getValue(m) + (x == 1 ? "" : " (x" + x + ")"));
+        Adapt.verbose(Form.repeat("  ", ind) + m.name() + ": " + getValue(m) + (x == 1 ? "" : " (x" + x + ")"));
 
         int r = 0;
         for (MaterialRecipe i : getRecipes(m)) {
@@ -109,9 +107,13 @@ public class MaterialValue {
             }
 
             ignore.add(i);
+            if (ignore.size() > AdaptConfig.get().getMaxRecipeListPrecaution()) {
+                Adapt.verbose("Avoiding infinite loop");
+                return;
+            }
 
             int o = i.getOutput().getAmount();
-            Adapt.info(Form.repeat("  ", ind) + "# Recipe [" + ind + "x" + r + (o == 1 ? "]" : "] (x" + o + ")"));
+            Adapt.verbose(Form.repeat("  ", ind) + "# Recipe [" + ind + "x" + r + (o == 1 ? "]" : "] (x" + o + ") "));
 
             for (MaterialCount j : i.getInput()) {
                 debugValue(j.getMaterial(), ind + 1, j.getAmount(), ignore);
@@ -119,12 +121,11 @@ public class MaterialValue {
 
             r++;
         }
-        Adapt.info(Form.repeat("  ", ind) + " took " + Form.duration(p.getMilliseconds(), 0));
+        Adapt.verbose(Form.repeat("  ", ind) + " took " + Form.duration(p.getMilliseconds(), 0));
     }
 
     private static double getMultiplier(Material m) {
         Double d = AdaptConfig.get().getValue().getValueMutlipliers().get(m);
-
         return d == null ? 1 : d;
     }
 
@@ -136,56 +137,51 @@ public class MaterialValue {
         if (get().value.containsKey(m)) {
             return get().value.get(m);
         }
-
         double v = AdaptConfig.get().getValue().getBaseValue();
-
         List<MaterialRecipe> recipes = getRecipes(m);
-
         if (recipes.isEmpty()) {
-            get().value.put(m, v * getMultiplier(m));
+            get().value.put(m, v * getMultiplier(m)); // No recipes, just use base value, if no base value then 1
         } else {
             List<Double> d = new ArrayList<>();
             for (MaterialRecipe i : recipes) {
                 if (ignore.contains(i)) {
                     continue;
                 }
-
                 ignore.add(i);
-
                 double vx = v;
-
                 for (MaterialCount j : i.getInput()) {
                     vx += getValue(j.getMaterial(), ignore);
                 }
-
                 d.add(vx / i.getOutput().getAmount());
             }
-
             if (d.size() > 0) {
                 v += d.stream().mapToDouble(i -> i).average().getAsDouble();
             }
+            if (v > AdaptConfig.get().getMaxRecipeListPrecaution()) {
+                get().value.put(m,(v/10 + 1) * getMultiplier(m));
+            } else {
+                get().value.put(m, v);
+            }
 
-            get().value.put(m, v);
         }
-
         return get().value.get(m);
     }
 
     private static List<MaterialRecipe> getRecipes(Material mat) {
         List<MaterialRecipe> r = new ArrayList<>();
-
         try {
             ItemStack is = new ItemStack(mat);
-
             try {
                 is.setDurability((short) -1);
             } catch (Throwable e) {
                 Adapt.verbose("Failed to set durability of " + mat.name());
             }
-
             Bukkit.getRecipesFor(is).forEach(i -> {
+                if (i instanceof AdaptRecipe) {
+                    Adapt.verbose("Skipping Adapt Recipe to prevent duplicates, " + mat.name() + " -> " + ((AdaptRecipe) i).getKey() + "");
+                    return;
+                }
                 MaterialRecipe rx = toMaterial(i);
-
                 if (rx != null) {
                     r.add(rx);
                 }
@@ -193,7 +189,6 @@ public class MaterialValue {
         } catch (Throwable e) {
             Adapt.verbose("Failed to get recipes for " + mat.name());
         }
-
         return r;
     }
 
@@ -211,7 +206,7 @@ public class MaterialValue {
                         .build();
                 Map<Material, Integer> f = new HashMap<>();
                 for (ItemStack i : recipe.getIngredientMap().values()) {
-                    if (i == null || i.getType() == null || i.getType().isAir()) {
+                    if (i == null || i.getType().isAir()) {
                         continue;
                     }
 

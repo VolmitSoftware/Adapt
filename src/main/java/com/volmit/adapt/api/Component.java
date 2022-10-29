@@ -212,7 +212,7 @@ public interface Component {
 
     default double blockXP(Block block, double xp) {
         try {
-        return Math.round(xp * getBlockMultiplier(block));
+            return Math.round(xp * getBlockMultiplier(block));
         } catch (Exception e) {
             Adapt.verbose("Error in blockXP: " + e.getMessage());
         }
@@ -284,7 +284,8 @@ public interface Component {
             droppedItemEntity.remove();
             if (!player.getInventory().addItem(is).isEmpty()) {
                 player.getWorld().dropItem(player.getLocation(), is);
-            }            return true;
+            }
+            return true;
         } else {
             return false;
         }
