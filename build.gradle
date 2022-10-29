@@ -288,7 +288,7 @@ task adapt(type: Copy)
     from ssJar
     into buildDir
     rename { String fileName ->
-        fileName.replace('Adapt-' + version + '-rma.jar', "Adapt.jar")
+        fileName.replace('Adapt-' + version + '-rma.jar', "Adapt-" + version + ".jar")
     }
     dependsOn(specialSourceRemap)
 }
