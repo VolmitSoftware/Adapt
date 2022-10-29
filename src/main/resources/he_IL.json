@@ -59,6 +59,143 @@
     "challenge_chop_5m": {
       "title": "ג'קסון הכלב",
       "description": "הילד הטוב ביותר! (5 מיליון בלוקים)"
+    },
+    "challenge_block_1k": {
+      "title": "בליל חוסם!",
+      "description": "Block 1000 Hits"
+    },
+    "challenge_block_5k": {
+      "title": "חסימה זה כיף!",
+      "description": "חסום 5000 כניסות"
+    },
+    "challenge_block_50k": {
+      "title": "חסימה היא החיים שלי!",
+      "description": "חסום 50,000 כניסות"
+    },
+    "challenge_block_500k": {
+      "title": "חסימה היא המטרה שלי!",
+      "description": "חסום 500,000 צפיות"
+    },
+    "challenge_block_5m": {
+      "title": "היד הכואבת",
+      "description": "חסום 5,000,000 כניסות"
+    },
+    "challenge_brew_1k": {
+      "title": "אלכימאי מתחיל!",
+      "description": "לצרוך 1000 שיקויים"
+    },
+    "challenge_brew_5k": {
+      "title": "אלכימאי בינוני!",
+      "description": "לצרוך 5000 שיקויים"
+    },
+    "challenge_brew_50k": {
+      "title": "אלכימאי מתקדם!",
+      "description": "לצרוך 50,000 שיקויים"
+    },
+    "challenge_brew_500k": {
+      "title": "אלכימאי מאסטר!",
+      "description": "לצרוך 500,000 שיקויים"
+    },
+    "challenge_brew_5m": {
+      "title": "האלכימאי",
+      "description": "לצרוך 5,000,000 שיקויים"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "שיקוי-מתיז מתחיל!",
+      "description": "השתמשו ב 1000 שיקויים"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "שיקוי-מתז ביניים!",
+      "description": "השתמשו ב 5000 שיקויים"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "מתיז שיקויים מתקדם!",
+      "description": "השתמשו ב50,000 שיקויים"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "מאסטר ספלשר של שיקויים",
+      "description": "השתמשו ב500,000 שיקויים"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "הספלאש מייסטר",
+      "description": "השתמשו ב5,000,000 שיקויים"
+    },
+    "challenge_craft_1k": {
+      "title": "היוצר המלאכתי!",
+      "description": "יצירה של 1000 פריטים"
+    },
+    "challenge_craft_5k": {
+      "title": "מלאכת נפש חצופה!",
+      "description": "יצירה של 5000 פריטים"
+    },
+    "challenge_craft_50k": {
+      "title": "קראפטר חכם",
+      "description": "יצירה של 50,000 פריטים"
+    },
+    "challenge_craft_500k": {
+      "title": "קראפטר מומחה",
+      "description": "יצירה של 500,000 פריטים"
+    },
+    "challenge_craft_5m": {
+      "title": "מיסטר קראפטר",
+      "description": "יצירה של 5,000,000 פריטים"
+    },
+    "challenge_enchant_1k": {
+      "title": "קוסם מתחיל!",
+      "description": "להקסים 1000 פריטים"
+    },
+    "challenge_enchant_5k": {
+      "title": "קוסם בינוני!",
+      "description": "קסום 5000 פריטים"
+    },
+    "challenge_enchant_50k": {
+      "title": "קוסם מתקדם!",
+      "description": "להקסים 50,000 פריטים"
+    },
+    "challenge_enchant_500k": {
+      "title": "מאסטר קוסם!",
+      "description": "לכשף 500,000 פריטים"
+    },
+    "challenge_enchant_5m": {
+      "title": "קוסם אניגמטי",
+      "description": "להקסים 5,000,000 פריטים"
+    },
+    "challenge_excavate_1k": {
+      "title": "חופר מפתה!",
+      "description": "חפור 1000 בלוקים"
+    },
+    "challenge_excavate_5k": {
+      "title": "חופר ביניים!",
+      "description": "חפור 5000 בלוקים"
+    },
+    "challenge_excavate_50k": {
+      "title": "מחפר מתקדם!",
+      "description": "חפור 50,000 בלוקים"
+    },
+    "challenge_excavate_500k": {
+      "title": "מאסטר חופר!",
+      "description": "חפור 500,000 בלוקים"
+    },
+    "challenge_excavate_5m": {
+      "title": "חופר אניגמטי",
+      "description": "חפרו 5,000,000 בלוקים"
+    }
+  },
+  "items": {
+    "boundenderperal": {
+      "name": "רליקווארי פוטרי",
+      "usage1": "Shift + קליק שמאלי כדי לאגד",
+      "usage2": "לחץ לחיצה ימנית כדי לגשת למלאי המחובר"
+    },
+    "boundeyeofender": {
+      "name": "עוגן עיני",
+      "usage1": "לחץ באמצעות לחצן העכבר הימני כדי לצרוך ולטלפורט למיקום המחובר",
+      "usage2": "Shift + לחץ שמאלה כדי לאגד לבלוק"
+    },
+    "boundredstonetorch": {
+      "name": "שלט רדסטון",
+      "usage1": "לחץ לחיצה ימנית כדי ליצור דופק 1-טיק רדסטון",
+      "usage2": "Shift + שמאל לחץ על בלוק 'יעד' כדי לאגד"
     }
   },
   "snippets": {
@@ -260,6 +397,11 @@
       "name": "כוס משי מגע",
       "description": "זה מאפשר לך למעשה למנוע אובדן של אבני זכוכית כשאתה שובר אותם ביד ריקה!",
       "lore1": "הידיים שלך משיגות מגע משי לזכוכית"
+    },
+    "wirelessredstone": {
+      "name": "שלט של רדסטון",
+      "description": "זה מאפשר לך להשתמש בלפיד אדום אבן כדי להחליף אבן אדום, מרחוק!",
+      "lore1": "מטרה + לפיד רסטון + אנדפרל= שלט של רדסטון אחד"
     },
     "placement": {
       "name": "בוני שרביט",
@@ -727,7 +869,7 @@
     "remoteaccess": {
       "name": "גישה מרחוק",
       "description": "משוך מהחלל ונכנס למיכל מסומן.",
-      "lore1": "Enderpearl + compass = portkey reliquary",
+      "lore1": " אנרלפרל + מצפן= Reliquary Portkey",
       "lore2": "פריט זה מאפשר לך לגשת למכולות מרחוק",
       "lore3": "פעם מעוצבת התבונן בפריט כדי לראות שימוש",
       "notcontainer": "זה לא מיכל"
