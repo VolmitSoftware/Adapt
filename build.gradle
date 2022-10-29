@@ -73,6 +73,7 @@ repositories {
     maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
     maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 /**
@@ -120,10 +121,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     implementation 'org.spigotmc:spigot-api:1.19.2-R0.1-SNAPSHOT' //[NMS]
-    implementation 'me.clip:placeholderapi:2.11.2'
-    implementation 'io.th0rgal:oraxen:1.94.0'
     implementation 'org.bukkit:craftbukkit:1.19.2-R0.1-SNAPSHOT' //[NMS]
-    implementation 'com.github.LoneDev6:api-itemsadder:3.1.0b'
 
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
@@ -131,10 +129,17 @@ dependencies {
     annotationProcessor 'systems.manifold:manifold-ext:2022.1.21'
     testAnnotationProcessor 'systems.manifold:manifold-ext:2022.1.21'
     implementation 'systems.manifold:manifold-rt:2022.1.21'
+    implementation "io.papermc:paperlib:1.0.7"
+
+    //Random Api's
+    implementation 'com.github.DeadSilenceIV:AdvancedChestsAPI:2.9-BETA'
     implementation 'com.elmakers.mine.bukkit:EffectLib:9.4'
     implementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.7'
     implementation "com.github.FrancoBM12:API-MagicCosmetics:1.9.85"
-    implementation "io.papermc:paperlib:1.0.7"
+    implementation 'me.clip:placeholderapi:2.11.2'
+    implementation 'com.github.LoneDev6:api-itemsadder:3.2.5'
+    implementation 'io.th0rgal:oraxen:1.94.0'
+
 
     // Shaded
     implementation 'io.papermc:paperlib:1.0.5'
