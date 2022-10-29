@@ -69,6 +69,19 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     }
 
     @EventHandler
+    public void on(PlayerItemHeldEvent e) {
+        Player p = e.getPlayer();
+        ItemStack hand = p.getInventory().getItemInMainHand();
+        ItemStack offhand = p.getInventory().getItemInOffHand();
+
+        if (isBound(hand)) {
+            p.setCooldown(Material.REDSTONE_TORCH, 50000);
+        } else {
+            p.setCooldown(Material.REDSTONE_TORCH, 0);
+        }
+    }
+
+    @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
@@ -171,18 +184,6 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         return getConfig().enabled;
     }
 
-    @EventHandler
-    public void on(PlayerItemHeldEvent e) {
-        Player p = e.getPlayer();
-        ItemStack hand = p.getInventory().getItemInMainHand();
-        ItemStack offhand = p.getInventory().getItemInOffHand();
-
-        if (isBound(hand)) {
-            p.setCooldown(Material.REDSTONE_TORCH, 50000);
-        } else {
-            p.setCooldown(Material.REDSTONE_TORCH, 0);
-        }
-    }
 
     @Override
     public void onTick() {

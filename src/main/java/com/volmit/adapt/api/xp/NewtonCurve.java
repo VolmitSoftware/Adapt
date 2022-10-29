@@ -25,12 +25,12 @@ public interface NewtonCurve {
     default double computeLevelForXP(double xp, double maxError) {
         double div = 2;
         int iterations = 0;
-        double jumpSize = 100;
+        double jumpSize = 1000;
         double cursor = 0;
         double test;
         boolean last = false;
 
-        while (jumpSize > maxError && iterations < 100) {
+        while (jumpSize > maxError && iterations < 1000) {
             iterations++;
             test = getXPForLevel(cursor);
             if (test < xp) {
