@@ -106,6 +106,9 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     @Override
     public void onTick() {
         for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p == null || !p.isOnline()) {
+                continue;
+            }
             if (!hasAdaptation(p)) {
                 Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
                 for (AttributeModifier i : new ArrayList<>(c)) {

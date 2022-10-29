@@ -74,36 +74,32 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
         Location location;
-        if (hand.getItemMeta() == null || hand.getItemMeta().getLore() == null) {
-            return;
-        }
-        if (!hand.getItemMeta().getLore().contains("Ocular Anchor") && !hand.getType().equals(Material.ENDER_EYE)) {
-            return;
-        }
-        e.setCancelled(true);
-        if (!hasAdaptation(p)) {
-            return;
-        }
-        if (e.getClickedBlock() == null) {
-            location = p.getLocation();
-        } else {
-            location = new Location(e.getClickedBlock().getLocation().getWorld(), e.getClickedBlock().getLocation().getX() + 0.5, e.getClickedBlock().getLocation().getY() + 1, e.getClickedBlock().getLocation().getZ() + 0.5);
-        }
-        switch (e.getAction()) {
-            case LEFT_CLICK_BLOCK -> {
-                if (p.isSneaking()) {
-                    linkEye(p, location);
-                }
+        if (BoundEyeOfEnder.isBindableItem(hand) && hasAdaptation(p)) {
+            e.setCancelled(true);
+            if (!hasAdaptation(p)) {
+                return;
             }
-            case LEFT_CLICK_AIR -> {
-                if (p.isSneaking() && isBound(hand)) {
-                    unlinkEye(p);
-                } else if (p.isSneaking() && !isBound(hand)) {
-                    linkEye(p, location);
-                }
+            if (e.getClickedBlock() == null) {
+                location = p.getLocation();
+            } else {
+                location = new Location(e.getClickedBlock().getLocation().getWorld(), e.getClickedBlock().getLocation().getX() + 0.5, e.getClickedBlock().getLocation().getY() + 1, e.getClickedBlock().getLocation().getZ() + 0.5);
             }
-            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> // use
-                    openEye(p);
+            switch (e.getAction()) {
+                case LEFT_CLICK_BLOCK -> {
+                    if (p.isSneaking()) {
+                        linkEye(p, location);
+                    }
+                }
+                case LEFT_CLICK_AIR -> {
+                    if (p.isSneaking() && isBound(hand)) {
+                        unlinkEye(p);
+                    } else if (p.isSneaking() && !isBound(hand)) {
+                        linkEye(p, location);
+                    }
+                }
+                case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> // use
+                        openEye(p);
+            }
         }
     }
 

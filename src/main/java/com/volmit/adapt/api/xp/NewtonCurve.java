@@ -37,7 +37,6 @@ public interface NewtonCurve {
                 if (last) {
                     jumpSize /= div;
                 }
-
                 last = false;
                 cursor += jumpSize;
             } else {
@@ -49,7 +48,6 @@ public interface NewtonCurve {
                 cursor -= jumpSize;
             }
         }
-
         return cursor;
     }
 }

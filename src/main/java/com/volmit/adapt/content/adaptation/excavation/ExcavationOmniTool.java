@@ -125,11 +125,12 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     @EventHandler(priority = EventPriority.HIGH)
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) && validateTool(p.getInventory().getItemInMainHand())) {
-            e.setCancelled(true);
-            return;
+        if (validateTool(p.getInventory().getItemInMainHand())) {
+            if (!hasAdaptation(p)) {
+                e.setCancelled(true);
+                return;
+            }
         }
-        xp(p, 3);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -307,7 +308,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     }
 
     private boolean validateTool(ItemStack item) {
-        return (item.getItemMeta() != null && item.getItemMeta().getLore() != null && item.getItemMeta().getLore().get(0) != null && item.getItemMeta().getLore().get(0).contains("Leatherman"));
+        return (item.getItemMeta() != null
+                && item.getItemMeta().getLore() != null
+                && item.getItemMeta().getLore().toString().contains("Leatherman"));
     }
 
     private double getSlots(double level) {

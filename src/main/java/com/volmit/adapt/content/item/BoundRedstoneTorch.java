@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.item;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.item.DataItem;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
@@ -51,6 +52,24 @@ public class BoundRedstoneTorch implements DataItem<BoundRedstoneTorch.Data> {
 
     public static ItemStack withData(Location t) {
         return io.withData(new Data(t));
+    }
+
+    public static boolean isBindableItem(ItemStack t) {
+        if (!t.getType().equals(Material.REDSTONE_TORCH)) {
+            return false;
+        }
+        Adapt.verbose("Checking if item is bindable: " + t.getType().name());
+        if (t.getItemMeta() == null || t.getItemMeta().getLore() == null) {
+            Adapt.verbose("Item is not bindable: " + t.getType().name());
+            return false;
+        }
+        if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items", "boundredstonetorch", "name"))) {
+            Adapt.verbose("Item is bindable: " + t.getType().name());
+            return true;
+        } else {
+            Adapt.verbose("Item is not bindable: " + t.getType().name());
+            return false;
+        }
     }
 
     @Override

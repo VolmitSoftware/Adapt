@@ -83,38 +83,32 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         ItemStack hand = p.getInventory().getItemInMainHand();
         ItemMeta handMeta = hand.getItemMeta();
         Block block = e.getClickedBlock();
-        if (handMeta == null || !hand.hasItemMeta() || !isBound(hand)) {
-            return;
-        }
-        e.setCancelled(true);
-        if (!hasAdaptation(p)) {
-            p.playSound(p.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 0.50f, 0.01f);
-            return;
-        }
-
-        switch (e.getAction()) {
-            case LEFT_CLICK_BLOCK -> {
-                if (block != null && isStorage(block.getBlockData())) { // Ensure its a container
-                    if (p.isSneaking()) { // Binding (Sneak Container)
-                        linkPearl(p, block);
+        if (BoundEnderPearl.isBindableItem(hand)&& hasAdaptation(p)) {
+            e.setCancelled(true);
+            switch (e.getAction()) {
+                case LEFT_CLICK_BLOCK -> {
+                    if (block != null && isStorage(block.getBlockData())) { // Ensure its a container
+                        if (p.isSneaking()) { // Binding (Sneak Container)
+                            linkPearl(p, block);
+                        }
+                    } else if (block != null && !isStorage(block.getBlockData())) {
+                        if (p.isSneaking()) { //(Sneak NOT Container)
+                            Adapt.messagePlayer(p, C.LIGHT_PURPLE + Localizer.dLocalize("rift", "remoteaccess", "notcontainer"));
+                        } else if (!p.isSneaking() && isBound(hand)) {
+                            openPearl(p);
+                        }
                     }
-                } else if (block != null && !isStorage(block.getBlockData())) {
-                    if (p.isSneaking()) { //(Sneak NOT Container)
-                        Adapt.messagePlayer(p, C.LIGHT_PURPLE + Localizer.dLocalize("rift", "remoteaccess", "notcontainer"));
-                    } else if (!p.isSneaking() && isBound(hand)) {
+                }
+                case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
+                    if (p.hasCooldown(hand.getType())) {
+                        return;
+                    } else {
+                        NMS.get().sendCooldown(p, Material.ENDER_PEARL, 100);
+                        p.setCooldown(Material.ENDER_PEARL, 100);
+                    }
+                    if (isBound(hand)) {
                         openPearl(p);
                     }
-                }
-            }
-            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
-                if (p.hasCooldown(hand.getType())) {
-                    return;
-                } else {
-                    NMS.get().sendCooldown(p, Material.ENDER_PEARL, 100);
-                    p.setCooldown(Material.ENDER_PEARL, 100);
-                }
-                if (isBound(hand)) {
-                    openPearl(p);
                 }
             }
         }

@@ -39,7 +39,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillAxes() {
         super("axes", Localizer.dLocalize("skill", "axes", "icon"));
         registerConfiguration(Config.class);
@@ -48,6 +53,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         setDisplayName(Localizer.dLocalize("skill", "axes", "name"));
         setInterval(5251);
         setIcon(Material.GOLDEN_AXE);
+        cooldowns = new HashMap<>();
         registerAdaptation(new AxeGroundSmash());
         registerAdaptation(new AxeChop());
         registerAdaptation(new AxeDropToInventory());
@@ -120,6 +126,14 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
                 ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
 
                 if (isAxe(hand)) {
+                    if (cooldowns.containsKey(p)) {
+                        if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                            return;
+                        } else {
+                            cooldowns.remove(p);
+                        }
+                    }
+                    cooldowns.put(p, System.currentTimeMillis());
                     getPlayer(p).getData().addStat("axes.swings", 1);
                     getPlayer(p).getData().addStat("axes.damage", e.getDamage());
                     xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
@@ -148,7 +162,16 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             double v = getValue(e.getBlock().getType());
             getPlayer(p).getData().addStat("axes.blocks.broken", 1);
             getPlayer(p).getData().addStat("axes.blocks.value", getValue(e.getBlock().getBlockData()));
-            J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
+            if (cooldowns.containsKey(p)) {
+                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    cooldowns.remove(p);
+                }
+            }
+            cooldowns.put(p, System.currentTimeMillis());
+
+             xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v));
         }
     }
 
@@ -186,6 +209,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         double challengeChopReward = 1750;
         double logOrWoodXPMultiplier = 2.67;
         double leavesMultiplier = 1.11;
+        long cooldownDelay = 2250;
         double valueXPMultiplier = 0.225;
         double axeDamageXPMultiplier = 13.26;
     }

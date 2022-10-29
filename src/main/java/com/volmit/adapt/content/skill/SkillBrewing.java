@@ -45,7 +45,12 @@ import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.meta.PotionMeta;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillBrewing() {
         super("brewing", Localizer.dLocalize("skill", "brewing", "icon"));
         registerConfiguration(Config.class);
@@ -54,9 +59,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         setDisplayName(Localizer.dLocalize("skill", "brewing", "name"));
         setInterval(5851);
         setIcon(Material.LINGERING_POTION);
+        cooldowns = new HashMap<>();
         registerAdaptation(new BrewingLingering()); // Features
         registerAdaptation(new BrewingSuperHeated());
-
         registerAdaptation(new BrewingAbsorption()); // Brews
         registerAdaptation(new BrewingBlindness());
         registerAdaptation(new BrewingDarkness());
@@ -175,11 +180,20 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
                 && !e.getItem().toString().contains("potion-type=minecraft:mundane")
                 && !e.getItem().toString().contains("potion-type=minecraft:thick")
                 && !e.getItem().toString().contains("potion-type=minecraft:awkward")) {
+            getPlayer(p).getData().addStat("brewing.consumed", 1);
+            if (cooldowns.containsKey(p)) {
+                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    cooldowns.remove(p);
+                }
+            }
+            cooldowns.put(p, System.currentTimeMillis());
             xp(p, p.getLocation(),
                     getConfig().splashXP
                             + (getConfig().splashMultiplier * o.getCustomEffects().stream().mapToDouble(i -> (i.getAmplifier() + 1) * (i.getDuration() / 20D)).sum())
                             + (getConfig().splashMultiplier * (o.getBasePotionData().isUpgraded() ? 50 : 25)));
-            getPlayer(p).getData().addStat("brewing.consumed", 1);
+
         }
     }
 
@@ -264,6 +278,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         double challengeBrew1k = 1000;
         double challengeBrewSplash1k = 1000;
         double splashXP = 100;
+        long cooldownDelay = 3250;
         double splashMultiplier = 0.25;
     }
 }

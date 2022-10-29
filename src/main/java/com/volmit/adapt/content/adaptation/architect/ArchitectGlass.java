@@ -70,7 +70,6 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
                     J.a(() -> vfxSingleCubeOutline(e.getBlock(), Particle.REVERSE_PORTAL));
                 }
                 e.getBlock().breakNaturally();
-                xp(p, 3);
             }
         }
     }

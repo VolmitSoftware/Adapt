@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.architect.ArchitectFoundation;
 import com.volmit.adapt.content.adaptation.architect.ArchitectGlass;
@@ -42,7 +43,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillArchitect() {
         super("architect", Localizer.dLocalize("skill", "architect", "icon"));
         registerConfiguration(Config.class);
@@ -51,6 +57,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         setDisplayName(Localizer.dLocalize("skill", "architect", "name"));
         setInterval(3100);
         setIcon(Material.IRON_BARS);
+        cooldowns = new HashMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.BRICK).key("challenge_place_1k")
                 .title(Localizer.dLocalize("advancement", "challenge_place_1k", "title"))
@@ -114,13 +121,22 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
             return;
         }
         double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
+        getPlayer(p).getData().addStat("blocks.placed", 1);
+        getPlayer(p).getData().addStat("blocks.placed.value", v);
+        if (cooldowns.containsKey(p)) {
+            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                return;
+            } else {
+                cooldowns.remove(p);
+            }
+        }
+        cooldowns.put(p, System.currentTimeMillis());
         try {
             J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));
         } catch (Exception ignored) {
             Adapt.verbose("Failed to give XP to " + p.getName() + " for placing " + e.getBlock().getType().name());
         }
-        getPlayer(p).getData().addStat("blocks.placed", 1);
-        getPlayer(p).getData().addStat("blocks.placed.value", v);
+
 
     }
 
@@ -162,6 +178,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         boolean enabled = true;
         double challengePlace1kReward = 1750;
         double xpValueMultiplier = 1;
+        long cooldownDelay = 1250;
         double xpBase = 1;
     }
 }

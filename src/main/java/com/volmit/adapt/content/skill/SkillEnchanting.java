@@ -32,11 +32,17 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillEnchanting() {
         super("enchanting", Localizer.dLocalize("skill", "enchanting", "icon"));
         registerConfiguration(Config.class);
@@ -45,6 +51,7 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         setDisplayName(Localizer.dLocalize("skill", "enchanting", "name"));
         setInterval(3909);
         setIcon(Material.KNOWLEDGE_BOOK);
+        cooldowns = new HashMap<>();
         registerAdaptation(new EnchantingQuickEnchant());
         registerAdaptation(new EnchantingLapisReturn());
         registerAdaptation(new EnchantingXPReturn()); //
@@ -104,10 +111,20 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         if (!AdaptConfig.get().isXpInCreative() && (e.getEnchanter().getGameMode().equals(GameMode.CREATIVE) || e.getEnchanter().getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
-        xp(e.getEnchanter(), getConfig().enchantPowerXPMultiplier * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());
+        Player p = e.getEnchanter();
         getPlayer(e.getEnchanter()).getData().addStat("enchanted.items", 1);
         getPlayer(e.getEnchanter()).getData().addStat("enchanted.power", e.getEnchantsToAdd().values().stream().mapToInt(i -> i).sum());
         getPlayer(e.getEnchanter()).getData().addStat("enchanted.levels.spent", e.getExpLevelCost());
+        if (cooldowns.containsKey(p)) {
+            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                return;
+            } else {
+                cooldowns.remove(p);
+            }
+        }
+        cooldowns.put(p, System.currentTimeMillis());
+        xp(e.getEnchanter(), getConfig().enchantPowerXPMultiplier * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());
+
     }
 
     @Override
@@ -124,6 +141,7 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
     protected static class Config {
         boolean enabled = true;
         double enchantPowerXPMultiplier = 70;
+        long cooldownDelay = 5250;
         double challengeEnchantReward  = 2500;
     }
 }

@@ -35,7 +35,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillTragOul() {
         super("tragoul", Localizer.dLocalize("skill", "tragoul", "icon"));
         registerConfiguration(Config.class);
@@ -44,6 +49,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         setDisplayName(Localizer.dLocalize("skill", "tragoul", "name"));
         setInterval(2755);
         setIcon(Material.CRIMSON_ROOTS);
+        cooldowns = new HashMap<>();
         registerAdaptation(new TragoulThorns());
 
     }
@@ -76,6 +82,14 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                 AdaptPlayer a = getPlayer(p);
                 getPlayer(p).getData().addStat("trag.hitsrecieved", 1);
                 getPlayer(p).getData().addStat("trag.damage", e.getDamage());
+                if (cooldowns.containsKey(p)) {
+                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                        return;
+                    } else {
+                        cooldowns.remove(p);
+                    }
+                }
+                cooldowns.put(p, System.currentTimeMillis());
                 xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
             }
         }
@@ -159,6 +173,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         boolean takeAwaySkillsOnDeath = false;
         boolean enabled = true;
         boolean showParticles = true;
+        long cooldownDelay = 1000;
         double damageReceivedXpMultiplier = 2.26;
     }
 }
