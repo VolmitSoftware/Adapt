@@ -53,6 +53,13 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
         return io.withData(new Data(t));
     }
 
+    public static boolean isBindableItem(ItemStack t) {
+        if (t.getItemMeta() == null || t.getItemMeta().getLore() == null) {
+            return false;
+        }
+        return t.getItemMeta().getLore().contains(Localizer.dLocalize("items", "boundenderperal", "name"));
+    }
+
     @Override
     public Material getMaterial() {
         return Material.ENDER_PEARL;

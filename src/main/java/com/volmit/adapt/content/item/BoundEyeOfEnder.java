@@ -53,6 +53,13 @@ public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
         return io.withData(new Data(t));
     }
 
+    public static boolean isBindableItem(ItemStack t) {
+        if (t.getItemMeta() == null || t.getItemMeta().getLore() == null) {
+            return false;
+        }
+        return t.getItemMeta().getLore().contains(Localizer.dLocalize("items", "boundeyeofender", "name"));
+    }
+
     @Override
     public Material getMaterial() {
         return Material.ENDER_EYE;
