@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -110,10 +111,6 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         }
         if (isPickaxe(p.getInventory().getItemInMainHand())) {
             double v = getValue(e.getBlock().getType());
-            if (p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
-                xp(p, 5);
-                return;
-            }
             getPlayer(p).getData().addStat("pickaxe.blocks.broken", 1);
             getPlayer(p).getData().addStat("pickaxe.blocks.value", getValue(e.getBlock().getBlockData()));
             if (cooldowns.containsKey(p)) {
@@ -124,6 +121,10 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                 }
             }
             cooldowns.put(p, System.currentTimeMillis());
+            if (p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
+                xp(p, 5);
+                return;
+            }
             J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
         }
     }

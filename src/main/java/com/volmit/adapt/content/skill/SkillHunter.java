@@ -102,7 +102,6 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
-
         if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
@@ -122,6 +121,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDeathEvent e) {
+        if (e.getEntity().getKiller() == null) {
+            return;
+        }
         if (!this.isEnabled()) {
             return;
         }

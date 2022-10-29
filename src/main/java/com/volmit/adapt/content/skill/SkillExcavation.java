@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -161,8 +162,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
                 }
                 cooldowns.put(p, System.currentTimeMillis());
                 double v = getValue(e.getBlock().getType());
-
-                J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
+                xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v));
             }
         }
     }

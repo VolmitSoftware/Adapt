@@ -171,7 +171,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             }
             cooldowns.put(p, System.currentTimeMillis());
 
-            J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
+             xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v));
         }
     }
 

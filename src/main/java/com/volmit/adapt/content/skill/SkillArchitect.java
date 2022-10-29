@@ -123,7 +123,6 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
         getPlayer(p).getData().addStat("blocks.placed", 1);
         getPlayer(p).getData().addStat("blocks.placed.value", v);
-        MaterialValue.debugValue(e.getBlock().getType());
         if (cooldowns.containsKey(p)) {
             if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
                 return;

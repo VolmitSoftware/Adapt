@@ -186,6 +186,9 @@ public interface Adaptation<T> extends Ticked, Component {
 
     default boolean hasAdaptation(Player p) {
         try {
+            if (p == null) {
+                return false;
+            }
             if (!this.getSkill().isEnabled()) {
                 Adapt.verbose("Skill " + this.getSkill().getName() + " is disabled. Skipping adaptation " + this.getName());
                 this.unregister();

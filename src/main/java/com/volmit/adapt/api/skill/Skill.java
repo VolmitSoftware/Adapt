@@ -129,6 +129,7 @@ public interface Skill<T> extends Ticked, Component {
             if (xp > 50) {
                 vfxXP(p, at, (int) xp);
             }
+            Adapt.verbose("Gave " + p.getName() + " " + xp + " xp in " + getName() + " " + this.getClass() );
         } catch (Exception e) {
             Adapt.verbose("Failed to give xp to " + p.getName() + " for " + getName() + " (" + xp + ")");
         }

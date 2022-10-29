@@ -45,6 +45,10 @@ public interface AdaptComponent {
         return isTool(is);
     }
 
+    default boolean isXpBlock(Material material) {
+        return material.equals(Material.EXPERIENCE_BOTTLE);
+    }
+
     default boolean isRanged(ItemStack it) {
         if (isItem(it)) {
             return switch (it.getType()) {
@@ -108,7 +112,6 @@ public interface AdaptComponent {
                 default -> false;
             };
         }
-
         return false;
     }
 
