@@ -21,7 +21,6 @@ package com.volmit.adapt;
 import art.arcane.amulet.io.FolderWatcher;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.potion.BrewingManager;
-import com.volmit.adapt.api.react.XReactSampler;
 import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptServer;
@@ -47,7 +46,6 @@ import java.util.Random;
 
 public class Adapt extends VolmitPlugin {
     public static Adapt instance;
-    private static XReactSampler reactSampler;
     public static HashMap<String, String> wordKey = new HashMap<>();
     public static HashMap<String, String> wordKeyOverride = new HashMap<>();
     public static BukkitAudiences audiences;

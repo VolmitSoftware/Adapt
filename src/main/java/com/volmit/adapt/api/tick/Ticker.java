@@ -31,7 +31,6 @@ public class Ticker {
     private final List<Ticked> newTicks;
     private final List<String> removeTicks;
     private volatile boolean ticking;
-    private Integer tpt = 0;
 
     public Ticker() {
         this.ticklist = new ArrayList<>(4096);
@@ -40,10 +39,7 @@ public class Ticker {
         ticking = false;
         J.ar(() -> {
             if (!ticking) {
-                synchronized(tpt) {
-                    tpt = 0;
-                    tick();
-                }
+                tick();
             }
         }, 0);
     }
@@ -75,9 +71,6 @@ public class Ticker {
                     tc.incrementAndGet();
                     try {
                         t.tick();
-                        synchronized(tpt) {
-                            tpt++;
-                        }
                     } catch (Throwable exxx) {
                         exxx.printStackTrace();
                     }
@@ -111,9 +104,5 @@ public class Ticker {
 
         ticking = false;
         tc.get();
-    }
-
-    public int getTasksPerSecond() {
-        return tpt;
     }
 }
