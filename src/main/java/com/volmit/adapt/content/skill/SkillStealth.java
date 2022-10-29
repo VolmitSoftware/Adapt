@@ -36,13 +36,19 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillStealth() {
         super("stealth", Localizer.dLocalize("skill", "stealth", "icon"));
         registerConfiguration(Config.class);
         setColor(C.DARK_GRAY);
         setInterval(1412);
         setIcon(Material.WITHER_ROSE);
+        cooldowns = new HashMap<>();
         setDescription(Localizer.dLocalize("skill", "stealth", "description"));
         setDisplayName(Localizer.dLocalize("skill", "stealth", "name"));
         registerAdaptation(new StealthSpeed());

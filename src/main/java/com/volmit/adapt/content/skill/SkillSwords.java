@@ -35,7 +35,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillSwords() {
         super("swords", Localizer.dLocalize("skill", "swords", "icon"));
         registerConfiguration(Config.class);
@@ -44,6 +49,7 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         setDisplayName(Localizer.dLocalize("skill", "swords", "name"));
         setInterval(2150);
         setIcon(Material.DIAMOND_SWORD);
+        cooldowns = new HashMap<>();
         registerAdaptation(new SwordsMachete());
         registerAdaptation(new SwordsPoisonedBlade());
         registerAdaptation(new SwordsBloodyBlade());
@@ -72,6 +78,14 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
                 if (isSword(hand)) {
                     getPlayer(p).getData().addStat("sword.hits", 1);
                     getPlayer(p).getData().addStat("sword.damage", e.getDamage());
+                    if (cooldowns.containsKey(p)) {
+                        if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                            return;
+                        } else {
+                            cooldowns.remove(p);
+                        }
+                    }
+                    cooldowns.put(p, System.currentTimeMillis());
                     xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
                 }
             }
@@ -91,6 +105,7 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        long cooldownDelay = 1250;
         double damageXPMultiplier = 7.26;
     }
 }

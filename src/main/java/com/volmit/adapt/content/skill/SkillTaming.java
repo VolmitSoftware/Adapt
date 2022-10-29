@@ -36,7 +36,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillTaming() {
         super("taming", Localizer.dLocalize("skill", "taming", "icon"));
         registerConfiguration(Config.class);
@@ -45,6 +50,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         setColor(C.GOLD);
         setInterval(3480);
         setIcon(Material.LEAD);
+        cooldowns = new HashMap<>();
         registerAdaptation(new TamingHealthBoost());
         registerAdaptation(new TamingDamage());
         registerAdaptation(new TamingHealthRegeneration());
@@ -67,6 +73,14 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
             }
             if ((p.getWorld() == e.getEntity().getWorld())  // Fixed Cannot measure distance between world_nether and world etc...
                     && p.getLocation().distance(e.getEntity().getLocation()) <= 15) {
+                if (cooldowns.containsKey(p)) {
+                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                        return;
+                    } else {
+                        cooldowns.remove(p);
+                    }
+                }
+                cooldowns.put(p, System.currentTimeMillis());
                 xp(p, getConfig().tameXpBase);
             }
         }
@@ -89,6 +103,14 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             } else {
+                if (cooldowns.containsKey(p)) {
+                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                        return;
+                    } else {
+                        cooldowns.remove(p);
+                    }
+                }
+                cooldowns.put(p, System.currentTimeMillis());
                 xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
             }
         }
@@ -107,6 +129,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     protected static class Config {
         boolean enabled = true;
         double tameXpBase = 30;
+        long cooldownDelay = 2250;
         double tameDamageXPMultiplier = 7.85;
     }
 }

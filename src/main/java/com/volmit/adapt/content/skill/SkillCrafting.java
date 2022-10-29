@@ -46,7 +46,6 @@ import java.util.Map;
 public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     private final Map<Player, Long> cooldowns;
 
-
     public SkillCrafting() {
         super("crafting", Localizer.dLocalize("skill", "crafting", "icon"));
         registerConfiguration(Config.class);

@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.architect;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundRedstoneTorch;
@@ -72,7 +73,6 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     public void on(PlayerItemHeldEvent e) {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
-        ItemStack offhand = p.getInventory().getItemInOffHand();
 
         if (isBound(hand)) {
             p.setCooldown(Material.REDSTONE_TORCH, 50000);
@@ -85,35 +85,37 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
-        if (hand.getItemMeta() == null || hand.getItemMeta().getLore() == null || !isBound(hand)) {
-            return;
-        }
-        if (!hasAdaptation(p)) {
-            return;
-        }
-        switch (e.getAction()) {
-            case LEFT_CLICK_BLOCK -> {
-                if (p.isSneaking()) {
-
-                    Location location;
-                    if (e.getClickedBlock() == null) {
-                        p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
-                        return;
-                    } else {
-                        location = new Location(e.getClickedBlock().getWorld(), e.getClickedBlock().getX(), e.getClickedBlock().getY(), e.getClickedBlock().getZ());
-                    }
-                    e.setCancelled(true);
-                    linkTorch(p, location);
-                } else {
-                    e.setCancelled(false);
-                }
+        if (BoundRedstoneTorch.isBindableItem(hand)) {
+            if (!hasAdaptation(p)) {
+                return;
             }
-            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
-
-                if (!hasCooldown(p)) {
-                    cooldowns.put(p, System.currentTimeMillis() + getConfig().cooldown);
-                    triggerPulse(p);
-                    e.setCancelled(true);
+            Adapt.verbose("Player " + p.getName() + " is holding a bound redstone torch");
+            switch (e.getAction()) {
+                case LEFT_CLICK_BLOCK -> {
+                    Adapt.verbose("Player " + p.getName() + " is left clicking a block");
+                    if (p.isSneaking()) {
+                        Location location;
+                        if (e.getClickedBlock() == null) {
+                            p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
+                            return;
+                        } else {
+                            location = new Location(e.getClickedBlock().getWorld(), e.getClickedBlock().getX(), e.getClickedBlock().getY(), e.getClickedBlock().getZ());
+                        }
+                        e.setCancelled(true);
+                        linkTorch(p, location);
+                    } else {
+                        e.setCancelled(false);
+                    }
+                }
+                case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
+                    Adapt.verbose("Player " + p.getName() + " is right clicking a block");
+                    if (hasCooldown(p)) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
+                    } else {
+                        cooldowns.put(p, System.currentTimeMillis() + getConfig().cooldown);
+                        triggerPulse(p);
+                        e.setCancelled(true);
+                    }
                 }
             }
         }
@@ -151,9 +153,6 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
 
     private void triggerPulse(Player p) {
-        if (!hasAdaptation(p)) {
-            return;
-        }
         Location l = BoundRedstoneTorch.getLocation(p.getInventory().getItemInMainHand());
         if (isBound(p.getInventory().getItemInMainHand()) && l != null) {
             loadChunkAsync(l, chunk -> {

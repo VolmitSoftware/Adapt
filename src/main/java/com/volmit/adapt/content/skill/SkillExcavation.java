@@ -41,7 +41,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillExcavation() {
         super("excavation", Localizer.dLocalize("skill", "excavation", "icon"));
         registerConfiguration(Config.class);
@@ -50,6 +55,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         setColor(C.YELLOW);
         setInterval(5953);
         setIcon(Material.DIAMOND_SHOVEL);
+        cooldowns = new HashMap<>();
         registerAdaptation(new ExcavationHaste());
         registerAdaptation(new ExcavationOmniTool());
         registerAdaptation(new ExcavationDropToInventory());
@@ -114,6 +120,14 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
                 ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
                 if (isShovel(hand)) {
+                    if (cooldowns.containsKey(p)) {
+                        if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                            return;
+                        } else {
+                            cooldowns.remove(p);
+                        }
+                    }
+                    cooldowns.put(p, System.currentTimeMillis());
                     getPlayer(p).getData().addStat("excavation.swings", 1);
                     getPlayer(p).getData().addStat("excavation.damage", e.getDamage());
                     xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
@@ -136,9 +150,18 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
                 return;
             }
             if (isShovel(p.getInventory().getItemInMainHand())) {
-                double v = getValue(e.getBlock().getType());
                 getPlayer(p).getData().addStat("excavation.blocks.broken", 1);
                 getPlayer(p).getData().addStat("excavation.blocks.value", getValue(e.getBlock().getBlockData()));
+                if (cooldowns.containsKey(p)) {
+                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                        return;
+                    } else {
+                        cooldowns.remove(p);
+                    }
+                }
+                cooldowns.put(p, System.currentTimeMillis());
+                double v = getValue(e.getBlock().getType());
+
                 J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
             }
         }
@@ -169,6 +192,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         double maxBlastResistanceBonus = 10;
         double challengeExcavationReward = 1200;
         double valueXPMultiplier = 0.825;
+        long cooldownDelay = 1250;
         double axeDamageXPMultiplier = 6.5;
     }
 }

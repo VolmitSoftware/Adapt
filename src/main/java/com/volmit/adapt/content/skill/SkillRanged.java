@@ -37,9 +37,13 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillRanged() {
         super("ranged", Localizer.dLocalize("skill", "ranged", "icon"));
         registerConfiguration(Config.class);
@@ -52,6 +56,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         registerAdaptation(new RangedArrowRecovery());
         registerAdaptation(new RangedLungeShot());
         setIcon(Material.CROSSBOW);
+        cooldowns = new HashMap<>();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -72,9 +77,18 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             if (e.getEntity() instanceof Snowball) {
                 return; // Ignore snowballs
             }
-            xp(p, getConfig().shootXP);
             getPlayer(p).getData().addStat("ranged.shotsfired", 1);
             getPlayer(p).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
+            if (cooldowns.containsKey(p)) {
+                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    cooldowns.remove(p);
+                }
+            }
+            cooldowns.put(p, System.currentTimeMillis());
+            xp(p, getConfig().shootXP);
+
         }
     }
 
@@ -100,6 +114,14 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             getPlayer(p).getData().addStat("ranged.distance", e.getEntity().getLocation().distance(p.getLocation()));
             getPlayer(p).getData().addStat("ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
             getPlayer(p).getData().addStat("ranged.distance." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getEntity().getLocation().distance(p.getLocation()));
+            if (cooldowns.containsKey(p)) {
+                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    cooldowns.remove(p);
+                }
+            }
+            cooldowns.put(p, System.currentTimeMillis());
             xp(p, e.getEntity().getLocation(), (getConfig().hitDamageXPMultiplier * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * getConfig().hitDistanceXPMultiplier));
         }
     }
@@ -118,6 +140,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     protected static class Config {
         boolean enabled = true;
         double shootXP = 5;
+        long cooldownDelay = 1250;
         double hitDamageXPMultiplier = 2.125;
         double hitDistanceXPMultiplier = 1.7;
     }

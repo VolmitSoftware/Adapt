@@ -38,7 +38,12 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillHunter() {
         super("hunter", Localizer.dLocalize("skill", "hunter", "icon"));
         registerConfiguration(Config.class);
@@ -47,6 +52,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         setDisplayName(Localizer.dLocalize("skill", "hunter", "name"));
         setInterval(4150);
         setIcon(Material.BONE);
+        cooldowns = new HashMap<>();
         registerAdaptation(new HunterAdrenaline());
         registerAdaptation(new HunterRegen());
         registerAdaptation(new HunterInvis());
@@ -74,6 +80,14 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
             return;
         }
         if (e.getBlock().getType().equals(Material.TURTLE_EGG)) {
+            if (cooldowns.containsKey(p)) {
+                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    cooldowns.remove(p);
+                }
+            }
+            cooldowns.put(p, System.currentTimeMillis());
             xp(e.getBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
             getPlayer(p).getData().addStat("killed.tutleeggs", 1);
         }
@@ -93,6 +107,14 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
             return;
         }
         if (e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
+            if (cooldowns.containsKey(p)) {
+                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    cooldowns.remove(p);
+                }
+            }
+            cooldowns.put(p, System.currentTimeMillis());
             xp(e.getClickedBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
             getPlayer(p).getData().addStat("killed.tutleeggs", 1);
         }
@@ -113,14 +135,32 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
             double cmult = e.getEntity().getType().equals(EntityType.CREEPER) ? getConfig().creeperKillMultiplier : 1;
             if (e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) {
                 if (e.getEntity().getPortalCooldown() > 0) {
+                    Player p = e.getEntity().getKiller();
+                    if (cooldowns.containsKey(p)) {
+                        if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                            return;
+                        } else {
+                            cooldowns.remove(p);
+                        }
+                    }
+                    getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
+                    cooldowns.put(p, System.currentTimeMillis());
                     xp(e.getEntity().getLocation(), getConfig().spawnerMobReductionXpMultiplier * (e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult), getConfig().killSpatialRadius, getConfig().killSpatialDuration);
                     xp(e.getEntity().getKiller(), e.getEntity().getLocation(), getConfig().spawnerMobReductionXpMultiplier * (e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult));
-                    getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
 
                 } else {
+                    Player p = e.getEntity().getKiller();
+                    if (cooldowns.containsKey(p)) {
+                        if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                            return;
+                        } else {
+                            cooldowns.remove(p);
+                        }
+                    }
+                    getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
+                    cooldowns.put(p, System.currentTimeMillis());
                     xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
                     xp(e.getEntity().getKiller(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult);
-                    getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
                 }
             }
         }
@@ -160,6 +200,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         double killMaxHealthSpatialXPMultiplier = 3;
         double killMaxHealthXPMultiplier = 4;
         int killSpatialRadius = 25;
+        long cooldownDelay = 1000;
         long killSpatialDuration = 10000;
         double spawnerMobReductionXpMultiplier = 0.5;
     }

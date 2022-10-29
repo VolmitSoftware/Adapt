@@ -39,7 +39,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
+    private final Map<Player, Long> cooldowns;
+
     public SkillPickaxes() {
         super("pickaxe", Localizer.dLocalize("skill", "pickaxe", "icon"));
         registerConfiguration(Config.class);
@@ -48,6 +53,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         setColor(C.GOLD);
         setInterval(2750);
         setIcon(Material.NETHERITE_PICKAXE);
+        cooldowns = new HashMap<>();
         registerAdaptation(new PickaxeChisel());
         registerAdaptation(new PickaxeVeinminer());
         registerAdaptation(new PickaxeAutosmelt());
@@ -70,9 +76,18 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                 AdaptPlayer a = getPlayer((Player) e.getDamager());
                 ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
                 if (isPickaxe(hand)) {
-                    xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
                     getPlayer(a.getPlayer()).getData().addStat("pickaxe.swings", 1);
                     getPlayer(a.getPlayer()).getData().addStat("pickaxe.damage", e.getDamage());
+                    if (cooldowns.containsKey(p)) {
+                        if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                            return;
+                        } else {
+                            cooldowns.remove(p);
+                        }
+                    }
+                    cooldowns.put(p, System.currentTimeMillis());
+                    xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
+
                 }
             }
         }
@@ -101,6 +116,14 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
             }
             getPlayer(p).getData().addStat("pickaxe.blocks.broken", 1);
             getPlayer(p).getData().addStat("pickaxe.blocks.value", getValue(e.getBlock().getBlockData()));
+            if (cooldowns.containsKey(p)) {
+                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    cooldowns.remove(p);
+                }
+            }
+            cooldowns.put(p, System.currentTimeMillis());
             J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
         }
     }
@@ -158,6 +181,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         double copperBonus = 30;
         double goldBonus = 50;
         double lapisBonus = 105;
+        long cooldownDelay = 1250;
         double diamondBonus = 250;
         double emeraldBonus = 300;
         double netherGoldBonus = 150;

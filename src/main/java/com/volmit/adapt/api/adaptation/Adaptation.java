@@ -187,15 +187,19 @@ public interface Adaptation<T> extends Ticked, Component {
     default boolean hasAdaptation(Player p) {
         try {
             if (!this.getSkill().isEnabled()) {
+                Adapt.verbose("Skill " + this.getSkill().getName() + " is disabled. Skipping adaptation " + this.getName());
                 this.unregister();
             }
             if (p.getClass().getSimpleName().equals("PlayerNPC") || !p.getClass().getSimpleName().equals("CraftPlayer")) {
+                Adapt.verbose("Player " + p.getName() + " is not a player. Skipping adaptation " + this.getName());
                 return false;
             }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                Adapt.verbose("Player " + p.getName() + " is in a blacklisted world. Skipping adaptation " + this.getName());
                 return false;
             }
             if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
+                Adapt.verbose("Player " + p.getName() + " is in creative or spectator mode. Skipping adaptation " + this.getName());
                 return false;
             }
             if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null && Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
