@@ -137,7 +137,6 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
-        Adapt.verbose("Block Break Event");
         if (e.getBlock().getType().equals(Material.SEA_PICKLE) && p.isSwimming() && p.getRemainingAir() < p.getMaximumAir()) { // BECAUSE I LIKE PICKLES
             cooldowns.put(e.getPlayer(), System.currentTimeMillis());
             xpSilent(p, 10);

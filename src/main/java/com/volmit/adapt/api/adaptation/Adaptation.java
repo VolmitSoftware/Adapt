@@ -193,30 +193,26 @@ public interface Adaptation<T> extends Ticked, Component {
                 Adapt.verbose("Skill " + this.getSkill().getName() + " is disabled. Skipping adaptation " + this.getName());
                 this.unregister();
             }
-            if (p.getClass().getSimpleName().equals("PlayerNPC") || !p.getClass().getSimpleName().equals("CraftPlayer")) {
-                Adapt.verbose("Player " + p.getName() + " is not a player. Skipping adaptation " + this.getName());
-                return false;
-            }
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                Adapt.verbose("Player " + p.getName() + " is in a blacklisted world. Skipping adaptation " + this.getName());
-                return false;
-            }
-            if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
-                Adapt.verbose("Player " + p.getName() + " is in creative or spectator mode. Skipping adaptation " + this.getName());
-                return false;
-            }
-            if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null && Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
-                    && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()
-                    && !canBuild(p, p.getLocation())) {
-                if (getLevel(p) > 0) {
-                    Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have worldguard build permission.");
-                }
-                return false;
-            }
             if (getLevel(p) > 0) {
-                Adapt.verbose("Player: " + p.getName() + " Attempting adaptation: " + this.getName() + " level: " + getLevel(p));
+                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                    Adapt.verbose("Player " + p.getName() + " is in a blacklisted world. Skipping adaptation " + this.getName());
+                    return false;
+                }
+                if (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) {
+                    Adapt.verbose("Player " + p.getName() + " is in creative or spectator mode. Skipping adaptation " + this.getName());
+                    return false;
+                }
+                if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null && Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
+                        && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()
+                        && !canBuild(p, p.getLocation())) {
+                    Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have worldguard build permission.");
+                    return false;
+                }
+                Adapt.verbose("Player " + p.getName() + " used adaptation " + this.getName());
+                return true;
+            } else {
+                return false;
             }
-            return getLevel(p) > 0;
         } catch (Exception e) {
             if (e instanceof IndexOutOfBoundsException) { // This is that fucking bug with Citizens Spoofing Players. I hate it.
                 Adapt.verbose("Citizens/PacketSpoofing is Messing stuff up again. I hate it.");
@@ -224,12 +220,13 @@ public interface Adaptation<T> extends Ticked, Component {
             } else {
                 e.printStackTrace();
             }
-            return getLevel(p) > 0;
+            return false;
         }
     }
 
     default int getLevel(Player p) {
-        if (p.getClass().getSimpleName().equals("PlayerNPC")) {
+        if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
+            Adapt.verbose("Simple name: " + p.getClass().getSimpleName());
             return 0;
         }
         if (!this.getSkill().isEnabled()) {
@@ -247,7 +244,7 @@ public interface Adaptation<T> extends Ticked, Component {
         if (!this.getSkill().isEnabled()) {
             this.unregister();
         }
-        if (p.getClass().getSimpleName().equals("PlayerNPC")) {
+        if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
             return 0.0;
         }
         return Math.min(Math.max(0, M.lerpInverse(0, getMaxLevel(), getLevel(p))), 1);

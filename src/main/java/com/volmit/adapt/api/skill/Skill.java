@@ -69,7 +69,7 @@ public interface Skill<T> extends Ticked, Component {
         if (!this.isEnabled()) {
             this.unregister();
         }
-        if (player.getPlayer().getClass().getSimpleName().equals("PlayerNPC")) {
+        if (!player.getPlayer().getClass().getSimpleName().equals("CraftPlayer")) {
             return;
         }
         if (!player.getAdvancementHandler().isReady()) {
@@ -118,7 +118,7 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xp(Player p, double xp) {
-        if (!p.getClass().getSimpleName().equals("PlayerNPC")) {
+        if (p.getClass().getSimpleName().equals("CraftPlayer")) {
             xp(p, p.getLocation(), xp);
         }
     }
@@ -136,7 +136,7 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xpSilent(Player p, double xp) {
-        if (!p.getClass().getSimpleName().equals("PlayerNPC")) {
+        if (p.getClass().getSimpleName().equals("CraftPlayer")) {
             try {
                 XP.xpSilent(p, this, xp);
             } catch (Exception ignored) { // Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.
@@ -158,7 +158,7 @@ public interface Skill<T> extends Ticked, Component {
         if (!this.isEnabled()) {
             this.unregister();
         }
-        if (player.getClass().getSimpleName().equals("PlayerNPC")) {
+        if (!player.getClass().getSimpleName().equals("CraftPlayer")) {
             return;
         }
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
