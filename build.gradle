@@ -307,7 +307,7 @@ def registerCustomOutputTask(name, path) {
         group('development')
         outputs.upToDateWhen { false }
         dependsOn(adapt)
-        from(new File(buildDir, "Adapt.jar"))
+        from(new File(buildDir, "Adapt-" + version + ".jar"))
         into(file(path))
         rename { String fileName ->
             fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
@@ -324,7 +324,7 @@ def registerCustomOutputTaskUnix(name, path) {
         group('development')
         outputs.upToDateWhen { false }
         dependsOn(adapt)
-        from(new File(buildDir, "Adapt.jar"))
+        from(new File(buildDir, "Adapt-" + version + ".jar"))
         into(file(path))
         rename { String fileName ->
             fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
