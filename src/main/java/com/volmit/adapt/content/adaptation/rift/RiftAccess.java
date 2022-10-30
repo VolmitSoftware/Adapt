@@ -41,6 +41,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
+import us.lynuxcraft.deadsilenceiv.advancedchests.AdvancedChestsAPI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +84,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         ItemStack hand = p.getInventory().getItemInMainHand();
         ItemMeta handMeta = hand.getItemMeta();
         Block block = e.getClickedBlock();
-        if (BoundEnderPearl.isBindableItem(hand)&& hasAdaptation(p)) {
+        if (BoundEnderPearl.isBindableItem(hand) && hasAdaptation(p)) {
             e.setCancelled(true);
             switch (e.getAction()) {
                 case LEFT_CLICK_BLOCK -> {
@@ -94,8 +95,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                     } else if (block != null && !isStorage(block.getBlockData())) {
                         if (p.isSneaking()) { //(Sneak NOT Container)
                             Adapt.messagePlayer(p, C.LIGHT_PURPLE + Localizer.dLocalize("rift", "remoteaccess", "notcontainer"));
-                        } else if (!p.isSneaking() && isBound(hand)) {
-                            openPearl(p);
                         }
                     }
                 }
@@ -111,15 +110,17 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                     }
                 }
             }
+        } else if (BoundEnderPearl.isBindableItem(hand)) {
+            e.setCancelled(true);
         }
     }
 
     private void linkPearl(Player p, Block block) {
         if (getConfig().showParticles) {
-
             vfxSingleCubeOutline(block, Particle.REVERSE_PORTAL);
         }
         ItemStack hand = p.getInventory().getItemInMainHand();
+        p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 0.8f);
 
         if (hand.getAmount() == 1) {
             BoundEnderPearl.setData(hand, block);
@@ -133,9 +134,16 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     private void openPearl(Player p) {
         Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
         if (b == null) {
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1f);
             return;
         }
         loadChunkAsync(b.getLocation(), chunk -> {
+            if (AdvancedChestsAPI.getChestManager().getAdvancedChest(b.getLocation()) != null) {
+                AdvancedChestsAPI.getChestManager().getAdvancedChest(b.getLocation()).openPage(p, 1);
+                p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+                p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+                return;
+            }
             if (b.getState() instanceof InventoryHolder holder) {
                 activeViews.add(p.openInventory(holder.getInventory()));
                 p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);

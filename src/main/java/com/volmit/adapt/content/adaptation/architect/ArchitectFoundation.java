@@ -101,11 +101,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         locs.add(world.getBlockAt(l.clone().add(-0.3, -1, +0.3)));
 
         for (Block b : locs) {
-            if (power > 0) {
-                if (addFoundation(b)) {
-                    xp(p, 3);
-                    power--;
-                }
+            if (addFoundation(b)) {
+                xp(p, 3);
+                power--;
             }
 
             if (power <= 0) {

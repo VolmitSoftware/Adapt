@@ -67,7 +67,6 @@ public class AdaptServer extends TickedObject {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         for (Player i : Bukkit.getServer().getOnlinePlayers()) {
             join(i);
         }
@@ -87,20 +86,17 @@ public class AdaptServer extends TickedObject {
     public void takeSpatial(AdaptPlayer p) {
         J.attempt(() -> {
             SpatialXP x = spatialTickets.getRandom();
-
             if (x == null) {
                 return;
             }
-
             if (M.ms() > x.getMs()) {
                 spatialTickets.remove(x);
                 return;
             }
-            if (p.getPlayer().getClass().getSimpleName().equals("PlayerNPC")) {
+            if (!p.getPlayer().getClass().getSimpleName().equals("CraftPlayer")) {
                 spatialTickets.remove(x);
                 return;
             }
-
             if (p.getPlayer().getWorld().equals(x.getLocation().getWorld())) {
                 double c = p.getPlayer().getLocation().distanceSquared(x.getLocation());
                 if (c < x.getRadius() * x.getRadius()) {
