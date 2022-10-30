@@ -36,6 +36,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -77,13 +78,19 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         v.addLore(C.ITALIC + Localizer.dLocalize("rift", "remoteaccess", "lore3"));
     }
 
-
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
         ItemMeta handMeta = hand.getItemMeta();
         Block block = e.getClickedBlock();
+
+        ItemStack offhand = p.getInventory().getItemInOffHand();
+        if (e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND) && BoundEnderPearl.isBindableItem(offhand)) {
+            e.setCancelled(true);
+            return;
+        }
+
         if (BoundEnderPearl.isBindableItem(hand) && hasAdaptation(p)) {
             e.setCancelled(true);
             switch (e.getAction()) {

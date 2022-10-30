@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.content.item.BoundEyeOfEnder;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -34,6 +35,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -74,6 +76,13 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
         Location location;
+
+        ItemStack offhand = p.getInventory().getItemInOffHand();
+        if (e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND) && BoundEyeOfEnder.isBindableItem(offhand)) {
+            e.setCancelled(true);
+            return;
+        }
+
         if (BoundEyeOfEnder.isBindableItem(hand) && hasAdaptation(p)) {
             e.setCancelled(true);
             if (!hasAdaptation(p)) {
