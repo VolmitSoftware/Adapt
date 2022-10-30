@@ -21,6 +21,7 @@ package com.volmit.adapt.content.adaptation.architect;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.content.item.BoundRedstoneTorch;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -85,6 +87,13 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
+
+        ItemStack offhand = p.getInventory().getItemInOffHand();
+        if (e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND) && BoundRedstoneTorch.isBindableItem(offhand)) {
+            e.setCancelled(true);
+            return;
+        }
+
         if (BoundRedstoneTorch.isBindableItem(hand)) {
             if (!hasAdaptation(p)) {
                 return;
