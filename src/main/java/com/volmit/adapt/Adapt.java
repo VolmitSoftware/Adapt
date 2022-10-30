@@ -141,9 +141,7 @@ public class Adapt extends VolmitPlugin {
                 }
                 String version = inputLine.remove("version '").remove("'").remove("// Needs to be version specific").remove(" ");
                 if (!version.equals(instance.getDescription().getVersion())) {
-                    info("A new version of Adapt is available: " + version);
-                } else {
-                    info("You are running the latest version of Adapt!");
+                    info("Please update your Adapt plugin to the latest version! (Current: " + instance.getDescription().getVersion() + " Latest: " + version + ")");
                 }
                 break;
             }
