@@ -187,6 +187,10 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             value += getConfig().leavesMultiplier;
         }
 
+        if (type.getHardness() == 0) {
+            value = 0;
+        }
+
         return value;
     }
 
