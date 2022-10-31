@@ -97,6 +97,9 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                             for (int z = -i; z <= i; z++) {
                                 Block b = block.getRelative(x, y, z);
                                 if (b.getType() == block.getType()) {
+                                    if (block.getLocation().distance(b.getLocation()) > getRadius(getLevel(p))) {
+                                        return;
+                                    }
                                     blockMap.put(b.getLocation(), b);
                                 }
                             }
