@@ -130,7 +130,11 @@ public class MaterialValue {
     }
 
     public static double getValue(Material m) {
-        return getValue(m, new HashSet<>());
+        try {
+            return getValue(m, new HashSet<>());
+        } catch (Exception ignored) {
+            return 1;
+        }
     }
 
     private static double getValue(Material m, Set<MaterialRecipe> ignore) {
@@ -167,7 +171,7 @@ public class MaterialValue {
             }
 
         }
-        if (m.getHardness() == 0) {
+        if (m.isBlock() && m.getHardness() == 0) {
             return 0;
         }
         return get().value.get(m);
