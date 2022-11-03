@@ -141,32 +141,61 @@
       "description": "5,000,000개 아이템 제작"
     },
     "challenge_enchant_1k": {
+      "title": "초보 인챈터!",
+      "description": "인챈트 1000 아이템"
     },
     "challenge_enchant_5k": {
+      "title": "중급 인챈터!",
+      "description": "인챈트 5000 아이템"
     },
     "challenge_enchant_50k": {
+      "title": "고급 인챈터!",
+      "description": "인챈트 50,000개 아이템"
     },
     "challenge_enchant_500k": {
+      "title": "마스터 인챈터!",
+      "description": "인챈트 500,000 아이템"
     },
     "challenge_enchant_5m": {
+      "title": "수수께끼의 인챈터",
+      "description": "인챈트 5,000,000 아이템"
     },
     "challenge_excavate_1k": {
+      "title": "유혹하는 굴착기!",
+      "description": "블록 1000개 발굴"
     },
     "challenge_excavate_5k": {
+      "title": "중급 굴삭기!",
+      "description": "블록 5000개 발굴"
     },
     "challenge_excavate_50k": {
+      "title": "고급 굴삭기!",
+      "description": "블록 50,000개 발굴"
     },
     "challenge_excavate_500k": {
+      "title": "마스터 굴삭기!",
+      "description": "500,000 블록 발굴"
     },
     "challenge_excavate_5m": {
+      "title": "수수께끼의 굴착기",
+      "description": "5,000,000 블록 발굴"
     }
   },
   "items": {
     "boundenderperal": {
+      "name": "유물 포트키",
+      "usage1": "바인딩하려면 Shift + 왼쪽 클릭",
+      "usage2": "바인딩된 인벤토리에 액세스하려면 마우스 오른쪽 버튼을 클릭하세요."
     },
     "boundeyeofender": {
+      "name": "안구 앵커",
+      "usage1": "마우스 오른쪽 버튼을 클릭하여 소비하고 바인딩된 위치로 순간이동합니다.",
+      "usage2": "Shift + 왼쪽 클릭하여 블록에 바인딩"
     },
     "boundredstonetorch": {
+      "name": "레드스톤 리모트",
+      "usage1": "1-Tick Redstone 펄스를 생성하려면 마우스 오른쪽 버튼을 클릭하십시오.",
+      "usage2": "바인딩할 '대상' 블록을 Shift + 왼쪽 클릭"
     }
   },
   "snippets": {
@@ -370,6 +399,9 @@
       "lore1": "당신의 손이 Glass를 위한 실크 터치를 얻습니다."
     },
     "wirelessredstone": {
+      "name": "레드스톤 리모트",
+      "description": "이렇게 하면 레드스톤 횃불을 사용하여 원격으로 레드스톤을 토글할 수 있습니다!",
+      "lore1": "대상 + 레드스톤 횃불 + 엔더페럴 = 레드스톤 리모컨 1개"
     },
     "placement": {
       "name": "빌더 완드",
