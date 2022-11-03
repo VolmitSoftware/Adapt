@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.axe;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -90,16 +91,21 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                 Block block = e.getBlock();
                 Map<Location, Block> blockMap = new HashMap<>();
                 blockMap.put(block.getLocation(), block);
-
+                int blockCount = 0;
                 for (int i = 0; i < getRadius(getLevel(p)); i++) {
                     for (int x = -i; x <= i; x++) {
                         for (int y = -i; y <= i; y++) {
                             for (int z = -i; z <= i; z++) {
                                 Block b = block.getRelative(x, y, z);
                                 if (b.getType() == block.getType()) {
+                                    blockCount++;
+                                    if (blockCount > getConfig().maxBlocks) {
+                                        return;
+                                    }
                                     if (block.getLocation().distance(b.getLocation()) > getRadius(getLevel(p))) {
                                         return;
                                     }
+                                    Adapt.verbose("Axe-Veinmine block: " + b.getType() + " at " + b.getLocation());
                                     blockMap.put(b.getLocation(), b);
                                 }
                             }
@@ -166,6 +172,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
         int maxLevel = 5;
         int initialCost = 4;
         double costFactor = 2.325;
+        int maxBlocks = 20;
         int baseRange = 3;
     }
 }
