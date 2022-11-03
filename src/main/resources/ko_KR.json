@@ -1,15 +1,15 @@
 {
   "advancement": {
     "challenge_move_1k": {
-      "title": "움직여야 해!",
-      "description": "1km 이상 걷기(1,000블록)"
+      "title": "움직이자!",
+      "description": "1km 이상 걷기(1,000블럭)"
     },
     "challenge_sprint_5k": {
-      "title": "5K를 질주하세요!",
+      "title": "5km를 달리세요!",
       "description": "5km 이상 걷기(5,000블록)"
     },
     "challenge_sprint_50k": {
-      "title": "50K 줌!",
+      "title": "50km 러너!",
       "description": "50km 이상 걷기(50,000블록)"
     },
     "challenge_sprint_500k": {
@@ -101,7 +101,7 @@
       "description": "물약 5,000,000개 소모"
     },
     "challenge_brewsplash_1k": {
-      "title": "초보자 물약 스플래셔!",
+      "title": "초보자 물약자!",
       "description": "스플래쉬 1000 포션"
     },
     "challenge_brewsplash_5k": {
@@ -139,6 +139,34 @@
     "challenge_craft_5m": {
       "title": "재앙의 맥크래프트페이스",
       "description": "5,000,000개 아이템 제작"
+    },
+    "challenge_enchant_1k": {
+    },
+    "challenge_enchant_5k": {
+    },
+    "challenge_enchant_50k": {
+    },
+    "challenge_enchant_500k": {
+    },
+    "challenge_enchant_5m": {
+    },
+    "challenge_excavate_1k": {
+    },
+    "challenge_excavate_5k": {
+    },
+    "challenge_excavate_50k": {
+    },
+    "challenge_excavate_500k": {
+    },
+    "challenge_excavate_5m": {
+    }
+  },
+  "items": {
+    "boundenderperal": {
+    },
+    "boundeyeofender": {
+    },
+    "boundredstonetorch": {
     }
   },
   "snippets": {
@@ -208,7 +236,7 @@
       "description3": "대신 동일한 최종 결과!"
     },
     "brewing": {
-      "name": "아잉",
+      "name": "물약 제조",
       "icon": "❦",
       "description": "더블 버블, 트리플 버블, 쿼드러플 버블 - 나는 아직도 이 물약을 가마솥에 넣을 수 없다"
     },
@@ -235,7 +263,7 @@
     "excavation": {
       "name": "발굴",
       "icon": "✥",
-      "description": "디기 디기 구멍..."
+      "description": "싱크홀..."
     },
     "herbalism": {
       "name": "약초학",
@@ -341,6 +369,8 @@
       "description": "이렇게 하면 빈 손으로 유리 블록을 깨뜨릴 때 유리 블록이 손실되는 것을 근본적으로 방지할 수 있습니다!",
       "lore1": "당신의 손이 Glass를 위한 실크 터치를 얻습니다."
     },
+    "wirelessredstone": {
+    },
     "placement": {
       "name": "빌더 완드",
       "description": "한 번에 여러 블록을 배치하여 Sneak을 활성화하고 찾고 있는 블록과 장소와 일치하는 블록을 잡을 수 있습니다! 상자 경계를 트리거하려면 약간 움직여야 할 수도 있습니다.",
@@ -351,7 +381,7 @@
   },
   "axe": {
     "chop": {
-      "name": "액스 찹",
+      "name": "도끼 벌목",
       "description": "기본 통나무를 마우스 우클릭하여 나무를 베세요!",
       "lore1": "찹당 블록",
       "lore2": "찹 쿨다운",
@@ -954,7 +984,7 @@
     },
     "suckerpunch": {
       "name": "어리버리 펀치",
-      "description": "스프린트 펀치지만 더 치명적입니다.",
+      "description": "달리기 펀치이지만 더 치명적입니다.",
       "lore1": "손상",
       "lore2": "펀치하는 동안 속도에 따라 데미지가 증가합니다."
     }
