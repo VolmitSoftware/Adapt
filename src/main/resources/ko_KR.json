@@ -1,15 +1,15 @@
 {
   "advancement": {
     "challenge_move_1k": {
-      "title": "움직여야 해!",
-      "description": "1km 이상 걷기(1,000블록)"
+      "title": "움직이자!",
+      "description": "1km 이상 걷기(1,000블럭)"
     },
     "challenge_sprint_5k": {
-      "title": "5K를 질주하세요!",
+      "title": "5km를 달리세요!",
       "description": "5km 이상 걷기(5,000블록)"
     },
     "challenge_sprint_50k": {
-      "title": "50K 줌!",
+      "title": "50km 러너!",
       "description": "50km 이상 걷기(50,000블록)"
     },
     "challenge_sprint_500k": {
@@ -101,7 +101,7 @@
       "description": "물약 5,000,000개 소모"
     },
     "challenge_brewsplash_1k": {
-      "title": "초보자 물약 스플래셔!",
+      "title": "초보자 물약자!",
       "description": "스플래쉬 1000 포션"
     },
     "challenge_brewsplash_5k": {
@@ -139,6 +139,63 @@
     "challenge_craft_5m": {
       "title": "재앙의 맥크래프트페이스",
       "description": "5,000,000개 아이템 제작"
+    },
+    "challenge_enchant_1k": {
+      "title": "초보 인챈터!",
+      "description": "인챈트 1000 아이템"
+    },
+    "challenge_enchant_5k": {
+      "title": "중급 인챈터!",
+      "description": "인챈트 5000 아이템"
+    },
+    "challenge_enchant_50k": {
+      "title": "고급 인챈터!",
+      "description": "인챈트 50,000개 아이템"
+    },
+    "challenge_enchant_500k": {
+      "title": "마스터 인챈터!",
+      "description": "인챈트 500,000 아이템"
+    },
+    "challenge_enchant_5m": {
+      "title": "수수께끼의 인챈터",
+      "description": "인챈트 5,000,000 아이템"
+    },
+    "challenge_excavate_1k": {
+      "title": "유혹하는 굴착기!",
+      "description": "블록 1000개 발굴"
+    },
+    "challenge_excavate_5k": {
+      "title": "중급 굴삭기!",
+      "description": "블록 5000개 발굴"
+    },
+    "challenge_excavate_50k": {
+      "title": "고급 굴삭기!",
+      "description": "블록 50,000개 발굴"
+    },
+    "challenge_excavate_500k": {
+      "title": "마스터 굴삭기!",
+      "description": "500,000 블록 발굴"
+    },
+    "challenge_excavate_5m": {
+      "title": "수수께끼의 굴착기",
+      "description": "5,000,000 블록 발굴"
+    }
+  },
+  "items": {
+    "boundenderperal": {
+      "name": "유물 포트키",
+      "usage1": "바인딩하려면 Shift + 왼쪽 클릭",
+      "usage2": "바인딩된 인벤토리에 액세스하려면 마우스 오른쪽 버튼을 클릭하세요."
+    },
+    "boundeyeofender": {
+      "name": "안구 앵커",
+      "usage1": "마우스 오른쪽 버튼을 클릭하여 소비하고 바인딩된 위치로 순간이동합니다.",
+      "usage2": "Shift + 왼쪽 클릭하여 블록에 바인딩"
+    },
+    "boundredstonetorch": {
+      "name": "레드스톤 리모트",
+      "usage1": "1-Tick Redstone 펄스를 생성하려면 마우스 오른쪽 버튼을 클릭하십시오.",
+      "usage2": "바인딩할 '대상' 블록을 Shift + 왼쪽 클릭"
     }
   },
   "snippets": {
@@ -208,7 +265,7 @@
       "description3": "대신 동일한 최종 결과!"
     },
     "brewing": {
-      "name": "아잉",
+      "name": "물약 제조",
       "icon": "❦",
       "description": "더블 버블, 트리플 버블, 쿼드러플 버블 - 나는 아직도 이 물약을 가마솥에 넣을 수 없다"
     },
@@ -235,7 +292,7 @@
     "excavation": {
       "name": "발굴",
       "icon": "✥",
-      "description": "디기 디기 구멍..."
+      "description": "싱크홀..."
     },
     "herbalism": {
       "name": "약초학",
@@ -341,6 +398,11 @@
       "description": "이렇게 하면 빈 손으로 유리 블록을 깨뜨릴 때 유리 블록이 손실되는 것을 근본적으로 방지할 수 있습니다!",
       "lore1": "당신의 손이 Glass를 위한 실크 터치를 얻습니다."
     },
+    "wirelessredstone": {
+      "name": "레드스톤 리모트",
+      "description": "이렇게 하면 레드스톤 횃불을 사용하여 원격으로 레드스톤을 토글할 수 있습니다!",
+      "lore1": "대상 + 레드스톤 횃불 + 엔더페럴 = 레드스톤 리모컨 1개"
+    },
     "placement": {
       "name": "빌더 완드",
       "description": "한 번에 여러 블록을 배치하여 Sneak을 활성화하고 찾고 있는 블록과 장소와 일치하는 블록을 잡을 수 있습니다! 상자 경계를 트리거하려면 약간 움직여야 할 수도 있습니다.",
@@ -351,7 +413,7 @@
   },
   "axe": {
     "chop": {
-      "name": "액스 찹",
+      "name": "도끼 벌목",
       "description": "기본 통나무를 마우스 우클릭하여 나무를 베세요!",
       "lore1": "찹당 블록",
       "lore2": "찹 쿨다운",
@@ -954,7 +1016,7 @@
     },
     "suckerpunch": {
       "name": "어리버리 펀치",
-      "description": "스프린트 펀치지만 더 치명적입니다.",
+      "description": "달리기 펀치이지만 더 치명적입니다.",
       "lore1": "손상",
       "lore2": "펀치하는 동안 속도에 따라 데미지가 증가합니다."
     }
