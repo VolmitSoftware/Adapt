@@ -51,7 +51,7 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
                         "III",
                         "IUI",
                         "III"))
-                .result(new ItemStack(Material.IRON_HORSE_ARMOR, 1))
+                .result(new ItemStack(Material.LEATHER_HORSE_ARMOR, 1))
                 .build());
         registerRecipe(AdaptRecipe.shaped()
                 .key("blocking-horsearmoreriron")
@@ -61,7 +61,7 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
                         "III",
                         "IUI",
                         "III"))
-                .result(new ItemStack(Material.GOLDEN_HORSE_ARMOR, 1))
+                .result(new ItemStack(Material.IRON_HORSE_ARMOR, 1))
                 .build());
         registerRecipe(AdaptRecipe.shaped()
                 .key("blocking-horsearmorergold")

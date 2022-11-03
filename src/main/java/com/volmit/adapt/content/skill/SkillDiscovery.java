@@ -144,8 +144,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
                     seeRecipe(p, key.toString());
                 }
             } catch (Throwable ignored) {
-                Adapt.verbose("Failed to get recipe key");
-
+                Adapt.verbose("No recipe key found for " + e.getRecipe().getResult().getType().name()); // Probably a vanilla recipe that was either removed or something unimplemented, like the backpack that im making
             }
         }
     }

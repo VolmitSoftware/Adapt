@@ -168,8 +168,14 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
                     if (recipeAmount > 0 && !e.isCancelled()) {
                         double v = recipeAmount * getValue(test) * getConfig().craftingValueXPMultiplier;
+
+
+
                         getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.items", recipeAmount);
                         getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.value", v);
+
+
+
                         xp((Player) e.getWhoClicked(), v + getConfig().baseCraftingXP);
                     }
                 }
