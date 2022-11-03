@@ -100,12 +100,13 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                                 if (b.getType() == block.getType()) {
                                     blockCount++;
                                     if (blockCount > getConfig().maxBlocks) {
-                                        return;
+                                        Adapt.verbose("Block: " + blockCount + " > " + getConfig().maxBlocks);
+                                        continue;
                                     }
                                     if (block.getLocation().distance(b.getLocation()) > getRadius(getLevel(p))) {
-                                        return;
+                                        Adapt.verbose("Block: " + b.getLocation() + " is too far away from " + block.getLocation() + " (" + getRadius(getLevel(p)) + ")");
+                                        continue;
                                     }
-                                    Adapt.verbose("Axe-Veinmine block: " + b.getType() + " at " + b.getLocation());
                                     blockMap.put(b.getLocation(), b);
                                 }
                             }
