@@ -139,6 +139,63 @@
     "challenge_craft_5m": {
       "title": "Verhängnisvolles McCraftface",
       "description": "Stelle 5.000.000 Gegenstände her"
+    },
+    "challenge_enchant_1k": {
+      "title": "Anfänger Zauberer!",
+      "description": "Verzaubere 1000 Gegenstände"
+    },
+    "challenge_enchant_5k": {
+      "title": "Fortgeschrittener Zauberer!",
+      "description": "Verzaubere 5000 Gegenstände"
+    },
+    "challenge_enchant_50k": {
+      "title": "Fortgeschrittener Zauberer!",
+      "description": "Verzaubere 50.000 Gegenstände"
+    },
+    "challenge_enchant_500k": {
+      "title": "Meister Zauberer!",
+      "description": "Verzaubere 500.000 Gegenstände"
+    },
+    "challenge_enchant_5m": {
+      "title": "Rätselhafter Zauberer",
+      "description": "Verzaubere 5.000.000 Gegenstände"
+    },
+    "challenge_excavate_1k": {
+      "title": "Begeisterter Baumeister!",
+      "description": "Grabe 1000 Blöcke aus"
+    },
+    "challenge_excavate_5k": {
+      "title": "Mittlerer Baumeister!",
+      "description": "Grabe 5000 Blöcke aus"
+    },
+    "challenge_excavate_50k": {
+      "title": "Fortschrittlicher Bagger!",
+      "description": "Grabe 50.000 Blöcke aus"
+    },
+    "challenge_excavate_500k": {
+      "title": "Meister Baumeister!",
+      "description": "Grabe 500.000 Blöcke aus"
+    },
+    "challenge_excavate_5m": {
+      "title": "Rätselhafter Baumeister",
+      "description": "Grabe 5.000.000 Blöcke aus"
+    }
+  },
+  "items": {
+    "boundenderperal": {
+      "name": "Reliquien-Portschlüssel",
+      "usage1": "Shift + Linksklick zum Binden",
+      "usage2": "Klicken Sie mit der rechten Maustaste, um auf das gebundene Inventar zuzugreifen"
+    },
+    "boundeyeofender": {
+      "name": "Augenanker",
+      "usage1": "Rechtsklick zum Konsumieren und Teleportieren zum gebundenen Ort",
+      "usage2": "Umschalt + Linksklick, um an einen Block zu binden"
+    },
+    "boundredstonetorch": {
+      "name": "Redstone-Fernsteuerung",
+      "usage1": "Klicken Sie mit der rechten Maustaste, um einen 1-Tick-Redstone-Impuls zu erzeugen",
+      "usage2": "Shift + Linksklick auf einen 'Ziel'-Block zum Binden"
     }
   },
   "snippets": {
@@ -340,6 +397,11 @@
       "name": "Behutsames Glass",
       "description": "Auf diese Weise kannst du den Verlust von Glassblöcken verhindern, wenn du sie mit leeren Händen zerbrichst",
       "lore1": "Deine Hände erhalten Silk Touch für Glass"
+    },
+    "wirelessredstone": {
+      "name": "Redstone-Fernsteuerung",
+      "description": "Auf diese Weise können Sie eine Redstone-Fackel verwenden, um Redstone aus der Ferne umzuschalten!",
+      "lore1": "Ziel + Redstone-Fackel + Enderperle = 1 Redstone-Fernsteuerung"
     },
     "placement": {
       "name": "Baumeister Stab",
