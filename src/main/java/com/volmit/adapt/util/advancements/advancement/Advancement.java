@@ -50,12 +50,11 @@ public class Advancement {
     private final Advancement parent;
     private final boolean childrenTracked;
     private final List<AdvancementFlag> flags;
+    private final HashSet<Advancement> children = new HashSet<>();
+    private final HashMap<String, AdvancementProgress> progressMap = new HashMap<>();
     private Criteria criteria = new Criteria(1);
     private AdvancementReward reward;
-    private final HashSet<Advancement> children = new HashSet<>();
     private HashMap<String, Boolean> savedVisibilityStatus;
-
-    private final HashMap<String, AdvancementProgress> progressMap = new HashMap<>();
 
     /**
      * Constructor for Advancements with a parent

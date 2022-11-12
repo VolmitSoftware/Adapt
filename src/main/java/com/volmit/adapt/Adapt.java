@@ -49,10 +49,10 @@ public class Adapt extends VolmitPlugin {
     public static HashMap<String, String> wordKey = new HashMap<>();
     public static HashMap<String, String> wordKeyOverride = new HashMap<>();
     public static BukkitAudiences audiences;
-    public boolean usingMagicCosmetics = Bukkit.getServer().getPluginManager().getPlugin("MagicCosmetics") != null;
     public final EffectManager adaptEffectManager = new EffectManager(this);
     @Command
     private final CommandAdapt commandAdapt = new CommandAdapt();
+    public boolean usingMagicCosmetics = Bukkit.getServer().getPluginManager().getPlugin("MagicCosmetics") != null;
     @Getter
     private Ticker ticker;
     @Getter
@@ -61,24 +61,9 @@ public class Adapt extends VolmitPlugin {
     @Getter
     private SQLManager sqlManager;
 
-    @Override
-    public void start() {
-        NMS.init();
-        Localizer.updateLanguageFile();
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new PapiExpansion().register();
-        }
-        printInformation();
-        ticker = new Ticker();
-        sqlManager = new SQLManager();
-        if (AdaptConfig.get().isUseSql()) {
-            sqlManager.establishConnection();
-        }
-        adaptServer = new AdaptServer();
-        registerListener(new BrewingManager());
-        setupMetrics();
-        startupPrint(); // Splash screen
-        autoUpdateCheck();
+    public Adapt() {
+        super();
+        instance = this;
     }
 
     public static int getJavaVersion() {
@@ -92,32 +77,6 @@ public class Adapt extends VolmitPlugin {
             }
         }
         return Integer.parseInt(version);
-    }
-
-    @Override
-    public void stop() {
-        sqlManager.closeConnection();
-        adaptServer.unregister();
-        MaterialValue.save();
-        WorldData.stop();
-    }
-
-    private void startupPrint() {
-        if (!AdaptConfig.get().isSplashScreen()) {
-            return;
-        }
-        Random r = new Random();
-        int game = r.nextInt(100);
-        if (game < 90) {
-            Adapt.info("\n" + C.GRAY + " █████" + C.DARK_RED + "╗ " + C.GRAY + "██████" + C.DARK_RED + "╗  " + C.GRAY + "█████" + C.DARK_RED + "╗ " + C.GRAY + "██████" + C.DARK_RED + "╗ " + C.GRAY + "████████" + C.DARK_RED + "╗\n" +
-                    C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗╚══" + C.GRAY + "██" + C.DARK_RED + "╔══╝" + C.WHITE + "         Version: " + C.DARK_RED + instance.getDescription().getVersion() + "     \n" +
-                    C.GRAY + "███████" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "███████" + C.DARK_RED + "║" + C.GRAY + "██████" + C.DARK_RED + "╔╝   " + C.GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            By: " + C.RED + "A" + C.GOLD + "r" + C.YELLOW + "c" + C.GREEN + "a" + C.DARK_GRAY + "n" + C.AQUA + "e " + C.AQUA + "A" + C.BLUE + "r" + C.DARK_BLUE + "t" + C.DARK_PURPLE + "s" + C.WHITE + " (Volmit Software)\n" +
-                    C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "╔═══╝    " + C.GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Java Version: " + C.DARK_RED + getJavaVersion() + "     \n" +
-                    C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██████" + C.DARK_RED + "╔╝" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║        " + C.GRAY + "██" + C.DARK_RED + "║   \n" +
-                    C.DARK_RED + "╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝        ╚═╝   \n");
-        } else {
-            info(SecretSplash.getSecretSplash().getRandom());
-        }
     }
 
     public static void printInformation() {
@@ -147,20 +106,6 @@ public class Adapt extends VolmitPlugin {
             }
         }
         in.close();
-    }
-
-    public Adapt() {
-        super();
-        instance = this;
-    }
-
-    public File getJarFile() {
-        return getFile();
-    }
-
-    @Override
-    public String getTag(String subTag) {
-        return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.DARK_RED + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
     }
 
     public static void actionbar(Player p, String msg) {
@@ -200,12 +145,6 @@ public class Adapt extends VolmitPlugin {
         p.sendMessage(msg);
     }
 
-    private void setupMetrics() {
-        if (AdaptConfig.get().isMetrics()) {
-            new Metrics(this, 13412);
-        }
-    }
-
     public static void msg(String string) {
         try {
             if (instance == null) {
@@ -217,6 +156,67 @@ public class Adapt extends VolmitPlugin {
             Bukkit.getConsoleSender().sendMessage(msg);
         } catch (Throwable e) {
             System.out.println("[Adapt]: " + string);
+        }
+    }
+
+    @Override
+    public void start() {
+        NMS.init();
+        Localizer.updateLanguageFile();
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new PapiExpansion().register();
+        }
+        printInformation();
+        ticker = new Ticker();
+        sqlManager = new SQLManager();
+        if (AdaptConfig.get().isUseSql()) {
+            sqlManager.establishConnection();
+        }
+        adaptServer = new AdaptServer();
+        registerListener(new BrewingManager());
+        setupMetrics();
+        startupPrint(); // Splash screen
+        autoUpdateCheck();
+    }
+
+    @Override
+    public void stop() {
+        sqlManager.closeConnection();
+        adaptServer.unregister();
+        MaterialValue.save();
+        WorldData.stop();
+    }
+
+    private void startupPrint() {
+        if (!AdaptConfig.get().isSplashScreen()) {
+            return;
+        }
+        Random r = new Random();
+        int game = r.nextInt(100);
+        if (game < 90) {
+            Adapt.info("\n" + C.GRAY + " █████" + C.DARK_RED + "╗ " + C.GRAY + "██████" + C.DARK_RED + "╗  " + C.GRAY + "█████" + C.DARK_RED + "╗ " + C.GRAY + "██████" + C.DARK_RED + "╗ " + C.GRAY + "████████" + C.DARK_RED + "╗\n" +
+                    C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "╗╚══" + C.GRAY + "██" + C.DARK_RED + "╔══╝" + C.WHITE + "         Version: " + C.DARK_RED + instance.getDescription().getVersion() + "     \n" +
+                    C.GRAY + "███████" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "███████" + C.DARK_RED + "║" + C.GRAY + "██████" + C.DARK_RED + "╔╝   " + C.GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            By: " + C.RED + "A" + C.GOLD + "r" + C.YELLOW + "c" + C.GREEN + "a" + C.DARK_GRAY + "n" + C.AQUA + "e " + C.AQUA + "A" + C.BLUE + "r" + C.DARK_BLUE + "t" + C.DARK_PURPLE + "s" + C.WHITE + " (Volmit Software)\n" +
+                    C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "╔══" + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "╔═══╝    " + C.GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Java Version: " + C.DARK_RED + getJavaVersion() + "     \n" +
+                    C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██████" + C.DARK_RED + "╔╝" + C.GRAY + "██" + C.DARK_RED + "║  " + C.GRAY + "██" + C.DARK_RED + "║" + C.GRAY + "██" + C.DARK_RED + "║        " + C.GRAY + "██" + C.DARK_RED + "║   \n" +
+                    C.DARK_RED + "╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝        ╚═╝   \n");
+        } else {
+            info(SecretSplash.getSecretSplash().getRandom());
+        }
+    }
+
+    public File getJarFile() {
+        return getFile();
+    }
+
+    @Override
+    public String getTag(String subTag) {
+        return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.DARK_RED + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
+    }
+
+    private void setupMetrics() {
+        if (AdaptConfig.get().isMetrics()) {
+            new Metrics(this, 13412);
         }
     }
 

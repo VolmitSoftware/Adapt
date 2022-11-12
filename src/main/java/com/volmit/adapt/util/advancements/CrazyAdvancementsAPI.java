@@ -85,9 +85,9 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
     });
     private static final Gson gson;
     private static final List<String> SELECTORS = Arrays.asList("@a", "@p", "@s", "@r");
+    private static final HashMap<String, NameKey> activeTabs = new HashMap<>();
     private static CrazyAdvancementsAPI instance;
     private static AdvancementPacketReceiver packetReciever;
-    private static final HashMap<String, NameKey> activeTabs = new HashMap<>();
 
     static {
         gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();

@@ -19,8 +19,6 @@
 package com.volmit.adapt.util;
 
 
-import com.volmit.adapt.Adapt;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;

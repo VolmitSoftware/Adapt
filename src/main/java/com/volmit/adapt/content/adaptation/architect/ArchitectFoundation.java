@@ -126,6 +126,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             }
         });
     }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPistonRetractEvent e) {
         if (e.isCancelled()) {

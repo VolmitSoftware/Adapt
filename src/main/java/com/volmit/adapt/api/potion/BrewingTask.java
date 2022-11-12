@@ -15,7 +15,8 @@ public class BrewingTask extends BukkitRunnable {
 
     private static final int DEFAULT_BREW_TIME = 400;
 
-    @Getter private final BrewingRecipe recipe;
+    @Getter
+    private final BrewingRecipe recipe;
 
     private final Location location;
     private int brewTime;
