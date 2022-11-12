@@ -43,7 +43,7 @@ public class CommandBoostPlayer extends MortarCommand {
                 AdaptServer as = Adapt.instance.getAdaptServer();
 
                 ap.boostXPToRecents(ap, Double.parseDouble(args[1]), Integer.parseInt(args[2])); // not working
-                Adapt.messagePlayer(p,"BOOSTED " + args[1] + " XP TO " + args[2] + " ALL RECENT SKILL GAINS");
+                Adapt.messagePlayer(p, "BOOSTED " + args[1] + " XP TO " + args[2] + " ALL RECENT SKILL GAINS");
                 Adapt.info("BOOSTED " + args[1] + " XP TO " + args[2] + " ALL RECENT SKILL GAINS");
             }
             AdaptPlayer ap = Adapt.instance.getAdaptServer().getPlayer(sender.player());

@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.J;
-import net.minecraft.world.inventory.InventoryClickType;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BrewingStand;
@@ -17,7 +16,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.BrewerInventory;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
@@ -25,7 +23,6 @@ import org.bukkit.potion.PotionType;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public class BrewingManager implements Listener {
 
@@ -92,16 +89,16 @@ public class BrewingManager implements Listener {
     @EventHandler
     public void onBrew(BrewEvent e) {
         Material m = e.getContents().getIngredient().getType();
-        if(m != Material.GUNPOWDER && m != Material.DRAGON_BREATH) {
+        if (m != Material.GUNPOWDER && m != Material.DRAGON_BREATH) {
             return;
         }
-        for(int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
             ItemStack s = e.getContents().getItem(i);
-            if(s == null || ((PotionMeta)s.getItemMeta()).getBasePotionData().getType() != PotionType.UNCRAFTABLE) {
+            if (s == null || ((PotionMeta) s.getItemMeta()).getBasePotionData().getType() != PotionType.UNCRAFTABLE) {
                 continue;
             }
             ItemStack newStack = s.clone();
-            if(m == Material.GUNPOWDER) {
+            if (m == Material.GUNPOWDER) {
                 newStack.setType(Material.SPLASH_POTION);
             } else {
                 newStack.setType(Material.LINGERING_POTION);

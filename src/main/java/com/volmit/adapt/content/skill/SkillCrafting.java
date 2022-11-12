@@ -170,10 +170,8 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                         double v = recipeAmount * getValue(test) * getConfig().craftingValueXPMultiplier;
 
 
-
                         getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.items", recipeAmount);
                         getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.value", v);
-
 
 
                         xp((Player) e.getWhoClicked(), v + getConfig().baseCraftingXP);

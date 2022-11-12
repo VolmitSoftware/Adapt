@@ -21,7 +21,6 @@ package com.volmit.adapt.content.adaptation.architect;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
-import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.content.item.BoundRedstoneTorch;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;

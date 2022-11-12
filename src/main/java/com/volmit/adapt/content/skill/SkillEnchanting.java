@@ -142,6 +142,6 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         boolean enabled = true;
         double enchantPowerXPMultiplier = 70;
         long cooldownDelay = 5250;
-        double challengeEnchantReward  = 2500;
+        double challengeEnchantReward = 2500;
     }
 }

@@ -165,7 +165,7 @@ public class MaterialValue {
                 v += d.stream().mapToDouble(i -> i).average().getAsDouble();
             }
             if (v > AdaptConfig.get().getMaxRecipeListPrecaution()) {
-                get().value.put(m,(v/10 + 1) * getMultiplier(m));
+                get().value.put(m, (v / 10 + 1) * getMultiplier(m));
             } else {
                 get().value.put(m, v);
             }

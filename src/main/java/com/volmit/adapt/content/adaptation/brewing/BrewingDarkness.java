@@ -27,7 +27,6 @@ import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
@@ -45,17 +44,17 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
         setInitialCost(getConfig().initialCost);
         setInterval(1335);
         registerBrewingRecipe(BrewingRecipe.builder()
-                        .id("brewing-darkness")
-                        .brewingTime(320)
-                        .fuelCost(16)
-                        .ingredient(Material.BLACK_CONCRETE)
-                        .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.NIGHT_VISION, false, false))
-                        .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
-                                .setName("Bottled Darkness")
-                                .setColor(Color.BLACK)
-                                .addEffect(PotionEffectType.DARKNESS, 600, 100, true, true, true)
-                                .build())
-                        .build());
+                .id("brewing-darkness")
+                .brewingTime(320)
+                .fuelCost(16)
+                .ingredient(Material.BLACK_CONCRETE)
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.NIGHT_VISION, false, false))
+                .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
+                        .setName("Bottled Darkness")
+                        .setColor(Color.BLACK)
+                        .addEffect(PotionEffectType.DARKNESS, 600, 100, true, true, true)
+                        .build())
+                .build());
     }
 
     @Override

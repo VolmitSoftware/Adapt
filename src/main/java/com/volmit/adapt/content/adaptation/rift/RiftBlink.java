@@ -116,8 +116,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                 }
                 Vector v = p.getVelocity().clone();
                 loadChunkAsync(loc, chunk -> {
-                J.s(() -> p.teleport(loc.add(0, 1, 0), PlayerTeleportEvent.TeleportCause.PLUGIN));
-                J.s(() -> p.setVelocity(v.multiply(3)), 2);
+                    J.s(() -> p.teleport(loc.add(0, 1, 0), PlayerTeleportEvent.TeleportCause.PLUGIN));
+                    J.s(() -> p.setVelocity(v.multiply(3)), 2);
                 });
 
                 lastJump.put(p, M.ms());

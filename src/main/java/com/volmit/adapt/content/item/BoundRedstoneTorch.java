@@ -100,6 +100,7 @@ public class BoundRedstoneTorch implements DataItem<BoundRedstoneTorch.Data> {
     @lombok.Data
     public static class Data {
         private Location location;
+
         public static BoundRedstoneTorch.Data at(Location l) {
             return new BoundRedstoneTorch.Data(l);
         }

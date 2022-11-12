@@ -168,12 +168,12 @@ public class VirtualCommand {
         for (String i : command.getRequiredPermissions()) {
             if (!sender.hasPermission(i)) {
                 failed = true;
-                Bukkit.getScheduler().scheduleSyncDelayedTask(Adapt.instance, () -> Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()),"- " + C.WHITE + i), 0);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(Adapt.instance, () -> Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "- " + C.WHITE + i), 0);
             }
         }
 
         if (failed) {
-            Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()),"Insufficient Permissions");
+            Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Insufficient Permissions");
             return false;
         }
 

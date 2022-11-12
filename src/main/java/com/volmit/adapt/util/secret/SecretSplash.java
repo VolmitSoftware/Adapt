@@ -28,14 +28,6 @@ import java.util.Random;
 
 public class SecretSplash {
 
-    public static String randomString7() {
-        byte[] array = new byte[7]; // length is bounded by 7
-        new Random().nextBytes(array);
-        String generatedString = new String(array, Charset.forName("UTF-8"));
-
-    return generatedString;
-    }
-
     @Getter
     public static List<String> secretSplash = List.of(
             "\n" + C.BLUE + "       ⣞⢽⢪⢣⢣⢣⢫⡺⡵⣝⡮⣗⢷⢽⢽⢽⣮⡷⡽⣜⣜⢮⢺⣜⢷⢽⢝⡽⣝   \n" +
@@ -84,4 +76,12 @@ public class SecretSplash {
                     C.GRAY + "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠁"
 
     );
+
+    public static String randomString7() {
+        byte[] array = new byte[7]; // length is bounded by 7
+        new Random().nextBytes(array);
+        String generatedString = new String(array, Charset.forName("UTF-8"));
+
+        return generatedString;
+    }
 }

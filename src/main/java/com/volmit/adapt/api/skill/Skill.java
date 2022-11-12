@@ -129,7 +129,7 @@ public interface Skill<T> extends Ticked, Component {
             if (xp > 50) {
                 vfxXP(p, at, (int) xp);
             }
-            Adapt.verbose("Gave " + p.getName() + " " + xp + " xp in " + getName() + " " + this.getClass() );
+            Adapt.verbose("Gave " + p.getName() + " " + xp + " xp in " + getName() + " " + this.getClass());
         } catch (Exception e) {
             Adapt.verbose("Failed to give xp to " + p.getName() + " for " + getName() + " (" + xp + ")");
         }
@@ -139,7 +139,8 @@ public interface Skill<T> extends Ticked, Component {
         if (p.getClass().getSimpleName().equals("CraftPlayer")) {
             try {
                 XP.xpSilent(p, this, xp);
-            } catch (Exception ignored) { // Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.
+            } catch (
+                    Exception ignored) { // Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.
                 Adapt.verbose("Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.");
             }
         }
