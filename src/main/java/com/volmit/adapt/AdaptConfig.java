@@ -37,6 +37,7 @@ import java.util.Map;
 public class AdaptConfig {
     private static AdaptConfig config = null;
     public boolean debug = false;
+    public boolean autoUpdateCheck = true;
     public boolean splashScreen = true;
     public boolean xpInCreative = false;
     public boolean allowAdaptationsInCreative = false;

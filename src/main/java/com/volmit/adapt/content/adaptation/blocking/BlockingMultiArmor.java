@@ -171,7 +171,10 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
         if (!hasAdaptation((Player) e.getWhoClicked())) {
             return;
         }
-        if (e.getClickedInventory() != null && e.getClick().equals(ClickType.SHIFT_LEFT) && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
+        if (e.getClickedInventory() != null
+                && e.getClick().equals(ClickType.SHIFT_LEFT)
+                && e.getClickedInventory().getItem(e.getSlot()) != null
+                && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
             ItemStack cursor = e.getWhoClicked().getItemOnCursor().clone();
             ItemStack clicked = e.getClickedInventory().getItem(e.getSlot()).clone();
 

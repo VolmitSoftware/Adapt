@@ -88,24 +88,32 @@ public class Adapt extends VolmitPlugin {
 
     @SneakyThrows
     public static void autoUpdateCheck() {
-        info("Checking for updates...");
-        URL url = new URL("https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle");
-        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-        String inputLine;
-        while ((inputLine = in.readLine()) != null) {
-            if (inputLine.contains("version '")) {
-                if (inputLine.contains("development")) {
-                    info("Development build detected. Skipping update check.");
-                    break;
+        if (AdaptConfig.get().autoUpdateCheck) {
+            try {
+                info("Checking for updates...");
+                URL url = new URL("https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle");
+                BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    if (inputLine.contains("version '")) {
+                        if (inputLine.contains("development")) {
+                            info("Development build detected. Skipping update check.");
+                            break;
+                        }
+                        String version = inputLine.remove("version '").remove("'").remove("// Needs to be version specific").remove(" ");
+                        if (!version.equals(instance.getDescription().getVersion())) {
+                            info("Please update your Adapt plugin to the latest version! (Current: " + instance.getDescription().getVersion() + " Latest: " + version + ")");
+                        }
+                        break;
+                    }
                 }
-                String version = inputLine.remove("version '").remove("'").remove("// Needs to be version specific").remove(" ");
-                if (!version.equals(instance.getDescription().getVersion())) {
-                    info("Please update your Adapt plugin to the latest version! (Current: " + instance.getDescription().getVersion() + " Latest: " + version + ")");
-                }
-                break;
+                in.close();
+            } catch (Exception e) {
+                error("Failed to check for updates.");
             }
+        } else {
+            info("Skipping update check.");
         }
-        in.close();
     }
 
     public static void actionbar(Player p, String msg) {
