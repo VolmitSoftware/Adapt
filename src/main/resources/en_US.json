@@ -582,6 +582,12 @@
       "lore3": "XSX : Leather, Barrel Box, Leather",
       "lore4": "XCX : Leather, Chest, Leather"
     },
+    "stations": {
+      "name": "Portable Tables!",
+      "description": "Use a table in the palm of your hand!",
+      "lore2": "ANY ITEMS THAT YOU FORGET IN THE TABLE WHEN CLOSED ARE LOST FOREVER!",
+      "lore3": "Valid tables: Anvil, Crafting, Grindstone, Cartography, Stone-Cutter, Loom"
+    },
     "skulls": {
       "name": "Craftable skulls!",
       "description": "Using Materials you can Craft Mob Skulls!",
