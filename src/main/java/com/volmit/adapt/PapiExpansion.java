@@ -28,6 +28,9 @@ public class PapiExpansion extends PlaceholderExpansion {
         skillMap.put("multiplier", skill -> String.valueOf(skill.getMultiplier()).equals("-5000") ? "0" : String.valueOf(skill.getMultiplier()));
         skillMap.put("name", skill -> Localizer.dLocalize("skill", skill.getLine(), "name"));
 
+        //XP.getLevelForXp(adaptPlayer.getData().getMasterXp())
+
+        playerMap.put("level", playerData -> String.valueOf(playerData.getMultiplier()).equals("-5000") ? "0" : String.valueOf(playerData.getLevel()));
         playerMap.put("multiplier", playerData -> String.valueOf(playerData.getMultiplier()).equals("-5000") ? "0" : String.valueOf(playerData.getMultiplier()));
         playerMap.put("availablepower", playerData -> String.valueOf(playerData.getAvailablePower()).equals("-5000") ? "0" : String.valueOf(playerData.getAvailablePower()));
         playerMap.put("maxpower", playerData -> String.valueOf(playerData.getMaxPower()).equals("-5000") ? "0" : String.valueOf(playerData.getMaxPower()));

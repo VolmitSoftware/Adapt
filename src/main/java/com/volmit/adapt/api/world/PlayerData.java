@@ -190,6 +190,10 @@ public class PlayerData {
         return getSkillLines().values().stream().mapToInt(i -> i.getAdaptations().values().stream().mapToInt(PlayerAdaptation::getLevel).sum()).sum();
     }
 
+    public int getLevel() {
+        return (int) XP.getLevelForXp(getMasterXp());
+    }
+
     public int getMaxPower() {
         return (int) (XP.getLevelForXp(getMasterXp()) * AdaptConfig.get().getPowerPerLevel());
     }
