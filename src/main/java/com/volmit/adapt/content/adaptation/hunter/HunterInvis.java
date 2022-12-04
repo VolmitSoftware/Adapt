@@ -69,14 +69,13 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
                     addPotionStacks(p, PotionEffectType.POISON, 2 + getLevel(p), 300, true);
 
                 } else {
-
                     addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
                     addPotionStacks(p, PotionEffectType.INVISIBILITY, 1, 50 * getLevel(p), true);
                 }
             } else {
                 if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
                     Material mat = Material.getMaterial(getConfig().consumable);
-                    if (p.getInventory().contains(mat)) {
+                    if (mat != null && p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));
                         addPotionStacks(p, PotionEffectType.INVISIBILITY, getLevel(p), 50, false);
                     } else {
