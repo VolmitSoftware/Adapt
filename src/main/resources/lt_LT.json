@@ -1,0 +1,1032 @@
+{
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "Laikas pajudėti!",
+      "description": "Nueikite daugiau nei 1 kilometrą (1,000 blokų)"
+    },
+    "challenge_sprint_5k": {
+      "title": "Sprintas 5K!",
+      "description": "Nueikite daugiau nei 5 kilometrus (5,000 blocks)"
+    },
+    "challenge_sprint_50k": {
+      "title": "Staigus 50K!",
+      "description": "Nueikite daugiau nei 50 kilometrų (50,000 blokų)"
+    },
+    "challenge_sprint_500k": {
+      "title": "Keliaukite per Visatą!!",
+      "description": "Nueikite daugiau nei 500 kilometrų (500,000 blokų)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "Sprintas ir maratonas viename!",
+      "description": "Sprintas virš 42 195 blokų!"
+    },
+    "challenge_place_1k": {
+      "title": "Naujas Statybininkas!",
+      "description": "Pastatyk 1,000 Blokų"
+    },
+    "challenge_place_5k": {
+      "title": "Tarpinis Statybininkas!",
+      "description": "Pastatyk 5000 Blokų"
+    },
+    "challenge_place_50k": {
+      "title": "Pažangus Statybininkas!",
+      "description": "Pastatyk 50,000 Blokų"
+    },
+    "challenge_place_500k": {
+      "title": "Profesionalus Statybininkas!",
+      "description": "Pastatyk 500,000 Blokų"
+    },
+    "challenge_place_5m": {
+      "title": "Simetrijos Akolitas!",
+      "description": "REALYBĖ YRA JŪSŲ ŽAIDIMŲ AIKŠTELĖ! (5 Milijonai blokų)"
+    },
+    "challenge_chop_1k": {
+      "title": "Naujas Medkirtys!",
+      "description": "Nukirsk 1,000 Blokų"
+    },
+    "challenge_chop_5k": {
+      "title": "Tarpinis Medkirtys!",
+      "description": "Nukirsk 5,000 Blokų"
+    },
+    "challenge_chop_50k": {
+      "title": "Pažengęs Medkirtys!",
+      "description": "Nukirsk 50,000 Blokų"
+    },
+    "challenge_chop_500k": {
+      "title": "Profesionalus Medkirtys!",
+      "description": "Nukirskite 500,000 Blokų"
+    },
+    "challenge_chop_5m": {
+      "title": "Tikras Gateristas",
+      "description": "Kiečiausias Darbininkas! (5 Milijonai Blokų)"
+    },
+    "challenge_block_1k": {
+      "title": "Vos Blokuoja!",
+      "description": "Užblokuok 1000 Smūgių"
+    },
+    "challenge_block_5k": {
+      "title": "Blokuoti yra Smagu!",
+      "description": "Užblokuok 5000 Smūgių"
+    },
+    "challenge_block_50k": {
+      "title": "Blokavimas yra mano gyvenimas!",
+      "description": "Užblokuok 50,000 Smūgių"
+    },
+    "challenge_block_500k": {
+      "title": "Blokavimas yra mano tikslas!",
+      "description": "Užblokuok 500,000 Smūgių"
+    },
+    "challenge_block_5m": {
+      "title": "Ranka, kurią skauda",
+      "description": "Užblokuok 5,000,000 Smūgių"
+    },
+    "challenge_brew_1k": {
+      "title": "Naujas Alchemikas!",
+      "description": "Suvartok 1000 Eleksyrų"
+    },
+    "challenge_brew_5k": {
+      "title": "Tarpinis Alchemikas!",
+      "description": "Suvartok 5000 Eleksyrų"
+    },
+    "challenge_brew_50k": {
+      "title": "Pažengęs Alchemikas!",
+      "description": "Suvartok 50,000 Eleksyrų"
+    },
+    "challenge_brew_500k": {
+      "title": "Profesionalus Alchemikas!",
+      "description": "Suvartok 500,000 Eleksyrų"
+    },
+    "challenge_brew_5m": {
+      "title": "Alchemikas",
+      "description": "Suvartok 5,000,000 Eleksyrų"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "Naujas Eleksyrų mėtytojas",
+      "description": "Sudaužyk 1000 Eleksyrų"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "Tarpinis Eleksyrų mėtytojas!",
+      "description": "Sudaužyk 5000 Eleksyrų"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "Pažengęs Eleksyrų mėtytojas!",
+      "description": "Sudaužyk 50,000 Eleksyrų"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "Profesionalus Eleksyrų mėtytojas!",
+      "description": "Sudaužyk 500,000 Eleksyrų"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "Mėtymo Profesionalas",
+      "description": "Sudaužyk 5,000,000 Eleksyrų"
+    },
+    "challenge_craft_1k": {
+      "title": "Gamintojėlis!",
+      "description": "Pagamink 1000 Daiktų"
+    },
+    "challenge_craft_5k": {
+      "title": "Įspūdingas Meistras!",
+      "description": "Pagamink 5000 Daiktų"
+    },
+    "challenge_craft_50k": {
+      "title": "Nesveikas Gamintojas!",
+      "description": "Pagamink 50,000 Daiktų"
+    },
+    "challenge_craft_500k": {
+      "title": "Kakofoninis Gamintojas!",
+      "description": "Pagamink 500,000 Daiktų"
+    },
+    "challenge_craft_5m": {
+      "title": "Greitarankis",
+      "description": "Pagamink 5,000,000 Daiktų"
+    },
+    "challenge_enchant_1k": {
+      "title": "Naujasis Burtininkas!",
+      "description": "Užburkite 1000 Daiktų"
+    },
+    "challenge_enchant_5k": {
+      "title": "Tarpinis Burtininkas!",
+      "description": "Užburkite 5000 Daiktų"
+    },
+    "challenge_enchant_50k": {
+      "title": "Pažengęs Burtininkas!",
+      "description": "Užburkite 50,000 Daiktų"
+    },
+    "challenge_enchant_500k": {
+      "title": "Profesionalus Burtininkas!",
+      "description": "Užburkite 500,000 Daiktų"
+    },
+    "challenge_enchant_5m": {
+      "title": "Mįslingasis Kerėtojas",
+      "description": "Užburkite 5,000,000 Daiktų"
+    },
+    "challenge_excavate_1k": {
+      "title": "Suviliotas Ekskavatoristas!",
+      "description": "Iškaskite 1000 Blokų"
+    },
+    "challenge_excavate_5k": {
+      "title": "Tarpinis Ekskavatoristas!",
+      "description": "Iškaskite 5000 Blokų"
+    },
+    "challenge_excavate_50k": {
+      "title": "Pažangus Ekskavatoristas!",
+      "description": "Iškaskite 50,000 Blokų"
+    },
+    "challenge_excavate_500k": {
+      "title": "Profesionalus Ekskavatoristas!!",
+      "description": "Iškaskite 500,000 Blokų"
+    },
+    "challenge_excavate_5m": {
+      "title": "Mįslingas Ekskavatoristas",
+      "description": "Iškaskite 5,000,000 Blokų"
+    }
+  },
+  "items": {
+    "boundenderperal": {
+      "name": "Relikvijoriaus Prievado Raktas",
+      "usage1": "Shift + Kairys paspaudimas, kad pririšti",
+      "usage2": "Dešinys paspaudimas, kad pasiektumėte susietą inventorių"
+    },
+    "boundeyeofender": {
+      "name": "Akių Inkaras",
+      "usage1": "Dešinys Paspaudimas, kad vartoti ir teleportuotis į surištą vietą",
+      "usage2": "Shift + Kairys paspaudimas, kad pririšti prie bloko"
+    },
+    "boundredstonetorch": {
+      "name": "Raudonakmenio valdymo pultas",
+      "usage1": "Dešinys Paspaudimas, kad sukurti 1-tick raudonakmenio impulsą",
+      "usage2": "Shift + Kairys paspaudimas ant tikslaus bloko, kad būtų galima susieti"
+    }
+  },
+  "snippets": {
+    "gui": {
+      "level": "Levelis",
+      "knowledge": "Žinių lygis",
+      "powerused": "Galia panaudota",
+      "notlearned": "Neišmokta",
+      "xp": "XP iki",
+      "welcome": "Sveikas!",
+      "welcomeback": "Sveikas sugrįžęs!",
+      "xpbonusfortime": "XP už",
+      "unlockthisbyclicking": "Atrakinkite tai dešiniuoju pelės mygtuku spausdami ant skilų bloko!",
+      "back": "Grįžti",
+      "unlearnall": "Pamiršti viską",
+      "unlearnedall": "Viskas pamiršta"
+    },
+    "adaptmenu": {
+      "maynotunlearn": "JŪS GALBŪT NEGALĖSITE PAMIRŠTI",
+      "mayunlearn": "GALITE IŠMOKTI/PAMIRŠTI",
+      "knowledgecost": "Žynių lygius",
+      "alreadylearned": "Jau išmokta",
+      "unlearnrefund": "Spausk, kad pamirštum & Atlyginti",
+      "norefunds": "HARDCORE, GRĄŽINIMAS IŠJUNGTAS",
+      "knowledge": "žinių lygis",
+      "clicklearn": "Spausk, kad išmoktum",
+      "noknowledge": "(Jūs neturite pakankamai žinių)",
+      "youonlyhave": "Tu turi tik",
+      "howtolevelup": "Pasikelkite įgūdžius, kad padidintumėte maksimalią galią.",
+      "notenoughpower": "Nepakanka galios! Kiekvienas Gebėjimų lygis kainuoja 1 galią.",
+      "power": "galia",
+      "powerdrain": "Galios Eikvavimas",
+      "learned": "Išmokta ",
+      "unlearned": "Pamiršta "
+    },
+    "knowledgeorb": {
+      "contains": "turi",
+      "knowledge": "žinių",
+      "rightclick": "Dešinys-paspaudimas",
+      "togainknowledge": ", kad įgyti šių žinių",
+      "knowledgeorb": "Žinių Rutulys"
+    },
+    "experienceorb": {
+      "contains": "turi",
+      "xp": "XP",
+      "rightclick": "Dešinys-paspaudimas",
+      "togainxp": "įgyti šios patirties",
+      "xporb": "Patirties Rutulys"
+    }
+  },
+  "skill": {
+    "agility": {
+      "name": "Judrumas",
+      "icon": "⇉",
+      "description": "Judrumas – tai gebėjimas greitai ir sklandžiai judėti susidūrus su kliūtimis."
+    },
+    "architect": {
+      "name": "Architektas",
+      "icon": "⬧",
+      "description": "Struktūros yra pasaulio statybiniai blokai. Realybė yra jūsų rankose, jūs turite tai valdyti."
+    },
+    "axes": {
+      "name": "Medkirtystė",
+      "icon": "❖",
+      "description1": "Kam kirsti medžius, kai gali kirsti ",
+      "description2": "dalykus",
+      "description3": "vietoj to vistiek tas pats dalykas!"
+    },
+    "brewing": {
+      "name": "Vyrimas",
+      "icon": "❦",
+      "description": "Dvigubas burbulas, Įrigubas burbulas, Keturgubas burbulas – aš vis tiek dar negaliu įpilti šio gėrimo į katilą"
+    },
+    "blocking": {
+      "name": "Blokavimas",
+      "icon": "▒",
+      "description": "Lazdos ir akmenys tau kaulų nesulaužys, bet skydas sulaužys."
+    },
+    "crafting": {
+      "name": "Gamyba",
+      "icon": "⌂",
+      "description": "Jei nebeliko resursų, kuriuos būtų galima įdėti, kodėl gi nepadarius kitų?"
+    },
+    "discovery": {
+      "name": "Aptikimas",
+      "icon": "⚛",
+      "description": "Kai jūsų suvokimas didėja, jūsų protas išsiskleidžia ir atranda tai, ko nepadarėte"
+    },
+    "enchanting": {
+      "name": "Kerėjimas",
+      "icon": "♰",
+      "description": "Ką tu darai? Pranašystės, regėjimai, prietaringi šlamštai?"
+    },
+    "excavation": {
+      "name": "Kasinėjimas",
+      "icon": "✥",
+      "description": "Kask kask tą šulinį..."
+    },
+    "herbalism": {
+      "name": "Žolininkystė",
+      "icon": "⚘",
+      "description": "Aš nerandu augalų, bet galiu rasti keletą sėklų ir... ar tai... Piktžolė?"
+    },
+    "hunter": {
+      "name": "Medžiotojas",
+      "icon": "☠",
+      "description": "Medžioklė – tai kelionė, o ne rezultatas"
+    },
+    "nether": {
+      "name": "Pragaras",
+      "icon": "₪",
+      "description": "Iš paties pragaro gelmių."
+    },
+    "pickaxe": {
+      "name": "Angliakasys",
+      "icon": "⛏",
+      "description": "Visa kūrinija yra kasykla, o kiekvienas žmogus yra kalnakasys."
+    },
+    "ranged": {
+      "name": "Nuotolis",
+      "icon": "🏹",
+      "description": "Atstumas yra raktas į pergalę ir raktas į išlikimą."
+    },
+    "rift": {
+      "name": "Slėnis",
+      "icon": "❍",
+      "description": "Kelias yra čia, - tyliai pasakė jis. - Bet jūs galite laisvai eiti juo arba pasirinkti kitą kelią."
+    },
+    "seaborne": {
+      "name": "Jūrininkas",
+      "icon": "🌊",
+      "description": "Turėdami šį įgūdį galėsite patirti vandens stebuklus."
+    },
+    "stealth": {
+      "name": "Slaptumas",
+      "icon": "✠",
+      "description": "Nematomo menas. Vaikščiokite šešėlyje."
+    },
+    "swords": {
+      "name": "Ginklai",
+      "icon": "⚔",
+      "description": "Pilko akmens galia!"
+    },
+    "taming": {
+      "name": "Prisijaukinimas",
+      "icon": "♥",
+      "description": "Papūgos ir bitės... ir tu?"
+    },
+    "tragoul": {
+      "name": "Trag'Oul",
+      "icon": "▼",
+      "description": "Kraujas teka visatos gyslomis. Suspaustas tavo rankomis."
+    },
+    "chronos": {
+      "name": "Chronos",
+      "icon": "۞",
+      "description": "Sukite visatos laikrodį, patirkite tėkmę. Sudaužyk laikrodį, tapk juo."
+    },
+    "unarmed": {
+      "name": "Beginklis",
+      "icon": "⚜",
+      "description": "Būti be ginklo nereiškia, kad neturite jėgos."
+    }
+  },
+  "agility": {
+    "armorup": {
+      "name": "Šarvai Aukštyn",
+      "description": "Kuo ilgiau bėgsite, tuo daugiau šarvų!",
+      "lore1": "Max Šarvai",
+      "lore2": "Šarvai Aukštyn laikas"
+    },
+    "superjump": {
+      "name": "Super Šuolis",
+      "description": "Išskirtinis aukščio pranašumas",
+      "lore1": "Maksimalus šuolio aukštis",
+      "lore2": "Sėlinti + Pašokti, kad panaudoti super šuolį!"
+    },
+    "walljump": {
+      "name": "Sienos Šuolis",
+      "description": "Laikykite shift, kol ore nuo sienos iki sienos ir šokinėkite!",
+      "lore1": "Max Šuoliai",
+      "lore2": "Šuolio aukštis"
+    },
+    "windup": {
+      "name": "Greitis",
+      "description": "Kuo ilgiau bėgsit, bėksite greičiau!",
+      "lore1": "Max Greitis",
+      "lore2": "Užbaigimo laikas"
+    }
+  },
+  "architect": {
+    "foundation": {
+      "name": "Magiškas fondas",
+      "description": "Tai leidžia sėlinti ir pasidėti po savimi laikiną pagrindą!",
+      "lore1": "Magiškai sukurti: ",
+      "lore2": "Blokai po tavimi!"
+    },
+    "glass": {
+      "name": "Šilko jutiklinis stiklas",
+      "description": "Tai leidžia iš esmės išvengti stiklo blokelių praradimo, kai juos sulaužysite tuščia ranka!",
+      "lore1": "Jūsų rankos įgauna šilko prisilietimą stiklui"
+    },
+    "wirelessredstone": {
+      "name": "Redstone valdymo pultas",
+      "description": "Tai leidžia naudoti restone deglą, kad perjungtumėte Redstone nuotoliniu būdu!",
+      "lore1": "Taikinys + Redstone Deglas + Enderio Perlas = 1 Redstone valdymo pultas"
+    },
+    "placement": {
+      "name": "Statybininkų lazdelė",
+      "description": "Leidžia dėti kelis blokus vienu metu, kad suaktyvintumėte spauskite shift, ir dėkite tokį patį bloką į kurį žiūrite! Atminkite, kad gali tekti šiek tiek pajudėti, kad suaktyvintumėte langelių apribojimą!",
+      "lore1": "Tau reikia",
+      "lore2": "blokų, kad statyti",
+      "lore3": "Medžiagų statybininkų lazdelę"
+    }
+  },
+  "axe": {
+    "chop": {
+      "name": "Kapotojas",
+      "description": "Nukirskite medžius dešiniuoju pelės mygtuku spausdami ant pagrindinio rąsto!",
+      "lore1": "Blokai per nukirtimą",
+      "lore2": "Kirtimo laiko tarpas",
+      "lore3": "Įrankio susidėvėjimas"
+    },
+    "logswap": {
+      "name": "Liucijos rąstų keitiklis",
+      "description": "Pakeiskite rąstų tipą darbastalyje!",
+      "lore1": "8 betkokio tipo rąstai + 1 sodinukas = 8 sodinuko tipo rąstas"
+    },
+    "droptoinventory": {
+      "name": "Kirvio Trauka"
+    },
+    "groundsmash": {
+      "name": "Žemės Drebėjimas",
+      "description": "Pašokite, tada pritūpkite ir sudaužykite visus netoliese esančius priešus.",
+      "lore1": "Žala",
+      "lore2": "Blokų spindulys",
+      "lore3": "Jėga",
+      "lore4": "Drebėjimo laiko tarpas"
+    },
+    "leafminer": {
+      "name": "Lapų Kirtėjas",
+      "description": "Leidžia vienu metu sudraskyti masinius lapus!",
+      "lore1": "Sėlink, ir kirsk LAPUS",
+      "lore2": "lapų kirtimo spindulys",
+      "lore3": "Negausite dropų nuo lapų (Exploit prevencija)"
+    },
+    "woodminer": {
+      "name": "Medienos Kirtėjas",
+      "description": "Leidžia iš karto nukirsti masinį kiekį medienos!",
+      "lore1": "Sėlink, ir kirsk medieną ( Ne Lentas )",
+      "lore2": "Medinos kirtimo spindulys",
+      "lore3": "Veikia kartu su Kirvio Trauka"
+    }
+  },
+  "brewing": {
+    "lingering": {
+      "name": "Užsitęsęs Vyrimas",
+      "description": "Paruošti eleksyrai išsilaiko ilgiau!",
+      "lore1": "Trukmė",
+      "lore2": "Trukmė"
+    },
+    "superheated": {
+      "name": "Super Įkaitęs Stovas",
+      "description": "Eleksyrų stovai dirba greičiau, kai yra kuo karštesni.",
+      "lore1": "Už Priliestą Ugnies Bloką",
+      "lore2": "Už Priliestą Lavos Bloką"
+    },
+    "darkness": {
+      "name": "Butelių Tamsa",
+      "description": "Nežinome, kodėl jums to reikia, bet štai!",
+      "lore1": "NightVision Eleksyras + Juodas Betonas = Tamsos Eleksyras (30 sekundžių)",
+      "lore2": "Reikėtų pažymėti, kad tai neleidžia žaidėjui bėgti greitai!"
+    },
+    "haste": {
+      "name": "Greitas Kasimas",
+      "description": "Kai efektyvumo nepakanka",
+      "lore1": "Momentinis Gydomasis Eleksyras + Ametisto Šukė = Greito Kasimo Eleksyras (60 sekundžių)",
+      "lore2": "Momentinis Gydymas + Ametisto Šukė = Greito Kasimo Eleksyras-2 (30 sekundžių)"
+    },
+    "absorption": {
+      "name": "Absorbcija",
+      "description": "Grūdinti kūną!",
+      "lore1": "Greičio Eleksyras + Kvarcas = Absorbcijos Eleksyras (60 sekundžių)",
+      "lore2": "Greičio Eleksyras + Kvarco blokas = Absorbcijos Eleksyras-2 (30 sekundžių)"
+    },
+    "fatigue": {
+      "name": "Nuovargis",
+      "description": "Susilpninti kūną!",
+      "lore1": "Silpnumo Eleksyras + Gleivių Kamuolys = Silpnumo Eleksyras (30 sekundžių)",
+      "lore2": "Silpnumo Eleksyras + Gleivių Blokas = Silpnumo Eleksyras-2 (15 sekundžių)"
+    },
+    "hunger": {
+      "name": "Badas",
+      "description": "Maitinkite nepasotinamąjį!",
+      "lore1": "Keistas Eleksyras + Supuvusi Mėsa = Bado Eleksyras (30 sekundžių)",
+      "lore2": "Silpnumo Eleksyras + Supuvusi Mėsa = Bado Eleksyras-3 (15 sekundžių)"
+    },
+    "nausea": {
+      "name": "Pykinimas",
+      "description": "Man nuo tavęs bloga!",
+      "lore1": "Keistas Eleksyras + Rudas Grybas = Pykinimo Eleksyras (16 sekundžių)",
+      "lore2": "KeistasEleksyras + Raudonasis Grybas (Pragaro) = Pykinimo Eleksyras-2 (8 sekundžių)"
+    },
+    "blindness": {
+      "name": "Aklumas",
+      "description": "Tu esi baisus žmogus...",
+      "lore1": "Keistas Eleksyras + Rašalo Maišas = Aklumo Eleksyras (30 sekundžių)",
+      "lore2": "Keistas Eleksyras + Švytintis Rašalo Maišas = Aklumo Eleksyras-2 (15 sekundžių)"
+    },
+    "resistance": {
+      "name": "Atsparumas",
+      "description": "Įtvirtinimai geriausiu būdu!",
+      "lore1": "Keistas Eleksyras + Geležies Liejinys = Atsparumo Eleksyras (60 sekundžių)",
+      "lore2": "Keistas Eleksyras + Geležies Blokas = Atsparumo Eleksyras-2 (30 sekundžių)"
+    },
+    "healthboost": {
+      "name": "Givybė",
+      "description": "Kai maksimalios givybių nepakanka...",
+      "lore1": "Momentinis Gydymas Eleksyras + Auksinis Obuolys = Sveikatos Stiprinimo Eleksyras (120 sekundžių)",
+      "lore2": "Momentinis Gydymas Eleksyras + Užburtas Auksinis Obuolys = Sveikatos Stiprinimo Eleksyras-2 (120 sekundžių)"
+    },
+    "decay": {
+      "name": "Nykimas",
+      "description": "Kas žinojo, kad Detritus bus toks naudingas?",
+      "lore1": "Silpnumo Eleksyras + Nuodinga Bulvė = Nykimo Eleksyras (16 sekundžių)",
+      "lore2": "Silpnumo Eleksyras + Raudonio Šaknys = Nykimo Eleksyras-2 (8 sekundes)"
+    },
+    "saturation": {
+      "name": "Saturacija",
+      "description": "Žinai... aš net ne alkanas...",
+      "lore1": "Regeneracijos Eleksyras + Kepta Bulvė = Saturacijos Eleksyras",
+      "lore2": "Regeneracijos Eleksyras + Šieno Ryšulys = Saturacijos Eleksyras-2"
+    }
+  },
+  "blocking": {
+    "chainarmorer": {
+      "name": "Grandininiai Šarvai",
+      "description": "Leidžia jums gaminti grandininius šarvus.",
+      "lore1": "Gaminimo receptas yra toks pat kaip ir bet kuris kitas, tačiau vietoj jo naudojami geležies grynuoliai"
+    },
+    "horsearmorer": {
+      "name": "Arklių Šarvai",
+      "description": "Leidžia pasigaminti arklių šarvus",
+      "lore1": "Apsupkite balną medžiaga, kurią norite naudoti šarvams gaminti"
+    },
+    "saddlecrafter": {
+      "name": "Balnas",
+      "description": "Pagaminkite balną iš odos",
+      "lore1": "Receptas: 5 Odos:"
+    },
+    "multiarmor": {
+      "name": "Multi-Šarvai",
+      "description": "Pririškite Elytrą prie šarvų",
+      "lore1": "Tai nuostabus įgūdis keliaujant.",
+      "lore2": " dinamiškai sujunkite ir keiskite Šarvus/Elytra skrydžio metu!",
+      "lore3": "norėdami sujungti, spauskite kitą daiktą savo inventoriuje.",
+      "lore4": "kad atrištų Šarvus, Sėlinti-Išmesti daiktą, ir jį išardysit.",
+      "lore5": "Jei jūsų Multi-Šarvai bus sunaikinti, prarasite visus jame esančius daiktus.",
+      "lore6": "Man nereikia šarvų, tai mane nuvilia..."
+    }
+  },
+  "crafting": {
+    "deconstruction": {
+      "name": "Dekonstrukcija",
+      "description": "Išardykite blokus ir daiktus į išgelbėjamus pagrindinius komponentus!",
+      "lore1": "Padėkite bet kokį daiktą + žirklės",
+      "lore2": "kalvystės lentelėje dekonstruoti."
+    },
+    "xp": {
+      "name": "Gamybos XP",
+      "description": "Gamindami gaukite pasyvų XP",
+      "lore1": "Gaukite XP gamindami"
+    },
+    "leather": {
+      "name": "Gaminama Oda",
+      "description": "Oda gaminama iš supuvusios mėsos",
+      "lore1": "Tiesiog išmeskite supuvusią mėsą ant laužo!"
+    },
+    "backpacks": {
+      "name": "Kurpinės",
+      "description": "Tai tiesiog įneša į žaidimą Mojang ryšulį!",
+      "lore1": "Norėdami tai naudoti, turite būti išlikimo režime.",
+      "lore2": "XLX : Oda, Pavadėlis, Oda",
+      "lore3": "XSX : Oda, Statinės Dėžė, Oda",
+      "lore4": "XCX : Oda, Skrynia, Oda"
+    },
+    "stations": {
+      "name": "Nešiojami Stalai!",
+      "description": "Naudokite stalą savo rankoje!",
+      "lore2": "VISI DAIKTAI, KURIUOS PALIKSTE ANT STALO KAI UŽDARYSITE, BUS PRARASTI VISAM!",
+      "lore3": "Galiojantys stalai: Priekalas, Darbastalis, Tekėlas, Kartografijos stalas, Akmens pjaustyklė, Staklės"
+    },
+    "skulls": {
+      "name": "Gaminamos Galvos!",
+      "description": "Naudodami medžiagas galite pagaminto monstrų galvas!",
+      "lore1": "Apsupkite kaulų bloką šiais daiktais, kad gautumėte galva:",
+      "lore2": "Zombio: Supuvusi Mėsa",
+      "lore3": "Skeletono: Kaulas",
+      "lore4": "Pasalūno: Parakas",
+      "lore5": "Viterio: Pragaro Plytos",
+      "lore6": "Drakono: Drakono Dvelksmas"
+    }
+  },
+  "discovery": {
+    "armor": {
+      "name": "Pasaulio Šarvai",
+      "description": "Pasyvūs šarvai, priklausomai nuo šalia esančio bloko kietumo.",
+      "lore1": "Pasyvūs Šarvai",
+      "lore2": "Remiantis šalia esančio bloko kietumu",
+      "lore3": "Šarvų Stiprumas:"
+    },
+    "unity": {
+      "name": "Eksperimentinė Vienybė",
+      "description": "Patirties kamuolių rinkimas prideda XP prie atsitiktinių įgūdžių.",
+      "lore1": "XP ",
+      "lore2": "Per Kamuolį"
+    },
+    "resist": {
+      "name": "Eksperimentinis Atsparumas",
+      "description": "Pasinaudokite patirtimi, kad sumažintumėte žalą, kurią darote iš visų šaltinių",
+      "lore0": "Tai gali įvykti tik kartą per 15 sekundžių",
+      "lore1": " Sumažinta žala",
+      "lore2": "patirtis išsekusi"
+    },
+    "villager": {
+      "name": "Kaimiečių Atrakcija",
+      "description": "Leidžia sudaryti geresnius sandorius su kaimo gyventojais!",
+      "lore1": "Tai sunaudoja XP vienam bendravimui su kaimiečiais",
+      "lore2": "Tikimybė per sąveiką sunaudoti XP ir pagerinti sandorius",
+      "lore3": "reikalingas XP suanudojimas vienai sąveikai"
+    }
+  },
+  "enchanting": {
+    "lapisreturn": {
+      "name": "Lapis Sugrįžimas",
+      "description": "Kaina dar 1 XP lygis, o mainais turite šansą gauti nemokamų lapis",
+      "lore1": "Kiekvienam lygiui tai padidina kerėjimo kainą - 1, bet gali grąžinti daugiau nei 3 lapis"
+    },
+    "quickenchant": {
+      "name": "Staigus Burtas",
+      "description": "Užburkite daiktus dėdami užburtas knygas tiesiai ant jų.",
+      "lore1": "Maksimalus Kombinuotas Lygis",
+      "lore2": "Negalima užburti daikto, kuriame yra daugiau nei ",
+      "lore3": "galia"
+    },
+    "return": {
+      "name": "XP Grąžinimas",
+      "description": "Buriant jums XP grąžinamas, kai užburiate daiktą.",
+      "lore1": "Išleista patirtis turi galimybę būti grąžinta, kai užburiate daiktą",
+      "lore2": "Patirtis per Burtą"
+    }
+  },
+  "excavation": {
+    "haste": {
+      "name": "Skubus Ekskavatoristas",
+      "description": "Tai paspartins kasimo procesą, su GREITU KASIMU!",
+      "lore1": "Gaukite greita kasimą kasant",
+      "lore2": "x Greito kasimo lygiai, kai pradedate kasti bet kokį bloką."
+    },
+    "droptoinventory": {
+      "name": "Kastuvo Trauka"
+    },
+    "omnitool": {
+      "name": "OMNI - Į.R.A.N.K.I.S",
+      "description": "„Tackle“ perdėtas prabangus „Leatherman“.",
+      "lore1": "Turbūt galingiausias iš daugelio leidžia dinamiškai sujungti ir",
+      "lore2": "keisti įrankius skrydžio metu, atsižvelgiant į jūsų poreikius.",
+      "lore3": "norėdami sujungti, spauskite kitą daiktą savo inventoriuje.",
+      "lore4": "Norėdami atrišti įrankius, Sėlinti-Mesti daiktą ir jis bus išardytas.",
+      "lore5": "Jūs negalite sulaužyti įrankių šiame „Leatherman“, bet jūs negalite naudoti sulūžusių įrankių",
+      "lore6": "viso sujungiamų daiktų",
+      "lore7": "galite naudoti penkis ar šešis įrankius arba tik vieną!"
+    }
+  },
+  "herbalism": {
+    "growthaura": {
+      "name": "Augimo Aura",
+      "description": "Auginkite gamtą aplink save auroje",
+      "lore1": "Bloko Spindulys",
+      "lore2": "Augimo Auros Stiprumas",
+      "lore3": "Maisto Kaina"
+    },
+    "hippo": {
+      "name": "Žolininko Begemotas",
+      "description": "Maisto vartojimas suteikia daugiau sotumo",
+      "lore1": "Maistas) papildomi vartojimo prisotinimo taškai"
+    },
+    "myconid": {
+      "name": "Žolininkų Mikonidas",
+      "description": "Suteikia jums galimybę gaminti grybieną",
+      "lore1": "Bet koks žemės blokas ir rudas & raudonas grybas sukurs grybieną."
+    },
+    "terralid": {
+      "name": "Žolininko Žolė",
+      "description": "Suteikia jums galimybę gaminti žolės blokus",
+      "lore1": "Trys sėklos, daugiau nei 3 žemės blokai ir sukurs 3 žolės blokus."
+    },
+    "cobweb": {
+      "name": "Voratinklių Kūrėjas",
+      "description": "Suteikia galimybę kurti voratinklius darbastalyje",
+      "lore1": "Keturi siūlai, sukurs voratinklį."
+    },
+    "mushroomblocks": {
+      "name": "Grybų Gamintojas",
+      "description": "Suteikia jums galimybę gaminti grybų blokus darbastalyje",
+      "lore1": "Keturi grybai, kad padarytumėte bloką, arba blokas, kad padarytumėte stiebą."
+    },
+    "droptoinventory": {
+      "name": "Kauptuko Trauka"
+    },
+    "hungryshield": {
+      "name": "Alkanas Skydas",
+      "description": "Gaukite žalą savo alkiui prieš savo givybes.",
+      "lore1": "Apsaugota nuo Alkio"
+    },
+    "luck": {
+      "name": "Žolininko Sėkmė",
+      "description": "Kai sulaužysite žolę/gėles, turite galimybę gauti atsitiktinį daiktą",
+      "lore0": "Gėlės = Maistas, ir Žolė = Sėklos",
+      "lore1": "Galimybė gauti daiktą griaunant gėles",
+      "lore2": "Galimybė gauti daiktą sugriovus žolę"
+    },
+    "replant": {
+      "name": "Derliaus nuėmimas ir persodinimas",
+      "description": "Dešiniuoju pelės mygtuku spauskite ant pasėlių su kapliu, kad nuimtumėte derlių ir persodintumėte.",
+      "lore1": "Blokų Persodinimo Spindulys"
+    }
+  },
+  "hunter": {
+    "adrenaline": {
+      "name": "Adrenalinas",
+      "description": "Kuo mažiau givybių, tuo daugiau žalos padarysite (Melee)",
+      "lore1": "Maksimali žala"
+    },
+    "penalty": {
+      "name": "",
+      "description": "",
+      "lore1": "Jūs gausite vis daugiau nuodų, jeigu tapsite alkanas"
+    },
+    "droptoinventory": {
+      "name": "Daiktų Trauka",
+      "description": "Kai ką nors užmušate/sulaužote bloką kardu, daiktai atsiras jūsų inventoriūje",
+      "lore1": "Kiekvieną kartą, kai daiktas iškrenta iš monstro/bloko, kuri sugriaunate, patenka į jūsų inventorių, jei įmanoma."
+    },
+    "invisibility": {
+      "name": "Nykstantis Žingsnis",
+      "description": "Kai esi sumuštas, tu įgyji nematomumą, tai išnaudos daug alkio",
+      "lore1": "Smūgio metu įgykite pasyvų nematomumą",
+      "lore2": "x Nematomumas kaupiasi 3 sekundes po smūgio",
+      "lore3": "x Kaupiamas alkis",
+      "lore4": "Badas kaups trukmę ir daugiklį.",
+      "lore5": "Nematomumo trukmė"
+    },
+    "jumpboost": {
+      "name": "Medžiotojo Aukštumos",
+      "description": "Kai tave ištiko išpuolis, tu įgyji šuolio impulsą, tai kainuos alkį",
+      "lore1": "Įgykite pasyvų šuolio padidinimą smūgio metu",
+      "lore2": "x Šuoliavimas kaupiasi 3 sekundes po smūgio",
+      "lore3": "x Kaupiamas alkis",
+      "lore4": "Badas kaups trukmę ir daugiklį.",
+      "lore5": "Šuoliavima kaups daugiklį, o ne trukmę"
+    },
+    "luck": {
+      "name": "Medžiotojo Sėkmė",
+      "description": "Kai tave užklumpa, tu laimi sėkmę, tai kainuos alkį",
+      "lore1": "Pasiekite pasyvią sėkmę, kai nukentėsite",
+      "lore2": "x Sėkmė kaupiasi 3 sekundes po smūgio",
+      "lore3": "x Kaupiamas alkis",
+      "lore4": "Badas kaups trukmę ir daugiklį.",
+      "lore5": "Sėkmė kaups daugiklį, o ne trukmę."
+    },
+    "regen": {
+      "name": "Medžiotojo Regenracija",
+      "description": "Kai esi sumuštas, tu atsiregenruosi, tai kainuos alkį",
+      "lore1": "Įgykite pasyvią regeneraciją, kai įtrenkia",
+      "lore2": "x Regeneracija kaupsis 3 sekundes po smūgio",
+      "lore3": "x Kaupiamas alkis",
+      "lore4": "Badas kaups trukmę ir daugiklį.",
+      "lore5": "Regeneracija kaups daugiklį, ne trukmę."
+    },
+    "resistance": {
+      "name": "Medžiotojo Atsparumas",
+      "description": "Kai tave užklumpa, tu įgyji atsparumą, tai kainuos alkį",
+      "lore1": "Įgykite pasyvų pasipriešinimą, kai įtrenkia",
+      "lore2": "x Atsparumas kaupsis 3 sekundes po smūgio",
+      "lore3": "x Kaupiamas alkis",
+      "lore4": "Badas kaups trukmę ir daugiklį.",
+      "lore5": "Atsparumas kaups daugiklį, o ne trukmę."
+    },
+    "speed": {
+      "name": "Medžiotojo Greitis",
+      "description": "Kai tave užklumpa, tu įgyji greitį, tai kainuos alkį",
+      "lore1": "Smūgio metu padidinkite pasyvų greitį",
+      "lore2": "x Greitis kaupiasi 3 sekundes po smūgio",
+      "lore3": "x Kaupiamas alkis",
+      "lore4": "Badas kaups trukmę ir daugiklį.",
+      "lore5": "Greičio kaups daugiklį, o ne trukmę."
+    },
+    "strength": {
+      "name": "Medžiotojo Galia",
+      "description": "Kai tave muša, tu įgyji jėgų, tai kainuos alkį",
+      "lore1": "Smūgio metu įgykite pasyvios jėgos",
+      "lore2": "x Jėga kaupiasi 3 sekundes po smūgio",
+      "lore3": "x Susikraunantis Alkis",
+      "lore4": "Bado didėjimo trukmė ir daugiklis.",
+      "lore5": "Jėgos krūvos daugiklis, ne trukmė."
+    }
+  },
+  "nether": {
+    "skulltoss": {
+      "name": "Nudžiūvusios Kaukolės Metimas",
+      "description1": "Išlaisvinkite savo vidinį vytumą naudodami",
+      "description2": "kažkieno",
+      "description3": "galvą.",
+      "lore1": "sekundės tarp kaukolės metimų.",
+      "lore2": "Viterio naudojimas: išmeskite ",
+      "lore3": "Viterio Galvą",
+      "lore4": " sprogsta nuo smūgio."
+    },
+    "witherresist": {
+      "name": "Atsparumas Vytimui",
+      "description": "Priešinasi vytimui dėl neterito galios.",
+      "lore1": "galimybė paneigti vytimą (vienam luitui).",
+      "lore2": "Pasyvus: Nederito šarvų dėvėjimas turi galimybę panaikinti ",
+      "lore3": "vytimą."
+    }
+  },
+  "pickaxe": {
+    "autosmelt": {
+      "name": "Automatinis Lydymas",
+      "description": "Leidžia lydyti iškastas rūdas.",
+      "lore1": "Rūdos, kurias galima lydyti, išlydomos automatiškai",
+      "lore2": "% galimybė gauti papildomą"
+    },
+    "chisel": {
+      "name": "Rūdos Kaltas",
+      "description": "Dešiniuoju pelės mygtuku spauskite ant Rūdos, kad iš jų išgautumėte daugiau rūdos už didelę ilgaamžiškumo kainą.",
+      "lore1": "Galimybė numesti",
+      "lore2": "Įrankių susidėvėjimas"
+    },
+    "droptoinventory": {
+      "name": "Kirtiklio Trauka",
+      "description": "Kai nugriausite bloką, daiktas atsiras jūsų inventoriuje",
+      "lore1": "Vietoj to, kad daiktas iškrenta iš bloko, daiktas pateks į jūsų inventorių, jei įmanoma."
+    },
+    "veinminer": {
+      "name": "Veinkasėjas",
+      "description": "Leidžia sugriauti rūdų blokus gysloje/klasteryje",
+      "lore1": "Sėlink, ir kask RŪDAS",
+      "lore2": "vein kasybos diapazonas",
+      "lore3": "Šis įgūdis negrupuoja visų dropų kartu!"
+    }
+  },
+  "ranged": {
+    "arrowrecovery": {
+      "name": "Strėlės Susigrąžinimas",
+      "description": "Atgaukite strėles po to, kai nužudėte priešą.",
+      "lore1": "Galimybė susigrąžinti strėles ant smūgio/nužudymo"
+    },
+    "forceshot": {
+      "name": "Stiprus Šūvis",
+      "description": "Šaudykite kulkas toliau, greičiau!",
+      "advancementname": "Tolimas Šūvis",
+      "advancementlore": "Nušaukite iš daugiau nei 30 blokų!",
+      "lore1": "Kulkos Greitis"
+    },
+    "lungeshot": {
+      "name": "Įtūpstas",
+      "description": "Krintant jūsų strėlės sviedžia jus atsitiktine kryptimi",
+      "lore1": "Atsitiktinis Sprogimo Greitis"
+    },
+    "arrowpiercing": {
+      "name": "Pradūrinčios Strėlės",
+      "description": "Prideda pradūrima prie strėlių! Šaudykite kiaurai per dalykus!",
+      "lore1": "Taikinių Pradūrimas"
+    }
+  },
+  "rift": {
+    "remoteaccess": {
+      "name": "Nuotolinis Prisijungimas",
+      "description": "Ištraukite iš tuštumos ir supilkite į pažymėtą talpyklą.",
+      "lore1": "Enderio Perlas + Komposas = Relikvijoriaus prievado raktas",
+      "lore2": "Šis daiktas leidžia nuotoliniu būdu pasiekti konteinerius",
+      "lore3": "Pagaminę daiktą pažiūrėkite į jį, kad pamatytumėte vartosena",
+      "notcontainer": "Tai ne konteineris"
+    },
+    "blink": {
+      "name": "Slėnio Teleportacija",
+      "description": "Momentinė teleportacija trumpu nuotoliu, vos akimirksniu!",
+      "lore1": "Blokai teleportacijai (2x Vertikaliai)",
+      "lore2": "Sprinto metu: Dukart pašokite, kad ",
+      "lore3": "Teleportuotumėtes"
+    },
+    "chest": {
+      "name": "Lengva Enderio skrynia",
+      "description": "Atidarykite enderio skrynią kairiuoju pelės mygtuku, laikydami jį rankoje.",
+      "lore1": "Spauskite ant Enderio Skrynios rankoje, kad atidarytumėte (dėti nereikia)"
+    },
+    "gate": {
+      "name": "Slėnio Vartai",
+      "description": "Teleportuokites į pažymėtą vietą.",
+      "lore1": "GAMYBA: Smaragdas + Ametisto šukė + Enderio Perlas",
+      "lore2": "Perskaitykite prieš naudodami!",
+      "lore3": "5s uždelsimas, ",
+      "lore4": "galite mirti, kol esate šioje animacijoje"
+    },
+    "resist": {
+      "name": "Slėnio Atsparumas",
+      "description": "Įgykite apsaugą naudodami Enderio daiktus & galimybes",
+      "lore1": "+ Pasyvus: Suteikia apsaugą, kai naudojate Slėnio sugebėjimus arba Enderio daiktus.",
+      "lore2": "Neįeina nešiojamoji Enderio Skrynia, įeina tik tai, ką galite vartoti"
+    }
+  },
+  "seaborn": {
+    "oxygen": {
+      "name": "Organinis Deguonies Bakas",
+      "description": "Sulaikykite daugiau deguonies savo mažuose plaučiuose!",
+      "lore1": " Deguonies"
+    },
+    "fishersfantasy": {
+      "name": "Fišerio Fantazija",
+      "description": "Uždirbkite daugiau XP iš žvejybos ir gaukite daugiau žuvies!",
+      "lore1": "Kiekviename lygyje yra galimybė gauti daugiau XP ir žuvies!"
+    },
+    "haste": {
+      "name": "Vėžlys Šachtininkas",
+      "description": "Kasdami po vandeniu jūs gaunate greitą kasimą!",
+      "lore1": "Greitas Kasimas 3 įgijamas po vandeniu kasant (prisideda kartu ir Naras burtas), kai išnyksta vandens kvėpavimo efektas!"
+    },
+    "nightvision": {
+      "name": "Vėžlio Regėjimas",
+      "description": "Būdami po vandeniu, įgyjate naktinį matymą",
+      "lore1": "Tiesiog gaukite naktinį matymą būdami po vandeniu, kai išnyksta vandens kvėpavimo efektas!"
+    },
+    "dolphingrace": {
+      "name": "Delfinų Malonė",
+      "description": "Plauk kaip delfinas, be delfinų",
+      "lore1": "+ Pasyvus: gauk ",
+      "lore2": "x greitį (delfinų mlonė)",
+      "lore3": "tiksli vokiečių inžinerija– palaukite, tai negerai... Nesuderinama su Gilumų plaukimu"
+    }
+  },
+  "stealth": {
+    "ghostarmor": {
+      "name": "Vaiduoklio Šarvai",
+      "description": "Lėtai generuojami šarvai, kai negaunama žalos, veikia tik 1 smūgiui",
+      "lore1": "Max Šarvai",
+      "lore2": "Greitis"
+    },
+    "nightvision": {
+      "name": "Slaptas Regėjimas",
+      "description": "Įgykite naktinį matymą sėlinant",
+      "lore1": "Gauk ",
+      "lore2": "naktinį matymą ",
+      "lore3": "sėlinant"
+    },
+    "snatch": {
+      "name": "Daiktų Pačiupimas",
+      "description": "Pačiupkite numestus daiktus akimirksniu sėlinant!!",
+      "lore1": "Pačiupimo Spindulys"
+    },
+    "speed": {
+      "name": "Sėlinimo Greitis",
+      "description": "Įgykite greitį sėlinant",
+      "lore1": " Sėlinimo Greitis"
+    }
+  },
+  "sword": {
+    "machete": {
+      "name": "Mačetė",
+      "description": "Lengvai nupjaukite lapiją!",
+      "lore1": "Smūgio Spindulys",
+      "lore2": "Pjovimo veikimo laiko tarpas",
+      "lore3": "Įrankių Susidėvėjimas"
+    },
+    "bloodyblade": {
+      "name": "Kruvini Ašmenys",
+      "description": "Smūgiuojant kardu, sukelia kraujavimą",
+      "lore1": "Smūgis į Gyvą būtybę savo kardu sukelia kraujavimą",
+      "lore2": "Kraujavimo trukmė",
+      "lore3": "Kraujavimo veikimo laiko tarpas"
+    },
+    "poisonedblade": {
+      "name": "Apnuodyti Ašmenys",
+      "description": "Smūgiuojant kardu, sukelia nuodus!",
+      "lore1": "Smogdamas gyvai būtybei savo kardu būtybė apnuodyjama",
+      "lore2": "Nuodų trukmė",
+      "lore3": "Nuodų veikimo laiko tarpas"
+    }
+  },
+  "taming": {
+    "damage": {
+      "name": "Prijaukinimo Žala",
+      "description": "Padidinkite savo prijaukintam gyvūnui daromą žalą..",
+      "lore1": "Padidėjusi Žala"
+    },
+    "health": {
+      "name": "Prijaukinimo Sveikata",
+      "description": "Pagerinkite savo prijaukintų gyvūnų sveikatą.",
+      "lore1": "Padidėjęs givybių skaičius"
+    },
+    "regeneration": {
+      "name": "Prijaukinimo Regeneracija",
+      "description": "Padidinkite savo prijaukinto gyvūno regeneraciją.",
+      "lore1": "HP/s"
+    }
+  },
+  "tragoul": {
+    "thorns": {
+      "name": "Spygliai",
+      "description": "Atmuškite žalą savo užpuolikui!",
+      "lore1": "Atkeršyja atgal, kai užpuola"
+    }
+  },
+  "unarmed": {
+    "glasscannon": {
+      "name": "Stiklo Patranka",
+      "description": "Bonusas už beginklę žalą, tuo mažesnė jūsų šarvų vertė",
+      "lore1": "x Žala prie 0 šarvų",
+      "lore2": "Pagal lygį bonus žala"
+    },
+    "power": {
+      "name": "Beginklė Galia",
+      "description": "Patobulinta beginklė žala.",
+      "lore1": " Žala"
+    },
+    "suckerpunch": {
+      "name": "Atžalos Smūgis",
+      "description": "Sprinto smūgiai, bet mirtingesni.",
+      "lore1": "Žala",
+      "lore2": "Žala didėja didėjant greičiui smūgiuojant"
+    }
+  }
+}
