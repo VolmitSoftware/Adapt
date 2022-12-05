@@ -58,6 +58,7 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e) {
+
         if (e.isCancelled()) {
             return;
         }
@@ -74,7 +75,7 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
             } else {
                 if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
                     Material mat = Material.getMaterial(getConfig().consumable);
-                    if (p.getInventory().contains(mat)) {
+                    if (mat != null &&p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));
                         addPotionStacks(p, PotionEffectType.DAMAGE_RESISTANCE, getLevel(p), 50, false);
                     } else {

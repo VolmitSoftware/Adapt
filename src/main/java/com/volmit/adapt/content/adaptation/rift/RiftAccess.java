@@ -28,6 +28,7 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -145,13 +146,13 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
             return;
         }
         loadChunkAsync(b.getLocation(), chunk -> {
-            if (AdvancedChestsAPI.getChestManager().getAdvancedChest(b.getLocation()) != null) {
+            if (Bukkit.getPluginManager().isPluginEnabled("AdvancedChests") &&
+                    AdvancedChestsAPI.getChestManager().getAdvancedChest(b.getLocation()) != null) {
                 AdvancedChestsAPI.getChestManager().getAdvancedChest(b.getLocation()).openPage(p, 1);
+                Adapt.verbose("Opening AdvancedChests GUI");
                 p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
                 p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
-                return;
-            }
-            if (b.getState() instanceof InventoryHolder holder) {
+            } else if (b.getState() instanceof InventoryHolder holder) {
                 activeViews.add(p.openInventory(holder.getInventory()));
                 p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
                 p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);

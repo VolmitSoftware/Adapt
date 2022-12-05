@@ -73,7 +73,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
             } else {
                 if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
                     Material mat = Material.getMaterial(getConfig().consumable);
-                    if (p.getInventory().contains(mat)) {
+                    if (mat != null &&p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));
                         addPotionStacks(p, PotionEffectType.SPEED, getLevel(p), 50, false);
                     } else {
