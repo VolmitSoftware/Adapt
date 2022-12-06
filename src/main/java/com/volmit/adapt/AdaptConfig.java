@@ -38,6 +38,7 @@ public class AdaptConfig {
     private static AdaptConfig config = null;
     public boolean debug = false;
     public boolean autoUpdateCheck = true;
+    public boolean autoUpdateLanguage = true;
     public boolean splashScreen = true;
     public boolean xpInCreative = false;
     public boolean allowAdaptationsInCreative = false;
@@ -65,6 +66,7 @@ public class AdaptConfig {
     private boolean actionbarNotifyXp = true;
     private boolean actionbarNotifyLevel = true;
     private boolean unlearnAllButton = false;
+    private boolean potionStackingPreventionInAllSKills = false;
     private SqlSettings sql = new SqlSettings();
 
     @Setter
