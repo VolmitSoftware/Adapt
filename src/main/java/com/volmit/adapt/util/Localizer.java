@@ -35,26 +35,32 @@ public class Localizer {
 
     @SneakyThrows
     public static void updateLanguageFile() {
-        Adapt.verbose("Attempting to update Language File");
-        File langFolder = new File(Adapt.instance.getDataFolder() + "/languages");
-        if (!langFolder.exists()) {
-            langFolder.mkdir();
-        }
+        if (AdaptConfig.get().isAutoUpdateLanguage()) {
 
-        File langFile = new File(langFolder, AdaptConfig.get().getLanguage() + ".json");
-        Adapt.verbose("Updating Primary Language File: " + AdaptConfig.get().getLanguage());
-        InputStream in = Adapt.instance.getResource(AdaptConfig.get().getLanguage() + ".json");
-        Files.deleteIfExists(langFile.toPath());
-        Files.copy(in, langFile.toPath());
-        Adapt.verbose("Loaded Primary Language: " + AdaptConfig.get().getLanguage());
+            Adapt.verbose("Attempting to update Language File");
+            File langFolder = new File(Adapt.instance.getDataFolder() + "/languages");
+            if (!langFolder.exists()) {
+                langFolder.mkdir();
+            }
 
-        if (!Objects.equals(AdaptConfig.get().getLanguage(), AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing())) {
-            Adapt.verbose("Updating Fallback Language File: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
-            File langFileFallback = new File(langFolder, AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
-            InputStream inFB = Adapt.instance.getResource(AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
-            Files.deleteIfExists(langFileFallback.toPath());
-            Files.copy(inFB, langFileFallback.toPath());
-            Adapt.verbose("Loaded Fallback: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
+            File langFile = new File(langFolder, AdaptConfig.get().getLanguage() + ".json");
+            Adapt.verbose("Updating Primary Language File: " + AdaptConfig.get().getLanguage());
+            InputStream in = Adapt.instance.getResource(AdaptConfig.get().getLanguage() + ".json");
+            Files.deleteIfExists(langFile.toPath());
+            Files.copy(in, langFile.toPath());
+            Adapt.verbose("Loaded Primary Language: " + AdaptConfig.get().getLanguage());
+
+            if (!Objects.equals(AdaptConfig.get().getLanguage(), AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing())) {
+                Adapt.verbose("Updating Fallback Language File: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
+                File langFileFallback = new File(langFolder, AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
+                InputStream inFB = Adapt.instance.getResource(AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
+                Files.deleteIfExists(langFileFallback.toPath());
+                Files.copy(inFB, langFileFallback.toPath());
+                Adapt.verbose("Loaded Fallback: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
+            }
+        } else {
+            Adapt.error("Auto Update Language is disabled, Expect Errors.");
+            Adapt.error("Do not disable this unless you know what you are doing, and dont expect support.");
         }
     }
 
