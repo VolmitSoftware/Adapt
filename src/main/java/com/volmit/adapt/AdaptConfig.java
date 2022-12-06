@@ -66,6 +66,7 @@ public class AdaptConfig {
     private boolean actionbarNotifyXp = true;
     private boolean actionbarNotifyLevel = true;
     private boolean unlearnAllButton = false;
+    private boolean potionStackingPreventionInAllSKills = false;
     private SqlSettings sql = new SqlSettings();
 
     @Setter

@@ -185,17 +185,19 @@ public interface Component {
         if (activeList.size() > 0) {
             for (PotionEffectType type : activeList) {
                 if (type.equals(potionEffect)) {
-                    if (overlap) {
-                        p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
+                    if (!AdaptConfig.get().isPotionStackingPreventionInAllSKills()) {
+                        if (overlap) {
+                            p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
+                            int newAmplifier = Objects.requireNonNull(p.getPotionEffect(type)).getAmplifier();
+                            int newDuration = Objects.requireNonNull(p.getPotionEffect(type)).getDuration();
+                            p.removePotionEffect(type);
+                            p.addPotionEffect(new PotionEffect(potionEffect, newDuration + duration, newAmplifier + amplifier, false, false));
+                        }
                         int newAmplifier = Objects.requireNonNull(p.getPotionEffect(type)).getAmplifier();
                         int newDuration = Objects.requireNonNull(p.getPotionEffect(type)).getDuration();
                         p.removePotionEffect(type);
-                        p.addPotionEffect(new PotionEffect(potionEffect, newDuration + duration, newAmplifier + amplifier, false, false));
+                        p.addPotionEffect(new PotionEffect(potionEffect, newDuration, newAmplifier + 1, false, false));
                     }
-                    int newAmplifier = Objects.requireNonNull(p.getPotionEffect(type)).getAmplifier();
-                    int newDuration = Objects.requireNonNull(p.getPotionEffect(type)).getDuration();
-                    p.removePotionEffect(type);
-                    p.addPotionEffect(new PotionEffect(potionEffect, newDuration, newAmplifier + 1, false, false));
                 }
             }
 
