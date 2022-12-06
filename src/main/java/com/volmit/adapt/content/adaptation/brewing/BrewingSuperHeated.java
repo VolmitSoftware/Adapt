@@ -34,15 +34,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 
 
 public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Config> {
-    private final Set<Block> activeStands = new HashSet<>();
+
+    private static final int MAX_CHECKS_BEFORE_REMOVE = 20;
+    private final Map<Block, Integer> activeStands = new HashMap<>();
 
     public BrewingSuperHeated() {
         super("brewing-super-heated");
@@ -72,13 +75,25 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(InventoryMoveItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        J.s(() -> {
+            if (e.getDestination().getType().equals(InventoryType.BREWING)) {
+                activeStands.put(e.getDestination().getLocation().getBlock(), MAX_CHECKS_BEFORE_REMOVE);
+            }
+        });
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BrewEvent e) {
         if (e.isCancelled()) {
             return;
         }
         J.s(() -> {
             if (((BrewingStand) e.getBlock().getState()).getBrewingTime() > 0) {
-                activeStands.add(e.getBlock());
+                activeStands.put(e.getBlock(), MAX_CHECKS_BEFORE_REMOVE);
             }
         });
     }
@@ -89,7 +104,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
             return;
         }
         if (e.getView().getTopInventory().getType().equals(InventoryType.BREWING)) {
-            activeStands.add(e.getView().getTopInventory().getLocation().getBlock());
+            activeStands.put(e.getView().getTopInventory().getLocation().getBlock(), MAX_CHECKS_BEFORE_REMOVE);
         }
     }
 
@@ -100,7 +115,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
             return;
         }
 
-        Iterator<Block> it = activeStands.iterator();
+        Iterator<Block> it = activeStands.keySet().iterator();
 
         J.s(() -> {
             while (it.hasNext()) {
@@ -110,9 +125,13 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
                     if (b.getBrewingTime() <= 0) {
                         J.s(() -> {
                             BrewingStand bb = (BrewingStand) s.getBlock().getState();
-
                             if (bb.getBrewingTime() <= 0) {
-                                activeStands.remove(b.getBlock());
+                                if (activeStands.get(b.getBlock()) == 0) {
+                                    activeStands.remove(b.getBlock());
+                                }
+                                if(activeStands.containsKey(b.getBlock())) {
+                                    activeStands.put(b.getBlock(), activeStands.get(b.getBlock()) - 1);
+                                }
                             }
                         });
                         continue;
