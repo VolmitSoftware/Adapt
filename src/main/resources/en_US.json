@@ -259,7 +259,7 @@
     },
     "axes": {
       "name": "Axes",
-      "icon": "❖",
+      "icon": "\uD83E\uDE93",
       "description1": "Why chop down trees, when you could chop ",
       "description2": "things",
       "description3": "instead, same end result!"
@@ -271,7 +271,7 @@
     },
     "blocking": {
       "name": "Blocking",
-      "icon": "▒",
+      "icon": "\uD83D\uDEE1",
       "description": "Sticks and stones Won't break your bones, But a shield will."
     },
     "crafting": {
@@ -291,7 +291,7 @@
     },
     "excavation": {
       "name": "Excavation",
-      "icon": "✥",
+      "icon": "ᛳ",
       "description": "Diggey Diggey hole..."
     },
     "herbalism": {
@@ -326,12 +326,12 @@
     },
     "seaborne": {
       "name": "Seaborne",
-      "icon": "🌊",
+      "icon": "\uD83C\uDFA3",
       "description": "With this skill, you may will the wonders of the water"
     },
     "stealth": {
       "name": "Stealth",
-      "icon": "✠",
+      "icon": "☯",
       "description": "The art of the unseen. Walk in the shadows."
     },
     "swords": {
@@ -346,17 +346,17 @@
     },
     "tragoul": {
       "name": "TragOul",
-      "icon": "▼",
+      "icon": "\uD83D\uDDE1",
       "description": "Blood flows through the veins of the universe. Constricted by your hands."
     },
     "chronos": {
       "name": "Chronos",
-      "icon": "۞",
+      "icon": "⏳",
       "description": "Wind the Clock of the universe, experience the flow. Break the clock, Become it."
     },
     "unarmed": {
       "name": "Unarmed",
-      "icon": "⚜",
+      "icon": "»",
       "description": "Without a weapon is not without strength"
     }
   },
