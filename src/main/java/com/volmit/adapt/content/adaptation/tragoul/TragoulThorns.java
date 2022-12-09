@@ -110,7 +110,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         int baseCost = 5;
         int maxLevel = 5;
         int initialCost = 5;
-        double damageMultiplierPerLevel = 1.0;
+        int damageMultiplierPerLevel = 1;
         double costFactor = 1.10;
     }
 }
