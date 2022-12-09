@@ -23,7 +23,7 @@ import com.volmit.adapt.util.advancements.advancement.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.network.protocol.game.PacketPlayOutAdvancements;
 import net.minecraft.resources.MinecraftKey;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.*;

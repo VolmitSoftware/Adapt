@@ -23,11 +23,11 @@ plugins {
     id "de.undercouch.download" version "5.0.1"
 }
 
-version '1.4.20-1.19.2'
-def nmsVersion = "1.19.2" //[NMS]
+version '1.4.21-1.19.3'
+def nmsVersion = "1.19.3" //[NMS]
 def apiVersion = '1.19'
 def specialSourceVersion = '1.11.0' //[NMS]
-def spigotJarVersion = '1.19.2-R0.1-SNAPSHOT' //[NMS]
+def spigotJarVersion = '1.19.3-R0.1-SNAPSHOT' //[NMS]
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
 
@@ -70,6 +70,13 @@ repositories {
             includeGroup("org.spigotmc")
         }
     }
+//    maven {
+//        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+//        content {
+//            includeGroup 'org.bukkit'
+//            includeGroup 'org.spigotmc'
+//        }
+//    }
     maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
     maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
     mavenCentral()
@@ -120,8 +127,8 @@ dependencies {
     // Provided or Classpath
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    implementation 'org.spigotmc:spigot-api:1.19.2-R0.1-SNAPSHOT' //[NMS]
-    implementation 'org.bukkit:craftbukkit:1.19.2-R0.1-SNAPSHOT' //[NMS]
+    implementation 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT' //[NMS]
+    implementation 'org.bukkit:craftbukkit:1.19.3-R0.1-SNAPSHOT' //[NMS]
 
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
