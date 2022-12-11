@@ -16,38 +16,26 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands;
+package com.volmit.adapt.commands.reload;
 
-import com.volmit.adapt.commands.boost.CommandBoost;
-import com.volmit.adapt.commands.item.CommandItem;
-import com.volmit.adapt.commands.openGui.CommandOpen;
-import com.volmit.adapt.commands.reload.CommandReload;
-import com.volmit.adapt.commands.test.CommandTest;
-import com.volmit.adapt.commands.test.CommandVerbose;
+import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
+import com.volmit.adapt.api.skill.SkillRegistry;
+import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
+import org.bukkit.ChatColor;
 
 import java.util.List;
 
-public class CommandAdapt extends MortarCommand {
-    private static final List<String> permission = List.of("adapt.main");
-    @Command
-    private final CommandBoost boost = new CommandBoost();
-    @Command
-    private final CommandOpen openGui = new CommandOpen();
-    @Command
-    private final CommandItem item = new CommandItem();
-    @Command
-    private final CommandTest test = new CommandTest();
-    @Command
-    private final CommandVerbose verbose = new CommandVerbose();
-    @Command
-    private final CommandReload reload = new CommandReload();
+public class CommandReload extends MortarCommand {
+    private static final List<String> permission = List.of("adapt.reload");
 
-    public CommandAdapt() {
-        super("adapt", "ada", "a");
-        this.setDescription("This is the main command for Adapt");
+
+    public CommandReload() {
+        super("reload", "r");
+        this.setDescription("This command is used to realod adapt's configuration (adapt.reload)");
     }
 
     @Override
@@ -57,7 +45,17 @@ public class CommandAdapt extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        printHelp(sender);
+        AdaptServer server = Adapt.instance.getAdaptServer();
+        SkillRegistry registry = server.getSkillRegistry();
+
+        AdaptConfig.load();
+        if(registry.reloadConfigs()){
+            sender.sendMessage(ChatColor.GREEN + "Adapt configurations were successfully reloaded.");
+        } else {
+            sender.sendMessage(ChatColor.RED + "Failed to reload adapt's configurations.");
+            Adapt.verbose("Failed to reload adapt's configurations");
+        }
+
         return true;
     }
 
