@@ -139,9 +139,9 @@ public class MaterialValue {
 
     private static double getValue(Material m, Set<MaterialRecipe> ignore) {
         if (get().value.containsKey(m)) {
-            if (m.getHardness() == 0) {
-                return 0;
-            }
+             if (m.isBlock() && m.getHardness() == 0) {
+                 return 0;
+             }
             return get().value.get(m);
         }
         double v = AdaptConfig.get().getValue().getBaseValue();
