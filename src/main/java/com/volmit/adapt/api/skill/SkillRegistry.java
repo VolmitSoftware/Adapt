@@ -144,27 +144,6 @@ public class SkillRegistry extends TickedObject {
         return skills.v();
     }
 
-    public boolean reloadConfigs() {
-        boolean success = true;
-        for (Skill<?> skill : skills.values()) {
-            try {
-                skill.loadConfig();
-            } catch (Throwable throwable) {
-                success = false;
-                Adapt.verbose("Failed to load config for " + skill.getName());
-            }
-            for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                try {
-                    adaptation.loadConfig();
-                } catch (Throwable throwable) {
-                    success = false;
-                    Adapt.verbose("Failed to load config for " + adaptation.getName());
-                }
-            }
-        }
-        return success;
-    }
-
     private void registerSkills() {
         registerSkill(SkillAgility.class);
         registerSkill(SkillArchitect.class);

@@ -45,16 +45,9 @@ public class CommandReload extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        AdaptServer server = Adapt.instance.getAdaptServer();
-        SkillRegistry registry = server.getSkillRegistry();
 
         AdaptConfig.load();
-        if(registry.reloadConfigs()){
-            sender.sendMessage(ChatColor.GREEN + "Adapt configurations were successfully reloaded.");
-        } else {
-            sender.sendMessage(ChatColor.RED + "Failed to reload adapt's configurations.");
-            Adapt.verbose("Failed to reload adapt's configurations");
-        }
+        sender.sendMessage(ChatColor.GREEN + "Adapt configurations were successfully reloaded.");
 
         return true;
     }
