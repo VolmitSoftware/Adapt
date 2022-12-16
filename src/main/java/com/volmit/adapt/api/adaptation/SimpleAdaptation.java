@@ -104,33 +104,31 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     }
 
     @Override
-    public void loadConfig() throws Throwable {
-        T dummy = getConfigurationClass().getConstructor().newInstance();
-        File l = Adapt.instance.getDataFile("adapt", "adaptations", getName() + ".json");
-
-        if (!l.exists()) {
-            try {
-                IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
-            } catch (IOException e) {
-                e.printStackTrace();
-                config = dummy;
-            }
-        }
-
-        try {
-            config = new Gson().fromJson(IO.readAll(l), getConfigurationClass());
-            IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
-        } catch (IOException e) {
-            e.printStackTrace();
-            config = dummy;
-        }
-    }
-
-    @Override
     public T getConfig() {
         try {
-            if (config == null)
-                loadConfig();
+            if (config == null) {
+                T dummy = getConfigurationClass().getConstructor().newInstance();
+                File l = Adapt.instance.getDataFile("adapt", "adaptations", getName() + ".json");
+
+                if (!l.exists()) {
+                    try {
+                        IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        config = dummy;
+                        return config;
+                    }
+                }
+
+                try {
+                    config = new Gson().fromJson(IO.readAll(l), getConfigurationClass());
+                    IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    config = dummy;
+                    return config;
+                }
+            }
         } catch (Throwable e) {
             Adapt.verbose("Failed to load config for " + getName());
         }
