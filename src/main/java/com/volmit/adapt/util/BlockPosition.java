@@ -18,9 +18,11 @@
 
 package com.volmit.adapt.util;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@ToString
 public class BlockPosition {
     private int x;
     private int y;
