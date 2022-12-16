@@ -72,30 +72,32 @@ public class AdaptConfig {
     @Setter
     private boolean verbose = false;
 
-    public static AdaptConfig get() {
-        if (config == null) {
-            AdaptConfig dummy = new AdaptConfig();
-            File l = Adapt.instance.getDataFile("adapt", "adapt.json");
+    public static void load() {
+        AdaptConfig dummy = new AdaptConfig();
+        File l = Adapt.instance.getDataFile("adapt", "adapt.json");
 
 
-            if (!l.exists()) {
-                try {
-                    IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    config = dummy;
-                    return dummy;
-                }
-            }
-
+        if (!l.exists()) {
             try {
-                config = new Gson().fromJson(IO.readAll(l), AdaptConfig.class);
-                IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
+                IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
             } catch (IOException e) {
                 e.printStackTrace();
-                config = new AdaptConfig();
+                config = dummy;
             }
         }
+
+        try {
+            config = new Gson().fromJson(IO.readAll(l), AdaptConfig.class);
+            IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
+        } catch (IOException e) {
+            e.printStackTrace();
+            config = new AdaptConfig();
+        }
+    }
+
+    public static AdaptConfig get() {
+        if (config == null)
+            load();
 
         return config;
     }

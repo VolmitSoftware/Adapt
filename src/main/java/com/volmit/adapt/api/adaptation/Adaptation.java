@@ -139,6 +139,8 @@ public interface Adaptation<T> extends Ticked, Component {
 
     boolean isPermanent();
 
+    void loadConfig() throws Throwable;
+
     T getConfig();
 
     AdaptAdvancement buildAdvancements();

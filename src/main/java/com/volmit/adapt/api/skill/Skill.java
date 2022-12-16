@@ -47,6 +47,8 @@ public interface Skill<T> extends Ticked, Component {
 
     boolean isEnabled();
 
+    void loadConfig() throws Throwable;
+
     T getConfig();
 
     String getName();

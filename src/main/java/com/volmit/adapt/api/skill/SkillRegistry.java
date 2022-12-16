@@ -18,7 +18,9 @@
 
 package com.volmit.adapt.api.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
+import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.potion.BrewingManager;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
@@ -56,29 +58,9 @@ public class SkillRegistry extends TickedObject {
 
     public SkillRegistry() throws IOException {
         super("registry", UUID.randomUUID() + "-sk", 1250);
-        registerSkill(SkillAgility.class);
-        registerSkill(SkillArchitect.class);
-        registerSkill(SkillAxes.class);
-        registerSkill(SkillBlocking.class);
-        registerSkill(SkillChronos.class);
-        registerSkill(SkillCrafting.class);
-        registerSkill(SkillDiscovery.class);
-        registerSkill(SkillEnchanting.class);
-        registerSkill(SkillHerbalism.class);
-        registerSkill(SkillHunter.class);
-        registerSkill(SkillPickaxes.class);
-        registerSkill(SkillRanged.class);
-        registerSkill(SkillRift.class);
-        registerSkill(SkillSeaborne.class);
-        registerSkill(SkillStealth.class);
-        registerSkill(SkillSwords.class);
-        registerSkill(SkillTaming.class);
-        registerSkill(SkillTragOul.class);
-        registerSkill(SkillUnarmed.class);
-        registerSkill(SkillExcavation.class);
-        registerSkill(SkillBrewing.class);
-        registerSkill(SkillNether.class);
+        registerSkills();
     }
+
 
     @EventHandler
     public void on(PlayerExpChangeEvent e) {
@@ -160,6 +142,52 @@ public class SkillRegistry extends TickedObject {
 
     public List<Skill<?>> getSkills() {
         return skills.v();
+    }
+
+    public boolean reloadConfigs() {
+        boolean success = true;
+        for (Skill<?> skill : skills.values()) {
+            try {
+                skill.loadConfig();
+            } catch (Throwable throwable) {
+                success = false;
+                Adapt.verbose("Failed to load config for " + skill.getName());
+            }
+            for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                try {
+                    adaptation.loadConfig();
+                } catch (Throwable throwable) {
+                    success = false;
+                    Adapt.verbose("Failed to load config for " + adaptation.getName());
+                }
+            }
+        }
+        return success;
+    }
+
+    private void registerSkills() {
+        registerSkill(SkillAgility.class);
+        registerSkill(SkillArchitect.class);
+        registerSkill(SkillAxes.class);
+        registerSkill(SkillBlocking.class);
+        registerSkill(SkillChronos.class);
+        registerSkill(SkillCrafting.class);
+        registerSkill(SkillDiscovery.class);
+        registerSkill(SkillEnchanting.class);
+        registerSkill(SkillHerbalism.class);
+        registerSkill(SkillHunter.class);
+        registerSkill(SkillPickaxes.class);
+        registerSkill(SkillRanged.class);
+        registerSkill(SkillRift.class);
+        registerSkill(SkillSeaborne.class);
+        registerSkill(SkillStealth.class);
+        registerSkill(SkillSwords.class);
+        registerSkill(SkillTaming.class);
+        registerSkill(SkillTragOul.class);
+        registerSkill(SkillUnarmed.class);
+        registerSkill(SkillExcavation.class);
+        registerSkill(SkillBrewing.class);
+        registerSkill(SkillNether.class);
     }
 
     public void registerSkill(Class<? extends Skill<?>> skill) {
