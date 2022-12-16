@@ -129,7 +129,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
                                 if (activeStands.get(b.getBlock()) == 0) {
                                     activeStands.remove(b.getBlock());
                                 }
-                                if(activeStands.containsKey(b.getBlock())) {
+                                if (activeStands.containsKey(b.getBlock())) {
                                     activeStands.put(b.getBlock(), activeStands.get(b.getBlock()) - 1);
                                 }
                             }
