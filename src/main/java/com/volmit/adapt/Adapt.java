@@ -99,8 +99,7 @@ public class Adapt extends VolmitPlugin {
                     if (instance.getDescription().getVersion().contains("development")) {
                         info("Development build detected. Skipping update check.");
                         return;
-                    }
-                    else if (!version.equals(instance.getDescription().getVersion())) {
+                    } else if (!version.equals(instance.getDescription().getVersion())) {
                         info("Please update your Adapt plugin to the latest version! (Current: " + instance.getDescription().getVersion() + " Latest: " + version + ")");
                     } else {
                         info("You are running the latest version of Adapt!");

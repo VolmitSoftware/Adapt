@@ -241,10 +241,13 @@ public class AdaptPlayer extends TickedObject {
 
     public boolean hasAdaptation(String id) {
         String skillLine = id.split("-")[0];
+        Adapt.verbose("Checking for adaptation " + id + " in skill line " + skillLine);
         if (skillLine == null)
             return false;
         PlayerSkillLine line = getData().getSkillLine(skillLine);
+        Adapt.verbose("Found skill line " + line);
         if (line.getAdaptation(id) == null || line.getAdaptation(id).getLevel() == 0) {
+            Adapt.verbose("Adaptation " + id + " not found or level 0");
             return false;
         }
         return line.getAdaptation(id).getLevel() > 0;

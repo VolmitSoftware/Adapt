@@ -23,13 +23,14 @@ plugins {
     id "de.undercouch.download" version "5.0.1"
 }
 
-version '1.4.21-1.19.3'
+version '1.4.23-1.19.3'
 def nmsVersion = "1.19.3" //[NMS]
 def apiVersion = '1.19'
 def specialSourceVersion = '1.11.0' //[NMS]
 def spigotJarVersion = '1.19.3-R0.1-SNAPSHOT' //[NMS]
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
+def manifoldVersion = '2022.1.21'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
@@ -122,7 +123,6 @@ configurations.all {
     resolutionStrategy.cacheDynamicVersionsFor 60, 'minutes'
 }
 
-
 dependencies {
     // Provided or Classpath
     compileOnly 'org.projectlombok:lombok:1.18.24'
@@ -133,9 +133,9 @@ dependencies {
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
     implementation 'art.arcane:Fukkit:22.7.5'
-    annotationProcessor 'systems.manifold:manifold-ext:2022.1.21'
-    testAnnotationProcessor 'systems.manifold:manifold-ext:2022.1.21'
-    implementation 'systems.manifold:manifold-rt:2022.1.21'
+    annotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
+    testAnnotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
+    implementation 'systems.manifold:manifold-rt:' + manifoldVersion
     implementation "io.papermc:paperlib:1.0.7"
 
     //Random Api's
@@ -150,15 +150,15 @@ dependencies {
 
     // Shaded
     implementation 'io.papermc:paperlib:1.0.5'
-    implementation "net.kyori:adventure-text-minimessage:4.11.0"
+    implementation 'net.kyori:adventure-text-minimessage:4.12.0'
     implementation 'net.kyori:adventure-platform-bukkit:4.1.2'
-    implementation 'net.kyori:adventure-api:4.11.0'
+    implementation 'net.kyori:adventure-api:4.12.0'
     implementation 'xyz.xenondevs:particle:1.8.1'
 
     // Dynamically Loaded
     implementation 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.10'
 }
 
 if (JavaVersion.current().toString() != "17") {

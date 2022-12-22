@@ -110,6 +110,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                     if (hand.getAmount() > 0) {
                         runPlayerViewport(getBlockFace(p), p.getTargetBlock(null, 5), p.getInventory().getItemInMainHand().getType(), p);
                     }
+                    e.setCancelled(true);
                 } else {
                     Adapt.messagePlayer(p, C.RED + Localizer.dLocalize("architect", "placement", "lore1") + " " + C.GREEN + totalMap.get(p).size() + C.RED + " " + Localizer.dLocalize("architect", "placement", "lore2"));
                 }

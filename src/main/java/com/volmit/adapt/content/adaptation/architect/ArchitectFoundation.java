@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
+import net.minecraft.world.level.Explosion;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -29,8 +30,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
@@ -114,6 +117,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         blockPower.put(p, power);
     }
 
+    //prevent piston from moving blocks // Dupe fix
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPistonExtendEvent e) {
         if (e.isCancelled()) {
@@ -127,6 +131,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         });
     }
 
+    //prevent piston from pulling blocks // Dupe fix
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPistonRetractEvent e) {
         if (e.isCancelled()) {
@@ -138,6 +143,35 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
                 e.setCancelled(true);
             }
         });
+    }
+
+    //prevent TNT from destroying blocks // Dupe fix
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(BlockExplodeEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (activeBlocks.contains(e.getBlock())) {
+            Adapt.verbose("Cancelled Block Explosion on Adaptation Foundation Block");
+            e.setCancelled(true);
+        }
+    }
+
+    //prevent block from being destroyed // Dupe fix
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(BlockBreakEvent e) {
+        if (activeBlocks.contains(e.getBlock())) {
+            e.setCancelled(true);
+        }
+    }
+
+    //prevent Entities from destroying blocks // Dupe fix
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(EntityExplodeEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        e.blockList().removeIf(activeBlocks::contains);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -238,12 +272,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         return cooldowns.containsKey(i);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockBreakEvent e) {
-        if (activeBlocks.contains(e.getBlock())) {
-            e.setCancelled(true);
-        }
-    }
+
 
     @Override
     public boolean isEnabled() {

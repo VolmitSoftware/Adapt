@@ -609,7 +609,7 @@ public class IO {
      * @return the requested byte array
      * @throws NullPointerException if the input is null
      * @throws IOException          if an I/O error occurs (never occurs)
-     * @deprecated Use {@link String#getBytes()}
+     * @Deprecated Use {@link String#getBytes()}
      */
     public static byte[] toByteArray(String input) throws IOException {
         return input.getBytes();
@@ -743,7 +743,7 @@ public class IO {
      * @return the requested String
      * @throws NullPointerException if the input is null
      * @throws IOException          if an I/O error occurs (never occurs)
-     * @deprecated Use {@link String#String(byte[])}
+     * @Deprecated Use {@link String#String(byte[])}
      */
     public static String toString(byte[] input) throws IOException {
         return new String(input);
@@ -764,7 +764,7 @@ public class IO {
      * @return the requested String
      * @throws NullPointerException if the input is null
      * @throws IOException          if an I/O error occurs (never occurs)
-     * @deprecated Use {@link String#String(byte[], String)}
+     * @Deprecated Use {@link String#String(byte[], String)}
      */
     public static String toString(byte[] input, String encoding) throws IOException {
         if (encoding == null) {

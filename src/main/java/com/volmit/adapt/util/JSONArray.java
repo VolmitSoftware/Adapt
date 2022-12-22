@@ -694,7 +694,7 @@ public class JSONArray implements Iterable<Object> {
      * @return this.
      */
     public JSONArray put(int value) {
-        this.put( Integer.valueOf(value));
+        this.put(Integer.valueOf(value));
         return this;
     }
 
@@ -705,7 +705,7 @@ public class JSONArray implements Iterable<Object> {
      * @return this.
      */
     public JSONArray put(long value) {
-        this.put( Long.valueOf(value));
+        this.put(Long.valueOf(value));
         return this;
     }
 

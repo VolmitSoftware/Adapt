@@ -258,7 +258,7 @@ public class M {
     /**
      * Biggest number
      *
-     * @param numbers the numbers
+     * @param doubles the numbers
      * @return the biggest one
      */
     @SuppressWarnings("unchecked")
@@ -344,24 +344,24 @@ public class M {
         return is >= from && is <= to;
     }
 
-    /**
-     * Get the amount of days past since the epoch time (1970 jan 1 utc)
-     *
-     * @return the epoch days
-     */
-    public static long epochDays() {
-        return epochDays(M.ms());
-    }
-
-    /**
-     * Get the amount of days past since the epoch time (1970 jan 1 utc)
-     *
-     * @param ms the time in milliseconds
-     * @return the epoch days
-     */
-    private static long epochDays(long ms) {
-        return ms / 1000 / 60 / 60 / 24;
-    }
+//    /**
+//     * Get the amount of days past since the epoch time (1970 jan 1 utc)
+//     *
+//     * @return the epoch days
+//     */
+//    public static long epochDays() {
+//        return epochDays(M.ms());
+//    }
+//
+//    /**
+//     * Get the amount of days past since the epoch time (1970 jan 1 utc)
+//     *
+//     * @param ms the time in milliseconds
+//     * @return the epoch days
+//     */
+//    private static long epochDays(long ms) {
+//        return ms / 1000 / 60 / 60 / 24;
+//    }
 
     private static float sinLookup(int a) {
         return a >= 0 ? sin[a % (modulus)] : -sin[-a % (modulus)];

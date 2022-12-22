@@ -115,7 +115,7 @@ public interface AdaptRecipe {
         private String key;
         private ItemStack result;
         private Material ingredient;
-//        private float experience = 1;
+        //        private float experience = 1;
 //        private int cookTime = 20;
         private float experience;
         private int cookTime;

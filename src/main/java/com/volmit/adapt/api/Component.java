@@ -265,31 +265,21 @@ public interface Component {
         }
     }
 
-    default boolean safeGiveItem(Player player, Entity droppedItemEntity, ItemStack is) {
-        EntityPickupItemEvent e = new EntityPickupItemEvent(player, (Item) droppedItemEntity, 0);
+    default void safeGiveItem(Player player, Entity itemEntity, ItemStack is) {
+        EntityPickupItemEvent e = new EntityPickupItemEvent(player, (Item) itemEntity, 0);
         Bukkit.getPluginManager().callEvent(e);
         if (!e.isCancelled()) {
-            droppedItemEntity.remove();
+            itemEntity.remove();
             if (!player.getInventory().addItem(is).isEmpty()) {
                 player.getWorld().dropItem(player.getLocation(), is);
             }
-            return true;
-        } else {
-            return false;
         }
     }
 
-    default boolean safeGiveItem(Player player, Item droppedItemEntity, ItemStack is) {
-        EntityPickupItemEvent e = new EntityPickupItemEvent(player, droppedItemEntity, 0);
-        Bukkit.getPluginManager().callEvent(e);
-        if (!e.isCancelled()) {
-            droppedItemEntity.remove();
-            if (!player.getInventory().addItem(is).isEmpty()) {
-                player.getWorld().dropItem(player.getLocation(), is);
-            }
-            return true;
-        } else {
-            return false;
+
+    default void safeGiveItem(Player player, ItemStack item) {
+        if (!player.getInventory().addItem(item).isEmpty()) {
+            player.getWorld().dropItem(player.getLocation(), item);
         }
     }
 
