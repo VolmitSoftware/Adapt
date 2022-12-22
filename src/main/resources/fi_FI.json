@@ -922,65 +922,96 @@
       "lore1": "Haste 3 levitetään veden alle kaivostoiminnan aikana (pinotaan AquaAffinityllä) sen jälkeen, kun vesihengitysvaikutuksesi loppuu!"
     },
     "nightvision": {
+      "name": "Kilpikonnan Näkö",
+      "description": "Veden alla ollessasi saat Hämäränäön",
+      "lore1": "Hanki vain Hämäränäön veden alla, kun vesihengitysvaikutuksesi loppuu!"
     },
     "dolphingrace": {
+      "name": "Delfiinin Kiito",
       "description": "Ui kuin delfiini, ilman delfiinejä",
-      "lore1": "+ Passiivinen: vahvistus"
+      "lore1": "+ Passiivinen: vahvistus",
+      "lore2": "x nopeus (delfiinin kiito)",
+      "lore3": "tarkkuus saksalainen insinööri - odota, se ei ole oikein... Ei yhteensopiva Vesivipellyksen kanssa"
     }
   },
   "stealth": {
     "ghostarmor": {
       "name": "Haamu Panssari",
       "description": "Hidas panssarin rakentaminen, kun se ei ota vahinkoa, kestää 1 osuman",
+      "lore1": "Maksimi Panssari",
       "lore2": "Nopeus\n"
     },
     "nightvision": {
+      "name": "Salakavalanäkeminen",
+      "description": "Saat hämäränäkö hiipiessäsi",
       "lore1": "Hanki räjähdys",
       "lore2": "yönäkö",
       "lore3": "hiipiessään"
     },
     "snatch": {
+      "name": "Esine Sieppaaminen",
+      "description": "Nappaa pudonneet tavarat heti hiipiessä!",
+      "lore1": "Nappaamissäde"
     },
     "speed": {
       "name": "Kyykkimis Nopeus",
-      "description": "Lisää nopeutta hiipiessäsi"
+      "description": "Lisää nopeutta hiipiessäsi",
+      "lore1": "Hiipimisnopeus"
     }
   },
   "sword": {
     "machete": {
       "name": "Viidakkoveitsi",
       "description": "Leikkaa lehtien läpi helposti!",
+      "lore1": "Viiltosäde",
+      "lore2": "Puun hakkaamisen Odotusaika",
       "lore3": "Työkalujen kuluminen"
     },
     "bloodyblade": {
       "name": "Verinen Terä",
       "description": "Iske miekallasi, aiheuta verenvuotoa!",
       "lore1": "Elävän olennon lyöminen miekalla aiheuttaa verenvuotoa",
-      "lore2": "Verenvuodon kesto"
+      "lore2": "Verenvuodon kesto",
+      "lore3": "Verenvuodon odotusaika"
     },
     "poisonedblade": {
-      "name": "Myrkytetty terä"
+      "name": "Myrkytetty terä",
+      "description": "Iske miekallasi, aiheuta Myrkytys!",
+      "lore1": "Elävän olennon lyöminen miekalla aiheuttaa myrkytyksen",
+      "lore2": "Myrkytyksen kesto",
+      "lore3": "Myrkytyksen odotusaika"
     }
   },
   "taming": {
     "damage": {
-      "description": "Kasvata kesytettyjen eläinten aiheuttamaa vahinkoa."
+      "name": "Kesytysvahinko",
+      "description": "Kasvata kesytettyjen eläinten aiheuttamaa vahinkoa.",
+      "lore1": "Kasvanut vahinko"
     },
     "health": {
+      "name": "Kesytys-Terveys",
+      "description": "Kasvattaa kesytettyjen eläinten terveyttä.",
+      "lore1": "Kasvanut Terveys"
     },
     "regeneration": {
+      "name": "Kesytysksen Uudelleenparantuminen",
+      "description": "Kasvattaa kesytetyn eläimen uudellenparantumista.",
+      "lore1": "Elämää/sekunnissa"
     }
   },
   "tragoul": {
     "thorns": {
-      "description": "Heijasta vahinko takaisin hyökkääjällesi!"
+      "name": "Piikitys",
+      "description": "Heijasta vahinko takaisin hyökkääjällesi!",
+      "lore1": "Palautettu vahinko iskusta"
     }
   },
   "unarmed": {
     "glasscannon": {
       "name": "Lasinen tykki",
       "description": "Bonus aseeton vahinko, mitä pienempi panssariarvosi on",
-      "lore1": "x Vahinko 0 panssarin kohdalla"
+      "lore1": "x Vahinko 0 panssarin kohdalla",
+      "lore2": "Tasollinen Bonus Vahinko"
     },
     "power": {
       "name": "Aseeton voima",
@@ -988,6 +1019,8 @@
       "lore1": "Vahinko"
     },
     "suckerpunch": {
+      "name": "Imu Lyönti",
+      "description": "Juoksulyöntejä, mutta tappavampia.",
       "lore1": "Vahinko",
       "lore2": "Vahinko kasvaa nopeuden myötä lyönnin aikana"
     }
