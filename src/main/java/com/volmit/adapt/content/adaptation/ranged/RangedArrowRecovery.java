@@ -27,6 +27,7 @@ import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -71,34 +72,41 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         if (e.isCancelled()) {
             return;
         }
-        if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player p) {
+        Player p = (e.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof Player) ? (Player) projectile.getShooter() : null;
+        ItemStack hand = p != null ? p.getInventory().getItemInMainHand() : null;
+        if (hand == null || (hand.getType() != Material.BOW || hand.getType() != Material.CROSSBOW)) {
+            return;
+        }
+        if (hand.getItemMeta() != null && (hand.getItemMeta().hasEnchant(Enchantment.ARROW_INFINITE) || hand.getItemMeta().hasEnchant(Enchantment.MULTISHOT))) {
+            return;
+        }
+        
+        if (hasAdaptation(p)) {
+            if (e.getDamager() instanceof Arrow a && Math.random() < getChance(getLevelPercent(p))) {
+                int hits = 0;
 
-            if (hasAdaptation(p)) {
-                if (e.getDamager() instanceof Arrow a && Math.random() < getChance(getLevelPercent(p))) {
-                    int hits = 0;
-
-                    if (a.getPierceLevel() > 0) {
-                        NamespacedKey k = new NamespacedKey(Adapt.instance, "arrow-hits");
-                        hits = a.getPersistentDataContainer().getOrDefault(k, PersistentDataType.INTEGER, 0);
-                        a.getPersistentDataContainer().set(k, PersistentDataType.INTEGER, hits + 1);
-                    }
-                    xp(p, 5);
-                    if (hits + 1 >= a.getPierceLevel()) {
-                        arrows.compute(e.getEntity().getUniqueId(), (k, v) -> {
-                            if (v == null) {
-                                return 1;
-                            }
-
-                            return v + 1;
-                        });
-
-                        if (hits > 1) {
-                            a.remove();
+                if (a.getPierceLevel() > 0) {
+                    NamespacedKey k = new NamespacedKey(Adapt.instance, "arrow-hits");
+                    hits = a.getPersistentDataContainer().getOrDefault(k, PersistentDataType.INTEGER, 0);
+                    a.getPersistentDataContainer().set(k, PersistentDataType.INTEGER, hits + 1);
+                }
+                xp(p, 5);
+                if (hits + 1 >= a.getPierceLevel()) {
+                    arrows.compute(e.getEntity().getUniqueId(), (k, v) -> {
+                        if (v == null) {
+                            return 1;
                         }
+
+                        return v + 1;
+                    });
+
+                    if (hits > 1) {
+                        a.remove();
                     }
                 }
             }
         }
+
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
