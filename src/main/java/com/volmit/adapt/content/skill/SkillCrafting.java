@@ -106,10 +106,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(CraftItemEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
         Player p = (Player) e.getWhoClicked();

@@ -102,55 +102,19 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
-        if (!e.isCancelled()) {
-            if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
-                if (e.isCancelled()) {
-                    return;
-                }
-                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                    return;
-                }
-                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                    return;
-                }
-                AdaptPlayer a = getPlayer((Player) e.getDamager());
-                ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
-                if (isShovel(hand)) {
-                    if (cooldowns.containsKey(p)) {
-                        if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                            return;
-                        } else {
-                            cooldowns.remove(p);
-                        }
-                    }
-                    cooldowns.put(p, System.currentTimeMillis());
-                    getPlayer(p).getData().addStat("excavation.swings", 1);
-                    getPlayer(p).getData().addStat("excavation.damage", e.getDamage());
-                    xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
-                }
+        if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
             }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockBreakEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!e.isCancelled()) {
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
-            if (isShovel(p.getInventory().getItemInMainHand())) {
-                getPlayer(p).getData().addStat("excavation.blocks.broken", 1);
-                getPlayer(p).getData().addStat("excavation.blocks.value", getValue(e.getBlock().getBlockData()));
+            AdaptPlayer a = getPlayer((Player) e.getDamager());
+            ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
+            if (isShovel(hand)) {
                 if (cooldowns.containsKey(p)) {
                     if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
                         return;
@@ -159,10 +123,41 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
                     }
                 }
                 cooldowns.put(p, System.currentTimeMillis());
-                double v = getValue(e.getBlock().getType());
-                xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v));
+                getPlayer(p).getData().addStat("excavation.swings", 1);
+                getPlayer(p).getData().addStat("excavation.damage", e.getDamage());
+                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
             }
         }
+
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(BlockBreakEvent e) {
+        if (!this.isEnabled() || e.isCancelled()) {
+            return;
+        }
+        Player p = e.getPlayer();
+        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+            return;
+        }
+        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+            return;
+        }
+        if (isShovel(p.getInventory().getItemInMainHand())) {
+            getPlayer(p).getData().addStat("excavation.blocks.broken", 1);
+            getPlayer(p).getData().addStat("excavation.blocks.value", getValue(e.getBlock().getBlockData()));
+            if (cooldowns.containsKey(p)) {
+                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    cooldowns.remove(p);
+                }
+            }
+            cooldowns.put(p, System.currentTimeMillis());
+            double v = getValue(e.getBlock().getType());
+            xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v));
+        }
+
     }
 
     public double getValue(Material type) {

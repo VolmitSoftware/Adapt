@@ -62,10 +62,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerTeleportEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
         Player p = e.getPlayer();
@@ -80,10 +77,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(ProjectileLaunchEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
         if (e.getEntity() instanceof EnderPearl && e.getEntity().getShooter() instanceof Player p) {
@@ -101,10 +95,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
         if (e.getEntity() instanceof Enderman && e.getDamager() instanceof Player p) {

@@ -57,39 +57,38 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
-        if (!e.isCancelled()) {
-            if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
-                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                    return;
-                }
-                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE)
-                        || p.getGameMode().equals(GameMode.SPECTATOR))
-                        || e.getEntity().isDead()
-                        || e.getEntity().isInvulnerable()
-                        || p.isDead()
-                        || p.isInvulnerable()) {
-                    return;
-                }
-                AdaptPlayer a = getPlayer((Player) e.getDamager());
-                ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
-                if (isSword(hand)) {
-                    getPlayer(p).getData().addStat("sword.hits", 1);
-                    getPlayer(p).getData().addStat("sword.damage", e.getDamage());
-                    if (cooldowns.containsKey(p)) {
-                        if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                            return;
-                        } else {
-                            cooldowns.remove(p);
-                        }
+        if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
+            }
+            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE)
+                    || p.getGameMode().equals(GameMode.SPECTATOR))
+                    || e.getEntity().isDead()
+                    || e.getEntity().isInvulnerable()
+                    || p.isDead()
+                    || p.isInvulnerable()) {
+                return;
+            }
+            AdaptPlayer a = getPlayer((Player) e.getDamager());
+            ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
+            if (isSword(hand)) {
+                getPlayer(p).getData().addStat("sword.hits", 1);
+                getPlayer(p).getData().addStat("sword.damage", e.getDamage());
+                if (cooldowns.containsKey(p)) {
+                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                        return;
+                    } else {
+                        cooldowns.remove(p);
                     }
-                    cooldowns.put(p, System.currentTimeMillis());
-                    xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
                 }
+                cooldowns.put(p, System.currentTimeMillis());
+                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
             }
         }
+
     }
 
     @Override

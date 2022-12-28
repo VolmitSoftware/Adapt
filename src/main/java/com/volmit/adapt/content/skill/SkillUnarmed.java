@@ -51,31 +51,30 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
-        if (!e.isCancelled()) {
-            if (e.getDamager() instanceof Player p) {
-                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName()) || !AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE)
-                        || p.getGameMode().equals(GameMode.SPECTATOR))
-                        || e.getEntity().isDead()
-                        || e.getEntity().isInvulnerable()
-                        || p.isDead()
-                        || p.isInvulnerable()) {
-                    return;
-                }
-                if (!checkValidEntity(e.getEntity().getType())) {
-                    return;
-                }
-                AdaptPlayer a = getPlayer((Player) e.getDamager());
-                ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
-                if (!isMelee(hand)) {
-                    getPlayer(p).getData().addStat("unarmed.hits", 1);
-                    getPlayer(p).getData().addStat("unarmed.damage", e.getDamage());
-                    xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
-                }
+        if (e.getDamager() instanceof Player p) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName()) || !AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE)
+                    || p.getGameMode().equals(GameMode.SPECTATOR))
+                    || e.getEntity().isDead()
+                    || e.getEntity().isInvulnerable()
+                    || p.isDead()
+                    || p.isInvulnerable()) {
+                return;
+            }
+            if (!checkValidEntity(e.getEntity().getType())) {
+                return;
+            }
+            AdaptPlayer a = getPlayer((Player) e.getDamager());
+            ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
+            if (!isMelee(hand)) {
+                getPlayer(p).getData().addStat("unarmed.hits", 1);
+                getPlayer(p).getData().addStat("unarmed.damage", e.getDamage());
+                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
             }
         }
+
     }
 
     @Override

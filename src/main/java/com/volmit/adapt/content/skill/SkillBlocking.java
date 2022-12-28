@@ -102,10 +102,7 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
         if (e.getEntity() instanceof Player p) {

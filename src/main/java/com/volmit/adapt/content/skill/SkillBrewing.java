@@ -161,10 +161,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerItemConsumeEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
         Player p = e.getPlayer();
