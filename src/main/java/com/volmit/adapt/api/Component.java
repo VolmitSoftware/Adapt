@@ -208,6 +208,7 @@ public interface Component {
         }
     }
 
+
     default void potion(Player p, PotionEffectType type, int power, int duration) {
         p.addPotionEffect(new PotionEffect(type, power, duration, true, false, false));
     }

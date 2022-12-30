@@ -23,6 +23,7 @@ import com.volmit.adapt.util.C;
 import lombok.Getter;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Random;
 
@@ -80,7 +81,7 @@ public class SecretSplash {
     public static String randomString7() {
         byte[] array = new byte[7]; // length is bounded by 7
         new Random().nextBytes(array);
-        String generatedString = new String(array, Charset.forName("UTF-8"));
+        String generatedString = new String(array, StandardCharsets.UTF_8);
 
         return generatedString;
     }

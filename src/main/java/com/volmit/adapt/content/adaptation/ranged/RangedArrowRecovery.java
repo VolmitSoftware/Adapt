@@ -80,7 +80,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         if (hand.getItemMeta() != null && (hand.getItemMeta().hasEnchant(Enchantment.ARROW_INFINITE) || hand.getItemMeta().hasEnchant(Enchantment.MULTISHOT))) {
             return;
         }
-        
+
         if (hasAdaptation(p)) {
             if (e.getDamager() instanceof Arrow a && Math.random() < getChance(getLevelPercent(p))) {
                 int hits = 0;

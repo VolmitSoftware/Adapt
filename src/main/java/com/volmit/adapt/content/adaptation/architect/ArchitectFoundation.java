@@ -22,7 +22,6 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
-import net.minecraft.world.level.Explosion;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -78,6 +77,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             return;
         }
         Player p = e.getPlayer();
+        if (!p.isSneaking()) {
+            return;
+        }
         if (!hasAdaptation(p)) {
             return;
         }
@@ -271,7 +273,6 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
         return cooldowns.containsKey(i);
     }
-
 
 
     @Override
