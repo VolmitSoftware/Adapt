@@ -58,16 +58,10 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityBreedEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (e.isCancelled()) {
-                return;
-            }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
@@ -88,17 +82,12 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
         if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
             return;
         }
-
-
         if (e.getDamager() instanceof Tameable && ((Tameable) e.getDamager()).isTamed() && ((Tameable) e.getDamager()).getOwner() instanceof Player p) {
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;

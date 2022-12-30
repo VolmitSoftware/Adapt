@@ -57,42 +57,38 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
-        if (!e.isCancelled()) {
-            if (e.getEntity() instanceof Player p) {
-                if (e.isCancelled()) {
-                    return;
-                }
-                if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                    return;
-                }
-                if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
-                        || e.getEntity().isDead()
-                        || e.getEntity().isInvulnerable()
-                        || p.isDead()
-                        || p.isInvulnerable()
-                        && !checkValidEntity(e.getEntity().getType())) {
-                    return;
-                }
-                if (p.isBlocking() || p.isDead() || p.isInvulnerable()) {
-                    return;
-                }
-                AdaptPlayer a = getPlayer(p);
-                getPlayer(p).getData().addStat("trag.hitsrecieved", 1);
-                getPlayer(p).getData().addStat("trag.damage", e.getDamage());
-                if (cooldowns.containsKey(p)) {
-                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                        return;
-                    } else {
-                        cooldowns.remove(p);
-                    }
-                }
-                cooldowns.put(p, System.currentTimeMillis());
-                xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
+        if (e.getEntity() instanceof Player p) {
+            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+                return;
             }
+            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
+                    || e.getEntity().isDead()
+                    || e.getEntity().isInvulnerable()
+                    || p.isDead()
+                    || p.isInvulnerable()
+                    && !checkValidEntity(e.getEntity().getType())) {
+                return;
+            }
+            if (p.isBlocking() || p.isDead() || p.isInvulnerable()) {
+                return;
+            }
+            AdaptPlayer a = getPlayer(p);
+            getPlayer(p).getData().addStat("trag.hitsrecieved", 1);
+            getPlayer(p).getData().addStat("trag.damage", e.getDamage());
+            if (cooldowns.containsKey(p)) {
+                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    cooldowns.remove(p);
+                }
+            }
+            cooldowns.put(p, System.currentTimeMillis());
+            xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
         }
+
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

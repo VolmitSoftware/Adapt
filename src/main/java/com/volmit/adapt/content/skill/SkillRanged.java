@@ -27,6 +27,7 @@ import com.volmit.adapt.content.adaptation.ranged.RangedPiercing;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
+import net.minecraft.world.entity.projectile.EntityFishingHook;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -61,10 +62,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(ProjectileLaunchEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
         if (e.getEntity().getShooter() instanceof Player p) {
@@ -74,8 +72,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
-            if (e.getEntity() instanceof Snowball) {
-                return; // Ignore snowballs
+            if (e.getEntity() instanceof Snowball || e.getEntity() instanceof EntityFishingHook) {
+                return; // Ignore snowballs and fishing hooks
             }
             getPlayer(p).getData().addStat("ranged.shotsfired", 1);
             getPlayer(p).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
@@ -88,27 +86,23 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             }
             cooldowns.put(p, System.currentTimeMillis());
             xp(p, getConfig().shootXP);
-
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
         if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
-            if (e.isCancelled()) {
-                return;
-            }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
-            if (e.getEntity() instanceof Snowball) {
-                return; // Ignore snowballs
+            if (e.getEntity() instanceof Snowball || e.getEntity() instanceof EntityFishingHook) {
+                return; // Ignore snowballs and fishing hooks
             }
             getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
             getPlayer(p).getData().addStat("ranged.distance", e.getEntity().getLocation().distance(p.getLocation()));

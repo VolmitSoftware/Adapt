@@ -141,10 +141,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
+        if (!this.isEnabled() || e.isCancelled()) {
             return;
         }
         Player p = e.getPlayer();
