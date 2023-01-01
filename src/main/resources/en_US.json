@@ -472,14 +472,14 @@
     "haste": {
       "name": "Bottled Haste",
       "description": "When Efficiency is not enough",
-      "lore1": "Instant Heal Potion + Amethyst Shard = Potion of Haste (60 seconds)",
-      "lore2": "Instant Heal + Amethyst Block = Potion of Haste-2 (30 seconds)"
+      "lore1": "Speed Potion + Amethyst Shard = Potion of Haste (60 seconds)",
+      "lore2": "Speed Potion + Amethyst Block = Potion of Haste-2 (30 seconds)"
     },
     "absorption": {
       "name": "Bottled Absorption",
       "description": "Harden the body!",
-      "lore1": "Speed Potion + Quartz = Potion of Absorption (60 seconds)",
-      "lore2": "Speed Potion + Quartz Block = Potion of Absorption-2 (30 seconds)"
+      "lore1": "Instant Heal + Quartz = Potion of Absorption (60 seconds)",
+      "lore2": "Instant Heal + Quartz Block = Potion of Absorption-2 (30 seconds)"
     },
     "fatigue": {
       "name": "Bottled Fatigue",
