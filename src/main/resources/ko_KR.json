@@ -477,7 +477,9 @@
     },
     "absorption": {
       "name": "병에 담긴 흡수",
-      "description": "몸을 굳혀라!"
+      "description": "몸을 굳혀라!",
+      "lore1": "즉시 치유 + 석영 = 흡수의 물약(60초)",
+      "lore2": "즉시 치유 + 석영 블록 = 흡수의 물약-2(30초)"
     },
     "fatigue": {
       "name": "병에 담긴 피로",
@@ -581,7 +583,10 @@
       "lore4": "XCX : 가죽, 가슴, 가죽"
     },
     "stations": {
-      "name": "휴대용 테이블"
+      "name": "휴대용 테이블",
+      "description": "손바닥 안의 테이블을 사용하세요!",
+      "lore2": "테이블을 닫을 때 잊어버린 항목은 영원히 사라집니다!",
+      "lore3": "유효한 테이블: Anvil, Crafting, Grindstone, Cartography, Stone-Cutter, Loom"
     },
     "skulls": {
       "name": "제작 가능한 해골!",
