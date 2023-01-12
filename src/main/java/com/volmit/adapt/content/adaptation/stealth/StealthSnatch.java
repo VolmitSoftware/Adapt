@@ -18,12 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.stealth;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -33,10 +33,11 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
-    private final List<Integer> holds = new ArrayList<>();
+    private final List<Integer> holds;
 
     public StealthSnatch() {
         super("stealth-snatch");
@@ -45,10 +46,11 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         setDisplayName(Localizer.dLocalize("stealth", "snatch", "name"));
         setIcon(Material.CHEST_MINECART);
         setBaseCost(getConfig().baseCost);
-        setInterval(100);
+        setInterval(getConfig().snatchRate);
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        holds = new ArrayList<>();
     }
 
     @Override
@@ -78,35 +80,34 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
             return;
         }
 
-        if (!player.isDead()) {
-            double range = getRange(factor);
+        double range = getRange(factor);
+        HashSet<Item> items = new HashSet<>();
+        for (Entity droppedItemEntity : player.getWorld().getNearbyEntities(player.getLocation(), range, range / 1.5, range)) {
+            if (droppedItemEntity instanceof Item droppedItem) {
+                if (droppedItem.getPickupDelay() <= 0 || droppedItem.getTicksLived() > 1) {
+                    items.add(droppedItem);
+                }
+            }
+        }
 
-            for (Entity droppedItemEntity : player.getWorld().getNearbyEntities(player.getLocation(), range, range / 1.5, range)) {
-                if (droppedItemEntity instanceof Item && !holds.contains(droppedItemEntity.getEntityId())) {
-                    double dist = droppedItemEntity.getLocation().distanceSquared(player.getLocation());
+        for (Item droppedItemEntity : items) {
+            if (!holds.contains(droppedItemEntity.getEntityId())) {
+                double dist = droppedItemEntity.getLocation().distanceSquared(player.getLocation());
+                if (dist < range * range) {
+                    ItemStack is = droppedItemEntity.getItemStack().clone();
 
-                    if (dist < range * range && player.isSneaking() && droppedItemEntity.getTicksLived() > 1) {
-                        ItemStack is = ((Item) droppedItemEntity).getItemStack().clone();
-
-                        if (Inventories.hasSpace(player.getInventory(), is)) {
-                            holds.add(droppedItemEntity.getEntityId());
-
-                            if (player.isSneaking()) {
-                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (Math.random() / 3)));
-                            }
-                            vfxParticleLine(droppedItemEntity.getLocation(), player.getLocation().add(0, 0.25, 0), Particle.ASH, 15, 8, 0D, 0D, 0D, 0D, null, true, l -> l.getBlock().isPassable());
-                            safeGiveItem(player, droppedItemEntity, is);
-
-                            sendCollected(player, (Item) droppedItemEntity);
-                            getSkill().xpSilent(player, 1.27);
-                            int id = droppedItemEntity.getEntityId();
-                            J.s(() -> holds.remove(Integer.valueOf(id)));
-
-                        }
+                    if (Inventories.hasSpace(player.getInventory(), is)) {
+                        holds.add(droppedItemEntity.getEntityId());
+                        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (Math.random() / 3)));
+                        safeGiveItem(player, droppedItemEntity, is);
+                        sendCollected(player, droppedItemEntity);
+                        int id = droppedItemEntity.getEntityId();
+                        J.s(() -> holds.remove(Integer.valueOf(id)));
                     }
                 }
             }
         }
+
     }
 
     private double getRange(double factor) {
@@ -130,8 +131,9 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
                     pconnect.getClass().getMethod("sendPacket", pk).invoke(pconnect, v);
                 }
             }
-        } catch (Throwable e) {
-
+        } catch (Exception e) {
+            Adapt.error("Failed to send collected packet");
+            e.printStackTrace();
         }
     }
 
@@ -158,6 +160,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     protected static class Config {
         boolean permanent = false;
         boolean enabled = true;
+        int snatchRate = 250;
         int baseCost = 4;
         int maxLevel = 3;
         int initialCost = 12;

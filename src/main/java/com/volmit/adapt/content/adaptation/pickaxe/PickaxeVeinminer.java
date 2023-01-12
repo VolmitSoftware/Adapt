@@ -18,16 +18,15 @@
 
 package com.volmit.adapt.content.adaptation.pickaxe;
 
+import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -90,6 +89,13 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                     for (int z = -i; z <= i; z++) {
                         Block b = block.getRelative(x, y, z);
                         if (b.getType() == block.getType()) {
+                            //might fix the veinminer issue. no Clue!
+                            if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null && Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
+                                    && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()
+                                    && !canBuild(p, p.getLocation())) {
+                                Adapt.verbose("Player " + p.getName() + " tried to use Veinminer but doesn't have WorldGuard build permission.");
+                                return;
+                            }
                             blockMap.put(b.getLocation(), b);
                         }
                     }
