@@ -472,14 +472,14 @@
     "haste": {
       "name": "병에 담긴 가속",
       "description": "효율성이 충분하지 않을 때",
-      "lore1": "즉시 치유 물약 + 자수정 조각 = 가속의 물약(60초)",
-      "lore2": "Instant Heal + Amethyst Block = 가속의 물약-2 (30초)"
+      "lore1": "신속 물약 + 자수정 조각 = Potion of Haste (60 seconds)",
+      "lore2": "신속 물약 + 자수정 블럭 = Potion of Haste-2 (30 seconds)"
     },
     "absorption": {
       "name": "병에 담긴 흡수",
       "description": "몸을 굳혀라!",
-      "lore1": "스피드 포션 + 석영 = 흡수 포션 (60초)",
-      "lore2": "스피드 포션 + 석영 블록 = 흡수의 포션-2 (30초)"
+      "lore1": "즉시 치유 + 석영 = 흡수의 물약(60초)",
+      "lore2": "즉시 치유 + 석영 블록 = 흡수의 물약-2(30초)"
     },
     "fatigue": {
       "name": "병에 담긴 피로",
@@ -581,6 +581,12 @@
       "lore2": "XLX : 가죽, 납, 가죽",
       "lore3": "XSX : 가죽, 셜커 박스, 가죽",
       "lore4": "XCX : 가죽, 가슴, 가죽"
+    },
+    "stations": {
+      "name": "휴대용 테이블",
+      "description": "손바닥 안의 테이블을 사용하세요!",
+      "lore2": "테이블을 닫을 때 잊어버린 항목은 영원히 사라집니다!",
+      "lore3": "유효한 테이블: Anvil, Crafting, Grindstone, Cartography, Stone-Cutter, Loom"
     },
     "skulls": {
       "name": "제작 가능한 해골!",
