@@ -91,54 +91,30 @@ public class UIWindow implements Window, Listener {
 
             switch (e.getAction()) {
                 case CLONE_STACK:
-                    break;
                 case COLLECT_TO_CURSOR:
-                    break;
                 case DROP_ALL_CURSOR:
-                    break;
                 case DROP_ALL_SLOT:
-                    break;
                 case DROP_ONE_CURSOR:
-                    break;
                 case DROP_ONE_SLOT:
-                    break;
                 case HOTBAR_MOVE_AND_READD:
-                    break;
                 case HOTBAR_SWAP:
-                    break;
                 case MOVE_TO_OTHER_INVENTORY:
-                    break;
                 case NOTHING:
-                    break;
                 case PICKUP_ALL:
-                    break;
                 case PICKUP_HALF:
-                    break;
                 case PICKUP_ONE:
-                    break;
                 case PICKUP_SOME:
-                    break;
                 case PLACE_ALL:
-                    break;
                 case PLACE_ONE:
-                    break;
                 case PLACE_SOME:
-                    break;
                 case SWAP_WITH_CURSOR:
-                    break;
                 case UNKNOWN:
                     break;
             }
 
             switch (e.getClick()) {
-                case CONTROL_DROP:
-                    break;
-                case CREATIVE:
-                    break;
                 case DOUBLE_CLICK:
                     doubleclicked = true;
-                    break;
-                case DROP:
                     break;
                 case LEFT:
 
@@ -169,10 +145,6 @@ public class UIWindow implements Window, Listener {
                     }
 
                     break;
-                case MIDDLE:
-                    break;
-                case NUMBER_KEY:
-                    break;
                 case RIGHT:
                     if (element != null) {
                         element.call(ElementEvent.RIGHT, element);
@@ -189,14 +161,6 @@ public class UIWindow implements Window, Listener {
                     if (element != null) {
                         element.call(ElementEvent.SHIFT_RIGHT, element);
                     }
-                    break;
-                case WINDOW_BORDER_LEFT:
-                    break;
-                case WINDOW_BORDER_RIGHT:
-                    break;
-                case UNKNOWN:
-                    break;
-                case SWAP_OFFHAND:
                     break;
                 default:
                     break;

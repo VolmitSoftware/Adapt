@@ -116,8 +116,16 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         Location l = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
         ItemStack hand = p.getInventory().getItemInMainHand();
 
-        xp(p, 75);
-        decrementItemstack(hand, p);
+        if (getConfig().consumeOnUse) {
+            xp(p, 75);
+            decrementItemstack(hand, p);
+        }
+        if (p.getCooldown(Material.ENDER_EYE) > 0) {
+            p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1, 1);
+            return;
+        }
+        p.setCooldown(Material.ENDER_EYE, 150);
+
         if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null
                 && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
             RiftResist.riftResistStackAdd(p, 150, 3);
@@ -198,6 +206,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     protected static class Config {
         boolean permanent = false;
         boolean enabled = true;
+        boolean consumeOnUse = true;
         boolean showParticles = true;
     }
 }

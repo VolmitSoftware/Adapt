@@ -19,12 +19,16 @@
 package com.volmit.adapt.commands.openGui;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.adaptation.Adaptation;
+import com.volmit.adapt.api.skill.Skill;
+import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
 import org.bukkit.Sound;
 
 import java.util.List;
+import java.util.Objects;
 
 public class CommandOpenGUI extends MortarCommand {
     public CommandOpenGUI() {
@@ -34,13 +38,58 @@ public class CommandOpenGUI extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
+        Skill<?> selectedSk = null;
+        Adaptation<?> selectedAdpt = null;
+
         try {
             sender.player().playSound(sender.player().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 0.72f);
             sender.player().playSound(sender.player().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
-            SkillsGui.open(sender.player());
+            if (args.length == 0) {
+                SkillsGui.open(sender.player());
+                return true;
+            }
+
+            if (args.length == 1) {
+                for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+                    if (Objects.equals(skill.getName(), args[0])) {
+                        selectedSk = skill;
+                    }
+                }
+                if (selectedSk == null) {
+                    printHelp(sender);
+                    return true;
+                }
+                selectedSk.openGui(sender.player());
+                return true;
+            }
+
+            if (args.length == 2) {
+                for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+                    if (Objects.equals(skill.getName(), args[0])) {
+                        selectedSk = skill;
+                    }
+                }
+                if (selectedSk == null) {
+                    printHelp(sender);
+                    return true;
+                }
+
+                for (Adaptation<?> adaptation : selectedSk.getAdaptations()) {
+                    if (adaptation.getName().equals(args[1])) {
+                        selectedAdpt = adaptation;
+                    }
+                }
+                if (selectedAdpt == null) {
+                    printHelp(sender);
+                    return true;
+                }
+                selectedAdpt.openGui(sender.player());
+                return true;
+            }
+
             return true;
         } catch (Exception ignored) {
-            Adapt.verbose("GUI FAILED");
+            Adapt.error("Error while opening GUI");
             printHelp(sender);
             return true;
         }
@@ -48,10 +97,26 @@ public class CommandOpenGUI extends MortarCommand {
 
     @Override
     public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
+
+        if (args.length == 0) {
+            for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+                list.add(skill.getName());
+            }
+        } else {
+            Skill<?> skillObj = null;
+            for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+                if (Objects.equals(skill.getName(), args[0])) {
+                    skillObj = skill;
+                }
+            }
+            for (Adaptation<?> adaptation : skillObj.getAdaptations()) {
+                list.add(adaptation.getName());
+            }
+        }
     }
 
     @Override
     protected String getArgsUsage() {
-        return "";
+        return "/adapt open gui <optionalSkill> <optionalAdaptation>";
     }
 }

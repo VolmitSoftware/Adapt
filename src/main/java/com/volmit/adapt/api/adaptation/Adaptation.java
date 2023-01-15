@@ -167,7 +167,7 @@ public interface Adaptation<T> extends Ticked, Component {
 
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
-    private boolean canBuild(Player p, Location l) {
+    default boolean canBuild(Player p, Location l) {
         RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
         com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(l);
         if (!hasBypass(p, l)) {
@@ -186,7 +186,7 @@ public interface Adaptation<T> extends Ticked, Component {
 
     default boolean hasAdaptation(Player p) {
         try {
-            if (p == null) {
+            if (p == null || p.isDead()) { // Check if player is not invalid
                 return false;
             }
             if (!this.getSkill().isEnabled()) {
