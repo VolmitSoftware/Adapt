@@ -33,7 +33,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import xyz.xenondevs.particle.ParticleEffect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,9 +148,9 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 
                     if (dmg > 0) {
                         p.setCooldown(is.getType(), getCooldownTime(getLevelPercent(lvl)));
-                        if (getConfig().showParticles) {
-                            ParticleEffect.SWEEP_ATTACK.display(p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(1.25)).add(0, -0.5, 0), 0f, 0f, 0f, 0.1f, 1, null);
-                        }
+//                        if (getConfig().showParticles) {
+//                            ParticleEffect.SWEEP_ATTACK.display(p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(1.25)).add(0, -0.5, 0), 0f, 0f, 0f, 0.1f, 1, null);
+//                        }
                         p.getWorld().playSound(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (Math.random() / 2) + 0.65f);
                         damageHand(p, dmg * getDamagePerBlock(getLevelPercent(lvl)));
                         getSkill().xp(p, dmg * 11.25);

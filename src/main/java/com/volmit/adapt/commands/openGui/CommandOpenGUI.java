@@ -48,20 +48,32 @@ public class CommandOpenGUI extends MortarCommand {
                 SkillsGui.open(sender.player());
                 return true;
             }
-            for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-                if (Objects.equals(skill.getName(), args[0])) {
-                    selectedSk = skill;
+
+            if (args.length == 1) {
+                for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+                    if (Objects.equals(skill.getName(), args[0])) {
+                        selectedSk = skill;
+                    }
                 }
-            }
-            if (selectedSk == null) {
-                printHelp(sender);
+                if (selectedSk == null) {
+                    printHelp(sender);
+                    return true;
+                }
+                selectedSk.openGui(sender.player());
                 return true;
             }
-            if (args.length == 1) {
-                selectedSk.openGui(sender.player());
-            }
-            
-            if (args.length >= 2) {
+
+            if (args.length == 2) {
+                for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+                    if (Objects.equals(skill.getName(), args[0])) {
+                        selectedSk = skill;
+                    }
+                }
+                if (selectedSk == null) {
+                    printHelp(sender);
+                    return true;
+                }
+
                 for (Adaptation<?> adaptation : selectedSk.getAdaptations()) {
                     if (adaptation.getName().equals(args[1])) {
                         selectedAdpt = adaptation;
@@ -70,13 +82,14 @@ public class CommandOpenGUI extends MortarCommand {
                 if (selectedAdpt == null) {
                     printHelp(sender);
                     return true;
-                } else {
-                    selectedAdpt.openGui(sender.player());
                 }
+                selectedAdpt.openGui(sender.player());
+                return true;
             }
+
             return true;
         } catch (Exception ignored) {
-            Adapt.verbose("GUI FAILED");
+            Adapt.error("Error while opening GUI");
             printHelp(sender);
             return true;
         }
@@ -84,18 +97,20 @@ public class CommandOpenGUI extends MortarCommand {
 
     @Override
     public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
+
         if (args.length == 0) {
             for (Skill<?> skill : SkillRegistry.skills.sortV()) {
                 list.add(skill.getName());
             }
-        }
-        if (args.length == 1) {
-            for (Skill<?> sk : SkillRegistry.skills.sortV()) {
-                if (sk.getName().equals(args[0])) {
-                    for (Adaptation<?> adpt : sk.getAdaptations().sort()) {
-                        list.add(adpt.getName());
-                    }
+        } else {
+            Skill<?> skillObj = null;
+            for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+                if (Objects.equals(skill.getName(), args[0])) {
+                    skillObj = skill;
                 }
+            }
+            for (Adaptation<?> adaptation : skillObj.getAdaptations()) {
+                list.add(adaptation.getName());
             }
         }
     }
