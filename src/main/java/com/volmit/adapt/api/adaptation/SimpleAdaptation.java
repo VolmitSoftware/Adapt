@@ -21,6 +21,7 @@ package com.volmit.adapt.api.adaptation;
 import art.arcane.amulet.io.FileWatcher;
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
@@ -170,7 +171,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         return AdaptAdvancement.builder()
                 .key("adaptation_" + getName())
                 .title(C.WHITE + "[     " + getDisplayName() + C.WHITE + "     ]")
-                .description(getDescription() + ". " + Localizer.dLocalize("snippets", "gui", "unlockthisbyclicking"))
+                .description(getDescription() + ". " + Localizer.dLocalize("snippets", "gui", "unlockthisbyclicking") + AdaptConfig.get().adaptActivatorBlock.toLowerCase().capitalizeWords())
                 .icon(getIcon())
                 .children(a)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)

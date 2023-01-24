@@ -109,6 +109,9 @@ public class CommandOpenGUI extends MortarCommand {
                     skillObj = skill;
                 }
             }
+            if (skillObj == null) {
+                return;
+            }
             for (Adaptation<?> adaptation : skillObj.getAdaptations()) {
                 list.add(adaptation.getName());
             }
