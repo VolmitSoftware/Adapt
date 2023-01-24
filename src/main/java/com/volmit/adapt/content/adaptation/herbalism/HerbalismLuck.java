@@ -35,7 +35,7 @@ import org.bukkit.inventory.ItemStack;
 public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
 
     public HerbalismLuck() {
-        super("herbalism-hippo");
+        super("herbalism-luck");
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("herbalism", "luck", "description"));
         setDisplayName(Localizer.dLocalize("herbalism", "luck", "name"));
