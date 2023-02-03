@@ -139,6 +139,63 @@
     "challenge_craft_5m": {
       "title": "McCraftface calamitoso",
       "description": "Crea 5,000,000 artículos"
+    },
+    "challenge_enchant_1k": {
+      "title": "Encantador novato!",
+      "description": "Encanta 1000 artículos"
+    },
+    "challenge_enchant_5k": {
+      "title": "¡Encantador intermedio!",
+      "description": "Encanta 5000 artículos"
+    },
+    "challenge_enchant_50k": {
+      "title": "¡Encantador avanzado!",
+      "description": "Encanta 50,000 artículos"
+    },
+    "challenge_enchant_500k": {
+      "title": "Maestro Encantador!",
+      "description": "Encanta 500,000 artículos"
+    },
+    "challenge_enchant_5m": {
+      "title": "Encantador enigmático",
+      "description": "Encanta 5,000,000 artículos"
+    },
+    "challenge_excavate_1k": {
+      "title": "¡Excavadora tentada!",
+      "description": "Excava 1000 bloques"
+    },
+    "challenge_excavate_5k": {
+      "title": "¡Excavadora intermedia!",
+      "description": "Excava 5000 bloques"
+    },
+    "challenge_excavate_50k": {
+      "title": "¡Excavadora avanzada!",
+      "description": "Excava 50,000 bloques"
+    },
+    "challenge_excavate_500k": {
+      "title": "¡Maestro excavador!",
+      "description": "Excava 500.000 bloques"
+    },
+    "challenge_excavate_5m": {
+      "title": "Excavadora enigmática",
+      "description": "Excava 5 000 000 de bloques"
+    }
+  },
+  "items": {
+    "boundenderperal": {
+      "name": "Traslador relicario",
+      "usage1": "Mayús + clic izquierdo para enlazar",
+      "usage2": "Haga clic con el botón derecho para acceder al inventario enlazado"
+    },
+    "boundeyeofender": {
+      "name": "ancla ocular",
+      "usage1": "Haga clic derecho para consumir y teletransportarse a la ubicación enlazada",
+      "usage2": "Shift + clic izquierdo para enlazar a un bloque"
+    },
+    "boundredstonetorch": {
+      "name": "Mando a distancia de piedra roja",
+      "usage1": "Haga clic con el botón derecho para crear un pulso Redstone de 1 tic",
+      "usage2": "Mayús + clic izquierdo en un bloque 'Objetivo' para enlazar"
     }
   },
   "snippets": {
@@ -151,7 +208,7 @@
       "welcome": "¡Bienvenidos!",
       "welcomeback": "¡Bienvenido de nuevo!",
       "xpbonusfortime": "XP para",
-      "unlockthisbyclicking": "¡Desbloquee esto haciendo clic derecho en el bloque Adaptar!",
+      "unlockthisbyclicking": "Desbloquee esto haciendo clic derecho:",
       "back": "atrás",
       "unlearnall": "Desaprender todo",
       "unlearnedall": "desaprendido todo"
@@ -341,6 +398,11 @@
       "description": "Esto te permite evitar esencialmente la pérdida de bloques de cristal cuando los rompes con la mano vacía.",
       "lore1": "Tus manos ganan el toque de seda para el vidrio"
     },
+    "wirelessredstone": {
+      "name": "Mando a distancia de piedra roja",
+      "description": "¡Esto le permite usar una antorcha de piedra roja para alternar la piedra roja, de forma remota!",
+      "lore1": "Objetivo + Antorcha Redstone + Enderperal = 1 Control remoto Redstone"
+    },
     "placement": {
       "name": "Varita de constructor",
       "description": "te permite colocar varios bloques a la vez para activar el Colocador, ¡y sostener un bloque que coincida con el que estás buscando y colocarlo! Ten en cuenta que es posible que tengas que moverte un poco para activar la limitación de las cajas.",
@@ -410,14 +472,14 @@
     "haste": {
       "name": "Prisa embotellada",
       "description": "Cuando la eficiencia no es suficiente",
-      "lore1": "Poción de curación instantánea + Fragmento de amatista = Poción de celeridad (60 segundos)",
-      "lore2": "Curación instantánea + Bloque de amatista = Poción de celeridad-2 (30 segundos)"
+      "lore1": "Poción de velocidad + Fragmento de amatista = Poción de celeridad (60 segundos)",
+      "lore2": "Poción de velocidad + Bloque de amatista = Poción de celeridad-2 (30 segundos)"
     },
     "absorption": {
       "name": "Absorción embotellada",
       "description": "¡Endurezca el cuerpo!",
-      "lore1": "Poción de velocidad + Cuarzo = Poción de absorción (60 segundos)",
-      "lore2": "Poción de velocidad + Bloque de cuarzo = Poción de absorción-2 (30 segundos)"
+      "lore1": "Curación instantánea + Cuarzo = Poción de absorción (60 segundos)",
+      "lore2": "Curación instantánea + Bloque de cuarzo = Poción de absorción-2 (30 segundos)"
     },
     "fatigue": {
       "name": "Fatiga embotellada",
@@ -519,6 +581,12 @@
       "lore2": "XLX : Cuero, Plomo, Cuero",
       "lore3": "XSX : Cuero, Caja Shulker, Cuero",
       "lore4": "XCX : Cuero, Cofre, Cuero"
+    },
+    "stations": {
+      "name": "¡Mesas portátiles!",
+      "description": "¡Usa una mesa en la palma de tu mano!",
+      "lore2": "¡CUALQUIER ARTÍCULO QUE OLVIDE EN LA MESA CUANDO CERRADO SE PIERDE PARA SIEMPRE!",
+      "lore3": "Tablas válidas: Yunque, Artesanía, Muela, Cartografía, Cantero, Telar"
     },
     "skulls": {
       "name": "Calaveras crafteables!",
