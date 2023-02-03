@@ -1,362 +1,362 @@
 {
   "advancement": {
     "challenge_move_1k": {
-      "title": "움직이자!",
-      "description": "1km 이상 걷기(1,000블럭)"
+      "title": "풋내기 러너",
+      "description": "1KM 이상 이동하기 (1,000 블럭)"
     },
     "challenge_sprint_5k": {
-      "title": "5km를 달리세요!",
-      "description": "5km 이상 걷기(5,000블록)"
+      "title": "중급 러너",
+      "description": "5KM 이상 이동하기 (5,000 블럭)"
     },
     "challenge_sprint_50k": {
-      "title": "50km 러너!",
-      "description": "50km 이상 걷기(50,000블록)"
+      "title": "베테랑 러너",
+      "description": "50KM 이상 이동하기 (50,000 블럭)"
     },
     "challenge_sprint_500k": {
-      "title": "우주를 횡단하라!!",
-      "description": "500km 이상 걷기(500,000블록)"
+      "title": "우주를 가로질러라!!",
+      "description": "500KM 이상 이동하기 (500,000 블럭)"
     },
     "challenge_sprint_marathon": {
-      "title": "(문자 그대로) 마라톤을 질주하십시오!",
-      "description": "42,195블록을 질주하세요!"
+      "title": "마라톤!",
+      "description": "42,195 블럭을 달리세요!"
     },
     "challenge_place_1k": {
-      "title": "초보 빌더!",
-      "description": "1,000 블록 배치"
+      "title": "풋내기 건축가",
+      "description": "블럭 1,000개를 배치하세요"
     },
     "challenge_place_5k": {
-      "title": "중급 빌더!",
-      "description": "5,000 블록 배치"
+      "title": "중급 건축가",
+      "description": "블럭 5,000개를 배치하세요"
     },
     "challenge_place_50k": {
-      "title": "고급 빌더!",
-      "description": "50,000 블록 배치"
+      "title": "베테랑 건축가!",
+      "description": "블럭 50,000개를 배치하세요"
     },
     "challenge_place_500k": {
-      "title": "마스터 빌더!",
-      "description": "500,000 블록 배치"
+      "title": "마스터 건축가!",
+      "description": "블럭 500,000개를 배치하세요"
     },
     "challenge_place_5m": {
-      "title": "대칭의 수행사제!",
-      "description": "현실은 당신의 놀이터입니다! (5백만 블록)"
+      "title": "대칭의 수호자!",
+      "description": "현실은 당신의 캔버스입니다! (5백만 블럭을 배치하세요)"
     },
     "challenge_chop_1k": {
-      "title": "초보 나무꾼!",
-      "description": "1,000 블록 자르기"
+      "title": "풋내기 나무꾼!",
+      "description": "나무 블럭 1,000개를 베세요"
     },
     "challenge_chop_5k": {
-      "title": "중급 벌목꾼!",
-      "description": "5,000 블록 자르기"
+      "title": "중급 나무꾼!",
+      "description": "나무 블럭 5,000개를 베세요"
     },
     "challenge_chop_50k": {
-      "title": "고급 나무꾼!",
-      "description": "50,000 블록 자르기"
+      "title": "베테랑 나무꾼!",
+      "description": "나무 블럭 50,000개를 베세요"
     },
     "challenge_chop_500k": {
-      "title": "나무꾼 마스터!",
-      "description": "500,000 블록 자르기"
+      "title": "마스터 나무꾼!",
+      "description": "나무 블럭 500,000개를 베세요"
     },
     "challenge_chop_5m": {
-      "title": "잭슨 개",
-      "description": "최고의 착한 소년! (5백만 블록)"
+      "title": "나무 베는 체인소맨",
+      "description": "최고의 전기톱! (나무 블럭 5백만 개를 베세요)"
     },
     "challenge_block_1k": {
-      "title": "발리 블로킹!",
-      "description": "1000 히트 차단"
+      "title": "막았죠?",
+      "description": "공격 1,000번을 막으세요"
     },
     "challenge_block_5k": {
-      "title": "차단은 재미있다!",
-      "description": "5000 히트 차단"
+      "title": "붕셰죠?",
+      "description": "공격 5,000번을 막으세요"
     },
     "challenge_block_50k": {
-      "title": "차단은 내 인생이다!",
-      "description": "50,000 히트 차단"
+      "title": "넌 못지나간다!",
+      "description": "공격 50,000번을 막으세요"
     },
     "challenge_block_500k": {
-      "title": "차단하는 것이 내 목적입니다!",
-      "description": "500,000 히트 차단"
+      "title": "고기 방패라도...",
+      "description": "공격 500,000번을 막으세요"
     },
     "challenge_block_5m": {
-      "title": "다이 핸드 다이 Verletzt",
-      "description": "5,000,000 히트 차단"
+      "title": "아픈 건 싫으니까 방어력에 올인하려고 합니다",
+      "description": "공격 5,000,000번을 막으세요"
     },
     "challenge_brew_1k": {
-      "title": "초보 연금술사!",
-      "description": "물약 1000개 소모"
+      "title": "풋내기 연금술사!",
+      "description": "물약 1,000개를 사용하세요"
     },
     "challenge_brew_5k": {
       "title": "중급 연금술사!",
-      "description": "물약 5000개 소모"
+      "description": "물약 5,000개를 사용하세요"
     },
     "challenge_brew_50k": {
-      "title": "고급 연금술사!",
-      "description": "물약 50,000개 소모"
+      "title": "베테랑 연금술사!",
+      "description": "물약 50,000개를 사용하세요"
     },
     "challenge_brew_500k": {
       "title": "마스터 연금술사!",
-      "description": "물약 500,000개 소모"
+      "description": "물약 500,000개를 사용하세요"
     },
     "challenge_brew_5m": {
-      "title": "연금술사",
-      "description": "물약 5,000,000개 소모"
+      "title": "위대한 연금술사",
+      "description": "물약 5,000,000개를 사용하세요"
     },
     "challenge_brewsplash_1k": {
-      "title": "초보자 물약자!",
-      "description": "스플래쉬 1000 포션"
+      "title": "풋내기 마녀!",
+      "description": "물약 1,000개를 던지세요"
     },
     "challenge_brewsplash_5k": {
-      "title": "중급 물약 스플래셔!",
-      "description": "스플래쉬 5000 포션"
+      "title": "중급 마녀!",
+      "description": "물약 5,000개를 던지세요"
     },
     "challenge_brewsplash_50k": {
-      "title": "고급 물약 스플래셔!",
-      "description": "물약 50,000개 튀기기"
+      "title": "베테랑 마녀!",
+      "description": "물약 50,000개를 던지세요"
     },
     "challenge_brewsplash_500k": {
-      "title": "마스터 포션 스플래셔!",
-      "description": "물약 500,000개 튀기기"
+      "title": "마스터 마녀!",
+      "description": "물약 500,000개를 던지세요"
     },
     "challenge_brewsplash_5m": {
-      "title": "스플래쉬 마이스터",
-      "description": "물약 5,000,000개 튀기기"
+      "title": "위대한 마녀",
+      "description": "물약 5,000,000개를 던지세요"
     },
     "challenge_craft_1k": {
-      "title": "교활한 크래프터!",
-      "description": "아이템 1000개 제작"
+      "title": "풋내기 제작자!",
+      "description": "아이템 1,000개를 제작하세요"
     },
     "challenge_craft_5k": {
-      "title": "광란의 크래프터!",
-      "description": "아이템 5000개 제작"
+      "title": "중급 제작자!",
+      "description": "아이템 5,000개를 제작하세요"
     },
     "challenge_craft_50k": {
-      "title": "서빌 크래프터!",
-      "description": "아이템 50,000개 제작"
+      "title": "베테랑 제작자!",
+      "description": "아이템 50,000개를 제작하세요"
     },
     "challenge_craft_500k": {
-      "title": "불협화음 크래프터!",
-      "description": "500,000개 아이템 제작"
+      "title": "마스터 제작자!",
+      "description": "아이템 500,000개를 제작하세요"
     },
     "challenge_craft_5m": {
-      "title": "재앙의 맥크래프트페이스",
-      "description": "5,000,000개 아이템 제작"
+      "title": "위대한 제작자",
+      "description": "아이템 5,000,000개를 제작하세요"
     },
     "challenge_enchant_1k": {
-      "title": "초보 인챈터!",
-      "description": "인챈트 1000 아이템"
+      "title": "풋내기 인챈터!",
+      "description": "아이템 1,000개를 인챈트하세요"
     },
     "challenge_enchant_5k": {
       "title": "중급 인챈터!",
-      "description": "인챈트 5000 아이템"
+      "description": "아이템 5,000개를 인챈트하세요"
     },
     "challenge_enchant_50k": {
-      "title": "고급 인챈터!",
-      "description": "인챈트 50,000개 아이템"
+      "title": "베테랑 인챈터!",
+      "description": "아이템 50,000개를 인챈트하세요"
     },
     "challenge_enchant_500k": {
       "title": "마스터 인챈터!",
-      "description": "인챈트 500,000 아이템"
+      "description": "아이템 500,000개를 인챈트하세요"
     },
     "challenge_enchant_5m": {
-      "title": "수수께끼의 인챈터",
-      "description": "인챈트 5,000,000 아이템"
+      "title": "위대한 인챈터",
+      "description": "아이템 5,000,000개를 인챈트하세요"
     },
     "challenge_excavate_1k": {
-      "title": "유혹하는 굴착기!",
-      "description": "블록 1000개 발굴"
+      "title": "풋내기 발굴가!",
+      "description": "블럭 1,000개를 파내세요"
     },
     "challenge_excavate_5k": {
-      "title": "중급 굴삭기!",
-      "description": "블록 5000개 발굴"
+      "title": "중급 발굴가!",
+      "description": "블럭 5,000개를 파내세요"
     },
     "challenge_excavate_50k": {
-      "title": "고급 굴삭기!",
-      "description": "블록 50,000개 발굴"
+      "title": "베테랑 발굴가",
+      "description": "블럭 50,000개를 파내세요"
     },
     "challenge_excavate_500k": {
-      "title": "마스터 굴삭기!",
-      "description": "500,000 블록 발굴"
+      "title": "마스터 발굴가!",
+      "description": "블럭 500,000개를 파내세요"
     },
     "challenge_excavate_5m": {
-      "title": "수수께끼의 굴착기",
-      "description": "5,000,000 블록 발굴"
+      "title": "위대한 발굴가",
+      "description": "블럭 5,000,000개를 파내세요"
     }
   },
   "items": {
     "boundenderperal": {
-      "name": "유물 포트키",
-      "usage1": "바인딩하려면 Shift + 왼쪽 클릭",
-      "usage2": "바인딩된 인벤토리에 액세스하려면 마우스 오른쪽 버튼을 클릭하세요."
+      "name": "원격 상자",
+      "usage1": "바인딩: 상자에 웅크리기 + 좌클릭",
+      "usage2": "엑세스: 아이템 우클릭"
     },
     "boundeyeofender": {
-      "name": "안구 앵커",
-      "usage1": "마우스 오른쪽 버튼을 클릭하여 소비하고 바인딩된 위치로 순간이동합니다.",
-      "usage2": "Shift + 왼쪽 클릭하여 블록에 바인딩"
+      "name": "랑데부",
+      "usage1": "우클릭: 아이템을 소모하여 바인딩한 위치로 순간이동합니다",
+      "usage2": "바인딩: 블럭에 웅크리기 + 좌클릭"
     },
     "boundredstonetorch": {
-      "name": "레드스톤 리모트",
-      "usage1": "1-Tick Redstone 펄스를 생성하려면 마우스 오른쪽 버튼을 클릭하십시오.",
-      "usage2": "바인딩할 '대상' 블록을 Shift + 왼쪽 클릭"
+      "name": "원격 레드스톤",
+      "usage1": "우클릭: 1틱의 레드스턴 신호를 발생시킵니다",
+      "usage2": "바인딩: 블럭에 웅크리기 + 좌클릭"
     }
   },
   "snippets": {
     "gui": {
-      "level": "수준",
+      "level": "레벨",
       "knowledge": "지식",
-      "powerused": "사용 전력",
-      "notlearned": "배우지 않음",
+      "powerused": "파워",
+      "notlearned": "습득 포기",
       "xp": "XP에",
-      "welcome": "어서 오십시오!",
+      "welcome": "반갑습니다!",
       "welcomeback": "다시 오신 것을 환영합니다!",
       "xpbonusfortime": "XP",
-      "unlockthisbyclicking": "Adapt Block[책장]을 마우스 우클릭하여 잠금을 해제하십시오!",
-      "back": "뒤",
-      "unlearnall": "모두 해제",
-      "unlearnedall": "모두 학습하지 않음"
+      "unlockthisbyclicking": "우클릭 - 스킬 잠금 해제: ",
+      "back": "뒤로 가기",
+      "unlearnall": "모두 습득 포기",
+      "unlearnedall": "모두 습득하지 않음"
     },
     "adaptmenu": {
-      "maynotunlearn": "당신은 배울 수 없습니다",
-      "mayunlearn": "당신은 배울 수 있습니다 / 배우지 않을 수 있습니다",
-      "knowledgecost": "지식 비용",
-      "alreadylearned": "이미 배웠다",
-      "unlearnrefund": "학습 취소 및 환불을 클릭하십시오.",
+      "maynotunlearn": "습득할 수 없습니다",
+      "mayunlearn": "습득하거나 습득 포기할 수 있습니다",
+      "knowledgecost": "필요한 지식",
+      "alreadylearned": "이미 습득함",
+      "unlearnrefund": "클릭하여 습득 포기 및 환불을 받습니다",
       "norefunds": "하드코어, 환불 불가",
       "knowledge": "지식",
-      "clicklearn": "클릭하여 배우기",
-      "noknowledge": "(당신은 지식이 없습니다)",
-      "youonlyhave": "당신은 오직 가지고 있습니다",
-      "howtolevelup": "스킬을 레벨업하여 최대 파워를 높이세요.",
-      "notenoughpower": "힘이 부족해! 각 능력 레벨은 1 힘을 소모합니다.",
-      "power": "힘",
-      "powerdrain": "힘 초기화",
-      "learned": "배웠다",
-      "unlearned": "배우지 않은"
+      "clicklearn": "클릭하여 습득: ",
+      "noknowledge": "(지식을 갖고 있지 않습니다)",
+      "youonlyhave": "현재 보유중인 지식: ",
+      "howtolevelup": "스킬을 강화하여 최대 파워를 높이세요",
+      "notenoughpower": "파워가 부족합니다 (필요한 파워: 1)",
+      "power": "파워",
+      "powerdrain": "파워 초기화",
+      "learned": "습득: ",
+      "unlearned": "미습득: "
     },
     "knowledgeorb": {
       "contains": "포함",
       "knowledge": "지식",
-      "rightclick": "마우스 오른쪽 버튼으로 클릭",
+      "rightclick": "우클릭",
       "togainknowledge": "이 지식을 얻기 위해",
       "knowledgeorb": "지식의 구체"
     },
     "experienceorb": {
       "contains": "포함",
       "xp": "경험",
-      "rightclick": "마우스 우클릭",
+      "rightclick": "우클릭",
       "togainxp": "이 경험을 얻기 위해",
-      "xporb": "경험치 구체"
+      "xporb": "경험의 구체"
     }
   },
   "skill": {
     "agility": {
       "name": "민첩성",
       "icon": "⇉",
-      "description": "민첩성은 장애물에 직면하여 빠르고 유동적으로 움직이는 능력입니다."
+      "description": "빠르게 대처하고 움직이는 능력"
     },
     "architect": {
-      "name": "건축가",
+      "name": "건축",
       "icon": "⬧",
-      "description": "구조는 세계의 빌딩 블록입니다. 현실은 당신의 손에 있고 당신이 통제할 수 있습니다."
+      "description": "세계의 구조를 통제하는 능력"
     },
     "axes": {
-      "name": "축",
-      "icon": "❖",
-      "description1": "나무를 베는 이유",
+      "name": "도끼",
+      "icon": "🪓",
+      "description1": "자를 수 있는데 왜 나무를 베어",
       "description2": "것들",
       "description3": "대신 동일한 최종 결과!"
     },
     "brewing": {
-      "name": "물약 제조",
+      "name": "연금술",
       "icon": "❦",
-      "description": "더블 버블, 트리플 버블, 쿼드러플 버블 - 나는 아직도 이 물약을 가마솥에 넣을 수 없다"
+      "description": "증명할 수 없는 이상 효과를 다루는 능력"
     },
     "blocking": {
-      "name": "블로킹",
-      "icon": "▒",
-      "description": "막대기와 돌은 뼈를 부러뜨리지 않지만 방패는 뼈를 부러뜨릴 것입니다."
+      "name": "방패",
+      "icon": "🛡",
+      "description": "강력한 방어를 제공하는 능력"
     },
     "crafting": {
       "name": "제작",
       "icon": "⌂",
-      "description": "더 이상 조각이 남지 않은 상태에서 다른 조각을 만들어 보는 것은 어떨까요?"
+      "description": "모든 것을 조합하여 또 다른 것을 제작해내다"
     },
     "discovery": {
-      "name": "발견",
+      "name": "탐험",
       "icon": "⚛",
-      "description": "당신의 지각이 확장됨에 따라, 당신의 마음은 당신이 알지 못했던 것을 발견하기 위해 풀리게 됩니다."
+      "description": "세계의 비밀을 찾아내는 과정"
     },
     "enchanting": {
-      "name": "매혹적인",
+      "name": "인챈트",
       "icon": "♰",
-      "description": "무슨 일이야? 예언, 환상, 미신적인 횡재수?"
+      "description": "알 수 없는 현상을 가져오는 요소"
     },
     "excavation": {
       "name": "발굴",
-      "icon": "✥",
-      "description": "싱크홀..."
+      "icon": "ᛳ",
+      "description": "기초가 단단하면 쉽게 무너지지 않는다"
     },
     "herbalism": {
       "name": "약초학",
       "icon": "⚘",
-      "description": "식물을 찾을 수는 없지만 씨앗을 찾을 수 있습니다. 그리고- 그게... 위드?"
+      "description": "식물에 대해 자세히 알아가는 능력"
     },
     "hunter": {
-      "name": "사냥꾼",
+      "name": "사냥",
       "icon": "☠",
-      "description": "사냥은 결과가 아니라 여정에 관한 것입니다."
+      "description": "생존하기 위해 사냥하는 것이 아닌 사냥하기 위해 생존하는 것이다"
     },
     "nether": {
       "name": "네더",
       "icon": "₪",
-      "description": "네더 자체의 깊숙한 곳에서."
+      "description": "또 다른 세계, 깊은 곳에서"
     },
     "pickaxe": {
-      "name": "곡괭이",
+      "name": "채굴",
       "icon": "⛏",
-      "description": "드워프는 광부이지만 내 시대에 한두 가지를 배웠습니다. 메신저 스웨덴어"
+      "description": "지하 탐험에 큰 이점을 가져오는 능력"
     },
     "ranged": {
-      "name": "원거리",
+      "name": "저격",
       "icon": "🏹",
       "description": "거리는 승리의 열쇠이자 생존의 열쇠입니다."
     },
     "rift": {
-      "name": "지구",
+      "name": "균열",
       "icon": "❍",
-      "description": "균열은 부식성 마구이지만 당신은 마구를 이용했습니다."
+      "description": "세계와 세계 사이의 충돌로 발생한 불가사의한 힘"
     },
     "seaborne": {
-      "name": "떠서",
-      "icon": "🌊",
-      "description": "이 기술을 사용하면 물의 경이로움을 경험할 수 있습니다."
+      "name": "해상",
+      "icon": "🎣",
+      "description": "물의 경이로움을 느낄 수 있는 능력"
     },
     "stealth": {
-      "name": "몰래 하기",
-      "icon": "✠",
-      "description": "보이지 않는 것의 예술. 그림자 속을 걷습니다."
+      "name": "잡입",
+      "icon": "☯",
+      "description": "보이지 않는 것의 예술, 어둠 속을 걷다"
     },
     "swords": {
-      "name": "검",
+      "name": "검술",
       "icon": "⚔",
-      "description": "그레이스톤의 힘으로!"
+      "description": "전투 그 자체"
     },
     "taming": {
-      "name": "길들이기",
+      "name": "테이밍",
       "icon": "♥",
-      "description": "앵무새와 꿀벌... 그리고 당신은?"
+      "description": "모두와 함께 하는 즐거움"
     },
     "tragoul": {
-      "name": "트래그울",
-      "icon": "▼",
-      "description": "혈액은 우주의 정맥을 통해 흐릅니다. 당신의 손에 의해 압축됩니다."
+      "name": "균형",
+      "icon": "🗡",
+      "description": "당신의 손으로 우주를 재구축하는 힘"
     },
     "chronos": {
       "name": "크로노스",
-      "icon": "۞",
-      "description": "우주의 시계를 감고 흐름을 경험하십시오. 시계를 깨고, 되십시오."
+      "icon": "⏳",
+      "description": "우주의 시간을 통제하고 느껴라"
     },
     "unarmed": {
       "name": "비무장",
-      "icon": "⚜",
+      "icon": "»",
       "description": "무기가 없어도 힘이 없는 것이 아니다"
     }
   },
