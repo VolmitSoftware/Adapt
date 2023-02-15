@@ -1,15 +1,15 @@
 {
   "advancement": {
     "challenge_move_1k": {
-      "title": "풋내기 러너",
+      "title": "1KM",
       "description": "1KM 이상 이동하기 (1,000 블럭)"
     },
     "challenge_sprint_5k": {
-      "title": "중급 러너",
+      "title": "5KM",
       "description": "5KM 이상 이동하기 (5,000 블럭)"
     },
     "challenge_sprint_50k": {
-      "title": "베테랑 러너",
+      "title": "50KM",
       "description": "50KM 이상 이동하기 (50,000 블럭)"
     },
     "challenge_sprint_500k": {
@@ -255,14 +255,14 @@
     "architect": {
       "name": "건축",
       "icon": "⬧",
-      "description": "세계의 구조를 통제하는 능력"
+      "description": "현실의 구조를 통제하는 능력"
     },
     "axes": {
       "name": "도끼",
       "icon": "🪓",
-      "description1": "자를 수 있는데 왜 나무를 베어",
-      "description2": "것들",
-      "description3": "대신 동일한 최종 결과!"
+      "description1": "나무를 베어 넘길 수 있다",
+      "description2": " ",
+      "description3": " "
     },
     "brewing": {
       "name": "연금술",
@@ -287,7 +287,7 @@
     "enchanting": {
       "name": "인챈트",
       "icon": "♰",
-      "description": "알 수 없는 현상을 가져오는 요소"
+      "description": "알 수 없는 현상을 가져오는 마법"
     },
     "excavation": {
       "name": "발굴",
@@ -295,9 +295,9 @@
       "description": "기초가 단단하면 쉽게 무너지지 않는다"
     },
     "herbalism": {
-      "name": "약초학",
+      "name": "생명공학",
       "icon": "⚘",
-      "description": "식물에 대해 자세히 알아가는 능력"
+      "description": "생명에 대해 자세히 알아가는 능력"
     },
     "hunter": {
       "name": "사냥",
@@ -312,12 +312,12 @@
     "pickaxe": {
       "name": "채굴",
       "icon": "⛏",
-      "description": "지하 탐험에 큰 이점을 가져오는 능력"
+      "description": "지하 탐험에 가장 큰 영향을 주는 능력"
     },
     "ranged": {
       "name": "저격",
       "icon": "🏹",
-      "description": "거리는 승리의 열쇠이자 생존의 열쇠입니다."
+      "description": "저격은 가장 안전한 승리와 생존의 방법입니다"
     },
     "rift": {
       "name": "균열",
@@ -327,7 +327,7 @@
     "seaborne": {
       "name": "해상",
       "icon": "🎣",
-      "description": "물의 경이로움을 느낄 수 있는 능력"
+      "description": "물의 경이로움을 다룰 수 있는 능력"
     },
     "stealth": {
       "name": "잡입",
@@ -337,107 +337,107 @@
     "swords": {
       "name": "검술",
       "icon": "⚔",
-      "description": "전투 그 자체"
+      "description": "모든 것을 베어버리는 능력"
     },
     "taming": {
       "name": "테이밍",
       "icon": "♥",
-      "description": "모두와 함께 하는 즐거움"
+      "description": "동물을 길들이는 능력"
     },
     "tragoul": {
-      "name": "균형",
+      "name": "경험",
       "icon": "🗡",
-      "description": "당신의 손으로 우주를 재구축하는 힘"
+      "description": "전투에서 얻는 경험을 활용하는 능력"
     },
     "chronos": {
       "name": "크로노스",
       "icon": "⏳",
-      "description": "우주의 시간을 통제하고 느껴라"
+      "description": "우주의 시간을 느끼고 통제해라"
     },
     "unarmed": {
       "name": "비무장",
       "icon": "»",
-      "description": "무기가 없어도 힘이 없는 것이 아니다"
+      "description": "무기가 없다고 힘이 없는 것이 아니다"
     }
   },
   "agility": {
     "armorup": {
-      "name": "방어구 적용",
+      "name": "방어구 강화",
       "description": "달릴수록 더 강화된 방어구를 적용받으세요!",
       "lore1": "최대 방어구 적용",
       "lore2": "방어력 상승 시간"
     },
     "superjump": {
-      "name": "높은 점프",
-      "description": "탁월한 높이 이점",
+      "name": "슈퍼 점프",
+      "description": "매우 높게 점프하세요!",
       "lore1": "최대 점프 높이",
-      "lore2": "몰래 + 점프 슈퍼 점프!"
+      "lore2": "웅크리기 + 점프"
     },
     "walljump": {
-      "name": "벽 점프",
-      "description": "Shift 키를 누른 상태에서 공중에서 벽에 걸고 점프하세요!",
+      "name": "벽타기",
+      "description": "공중에서 벽에 붙어 웅크리고 점프하세요!",
       "lore1": "최대 점프",
       "lore2": "점프 높이"
     },
     "windup": {
-      "name": "마무리하다",
-      "description": "더 빨리 질주하세요!",
+      "name": "가속 강화",
+      "description": "더 빠르게 가속하세요!",
       "lore1": "최대 속도",
-      "lore2": "와인드업 시간"
+      "lore2": "가속 시간"
     }
   },
   "architect": {
     "foundation": {
-      "name": "매직 파운데이션",
-      "description": "이것은 당신이 몰래 잠입하여 당신 아래에 임시 기초를 놓을 수 있게 해줍니다!",
-      "lore1": "마술처럼 생성:",
-      "lore2": "당신 아래에 블록!"
+      "name": "마법 기초",
+      "description": "웅크려서 발 빝에 임시 기초 블럭을 생성합니다",
+      "lore1": "생성:",
+      "lore2": " "
     },
     "glass": {
-      "name": "실크 터치 유리",
-      "description": "이렇게 하면 빈 손으로 유리 블록을 깨뜨릴 때 유리 블록이 손실되는 것을 근본적으로 방지할 수 있습니다!",
-      "lore1": "당신의 손이 Glass를 위한 실크 터치를 얻습니다."
+      "name": "섬세한 손길",
+      "description": "유리 블럭을 손실없이 아이템으로 돌려받을 수 있습니다",
+      "lore1": "빈 손에 유리에 대한 섬세한 손길 효과를 부여합니다"
     },
     "wirelessredstone": {
-      "name": "레드스톤 리모트",
-      "description": "이렇게 하면 레드스톤 횃불을 사용하여 원격으로 레드스톤을 토글할 수 있습니다!",
-      "lore1": "대상 + 레드스톤 횃불 + 엔더페럴 = 레드스톤 리모컨 1개"
+      "name": "원격 레드스톤",
+      "description": "레드사톤 횃불을 사용하여 원격으로 레드스톤 신호를 조작할 수 있습니다",
+      "lore1": "과녁 블럭 + 레드스톤 횃불 + 엔더 진주 = 원격 레드스톤"
     },
     "placement": {
-      "name": "빌더 완드",
-      "description": "한 번에 여러 블록을 배치하여 Sneak을 활성화하고 찾고 있는 블록과 장소와 일치하는 블록을 잡을 수 있습니다! 상자 경계를 트리거하려면 약간 움직여야 할 수도 있습니다.",
-      "lore1": "당신은 필요",
-      "lore2": "이것을 배치하기 위해 손에 있는 블록",
-      "lore3": "재료 빌더 완드"
+      "name": "월드 에딧",
+      "description": "웅크린 상태로 범위를 지정하고 블럭을 한번에 여러개를 설치할 수 있습니다",
+      "lore1": "필요한 블럭 수: ",
+      "lore2": " ",
+      "lore3": " "
     }
   },
   "axe": {
     "chop": {
-      "name": "도끼 벌목",
-      "description": "기본 통나무를 마우스 우클릭하여 나무를 베세요!",
-      "lore1": "찹당 블록",
-      "lore2": "찹 쿨다운",
-      "lore3": "공구 마모"
+      "name": "찹트리",
+      "description": "나무를 우클릭하여 한번에 베어버리세요",
+      "lore1": "블럭 갯수",
+      "lore2": "쿨타임",
+      "lore3": "내구도 감소"
     },
     "logswap": {
-      "name": "Lucy의 로그 교환기",
-      "description": "Crafting Table에서 통나무의 맛을 변경하십시오!",
-      "lore1": "모든 종류의 통나무 1개 + 묘목 1개 = 묘목 종류의 통나무 1개"
+      "name": "나무 교환",
+      "description": "제작대에서 나무의 종류를 변경하세요!",
+      "lore1": "아무 종류의 원목 1개 + 묘목 1개 = 묘목과 같은 종류의 원목 1개"
     },
     "droptoinventory": {
       "name": "도끼 인벤토리에 드롭"
     },
     "groundsmash": {
-      "name": "액스 그라운드 스매시",
-      "description": "점프한 다음 웅크리고 근처의 모든 적을 부수십시오.",
-      "lore1": "손상",
-      "lore2": "블록 반경",
+      "name": "대지 분쇄",
+      "description": "점프하고 웅크려서 공격하여 주변 몹에게 광역 피해를 가합니다",
+      "lore1": "데미지",
+      "lore2": "데미지 반경 (블럭)",
       "lore3": "힘",
       "lore4": "스매시 쿨다운"
     },
     "leafminer": {
-      "name": "잎사귀",
-      "description": "한 번에 대량의 잎을 깰 수 있습니다!",
+      "name": "나뭇잎 제거",
+      "description": "한번에 많은 나뭇잎을 제거할 수 있습니다!",
       "lore1": "몰래, 그리고 내 LEAVES",
       "lore2": "리프 마이닝의 범위",
       "lore3": "잎에서 방울을 얻지 못할 것입니다(취약점 방지)"
