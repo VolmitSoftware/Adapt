@@ -68,14 +68,14 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
 
                 } else {
                     addPotionStacks(p, PotionEffectType.HUNGER, 10 + getLevel(p), 100, true);
-                    addPotionStacks(p, PotionEffectType.REGENERATION, getLevel(p), 5 + getLevel(p), false);
+                    addPotionStacks(p, PotionEffectType.REGENERATION, getLevel(p), 2 + getLevel(p), false);
                 }
             } else {
                 if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
                     Material mat = Material.getMaterial(getConfig().consumable);
                     if (mat != null && p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));
-                        addPotionStacks(p, PotionEffectType.REGENERATION, getLevel(p), 5 + getLevel(p), false);
+                        addPotionStacks(p, PotionEffectType.REGENERATION, getLevel(p), 2 + getLevel(p), false);
                     } else {
                         addPotionStacks(p, PotionEffectType.POISON, 2 + getLevel(p), 300, true);
                     }

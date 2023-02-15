@@ -66,10 +66,10 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
             if (!getConfig().useConsumable) {
 
                 if (p.getFoodLevel() == 0) {
-                    addPotionStacks(p, PotionEffectType.POISON, 2 + getLevel(p), 300, true);
+                    addPotionStacks(p, PotionEffectType.POISON,  getLevel(p), 300, false);
 
                 } else {
-                    addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
+                    addPotionStacks(p, PotionEffectType.HUNGER,  getLevel(p), 900, false);
                     addPotionStacks(p, PotionEffectType.DAMAGE_RESISTANCE, getLevel(p), 50, false);
                 }
             } else {
@@ -79,7 +79,7 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
                         p.getInventory().removeItem(new ItemStack(mat, 1));
                         addPotionStacks(p, PotionEffectType.DAMAGE_RESISTANCE, getLevel(p), 50, false);
                     } else {
-                        addPotionStacks(p, PotionEffectType.POISON, 2 + getLevel(p), 300, true);
+                        addPotionStacks(p, PotionEffectType.POISON,  getLevel(p), 300, false);
                     }
                 }
             }

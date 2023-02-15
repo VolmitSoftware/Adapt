@@ -23,14 +23,14 @@ plugins {
     id "de.undercouch.download" version "5.0.1"
 }
 
-version '1.5.3-1.19.3'
+version '1.5.4-1.19.3'
 def nmsVersion = "1.19.3" //[NMS]
 def apiVersion = '1.19'
 def specialSourceVersion = '1.11.0' //[NMS]
 def spigotJarVersion = '1.19.3-R0.1-SNAPSHOT' //[NMS]
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
-def manifoldVersion = '2022.1.36'
+def manifoldVersion = '2022.1.38'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
