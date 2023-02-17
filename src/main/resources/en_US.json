@@ -217,6 +217,7 @@
       "maynotunlearn": "YOU MAY NOT UNLEARN",
       "mayunlearn": "YOU MAY LEARN/UNLEARN",
       "knowledgecost": "Knowledge Cost",
+      "knowledgeavailable": "Knowledge Available",
       "alreadylearned": "Already Learned",
       "unlearnrefund": "Click to Unlearn & Refund",
       "norefunds": "HARDCORE, REFUNDS DISABLED",
@@ -229,7 +230,8 @@
       "power": "power",
       "powerdrain": "Power Drain",
       "learned": "Learned ",
-      "unlearned": "Unlearned "
+      "unlearned": "Unlearned ",
+      "activatorblock": "Bookshelf"
     },
     "knowledgeorb": {
       "contains": "contains",

@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.hunter;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -47,7 +48,7 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
     public void addStats(int level, Element v) {
         v.addLore(C.GRAY + Localizer.dLocalize("hunter", "strength", "lore1"));
         v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter", "strength", "lore2"));
-        v.addLore(C.RED + "- " + 5 + level + C.GRAY + Localizer.dLocalize("hunter", "strength", "lore3"));
+        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter", "strength", "lore3"));
         v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "strength", "lore4"));
         v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "strength", "lore5"));
         v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter", "penalty", "lore1"));
@@ -60,23 +61,31 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
         if (e.isCancelled()) {
             return;
         }
-        if (e.getEntity() instanceof org.bukkit.entity.Player p && !e.getCause().equals(EntityDamageEvent.DamageCause.STARVATION) && hasAdaptation(p)) {
+        if (e.getEntity() instanceof org.bukkit.entity.Player p && isAdaptableDamageCause(e) && hasAdaptation(p)) {
+            if (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied() && p.hasPotionEffect(PotionEffectType.HUNGER)) {
+                return;
+            }
+
             if (!getConfig().useConsumable) {
                 if (p.getFoodLevel() == 0) {
-                    addPotionStacks(p, PotionEffectType.POISON, 2 + getLevel(p), 300, true);
+                    if (getConfig().poisonPenalty) {
+                        addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
+                    }
 
                 } else {
-                    addPotionStacks(p, PotionEffectType.HUNGER, 5 + getLevel(p), 100, true);
-                    addPotionStacks(p, PotionEffectType.INCREASE_DAMAGE, getLevel(p), 50, false);
+                    addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration* getLevel(p), getConfig().stackHungerPenalty);
+                    addPotionStacks(p, PotionEffectType.INCREASE_DAMAGE, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
                 }
             } else {
                 if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
                     Material mat = Material.getMaterial(getConfig().consumable);
                     if (mat != null && p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));
-                        addPotionStacks(p, PotionEffectType.INCREASE_DAMAGE, getLevel(p), 50, false);
+                        addPotionStacks(p, PotionEffectType.INCREASE_DAMAGE, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
                     } else {
-                        addPotionStacks(p, PotionEffectType.POISON, 2 + getLevel(p), 300, true);
+                        if (getConfig().poisonPenalty) {
+                            addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
+                        }
                     }
                 }
             }
@@ -103,6 +112,14 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
         boolean permanent = false;
         boolean enabled = true;
         boolean useConsumable = false;
+        boolean poisonPenalty = true;
+        boolean stackHungerPenalty = false;
+        boolean stackPoisonPenalty = false;
+        boolean stackBuff = false;
+        int baseEffectbyLevel = 25;
+        int baseHungerFromLevel = 10;
+        int basePoisonFromLevel = 6;
+        int baseHungerDuration = 50;
         String consumable = "ROTTEN_FLESH";
         int baseCost = 4;
         int maxLevel = 5;
