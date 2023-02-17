@@ -86,7 +86,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
             }
 
             if (isLog(new ItemStack(e.getBlock().getType()))) {
-
+                Adapt.info("Axe Wood Veinminer: " + p.getName() + " is using " + e.getBlock().getType() + " at " + e.getBlock().getLocation());
                 Block block = e.getBlock();
                 Set<Block> blockMap = new HashSet<>();
                 int blockCount = 0;
@@ -114,7 +114,8 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
 
                 J.s(() -> {
                     for (Block blocks : blockMap) {
-                        if (getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory").getLevel() > 0) {
+                        Adapt.info("Axe Wood Veinminer: " + p.getName() + " is breaking " + blocks.getType() + " at " + blocks.getLocation());
+                        if (getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory").getLevel() > 0) {
                             Collection<ItemStack> items = blocks.getDrops();
                             for (ItemStack item : items) {
                                 safeGiveItem(p, item);

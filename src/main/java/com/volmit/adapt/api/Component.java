@@ -26,6 +26,7 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.xp.XP;
+import com.volmit.adapt.util.J;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -33,6 +34,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -47,7 +49,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public interface Component {
@@ -180,32 +182,55 @@ public interface Component {
         return null;
     }
 
-    default void addPotionStacks(Player p, PotionEffectType potionEffect, int amplifier, int duration, Boolean overlap) {
-        List<PotionEffectType> activeList = p.getActivePotionEffects().stream().map(PotionEffect::getType).toList();
-        if (activeList.size() > 0) {
-            for (PotionEffectType type : activeList) {
-                if (type.equals(potionEffect)) {
-                    if (!AdaptConfig.get().isPotionStackingPreventionInAllSKills()) {
-                        if (overlap) {
-                            p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
-                            int newAmplifier = Objects.requireNonNull(p.getPotionEffect(type)).getAmplifier();
-                            int newDuration = Objects.requireNonNull(p.getPotionEffect(type)).getDuration();
-                            p.removePotionEffect(type);
-                            p.addPotionEffect(new PotionEffect(potionEffect, newDuration + duration, newAmplifier + amplifier, false, false));
-                        }
-                        int newAmplifier = Objects.requireNonNull(p.getPotionEffect(type)).getAmplifier();
-                        int newDuration = Objects.requireNonNull(p.getPotionEffect(type)).getDuration();
-                        p.removePotionEffect(type);
-                        p.addPotionEffect(new PotionEffect(potionEffect, newDuration, newAmplifier + 1, false, false));
-                    }
-                }
-            }
+    default boolean isAdaptableDamageCause(EntityDamageEvent event) {
+        Set<EntityDamageEvent.DamageCause> excludedCauses = Set.of(
+                // These are not damage causes that can are going to trigger adaptability
+                EntityDamageEvent.DamageCause.VOID,
+                EntityDamageEvent.DamageCause.LAVA,
+                EntityDamageEvent.DamageCause.HOT_FLOOR,
+                EntityDamageEvent.DamageCause.CRAMMING,
+                EntityDamageEvent.DamageCause.MELTING,
+                EntityDamageEvent.DamageCause.SUFFOCATION,
+                EntityDamageEvent.DamageCause.SUICIDE,
+                EntityDamageEvent.DamageCause.WITHER,
+                EntityDamageEvent.DamageCause.FLY_INTO_WALL,
+                EntityDamageEvent.DamageCause.FALL,
+                EntityDamageEvent.DamageCause.SONIC_BOOM,
+                EntityDamageEvent.DamageCause.THORNS
+        );
+        return !excludedCauses.contains(event.getCause());
+    }
 
+    default void addPotionStacks(Player p, PotionEffectType potionEffect, int amplifier, int duration, boolean overlap) {
+        List<PotionEffect> activeEffects = new ArrayList<>(p.getActivePotionEffects());
+
+        for (PotionEffect activeEffect : activeEffects) {
+            if (activeEffect.getType() == potionEffect) {
+                if (!overlap) {
+                    return; // don't modify the effect if overlap is false
+                }
+                // modify the effect if overlap is true
+                int newDuration = activeEffect.getDuration() + duration;
+                int newAmplifier = Math.max(activeEffect.getAmplifier(), amplifier);
+                p.removePotionEffect(potionEffect);
+                p.addPotionEffect(new PotionEffect(potionEffect, newDuration, newAmplifier));
+                p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
+                return;
+            }
         }
-        if (!activeList.contains(potionEffect)) {
-            p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
-            p.addPotionEffect(new PotionEffect(potionEffect, duration, amplifier));
-        }
+        // if we didn't find an existing effect, add a new one
+        J.a(() -> {
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            J.s(() -> {
+                p.addPotionEffect(new PotionEffect(potionEffect, duration, amplifier));
+                p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
+            });
+        });
+
     }
 
 
