@@ -102,6 +102,15 @@ public class PlayerData {
             m += i.getMultiplier();
         }
 
+        for (XPMultiplier i : Adapt.instance.getAdaptServer().getData().getMultipliers().copy()) {
+            if (i.isExpired()) {
+                Adapt.instance.getAdaptServer().getData().getMultipliers().remove(i);
+                continue;
+            }
+
+            m += i.getMultiplier();
+        }
+
         if (m <= 0) {
             m = 0.01;
         }
