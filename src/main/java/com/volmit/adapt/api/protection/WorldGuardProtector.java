@@ -11,11 +11,11 @@ import com.volmit.adapt.api.adaptation.Adaptation;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class WorldGuardProtector extends Protector {
+public class WorldGuardProtector implements Protector {
     private final StateFlag flag;
 
     public WorldGuardProtector() {
-        this.flag = new StateFlag("use-adaptations", !AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations());
+        this.flag = new StateFlag("use-adaptations", false);
         WorldGuard.getInstance().getFlagRegistry().register(flag);
     }
 
@@ -28,6 +28,16 @@ public class WorldGuardProtector extends Protector {
         } else {
             return true;
         }
+    }
+
+    @Override
+    public String getName() {
+        return "WorldGuard";
+    }
+
+    @Override
+    public boolean isEnabledByDefault() {
+        return AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations();
     }
 
     private boolean hasBypass(Player p, Location l) {

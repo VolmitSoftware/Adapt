@@ -18,13 +18,13 @@
 
 package com.volmit.adapt.api.adaptation;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.potion.BrewingRecipe;
-import com.volmit.adapt.api.protection.DefaultProtectors;
+import com.volmit.adapt.api.protection.ProtectorRegistry;
 import com.volmit.adapt.api.protection.Protector;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
@@ -33,7 +33,6 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.event.AdaptAdaptationUseEvent;
-import com.volmit.adapt.api.protection.WorldGuardProtector;
 import com.volmit.adapt.util.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -41,8 +40,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Recipe;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public interface Adaptation<T> extends Ticked, Component {
     int getMaxLevel();
@@ -166,8 +164,26 @@ public interface Adaptation<T> extends Ticked, Component {
 
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
-    default List<Protector> getProtectors() {
-        return ImmutableList.copyOf(DefaultProtectors.getDefaultProtectors());
+    default Set<Protector> getProtectors() {
+        Set<Protector> protectors = new HashSet<>(ProtectorRegistry.getDefaultProtectors());
+        Map<String, Boolean> overrides = AdaptConfig.get().getProtectionOverrides().getOrDefault(this.getName(), Collections.emptyMap());
+        overrides.forEach((protector, enabled) -> {
+            if (enabled) {
+                Protector p = ProtectorRegistry.getAllProtectors()
+                        .stream()
+                        .filter(pr -> pr.getName().equals(protector))
+                        .findFirst()
+                        .orElse(null);
+                if (p == null) {
+                    Adapt.error("Could not find protector " + protector + " for adaptation " + this.getName() + ". Skipping...");
+                } else {
+                    protectors.add(p);
+                }
+            } else {
+                protectors.removeIf(pr -> pr.getName().equals(protector));
+            }
+        });
+        return ImmutableSet.copyOf(protectors);
     }
 
     default boolean canBuild(Player p, Location l) {

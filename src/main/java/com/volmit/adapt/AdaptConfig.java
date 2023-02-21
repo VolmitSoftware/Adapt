@@ -68,6 +68,11 @@ public class AdaptConfig {
     private boolean unlearnAllButton = false;
     boolean preventHunterSkillsWhenHungerApplied = true;
     private SqlSettings sql = new SqlSettings();
+    private Map<String, Map<String, Boolean>> protectionOverrides = Map.of(
+            "adaptation-name", Map.of(
+                    "WorldGuard", true
+            )
+    );
 
     @Setter
     private boolean verbose = false;
