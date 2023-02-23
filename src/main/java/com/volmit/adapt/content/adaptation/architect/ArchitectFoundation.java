@@ -197,8 +197,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         } else if (!e.isSneaking() && active) {
             this.active.remove(p);
             cooldowns.put(p, M.ms() + getConfig().cooldown);
-            p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 10.0f);
-            p.getWorld().playSound(p.getLocation(), Sound.BLOCK_SCULK_CATALYST_BREAK, 1.0f, 0.81f);
+            p.playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 10.0f);
+            p.playSound(p.getLocation(), Sound.BLOCK_SCULK_CATALYST_BREAK, 1.0f, 0.81f);
         }
     }
 
