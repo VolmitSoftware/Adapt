@@ -82,6 +82,7 @@ repositories {
     maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
     mavenCentral()
     maven { url 'https://jitpack.io' }
+    maven { url 'https://ci.ender.zone/plugin/repository/everything/' }
 }
 
 /**
@@ -146,6 +147,7 @@ dependencies {
     implementation 'me.clip:placeholderapi:2.11.2'
     implementation 'com.github.LoneDev6:api-itemsadder:3.2.5'
     implementation 'io.th0rgal:oraxen:1.94.0'
+    implementation 'com.massivecraft:Factions:1.6.9.5-U0.6.21'
 
 
     // Shaded
