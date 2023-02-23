@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.api.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.potion.BrewingManager;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
@@ -128,6 +129,11 @@ public class SkillRegistry extends TickedObject {
                 Bukkit.getServer().getConsoleSender().sendMessage("Global" + C.GRAY + ": " + C.GREEN + xv);
 
                 for (XPMultiplier i : a.getData().getMultipliers()) {
+                    String vv = i.getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier()) : Form.pc(i.getMultiplier());
+                    Bukkit.getServer().getConsoleSender().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
+                }
+
+                for (XPMultiplier i : Adapt.instance.getAdaptServer().getData().getMultipliers()) {
                     String vv = i.getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier()) : Form.pc(i.getMultiplier());
                     Bukkit.getServer().getConsoleSender().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
                 }

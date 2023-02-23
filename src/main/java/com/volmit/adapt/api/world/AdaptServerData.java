@@ -16,44 +16,17 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands.boost;
+package com.volmit.adapt.api.world;
 
-import com.volmit.adapt.util.Command;
-import com.volmit.adapt.util.MortarCommand;
-import com.volmit.adapt.util.MortarSender;
+import com.volmit.adapt.api.xp.XPMultiplier;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class CommandBoost extends MortarCommand {
-    private static final List<String> permission = List.of("adapt.boost");
-    @Command
-    private final CommandBoostPlayer player = new CommandBoostPlayer();
-    @Command
-    private final CommandBoostGlobal global = new CommandBoostGlobal();
-
-    public CommandBoost() {
-        super("boost", "b");
-    }
-
-
-    @Override
-    public List<String> getRequiredPermissions() {
-        return permission;
-    }
-
-    @Override
-    public boolean handle(MortarSender sender, String[] args) {
-        printHelp(sender);
-        return true;
-    }
-
-    @Override
-    public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
-
-    }
-
-    @Override
-    protected String getArgsUsage() {
-        return "";
-    }
+@Data
+@NoArgsConstructor
+public class AdaptServerData {
+    private List<XPMultiplier> multipliers = new ArrayList<>();
 }

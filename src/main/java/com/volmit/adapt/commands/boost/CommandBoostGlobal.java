@@ -18,38 +18,37 @@
 
 package com.volmit.adapt.commands.boost;
 
-import com.volmit.adapt.util.Command;
+import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
 
 import java.util.List;
 
-public class CommandBoost extends MortarCommand {
-    private static final List<String> permission = List.of("adapt.boost");
-    @Command
-    private final CommandBoostPlayer player = new CommandBoostPlayer();
-    @Command
-    private final CommandBoostGlobal global = new CommandBoostGlobal();
-
-    public CommandBoost() {
-        super("boost", "b");
-    }
-
-
-    @Override
-    public List<String> getRequiredPermissions() {
-        return permission;
+public class CommandBoostGlobal extends MortarCommand {
+    public CommandBoostGlobal() {
+        super("global", "g");
     }
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        printHelp(sender);
-        return true;
+        try {
+            AdaptServer as = Adapt.instance.getAdaptServer();
+
+            as.boostXP(Double.parseDouble(args[0]), Integer.parseInt(args[1]));
+            Adapt.info("BOOSTED " + args[0] + " XP TO " + args[1] + " ALL SKILL GAINS");
+            sender.sendMessage("BOOSTED " + args[0] + " XP TO " + args[1] + " ALL SKILL GAINS");
+
+            return true;
+        } catch (Exception ignored) {
+            Adapt.verbose("BOOST FAILED");
+            printHelp(sender);
+            return true;
+        }
     }
 
     @Override
     public void addTabOptions(MortarSender sender, String[] args, List<String> list) {
-
     }
 
     @Override

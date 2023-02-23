@@ -28,13 +28,12 @@ import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.xp.SpatialXP;
 import com.volmit.adapt.api.xp.XP;
+import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.content.item.ExperienceOrb;
 import com.volmit.adapt.content.item.KnowledgeOrb;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.IO;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.*;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -57,11 +56,14 @@ public class AdaptServer extends TickedObject {
     private final List<SpatialXP> spatialTickets;
     @Getter
     private SkillRegistry skillRegistry;
+    @Getter
+    private AdaptServerData data = new AdaptServerData();
 
     public AdaptServer() {
         super("core", UUID.randomUUID().toString(), 1000);
         spatialTickets = new ArrayList<>();
         players = new HashMap<>();
+        load();
         try {
             skillRegistry = new SkillRegistry();
         } catch (IOException e) {
@@ -134,6 +136,7 @@ public class AdaptServer extends TickedObject {
             quit(i);
         }
         skillRegistry.unregister();
+        save();
         super.unregister();
     }
 
@@ -242,5 +245,26 @@ public class AdaptServer extends TickedObject {
 
     public AdaptPlayer getPlayer(Player p) {
         return players.get(p);
+    }
+
+    public void boostXP(double boost, int ms) {
+        data.getMultipliers().add(new XPMultiplier(boost, ms));
+    }
+
+    public void load() {
+        File f = new File(Adapt.instance.getDataFolder("data"), "server-data.json");
+        if (f.exists()) {
+            try {
+                String text = IO.readAll(f);
+                data = new Gson().fromJson(text, AdaptServerData.class);
+            } catch (Throwable ignored) {
+                Adapt.verbose("Failed to load global boosts data");
+            }
+        }
+    }
+
+    @SneakyThrows
+    public void save() {
+        IO.writeAll(new File(Adapt.instance.getDataFolder("data"), "server-data.json"), new JSONObject(data).toString(4));
     }
 }
