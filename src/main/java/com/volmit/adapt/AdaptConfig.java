@@ -53,6 +53,7 @@ public class AdaptConfig {
     private double playerXpPerSkillLevelUpLevelMultiplier = 44;
     private double powerPerLevel = 0.73;
     private boolean requireWorldguardBuildPermToUseAdaptations = true;
+    private boolean requireFactionClaimOwnershipToUseAdaptations = false;
     private boolean hardcoreResetOnPlayerDeath = false;
     private boolean hardcoreNoRefunds = false;
     private boolean loginBonus = true;

@@ -21,8 +21,9 @@ package com.volmit.adapt;
 import art.arcane.amulet.io.FolderWatcher;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.potion.BrewingManager;
+import com.volmit.adapt.content.protector.FactionsClaimProtector;
 import com.volmit.adapt.api.protection.ProtectorRegistry;
-import com.volmit.adapt.api.protection.WorldGuardProtector;
+import com.volmit.adapt.content.protector.WorldGuardProtector;
 import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptServer;
@@ -70,9 +71,7 @@ public class Adapt extends VolmitPlugin {
 
     @Override
     public void onLoad() {
-        if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
-            ProtectorRegistry.registerProtector(new WorldGuardProtector());
-        }
+        loadDefaultProtectors();
     }
 
     public static int getJavaVersion() {
@@ -236,5 +235,12 @@ public class Adapt extends VolmitPlugin {
         }
     }
 
-
+    private void loadDefaultProtectors() {
+        if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
+            ProtectorRegistry.registerProtector(new WorldGuardProtector());
+        }
+        if (getServer().getPluginManager().getPlugin("Factions") != null) {
+            ProtectorRegistry.registerProtector(new FactionsClaimProtector());
+        }
+    }
 }
