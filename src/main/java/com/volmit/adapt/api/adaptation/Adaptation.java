@@ -18,17 +18,14 @@
 
 package com.volmit.adapt.api.adaptation;
 
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldguard.LocalPlayer;
-import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.flags.Flags;
-import com.sk89q.worldguard.protection.regions.RegionQuery;
+import com.google.common.collect.ImmutableSet;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.potion.BrewingRecipe;
+import com.volmit.adapt.api.protection.ProtectorRegistry;
+import com.volmit.adapt.api.protection.Protector;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
@@ -43,7 +40,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Recipe;
 
-import java.util.List;
+import java.util.*;
 
 public interface Adaptation<T> extends Ticked, Component {
     int getMaxLevel();
@@ -167,22 +164,31 @@ public interface Adaptation<T> extends Ticked, Component {
 
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
+    default Set<Protector> getProtectors() {
+        Set<Protector> protectors = new HashSet<>(ProtectorRegistry.getDefaultProtectors());
+        Map<String, Boolean> overrides = AdaptConfig.get().getProtectionOverrides().getOrDefault(this.getName(), Collections.emptyMap());
+        overrides.forEach((protector, enabled) -> {
+            if (enabled) {
+                Protector p = ProtectorRegistry.getAllProtectors()
+                        .stream()
+                        .filter(pr -> pr.getName().equals(protector))
+                        .findFirst()
+                        .orElse(null);
+                if (p == null) {
+                    Adapt.error("Could not find protector " + protector + " for adaptation " + this.getName() + ". Skipping...");
+                } else {
+                    protectors.add(p);
+                }
+            } else {
+                protectors.removeIf(pr -> pr.getName().equals(protector));
+            }
+        });
+        return ImmutableSet.copyOf(protectors);
+    }
+
     default boolean canBuild(Player p, Location l) {
-        RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
-        com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(l);
-        if (!hasBypass(p, l)) {
-            return query.testState(loc, WorldGuardPlugin.inst().wrapPlayer(p), Flags.BUILD);
-        } else {
-            return true;
-        }
+        return getProtectors().stream().allMatch(protector -> protector.canBuild(p, l, this));
     }
-
-    private boolean hasBypass(Player p, Location l) {
-        LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
-        com.sk89q.worldedit.world.World world = BukkitAdapter.adapt(l.getWorld());
-        return WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, world);
-    }
-
 
     default boolean hasAdaptation(Player p) {
         try {
@@ -202,10 +208,8 @@ public interface Adaptation<T> extends Ticked, Component {
                     Adapt.verbose("Player " + p.getName() + " is in creative or spectator mode. Skipping adaptation " + this.getName());
                     return false;
                 }
-                if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null && Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
-                        && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()
-                        && !canBuild(p, p.getLocation())) {
-                    Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have worldguard build permission.");
+                if (!canBuild(p, p.getLocation())) {
+                    Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have build permission.");
                     return false;
                 }
                 Adapt.verbose("Player " + p.getName() + " used adaptation " + this.getName());

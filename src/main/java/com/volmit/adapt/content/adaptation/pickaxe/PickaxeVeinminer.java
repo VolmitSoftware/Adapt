@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.adaptation.pickaxe;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -90,10 +89,8 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                         Block b = block.getRelative(x, y, z);
                         if (b.getType() == block.getType()) {
                             //might fix the veinminer issue. no Clue!
-                            if ((Bukkit.getServer().getPluginManager().getPlugin("WorldGuard") != null && Bukkit.getServer().getPluginManager().getPlugin("WorldGuard").isEnabled())
-                                    && AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations()
-                                    && !canBuild(p, p.getLocation())) {
-                                Adapt.verbose("Player " + p.getName() + " tried to use Veinminer but doesn't have WorldGuard build permission.");
+                            if (!canBuild(p, p.getLocation())) {
+                                Adapt.verbose("Player " + p.getName() + " tried to use Veinminer but doesn't have build permission.");
                                 return;
                             }
                             blockMap.put(b.getLocation(), b);
