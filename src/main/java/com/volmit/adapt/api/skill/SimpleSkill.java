@@ -102,6 +102,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
                         config = null;
                         getConfig();
                         Adapt.info("Hotloaded " + file.getPath());
+                        Adapt.hotloaded();
                         fw.checkModified();
                     }
                 }
