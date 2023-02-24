@@ -23,14 +23,14 @@ plugins {
     id "de.undercouch.download" version "5.0.1"
 }
 
-version '1.5.5-1.19.3'
+version '1.6.0-1.19.3'
 def nmsVersion = "1.19.3" //[NMS]
 def apiVersion = '1.19'
 def specialSourceVersion = '1.11.0' //[NMS]
 def spigotJarVersion = '1.19.3-R0.1-SNAPSHOT' //[NMS]
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
-def manifoldVersion = '2022.1.38'
+def manifoldVersion = '2023.1.0'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
@@ -134,6 +134,7 @@ dependencies {
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
     implementation 'art.arcane:Fukkit:22.7.5'
+    implementation 'art.arcane:Curse:22.11.8'
     annotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
     testAnnotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
     implementation 'systems.manifold:manifold-rt:' + manifoldVersion
