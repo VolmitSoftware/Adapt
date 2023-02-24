@@ -56,6 +56,19 @@ public class Ticker {
         }
     }
 
+    public void clear() {
+        synchronized (ticklist) {
+            ticklist.clear();
+        }
+        synchronized (removeTicks) {
+            removeTicks.clear();
+        }
+        synchronized (newTicks) {
+            newTicks.clear();
+        }
+
+    }
+
     private void tick() {
         ticking = true;
 //        int ix = 0;

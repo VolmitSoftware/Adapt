@@ -74,6 +74,10 @@ public interface Window {
 
     String getTitle();
 
+    String getTag();
+
+    void setTag(String s);
+
     Window setTitle(String title);
 
     boolean hasElement(int position, int row);

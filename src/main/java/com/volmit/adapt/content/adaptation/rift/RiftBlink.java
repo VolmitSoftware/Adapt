@@ -76,6 +76,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         lastJump.remove(p);
+        canBlink.remove(p);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -124,10 +125,6 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         }
     }
 
-    public boolean isSafe(Location l) {
-        return l.getBlock().getType().isSolid() && !l.getBlock().getRelative(BlockFace.UP).getType().isSolid() && !l.getBlock().getRelative(BlockFace.UP).getRelative(BlockFace.UP).getType().isSolid();
-    }
-
     @EventHandler
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
@@ -152,15 +149,23 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             if (isSafe(loc)) {
                 canBlink.put(p, true);
                 p.setAllowFlight(true);
-                Adapt.info("Allowing flight for " + p.getName() + "");
+                Adapt.verbose("Allowing flight for " + p.getName() + "");
                 J.a(() -> {
                     p.setAllowFlight(false);
                     p.setFlying(false);
-                    Adapt.info("Disabling flight for " + p.getName() + "");
+                    Adapt.verbose("Disabling flight for " + p.getName() + "");
                     canBlink.remove(p);
-                }, 13);
+                }, 25);
             }
+        } else {
+            canBlink.remove(p);
         }
+    }
+
+    private boolean isSafe(Location l) {
+        return l.getBlock().getType().isSolid()
+                && !l.getBlock().getRelative(BlockFace.UP).getType().isSolid()
+                && !l.getBlock().getRelative(BlockFace.UP).getRelative(BlockFace.UP).getType().isSolid();
     }
 
 

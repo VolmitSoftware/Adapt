@@ -92,11 +92,16 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
             Adapt.instance.getTicker().register(new TickedObject("config", "config-adaptation-" + getName(), 1000) {
                 @Override
                 public void onTick() {
-                    if (fw.checkModified() && file.exists()) {
-                        config = null;
-                        getConfig();
-                        Adapt.info("Hotloaded " + file.getPath());
-                        fw.checkModified();
+                    try {
+                        if (fw.checkModified() && file.exists()) {
+                            config = null;
+                            getConfig();
+                            Adapt.info("Hotloaded " + file.getPath());
+                            Adapt.hotloaded();
+                            fw.checkModified();
+                        }
+                    } catch (Throwable e) {
+                        e.printStackTrace();
                     }
                 }
             });

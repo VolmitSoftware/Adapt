@@ -33,6 +33,7 @@ import org.bukkit.entity.Player;
 public class SkillsGui {
     public static void open(Player player) {
         Window w = new UIWindow(player);
+        w.setTag("/");
         w.setDecorator((window, position, row) -> new UIElement("bg")
                 .setName("")
                 .setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
@@ -87,6 +88,8 @@ public class SkillsGui {
 
             w.setTitle(Localizer.dLocalize("snippets", "gui", "level") + " " + (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp()) + " (" + adaptPlayer.getData().getUsedPower() + "/" + adaptPlayer.getData().getMaxPower() + " " + Localizer.dLocalize("snippets", "gui", "powerused") + ")");
             w.open();
+            w.onClosed((e) -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString()));
+            Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
         }
     }
 }

@@ -47,6 +47,7 @@ public class UIWindow implements Window, Listener {
     private int viewportPosition;
     private int viewportSize;
     private int highestRow;
+    private String tag;
     private Inventory inventory;
     private int clickcheck;
     private boolean doubleclicked;
@@ -291,6 +292,17 @@ public class UIWindow implements Window, Listener {
     public String getTitle() {
         return title;
     }
+
+    @Override
+    public String getTag() {
+        return tag;
+    }
+
+    @Override
+    public void setTag(String s) {
+        tag = s;
+    }
+
 
     @Override
     public UIWindow setTitle(String title) {
