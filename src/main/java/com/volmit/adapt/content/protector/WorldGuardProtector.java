@@ -18,11 +18,14 @@
 
 package com.volmit.adapt.content.protector;
 
+import art.arcane.curse.Curse;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
@@ -30,12 +33,23 @@ import com.volmit.adapt.api.protection.Protector;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.concurrent.ConcurrentMap;
+
 public class WorldGuardProtector implements Protector {
     private final StateFlag flag;
 
     public WorldGuardProtector() {
         this.flag = new StateFlag("use-adaptations", false);
-        WorldGuard.getInstance().getFlagRegistry().register(flag);
+        FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+        ConcurrentMap<String, Flag<?>> flags = Curse.on(registry).field("flags").get(); // this is black magic
+        flags.put(flag.getName().toLowerCase(), flag); // add it to the registry
+    }
+
+    @Override
+    public void unregister() {
+        FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+        ConcurrentMap<String, Flag<?>> flags = Curse.on(registry).field("flags").get(); // this is black magic
+        flags.remove(flag.getName().toLowerCase()); // remove it from the registry
     }
 
     @Override

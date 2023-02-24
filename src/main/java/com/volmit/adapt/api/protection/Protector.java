@@ -28,4 +28,6 @@ public interface Protector {
     String getName();
 
     boolean isEnabledByDefault();
+
+    void unregister();
 }

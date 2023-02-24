@@ -24,7 +24,6 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.potion.BrewingRecipe;
-import com.volmit.adapt.api.protection.ProtectorRegistry;
 import com.volmit.adapt.api.protection.Protector;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
@@ -165,11 +164,11 @@ public interface Adaptation<T> extends Ticked, Component {
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
     default Set<Protector> getProtectors() {
-        Set<Protector> protectors = new HashSet<>(ProtectorRegistry.getDefaultProtectors());
+        Set<Protector> protectors = new HashSet<>(Adapt.instance.getProtectorRegistry().getDefaultProtectors());
         Map<String, Boolean> overrides = AdaptConfig.get().getProtectionOverrides().getOrDefault(this.getName(), Collections.emptyMap());
         overrides.forEach((protector, enabled) -> {
             if (enabled) {
-                Protector p = ProtectorRegistry.getAllProtectors()
+                Protector p = Adapt.instance.getProtectorRegistry().getAllProtectors()
                         .stream()
                         .filter(pr -> pr.getName().equals(protector))
                         .findFirst()
@@ -337,6 +336,7 @@ public interface Adaptation<T> extends Ticked, Component {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
         Window w = new UIWindow(player);
+        w.setTag("skill/" + getSkill().getName() + "/" + getName());
         w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
         w.setResolution(WindowResolution.W9_H6);
         int o = 0;
@@ -440,6 +440,7 @@ public interface Adaptation<T> extends Ticked, Component {
         w.setTitle(getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledge"));
         w.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
         w.open();
+        Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
     }
 
     private void onGuiClose(Player player, boolean openPrevGui) {

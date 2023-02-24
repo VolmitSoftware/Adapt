@@ -45,4 +45,9 @@ public class FactionsClaimProtector implements Protector {
     public boolean isEnabledByDefault() {
         return AdaptConfig.get().isRequireFactionClaimOwnershipToUseAdaptations();
     }
+
+    @Override
+    public void unregister() {
+
+    }
 }

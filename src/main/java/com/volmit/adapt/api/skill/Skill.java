@@ -188,6 +188,7 @@ public interface Skill<T> extends Ticked, Component {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
         Window w = new UIWindow(player);
+        w.setTag("skill/" + getName());
         w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
 
         int ind = 0;
@@ -205,6 +206,7 @@ public interface Skill<T> extends Ticked, Component {
                     .onLeftClick((e) -> {
                         w.close();
                         i.openGui(player);
+
                     }));
             ind++;
         }
@@ -226,6 +228,7 @@ public interface Skill<T> extends Ticked, Component {
         w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Localizer.dLocalize("snippets", "gui", "xp") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")");
         w.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
         w.open();
+        Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
     }
 
     private void onGuiClose(Player player, boolean openPrevGui) {

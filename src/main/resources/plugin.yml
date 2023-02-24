@@ -9,6 +9,10 @@ libraries:
   - org.apache.commons:commons-lang3:3.12.0
   - com.google.code.gson:gson:2.8.9
   - com.elmakers.mine.bukkit:EffectLib:9.4
+  - org.bitbucket.mstrobel:procyon-core:0.6.0
+  - org.bitbucket.mstrobel:procyon-compilertools:0.6.0
+  - org.bitbucket.mstrobel:procyon-reflection:0.6.0
+  - org.zeroturnaround:zt-zip:1.15
 commands:
   adapt:
     aliases: [ a, ada ]
