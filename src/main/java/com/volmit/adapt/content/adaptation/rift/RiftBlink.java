@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.rift;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -40,6 +41,9 @@ import static com.volmit.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     private final Map<Player, Long> lastJump = new HashMap<>();
+    private final Map<Player, Boolean> canBlink = new HashMap<>();
+
+    private final double jumpVelocity = -0.0784000015258789;
 
     public RiftBlink() {
         super("rift-blink");
@@ -80,12 +84,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         if (hasAdaptation(p) && p.getGameMode().equals(GameMode.SURVIVAL)) {
             e.setCancelled(true);
             p.setAllowFlight(false);
-
             if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration()) {
                 return;
             }
             if (p.isSprinting()) {
-
                 Location loc = p.getLocation().clone();
                 Location locOG = p.getLocation().clone();
                 Vector dir = loc.getDirection();
@@ -94,22 +96,18 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                 loc.add(dir);
                 double cd = dist * 2;
                 loc.subtract(0, dist, 0);
-
                 while (!isSafe(loc) && cd-- > 0) {
                     loc.add(0, 1, 0);
                 }
-
                 if (!isSafe(loc)) {
                     p.getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
                     lastJump.put(p, M.ms());
                     return;
                 }
-
                 if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null &&
                         getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
                     RiftResist.riftResistStackAdd(p, 10, 5);
                 }
-
                 if (getConfig().showParticles) {
 
                     vfxParticleLine(locOG, loc, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
@@ -119,12 +117,9 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                     J.s(() -> p.teleport(loc.add(0, 1, 0), PlayerTeleportEvent.TeleportCause.PLUGIN));
                     J.s(() -> p.setVelocity(v.multiply(3)), 2);
                 });
-
                 lastJump.put(p, M.ms());
-
                 p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.50f, 1.0f);
                 vfxLevelUp(p);
-
             }
         }
     }
@@ -136,14 +131,12 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     @EventHandler
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-        if (hasAdaptation(p) && p.getGameMode().equals(GameMode.SURVIVAL)) {
-
-
+        boolean isJumping = p.getVelocity().getY() > jumpVelocity;
+        if (isJumping && !canBlink.containsKey(p) && hasAdaptation(p) && p.getGameMode().equals(GameMode.SURVIVAL) && p.isSprinting()) {
             if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration()) {
                 p.setAllowFlight(false);
                 return;
             }
-
             Location loc = p.getLocation().clone();
             Vector dir = loc.getDirection();
             double dist = getBlinkDistance(getLevel(p));
@@ -155,12 +148,18 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             while (!isSafe(loc) && cd-- > 0) {
                 loc.add(0, 1, 0);
             }
-            if (!isSafe(loc)) {
-                return;
-            } else if (isSafe(loc)) {
-                p.setAllowFlight(p.getFallDistance() < 4.5 && p.isSprinting());
-            }
 
+            if (isSafe(loc)) {
+                canBlink.put(p, true);
+                p.setAllowFlight(true);
+                Adapt.info("Allowing flight for " + p.getName() + "");
+                J.a(() -> {
+                    p.setAllowFlight(false);
+                    p.setFlying(false);
+                    Adapt.info("Disabling flight for " + p.getName() + "");
+                    canBlink.remove(p);
+                }, 13);
+            }
         }
     }
 
