@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.rift;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundEyeOfEnder;
@@ -26,19 +27,14 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 
 public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
@@ -74,45 +70,44 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
-        Location location;
+        Location location = e.getClickedBlock() == null ? p.getLocation() : e.getClickedBlock().getLocation();
 
-        ItemStack offhand = p.getInventory().getItemInOffHand();
-        if (e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND) && BoundEyeOfEnder.isBindableItem(offhand)) {
-            e.setCancelled(true);
-            return;
-        }
+        if (p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_EYE)
+                && !p.hasCooldown(Material.ENDER_EYE)
+                && hasAdaptation(p)
+                && BoundEyeOfEnder.isBindableItem(hand)) {
 
-        if (BoundEyeOfEnder.isBindableItem(hand) && hasAdaptation(p)) {
             e.setCancelled(true);
-            if (!hasAdaptation(p)) {
-                return;
-            }
-            if (e.getClickedBlock() == null) {
-                location = p.getLocation();
-            } else {
-                location = new Location(e.getClickedBlock().getLocation().getWorld(), e.getClickedBlock().getLocation().getX() + 0.5, e.getClickedBlock().getLocation().getY() + 1, e.getClickedBlock().getLocation().getZ() + 0.5);
-            }
+            Adapt.verbose(" - Player Main hand: " + hand.getType());
             switch (e.getAction()) {
                 case LEFT_CLICK_BLOCK -> {
                     if (p.isSneaking()) {
+                        Adapt.verbose("Linking eye");
                         linkEye(p, location);
                     }
                 }
                 case LEFT_CLICK_AIR -> {
                     if (p.isSneaking() && isBound(hand)) {
+                        Adapt.verbose("Unlinking eye");
                         unlinkEye(p);
                     } else if (p.isSneaking() && !isBound(hand)) {
+                        Adapt.verbose("Linking eye");
                         linkEye(p, location);
                     }
                 }
                 case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> // use
+                {
+                    if (isBound(hand)) {
                         openEye(p);
+                    }
+                }
             }
         }
     }
 
 
     private void openEye(Player p) {
+        Adapt.verbose("Using eye");
         Location l = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
         ItemStack hand = p.getInventory().getItemInMainHand();
 
@@ -126,37 +121,38 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         }
         p.setCooldown(Material.ENDER_EYE, 150);
 
-        if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null
-                && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
+        if (RiftResist.hasRiftResistPerk(getPlayer(p))) {
             RiftResist.riftResistStackAdd(p, 150, 3);
         }
+
         p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
         p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
         p.playSound(l, Sound.BLOCK_LODESTONE_PLACE, 1f, 0.1f);
         p.playSound(l, Sound.BLOCK_BELL_RESONATE, 1f, 0.1f);
+
+
         J.a(() -> {
-            double d = 2;
-            double pcd = 1000;
-            double y = 0.1;
-            while (pcd > 0) {
-
-                for (int i = 0; i < 16; i++) {
-                    if (getConfig().showParticles) {
-
-                        p.getWorld().spawnParticle(Particle.ASH, p.getLocation().clone()
-                                .add(Vector.getRandom().subtract(Vector.getRandom()).setY(y).normalize().multiply(d)), 1, 0, 0, 0, 0);
-                    }
-                }
-                pcd = pcd - 20;
-                d = d - 0.04;
-                y = y * 1.07;
-                J.sleep(80);
+            long dur = 4000; // time in miliseconds
+            double radius = 2.0;
+            double adder = 0.0;
+            Color color = Color.fromBGR(0, 0, 0);
+            vfxFastRing(p.getLocation(), radius, color);
+            while (dur > 0) {
+                dur -= 50;
+                adder += 0.02;
+                radius *= 0.9; // reduce the radius by 20%
+                vfxFastRing(p.getLocation().add(0, adder, 0), radius, color);
+                J.sleep(50);
             }
-            vfxLevelUp(p);
-            p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
-            J.s(() -> p.teleport(l, PlayerTeleportEvent.TeleportCause.PLUGIN));
         });
-    }
+        vfxLevelUp(p);
+        p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
+        J.s(() -> {
+            p.teleport(l, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            vfxLevelUp(p);
+            p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
+    },85);
+}
 
     private boolean isBound(ItemStack stack) {
         return stack.getType().equals(Material.ENDER_EYE) && BoundEyeOfEnder.getLocation(stack) != null;
@@ -202,11 +198,11 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         return getConfig().permanent;
     }
 
-    @NoArgsConstructor
-    protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean consumeOnUse = true;
-        boolean showParticles = true;
-    }
+@NoArgsConstructor
+protected static class Config {
+    boolean permanent = false;
+    boolean enabled = true;
+    boolean consumeOnUse = true;
+    boolean showParticles = true;
+}
 }

@@ -71,8 +71,8 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "absorption", "lore1"));
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "absorption", "lore2"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "fatigue", "lore1"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "fatigue", "lore2"));
     }
 
 

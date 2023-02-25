@@ -60,11 +60,11 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
         }
         Adapt.verbose("Checking if item is bindable: " + t.getType().name());
         if (t.getItemMeta() == null || t.getItemMeta().getLore() == null) {
-            Adapt.verbose("Item is not bindable: " + t.getType().name());
+            Adapt.verbose("Pearl is not bindable: " + t.getType().name());
             return false;
         }
         if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items", "boundenderperal", "name"))) {
-            Adapt.verbose("Item is bindable: " + t.getType().name());
+            Adapt.verbose("Ender Pearl is bindable: " + t.getType().name());
             return true;
         } else {
             Adapt.verbose("Item is not bindable: " + t.getType().name());

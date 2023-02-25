@@ -41,7 +41,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 import us.lynuxcraft.deadsilenceiv.advancedchests.AdvancedChestsAPI;
 
@@ -83,7 +82,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
-        ItemMeta handMeta = hand.getItemMeta();
         Block block = e.getClickedBlock();
 
         ItemStack offhand = p.getInventory().getItemInOffHand();
