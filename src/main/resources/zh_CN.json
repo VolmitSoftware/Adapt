@@ -196,6 +196,10 @@
       "name": "红石遥控器",
       "usage1": "右键创建一个 1 Tick 的红石脉冲",
       "usage2": "潜行 + 左键 '目标' 方块以绑定"
+    },
+    "boundsnowball": {
+      "name": "蛛网陷阱！",
+      "usage1": "投掷以在目标位置创建一个临时的蛛网陷阱"
     }
   },
   "snippets": {
@@ -217,6 +221,7 @@
       "maynotunlearn": "无法忘却此技能",
       "mayunlearn": "可学习/忘却",
       "knowledgecost": "知识花费",
+      "knowledgeavailable": "知识可用",
       "alreadylearned": "已学习",
       "unlearnrefund": "点击忘却此技能",
       "norefunds": "极限模式将禁用点数返还",
@@ -227,9 +232,10 @@
       "howtolevelup": "升级技能来扩大能力上限",
       "notenoughpower": "能力不足！每级需要花费 1 能力。",
       "power": "能力",
-      "powerdrain": "耗费能力",
+      "powerdrain": "能力消耗",
       "learned": "已学习 ",
-      "unlearned": "未学习 "
+      "unlearned": "未学习 ",
+      "activatorblock": "书架"
     },
     "knowledgeorb": {
       "contains": "包含",
@@ -852,6 +858,12 @@
       "name": "箭矢回收站",
       "description": "当你击杀目标后有概率回收箭矢。",
       "lore1": "概率在击杀生物时回收箭矢"
+    },
+    "webshot": {
+      "name": "蛛网陷阱",
+      "description": "当你击中目标时就用蛛网围住他吧！",
+      "lore1": "在中间放雪球，围绕雪球的其它8格放置蜘蛛网来合成，然后投掷它吧！",
+      "lore2": "秒的笼子（约）"
     },
     "forceshot": {
       "name": "大力投掷手",

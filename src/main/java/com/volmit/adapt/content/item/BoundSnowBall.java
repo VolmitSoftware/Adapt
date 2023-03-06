@@ -24,9 +24,9 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -35,31 +35,31 @@ import java.util.List;
 
 @AllArgsConstructor
 @Data
-public class BoundRedstoneTorch implements DataItem<BoundRedstoneTorch.Data> {
-    public static BoundRedstoneTorch io = new BoundRedstoneTorch();
+public class BoundSnowBall implements DataItem<BoundSnowBall.Data> {
+    public static BoundSnowBall io = new BoundSnowBall();
 
-    public static Location getLocation(ItemStack stack) {
+    public static Player getPlayer(ItemStack stack) {
         if (io.getData(stack) != null) {
-            return io.getData(stack).getLocation();
+            return io.getData(stack).getPlayer();
         }
 
         return null;
     }
 
-    public static void setData(ItemStack item, Location t) {
+    public static void setData(ItemStack item, Player t) {
         io.setData(item, new Data(t));
     }
 
-    public static ItemStack withData(Location t) {
+    public static ItemStack withData(Player t) {
         return io.withData(new Data(t));
     }
 
     public static boolean isBindableItem(ItemStack t) {
-        Adapt.verbose("Checking if item is a bindable Torch: " + t.getType().name());
-        if (t.getType().equals(Material.REDSTONE_TORCH)) {
+        Adapt.verbose("Checking if item is a bindable snowball: " + t.getType().name());
+        if (t.getType().equals(Material.SNOWBALL)) {
             if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
-                if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items", "boundredstonetorch", "name"))) {
-                    Adapt.verbose("Torch is bindable: " + t.getType().name());
+                if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items", "boundsnowball", "name"))) {
+                    Adapt.verbose("Snowball is bindable: " + t.getType().name());
                     return true;
                 }
             }
@@ -67,37 +67,37 @@ public class BoundRedstoneTorch implements DataItem<BoundRedstoneTorch.Data> {
         return false;
     }
 
+
     @Override
     public Material getMaterial() {
-        return Material.REDSTONE_TORCH;
+        return Material.SNOWBALL;
     }
 
     @Override
     public Class<Data> getType() {
-        return BoundRedstoneTorch.Data.class;
+        return BoundSnowBall.Data.class;
     }
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Localizer.dLocalize("items", "boundredstonetorch", "name"));
-        lore.add(C.GRAY + Localizer.dLocalize("items", "boundredstonetorch", "usage1"));
-        lore.add(C.GRAY + Localizer.dLocalize("items", "boundredstonetorch", "usage2"));
+        lore.add(C.WHITE + Localizer.dLocalize("items", "boundsnowball", "name"));
+        lore.add(C.GRAY + Localizer.dLocalize("items", "boundsnowball", "usage1"));
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE);
-        meta.setDisplayName(Localizer.dLocalize("items", "boundredstonetorch", "name"));
+        meta.setDisplayName(Localizer.dLocalize("items", "boundsnowball", "name"));
     }
 
     @AllArgsConstructor
     @lombok.Data
     public static class Data {
-        private Location location;
+        private Player player;
 
-        public static BoundRedstoneTorch.Data at(Location l) {
-            return new BoundRedstoneTorch.Data(l);
+        public static BoundSnowBall.Data at(Player p) {
+            return new BoundSnowBall.Data(p);
         }
     }
 }

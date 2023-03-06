@@ -196,6 +196,10 @@
       "name": "Redstone Remote",
       "usage1": "Right Click to create a 1-Tick Redstone pulse",
       "usage2": "Shift + Left Click on a 'Target' Block to bind"
+    },
+    "boundsnowball": {
+      "name": "Web Snare!",
+      "usage1": "Throw to create a temporary web trap at the location"
     }
   },
   "snippets": {
@@ -856,6 +860,12 @@
       "name": "Arrow Recovery",
       "description": "Recover Arrows after you have killed an enemy.",
       "lore1": "Chance to Recover Arrows on Hit/Kill"
+    },
+    "webshot": {
+      "name": "Web Snare",
+      "description": "Surround cobwebs around your target when you hit them!",
+      "lore1": "8 Cobwebs around a Snowball, and throw!",
+      "lore2": "seconds of a cage, roughly."
     },
     "forceshot": {
       "name": "Force Shot",

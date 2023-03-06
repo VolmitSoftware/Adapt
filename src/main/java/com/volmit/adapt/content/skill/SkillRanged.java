@@ -20,10 +20,7 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
-import com.volmit.adapt.content.adaptation.ranged.RangedArrowRecovery;
-import com.volmit.adapt.content.adaptation.ranged.RangedForce;
-import com.volmit.adapt.content.adaptation.ranged.RangedLungeShot;
-import com.volmit.adapt.content.adaptation.ranged.RangedPiercing;
+import com.volmit.adapt.content.adaptation.ranged.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
@@ -56,6 +53,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         registerAdaptation(new RangedPiercing());
         registerAdaptation(new RangedArrowRecovery());
         registerAdaptation(new RangedLungeShot());
+        registerAdaptation(new RangedWebBomb());
         setIcon(Material.CROSSBOW);
         cooldowns = new HashMap<>();
     }
