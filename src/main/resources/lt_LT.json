@@ -184,31 +184,35 @@
   "items": {
     "boundenderperal": {
       "name": "Relikvijoriaus Prievado Raktas",
-      "usage1": "Shift + Kairys paspaudimas, kad pririšti",
+      "usage1": "Shift + Kairys paspaudimas, kad susieti",
       "usage2": "Dešinys paspaudimas, kad pasiektumėte susietą inventorių"
     },
     "boundeyeofender": {
       "name": "Akių Inkaras",
-      "usage1": "Dešinys Paspaudimas, kad vartoti ir teleportuotis į surištą vietą",
-      "usage2": "Shift + Kairys paspaudimas, kad pririšti prie bloko"
+      "usage1": "Dešinys Paspaudimas, kad vartoti ir teleportuotis į susietą vietą",
+      "usage2": "Shift + Kairys paspaudimas, kad susieti prie bloko"
     },
     "boundredstonetorch": {
       "name": "Raudonakmenio valdymo pultas",
       "usage1": "Dešinys Paspaudimas, kad sukurti 1-tick raudonakmenio impulsą",
       "usage2": "Shift + Kairys paspaudimas ant tikslaus bloko, kad būtų galima susieti"
+    },
+    "boundsnowball": {
+      "name": "Voratinklių Spąstai!",
+      "usage1": "Meskite, kad vietoje sukurtumėte laikinus voratinklių spąstus"
     }
   },
   "snippets": {
     "gui": {
       "level": "Levelis",
-      "knowledge": "Žinių lygis",
-      "powerused": "Galia panaudota",
+      "knowledge": "žinios",
+      "powerused": "Galios",
       "notlearned": "Neišmokta",
       "xp": "XP iki",
       "welcome": "Sveikas!",
       "welcomeback": "Sveikas sugrįžęs!",
       "xpbonusfortime": "XP už",
-      "unlockthisbyclicking": "Atrakinkite tai dešiniuoju pelės mygtuku spausdami ant skilų bloko!",
+      "unlockthisbyclicking": "Atrakinkite tai paspausdami dešiniuoju pelės mygtuku:",
       "back": "Grįžti",
       "unlearnall": "Pamiršti viską",
       "unlearnedall": "Viskas pamiršta"
@@ -216,11 +220,12 @@
     "adaptmenu": {
       "maynotunlearn": "JŪS GALBŪT NEGALĖSITE PAMIRŠTI",
       "mayunlearn": "GALITE IŠMOKTI/PAMIRŠTI",
-      "knowledgecost": "Žynių lygius",
+      "knowledgecost": "Žinių kaina",
+      "knowledgeavailable": "Žinia Prieinama",
       "alreadylearned": "Jau išmokta",
-      "unlearnrefund": "Spausk, kad pamirštum & Atlyginti",
+      "unlearnrefund": "Spausk, kad pamirštum & Atlygintu",
       "norefunds": "HARDCORE, GRĄŽINIMAS IŠJUNGTAS",
-      "knowledge": "žinių lygis",
+      "knowledge": "žinių",
       "clicklearn": "Spausk, kad išmoktum",
       "noknowledge": "(Jūs neturite pakankamai žinių)",
       "youonlyhave": "Tu turi tik",
@@ -229,17 +234,18 @@
       "power": "galia",
       "powerdrain": "Galios Eikvavimas",
       "learned": "Išmokta ",
-      "unlearned": "Pamiršta "
+      "unlearned": "Pamiršta ",
+      "activatorblock": "Knygų Lentyna"
     },
     "knowledgeorb": {
-      "contains": "turi",
+      "contains": "yra",
       "knowledge": "žinių",
       "rightclick": "Dešinys-paspaudimas",
-      "togainknowledge": ", kad įgyti šių žinių",
+      "togainknowledge": ",kad įgyti šių žinių",
       "knowledgeorb": "Žinių Rutulys"
     },
     "experienceorb": {
-      "contains": "turi",
+      "contains": "yra",
       "xp": "XP",
       "rightclick": "Dešinys-paspaudimas",
       "togainxp": "įgyti šios patirties",
@@ -472,18 +478,18 @@
     "haste": {
       "name": "Greitas Kasimas",
       "description": "Kai efektyvumo nepakanka",
-      "lore1": "Momentinis Gydomasis Eleksyras + Ametisto Šukė = Greito Kasimo Eleksyras (60 sekundžių)",
-      "lore2": "Momentinis Gydymas + Ametisto Šukė = Greito Kasimo Eleksyras-2 (30 sekundžių)"
+      "lore1": "Greičio eleksyras + ametisto šukė = greito kasimo eleksyras (60 sekundžių)",
+      "lore2": "Greičio eleksyras + ametisto blokas = greito kasimo eleksyras-2 (30 sekundžių)"
     },
     "absorption": {
       "name": "Absorbcija",
       "description": "Grūdinti kūną!",
-      "lore1": "Greičio Eleksyras + Kvarcas = Absorbcijos Eleksyras (60 sekundžių)",
-      "lore2": "Greičio Eleksyras + Kvarco blokas = Absorbcijos Eleksyras-2 (30 sekundžių)"
+      "lore1": "Momentinis gydymas + kvarcas = absorbcijos eleksyras (60 sekundžių)",
+      "lore2": "Momentinis gydymas + kvarco blokas = absorbcijos eleksyras-2 (30 sekundžių)"
     },
     "fatigue": {
       "name": "Nuovargis",
-      "description": "Susilpninti kūną!",
+      "description": "Susilpninkite kūną!",
       "lore1": "Silpnumo Eleksyras + Gleivių Kamuolys = Silpnumo Eleksyras (30 sekundžių)",
       "lore2": "Silpnumo Eleksyras + Gleivių Blokas = Silpnumo Eleksyras-2 (15 sekundžių)"
     },
@@ -731,8 +737,6 @@
       "lore1": "Maksimali žala"
     },
     "penalty": {
-      "name": "",
-      "description": "",
       "lore1": "Jūs gausite vis daugiau nuodų, jeigu tapsite alkanas"
     },
     "droptoinventory": {
@@ -813,7 +817,7 @@
       "lore1": "sekundės tarp kaukolės metimų.",
       "lore2": "Viterio naudojimas: išmeskite ",
       "lore3": "Viterio Galvą",
-      "lore4": " sprogsta nuo smūgio."
+      "lore4": "sprogsta nuo smūgio."
     },
     "witherresist": {
       "name": "Atsparumas Vytimui",
@@ -854,6 +858,12 @@
       "name": "Strėlės Susigrąžinimas",
       "description": "Atgaukite strėles po to, kai nužudėte priešą.",
       "lore1": "Galimybė susigrąžinti strėles ant smūgio/nužudymo"
+    },
+    "webshot": {
+      "name": "Voratinklių Spąstai",
+      "description": "Apjuočiate voratinkliais aplink savo taikinį, kai į juos pataikote!",
+      "lore1": "8 Voratinkliai aplink Sniego gniūžtę ir galite mesti!",
+      "lore2": "narvo sekundžių, apytiksliai."
     },
     "forceshot": {
       "name": "Stiprus Šūvis",
@@ -913,7 +923,7 @@
     "oxygen": {
       "name": "Organinis Deguonies Bakas",
       "description": "Sulaikykite daugiau deguonies savo mažuose plaučiuose!",
-      "lore1": " Deguonies"
+      "lore1": "Deguonies"
     },
     "fishersfantasy": {
       "name": "Fišerio Fantazija",
@@ -1020,7 +1030,7 @@
     "power": {
       "name": "Beginklė Galia",
       "description": "Patobulinta beginklė žala.",
-      "lore1": " Žala"
+      "lore1": "Žala"
     },
     "suckerpunch": {
       "name": "Atžalos Smūgis",
