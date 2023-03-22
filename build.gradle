@@ -23,11 +23,11 @@ plugins {
     id "de.undercouch.download" version "5.0.1"
 }
 
-version '1.6.2-1.19.3'
-def nmsVersion = "1.19.3" //[NMS]
+version '1.6.3-1.19.4'
+def nmsVersion = "1.19.4" //[NMS]
 def apiVersion = '1.19'
 def specialSourceVersion = '1.11.0' //[NMS]
-def spigotJarVersion = '1.19.3-R0.1-SNAPSHOT' //[NMS]
+def spigotJarVersion = '1.19.4-R0.1-SNAPSHOT' //[NMS]
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
 def manifoldVersion = '2023.1.0'
@@ -37,7 +37,7 @@ def manifoldVersion = '2023.1.0'
 registerCustomOutputTask('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins')
 registerCustomOutputTask('Psycho', 'C://Dan/MinecraftDevelopment/Server/plugins')
 registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins')
-registerCustomOutputTask('Vatuu', 'D://Minecraft/Servers/1.19.2/plugins')
+registerCustomOutputTask('Vatuu', 'D://Minecraft/Servers/1.19.4/plugins')
 registerCustomOutputTask('Nowhere', 'E://Desktop/server/plugins')
 // ========================== UNIX ==============================
 registerCustomOutputTaskUnix('CyberpwnLT', '/Users/danielmills/development/server/plugins')
@@ -78,11 +78,13 @@ repositories {
 //            includeGroup 'org.spigotmc'
 //        }
 //    }
-    maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
     maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
     mavenCentral()
     maven { url 'https://jitpack.io' }
     maven { url 'https://ci.ender.zone/plugin/repository/everything/' }
+    maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
+    mavenLocal()
+
 }
 
 /**
@@ -128,8 +130,8 @@ dependencies {
     // Provided or Classpath
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    implementation 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT' //[NMS]
-    implementation 'org.bukkit:craftbukkit:1.19.3-R0.1-SNAPSHOT' //[NMS]
+    implementation 'org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT' //[NMS]
+    implementation 'org.bukkit:craftbukkit:1.19.4-R0.1-SNAPSHOT' //[NMS]
 
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'

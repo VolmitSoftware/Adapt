@@ -90,7 +90,6 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         int baseCost = 2;
         int initialCost = 5;
         double costFactor = 0.6;
-        double factor = 1.25;
         int maxLevel = 1;
     }
 }

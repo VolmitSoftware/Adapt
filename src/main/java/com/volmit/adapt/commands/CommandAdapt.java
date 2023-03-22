@@ -54,6 +54,7 @@ public class CommandAdapt extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
+        System.out.println("This is the main command for Adapt");
         printHelp(sender);
         return true;
     }

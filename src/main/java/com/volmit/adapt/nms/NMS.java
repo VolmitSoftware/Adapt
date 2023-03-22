@@ -30,7 +30,7 @@ import java.util.Map;
 public final class NMS {
 
     private static final Map<String, Impl> VERSIONS = new ImmutableMap.Builder<String, Impl>()
-            .put("1.19.3", new NMS_1_19_3())
+            .put("1.19.4", new NMS_1_19_4())
             .build();
 
     private static String version;

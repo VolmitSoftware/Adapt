@@ -115,7 +115,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
                 locs.add(block.getLocation().add(-1, 0, 0).getBlock());
 
                 for (Block i : locs) {
-                    addFoundation(i, getLevel(p));
+                    addWebFoundation(i, getLevel(p));
                 }
 
             }
@@ -139,7 +139,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
         }
     }
 
-    public void addFoundation(Block block, int seconds) {
+    public void addWebFoundation(Block block, int seconds) {
         if (!block.getType().isAir()) {
             return;
         }
