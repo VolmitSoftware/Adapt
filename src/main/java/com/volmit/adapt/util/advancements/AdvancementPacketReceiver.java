@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.util.advancements;
 
+import art.arcane.curse.Curse;
 import com.volmit.adapt.util.advancements.event.AdvancementScreenCloseEvent;
 import com.volmit.adapt.util.advancements.event.AdvancementTabChangeEvent;
 import io.netty.channel.Channel;
@@ -30,7 +31,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayInAdvancements;
 import net.minecraft.network.protocol.game.PacketPlayInAdvancements.Status;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
@@ -71,13 +72,11 @@ public class AdvancementPacketReceiver {
             }
         };
         pipe.addAfter("decoder", "endercentral_crazy_advancements_listener_" + handler.hashCode(), handle);
-
-
         return handle;
     }
 
     public Channel getNettyChannel(Player p) {
-        NetworkManager manager = ((CraftPlayer) p).getHandle().b.b;
+        NetworkManager manager = Curse.on(((CraftPlayer) p).getHandle().b).get("h"); // Find network manager.
         Channel channel = null;
         try {
             channel = (Channel) channelField.get(manager);

@@ -22,7 +22,7 @@ import com.volmit.adapt.util.advancements.advancement.ToastNotification;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.network.protocol.game.PacketPlayOutAdvancements;
 import net.minecraft.resources.MinecraftKey;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.*;

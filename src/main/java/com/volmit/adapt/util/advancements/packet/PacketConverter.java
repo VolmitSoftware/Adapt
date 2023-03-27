@@ -28,7 +28,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.resources.MinecraftKey;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
 
 import java.util.HashMap;
 
