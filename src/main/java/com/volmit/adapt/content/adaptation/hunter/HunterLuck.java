@@ -48,7 +48,7 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
     public void addStats(int level, Element v) {
         v.addLore(C.GRAY + Localizer.dLocalize("hunter", "luck", "lore1"));
         v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter", "luck", "lore2"));
-        v.addLore(C.RED + "- " +(5 + level) + C.GRAY + Localizer.dLocalize("hunter", "luck", "lore3"));
+        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter", "luck", "lore3"));
         v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "luck", "lore4"));
         v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "luck", "lore5"));
         v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter", "penalty", "lore1"));
@@ -74,7 +74,7 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
                     }
 
                 } else {
-                    addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration* getLevel(p), getConfig().stackHungerPenalty);
+                    addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
                     addPotionStacks(p, PotionEffectType.LUCK, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
                 }
             } else {

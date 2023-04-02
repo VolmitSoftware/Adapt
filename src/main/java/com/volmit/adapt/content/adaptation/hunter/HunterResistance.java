@@ -73,7 +73,7 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
                     }
 
                 } else {
-                    addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration* getLevel(p), getConfig().stackHungerPenalty);
+                    addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
                     addPotionStacks(p, PotionEffectType.DAMAGE_RESISTANCE, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
                 }
             } else {

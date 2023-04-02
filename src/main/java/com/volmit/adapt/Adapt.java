@@ -70,12 +70,14 @@ public class Adapt extends VolmitPlugin {
     private SQLManager sqlManager;
     @Getter
     private ProtectorRegistry protectorRegistry;
+    @Getter
+    private Map<String, Window> guiLeftovers = new HashMap<>();
+
 
     public Adapt() {
         super();
         instance = this;
     }
-
 
     public static int getJavaVersion() {
         String version = System.getProperty("java.version");
@@ -119,7 +121,7 @@ public class Adapt extends VolmitPlugin {
                 }
             }
             in.close();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             error("Failed to check for updates.");
         }
     }
@@ -174,9 +176,6 @@ public class Adapt extends VolmitPlugin {
             System.out.println("[Adapt]: " + string);
         }
     }
-
-    @Getter
-    private Map<String, Window> guiLeftovers = new HashMap<>();
 
     public static void hotloaded() {
         J.s(() -> {

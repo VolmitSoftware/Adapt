@@ -74,11 +74,11 @@ public interface Window {
 
     String getTitle();
 
+    Window setTitle(String title);
+
     String getTag();
 
     void setTag(String s);
-
-    Window setTitle(String title);
 
     boolean hasElement(int position, int row);
 

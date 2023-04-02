@@ -44,6 +44,7 @@ public class AdaptConfig {
     public boolean allowAdaptationsInCreative = false;
     public String adaptActivatorBlock = "BOOKSHELF";
     public List<String> blacklistedWorlds = List.of("some_world_adapt_should_not_run_in", "anotherWorldFolderName");
+    boolean preventHunterSkillsWhenHungerApplied = true;
     private ValueConfig value = new ValueConfig();
     private boolean metrics = true;
     private String language = "en_US";
@@ -67,7 +68,6 @@ public class AdaptConfig {
     private boolean actionbarNotifyXp = true;
     private boolean actionbarNotifyLevel = true;
     private boolean unlearnAllButton = false;
-    boolean preventHunterSkillsWhenHungerApplied = true;
     private SqlSettings sql = new SqlSettings();
     private Map<String, Map<String, Boolean>> protectionOverrides = Map.of(
             "adaptation-name", Map.of(

@@ -294,17 +294,6 @@ public class UIWindow implements Window, Listener {
     }
 
     @Override
-    public String getTag() {
-        return tag;
-    }
-
-    @Override
-    public void setTag(String s) {
-        tag = s;
-    }
-
-
-    @Override
     public UIWindow setTitle(String title) {
         this.title = title;
 
@@ -313,6 +302,16 @@ public class UIWindow implements Window, Listener {
         }
 
         return this;
+    }
+
+    @Override
+    public String getTag() {
+        return tag;
+    }
+
+    @Override
+    public void setTag(String s) {
+        tag = s;
     }
 
     @Override
