@@ -23,10 +23,14 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.association.DelayedRegionOverlapAssociation;
 import com.sk89q.worldguard.protection.flags.Flag;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.protection.Protector;
@@ -36,6 +40,8 @@ import org.bukkit.entity.Player;
 import java.util.concurrent.ConcurrentMap;
 
 public class WorldGuardProtector implements Protector {
+
+    private final RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
     private final StateFlag flag;
 
     public WorldGuardProtector() {
@@ -46,21 +52,53 @@ public class WorldGuardProtector implements Protector {
     }
 
     @Override
-    public void unregister() {
-        FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
-        ConcurrentMap<String, Flag<?>> flags = Curse.on(registry).field("flags").get(); // this is black magic
-        flags.remove(flag.getName().toLowerCase()); // remove it from the registry
+    public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
+        return checkPerm(player, location, flag);
     }
 
     @Override
-    public boolean canBuild(Player p, Location l, Adaptation<?> adaptation) {
-        RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
-        com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(l);
-        if (!hasBypass(p, l)) {
-            return query.testBuild(loc, WorldGuardPlugin.inst().wrapPlayer(p), flag);
-        } else {
-            return true;
+    public boolean canBlockBreak(Player player, Location blockLocation, Adaptation<?> adaptation) {
+        return checkRegion(player, blockLocation, adaptation) && checkPerm(blockLocation, Flags.BLOCK_BREAK);
+    }
+
+    @Override
+    public boolean canBlockPlace(Player player, Location blockLocation, Adaptation<?> adaptation) {
+        return checkRegion(player, blockLocation, adaptation) && checkPerm(blockLocation, Flags.BLOCK_PLACE);
+    }
+
+    @Override
+    public boolean canPVP(Player player, Location entityLocation, Adaptation<?> adaptation) {
+        return checkRegion(player, entityLocation, adaptation) && checkPerm(entityLocation, Flags.PVP);
+    }
+
+    @Override
+    public boolean canPVE(Player player, Location entityLocation, Adaptation<?> adaptation) {
+        return checkRegion(player, entityLocation, adaptation) && checkPerm(entityLocation, Flags.DAMAGE_ANIMALS);
+    }
+
+    @Override
+    public boolean canInteract(Player player, Location targetLocation, Adaptation<?> adaptation) {
+        return checkRegion(player, targetLocation, adaptation) && checkPerm(targetLocation, Flags.INTERACT);
+    }
+
+    @Override
+    public boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
+        return checkRegion(player, chestLocation, adaptation) && checkPerm(chestLocation, Flags.CHEST_ACCESS);
+    }
+
+    private boolean checkPerm(Location location, StateFlag flag) {
+        return checkPerm(null, location, flag);
+    }
+
+    private boolean checkPerm(Player player, Location location, StateFlag flag) {
+        RegionQuery regionQuery = container.createQuery();
+        com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(location);
+        if (player == null) {
+            return regionQuery.queryState(loc, new DelayedRegionOverlapAssociation(regionQuery, loc), flag) != StateFlag.State.DENY;
         }
+        if (!hasBypass(player, location))
+            return regionQuery.queryState(loc, WorldGuardPlugin.inst().wrapPlayer(player), flag) != StateFlag.State.DENY;
+        return true;
     }
 
     @Override
@@ -70,7 +108,7 @@ public class WorldGuardProtector implements Protector {
 
     @Override
     public boolean isEnabledByDefault() {
-        return AdaptConfig.get().isRequireWorldguardBuildPermToUseAdaptations();
+        return AdaptConfig.get().getProtectorSupport().isWorldguard();
     }
 
     private boolean hasBypass(Player p, Location l) {

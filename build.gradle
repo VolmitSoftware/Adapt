@@ -151,6 +151,9 @@ dependencies {
     implementation 'com.github.LoneDev6:api-itemsadder:3.2.5'
     implementation 'io.th0rgal:oraxen:1.94.0'
     implementation 'com.massivecraft:Factions:1.6.9.5-U0.6.21'
+    implementation "com.github.angeschossen:ChestProtectAPI:3.6.0"
+    implementation "com.github.TechFortress:GriefPrevention:16.18.1"
+    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
 
 
     // Shaded

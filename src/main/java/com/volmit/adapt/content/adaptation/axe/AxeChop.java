@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.axe;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -100,6 +101,11 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
             } else {
                 break;
             }
+        }
+
+        if (!canBlockBreak(player, last.getLocation())) {
+            Adapt.verbose("Player " + player.getName() + " doesn't have permission.");
+            return false;
         }
 
         if (!isLog(new ItemStack(last.getType()))) {

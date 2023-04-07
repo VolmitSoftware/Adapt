@@ -151,8 +151,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             p.teleport(l, PlayerTeleportEvent.TeleportCause.PLUGIN);
             vfxLevelUp(p);
             p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
-    },85);
-}
+        }, 85);
+    }
 
     private boolean isBound(ItemStack stack) {
         return stack.getType().equals(Material.ENDER_EYE) && BoundEyeOfEnder.getLocation(stack) != null;
@@ -198,11 +198,11 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         return getConfig().permanent;
     }
 
-@NoArgsConstructor
-protected static class Config {
-    boolean permanent = false;
-    boolean enabled = true;
-    boolean consumeOnUse = true;
-    boolean showParticles = true;
-}
+    @NoArgsConstructor
+    protected static class Config {
+        boolean permanent = false;
+        boolean enabled = true;
+        boolean consumeOnUse = true;
+        boolean showParticles = true;
+    }
 }

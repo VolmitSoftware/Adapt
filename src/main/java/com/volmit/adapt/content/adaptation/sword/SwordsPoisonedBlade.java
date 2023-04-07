@@ -88,6 +88,7 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
             Entity victim = e.getEntity();
             cooldowns.put(p, System.currentTimeMillis() + getCooldown(getLevel(p)));
             if (victim instanceof Player pvic) {
+                if (!canPVP(p, pvic.getLocation())) return;
                 BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);
                 blood.setEntity(pvic);
                 blood.material = Material.LARGE_FERN;
@@ -98,6 +99,7 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
                 blood.start();
                 addPotionStacks(pvic, PotionEffectType.POISON, 2, 50 * getLevel(p), true);
             } else {
+                if (!canPVE(p, victim.getLocation())) return;
                 BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, 1, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
                 blood.setEntity(victim);
                 blood.material = Material.LARGE_FERN;

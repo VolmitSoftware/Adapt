@@ -93,6 +93,10 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                 int handSizeAfter = is.getAmount() - totalMap.get(p).size();
                 if (handSizeAfter >= 0) {
                     for (Block b : totalMap.get(p).keySet()) { // Block Placer
+                        if (!canBlockPlace(p, b.getLocation())) {
+                            Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
+                            continue;
+                        }
                         BlockFace face = totalMap.get(p).get(b);
                         if (b.getWorld().getBlockAt(b.getRelative(face).getLocation()).getType() == Material.AIR) {
                             if (b.getRelative(face).getLocation() != e.getBlock().getLocation()) {
