@@ -83,22 +83,24 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
         Block block = e.getClickedBlock();
-
         ItemStack offhand = p.getInventory().getItemInOffHand();
         if (e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND) && BoundEnderPearl.isBindableItem(offhand)) {
             e.setCancelled(true);
             return;
         }
-
         if (BoundEnderPearl.isBindableItem(hand) && hasAdaptation(p)) {
             e.setCancelled(true);
             switch (e.getAction()) {
                 case LEFT_CLICK_BLOCK -> {
-                    if (block != null && isStorage(block.getBlockData())) { // Ensure its a container
+                    if (isStorage(block.getBlockData())) { // Ensure its a container
                         if (p.isSneaking()) { // Binding (Sneak Container)
-                            linkPearl(p, block);
+                            if (canAccessChest(p, block.getLocation())) {
+                                linkPearl(p, block);
+                            } else {
+                                Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
+                            }
                         }
-                    } else if (block != null && !isStorage(block.getBlockData())) {
+                    } else if (!isStorage(block.getBlockData())) {
                         if (p.isSneaking()) { //(Sneak NOT Container)
                             Adapt.messagePlayer(p, C.LIGHT_PURPLE + Localizer.dLocalize("rift", "remoteaccess", "notcontainer"));
                         }
@@ -139,7 +141,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     private void openPearl(Player p) {
         Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
-        if (b == null) {
+        if (b == null || !canAccessChest(p, b.getLocation())) {
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1f);
             return;
         }

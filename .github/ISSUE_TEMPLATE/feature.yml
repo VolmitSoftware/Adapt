@@ -39,7 +39,7 @@ body:
     attributes:
       label: Alternatives
       description: What alternatives have you considered?
-      value: plugins... commands... 
+      value: plugins... commands...
   - type: markdown
     id: thanks
     attributes:

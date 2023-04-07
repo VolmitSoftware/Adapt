@@ -104,6 +104,10 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                                         Adapt.verbose("Block: " + b.getLocation() + " is too far away from " + block.getLocation() + " (" + getRadius(getLevel(p)) + ")");
                                         continue;
                                     }
+                                    if (!canBlockBreak(p, b.getLocation())) {
+                                        Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
+                                        continue;
+                                    }
                                     blockMap.add(b);
                                 }
                             }

@@ -132,6 +132,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                                     || i.getType().equals(Material.MANGROVE_LEAVES)
 
                             ) {
+                                if (!canBlockBreak(p, i.getLocation())) continue;
                                 BlockBreakEvent ee = new BlockBreakEvent(i, p);
                                 Bukkit.getPluginManager().callEvent(ee);
 

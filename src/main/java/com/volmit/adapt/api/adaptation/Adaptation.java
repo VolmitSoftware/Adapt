@@ -185,8 +185,32 @@ public interface Adaptation<T> extends Ticked, Component {
         return ImmutableSet.copyOf(protectors);
     }
 
-    default boolean canBuild(Player p, Location l) {
-        return getProtectors().stream().allMatch(protector -> protector.canBuild(p, l, this));
+    default boolean canBlockBreak(Player player, Location blockLocation) {
+        return getProtectors().stream().allMatch(protector -> protector.canBlockBreak(player, blockLocation, this));
+    }
+
+    default boolean canBlockPlace(Player player, Location blockLocation) {
+        return getProtectors().stream().allMatch(protector -> protector.canBlockPlace(player, blockLocation, this));
+    }
+
+    default boolean canPVP(Player player, Location victimLocation) {
+        return getProtectors().stream().allMatch(protector -> protector.canPVP(player, victimLocation, this));
+    }
+
+    default boolean canPVE(Player player, Location victimLocation) {
+        return getProtectors().stream().allMatch(protector -> protector.canPVE(player, victimLocation, this));
+    }
+
+    default boolean canInteract(Player player, Location targetLocation) {
+        return getProtectors().stream().allMatch(protector -> protector.canInteract(player, targetLocation, this));
+    }
+
+    default boolean canAccessChest(Player player, Location chestLocation) {
+        return getProtectors().stream().allMatch(protector -> protector.canAccessChest(player, chestLocation, this));
+    }
+
+    default boolean checkRegion(Player player) {
+        return getProtectors().stream().allMatch(protector -> protector.checkRegion(player, player.getLocation(), this));
     }
 
     default boolean hasAdaptation(Player p) {
@@ -207,8 +231,8 @@ public interface Adaptation<T> extends Ticked, Component {
                     Adapt.verbose("Player " + p.getName() + " is in creative or spectator mode. Skipping adaptation " + this.getName());
                     return false;
                 }
-                if (!canBuild(p, p.getLocation())) {
-                    Adapt.verbose("Player " + p.getName() + " tried to use adaptation " + this.getName() + " but they don't have build permission.");
+                if (!checkRegion(p)) {
+                    Adapt.verbose("Player " + p.getName() + " don't have adaptation - " + this.getName() + " permission.");
                     return false;
                 }
                 Adapt.verbose("Player " + p.getName() + " used adaptation " + this.getName());

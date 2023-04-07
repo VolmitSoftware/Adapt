@@ -19,6 +19,7 @@
 package com.volmit.adapt.api.protection;
 
 import com.google.common.collect.ImmutableList;
+import com.volmit.adapt.Adapt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ public class ProtectorRegistry {
     private final List<Protector> protectors = new ArrayList<>();
 
     public void registerProtector(Protector protector) {
+        Adapt.verbose("Protector: \"" + protector.getName() + "\" registered.");
         protectors.add(protector);
     }
 

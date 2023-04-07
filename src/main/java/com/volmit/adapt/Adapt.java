@@ -27,7 +27,9 @@ import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.commands.CommandAdapt;
 import com.volmit.adapt.content.gui.SkillsGui;
+import com.volmit.adapt.content.protector.ChestProtectProtector;
 import com.volmit.adapt.content.protector.FactionsClaimProtector;
+import com.volmit.adapt.content.protector.ResidenceProtector;
 import com.volmit.adapt.content.protector.WorldGuardProtector;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.*;
@@ -70,12 +72,14 @@ public class Adapt extends VolmitPlugin {
     private SQLManager sqlManager;
     @Getter
     private ProtectorRegistry protectorRegistry;
+    @Getter
+    private Map<String, Window> guiLeftovers = new HashMap<>();
+
 
     public Adapt() {
         super();
         instance = this;
     }
-
 
     public static int getJavaVersion() {
         String version = System.getProperty("java.version");
@@ -175,9 +179,6 @@ public class Adapt extends VolmitPlugin {
         }
     }
 
-    @Getter
-    private Map<String, Window> guiLeftovers = new HashMap<>();
-
     public static void hotloaded() {
         J.s(() -> {
             instance.guiLeftovers.values().forEach(window -> {
@@ -253,6 +254,12 @@ public class Adapt extends VolmitPlugin {
         }
         if (getServer().getPluginManager().getPlugin("Factions") != null) {
             protectorRegistry.registerProtector(new FactionsClaimProtector());
+        }
+        if (getServer().getPluginManager().getPlugin("ChestProtect") != null) {
+            protectorRegistry.registerProtector(new ChestProtectProtector());
+        }
+        if (getServer().getPluginManager().getPlugin("Residence") != null) {
+            protectorRegistry.registerProtector(new ResidenceProtector());
         }
     }
 

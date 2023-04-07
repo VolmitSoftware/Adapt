@@ -25,7 +25,10 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -88,11 +91,6 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                     for (int z = -i; z <= i; z++) {
                         Block b = block.getRelative(x, y, z);
                         if (b.getType() == block.getType()) {
-                            //might fix the veinminer issue. no Clue!
-                            if (!canBuild(p, p.getLocation())) {
-                                Adapt.verbose("Player " + p.getName() + " tried to use Veinminer but doesn't have build permission.");
-                                return;
-                            }
                             blockMap.put(b.getLocation(), b);
                         }
                     }
@@ -101,6 +99,10 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         }
         J.s(() -> {
             for (Location l : blockMap.keySet()) {
+                if (!canBlockBreak(p, l)) {
+                    Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
+                    continue;
+                }
                 Block b = e.getBlock().getWorld().getBlockAt(l);
                 if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-autosmelt") != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-autosmelt").getLevel() > 0) {
                     if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-drop-to-inventory").getLevel() > 0) {

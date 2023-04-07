@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.protector;
 
 import com.massivecraft.factions.*;
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.protection.Protector;
@@ -26,12 +27,22 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class FactionsClaimProtector implements Protector {
+
     @Override
-    public boolean canBuild(Player p, Location l, Adaptation<?> adaptation) {
-        Faction f = Board.getInstance().getFactionAt(new FLocation(l));
-        FPlayer fp = FPlayers.getInstance().getByPlayer(p);
+    public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
+        Faction f = Board.getInstance().getFactionAt(new FLocation(player.getLocation()));
+        return checkPerm(player, f, adaptation) || f.isWilderness();
+    }
+
+    @Override
+    public boolean canPVP(Player player, Location victimLocation, Adaptation<?> adaptation) {
+        Faction f = Board.getInstance().getFactionAt(new FLocation(victimLocation));
+        return checkPerm(player, f, adaptation) || !f.noPvPInTerritory();
+    }
+
+    private boolean checkPerm(Player player, Faction f, Adaptation<?> adaptation) {
+        FPlayer fp = FPlayers.getInstance().getByPlayer(player);
         return f == null
-                || f.isWilderness()
                 || fp.getFaction() == f
                 || fp.isAdminBypassing();
     }
@@ -43,11 +54,6 @@ public class FactionsClaimProtector implements Protector {
 
     @Override
     public boolean isEnabledByDefault() {
-        return AdaptConfig.get().isRequireFactionClaimOwnershipToUseAdaptations();
-    }
-
-    @Override
-    public void unregister() {
-
+        return AdaptConfig.get().getProtectorSupport().isFactionsClaim();
     }
 }

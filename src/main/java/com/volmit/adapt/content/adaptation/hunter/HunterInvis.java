@@ -73,7 +73,7 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
                         addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
                     }
                 } else {
-                    addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration* getLevel(p), getConfig().stackHungerPenalty);
+                    addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
                     addPotionStacks(p, PotionEffectType.INVISIBILITY, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
                 }
             } else {

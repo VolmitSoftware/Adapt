@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.axe;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -96,7 +97,11 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                                 Block b = block.getRelative(x, y, z);
                                 if (b.getType() == block.getType()) {
                                     if (block.getLocation().distance(b.getLocation()) > getRadius(getLevel(p))) {
-                                        return;
+                                        continue;
+                                    }
+                                    if (!canBlockBreak(p, b.getLocation())) {
+                                        Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
+                                        continue;
                                     }
                                     blockMap.put(b.getLocation(), b);
                                 }
