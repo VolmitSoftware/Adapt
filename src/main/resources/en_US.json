@@ -906,6 +906,12 @@
       "description": "Open an enderchest by Left-clicking it in your hand.",
       "lore1": "Click an Enderchest in your hand to open (Just dont place it)"
     },
+    "descent": {
+      "name": "Anti-Levitation",
+      "description": "Are you tired of being stuck in the air? This is the skill for you!",
+      "lore1": "Just Sneak to descend, and you will fall at a less than normal rate!",
+        "lore2": "Cooldown:"
+    },
     "gate": {
       "name": "Rift Gate",
       "description": "Teleport to a marked location.",
