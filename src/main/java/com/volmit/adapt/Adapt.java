@@ -123,7 +123,7 @@ public class Adapt extends VolmitPlugin {
                 }
             }
             in.close();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             error("Failed to check for updates.");
         }
     }
