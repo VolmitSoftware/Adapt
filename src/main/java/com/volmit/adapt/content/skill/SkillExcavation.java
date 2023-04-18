@@ -26,6 +26,7 @@ import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationDropToInventory;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationHaste;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationOmniTool;
+import com.volmit.adapt.content.adaptation.excavation.ExcavationSpelunker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
@@ -56,6 +57,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         setIcon(Material.DIAMOND_SHOVEL);
         cooldowns = new HashMap<>();
         registerAdaptation(new ExcavationHaste());
+        registerAdaptation(new ExcavationSpelunker());
         registerAdaptation(new ExcavationOmniTool());
         registerAdaptation(new ExcavationDropToInventory());
         registerAdvancement(AdaptAdvancement.builder()

@@ -661,6 +661,14 @@
       "lore1": "Gain Haste while excavating",
       "lore2": "x Levels of haste when you start mining ANY block."
     },
+    "spelunker": {
+      "name": "Super-Seeing Spelunker!",
+      "description": "See Ores with your eyes, but through the ground!",
+      "lore1": "Ore in your offhand, Glowberries in your main hand, and Sneak!",
+      "lore2": "Block Range: ",
+      "lore3": "Consumes Glowberry on use",
+      "lore4": "8 of the Ore's Drop and 1 stone to craft an ore block (shapeless)"
+    },
     "droptoinventory": {
       "name": "Shovel Drop-To-Inventory"
     },
