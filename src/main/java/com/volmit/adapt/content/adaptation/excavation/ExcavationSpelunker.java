@@ -20,7 +20,6 @@ package com.volmit.adapt.content.adaptation.excavation;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.nms.GlowingEntities;
 import com.volmit.adapt.util.C;
@@ -59,258 +58,6 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
-        // Use Stone as base
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-iron-ore")
-                .ingredient(Material.STONE)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .result(new ItemStack(Material.IRON_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-gold-ore")
-                .ingredient(Material.STONE)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .result(new ItemStack(Material.GOLD_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-copper-ore")
-                .ingredient(Material.STONE)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .result(new ItemStack(Material.COPPER_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-lapis-ore")
-                .ingredient(Material.STONE)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .result(new ItemStack(Material.LAPIS_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-redstone-ore")
-                .ingredient(Material.STONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .result(new ItemStack(Material.REDSTONE_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-emerald-ore")
-                .ingredient(Material.STONE)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .result(new ItemStack(Material.EMERALD_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-diamond-ore")
-                .ingredient(Material.STONE)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .result(new ItemStack(Material.DIAMOND_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-coal-ore")
-                .ingredient(Material.STONE)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .result(new ItemStack(Material.COAL_ORE))
-                .build());
-
-        // Use Deepslate
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-deepslate-iron-ore")
-                .ingredient(Material.DEEPSLATE)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .ingredient(Material.IRON_INGOT)
-                .result(new ItemStack(Material.DEEPSLATE_IRON_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-deepslate-gold-ore")
-                .ingredient(Material.DEEPSLATE)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .result(new ItemStack(Material.DEEPSLATE_GOLD_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-deepslate-copper-ore")
-                .ingredient(Material.DEEPSLATE)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .ingredient(Material.COPPER_INGOT)
-                .result(new ItemStack(Material.DEEPSLATE_COPPER_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-deepslate-lapis-ore")
-                .ingredient(Material.DEEPSLATE)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .ingredient(Material.LAPIS_LAZULI)
-                .result(new ItemStack(Material.DEEPSLATE_LAPIS_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-deepslate-redstone-ore")
-                .ingredient(Material.DEEPSLATE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .ingredient(Material.REDSTONE)
-                .result(new ItemStack(Material.DEEPSLATE_REDSTONE_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-deepslate-emerald-ore")
-                .ingredient(Material.DEEPSLATE)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .ingredient(Material.EMERALD)
-                .result(new ItemStack(Material.DEEPSLATE_EMERALD_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-deepslate-diamond-ore")
-                .ingredient(Material.DEEPSLATE)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .ingredient(Material.DIAMOND)
-                .result(new ItemStack(Material.DEEPSLATE_DIAMOND_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-deepslate-coal-ore")
-                .ingredient(Material.DEEPSLATE)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .ingredient(Material.COAL)
-                .result(new ItemStack(Material.DEEPSLATE_COAL_ORE))
-                .build());
-
-// Use Nether Bricks
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-nether-gold-ore")
-                .ingredient(Material.NETHER_BRICKS)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .ingredient(Material.GOLD_INGOT)
-                .result(new ItemStack(Material.NETHER_GOLD_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-nether-quartz-ore")
-                .ingredient(Material.NETHER_BRICKS)
-                .ingredient(Material.QUARTZ)
-                .ingredient(Material.QUARTZ)
-                .ingredient(Material.QUARTZ)
-                .ingredient(Material.QUARTZ)
-                .ingredient(Material.QUARTZ)
-                .ingredient(Material.QUARTZ)
-                .ingredient(Material.QUARTZ)
-                .ingredient(Material.QUARTZ)
-                .result(new ItemStack(Material.NETHER_QUARTZ_ORE))
-                .build());
-        registerRecipe(AdaptRecipe.shapeless()
-                .key("spelunker-ancient-debris")
-                .ingredient(Material.NETHER_BRICKS)
-                .ingredient(Material.NETHERITE_SCRAP)
-                .ingredient(Material.NETHERITE_SCRAP)
-                .ingredient(Material.NETHERITE_SCRAP)
-                .ingredient(Material.NETHERITE_SCRAP)
-                .ingredient(Material.NETHERITE_SCRAP)
-                .ingredient(Material.NETHERITE_SCRAP)
-                .ingredient(Material.NETHERITE_SCRAP)
-                .ingredient(Material.NETHERITE_SCRAP)
-                .result(new ItemStack(Material.ANCIENT_DEBRIS))
-                .build());
         cooldowns = new HashMap<>();
 
     }
@@ -320,7 +67,6 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
         v.addLore(C.GREEN + Localizer.dLocalize("excavation", "spelunker", "lore1"));
         v.addLore(C.YELLOW + Localizer.dLocalize("excavation", "spelunker", "lore2") + getConfig().rangeMultiplier * level);
         v.addLore(C.YELLOW + Localizer.dLocalize("excavation", "spelunker", "lore3"));
-        v.addLore(C.BOLD + Localizer.dLocalize("excavation", "spelunker", "lore4"));
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -460,9 +206,9 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
         boolean permanent = false;
         boolean enabled = true;
         double cooldown =6.0;
-        int baseCost = 3;
-        int initialCost = 3;
-        double costFactor = 0.3;
+        int baseCost = 5;
+        int initialCost = 10;
+        double costFactor = 1;
         int maxLevel = 5;
         int rangeMultiplier = 5;
     }
