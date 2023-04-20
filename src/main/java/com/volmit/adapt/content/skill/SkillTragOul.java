@@ -23,6 +23,7 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerAdaptation;
+import com.volmit.adapt.content.adaptation.tragoul.TragoulGlobe;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulThorns;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
@@ -51,6 +52,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         setIcon(Material.CRIMSON_ROOTS);
         cooldowns = new HashMap<>();
         registerAdaptation(new TragoulThorns());
+        registerAdaptation(new TragoulGlobe());
 
     }
 

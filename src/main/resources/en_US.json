@@ -925,7 +925,7 @@
       "name": "Anti-Levitation",
       "description": "Are you tired of being stuck in the air? This is the skill for you!",
       "lore1": "Just Sneak to descend, and you will fall at a less than normal rate!",
-        "lore2": "Cooldown:"
+      "lore2": "Cooldown:"
     },
     "gate": {
       "name": "Rift Gate",
@@ -1041,6 +1041,13 @@
       "name": "Thorns",
       "description": "Reflect damage back to your attacker!",
       "lore1": "Damage retaliated when struck"
+    },
+    "globe": {
+      "name": "Globe of Pain",
+      "description": "Divide the Damage you deal based on the number of enemies around you!",
+      "lore1": "The more enemies around you, the less damage you deal to each of them",
+      "lore2": "Range: ",
+      "lore3": "Added Damage to all Entities: "
     }
   },
   "unarmed": {
