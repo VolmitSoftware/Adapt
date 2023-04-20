@@ -81,6 +81,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
+            return;
+        }
         ItemStack hand = p.getInventory().getItemInMainHand();
         Block block = e.getClickedBlock();
         ItemStack offhand = p.getInventory().getItemInOffHand();
@@ -88,7 +91,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
             e.setCancelled(true);
             return;
         }
-        if (BoundEnderPearl.isBindableItem(hand) && hasAdaptation(p)) {
+        if (BoundEnderPearl.isBindableItem(hand)) {
             e.setCancelled(true);
             switch (e.getAction()) {
                 case LEFT_CLICK_BLOCK -> {

@@ -43,10 +43,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
@@ -266,6 +270,51 @@ public interface Component {
         return MaterialValue.getValue(block.getType());
     }
 
+    default void vfxMovingSphere(Location startLocation, Location endLocation, int ticks, Color color, double size) {
+        World world = startLocation.getWorld();
+        double startX = startLocation.getX();
+        double startY = startLocation.getY();
+        double startZ = startLocation.getZ();
+        double endX = endLocation.getX();
+        double endY = endLocation.getY();
+        double endZ = endLocation.getZ();
+        double deltaX = (endX - startX) / ticks;
+        double deltaY = (endY - startY) / ticks;
+        double deltaZ = (endZ - startZ) / ticks;
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, (float)size);
+
+        new BukkitRunnable() {
+            int tick = 0;
+            public void run() {
+                if (tick >= ticks) {
+                    cancel();
+                    return;
+                }
+
+                double x = startX + deltaX * tick;
+                double y = startY + deltaY * tick;
+                double z = startZ + deltaZ * tick;
+                Location particleLocation = new Location(world, x, y, z);
+
+                for (double i = 0; i < Math.PI; i += Math.PI / 10) {
+                    double radius = Math.sin(i) * size;
+                    double yCoord = Math.cos(i) * size;
+
+                    for (double j = 0; j < Math.PI * 2; j += Math.PI / 10) {
+                        double xCoord = Math.sin(j) * radius;
+                        double zCoord = Math.cos(j) * radius;
+
+                        Location loc = particleLocation.clone().add(xCoord, yCoord, zCoord);
+                        world.spawnParticle(Particle.REDSTONE, loc, 0, 0, 0, 0, dustOptions);
+                    }
+                }
+
+                tick++;
+            }
+        }.runTaskTimer(Adapt.instance, 0, 1);
+    }
+
+
     default void vfxDome(Location center, double range, Color color, int particleCount) {
         Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1);
         World world = center.getWorld();
@@ -306,6 +355,15 @@ public interface Component {
         }
     }
 
+    default void vfxZuck(Location from, Location to, Particle particle) {
+        Vector v = from.clone().subtract(to).toVector();
+        double l = v.length();
+        v.normalize();
+        if (AdaptConfig.get().isUseEnchantmentTableParticleForActiveEffects()) {
+            from.getWorld().spawnParticle(particle, to, 1, 6, 6, 6, 0.6);
+        }
+    }
+
     default void safeGiveItem(Player player, Entity itemEntity, ItemStack is) {
         EntityPickupItemEvent e = new EntityPickupItemEvent(player, (Item) itemEntity, 0);
         Bukkit.getPluginManager().callEvent(e);
@@ -316,6 +374,7 @@ public interface Component {
             }
         }
     }
+
 
 
     default void safeGiveItem(Player player, ItemStack item) {

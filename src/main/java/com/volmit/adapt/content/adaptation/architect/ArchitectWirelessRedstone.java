@@ -85,6 +85,9 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
+            return;
+        }
         ItemStack hand = p.getInventory().getItemInMainHand();
 
         ItemStack offhand = p.getInventory().getItemInOffHand();
