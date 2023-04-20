@@ -18,10 +18,13 @@
 
 package com.volmit.adapt.content.item;
 
+import com.volmit.adapt.util.C;
 import lombok.Getter;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class ItemListings {
@@ -67,6 +70,75 @@ public class ItemListings {
             Material.DEEPSLATE_GOLD_ORE,
             Material.DEEPSLATE_COPPER_ORE
     );
+
+    @Getter
+    public static List<Material> ores = List.of(
+            Material.IRON_ORE,
+            Material.GOLD_ORE,
+            Material.COPPER_ORE,
+            Material.LAPIS_ORE,
+            Material.REDSTONE_ORE,
+            Material.EMERALD_ORE,
+            Material.DIAMOND_ORE,
+            Material.COAL_ORE,
+            Material.DEEPSLATE_IRON_ORE,
+            Material.DEEPSLATE_GOLD_ORE,
+            Material.DEEPSLATE_COPPER_ORE,
+            Material.DEEPSLATE_LAPIS_ORE,
+            Material.DEEPSLATE_REDSTONE_ORE,
+            Material.DEEPSLATE_EMERALD_ORE,
+            Material.DEEPSLATE_DIAMOND_ORE,
+            Material.DEEPSLATE_COAL_ORE,
+            Material.NETHER_GOLD_ORE,
+            Material.NETHER_QUARTZ_ORE,
+            Material.ANCIENT_DEBRIS
+    );
+
+    @Getter
+    public static HashMap<Material, ChatColor> oreColorsChatColor = new HashMap<>() {{
+        put(Material.IRON_ORE, ChatColor.GRAY);
+        put(Material.GOLD_ORE, ChatColor.YELLOW);
+        put(Material.COPPER_ORE, ChatColor.GOLD);
+        put(Material.LAPIS_ORE, ChatColor.BLUE);
+        put(Material.REDSTONE_ORE, ChatColor.RED);
+        put(Material.EMERALD_ORE, ChatColor.GREEN);
+        put(Material.DIAMOND_ORE, ChatColor.AQUA);
+        put(Material.COAL_ORE, ChatColor.DARK_GRAY);
+        put(Material.DEEPSLATE_IRON_ORE, ChatColor.GRAY);
+        put(Material.DEEPSLATE_GOLD_ORE, ChatColor.YELLOW);
+        put(Material.DEEPSLATE_COPPER_ORE, ChatColor.GOLD);
+        put(Material.DEEPSLATE_LAPIS_ORE, ChatColor.BLUE);
+        put(Material.DEEPSLATE_REDSTONE_ORE, ChatColor.RED);
+        put(Material.DEEPSLATE_EMERALD_ORE, ChatColor.GREEN);
+        put(Material.DEEPSLATE_DIAMOND_ORE, ChatColor.AQUA);
+        put(Material.DEEPSLATE_COAL_ORE, ChatColor.DARK_GRAY);
+        put(Material.NETHER_GOLD_ORE, ChatColor.YELLOW);
+        put(Material.NETHER_QUARTZ_ORE, ChatColor.WHITE);
+        put(Material.ANCIENT_DEBRIS, ChatColor.DARK_PURPLE);
+    }};
+
+    @Getter
+    public static HashMap<Material, C> oreColorColor = new HashMap<>() {{
+        put(Material.IRON_ORE, C.GRAY);
+        put(Material.GOLD_ORE, C.YELLOW);
+        put(Material.COPPER_ORE, C.GOLD);
+        put(Material.LAPIS_ORE, C.BLUE);
+        put(Material.REDSTONE_ORE, C.RED);
+        put(Material.EMERALD_ORE, C.GREEN);
+        put(Material.DIAMOND_ORE, C.AQUA);
+        put(Material.COAL_ORE, C.DARK_GRAY);
+        put(Material.DEEPSLATE_IRON_ORE, C.GRAY);
+        put(Material.DEEPSLATE_GOLD_ORE, C.YELLOW);
+        put(Material.DEEPSLATE_COPPER_ORE, C.GOLD);
+        put(Material.DEEPSLATE_LAPIS_ORE, C.BLUE);
+        put(Material.DEEPSLATE_REDSTONE_ORE, C.RED);
+        put(Material.DEEPSLATE_EMERALD_ORE, C.GREEN);
+        put(Material.DEEPSLATE_DIAMOND_ORE, C.AQUA);
+        put(Material.DEEPSLATE_COAL_ORE, C.DARK_GRAY);
+        put(Material.NETHER_GOLD_ORE, C.YELLOW);
+        put(Material.NETHER_QUARTZ_ORE, C.WHITE);
+        put(Material.ANCIENT_DEBRIS, C.DARK_PURPLE);
+    }};
 
     @Getter
     public static List<Material> herbalLuckSeeds = List.of(

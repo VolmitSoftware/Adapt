@@ -46,11 +46,10 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
+
+import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
 
 public interface Component {
     default void wisdom(Player p, long w) {
@@ -267,6 +266,22 @@ public interface Component {
         return MaterialValue.getValue(block.getType());
     }
 
+    default void vfxDome(Location center, double range, Color color, int particleCount) {
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1);
+        World world = center.getWorld();
+
+        for (int i = 0; i < particleCount; i++) {
+            double theta = 2 * Math.PI * RANDOM.nextDouble();
+            double phi = Math.PI / 2 * RANDOM.nextDouble(); // Adjusted range of phi to create a dome
+            double x = range * Math.sin(phi) * Math.cos(theta);
+            double y = range * Math.sin(phi) * Math.sin(theta);
+            double z = range * Math.cos(phi);
+
+            Location particleLocation = center.clone().add(x, y, z);
+            world.spawnParticle(Particle.REDSTONE, particleLocation, 0, 0, 0, 0, dustOptions);
+        }
+    }
+
     default void vfxSphereV1(Player p, Location l, double radius, Particle particle, int verticalDensity, int radialDensity) {
         for (double phi = 0; phi <= Math.PI; phi += Math.PI / verticalDensity) {
             for (double theta = 0; theta <= 2 * Math.PI; theta += Math.PI / radialDensity) {
@@ -425,6 +440,44 @@ public interface Component {
 
         for (Location location : Arrays.asList(baseCorner1, baseCorner2, baseCorner3, baseCorner4)) {
             vfxParticleLine(location, top, particle, particleCount, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+        }
+    }
+
+    default void vfxCreateSphereAlt(Location center, double range, Color color, int particleCount) {
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1);
+        World world = center.getWorld();
+
+        for (int i = 0; i < particleCount; i++) {
+            double x, y, z;
+            do {
+                x = RANDOM.nextDouble() * 2 - 1;
+                y = RANDOM.nextDouble() * 2 - 1;
+                z = RANDOM.nextDouble() * 2 - 1;
+            } while (x * x + y * y + z * z > 1);
+
+            double magnitude = Math.sqrt(x * x + y * y + z * z);
+            x = x / magnitude * range;
+            y = y / magnitude * range;
+            z = z / magnitude * range;
+
+            Location particleLocation = center.clone().add(x, y, z);
+            world.spawnParticle(Particle.REDSTONE, particleLocation, 0, 0, 0, 0, dustOptions);
+        }
+    }
+
+    default void vfxSphereV3(Location center, double range, Color color, int particleCount) {
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1);
+        World world = center.getWorld();
+
+        for (int i = 0; i < particleCount; i++) {
+            double theta = 2 * Math.PI * RANDOM.nextDouble();
+            double phi = Math.acos(2 * RANDOM.nextDouble() - 1);
+            double x = range * Math.sin(phi) * Math.cos(theta);
+            double y = range * Math.sin(phi) * Math.sin(theta);
+            double z = range * Math.cos(phi);
+
+            Location particleLocation = center.clone().add(x, y, z);
+            world.spawnParticle(Particle.REDSTONE, particleLocation, 0, 0, 0, 0, dustOptions);
         }
     }
 

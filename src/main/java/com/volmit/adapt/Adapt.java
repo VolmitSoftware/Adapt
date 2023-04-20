@@ -31,6 +31,7 @@ import com.volmit.adapt.content.protector.ChestProtectProtector;
 import com.volmit.adapt.content.protector.FactionsClaimProtector;
 import com.volmit.adapt.content.protector.ResidenceProtector;
 import com.volmit.adapt.content.protector.WorldGuardProtector;
+import com.volmit.adapt.nms.GlowingEntities;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.secret.SecretSplash;
@@ -64,6 +65,8 @@ public class Adapt extends VolmitPlugin {
     private final CommandAdapt commandAdapt = new CommandAdapt();
     public boolean usingMagicCosmetics = Bukkit.getServer().getPluginManager().getPlugin("MagicCosmetics") != null;
     @Getter
+    private GlowingEntities glowingEntities;
+    @Getter
     private Ticker ticker;
     @Getter
     private AdaptServer adaptServer;
@@ -75,6 +78,7 @@ public class Adapt extends VolmitPlugin {
     @Getter
     private Map<String, Window> guiLeftovers = new HashMap<>();
 
+    
 
     public Adapt() {
         super();
@@ -255,12 +259,14 @@ public class Adapt extends VolmitPlugin {
         if (getServer().getPluginManager().getPlugin("Factions") != null) {
             protectorRegistry.registerProtector(new FactionsClaimProtector());
         }
+
         if (getServer().getPluginManager().getPlugin("ChestProtect") != null) {
             protectorRegistry.registerProtector(new ChestProtectProtector());
         }
         if (getServer().getPluginManager().getPlugin("Residence") != null) {
             protectorRegistry.registerProtector(new ResidenceProtector());
         }
+        glowingEntities = new GlowingEntities(this);
     }
 
     @Override

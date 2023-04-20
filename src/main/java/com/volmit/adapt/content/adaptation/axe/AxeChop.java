@@ -116,7 +116,6 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         b.getWorld().playSound(ll.getLocation(), Sound.ITEM_AXE_STRIP, 0.75f, 1.3f);
 
         player.breakBlock(ll);
-//        ll.breakNaturally();
         return true;
     }
 

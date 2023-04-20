@@ -575,6 +575,14 @@
       "description": "Gain passive XP when crafting",
       "lore1": "Gain XP when crafting"
     },
+    "reconstruction": {
+      "name": "Ore Reconstruction",
+      "description": "Recraft ores from their base components!",
+      "lore1": "8 of the Drops and 1 Host = 1 Ore (shapeless)",
+      "lore2": "Drops must be smelted (if applicable)",
+      "lore3": "Not including: Scraps, Quarts, and Emeralds etc...",
+      "lore4": "Host = Encasement. ie: Stone, Netherack, Deepslate"
+    },
     "leather": {
       "name": "Craftable Leather",
       "description": "Craft Leather from Rotten Flesh",
@@ -660,6 +668,13 @@
       "description": "This will speed up the excavation process, with HASTE!",
       "lore1": "Gain Haste while excavating",
       "lore2": "x Levels of haste when you start mining ANY block."
+    },
+    "spelunker": {
+      "name": "Super-Seeing Spelunker!",
+      "description": "See Ores with your eyes, but through the ground!",
+      "lore1": "Ore in your offhand, Glowberries in your main hand, and Sneak!",
+      "lore2": "Block Range: ",
+      "lore3": "Consumes Glowberry on use"
     },
     "droptoinventory": {
       "name": "Shovel Drop-To-Inventory"
@@ -910,7 +925,7 @@
       "name": "Anti-Levitation",
       "description": "Are you tired of being stuck in the air? This is the skill for you!",
       "lore1": "Just Sneak to descend, and you will fall at a less than normal rate!",
-        "lore2": "Cooldown:"
+      "lore2": "Cooldown:"
     },
     "gate": {
       "name": "Rift Gate",
@@ -1026,6 +1041,13 @@
       "name": "Thorns",
       "description": "Reflect damage back to your attacker!",
       "lore1": "Damage retaliated when struck"
+    },
+    "globe": {
+      "name": "Globe of Pain",
+      "description": "Divide the Damage you deal based on the number of enemies around you!",
+      "lore1": "The more enemies around you, the less damage you deal to each of them",
+      "lore2": "Range: ",
+      "lore3": "Added Damage to all Entities: "
     }
   },
   "unarmed": {
