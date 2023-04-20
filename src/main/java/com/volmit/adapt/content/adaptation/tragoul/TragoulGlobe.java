@@ -85,22 +85,24 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
                 return;
             }
 
-            if (!entitiesInRange.isEmpty()) {
-                double damagePerEntity = e.getDamage() / entitiesInRange.size() + (getConfig().bonusDamagePerLevel * getLevel(p));
-                e.setDamage(damagePerEntity);
+            double damagePerEntity = e.getDamage() / entitiesInRange.size() + (getConfig().bonusDamagePerLevel * getLevel(p));
+            e.setDamage(damagePerEntity);
 
-                for (Entity entity : entitiesInRange) {
-                    ((LivingEntity) entity).damage(damagePerEntity, p);
-                }
+            for (Entity entity : entitiesInRange) {
+                ((LivingEntity) entity).damage(damagePerEntity, p);
+            }
 
-                if (getConfig().showParticles) {
-                    J.s(() -> {
-                        vfxCreateSphere(p.getLocation(), range, Color.BLACK, 500);
+            if (getConfig().showParticles) {
+                J.s(() -> {
+                    if (getConfig().showParticles) {
+                        vfxSphereV3(p.getLocation(), range, Color.BLACK, 100);
+                        vfxDome(p.getLocation(), range, Color.BLACK, 300);
+                        vfxFastRing(p.getLocation(), range, Particle.DRIP_LAVA);
                         for (Entity entity : entitiesInRange) {
                             vfxParticleLine(p.getLocation(), entity.getLocation(), Particle.ASH, 15, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
                         }
-                    });
-                }
+                    }
+                });
             }
         }
     }

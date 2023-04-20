@@ -266,6 +266,22 @@ public interface Component {
         return MaterialValue.getValue(block.getType());
     }
 
+    default void vfxDome(Location center, double range, Color color, int particleCount) {
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1);
+        World world = center.getWorld();
+
+        for (int i = 0; i < particleCount; i++) {
+            double theta = 2 * Math.PI * RANDOM.nextDouble();
+            double phi = Math.PI / 2 * RANDOM.nextDouble(); // Adjusted range of phi to create a dome
+            double x = range * Math.sin(phi) * Math.cos(theta);
+            double y = range * Math.sin(phi) * Math.sin(theta);
+            double z = range * Math.cos(phi);
+
+            Location particleLocation = center.clone().add(x, y, z);
+            world.spawnParticle(Particle.REDSTONE, particleLocation, 0, 0, 0, 0, dustOptions);
+        }
+    }
+
     default void vfxSphereV1(Player p, Location l, double radius, Particle particle, int verticalDensity, int radialDensity) {
         for (double phi = 0; phi <= Math.PI; phi += Math.PI / verticalDensity) {
             for (double theta = 0; theta <= 2 * Math.PI; theta += Math.PI / radialDensity) {
@@ -449,7 +465,7 @@ public interface Component {
         }
     }
 
-    default void vfxCreateSphere(Location center, double range, Color color, int particleCount) {
+    default void vfxSphereV3(Location center, double range, Color color, int particleCount) {
         Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1);
         World world = center.getWorld();
 
