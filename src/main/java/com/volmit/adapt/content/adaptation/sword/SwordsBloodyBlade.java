@@ -87,6 +87,11 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
             }
             Entity victim = e.getEntity();
             cooldowns.put(p, System.currentTimeMillis() + getCooldown(getLevel(p)));
+            if (victim instanceof Player pvic) {
+                if (!canPVP(p, pvic.getLocation())) return;
+            } else {
+                if (!canPVE(p, victim.getLocation())) return;
+            }
             if (getConfig().showParticles) {
                 BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, getConfig().damagePerBleedProc, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
                 blood.setEntity(victim);

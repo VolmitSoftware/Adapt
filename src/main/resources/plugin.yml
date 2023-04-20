@@ -3,7 +3,7 @@ main: com.volmit.adapt.Adapt
 version: ${version}
 authors: [ NextdoorPsycho, Cyberpwn,  Vatuu ]
 api-version: ${apiversion}
-softdepend: [ PlaceholderAPI, WorldGuard, Factions ]
+softdepend: [ PlaceholderAPI, WorldGuard, Factions, ChestProtect, Residence ]
 libraries:
   - com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2
   - org.apache.commons:commons-lang3:3.12.0

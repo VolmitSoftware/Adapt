@@ -53,8 +53,6 @@ public class AdaptConfig {
     private double playerXpPerSkillLevelUpBase = 489;
     private double playerXpPerSkillLevelUpLevelMultiplier = 44;
     private double powerPerLevel = 0.73;
-    private boolean requireWorldguardBuildPermToUseAdaptations = true;
-    private boolean requireFactionClaimOwnershipToUseAdaptations = false;
     private boolean hardcoreResetOnPlayerDeath = false;
     private boolean hardcoreNoRefunds = false;
     private boolean loginBonus = true;
@@ -69,6 +67,7 @@ public class AdaptConfig {
     private boolean actionbarNotifyLevel = true;
     private boolean unlearnAllButton = false;
     private SqlSettings sql = new SqlSettings();
+    private Protector protectorSupport = new Protector();
     private Map<String, Map<String, Boolean>> protectionOverrides = Map.of(
             "adaptation-name", Map.of(
                     "WorldGuard", true
@@ -104,6 +103,14 @@ public class AdaptConfig {
         }
 
         return config;
+    }
+
+    @Getter
+    public static class Protector {
+        private boolean worldguard = true;
+        private boolean factionsClaim = false;
+        private boolean residence = true;
+        private boolean chestProtect = true;
     }
 
 
