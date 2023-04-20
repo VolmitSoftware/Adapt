@@ -57,7 +57,9 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "Heal for " + getConfig().minHealPercent * 100 + "% - " + getConfig().maxHealPercent * 100 + "% of damage dealt");
+        v.addLore(C.GREEN + Localizer.dLocalize("tragoul", "healing", "lore1"));
+        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "healing", "lore2") );
+        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "healing", "lore3") + (getConfig().minHealPercent + (getConfig().maxHealPercent - getConfig().minHealPercent) * (level - 1) / (getConfig().maxLevel - 1))+ "%");
     }
 
     @EventHandler

@@ -157,7 +157,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         private int levelCooldown = 5;
         private int baseCost = 10;
         private double costFactor = 1.5;
-        private int maxLevel = 2;
+        private int maxLevel = 3;
         private int initialCost = 5;
     }
 }

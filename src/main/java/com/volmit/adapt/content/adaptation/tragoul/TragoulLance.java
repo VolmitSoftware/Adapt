@@ -18,6 +18,7 @@ package com.volmit.adapt.content.adaptation.tragoul;/*--------------------------
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
@@ -129,7 +130,9 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-
+        v.addLore(C.GREEN + Localizer.dLocalize("tragoul", "lance", "lore1"));
+        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "lance", "lore2") );
+        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "lance", "lore3") + level);
     }
 
     @NoArgsConstructor
