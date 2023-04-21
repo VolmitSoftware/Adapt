@@ -874,7 +874,8 @@
     "arrowrecovery": {
       "name": "Arrow Recovery",
       "description": "Recover Arrows after you have killed an enemy.",
-      "lore1": "Chance to Recover Arrows on Hit/Kill"
+      "lore1": "Chance to Recover Arrows on Hit/Kill",
+      "lore2": "Chance: "
     },
     "webshot": {
       "name": "Web Snare",
@@ -946,7 +947,7 @@
     "oxygen": {
       "name": "Organic Oxygen Tank",
       "description": "Hold more oxygen in your tiny lungs!",
-      "lore1": "Oxygen"
+      "lore1": "Oxygen Capacity Increase"
     },
     "fishersfantasy": {
       "name": "Fisher's Fantasy",

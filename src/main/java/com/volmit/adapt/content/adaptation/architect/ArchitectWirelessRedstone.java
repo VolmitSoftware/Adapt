@@ -75,6 +75,10 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
 
+        if(!hand.getType().equals(Material.REDSTONE_TORCH)) {
+           return;
+        }
+
         if (isBound(hand)) {
             p.setCooldown(Material.REDSTONE_TORCH, 50000);
         } else {
@@ -85,10 +89,14 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        ItemStack hand = p.getInventory().getItemInMainHand();
+        if(!hand.getType().equals(Material.REDSTONE_TORCH)) {
+            return;
+        }
+
         if (!hasAdaptation(p)) {
             return;
         }
-        ItemStack hand = p.getInventory().getItemInMainHand();
 
         ItemStack offhand = p.getInventory().getItemInOffHand();
         if (e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND) && BoundRedstoneTorch.isBindableItem(offhand)) {
