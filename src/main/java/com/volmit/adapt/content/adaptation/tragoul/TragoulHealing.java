@@ -58,8 +58,8 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + Localizer.dLocalize("tragoul", "healing", "lore1"));
-        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "healing", "lore2") );
-        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "healing", "lore3") + (getConfig().minHealPercent + (getConfig().maxHealPercent - getConfig().minHealPercent) * (level - 1) / (getConfig().maxLevel - 1))+ "%");
+        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "healing", "lore2"));
+        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "healing", "lore3") + (getConfig().minHealPercent + (getConfig().maxHealPercent - getConfig().minHealPercent) * (level - 1) / (getConfig().maxLevel - 1)) + "%");
     }
 
     @EventHandler
@@ -75,7 +75,7 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
             }
 
             if (getConfig().showParticles) {
-                vfxParticleLine(p.getLocation(), e.getEntity().getLocation(), Particle.WHITE_ASH, 10, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
+                vfxParticleLine(p.getLocation(), e.getEntity().getLocation(), 25, Particle.WHITE_ASH);
             }
 
             double healPercentage = getConfig().minHealPercent + (getConfig().maxHealPercent - getConfig().minHealPercent) * (getLevel(p) - 1) / (getConfig().maxLevel - 1);

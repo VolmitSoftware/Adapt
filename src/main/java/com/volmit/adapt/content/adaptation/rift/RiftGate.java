@@ -169,7 +169,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     private void linkEye(Player p, Location location) {
         if (getConfig().showParticles) {
 
-            vfxSingleCuboidOutline(location.getBlock(), location.add(0, 1, 0).getBlock(), Particle.REVERSE_PORTAL);
+            vfxCuboidOutline(location.getBlock(), location.add(0, 1, 0).getBlock(), Particle.REVERSE_PORTAL);
         }
         p.playSound(p.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 0.50f, 0.22f);
         ItemStack hand = p.getInventory().getItemInMainHand();

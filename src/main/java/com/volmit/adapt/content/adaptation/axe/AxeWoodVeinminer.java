@@ -132,7 +132,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                             }
                         }
                         if (getConfig().showParticles) {
-                            vfxSingleCubeOutlineR(blocks, Particle.ENCHANTMENT_TABLE);
+                            this.vfxCuboidOutline(blocks, Particle.ENCHANTMENT_TABLE);
                         }
                     }
                 });

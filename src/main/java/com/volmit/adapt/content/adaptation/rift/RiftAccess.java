@@ -128,7 +128,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     private void linkPearl(Player p, Block block) {
         if (getConfig().showParticles) {
-            vfxSingleCubeOutline(block, Particle.REVERSE_PORTAL);
+            vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
         }
         ItemStack hand = p.getInventory().getItemInMainHand();
         p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 0.8f);

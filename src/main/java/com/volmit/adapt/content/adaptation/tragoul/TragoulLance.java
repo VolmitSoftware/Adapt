@@ -94,7 +94,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         }
 
         if (nearest != null) {
-            vfxMovingSphere(origin.getLocation(), nearest.getLocation(), getConfig().seekerDelay, Color.MAROON, 0.25);
+            vfxMovingSphere(origin.getLocation(), nearest.getLocation(), getConfig().seekerDelay, Color.MAROON, 0.25, 4);
             double seekerDamage = getConfig().seekerDamageMultiplier * damage;
             double selfDamage = getConfig().selfDamageMultiplier * seekerDamage;
             Adapt.verbose("Seeker damage: " + seekerDamage + " Self damage: " + selfDamage);

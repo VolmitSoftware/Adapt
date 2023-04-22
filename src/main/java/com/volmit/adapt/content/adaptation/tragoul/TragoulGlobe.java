@@ -95,12 +95,9 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
             if (getConfig().showParticles) {
                 J.s(() -> {
                     if (getConfig().showParticles) {
-                        vfxSphereV3(p.getLocation(), range, Color.BLACK, 100);
+                        vfxFastSphere(p.getLocation(), range, Color.BLACK, 100);
                         vfxDome(p.getLocation(), range, Color.BLACK, 300);
-                        vfxFastRing(p.getLocation(), range, Particle.DRIP_LAVA);
-                        for (Entity entity : entitiesInRange) {
-                            vfxParticleLine(p.getLocation(), entity.getLocation(), Particle.ASH, 15, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        }
+                        vfxLoadingRing(p.getLocation(), range, Particle.DRIP_LAVA, 20, 300);
                     }
                 });
             }

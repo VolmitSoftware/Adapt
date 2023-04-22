@@ -44,6 +44,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
@@ -270,7 +271,7 @@ public interface Component {
         return MaterialValue.getValue(block.getType());
     }
 
-    default void vfxMovingSphere(Location startLocation, Location endLocation, int ticks, Color color, double size) {
+    default void vfxMovingSphere(Location startLocation, Location endLocation, int ticks, Color color, double size, double density) {
         World world = startLocation.getWorld();
         double startX = startLocation.getX();
         double startY = startLocation.getY();
@@ -281,10 +282,152 @@ public interface Component {
         double deltaX = (endX - startX) / ticks;
         double deltaY = (endY - startY) / ticks;
         double deltaZ = (endZ - startZ) / ticks;
-        Particle.DustOptions dustOptions = new Particle.DustOptions(color, (float)size);
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, (float) size);
 
         new BukkitRunnable() {
             int tick = 0;
+
+            public void run() {
+                if (tick >= ticks) {
+                    cancel();
+                    return;
+                }
+                double x = startX + deltaX * tick;
+                double y = startY + deltaY * tick;
+                double z = startZ + deltaZ * tick;
+                Location particleLocation = new Location(world, x, y, z);
+
+                for (double i = 0; i < Math.PI; i += Math.PI / density) {
+                    double radius = Math.sin(i) * size;
+                    double yCoord = Math.cos(i) * size;
+                    for (double j = 0; j < Math.PI * 2; j += Math.PI / density) {
+                        double xCoord = Math.sin(j) * radius;
+                        double zCoord = Math.cos(j) * radius;
+
+                        Location loc = particleLocation.clone().add(xCoord, yCoord, zCoord);
+                        world.spawnParticle(Particle.REDSTONE, loc, 0, 0, 0, 0, dustOptions);
+                    }
+                }
+
+                tick++;
+            }
+        }.runTaskTimer(Adapt.instance, 0, 1);
+    }
+
+    default void vfxMovingSwirlingSphere(Location startLocation, Location endLocation, int ticks, Color color, double size, double swirlRadius, double density) {
+        World world = startLocation.getWorld();
+        double startX = startLocation.getX();
+        double startY = startLocation.getY();
+        double startZ = startLocation.getZ();
+        double endX = endLocation.getX();
+        double endY = endLocation.getY();
+        double endZ = endLocation.getZ();
+        double deltaX = (endX - startX) / ticks;
+        double deltaY = (endY - startY) / ticks;
+        double deltaZ = (endZ - startZ) / ticks;
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, (float) size);
+
+        new BukkitRunnable() {
+            int tick = 0;
+
+            public void run() {
+                if (tick >= ticks) {
+                    cancel();
+                    return;
+                }
+                double x = startX + deltaX * tick;
+                double y = startY + deltaY * tick;
+                double z = startZ + deltaZ * tick;
+
+                // Add swirling effect
+                double swirlAngle = 2 * Math.PI * tick / ticks;
+                x += swirlRadius * Math.cos(swirlAngle);
+                z += swirlRadius * Math.sin(swirlAngle);
+
+                Location particleLocation = new Location(world, x, y, z);
+
+                for (double i = 0; i < Math.PI; i += Math.PI / density) {
+                    double radius = Math.sin(i) * size;
+                    double yCoord = Math.cos(i) * size;
+                    for (double j = 0; j < Math.PI * 2; j += Math.PI / density) {
+                        double xCoord = Math.sin(j) * radius;
+                        double zCoord = Math.cos(j) * radius;
+
+                        Location loc = particleLocation.clone().add(xCoord, yCoord, zCoord);
+                        world.spawnParticle(Particle.REDSTONE, loc, 0, 0, 0, 0, dustOptions);
+                    }
+                }
+
+                tick++;
+            }
+        }.runTaskTimer(Adapt.instance, 0, 1);
+    }
+
+    default void vfxPlayerBoundingBoxOutline(Player player, Color color, int ticks, int particleCount) {
+        World world = player.getWorld();
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1.0f);
+
+        new BukkitRunnable() {
+            int tick = 0;
+
+            public void run() {
+                if (tick >= ticks) {
+                    cancel();
+                    return;
+                }
+
+                BoundingBox boundingBox = player.getBoundingBox();
+                double minX = boundingBox.getMinX();
+                double minY = boundingBox.getMinY();
+                double minZ = boundingBox.getMinZ();
+                double maxX = boundingBox.getMaxX();
+                double maxY = boundingBox.getMaxY();
+                double maxZ = boundingBox.getMaxZ();
+
+                for (int i = 0; i < particleCount; i++) {
+                    double t = (double) i / (particleCount - 1);
+
+                    // Edges along X-axis
+                    world.spawnParticle(Particle.REDSTONE, minX + t * (maxX - minX), minY, minZ, 0, 0, 0, 0, dustOptions);
+                    world.spawnParticle(Particle.REDSTONE, minX + t * (maxX - minX), maxY, minZ, 0, 0, 0, 0, dustOptions);
+                    world.spawnParticle(Particle.REDSTONE, minX + t * (maxX - minX), minY, maxZ, 0, 0, 0, 0, dustOptions);
+                    world.spawnParticle(Particle.REDSTONE, minX + t * (maxX - minX), maxY, maxZ, 0, 0, 0, 0, dustOptions);
+
+                    // Edges along Y-axis
+                    world.spawnParticle(Particle.REDSTONE, minX, minY + t * (maxY - minY), minZ, 0, 0, 0, 0, dustOptions);
+                    world.spawnParticle(Particle.REDSTONE, maxX, minY + t * (maxY - minY), minZ, 0, 0, 0, 0, dustOptions);
+                    world.spawnParticle(Particle.REDSTONE, minX, minY + t * (maxY - minY), maxZ, 0, 0, 0, 0, dustOptions);
+                    world.spawnParticle(Particle.REDSTONE, maxX, minY + t * (maxY - minY), maxZ, 0, 0, 0, 0, dustOptions);
+
+                    // Edges along Z-axis
+                    world.spawnParticle(Particle.REDSTONE, minX, minY, minZ + t * (maxZ - minZ), 0, 0, 0, 0, dustOptions);
+                    world.spawnParticle(Particle.REDSTONE, maxX, minY, minZ + t * (maxZ - minZ), 0, 0, 0, 0, dustOptions);
+                    world.spawnParticle(Particle.REDSTONE, minX, maxY, minZ + t * (maxZ - minZ), 0, 0, 0, 0, dustOptions);
+                    world.spawnParticle(Particle.REDSTONE, maxX, maxY, minZ + t * (maxZ - minZ), 0, 0, 0, 0, dustOptions);
+                }
+
+                tick++;
+            }
+        }.runTaskTimer(Adapt.instance, 0, 1);
+    }
+
+    default void vfxVortexSphere(Location startLocation, Location endLocation, int ticks, Color color, double radius) {
+        World world = startLocation.getWorld();
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1.0f);
+
+        double startX = startLocation.getX();
+        double startY = startLocation.getY();
+        double startZ = startLocation.getZ();
+        double endX = endLocation.getX();
+        double endY = endLocation.getY();
+        double endZ = endLocation.getZ();
+        double deltaX = (endX - startX) / ticks;
+        double deltaY = (endY - startY) / ticks;
+        double deltaZ = (endZ - startZ) / ticks;
+
+        new BukkitRunnable() {
+            int tick = 0;
+
             public void run() {
                 if (tick >= ticks) {
                     cancel();
@@ -296,13 +439,13 @@ public interface Component {
                 double z = startZ + deltaZ * tick;
                 Location particleLocation = new Location(world, x, y, z);
 
-                for (double i = 0; i < Math.PI; i += Math.PI / 10) {
-                    double radius = Math.sin(i) * size;
-                    double yCoord = Math.cos(i) * size;
+                double currentRadius = radius * (1 - (double) tick / ticks);
 
-                    for (double j = 0; j < Math.PI * 2; j += Math.PI / 10) {
-                        double xCoord = Math.sin(j) * radius;
-                        double zCoord = Math.cos(j) * radius;
+                for (double theta = 0; theta < 2 * Math.PI; theta += Math.PI / 10) {
+                    for (double phi = 0; phi < Math.PI; phi += Math.PI / 10) {
+                        double xCoord = currentRadius * Math.sin(phi) * Math.cos(theta);
+                        double yCoord = currentRadius * Math.sin(phi) * Math.sin(theta);
+                        double zCoord = currentRadius * Math.cos(phi);
 
                         Location loc = particleLocation.clone().add(xCoord, yCoord, zCoord);
                         world.spawnParticle(Particle.REDSTONE, loc, 0, 0, 0, 0, dustOptions);
@@ -376,7 +519,6 @@ public interface Component {
     }
 
 
-
     default void safeGiveItem(Player player, ItemStack item) {
         if (!player.getInventory().addItem(item).isEmpty()) {
             player.getWorld().dropItem(player.getLocation(), item);
@@ -402,7 +544,20 @@ public interface Component {
         }
     }
 
-    private List<Location> getHollowCube(Location loc, double particleDistance) {
+    default void vfxParticleLine(Location start, Location end, int particleCount, Particle particle) {
+        World world = start.getWorld();
+        double distance = start.distance(end);
+        Vector direction = end.toVector().subtract(start.toVector()).normalize();
+        double step = distance / (particleCount - 1);
+
+        for (int i = 0; i < particleCount; i++) {
+            Location particleLocation = start.clone().add(direction.clone().multiply(i * step));
+            world.spawnParticle(particle, particleLocation, 1);
+        }
+    }
+
+
+    private List<Location> getHollowCuboid(Location loc, double particleDistance) {
         List<Location> result = Lists.newArrayList();
         World world = loc.getWorld();
         double minX = loc.getBlockX();
@@ -455,28 +610,21 @@ public interface Component {
         return result;
     }
 
-    default void vfxSingleCubeOutline(Block block, Particle particle) {
-        List<Location> hollowCube = getHollowCube(block.getLocation(), 0.25);
+    default void vfxCuboidOutline(Block block, Particle particle) {
+        List<Location> hollowCube = getHollowCuboid(block.getLocation(), 0.25);
         for (Location l : hollowCube) {
             block.getWorld().spawnParticle(particle, l, 1, 0F, 0F, 0F, 0.000);
         }
     }
 
-    default void vfxSingleCubeOutlineR(Block block, Particle particle) {
-        List<Location> hollowCube = getHollowCube(block.getLocation(), 0.50);
-        for (Location l : hollowCube) {
-            block.getWorld().spawnParticle(particle, l, 1, 0F, 0F, 0F, 0.000);
-        }
-    }
-
-    default void vfxSingleCuboidOutline(Block blockStart, Block blockEnd, Particle particle) {
+    default void vfxCuboidOutline(Block blockStart, Block blockEnd, Particle particle) {
         List<Location> hollowCube = getHollowCuboid(blockStart.getLocation(), blockEnd.getLocation(), 0.25);
         for (Location l : hollowCube) {
             blockStart.getWorld().spawnParticle(particle, l, 2, 0F, 0F, 0F, 0.000);
         }
     }
 
-    default void vfxSingleCuboidOutline(Block blockStart, Block blockEnd, Color color, int size) {
+    default void vfxCuboidOutline(Block blockStart, Block blockEnd, Color color, int size) {
         List<Location> hollowCube = getHollowCuboid(blockStart.getLocation(), blockEnd.getLocation(), 0.25);
         Particle.DustOptions dustOptions = new Particle.DustOptions(color, size);
         for (Location l : hollowCube) {
@@ -502,7 +650,7 @@ public interface Component {
         }
     }
 
-    default void vfxCreateSphereAlt(Location center, double range, Color color, int particleCount) {
+    default void vfxFastSphere(Location center, double range, Color color, int particleCount) {
         Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1);
         World world = center.getWorld();
 
@@ -524,20 +672,51 @@ public interface Component {
         }
     }
 
-    default void vfxSphereV3(Location center, double range, Color color, int particleCount) {
-        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1);
+    default void vfxLoadingRing(Location center, double radius, Color color, int durationTicks, int particleCount) {
+        World world = center.getWorld();
+        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 1.0f);
+
+        new BukkitRunnable() {
+            int tick = 0;
+
+            public void run() {
+                if (tick >= durationTicks) {
+                    cancel();
+                    return;
+                }
+
+                double angle = 2 * Math.PI * tick / durationTicks;
+                double x = radius * Math.cos(angle);
+                double z = radius * Math.sin(angle);
+                Location particleLocation = center.clone().add(x, 0, z);
+                world.spawnParticle(Particle.REDSTONE, particleLocation, particleCount, 0, 0, 0, dustOptions);
+
+                tick++;
+            }
+        }.runTaskTimer(Adapt.instance, 0, 1);
+    }
+
+    default void vfxLoadingRing(Location center, double radius, Particle particle, int durationTicks, int particleCount) {
         World world = center.getWorld();
 
-        for (int i = 0; i < particleCount; i++) {
-            double theta = 2 * Math.PI * RANDOM.nextDouble();
-            double phi = Math.acos(2 * RANDOM.nextDouble() - 1);
-            double x = range * Math.sin(phi) * Math.cos(theta);
-            double y = range * Math.sin(phi) * Math.sin(theta);
-            double z = range * Math.cos(phi);
+        new BukkitRunnable() {
+            int tick = 0;
 
-            Location particleLocation = center.clone().add(x, y, z);
-            world.spawnParticle(Particle.REDSTONE, particleLocation, 0, 0, 0, 0, dustOptions);
-        }
+            public void run() {
+                if (tick >= durationTicks) {
+                    cancel();
+                    return;
+                }
+
+                double angle = 2 * Math.PI * tick / durationTicks;
+                double x = radius * Math.cos(angle);
+                double z = radius * Math.sin(angle);
+                Location particleLocation = center.clone().add(x, 0, z);
+                world.spawnParticle(particle, particleLocation, particleCount, 0, 0, 0);
+
+                tick++;
+            }
+        }.runTaskTimer(Adapt.instance, 0, 1);
     }
 
 
@@ -580,16 +759,6 @@ public interface Component {
         }
     }
 
-    default void vfxParticleRing(Location location, int radius, int height, Particle particle, double angleIncrement) {
-        for (double y = 0; y <= height; y += 0.05) {
-            for (double angle = 0; angle < 360; angle += angleIncrement) {
-                double x = location.getX() + (radius * Math.cos(Math.toRadians(angle)));
-                double z = location.getZ() + (radius * Math.sin(Math.toRadians(angle)));
-                location.getWorld().spawnParticle(particle, x, y + location.getY(), z, 1, 0, 0, 0, 0);
-            }
-        }
-    }
-
     default void vfxParticleSpiral(Location center, int radius, int height, Particle type) {
         double angle = 0;
         for (int i = 0; i <= height; i++) {
@@ -600,41 +769,6 @@ public interface Component {
         }
     }
 
-
-    default List<Location> vfxSelectionCube(Location corner1, Location corner2, double particleDistance) {
-        List<Location> result = new ArrayList<Location>();
-        World world = corner1.getWorld();
-        double minX = Math.min(corner1.getX(), corner2.getX());
-        double minY = Math.min(corner1.getY(), corner2.getY());
-        double minZ = Math.min(corner1.getZ(), corner2.getZ());
-        double maxX = Math.max(corner1.getX(), corner2.getX());
-        double maxY = Math.max(corner1.getY(), corner2.getY());
-        double maxZ = Math.max(corner1.getZ(), corner2.getZ());
-
-        for (double x = minX; x <= maxX; x += particleDistance) {
-            for (double y = minY; y <= maxY; y += particleDistance) {
-                for (double z = minZ; z <= maxZ; z += particleDistance) {
-                    int components = 0;
-                    if (x == minX || x == maxX) components++;
-                    if (y == minY || y == maxY) components++;
-                    if (z == minZ || z == maxZ) components++;
-                    if (components >= 2) {
-                        result.add(new Location(world, x, y, z));
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-
-    default void riftResistCheckAndTrigger(Player p, int duration, int amplifier) {
-        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
-        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1f, 0.01f);
-        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1f, 0.01f);
-        p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, duration, amplifier, true, false, false));
-    }
 
     default void vfxXP(Player p, Location l, int amt) {
         if (AdaptConfig.get().isUseEnchantmentTableParticleForActiveEffects()) {
