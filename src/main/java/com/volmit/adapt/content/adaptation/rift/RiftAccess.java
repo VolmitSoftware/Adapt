@@ -81,6 +81,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        if (!hasAdaptation(p)) {
+            return;
+        }
         ItemStack hand = p.getInventory().getItemInMainHand();
         Block block = e.getClickedBlock();
         ItemStack offhand = p.getInventory().getItemInOffHand();
@@ -88,7 +91,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
             e.setCancelled(true);
             return;
         }
-        if (BoundEnderPearl.isBindableItem(hand) && hasAdaptation(p)) {
+        if (BoundEnderPearl.isBindableItem(hand)) {
             e.setCancelled(true);
             switch (e.getAction()) {
                 case LEFT_CLICK_BLOCK -> {
@@ -125,7 +128,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     private void linkPearl(Player p, Block block) {
         if (getConfig().showParticles) {
-            vfxSingleCubeOutline(block, Particle.REVERSE_PORTAL);
+            vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
         }
         ItemStack hand = p.getInventory().getItemInMainHand();
         p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 0.8f);

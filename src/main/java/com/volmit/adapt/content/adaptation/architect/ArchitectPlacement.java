@@ -239,7 +239,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                         Block transposedBlock = b.getRelative(bf);
                         if (getConfig().showParticles) {
 
-                            vfxSingleCubeOutline(transposedBlock, Particle.REVERSE_PORTAL);
+                            vfxCuboidOutline(transposedBlock, Particle.REVERSE_PORTAL);
                         }
                     }
                 }

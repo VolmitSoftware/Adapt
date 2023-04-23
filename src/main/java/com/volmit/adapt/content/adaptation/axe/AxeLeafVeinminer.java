@@ -133,7 +133,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                             }
                         }
                         if (getConfig().showParticles) {
-                            vfxSingleCubeOutlineR(b, Particle.ENCHANTMENT_TABLE);
+                            this.vfxCuboidOutline(b, Particle.ENCHANTMENT_TABLE);
                         }
                     }
                 });
@@ -158,8 +158,8 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
         boolean showParticles = true;
         int baseCost = 6;
         int maxLevel = 5;
-        int initialCost = 4;
-        double costFactor = 2.325;
+        int initialCost = 1;
+        double costFactor = 0.325;
         int baseRange = 5;
     }
 }

@@ -152,7 +152,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     public boolean checkValidEntity(EntityType e) {
-        Adapt.verbose("EntityType " + e.name() + "wasChecked");
+//        Adapt.verbose("EntityType " + e.name() + "wasChecked");
         if (!e.isAlive()) {
             return false;
         }

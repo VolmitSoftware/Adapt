@@ -75,6 +75,10 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
 
+        if(!hand.getType().equals(Material.REDSTONE_TORCH)) {
+           return;
+        }
+
         if (isBound(hand)) {
             p.setCooldown(Material.REDSTONE_TORCH, 50000);
         } else {
@@ -86,6 +90,13 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         ItemStack hand = p.getInventory().getItemInMainHand();
+        if(!hand.getType().equals(Material.REDSTONE_TORCH)) {
+            return;
+        }
+
+        if (!hasAdaptation(p)) {
+            return;
+        }
 
         ItemStack offhand = p.getInventory().getItemInOffHand();
         if (e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND) && BoundRedstoneTorch.isBindableItem(offhand)) {
@@ -145,7 +156,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             return;
         }
         if (getConfig().showParticles) {
-            vfxSingleCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
+            vfxCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
         }
         p.getWorld().playSound(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
         p.getWorld().playSound(l, Sound.ENTITY_ENDER_EYE_DEATH, 0.2f, 0.48f);
@@ -169,7 +180,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                 if (data instanceof AnaloguePowerable redBlock && b.getType().equals(Material.TARGET)) {
                     p.getWorld().playSound(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
                     redBlock.setPower(15);
-                    vfxSingleCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
+                    vfxCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
                     b.setBlockData(redBlock);
                     J.s(() -> {
                         redBlock.setPower(0);

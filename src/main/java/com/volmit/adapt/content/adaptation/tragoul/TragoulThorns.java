@@ -28,6 +28,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
@@ -59,6 +60,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
     }
 
 
+
     @EventHandler
     public void on(EntityDamageByEntityEvent e) {
         if (e.isCancelled()) {
@@ -74,7 +76,16 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
             }
 
             cooldowns.put(p, System.currentTimeMillis());
-            if (e.getDamager() instanceof LivingEntity le) {
+
+            LivingEntity le = null;
+
+            if (e.getDamager() instanceof LivingEntity) {
+                le = (LivingEntity) e.getDamager();
+            } else if (e.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof LivingEntity) {
+                le = (LivingEntity) projectile.getShooter();
+            }
+
+            if (le != null) {
                 if (getConfig().showParticles) {
                     BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
                     blood.setEntity(le);

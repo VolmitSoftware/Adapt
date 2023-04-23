@@ -21,13 +21,13 @@ package com.volmit.adapt.content.adaptation.seaborrne;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityAirChangeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -52,26 +52,18 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
         v.addLore(C.ITALIC + Localizer.dLocalize("seaborn", "dolphingrace", "lore3"));
     }
 
-    @EventHandler
-    public void on(EntityAirChangeEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-        if (e.getEntity() instanceof Player) {
-            Player p = (Player) e.getEntity();
-            if (p.getInventory().getBoots() != null && p.getInventory().getBoots().getEnchantments().containsKey(Enchantment.DEPTH_STRIDER)) {
-                return;
-            }
-        }
-        if (e.getEntity() instanceof Player p && p.isSwimming() && hasAdaptation(p) && p.getWorld().getBlockAt(p.getLocation()).isLiquid()) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 50, getLevel(p)));
-            p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, getLevel(p), getLevel(p)));
-        }
-    }
-
     @Override
     public void onTick() {
-
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.isInWater() && hasAdaptation(player) ) {
+                if (player.getLocation().getBlock().isLiquid()) {
+                    if (player.getInventory().getBoots() == null || !player.getInventory().getBoots().containsEnchantment(Enchantment.DEPTH_STRIDER)) {
+                        J.s(() -> player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 62, getLevel(player))));
+                        J.s(() -> player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 62, getLevel(player))));
+                    }
+                }
+            }
+        }
     }
 
     @Override

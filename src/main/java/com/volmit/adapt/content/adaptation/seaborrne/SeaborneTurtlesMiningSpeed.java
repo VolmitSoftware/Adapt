@@ -21,12 +21,12 @@ package com.volmit.adapt.content.adaptation.seaborrne;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityAirChangeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -40,7 +40,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
         setIcon(Material.GOLDEN_HORSE_ARMOR);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
-        setInterval(8229);
+        setInterval(3000);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
     }
@@ -50,19 +50,16 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
         v.addLore(C.GRAY + Localizer.dLocalize("seaborn", "haste", "lore1"));
     }
 
-    @EventHandler
-    public void on(EntityAirChangeEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-        if (e.getEntity() instanceof Player p && p.getInventory().getHelmet() != null && p.getInventory().getHelmet().getType().equals(Material.TURTLE_HELMET) && hasAdaptation(p) && p.isSwimming() && hasAdaptation(p) && p.getWorld().getBlockAt(p.getLocation()).isLiquid()) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 10, 3));
-        }
-    }
 
     @Override
     public void onTick() {
-
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.isInWater() && hasAdaptation(player)) {
+                if (player.getLocation().getBlock().isLiquid()) {
+                    J.s(() -> player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 62, 1, false, false)));
+                }
+            }
+        }
     }
 
     @Override

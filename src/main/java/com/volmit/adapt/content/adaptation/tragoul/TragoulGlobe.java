@@ -31,6 +31,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
         v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "globe", "lore3") + (getConfig().bonusDamagePerLevel * level));
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void on(EntityDamageByEntityEvent e) {
         if (e.isCancelled()) {
             return;
@@ -95,12 +96,8 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
             if (getConfig().showParticles) {
                 J.s(() -> {
                     if (getConfig().showParticles) {
-                        vfxSphereV3(p.getLocation(), range, Color.BLACK, 100);
-                        vfxDome(p.getLocation(), range, Color.BLACK, 300);
-                        vfxFastRing(p.getLocation(), range, Particle.DRIP_LAVA);
-                        for (Entity entity : entitiesInRange) {
-                            vfxParticleLine(p.getLocation(), entity.getLocation(), Particle.ASH, 15, 1, 0.0D, 0D, 0.0D, 0D, null, true, l -> l.getBlock().isPassable());
-                        }
+                        vfxFastSphere(p.getLocation(), range, Color.BLACK, 400);
+                        vfxLoadingRing(p.getLocation(), range, Particle.DRIP_LAVA, 5, 350);
                     }
                 });
             }

@@ -103,7 +103,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
         }
 
         if (e.getEntity().getShooter() instanceof Player p && e.getEntity() instanceof Snowball snowball && hasAdaptation(p)) {
-            vfxSingleCubeOutline(block, Particle.REVERSE_PORTAL);
+            vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
             Adapt.verbose("Snowball Got: " + snowball.getEntityId() + " " + snowball.getUniqueId());
             if (activeSnowballs.containsKey(Bukkit.getEntity(snowball.getUniqueId()))) {
                 Adapt.verbose("Detected snowball hit");
@@ -154,8 +154,8 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
         block.getWorld().playSound(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_PLACE, 1.0f, 1.0f);
         if (getConfig().showParticles) {
 
-            vfxSingleCubeOutline(block, Particle.CLOUD);
-            vfxSingleCubeOutline(block, Particle.WHITE_ASH);
+            vfxCuboidOutline(block, Particle.CLOUD);
+            vfxCuboidOutline(block, Particle.WHITE_ASH);
         }
         J.a(() -> removeFoundation(block), seconds * 16);
     }
@@ -171,7 +171,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
         });
         block.getWorld().playSound(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 1.0f);
         if (getConfig().showParticles) {
-            vfxSingleCubeOutline(block, Particle.ENCHANTMENT_TABLE);
+            vfxCuboidOutline(block, Particle.ENCHANTMENT_TABLE);
         }
     }
 

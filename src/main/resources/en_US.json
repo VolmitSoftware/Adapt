@@ -717,7 +717,7 @@
     "cobweb": {
       "name": "Webby Creator",
       "description": "Gives you the ability to craft Cobwebs in a Crafting Table",
-      "lore1": "Four String, will craft a Cobweb."
+      "lore1": "Nine String, will craft a Cobweb."
     },
     "mushroomblocks": {
       "name": "Mushroom Maker",
@@ -874,7 +874,8 @@
     "arrowrecovery": {
       "name": "Arrow Recovery",
       "description": "Recover Arrows after you have killed an enemy.",
-      "lore1": "Chance to Recover Arrows on Hit/Kill"
+      "lore1": "Chance to Recover Arrows on Hit/Kill",
+      "lore2": "Chance: "
     },
     "webshot": {
       "name": "Web Snare",
@@ -946,7 +947,7 @@
     "oxygen": {
       "name": "Organic Oxygen Tank",
       "description": "Hold more oxygen in your tiny lungs!",
-      "lore1": "Oxygen"
+      "lore1": "Oxygen Capacity Increase"
     },
     "fishersfantasy": {
       "name": "Fisher's Fantasy",
@@ -1048,6 +1049,20 @@
       "lore1": "The more enemies around you, the less damage you deal to each of them",
       "lore2": "Range: ",
       "lore3": "Added Damage to all Entities: "
+    },
+    "healing": {
+      "name": "Will of Pain",
+      "description": "Regain health based on the damage you deal!",
+      "lore1": "Harming things has never felt so good! Heal from Damage Dealt",
+      "lore2": "There is a 3 Second damage window, for healing and a 1 Second cooldown ",
+      "lore3": "Healing Per Damage Percent: "
+    },
+    "lance": {
+      "name": "Corpse Lances",
+      "description": "Killing an enemy or having an ability kill an enemy, spawns a lance that deals damage to a nearby enemy!",
+      "lore1": "Lances will Seek out from anything you kill, AND if This ability kills an enemy.",
+      "lore2": "Sacrifice a portion of your life in order to create the lances (this can kill you)",
+      "lore3": "Max Lances: 1 + "
     }
   },
   "unarmed": {

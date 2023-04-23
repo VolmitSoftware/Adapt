@@ -206,7 +206,6 @@ public interface Skill<T> extends Ticked, Component {
                     .onLeftClick((e) -> {
                         w.close();
                         i.openGui(player);
-
                     }));
             ind++;
         }
