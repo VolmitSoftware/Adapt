@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.api.xp;
 
+import com.volmit.adapt.AdaptConfig;
+
 @FunctionalInterface
 public interface NewtonCurve {
     double getXPForLevel(double level);
@@ -48,8 +50,8 @@ public interface NewtonCurve {
                 cursor -= jumpSize;
             }
             // Check if the level has exceeded the maximum allowed (1000)
-            if (cursor > 1000) {
-                cursor = 1000;
+            if (cursor > AdaptConfig.get().experienceMaxLevel) {
+                cursor = AdaptConfig.get().experienceMaxLevel;
                 break;
             }
         }
