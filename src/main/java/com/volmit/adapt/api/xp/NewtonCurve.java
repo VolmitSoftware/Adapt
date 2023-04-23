@@ -47,6 +47,11 @@ public interface NewtonCurve {
                 last = true;
                 cursor -= jumpSize;
             }
+            // Check if the level has exceeded the maximum allowed (1000)
+            if (cursor > 1000) {
+                cursor = 1000;
+                break;
+            }
         }
         return cursor;
     }

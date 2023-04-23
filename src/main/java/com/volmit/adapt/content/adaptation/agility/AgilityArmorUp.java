@@ -70,7 +70,6 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
         return getConfig().windupArmorBase + (factor * getConfig().windupArmorLevelMultiplier);
     }
 
-
     @Override
     public void onTick() {
         for (Player p : Bukkit.getOnlinePlayers()) {

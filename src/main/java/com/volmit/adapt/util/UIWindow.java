@@ -114,13 +114,9 @@ public class UIWindow implements Window, Listener {
             }
 
             switch (e.getClick()) {
-                case DOUBLE_CLICK:
-                    doubleclicked = true;
-                    break;
-                case LEFT:
-
+                case DOUBLE_CLICK -> doubleclicked = true;
+                case LEFT -> {
                     clickcheck++;
-
                     if (clickcheck == 1) {
                         J.s(() ->
                         {
@@ -144,27 +140,26 @@ public class UIWindow implements Window, Listener {
                             clickcheck = 0;
                         });
                     }
-
-                    break;
-                case RIGHT:
+                }
+                case RIGHT -> {
                     if (element != null) {
                         element.call(ElementEvent.RIGHT, element);
                     } else {
                         scroll(-1);
                     }
-                    break;
-                case SHIFT_LEFT:
+                }
+                case SHIFT_LEFT -> {
                     if (element != null) {
                         element.call(ElementEvent.SHIFT_LEFT, element);
                     }
-                    break;
-                case SHIFT_RIGHT:
+                }
+                case SHIFT_RIGHT -> {
                     if (element != null) {
                         element.call(ElementEvent.SHIFT_RIGHT, element);
                     }
-                    break;
-                default:
-                    break;
+                }
+                default -> {
+                }
             }
         }
 
@@ -396,7 +391,7 @@ public class UIWindow implements Window, Listener {
     }
 
     public Double clip(double value, double min, double max) {
-        return Double.valueOf(Math.min(max, Math.max(min, value)));
+        return Math.min(max, Math.max(min, value));
     }
 
     @Override
