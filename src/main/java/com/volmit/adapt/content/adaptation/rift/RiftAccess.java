@@ -19,19 +19,16 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundEnderPearl;
-import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -78,55 +75,68 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         v.addLore(C.ITALIC + Localizer.dLocalize("rift", "remoteaccess", "lore3"));
     }
 
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
-            return;
-        }
-        ItemStack hand = p.getInventory().getItemInMainHand();
+        ItemStack mainHand = p.getInventory().getItemInMainHand();
+        ItemStack offHand = p.getInventory().getItemInOffHand();
         Block block = e.getClickedBlock();
-        ItemStack offhand = p.getInventory().getItemInOffHand();
-        if (e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND) && BoundEnderPearl.isBindableItem(offhand)) {
+
+        boolean mainHandBound = BoundEnderPearl.isBindableItem(mainHand);
+        boolean offHandBound = BoundEnderPearl.isBindableItem(offHand);
+
+        // Cancel event if the enderpearl is in the offhand
+        if (offHandBound && e.getHand() != null && e.getHand().equals(EquipmentSlot.OFF_HAND)) {
             e.setCancelled(true);
             return;
         }
-        if (BoundEnderPearl.isBindableItem(hand)) {
+
+        // If the main hand is holding a bound enderpearl
+        if (mainHandBound) {
             e.setCancelled(true);
-            switch (e.getAction()) {
-                case LEFT_CLICK_BLOCK -> {
-                    if (isStorage(block.getBlockData())) { // Ensure its a container
-                        if (p.isSneaking()) { // Binding (Sneak Container)
-                            if (canAccessChest(p, block.getLocation())) {
-                                linkPearl(p, block);
-                            } else {
-                                Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
-                            }
-                        }
-                    } else if (!isStorage(block.getBlockData())) {
-                        if (p.isSneaking()) { //(Sneak NOT Container)
-                            Adapt.messagePlayer(p, C.LIGHT_PURPLE + Localizer.dLocalize("rift", "remoteaccess", "notcontainer"));
-                        }
-                    }
-                }
-                case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
-                    if (p.hasCooldown(hand.getType())) {
-                        return;
-                    } else {
-                        NMS.get().sendCooldown(p, Material.ENDER_PEARL, 100);
-                        p.setCooldown(Material.ENDER_PEARL, 100);
-                    }
-                    if (isBound(hand)) {
-                        openPearl(p);
-                    }
-                }
+            if (hasAdaptation(p)) {
+                Adapt.verbose("Player using bound enderpearl.");
+                handleEnderPearlInteraction(e, p, block);
             }
-        } else if (BoundEnderPearl.isBindableItem(hand)) {
-            e.setCancelled(true);
         }
     }
 
-    private void linkPearl(Player p, Block block) {
+    private void handleEnderPearlInteraction(PlayerInteractEvent event, Player player, Block block) {
+        boolean canUseInCreative = AdaptConfig.get().allowAdaptationsInCreative;
+        boolean isCreative = player.getGameMode() == GameMode.CREATIVE;
+        boolean sneaking = player.isSneaking();
+        boolean allowed = canUseInCreative || !isCreative;
+
+
+        // Check if the player is allowed to use the bound item in creative
+        if (!allowed) {
+            Adapt.info("Player " + player.getName() + " tried to use the bound item in creative mode.");
+            return;
+        }
+
+        switch (event.getAction()) {
+            case LEFT_CLICK_BLOCK -> {
+                // If player is sneaking and left-clicking a container
+                if (sneaking && isStorage(block.getBlockData())) {
+                    if (canAccessChest(player, block.getLocation())) {
+                        linkPearl(player, block, event);
+                    } else {
+                        Adapt.verbose("Player " + player.getName() + " doesn't have permission.");
+                    }
+                }
+            }
+            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK ->
+                // If player right-clicks on air or any block
+                    openPearl(player);
+            default -> {
+            }
+        }
+    }
+
+
+    private void linkPearl(Player p, Block block, PlayerInteractEvent event) {
+        event.setCancelled(true);
         if (getConfig().showParticles) {
             vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
         }
@@ -189,6 +199,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
             }
         });
     }
+
 
     @Override
     public boolean isEnabled() {

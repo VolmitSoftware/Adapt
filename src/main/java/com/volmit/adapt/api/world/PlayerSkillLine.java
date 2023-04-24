@@ -67,8 +67,19 @@ public class PlayerSkillLine {
             last = M.ms();
             if (AdaptConfig.get().isActionbarNotifyXp()) {
                 p.notifyXP(line, xp);
-            } else {
-                // bossbar thing here
+            }
+
+        }
+    }
+
+    public void giveXPFresh(Notifier p, double xp) {
+        xp = multiplier * xp;
+        this.xp += xp;
+
+        if (p != null) {
+            last = M.ms();
+            if (AdaptConfig.get().isActionbarNotifyXp()) {
+                p.notifyXP(line, xp);
             }
         }
     }

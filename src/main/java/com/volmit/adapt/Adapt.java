@@ -50,6 +50,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -107,26 +108,23 @@ public class Adapt extends VolmitPlugin {
 
     @SneakyThrows
     public static void autoUpdateCheck() {
-        try {
-            URL url = new URL("https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle");
-            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-            String inputLine;
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL("https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle").openStream()))) {
             info("Checking for updates...");
+            String inputLine;
             while ((inputLine = in.readLine()) != null) {
                 if (inputLine.contains("version '")) {
-                    String version = inputLine.remove("version '").remove("'").remove("// Needs to be version specific").remove(" ");
+                    String version = inputLine.replace("version '", "").replace("'", "").replace("// Needs to be version specific", "").replace(" ", "");
                     if (instance.getDescription().getVersion().contains("development")) {
                         info("Development build detected. Skipping update check.");
                         return;
                     } else if (!version.equals(instance.getDescription().getVersion())) {
-                        info("Please update your Adapt plugin to the latest version! (Current: " + instance.getDescription().getVersion() + " Latest: " + version + ")");
+                        info(MessageFormat.format("Please update your Adapt plugin to the latest version! (Current: {0} Latest: {1})", instance.getDescription().getVersion(), version));
                     } else {
                         info("You are running the latest version of Adapt!");
                     }
                     break;
                 }
             }
-            in.close();
         } catch (Throwable e) {
             error("Failed to check for updates.");
         }
