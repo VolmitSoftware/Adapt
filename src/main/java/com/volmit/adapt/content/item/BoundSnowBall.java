@@ -55,7 +55,6 @@ public class BoundSnowBall implements DataItem<BoundSnowBall.Data> {
     }
 
     public static boolean isBindableItem(ItemStack t) {
-        Adapt.verbose("Checking if item is a bindable snowball: " + t.getType().name());
         if (t.getType().equals(Material.SNOWBALL)) {
             if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
                 if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items", "boundsnowball", "name"))) {

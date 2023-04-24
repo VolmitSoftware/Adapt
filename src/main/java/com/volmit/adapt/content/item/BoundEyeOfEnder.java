@@ -55,7 +55,6 @@ public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
     }
 
     public static boolean isBindableItem(ItemStack t) {
-        Adapt.verbose("Checking if item is a bindable Endereye: " + t.getType().name());
         if (t.getType().equals(Material.ENDER_EYE)) {
             if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
                 if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items", "boundeyeofender", "name"))) {
