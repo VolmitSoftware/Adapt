@@ -70,7 +70,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GRAY + Localizer.dLocalize("excavation", "omnitool", "lore1"));
-        v.addLore(C.GRAY + "" + (level) + C.GRAY + Localizer.dLocalize("excavation", "omnitool", "lore2"));
+        v.addLore(C.GRAY + Localizer.dLocalize("excavation", "omnitool", "lore2"));
         v.addLore(C.GREEN + Localizer.dLocalize("excavation", "omnitool", "lore3"));
         v.addLore(C.RED + Localizer.dLocalize("excavation", "omnitool", "lore4"));
         v.addLore(C.GRAY + Localizer.dLocalize("excavation", "omnitool", "lore5"));
@@ -91,10 +91,16 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @EventHandler(priority = EventPriority.HIGH)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-        if (e.getDamager() instanceof Player p) {
+        if (e.getDamager() instanceof Player p && validateTool(p.getInventory().getItemInMainHand())) {
+            //deny if the tool durability is about to break
+            if (p.getInventory().getItemInMainHand().getType().getMaxDurability() - p.getInventory().getItemInMainHand().getDurability() <= 2) {
+                e.setCancelled(true);
+                return;
+            }
+
+            if (e.isCancelled()) {
+                return;
+            }
             if (!hasAdaptation(p) && validateTool(p.getInventory().getItemInMainHand())) {
                 e.setCancelled(true);
                 return;
@@ -119,6 +125,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                     p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
                 }
             }
+
         }
     }
 
@@ -126,6 +133,14 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
         if (validateTool(p.getInventory().getItemInMainHand())) {
+            //deny if the tool durability is about to break
+            if (p.getInventory().getItemInMainHand().getType().getMaxDurability() - p.getInventory().getItemInMainHand().getDurability() <= 2) {
+                e.setCancelled(true);
+                return;
+            }
+
+
+            //deny if they dont have the adaptation
             if (!hasAdaptation(p)) {
                 e.setCancelled(true);
                 return;
@@ -137,6 +152,12 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         if (validateTool(p.getInventory().getItemInMainHand())) {
+            //deny if the tool durability is about to break
+            if (p.getInventory().getItemInMainHand().getType().getMaxDurability() - p.getInventory().getItemInMainHand().getDurability() <= 2) {
+                e.setCancelled(true);
+                return;
+            }
+
             if (!hasAdaptation(p)) {
                 return;
             }

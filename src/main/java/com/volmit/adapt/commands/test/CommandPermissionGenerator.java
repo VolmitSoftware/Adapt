@@ -16,38 +16,20 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.commands;
+package com.volmit.adapt.commands.test;
 
-import com.volmit.adapt.commands.boost.CommandBoost;
-import com.volmit.adapt.commands.item.CommandItem;
-import com.volmit.adapt.commands.openGui.CommandOpen;
-import com.volmit.adapt.commands.test.CommandPermissionGenerator;
-import com.volmit.adapt.commands.test.CommandTest;
-import com.volmit.adapt.commands.test.CommandVerbose;
-import com.volmit.adapt.util.Command;
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
 
 import java.util.List;
 
-public class CommandAdapt extends MortarCommand {
-    private static final List<String> permission = List.of("adapt.main");
-    @Command
-    private final CommandBoost boost = new CommandBoost();
-    @Command
-    private final CommandOpen openGui = new CommandOpen();
-    @Command
-    private final CommandItem item = new CommandItem();
-    @Command
-    private final CommandTest test = new CommandTest();
-    @Command
-    private final CommandVerbose verbose = new CommandVerbose();
-    @Command
-    private final CommandPermissionGenerator permgen = new CommandPermissionGenerator();
+public class CommandPermissionGenerator extends MortarCommand {
+    private static final List<String> permission = List.of("adapt.idontknowwhatimdoingiswear");
 
-    public CommandAdapt() {
-        super("adapt", "ada", "a");
-        this.setDescription("This is the main command for Adapt");
+    public CommandPermissionGenerator() {
+        super("permissions", "p");
+        this.setDescription("This Prints all skill blacklistable permissions");
     }
 
     @Override
@@ -57,8 +39,10 @@ public class CommandAdapt extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        System.out.println("This is the main command for Adapt");
-        printHelp(sender);
+        StringBuilder builder = new StringBuilder();
+        Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> skill.getAdaptations().forEach(adaptation -> builder.append("adapt.blacklist." + adaptation.getName().replaceAll("-", "") + "\n")));
+
+        Adapt.info("Permissions: \n" + builder);
         return true;
     }
 
