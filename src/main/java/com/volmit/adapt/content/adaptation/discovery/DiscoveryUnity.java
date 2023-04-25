@@ -18,7 +18,10 @@
 
 package com.volmit.adapt.content.adaptation.discovery;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -30,6 +33,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerExpChangeEvent;
+
+import java.util.List;
+
+import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
 
 public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     public DiscoveryUnity() {
@@ -50,14 +57,22 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
         v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + " " + Localizer.dLocalize("discovery", "unity", "lore1") + C.GRAY + " " + Localizer.dLocalize("discovery", "unity", "lore2"));
     }
 
+    //Give random XP to the player when they gain XP!
     @EventHandler(priority = EventPriority.LOW)
     public void on(PlayerExpChangeEvent e) {
         Player p = e.getPlayer();
-        if (e.getAmount() > 0 && hasAdaptation(p)) {
+        AdaptPlayer ap = getPlayer(p);
+        if (hasAdaptation(p) && e.getAmount() > 0) {
             xp(p, 5);
             p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.9f);
-            getPlayer(p).boostXPToRandom(getPlayer(p), e.getAmount() * getConfig().xpBoostMultiplier, getConfig().xpBoostDuration);
-            getPlayer(p).giveXPToRandom(getPlayer(p), getXPGained(getLevelPercent(p), e.getAmount()));
+            //get a random skill that they have unlocked already
+            List<PlayerSkillLine> skills = ap.getData().getSkillLines().sortV();
+            if (skills.size() > 0) {
+                PlayerSkillLine skill = skills.get(RANDOM.nextInt(skills.size()));
+                //give them a random amount of XP in that skill
+                skill.giveXPFresh(Adapt.instance.getAdaptServer().getPlayer(p).getNot(), getXPGained(getLevelPercent(getLevel(p)), RANDOM.nextInt(3) + 1));
+            }
+
         }
     }
 
