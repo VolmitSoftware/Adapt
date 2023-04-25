@@ -108,6 +108,9 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
             return;
         }
         if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
@@ -139,6 +142,9 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }

@@ -96,6 +96,15 @@ public interface Skill<T> extends Ticked, Component {
 
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
+    default boolean hasBlacklistPermission(Player p, Skill s) {
+        if (p.isOp()) { // If the player is an operator, bypass the permission check
+            return false;
+        }
+        String blacklistPermission = "adapt.blacklist." + s.getName().replaceAll("-", "");
+        Adapt.verbose("Checking if player " + p.getName() + " has blacklist permission " + blacklistPermission);
+        return p.hasPermission(blacklistPermission);
+    }
+
     default String getDisplayName() {
         if (!this.isEnabled()) {
             this.unregister();

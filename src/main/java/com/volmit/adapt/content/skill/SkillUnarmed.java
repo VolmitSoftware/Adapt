@@ -55,6 +55,10 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
             return;
         }
         if (e.getDamager() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
+
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName()) || !AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE)
                     || p.getGameMode().equals(GameMode.SPECTATOR))
                     || e.getEntity().isDead()

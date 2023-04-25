@@ -66,6 +66,9 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
             return;
         }
         if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
@@ -98,6 +101,9 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }

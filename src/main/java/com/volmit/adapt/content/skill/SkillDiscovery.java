@@ -72,6 +72,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -94,6 +97,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -115,6 +121,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             return;
         }
         if (e.getEntity() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
@@ -131,6 +140,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             return;
         }
         if (e.getWhoClicked() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
@@ -158,6 +170,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -174,7 +189,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             return;
         }
         Player p = e.getPlayer();
-
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -192,6 +209,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -312,6 +332,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             return;
         }
         for (Player i : Bukkit.getOnlinePlayers()) {
+            if (this.hasBlacklistPermission(i, this)) {
+                continue;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;
             }

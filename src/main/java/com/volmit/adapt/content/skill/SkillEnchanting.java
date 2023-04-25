@@ -109,6 +109,9 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
             return;
         }
         Player p = e.getEnchanter();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         getPlayer(e.getEnchanter()).getData().addStat("enchanted.items", 1);
         getPlayer(e.getEnchanter()).getData().addStat("enchanted.power", e.getEnchantsToAdd().values().stream().mapToInt(i -> i).sum());
         getPlayer(e.getEnchanter()).getData().addStat("enchanted.levels.spent", e.getExpLevelCost());

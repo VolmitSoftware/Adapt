@@ -64,6 +64,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             return;
         }
         if (e.getEntity().getShooter() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
@@ -93,6 +96,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             return;
         }
         if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }

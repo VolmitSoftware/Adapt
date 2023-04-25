@@ -87,11 +87,14 @@ public interface Adaptation<T> extends Ticked, Component {
         return canUse(getPlayer(player));
     }
 
-    private boolean hasBlacklistPermission(Player p, String permission) {
+    default boolean hasBlacklistPermission(Player p, Adaptation a) {
         if (p.isOp()) { // If the player is an operator, bypass the permission check
             return false;
         }
-        return p.hasPermission(permission);
+        String blacklistPermission = "adapt.blacklist." + a.getName().replaceAll("-", "");
+        Adapt.verbose("Checking if player " + p.getName() + " has blacklist permission " + blacklistPermission);
+
+        return p.hasPermission(blacklistPermission);
     }
 
     default String getStorageString(Player p, String key, String defaultValue) {
@@ -242,11 +245,8 @@ public interface Adaptation<T> extends Ticked, Component {
                     Adapt.verbose("Player " + p.getName() + " don't have adaptation - " + this.getName() + " permission.");
                     return false;
                 }
-                String blacklistPermission = "adapt.blacklist." + getName().replaceAll("-", "");
-                Adapt.verbose("Checking if player " + p.getName() + " has blacklist permission " + blacklistPermission);
-                //Add every adaptations's Id to a list and print it for debug purposes:
 
-                if (hasBlacklistPermission(p, blacklistPermission)) {
+                if (hasBlacklistPermission(p, this)) {
                     Adapt.verbose("Player " + p.getName() + " has blacklist permission for adaptation " + this.getName());
                     return false;
                 }

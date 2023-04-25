@@ -24,12 +24,12 @@ import com.volmit.adapt.util.MortarSender;
 
 import java.util.List;
 
-public class CommandPermissionGenerator extends MortarCommand {
+public class CommandPermissionGeneratorAdaptations extends MortarCommand {
     private static final List<String> permission = List.of("adapt.idontknowwhatimdoingiswear");
 
-    public CommandPermissionGenerator() {
-        super("permissions", "p");
-        this.setDescription("This Prints all skill blacklistable permissions");
+    public CommandPermissionGeneratorAdaptations() {
+        super("permissionsa", "pa");
+        this.setDescription("This Prints all skill blacklistable permissions (Adaptations)");
     }
 
     @Override

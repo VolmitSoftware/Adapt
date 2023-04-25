@@ -110,6 +110,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
                     || e.getEntity().isDead()
                     || e.getEntity().isInvulnerable()
@@ -146,6 +149,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }

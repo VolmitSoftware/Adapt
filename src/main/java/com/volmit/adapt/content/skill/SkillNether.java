@@ -62,6 +62,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             return;
         }
         if (e.getCause() == EntityDamageEvent.DamageCause.WITHER && e.getEntity() instanceof Player p && !(e instanceof EntityDamageByBlockEvent)) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
@@ -75,6 +78,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -94,6 +100,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         }
         if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
             Player p = e.getEntity().getKiller();
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
@@ -117,6 +126,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             return;
         }
         if (e.getDamager() instanceof Player p && e.getCause() == EntityDamageEvent.DamageCause.WITHER) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (e.isCancelled()) {
                 return;
             }

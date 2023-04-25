@@ -67,6 +67,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
             return;
         }
         if (e.getEntity() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
@@ -128,6 +131,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
             }
             AdaptPlayer a = getPlayer(e.getEntity());
             Player p = a.getPlayer();
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_DEATH, 1f, 1f);
             if (a.getData().getSkillLines().get("tragoul") != null) {
                 double xp = a.getData().getSkillLines().get("tragoul").getXp();

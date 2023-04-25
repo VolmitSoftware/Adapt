@@ -72,6 +72,9 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
             return;
         }
         for (Player i : Bukkit.getOnlinePlayers()) {
+            if (this.hasBlacklistPermission(i, this)) {
+                return;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;
             }

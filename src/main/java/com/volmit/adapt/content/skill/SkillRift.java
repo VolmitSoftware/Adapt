@@ -67,6 +67,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
             return;
         }
@@ -82,11 +85,17 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             return;
         }
         if (e.getEntity() instanceof EnderPearl && e.getEntity().getShooter() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             xp(p, getConfig().throwEnderpearlXP);
         } else if (e.getEntity() instanceof ItemEnderEye && e.getEntity().getShooter() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
@@ -100,24 +109,36 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             return;
         }
         if (e.getEntity() instanceof Enderman && e.getDamager() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             xp(p, getConfig().damageEndermanXPMultiplier * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof Endermite && e.getDamager() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             xp(p, getConfig().damageEndermiteXPMultiplier * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             xp(p, getConfig().damageEnderdragonXPMultiplier * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
@@ -125,24 +146,36 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         }
 
         if (e.getEntity() instanceof Enderman && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             xp(p, getConfig().damageEndermanXPMultiplier * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof Endermite && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             xp(p, getConfig().damageEndermiteXPMultiplier * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             xp(p, getConfig().damageEnderdragonXPMultiplier * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
         }
         if (e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
@@ -156,7 +189,11 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             return;
         }
         if (e.getEntity() instanceof EnderCrystal && e.getEntity().getKiller() != null) {
-            if (!AdaptConfig.get().isXpInCreative() && (e.getEntity().getKiller().getGameMode().equals(GameMode.CREATIVE) || e.getEntity().getKiller().getGameMode().equals(GameMode.SPECTATOR))) {
+            Player p = e.getEntity().getKiller();
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
+            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
             xp(e.getEntity().getKiller(), getConfig().destroyEndCrystalXP);
@@ -175,6 +212,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             return;
         }
         for (Player i : lasttp.k()) {
+            if (this.hasBlacklistPermission(i, this)) {
+                return;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;
             }

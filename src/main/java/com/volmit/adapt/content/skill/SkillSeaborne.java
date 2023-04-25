@@ -77,6 +77,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             return;
         }
         for (Player i : Bukkit.getOnlinePlayers()) {
+            if (this.hasBlacklistPermission(i, this)) {
+                return;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;
             }
@@ -98,6 +101,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         }
         Adapt.verbose("Fishing");
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -125,6 +131,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         }
 
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -146,6 +155,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             return;
         }
         if (e.getEntity() instanceof Drowned && e.getDamager() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }

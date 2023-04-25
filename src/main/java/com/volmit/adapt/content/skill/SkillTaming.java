@@ -62,6 +62,9 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
             return;
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
@@ -89,20 +92,23 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
             return;
         }
         if (e.getDamager() instanceof Tameable && ((Tameable) e.getDamager()).isTamed() && ((Tameable) e.getDamager()).getOwner() instanceof Player p) {
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
-            } else {
-                if (cooldowns.containsKey(p)) {
-                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                        return;
-                    } else {
-                        cooldowns.remove(p);
-                    }
-                }
-                cooldowns.put(p, System.currentTimeMillis());
-                xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
             }
+            if (cooldowns.containsKey(p)) {
+                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                    return;
+                } else {
+                    cooldowns.remove(p);
+                }
+            }
+            cooldowns.put(p, System.currentTimeMillis());
+            xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
         }
+
     }
 
     @Override

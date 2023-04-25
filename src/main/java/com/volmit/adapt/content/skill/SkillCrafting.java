@@ -111,6 +111,9 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
             return;
         }
         Player p = (Player) e.getWhoClicked();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -134,35 +137,30 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                     ItemStack test = e.getRecipe().getResult().clone();
                     int recipeAmount = e.getInventory().getResult().getAmount();
                     switch (e.getClick()) {
-                        case NUMBER_KEY:
+                        case NUMBER_KEY -> {
                             if (e.getWhoClicked().getInventory().getItem(e.getHotbarButton()) != null) {
                                 recipeAmount = 0;
                             }
-                            break;
-
-                        case DROP:
-                        case CONTROL_DROP:
+                        }
+                        case DROP, CONTROL_DROP -> {
                             ItemStack cursor = e.getCursor();
                             if (!(cursor == null || cursor.getType().isAir())) {
                                 recipeAmount = 0;
                             }
-                            break;
-
-                        case SHIFT_RIGHT:
-                        case SHIFT_LEFT:
+                        }
+                        case SHIFT_RIGHT, SHIFT_LEFT -> {
                             if (recipeAmount == 0) {
                                 break;
                             }
-
                             int maxCraftable = getMaxCraftAmount(e.getInventory());
                             int capacity = fits(test, e.getView().getBottomInventory());
                             if (capacity < maxCraftable) {
                                 maxCraftable = ((capacity + recipeAmount - 1) / recipeAmount) * recipeAmount;
                             }
-
                             recipeAmount = maxCraftable;
-                            break;
-                        default:
+                        }
+                        default -> {
+                        }
                     }
 
                     if (recipeAmount > 0 && !e.isCancelled()) {
@@ -221,13 +219,15 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         if (AdaptConfig.get().blacklistedWorlds.contains(e.getBlock().getWorld().getName())) {
             return;
         }
-
         xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP + (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier), getConfig().furnaceXPRadius, getConfig().furnaceXPDuration);
     }
 
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
+            if (this.hasBlacklistPermission(i, this)) {
+                return;
+            }
             checkStatTrackers(getPlayer(i));
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;

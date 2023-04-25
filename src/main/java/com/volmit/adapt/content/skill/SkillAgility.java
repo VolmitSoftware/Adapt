@@ -111,6 +111,10 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
+
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -139,6 +143,11 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
             return;
         }
         for (Player i : Bukkit.getOnlinePlayers()) {
+
+            if (this.hasBlacklistPermission(i, this)) {
+                return;
+            }
+
             checkStatTrackers(getPlayer(i));
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;

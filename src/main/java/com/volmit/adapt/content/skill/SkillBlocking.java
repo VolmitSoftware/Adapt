@@ -109,6 +109,9 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
                 return;
             }
@@ -137,6 +140,9 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             return;
         }
         for (Player i : Bukkit.getOnlinePlayers()) {
+            if (this.hasBlacklistPermission(i, this)) {
+                return;
+            }
             checkStatTrackers(getPlayer(i));
             if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
                 return;

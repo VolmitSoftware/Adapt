@@ -165,6 +165,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -203,6 +206,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
             if (e.isCancelled()) {
                 return;
             }
+            if (this.hasBlacklistPermission(p, this)) {
+                return;
+            }
             if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
                 return;
             }
@@ -224,6 +230,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -246,6 +255,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }

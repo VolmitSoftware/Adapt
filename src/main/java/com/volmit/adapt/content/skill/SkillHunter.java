@@ -70,6 +70,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -96,6 +99,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (this.hasBlacklistPermission(p, this)) {
+            return;
+        }
         if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
             return;
         }
@@ -135,6 +141,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
             if (e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) {
                 if (e.getEntity().getPortalCooldown() > 0) {
                     Player p = e.getEntity().getKiller();
+                    if (this.hasBlacklistPermission(p, this)) {
+                        return;
+                    }
                     if (cooldowns.containsKey(p)) {
                         if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
                             return;
@@ -149,6 +158,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
                 } else {
                     Player p = e.getEntity().getKiller();
+                    if (this.hasBlacklistPermission(p, this)) {
+                        return;
+                    }
                     if (cooldowns.containsKey(p)) {
                         if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
                             return;
