@@ -203,6 +203,9 @@ public interface Skill<T> extends Ticked, Component {
         int ind = 0;
 
         for (Adaptation i : getAdaptations()) {
+            if (i.hasBlacklistPermission(player, i)) {
+                continue;
+            }
             int pos = w.getPosition(ind);
             int row = w.getRow(ind);
             int lvl = getPlayer(player).getData().getSkillLine(getName()).getAdaptationLevel(i.getName());
