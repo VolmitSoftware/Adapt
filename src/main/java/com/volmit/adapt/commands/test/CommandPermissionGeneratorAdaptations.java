@@ -19,18 +19,17 @@
 package com.volmit.adapt.commands.test;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
 
 import java.util.List;
 
-public class CommandVerbose extends MortarCommand {
+public class CommandPermissionGeneratorAdaptations extends MortarCommand {
     private static final List<String> permission = List.of("adapt.idontknowwhatimdoingiswear");
 
-    public CommandVerbose() {
-        super("verbose", "v");
-        this.setDescription("This Toggles the Debug mode(Console Spam mode)");
+    public CommandPermissionGeneratorAdaptations() {
+        super("permissionsa", "pa");
+        this.setDescription("This Prints all skill blacklistable permissions (Adaptations)");
     }
 
     @Override
@@ -40,12 +39,10 @@ public class CommandVerbose extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
-        AdaptConfig.get().setVerbose(!AdaptConfig.get().isVerbose());
-        if (sender != null) {
-            Adapt.messagePlayer(sender.player(), "Verbose: " + AdaptConfig.get().isVerbose());
-        } else {
-            Adapt.info("Verbose: " + AdaptConfig.get().isVerbose());
-        }
+        StringBuilder builder = new StringBuilder();
+        Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> skill.getAdaptations().forEach(adaptation -> builder.append("adapt.blacklist." + adaptation.getName().replaceAll("-", "") + "\n")));
+
+        Adapt.info("Permissions: \n" + builder);
         return true;
     }
 

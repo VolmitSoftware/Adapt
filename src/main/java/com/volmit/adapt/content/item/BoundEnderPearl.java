@@ -55,7 +55,6 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
     }
 
     public static boolean isBindableItem(ItemStack t) {
-        Adapt.verbose("Checking if item is a bindable enderpearl: " + t.getType().name());
         if (t.getType().equals(Material.ENDER_PEARL)) {
             if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
                 if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items", "boundenderperal", "name"))) {

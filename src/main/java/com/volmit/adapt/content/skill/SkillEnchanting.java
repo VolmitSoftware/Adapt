@@ -18,9 +18,9 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingLapisReturn;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingQuickEnchant;
@@ -30,7 +30,6 @@ import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -97,21 +96,21 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_5m").goal(5000000).stat("enchanted.items").reward(getConfig().challengeEnchantReward).build());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EnchantItemEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEnchanter().getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (e.getEnchanter().getGameMode().equals(GameMode.CREATIVE) || e.getEnchanter().getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
         Player p = e.getEnchanter();
-        getPlayer(e.getEnchanter()).getData().addStat("enchanted.items", 1);
-        getPlayer(e.getEnchanter()).getData().addStat("enchanted.power", e.getEnchantsToAdd().values().stream().mapToInt(i -> i).sum());
-        getPlayer(e.getEnchanter()).getData().addStat("enchanted.levels.spent", e.getExpLevelCost());
+        shouldReturnForPlayer(p, e, () -> {
+            handleEnchantItemEvent(p, e);
+        });
+
+    }
+
+    private void handleEnchantItemEvent(Player p, EnchantItemEvent e) {
+        AdaptPlayer adaptPlayer = getPlayer(p);
+        adaptPlayer.getData().addStat("enchanted.items", 1);
+        adaptPlayer.getData().addStat("enchanted.power", e.getEnchantsToAdd().values().stream().mapToInt(i -> i).sum());
+        adaptPlayer.getData().addStat("enchanted.levels.spent", e.getExpLevelCost());
+
         if (cooldowns.containsKey(p)) {
             if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
                 return;
@@ -120,8 +119,7 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
             }
         }
         cooldowns.put(p, System.currentTimeMillis());
-        xp(e.getEnchanter(), getConfig().enchantPowerXPMultiplier * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());
-
+        xp(p, getConfig().enchantPowerXPMultiplier * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());
     }
 
     @Override

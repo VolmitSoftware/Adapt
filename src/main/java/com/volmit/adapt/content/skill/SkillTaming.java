@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.taming.TamingDamage;
 import com.volmit.adapt.content.adaptation.taming.TamingHealthBoost;
@@ -27,7 +26,6 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
@@ -56,54 +54,47 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         registerAdaptation(new TamingHealthRegeneration());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityBreedEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                return;
-            }
-            if ((p.getWorld() == e.getEntity().getWorld())  // Fixed Cannot measure distance between world_nether and world etc...
-                    && p.getLocation().distance(e.getEntity().getLocation()) <= 15) {
-                if (cooldowns.containsKey(p)) {
-                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                        return;
-                    } else {
-                        cooldowns.remove(p);
+            shouldReturnForPlayer(p, e, () -> {
+                if (p.getWorld() == e.getEntity().getWorld() && p.getLocation().distance(e.getEntity().getLocation()) <= 15) {
+                    if (!isOnCooldown(p)) {
+                        setCooldown(p);
+                        xp(p, getConfig().tameXpBase);
                     }
                 }
-                cooldowns.put(p, System.currentTimeMillis());
-                xp(p, getConfig().tameXpBase);
-            }
+            });
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
-            return;
-        }
-        if (e.getDamager() instanceof Tameable && ((Tameable) e.getDamager()).isTamed() && ((Tameable) e.getDamager()).getOwner() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            } else {
-                if (cooldowns.containsKey(p)) {
-                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                        return;
-                    } else {
-                        cooldowns.remove(p);
-                    }
+        if (e.getDamager() instanceof Tameable tameable && tameable.isTamed() && tameable.getOwner() instanceof Player p) {
+            shouldReturnForPlayer(p, e, () -> {
+                if (!isOnCooldown(p)) {
+                    setCooldown(p);
+                    xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
                 }
-                cooldowns.put(p, System.currentTimeMillis());
-                xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
-            }
+            });
         }
     }
+
+    private boolean isOnCooldown(Player p) {
+        if (cooldowns.containsKey(p)) {
+            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                return true;
+            } else {
+                cooldowns.remove(p);
+            }
+        }
+        return false;
+    }
+
+    private void setCooldown(Player p) {
+        cooldowns.put(p, System.currentTimeMillis());
+    }
+
 
     @Override
     public void onTick() {

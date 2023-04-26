@@ -30,6 +30,10 @@ public class CommandTest extends MortarCommand {
     private final CommandTestParticle particle = new CommandTestParticle();
     @Command
     private final CommandTestSound sound = new CommandTestSound();
+    @Command
+    private final CommandPermissionGeneratorAdaptations permgena = new CommandPermissionGeneratorAdaptations();
+    @Command
+    private final CommandPermissionGeneratorSkills permgens = new CommandPermissionGeneratorSkills();
 
     public CommandTest() {
         super("test", "t");

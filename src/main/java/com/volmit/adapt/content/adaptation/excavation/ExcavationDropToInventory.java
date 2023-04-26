@@ -59,6 +59,7 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
         v.addLore(C.GRAY + Localizer.dLocalize("pickaxe", "droptoinventory", "lore1"));
     }
 
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockDropItemEvent e) {
         if (e.isCancelled()) {

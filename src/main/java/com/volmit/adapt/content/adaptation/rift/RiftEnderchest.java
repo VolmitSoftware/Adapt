@@ -55,35 +55,30 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p)) {
-            return;
-        }
         ItemStack hand = p.getInventory().getItemInMainHand();
-        if (hand.getType() != Material.ENDER_CHEST) {
+
+        if (hand.getType() != Material.ENDER_CHEST || !hasAdaptation(p)) {
             return;
         }
 
         if (p.hasCooldown(hand.getType())) {
             e.setCancelled(true);
-            return;
         } else {
             NMS.get().sendCooldown(p, Material.ENDER_CHEST, 100);
             p.setCooldown(Material.ENDER_CHEST, 100);
-        }
-        if (p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_CHEST)
-                && (e.getAction().equals(Action.RIGHT_CLICK_AIR)
-                || e.getAction().equals(Action.LEFT_CLICK_AIR)
-                || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
 
-            if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null
-                    && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
-                RiftResist.riftResistStackAdd(p, 10, 2);
+            if ((e.getAction() == Action.RIGHT_CLICK_AIR) || (e.getAction() == Action.LEFT_CLICK_AIR) || (e.getAction() == Action.LEFT_CLICK_BLOCK)) {
+                if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null
+                        && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
+                    RiftResist.riftResistStackAdd(p, 10, 2);
+                }
+                p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+                p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+                p.openInventory(p.getEnderChest());
             }
-            p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-            p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
-            p.openInventory(p.getEnderChest());
         }
     }
+
 
     @Override
     public void onTick() {

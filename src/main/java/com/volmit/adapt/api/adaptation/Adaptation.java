@@ -77,6 +77,7 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default boolean canUse(AdaptPlayer player) {
+        Adapt.verbose("Checking if " + player.getPlayer().getName() + " can use " + getName() + "...");
         AdaptAdaptationUseEvent e = new AdaptAdaptationUseEvent(!Bukkit.isPrimaryThread(), player, this);
         Bukkit.getServer().getPluginManager().callEvent(e);
         return (!e.isCancelled());
@@ -86,6 +87,15 @@ public interface Adaptation<T> extends Ticked, Component {
         return canUse(getPlayer(player));
     }
 
+    default boolean hasBlacklistPermission(Player p, Adaptation a) {
+        if (p.isOp()) { // If the player is an operator, bypass the permission check
+            return false;
+        }
+        String blacklistPermission = "adapt.blacklist." + a.getName().replaceAll("-", "");
+        Adapt.verbose("Checking if player " + p.getName() + " has blacklist permission " + blacklistPermission);
+
+        return p.hasPermission(blacklistPermission);
+    }
 
     default String getStorageString(Player p, String key, String defaultValue) {
         return getStorage(p, key, defaultValue);
@@ -233,6 +243,15 @@ public interface Adaptation<T> extends Ticked, Component {
                 }
                 if (!checkRegion(p)) {
                     Adapt.verbose("Player " + p.getName() + " don't have adaptation - " + this.getName() + " permission.");
+                    return false;
+                }
+
+                if (hasBlacklistPermission(p, this)) {
+                    Adapt.verbose("Player " + p.getName() + " has blacklist permission for adaptation " + this.getName());
+                    return false;
+                }
+                if (!canUse(p)) {
+                    Adapt.verbose("Player " + p.getName() + " can't use adaptation, This is an API restriction" + this.getName());
                     return false;
                 }
                 Adapt.verbose("Player " + p.getName() + " used adaptation " + this.getName());

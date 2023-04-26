@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.api.world;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.notification.ActionBarNotification;
@@ -36,7 +37,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Data
 @NoArgsConstructor
@@ -67,8 +67,19 @@ public class PlayerSkillLine {
             last = M.ms();
             if (AdaptConfig.get().isActionbarNotifyXp()) {
                 p.notifyXP(line, xp);
-            } else {
-                // bossbar thing here
+            }
+
+        }
+    }
+
+    public void giveXPFresh(Notifier p, double xp) {
+        xp = multiplier * xp;
+        this.xp += xp;
+
+        if (p != null) {
+            last = M.ms();
+            if (AdaptConfig.get().isActionbarNotifyXp()) {
+                p.notifyXP(line, xp);
             }
         }
     }
@@ -117,12 +128,11 @@ public class PlayerSkillLine {
             }
         }
 
-        if (!p.isBusy() && getXp() > XP.getXpForLevel(100)) {
-            xp = getXp() - XP.getXpForLevel(100);
-            lastXP = xp;
-            lastLevel = (int) Math.floor(XP.getLevelForXp(getXp()));
+        //check if they are exceeding the max level, and just set it to the last level XP and level
+        if (!p.isBusy() && getXp() > XP.getXpForLevel(AdaptConfig.get().experienceMaxLevel)) {
             p.getData().addWisdom();
-            boost(0.25, (int) TimeUnit.HOURS.toMillis(1));
+            Adapt.warn("A Player has reached the maximum level of " + AdaptConfig.get().experienceMaxLevel + " and has been granted 1 wisdom, Dropping Level to " + lastLevel);
+            setXp(XP.getXpForLevel(AdaptConfig.get().experienceMaxLevel -1));
         }
 
         double max = 1D + (getLevel() * 0.004);

@@ -41,7 +41,11 @@ public class CommandItemKnowledgeOrb extends MortarCommand {
                     args.toList().set(0, skill.getName());
                     giveOrb(sender, args);
                 }
-            } else {
+            } else if (args[0] != null && args[0].equals("[random]")) {
+                args.toList().set(0, SkillRegistry.skills.sortV().getRandom().getName());
+                giveOrb(sender, args);
+
+            }else {
                 giveOrb(sender, args);
             }
             return true;
@@ -71,6 +75,7 @@ public class CommandItemKnowledgeOrb extends MortarCommand {
                 list.add(skill.getName());
             }
             list.add("[all]");
+            list.add("[random]");
         }
         if (args.length == 1) {
             list.add(List.of("1", "10", "100", "1000", "10000", "100000", "1000000"));

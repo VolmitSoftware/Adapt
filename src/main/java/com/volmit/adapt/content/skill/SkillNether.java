@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.nether.NetherSkullYeet;
 import com.volmit.adapt.content.adaptation.nether.NetherWitherResist;
@@ -26,7 +25,6 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -53,81 +51,49 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         registerAdaptation(new NetherSkullYeet());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    private boolean shouldReturnForEventWithCause(Player p, EntityDamageEvent.DamageCause cause) {
+        return shouldReturnForPlayer(p) || cause != EntityDamageEvent.DamageCause.WITHER;
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
+        if (!this.isEnabled() || e.isCancelled() || !(e.getEntity() instanceof Player p) || shouldReturnForEventWithCause(p, e.getCause()) || e instanceof EntityDamageByBlockEvent) {
             return;
         }
-        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
-            return;
-        }
-        if (e.getCause() == EntityDamageEvent.DamageCause.WITHER && e.getEntity() instanceof Player p && !(e instanceof EntityDamageByBlockEvent)) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(p, getConfig().getWitherDamageXp());
-        }
+        xp(p, getConfig().getWitherDamageXp());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (e.getBlock().getType() == Material.WITHER_ROSE && witherRoseCooldown == 0) {
-            witherRoseCooldown = getConfig().getWitherRoseBreakCooldown();
-            xp(p, e.getBlock().getLocation().add(.5D, .5D, .5D), getConfig().getWitherRoseBreakXp());
-        }
+        shouldReturnForPlayer(e.getPlayer(), e, () -> {
+            if (e.getBlock().getType() == Material.WITHER_ROSE && witherRoseCooldown == 0) {
+                witherRoseCooldown = getConfig().getWitherRoseBreakCooldown();
+                xp(p, e.getBlock().getLocation().add(.5D, .5D, .5D), getConfig().getWitherRoseBreakXp());
+            }
+        });
+
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDeathEvent e) {
-        if (!this.isEnabled()) {
+        Player p = e.getEntity().getKiller();
+        if (p == null || !p.getClass().getSimpleName().equals("CraftPlayer") || shouldReturnForPlayer(p)) {
             return;
         }
-        if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
-            Player p = e.getEntity().getKiller();
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            if (e.getEntityType() == EntityType.WITHER_SKELETON) {
-                xp(p, getConfig().getWitherSkeletonKillXp());
-            } else if (e.getEntityType() == EntityType.WITHER) {
-                xp(p, getConfig().getWitherKillXp());
-            }
+        if (e.getEntityType() == EntityType.WITHER_SKELETON) {
+            xp(p, getConfig().getWitherSkeletonKillXp());
+        } else if (e.getEntityType() == EntityType.WITHER) {
+            xp(p, getConfig().getWitherKillXp());
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled()) {
+        if (!(e.getDamager() instanceof Player p) || shouldReturnForEventWithCause(p, e.getCause())) {
             return;
         }
-        if (e.isCancelled()) {
-            return;
-        }
-        if (e.getDamager() instanceof Player p && e.getCause() == EntityDamageEvent.DamageCause.WITHER) {
-            if (e.isCancelled()) {
-                return;
-            }
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(p, getConfig().getWitherAttackXp());
-        }
+        xp(p, getConfig().getWitherAttackXp());
     }
 
     @Override

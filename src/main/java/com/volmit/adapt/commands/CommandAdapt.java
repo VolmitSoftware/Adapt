@@ -42,6 +42,7 @@ public class CommandAdapt extends MortarCommand {
     @Command
     private final CommandVerbose verbose = new CommandVerbose();
 
+
     public CommandAdapt() {
         super("adapt", "ada", "a");
         this.setDescription("This is the main command for Adapt");

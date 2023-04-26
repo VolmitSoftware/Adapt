@@ -96,6 +96,15 @@ public interface Skill<T> extends Ticked, Component {
 
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
+    default boolean hasBlacklistPermission(Player p, Skill s) {
+        if (p.isOp()) { // If the player is an operator, bypass the permission check
+            return false;
+        }
+        String blacklistPermission = "adapt.blacklist." + s.getName().replaceAll("-", "");
+        Adapt.verbose("Checking if player " + p.getName() + " has blacklist permission " + blacklistPermission);
+        return p.hasPermission(blacklistPermission);
+    }
+
     default String getDisplayName() {
         if (!this.isEnabled()) {
             this.unregister();
@@ -194,6 +203,9 @@ public interface Skill<T> extends Ticked, Component {
         int ind = 0;
 
         for (Adaptation i : getAdaptations()) {
+            if (i.hasBlacklistPermission(player, i)) {
+                continue;
+            }
             int pos = w.getPosition(ind);
             int row = w.getRow(ind);
             int lvl = getPlayer(player).getData().getSkillLine(getName()).getAdaptationLevel(i.getName());

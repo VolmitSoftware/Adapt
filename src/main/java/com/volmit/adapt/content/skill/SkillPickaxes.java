@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
@@ -29,7 +28,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -60,68 +59,47 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         registerAdaptation(new PickaxeDropToInventory());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
-        if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            AdaptPlayer a = getPlayer((Player) e.getDamager());
-            ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
-            if (isPickaxe(hand)) {
-                getPlayer(a.getPlayer()).getData().addStat("pickaxe.swings", 1);
-                getPlayer(a.getPlayer()).getData().addStat("pickaxe.damage", e.getDamage());
-                if (cooldowns.containsKey(p)) {
-                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                        return;
-                    } else {
-                        cooldowns.remove(p);
-                    }
+        Player p = e.getDamager() instanceof Player ? (Player) e.getDamager() : null;
+
+        shouldReturnForPlayer(p, () -> {
+            if (checkValidEntity(e.getEntity().getType())) {
+                AdaptPlayer a = getPlayer(p);
+                ItemStack hand = p.getInventory().getItemInMainHand();
+                if (isPickaxe(hand)) {
+                    a.getData().addStat("pickaxe.swings", 1);
+                    a.getData().addStat("pickaxe.damage", e.getDamage());
+                    handleCooldown(p, () -> xp(p, e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage()));
                 }
-                cooldowns.put(p, System.currentTimeMillis());
-                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
-
             }
-        }
-
+        });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (isPickaxe(p.getInventory().getItemInMainHand())) {
-            double v = getValue(e.getBlock().getType());
-            getPlayer(p).getData().addStat("pickaxe.blocks.broken", 1);
-            getPlayer(p).getData().addStat("pickaxe.blocks.value", getValue(e.getBlock().getBlockData()));
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
+        shouldReturnForPlayer(p, () -> {
+            ItemStack mainHand = p.getInventory().getItemInMainHand();
+
+            if (isPickaxe(mainHand)) {
+                Material blockType = e.getBlock().getType();
+                double blockValue = getValue(blockType);
+                AdaptPlayer adaptPlayer = getPlayer(p);
+
+                adaptPlayer.getData().addStat("pickaxe.blocks.broken", 1);
+                adaptPlayer.getData().addStat("pickaxe.blocks.value", blockValue);
+
+                handleCooldown(p, () -> {
+                    if (mainHand.getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
+                        xp(p, 5);
+                    } else {
+                        Location blockLocation = e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5);
+                        J.a(() -> xp(p, blockLocation, blockXP(e.getBlock(), blockValue)));
+                    }
+                });
             }
-            cooldowns.put(p, System.currentTimeMillis());
-            if (p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
-                xp(p, 5);
-                return;
-            }
-            J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
-        }
+        });
     }
 
     public double getValue(Material type) {
@@ -129,35 +107,50 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         double value = super.getValue(type) * c.blockValueMultiplier;
         value += Math.min(c.maxHardnessBonus, type.getHardness());
         value += Math.min(c.maxBlastResistanceBonus, type.getBlastResistance());
-        switch (type) {
-            case COAL_ORE -> value += c.coalBonus;
-            case COPPER_ORE -> value += c.copperBonus;
-            case IRON_ORE -> value += c.ironBonus;
-            case GOLD_ORE -> value += c.goldBonus;
-            case LAPIS_ORE -> value += c.lapisBonus;
-            case DIAMOND_ORE -> value += c.diamondBonus;
-            case EMERALD_ORE -> value += c.emeraldBonus;
-            case NETHER_GOLD_ORE -> value += c.netherGoldBonus;
-            case NETHER_QUARTZ_ORE -> value += c.netherQuartzBonus;
-            case REDSTONE_ORE -> value += c.redstoneBonus;
-            case DEEPSLATE_COAL_ORE -> value += c.coalBonus * c.deepslateMultiplier;
-            case DEEPSLATE_COPPER_ORE -> value += c.copperBonus * c.deepslateMultiplier;
-            case DEEPSLATE_IRON_ORE -> value += c.ironBonus * c.deepslateMultiplier;
-            case DEEPSLATE_GOLD_ORE -> value += c.goldBonus * c.deepslateMultiplier;
-            case DEEPSLATE_LAPIS_ORE -> value += c.lapisBonus * c.deepslateMultiplier;
-            case DEEPSLATE_DIAMOND_ORE -> value += c.diamondBonus * c.deepslateMultiplier;
-            case DEEPSLATE_EMERALD_ORE -> value += c.emeraldBonus * c.deepslateMultiplier;
-            case DEEPSLATE_REDSTONE_ORE -> value += c.redstoneBonus * c.deepslateMultiplier;
-        }
+
+        value += switch (type) {
+            case COAL_ORE -> c.coalBonus;
+            case COPPER_ORE -> c.copperBonus;
+            case IRON_ORE -> c.ironBonus;
+            case GOLD_ORE -> c.goldBonus;
+            case LAPIS_ORE -> c.lapisBonus;
+            case DIAMOND_ORE -> c.diamondBonus;
+            case EMERALD_ORE -> c.emeraldBonus;
+            case NETHER_GOLD_ORE -> c.netherGoldBonus;
+            case NETHER_QUARTZ_ORE -> c.netherQuartzBonus;
+            case REDSTONE_ORE -> c.redstoneBonus;
+            case ANCIENT_DEBRIS -> c.debrisBonus;
+            case DEEPSLATE_COAL_ORE -> c.coalBonus * c.deepslateMultiplier;
+            case DEEPSLATE_COPPER_ORE -> c.copperBonus * c.deepslateMultiplier;
+            case DEEPSLATE_IRON_ORE -> c.ironBonus * c.deepslateMultiplier;
+            case DEEPSLATE_GOLD_ORE -> c.goldBonus * c.deepslateMultiplier;
+            case DEEPSLATE_LAPIS_ORE -> c.lapisBonus * c.deepslateMultiplier;
+            case DEEPSLATE_DIAMOND_ORE -> c.diamondBonus * c.deepslateMultiplier;
+            case DEEPSLATE_EMERALD_ORE -> c.emeraldBonus * c.deepslateMultiplier;
+            case DEEPSLATE_REDSTONE_ORE -> c.redstoneBonus * c.deepslateMultiplier;
+            default -> 0;
+        };
 
         return value * 0.48;
+    }
+
+
+    private void handleCooldown(Player p, Runnable action) {
+        if (cooldowns.containsKey(p)) {
+            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                return;
+            } else {
+                cooldowns.remove(p);
+            }
+        }
+        cooldowns.put(p, System.currentTimeMillis());
+        action.run();
     }
 
     @Override
     public void onTick() {
 
     }
-
 
     @Override
     public boolean isEnabled() {
@@ -166,6 +159,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     @NoArgsConstructor
     protected static class Config {
+        public double debrisBonus = 300;
         boolean enabled = true;
         double damageXPMultiplier = 13.26;
         double blockValueMultiplier = 0.125;

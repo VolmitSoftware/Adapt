@@ -35,7 +35,7 @@ public class SkillsGui {
         Window w = new UIWindow(player);
         w.setTag("/");
         w.setDecorator((window, position, row) -> new UIElement("bg")
-                .setName("")
+                .setName(" ")
                 .setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
 
         AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getPlayer(player);
@@ -43,7 +43,7 @@ public class SkillsGui {
 
         if (adaptPlayer.getData().getSkillLines().size() > 0) {
             for (PlayerSkillLine i : adaptPlayer.getData().getSkillLines().sortV()) {
-                if (i.getLevel() < 0) {
+                if (i.getRawSkill(adaptPlayer).hasBlacklistPermission(adaptPlayer.getPlayer(), i.getRawSkill(adaptPlayer)) || i.getLevel() < 0) {
                     continue;
                 }
                 int pos = w.getPosition(ind);

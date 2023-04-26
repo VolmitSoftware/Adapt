@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -29,7 +28,6 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -105,90 +103,102 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         cooldowns = new HashMap<>();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(CraftItemEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
-        Player p = (Player) e.getWhoClicked();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
 
-        if (cooldowns.containsKey(p)) {
-            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(CraftItemEvent e) {
+        Player p = (Player) e.getWhoClicked();
+        shouldReturnForPlayer(p, e, () -> {
+            if (!isValidCraftEvent(e)) {
                 return;
+            }
+            int recipeAmount = calculateRecipeAmount(e);
+            if (recipeAmount > 0 && !e.isCancelled()) {
+                double v = recipeAmount * getValue(e.getRecipe().getResult()) * getConfig().craftingValueXPMultiplier;
+                getPlayer(p).getData().addStat("crafted.items", recipeAmount);
+                getPlayer(p).getData().addStat("crafted.value", v);
+                xp(p, v + getConfig().baseCraftingXP);
+            }
+        });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(FurnaceSmeltEvent e) {
+        if (shouldReturnForWorld(e.getBlock().getWorld(), this)) {
+            return;
+        }
+        xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP + (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier), getConfig().furnaceXPRadius, getConfig().furnaceXPDuration);
+    }
+
+    @Override
+    public void onTick() {
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            if (shouldReturnForPlayer(i)) {
+                continue;
+            }
+            checkStatTrackers(getPlayer(i));
+        }
+    }
+
+
+    private boolean isValidCraftEvent(CraftItemEvent e) {
+        if (cooldowns.containsKey(e.getWhoClicked())) {
+            if (cooldowns.get(e.getWhoClicked()) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                return false;
             } else {
-                cooldowns.remove(p);
+                cooldowns.remove(e.getWhoClicked());
             }
         }
-        cooldowns.put(p, System.currentTimeMillis());
+        cooldowns.put((Player) e.getWhoClicked(), System.currentTimeMillis());
 
-        if (e.getInventory().getResult() != null && !e.isCancelled() && e.getInventory().getResult().getAmount() > 0) {
-            if (e.getInventory().getResult() != null && e.getCursor() != null && e.getCursor().getAmount() < 64) {
-                if (p.getInventory().addItem(e.getCurrentItem()).isEmpty()) {
-                    p.getInventory().removeItem(e.getCurrentItem());
-                    ItemStack test = e.getRecipe().getResult().clone();
-                    int recipeAmount = e.getInventory().getResult().getAmount();
-                    switch (e.getClick()) {
-                        case NUMBER_KEY:
-                            if (e.getWhoClicked().getInventory().getItem(e.getHotbarButton()) != null) {
-                                recipeAmount = 0;
-                            }
-                            break;
+        ItemStack result = e.getInventory().getResult();
+        ItemStack cursor = e.getCursor();
 
-                        case DROP:
-                        case CONTROL_DROP:
-                            ItemStack cursor = e.getCursor();
-                            if (!(cursor == null || cursor.getType().isAir())) {
-                                recipeAmount = 0;
-                            }
-                            break;
+        return result != null && result.getAmount() > 0 && (cursor == null || cursor.getAmount() < 64);
+    }
 
-                        case SHIFT_RIGHT:
-                        case SHIFT_LEFT:
-                            if (recipeAmount == 0) {
-                                break;
-                            }
-
-                            int maxCraftable = getMaxCraftAmount(e.getInventory());
-                            int capacity = fits(test, e.getView().getBottomInventory());
-                            if (capacity < maxCraftable) {
-                                maxCraftable = ((capacity + recipeAmount - 1) / recipeAmount) * recipeAmount;
-                            }
-
-                            recipeAmount = maxCraftable;
-                            break;
-                        default:
-                    }
-
-                    if (recipeAmount > 0 && !e.isCancelled()) {
-                        double v = recipeAmount * getValue(test) * getConfig().craftingValueXPMultiplier;
-
-
-                        getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.items", recipeAmount);
-                        getPlayer((Player) e.getWhoClicked()).getData().addStat("crafted.value", v);
-
-
-                        xp((Player) e.getWhoClicked(), v + getConfig().baseCraftingXP);
-                    }
+    private int calculateRecipeAmount(CraftItemEvent e) {
+        ItemStack test = e.getRecipe().getResult().clone();
+        int recipeAmount = e.getInventory().getResult().getAmount();
+        switch (e.getClick()) {
+            case NUMBER_KEY -> {
+                if (e.getWhoClicked().getInventory().getItem(e.getHotbarButton()) != null) {
+                    recipeAmount = 0;
                 }
             }
+            case DROP, CONTROL_DROP -> {
+                ItemStack cursor = e.getCursor();
+                if (!(cursor == null || cursor.getType().isAir())) {
+                    recipeAmount = 0;
+                }
+            }
+            case SHIFT_RIGHT, SHIFT_LEFT -> {
+                if (recipeAmount == 0) {
+                    break;
+                }
+                int maxCraftable = getMaxCraftAmount(e.getInventory());
+                int capacity = fits(test, e.getView().getBottomInventory());
+                if (capacity < maxCraftable) {
+                    maxCraftable = ((capacity + recipeAmount - 1) / recipeAmount) * recipeAmount;
+                }
+                recipeAmount = maxCraftable;
+            }
+            default -> {
+            }
         }
+        return recipeAmount;
     }
 
     private int fits(ItemStack stack, Inventory inv) {
         ItemStack[] contents = inv.getContents();
         int result = 0;
 
-        for (ItemStack is : contents)
-            if (is == null)
+        for (ItemStack is : contents) {
+            if (is == null) {
                 result += stack.getMaxStackSize();
-            else if (is.isSimilar(stack))
+            } else if (is.isSimilar(stack)) {
                 result += Math.max(stack.getMaxStackSize() - is.getAmount(), 0);
+            }
+        }
 
         return result;
     }
@@ -210,30 +220,6 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         return resultCount * materialCount;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(FurnaceSmeltEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(e.getBlock().getWorld().getName())) {
-            return;
-        }
-
-        xp(e.getBlock().getLocation(), getConfig().furnaceBaseXP + (getValue(e.getResult()) * getConfig().furnaceValueXPMultiplier), getConfig().furnaceXPRadius, getConfig().furnaceXPDuration);
-    }
-
-    @Override
-    public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            checkStatTrackers(getPlayer(i));
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
-                return;
-            }
-        }
-    }
 
     @Override
     public boolean isEnabled() {

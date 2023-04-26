@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.Discovery;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryArmor;
@@ -66,140 +65,74 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         registerAdaptation(new DiscoveryVillagerAtt());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerChangedWorldEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        try {
-            J.a(() -> seeWorld(p, p.getWorld()), 15);
-        } catch (Exception ignored) {
-            Adapt.error("Failed to discover world " + p.getWorld().getName());
-        }
+        shouldReturnForPlayer(e.getPlayer(), () -> scheduleSeeWorld(e.getPlayer()));
+
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractAtEntityEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        seeEntity(p, e.getRightClicked());
+        shouldReturnForPlayer(e.getPlayer(), e, () -> seeEntity(e.getPlayer(), e.getRightClicked()));
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityPickupItemEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
-            return;
-        }
         if (e.getEntity() instanceof Player p) {
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            seeItem(p, e.getItem().getItemStack());
+            shouldReturnForPlayer(p, e, () -> seeItem(p, e.getItem().getItemStack()));
         }
+
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(CraftItemEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
-            return;
-        }
-        if (e.getWhoClicked() instanceof Player p) {
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
+        if (!(e.getWhoClicked() instanceof Player p)) return;
+        shouldReturnForPlayer(p, e, () -> {
             try {
                 NamespacedKey key = (NamespacedKey) Recipe.class.getDeclaredMethod("getKey()").invoke(e.getRecipe());
-
                 if (key != null) {
-                    seeRecipe(p, key.toString());
+                    seeCraftedRecipe(p, key.toString());
                 }
             } catch (Throwable ignored) {
-                Adapt.verbose("No recipe key found for " + e.getRecipe().getResult().getType().name()); // Probably a vanilla recipe that was either removed or something unimplemented, like the backpack that im making
+                Adapt.verbose("No recipe key found for " + e.getRecipe().getResult().getType().name());
             }
-        }
+        });
+
+
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerItemConsumeEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        seeItem(p, e.getItem());
-        seeFood(p, e.getItem().getType());
+        shouldReturnForPlayer(e.getPlayer(), e, () -> {
+            seeItem(e.getPlayer(), e.getItem());
+            seeFood(e.getPlayer(), e.getItem().getType());
+        });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        Player p = e.getPlayer();
+        shouldReturnForPlayer(e.getPlayer(), e, () -> {
+            if (e.getClickedBlock() != null) {
+                seeBlock(e.getPlayer(), e.getClickedBlock().getBlockData(), e.getClickedBlock().getLocation());
+            }
+        });
 
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (e.getClickedBlock() != null) {
-            seeBlock(p, e.getClickedBlock().getBlockData(), e.getClickedBlock().getLocation());
-        }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerExpChangeEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (e.getAmount() > 0 && getLevel(p) > 0) {
-            xp(p, e.getAmount());
+        shouldReturnForPlayer(e.getPlayer(), () -> {
+            if (e.getAmount() > 0 && getLevel(e.getPlayer()) > 0) {
+                xp(e.getPlayer(), e.getAmount());
+            }
+        });
+    }
+
+    private void scheduleSeeWorld(Player p) {
+        try {
+            J.a(() -> seeWorld(p, p.getWorld()), 15);
+        } catch (Exception e) {
+            Adapt.error("Failed to discover world " + p.getWorld().getName());
         }
     }
 
@@ -231,7 +164,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         }
     }
 
-    public void seeRecipe(Player p, String key) {
+    public void seeCraftedRecipe(Player p, String key) {
         Discovery<String> d = getPlayer(p).getData().getSeenRecipes();
         if (d.isNewDiscovery(key)) {
             xp(p, getConfig().discoverRecipeBaseXP);
@@ -308,23 +241,22 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @Override
     public void onTick() {
-        if (!this.isEnabled()) {
-            return;
-        }
+        if (!this.isEnabled()) return;
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
-                return;
-            }
-            try {
-                Block b = i.getTargetBlockExact(5, FluidCollisionMode.NEVER);
-                if (b != null) {
-                    seeBlock(i, b.getBlockData(), b.getLocation());
-                    seeBiome(i, b.getBiome());
-                }
+            if (shouldReturnForPlayer(i)) continue;
+            seeTargetBlock(i);
+        }
+    }
 
-            } catch (Throwable ignored) {
-                Adapt.verbose("Failed to get target block for " + i.getName());
+    private void seeTargetBlock(Player i) {
+        try {
+            Block b = i.getTargetBlockExact(5, FluidCollisionMode.NEVER);
+            if (b != null) {
+                seeBlock(i, b.getBlockData(), b.getLocation());
+                seeBiome(i, b.getBiome());
             }
+        } catch (Throwable ignored) {
+            Adapt.verbose("Failed to get target block for " + i.getName());
         }
     }
 
