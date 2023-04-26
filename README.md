@@ -10,34 +10,29 @@ _Adapt is a drag and drop solution for balanced passive abilities and skills tha
 
 ### Description
 
-Adapt Abilities are all accessible in the in-game GUI (Right-clicking any Bookshelf **_Face_**) providing a more
-user-friendly experience to a "skills" system. Most servers want to increase the quality of the "vanilla" experience.
-Most Skill based plugins are about powers, game breaking systems, and riddles with bugs. That's where Adapt comes in.
-Lightweight on the server, and providing mere quality of life enhancements to a user's experience. Below is a **WIP**
-List of features (_and descriptions_) that ill fill when i can. But this should give you a good idea of the roadmap for
-this plugin! Keep in mine this all WIP, can change at any time, and all of these can be configured / disabled!
+Adapt Abilities are all accessible in the in-game GUI by right-clicking any bookshelf **face**, providing a more user-friendly experience to a "skills" system. Most servers aim to enhance the quality of the "vanilla" experience. However, most skill-based plugins offer powers, game-breaking systems, and are riddled with bugs. That's where Adapt comes in, being lightweight on the server and providing mere quality-of-life enhancements to a user's experience. 
 
-The master branch is for the latest version of minecraft.
+Below is a **WIP** list of features _(and descriptions)_ that I'll fill in when I can. But this should give you a good idea of the roadmap for this plugin! Keep in mind that this is all WIP, can change at any time, and all of these features can be configured/disabled!
+
+The master branch is for the latest version of Minecraft.
 
 ### Language and Localization
 
-Do you know a language other than english? do you want to be a big part in Adapt's localization into different
-languages? Join the discord and let us know, or [Click Here](https://gitlocalize.com/repo/8085), and you can help is
-remotely with language localizations! if you don't see a language you can easily add it, or let us know here in
-discussions! We take this on an Honor System, so please only if you are confident in the language submit a translation
-key, they will be verified.
+Do you know a language other than English? Do you want to play a big part in Adapt's localization into different languages? Join the [Discord](https://discord.gg/volmit) and let us know or visit the [gitlocalize repository](https://gitlocalize.com/repo/8085) to help remotely with language localizations! 
+
+If you don't see a language you can easily add it, or let us know here in discussions! We take this on an honor system, so please submit a translation key only if you are confident in the language, and they will be verified.
 
 # [Support](https://discord.gg/volmit) **|** [Documentation](https://docs.volmit.com/adapt/)
 
-# Building
+## Building
 
-### _Consider supporting our development by buying Adapt
-on [spigot](https://www.spigotmc.org/resources/adapt-leveling-skills-and-abilities.103790/)! We work hard to make Adapt
-the best it can be for everyone._
+### Download .jar release
+**Consider supporting our development by buying Adapt**
+On [SpigotMC](https://www.spigotmc.org/resources/adapt-leveling-skills-and-abilities.103790/)! We work hard to make Adapt
+the best it can be for everyone.
 
-Building Adapt is not as Straightforward
-as [Iris](https://www.spigotmc.org/resources/iris-world-gen-custom-biome-colors.84586/), though you will need to setup a
-few things if your system has never been used for java development.
+### Build your own .jar
+**Building Adapt can be challenging and requires some technical knowledge**, such as with [Iris](https://www.spigotmc.org/resources/iris-world-gen-custom-biome-colors.84586/). However, you will need to set up a few things if your system has never been used for Java development.
 
 <details>
 
@@ -50,7 +45,7 @@ few things if your system has never been used for java development.
 You NEED TO BE USING Intelij To build this project, or anything that can support the
 plugin [Manifold](https://plugins.jetbrains.com/plugin/10057-manifold)
 
-## Preface: if you need help compiling ask for support in the [discord](https://discord.gg/volmit), we give help regardless if you want to donate to us on spigot or compile it here :) we just want to be sure that you are able to use and enjoy the software regardless of circumstance.
+## Preface: if you need help compiling ask for support in the [Discord](https://discord.gg/volmit), we give help regardless if you want to donate to us on Spigot or compile it here :) we just want to be sure that you are able to use and enjoy the software regardless of circumstance.
 
 1. Install [Java JDK 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 2. Set the JDK installation path to `JAVA_HOME` as an environment variable.
@@ -91,9 +86,7 @@ plugin [Manifold](https://plugins.jetbrains.com/plugin/10057-manifold)
 <details>
 <summary> SKILLS </summary>
 
-_The skills below are the fundamentals that we want implemented but PLEASE feel free to make an issue request for an
-idea/Added Ability into adapt.
-Keep in mind it should be simple, but complex ones are welcome too!_
+_The skills listed below are the fundamentals that we want to implement. However, please feel free to make an issue request for any ideas or additional abilities that you would like to see in Adapt. Keep in mind that simpler ideas are preferred, but complex ones are welcome too!_
 
 ## Agility:
 
