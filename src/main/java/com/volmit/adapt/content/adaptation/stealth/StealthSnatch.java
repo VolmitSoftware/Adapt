@@ -22,11 +22,9 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
-import net.minecraft.network.protocol.game.PacketPlayOutCollect;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -118,9 +116,20 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
     public void sendCollected(Player plr, Item item) {
         try {
-            PacketPlayOutCollect packet = new PacketPlayOutCollect(item.getEntityId(), plr.getEntityId(), item.getItemStack().getAmount());
-            for (Entity i : plr.getWorld().getNearbyEntities(plr.getLocation(), 8, 8, 8, entity -> entity instanceof Player player)) {
-                ((CraftPlayer) i).getHandle().b.a(packet);
+            String nmstag = Bukkit.getServer().getClass().getCanonicalName().split("\\Q.\\E")[3];
+            Class<?> c = Class.forName("net.minecraft.server." + nmstag + ".PacketPlayOutCollect");
+            Class<?> p = Class.forName("net.minecraft.server." + nmstag + ".EntityPlayer");
+            Class<?> pk = Class.forName("net.minecraft.server." + nmstag + ".Packet");
+            Object v = c.getConstructor().newInstance();
+            new V(v).set("a", item.getEntityId());
+            new V(v).set("b", plr.getEntityId());
+            new V(v).set("c", item.getItemStack().getAmount());
+
+            for (Entity i : plr.getWorld().getNearbyEntities(plr.getLocation(), 8, 8, 8)) {
+                if (i instanceof Player) {
+                    Object pconnect = new V(new V(i).invoke("getHandle")).get("playerConnection");
+                    pconnect.getClass().getMethod("sendPacket", pk).invoke(pconnect, v);
+                }
             }
         } catch (Exception e) {
             Adapt.error("Failed to send collected packet");
