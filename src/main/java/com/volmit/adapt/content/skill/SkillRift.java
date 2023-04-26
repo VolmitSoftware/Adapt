@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.rift.*;
 import com.volmit.adapt.util.C;
@@ -26,7 +25,6 @@ import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
 import net.minecraft.world.item.ItemEnderEye;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
@@ -61,146 +59,62 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         lasttp = new HashMap<>();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerTeleportEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (!lasttp.containsKey(p)) {
-            xpSilent(p, getConfig().teleportXP);
-            lasttp.put(p, M.ms());
-        }
+        shouldReturnForPlayer(e.getPlayer(), e, () -> {
+            if (!lasttp.containsKey(p)) {
+                xpSilent(p, getConfig().teleportXP);
+                lasttp.put(p, M.ms());
+            }
+        });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(ProjectileLaunchEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
+        if (!(e.getEntity().getShooter() instanceof Player p)) {
             return;
         }
-        if (e.getEntity() instanceof EnderPearl && e.getEntity().getShooter() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
+        shouldReturnForPlayer(p, e, () -> {
+            if (e.getEntity() instanceof EnderPearl) {
+                xp(p, getConfig().throwEnderpearlXP);
+            } else if (e.getEntity() instanceof ItemEnderEye) {
+                xp(p, getConfig().throwEnderEyeXP);
             }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(p, getConfig().throwEnderpearlXP);
-        } else if (e.getEntity() instanceof ItemEnderEye && e.getEntity().getShooter() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(p, getConfig().throwEnderEyeXP);
+        });
+    }
+
+    private void handleEntityDamageByEntity(Entity entity, Player p, double damage) {
+
+        if (entity instanceof Enderman) {
+            xp(p, getConfig().damageEndermanXPMultiplier * Math.min(damage, ((Enderman) entity).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+        } else if (entity instanceof Endermite) {
+            xp(p, getConfig().damageEndermiteXPMultiplier * Math.min(damage, ((Endermite) entity).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+        } else if (entity instanceof EnderDragon) {
+            xp(p, getConfig().damageEnderdragonXPMultiplier * Math.min(damage, ((EnderDragon) entity).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+        } else if (entity instanceof EnderCrystal) {
+            xp(p, getConfig().damageEndCrystalXP);
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
-        if (e.getEntity() instanceof Enderman && e.getDamager() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(p, getConfig().damageEndermanXPMultiplier * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
-        }
-        if (e.getEntity() instanceof Endermite && e.getDamager() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(p, getConfig().damageEndermiteXPMultiplier * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
-        }
-        if (e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(p, getConfig().damageEnderdragonXPMultiplier * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
-        }
-        if (e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(p, getConfig().damageEndCrystalXP);
-        }
-
-        if (e.getEntity() instanceof Enderman && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(p, getConfig().damageEndermanXPMultiplier * Math.min(e.getDamage(), ((Enderman) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
-        }
-        if (e.getEntity() instanceof Endermite && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(p, getConfig().damageEndermiteXPMultiplier * Math.min(e.getDamage(), ((Endermite) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
-        }
-        if (e.getEntity() instanceof EnderDragon && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(p, getConfig().damageEnderdragonXPMultiplier * Math.min(e.getDamage(), ((EnderDragon) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
-        }
-        if (e.getEntity() instanceof EnderCrystal && e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(p, getConfig().damageEndCrystalXP);
+        if (e.getDamager() instanceof Player p) {
+            shouldReturnForPlayer(p, e, () -> handleEntityDamageByEntity(e.getEntity(), p, e.getDamage()));
+        } else if (e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
+            shouldReturnForPlayer(p, e, () -> handleEntityDamageByEntity(e.getEntity(), p, e.getDamage()));
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDeathEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
         if (e.getEntity() instanceof EnderCrystal && e.getEntity().getKiller() != null) {
             Player p = e.getEntity().getKiller();
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            xp(e.getEntity().getKiller(), getConfig().destroyEndCrystalXP);
+            shouldReturnForPlayer(p, () -> xp(e.getEntity().getKiller(), getConfig().destroyEndCrystalXP));
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         lasttp.remove(p);
@@ -212,15 +126,11 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             return;
         }
         for (Player i : lasttp.k()) {
-            if (this.hasBlacklistPermission(i, this)) {
-                return;
-            }
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
-                return;
-            }
-            if (M.ms() - lasttp.get(i) > getConfig().teleportXPCooldown) {
-                lasttp.remove(i);
-            }
+            shouldReturnForPlayer(i, () -> {
+                if (M.ms() - lasttp.get(i) > getConfig().teleportXPCooldown) {
+                    lasttp.remove(i);
+                }
+            });
         }
     }
 

@@ -23,6 +23,7 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerAdaptation;
+import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulGlobe;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulHealing;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulLance;
@@ -31,7 +32,10 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import de.slikey.effectlib.effect.CloudEffect;
 import lombok.NoArgsConstructor;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -60,33 +64,22 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     }
 
-
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
+        if (!(e.getEntity() instanceof Player p)) {
             return;
         }
-        if (e.getEntity() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
-                    || e.getEntity().isDead()
+        shouldReturnForPlayer(p, e, () -> {
+            if (e.getEntity().isDead()
                     || e.getEntity().isInvulnerable()
-                    || p.isDead()
                     || p.isInvulnerable()
-                    && !checkValidEntity(e.getEntity().getType())) {
-                return;
-            }
-            if (p.isBlocking() || p.isDead() || p.isInvulnerable()) {
+                    || p.isBlocking()
+                    || !checkValidEntity(e.getEntity().getType())) {
                 return;
             }
             AdaptPlayer a = getPlayer(p);
-            getPlayer(p).getData().addStat("trag.hitsrecieved", 1);
-            getPlayer(p).getData().addStat("trag.damage", e.getDamage());
+            a.getData().addStat("trag.hitsrecieved", 1);
+            a.getData().addStat("trag.damage", e.getDamage());
             if (cooldowns.containsKey(p)) {
                 if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
                     return;
@@ -96,66 +89,55 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
             }
             cooldowns.put(p, System.currentTimeMillis());
             xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
-        }
-
+        });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerDeathEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (e.getEntity().getGameMode().equals(GameMode.CREATIVE) || e.getEntity().getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-
-        if (AdaptConfig.get().isHardcoreResetOnPlayerDeath()) {
-            Adapt.info("Resetting " + e.getEntity().getName() + "'s skills due to death");
-            Player p = e.getEntity();
-            AdaptPlayer ap = getPlayer(p);
-            ap.delete(p.getUniqueId());
-            return;
-        }
-        if (getConfig().takeAwaySkillsOnDeath) {
-            if (getConfig().showParticles) {
-                CloudEffect ce = new CloudEffect(Adapt.instance.adaptEffectManager);
-                ce.mainParticle = Particle.ASH;
-                ce.cloudParticle = Particle.REDSTONE;
-                ce.duration = 10000;
-                ce.iterations = 1000;
-                ce.setEntity(e.getEntity());
-                ce.start();
-            }
-            AdaptPlayer a = getPlayer(e.getEntity());
-            Player p = a.getPlayer();
-            if (this.hasBlacklistPermission(p, this)) {
+        Player p = e.getEntity();
+        shouldReturnForPlayer(p, () -> {
+            AdaptPlayer a = getPlayer(p);
+            if (AdaptConfig.get().isHardcoreResetOnPlayerDeath()) {
+                Adapt.info("Resetting " + p.getName() + "'s skills due to death");
+                a.delete(p.getUniqueId());
                 return;
             }
-            p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_DEATH, 1f, 1f);
-            if (a.getData().getSkillLines().get("tragoul") != null) {
-                double xp = a.getData().getSkillLines().get("tragoul").getXp();
-                if (a.getData().getSkillLines().get("tragoul").getXp() > getConfig().deathXpLoss) {
-                    xp(p, getConfig().deathXpLoss);
-                } else {
-                    a.getData().getSkillLines().get("tragoul").setXp(0);
+            if (getConfig().takeAwaySkillsOnDeath) {
+                if (getConfig().showParticles) {
+                    CloudEffect ce = new CloudEffect(Adapt.instance.adaptEffectManager);
+                    ce.mainParticle = Particle.ASH;
+                    ce.cloudParticle = Particle.REDSTONE;
+                    ce.duration = 10000;
+                    ce.iterations = 1000;
+                    ce.setEntity(p);
+                    ce.start();
                 }
-                a.getData().getSkillLines().get("tragoul").setXp(xp);
-                a.getData().getSkillLines().get("tragoul").setLastXP(xp);
-                for (PlayerAdaptation adapt : a.getData().getSkillLines().get("tragoul").getAdaptations().values()) {
-                    if (adapt.getLevel() > 0) {
-                        adapt.setLevel(adapt.getLevel() - 1);
-                    } else {
-                        adapt.setLevel(0);
-                    }
-                }
-                recalcTotalExp(p);
-            }
-        }
-    }
 
+                if (this.hasBlacklistPermission(p, this)) {
+                    return;
+                }
+
+                p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_DEATH, 1f, 1f);
+
+                PlayerSkillLine tragoul = a.getData().getSkillLines().get("tragoul");
+                if (tragoul != null) {
+                    double xp = tragoul.getXp();
+                    if (xp > getConfig().deathXpLoss) {
+                        xp(p, getConfig().deathXpLoss);
+                    } else {
+                        tragoul.setXp(0);
+                    }
+                    tragoul.setLastXP(xp);
+
+                    for (PlayerAdaptation adapt : tragoul.getAdaptations().values()) {
+                        adapt.setLevel(Math.max(adapt.getLevel() - 1, 0));
+                    }
+
+                    recalcTotalExp(p);
+                }
+            }
+        });
+    }
 
     @Override
     public void onTick() {
@@ -163,12 +145,13 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
             return;
         }
         for (Player i : Bukkit.getOnlinePlayers()) {
-            checkStatTrackers(getPlayer(i));
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
-                return;
-            }
+            shouldReturnForPlayer(i,  () -> {
+                AdaptPlayer player = getPlayer(i);
+                checkStatTrackers(player);
+            });
         }
     }
+
 
     @Override
     public boolean isEnabled() {

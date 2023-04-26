@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -30,7 +29,6 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
@@ -71,111 +69,82 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         cooldowns = new HashMap<>();
     }
 
+    private boolean isOnCooldown(Player p, long cooldown) {
+        if (cooldowns.containsKey(p)) {
+            if (cooldowns.get(p) + cooldown > System.currentTimeMillis()) {
+                return true;
+            } else {
+                cooldowns.remove(p);
+            }
+        }
+        return false;
+    }
+
+    private void setCooldown(Player p) {
+        cooldowns.put(p, System.currentTimeMillis());
+    }
+
     @Override
     public void onTick() {
         if (!this.isEnabled()) {
             return;
         }
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (this.hasBlacklistPermission(i, this)) {
-                return;
-            }
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (i.getGameMode().equals(GameMode.CREATIVE) || i.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            if (i.getWorld().getBlockAt(i.getLocation()).isLiquid() && i.isSwimming() && i.getPlayer() != null && i.getPlayer().getRemainingAir() < i.getMaximumAir()) {
-                Adapt.verbose("seaborne Tick");
-                checkStatTrackers(getPlayer(i));
-                xpSilent(i, getConfig().swimXP);
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(PlayerFishEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
-        Adapt.verbose("Fishing");
-        Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
-            xp(p, 300);
-        } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
-            xp(p, 10);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockBreakEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
-        if (cooldowns.containsKey(e.getPlayer())) {
-            if (cooldowns.get(e.getPlayer()) + getConfig().seaPickleCooldown > System.currentTimeMillis()) {
-                return;
-            } else {
-                cooldowns.remove(e.getPlayer());
-            }
-        }
-
-        Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (e.getBlock().getType().equals(Material.SEA_PICKLE) && p.isSwimming() && p.getRemainingAir() < p.getMaximumAir()) { // BECAUSE I LIKE PICKLES
-            cooldowns.put(e.getPlayer(), System.currentTimeMillis());
-            xpSilent(p, 10);
-        } else {
-            cooldowns.put(e.getPlayer(), System.currentTimeMillis());
-            xpSilent(p, 3);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
-        if (e.getEntity() instanceof Drowned && e.getDamager() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().seaPickleCooldown > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
+            shouldReturnForPlayer(i, () -> {
+                if (i.getWorld().getBlockAt(i.getLocation()).isLiquid() && i.isSwimming() && i.getPlayer() != null && i.getPlayer().getRemainingAir() < i.getMaximumAir()) {
+                    Adapt.verbose("seaborne Tick");
+                    checkStatTrackers(getPlayer(i));
+                    xpSilent(i, getConfig().swimXP);
                 }
+            });
+
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(PlayerFishEvent e) {
+        Player p = e.getPlayer();
+        shouldReturnForPlayer(e.getPlayer(), e, () -> {
+            if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
+                xp(p, 300);
+            } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
+                xp(p, 10);
             }
-            cooldowns.put(p, System.currentTimeMillis());
-            xp(p, getConfig().damagedrownxpmultiplier * Math.min(e.getDamage(), ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+        });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(BlockBreakEvent e) {
+        Player p = e.getPlayer();
+        shouldReturnForPlayer(e.getPlayer(), e, () -> {
+            if (isOnCooldown(p, getConfig().seaPickleCooldown)) {
+                return;
+            }
+            setCooldown(p);
+            if (e.getBlock().getType().equals(Material.SEA_PICKLE) && p.isSwimming() && p.getRemainingAir() < p.getMaximumAir()) { // BECAUSE I LIKE PICKLES
+                xpSilent(p, 10);
+            } else {
+                xpSilent(p, 3);
+            }
+        });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(EntityDamageByEntityEvent e) {
+        if (e.getEntity() instanceof Drowned && e.getDamager() instanceof Player p) {
+            shouldReturnForPlayer(p, e, () -> {
+                if (isOnCooldown(p, getConfig().seaPickleCooldown)) {
+                    return;
+                }
+                setCooldown(p);
+                xp(p, getConfig().damagedrownxpmultiplier * Math.min(e.getDamage(), ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+            });
         }
         if (e.getDamager() instanceof Projectile projectile && projectile instanceof Trident && ((Projectile) e.getDamager()).getShooter() instanceof Player p) {
-            xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+            shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue())));
         }
         if (e.getDamager() instanceof Player p && p.getInventory().getItemInMainHand().getType().equals(Material.TRIDENT)) {
-            xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+            shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue())));
         }
     }
 

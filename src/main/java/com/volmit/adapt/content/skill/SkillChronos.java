@@ -32,7 +32,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         super("chronos", Localizer.dLocalize("skill", "chronos", "icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setInterval(10000);
+        setInterval(600000);
         setDescription(Localizer.dLocalize("skill", "chronos", "description"));
         setDisplayName(Localizer.dLocalize("skill", "chronos", "name"));
         setInterval(getConfig().setInterval);
@@ -46,7 +46,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
             return;
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (this.hasBlacklistPermission(p, this)) {
+            if (shouldReturnForPlayer(p)) {
                 return;
             }
             getPlayer(p).getData().addStat("minutes.online", 10);
@@ -65,6 +65,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     @NoArgsConstructor
     protected static class Config {
         public long setInterval = 5050;
-        boolean enabled = true;
+        boolean enabled = false;
     }
 }

@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.unarmed.UnarmedGlassCannon;
@@ -27,7 +26,6 @@ import com.volmit.adapt.content.adaptation.unarmed.UnarmedSuckerPunch;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,37 +47,34 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         setIcon(Material.FIRE_CHARGE);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
+        if (!(e.getDamager() instanceof Player p)) {
             return;
         }
-        if (e.getDamager() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
 
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName()) || !AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE)
-                    || p.getGameMode().equals(GameMode.SPECTATOR))
-                    || e.getEntity().isDead()
+        shouldReturnForPlayer(p, e, () -> {
+            if (e.getEntity().isDead()
                     || e.getEntity().isInvulnerable()
-                    || p.isDead()
                     || p.isInvulnerable()) {
                 return;
             }
+
             if (!checkValidEntity(e.getEntity().getType())) {
                 return;
             }
-            AdaptPlayer a = getPlayer((Player) e.getDamager());
+
+            AdaptPlayer a = getPlayer(p);
             ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
+
             if (!isMelee(hand)) {
-                getPlayer(p).getData().addStat("unarmed.hits", 1);
-                getPlayer(p).getData().addStat("unarmed.damage", e.getDamage());
+                a.getData().addStat("unarmed.hits", 1);
+                a.getData().addStat("unarmed.damage", e.getDamage());
                 xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
             }
-        }
-
+        });
     }
+
 
     @Override
     public void onTick() {

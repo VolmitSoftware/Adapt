@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.adaptation.sword.SwordsBloodyBlade;
@@ -27,7 +26,6 @@ import com.volmit.adapt.content.adaptation.sword.SwordsPoisonedBlade;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -55,44 +53,39 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         registerAdaptation(new SwordsBloodyBlade());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
         if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE)
-                    || p.getGameMode().equals(GameMode.SPECTATOR))
-                    || e.getEntity().isDead()
-                    || e.getEntity().isInvulnerable()
-                    || p.isDead()
-                    || p.isInvulnerable()) {
-                return;
-            }
-            AdaptPlayer a = getPlayer((Player) e.getDamager());
-            ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
-            if (isSword(hand)) {
-                getPlayer(p).getData().addStat("sword.hits", 1);
-                getPlayer(p).getData().addStat("sword.damage", e.getDamage());
-                if (cooldowns.containsKey(p)) {
-                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                        return;
-                    } else {
-                        cooldowns.remove(p);
+            shouldReturnForPlayer(p, e, () -> {
+                AdaptPlayer a = getPlayer(p);
+                ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
+                if (isSword(hand)) {
+                    getPlayer(p).getData().addStat("sword.hits", 1);
+                    getPlayer(p).getData().addStat("sword.damage", e.getDamage());
+                    if (!isOnCooldown(p)) {
+                        setCooldown(p);
+                        xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
                     }
                 }
-                cooldowns.put(p, System.currentTimeMillis());
-                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
+            });
+        }
+    }
+
+    private boolean isOnCooldown(Player p) {
+        if (cooldowns.containsKey(p)) {
+            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                return true;
+            } else {
+                cooldowns.remove(p);
             }
         }
-
+        return false;
     }
+
+    private void setCooldown(Player p) {
+        cooldowns.put(p, System.currentTimeMillis());
+    }
+
 
     @Override
     public void onTick() {

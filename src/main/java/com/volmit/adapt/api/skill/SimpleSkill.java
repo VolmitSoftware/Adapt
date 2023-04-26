@@ -21,6 +21,7 @@ package com.volmit.adapt.api.skill;
 import art.arcane.amulet.io.FileWatcher;
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
@@ -34,8 +35,12 @@ import com.volmit.adapt.util.JSONObject;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 
 import java.io.File;
 import java.io.IOException;
@@ -152,11 +157,43 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     public boolean checkValidEntity(EntityType e) {
-//        Adapt.verbose("EntityType " + e.name() + "wasChecked");
         if (!e.isAlive()) {
             return false;
         }
         return !ItemListings.getInvalidDamageableEntities().contains(e);
+    }
+
+    protected boolean shouldReturnForPlayer(Player p) {
+        Adapt.verbose("Checking " + p.getName() + " for " + getName());
+        return !this.isEnabled() || hasBlacklistPermission(p, this) || isWorldBlacklisted(p) || isInCreativeOrSpectator(p);
+    }
+    protected void shouldReturnForPlayer(Player p, Runnable r) {
+        if (shouldReturnForPlayer(p)) {
+            return;
+        }
+        r.run();
+    }
+
+    protected void shouldReturnForPlayer(Player p, Cancellable c, Runnable r) {
+        if (c.isCancelled()) {
+            return;
+        }
+        if (shouldReturnForPlayer(p)) {
+            return;
+        }
+        r.run();
+    }
+
+    protected boolean shouldReturnForWorld(World world, Skill skill) {
+        return !skill.isEnabled() || AdaptConfig.get().blacklistedWorlds.contains(world.getName());
+    }
+
+    protected boolean isWorldBlacklisted(Player p) {
+        return AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName());
+    }
+
+    protected boolean isInCreativeOrSpectator(Player p) {
+        return !AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR));
     }
 
     @Override

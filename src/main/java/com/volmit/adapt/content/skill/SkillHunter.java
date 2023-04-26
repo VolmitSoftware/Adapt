@@ -18,13 +18,12 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
@@ -64,122 +63,62 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         registerAdaptation(new HunterDropToInventory());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    private void handleCooldownAndXp(Player p, Location location, double xpAmount, int spatialRadius, double spatialDuration) {
+        if (cooldowns.containsKey(p)) {
+            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                return;
+            } else {
+                cooldowns.remove(p);
+            }
+        }
+        cooldowns.put(p, System.currentTimeMillis());
+        xp(location, xpAmount, spatialRadius, (long) spatialDuration);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (e.getBlock().getType().equals(Material.TURTLE_EGG)) {
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
+        shouldReturnForPlayer(e.getPlayer(), e, () -> {
+            if (e.getBlock().getType().equals(Material.TURTLE_EGG)) {
+                handleCooldownAndXp(p, e.getBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
+                getPlayer(p).getData().addStat("killed.tutleeggs", 1);
             }
-            cooldowns.put(p, System.currentTimeMillis());
-            xp(e.getBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
-            getPlayer(p).getData().addStat("killed.tutleeggs", 1);
-        }
+        });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
+        shouldReturnForPlayer(e.getPlayer(), e, () -> {
+            if (e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
+                handleCooldownAndXp(p, e.getClickedBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
+                getPlayer(p).getData().addStat("killed.tutleeggs", 1);
             }
-            cooldowns.put(p, System.currentTimeMillis());
-            xp(e.getClickedBlock().getLocation(), getConfig().turtleEggKillXP, getConfig().turtleEggSpatialRadius, getConfig().turtleEggSpatialDuration);
-            getPlayer(p).getData().addStat("killed.tutleeggs", 1);
-        }
+        });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDeathEvent e) {
         if (e.getEntity().getKiller() == null) {
             return;
         }
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(e.getEntity().getWorld().getName())) {
-            return;
-        }
-        if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
-            if (!AdaptConfig.get().isXpInCreative() && (e.getEntity().getKiller().getGameMode().equals(GameMode.CREATIVE) || e.getEntity().getKiller().getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
+        Player p = e.getEntity().getKiller();
+        shouldReturnForPlayer(p, () -> {
             double cmult = e.getEntity().getType().equals(EntityType.CREEPER) ? getConfig().creeperKillMultiplier : 1;
             if (e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) {
+                double xpAmount = e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult;
                 if (e.getEntity().getPortalCooldown() > 0) {
-                    Player p = e.getEntity().getKiller();
-                    if (this.hasBlacklistPermission(p, this)) {
-                        return;
-                    }
-                    if (cooldowns.containsKey(p)) {
-                        if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                            return;
-                        } else {
-                            cooldowns.remove(p);
-                        }
-                    }
-                    getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
-                    cooldowns.put(p, System.currentTimeMillis());
-                    xp(e.getEntity().getLocation(), getConfig().spawnerMobReductionXpMultiplier * (e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult), getConfig().killSpatialRadius, getConfig().killSpatialDuration);
-                    xp(e.getEntity().getKiller(), e.getEntity().getLocation(), getConfig().spawnerMobReductionXpMultiplier * (e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult));
-
-                } else {
-                    Player p = e.getEntity().getKiller();
-                    if (this.hasBlacklistPermission(p, this)) {
-                        return;
-                    }
-                    if (cooldowns.containsKey(p)) {
-                        if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                            return;
-                        } else {
-                            cooldowns.remove(p);
-                        }
-                    }
-                    getPlayer(e.getEntity().getKiller()).getData().addStat("killed.kills", 1);
-                    cooldowns.put(p, System.currentTimeMillis());
-                    xp(e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthSpatialXPMultiplier * cmult, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
-                    xp(e.getEntity().getKiller(), e.getEntity().getLocation(), e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult);
+                    xpAmount *= getConfig().spawnerMobReductionXpMultiplier;
                 }
+                getPlayer(p).getData().addStat("killed.kills", 1);
+                handleCooldownAndXp(p, e.getEntity().getLocation(), xpAmount, getConfig().killSpatialRadius, getConfig().killSpatialDuration);
             }
-        }
+        });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(CreatureSpawnEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
+        if (!isEnabled() || e.isCancelled()) {
             return;
         }
         if (e.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.SPAWNER)) {
@@ -205,7 +144,6 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         int turtleEggSpatialRadius = 5;
         long turtleEggSpatialDuration = 15000;
         double creeperKillMultiplier = 2;
-        double killMaxHealthSpatialXPMultiplier = 3;
         double killMaxHealthXPMultiplier = 4;
         int killSpatialRadius = 25;
         long cooldownDelay = 1000;

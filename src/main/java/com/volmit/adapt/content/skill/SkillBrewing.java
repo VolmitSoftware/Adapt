@@ -19,8 +19,6 @@
 package com.volmit.adapt.content.skill;
 
 import art.arcane.spatial.matter.SpatialMatter;
-import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -34,7 +32,6 @@ import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -159,116 +156,65 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         SpatialMatter.registerSliceType(new BrewingStandOwnerMatter());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    private void handleCooldown(Player p, Runnable runnable) {
+        if (cooldowns.containsKey(p)) {
+            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                return;
+            } else {
+                cooldowns.remove(p);
+            }
+        }
+        cooldowns.put(p, System.currentTimeMillis());
+        runnable.run();
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerItemConsumeEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        Adapt.verbose(e.getItem().toString());
-        if (e.getItem().getItemMeta() instanceof PotionMeta o
-                && !e.getItem().toString().contains("potion-type=minecraft:water")
-                && !e.getItem().toString().contains("potion-type=minecraft:mundane")
-                && !e.getItem().toString().contains("potion-type=minecraft:thick")
-                && !e.getItem().toString().contains("potion-type=minecraft:awkward")) {
-            getPlayer(p).getData().addStat("brewing.consumed", 1);
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
-            }
-            cooldowns.put(p, System.currentTimeMillis());
-            xp(p, p.getLocation(),
-                    getConfig().splashXP
-                            + (getConfig().splashMultiplier * o.getCustomEffects().stream().mapToDouble(i -> (i.getAmplifier() + 1) * (i.getDuration() / 20D)).sum())
-                            + (getConfig().splashMultiplier * (o.getBasePotionData().isUpgraded() ? 50 : 25)));
 
-        }
+        shouldReturnForPlayer(p, e, () -> {
+            if (e.getItem().getItemMeta() instanceof PotionMeta o
+                    && !e.getItem().toString().contains("potion-type=minecraft:water")
+                    && !e.getItem().toString().contains("potion-type=minecraft:mundane")
+                    && !e.getItem().toString().contains("potion-type=minecraft:thick")
+                    && !e.getItem().toString().contains("potion-type=minecraft:awkward")) {
+                getPlayer(p).getData().addStat("brewing.consumed", 1);
+                handleCooldown(p, () -> xp(p, p.getLocation(),
+                        getConfig().splashXP
+                                + (getConfig().splashMultiplier * o.getCustomEffects().stream().mapToDouble(i -> (i.getAmplifier() + 1) * (i.getDuration() / 20D)).sum())
+                                + (getConfig().splashMultiplier * (o.getBasePotionData().isUpgraded() ? 50 : 25))));
+            }
+        });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PotionSplashEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
         if (e.getPotion().getShooter() instanceof Player p) {
-            if (e.isCancelled()) {
-                return;
-            }
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            AdaptPlayer a = getPlayer(p);
-            getPlayer(p).getData().addStat("brewing.splashes", 1);
-            xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().splashXP + (getConfig().splashMultiplier * e.getPotion().getEffects().stream().mapToDouble(i -> (i.getAmplifier() + 1) * (i.getDuration() / 20D)).sum()));
+            shouldReturnForPlayer(p, e, () -> {
+                AdaptPlayer a = getPlayer(p);
+                getPlayer(p).getData().addStat("brewing.splashes", 1);
+                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().splashXP + (getConfig().splashMultiplier * e.getPotion().getEffects().stream().mapToDouble(i -> (i.getAmplifier() + 1) * (i.getDuration() / 20D)).sum()));
+            });
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPlaceEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
-            if (!e.isCancelled()) {
-                WorldData.of(e.getBlock().getWorld()).getMantle().set(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), new BrewingStandOwner(p.getUniqueId()));
+        shouldReturnForPlayer(e.getPlayer(), e, () -> {
+            if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
+                WorldData.of(e.getBlock().getWorld()).getMantle().set(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), new BrewingStandOwner(e.getPlayer().getUniqueId()));
             }
-        }
+        });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (!e.isCancelled()) {
+        shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
                 WorldData.of(e.getBlock().getWorld()).getMantle().remove(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);
             }
-        }
+        });
     }
 
     @Override

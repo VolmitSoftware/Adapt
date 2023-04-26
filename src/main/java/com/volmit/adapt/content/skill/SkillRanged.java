@@ -18,14 +18,12 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.ranged.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import net.minecraft.world.entity.projectile.EntityFishingHook;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -58,24 +56,16 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         cooldowns = new HashMap<>();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(ProjectileLaunchEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
+        if (!(e.getEntity().getShooter() instanceof Player p)) {
             return;
         }
-        if (e.getEntity().getShooter() instanceof Player p) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
+        shouldReturnForPlayer(p, e, () -> {
             if (e.getEntity() instanceof Snowball || e.getEntity() instanceof EntityFishingHook) {
                 return; // Ignore snowballs and fishing hooks
             }
+
             getPlayer(p).getData().addStat("ranged.shotsfired", 1);
             getPlayer(p).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
             if (cooldowns.containsKey(p)) {
@@ -87,27 +77,19 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             }
             cooldowns.put(p, System.currentTimeMillis());
             xp(p, getConfig().shootXP);
-        }
+        });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
+        if (!(e.getDamager() instanceof Projectile) || !(((Projectile) e.getDamager()).getShooter() instanceof Player p) || !checkValidEntity(e.getEntity().getType())) {
             return;
         }
-        if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
+        shouldReturnForPlayer(p, e, () -> {
             if (e.getEntity() instanceof Snowball || e.getEntity() instanceof EntityFishingHook) {
                 return; // Ignore snowballs and fishing hooks
             }
+
             getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
             getPlayer(p).getData().addStat("ranged.distance", e.getEntity().getLocation().distance(p.getLocation()));
             getPlayer(p).getData().addStat("ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
@@ -121,8 +103,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             }
             cooldowns.put(p, System.currentTimeMillis());
             xp(p, e.getEntity().getLocation(), (getConfig().hitDamageXPMultiplier * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * getConfig().hitDistanceXPMultiplier));
-        }
+        });
     }
+
 
     @Override
     public void onTick() {

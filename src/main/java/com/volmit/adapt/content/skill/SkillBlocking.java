@@ -18,9 +18,9 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.blocking.BlockingChainArmorer;
 import com.volmit.adapt.content.adaptation.blocking.BlockingHorseArmorer;
@@ -32,11 +32,11 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.HashMap;
@@ -100,61 +100,55 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
         cooldowns = new HashMap<>();
     }
 
-    @EventHandler
-    public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
-        if (e.getEntity() instanceof Player p) {
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
+    private void handleCooldown(Player p, Runnable runnable) {
+        if (cooldowns.containsKey(p)) {
+            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
                 return;
-            }
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-            if (p.isBlocking()) {
-                getPlayer(p).getData().addStat("blocked.hits", 1);
-                getPlayer(p).getData().addStat("blocked.damage", e.getDamage());
-                if (cooldowns.containsKey(p)) {
-                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                        return;
-                    } else {
-                        cooldowns.remove(p);
-                    }
-                }
-                xp(p, getConfig().xpOnBlockedAttack);
-                cooldowns.put(p, System.currentTimeMillis());
-                p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_CLOSE, 0.5f, 0.77f);
-                p.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.5f, 0.77f);
+            } else {
+                cooldowns.remove(p);
             }
         }
+        cooldowns.put(p, System.currentTimeMillis());
+        runnable.run();
     }
 
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(EntityDamageByEntityEvent e) {
+        if (e.getEntity() instanceof Player p) {
+            shouldReturnForPlayer(p, e, () -> {
+                if (p.isBlocking()) {
+                    AdaptPlayer adaptPlayer = getPlayer(p);
+                    adaptPlayer.getData().addStat("blocked.hits", 1);
+                    adaptPlayer.getData().addStat("blocked.damage", e.getDamage());
+
+                    handleCooldown(p, () -> {
+                        xp(p, getConfig().xpOnBlockedAttack);
+                        p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_CLOSE, 0.5f, 0.77f);
+                        p.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.5f, 0.77f);
+                    });
+                }
+            });
+        }
+    }
 
     @Override
     public void onTick() {
         if (!this.isEnabled()) {
             return;
         }
+
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (this.hasBlacklistPermission(i, this)) {
-                return;
-            }
-            checkStatTrackers(getPlayer(i));
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
-                return;
-            }
-            if (i.getPlayer() != null && (i.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.SHIELD) || i.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.SHIELD))) {
-                if (!AdaptConfig.get().isXpInCreative() && (i.getGameMode().equals(GameMode.CREATIVE) || i.getGameMode().equals(GameMode.SPECTATOR))) {
-                    return;
+            AdaptPlayer adaptPlayer = getPlayer(i);
+            shouldReturnForPlayer(i, () -> {
+                checkStatTrackers(adaptPlayer);
+                if (i.getPlayer() != null && (i.getPlayer().getInventory().getItemInOffHand().getType().equals(Material.SHIELD) || i.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.SHIELD))) {
+                    xpSilent(i, getConfig().passiveXpForUsingShield);
                 }
-                xpSilent(i, getConfig().passiveXpForUsingShield);
-            }
+            });
         }
     }
+
 
     @Override
     public boolean isEnabled() {

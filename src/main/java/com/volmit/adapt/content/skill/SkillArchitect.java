@@ -19,9 +19,9 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.architect.ArchitectFoundation;
 import com.volmit.adapt.content.adaptation.architect.ArchitectGlass;
@@ -34,7 +34,6 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -104,28 +103,43 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         registerAdaptation(new ArchitectWirelessRedstone());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPlaceEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
 
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
+        shouldReturnForPlayer(p, e, () -> {
+            if (!isStorage(e.getBlock().getType().createBlockData())) {
+                double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
+                AdaptPlayer adaptPlayer = getPlayer(p);
+                adaptPlayer.getData().addStat("blocks.placed", 1);
+                adaptPlayer.getData().addStat("blocks.placed.value", v);
+
+                handleBlockCooldown(p, () -> {
+                    try {
+                        J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));
+                    } catch (Exception ignored) {
+                        Adapt.verbose("Failed to give XP to " + p.getName() + " for placing " + e.getBlock().getType().name());
+                    }
+                });
+            }
+        });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(BlockBreakEvent e) {
+        Player p = e.getPlayer();
+
+        shouldReturnForPlayer(p, e, () -> getPlayer(p).getData().addStat("blocks.broken", 1));
+    }
+
+    @Override
+    public void onTick() {
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
         }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) || isStorage(e.getBlock().getType().createBlockData())) {
-            return;
-        }
-        double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
-        getPlayer(p).getData().addStat("blocks.placed", 1);
-        getPlayer(p).getData().addStat("blocks.placed.value", v);
+    }
+
+    private void handleBlockCooldown(Player p, Runnable action) {
         if (cooldowns.containsKey(p)) {
             if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
                 return;
@@ -133,46 +147,11 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
                 cooldowns.remove(p);
             }
         }
+
         cooldowns.put(p, System.currentTimeMillis());
-        try {
-            J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));
-        } catch (Exception ignored) {
-            Adapt.verbose("Failed to give XP to " + p.getName() + " for placing " + e.getBlock().getType().name());
-        }
-
-
+        action.run();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockBreakEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        getPlayer(p).getData().addStat("blocks.broken", 1);
-    }
-
-    @Override
-    public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
-            if (this.hasBlacklistPermission(i, this)) {
-                return;
-            }
-            checkStatTrackers(getPlayer(i));
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
-                return;
-            }
-        }
-    }
 
     @Override
     public boolean isEnabled() {

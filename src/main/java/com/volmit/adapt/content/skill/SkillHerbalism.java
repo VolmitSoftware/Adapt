@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -29,11 +28,12 @@ import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -46,7 +46,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
-    private final Map<Player, Long> herbCooldown = new HashMap<>();
+    private final Map<Player, Long> cooldown = new HashMap<>();
 
     public SkillHerbalism() {
         super("herbalism", Localizer.dLocalize("skill", "herbalism", "icon"));
@@ -114,189 +114,102 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_harvest_1000").goal(1000).stat("harvest.blocks").reward(getConfig().challengeHarvest1kReward).build());
     }
 
-    @EventHandler
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        herbCooldown.remove(p);
+        cooldown.remove(p);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerItemConsumeEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (e.getItem().getItemMeta() instanceof PotionMeta o) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown < System.currentTimeMillis()) {
-            herbCooldown.remove(p);
-        } else if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
-            return;
-        }
-        herbCooldown.put(p, System.currentTimeMillis());
-        xp(p, getConfig().foodConsumeXP);
-        getPlayer(p).getData().addStat("food.eaten", 1);
-    }
+        shouldReturnForPlayer(e.getPlayer(), e, () -> {
+            if (e.getItem().getItemMeta() instanceof PotionMeta o) {
+                return;
+            }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(PlayerShearEntityEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        xp(p, e.getEntity().getLocation(), getConfig().shearXP);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(PlayerHarvestBlockEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-
-        if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown < System.currentTimeMillis()) {
-            herbCooldown.remove(p);
-        } else if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
-            return;
-        }
-        if (e.getHarvestedBlock().getBlockData() instanceof Ageable block) {
-            herbCooldown.put(p, System.currentTimeMillis());
-            getPlayer(p).getData().addStat("harvest.blocks", 1);
-            xp(p, e.getHarvestedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * block.getAge());
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockPlaceEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown < System.currentTimeMillis()) {
-            herbCooldown.remove(p);
-        } else if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
-            return;
-        }
-        if (e.getBlock().getBlockData() instanceof Ageable) {
-            herbCooldown.put(p, System.currentTimeMillis());
-            xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().plantCropSeedsXP);
-            getPlayer(p).getData().addStat("harvest.planted", 1);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(PlayerInteractEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (e.useItemInHand().equals(Event.Result.DENY)) {
-            return;
-        }
-
-        if (e.getClickedBlock() == null) {
-            return;
-        }
-
-        if (e.getClickedBlock().getType().equals(Material.COMPOSTER)) {
-            Levelled c = ((Levelled) e.getClickedBlock().getBlockData());
-            int ol = c.getLevel();
-
-            J.s(() -> {
-                int nl = ((Levelled) e.getClickedBlock().getBlockData()).getLevel();
-                if (nl > ol || (ol > 0 && nl == 0)) {
-                    xp(p, e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().composterBaseXP + (nl * getConfig().composterLevelXPMultiplier) + (nl == 0 ? getConfig().composterNonZeroLevelBonus : 5));
-                    getPlayer(p).getData().addStat("harvest.composted", 1);
-                }
+            handleHerbCooldown(p, () -> {
+                xp(p, getConfig().foodConsumeXP);
+                getPlayer(p).getData().addStat("food.eaten", 1);
             });
-        }
+
+
+        });
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(BlockBreakEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
-            return;
-        }
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(PlayerShearEntityEvent e) {
         Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (e.getBlock().getType().equals(Material.CACTUS)) {
-            return;
-        }
-        if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown < System.currentTimeMillis()) {
-            herbCooldown.remove(p);
-        } else if (herbCooldown.containsKey(p) && herbCooldown.get(p) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
-            return;
-        }
-        if (e.getBlock().getBlockData() instanceof Ageable) {
-            herbCooldown.put(p, System.currentTimeMillis());
-            xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * (((Ageable) e.getBlock().getBlockData()).getAge()));
-            getPlayer(p).getData().addStat("harvest.blocks", 1);
-        }
+        shouldReturnForPlayer(e.getPlayer(), e, () -> xp(p, e.getEntity().getLocation(), getConfig().shearXP));
     }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(PlayerHarvestBlockEvent e) {
+        shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e, e.getPlayer(), e.getHarvestedBlock(), "harvest.blocks"));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(BlockPlaceEvent e) {
+        shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e, e.getPlayer(), e.getBlock(), "harvest.planted"));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
+        shouldReturnForPlayer(e.getPlayer(), e, () -> {
+            if (e.useItemInHand().equals(Event.Result.DENY)) {
+                return;
+            }
+            if (e.getClickedBlock() == null) {
+                return;
+            }
+            if (e.getClickedBlock().getType().equals(Material.COMPOSTER)) {
+                handleComposterInteraction(e, p);
+            }
+        });
+
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(BlockBreakEvent e) {
+        shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e, e.getPlayer(), e.getBlock(), "harvest.blocks"));
+    }
+
+    private void handleHerbCooldown(Player p, Runnable action) {
+        if (cooldown.containsKey(p)) {
+            if (cooldown.get(p) + getConfig().harvestXpCooldown > System.currentTimeMillis()) {
+                return;
+            } else {
+                cooldown.remove(p);
+            }
+        }
+
+        cooldown.put(p, System.currentTimeMillis());
+        action.run();
+    }
+
+    private void handleEvent(Cancellable e, Player p, Block block, String stat) {
+        handleHerbCooldown(p, () -> {
+            if (block.getBlockData() instanceof Ageable ageableBlock) {
+                xp(p, block.getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * ageableBlock.getAge());
+                getPlayer(p).getData().addStat(stat, 1);
+            }
+        });
+    }
+
+    private void handleComposterInteraction(PlayerInteractEvent e, Player p) {
+        Levelled c = ((Levelled) e.getClickedBlock().getBlockData());
+        int ol = c.getLevel();
+        J.s(() -> {
+            int nl = ((Levelled) e.getClickedBlock().getBlockData()).getLevel();
+            if (nl > ol || (ol > 0 && nl == 0)) {
+                xp(p, e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().composterBaseXP + (nl * getConfig().composterLevelXPMultiplier) + (nl == 0 ? getConfig().composterNonZeroLevelBonus : 5));
+                getPlayer(p).getData().addStat("harvest.composted", 1);
+            }
+        });
+    }
+
 
     @Override
     public void onTick() {

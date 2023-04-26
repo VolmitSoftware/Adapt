@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
@@ -29,7 +28,6 @@ import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -101,79 +99,51 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chop_5m").goal(5000000).stat("axes.blocks.broken").reward(getConfig().challengeChopReward).build());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
         if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
-            if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-                return;
-            }
-            if (this.hasBlacklistPermission(p, this)) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))
-                    || e.getEntity().isDead()
-                    || e.getEntity().isInvulnerable()
-                    || p.isDead()
-                    || p.isInvulnerable()) {
-                return;
-            }
-            AdaptPlayer a = getPlayer((Player) e.getDamager());
-            ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
-
-            if (isAxe(hand)) {
-                if (cooldowns.containsKey(p)) {
-                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                        return;
-                    } else {
-                        cooldowns.remove(p);
-                    }
+            shouldReturnForPlayer(p, () -> {
+                if (e.getEntity().isDead() || e.getEntity().isInvulnerable() || p.isDead() || p.isInvulnerable()) {
+                    return;
                 }
-                cooldowns.put(p, System.currentTimeMillis());
-                getPlayer(p).getData().addStat("axes.swings", 1);
-                getPlayer(p).getData().addStat("axes.damage", e.getDamage());
-                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
-                xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
-            }
+                AdaptPlayer a = getPlayer(p);
+                ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
+
+                if (isAxe(hand)) {
+                    handleCooldown(p, () -> {
+                        a.getData().addStat("axes.swings", 1);
+                        a.getData().addStat("axes.damage", e.getDamage());
+                        xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
+                    });
+                }
+            });
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (isAxe(p.getInventory().getItemInMainHand()) && isLog(new ItemStack(e.getBlock().getType()))) {
-            double v = getValue(e.getBlock().getType());
-            getPlayer(p).getData().addStat("axes.blocks.broken", 1);
-            getPlayer(p).getData().addStat("axes.blocks.value", getValue(e.getBlock().getBlockData()));
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
+        shouldReturnForPlayer(p, () -> {
+            if (isAxe(p.getInventory().getItemInMainHand()) && isLog(new ItemStack(e.getBlock().getType()))) {
+                double v = getValue(e.getBlock().getType());
+                AdaptPlayer a = getPlayer(p);
+                a.getData().addStat("axes.blocks.broken", 1);
+                a.getData().addStat("axes.blocks.value", getValue(e.getBlock().getBlockData()));
+                handleCooldown(p, () -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v)));
             }
-            cooldowns.put(p, System.currentTimeMillis());
+        });
+    }
 
-            xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v));
+    private void handleCooldown(Player p, Runnable action) {
+        if (cooldowns.containsKey(p)) {
+            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                return;
+            } else {
+                cooldowns.remove(p);
+            }
         }
+        cooldowns.put(p, System.currentTimeMillis());
+        action.run();
     }
 
     public double getValue(Material type) {

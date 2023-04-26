@@ -18,9 +18,9 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.agility.AgilityArmorUp;
 import com.volmit.adapt.content.adaptation.agility.AgilitySuperJump;
@@ -32,7 +32,6 @@ import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
 import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -105,90 +104,62 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         lastLocations = new HashMap<>();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerMoveEvent e) {
-        if (!this.isEnabled() || e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
-        if (this.hasBlacklistPermission(p, this)) {
-            return;
-        }
 
-        if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
-            return;
-        }
-        if (!AdaptConfig.get().isXpInCreative() && (p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
-            return;
-        }
-        if (e.getFrom().getWorld() != null && e.getTo() != null && e.getFrom().getWorld().equals(e.getTo().getWorld())) {
-            double d = e.getFrom().distance(e.getTo());
-            getPlayer(p).getData().addStat("move", d);
-            if (p.isSneaking()) {
-                getPlayer(p).getData().addStat("move.sneak", d);
-            } else if (p.isFlying()) {
-                getPlayer(p).getData().addStat("move.fly", d);
-            } else if (p.isSwimming()) {
-                getPlayer(p).getData().addStat("move.swim", d);
-            } else if (p.isSprinting()) {
-                getPlayer(p).getData().addStat("move.sprint", d);
+        shouldReturnForPlayer(p, e, () -> {
+            if (e.getFrom().getWorld() != null && e.getTo() != null && e.getFrom().getWorld().equals(e.getTo().getWorld())) {
+                double d = e.getFrom().distance(e.getTo());
+                AdaptPlayer adaptPlayer = getPlayer(p);
+                adaptPlayer.getData().addStat("move", d);
+
+                if (p.isSneaking()) {
+                    adaptPlayer.getData().addStat("move.sneak", d);
+                } else if (p.isFlying()) {
+                    adaptPlayer.getData().addStat("move.fly", d);
+                } else if (p.isSwimming()) {
+                    adaptPlayer.getData().addStat("move.swim", d);
+                } else if (p.isSprinting()) {
+                    adaptPlayer.getData().addStat("move.sprint", d);
+                }
+
+                // Add XP for moving
+                xpSilent(p, getConfig().moveXpPassive * d);
             }
-        }
+        });
     }
 
 
     @Override
     public void onTick() {
-        if (!this.isEnabled()) {
-            return;
-        }
         for (Player i : Bukkit.getOnlinePlayers()) {
+            shouldReturnForPlayer(i, () -> {
+                checkStatTrackers(getPlayer(i));
 
-            if (this.hasBlacklistPermission(i, this)) {
-                return;
-            }
-
-            checkStatTrackers(getPlayer(i));
-            if (AdaptConfig.get().blacklistedWorlds.contains(i.getWorld().getName())) {
-                return;
-            }
-            if (!AdaptConfig.get().isXpInCreative() && (i.getGameMode().equals(GameMode.CREATIVE) || i.getGameMode().equals(GameMode.SPECTATOR))) {
-                return;
-            }
-
-            // Check for distance moved
-            UUID playerId = i.getUniqueId();
-            Location currentLocation = i.getLocation();
-            if (lastLocations.containsKey(playerId)) {
-                Location lastLocation = lastLocations.get(playerId);
-                if (lastLocation.getWorld().equals(currentLocation.getWorld())) {
-                    double distanceMoved = lastLocation.distance(currentLocation);
-                    xpSilent(i, getConfig().moveXpPassive * distanceMoved);
+                // Check for sprinting
+                if (i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
+                    xpSilent(i, getConfig().sprintXpPassive);
                 }
-            }
-            lastLocations.put(playerId, currentLocation);
 
-            // Check for sprinting
-            if (i.isSprinting() && !i.isFlying() && !i.isSwimming() && !i.isSneaking()) {
-                xpSilent(i, getConfig().sprintXpPassive);
-            }
+                // Check for swimming
+                if (i.isSwimming() && !i.isFlying() && !i.isSprinting() && !i.isSneaking()) {
+                    xpSilent(i, getConfig().swimXpPassive);
+                }
 
-            // Check for swimming
-            if (i.isSwimming() && !i.isFlying() && !i.isSprinting() && !i.isSneaking()) {
-                xpSilent(i, getConfig().swimXpPassive);
-            }
+                // Check for jumping
+                if (i.getLocation().subtract(0, 1, 0).getBlock().getType().isAir() && !i.isFlying() && !i.isSneaking()) {
+                    xpSilent(i, getConfig().jumpXpPassive);
+                }
 
-            // Check for jumping
-            if (i.getLocation().subtract(0, 1, 0).getBlock().getType().isAir() && !i.isFlying() && !i.isSneaking()) {
-                xpSilent(i, getConfig().jumpXpPassive);
-            }
-
-            // Check for climbing ladders
-            if (i.getLocation().getBlock().getType() == Material.LADDER && !i.isFlying() && !i.isSneaking()) {
-                xpSilent(i, getConfig().climbXpPassive);
-            }
+                // Check for climbing ladders
+                if (i.getLocation().getBlock().getType() == Material.LADDER && !i.isFlying() && !i.isSneaking()) {
+                    xpSilent(i, getConfig().climbXpPassive);
+                }
+            });
         }
     }
+
 
     @Override
     public boolean isEnabled() {
