@@ -164,6 +164,9 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     protected boolean shouldReturnForPlayer(Player p) {
+        if (p == null) {
+            return true;
+        }
         Adapt.verbose("Checking " + p.getName() + " for " + getName());
         return !this.isEnabled() || hasBlacklistPermission(p, this) || isWorldBlacklisted(p) || isInCreativeOrSpectator(p);
     }

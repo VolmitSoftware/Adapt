@@ -218,7 +218,7 @@
       "unlearnedall": "Viskas pamiršta"
     },
     "adaptmenu": {
-      "maynotunlearn": "JŪS GALBŪT NEGALĖSITE PAMIRŠTI",
+      "maynotunlearn": "JŪS NEGALĖSITE PAMIRŠTI",
       "mayunlearn": "GALITE IŠMOKTI/PAMIRŠTI",
       "knowledgecost": "Žinių kaina",
       "knowledgeavailable": "Žinia Prieinama",
@@ -575,6 +575,14 @@
       "description": "Gamindami gaukite pasyvų XP",
       "lore1": "Gaukite XP gamindami"
     },
+    "reconstruction": {
+      "name": "Rūdų Rekonstrukcija",
+      "description": "Perdirbkite rūdas iš jų bazinių komponentų!",
+      "lore1": "8 dropai ir 1 priimantis = 1 rūda (beformė)",
+      "lore2": "Dropai turi būti išlydyti (jei taikoma)",
+      "lore3": "Neįskaitant: Neįskaitant atraižų, kvarco, smaragdų ir kt.",
+      "lore4": "Šeimininkas = Apgaubas, t. y.: Akmuo, Neterio Akmuo, Gilakemnis."
+    },
     "leather": {
       "name": "Gaminama Oda",
       "description": "Oda gaminama iš supuvusios mėsos",
@@ -661,6 +669,13 @@
       "lore1": "Gaukite greita kasimą kasant",
       "lore2": "x Greito kasimo lygiai, kai pradedate kasti bet kokį bloką."
     },
+    "spelunker": {
+      "name": "Super-Žiūrovas Spelunkeris!",
+      "description": "Žiūrėkite į rūdas pro žemę!",
+      "lore1": "Rūda laikykite rankose, o Švytinčias uogas laikykite pagrindinėje rankoje ir \"Sneak'ink\"!",
+      "lore2": "Blokų diapazonas:",
+      "lore3": "Naudojant sunaudoja švytinčias uogas"
+    },
     "droptoinventory": {
       "name": "Kastuvo Trauka"
     },
@@ -702,7 +717,7 @@
     "cobweb": {
       "name": "Voratinklių Kūrėjas",
       "description": "Suteikia galimybę kurti voratinklius darbastalyje",
-      "lore1": "Keturi siūlai, sukurs voratinklį."
+      "lore1": "Devyni siūlai pagamins voratinklį."
     },
     "mushroomblocks": {
       "name": "Grybų Gamintojas",
@@ -857,7 +872,8 @@
     "arrowrecovery": {
       "name": "Strėlės Susigrąžinimas",
       "description": "Atgaukite strėles po to, kai nužudėte priešą.",
-      "lore1": "Galimybė susigrąžinti strėles ant smūgio/nužudymo"
+      "lore1": "Galimybė susigrąžinti strėles ant smūgio/nužudymo",
+      "lore2": "Šansas:"
     },
     "webshot": {
       "name": "Voratinklių Spąstai",
@@ -904,6 +920,12 @@
       "description": "Atidarykite enderio skrynią kairiuoju pelės mygtuku, laikydami jį rankoje.",
       "lore1": "Spauskite ant Enderio Skrynios rankoje, kad atidarytumėte (dėti nereikia)"
     },
+    "descent": {
+      "name": "Anti-Levitacija",
+      "description": "Ar pavargote būti įstrigę ore? Šis įgūdis kaip tik jums!",
+      "lore1": "Tiesiog sneak'inkite, kad nusileistumėte, ir krisite mažesniu nei įprasta greičiu!",
+      "lore2": "Užšaldymas:"
+    },
     "gate": {
       "name": "Slėnio Vartai",
       "description": "Teleportuokites į pažymėtą vietą.",
@@ -923,7 +945,7 @@
     "oxygen": {
       "name": "Organinis Deguonies Bakas",
       "description": "Sulaikykite daugiau deguonies savo mažuose plaučiuose!",
-      "lore1": "Deguonies"
+      "lore1": "Deguonies Talpos Padidėjimas"
     },
     "fishersfantasy": {
       "name": "Fišerio Fantazija",
@@ -1018,6 +1040,27 @@
       "name": "Spygliai",
       "description": "Atmuškite žalą savo užpuolikui!",
       "lore1": "Atkeršyja atgal, kai užpuola"
+    },
+    "globe": {
+      "name": "Skausmo Rutulys",
+      "description": "Padalykite padarytą žalą pagal aplink jus esančių priešų skaičių!",
+      "lore1": "Kuo daugiau priešų aplink jus, tuo mažiau žalos darote kiekvienam iš jų.",
+      "lore2": "Diapazonas:",
+      "lore3": "Pridėta žala visiems subjektams: "
+    },
+    "healing": {
+      "name": "Skausmo Valia",
+      "description": "Atkurkite sveikatą pagal padarytą žalą!",
+      "lore1": "Žaloti dalykus dar niekada nebuvo taip gerai! Gydymas nuo padarytos žalos",
+      "lore2": "Yra 3 sekundžių žalos langas, gydymo ir 1 sekundės užšaldymas. ",
+      "lore3": "Gydymas pagal žalos procentą: "
+    },
+    "lance": {
+      "name": "Lavonų Ietys",
+      "description": "Nužudžius priešą arba atlikus gebėjimą nužudyti priešą, atsiranda ietis, daranti žalą netoliese esančiam priešui!",
+      "lore1": "Iš bet ko, ką nužudysite, ir jei šis gebėjimas nužudys priešą, bus ieškoma ieties.",
+      "lore2": "Paaukokite dalį savo gyvybės, kad sukurtumėte ietis (tai gali jus nužudyti).",
+      "lore3": "Max Ietys: 1 + "
     }
   },
   "unarmed": {
