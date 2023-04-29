@@ -45,7 +45,7 @@ the best it can be for everyone.
 You NEED TO BE USING Intelij To build this project, or anything that can support the
 plugin [Manifold](https://plugins.jetbrains.com/plugin/10057-manifold)
 
-## Preface: if you need help compiling ask for support in the [Discord](https://discord.gg/volmit), we give help regardless if you want to donate to us on Spigot or compile it here :) we just want to be sure that you are able to use and enjoy the software regardless of circumstance.
+## Preface: if you need help compiling and you are a developer / intend to help out in the community or with development we would love to help you regardless in the discord! however do not come to the discord asking for free copies, or a tutorial on how to compile.
 
 1. Install [Java JDK 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 2. Set the JDK installation path to `JAVA_HOME` as an environment variable.
