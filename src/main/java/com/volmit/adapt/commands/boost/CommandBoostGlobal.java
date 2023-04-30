@@ -32,6 +32,12 @@ public class CommandBoostGlobal extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
+        if (!sender.hasPermission("adapt.boost")) {
+            sender.sendMessage("You do not have permission to use this command.");
+            Adapt.info("Player: " + sender.getName() + " attempted to use command " + this + " without permission.");
+            return true;
+        }
+
         try {
             AdaptServer as = Adapt.instance.getAdaptServer();
 

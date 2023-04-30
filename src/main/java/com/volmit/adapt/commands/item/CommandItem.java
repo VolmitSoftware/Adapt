@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.commands.item;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.Command;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
@@ -44,6 +45,11 @@ public class CommandItem extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
+        if (!sender.hasPermission("adapt.cheatitem")) {
+            sender.sendMessage("You do not have permission to use this command.");
+            Adapt.info("Player: " + sender.getName() + " attempted to use command " + this + " without permission.");
+            return true;
+        }
         printHelp(sender);
         return true;
     }
