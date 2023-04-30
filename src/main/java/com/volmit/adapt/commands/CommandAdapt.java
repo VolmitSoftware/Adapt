@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.commands;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.commands.boost.CommandBoost;
 import com.volmit.adapt.commands.item.CommandItem;
 import com.volmit.adapt.commands.openGui.CommandOpen;
@@ -55,6 +56,12 @@ public class CommandAdapt extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
+        if (!sender.hasPermission("adapt.main")) {
+            sender.sendMessage("You do not have permission to use this command.");
+            Adapt.info("Player: " + sender.getName() + " attempted to use command " + this + " without permission.");
+            return true;
+        }
+
         System.out.println("This is the main command for Adapt");
         printHelp(sender);
         return true;

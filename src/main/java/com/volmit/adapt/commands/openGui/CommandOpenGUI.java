@@ -40,6 +40,11 @@ public class CommandOpenGUI extends MortarCommand {
     public boolean handle(MortarSender sender, String[] args) {
         Skill<?> selectedSk = null;
         Adaptation<?> selectedAdpt = null;
+        if (!sender.hasPermission("adapt.opengui")) {
+            sender.sendMessage("You do not have permission to use this command.");
+            Adapt.info("Player: " + sender.getName() + " attempted to use command " + this + " without permission.");
+            return true;
+        }
 
         try {
             sender.player().playSound(sender.player().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 0.72f);
