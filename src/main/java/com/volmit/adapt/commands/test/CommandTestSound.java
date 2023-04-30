@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.commands.test;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.MortarCommand;
 import com.volmit.adapt.util.MortarSender;
 import org.bukkit.Sound;
@@ -35,6 +36,12 @@ public class CommandTestSound extends MortarCommand {
 
     @Override
     public boolean handle(MortarSender sender, String[] args) {
+        if (!sender.hasPermission("adapt.idontknowwhatimdoingiswear")) {
+            sender.sendMessage("You do not have permission to use this command.");
+            Adapt.info("Player: " + sender.getName() + " attempted to use command " + this + " without permission.");
+            return true;
+        }
+
         sender.player().playSound(sender.player(), Sound.valueOf(args[0])
                 , Float.parseFloat(args.length > 1 ? args[1] : "1")
                 , Float.parseFloat(args.length > 2 ? args[2] : "1"));
