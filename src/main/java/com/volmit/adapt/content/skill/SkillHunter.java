@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
@@ -137,7 +136,6 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
             if (entity.getPortalCooldown() > 0) {
                 xpAmount *= getConfig().spawnerMobReductionXpMultiplier;
             }
-            Adapt.info("Entity Death Event, XP: " + xpAmount);
             getPlayer(p).getData().addStat("killed.kills", 1);
             handleCooldownAndXp(p, xpAmount);
         }
