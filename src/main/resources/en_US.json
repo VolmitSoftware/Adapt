@@ -842,6 +842,11 @@
       "lore1": "chance to negate withering (per piece).",
       "lore2": "Passive: Wearing Netherite Armor has a chance to negate ",
       "lore3": "withering."
+    },
+    "fireresist": {
+      "name": "Fire Resistance",
+      "description": "Resists fire by hardening your skin.",
+      "lore1": "chance to negate the burning effect!"
     }
   },
   "pickaxe": {

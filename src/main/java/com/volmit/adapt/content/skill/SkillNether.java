@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.content.adaptation.nether.NetherFireResist;
 import com.volmit.adapt.content.adaptation.nether.NetherSkullYeet;
 import com.volmit.adapt.content.adaptation.nether.NetherWitherResist;
 import com.volmit.adapt.util.C;
@@ -49,6 +50,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         setIcon(Material.NETHER_STAR);
         registerAdaptation(new NetherWitherResist());
         registerAdaptation(new NetherSkullYeet());
+        registerAdaptation(new NetherFireResist());
     }
 
     private boolean shouldReturnForEventWithCause(Player p, EntityDamageEvent.DamageCause cause) {

@@ -47,7 +47,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 public class AdaptServer extends TickedObject {
@@ -64,33 +63,25 @@ public class AdaptServer extends TickedObject {
         spatialTickets = new ArrayList<>();
         players = new HashMap<>();
         load();
-        try {
-            skillRegistry = new SkillRegistry();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        for (Player i : Bukkit.getServer().getOnlinePlayers()) {
-            join(i);
-        }
+        skillRegistry = new SkillRegistry();
+
+        Bukkit.getOnlinePlayers().forEach(this::join);
     }
 
     public void offer(SpatialXP xp) {
-        try {
-            if (xp == null || xp.getSkill() == null || xp.getRadius() > 0 || xp.getMs() > 0 || xp.getLocation() == null) {
-                return;
-            }
-            spatialTickets.add(xp);
-        } catch (Exception ignored) {
-            Adapt.verbose("Failed to offer spatial xp");
+        if (xp == null || xp.getSkill() == null || xp.getRadius() > 0 || xp.getMs() > 0 || xp.getLocation() == null) {
+            return;
         }
+        spatialTickets.add(xp);
     }
 
     public void takeSpatial(AdaptPlayer p) {
         J.attempt(() -> {
-            SpatialXP x = spatialTickets.getRandom();
-            if (x == null) {
+            Optional<SpatialXP> optX = spatialTickets.stream().findAny();
+            if (optX.isEmpty()) {
                 return;
             }
+            SpatialXP x = optX.get();
             if (M.ms() > x.getMs()) {
                 spatialTickets.remove(x);
                 return;
@@ -118,23 +109,18 @@ public class AdaptServer extends TickedObject {
     }
 
     public void join(Player p) {
-        if (!players.containsKey(p)) {
-            players.put(p, new AdaptPlayer(p));
-            players.get(p).loggedIn();
-        }
+        AdaptPlayer a = new AdaptPlayer(p);
+        players.put(p, a);
+        a.loggedIn();
     }
 
     public void quit(Player p) {
-        if (players.containsKey(p)) {
-            players.remove(p).unregister();
-        }
+        Optional.ofNullable(players.remove(p)).ifPresent(AdaptPlayer::unregister);
     }
 
     @Override
     public void unregister() {
-        for (Player i : players.k()) {
-            quit(i);
-        }
+        new HashSet<>(players.keySet()).forEach(this::quit);
         skillRegistry.unregister();
         save();
         super.unregister();

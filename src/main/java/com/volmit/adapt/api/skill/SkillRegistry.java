@@ -45,17 +45,16 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SkillRegistry extends TickedObject {
-    public static final Map<String, Skill<?>> skills = new HashMap<>();
+    public static final Map<String, Skill<?>> skills = new ConcurrentHashMap<>();
 
-    public SkillRegistry() throws IOException {
+    public SkillRegistry() {
         super("registry", UUID.randomUUID() + "-sk", 1250);
         registerSkill(SkillAgility.class);
         registerSkill(SkillArchitect.class);
@@ -93,10 +92,16 @@ public class SkillRegistry extends TickedObject {
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
 
-        if (!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
+        boolean commonConditions = p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock() != null;
+        boolean isLectern = commonConditions && e.getClickedBlock().getType().equals(Material.LECTERN);
+        boolean isObserver = commonConditions && e.getClickedBlock().getType().equals(Material.OBSERVER);
+        boolean isAdaptActivator = !e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
+                && e.getClickedBlock() != null
                 && e.getClickedBlock().getType().equals(Material.valueOf(AdaptConfig.get().adaptActivatorBlock)) && (p.getInventory().getItemInMainHand().getType().equals(Material.AIR)
                 || !p.getInventory().getItemInMainHand().getType().isBlock()) &&
-                (p.getInventory().getItemInOffHand().getType().equals(Material.AIR) || !p.getInventory().getItemInOffHand().getType().isBlock())) {
+                (p.getInventory().getItemInOffHand().getType().equals(Material.AIR) || !p.getInventory().getItemInOffHand().getType().isBlock());
+
+        if (isAdaptActivator) {
             e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.5f, 0.72f);
             e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
             SkillsGui.open(p);
@@ -105,9 +110,8 @@ public class SkillRegistry extends TickedObject {
             p.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
         }
 
-        if (p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.LECTERN)) {
+        if (isLectern) {
             ItemStack it = p.getInventory().getItemInMainHand();
-
             if (it.getItemMeta() != null && !it.getItemMeta().getPersistentDataContainer().getKeys().isEmpty()) {
                 e.setCancelled(true);
                 playDebug(p);
@@ -115,9 +119,8 @@ public class SkillRegistry extends TickedObject {
             }
         }
 
-        if (p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.OBSERVER)) {
+        if (isObserver) {
             ItemStack it = p.getInventory().getItemInMainHand();
-
             if (it.getType().equals(Material.EXPERIENCE_BOTTLE)) {
                 e.setCancelled(true);
                 Bukkit.getServer().getConsoleSender().sendMessage("   ");
@@ -132,7 +135,6 @@ public class SkillRegistry extends TickedObject {
                     String vv = i.getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier()) : Form.pc(i.getMultiplier());
                     Bukkit.getServer().getConsoleSender().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
                 }
-
                 for (XPMultiplier i : Adapt.instance.getAdaptServer().getData().getMultipliers()) {
                     String vv = i.getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier()) : Form.pc(i.getMultiplier());
                     Bukkit.getServer().getConsoleSender().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
@@ -142,7 +144,6 @@ public class SkillRegistry extends TickedObject {
                     Skill<?> s = i.getRawSkill(a);
                     String v = i.getMultiplier() - a.getData().getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier() - a.getData().getMultiplier()) : Form.pc(i.getMultiplier() - a.getData().getMultiplier());
                     Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getDisplayName() + C.GRAY + ": " + s.getColor() + v);
-
                     for (XPMultiplier j : i.getMultipliers()) {
                         String vv = j.getMultiplier() > 0 ? "+" + Form.pc(j.getMultiplier()) : Form.pc(j.getMultiplier());
                         Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getShortName() + C.GRAY + " " + vv + " for " + Form.duration(j.getGoodFor() - M.ms(), 0));
@@ -151,8 +152,7 @@ public class SkillRegistry extends TickedObject {
             }
         }
     }
-
-    private void playDebug(Player p) {
+        private void playDebug(Player p) {
         p.playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 1f, 0.6f);
         p.playSound(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1f, 0.1f);
         p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.6f);
