@@ -109,7 +109,9 @@ public class AdaptServer extends TickedObject {
     }
 
     public void join(Player p) {
-        Objects.requireNonNull(players.putIfAbsent(p, new AdaptPlayer(p))).loggedIn();
+        AdaptPlayer a = new AdaptPlayer(p);
+        players.put(p, a);
+        a.loggedIn();
     }
 
     public void quit(Player p) {

@@ -1,4 +1,3 @@
-
 name: ${name}
 main: com.volmit.adapt.Adapt
 version: ${version}
@@ -299,6 +298,9 @@ permissions:
         default: false
       adapt.blacklist.netherwitherresist:
         description: Blacklist the adaptation NetherWitherResist
+        default: false
+      adapt.blacklist.netherfireresist:
+        description: Blacklist the adaptation NetherFireResist
         default: false
   adapt.blacklist.pickaxe:
     description: Blacklist the skill Pickaxe
