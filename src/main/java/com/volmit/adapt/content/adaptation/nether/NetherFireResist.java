@@ -102,7 +102,7 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
         double costFactor = 0.75;
         int maxLevel = 3;
         int initialCost = 6;
-        double fireResistBase = 0.0;
-        double fireResistFactor = 0.3;
+        double fireResistBase = 0.10;
+        double fireResistFactor = 0.25;
     }
 }
