@@ -103,6 +103,11 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
             return;
         }
         Player p = e.getEntity().getKiller();
+
+        if (!getConfig().getXpForAttackingWithTools) {
+            return;
+        }
+
         shouldReturnForPlayer(p, () -> {
             if (e.getEntity().getType().equals(EntityType.CREEPER)) {
                 double cmult = getConfig().creeperKillMultiplier;
@@ -155,6 +160,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean getXpForAttackingWithTools = true;
         double turtleEggKillXP = 100;
         double creeperKillMultiplier = 2;
         double killMaxHealthXPMultiplier = 4;

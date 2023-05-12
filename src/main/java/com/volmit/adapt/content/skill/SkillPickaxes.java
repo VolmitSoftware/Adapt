@@ -62,6 +62,9 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
         Player p = e.getDamager() instanceof Player ? (Player) e.getDamager() : null;
+        if (!getConfig().getXpForAttackingWithTools) {
+            return;
+        }
 
         shouldReturnForPlayer(p, () -> {
             if (checkValidEntity(e.getEntity().getType())) {
@@ -161,6 +164,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     protected static class Config {
         public double debrisBonus = 300;
         boolean enabled = true;
+        boolean getXpForAttackingWithTools = true;
         double damageXPMultiplier = 13.26;
         double blockValueMultiplier = 0.125;
         double maxHardnessBonus = 9;

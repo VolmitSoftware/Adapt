@@ -102,6 +102,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
+            if (!getConfig().getXpForAttackingWithTools) {
+                return;
+            }
             shouldReturnForPlayer(p, () -> {
                 if (e.getEntity().isDead() || e.getEntity().isInvulnerable() || p.isDead() || p.isInvulnerable()) {
                     return;
@@ -179,6 +182,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean getXpForAttackingWithTools = true;
+
         double maxHardnessBonus = 9;
         double maxBlastResistanceBonus = 10;
         double challengeChopReward = 1750;
