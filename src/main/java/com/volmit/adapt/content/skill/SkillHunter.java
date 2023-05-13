@@ -18,10 +18,14 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -61,6 +65,80 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         registerAdaptation(new HunterStrength());
         registerAdaptation(new HunterResistance());
         registerAdaptation(new HunterDropToInventory());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.TURTLE_EGG)
+                .key("horrible_person")
+                .title(Localizer.dLocalize("advancement", "horrible_person", "title"))
+                .description(Localizer.dLocalize("advancement", "horrible_person", "description"))
+                .frame(AdvancementDisplay.AdvancementFrame.GOAL)
+                .visibility(AdvancementVisibility.HIDDEN)
+                .build()
+        );
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.TURTLE_EGG)
+                .key("challenge_turtle_egg_smasher")
+                .title(Localizer.dLocalize("advancement", "challenge_turtle_egg_smasher", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_turtle_egg_smasher", "description"))
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.TURTLE_EGG)
+                        .key("challenge_turtle_egg_annihilator")
+                        .title(Localizer.dLocalize("advancement", "challenge_turtle_egg_annihilator", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_turtle_egg_annihilator", "description"))
+                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BONE)
+                .key("challenge_novice_hunter")
+                .title(Localizer.dLocalize("advancement", "challenge_novice_hunter", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_novice_hunter", "description"))
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.IRON_SWORD)
+                        .key("challenge_intermediate_hunter")
+                        .title(Localizer.dLocalize("advancement", "challenge_intermediate_hunter", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_intermediate_hunter", "description"))
+                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.DIAMOND_SWORD)
+                                .key("challenge_advanced_hunter")
+                                .title(Localizer.dLocalize("advancement", "challenge_advanced_hunter", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_advanced_hunter", "description"))
+                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .build())
+                        .build())
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CREEPER_HEAD)
+                .key("challenge_creeper_conqueror")
+                .title(Localizer.dLocalize("advancement", "challenge_creeper_conqueror", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_creeper_conqueror", "description"))
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.TNT)
+                        .key("challenge_creeper_annihilator")
+                        .title(Localizer.dLocalize("advancement", "challenge_creeper_annihilator", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_creeper_annihilator", "description"))
+                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+
+        registerStatTracker(AdaptStatTracker.builder().advancement("horrible_person").goal(1).stat("killed.turtleeggs").reward(getConfig().turtleEggKillXP).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_turtle_egg_smasher").goal(100).stat("killed.turtleeggs").reward(getConfig().turtleEggKillXP*10).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_turtle_egg_annihilator").goal(1000).stat("killed.turtleeggs").reward(getConfig().turtleEggKillXP*10).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_novice_hunter").goal(100).stat("killed.monsters").reward(getConfig().turtleEggKillXP*3).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_intermediate_hunter").goal(1000).stat("killed.monsters").reward(getConfig().turtleEggKillXP*3).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_advanced_hunter").goal(10000).stat("killed.monsters").reward(getConfig().turtleEggKillXP*3).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_creeper_conqueror").goal(100).stat("killed.creepers").reward(getConfig().turtleEggKillXP*3).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_creeper_annihilator").goal(1000).stat("killed.creepers").reward(getConfig().turtleEggKillXP*3).build());
     }
 
     private void handleCooldownAndXp(Player p, double xpAmount) {

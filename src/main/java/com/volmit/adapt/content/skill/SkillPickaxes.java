@@ -18,8 +18,10 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeChisel;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeDropToInventory;
@@ -27,6 +29,8 @@ import com.volmit.adapt.content.adaptation.pickaxe.PickaxeVeinminer;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -57,6 +61,53 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         registerAdaptation(new PickaxeVeinminer());
         registerAdaptation(new PickaxeAutosmelt());
         registerAdaptation(new PickaxeDropToInventory());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WOODEN_PICKAXE)
+                .key("challenge_pickaxe_1k")
+                .title(Localizer.dLocalize("advancement", "challenge_pickaxe_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_pickaxe_1k", "description"))
+                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.STONE_PICKAXE)
+                        .key("challenge_pickaxe_5k")
+                        .title(Localizer.dLocalize("advancement", "challenge_pickaxe_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_pickaxe_5k", "description"))
+                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.IRON_PICKAXE)
+                                .key("challenge_pickaxe_50k")
+                                .title(Localizer.dLocalize("advancement", "challenge_pickaxe_50k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_pickaxe_50k", "description"))
+                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .child(AdaptAdvancement.builder()
+                                        .icon(Material.DIAMOND_PICKAXE)
+                                        .key("challenge_pickaxe_500k")
+                                        .title(Localizer.dLocalize("advancement", "challenge_pickaxe_500k", "title"))
+                                        .description(Localizer.dLocalize("advancement", "challenge_pickaxe_500k", "description"))
+                                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                        .child(AdaptAdvancement.builder()
+                                                .icon(Material.NETHERITE_PICKAXE)
+                                                .key("challenge_pickaxe_5m")
+                                                .title(Localizer.dLocalize("advancement", "challenge_pickaxe_5m", "title"))
+                                                .description(Localizer.dLocalize("advancement", "challenge_pickaxe_5m", "description"))
+                                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .build());
+
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_1k").goal(100).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*2).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_5k").goal(500).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*5).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_50k").goal(5000).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*10).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_500k").goal(50000).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*10).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_5m").goal(500000).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*50).build());
+        
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
