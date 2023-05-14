@@ -21,16 +21,11 @@ libraries:
   - org.bitbucket.mstrobel:procyon-compilertools:0.6.0
   - org.bitbucket.mstrobel:procyon-reflection:0.6.0
   - org.zeroturnaround:zt-zip:1.15
-commands:
-  adapt:
-    default: true
-    description: The main Adapt command
-    usage: /adapt
-    permission-message: You were not granted permission to use this command!
-    aliases:
-      - a
-      - ada
-      - adaptation
+  - dev.jorel:commandapi-bukkit-shade:9.0.1
+  - io.github.mqzn:mCommands-common:1.0.3
+  - io.github.mqzn:mCommands-spigot:1.0.3
+
+
 permissions:
   adapt.idontknowwhatimdoingiswear:
     description: This is for the Adapt Testing command DEVELOPERS ONLY
@@ -43,6 +38,9 @@ permissions:
     default: op
   adapt.boost:
     description: Allows for you to use the Boost command to boost XP gains
+    default: op
+  adapt.main:
+    description: Allows for you to use the main command
     default: op
   adapt.blacklist.agility:
     description: Blacklist the skill Agility

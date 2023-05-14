@@ -84,7 +84,7 @@ public class SkillRegistry extends TickedObject {
     public void on(PlayerExpChangeEvent e) {
         Player p = e.getPlayer();
         if (e.getAmount() > 0) {
-            getPlayer(p).boostXPToRecents(getPlayer(p), 0.03, 10000);
+            getPlayer(p).boostXPToRecents( 0.03, 10000);
         }
     }
 
