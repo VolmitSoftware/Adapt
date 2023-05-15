@@ -34,6 +34,7 @@ import com.volmit.adapt.content.protector.WorldGuardProtector;
 import com.volmit.adapt.nms.GlowingEntities;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.command.AdaptSuggestionProvider;
 import com.volmit.adapt.util.secret.SecretSplash;
 import de.slikey.effectlib.EffectManager;
 import io.github.mqzn.commands.SpigotCommandManager;
@@ -94,6 +95,7 @@ public class Adapt extends VolmitPlugin {
     public void start() {
         commandManager = new SpigotCommandManager(this, CommandExecutionCoordinator.Type.ASYNC);
         parser = new AnnotationParser<>(commandManager);
+        commandManager.suggestionProviderRegistry().register(new AdaptSuggestionProvider());
 
         NMS.init();
         Localizer.updateLanguageFile();
