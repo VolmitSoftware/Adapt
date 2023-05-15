@@ -21,7 +21,6 @@ package com.volmit.adapt.command.boost;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptServer;
-import com.volmit.adapt.command.CommandAdapt;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.command.FConst;
 import io.github.mqzn.commands.annotations.Arg;
@@ -34,8 +33,8 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
-@SubCommandInfo(name = "boost", parent = CommandAdapt.class)
-@Syntax(syntax = "<seconds> <multiplier> [player]")
+@SubCommandInfo(name = "boost")
+@Syntax(syntax = "boost <seconds> <multiplier> [player]", permission = "adapt.boost")
 public final class CommandBoost {
 
     @Default

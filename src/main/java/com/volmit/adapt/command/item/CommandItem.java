@@ -18,15 +18,15 @@
 
 package com.volmit.adapt.command.item;
 
-import com.volmit.adapt.command.CommandAdapt;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.command.FConst;
 import io.github.mqzn.commands.annotations.Default;
 import io.github.mqzn.commands.annotations.Syntax;
+import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.command.CommandSender;
 
-@SubCommandInfo(name = "item", parent = CommandAdapt.class, children = {CommandExperience.class, CommandKnowledge.class})
+@SubCommandInfo(name = "item", children = {CommandExperience.class, CommandKnowledge.class})
 @Syntax(syntax = "", permission = "adapt.cheatitem")
 public final class CommandItem {
 
@@ -36,6 +36,11 @@ public final class CommandItem {
         FConst.info("/adapt item (this command)").send(sender);
         FConst.info("/adapt item experience <Skill> <Amount> [Player]").send(sender);
         FConst.info("/adapt item knowledge <Skill> <Amount> [Player]").send(sender);
+    }
+
+    @SubCommandExecution // this is a placeholder that you told me to put here until you fix it.
+    public void execute(CommandSender sender) {
+
     }
 
 }

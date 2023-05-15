@@ -107,7 +107,7 @@ shadowJar {
     relocate 'manifold', 'com.volmit.adapt.util.manifold'
     relocate 'art.arcane', 'com.volmit.adapt.util.arcane'
     relocate 'io.papermc.lib', 'com.volmit.adapt.util.paper'
-    relocate 'net.kyori', 'com.volmit.adapt.util.kyori'
+//    relocate 'net.kyori', 'com.volmit.adapt.util.kyori'
     relocate 'ChumBukkit.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'IrisBukkit.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'Fukkit.extensions', 'com.volmit.adapt.util.extensions'

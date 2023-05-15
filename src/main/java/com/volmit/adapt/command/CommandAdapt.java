@@ -2,7 +2,6 @@ package com.volmit.adapt.command;
 
 
 import com.volmit.adapt.command.boost.CommandBoost;
-import com.volmit.adapt.command.debug.*;
 import com.volmit.adapt.command.gui.CommandGUI;
 import com.volmit.adapt.command.item.CommandExperience;
 import com.volmit.adapt.command.item.CommandItem;
@@ -17,16 +16,16 @@ import org.jetbrains.annotations.NotNull;
 
 @Command(name = "adapt", permission = "adapt.main")
 @SubCommand(CommandBoost.class)
-@SubCommand(CommandDebug.class)
-@SubCommand(CommandParticle.class)
-@SubCommand(CommandPGA.class)
-@SubCommand(CommandPGS.class)
-@SubCommand(CommandSound.class)
-@SubCommand(CommandVerbose.class)
+//@SubCommand(CommandDebug.class)
+//@SubCommand(CommandParticle.class)
+//@SubCommand(CommandPGA.class)
+//@SubCommand(CommandPGS.class)
+//@SubCommand(CommandSound.class)
+//@SubCommand(CommandVerbose.class)
 @SubCommand(CommandGUI.class)
-@SubCommand(CommandExperience.class)
-@SubCommand(CommandItem.class)
-@SubCommand(CommandKnowledge.class)
+@SubCommand(CommandExperience.class) // child command
+@SubCommand(CommandItem.class) // parent command
+@SubCommand(CommandKnowledge.class) // child command
 public class CommandAdapt {
 
     @Default

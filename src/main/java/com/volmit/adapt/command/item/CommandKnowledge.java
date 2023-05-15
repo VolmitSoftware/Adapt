@@ -34,12 +34,12 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nullable;
 
 @SubCommandInfo(name = "knowledge", parent = CommandItem.class)
-@Syntax(syntax = "<skillName> <amount> [player]")
+@Syntax(syntax = "knowledge <skillname> <amount> [player]")
 public final class CommandKnowledge {
 
     @SubCommandExecution
     public void execute(CommandSender sender,
-                        @Arg(id = "skillamount") @Suggest(provider = AdaptSuggestionProvider.class) String skillName,
+                        @Arg(id = "skillname") @Suggest(provider = AdaptSuggestionProvider.class) String skillName,
                         @Arg(id = "amount") int amount,
                         @Arg(id = "player", optional = true) @Nullable Player player) {
 

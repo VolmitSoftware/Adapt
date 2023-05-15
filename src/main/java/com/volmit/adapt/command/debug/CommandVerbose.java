@@ -20,11 +20,13 @@ package com.volmit.adapt.command.debug;
 
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.util.command.FConst;
+import io.github.mqzn.commands.annotations.Syntax;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.command.CommandSender;
 
 @SubCommandInfo(name = "verbose", parent = CommandDebug.class)
+@Syntax(syntax = "")
 public final class CommandVerbose {
 
     @SubCommandExecution

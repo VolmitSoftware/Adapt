@@ -19,6 +19,7 @@
 package com.volmit.adapt.command.debug;
 
 import io.github.mqzn.commands.annotations.Arg;
+import io.github.mqzn.commands.annotations.Syntax;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.Sound;
@@ -26,6 +27,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 @SubCommandInfo(name = "sound", parent = CommandDebug.class)
+@Syntax(syntax = "<sound>")
 public final class CommandSound {
 
     @SubCommandExecution

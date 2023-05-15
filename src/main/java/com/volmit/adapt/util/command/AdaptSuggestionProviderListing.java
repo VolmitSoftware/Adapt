@@ -16,25 +16,25 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.command.debug;
+package com.volmit.adapt.util.command;
 
-import com.volmit.adapt.util.J;
-import io.github.mqzn.commands.annotations.Arg;
-import io.github.mqzn.commands.annotations.Syntax;
-import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
-import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
-import org.bukkit.Particle;
-import org.bukkit.command.CommandSender;
+import com.volmit.adapt.api.skill.Skill;
+import com.volmit.adapt.api.skill.SkillRegistry;
+import io.github.mqzn.commands.base.SuggestionProvider;
+import org.jetbrains.annotations.NotNull;
 
-@SubCommandInfo(name = "particle", parent = CommandDebug.class)
-@Syntax(syntax = "<particle>")
-public final class CommandParticle {
+import java.util.ArrayList;
+import java.util.List;
 
-    @SubCommandExecution
-    public void execute(CommandSender sender,
-                        @Arg(id = "particle") Particle particle) {
-        if (sender instanceof org.bukkit.entity.Player) {
-            J.a(() -> ((org.bukkit.entity.Player) sender).spawnParticle(particle, ((org.bukkit.entity.Player) sender).getLocation(), 10), 10);
+public class AdaptSuggestionProviderListing implements SuggestionProvider {
+    private final List<String> suggestions = new ArrayList<>();
+
+    @Override
+    public @NotNull List<String> suggestions() {
+        suggestions.add("[Main]");
+        for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+            suggestions.add(skill.getName());
         }
+        return suggestions;
     }
 }

@@ -18,19 +18,26 @@
 
 package com.volmit.adapt.command.debug;
 
-import com.volmit.adapt.command.CommandAdapt;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.command.FConst;
+import io.github.mqzn.commands.annotations.Default;
 import io.github.mqzn.commands.annotations.Syntax;
+import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
+import org.bukkit.command.CommandSender;
 
-@SubCommandInfo(name = "debug", parent = CommandAdapt.class ,children = {CommandParticle.class, CommandPGS.class, CommandPGA.class, CommandSound.class, CommandVerbose.class})
-@Syntax(syntax = "")
+@SubCommandInfo(name = "debug", children = {CommandParticle.class, CommandPGS.class, CommandPGA.class, CommandSound.class, CommandVerbose.class})
+@Syntax(syntax = "", permission = "adapt.idontknowwhatimdoingiswear")
 public final class CommandDebug {
-//todo: Default Executor
 
-//    @Default
-//    public static void info(CommandSender sender) {
-//        FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt Debugger Help" + C.GRAY + "]: " + " === ---");
+    @Default
+    public static void info(CommandSender sender) {
+        FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt Debugger Help" + C.GRAY + "]: " + " === ---");
+        FConst.info("/adapt debug (this command)").send(sender);
+    }
 
-//    }
+    @SubCommandExecution
+    public void execute(CommandSender sender) {
 
+    }
 }
