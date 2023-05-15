@@ -31,7 +31,6 @@ public class CommandAdapt {
 
     @Default
     public void info(@NotNull CommandSender sender) {
-
         FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt Help" + C.GRAY + "]: " + " === ---");
         FConst.info("/adapt (this command)").send(sender);
         FConst.info("/adapt item (The Cheat Items Subcommand)").send(sender);

@@ -18,20 +18,24 @@
 
 package com.volmit.adapt.command.item;
 
+import com.volmit.adapt.command.CommandAdapt;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.command.FConst;
+import io.github.mqzn.commands.annotations.Default;
 import io.github.mqzn.commands.annotations.Syntax;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
+import org.bukkit.command.CommandSender;
 
-@SubCommandInfo(name = "item", children = {CommandExperience.class, CommandKnowledge.class})
-@Syntax(syntax = "")
+@SubCommandInfo(name = "item", parent = CommandAdapt.class, children = {CommandExperience.class, CommandKnowledge.class})
+@Syntax(syntax = "", permission = "adapt.cheatitem")
 public final class CommandItem {
-//todo: Default Executor
 
-//    @Default
-//    public static void info(CommandSender sender) {
-//        FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt Item Help" + C.GRAY + "]: " + " === ---");
-//        FConst.info("/adapt item (this command)").send(sender);
-//        FConst.info("/adapt item experience <Skill> <Amount> [Player]").send(sender);
-//        FConst.info("/adapt item knowledge <Skill> <Amount> [Player]").send(sender);
-//    }
+    @Default
+    public static void info(CommandSender sender) {
+        FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt Item Help" + C.GRAY + "]: " + " === ---");
+        FConst.info("/adapt item (this command)").send(sender);
+        FConst.info("/adapt item experience <Skill> <Amount> [Player]").send(sender);
+        FConst.info("/adapt item knowledge <Skill> <Amount> [Player]").send(sender);
+    }
 
 }

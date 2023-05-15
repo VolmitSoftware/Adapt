@@ -23,10 +23,10 @@ import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.command.CommandAdapt;
 import com.volmit.adapt.command.item.CommandExperience;
 import com.volmit.adapt.command.item.CommandKnowledge;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.command.AdaptSuggestionProvider;
 import com.volmit.adapt.util.command.FConst;
-import io.github.mqzn.commands.annotations.Arg;
-import io.github.mqzn.commands.annotations.Suggest;
-import io.github.mqzn.commands.annotations.Syntax;
+import io.github.mqzn.commands.annotations.*;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.Sound;
@@ -38,11 +38,17 @@ import javax.annotation.Nullable;
 @SubCommandInfo(name = "gui", parent = CommandAdapt.class, children = {CommandExperience.class, CommandKnowledge.class})
 @Syntax(syntax = "")
 public final class CommandGUI {
-//todo: Default Executor
+
+    @Default
+    public static void info(CommandSender sender) {
+        FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt GUI Help" + C.GRAY + "]: " + " === ---");
+        FConst.info("/adapt gui (this command)").send(sender);
+        FConst.info("/adapt gui <Skill>").send(sender);
+    }
 
     @SubCommandExecution
     public void execute(CommandSender sender,
-                        @Arg(id = "skillamount") @Suggest({"Agility", "Herbalism"}) String skillName,
+                        @Arg(id = "skillamount", optional = true) @Suggest(provider = AdaptSuggestionProvider.class) String skillName,
                         @Arg(id = "player", optional = true) @Nullable Player player) {
 
         AdaptServer adaptServer = Adapt.instance.getAdaptServer();

@@ -18,10 +18,11 @@
 
 package com.volmit.adapt.command.debug;
 
+import com.volmit.adapt.command.CommandAdapt;
 import io.github.mqzn.commands.annotations.Syntax;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 
-@SubCommandInfo(name = "debug", children = {CommandParticle.class, CommandPGS.class, CommandPGA.class, CommandSound.class, CommandVerbose.class})
+@SubCommandInfo(name = "debug", parent = CommandAdapt.class ,children = {CommandParticle.class, CommandPGS.class, CommandPGA.class, CommandSound.class, CommandVerbose.class})
 @Syntax(syntax = "")
 public final class CommandDebug {
 //todo: Default Executor

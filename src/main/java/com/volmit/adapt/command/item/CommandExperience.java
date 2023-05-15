@@ -24,7 +24,6 @@ import com.volmit.adapt.content.item.ExperienceOrb;
 import com.volmit.adapt.util.command.AdaptSuggestionProvider;
 import com.volmit.adapt.util.command.FConst;
 import io.github.mqzn.commands.annotations.Arg;
-import io.github.mqzn.commands.annotations.Greedy;
 import io.github.mqzn.commands.annotations.Suggest;
 import io.github.mqzn.commands.annotations.Syntax;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
@@ -40,7 +39,7 @@ public final class CommandExperience {
 
     @SubCommandExecution
     public void execute(CommandSender sender,
-                        @Arg(id = "skillamount") @Suggest(provider = AdaptSuggestionProvider.class) @Greedy String skillName,
+                        @Arg(id = "skillamount") @Suggest(provider = AdaptSuggestionProvider.class) String skillName,
                         @Arg(id = "amount") int amount,
                         @Arg(id = "player", optional = true) @Nullable Player player) {
 
