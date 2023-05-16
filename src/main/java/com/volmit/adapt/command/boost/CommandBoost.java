@@ -23,9 +23,9 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.command.FConst;
-import io.github.mqzn.commands.annotations.Arg;
-import io.github.mqzn.commands.annotations.Default;
-import io.github.mqzn.commands.annotations.Syntax;
+import io.github.mqzn.commands.annotations.base.Arg;
+import io.github.mqzn.commands.annotations.base.Default;
+import io.github.mqzn.commands.annotations.base.ExecutionMeta;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.command.CommandSender;
@@ -33,12 +33,12 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
-@SubCommandInfo(name = "boost")
-@Syntax(syntax = "boost <seconds> <multiplier> [player]", permission = "adapt.boost")
+@SubCommandInfo(name = "boost", aliases = "b")
+@ExecutionMeta(description = "Boost Target player, or Global Experience gain.", syntax = "<seconds> <multiplier> [player]", permission = "adapt.boost")
 public final class CommandBoost {
 
     @Default
-    public static void info(CommandSender sender) {
+    public void info(CommandSender sender) {
         FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt Boost Help" + C.GRAY + "]: " + " === ---");
         FConst.info("/adapt boost(this command)").send(sender);
         FConst.info("/adapt boost <Seconds for Boost> <Boost amount (double multiplier)> (GLOBAL))").send(sender);

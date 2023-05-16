@@ -38,8 +38,8 @@ import com.volmit.adapt.util.command.AdaptSuggestionProvider;
 import com.volmit.adapt.util.command.AdaptSuggestionProviderListing;
 import com.volmit.adapt.util.secret.SecretSplash;
 import de.slikey.effectlib.EffectManager;
+import io.github.mqzn.commands.AnnotationParser;
 import io.github.mqzn.commands.SpigotCommandManager;
-import io.github.mqzn.commands.annotations.parser.AnnotationParser;
 import io.github.mqzn.commands.base.manager.CommandExecutionCoordinator;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -94,7 +94,8 @@ public class Adapt extends VolmitPlugin {
 
     @Override
     public void start() {
-        commandManager = new SpigotCommandManager(this, CommandExecutionCoordinator.Type.ASYNC);
+        audiences = BukkitAudiences.create(this);
+        commandManager = new SpigotCommandManager(this, CommandExecutionCoordinator.Type.SYNC);
         parser = new AnnotationParser<>(commandManager);
         commandManager.suggestionProviderRegistry().register(new AdaptSuggestionProvider());
         commandManager.suggestionProviderRegistry().register(new AdaptSuggestionProviderListing());

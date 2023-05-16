@@ -20,27 +20,31 @@ package com.volmit.adapt.command.item;
 
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.command.FConst;
-import io.github.mqzn.commands.annotations.Default;
-import io.github.mqzn.commands.annotations.Syntax;
+import io.github.mqzn.commands.annotations.base.Arg;
+import io.github.mqzn.commands.annotations.base.Default;
+import io.github.mqzn.commands.annotations.base.ExecutionMeta;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.command.CommandSender;
 
-@SubCommandInfo(name = "item", children = {CommandExperience.class, CommandKnowledge.class})
-@Syntax(syntax = "", permission = "adapt.cheatitem")
-public final class CommandItem {
+@SubCommandInfo(name = "add")
+@ExecutionMeta(syntax = "<num1> <num2>")
+public final class MathAdd {
+
+    @SubCommandExecution
+    public void execute(CommandSender sender,
+                        @Arg(id = "num1") int amount1,
+                        @Arg(id = "num2") int amount2) {
+        // logiv here
+
+    }
 
     @Default
-    public static void info(CommandSender sender) {
+    public void info(CommandSender sender) {
         FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt Item Help" + C.GRAY + "]: " + " === ---");
         FConst.info("/adapt item (this command)").send(sender);
         FConst.info("/adapt item experience <Skill> <Amount> [Player]").send(sender);
         FConst.info("/adapt item knowledge <Skill> <Amount> [Player]").send(sender);
     }
-
-    @SubCommandExecution // this is a placeholder that you told me to put here until you fix it.
-    public void execute(CommandSender sender) {
-
-    }
-
 }
+

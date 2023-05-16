@@ -20,18 +20,18 @@ package com.volmit.adapt.command.debug;
 
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.command.FConst;
-import io.github.mqzn.commands.annotations.Default;
-import io.github.mqzn.commands.annotations.Syntax;
+import io.github.mqzn.commands.annotations.base.Default;
+import io.github.mqzn.commands.annotations.base.ExecutionMeta;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.command.CommandSender;
 
-@SubCommandInfo(name = "debug", children = {CommandParticle.class, CommandPGS.class, CommandPGA.class, CommandSound.class, CommandVerbose.class})
-@Syntax(syntax = "", permission = "adapt.idontknowwhatimdoingiswear")
+@SubCommandInfo(name = "debug", aliases = "d", children = {CommandParticle.class, CommandPGS.class, CommandPGA.class, CommandSound.class, CommandVerbose.class})
+@ExecutionMeta(permission = "adapt.idontknowwhatimdoingiswear", description = "This is the Debug locale")
 public final class CommandDebug {
 
     @Default
-    public static void info(CommandSender sender) {
+    public void info(CommandSender sender) {
         FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt Debugger Help" + C.GRAY + "]: " + " === ---");
         FConst.info("/adapt debug (this command)").send(sender);
     }

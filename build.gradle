@@ -107,7 +107,7 @@ shadowJar {
     relocate 'manifold', 'com.volmit.adapt.util.manifold'
     relocate 'art.arcane', 'com.volmit.adapt.util.arcane'
     relocate 'io.papermc.lib', 'com.volmit.adapt.util.paper'
-//    relocate 'net.kyori', 'com.volmit.adapt.util.kyori'
+    relocate 'net.kyori', 'com.volmit.adapt.util.kyori'
     relocate 'ChumBukkit.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'IrisBukkit.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'Fukkit.extensions', 'com.volmit.adapt.util.extensions'
@@ -160,8 +160,8 @@ dependencies {
     implementation 'net.kyori:adventure-platform-bukkit:4.3.0'
     implementation 'net.kyori:adventure-api:4.13.1'
     implementation 'xyz.xenondevs:particle:1.8.1'
-    implementation 'io.github.mqzn:mCommands-common:1.0.4'
-    implementation 'io.github.mqzn:mCommands-spigot:1.0.4'
+    implementation 'io.github.mqzn:mCommands-common:1.0.5'
+    implementation 'io.github.mqzn:mCommands-spigot:1.0.5'
 
     // Dynamically Loaded
     implementation 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'

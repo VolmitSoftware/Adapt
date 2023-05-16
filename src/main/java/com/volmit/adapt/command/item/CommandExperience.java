@@ -23,9 +23,9 @@ import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.content.item.ExperienceOrb;
 import com.volmit.adapt.util.command.AdaptSuggestionProvider;
 import com.volmit.adapt.util.command.FConst;
-import io.github.mqzn.commands.annotations.Arg;
-import io.github.mqzn.commands.annotations.Suggest;
-import io.github.mqzn.commands.annotations.Syntax;
+import io.github.mqzn.commands.annotations.base.Arg;
+import io.github.mqzn.commands.annotations.base.ExecutionMeta;
+import io.github.mqzn.commands.annotations.base.Suggest;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.command.CommandSender;
@@ -33,8 +33,8 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
-@SubCommandInfo(name = "experience", parent = CommandItem.class)
-@Syntax(syntax = "experience <skillname> <amount> [player]")
+@SubCommandInfo(name = "experience", aliases = "e")
+@ExecutionMeta(description = "Give yourself an experience orb", syntax = "<skillname> <amount> [player]", permission = "adapt.cheatitem")
 public final class CommandExperience {
 
     @SubCommandExecution

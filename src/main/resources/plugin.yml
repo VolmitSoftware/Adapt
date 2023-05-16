@@ -22,8 +22,8 @@ libraries:
   - org.bitbucket.mstrobel:procyon-reflection:0.6.0
   - org.zeroturnaround:zt-zip:1.15
   - dev.jorel:commandapi-bukkit-shade:9.0.1
-  - io.github.mqzn:mCommands-common:1.0.4
-  - io.github.mqzn:mCommands-spigot:1.0.4
+  - io.github.mqzn:mCommands-common:1.0.5
+  - io.github.mqzn:mCommands-spigot:1.0.5
   - net.kyori:adventure-platform-bukkit:4.3.0
 
 permissions:

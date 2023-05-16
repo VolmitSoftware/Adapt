@@ -21,11 +21,13 @@ package com.volmit.adapt.command.item;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.content.item.KnowledgeOrb;
+import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.command.AdaptSuggestionProvider;
 import com.volmit.adapt.util.command.FConst;
-import io.github.mqzn.commands.annotations.Arg;
-import io.github.mqzn.commands.annotations.Suggest;
-import io.github.mqzn.commands.annotations.Syntax;
+import io.github.mqzn.commands.annotations.base.Arg;
+import io.github.mqzn.commands.annotations.base.Default;
+import io.github.mqzn.commands.annotations.base.ExecutionMeta;
+import io.github.mqzn.commands.annotations.base.Suggest;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.command.CommandSender;
@@ -33,8 +35,8 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
-@SubCommandInfo(name = "knowledge", parent = CommandItem.class)
-@Syntax(syntax = "knowledge <skillname> <amount> [player]")
+@SubCommandInfo(name = "knowledge", aliases = "k")
+@ExecutionMeta(description = "Give yourself a knowledge orb", syntax = "<skillname> <amount> [player]", permission = "adapt.cheatitem")
 public final class CommandKnowledge {
 
     @SubCommandExecution
@@ -58,6 +60,14 @@ public final class CommandKnowledge {
                 FConst.success("Giving " + skill.getName() + " orb").send(sender);
             }
         }
+    }
+
+    @Default
+    public void info(CommandSender sender) {
+        FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt Item Help" + C.GRAY + "]: " + " === ---");
+        FConst.info("/adapt item (this command)").send(sender);
+        FConst.info("/adapt item experience <Skill> <Amount> [Player]").send(sender);
+        FConst.info("/adapt item knowledge <Skill> <Amount> [Player]").send(sender);
     }
 }
 

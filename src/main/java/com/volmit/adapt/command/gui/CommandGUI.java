@@ -23,10 +23,10 @@ import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.command.AdaptSuggestionProviderListing;
 import com.volmit.adapt.util.command.FConst;
-import io.github.mqzn.commands.annotations.Arg;
-import io.github.mqzn.commands.annotations.Default;
-import io.github.mqzn.commands.annotations.Suggest;
-import io.github.mqzn.commands.annotations.Syntax;
+import io.github.mqzn.commands.annotations.base.Arg;
+import io.github.mqzn.commands.annotations.base.Default;
+import io.github.mqzn.commands.annotations.base.ExecutionMeta;
+import io.github.mqzn.commands.annotations.base.Suggest;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.command.CommandSender;
@@ -34,22 +34,20 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
-@SubCommandInfo(name = "gui")
-@Syntax(syntax = "gui <skillname> [player]", permission = "adapt.opengui")
+@SubCommandInfo(name = "gui", aliases = "g")
+@ExecutionMeta(permission = "adapt.gui", description = "Open the Adapt GUI", syntax = "<skillname> [player]")
 public final class CommandGUI {
 
     @SubCommandExecution
     public void execute(CommandSender sender,
                         @Arg(id = "skillname") @Suggest(provider = AdaptSuggestionProviderListing.class) String skillName,
                         @Arg(id = "player", optional = true) @Nullable Player player) {
-
         Player p = null;
         if (player == null && sender instanceof Player) {
             p = (Player) sender;
         } else if (player != null) {
             p = player;
         }
-
         if (skillName == null || skillName.equals("[Main]")) {
             if (p != null) {
                 Adapt.instance.getAdaptServer().openAdaptGui(p);
@@ -58,7 +56,6 @@ public final class CommandGUI {
             }
             return;
         }
-
         for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getSkills()) {
             if (skill.getName().equalsIgnoreCase(skillName)) {
                 if (p != null) {
@@ -69,18 +66,16 @@ public final class CommandGUI {
                 return;
             }
         }
-
         FConst.error(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt GUI Usage" + C.GRAY + "]: " + " === ---");
         FConst.info("/adapt gui <Skill>").send(sender);
         FConst.info("/adapt gui <Skill/[Main]> [Player]").send(sender);
     }
 
     @Default
-    public static void info(CommandSender sender) {
+    public void info(CommandSender sender) {
         FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt GUI Help" + C.GRAY + "]: " + " === ---");
         FConst.info("/adapt gui (this command)").send(sender);
         FConst.info("/adapt gui <Skill>").send(sender);
         FConst.info("/adapt gui <Skill> [Player]").send(sender);
     }
 }
-

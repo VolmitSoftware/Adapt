@@ -19,15 +19,15 @@
 package com.volmit.adapt.command.debug;
 
 import com.volmit.adapt.util.J;
-import io.github.mqzn.commands.annotations.Arg;
-import io.github.mqzn.commands.annotations.Syntax;
+import io.github.mqzn.commands.annotations.base.Arg;
+import io.github.mqzn.commands.annotations.base.ExecutionMeta;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.Particle;
 import org.bukkit.command.CommandSender;
 
 @SubCommandInfo(name = "particle", parent = CommandDebug.class)
-@Syntax(syntax = "<particle>")
+@ExecutionMeta(description = "Summon a particle in front of you for testing!", syntax = "<particle>")
 public final class CommandParticle {
 
     @SubCommandExecution
