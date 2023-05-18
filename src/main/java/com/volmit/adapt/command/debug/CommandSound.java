@@ -18,8 +18,12 @@
 
 package com.volmit.adapt.command.debug;
 
+import com.volmit.adapt.util.command.FConst;
+import com.volmit.adapt.util.command.SoundSuggestionProvider;
 import io.github.mqzn.commands.annotations.base.Arg;
+import io.github.mqzn.commands.annotations.base.Default;
 import io.github.mqzn.commands.annotations.base.ExecutionMeta;
+import io.github.mqzn.commands.annotations.base.Suggest;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.Sound;
@@ -32,9 +36,14 @@ public final class CommandSound {
 
     @SubCommandExecution
     public void execute(CommandSender sender,
-                        @Arg(id = "sound") Sound sound) {
+                        @Arg(id = "sound") @Suggest(provider = SoundSuggestionProvider.class) Sound sound) {
         if (sender instanceof Player p) {
             p.playSound(p.getLocation(), sound, 1, 1);
         }
+    }
+
+    @Default
+    public void info(CommandSender sender) {
+        FConst.info("Sounds: " + Sound.values().length);
     }
 }

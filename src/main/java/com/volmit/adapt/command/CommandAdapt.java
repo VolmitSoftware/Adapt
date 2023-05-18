@@ -36,5 +36,4 @@ public class CommandAdapt {
         FConst.info("/adapt verbose  -  The verbose Subcommand").send(sender);
 
     }
-
 }

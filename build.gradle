@@ -95,7 +95,7 @@ compileJava {
  * Configure Adapt for shading
  */
 shadowJar {
-//    minimize()
+    minimize()
     append("plugin.yml")
     relocate 'manifold', 'com.volmit.adapt.util.manifold'
     relocate 'art.arcane', 'com.volmit.adapt.util.arcane'
@@ -151,7 +151,7 @@ dependencies {
     compileOnly 'net.kyori:adventure-platform-bukkit:4.3.0'
     compileOnly 'net.kyori:adventure-api:4.13.1'
     compileOnly 'io.github.mqzn:mCommands-spigot:1.0.7'
-    compileOnly 'io.github.mqzn:mCommands-common:1.0.7'
+    compileOnly 'io.github.mqzn:mCommands-common:1.0.7-b'
     compileOnly fileTree(dir: 'libs', include: ['*.jar'])
 }
 

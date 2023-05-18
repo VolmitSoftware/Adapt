@@ -36,6 +36,8 @@ import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.command.AdaptSuggestionProvider;
 import com.volmit.adapt.util.command.AdaptSuggestionProviderListing;
+import com.volmit.adapt.util.command.ParticleSuggestionProvider;
+import com.volmit.adapt.util.command.SoundSuggestionProvider;
 import com.volmit.adapt.util.secret.SecretSplash;
 import de.slikey.effectlib.EffectManager;
 import io.github.mqzn.commands.SpigotCommandManager;
@@ -99,6 +101,8 @@ public class Adapt extends VolmitPlugin {
         parser = new AnnotationParser<>(commandManager);
         commandManager.suggestionProviderRegistry().register(new AdaptSuggestionProvider());
         commandManager.suggestionProviderRegistry().register(new AdaptSuggestionProviderListing());
+        commandManager.suggestionProviderRegistry().register(new SoundSuggestionProvider());
+        commandManager.suggestionProviderRegistry().register(new ParticleSuggestionProvider());
 
         NMS.init();
         Localizer.updateLanguageFile();

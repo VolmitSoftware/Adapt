@@ -19,8 +19,10 @@
 package com.volmit.adapt.command.debug;
 
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.command.ParticleSuggestionProvider;
 import io.github.mqzn.commands.annotations.base.Arg;
 import io.github.mqzn.commands.annotations.base.ExecutionMeta;
+import io.github.mqzn.commands.annotations.base.Suggest;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.Particle;
@@ -32,7 +34,7 @@ public final class CommandParticle {
 
     @SubCommandExecution
     public void execute(CommandSender sender,
-                        @Arg(id = "particle") Particle particle) {
+                        @Arg(id = "particle") @Suggest(provider = ParticleSuggestionProvider.class) Particle particle) {
         if (sender instanceof org.bukkit.entity.Player) {
             J.a(() -> ((org.bukkit.entity.Player) sender).spawnParticle(particle, ((org.bukkit.entity.Player) sender).getLocation(), 10), 10);
         }

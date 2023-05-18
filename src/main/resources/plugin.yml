@@ -21,7 +21,7 @@ libraries:
   - net.kyori:adventure-api:4.13.1
   - net.kyori:adventure-text-minimessage:4.13.1
   - io.github.mqzn:mCommands-spigot:1.0.7
-  - io.github.mqzn:mCommands-common:1.0.7
+  - io.github.mqzn:mCommands-common:1.0.7-b
 
 permissions:
   adapt.idontknowwhatimdoingiswear:

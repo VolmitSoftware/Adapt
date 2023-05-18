@@ -26,6 +26,7 @@ import com.volmit.adapt.util.command.FConst;
 import io.github.mqzn.commands.annotations.base.Arg;
 import io.github.mqzn.commands.annotations.base.Default;
 import io.github.mqzn.commands.annotations.base.ExecutionMeta;
+import io.github.mqzn.commands.annotations.base.Range;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.command.CommandSender;
@@ -47,9 +48,9 @@ public final class CommandBoost {
 
     @SubCommandExecution
     public void execute(CommandSender sender,
-                        @Arg(id = "seconds") int seconds,
-                        @Arg(id = "multiplier") double multiplier,
-                        @Arg(id = "player", optional = true) @Nullable Player player) {
+                        @Arg(id = "seconds") @Range(min = "1", max = "100000") int seconds,
+                        @Arg(id = "multiplier") @Range(min = "0.0", max = "100.0") double multiplier,
+                        @Arg(id = "player", optional = true)  @Nullable Player player) {
 
         AdaptServer adaptServer = Adapt.instance.getAdaptServer();
         if (player == null) {
