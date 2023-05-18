@@ -71,15 +71,8 @@ repositories {
             includeGroup("org.spigotmc")
         }
     }
-//    maven {
-//        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-//        content {
-//            includeGroup 'org.bukkit'
-//            includeGroup 'org.spigotmc'
-//        }
-//    }
-    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
     mavenCentral()
+    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
     maven { url 'https://jitpack.io' }
     maven { url 'https://ci.ender.zone/plugin/repository/everything/' }
     maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
@@ -102,22 +95,17 @@ compileJava {
  * Configure Adapt for shading
  */
 shadowJar {
-    minimize()
+//    minimize()
     append("plugin.yml")
     relocate 'manifold', 'com.volmit.adapt.util.manifold'
     relocate 'art.arcane', 'com.volmit.adapt.util.arcane'
-    relocate 'io.papermc.lib', 'com.volmit.adapt.util.paper'
-    relocate 'net.kyori', 'com.volmit.adapt.util.kyori'
-    relocate 'ChumBukkit.extensions', 'com.volmit.adapt.util.extensions'
-    relocate 'IrisBukkit.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'Fukkit.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'Amulet.extensions', 'com.volmit.adapt.util.extensions'
     dependencies {
-        include(dependency('io.papermc:paperlib'))
-        include(dependency('net.kyori:'))
         include(dependency('systems.manifold:'))
         include(dependency('xyz.xenondevs:'))
         include(dependency('art.arcane:'))
+        include(dependency('io.github.mqzn:'))
     }
 }
 
@@ -162,10 +150,9 @@ dependencies {
     compileOnly 'net.kyori:adventure-text-minimessage:4.13.1'
     compileOnly 'net.kyori:adventure-platform-bukkit:4.3.0'
     compileOnly 'net.kyori:adventure-api:4.13.1'
+    compileOnly 'io.github.mqzn:mCommands-spigot:1.0.7'
+    compileOnly 'io.github.mqzn:mCommands-common:1.0.7'
     compileOnly fileTree(dir: 'libs', include: ['*.jar'])
-//    compileOnly 'io.github.mqzn:mCommands-common:1.0.5'
-//    compileOnly 'io.github.mqzn:mCommands-spigot:1.0.5'
-
 }
 
 if (JavaVersion.current().toString() != "17") {

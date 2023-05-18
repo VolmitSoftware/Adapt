@@ -20,8 +20,8 @@ package com.volmit.adapt.command.debug;
 
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.util.command.FConst;
+import io.github.mqzn.commands.annotations.base.Default;
 import io.github.mqzn.commands.annotations.base.ExecutionMeta;
-import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.command.CommandSender;
 
@@ -29,7 +29,7 @@ import org.bukkit.command.CommandSender;
 @ExecutionMeta(description = "Toggle verbose mode")
 public final class CommandVerbose {
 
-    @SubCommandExecution
+    @Default
     public void execute(CommandSender sender) {
         AdaptConfig.get().setVerbose(!AdaptConfig.get().isVerbose());
         FConst.success("Verbose is now " + (AdaptConfig.get().isVerbose() ? "enabled" : "disabled")).send(sender);

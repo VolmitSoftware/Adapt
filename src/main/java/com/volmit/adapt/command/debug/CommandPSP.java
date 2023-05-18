@@ -20,16 +20,16 @@ package com.volmit.adapt.command.debug;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.command.FConst;
+import io.github.mqzn.commands.annotations.base.Default;
 import io.github.mqzn.commands.annotations.base.ExecutionMeta;
-import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.command.CommandSender;
 
-@SubCommandInfo(name = "pgs", parent = CommandDebug.class)
+@SubCommandInfo(name = "psp", parent = CommandDebug.class)
 @ExecutionMeta(description = "Generate Perms for Skills!")
-public final class CommandPGS {
+public final class CommandPSP {
 
-    @SubCommandExecution
+    @Default
     public void execute(CommandSender sender) {
         StringBuilder builder = new StringBuilder();
         Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> builder.append("adapt.blacklist." + skill.getName().replaceAll("-", "") + "\n"));

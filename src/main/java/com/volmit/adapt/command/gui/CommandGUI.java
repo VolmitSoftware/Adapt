@@ -34,7 +34,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
-@SubCommandInfo(name = "gui", aliases = "g")
+@SubCommandInfo(name = "gui")
 @ExecutionMeta(permission = "adapt.gui", description = "Open the Adapt GUI", syntax = "<skillname> [player]")
 public final class CommandGUI {
 
@@ -68,7 +68,7 @@ public final class CommandGUI {
         }
         FConst.error(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt GUI Usage" + C.GRAY + "]: " + " === ---");
         FConst.info("/adapt gui <Skill>").send(sender);
-        FConst.info("/adapt gui <Skill/[Main]> [Player]").send(sender);
+        FConst.info("/adapt gui <Skill> [Player]").send(sender);
     }
 
     @Default

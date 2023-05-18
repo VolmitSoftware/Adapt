@@ -35,7 +35,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
-@SubCommandInfo(name = "knowledge", aliases = "k")
+@SubCommandInfo(name = "knowledge")
 @ExecutionMeta(description = "Give yourself a knowledge orb", syntax = "<skillname> <amount> [player]", permission = "adapt.cheatitem")
 public final class CommandKnowledge {
 
@@ -45,20 +45,35 @@ public final class CommandKnowledge {
                         @Arg(id = "amount") int amount,
                         @Arg(id = "player", optional = true) @Nullable Player player) {
 
-        for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-            if (skillName.equals(skill.getName())) {
-                if (player != null) {
-                    player.getInventory().addItem(KnowledgeOrb.with(skill.getName(), amount));
-                } else {
-                    if (!(sender instanceof Player p)) {
-                        FConst.error("You must be a player to use this command").send(sender);
-                        return;
-                    } else {
-                        p.getInventory().addItem(KnowledgeOrb.with(skill.getName(), amount));
-                    }
-                }
-                FConst.success("Giving " + skill.getName() + " orb").send(sender);
+        Player targetPlayer = player;
+
+        if(targetPlayer == null){
+            if (sender instanceof Player p) {
+                targetPlayer = p;
+            } else {
+                FConst.error("You must be a player to use this command").send(sender);
+                return;
             }
+        }
+
+        if (skillName.equals("[all]")) {
+            for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+                targetPlayer.getInventory().addItem(KnowledgeOrb.with(skill.getName(), amount));
+            }
+            FConst.success("Giving all orbs").send(sender);
+            return;
+        }
+
+        if (skillName.equals("[random]")){
+            targetPlayer.getInventory().addItem(KnowledgeOrb.with(SkillRegistry.skills.sortV().getRandom().getName(), amount));
+            FConst.success("Giving random orb").send(sender);
+            return;
+        }
+
+        Skill<?> skill = SkillRegistry.skills.get(skillName);
+        if(skill != null){
+            targetPlayer.getInventory().addItem(KnowledgeOrb.with(skill.getName(), amount));
+            FConst.success("Giving " + skill.getName() + " orb").send(sender);
         }
     }
 

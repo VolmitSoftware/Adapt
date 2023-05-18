@@ -16,35 +16,24 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.command.item;
+package com.volmit.adapt.command.debug;
 
-import com.volmit.adapt.util.C;
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.command.FConst;
-import io.github.mqzn.commands.annotations.base.Arg;
 import io.github.mqzn.commands.annotations.base.Default;
 import io.github.mqzn.commands.annotations.base.ExecutionMeta;
-import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandInfo;
 import org.bukkit.command.CommandSender;
 
-@SubCommandInfo(name = "add")
-@ExecutionMeta(syntax = "<num1> <num2>")
-public final class MathAdd {
-
-    @SubCommandExecution
-    public void execute(CommandSender sender,
-                        @Arg(id = "num1") int amount1,
-                        @Arg(id = "num2") int amount2) {
-        // logiv here
-
-    }
+@SubCommandInfo(name = "pap", parent = CommandDebug.class)
+@ExecutionMeta(description = "Generate Perms for Adaptations!")
+public final class CommandPAP {
 
     @Default
-    public void info(CommandSender sender) {
-        FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt Item Help" + C.GRAY + "]: " + " === ---");
-        FConst.info("/adapt item (this command)").send(sender);
-        FConst.info("/adapt item experience <Skill> <Amount> [Player]").send(sender);
-        FConst.info("/adapt item knowledge <Skill> <Amount> [Player]").send(sender);
+    public void execute(CommandSender sender) {
+        StringBuilder builder = new StringBuilder();
+        Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> skill.getAdaptations().forEach(adaptation -> builder.append("adapt.blacklist." + adaptation.getName().replaceAll("-", "") + "\n")));
+        Adapt.info("Permissions: \n" + builder);
+        FConst.success("Permissions have been printed to console.").send(sender);
     }
 }
-

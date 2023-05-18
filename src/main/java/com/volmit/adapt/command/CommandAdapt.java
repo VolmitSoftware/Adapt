@@ -14,16 +14,16 @@ import io.github.mqzn.commands.annotations.subcommands.SubCommand;
 import org.bukkit.command.CommandSender;
 
 @Command(name = "adapt", permission = "adapt.main", aliases = {"ada", "adaptation", "skills"}, description = "The main command for Adapt")
-@SubCommand(CommandBoost.class)
-@SubCommand(CommandDebug.class)
-@SubCommand(CommandParticle.class)
-@SubCommand(CommandPGA.class)
-@SubCommand(CommandPGS.class)
-@SubCommand(CommandSound.class)
-@SubCommand(CommandVerbose.class)
-@SubCommand(CommandGUI.class)
-@SubCommand(CommandExperience.class)
-@SubCommand(CommandKnowledge.class)
+@SubCommand(CommandBoost.class) // Boost
+@SubCommand(CommandDebug.class) // Debug
+@SubCommand(CommandParticle.class) // Debug
+@SubCommand(CommandPAP.class) // Debug
+@SubCommand(CommandPSP.class) // Debug
+@SubCommand(CommandSound.class) // Debug
+@SubCommand(CommandVerbose.class) // Debug
+@SubCommand(CommandGUI.class) // GUI
+@SubCommand(CommandExperience.class) // GUI
+@SubCommand(CommandKnowledge.class) // GUI
 public class CommandAdapt {
 
     @Default

@@ -33,7 +33,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
-@SubCommandInfo(name = "boost", aliases = "b")
+@SubCommandInfo(name = "boost")
 @ExecutionMeta(description = "Boost Target player, or Global Experience gain.", syntax = "<seconds> <multiplier> [player]", permission = "adapt.boost")
 public final class CommandBoost {
 
@@ -41,8 +41,8 @@ public final class CommandBoost {
     public void info(CommandSender sender) {
         FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt Boost Help" + C.GRAY + "]: " + " === ---");
         FConst.info("/adapt boost(this command)").send(sender);
-        FConst.info("/adapt boost <Seconds for Boost> <Boost amount (double multiplier)> (GLOBAL))").send(sender);
-        FConst.info("/adapt boost <Seconds for Boost> <Boost amount (double multiplier)> <Player> (PLAYER SPECIFIC)").send(sender);
+        FConst.info("/adapt boost <Seconds> <Multiplier> [player])").send(sender);
+        FConst.info(C.ITALIC + "The Multiplier is a Double, and if you dont specify a player its global").send(sender);
     }
 
     @SubCommandExecution
