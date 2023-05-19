@@ -44,6 +44,6 @@ public final class CommandSound {
 
     @Default
     public void info(CommandSender sender) {
-        FConst.info("Sounds: " + Sound.values().length);
+        FConst.info("Sounds available: " + Sound.values().length);
     }
 }
