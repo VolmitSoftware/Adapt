@@ -48,7 +48,7 @@ public class WorldData extends TickedObject {
     public WorldData(World world) {
         super("world-data", world.getUID().toString(), 30_000);
         this.world = world;
-        mantle = new Mantle(Adapt.instance.getDataFolder("data", "mantle"), 256);
+        mantle = new Mantle(Adapt.instance.getDataFolder("data", "mantle"), world.getMaxHeight());
     }
 
     public static void stop() {
