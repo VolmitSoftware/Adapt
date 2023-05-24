@@ -269,8 +269,8 @@ public class AdaptPlayer extends TickedObject {
         p.getData().getSkillLines().v().getRandom().boost(boost, ms);
     }
 
-    public void boostXPToRecents(AdaptPlayer p, double boost, int ms) {
-        for (PlayerSkillLine i : p.getData().getSkillLines().v()) {
+    public void boostXPToRecents(double boost, int ms) {
+        for (PlayerSkillLine i : this.getData().getSkillLines().v()) {
             if (M.ms() - i.getLast() < ms) {
                 i.boost(boost, ms);
             }

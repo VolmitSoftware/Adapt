@@ -29,6 +29,7 @@ import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.xp.SpatialXP;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
+import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.item.ExperienceOrb;
 import com.volmit.adapt.content.item.KnowledgeOrb;
 import com.volmit.adapt.util.*;
@@ -231,6 +232,18 @@ public class AdaptServer extends TickedObject {
 
     public AdaptPlayer getPlayer(Player p) {
         return players.get(p);
+    }
+
+    public void openSkillGUI(Skill<?> skill, Player p) {
+        skill.openGui(p);
+    }
+
+    public void openAdaptGui(Player p) {
+        SkillsGui.open(p);
+    }
+
+    public void openAdaptationGUI(Adaptation<?> adaptation, Player p) {
+        adaptation.openGui(p);
     }
 
     public void boostXP(double boost, int ms) {

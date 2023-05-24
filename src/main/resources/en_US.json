@@ -179,7 +179,60 @@
     "challenge_excavate_5m": {
       "title": "Enigmatic Excavator",
       "description": "Excavate 5,000,000 Blocks"
+    },
+    "horrible_person": {
+      "title": "You're a Horrible Person",
+      "description": "Unfathomable, really"
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "Turtle Egg Smasher!",
+      "description": "Break 100 turtle eggs"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "Turtle Egg Annihilator!",
+      "description": "Break 500 turtle eggs"
+    },
+    "challenge_novice_hunter": {
+      "title": "Novice Hunter!",
+      "description": "Kill 100 entities"
+    },
+    "challenge_intermediate_hunter": {
+      "title": "Intermediate Hunter!",
+      "description": "Kill 500 entities"
+    },
+    "challenge_advanced_hunter": {
+      "title": "Advanced Hunter!",
+      "description": "Kill 5000 entities"
+    },
+    "challenge_creeper_conqueror": {
+      "title": "Creeper Conqueror!",
+      "description": "Kill 50 creepers"
+    },
+    "challenge_creeper_annihilator": {
+      "title": "Creeper Annihilator!",
+      "description": "Kill 200 creepers"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "Novice Miner",
+      "description": "Break 1000 Blocks"
+    },
+    "challenge_pickaxe_5k": {
+      "title": "Skilled Miner",
+      "description": "Break 5000 Blocks"
+    },
+    "challenge_pickaxe_50k": {
+      "title": "Expert Miner",
+      "description": "Break 50,000 Blocks"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "Master Miner",
+      "description": "Break 500,000 Blocks"
+    },
+    "challenge_pickaxe_5m": {
+      "title": "Legendary Miner",
+      "description": "Break 5,000,000 Blocks"
     }
+
   },
   "items": {
     "boundenderperal": {

@@ -104,9 +104,10 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
-            shouldReturnForPlayer(p, e, () -> {
-                handleEntityDamageByPlayer(p, e);
-            });
+            if (!getConfig().getXpForAttackingWithTools) {
+                return;
+            }
+            shouldReturnForPlayer(p, e, () -> handleEntityDamageByPlayer(p, e));
         }
     }
 
@@ -175,6 +176,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     @NoArgsConstructor
     protected static class Config {
         boolean enabled = true;
+        boolean getXpForAttackingWithTools = true;
         double maxHardnessBonus = 9;
         double maxBlastResistanceBonus = 10;
         double challengeExcavationReward = 1200;
