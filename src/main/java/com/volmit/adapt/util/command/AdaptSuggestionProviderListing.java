@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.util.command;
 
+import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.skill.SkillRegistry;
 import io.github.mqzn.commands.base.SuggestionProvider;
@@ -33,7 +34,10 @@ public class AdaptSuggestionProviderListing implements SuggestionProvider {
     public @NotNull List<String> suggestions() {
         suggestions.add("[Main]");
         for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-            suggestions.add(skill.getName());
+            suggestions.add("[Skill]" + skill.getName());
+            for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                suggestions.add("[Adaptation]" + adaptation.getName());
+            }
         }
         return suggestions;
     }

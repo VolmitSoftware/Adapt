@@ -186,6 +186,15 @@ public interface Skill<T> extends Ticked, Component {
         XP.knowledge(p, this, k);
     }
 
+    default boolean openGui(Player player, boolean checkPermissions) {
+        if (hasBlacklistPermission(player, this)) {
+            return false;
+        } else {
+            openGui(player);
+            return true;
+        }
+    }
+
     default void openGui(Player player) {
         if (!this.isEnabled()) {
             this.unregister();

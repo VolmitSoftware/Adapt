@@ -42,7 +42,7 @@ public final class CommandBoost {
     public void info(CommandSender sender) {
         FConst.success(" --- === " + C.GRAY + "[" + C.DARK_RED + "Adapt Boost Help" + C.GRAY + "]: " + " === ---");
         FConst.info("/adapt boost(this command)").send(sender);
-        FConst.info("/adapt boost <Seconds> <Multiplier> [player])").send(sender);
+        FConst.info("/adapt boost <Seconds> <Multiplier> [player]").send(sender);
         FConst.info(C.ITALIC + "The Multiplier is a Double, and if you dont specify a player its global").send(sender);
     }
 

@@ -374,6 +374,15 @@ public interface Adaptation<T> extends Ticked, Component {
         return targetBlock.getFace(adjacentBlock);
     }
 
+    default boolean openGui(Player player, boolean checkPermissions) {
+        if (hasBlacklistPermission(player, this)) {
+            return false;
+        } else {
+            openGui(player);
+            return true;
+        }
+    }
+
     default void openGui(Player player) {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
