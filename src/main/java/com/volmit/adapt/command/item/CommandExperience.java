@@ -39,7 +39,7 @@ public final class CommandExperience {
     @SubCommandExecution
     public void execute(CommandSender sender,
                         @Arg(id = "skillname") @Suggest(provider = AdaptSuggestionProvider.class) String skillName,
-                        @Arg(id = "amount") @Range int amount,
+                        @Arg(id = "amount") @Range(min="1", max="100000") int amount,
                         @Arg(id = "player", optional = true) @Nullable Player player) {
 
         Player targetPlayer = player;
