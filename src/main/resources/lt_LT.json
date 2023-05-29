@@ -179,6 +179,58 @@
     "challenge_excavate_5m": {
       "title": "Mįslingas Ekskavatoristas",
       "description": "Iškaskite 5,000,000 Blokų"
+    },
+    "horrible_person": {
+      "title": "Jūs Esate Siaubingas Žmogus",
+      "description": "Nesuvokiama, tikrai"
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "Vėžlio kiaušinių daužytojas!",
+      "description": "Sudaužykite 100 vėžlio kiaušinių"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "Vėžlio kiaušinių naikintojas!",
+      "description": "Sudaužykite 500 vėžlių kiaušinius"
+    },
+    "challenge_novice_hunter": {
+      "title": "Naujokų medžiotojas!",
+      "description": "Nužudykite 100 subjektų"
+    },
+    "challenge_intermediate_hunter": {
+      "title": "Vidutinio lygio medžiotojas!",
+      "description": "Nužudykite 500 subjektų"
+    },
+    "challenge_advanced_hunter": {
+      "title": "Pažangus medžiotojas!",
+      "description": "Nužudykite 5000 subjektų"
+    },
+    "challenge_creeper_conqueror": {
+      "title": "Kryperio Užkariautojas!",
+      "description": "Nužudykite 50 kryperius"
+    },
+    "challenge_creeper_annihilator": {
+      "title": "Kryperių Naikintojas!",
+      "description": "Nužudykite 200 kryperių"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "Pradedantysis Kalnakasys",
+      "description": "Sugriaukite 1000 Blokų"
+    },
+    "challenge_pickaxe_5k": {
+      "title": "Įgudęs kalnakasys",
+      "description": "Sugriaukite 5000 Blokų"
+    },
+    "challenge_pickaxe_50k": {
+      "title": "Ekspertas Kalnakasys",
+      "description": "Sugriaukite 50 000 Blokų"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "Meistras Kalnakasys",
+      "description": "Sugriaukite 500 000 Blokų"
+    },
+    "challenge_pickaxe_5m": {
+      "title": "Legendinis Kalnakasys",
+      "description": "Sugriauti 5 000 000 000 Blokus"
     }
   },
   "items": {
@@ -316,7 +368,7 @@
       "description": "Iš paties pragaro gelmių."
     },
     "pickaxe": {
-      "name": "Angliakasys",
+      "name": "Kalnakasys",
       "icon": "⛏",
       "description": "Visa kūrinija yra kasykla, o kiekvienas žmogus yra kalnakasys."
     },
@@ -840,6 +892,11 @@
       "lore1": "galimybė paneigti vytimą (vienam luitui).",
       "lore2": "Pasyvus: Nederito šarvų dėvėjimas turi galimybę panaikinti ",
       "lore3": "vytimą."
+    },
+    "fireresist": {
+      "name": "Atsparumas Ugniai",
+      "description": "Atsparus ugniai, nes sukietina odą.",
+      "lore1": "galimybė paneigti deginimo efektą!"
     }
   },
   "pickaxe": {
