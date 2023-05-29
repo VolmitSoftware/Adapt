@@ -107,6 +107,10 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                 continue;
             }
 
+            if (!canInteract(p, p.getLocation())){
+                return;
+            }
+
             if (p.isFlying() || !p.isSneaking() || p.getFallDistance() < 0.3) {
                 boolean jumped = false;
 
@@ -158,6 +162,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     }
 
     private boolean canStick(Player p) {
+
         for (Block i : getBlocks(p)) {
             if (i.getBlockData().getMaterial().isSolid()) {
                 Vector velocity = p.getVelocity();
