@@ -82,6 +82,9 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (!canInteract(p, p.getLocation())) {
+            return;
+        }
         if (airjumps.containsKey(p)) {
             if (p.isOnGround() && !p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData().getMaterial().isAir()) {
                 airjumps.remove(p);

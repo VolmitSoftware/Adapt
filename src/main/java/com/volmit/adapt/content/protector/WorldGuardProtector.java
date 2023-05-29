@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.protector;
 
-import art.arcane.curse.Curse;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
@@ -30,13 +29,13 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.protection.Protector;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentMap;
 
 public class WorldGuardProtector implements Protector {
@@ -47,9 +46,21 @@ public class WorldGuardProtector implements Protector {
     public WorldGuardProtector() {
         this.flag = new StateFlag("use-adaptations", false);
         FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
-        ConcurrentMap<String, Flag<?>> flags = Curse.on(registry).field("flags").get(); // this is black magic
-        flags.put(flag.getName().toLowerCase(), flag); // add it to the registry
+
+        try {
+            // Access the flags field of the registry
+            Field field = registry.getClass().getDeclaredField("flags");
+            // This line makes the private field accessible
+            field.setAccessible(true);
+            // Get the flags from the registry
+            ConcurrentMap<String, Flag<?>> flags = (ConcurrentMap<String, Flag<?>>) field.get(registry);
+            // Add it to the registry
+            flags.put(flag.getName().toLowerCase(), flag);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
+
 
     @Override
     public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {

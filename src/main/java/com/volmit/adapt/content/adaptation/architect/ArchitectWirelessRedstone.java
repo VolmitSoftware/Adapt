@@ -103,6 +103,9 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             event.setCancelled(true);
             return;
         }
+        if (!canInteract(event.getPlayer(), event.getPlayer().getLocation())) {
+            return;
+        }
 
         handleOffhandInteraction(event, player);
 

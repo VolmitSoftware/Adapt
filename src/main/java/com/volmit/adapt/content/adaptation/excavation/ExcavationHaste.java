@@ -60,6 +60,9 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
         if (!hasAdaptation(p)) {
             return;
         }
+        if (!canInteract(p, e.getBlock().getLocation())) {
+            return;
+        }
         p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 15, getLevel(p), false, false, true));
     }
 

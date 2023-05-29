@@ -362,10 +362,10 @@ public class GlowingEntities implements Listener {
 
 		static {
 			try {
-				logger = new Logger("GlowingEntities", null) {
+				logger = new Logger("Adapt-GlowingEntities", null) {
 					@Override
 					public void log(LogRecord logRecord) {
-						logRecord.setMessage("[GlowingEntities] " + logRecord.getMessage());
+						logRecord.setMessage("[Adapt-GlowingEntities] " + logRecord.getMessage());
 						super.log(logRecord);
 					}
 				};

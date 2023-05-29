@@ -62,6 +62,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         if (e.isCancelled()) {
             return;
         }
+
         if (e.getDamager() instanceof Player p) {
             if (!hasAdaptation(p)) {
                 return;

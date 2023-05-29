@@ -64,7 +64,11 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
             return;
         }
+
         if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isAxe(p.getInventory().getItemInMainHand()) && hasAdaptation(p)) {
+            if (!canBlockBreak(p, e.getClickedBlock().getLocation())) {
+                return;
+            }
             BlockData b = e.getClickedBlock().getBlockData();
             if (isLog(new ItemStack(b.getMaterial()))) {
                 e.setCancelled(true);

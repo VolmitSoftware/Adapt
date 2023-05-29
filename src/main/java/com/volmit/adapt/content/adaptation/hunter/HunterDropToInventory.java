@@ -74,6 +74,12 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         if (p.getGameMode() != GameMode.SURVIVAL) {
             return;
         }
+        if (!canInteract(p, e.getBlock().getLocation())) {
+            return;
+        }
+        if (!canPVP(p, e.getBlock().getLocation())) {
+            return;
+        }
         if (ItemListings.toolSwords.contains(p.getInventory().getItemInMainHand().getType())) {
             List<Item> items = e.getItems().copy();
             e.getItems().clear();

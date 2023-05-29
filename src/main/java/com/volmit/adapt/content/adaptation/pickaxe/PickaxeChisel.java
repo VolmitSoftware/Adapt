@@ -73,6 +73,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+
         if (e.getClickedBlock() != null && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && isPickaxe(p.getInventory().getItemInMainHand()) && hasAdaptation(p)) {
             if (p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH) || p.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.MENDING)) {
                 return;
@@ -80,7 +81,9 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
             if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
                 return;
             }
-
+            if (!canBlockBreak(p, e.getClickedBlock().getLocation())) {
+                return;
+            }
             BlockData b = e.getClickedBlock().getBlockData();
             if (isOre(b)) {
                 p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f);
