@@ -75,7 +75,6 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
                 p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
                 for (int i = 0; i < getLevel(p); i++) {
                     if (breakStuff(e.getClickedBlock(), getRange(getLevel(p)), p)) {
-                        getSkill().xp(p, 5);
                         p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
                         damageHand(p, getDamagePerBlock(getLevelPercent(p)));
                     }

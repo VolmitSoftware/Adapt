@@ -108,7 +108,6 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
         for (Block b : locs) {
             if (addFoundation(b)) {
-                xp(p, 3);
                 power--;
             }
 

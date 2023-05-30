@@ -79,7 +79,6 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
             e.getItems().clear();
             for (Item i : items) {
                 p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
-                xp(p, 2);
                 if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
                     p.getWorld().dropItem(p.getLocation(), i.getItemStack());
                 }
