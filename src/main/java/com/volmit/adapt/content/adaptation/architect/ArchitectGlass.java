@@ -61,6 +61,9 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
         }
         Player p = e.getPlayer();
         if (hasAdaptation(p) && (p.getInventory().getItemInMainHand().getType() == Material.AIR || !isTool(p.getInventory().getItemInMainHand())) && !e.isCancelled()) {
+            if (!canBlockBreak(p, e.getBlock().getLocation())) {
+                return;
+            }
             if (e.getBlock().getType().toString().contains("GLASS") && !e.getBlock().getType().toString().contains("TINTED_GLASS")) {
                 e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(e.getBlock().getType(), 1));
                 e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_LARGE_AMETHYST_BUD_BREAK, 1.0f, 1.0f);

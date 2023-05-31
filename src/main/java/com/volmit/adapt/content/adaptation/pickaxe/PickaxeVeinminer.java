@@ -91,6 +91,9 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                     for (int z = -i; z <= i; z++) {
                         Block b = block.getRelative(x, y, z);
                         if (b.getType() == block.getType()) {
+                            if (!canBlockBreak(p, e.getBlock().getLocation())) {
+                                continue;
+                            }
                             blockMap.put(b.getLocation(), b);
                         }
                     }

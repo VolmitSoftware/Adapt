@@ -74,12 +74,17 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         if (p.getGameMode() != GameMode.SURVIVAL) {
             return;
         }
+        if (!canInteract(p, e.getBlock().getLocation())) {
+            return;
+        }
+        if (!canPVP(p, e.getBlock().getLocation())) {
+            return;
+        }
         if (ItemListings.toolSwords.contains(p.getInventory().getItemInMainHand().getType())) {
             List<Item> items = e.getItems().copy();
             e.getItems().clear();
             p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
             for (Item i : items) {
-                xp(p, 2);
                 if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
                     p.getWorld().dropItem(p.getLocation(), i.getItemStack());
                 }
@@ -103,7 +108,6 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
             p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
             e.getDrops().forEach(i -> {
-                xp(p, 2);
                 if (!p.getInventory().addItem(i).isEmpty()) {
                     p.getWorld().dropItem(p.getLocation(), i);
                 }

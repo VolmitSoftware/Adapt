@@ -82,6 +82,9 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
             return;
         }
         Player p = e.getPlayer();
+        if (!canInteract(p, p.getLocation())) {
+            return;
+        }
         if (airjumps.containsKey(p)) {
             if (p.isOnGround() && !p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData().getMaterial().isAir()) {
                 airjumps.remove(p);
@@ -104,6 +107,10 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                 continue;
             }
 
+            if (!canInteract(p, p.getLocation())){
+                return;
+            }
+
             if (p.isFlying() || !p.isSneaking() || p.getFallDistance() < 0.3) {
                 boolean jumped = false;
 
@@ -119,7 +126,6 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                             p.getWorld().spawnParticle(Particle.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, getStick(p).getBlockData());
                         }
                     }
-                    xp(p, 2);
                     airjumps.put(p, j);
                 }
 
@@ -155,6 +161,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     }
 
     private boolean canStick(Player p) {
+
         for (Block i : getBlocks(p)) {
             if (i.getBlockData().getMaterial().isSolid()) {
                 Vector velocity = p.getVelocity();

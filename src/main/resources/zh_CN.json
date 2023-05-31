@@ -1,7 +1,7 @@
 {
   "advancement": {
     "challenge_move_1k": {
-      "title": "得走啦！",
+      "title": "动起来！",
       "description": "走过总计 1 千米的距离。（1,000 格方块）"
     },
     "challenge_sprint_5k": {
@@ -21,7 +21,7 @@
       "description": "以疾跑的方式跑过 42,195 格方块"
     },
     "challenge_place_1k": {
-      "title": "初学建筑师！",
+      "title": "建筑师入门！",
       "description": "放置 1,000 个方块"
     },
     "challenge_place_5k": {
@@ -38,10 +38,10 @@
     },
     "challenge_place_5m": {
       "title": "对称主义",
-      "description": "世界就是你的天地！（放置超过 500 万个方块）"
+      "description": "世界就是你的天地！（放置五百万个方块）"
     },
     "challenge_chop_1k": {
-      "title": "初学伐木工",
+      "title": "伐木工入门",
       "description": "砍伐 1,000 个方块"
     },
     "challenge_chop_5k": {
@@ -54,11 +54,11 @@
     },
     "challenge_chop_500k": {
       "title": "伐木大师！",
-      "description": "放置 500,000 个方块"
+      "description": "砍伐 500,000 个方块"
     },
     "challenge_chop_5m": {
       "title": "狗狗杰克逊",
-      "description": "最棒的好孩子！ （500 万块）"
+      "description": "最棒的好孩子！ （砍伐五百万个方块）"
     },
     "challenge_block_1k": {
       "title": "防御入门",
@@ -81,7 +81,7 @@
       "description": "防御 500,000 次攻击"
     },
     "challenge_brew_1k": {
-      "title": "初学炼金术士！",
+      "title": "炼金术士入门！",
       "description": "饮用 1000 瓶药水"
     },
     "challenge_brew_5k": {
@@ -93,7 +93,7 @@
       "description": "饮用 50,000 瓶药水"
     },
     "challenge_brew_500k": {
-      "title": "炼金大师！",
+      "title": "炼金专家！",
       "description": "饮用 500,000 瓶药水"
     },
     "challenge_brew_5m": {
@@ -101,7 +101,7 @@
       "description": "饮用 5,000,000 瓶药水"
     },
     "challenge_brewsplash_1k": {
-      "title": "投掷喷溅药水入门！",
+      "title": "初学投掷喷溅药水！",
       "description": "投掷 1,000 瓶喷溅药水"
     },
     "challenge_brewsplash_5k": {
@@ -141,7 +141,7 @@
       "description": "合成 5,000,000 个物品"
     },
     "challenge_enchant_1k": {
-      "title": "挖掘入门！",
+      "title": "附魔入门！",
       "description": "附魔 1000 件物品"
     },
     "challenge_enchant_5k": {
@@ -179,6 +179,58 @@
     "challenge_excavate_5m": {
       "title": "神秘挖掘机",
       "description": "挖掘 5,000,000 个方块"
+    },
+    "horrible_person": {
+      "title": "你真是可怕的人",
+      "description": "不可思议，真的"
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "海龟蛋破坏者！",
+      "description": "破坏 100 个海龟蛋"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "海龟蛋歼灭者！",
+      "description": "破坏 500 个海龟蛋"
+    },
+    "challenge_novice_hunter": {
+      "title": "狩猎入门！",
+      "description": "击杀 100 名敌人"
+    },
+    "challenge_intermediate_hunter": {
+      "title": "中级猎人！",
+      "description": "击杀 500 名敌人"
+    },
+    "challenge_advanced_hunter": {
+      "title": "职业猎手",
+      "description": "击杀 5000 名敌人"
+    },
+    "challenge_creeper_conqueror": {
+      "title": "苦力怕征服者！",
+      "description": "击杀 50 只苦力怕"
+    },
+    "challenge_creeper_annihilator": {
+      "title": "苦力怕歼灭者！",
+      "description": "击杀 200 只苦力怕"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "初级矿工",
+      "description": "破坏 1000 个方块"
+    },
+    "challenge_pickaxe_5k": {
+      "title": "得心应手",
+      "description": "破坏 5000 个方块"
+    },
+    "challenge_pickaxe_50k": {
+      "title": "挖矿专家",
+      "description": "破坏 50,000 个方块"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "挖矿大师",
+      "description": "破坏 500,000 个方块"
+    },
+    "challenge_pickaxe_5m": {
+      "title": "一段传奇",
+      "description": "破坏 5,000,000 个方块"
     }
   },
   "items": {
@@ -265,7 +317,7 @@
     },
     "axes": {
       "name": "斧技",
-      "icon": "❖",
+      "icon": "🪓",
       "description1": "如果说你可以砍掉什么东西",
       "description2": "以替代砍树",
       "description3": "有什么不一样的吗？"
@@ -277,7 +329,7 @@
     },
     "blocking": {
       "name": "防御",
-      "icon": "▒",
+      "icon": "🛡",
       "description": "棍棒与石头不会折断你的骨头，但是盾牌会。"
     },
     "crafting": {
@@ -297,7 +349,7 @@
     },
     "excavation": {
       "name": "挖掘",
-      "icon": "✥",
+      "icon": "ᛳ",
       "description": "挖大洞......"
     },
     "herbalism": {
@@ -328,17 +380,17 @@
     "rift": {
       "name": "裂痕",
       "icon": "❍",
-      "description": "裂痕如同一道尖锐的线束，但是现在你控制了它。"
+      "description": "裂痕如同一道尖锐的线束，此时你已控制了它。"
     },
     "seaborne": {
       "name": "激流",
-      "icon": "🌊",
+      "icon": "🎣",
       "description": "带着它吧，也许有一天你会见到由水组成的奇观。"
     },
     "stealth": {
       "name": "隐形",
-      "icon": "✠",
-      "description": "当行走于阴影里，隐藏于阴影中的艺术。"
+      "icon": "☯",
+      "description": "当行走于阴影里，这是隐藏于阴影中的艺术。"
     },
     "swords": {
       "name": "剑术",
@@ -348,21 +400,21 @@
     "taming": {
       "name": "驯兽",
       "icon": "♥",
-      "description": "鹦鹉、蜜蜂、以及......你？"
+      "description": "鹦鹉、蜜蜂，还有......你？"
     },
     "tragoul": {
       "name": "塔格奥",
-      "icon": "▼",
+      "icon": "🗡",
       "description": "血液在宇宙的血管中游动，束缚于你的手中。"
     },
     "chronos": {
       "name": "时空",
-      "icon": "۞",
+      "icon": "⏳",
       "description": "尝试着宇宙的钟上个发条，便可以感受到流动。若能把时钟弄坏，或许就能成为它。"
     },
     "unarmed": {
       "name": "搏击",
-      "icon": "⚜",
+      "icon": "»",
       "description": "赤手空拳并不意味着失去力量。"
     }
   },
@@ -411,7 +463,7 @@
     },
     "placement": {
       "name": "建筑师之杖",
-      "description": "手持多个方块，按住潜行对准目标方块。根据预览摆放方块，持续调整以达到最好效果！请注意：可能需要移动来调整边界。",
+      "description": "一次摆放多个方块，按住潜行对准目标位置。根据预览摆放方块，持续调整以达到最好效果！请注意：可能需要移动来调整边界。",
       "lore1": "手中必须持有多于",
       "lore2": "个方块才能使用",
       "lore3": "建筑师之杖。"
@@ -576,12 +628,12 @@
       "lore1": "合成将给予经验"
     },
     "reconstruction": {
-      "name": "矿石改造",
-      "description": "从基本成分中重新制作矿石！",
-      "lore1": "8 个掉落物和 1 个宿主 = 1 个矿石（无形）",
-      "lore2": "必须熔炼掉落物（如果适用）",
-      "lore3": "不包括：废料、石英和祖母绿等...",
-      "lore4": "主机 = 包裹。即：石头，Netherack，Deepslate"
+      "name": "矿石重建",
+      "description": "用它们的成分恢复成原矿石吧！",
+      "lore1": "8 个掉落物和 1 个源方块 = 1 个矿石（无需按特定顺序）",
+      "lore2": "掉落物必须经过熔炼（若适用）",
+      "lore3": "注意：不包含碎片、石英和绿宝石等...",
+      "lore4": "源方块：包裹矿石的方块。如：石头，下界岩，深板岩"
     },
     "leather": {
       "name": "可合成皮革",
@@ -670,11 +722,11 @@
       "lore2": "x 挖掘时急迫效果等级"
     },
     "spelunker": {
-      "name": "超级视力探险者！",
-      "description": "用眼睛看矿石，但要透过地面！",
-      "lore1": "副手拿着矿石，主手拿着 Glowberries，然后潜行！",
-      "lore2": "格挡范围：",
-      "lore3": "使用时消耗 Glowberry"
+      "name": "超级透视！",
+      "description": "可以透过地面看见矿石！",
+      "lore1": "副手拿着矿石，主手拿着发光浆果，然后潜行！",
+      "lore2": "屏蔽范围：",
+      "lore3": "当使用时需要消耗发光浆果"
     },
     "droptoinventory": {
       "name": "快速进入背包"
@@ -717,7 +769,7 @@
     "cobweb": {
       "name": "蛛网合成师",
       "description": "你将获得在工作台中合成蛛网的能力",
-      "lore1": "九弦，将制作蛛网。"
+      "lore1": "九根线，合成一张蜘蛛网"
     },
     "mushroomblocks": {
       "name": "蘑菇包装厂",
@@ -840,6 +892,11 @@
       "lore1": "免疫凋零效果概率",
       "lore2": "被动效果：穿着下界合金套装有概率避免",
       "lore3": "凋零效果。"
+    },
+    "fireresist": {
+      "name": "抗火",
+      "description": "强化皮肤，抵御火焰",
+      "lore1": "免疫火焰伤害概率"
     }
   },
   "pickaxe": {
@@ -862,9 +919,9 @@
     },
     "veinminer": {
       "name": "连锁挖矿",
-      "description": "允许你遇到原版矿物的矿脉时候连锁挖矿。",
+      "description": "允许你遇到原版矿物的矿脉时进行连锁挖矿。",
       "lore1": "按住潜行键，并挖掘矿物",
-      "lore2": "来使用连锁挖矿。",
+      "lore2": "连锁挖矿范围",
       "lore3": "此技能不会将掉落物合并在一起！"
     }
   },
@@ -873,7 +930,7 @@
       "name": "箭矢回收站",
       "description": "当你击杀目标后有概率回收箭矢。",
       "lore1": "概率在击杀生物时回收箭矢",
-      "lore2": "机会："
+      "lore2": "概率："
     },
     "webshot": {
       "name": "蛛网陷阱",
@@ -883,7 +940,7 @@
     },
     "forceshot": {
       "name": "大力投掷手",
-      "description": "射出的投掷物又快又远！",
+      "description": "掷出的投掷物又快又远！",
       "advancementname": "远距离射击",
       "advancementlore": "投掷物可以在超过30格方块外着陆",
       "lore1": "射击速度"
@@ -921,9 +978,9 @@
       "lore1": "左键点击以快速打开末影箱（无需放置）"
     },
     "descent": {
-      "name": "反悬浮",
-      "description": "你厌倦了被困在空中吗？这是给你的技能！",
-      "lore1": "只需潜行下降，您就会以低于正常速度的速度坠落！",
+      "name": "浮空抑制器",
+      "description": "不习惯浮在空中？让它解救你吧！",
+      "lore1": "按住潜行时，将以低于正常速度降落！",
       "lore2": "冷却："
     },
     "gate": {
@@ -973,7 +1030,7 @@
   "stealth": {
     "ghostarmor": {
       "name": "幽灵战甲",
-      "description": "潜行时缓慢的构建幽灵战甲，将给予防御效果，受伤后失效。",
+      "description": "当未受到任何攻击时构建幽灵战甲(将提供防御效果)。 仅可以防御一次, 被攻击后失效",
       "lore1": "最大护甲值",
       "lore2": "速度"
     },
@@ -1042,25 +1099,25 @@
       "lore1": "伤害反弹倍数"
     },
     "globe": {
-      "name": "痛苦之球",
-      "description": "根据周围敌人的数量分配你造成的伤害！",
+      "name": "痛苦之珠",
+      "description": "根据你周围敌人的数量来分配你所造成的伤害!",
       "lore1": "你周围的敌人越多，你对他们每个人造成的伤害就越少",
       "lore2": "范围：",
       "lore3": "对所有实体增加伤害："
     },
     "healing": {
-      "name": "痛苦意志",
-      "description": "根据你造成的伤害恢复健康！",
-      "lore1": "伤害事物从未如此美好！从造成的伤害中恢复",
-      "lore2": "有一个 3 秒的伤害窗口，用于治疗和 1 秒的冷却时间",
-      "lore3": "每伤害百分比治疗："
+      "name": "痛苦之志",
+      "description": "根据你所造成的伤害恢复生命",
+      "lore1": "通过造成伤害恢复生命",
+      "lore2": "造成伤害后在 3 秒内进行生命恢复，冷却时间 1 秒。",
+      "lore3": "生命恢复/每次造成伤害比："
     },
     "lance": {
-      "name": "尸矛",
-      "description": "杀死敌人或拥有杀死敌人的能力，会产生对附近敌人造成伤害的长矛！",
-      "lore1": "长矛会从你杀死的任何东西中寻找，如果这个能力杀死了一个敌人。",
-      "lore2": "牺牲一部分生命来制造长矛（这会杀了你）",
-      "lore3": "最大长矛：1 +"
+      "name": "尸骨之矛",
+      "description": "当击杀一名敌人或某能力击杀一名敌人时，生成长矛并对附近敌人造成伤害。",
+      "lore1": "如果此能力击杀一名敌人，长矛将收回并寻找下一敌人。",
+      "lore2": "消耗部分生命以生成长矛（可能导致死亡）",
+      "lore3": "最大长矛数：1 +"
     }
   },
   "unarmed": {

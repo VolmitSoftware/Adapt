@@ -117,7 +117,6 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
                     p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.25f, 0.7f);
                     p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.25f, 1.7f);
                     if (getConfig().showParticles) {
-                        xp(p, 1);
                         p.getWorld().spawnParticle(Particle.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData());
                     }
                     p.setVelocity(p.getVelocity().setY(getJumpHeight(getLevel(p))));

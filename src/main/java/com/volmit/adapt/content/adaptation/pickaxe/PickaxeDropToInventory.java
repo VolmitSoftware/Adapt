@@ -70,12 +70,14 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
         if (p.getGameMode() != GameMode.SURVIVAL) {
             return;
         }
+        if (!canBlockBreak(p, e.getBlock().getLocation())) {
+            return;
+        }
         if (ItemListings.toolPickaxes.contains(p.getInventory().getItemInMainHand().getType())) {
             List<Item> items = e.getItems().copy();
             e.getItems().clear();
             for (Item i : items) {
                 p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
-                xp(p, 2);
                 if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
                     p.getWorld().dropItem(p.getLocation(), i.getItemStack());
                 }

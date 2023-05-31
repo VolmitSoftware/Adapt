@@ -69,7 +69,9 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         if (!hasAdaptation(p)) {
             return;
         }
-
+        if (!canAccessChest(p, p.getLocation())) {
+            return;
+        }
         if (e.isSneaking()) {
             snatch(p);
         }

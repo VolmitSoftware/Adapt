@@ -126,9 +126,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
                                 while (particleLocation.distance(blockLocation) > 0.5) {
                                     particleLocation.add(vector);
-                                    J.s(() -> {
-                                        p.spawnParticle(Particle.REDSTONE, particleLocation, 1, dustOptions);
-                                    });
+                                    J.s(() -> p.spawnParticle(Particle.REDSTONE, particleLocation, 1, dustOptions));
                                 }
 
                                 J.s(() -> {

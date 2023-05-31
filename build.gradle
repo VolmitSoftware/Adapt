@@ -23,7 +23,7 @@ plugins {
     id "de.undercouch.download" version "5.0.1"
 }
 
-version '1.10.0-1.19.4'
+version '1.10.1-1.19.4'
 def nmsVersion = "1.19.4" //[NMS]
 def apiVersion = '1.19'
 def specialSourceVersion = '1.11.0' //[NMS]
@@ -124,7 +124,7 @@ dependencies {
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
     implementation 'art.arcane:Fukkit:22.7.5'
-    implementation 'art.arcane:Curse:22.11.8'
+    implementation 'art.arcane:Curse:23.5.2'
     implementation "io.papermc:paperlib:1.0.7"
     annotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
     testAnnotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
@@ -132,7 +132,7 @@ dependencies {
 
     //Random Api's
     implementation 'com.github.DeadSilenceIV:AdvancedChestsAPI:2.9-BETA'
-    implementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.7'
+    implementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.8'
     implementation "com.github.FrancoBM12:API-MagicCosmetics:1.9.85"
     implementation 'me.clip:placeholderapi:2.11.2'
     implementation 'com.github.LoneDev6:api-itemsadder:3.2.5'
