@@ -179,6 +179,32 @@
     "challenge_excavate_5m": {
       "title": "Excavadora enigmática",
       "description": "Excava 5 000 000 de bloques"
+    },
+    "horrible_person": {
+    },
+    "challenge_turtle_egg_smasher": {
+    },
+    "challenge_turtle_egg_annihilator": {
+    },
+    "challenge_novice_hunter": {
+    },
+    "challenge_intermediate_hunter": {
+    },
+    "challenge_advanced_hunter": {
+    },
+    "challenge_creeper_conqueror": {
+    },
+    "challenge_creeper_annihilator": {
+    },
+    "challenge_pickaxe_1k": {
+    },
+    "challenge_pickaxe_5k": {
+    },
+    "challenge_pickaxe_50k": {
+    },
+    "challenge_pickaxe_500k": {
+    },
+    "challenge_pickaxe_5m": {
     }
   },
   "items": {
@@ -196,6 +222,10 @@
       "name": "Mando a distancia de piedra roja",
       "usage1": "Haga clic con el botón derecho para crear un pulso Redstone de 1 tic",
       "usage2": "Mayús + clic izquierdo en un bloque 'Objetivo' para enlazar"
+    },
+    "boundsnowball": {
+      "name": "¡Trampa web!",
+      "usage1": "Lanzar para crear una trampa web temporal en la ubicación"
     }
   },
   "snippets": {
@@ -217,6 +247,7 @@
       "maynotunlearn": "NO PUEDES DESAPRENDER",
       "mayunlearn": "PUEDES APRENDER/DESAPRENDER",
       "knowledgecost": "Coste del conocimiento",
+      "knowledgeavailable": "Conocimiento disponible",
       "alreadylearned": "Ya aprendido",
       "unlearnrefund": "Haga clic para desaprender y reembolsar",
       "norefunds": "HARDCORE, REEMBOLSOS DESHABILITADOS",
@@ -229,7 +260,8 @@
       "power": "Poder",
       "powerdrain": "Drenaje de energía",
       "learned": "Aprendida ",
-      "unlearned": "No aprendido "
+      "unlearned": "No aprendido ",
+      "activatorblock": "Estante para libros"
     },
     "knowledgeorb": {
       "contains": "Contiene",
@@ -569,6 +601,8 @@
       "description": "Gana experiencia pasiva cuando construyes.",
       "lore1": "Gana XP al craftear"
     },
+    "reconstruction": {
+    },
     "leather": {
       "name": "Cuero artesanal",
       "description": "Fabricar cuero a partir de carne podrida",
@@ -655,6 +689,8 @@
       "lore1": "Gana prisa minera mientras excavas",
       "lore2": "x Niveles de prisa minera cuando empiezas a excavar cualquier bloque."
     },
+    "spelunker": {
+    },
     "droptoinventory": {
       "name": "Pala de caída al inventario"
     },
@@ -696,7 +732,7 @@
     "cobweb": {
       "name": "Creador de telarañas",
       "description": "Te da la habilidad de crear telarañas en una mesa de trabajo.",
-      "lore1": "Four String, creará una telaraña."
+      "lore1": "Nine String, creará una telaraña."
     },
     "mushroomblocks": {
       "name": "fabricante de hongos",
@@ -819,6 +855,8 @@
       "lore1": "Probabilidad de anular la descomposicion (por pieza).",
       "lore2": "Pasiva: Llevar una armadura de netherita tiene una probabilidad de anular ",
       "lore3": "la descomposicion."
+    },
+    "fireresist": {
     }
   },
   "pickaxe": {
@@ -852,6 +890,8 @@
       "name": "Recuperación de flechas",
       "description": "Recupera las flechas después de matar a un enemigo.",
       "lore1": "Probabilidad de recuperar flechas al golpear/matar"
+    },
+    "webshot": {
     },
     "forceshot": {
       "name": "Tiro con fuerza",
@@ -892,6 +932,9 @@
       "description": "Abre un cofre con un clic izquierdo en tu mano.",
       "lore1": "Haz clic en un cofre en tu mano para abrirlo (pero no lo coloques)"
     },
+    "descent": {
+      "lore2": "Enfriarse:"
+    },
     "gate": {
       "name": "Puerta de la Grieta",
       "description": "Teletranspórtate a un lugar marcado.",
@@ -910,8 +953,7 @@
   "seaborn": {
     "oxygen": {
       "name": "Tanque de oxígeno orgánico",
-      "description": "Mantiene más oxígeno en tus pequeños pulmones",
-      "lore1": "Oxígeno"
+      "description": "Mantiene más oxígeno en tus pequeños pulmones"
     },
     "fishersfantasy": {
       "name": "la fantasía del pescador",
@@ -1006,6 +1048,12 @@
       "name": "espinas",
       "description": "¡Refleja el daño hacia tu atacante!",
       "lore1": "Daño represaliado cuando es golpeado"
+    },
+    "globe": {
+    },
+    "healing": {
+    },
+    "lance": {
     }
   },
   "unarmed": {
