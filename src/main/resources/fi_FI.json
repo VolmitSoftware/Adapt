@@ -372,7 +372,8 @@
     },
     "ranged": {
       "name": "Etäisyys",
-      "icon": "🏹"
+      "icon": "🏹",
+      "description": "Etäisyys on avain voittoon ja selviytymiseen."
     },
     "rift": {
       "name": "Maagisuus",
@@ -910,6 +911,7 @@
       "lore1": "Aina kun rikkomasi palikka tiputtaa jotain, se menee varastoosi, jos mahdollista."
     },
     "veinminer": {
+      "name": "Suonikaivaja",
       "description": "Voit kaivaa isoja malmi esiintymiä helposti",
       "lore1": "Hiipiä ja kaivaa malmia",
       "lore2": "valikoima suonten louhintaa",
@@ -962,6 +964,7 @@
       "lore3": "Räpäytys"
     },
     "chest": {
+      "name": "Helppo Ääriarkku",
       "description": "Avaa ääriarkku klikkaamalla sitä hiiren oikealla painikkeella kädessäsi.",
       "lore1": "Napsauta kädessäsi olevaa Ääriarkkua avataksesi (älä vain aseta sitä)"
     },
