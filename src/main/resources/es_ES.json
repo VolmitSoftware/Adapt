@@ -179,6 +179,58 @@
     "challenge_excavate_5m": {
       "title": "Excavadora enigmática",
       "description": "Excava 5 000 000 de bloques"
+    },
+    "horrible_person": {
+      "title": "Eres una persona horrible",
+      "description": "Incomprensible, realmente"
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "Rompehuevos de tortuga",
+      "description": "Rompe 100 huevos de tortuga"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "¡Aniquilador de huevos de tortuga!",
+      "description": "Rompe 500 huevos de tortuga"
+    },
+    "challenge_novice_hunter": {
+      "title": "¡Cazador novato!",
+      "description": "Mata a 100 mobs"
+    },
+    "challenge_intermediate_hunter": {
+      "title": "¡Cazador intermedio!",
+      "description": "Mata a 500 mobs"
+    },
+    "challenge_advanced_hunter": {
+      "title": "¡Cazador avanzado!",
+      "description": "Mata a 5000 mobs"
+    },
+    "challenge_creeper_conqueror": {
+      "title": "¡Conquistador de creepers!",
+      "description": "Mata a 50 creepers"
+    },
+    "challenge_creeper_annihilator": {
+      "title": "¡Aniquilador de creepers!",
+      "description": "Mata a 200 creepers"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "Minero novato",
+      "description": "Rompe 1000 bloques"
+    },
+    "challenge_pickaxe_5k": {
+      "title": "Minero experto",
+      "description": "Rompe 5000 bloques"
+    },
+    "challenge_pickaxe_50k": {
+      "title": "Minero experto",
+      "description": "Rompe 50.000 bloques"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "maestro minero",
+      "description": "Rompe 500.000 bloques"
+    },
+    "challenge_pickaxe_5m": {
+      "title": "Minero legendario",
+      "description": "Rompe 5,000,000 Bloques"
     }
   },
   "items": {
@@ -196,6 +248,10 @@
       "name": "Mando a distancia de piedra roja",
       "usage1": "Haga clic con el botón derecho para crear un pulso Redstone de 1 tic",
       "usage2": "Mayús + clic izquierdo en un bloque 'Objetivo' para enlazar"
+    },
+    "boundsnowball": {
+      "name": "¡Trampa web!",
+      "usage1": "Lanzar para crear una trampa web temporal en la ubicación"
     }
   },
   "snippets": {
@@ -217,6 +273,7 @@
       "maynotunlearn": "NO PUEDES DESAPRENDER",
       "mayunlearn": "PUEDES APRENDER/DESAPRENDER",
       "knowledgecost": "Coste del conocimiento",
+      "knowledgeavailable": "Conocimiento disponible",
       "alreadylearned": "Ya aprendido",
       "unlearnrefund": "Haga clic para desaprender y reembolsar",
       "norefunds": "HARDCORE, REEMBOLSOS DESHABILITADOS",
@@ -229,7 +286,8 @@
       "power": "Poder",
       "powerdrain": "Drenaje de energía",
       "learned": "Aprendida ",
-      "unlearned": "No aprendido "
+      "unlearned": "No aprendido ",
+      "activatorblock": "Estante para libros"
     },
     "knowledgeorb": {
       "contains": "Contiene",
@@ -569,6 +627,14 @@
       "description": "Gana experiencia pasiva cuando construyes.",
       "lore1": "Gana XP al craftear"
     },
+    "reconstruction": {
+      "name": "Reconstrucción de minerales",
+      "description": "¡Reconstruye los minerales a partir de sus componentes básicos!",
+      "lore1": "8 de minerales y 1 Host = 1 mineral (sin forma)",
+      "lore2": "Los ores deben ser fundidas (si corresponde)",
+      "lore3": "No incluye: Desechos, Cuartos, Esmeraldas, etc...",
+      "lore4": "Anfitrión = Revestimiento. es decir: Piedra, Netherack, Deepslate"
+    },
     "leather": {
       "name": "Cuero artesanal",
       "description": "Fabricar cuero a partir de carne podrida",
@@ -655,6 +721,13 @@
       "lore1": "Gana prisa minera mientras excavas",
       "lore2": "x Niveles de prisa minera cuando empiezas a excavar cualquier bloque."
     },
+    "spelunker": {
+      "name": "¡Espeleólogo supervidente!",
+      "description": "Ver Ores con los ojos, ¡pero a través del suelo!",
+      "lore1": "¡Ore en tu mano secundaria, Glowberries en tu mano principal y Shiftea!",
+      "lore2": "Rango de bloque:",
+      "lore3": "Consume Glowberry para usar"
+    },
     "droptoinventory": {
       "name": "Pala de caída al inventario"
     },
@@ -696,7 +769,7 @@
     "cobweb": {
       "name": "Creador de telarañas",
       "description": "Te da la habilidad de crear telarañas en una mesa de trabajo.",
-      "lore1": "Four String, creará una telaraña."
+      "lore1": "Nine String, creará una telaraña."
     },
     "mushroomblocks": {
       "name": "fabricante de hongos",
@@ -819,6 +892,11 @@
       "lore1": "Probabilidad de anular la descomposicion (por pieza).",
       "lore2": "Pasiva: Llevar una armadura de netherita tiene una probabilidad de anular ",
       "lore3": "la descomposicion."
+    },
+    "fireresist": {
+      "name": "Resistente al fuego",
+      "description": "Resiste al fuego endureciendo tu piel.",
+      "lore1": "oportunidad de negar el efecto de quema!"
     }
   },
   "pickaxe": {
@@ -851,7 +929,14 @@
     "arrowrecovery": {
       "name": "Recuperación de flechas",
       "description": "Recupera las flechas después de matar a un enemigo.",
-      "lore1": "Probabilidad de recuperar flechas al golpear/matar"
+      "lore1": "Probabilidad de recuperar flechas al golpear/matar",
+      "lore2": "Oportunidad:"
+    },
+    "webshot": {
+      "name": "trampa web",
+      "description": "¡Rodea telarañas alrededor de tu objetivo cuando los golpeas!",
+      "lore1": "8 Telarañas alrededor de una Bola de Nieve, ¡y a lanzar!",
+      "lore2": "segundos de una jaula, aproximadamente."
     },
     "forceshot": {
       "name": "Tiro con fuerza",
@@ -892,6 +977,12 @@
       "description": "Abre un cofre con un clic izquierdo en tu mano.",
       "lore1": "Haz clic en un cofre en tu mano para abrirlo (pero no lo coloques)"
     },
+    "descent": {
+      "name": "Anti-Levitación",
+      "description": "¿Estás cansado de estar atrapado en el aire? ¡Esta es la habilidad para ti!",
+      "lore1": "¡Simplemente camine sigilosamente para descender y caerá a un ritmo inferior al normal!",
+      "lore2": "Enfriarse:"
+    },
     "gate": {
       "name": "Puerta de la Grieta",
       "description": "Teletranspórtate a un lugar marcado.",
@@ -911,7 +1002,7 @@
     "oxygen": {
       "name": "Tanque de oxígeno orgánico",
       "description": "Mantiene más oxígeno en tus pequeños pulmones",
-      "lore1": "Oxígeno"
+      "lore1": "Aumento de la capacidad de oxígeno"
     },
     "fishersfantasy": {
       "name": "la fantasía del pescador",
@@ -1006,6 +1097,27 @@
       "name": "espinas",
       "description": "¡Refleja el daño hacia tu atacante!",
       "lore1": "Daño represaliado cuando es golpeado"
+    },
+    "globe": {
+      "name": "Globo de dolor",
+      "description": "¡Divida el daño que inflige según la cantidad de enemigos que lo rodean!",
+      "lore1": "Cuantos más enemigos te rodean, menos daño les haces a cada uno de ellos.",
+      "lore2": "Rango:",
+      "lore3": "Daño agregado a todas las entidades:"
+    },
+    "healing": {
+      "name": "Voluntad del dolor",
+      "description": "¡Recupera salud según el daño que inflijas!",
+      "lore1": "¡Hacer daño nunca se ha sentido tan bien! Curar del daño infligido",
+      "lore2": "Hay una ventana de daño de 3 segundos, para la curación y un tiempo de reutilización de 1 segundo",
+      "lore3": "Curación por porcentaje de daño:"
+    },
+    "lance": {
+      "name": "Lanzas para cadáveres",
+      "description": "Al matar a un enemigo o hacer que una habilidad mate a un enemigo, aparece una lanza que inflige daño a un enemigo cercano.",
+      "lore1": "Las lanzas saldrán de cualquier cosa que mates, Y si esta habilidad mata a un enemigo.",
+      "lore2": "Sacrifica una parte de tu vida para crear las lanzas (esto puede matarte)",
+      "lore3": "Lanzas máximas: 1 +"
     }
   },
   "unarmed": {

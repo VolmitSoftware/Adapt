@@ -23,7 +23,7 @@ plugins {
     id "de.undercouch.download" version "5.0.1"
 }
 
-version '1.10.1-1.19.4'
+version '1.10.2-1.19.4'
 def nmsVersion = "1.19.4" //[NMS]
 def apiVersion = '1.19'
 def specialSourceVersion = '1.11.0' //[NMS]
@@ -150,8 +150,8 @@ dependencies {
     compileOnly 'net.kyori:adventure-text-minimessage:4.13.1'
     compileOnly 'net.kyori:adventure-platform-bukkit:4.3.0'
     compileOnly 'net.kyori:adventure-api:4.13.1'
-    compileOnly 'io.github.mqzn:mCommands-spigot:1.0.9'
-    compileOnly 'io.github.mqzn:mCommands-common:1.0.9'
+    compileOnly 'io.github.mqzn:mCommands-spigot:1.1.0'
+    compileOnly 'io.github.mqzn:mCommands-common:1.1.0'
     compileOnly fileTree(dir: 'libs', include: ['*.jar'])
 }
 

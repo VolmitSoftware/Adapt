@@ -179,6 +179,58 @@
     "challenge_excavate_5m": {
       "title": "Rätselhafter Baumeister",
       "description": "Grabe 5.000.000 Blöcke aus"
+    },
+    "horrible_person": {
+      "title": "Du bist eine schreckliche Person",
+      "description": "Unvorstellbar, wirklich"
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "Schildkröten-Eierzertrümmerer!",
+      "description": "Zerbrich 100 Schildkröteneier"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "Schildkröteneiervernichter!",
+      "description": "Zerbrich 500 Schildkröteneier"
+    },
+    "challenge_novice_hunter": {
+      "title": "Anfängerjäger!",
+      "description": "Töte 100 Wesen"
+    },
+    "challenge_intermediate_hunter": {
+      "title": "Fortgeschrittener Jäger!",
+      "description": "Töte 500 Wesen"
+    },
+    "challenge_advanced_hunter": {
+      "title": "Fortgeschrittener Jäger!",
+      "description": "Töte 5000 Wesen"
+    },
+    "challenge_creeper_conqueror": {
+      "title": "Creeper-Eroberer!",
+      "description": "Töte 50 Creeper"
+    },
+    "challenge_creeper_annihilator": {
+      "title": "Creeper-Vernichter!",
+      "description": "Töte 200 Creeper"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "Bergmann-Anfänger",
+      "description": "Zerbrich 1000 Blöcke"
+    },
+    "challenge_pickaxe_5k": {
+      "title": "Erfahrener Bergmann",
+      "description": "Zerbrich 5000 Blöcke"
+    },
+    "challenge_pickaxe_50k": {
+      "title": "Erfahrener Bergmann",
+      "description": "Zerbrich 50.000 Blöcke"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "Meisterbergmann",
+      "description": "Zerbrich 500.000 Blöcke"
+    },
+    "challenge_pickaxe_5m": {
+      "title": "Legendärer Bergmann",
+      "description": "Zerbrich 5.000.000 Blöcke"
     }
   },
   "items": {
@@ -196,6 +248,10 @@
       "name": "Redstone-Fernsteuerung",
       "usage1": "Klicken Sie mit der rechten Maustaste, um einen 1-Tick-Redstone-Impuls zu erzeugen",
       "usage2": "Shift + Linksklick auf einen 'Ziel'-Block zum Binden"
+    },
+    "boundsnowball": {
+      "name": "Web-Snare!",
+      "usage1": "Werfen Sie es aus, um am Standort eine vorübergehende Netzfalle zu erstellen"
     }
   },
   "snippets": {
@@ -208,7 +264,7 @@
       "welcome": "Herzlich willkommen!",
       "welcomeback": "Willkommen zurück!",
       "xpbonusfortime": "XP für",
-      "unlockthisbyclicking": "Schalte dies frei, indem du mit der rechten Maustaste auf den Adapt-Block klickst!",
+      "unlockthisbyclicking": "Entsperren Sie dies, indem Sie mit der rechten Maustaste klicken:",
       "back": "Der Rücken",
       "unlearnall": "Alles verlernen",
       "unlearnedall": "Alles verlernt"
@@ -217,6 +273,7 @@
       "maynotunlearn": "KANN MAN NICHT VERLERNEN",
       "mayunlearn": "SIE KÖNNEN LERNEN/VERLERNEN",
       "knowledgecost": "Wissenskosten",
+      "knowledgeavailable": "Wissen verfügbar",
       "alreadylearned": "Bereits gelernt!",
       "unlearnrefund": "Klicken zum Verlernen & für Rückerstattung",
       "norefunds": "HARDCORE, ERSTATTUNGEN DEAKTIVIERT",
@@ -229,7 +286,8 @@
       "power": "Energie",
       "powerdrain": "Power Drain",
       "learned": "Gelernt ",
-      "unlearned": "Verlernt "
+      "unlearned": "Verlernt ",
+      "activatorblock": "Bücherregal"
     },
     "knowledgeorb": {
       "contains": "Enthält",
@@ -472,14 +530,14 @@
     "haste": {
       "name": "Eile in Flaschen",
       "description": "Wenn Effizienz nicht ausreicht",
-      "lore1": "Schnelligkeitstrank + Amethyst-Scherbe = Trank der Eile (60 Sekunden)",
-      "lore2": "Schnelligkeitstrank + Amethyst-Block = Trank der Eile-2 (30 Sekunden)"
+      "lore1": "Geschwindigkeitstrank + Amethystsplitter = Trank der Eile (60 Sekunden)",
+      "lore2": "Geschwindigkeitstrank + Amethystblock = Trank der Eile-2 (30 Sekunden)"
     },
     "absorption": {
       "name": "Absorption in Flaschen",
       "description": "Härtet den Körper!",
-      "lore1": "Schnelligkeitstrank + Quartz = Trank der Absorption (60 Sekunden)",
-      "lore2": "Schnelligkeitstrank + Quartz Block = Trank der Absorption-2 (30 Sekunden)"
+      "lore1": "Sofortige Heilung + Quarz = Trank der Absorption (60 Sekunden)",
+      "lore2": "Sofortige Heilung + Quarzblock = Absorptionstrank-2 (30 Sekunden)"
     },
     "fatigue": {
       "name": "Abgefüllte Müdigkeit",
@@ -569,6 +627,14 @@
       "description": "Passiv Erfahrung beim Craften erhalten",
       "lore1": "Erfahrung beim Craften erhalten"
     },
+    "reconstruction": {
+      "name": "Erzrekonstruktion",
+      "description": "Stelle Erze aus ihren Basiskomponenten neu her!",
+      "lore1": "8 der Tropfen und 1 Wirt = 1 Erz (formlos)",
+      "lore2": "Tropfen müssen geschmolzen werden (falls zutreffend)",
+      "lore3": "Ausgenommen: Schrott, Quarts und Smaragde usw.",
+      "lore4": "Host = Umhüllung. dh: Stone, Netherack, Deepslate"
+    },
     "leather": {
       "name": "Handwerkliches Leder",
       "description": "Leder aus verfaultem Fleisch herstellen",
@@ -581,6 +647,12 @@
       "lore2": "XLX : Leder, Leine, Leder",
       "lore3": "XSX : Leder, Shulker Kiste, Leder",
       "lore4": "XCX : Leder, Kiste, Leder"
+    },
+    "stations": {
+      "name": "Tragbare Tische!",
+      "description": "Nutzen Sie einen Tisch in Ihrer Handfläche!",
+      "lore2": "ALLE EINZELTEILE, DIE SIE BEIM SCHLIESSEN IN DER TABELLE VERGESSEN, SIND FÜR EWIG VERLOREN!",
+      "lore3": "Gültige Tabellen: Amboss, Handwerk, Schleifstein, Kartographie, Steinmetz, Webstuhl"
     },
     "skulls": {
       "name": "Herstellbare Totenköpfe!",
@@ -649,6 +721,13 @@
       "lore1": "Beim Graben Eile gewinnen",
       "lore2": "x Stufen der Eile, wenn mit dem Abbau von Blöcken begonnen wird"
     },
+    "spelunker": {
+      "name": "Supersehender Höhlenforscher!",
+      "description": "Sehen Sie Erze mit Ihren Augen, aber durch den Boden!",
+      "lore1": "Erz in deiner Nebenhand, Glühbeeren in deiner Haupthand und Sneak!",
+      "lore2": "Blockbereich:",
+      "lore3": "Verbraucht Glowberry bei Gebrauch"
+    },
     "droptoinventory": {
       "name": "Schaufel Drop-Ins-Inventar"
     },
@@ -690,7 +769,7 @@
     "cobweb": {
       "name": "Webby-Schöpfer",
       "description": "Ermöglicht die Herstellung von Spinnenweben an einer Werkbank",
-      "lore1": "Vier Fäden ergeben Spinnenweben"
+      "lore1": "Nine String wird ein Spinnennetz herstellen."
     },
     "mushroomblocks": {
       "name": "Pilzmacher",
@@ -813,6 +892,11 @@
       "lore1": "Chance, Wither zu negieren (pro Stück).",
       "lore2": "Passiv: Tragen von Netherite Rüstung hat eine Chance, folgende Eigenschaften zu negieren ",
       "lore3": "withering"
+    },
+    "fireresist": {
+      "name": "Feuer Beständigkeit",
+      "description": "Widersteht Feuer, indem es Ihre Haut härtet.",
+      "lore1": "Chance, den Brenneffekt zu negieren!"
     }
   },
   "pickaxe": {
@@ -845,7 +929,14 @@
     "arrowrecovery": {
       "name": "Pfeilbergung",
       "description": "Sammelt Peife ein, nachdem du einen Feind erledigt hast",
-      "lore1": "Chance auf Wiederherstellung von Pfeilen bei Treffern/Tötung"
+      "lore1": "Chance auf Wiederherstellung von Pfeilen bei Treffern/Tötung",
+      "lore2": "Chance:"
+    },
+    "webshot": {
+      "name": "Web-Snare",
+      "description": "Umgeben Sie Ihr Ziel mit Spinnweben, wenn Sie es treffen!",
+      "lore1": "8 Spinnweben um einen Schneeball legen und werfen!",
+      "lore2": "Sekunden eines Käfigs, ungefähr."
     },
     "forceshot": {
       "name": "Kraftschuss",
@@ -886,6 +977,12 @@
       "description": "Linksklick um eine Endertruhe in deiner Hand zu öffnen",
       "lore1": "Klick auf eine Endertruhe in deiner Hand, um sie zu öffnen (nicht plazieren)"
     },
+    "descent": {
+      "name": "Anti-Levitation",
+      "description": "Sind Sie es leid, in der Luft festzusitzen? Das ist die Fähigkeit für Sie!",
+      "lore1": "Schleichen Sie sich einfach zum Abstieg, und Sie werden weniger schnell fallen als normal!",
+      "lore2": "Abkühlen:"
+    },
     "gate": {
       "name": "Rift Gate",
       "description": "Teleportiere dich zu einen markierten Ort",
@@ -905,7 +1002,7 @@
     "oxygen": {
       "name": "Organischer Sauerstofftank",
       "description": "Halte mehr Sauerstoff in deinen kleinen Lungen!",
-      "lore1": "Sauerstoff"
+      "lore1": "Erhöhung der Sauerstoffkapazität"
     },
     "fishersfantasy": {
       "name": "Phantasie des Fischers",
@@ -1000,6 +1097,27 @@
       "name": "Dornen",
       "description": "Reflektiert Schaden zurück auf den Angreifer!",
       "lore1": "Schaden vergelten, wenn man getroffen wird"
+    },
+    "globe": {
+      "name": "Globus des Schmerzes",
+      "description": "Teilen Sie den Schaden, den Sie verursachen, basierend auf der Anzahl der Feinde um Sie herum!",
+      "lore1": "Je mehr Feinde um dich herum sind, desto weniger Schaden fügst du jedem von ihnen zu",
+      "lore2": "Bereich:",
+      "lore3": "Allen Entitäten Schaden zugefügt:"
+    },
+    "healing": {
+      "name": "Wille des Schmerzes",
+      "description": "Gewinnen Sie Gesundheit basierend auf dem Schaden, den Sie verursachen!",
+      "lore1": "Es hat sich noch nie so gut angefühlt, Dinge zu verletzen! Heile durch verursachten Schaden",
+      "lore2": "Es gibt ein Schadensfenster von 3 Sekunden für Heilung und eine Abklingzeit von 1 Sekunde",
+      "lore3": "Heilung pro Schadensprozentsatz:"
+    },
+    "lance": {
+      "name": "Leichenlanzen",
+      "description": "Wenn du einen Feind tötest oder die Fähigkeit besitzt, einen Feind zu töten, entsteht eine Lanze, die einem Feind in der Nähe Schaden zufügt!",
+      "lore1": "Lanzen zielen auf alles ab, was du tötest, UND wenn diese Fähigkeit einen Feind tötet.",
+      "lore2": "Opfere einen Teil deines Lebens, um die Lanzen herzustellen (dies kann dich töten)",
+      "lore3": "Max. Lanzen: 1 +"
     }
   },
   "unarmed": {
