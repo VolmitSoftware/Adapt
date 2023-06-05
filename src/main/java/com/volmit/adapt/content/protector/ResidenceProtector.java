@@ -4,12 +4,14 @@ import com.bekvon.bukkit.residence.Residence;
 import com.bekvon.bukkit.residence.containers.Flags;
 import com.bekvon.bukkit.residence.protection.ClaimedResidence;
 import com.bekvon.bukkit.residence.protection.FlagPermissions;
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.protection.Protector;
+import com.volmit.adapt.util.J;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ResidenceProtector implements Protector {
 
@@ -53,22 +55,28 @@ public class ResidenceProtector implements Protector {
     }
 
     private boolean checkPerm(Player player, Location location, Flags flag) {
-        if (!Residence.getInstance().isDisabledWorld(location.getWorld())) {
-            ClaimedResidence res = Residence.getInstance().getResidenceManager().getByLoc(location);
-            if (res != null) {
-                return res.getPermissions().playerHas(player.getName(), flag, true);
+        AtomicBoolean perm = new AtomicBoolean(false);
+        J.s(() -> {
+            if (!Residence.getInstance().isDisabledWorld(location.getWorld())) {
+                ClaimedResidence res = Residence.getInstance().getResidenceManager().getByLoc(location);
+                if (res != null) {
+                    perm.set(res.getPermissions().playerHas(player.getName(), flag, true));
+                }
             }
-        }
-        return true;
+        });
+        return perm.get();
     }
 
     private boolean checkPerm(Player player, Location location, String flag) {
-        if (!Residence.getInstance().isDisabledWorld(location.getWorld())) {
-            ClaimedResidence res = Residence.getInstance().getResidenceManager().getByLoc(location);
-            if (res != null) {
-                return res.getPermissions().playerHas(player.getName(), flag, true);
+        AtomicBoolean perm = new AtomicBoolean(false);
+        J.s(() -> {
+            if (!Residence.getInstance().isDisabledWorld(location.getWorld())) {
+                ClaimedResidence res = Residence.getInstance().getResidenceManager().getByLoc(location);
+                if (res != null) {
+                    perm.set(res.getPermissions().playerHas(player.getName(), flag, true));
+                }
             }
-        }
+        });
         return true;
     }
 

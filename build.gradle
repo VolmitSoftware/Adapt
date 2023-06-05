@@ -150,8 +150,8 @@ dependencies {
     compileOnly 'net.kyori:adventure-text-minimessage:4.13.1'
     compileOnly 'net.kyori:adventure-platform-bukkit:4.3.0'
     compileOnly 'net.kyori:adventure-api:4.13.1'
-    compileOnly 'io.github.mqzn:mCommands-spigot:1.0.9'
-    compileOnly 'io.github.mqzn:mCommands-common:1.0.9'
+    compileOnly 'io.github.mqzn:mCommands-spigot:1.1.0'
+    compileOnly 'io.github.mqzn:mCommands-common:1.1.0'
     compileOnly fileTree(dir: 'libs', include: ['*.jar'])
 }
 
