@@ -107,7 +107,9 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-
+        if (e.isCancelled()) {
+            return;
+        }
         shouldReturnForPlayer(p, e, () -> {
             if (e.getFrom().getWorld() != null && e.getTo() != null && e.getFrom().getWorld().equals(e.getTo().getWorld())) {
                 double d = e.getFrom().distance(e.getTo());

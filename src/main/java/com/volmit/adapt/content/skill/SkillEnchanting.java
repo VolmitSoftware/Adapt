@@ -98,6 +98,9 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EnchantItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getEnchanter();
         shouldReturnForPlayer(p, e, () -> {
             handleEnchantItemEvent(p, e);

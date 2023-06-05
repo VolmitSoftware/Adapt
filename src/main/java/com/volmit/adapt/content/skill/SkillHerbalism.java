@@ -123,6 +123,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerItemConsumeEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getItem().getItemMeta() instanceof PotionMeta o) {
@@ -140,22 +143,34 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerShearEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> xp(p, e.getEntity().getLocation(), getConfig().shearXP));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerHarvestBlockEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e, e.getPlayer(), e.getHarvestedBlock(), "harvest.blocks"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPlaceEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e, e.getPlayer(), e.getBlock(), "harvest.planted"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.useItemInHand().equals(Event.Result.DENY)) {
@@ -173,6 +188,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e, e.getPlayer(), e.getBlock(), "harvest.blocks"));
     }
 

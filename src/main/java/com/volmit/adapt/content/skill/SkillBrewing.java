@@ -171,7 +171,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerItemConsumeEvent e) {
         Player p = e.getPlayer();
-
+        if (e.isCancelled()) {
+            return;
+        }
         shouldReturnForPlayer(p, e, () -> {
             if (e.getItem().getItemMeta() instanceof PotionMeta o
                     && !e.getItem().toString().contains("potion-type=minecraft:water")
@@ -189,6 +191,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PotionSplashEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getPotion().getShooter() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> {
                 AdaptPlayer a = getPlayer(p);
@@ -201,6 +206,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPlaceEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
                 WorldData.of(e.getBlock().getWorld()).getMantle().set(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), new BrewingStandOwner(e.getPlayer().getUniqueId()));
@@ -210,6 +218,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
                 WorldData.of(e.getBlock().getWorld()).getMantle().remove(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);
