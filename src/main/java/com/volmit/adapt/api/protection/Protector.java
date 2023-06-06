@@ -22,6 +22,8 @@ import com.volmit.adapt.api.adaptation.Adaptation;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public interface Protector {
 
     default boolean canBlockBreak(Player player, Location blockLocation, Adaptation<?> adaptation) {
@@ -49,6 +51,9 @@ public interface Protector {
     }
 
     default boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
+        return true;
+    }
+    default boolean canEditClaim(UUID player, Location location, Adaptation<?> adaptation) {
         return true;
     }
 

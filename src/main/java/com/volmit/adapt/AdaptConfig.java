@@ -113,6 +113,7 @@ public class AdaptConfig {
         private boolean factionsClaim = false;
         private boolean residence = true;
         private boolean chestProtect = true;
+        private boolean griefprevention = true;
     }
 
 
