@@ -33,21 +33,25 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 import us.lynuxcraft.deadsilenceiv.advancedchests.AdvancedChestsAPI;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.volmit.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
-    private final List<InventoryView> activeViews = new ArrayList<>();
+    private final Map<Location, List<InventoryView>> activeViewsMap = new ConcurrentHashMap<>();
+
 
     public RiftAccess() {
         super("rift-access");
@@ -59,7 +63,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
-        setInterval(5544);
+        setInterval(1000);
         registerRecipe(AdaptRecipe.shapeless()
                 .key("rift-remote-access")
                 .ingredient(Material.ENDER_PEARL)
@@ -134,7 +138,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         }
     }
 
-
     private void linkPearl(Player p, Block block, PlayerInteractEvent event) {
         event.setCancelled(true);
         if (getConfig().showParticles) {
@@ -163,42 +166,100 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                     AdvancedChestsAPI.getChestManager().getAdvancedChest(b.getLocation()) != null) {
                 AdvancedChestsAPI.getChestManager().getAdvancedChest(b.getLocation()).openPage(p, 1);
                 Adapt.verbose("Opening AdvancedChests GUI");
-                p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-                p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
             } else if (b.getState() instanceof InventoryHolder holder) {
-                activeViews.add(p.openInventory(holder.getInventory()));
-                p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-                p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+                InventoryView view = p.openInventory(holder.getInventory());
+                activeViewsMap.computeIfAbsent(b.getLocation(), k -> new ArrayList<>()).add(view);
             }
+            p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+            p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
         });
-    }
-
-    private boolean isBound(ItemStack stack) {
-        return (stack.getType().equals(Material.ENDER_PEARL) && BoundEnderPearl.getBlock(stack) != null);
     }
 
     @Override
     public void onTick() {
-        if (!this.isEnabled()) {
-            return;
-        }
-        J.s(() -> {
-            for (int ii = activeViews.size() - 1; ii >= 0; ii--) {
-                InventoryView i = activeViews.get(ii);
-
-                if (i.getPlayer().getOpenInventory().equals(i)) {
-                    if (i.getTopInventory().getLocation() == null || !isStorage(i.getTopInventory().getLocation().getBlock().getBlockData())) {
-                        i.getPlayer().closeInventory();
-                        i.getPlayer().removePotionEffect(PotionEffectType.BLINDNESS);
-                        activeViews.remove(ii);
-                    }
-                } else {
-                    i.getPlayer().removePotionEffect(PotionEffectType.BLINDNESS);
-                    activeViews.remove(ii);
-                }
-            }
-        });
+        J.s(this::checkActiveViews);
     }
+
+    private void checkActiveViews() {
+        Iterator<Map.Entry<Location, List<InventoryView>>> mapIterator = activeViewsMap.entrySet().iterator();
+        while (mapIterator.hasNext()) {
+            Map.Entry<Location, List<InventoryView>> entry = mapIterator.next();
+            removeInvalidViews(entry);
+            removeEntryIfViewsEmpty(mapIterator, entry);
+        }
+    }
+
+    private void removeInvalidViews(Map.Entry<Location, List<InventoryView>> entry) {
+        List<InventoryView> views = entry.getValue();
+        for (int ii = views.size() - 1; ii >= 0; ii--) {
+            InventoryView i = views.get(ii);
+            if (shouldRemoveView(i)) {
+                views.remove(ii);
+            }
+        }
+    }
+
+    private boolean shouldRemoveView(InventoryView i) {
+        Location location = i.getTopInventory().getLocation();
+        return !i.getPlayer().getOpenInventory().equals(i) || (location == null || !isStorage(location.getBlock().getBlockData()));
+    }
+
+    private void removeEntryIfViewsEmpty(Iterator<Map.Entry<Location, List<InventoryView>>> mapIterator, Map.Entry<Location, List<InventoryView>> entry) {
+        List<InventoryView> views = entry.getValue();
+        if (views.isEmpty()) {
+            mapIterator.remove();
+        }
+    }
+
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(BlockBurnEvent event) {
+        if (event.isCancelled()) return;
+        invClose(event.getBlock());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(BlockPistonRetractEvent event) {
+        if (event.isCancelled()) return;
+        for (Block b : event.getBlocks()) {
+            invClose(b);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(BlockPistonExtendEvent event) {
+        if (event.isCancelled()) return;
+        for (Block b : event.getBlocks()) {
+            invClose(b);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(BlockExplodeEvent event) {
+        if (event.isCancelled()) return;
+        for (Block b : event.blockList()) {
+            invClose(b);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(BlockBreakEvent event) {
+        if (event.isCancelled()) return;
+        invClose(event.getBlock());
+    }
+
+
+    private void invClose(Block block) {
+        List<InventoryView> views = activeViewsMap.get(block.getLocation());
+        if (views != null) {
+            for (InventoryView view : views) {
+                view.getPlayer().closeInventory();
+            }
+            activeViewsMap.remove(block.getLocation());
+        }
+    }
+
+
 
 
     @Override
@@ -220,5 +281,4 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         double costFactor = 0.2;
         int initialCost = 15;
     }
-
 }
