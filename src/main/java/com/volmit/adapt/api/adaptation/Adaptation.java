@@ -223,10 +223,6 @@ public interface Adaptation<T> extends Ticked, Component {
         return getProtectors().stream().allMatch(protector -> protector.checkRegion(player, player.getLocation(), this));
     }
 
-    default boolean canEditClaim(UUID player, Location location) {
-        return getProtectors().stream().allMatch(protector -> protector.canEditClaim(player, location, this));
-    }
-
     default boolean hasAdaptation(Player p) {
         try {
             if (p == null || p.isDead()) { // Check if player is not invalid

@@ -53,9 +53,7 @@ public interface Protector {
     default boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
         return true;
     }
-    default boolean canEditClaim(UUID player, Location location, Adaptation<?> adaptation) {
-        return true;
-    }
+
 
     String getName();
 

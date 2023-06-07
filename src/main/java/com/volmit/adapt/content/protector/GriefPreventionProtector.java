@@ -1,3 +1,21 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
 package com.volmit.adapt.content.protector;
 
 import com.volmit.adapt.AdaptConfig;
@@ -7,8 +25,7 @@ import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Location;
-
-import java.util.UUID;
+import org.bukkit.entity.Player;
 
 public class GriefPreventionProtector implements Protector {
 
@@ -19,7 +36,12 @@ public class GriefPreventionProtector implements Protector {
     }
 
     @Override
-    public boolean canEditClaim(UUID player, Location location, Adaptation<?> adaptation) {
+    public boolean canBlockBreak(Player player, Location location, Adaptation<?> adaptation) {
+        return canEditClaim(player, location);
+    }
+
+    @Override
+    public boolean canBlockPlace(Player player, Location location, Adaptation<?> adaptation) {
         return canEditClaim(player, location);
     }
 
@@ -40,22 +62,15 @@ public class GriefPreventionProtector implements Protector {
 
 
 
-    private boolean canEditClaim(UUID player, Location location) {
+    private boolean canEditClaim(Player player, Location location) {
         Claim claim = griefPrevention.dataStore.getClaimAt(location, true, null);
 
         if (claim == null) {
             return true;
         }
 
-        return claim.getOwnerID().equals(player) || claim.getPermission(player.toString()) == ClaimPermission.Build;
+        return claim.getOwnerID().equals(player.getUniqueId()) || claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Build;
     }
-
-
-
-
-
-
-
 
 
 }
