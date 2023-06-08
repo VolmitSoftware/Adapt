@@ -27,10 +27,7 @@ import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.command.CommandAdapt;
 import com.volmit.adapt.content.gui.SkillsGui;
-import com.volmit.adapt.content.protector.ChestProtectProtector;
-import com.volmit.adapt.content.protector.FactionsClaimProtector;
-import com.volmit.adapt.content.protector.ResidenceProtector;
-import com.volmit.adapt.content.protector.WorldGuardProtector;
+import com.volmit.adapt.content.protector.*;
 import com.volmit.adapt.nms.GlowingEntities;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.*;
@@ -134,6 +131,9 @@ public class Adapt extends VolmitPlugin {
         }
         if (getServer().getPluginManager().getPlugin("Residence") != null) {
             protectorRegistry.registerProtector(new ResidenceProtector());
+        }
+        if (getServer().getPluginManager().getPlugin("GriefDefender") != null) {
+            protectorRegistry.registerProtector(new GriefDefenderProtector());
         }
         glowingEntities = new GlowingEntities(this);
         parser.parse(new CommandAdapt());

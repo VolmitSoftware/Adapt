@@ -76,6 +76,7 @@ repositories {
     maven { url 'https://jitpack.io' }
     maven { url 'https://ci.ender.zone/plugin/repository/everything/' }
     maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
+    maven { url "https://repo.glaremasters.me/repository/bloodshot/" }
     mavenLocal()
 
 }
@@ -141,6 +142,7 @@ dependencies {
     implementation "com.github.angeschossen:ChestProtectAPI:3.6.0"
     implementation "com.github.TechFortress:GriefPrevention:16.18.1"
     implementation 'xyz.xenondevs:particle:1.8.1'
+    compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
 
     // Dynamically Loaded
     compileOnly 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
