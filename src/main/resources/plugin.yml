@@ -5,7 +5,7 @@ authors:
   - NextdoorPsycho
   - Cyberpwn
   - Vatuu
-api-version: ${apiversion}
+api-version: '${apiversion}'
 softdepend:
   - PlaceholderAPI
   - WorldGuard
