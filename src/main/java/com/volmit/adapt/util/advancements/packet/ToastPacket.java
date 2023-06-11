@@ -22,7 +22,7 @@ import com.volmit.adapt.util.advancements.advancement.ToastNotification;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.network.protocol.game.PacketPlayOutAdvancements;
 import net.minecraft.resources.MinecraftKey;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -107,8 +107,6 @@ public class ToastPacket {
      */
     public void send() {
         PacketPlayOutAdvancements packet = build();
-        ((CraftPlayer) getPlayer()).getHandle().b.a(packet);
+        ((CraftPlayer) getPlayer()).getHandle().c.a(packet);
     }
-
-
 }

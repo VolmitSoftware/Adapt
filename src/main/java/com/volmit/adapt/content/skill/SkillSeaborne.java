@@ -103,6 +103,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerFishEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
@@ -115,6 +118,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (isOnCooldown(p, getConfig().seaPickleCooldown)) {
@@ -131,6 +137,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity() instanceof Drowned && e.getDamager() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> {
                 if (isOnCooldown(p, getConfig().seaPickleCooldown)) {

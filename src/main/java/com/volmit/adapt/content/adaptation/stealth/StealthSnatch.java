@@ -26,7 +26,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutCollect;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -122,7 +122,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         try {
             PacketPlayOutCollect packet = new PacketPlayOutCollect(item.getEntityId(), p.getEntityId(), item.getItemStack().getAmount());
             for (Entity i : p.getWorld().getNearbyEntities(p.getLocation(), 8, 8, 8, entity -> entity instanceof Player)) {
-                ((CraftPlayer) i).getHandle().b.a(packet);
+                ((CraftPlayer) i).getHandle().c.a(packet);
             }
         } catch (Exception e) {
             Adapt.error("Failed to send collected packet");

@@ -103,6 +103,9 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
             if (!getConfig().getXpForAttackingWithTools) {
                 return;
@@ -131,6 +134,9 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(p, e, () -> {
             if (isShovel(p.getInventory().getItemInMainHand())) {
