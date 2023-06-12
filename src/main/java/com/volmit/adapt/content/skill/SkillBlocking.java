@@ -115,6 +115,9 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> {
                 if (p.isBlocking()) {

@@ -31,7 +31,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayInAdvancements;
 import net.minecraft.network.protocol.game.PacketPlayInAdvancements.Status;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
@@ -76,7 +76,7 @@ public class AdvancementPacketReceiver {
     }
 
     public Channel getNettyChannel(Player p) {
-        NetworkManager manager = Curse.on(((CraftPlayer) p).getHandle().b).get("h"); // Find network manager.
+        NetworkManager manager = Curse.on(((CraftPlayer) p).getHandle().c).get("h"); // Find network manager.
         Channel channel = null;
         try {
             channel = (Channel) channelField.get(manager);

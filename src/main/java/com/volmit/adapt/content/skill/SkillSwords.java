@@ -55,6 +55,9 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
             shouldReturnForPlayer(p, e, () -> {
                 AdaptPlayer a = getPlayer(p);

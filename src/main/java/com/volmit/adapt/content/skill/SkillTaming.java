@@ -56,6 +56,9 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityBreedEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         for (Player p : Bukkit.getOnlinePlayers()) {
             shouldReturnForPlayer(p, e, () -> {
                 if (p.getWorld() == e.getEntity().getWorld() && p.getLocation().distance(e.getEntity().getLocation()) <= 15) {
@@ -70,6 +73,9 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getDamager() instanceof Tameable tameable && tameable.isTamed() && tameable.getOwner() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> {
                 if (!isOnCooldown(p)) {

@@ -110,6 +110,7 @@ public class AdaptConfig {
     @Getter
     public static class Protector {
         private boolean worldguard = true;
+        private boolean griefdefender = true;
         private boolean factionsClaim = false;
         private boolean residence = true;
         private boolean chestProtect = true;

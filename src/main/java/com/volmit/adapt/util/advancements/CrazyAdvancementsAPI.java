@@ -42,7 +42,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -148,7 +148,7 @@ public class CrazyAdvancementsAPI extends JavaPlugin implements Listener {
     static void setActiveTab(Player player, NameKey rootAdvancement, boolean update) {
         if (update) {
             PacketPlayOutSelectAdvancementTab packet = new PacketPlayOutSelectAdvancementTab(rootAdvancement == null ? null : rootAdvancement.getMinecraftKey());
-            ((CraftPlayer) player).getHandle().b.a(packet);
+            ((CraftPlayer) player).getHandle().c.a(packet);
         }
         activeTabs.put(player.getUniqueId().toString(), rootAdvancement);
     }

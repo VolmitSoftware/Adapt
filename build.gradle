@@ -23,21 +23,21 @@ plugins {
     id "de.undercouch.download" version "5.0.1"
 }
 
-version '1.10.2-1.19.4'
-def nmsVersion = "1.19.4" //[NMS]
-def apiVersion = '1.19'
+version '1.11.0-1.20.0'
+def nmsVersion = "1.20" //[NMS]
+def apiVersion = '1.20'
 def specialSourceVersion = '1.11.0' //[NMS]
-def spigotJarVersion = '1.19.4-R0.1-SNAPSHOT' //[NMS]
+def spigotJarVersion = '1.20-R0.1-SNAPSHOT' //[NMS]
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
-def manifoldVersion = '2023.1.8'
+def manifoldVersion = '2023.1.10'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
 registerCustomOutputTask('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins')
 registerCustomOutputTask('Psycho', 'C://Dan/MinecraftDevelopment/Server/plugins')
 registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins')
-registerCustomOutputTask('Vatuu', 'D://Minecraft/Servers/1.19.4/plugins')
+registerCustomOutputTask('Vatuu', 'D://Minecraft/Servers/1.20/plugins')
 registerCustomOutputTask('Nowhere', 'E://Desktop/server/plugins')
 // ========================== UNIX ==============================
 registerCustomOutputTaskUnix('CyberpwnLT', '/Users/danielmills/development/server/plugins')
@@ -76,6 +76,7 @@ repositories {
     maven { url 'https://jitpack.io' }
     maven { url 'https://ci.ender.zone/plugin/repository/everything/' }
     maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
+    maven { url "https://repo.glaremasters.me/repository/bloodshot/" }
     mavenLocal()
 
 }
@@ -118,8 +119,8 @@ dependencies {
     // Provided or Classpath
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    implementation 'org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT' //[NMS]
-    implementation 'org.bukkit:craftbukkit:1.19.4-R0.1-SNAPSHOT' //[NMS]
+    implementation 'org.spigotmc:spigot-api:1.20-R0.1-SNAPSHOT' //[NMS]
+    implementation 'org.bukkit:craftbukkit:1.20-R0.1-SNAPSHOT' //[NMS]
 
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
@@ -141,6 +142,7 @@ dependencies {
     implementation "com.github.angeschossen:ChestProtectAPI:3.6.0"
     implementation "com.github.TechFortress:GriefPrevention:16.18.1"
     implementation 'xyz.xenondevs:particle:1.8.1'
+    compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
 
     // Dynamically Loaded
     compileOnly 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'

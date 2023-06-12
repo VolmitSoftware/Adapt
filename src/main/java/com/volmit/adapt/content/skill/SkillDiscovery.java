@@ -68,16 +68,21 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerChangedWorldEvent e) {
         shouldReturnForPlayer(e.getPlayer(), () -> scheduleSeeWorld(e.getPlayer()));
-
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractAtEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         shouldReturnForPlayer(e.getPlayer(), e, () -> seeEntity(e.getPlayer(), e.getRightClicked()));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityPickupItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getEntity() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> seeItem(p, e.getItem().getItemStack()));
         }
@@ -86,6 +91,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(CraftItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!(e.getWhoClicked() instanceof Player p)) return;
         shouldReturnForPlayer(p, e, () -> {
             try {
@@ -97,8 +105,6 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
                 Adapt.verbose("No recipe key found for " + e.getRecipe().getResult().getType().name());
             }
         });
-
-
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

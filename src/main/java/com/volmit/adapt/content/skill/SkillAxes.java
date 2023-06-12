@@ -101,6 +101,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (e.getDamager() instanceof Player p && checkValidEntity(e.getEntity().getType())) {
             if (!getConfig().getXpForAttackingWithTools) {
                 return;
@@ -125,6 +128,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(p, () -> {
             if (isAxe(p.getInventory().getItemInMainHand()) && isLog(new ItemStack(e.getBlock().getType()))) {

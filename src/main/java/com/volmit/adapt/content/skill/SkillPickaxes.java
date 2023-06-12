@@ -112,6 +112,9 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getDamager() instanceof Player ? (Player) e.getDamager() : null;
         if (!getConfig().getXpForAttackingWithTools) {
             return;
@@ -132,6 +135,9 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(p, () -> {
             ItemStack mainHand = p.getInventory().getItemInMainHand();

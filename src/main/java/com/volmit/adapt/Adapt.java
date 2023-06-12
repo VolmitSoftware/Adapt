@@ -132,8 +132,8 @@ public class Adapt extends VolmitPlugin {
         if (getServer().getPluginManager().getPlugin("Residence") != null) {
             protectorRegistry.registerProtector(new ResidenceProtector());
         }
-        if (getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
-            protectorRegistry.registerProtector(new GriefPreventionProtector());
+        if (getServer().getPluginManager().getPlugin("GriefDefender") != null) {
+            protectorRegistry.registerProtector(new GriefDefenderProtector());
         }
         glowingEntities = new GlowingEntities(this);
         parser.parse(new CommandAdapt());

@@ -59,6 +59,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!this.isEnabled() || e.isCancelled() || !(e.getEntity() instanceof Player p) || shouldReturnForEventWithCause(p, e.getCause()) || e instanceof EntityDamageByBlockEvent) {
             return;
         }
@@ -67,6 +70,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getBlock().getType() == Material.WITHER_ROSE && witherRoseCooldown == 0) {
@@ -92,6 +98,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (!(e.getDamager() instanceof Player p) || shouldReturnForEventWithCause(p, e.getCause())) {
             return;
         }

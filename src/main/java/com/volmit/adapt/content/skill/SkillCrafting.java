@@ -106,6 +106,9 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(CraftItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         Player p = (Player) e.getWhoClicked();
         shouldReturnForPlayer(p, e, () -> {
             if (!isValidCraftEvent(e)) {
@@ -123,6 +126,9 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(FurnaceSmeltEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
         if (shouldReturnForWorld(e.getBlock().getWorld(), this)) {
             return;
         }

@@ -106,7 +106,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockPlaceEvent e) {
         Player p = e.getPlayer();
-
+        if (e.isCancelled()) {
+            return;
+        }
         shouldReturnForPlayer(p, e, () -> {
             if (!isStorage(e.getBlock().getType().createBlockData())) {
                 double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
@@ -128,7 +130,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
-
+        if (e.isCancelled()) {
+            return;
+        }
         shouldReturnForPlayer(p, e, () -> getPlayer(p).getData().addStat("blocks.broken", 1));
     }
 
