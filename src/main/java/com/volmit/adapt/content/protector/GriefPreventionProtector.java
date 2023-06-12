@@ -24,16 +24,15 @@ import com.volmit.adapt.api.protection.Protector;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.PlayerData;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
+
 public class GriefPreventionProtector implements Protector {
 
-    private final GriefPrevention griefPrevention;
-
-    public GriefPreventionProtector() {
-        this.griefPrevention = GriefPrevention.instance;
-    }
 
     @Override
     public boolean canBlockBreak(Player player, Location location, Adaptation<?> adaptation) {
@@ -63,13 +62,22 @@ public class GriefPreventionProtector implements Protector {
 
 
     private boolean canEditClaim(Player player, Location location) {
-        Claim claim = griefPrevention.dataStore.getClaimAt(location, true, null);
+        Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null);
+        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
 
         if (claim == null) {
             return true;
         }
+        //If doesn't check is adminclaim getting ownerid return null
+        if (!claim.isAdminClaim() && Objects.equals(claim.getOwnerID(), player.getUniqueId())) {
+            return true;
+        }
+        else if (claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Build) {
+            return true;
+        }
 
-        return claim.getOwnerID().equals(player.getUniqueId()) || claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Build;
+        return playerData.ignoreClaims || claim.isAdminClaim() && player.hasPermission("griefprevention.adminclaims");
+
     }
 
 

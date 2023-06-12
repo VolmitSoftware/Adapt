@@ -125,7 +125,6 @@ public class Adapt extends VolmitPlugin {
         if (getServer().getPluginManager().getPlugin("Factions") != null) {
             protectorRegistry.registerProtector(new FactionsClaimProtector());
         }
-
         if (getServer().getPluginManager().getPlugin("ChestProtect") != null) {
             protectorRegistry.registerProtector(new ChestProtectProtector());
         }
@@ -134,6 +133,9 @@ public class Adapt extends VolmitPlugin {
         }
         if (getServer().getPluginManager().getPlugin("GriefDefender") != null) {
             protectorRegistry.registerProtector(new GriefDefenderProtector());
+        }
+        if (getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
+            protectorRegistry.registerProtector(new GriefPreventionProtector());
         }
         glowingEntities = new GlowingEntities(this);
         parser.parse(new CommandAdapt());
