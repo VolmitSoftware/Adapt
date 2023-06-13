@@ -35,7 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 
-public class NMS_1_20 implements NMS.Impl {
+public class NMS_1_20_1 implements NMS.Impl {
 
     @Override
     public String serializeStack(ItemStack is) {
