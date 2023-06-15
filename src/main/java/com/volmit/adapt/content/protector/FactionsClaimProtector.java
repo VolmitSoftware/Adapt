@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.protector;
 
 import com.massivecraft.factions.*;
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.protection.Protector;
