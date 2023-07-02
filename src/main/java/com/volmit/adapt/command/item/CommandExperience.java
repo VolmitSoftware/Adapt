@@ -22,7 +22,7 @@ import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.content.item.ExperienceOrb;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.command.AdaptSuggestionProvider;
+import com.volmit.adapt.util.command.suggest.AdaptSkillListingProvider;
 import com.volmit.adapt.util.command.FConst;
 import io.github.mqzn.commands.annotations.base.*;
 import io.github.mqzn.commands.annotations.subcommands.SubCommandExecution;
@@ -38,7 +38,7 @@ public final class CommandExperience {
 
     @SubCommandExecution
     public void execute(CommandSender sender,
-                        @Arg(id = "skillname") @Suggest(provider = AdaptSuggestionProvider.class) String skillName,
+                        @Arg(id = "skillname") @Suggest(provider = AdaptSkillListingProvider.class) String skillName,
                         @Arg(id = "amount") @Range(min="1", max="100000") int amount,
                         @Arg(id = "player", optional = true) @Nullable Player player) {
 

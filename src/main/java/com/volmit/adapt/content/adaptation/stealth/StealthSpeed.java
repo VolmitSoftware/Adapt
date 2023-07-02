@@ -25,11 +25,12 @@ import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     public StealthSpeed() {
@@ -63,16 +64,26 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         if (factor == 0) {
             return;
         }
-        AttributeModifier mod = new AttributeModifier("adapt-sneak-speed", getSpeed(factor), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-        if (e.isSneaking()) {
-            p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(mod);
+
+
+        if (!p.isSneaking()) {
+            p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
+            p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 8000, getLevel(p), false, false));
         } else {
-            for (AttributeModifier i : p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
-                if (i.getName().equals("adapt-sneak-speed")) {
-                    p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(i);
-                }
-            }
+            p.removePotionEffect(PotionEffectType.SPEED);
         }
+
+
+//        AttributeModifier mod = new AttributeModifier("adapt-sneak-speed", getSpeed(factor), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+//        if (e.isSneaking()) {
+//            p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(mod);
+//        } else {
+//            for (AttributeModifier i : p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
+//                if (i.getName().equals("adapt-sneak-speed")) {
+//                    p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(i);
+//                }
+//            }
+//        }
     }
 
     private double getSpeed(double factor) {

@@ -16,7 +16,7 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.util.command;
+package com.volmit.adapt.util.command.suggest;
 
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.skill.Skill;
@@ -27,8 +27,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdaptSuggestionProviderListing implements SuggestionProvider {
+public class AdaptAdaptationListingProvider implements SuggestionProvider {
     private final List<String> suggestions = new ArrayList<>();
+
+    // EG: [Main]; [Skill]hunter; [Adaptation]archery
 
     @Override
     public @NotNull List<String> suggestions() {

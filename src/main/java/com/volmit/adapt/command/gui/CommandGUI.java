@@ -23,7 +23,7 @@ import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.command.AdaptSuggestionProviderListing;
+import com.volmit.adapt.util.command.suggest.AdaptAdaptationListingProvider;
 import com.volmit.adapt.util.command.FConst;
 import io.github.mqzn.commands.annotations.base.Arg;
 import io.github.mqzn.commands.annotations.base.Default;
@@ -43,12 +43,11 @@ public final class CommandGUI {
 
     @SubCommandExecution
     public void execute(CommandSender sender,
-                        @Arg(id = "guiTarget") @Suggest(provider = AdaptSuggestionProviderListing.class) String guiTarget,
+                        @Arg(id = "guiTarget") @Suggest(provider = AdaptAdaptationListingProvider.class) String guiTarget,
                         @Arg(id = "player", optional = true) @Nullable Player player,
                         @Arg(id = "force", optional = true, defaultValue = "false") boolean force
-    ){
+    ) {
         Player targetPlayer = player;
-        boolean forceOpen = force;
         if (targetPlayer == null && sender instanceof ConsoleCommandSender) {
             FConst.error("You must specify a player when using this command from console.").send(sender);
         } else if (targetPlayer == null) {
@@ -63,7 +62,7 @@ public final class CommandGUI {
         if (guiTarget.startsWith("[Skill]")) {
             for (Skill<?> skill : SkillRegistry.skills.sortV()) {
                 if (guiTarget.equals("[Skill]" + skill.getName())) {
-                    if (forceOpen || skill.openGui(targetPlayer, true)) {
+                    if (force || skill.openGui(targetPlayer, true)) {
                         FConst.success("Opened GUI for " + skill.getName() + " for " + targetPlayer.getName()).send(sender);
                     } else {
                         FConst.error("Failed to open GUI for " + skill.getName() + " for " + targetPlayer.getName() + " - No Permission, remove from blacklist!").send(sender);
@@ -77,7 +76,7 @@ public final class CommandGUI {
             for (Skill<?> skill : SkillRegistry.skills.sortV()) {
                 for (Adaptation<?> adaptation : skill.getAdaptations()) {
                     if (guiTarget.equals("[Adaptation]" + adaptation.getName())) {
-                        if (forceOpen || adaptation.openGui(targetPlayer, true)) {
+                        if (force || adaptation.openGui(targetPlayer, true)) {
                             FConst.success("Opened GUI for " + adaptation.getName() + " for " + targetPlayer.getName()).send(sender);
                         } else {
                             FConst.error("Failed to open GUI for " + adaptation.getName() + " for " + targetPlayer.getName() + " - No Permission, remove from blacklist!").send(sender);
@@ -87,6 +86,7 @@ public final class CommandGUI {
                 }
             }
         }
+
 
         info(sender);
     }

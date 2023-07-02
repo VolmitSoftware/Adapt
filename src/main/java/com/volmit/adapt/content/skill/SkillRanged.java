@@ -65,7 +65,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             return;
         }
         shouldReturnForPlayer(p, e, () -> {
-            if (e.getEntity() instanceof Snowball || e.getEntity() instanceof EntityFishingHook) {
+            if (e.getEntity() instanceof Snowball || e.getEntity().getType().name().toLowerCase(Locale.ROOT).contains("hook")) {
                 return; // Ignore snowballs and fishing hooks
             }
 

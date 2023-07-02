@@ -6,6 +6,7 @@ import com.volmit.adapt.command.debug.*;
 import com.volmit.adapt.command.gui.CommandGUI;
 import com.volmit.adapt.command.item.CommandExperience;
 import com.volmit.adapt.command.item.CommandKnowledge;
+import com.volmit.adapt.command.skill.CommandSkillDeterminator;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.command.FConst;
 import io.github.mqzn.commands.annotations.base.Command;
@@ -24,6 +25,7 @@ import org.bukkit.command.CommandSender;
 @SubCommand(CommandGUI.class) // GUI
 @SubCommand(CommandExperience.class) // GUI
 @SubCommand(CommandKnowledge.class) // GUI
+@SubCommand(CommandSkillDeterminator.class) // SKILL
 public class CommandAdapt {
 
     @Default

@@ -431,7 +431,7 @@ public interface Adaptation<T> extends Ticked, Component {
                     .addLore((isPermanent() ? C.RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "maynotunlearn") : ""))
                     .onLeftClick((e) -> {
                         if (mylevel >= lvl) {
-                            unlearn(player, lvl);
+                            unlearn(player, lvl, false);
 
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
                             player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
@@ -504,20 +504,27 @@ public interface Adaptation<T> extends Ticked, Component {
         }
     }
 
-    default void unlearn(Player player, int lvl) {
-        if (isPermanent()) {
-            //todo message that this is permanent
+    default void unlearn(Player player, int lvl, boolean force) {
+        if (isPermanent() && !force) {
             return;
         }
-        int mylevel = getPlayer(player).getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
-        int rc = getRefundCostFor(lvl - 1, mylevel);
-
+        int myLevel = getPlayer(player).getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
+        int rc = getRefundCostFor(lvl - 1, myLevel);
         if (!AdaptConfig.get().isHardcoreNoRefunds()) {
             getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(rc);
         }
         getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl - 1);
     }
 
+    default void learn(Player player, int lvl, boolean force) {
+        int myLevel = getPlayer(player).getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
+        int c = getCostFor(lvl, myLevel);
+        if (getPlayer(player).getData().hasPowerAvailable(c) || force) {
+            if (getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c) || force) {
+                getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
+            }
+        }
+    }
 
     default boolean isAdaptationRecipe(Recipe recipe) {
         if (!this.getSkill().isEnabled()) {
@@ -528,7 +535,6 @@ public interface Adaptation<T> extends Ticked, Component {
                 return true;
             }
         }
-
         return false;
     }
 }
