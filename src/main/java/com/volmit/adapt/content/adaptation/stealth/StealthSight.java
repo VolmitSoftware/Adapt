@@ -62,7 +62,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         }
         if (!p.isSneaking()) {
             p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
-            p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 20000, 0, false, false));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 8000, 0, false, false));
         } else {
             p.removePotionEffect(PotionEffectType.NIGHT_VISION);
         }

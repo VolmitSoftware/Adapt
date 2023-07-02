@@ -16,26 +16,19 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package com.volmit.adapt.util.command;
+package com.volmit.adapt.util.command.suggest;
 
-import com.volmit.adapt.api.skill.Skill;
-import com.volmit.adapt.api.skill.SkillRegistry;
 import io.github.mqzn.commands.base.SuggestionProvider;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class AdaptSuggestionProvider implements SuggestionProvider {
-    private final List<String> suggestions = new ArrayList<>();
+public class BooleanSuggestionProvider implements SuggestionProvider {
+    private final List<String> suggestions = Arrays.asList("true", "false");
 
     @Override
     public @NotNull List<String> suggestions() {
-        suggestions.add("[all]");
-        suggestions.add("[random]");
-        for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-            suggestions.add(skill.getName());
-        }
         return suggestions;
     }
 }

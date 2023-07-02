@@ -31,10 +31,8 @@ import com.volmit.adapt.content.protector.*;
 import com.volmit.adapt.nms.GlowingEntities;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.*;
-import com.volmit.adapt.util.command.AdaptSuggestionProvider;
-import com.volmit.adapt.util.command.AdaptSuggestionProviderListing;
-import com.volmit.adapt.util.command.ParticleSuggestionProvider;
-import com.volmit.adapt.util.command.SoundSuggestionProvider;
+import com.volmit.adapt.util.command.*;
+import com.volmit.adapt.util.command.suggest.*;
 import com.volmit.adapt.util.secret.SecretSplash;
 import de.slikey.effectlib.EffectManager;
 import io.github.mqzn.commands.SpigotCommandManager;
@@ -84,6 +82,8 @@ public class Adapt extends VolmitPlugin {
     @Getter
     private Map<String, Window> guiLeftovers = new HashMap<>();
 
+
+
     
 
     public Adapt() {
@@ -96,10 +96,15 @@ public class Adapt extends VolmitPlugin {
         audiences = BukkitAudiences.create(this);
         commandManager = new SpigotCommandManager(this, CommandExecutionCoordinator.Type.SYNC);
         parser = new AnnotationParser<>(commandManager);
-        commandManager.suggestionProviderRegistry().register(new AdaptSuggestionProvider());
-        commandManager.suggestionProviderRegistry().register(new AdaptSuggestionProviderListing());
+        commandManager.suggestionProviderRegistry().register(new AdaptSkillListingProvider());
+        commandManager.suggestionProviderRegistry().register(new AdaptSkillProvider());
+
+        commandManager.suggestionProviderRegistry().register(new AdaptAdaptationListingProvider());
+        commandManager.suggestionProviderRegistry().register(new AdaptAdaptationProvider());
+
         commandManager.suggestionProviderRegistry().register(new SoundSuggestionProvider());
         commandManager.suggestionProviderRegistry().register(new ParticleSuggestionProvider());
+        commandManager.suggestionProviderRegistry().register(new BooleanSuggestionProvider());
 
         NMS.init();
         Localizer.updateLanguageFile();
@@ -140,7 +145,6 @@ public class Adapt extends VolmitPlugin {
         glowingEntities = new GlowingEntities(this);
         parser.parse(new CommandAdapt());
     }
-
 
 
     public void startSim() {
