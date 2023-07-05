@@ -135,17 +135,13 @@ public class PapiExpansion extends PlaceholderExpansion {
             String adaptAttr = args.length > 2 ? args[2] : "";
             Adapt.verbose("Triggered adaptation Lookup: " + adaptID + " " + adaptAttr);
             List<Skill<?>> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkills();
+
             for (Skill<?> s : skill) {
                 List<Adaptation<?>> adaptations = s.getAdaptations();
                 for (Adaptation<?> a : adaptations) {
-                    Adapt.info(a.getId());
-                }
-            }
-            for (Skill<?> s : skill) {
-                List<Adaptation<?>> adaptations = s.getAdaptations();
-                for (Adaptation<?> a : adaptations) {
-                    Adapt.verbose(adaptID + " " + a.getId());
-                    if (a.getId().contains(adaptID)) {
+                    String adaptationIdWithoutUUID = a.getId().substring(37);
+                    Adapt.verbose(adaptID + " " + adaptationIdWithoutUUID);
+                    if (adaptationIdWithoutUUID.equals(adaptID)) {
                         Adapt.verbose("Found adaptation: " + a.getId());
                         if ("level".equalsIgnoreCase(adaptAttr)) {
                             Adapt.verbose("Doing Level Lookup");
@@ -163,7 +159,5 @@ public class PapiExpansion extends PlaceholderExpansion {
         }
         return null;
     }
-
-
 }
 

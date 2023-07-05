@@ -118,7 +118,7 @@ public interface AdaptComponent {
     default boolean isLog(ItemStack it) {
         if (isItem(it)) {
             return switch (it.getType()) {
-                case ACACIA_LOG, BIRCH_LOG, DARK_OAK_LOG, JUNGLE_LOG, OAK_LOG, SPRUCE_LOG, STRIPPED_ACACIA_LOG,
+                case ACACIA_LOG, BIRCH_LOG, CHERRY_LOG, STRIPPED_CHERRY_LOG, STRIPPED_CHERRY_WOOD, DARK_OAK_LOG, JUNGLE_LOG, OAK_LOG, SPRUCE_LOG, STRIPPED_ACACIA_LOG,
                         STRIPPED_BIRCH_LOG, STRIPPED_DARK_OAK_LOG, STRIPPED_JUNGLE_LOG, STRIPPED_OAK_LOG,
                         STRIPPED_SPRUCE_LOG, ACACIA_WOOD, BIRCH_WOOD, DARK_OAK_WOOD, JUNGLE_WOOD, OAK_WOOD,
                         SPRUCE_WOOD, STRIPPED_ACACIA_WOOD, STRIPPED_BIRCH_WOOD, STRIPPED_DARK_OAK_WOOD, STRIPPED_JUNGLE_WOOD,
@@ -136,7 +136,7 @@ public interface AdaptComponent {
         if (isItem(it)) {
             return switch (it.getType()) {
                 case OAK_LEAVES, MANGROVE_ROOTS, MUDDY_MANGROVE_ROOTS, SPRUCE_LEAVES, BIRCH_LEAVES,
-                        JUNGLE_LEAVES, ACACIA_LEAVES, DARK_OAK_LEAVES, MANGROVE_LEAVES,
+                        JUNGLE_LEAVES, ACACIA_LEAVES, DARK_OAK_LEAVES, MANGROVE_LEAVES, CHERRY_LEAVES,
                         AZALEA_LEAVES, FLOWERING_AZALEA_LEAVES -> true;
                 default -> false;
             };

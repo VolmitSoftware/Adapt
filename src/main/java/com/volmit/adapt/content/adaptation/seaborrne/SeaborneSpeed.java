@@ -55,11 +55,12 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     @Override
     public void onTick() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.isInWater() && hasAdaptation(player) ) {
+            if (player.isInWater() && hasAdaptation(player)) {
                 if (player.getLocation().getBlock().isLiquid()) {
-                    if (player.getInventory().getBoots() == null || !player.getInventory().getBoots().containsEnchantment(Enchantment.DEPTH_STRIDER)) {
+                    if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.DEPTH_STRIDER)) {
+                        return;
+                    } else {
                         J.s(() -> player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 62, getLevel(player))));
-                        J.s(() -> player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 62, getLevel(player))));
                     }
                 }
             }
