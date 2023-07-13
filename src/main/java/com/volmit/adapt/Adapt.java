@@ -142,6 +142,9 @@ public class Adapt extends VolmitPlugin {
         if (getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
             protectorRegistry.registerProtector(new GriefPreventionProtector());
         }
+        if (getServer().getPluginManager().getPlugin("LockettePro") != null) {
+            protectorRegistry.registerProtector(new LocketteProProtector());
+        }
         glowingEntities = new GlowingEntities(this);
         parser.parse(new CommandAdapt());
     }
