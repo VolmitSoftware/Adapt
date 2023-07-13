@@ -115,6 +115,7 @@ public class AdaptConfig {
         private boolean residence = true;
         private boolean chestProtect = true;
         private boolean griefprevention = true;
+        private boolean lockettePro = true;
     }
 
 
