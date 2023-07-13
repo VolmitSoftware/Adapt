@@ -19,20 +19,15 @@
 package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
-    private final List<Integer> holds = new ArrayList<>();
 
     public SeaborneOxygen() {
         super("seaborne-oxygen");
@@ -52,19 +47,15 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
         v.addLore(C.GREEN + "+ " + Form.pc(getAirBoost(level), 0) + C.GRAY + Localizer.dLocalize("seaborn", "oxygen", "lore1"));
     }
 
-    public int getRealMaxAir(int level) {
-        return (int) ((getAirBoost(level) * 300) + 300);
-    }
-
     public double getAirBoost(int level) {
-        return getLevelPercent(level) * getConfig().airFactor;
+        return getLevelPercent(level);
     }
 
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
-            if (getLevel(i) > 0) {
-                i.setMaximumAir(getRealMaxAir(getLevel(i)));
+            if (i.getLocation().getBlock().getType() == Material.WATER && hasAdaptation(i)) {
+                J.s(() -> i.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, getLevel(i) * getConfig().airPerLevelTics, getLevel(i))));
             }
         }
     }
@@ -87,6 +78,6 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
         int maxLevel = 5;
         int initialCost = 5;
         double costFactor = 0.525;
-        double airFactor = 4.55;
+        int airPerLevelTics = 15;
     }
 }

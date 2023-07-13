@@ -33,7 +33,7 @@ import java.util.List;
 public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<HerbalismCraftableMushroomBlocks.Config> {
 
     public HerbalismCraftableMushroomBlocks() {
-        super("herbalism-cobweb");
+        super("herbalism-mushroom-blocks");
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("herbalism", "mushroomblocks", "description"));
         setDisplayName(Localizer.dLocalize("herbalism", "mushroomblocks", "name"));
