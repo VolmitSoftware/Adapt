@@ -141,29 +141,44 @@
       "description": "Crea 5.000.000 di oggetti"
     },
     "challenge_enchant_1k": {
+      "title": "Novizio Incantatore!",
+      "description": "Incanta 1000 Oggetti"
     },
     "challenge_enchant_5k": {
+      "title": "Incantatore Intermedio!",
+      "description": "Incanta 5000 Oggetti"
     },
     "challenge_enchant_50k": {
+      "title": "Incantatore Avanzato!",
+      "description": "Incanta 50.000 oggetti"
     },
     "challenge_enchant_500k": {
+      "title": "Maestro Incantatore!",
+      "description": "Incanta 500.000 oggetti"
     },
     "challenge_enchant_5m": {
+      "title": "Incantatore enigmatico",
+      "description": "Incanta 5.000.000 di oggetti"
     },
     "challenge_excavate_1k": {
-      "title": "Escavatore allettato!"
+      "title": "Escavatore allettato!",
+      "description": "Scava 1000 blocchi"
     },
     "challenge_excavate_5k": {
-      "title": "Escavatore intermedio!"
+      "title": "Escavatore intermedio!",
+      "description": "Scava 5000 blocchi"
     },
     "challenge_excavate_50k": {
-      "title": "Escavatore avanzato!"
+      "title": "Escavatore avanzato!",
+      "description": "Scava 50.000 blocchi"
     },
     "challenge_excavate_500k": {
-      "title": "Maestro escavatore!"
+      "title": "Maestro escavatore!",
+      "description": "Scava 500.000 blocchi"
     },
     "challenge_excavate_5m": {
-      "title": "Escavatore enigmatico"
+      "title": "Escavatore enigmatico",
+      "description": "Scava 5.000.000 di blocchi"
     },
     "horrible_person": {
       "title": "Sei una persona orribile",
