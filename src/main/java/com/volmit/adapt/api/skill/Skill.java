@@ -207,7 +207,7 @@ public interface Skill<T> extends Ticked, Component {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
         Window w = new UIWindow(player);
         w.setTag("skill/" + getName());
-        w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
+        w.setDecorator((window, position, row) -> new UIElement("bg").setName(" ").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
 
         int ind = 0;
 

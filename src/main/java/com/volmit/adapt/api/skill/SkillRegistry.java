@@ -31,10 +31,7 @@ import com.volmit.adapt.content.skill.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.M;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -88,6 +85,10 @@ public class SkillRegistry extends TickedObject {
         }
     }
 
+    private boolean canInteract(Player player, Location targetLocation) {
+        return Adapt.instance.getProtectorRegistry().getAllProtectors().stream().allMatch(protector -> protector.canInteract(player, targetLocation, null));
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
@@ -97,6 +98,7 @@ public class SkillRegistry extends TickedObject {
         boolean isObserver = commonConditions && e.getClickedBlock().getType().equals(Material.OBSERVER);
         boolean isAdaptActivator = !e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN) && !p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
                 && e.getClickedBlock() != null
+                && canInteract(p, e.getClickedBlock().getLocation())
                 && e.getClickedBlock().getType().equals(Material.valueOf(AdaptConfig.get().adaptActivatorBlock)) && (p.getInventory().getItemInMainHand().getType().equals(Material.AIR)
                 || !p.getInventory().getItemInMainHand().getType().isBlock()) &&
                 (p.getInventory().getItemInOffHand().getType().equals(Material.AIR) || !p.getInventory().getItemInOffHand().getType().isBlock());
