@@ -139,6 +139,119 @@
     "challenge_craft_5m": {
       "title": "Il calamitoso McCraftface",
       "description": "Crea 5.000.000 di oggetti"
+    },
+    "challenge_enchant_1k": {
+      "title": "Novizio Incantatore!",
+      "description": "Incanta 1000 Oggetti"
+    },
+    "challenge_enchant_5k": {
+      "title": "Incantatore Intermedio!",
+      "description": "Incanta 5000 Oggetti"
+    },
+    "challenge_enchant_50k": {
+      "title": "Incantatore Avanzato!",
+      "description": "Incanta 50.000 oggetti"
+    },
+    "challenge_enchant_500k": {
+      "title": "Maestro Incantatore!",
+      "description": "Incanta 500.000 oggetti"
+    },
+    "challenge_enchant_5m": {
+      "title": "Incantatore enigmatico",
+      "description": "Incanta 5.000.000 di oggetti"
+    },
+    "challenge_excavate_1k": {
+      "title": "Escavatore allettato!",
+      "description": "Scava 1000 blocchi"
+    },
+    "challenge_excavate_5k": {
+      "title": "Escavatore intermedio!",
+      "description": "Scava 5000 blocchi"
+    },
+    "challenge_excavate_50k": {
+      "title": "Escavatore avanzato!",
+      "description": "Scava 50.000 blocchi"
+    },
+    "challenge_excavate_500k": {
+      "title": "Maestro escavatore!",
+      "description": "Scava 500.000 blocchi"
+    },
+    "challenge_excavate_5m": {
+      "title": "Escavatore enigmatico",
+      "description": "Scava 5.000.000 di blocchi"
+    },
+    "horrible_person": {
+      "title": "Sei una persona orribile",
+      "description": "Insondabile, davvero"
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "Spaccauova di tartaruga!",
+      "description": "Rompi 100 uova di tartaruga"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "Annientatore di uova di tartaruga!",
+      "description": "Rompi 500 uova di tartaruga"
+    },
+    "challenge_novice_hunter": {
+      "title": "Cacciatore di novizi!",
+      "description": "Uccidi 100 entità"
+    },
+    "challenge_intermediate_hunter": {
+      "title": "Cacciatore intermedio!",
+      "description": "Uccidi 500 entità"
+    },
+    "challenge_advanced_hunter": {
+      "title": "Cacciatore avanzato!",
+      "description": "Uccidi 5000 entità"
+    },
+    "challenge_creeper_conqueror": {
+      "title": "Conquistatore rampicante!",
+      "description": "Uccidi 50 rampicanti"
+    },
+    "challenge_creeper_annihilator": {
+      "title": "Annientatore rampicante!",
+      "description": "Uccidi 200 rampicanti"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "Minatore novizio",
+      "description": "Rompi 1000 blocchi"
+    },
+    "challenge_pickaxe_5k": {
+      "title": "Abile minatore",
+      "description": "Rompi 5000 blocchi"
+    },
+    "challenge_pickaxe_50k": {
+      "title": "Minatore esperto",
+      "description": "Rompi 50.000 blocchi"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "Maestro Minatore",
+      "description": "Rompi 500.000 blocchi"
+    },
+    "challenge_pickaxe_5m": {
+      "title": "Minatore leggendario",
+      "description": "Rompi 5.000.000 di blocchi"
+    }
+  },
+  "items": {
+    "boundenderperal": {
+      "name": "Passaporta reliquiario",
+      "usage1": "Maiusc + clic sinistro per legare",
+      "usage2": "Fare clic con il tasto destro per accedere all'inventario associato"
+    },
+    "boundeyeofender": {
+      "name": "Ancora oculare",
+      "usage1": "Fare clic con il pulsante destro del mouse per consumare e teletrasportarsi nella posizione vincolata",
+      "usage2": "Maiusc + clic sinistro per collegarsi a un blocco"
+    },
+    "boundredstonetorch": {
+      "name": "Telecomando di pietrarossa",
+      "usage1": "Fare clic con il pulsante destro del mouse per creare un impulso Redstone da 1 segno di spunta",
+      "usage2": "Maiusc + clic sinistro su un blocco \"bersaglio\" da legare"
+    },
+    "boundsnowball": {
+      "name": "Ragnatela!",
+      "usage1": "Lancia per creare una web trap temporanea nella posizione"
     }
   },
   "snippets": {
@@ -151,7 +264,7 @@
       "welcome": "Ben arrivato!",
       "welcomeback": "Ben tornato!",
       "xpbonusfortime": "XP per",
-      "unlockthisbyclicking": "Sbloccalo facendo clic con il pulsante destro del mouse sul blocco di adattamento!",
+      "unlockthisbyclicking": "Sbloccalo facendo clic con il pulsante destro del mouse:",
       "back": "Di ritorno",
       "unlearnall": "Disimpara tutto",
       "unlearnedall": "Tutto disimparato"
@@ -160,6 +273,7 @@
       "maynotunlearn": "NON PUOI DISimparare",
       "mayunlearn": "PUOI IMPARARE/DISimparare",
       "knowledgecost": "Costo della conoscenza",
+      "knowledgeavailable": "Conoscenza disponibile",
       "alreadylearned": "Già appreso",
       "unlearnrefund": "Clicca per disimparare e rimborsare",
       "norefunds": "HARDCORE, RIMBORSI DISABILI",
@@ -172,7 +286,8 @@
       "power": "Potere",
       "powerdrain": "Scarico di corrente",
       "learned": "Imparato ",
-      "unlearned": "Non appreso "
+      "unlearned": "Non appreso ",
+      "activatorblock": "Libreria"
     },
     "knowledgeorb": {
       "contains": "Contiene",
@@ -341,6 +456,11 @@
       "description": "Permette di evitare la perdita di blocchi di vetro quando li rompete con una mano vuota!",
       "lore1": "Le mani acquistano il tocco di seta per il vetro"
     },
+    "wirelessredstone": {
+      "name": "Telecomando di pietrarossa",
+      "description": "Ciò ti consente di utilizzare una torcia di pietra rossa per attivare la pietra rossa, da remoto!",
+      "lore1": "Target + Redstone Torch + Enderperal = 1 Redstone Remote"
+    },
     "placement": {
       "name": "Bacchetta dei costruttori",
       "description": "permette di posizionare più blocchi contemporaneamente per attivare l'effetto furtivo e di tenere un blocco che corrisponde a quello che state cercando e posizionarlo! Tenete presente che potrebbe essere necessario spostarsi un po' per attivare la delimitazione delle caselle!",
@@ -410,14 +530,14 @@
     "haste": {
       "name": "Fretta in bottiglia",
       "description": "Quando l'efficienza non basta",
-      "lore1": "Pozione della velocità + Frammento di ametista = Pozione della fretta (60 secondi)",
-      "lore2": "Pozione della velocità + Blocco di ametista = Pozione della fretta-2 (30 secondi)"
+      "lore1": "Pozione della Velocità + Frammento di Ametista = Pozione della Fretta (60 secondi)",
+      "lore2": "Pozione della Velocità + Blocco di Ametista = Pozione della Fretta-2 (30 secondi)"
     },
     "absorption": {
       "name": "Assorbimento in bottiglia",
       "description": "Rafforza il corpo!",
-      "lore1": "Pozione della velocità + Quarzo = Pozione dell'assorbimento (60 secondi)",
-      "lore2": "Pozione di velocità + Blocco di quarzo = Pozione di assorbimento-2 (30 secondi)"
+      "lore1": "Guarigione Istantanea + Quarzo = Pozione dell'Assorbimento (60 secondi)",
+      "lore2": "Guarigione Istantanea + Blocco di Quarzo = Pozione di Assorbimento-2 (30 secondi)"
     },
     "fatigue": {
       "name": "Fatica in bottiglia",
@@ -507,6 +627,14 @@
       "description": "Guadagna XP passivi durante il crafting",
       "lore1": "Guadagna XP durante il crafting"
     },
+    "reconstruction": {
+      "name": "Ricostruzione del minerale",
+      "description": "Ricrea i minerali dai loro componenti di base!",
+      "lore1": "8 delle gocce e 1 host = 1 minerale (informe)",
+      "lore2": "Le gocce devono essere fuse (se applicabile)",
+      "lore3": "Escluso: scarti, quarti e smeraldi ecc...",
+      "lore4": "Ospite = Involucro. vale a dire: Pietra, Netherack, Deepslate"
+    },
     "leather": {
       "name": "Pelle lavorabile",
       "description": "Crea pelle dalla carne marcia",
@@ -519,6 +647,12 @@
       "lore2": "XLX: Pelle, Piombo, Pelle",
       "lore3": "XSX: Pelle, Scatola Shulker, Pelle",
       "lore4": "XCX : Pelle, Petto, Pelle"
+    },
+    "stations": {
+      "name": "Tavoli portatili!",
+      "description": "Usa un tavolo nel palmo della tua mano!",
+      "lore2": "TUTTI GLI ARTICOLI CHE DIMENTICHI NEL TAVOLO QUANDO CHIUSO SONO PERSI PER SEMPRE!",
+      "lore3": "Tabelle valide: Incudine, Lavorazione, Mola, Cartografia, Tagliapietre, Telaio"
     },
     "skulls": {
       "name": "Teschi artigianali!",
@@ -587,6 +721,13 @@
       "lore1": "Guadagna fretta durante gli scavi",
       "lore2": "x Livelli di fretta quando si inizia a scavare in QUALSIASI blocco."
     },
+    "spelunker": {
+      "name": "Spelunker super-veggente!",
+      "description": "Guarda i minerali con i tuoi occhi, ma attraverso il terreno!",
+      "lore1": "Minerale nella tua mano secondaria, Lucciole nella tua mano principale e Sneak!",
+      "lore2": "Intervallo blocco:",
+      "lore3": "Consuma Glowberry durante l'uso"
+    },
     "droptoinventory": {
       "name": "Pala da lasciare nell'inventario"
     },
@@ -628,7 +769,7 @@
     "cobweb": {
       "name": "Creatore di Webby",
       "description": "Ti dà la possibilità di creare ragnatele in un tavolo da lavoro",
-      "lore1": "Four String, creerà una ragnatela."
+      "lore1": "Nine String, creerà una ragnatela."
     },
     "mushroomblocks": {
       "name": "Creatore di funghi",
@@ -751,6 +892,11 @@
       "lore1": "possibilità di annullare l'avvizzimento (per pezzo).",
       "lore2": "Passiva: Indossare un'armatura di Netherite ha una possibilità di annullare l'appassimento. ",
       "lore3": "l'avvizzimento."
+    },
+    "fireresist": {
+      "name": "Resistenza al fuoco",
+      "description": "Resiste al fuoco indurendo la tua pelle.",
+      "lore1": "possibilità di annullare l'effetto bruciante!"
     }
   },
   "pickaxe": {
@@ -783,7 +929,14 @@
     "arrowrecovery": {
       "name": "Recupero frecce",
       "description": "Recupera le frecce dopo aver ucciso un nemico.",
-      "lore1": "Possibilità di recuperare le frecce dopo un colpo/un'uccisione."
+      "lore1": "Possibilità di recuperare le frecce dopo un colpo/un'uccisione.",
+      "lore2": "Opportunità:"
+    },
+    "webshot": {
+      "name": "Ragnatela",
+      "description": "Avvolgi le ragnatele intorno al tuo bersaglio quando lo colpisci!",
+      "lore1": "8 ragnatele attorno a una palla di neve e lancia!",
+      "lore2": "secondi di una gabbia, all'incirca."
     },
     "forceshot": {
       "name": "Colpo di forza",
@@ -824,6 +977,12 @@
       "description": "Aprire uno scrigno cliccando con il tasto sinistro del mouse sulla mano.",
       "lore1": "Clicca su un Enderchest nella tua mano per aprirlo (ma non posizionarlo)."
     },
+    "descent": {
+      "name": "Anti-Levitazione",
+      "description": "Sei stanco di essere bloccato in aria? Questa è l'abilità che fa per te!",
+      "lore1": "Sgattaiola per scendere e cadrai a una velocità inferiore al normale!",
+      "lore2": "Raffreddare:"
+    },
     "gate": {
       "name": "Porta del Rift",
       "description": "Teletrasporta in un luogo contrassegnato.",
@@ -843,7 +1002,7 @@
     "oxygen": {
       "name": "Serbatoio organico di ossigeno",
       "description": "Trattiene più ossigeno nei suoi piccoli polmoni!",
-      "lore1": "Ossigeno"
+      "lore1": "Aumento della capacità di ossigeno"
     },
     "fishersfantasy": {
       "name": "La fantasia di Fisher",
@@ -938,6 +1097,27 @@
       "name": "Spine",
       "description": "Rifletti il danno sul tuo attaccante!",
       "lore1": "Il danno ha reagito quando colpito"
+    },
+    "globe": {
+      "name": "Globo del dolore",
+      "description": "Dividi il danno che infliggi in base al numero di nemici intorno a te!",
+      "lore1": "Più nemici ti circondano, meno danni infliggi a ciascuno di loro",
+      "lore2": "Allineare:",
+      "lore3": "Aggiunto danno a tutte le entità:"
+    },
+    "healing": {
+      "name": "Volontà di Dolore",
+      "description": "Recupera la salute in base al danno che infliggi!",
+      "lore1": "Fare del male alle cose non è mai stato così bello! Guarisci dai danni inflitti",
+      "lore2": "C'è una finestra di danno di 3 secondi, per la guarigione e un tempo di recupero di 1 secondo",
+      "lore3": "Guarigione per percentuale di danno:"
+    },
+    "lance": {
+      "name": "Lance cadavere",
+      "description": "Uccidere un nemico o avere un'abilità che uccida un nemico genera una lancia che infligge danni a un nemico vicino!",
+      "lore1": "Lance cercherà qualsiasi cosa tu uccida E se questa abilità uccide un nemico.",
+      "lore2": "Sacrifica una parte della tua vita per creare le lance (questo può ucciderti)",
+      "lore3": "Max Lance: 1+"
     }
   },
   "unarmed": {
