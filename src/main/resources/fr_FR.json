@@ -179,6 +179,58 @@
     "challenge_excavate_5m": {
       "title": "Excavatrice énigmatique",
       "description": "Creusez 5 000 000 de blocs"
+    },
+    "horrible_person": {
+      "title": "Vous êtes une personne horrible",
+      "description": "Insondable, vraiment"
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "Briseur d'œufs de tortue !",
+      "description": "Casser 100 œufs de tortue"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "Annihilateur d'œufs de tortue !",
+      "description": "Casser 500 œufs de tortue"
+    },
+    "challenge_novice_hunter": {
+      "title": "Chasseur débutant !",
+      "description": "Tuez 100 entités"
+    },
+    "challenge_intermediate_hunter": {
+      "title": "Chasseur intermédiaire !",
+      "description": "Tuez 500 entités"
+    },
+    "challenge_advanced_hunter": {
+      "title": "Chasseur avancé !",
+      "description": "Tuez 5000 entités"
+    },
+    "challenge_creeper_conqueror": {
+      "title": "Conquérant Creeper !",
+      "description": "Tuez 50 lianes"
+    },
+    "challenge_creeper_annihilator": {
+      "title": "Annihilateur Creeper !",
+      "description": "Tuez 200 lianes"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "Mineur débutant",
+      "description": "Casser 1000 blocs"
+    },
+    "challenge_pickaxe_5k": {
+      "title": "Mineur qualifié",
+      "description": "Cassez 5000 blocs"
+    },
+    "challenge_pickaxe_50k": {
+      "title": "Mineur expert",
+      "description": "Cassez 50 000 blocs"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "Maître mineur",
+      "description": "Cassez 500 000 blocs"
+    },
+    "challenge_pickaxe_5m": {
+      "title": "Mineur légendaire",
+      "description": "Cassez 5 000 000 de blocs"
     }
   },
   "items": {
@@ -196,6 +248,10 @@
       "name": "Télécommande Redstone",
       "usage1": "Clic droit pour créer une impulsion Redstone 1-Tick",
       "usage2": "Maj + clic gauche sur un bloc 'cible' à lier"
+    },
+    "boundsnowball": {
+      "name": "Piège Web !",
+      "usage1": "Lancer pour créer un piège Web temporaire à l'emplacement"
     }
   },
   "snippets": {
@@ -208,7 +264,7 @@
       "welcome": "Accueillir!",
       "welcomeback": "Content de te revoir!",
       "xpbonusfortime": "XP pour",
-      "unlockthisbyclicking": "Déverrouillez-le en cliquant avec le bouton droit sur le bloc d'adaptation !",
+      "unlockthisbyclicking": "Déverrouillez ceci en faisant un clic droit :",
       "back": "Retour",
       "unlearnall": "Tout désapprendre",
       "unlearnedall": "Tout désappris"
@@ -217,6 +273,7 @@
       "maynotunlearn": "VOUS NE POURREZ PAS DÉSAPPRENDRE",
       "mayunlearn": "VOUS POUVEZ APPRENDRE/DÉSAPPRENDRE",
       "knowledgecost": "Coût des connaissances",
+      "knowledgeavailable": "Connaissances disponibles",
       "alreadylearned": "Déjà appris",
       "unlearnrefund": "Cliquez pour désapprendre et rembourser",
       "norefunds": "HARDCORE, REMBOURSEMENTS DÉSACTIVÉS",
@@ -229,7 +286,8 @@
       "power": "Puissance",
       "powerdrain": "Puissance drainée",
       "learned": "Appris",
-      "unlearned": "Désappris"
+      "unlearned": "Désappris",
+      "activatorblock": "Étagère à livres"
     },
     "knowledgeorb": {
       "contains": "contient",
@@ -472,14 +530,14 @@
     "haste": {
       "name": "Hâte en bouteille",
       "description": "Quand l'efficacité ne suffit pas",
-      "lore1": "Potion de soin instantanée + Éclat d'améthyste = Potion de hâte (60 secondes)",
-      "lore2": "Soins instantanés + Bloc d'améthyste = Potion de hâte-2 (30 secondes)"
+      "lore1": "Potion de vitesse + Éclat d'améthyste = Potion de hâte (60 secondes)",
+      "lore2": "Potion de vitesse + Bloc d'améthyste = Potion de hâte-2 (30 secondes)"
     },
     "absorption": {
       "name": "Absorption en bouteille",
       "description": "Durcissez le corps !",
-      "lore1": "Potion de vitesse + Quartz = Potion d'absorption (60 secondes)",
-      "lore2": "Potion de vitesse + Bloc de quartz = Potion d'absorption-2 (30 secondes)"
+      "lore1": "Soins instantanés + Quartz = Potion d'absorption (60 secondes)",
+      "lore2": "Soins instantanés + Bloc de quartz = Potion d'absorption-2 (30 secondes)"
     },
     "fatigue": {
       "name": "Fatigue en bouteille",
@@ -569,6 +627,14 @@
       "description": "Gagnez de l'XP passif lors de la fabrication",
       "lore1": "Gagnez de l'XP lors de la fabrication"
     },
+    "reconstruction": {
+      "name": "Reconstruction du minerai",
+      "description": "Recréez des minerais à partir de leurs composants de base !",
+      "lore1": "8 des gouttes et 1 hôte = 1 minerai (sans forme)",
+      "lore2": "Les gouttes doivent être fondues (le cas échéant)",
+      "lore3": "N'inclut pas : chutes, quarts et émeraudes, etc.",
+      "lore4": "Hôte = Enveloppe. c'est-à-dire: Pierre, Netherack, Deepslate"
+    },
     "leather": {
       "name": "Cuir artisanal",
       "description": "Fabriquer du cuir à partir de chair pourrie",
@@ -655,6 +721,13 @@
       "lore1": "Gagner de la hâte lors de l'excavation",
       "lore2": "x Niveaux de hâte lorsque vous commencez à miner N'IMPORTE QUEL bloc."
     },
+    "spelunker": {
+      "name": "Spéléologue super-voyant !",
+      "description": "Voyez Ores avec vos yeux, mais à travers le sol !",
+      "lore1": "Ore dans votre main désinvolte, Glowberries dans votre main principale et Sneak !",
+      "lore2": "Plage de blocs :",
+      "lore3": "Consomme Glowberry lors de son utilisation"
+    },
     "droptoinventory": {
       "name": "Pelle Drop-To-Inventory"
     },
@@ -696,7 +769,7 @@
     "cobweb": {
       "name": "Créateur Webby",
       "description": "Vous donne la possibilité de fabriquer des toiles d'araignée dans une table d'artisanat",
-      "lore1": "Four String, fabriquera une toile d'araignée."
+      "lore1": "Nine String, fabriquera une toile d'araignée."
     },
     "mushroomblocks": {
       "name": "Fabricant de champignons",
@@ -819,6 +892,11 @@
       "lore1": "chance d'annuler le flétrissement (par pièce).",
       "lore2": "Passif : Porter une armure de Netherite a une chance d'annuler",
       "lore3": "dépérissement."
+    },
+    "fireresist": {
+      "name": "Résistance au feu",
+      "description": "Résiste au feu en durcissant votre peau.",
+      "lore1": "chance d'annuler l'effet de brûlure !"
     }
   },
   "pickaxe": {
@@ -851,7 +929,14 @@
     "arrowrecovery": {
       "name": "Récupération de flèche",
       "description": "Récupérez des Flèches après avoir tué un ennemi.",
-      "lore1": "Chance de récupérer des flèches en touchant/tuant"
+      "lore1": "Chance de récupérer des flèches en touchant/tuant",
+      "lore2": "Chance:"
+    },
+    "webshot": {
+      "name": "Piège Web",
+      "description": "Entourez les toiles d'araignée autour de votre cible lorsque vous la touchez !",
+      "lore1": "8 Toiles d'Araignée autour d'une Boule de Neige, et lancez !",
+      "lore2": "secondes d'une cage, à peu près."
     },
     "forceshot": {
       "name": "Tir forcé",
@@ -892,6 +977,12 @@
       "description": "Ouvrez un Enderchest en cliquant dessus avec le bouton gauche de votre main.",
       "lore1": "Cliquez sur un Enderchest dans votre main pour l'ouvrir (mais ne le placez pas)"
     },
+    "descent": {
+      "name": "Anti-lévitation",
+      "description": "Êtes-vous fatigué d'être coincé dans les airs? C'est la compétence pour vous!",
+      "lore1": "Faufilez-vous simplement pour descendre et vous tomberez à un rythme inférieur à la normale !",
+      "lore2": "Refroidir:"
+    },
     "gate": {
       "name": "Porte de la Faille",
       "description": "Téléportez-vous à un endroit marqué.",
@@ -911,7 +1002,7 @@
     "oxygen": {
       "name": "Réservoir d'oxygène organique",
       "description": "Maintenez plus d'oxygène dans vos petits poumons !",
-      "lore1": "Oxygène"
+      "lore1": "Augmentation de la capacité en oxygène"
     },
     "fishersfantasy": {
       "name": "Fantaisie de Fisher",
@@ -1006,6 +1097,27 @@
       "name": "Les épines",
       "description": "Renvoyez les dégâts à votre attaquant !",
       "lore1": "Dégâts subis en cas de coup"
+    },
+    "globe": {
+      "name": "Globe de douleur",
+      "description": "Divisez les dégâts que vous infligez en fonction du nombre d'ennemis autour de vous !",
+      "lore1": "Plus il y a d'ennemis autour de vous, moins vous infligez de dégâts à chacun d'eux",
+      "lore2": "Gamme:",
+      "lore3": "Dégâts ajoutés à toutes les entités :"
+    },
+    "healing": {
+      "name": "Volonté de douleur",
+      "description": "Retrouver la santé en fonction des dégâts que vous infligez !",
+      "lore1": "Faire du mal aux choses n'a jamais été aussi agréable ! Guérir des dégâts infligés",
+      "lore2": "Il y a une fenêtre de dégâts de 3 secondes, pour la guérison et un temps de recharge de 1 seconde",
+      "lore3": "Soins par pourcentage de dégâts :"
+    },
+    "lance": {
+      "name": "Lances de cadavre",
+      "description": "Tuer un ennemi ou avoir une capacité tuer un ennemi, engendre une lance qui inflige des dégâts à un ennemi proche !",
+      "lore1": "Les lances rechercheront tout ce que vous tuez, ET si cette capacité tue un ennemi.",
+      "lore2": "Sacrifiez une partie de votre vie afin de créer les lances (cela peut vous tuer)",
+      "lore3": "Max Lances : 1 +"
     }
   },
   "unarmed": {
