@@ -389,7 +389,7 @@ public interface Adaptation<T> extends Ticked, Component {
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
         Window w = new UIWindow(player);
         w.setTag("skill/" + getSkill().getName() + "/" + getName());
-        w.setDecorator((window, position, row) -> new UIElement("bg").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
+        w.setDecorator((window, position, row) -> new UIElement("bg").setName(" ").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
         w.setResolution(WindowResolution.W9_H6);
         int o = 0;
 
