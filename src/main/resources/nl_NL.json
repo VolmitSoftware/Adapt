@@ -141,8 +141,12 @@
       "description": "Maak 5.000.000 items"
     },
     "challenge_enchant_1k": {
+      "title": "Beginnende Enchanter!",
+      "description": "Enchant 1000 voorwerpen"
     },
     "challenge_enchant_5k": {
+      "title": "Middelbare enchanter!",
+      "description": "Enchant 5000 Voorwerpen"
     },
     "challenge_enchant_50k": {
       "title": "Geavanceerde tovenaar!",
