@@ -6,31 +6,23 @@ import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.protection.Protector;
 import me.angeschossen.chestprotect.api.addons.ChestProtectAddon;
 import me.angeschossen.chestprotect.api.protection.block.BlockProtection;
+import me.crafter.mc.lockettepro.LocketteProAPI;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class ChestProtectProtector implements Protector {
-    private final ChestProtectAddon chestProtect;
-
-    public ChestProtectProtector() {
-        this.chestProtect = new ChestProtectAddon(Adapt.instance);
-    }
-
+public class LocketteProProtector implements Protector {
     @Override
     public boolean canAccessChest(Player player, Location chestlocation, Adaptation<?> adaptation) {
-        if (!chestProtect.isProtectable(chestlocation.getBlock())) return true;
-        BlockProtection blockProtection = chestProtect.getProtection(chestlocation);
-        if (blockProtection == null) return true;
-        return blockProtection.isTrusted(player.getUniqueId());
+        return LocketteProAPI.isOwner(chestlocation.getBlock(), player);
     }
 
     @Override
     public String getName() {
-        return "ChestProtect";
+        return "LockettePro";
     }
 
     @Override
     public boolean isEnabledByDefault() {
-        return AdaptConfig.get().getProtectorSupport().isChestProtect();
+        return AdaptConfig.get().getProtectorSupport().isLockettePro();
     }
 }
