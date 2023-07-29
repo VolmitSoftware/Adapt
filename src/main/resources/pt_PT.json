@@ -141,25 +141,43 @@
       "description": "Crie 5.000.000 itens"
     },
     "challenge_enchant_1k": {
+      "title": "Encantador novato!",
+      "description": "Encantar 1000 itens"
     },
     "challenge_enchant_5k": {
+      "title": "Encantador Intermediário!",
+      "description": "Encantar 5.000 itens"
     },
     "challenge_enchant_50k": {
+      "title": "Encantador Avançado!",
+      "description": "Encantar 50.000 itens"
     },
     "challenge_enchant_500k": {
+      "title": "Mestre Encantador!",
+      "description": "Encantar 500.000 itens"
     },
     "challenge_enchant_5m": {
+      "title": "Enccantador Enigmático",
+      "description": "Encantar 5.000.000 de itens"
     },
     "challenge_excavate_1k": {
+      "title": "Escavador profissisonal!",
+      "description": "Cave 1000 blocos"
     },
     "challenge_excavate_5k": {
+      "title": "Escavador intermediário!",
+      "description": "Cave 5.000 blocos"
     },
     "challenge_excavate_50k": {
+      "title": "Escavador avançado!",
       "description": "Cave 50.000 blocos!"
     },
     "challenge_excavate_500k": {
+      "title": "Mestre Escavador!",
+      "description": "Cave 500.000 blocos"
     },
     "challenge_excavate_5m": {
+      "title": "Escavador Enigmático",
       "description": "Cave 5.000.000 de blocos!"
     },
     "horrible_person": {
@@ -187,6 +205,7 @@
       "description": "Mate 5.000 entidades!"
     },
     "challenge_creeper_conqueror": {
+      "title": "Creeper Conquistador!",
       "description": "Mate 50 creepers!"
     },
     "challenge_creeper_annihilator": {
@@ -216,10 +235,12 @@
   },
   "items": {
     "boundenderperal": {
+      "name": "Chave de portal do relicário",
       "usage1": "Shift + clique esquerdo para vincular!",
       "usage2": "Clique com o botão direito para acessar o inventário vinculado."
     },
     "boundeyeofender": {
+      "name": "Âncora Ocular\n",
       "usage1": "Clique com o botão direito para consumir e se teletransportar para o local vinculado.",
       "usage2": "Shift + clique esquerdo para vincular a um bloco."
     },
@@ -436,6 +457,9 @@
       "lore1": "Suas mãos ganham toque sedoso para Glass"
     },
     "wirelessredstone": {
+      "name": "Controle Remoto de Redstone",
+      "description": "Isso permite que você use uma tocha de redstone para alternar o redstone, remotamente!",
+      "lore1": "Alvo + Tocha Redstone + Enderperal = 1 Controle Remoto de Redstone"
     },
     "placement": {
       "name": "Varinha dos Construtores",
@@ -505,11 +529,15 @@
     },
     "haste": {
       "name": "pressa engarrafada",
-      "description": "Quando a eficiência não é suficiente"
+      "description": "Quando a eficiência não é suficiente",
+      "lore1": "Poção de Velocidade + Fragmento de Ametista = Poção de Pressa (60 segundos)",
+      "lore2": "Poção de Velocidade + Bloco de Ametista = Poção de Aceleração 2 (30 segundos)"
     },
     "absorption": {
       "name": "Absorção engarrafada",
-      "description": "Endureça o corpo!"
+      "description": "Endureça o corpo!",
+      "lore1": "Cura Instantânea + Quartzo = Poção de Absorção (60 segundos)",
+      "lore2": "Poção de Cura Instantânea + Bloco de Quartzo = Poção de Absorção-2 (30 segundos)"
     },
     "fatigue": {
       "name": "Fadiga engarrafada",
@@ -600,6 +628,12 @@
       "lore1": "Ganhe XP ao criar"
     },
     "reconstruction": {
+      "name": "Reconstrução de Minério",
+      "description": "Recrie minérios a partir de seus componentes básicos!",
+      "lore1": "8 Drops e 1 host = 1 minério (sem forma)",
+      "lore2": "Os Drops devem ser derretidos (se possível)",
+      "lore3": "Não inclui: Sucatas, Quartzo, Esmeraldas, etc...",
+      "lore4": "Host = Invólucro. ou seja: Pedra, Netherack, Ardósia"
     },
     "leather": {
       "name": "Couro Artesanal",
@@ -615,6 +649,10 @@
       "lore4": "XCX : Couro, Peito, Couro"
     },
     "stations": {
+      "name": "Bancadas portáteis!",
+      "description": "Use uma banccada na palma da sua mão!",
+      "lore2": "QUALQUER ITEM QUE VOCÊ ESQUECER NA MESA QUANDO FECHADA SÃO PERDIDOS PARA SEMPRE!",
+      "lore3": "Tabelas válidas: Bigorna, Bancada de Trabalho, Rebolo, Mesa de Cartografia, Cortador de Pedra, Tear!"
     },
     "skulls": {
       "name": "Crânios criáveis!",
@@ -684,6 +722,11 @@
       "lore2": "x Níveis de aceleração quando você começa a minerar QUALQUER bloco."
     },
     "spelunker": {
+      "name": "Raio-X de escavação!",
+      "description": "Veja minérios com seus olhos, mas através do chão!",
+      "lore1": "Minério em sua mão secundária, bagas brilhantes em sua mão principal e agache!",
+      "lore2": "Alcance de bloco:",
+      "lore3": "Consome bagas brilhantes ao usar"
     },
     "droptoinventory": {
       "name": "Pá Drop-To-Inventory"
@@ -725,7 +768,8 @@
     },
     "cobweb": {
       "name": "Criador Webby",
-      "description": "Dá a você a capacidade de criar teias de aranha em uma mesa de artesanato"
+      "description": "Dá a você a capacidade de criar teias de aranha em uma mesa de artesanato",
+      "lore1": "Nine String, criará uma teia de aranha."
     },
     "mushroomblocks": {
       "name": "Fabricante de cogumelos",
@@ -850,6 +894,9 @@
       "lore3": "murchando."
     },
     "fireresist": {
+      "name": "Resistência ao fogo",
+      "description": "Resiste ao fogo endurecendo sua pele.",
+      "lore1": "chance de anular o efeito do fogo!"
     }
   },
   "pickaxe": {
@@ -882,9 +929,14 @@
     "arrowrecovery": {
       "name": "Recuperação de flechas",
       "description": "Recupere as flechas depois de matar um inimigo.",
-      "lore1": "Chance de recuperar flechas ao acertar/matar"
+      "lore1": "Chance de recuperar flechas ao acertar/matar",
+      "lore2": "Chance:"
     },
     "webshot": {
+      "name": "Armadilha de Teia",
+      "description": "Cerque teias de aranha ao redor de seu alvo quando você acertá-lo!",
+      "lore1": "8 teias de aranha em torno de uma bola de neve.",
+      "lore2": "segundos preso, aproximadamente."
     },
     "forceshot": {
       "name": "Tiro de Força",
@@ -926,6 +978,10 @@
       "lore1": "Clique em um Enderchest em sua mão para abrir (apenas não coloque)"
     },
     "descent": {
+      "name": "Anti-levitação",
+      "description": "Você está cansado de ficar preso no ar? Esta é a habilidade para você!",
+      "lore1": "Agache para cair lentamente!",
+      "lore2": "Cooldown:"
     },
     "gate": {
       "name": "Portão da Fenda",
@@ -945,7 +1001,8 @@
   "seaborn": {
     "oxygen": {
       "name": "Tanque de Oxigênio Orgânico",
-      "description": "Mantenha mais oxigênio em seus minúsculos pulmões!"
+      "description": "Mantenha mais oxigênio em seus minúsculos pulmões!",
+      "lore1": "Aumento da Capacidade de Oxigênio"
     },
     "fishersfantasy": {
       "name": "fantasia de pescador",
@@ -1042,10 +1099,25 @@
       "lore1": "Danos retaliados quando atingidos"
     },
     "globe": {
+      "name": "Globo da dor",
+      "description": "Divide o dano que você causa com base no número de inimigos ao seu redor!",
+      "lore1": "Quanto mais inimigos ao seu redor, menos dano você causa a cada um deles",
+      "lore2": "Alcance:",
+      "lore3": "Dano adicionado a todas as entidades:"
     },
     "healing": {
+      "name": "Vontade da Dor",
+      "description": "Recupere vida com base no dano causado!",
+      "lore1": "Prejudicar oss outros nunca foi tão bom! Cura com o dano causado",
+      "lore2": "Há uma janela de dano de 3 segundos, para cura e um cooldown de 1 segundo",
+      "lore3": "Cura por porcentagem de dano:"
     },
     "lance": {
+      "name": "Lanças Cadáveres",
+      "description": "Matar um inimigo com ou sem habilidade gera uma lança que causa dano a um inimigo próximo!",
+      "lore1": "As lanças serão lançadas em qualquer coisa que você matar, mesmo se essa habilidade matar um inimico",
+      "lore2": "Sacrifique uma parte de sua vida para criar as lanças (isso pode te matar)",
+      "lore3": "Lanças Máximas: +1"
     }
   },
   "unarmed": {
