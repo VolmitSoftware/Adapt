@@ -139,6 +139,98 @@
     "challenge_craft_5m": {
       "title": "Calamitoso McCraftface",
       "description": "Crie 5.000.000 itens"
+    },
+    "challenge_enchant_1k": {
+    },
+    "challenge_enchant_5k": {
+    },
+    "challenge_enchant_50k": {
+    },
+    "challenge_enchant_500k": {
+    },
+    "challenge_enchant_5m": {
+    },
+    "challenge_excavate_1k": {
+    },
+    "challenge_excavate_5k": {
+    },
+    "challenge_excavate_50k": {
+      "description": "Cave 50.000 blocos!"
+    },
+    "challenge_excavate_500k": {
+    },
+    "challenge_excavate_5m": {
+      "description": "Cave 5.000.000 de blocos!"
+    },
+    "horrible_person": {
+      "title": "Você é uma pessoa horrível!",
+      "description": "Insondável, realmente!!"
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "Destruidor de Ovos de Tartaruga!",
+      "description": "Esmague 100 ovos de tartaruga!"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "Aniquilador de Ovos de Tartaruga!",
+      "description": "Esmague 500 ovos de tartaruga!"
+    },
+    "challenge_novice_hunter": {
+      "title": "Caçador novato!",
+      "description": "Mate 100 entidades!"
+    },
+    "challenge_intermediate_hunter": {
+      "title": "Caçador intermediário!",
+      "description": "Mate 500 entidades!"
+    },
+    "challenge_advanced_hunter": {
+      "title": "Caçador avançado!",
+      "description": "Mate 5.000 entidades!"
+    },
+    "challenge_creeper_conqueror": {
+      "description": "Mate 50 creepers!"
+    },
+    "challenge_creeper_annihilator": {
+      "title": "Aniquilador Creeper!",
+      "description": "Mate 200 creepers!"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "Mineiro novato!",
+      "description": "Quebre 1000 Blocos!"
+    },
+    "challenge_pickaxe_5k": {
+      "title": "Mineiro Habilidoso!",
+      "description": "Quebre 5.000 Blocos!"
+    },
+    "challenge_pickaxe_50k": {
+      "title": "Mineiro especialista!",
+      "description": "Quebre 50.000 blocos!"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "Mestre mineiro!",
+      "description": "Quebre 500.000 blocos!"
+    },
+    "challenge_pickaxe_5m": {
+      "title": "Mineiro lendário!",
+      "description": "Quebre 5.000.000 de Blocos!"
+    }
+  },
+  "items": {
+    "boundenderperal": {
+      "usage1": "Shift + clique esquerdo para vincular!",
+      "usage2": "Clique com o botão direito para acessar o inventário vinculado."
+    },
+    "boundeyeofender": {
+      "usage1": "Clique com o botão direito para consumir e se teletransportar para o local vinculado.",
+      "usage2": "Shift + clique esquerdo para vincular a um bloco."
+    },
+    "boundredstonetorch": {
+      "name": "Controle Remoto de Redstone!",
+      "usage1": "Clique com o botão direito para criar um pulso Redstone de 1 Tick!",
+      "usage2": "Shift + clique esquerdo em um bloco 'alvo' para vincular."
+    },
+    "boundsnowball": {
+      "name": "Armadilha da teia!",
+      "usage1": "Jogue para criar uma armadilha de teia temporária no local."
     }
   },
   "snippets": {
@@ -151,7 +243,7 @@
       "welcome": "Bem-vindo!",
       "welcomeback": "Bem vindo de volta!",
       "xpbonusfortime": "XP para",
-      "unlockthisbyclicking": "Desbloqueie isso clicando com o botão direito do mouse no bloco Adapt!",
+      "unlockthisbyclicking": "Desbloqueie clicando com o botão direito:",
       "back": "De volta",
       "unlearnall": "Desaprender tudo",
       "unlearnedall": "Desaprendeu tudo"
@@ -160,6 +252,7 @@
       "maynotunlearn": "VOCÊ NÃO PODE APRENDER",
       "mayunlearn": "VOCÊ PODE APRENDER/DESAPRENDER",
       "knowledgecost": "Custo do Conhecimento",
+      "knowledgeavailable": "Conhecimento disponível!",
       "alreadylearned": "Já aprendeu",
       "unlearnrefund": "Clique para desaprender e reembolsar",
       "norefunds": "INCONDICIONAL, REEMBOLSOS DESABILITADOS",
@@ -172,7 +265,8 @@
       "power": "Poder",
       "powerdrain": "Dreno de Energia",
       "learned": "Aprendido",
-      "unlearned": "Sem instrução"
+      "unlearned": "Sem instrução",
+      "activatorblock": "Estante de livro!"
     },
     "knowledgeorb": {
       "contains": "Contém",
@@ -341,6 +435,8 @@
       "description": "Isso permite que você evite essencialmente a perda de blocos de vidro quando você os quebra com a mão vazia!",
       "lore1": "Suas mãos ganham toque sedoso para Glass"
     },
+    "wirelessredstone": {
+    },
     "placement": {
       "name": "Varinha dos Construtores",
       "description": "Permite que você coloque vários blocos de uma só vez para ativar o Sneak e segure um bloco que corresponda ao seu bloco e local! Lembre-se de que pode ser necessário mover um pouco para acionar a delimitação das caixas!",
@@ -409,15 +505,11 @@
     },
     "haste": {
       "name": "pressa engarrafada",
-      "description": "Quando a eficiência não é suficiente",
-      "lore1": "Poção de Velocidade + Fragmento de Ametista = Poção de Aceleração (60 segundos)",
-      "lore2": "Poção de Velocidade + Bloco de Ametista = Poção de Aceleração-2 (30 segundos)"
+      "description": "Quando a eficiência não é suficiente"
     },
     "absorption": {
       "name": "Absorção engarrafada",
-      "description": "Endureça o corpo!",
-      "lore1": "Poção de Velocidade + Quartzo = Poção de Absorção (60 segundos)",
-      "lore2": "Poção de Velocidade + Bloco de Quartzo = Poção de Absorção-2 (30 segundos)"
+      "description": "Endureça o corpo!"
     },
     "fatigue": {
       "name": "Fadiga engarrafada",
@@ -507,6 +599,8 @@
       "description": "Ganhe XP passivo ao criar",
       "lore1": "Ganhe XP ao criar"
     },
+    "reconstruction": {
+    },
     "leather": {
       "name": "Couro Artesanal",
       "description": "Artesanato de couro de carne podre",
@@ -519,6 +613,8 @@
       "lore2": "XLX : Couro, Chumbo, Couro",
       "lore3": "XSX : Couro, Caixa Shulker, Couro",
       "lore4": "XCX : Couro, Peito, Couro"
+    },
+    "stations": {
     },
     "skulls": {
       "name": "Crânios criáveis!",
@@ -587,6 +683,8 @@
       "lore1": "Ganhe Aceleração durante a escavação",
       "lore2": "x Níveis de aceleração quando você começa a minerar QUALQUER bloco."
     },
+    "spelunker": {
+    },
     "droptoinventory": {
       "name": "Pá Drop-To-Inventory"
     },
@@ -627,8 +725,7 @@
     },
     "cobweb": {
       "name": "Criador Webby",
-      "description": "Dá a você a capacidade de criar teias de aranha em uma mesa de artesanato",
-      "lore1": "Four String, criará uma teia de aranha."
+      "description": "Dá a você a capacidade de criar teias de aranha em uma mesa de artesanato"
     },
     "mushroomblocks": {
       "name": "Fabricante de cogumelos",
@@ -742,8 +839,8 @@
       "description3": "cabeça.",
       "lore1": "Segundos de cooldown entre lançamentos de caveiras.",
       "lore2": "Usando Wither Skull: Jogue um",
-      "lore3": "Murchar Crânio",
-      "lore4": "explodindo no impacto."
+      "lore3": "Crânio de esqueleto wither",
+      "lore4": "explodindo com o impacto."
     },
     "witherresist": {
       "name": "Resistência à Murcha",
@@ -751,6 +848,8 @@
       "lore1": "chance de negar o murchamento (por peça).",
       "lore2": "Passivo: Usar Armadura Netherita tem chance de negar",
       "lore3": "murchando."
+    },
+    "fireresist": {
     }
   },
   "pickaxe": {
@@ -784,6 +883,8 @@
       "name": "Recuperação de flechas",
       "description": "Recupere as flechas depois de matar um inimigo.",
       "lore1": "Chance de recuperar flechas ao acertar/matar"
+    },
+    "webshot": {
     },
     "forceshot": {
       "name": "Tiro de Força",
@@ -824,6 +925,8 @@
       "description": "Abra um enderchest clicando com o botão esquerdo em sua mão.",
       "lore1": "Clique em um Enderchest em sua mão para abrir (apenas não coloque)"
     },
+    "descent": {
+    },
     "gate": {
       "name": "Portão da Fenda",
       "description": "Teletransporte para um local marcado.",
@@ -842,8 +945,7 @@
   "seaborn": {
     "oxygen": {
       "name": "Tanque de Oxigênio Orgânico",
-      "description": "Mantenha mais oxigênio em seus minúsculos pulmões!",
-      "lore1": "Oxigênio"
+      "description": "Mantenha mais oxigênio em seus minúsculos pulmões!"
     },
     "fishersfantasy": {
       "name": "fantasia de pescador",
@@ -938,6 +1040,12 @@
       "name": "Espinhos",
       "description": "Reflita o dano de volta ao seu atacante!",
       "lore1": "Danos retaliados quando atingidos"
+    },
+    "globe": {
+    },
+    "healing": {
+    },
+    "lance": {
     }
   },
   "unarmed": {
