@@ -59,6 +59,199 @@
     "challenge_chop_5m": {
       "title": "Pies Jackson",
       "description": "Najlepszy dobry chłopak! (5 milionów bloków)"
+    },
+    "challenge_block_1k": {
+      "title": "Ledwo blokuje!",
+      "description": "Zablokuj 1000 trafień"
+    },
+    "challenge_block_5k": {
+      "title": "Blokowanie jest fajne!",
+      "description": "Zablokuj 5000 trafień"
+    },
+    "challenge_block_50k": {
+      "title": "Blokowanie to moje życie!",
+      "description": "Zablokuj 50 000 trafień"
+    },
+    "challenge_block_500k": {
+      "title": "Blokowanie jest moim celem!",
+      "description": "Zablokuj 500 000 trafień"
+    },
+    "challenge_block_5m": {
+      "title": "Die Hand Die Verletzt",
+      "description": "Zablokuj 5 000 000 trafień"
+    },
+    "challenge_brew_1k": {
+      "title": "Początkujący Alchemik!",
+      "description": "Spożyj 1000 mikstur"
+    },
+    "challenge_brew_5k": {
+      "title": "Średni Alchemik!",
+      "description": "Spożyj 5000 mikstur"
+    },
+    "challenge_brew_50k": {
+      "title": "Zaawansowany Alchemik!",
+      "description": "Spożyj 50 000 mikstur"
+    },
+    "challenge_brew_500k": {
+      "title": "Mistrzu Alchemiku!",
+      "description": "Spożyj 500 000 mikstur"
+    },
+    "challenge_brew_5m": {
+      "title": "Alchemik",
+      "description": "Spożyj 5 000 000 mikstur"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "Początkujący Rozpryskujący Eliksiry!",
+      "description": "Spryskaj 1000 mikstur"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "Średnio zaawansowany rozpryskujący mikstury!",
+      "description": "Splash 5000 mikstur"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "Zaawansowany rozpryskujący mikstury!",
+      "description": "Spryskaj 50 000 mikstur"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "Mistrz rozpryskiwania eliksirów!",
+      "description": "Rozpryskaj 500 000 mikstur"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "Mistrz Splasha",
+      "description": "Rozpryskaj 5 000 000 mikstur"
+    },
+    "challenge_craft_1k": {
+      "title": "Sprytny Rzemieślnik!",
+      "description": "Stwórz 1000 przedmiotów"
+    },
+    "challenge_craft_5k": {
+      "title": "Kłótliwy Rzemieślnik!",
+      "description": "Stwórz 5000 przedmiotów"
+    },
+    "challenge_craft_50k": {
+      "title": "Rzemieślnik szyjki macicy!",
+      "description": "Stwórz 50 000 przedmiotów"
+    },
+    "challenge_craft_500k": {
+      "title": "Kakofoniczny rzemieślnik!",
+      "description": "Stwórz 500 000 przedmiotów"
+    },
+    "challenge_craft_5m": {
+      "title": "Nieszczęsny McCraftface",
+      "description": "Stwórz 5 000 000 przedmiotów"
+    },
+    "challenge_enchant_1k": {
+      "title": "Nowicjusz Zaklinacz!",
+      "description": "Zaczaruj 1000 przedmiotów"
+    },
+    "challenge_enchant_5k": {
+      "title": "Pośredni Zaklinacz!",
+      "description": "Zaczaruj 5000 przedmiotów"
+    },
+    "challenge_enchant_50k": {
+      "title": "Zaawansowany Zaklinacz!",
+      "description": "Zaczaruj 50 000 przedmiotów"
+    },
+    "challenge_enchant_500k": {
+      "title": "Mistrzu Czarodzieju!",
+      "description": "Zaczaruj 500 000 przedmiotów"
+    },
+    "challenge_enchant_5m": {
+      "title": "Enigmatyczny Zaklinacz",
+      "description": "Zaczaruj 5 000 000 przedmiotów"
+    },
+    "challenge_excavate_1k": {
+      "title": "Zwabiony koparka!",
+      "description": "Wydobądź 1000 bloków"
+    },
+    "challenge_excavate_5k": {
+      "title": "Koparka średniozaawansowana!",
+      "description": "Wydobądź 5000 bloków"
+    },
+    "challenge_excavate_50k": {
+      "title": "Zaawansowana koparka!",
+      "description": "Wydobądź 50 000 bloków"
+    },
+    "challenge_excavate_500k": {
+      "title": "Mistrz koparki!",
+      "description": "Wydobądź 500 000 bloków"
+    },
+    "challenge_excavate_5m": {
+      "title": "Enigmatyczna koparka",
+      "description": "Wydobądź 5 000 000 bloków"
+    },
+    "horrible_person": {
+      "title": "Jesteś okropną osobą",
+      "description": "Niepojęte, naprawdę"
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "Rozbijacz jaj żółwi!",
+      "description": "Rozbij 100 żółwich jaj"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "Niszczyciel żółwich jaj!",
+      "description": "Rozbij 500 żółwich jaj"
+    },
+    "challenge_novice_hunter": {
+      "title": "Nowicjusz Łowca!",
+      "description": "Zabij 100 istot"
+    },
+    "challenge_intermediate_hunter": {
+      "title": "Średni myśliwy!",
+      "description": "Zabij 500 istot"
+    },
+    "challenge_advanced_hunter": {
+      "title": "Zaawansowany Łowca!",
+      "description": "Zabij 5000 istot"
+    },
+    "challenge_creeper_conqueror": {
+      "title": "Zdobywca Creeperów!",
+      "description": "Zabij 50 creeperów"
+    },
+    "challenge_creeper_annihilator": {
+      "title": "Niszczyciel Creeperów!",
+      "description": "Zabij 200 creeperów"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "Początkujący górnik",
+      "description": "Rozbij 1000 bloków"
+    },
+    "challenge_pickaxe_5k": {
+      "title": "Wykwalifikowany Górnik",
+      "description": "Rozbij 5000 bloków"
+    },
+    "challenge_pickaxe_50k": {
+      "title": "Ekspert Górnik",
+      "description": "Zniszcz 50 000 bloków"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "Mistrz górnictwa",
+      "description": "Zniszcz 500 000 bloków"
+    },
+    "challenge_pickaxe_5m": {
+      "title": "Legendarny Górnik",
+      "description": "Złam 5 000 000 bloków"
+    }
+  },
+  "items": {
+    "boundenderperal": {
+      "name": "Relikwiarz świstoklik",
+      "usage1": "Shift + lewy przycisk myszy, aby powiązać",
+      "usage2": "Kliknij prawym przyciskiem myszy, aby uzyskać dostęp do powiązanego ekwipunku"
+    },
+    "boundeyeofender": {
+      "name": "Kotwica oka",
+      "usage1": "Kliknij prawym przyciskiem myszy, aby skonsumować i teleportować się do powiązanej lokalizacji",
+      "usage2": "Shift + lewy przycisk myszy, aby powiązać z blokiem"
+    },
+    "boundredstonetorch": {
+      "name": "Pilot Redstone",
+      "usage1": "Kliknij prawym przyciskiem myszy, aby utworzyć impuls Redstone 1-Tick",
+      "usage2": "Shift + lewy przycisk myszy na bloku „celu”, aby powiązać"
+    },
+    "boundsnowball": {
+      "name": "Sieciowy pułapka!",
+      "usage1": "Rzuć, aby utworzyć tymczasową pułapkę sieciową w tym miejscu"
     }
   },
   "snippets": {
@@ -71,7 +264,7 @@
       "welcome": "Witamy!",
       "welcomeback": "Witamy spowrotem!",
       "xpbonusfortime": "XP za",
-      "unlockthisbyclicking": "Odblokuj to, klikając prawym przyciskiem myszy blok adaptacyjny!",
+      "unlockthisbyclicking": "Odblokuj to, klikając prawym przyciskiem myszy:",
       "back": "Z powrotem",
       "unlearnall": "Oducz się wszystkich",
       "unlearnedall": "Wszystko oduczone"
@@ -80,6 +273,7 @@
       "maynotunlearn": "NIE MOŻESZ SIĘ ODUCZYĆ",
       "mayunlearn": "MOŻESZ SIĘ UCZYĆ/ODUCZYĆ",
       "knowledgecost": "Koszt Wiedzy",
+      "knowledgeavailable": "Dostępna wiedza",
       "alreadylearned": "Już Nauczono",
       "unlearnrefund": "Kliknij, aby się oduczyć i otrzymać zwrot XP",
       "norefunds": "HARDCORE, ZWROTY ZWROTÓW WYŁĄCZONE",
@@ -92,7 +286,8 @@
       "power": "Moc",
       "powerdrain": "Pobór mocy",
       "learned": "Nauczono",
-      "unlearned": "Nieuczony"
+      "unlearned": "Nieuczony",
+      "activatorblock": "Półka na książki"
     },
     "knowledgeorb": {
       "contains": "Zawiera",
@@ -261,6 +456,11 @@
       "description": "Pozwala to zasadniczo zapobiec utracie pustaków szklanych, gdy rozbijesz je pustą ręką!",
       "lore1": "Twoje dłonie zyskują jedwabisty dotyk do szkła"
     },
+    "wirelessredstone": {
+      "name": "Pilot Redstone",
+      "description": "Dzięki temu możesz używać latarki z czerwonego kamienia do zdalnego przełączania czerwonego kamienia!",
+      "lore1": "Cel + Redstone Torch + Enderperal = 1 Redstone Remote"
+    },
     "placement": {
       "name": "Różdzka Konstruktora",
       "description": "Pozwala na umieszczenie wielu bloków naraz, aby aktywować Skradanie się i przytrzymanie bloku, który pasuje do Twojego wyglądającego bloku i miejsca! Pamiętaj, że być może będziesz musiał przesunąć odrobinę, aby wywołać ograniczanie pudełek!",
@@ -336,8 +536,8 @@
     "absorption": {
       "name": "Absorpcja butelkowa",
       "description": "Utwardź ciało!",
-      "lore1": "Mikstura Szybkości + Kwarc = Mikstura Wchłonięcia (60 sekund)",
-      "lore2": "Mikstura Szybkości + Blok Kwarcowy = Mikstura Wchłonięcia-2 (30 sekund)"
+      "lore1": "Natychmiastowe Leczenie + Kwarc = Mikstura Absorpcji (60 sekund)",
+      "lore2": "Natychmiastowe Uzdrowienie + Kwarcowy Blok = Mikstura Absorpcji-2 (30 sekund)"
     },
     "fatigue": {
       "name": "Zmęczenie butelkowe",
@@ -427,6 +627,14 @@
       "description": "Zdobywaj pasywne PD podczas tworzenia",
       "lore1": "Zdobywaj PD podczas tworzenia"
     },
+    "reconstruction": {
+      "name": "Rekonstrukcja rudy",
+      "description": "Przerabiaj rudy z ich podstawowych komponentów!",
+      "lore1": "8 kropli i 1 host = 1 ruda (bezkształtna)",
+      "lore2": "Krople muszą być wytapiane (jeśli dotyczy)",
+      "lore3": "Nie obejmuje: skrawków, ćwiartek i szmaragdów itp.",
+      "lore4": "Gospodarz = obudowa. tj.: Stone, Netherack, Deepslate"
+    },
     "leather": {
       "name": "Skóra do wytworzenia",
       "description": "Skóra rzemieślnicza z Rotten Flesh",
@@ -439,6 +647,12 @@
       "lore2": "XLX: Skóra, Ołów, Skóra",
       "lore3": "XSX: Skóra, Pudełko Shulkera, Skóra",
       "lore4": "XCX: skóra, klatka piersiowa, skóra"
+    },
+    "stations": {
+      "name": "Stoły przenośne!",
+      "description": "Użyj stołu w dłoni!",
+      "lore2": "WSZELKIE POZYCJE, KTÓRE ZAPOMNISZ W TABELI PO ZAMKNIĘCIU SĄ NA ZAWSZE UTRACONE!",
+      "lore3": "Prawidłowe tabele: Kowadło, Rzemiosło, Kamień szlifierski, Kartografia, Kamieniarz, Krosno"
     },
     "skulls": {
       "name": "Czaszki do wytworzenia!",
@@ -507,6 +721,13 @@
       "lore1": "Zyskaj pośpiech podczas kopania",
       "lore2": "x Poziomy pośpiechu, gdy zaczniesz wydobywać DOWOLNY blok."
     },
+    "spelunker": {
+      "name": "Superwidzący grotołaz!",
+      "description": "Zobacz rudy na własne oczy, ale przez ziemię!",
+      "lore1": "Ruda w twojej drugiej ręce, Jagody w twojej głównej ręce i Skradanie się!",
+      "lore2": "Zakres bloków:",
+      "lore3": "Zużywa Glowberry podczas użycia"
+    },
     "droptoinventory": {
       "name": "Łopata zrzutu do magazynu"
     },
@@ -548,7 +769,7 @@
     "cobweb": {
       "name": "Webby Creator",
       "description": "Daje możliwość tworzenia pajęczyn na stole rzemieślniczym",
-      "lore1": "Four String, stworzy pajęczynę."
+      "lore1": "Nine String, stworzy Pajęczynę."
     },
     "mushroomblocks": {
       "name": "Pieczarka",
@@ -671,6 +892,11 @@
       "lore1": "szansa na zanegowanie więdnięcia (za sztukę).",
       "lore2": "Pasywna: Noszenie Netherite Armor ma szansę na zanegowanie",
       "lore3": "miażdżący."
+    },
+    "fireresist": {
+      "name": "Odporność na ogień",
+      "description": "Odpiera ogień, utwardzając skórę.",
+      "lore1": "szansa na zanegowanie efektu palenia!"
     }
   },
   "pickaxe": {
@@ -703,7 +929,14 @@
     "arrowrecovery": {
       "name": "Odzyskiwanie Strzał",
       "description": "Odzyskaj strzały po zabiciu wroga.",
-      "lore1": "Szansa na odzyskanie strzał po trafieniu/zabiciu"
+      "lore1": "Szansa na odzyskanie strzał po trafieniu/zabiciu",
+      "lore2": "Szansa:"
+    },
+    "webshot": {
+      "name": "Sieciowy pułapka",
+      "description": "Otocz pajęczyny wokół celu, gdy go trafisz!",
+      "lore1": "8 pajęczyn wokół śnieżki i rzuć!",
+      "lore2": "sekundy klatki, mniej więcej."
     },
     "forceshot": {
       "name": "Siła Strzału",
@@ -744,6 +977,12 @@
       "description": "Otwórz skrzynię, klikając ją lewym przyciskiem w dłoni.",
       "lore1": "Kliknij Enderchest w dłoni, aby go otworzyć (Tylko go nie umieszczaj)"
     },
+    "descent": {
+      "name": "Antylewitacja",
+      "description": "Czy jesteś zmęczony utknięciem w powietrzu? To umiejętność dla Ciebie!",
+      "lore1": "Po prostu zakradnij się, aby zejść, a spadniesz w tempie mniejszym niż zwykle!",
+      "lore2": "Ochłonąć:"
+    },
     "gate": {
       "name": "Brama Szczeliny",
       "description": "Teleportuj się we wskazane miejsce.",
@@ -763,7 +1002,7 @@
     "oxygen": {
       "name": "Zbiornik na tlen organiczny",
       "description": "Trzymaj więcej tlenu w swoich maleńkich płucach!",
-      "lore1": "Tlen"
+      "lore1": "Zwiększenie pojemności tlenu"
     },
     "fishersfantasy": {
       "name": "Fantazja Rybaka",
@@ -858,6 +1097,27 @@
       "name": "Ciernie",
       "description": "Odbij obrażenia z powrotem swojemu napastnikowi!",
       "lore1": "Odwet po uderzeniu"
+    },
+    "globe": {
+      "name": "Kula bólu",
+      "description": "Podziel zadawane obrażenia na podstawie liczby wrogów wokół ciebie!",
+      "lore1": "Im więcej wrogów wokół ciebie, tym mniejsze obrażenia zadasz każdemu z nich",
+      "lore2": "Zakres:",
+      "lore3": "Dodano obrażenia dla wszystkich bytów:"
+    },
+    "healing": {
+      "name": "Wola bólu",
+      "description": "Odzyskuj zdrowie na podstawie zadawanych obrażeń!",
+      "lore1": "Niszczenie rzeczy nigdy nie było tak przyjemne! Uzdrowienie z zadanych obrażeń",
+      "lore2": "Istnieje 3-sekundowe okno obrażeń na leczenie i 1-sekundowy czas odnowienia",
+      "lore3": "Procent leczenia za obrażenia:"
+    },
+    "lance": {
+      "name": "Trupie Lance",
+      "description": "Zabicie wroga lub posiadanie umiejętności zabicia wroga powoduje pojawienie się lancy, która zadaje obrażenia pobliskiemu wrogowi!",
+      "lore1": "Lance będą szukać wszystkiego, co zabijesz, ORAZ jeśli ta umiejętność zabije wroga.",
+      "lore2": "Poświęć część swojego życia, aby stworzyć lance (to może cię zabić)",
+      "lore3": "Maksymalna liczba lanc: 1 +"
     }
   },
   "unarmed": {
