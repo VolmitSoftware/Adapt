@@ -139,6 +139,115 @@
     "challenge_craft_5m": {
       "title": "Calamitous McCraftface",
       "description": "Maak 5.000.000 items"
+    },
+    "challenge_enchant_1k": {
+    },
+    "challenge_enchant_5k": {
+    },
+    "challenge_enchant_50k": {
+      "title": "Geavanceerde tovenaar!",
+      "description": "Betover 50.000 voorwerpen"
+    },
+    "challenge_enchant_500k": {
+      "title": "Meester tovenaar!",
+      "description": "Betover 500.000 voorwerpen"
+    },
+    "challenge_enchant_5m": {
+      "title": "Raadselachtige tovenaar",
+      "description": "Betover 5.000.000 voorwerpen"
+    },
+    "challenge_excavate_1k": {
+      "title": "Verleide graafmachine!",
+      "description": "Graaf 1000 blokken op"
+    },
+    "challenge_excavate_5k": {
+      "title": "Tussenliggende graafmachine!",
+      "description": "Graaf 5000 blokken op"
+    },
+    "challenge_excavate_50k": {
+      "title": "Geavanceerde graafmachine!",
+      "description": "Graaf 50.000 blokken op"
+    },
+    "challenge_excavate_500k": {
+      "title": "Meester graafmachine!",
+      "description": "Graaf 500.000 blokken op"
+    },
+    "challenge_excavate_5m": {
+      "title": "Raadselachtige graafmachine",
+      "description": "Graaf 5.000.000 blokken op"
+    },
+    "horrible_person": {
+      "title": "Je bent een afschuwelijk persoon",
+      "description": "Ondoorgrondelijk, echt"
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "Schildpad Ei Smasher!",
+      "description": "Breek 100 schildpadeieren"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "Schildpad Ei Vernietiger!",
+      "description": "Breek 500 schildpadeieren"
+    },
+    "challenge_novice_hunter": {
+      "title": "Beginnende Jager!",
+      "description": "Dood 100 entiteiten"
+    },
+    "challenge_intermediate_hunter": {
+      "title": "Intermediaire jager!",
+      "description": "Dood 500 entiteiten"
+    },
+    "challenge_advanced_hunter": {
+      "title": "Geavanceerde Jager!",
+      "description": "Dood 5000 entiteiten"
+    },
+    "challenge_creeper_conqueror": {
+      "title": "Klimplant Veroveraar!",
+      "description": "Dood 50 klimplanten"
+    },
+    "challenge_creeper_annihilator": {
+      "title": "Creeper-vernietiger!",
+      "description": "Dood 200 klimplanten"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "Beginnende mijnwerker",
+      "description": "Breek 1000 blokken"
+    },
+    "challenge_pickaxe_5k": {
+      "title": "Bekwame mijnwerker",
+      "description": "Breek 5000 blokken"
+    },
+    "challenge_pickaxe_50k": {
+      "title": "Deskundige mijnwerker",
+      "description": "Breek 50.000 blokken"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "Meester mijnwerker",
+      "description": "Breek 500.000 blokken"
+    },
+    "challenge_pickaxe_5m": {
+      "title": "Legendarische mijnwerker",
+      "description": "Breek 5.000.000 blokken"
+    }
+  },
+  "items": {
+    "boundenderperal": {
+      "name": "Reliekschrijn Portkey",
+      "usage1": "Shift + linkermuisknop om te binden",
+      "usage2": "Klik met de rechtermuisknop om toegang te krijgen tot de gebonden inventaris"
+    },
+    "boundeyeofender": {
+      "name": "Oculair anker",
+      "usage1": "Klik met de rechtermuisknop om te consumeren en naar de gebonden locatie te teleporteren",
+      "usage2": "Shift + linkermuisknop om aan een blok te binden"
+    },
+    "boundredstonetorch": {
+      "name": "Redstone-afstandsbediening",
+      "usage1": "Klik met de rechtermuisknop om een ​​1-Tick Redstone-puls te maken",
+      "usage2": "Shift + linkerklik op een 'Doel'-blok om te binden"
+    },
+    "boundsnowball": {
+      "name": "Webstrik!",
+      "usage1": "Gooi om een ​​tijdelijke webtrap op de locatie te maken"
     }
   },
   "snippets": {
@@ -151,7 +260,7 @@
       "welcome": "Welkom!",
       "welcomeback": "Welkom terug!",
       "xpbonusfortime": "XP voor",
-      "unlockthisbyclicking": "Ontgrendel dit door met de rechtermuisknop op het Adapt Block te klikken!",
+      "unlockthisbyclicking": "Ontgrendel dit door met de rechtermuisknop te klikken:",
       "back": "Rug",
       "unlearnall": "Alles afleren",
       "unlearnedall": "Alles afgeleerd"
@@ -160,6 +269,7 @@
       "maynotunlearn": "JE MAG NIET LEREN",
       "mayunlearn": "JE MAG LEREN/AFLEREN",
       "knowledgecost": "Kennis Kosten",
+      "knowledgeavailable": "Kennis aanwezig",
       "alreadylearned": "Geleerd",
       "unlearnrefund": "Klik om te vergeten en terug te krijgen",
       "norefunds": "HARDCORE, TERUGBETALINGEN UITGESCHAKELD",
@@ -172,7 +282,8 @@
       "power": "Kracht",
       "powerdrain": "Stroomverbruik",
       "learned": "Geleerd ",
-      "unlearned": "Vergeten "
+      "unlearned": "Vergeten ",
+      "activatorblock": "Boekenplank"
     },
     "knowledgeorb": {
       "contains": "Bevat",
@@ -341,6 +452,11 @@
       "description": "Dit helpt je je glasblokken te houden als je ze breekt met een lege hand!",
       "lore1": "Je handen hebben silk touch voor Glas"
     },
+    "wirelessredstone": {
+      "name": "Redstone-afstandsbediening",
+      "description": "Hierdoor kun je een Redstone-fakkel gebruiken om Redstone op afstand te schakelen!",
+      "lore1": "Doelwit + Redstone-fakkel + Enderperal = 1 Redstone-afstandsbediening"
+    },
     "placement": {
       "name": "Bouwers Staf",
       "description": "laat je meerdere blokken ineens plaatsen als je sluipt, en een blok vasthebt waar je ook naar kijkt, en plaatst! Soms moet je een beetje bewegen om het te laten werken.",
@@ -410,14 +526,14 @@
     "haste": {
       "name": "Gebotteld Haast",
       "description": "Wanneer efficiëntie niet genoeg is",
-      "lore1": "Instant Heal Potion + Amethyst Shard = Potion of Haste (60 seconden)",
-      "lore2": "Instant Heal + Amethist Block = Potion of Haste-2 (30 seconden)"
+      "lore1": "Snelheidsdrankje + Amethistscherf = Haastdrankje (60 seconden)",
+      "lore2": "Speed ​​Potion + Amethyst Block = Potion of Haste-2 (30 seconden)"
     },
     "absorption": {
       "name": "Gebottelde absorptie",
       "description": "Verhard het lichaam!",
-      "lore1": "Speed Potion + Quartz = Drankje van Absorptie (60 seconden)",
-      "lore2": "Speed Potion + Quartz Block = Drankje van Absorptie-2 (30 seconden)"
+      "lore1": "Onmiddellijke genezing + kwarts = absorptiedrankje (60 seconden)",
+      "lore2": "Instant Heal + Quartz Block = Drankje van Absorptie-2 (30 seconden)"
     },
     "fatigue": {
       "name": "Vermoeidheid in flessen",
@@ -507,6 +623,14 @@
       "description": "Krijg passief XP voor craften",
       "lore1": "Krijg XP tijdens het craften"
     },
+    "reconstruction": {
+      "name": "Erts wederopbouw",
+      "description": "Herbouw ertsen van hun basiscomponenten!",
+      "lore1": "8 van de druppels en 1 gastheer = 1 erts (vormloos)",
+      "lore2": "Druppels moeten worden gesmolten (indien van toepassing)",
+      "lore3": "Exclusief: Scraps, Quarts en Emeralds etc...",
+      "lore4": "Gastheer = omhulling. dat wil zeggen: Steen, Netherack, Deepslate"
+    },
     "leather": {
       "name": "Bewerkbaar leer",
       "description": "Ambachtelijk leer van Rotten Flesh",
@@ -519,6 +643,12 @@
       "lore2": "XLX: leer, lood, leer",
       "lore3": "XSX: leer, vatdoos, leer",
       "lore4": "XCX: leer, borst, leer"
+    },
+    "stations": {
+      "name": "Draagbare tafels!",
+      "description": "Gebruik een tafel in de palm van je hand!",
+      "lore2": "ALLE ITEMS DIE JE IN DE TABEL VERGETEN WANNEER GESLOTEN, ZIJN VOOR ALTIJD VERLOREN!",
+      "lore3": "Geldige tabellen: aambeeld, knutselen, slijpsteen, cartografie, steenhouwer, weefgetouw"
     },
     "skulls": {
       "name": "Bewerkbare schedels!",
@@ -587,6 +717,13 @@
       "lore1": "Krijg Haste tijdens het graven",
       "lore2": "x Niveaus van haste als je begint een blok te hakken."
     },
+    "spelunker": {
+      "name": "Superziende Spelunker!",
+      "description": "Zie Ores met je ogen, maar dan door de grond!",
+      "lore1": "Ore in je losse hand, Glowberries in je hoofdhand en Sneak!",
+      "lore2": "Blok Bereik:",
+      "lore3": "Verbruikt Glowberry bij gebruik"
+    },
     "droptoinventory": {
       "name": "Shovel Drop-To-Inventory"
     },
@@ -628,7 +765,7 @@
     "cobweb": {
       "name": "Webby Creator",
       "description": "Geeft je de mogelijkheid om spinnenwebben te maken in een werktafel",
-      "lore1": "Four String, zal een spinnenweb maken."
+      "lore1": "Nine String, maakt een spinnenweb."
     },
     "mushroomblocks": {
       "name": "Paddenstoelenmaker",
@@ -751,6 +888,11 @@
       "lore1": "chance to negate withering (per piece).",
       "lore2": "Passive: Wearing Netherite Armor has a chance to negate ",
       "lore3": "withering."
+    },
+    "fireresist": {
+      "name": "Vuurbestendig",
+      "description": "Weerstaat vuur door je huid te verharden.",
+      "lore1": "kans om het brandende effect teniet te doen!"
     }
   },
   "pickaxe": {
@@ -783,7 +925,14 @@
     "arrowrecovery": {
       "name": "Arrow Recovery",
       "description": "Recover Arrows after you have killed an enemy.",
-      "lore1": "Chance to Recover Arrows on Hit/Kill"
+      "lore1": "Chance to Recover Arrows on Hit/Kill",
+      "lore2": "Kans:"
+    },
+    "webshot": {
+      "name": "Webstrik",
+      "description": "Omring spinnenwebben rond je doelwit wanneer je ze raakt!",
+      "lore1": "8 spinnenwebben rond een sneeuwbal, en gooien maar!",
+      "lore2": "seconden van een kooi, ongeveer."
     },
     "forceshot": {
       "name": "Force Shot",
@@ -824,6 +973,12 @@
       "description": "Open an enderchest by Left-clicking it in your hand.",
       "lore1": "Click an Enderchest in your hand to open (Just dont place it)"
     },
+    "descent": {
+      "name": "Anti-Levitatie",
+      "description": "Ben je het beu om vast te zitten in de lucht? Dit is de vaardigheid voor jou!",
+      "lore1": "Sluip gewoon om af te dalen en je zult minder snel vallen dan normaal!",
+      "lore2": "Afkoelen:"
+    },
     "gate": {
       "name": "Rift Gate",
       "description": "Teleport to a marked location.",
@@ -843,7 +998,7 @@
     "oxygen": {
       "name": "Organic Oxygen Tank",
       "description": "Hold more oxygen in your tiny lungs!",
-      "lore1": "Oxygen"
+      "lore1": "Verhoging van de zuurstofcapaciteit"
     },
     "fishersfantasy": {
       "name": "Fisher's Fantasie",
@@ -938,6 +1093,27 @@
       "name": "doornen",
       "description": "Reflecteer schade terug naar je aanvaller!",
       "lore1": "Schade wordt vergoed bij aanrijding"
+    },
+    "globe": {
+      "name": "Bol van pijn",
+      "description": "Verdeel de schade die je toebrengt op basis van het aantal vijanden om je heen!",
+      "lore1": "Hoe meer vijanden om je heen, hoe minder schade je aan elk van hen toebrengt",
+      "lore2": "Bereik:",
+      "lore3": "Schade toegevoegd aan alle entiteiten:"
+    },
+    "healing": {
+      "name": "Wil van pijn",
+      "description": "Krijg gezondheid terug op basis van de schade die je aanricht!",
+      "lore1": "Dingen schade berokkenen heeft nog nooit zo goed gevoeld! Genezen van toegebrachte schade",
+      "lore2": "Er is een schadevenster van 3 seconden voor genezing en een afkoelperiode van 1 seconde",
+      "lore3": "Genezing per schadepercentage:"
+    },
+    "lance": {
+      "name": "Lijk Lansen",
+      "description": "Als je een vijand doodt of de vaardigheid hebt om een ​​vijand te doden, spawnt een lans die schade toebrengt aan een vijand in de buurt!",
+      "lore1": "Lansen zullen zoeken naar alles wat je doodt, EN als deze vaardigheid een vijand doodt.",
+      "lore2": "Offer een deel van je leven op om de lansen te maken (dit kan je doden)",
+      "lore3": "Max Lansen: 1+"
     }
   },
   "unarmed": {
