@@ -139,6 +139,119 @@
     "challenge_craft_5m": {
       "title": "belalı McCraftface",
       "description": "5.000.000 Eşya Üret"
+    },
+    "challenge_enchant_1k": {
+      "title": "Acemi Büyücü!",
+      "description": "1000 Öğeyi Büyüle"
+    },
+    "challenge_enchant_5k": {
+      "title": "Ara Büyücü!",
+      "description": "5000 Öğeyi Büyüle"
+    },
+    "challenge_enchant_50k": {
+      "title": "Gelişmiş Büyücü!",
+      "description": "50.000 Öğeyi Büyüle"
+    },
+    "challenge_enchant_500k": {
+      "title": "Usta Büyücü!",
+      "description": "500.000 Öğeyi Büyüle"
+    },
+    "challenge_enchant_5m": {
+      "title": "Esrarengiz Büyücü",
+      "description": "5.000.000 Öğeyi Büyüle"
+    },
+    "challenge_excavate_1k": {
+      "title": "Baştan çıkarıcı Ekskavatör!",
+      "description": "1000 Blok Kazı"
+    },
+    "challenge_excavate_5k": {
+      "title": "Ara Ekskavatör!",
+      "description": "5000 Blok Kazı"
+    },
+    "challenge_excavate_50k": {
+      "title": "Gelişmiş Ekskavatör!",
+      "description": "50.000 Blok Kazı"
+    },
+    "challenge_excavate_500k": {
+      "title": "Usta Ekskavatör!",
+      "description": "500.000 Blok Kazı"
+    },
+    "challenge_excavate_5m": {
+      "title": "Esrarengiz Ekskavatör",
+      "description": "5.000.000 Blok Kazın"
+    },
+    "horrible_person": {
+      "title": "Sen Korkunç Bir İnsansın",
+      "description": "Anlaşılmaz, gerçekten"
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "Kaplumbağa Yumurta Parçalayıcı!",
+      "description": "100 kaplumbağa yumurtası kırın"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "Kaplumbağa Yumurtası Yok Edici!",
+      "description": "500 kaplumbağa yumurtası kırın"
+    },
+    "challenge_novice_hunter": {
+      "title": "Acemi Avcısı!",
+      "description": "100 varlık öldür"
+    },
+    "challenge_intermediate_hunter": {
+      "title": "Ara Avcı!",
+      "description": "500 varlık öldür"
+    },
+    "challenge_advanced_hunter": {
+      "title": "Gelişmiş Avcı!",
+      "description": "5000 varlığı öldür"
+    },
+    "challenge_creeper_conqueror": {
+      "title": "Sarmaşık Fatihi!",
+      "description": "50 sürüngen öldür"
+    },
+    "challenge_creeper_annihilator": {
+      "title": "Creeper Yok Edici!",
+      "description": "200 sürüngen öldür"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "Acemi Madenci",
+      "description": "1000 Bloğu Kır"
+    },
+    "challenge_pickaxe_5k": {
+      "title": "Yetenekli Madenci",
+      "description": "5000 Bloğu Kırın"
+    },
+    "challenge_pickaxe_50k": {
+      "title": "Uzman Madenci",
+      "description": "50.000 Bloğu Kırın"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "usta madenci",
+      "description": "500.000 Bloğu Kırın"
+    },
+    "challenge_pickaxe_5m": {
+      "title": "Efsanevi Madenci",
+      "description": "5.000.000 Bloğu Kırın"
+    }
+  },
+  "items": {
+    "boundenderperal": {
+      "name": "Emanet Anahtarı",
+      "usage1": "Bağlamak için Shift + Sol Tıklama",
+      "usage2": "Bağlı Envantere erişmek için Sağ Tıklayın"
+    },
+    "boundeyeofender": {
+      "name": "Oküler Çapa",
+      "usage1": "Tüketmek ve bağlı konuma ışınlanmak için Sağ Tıklayın",
+      "usage2": "Bir bloğa bağlamak için Shift + Sol Tıklama"
+    },
+    "boundredstonetorch": {
+      "name": "Redstone Uzaktan",
+      "usage1": "1-Tick Redstone darbesi oluşturmak için Sağ Tıklayın",
+      "usage2": "Bağlamak için bir 'Hedef' Blok üzerinde Shift + Sol Tıklama"
+    },
+    "boundsnowball": {
+      "name": "Web Tuzağı!",
+      "usage1": "Konumda geçici bir ağ tuzağı oluşturmak için atın"
     }
   },
   "snippets": {
@@ -151,7 +264,7 @@
       "welcome": "Hoş geldin!",
       "welcomeback": "Tekrar hoşgeldiniz!",
       "xpbonusfortime": "XP için",
-      "unlockthisbyclicking": "Uyarlama Bloğuna Sağ Tıklayarak bunun kilidini açın!",
+      "unlockthisbyclicking": "Sağ Tıklayarak bunun kilidini açın:",
       "back": "Geri",
       "unlearnall": "Tüm öğrenmeyi geri al",
       "unlearnedall": "hepsi öğrenilmemiş"
@@ -160,6 +273,7 @@
       "maynotunlearn": "ÖĞRENMEYECEKSİNİZ",
       "mayunlearn": "ÖĞRENEBİLİRSİNİZ/ÖĞRENEBİLİRSİNİZ",
       "knowledgecost": "Bilgi Maliyeti",
+      "knowledgeavailable": "Mevcut Bilgi",
       "alreadylearned": "Zaten Öğrenildi",
       "unlearnrefund": "Öğrenimi Geri Almak ve Geri Ödemek İçin Tıklayın",
       "norefunds": "HARDCORE, GERİ ÖDEME ENGELLİ",
@@ -172,7 +286,8 @@
       "power": "Güç",
       "powerdrain": "Güç Tahliyesi",
       "learned": "Öğrendi",
-      "unlearned": "bilgisiz"
+      "unlearned": "bilgisiz",
+      "activatorblock": "Kitaplık"
     },
     "knowledgeorb": {
       "contains": "içerir",
@@ -341,6 +456,11 @@
       "description": "Bu, boş elinizle kırdığınızda cam blokların kaybolmasını esasen önlemenizi sağlar!",
       "lore1": "Elleriniz Glass için ipeksi bir dokunuş kazanıyor"
     },
+    "wirelessredstone": {
+      "name": "Redstone Uzaktan",
+      "description": "Bu, redstone'u uzaktan değiştirmek için bir redstone meşalesi kullanmanıza izin verir!",
+      "lore1": "Target + Redstone Torch + Enderperal = 1 Redstone Remote"
+    },
     "placement": {
       "name": "inşaatçılar değnek",
       "description": "Sneak'i etkinleştirmek için aynı anda birden fazla blok yerleştirmenize ve görünen blok ve yerinize uygun bir blok tutmanıza izin verir! Kutuları sınırlamayı tetiklemek için biraz hareket etmeniz gerekebileceğini unutmayın!",
@@ -410,14 +530,14 @@
     "haste": {
       "name": "şişelenmiş acele",
       "description": "Verimlilik yeterli olmadığında",
-      "lore1": "Hız İksiri + Ametist Parçası = Haste İksiri (60 saniye)",
-      "lore2": "Hız İksiri + Ametist Blok = Haste-2 İksiri (30 saniye)"
+      "lore1": "Hız İksiri + Ametist Parçası = Acele İksiri (60 saniye)",
+      "lore2": "Hız İksiri + Ametist Blok = Acele İksiri-2 (30 saniye)"
     },
     "absorption": {
       "name": "şişelenmiş Absorpsiyon",
       "description": "Vücudu sertleştirin!",
-      "lore1": "Hız İksiri + Kuvars = Emilim İksiri (60 saniye)",
-      "lore2": "Hız İksiri + Kuvars Blok = Absorpsiyon İksiri-2 (30 saniye)"
+      "lore1": "Anında İyileşme + Kuvars = Emilim İksiri (60 saniye)",
+      "lore2": "Anında İyileşme + Kuvars Blok = Emilim İksiri-2 (30 saniye)"
     },
     "fatigue": {
       "name": "şişelenmiş yorgunluk",
@@ -507,6 +627,14 @@
       "description": "Üretirken pasif XP kazanın",
       "lore1": "Üretirken XP kazanın"
     },
+    "reconstruction": {
+      "name": "Cevher Yeniden İnşası",
+      "description": "Cevherleri temel bileşenlerinden yeniden üretin!",
+      "lore1": "Damlaların 8'i ve 1 Ana Bilgisayar = 1 Cevher (şekilsiz)",
+      "lore2": "Damlalar eritilmelidir (varsa)",
+      "lore3": "Şunlar dahil değil: Hurdalar, Quarts ve Zümrütler vb...",
+      "lore4": "Ana bilgisayar = Muhafaza. yani: Stone, Netherack, Deepslate"
+    },
     "leather": {
       "name": "İşlenebilir Deri",
       "description": "Çürük Etten El İşi Deri",
@@ -519,6 +647,12 @@
       "lore2": "XLX : Deri, Kurşun, Deri",
       "lore3": "XSX : Deri, Shulker Kutusu, Deri",
       "lore4": "XCX : Deri, Göğüs, Deri"
+    },
+    "stations": {
+      "name": "Portatif Masalar!",
+      "description": "Avucunuzun içinde bir masa kullanın!",
+      "lore2": "KAPALI OLDUĞUNDA MASA İÇİNDE UNUTTUĞUNUZ EŞYALAR SONSUZA KADAR KAYBOLUR!",
+      "lore3": "Geçerli tablolar: Örs, Crafting, Grindstone, Haritacılık, Stone-Cutter, Loom"
     },
     "skulls": {
       "name": "İşlenebilir kafatasları!",
@@ -587,6 +721,13 @@
       "lore1": "Kazı yaparken Haste kazanın",
       "lore2": "x HERHANGİ bir blok madenciliği yapmaya başladığınızda acele etme seviyeleri."
     },
+    "spelunker": {
+      "name": "Süper Gören Spelunker!",
+      "description": "Cevherleri kendi gözlerinle gör, ama yerden!",
+      "lore1": "Elinizde maden cevheri, asıl elinizde Glowberry ve Sneak!",
+      "lore2": "Blok Aralığı:",
+      "lore3": "Kullanıldığında Glowberry tüketir"
+    },
     "droptoinventory": {
       "name": "Envantere Kürek"
     },
@@ -628,7 +769,7 @@
     "cobweb": {
       "name": "Webbi Oluşturucu",
       "description": "Bir Üretim Masasında Örümcek Ağı yapma yeteneği verir",
-      "lore1": "Four String, bir Örümcek Ağı yapacak."
+      "lore1": "Nine String, bir Örümcek Ağı yapacak."
     },
     "mushroomblocks": {
       "name": "mantar makinesi",
@@ -751,6 +892,11 @@
       "lore1": "solmayı engelleme şansı (parça başına).",
       "lore2": "Pasif: Netherite Zırhı giymek, olumsuzlama şansına sahiptir.",
       "lore3": "soluyor."
+    },
+    "fireresist": {
+      "name": "Yangın Dayanımı",
+      "description": "Cildinizi sertleştirerek yangına karşı dayanıklıdır.",
+      "lore1": "yanma etkisini ortadan kaldırma şansı!"
     }
   },
   "pickaxe": {
@@ -783,7 +929,14 @@
     "arrowrecovery": {
       "name": "Ok Kurtarma",
       "description": "Bir düşmanı öldürdükten sonra Okları kurtarın.",
-      "lore1": "Vurma/Öldürmede Okları Kurtarma Şansı"
+      "lore1": "Vurma/Öldürmede Okları Kurtarma Şansı",
+      "lore2": "Şans:"
+    },
+    "webshot": {
+      "name": "Web Tuzağı",
+      "description": "Vurduğunuzda hedefinizin etrafını örümcek ağlarıyla çevirin!",
+      "lore1": "Bir Kartopunun etrafında 8 Örümcek Ağı ve fırlat!",
+      "lore2": "kabaca bir kafesin saniyeleri."
     },
     "forceshot": {
       "name": "Zorla Atış",
@@ -824,6 +977,12 @@
       "description": "Elinizde sol tıklayarak bir enderchest açın.",
       "lore1": "Açmak için elinizdeki Enderchest'e tıklayın (Yalnızca yerleştirmeyin)"
     },
+    "descent": {
+      "name": "Anti-Havuz",
+      "description": "Havada kalmaktan bıktınız mı? Bu sizin için beceri!",
+      "lore1": "Sadece inmek için gizlice ilerleyin ve normalden daha düşük bir oranda düşeceksiniz!",
+      "lore2": "Sakin ol:"
+    },
     "gate": {
       "name": "yarık kapısı",
       "description": "İşaretli bir yere ışınlan.",
@@ -843,7 +1002,7 @@
     "oxygen": {
       "name": "Organik Oksijen Tankı",
       "description": "Minik ciğerlerinizde daha fazla oksijen tutun!",
-      "lore1": "Oksijen"
+      "lore1": "Oksijen Kapasite Artışı"
     },
     "fishersfantasy": {
       "name": "Fisher'ın Fantezi",
@@ -938,6 +1097,27 @@
       "name": "dikenler",
       "description": "Hasarı saldırganınıza geri yansıtın!",
       "lore1": "Vurulduğunda misilleme verilen hasar"
+    },
+    "globe": {
+      "name": "Ağrı Küresi",
+      "description": "Verdiğiniz Hasarı çevrenizdeki düşman sayısına göre bölün!",
+      "lore1": "Etrafınızda ne kadar çok düşman varsa, her birine o kadar az hasar verirsiniz.",
+      "lore2": "Menzil:",
+      "lore3": "Tüm Varlıklara Hasar Eklendi:"
+    },
+    "healing": {
+      "name": "Acı İradesi",
+      "description": "Verdiğiniz hasara göre sağlığınızı geri kazanın!",
+      "lore1": "Bir şeylere zarar vermek hiç bu kadar iyi hissettirmemişti! Verilen Hasardan İyileşme",
+      "lore2": "İyileştirme için 3 Saniyelik bir hasar penceresi ve 1 Saniyelik bekleme süresi vardır",
+      "lore3": "Hasar Başına İyileştirme Yüzdesi:"
+    },
+    "lance": {
+      "name": "Ceset Mızrakları",
+      "description": "Bir düşmanı öldürmek veya bir düşmanı öldürme yeteneğine sahip olmak, yakındaki bir düşmana hasar veren bir mızrak oluşturur!",
+      "lore1": "Mızraklar, öldürdüğünüz her şeyden VE Bu yetenek bir düşmanı öldürürse Arayacak.",
+      "lore2": "Mızrakları yaratmak için hayatınızın bir kısmını feda edin (bu sizi öldürebilir)",
+      "lore3": "Maksimum Mızrak: 1 +"
     }
   },
   "unarmed": {
