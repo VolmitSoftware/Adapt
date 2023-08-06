@@ -203,12 +203,16 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
 
 
     private boolean validateArmor(ItemStack item) {
-        if (item.getItemMeta() != null && item.getItemMeta().getLore() != null && item.getItemMeta().getLore().get(0) != null) {
-            return (item.getItemMeta().getLore().get(0).contains("MultiArmor"));
-        } else {
-            return false;
+        if (item.getItemMeta() != null && item.getItemMeta().getLore() != null) {
+            for (String lore : item.getItemMeta().getLore()) {
+                if (lore != null && lore.contains("MultiArmor")) {
+                    return true;
+                }
+            }
         }
+        return false;
     }
+
 
     private double getSlots(double level) {
         return getConfig().startingSlots + level;
