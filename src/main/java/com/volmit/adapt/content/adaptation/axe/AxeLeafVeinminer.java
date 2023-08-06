@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.adaptation.axe;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -36,9 +35,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> {
     public AxeLeafVeinminer() {
@@ -88,22 +85,19 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
             if (isLeaves(new ItemStack(e.getBlock().getType()))) {
                 Block block = e.getBlock();
                 Map<Location, Block> blockMap = new HashMap<>();
-                blockMap.put(block.getLocation(), block);
-
-                for (int i = 0; i < getRadius(getLevel(p)); i++) {
-                    for (int x = -i; x <= i; x++) {
-                        for (int y = -i; y <= i; y++) {
-                            for (int z = -i; z <= i; z++) {
-                                Block b = block.getRelative(x, y, z);
-                                if (b.getType() == block.getType()) {
-                                    if (block.getLocation().distance(b.getLocation()) > getRadius(getLevel(p))) {
-                                        continue;
-                                    }
-                                    if (!canBlockBreak(p, b.getLocation())) {
-                                        Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
-                                        continue;
-                                    }
-                                    blockMap.put(b.getLocation(), b);
+                Deque<Block> stack = new LinkedList<>();
+                stack.push(block);
+                int radius = getRadius(getLevel(p));
+                while (!stack.isEmpty() && blockMap.size() < radius) {
+                    Block currentBlock = stack.pop();
+                    if (blockMap.containsKey(currentBlock.getLocation())) continue;
+                    blockMap.put(currentBlock.getLocation(), currentBlock);
+                    for (int x = -1; x <= 1; x++) {
+                        for (int y = -1; y <= 1; y++) {
+                            for (int z = -1; z <= 1; z++) {
+                                Block b = currentBlock.getRelative(x, y, z);
+                                if (b.getType() == block.getType() && currentBlock.getLocation().distance(b.getLocation()) <= radius && canBlockBreak(p, b.getLocation())) {
+                                    stack.push(b);
                                 }
                             }
                         }
