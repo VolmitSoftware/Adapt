@@ -40,6 +40,10 @@ public class SkillsGui {
 
         AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getPlayer(player);
         int ind = 0;
+        if (adaptPlayer == null) {
+            Adapt.error("Failed to open skills gui for " + player.getName() + " because they are not Online, Were Kicked, Or are a fake player.");
+            return;
+        }
 
         if (adaptPlayer.getData().getSkillLines().size() > 0) {
             for (PlayerSkillLine i : adaptPlayer.getData().getSkillLines().sortV()) {
