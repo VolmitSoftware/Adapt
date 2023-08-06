@@ -21,21 +21,23 @@ package com.volmit.adapt.content.adaptation.crafting;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.*;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.meta.Damageable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruction.Config> {
     private final List<Integer> holds = new ArrayList<>();
@@ -60,150 +62,101 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
     }
 
     public ItemStack getDeconstructionOffering(ItemStack forStuff) {
-        if (forStuff == null) {
-            return null;
-        }
+        if (forStuff == null) return null;
 
         int maxPow = 0;
-        Recipe sr = null;
+        Recipe selectedRecipe = null;
 
-        for (Recipe i : Bukkit.getRecipesFor(forStuff)) {
-            if (i instanceof ShapelessRecipe r) {
-                int mp = r.getIngredientList().stream().mapToInt(f -> f.getAmount()).sum();
-
-                if (mp > maxPow) {
-                    sr = i;
-                    maxPow = mp;
-                }
-            } else if (i instanceof ShapedRecipe r) {
-                int mp = r.getIngredientMap().values().stream().mapToInt(f -> f == null ? 0 : f.getAmount()).sum();
-
-                if (mp > maxPow) {
-                    sr = i;
-                    maxPow = mp;
-                }
+        for (Recipe recipe : Bukkit.getRecipesFor(forStuff)) {
+            int currentPower = 0;
+            if (recipe instanceof ShapelessRecipe r) {
+                currentPower = r.getIngredientList().stream().mapToInt(ItemStack::getAmount).sum();
+            } else if (recipe instanceof ShapedRecipe r) {
+                currentPower = r.getIngredientMap().values().stream().mapToInt(f -> f == null ? 0 : f.getAmount()).sum();
+            }
+            if (currentPower > maxPow) {
+                selectedRecipe = recipe;
+                maxPow = currentPower;
             }
         }
 
-        if (sr == null) {
-            return null;
-        }
+        if (selectedRecipe == null) return null;
 
         int v = 0;
         int outa = 1;
         ItemStack sel = null;
 
-        if (sr instanceof ShapelessRecipe r) {
+        if (selectedRecipe instanceof ShapelessRecipe r) {
             for (ItemStack i : r.getIngredientList()) {
-                if (i.getAmount() * forStuff.getAmount() > v) {
-                    v = i.getAmount() * forStuff.getAmount();
+                int amount = i.getAmount() * forStuff.getAmount();
+                if (amount > v) {
+                    v = amount;
                     sel = i;
                     outa = r.getResult().getAmount();
                 }
             }
         } else {
-            ShapedRecipe r = (ShapedRecipe) sr;
-            List<ItemStack> ings = new ArrayList<>();
+            ShapedRecipe r = (ShapedRecipe) selectedRecipe;
+            Map<Material, Integer> ings = new HashMap<>();
+            r.getIngredientMap().values().stream().filter(Objects::nonNull).forEach(i -> ings.merge(i.getType(), i.getAmount(), Integer::sum));
 
-            r.getIngredientMap().forEach((k, vx) -> {
-                if (vx == null) {
-                    return;
-                }
-
-                for (ItemStack i : ings) {
-                    if (vx.getType().equals(i.getType())) {
-                        i.setAmount(i.getAmount() + 1);
-                        return;
-                    }
-                }
-
-                ings.add(vx);
-            });
-
-            for (ItemStack i : ings) {
-                if (i != null && i.getAmount() * forStuff.getAmount() > v) {
-                    v = i.getAmount() * forStuff.getAmount();
-                    sel = i;
+            for (Map.Entry<Material, Integer> entry : ings.entrySet()) {
+                int amount = entry.getValue() * forStuff.getAmount();
+                if (amount > v) {
+                    v = amount;
+                    sel = new ItemStack(entry.getKey(), entry.getValue());
                     outa = r.getResult().getAmount();
                 }
             }
         }
 
         if (sel != null && sel.getAmount() * forStuff.getAmount() > 1) {
-            sel = sel.clone();
-
             int a = ((sel.getAmount() * forStuff.getAmount()) / outa) / 2;
-
-            if (a > sel.getMaxStackSize()) {
-                return null;
+            if (a <= sel.getMaxStackSize() && getValue(sel) < getValue(forStuff)) {
+                sel.setAmount(a);
+                return sel.clone();
             }
-
-            sel.setAmount(a);
-
-            if (getValue(sel) >= getValue(forStuff)) {
-                return null;
-            }
-
-            return sel;
         }
 
         return null;
     }
 
-    public int getShearDamage(ItemStack forStuff) {
-        return forStuff.getAmount() * 8;
-    }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(InventoryClickEvent e) {
-        if (e.getClickedInventory() == null || e.isCancelled()) {
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
+        Player player = e.getPlayer();
+        ItemStack mainHandItem = player.getInventory().getItemInMainHand();
+
+        if (!player.isSneaking() || mainHandItem.getType() != Material.SHEARS) {
             return;
         }
-        if (!hasAdaptation((Player) e.getWhoClicked())) {
-            return;
-        }
-        if (e.getView().getTopInventory().getType().equals(InventoryType.SMITHING)) {
-            SmithingInventory s = (SmithingInventory) e.getView().getTopInventory();
-            J.s(() -> {
-                if (s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null) {
-                    s.setResult(getDeconstructionOffering(s.getItem(0)));
-                }
-            });
-        }
 
-        if (e.getClickedInventory() != null && e.getClickedInventory().getType().equals(InventoryType.SMITHING)) {
-            SmithingInventory s = (SmithingInventory) e.getClickedInventory();
-            if (e.getSlotType().equals(InventoryType.SlotType.CRAFTING)) {
-                J.s(() -> {
-                    if (s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null) {
-                        s.setResult(getDeconstructionOffering(s.getItem(0)));
-                    }
-                });
-            } else if (e.getSlotType().equals(InventoryType.SlotType.RESULT)) {
-                if (s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null) {
-                    ItemStack offering = getDeconstructionOffering(s.getItem(0));
+        Entity clickedEntity = e.getRightClicked();
+        if (clickedEntity instanceof Item itemEntity) {
+            ItemStack forStuff = itemEntity.getItemStack();
+            ItemStack offering = getDeconstructionOffering(forStuff);
 
-                    if (offering != null) {
-                        s.setItem(1, damage(s.getItem(1), s.getItem(0).getAmount()));
-                        e.setCursor(offering);
-                        e.getClickedInventory().setItem(0, null);
-                        e.getWhoClicked().getWorld().playSound(e.getClickedInventory().getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
-                        e.getWhoClicked().getWorld().playSound(e.getClickedInventory().getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
-                        getSkill().xp((Player) e.getWhoClicked(), getValue(offering));
-                    }
+            if (offering != null) {
+                itemEntity.setItemStack(offering);
+                player.getWorld().playSound(clickedEntity.getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
+                player.getWorld().playSound(clickedEntity.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
+                getSkill().xp(player, getValue(offering));
+
+                // Damage the shears
+                Damageable damageable = (Damageable) mainHandItem.getItemMeta();
+                int newDamage = damageable.getDamage() + 8 * forStuff.getAmount();
+                if (newDamage >= mainHandItem.getType().getMaxDurability()) {
+                    player.getInventory().setItemInMainHand(null); // Break the shears
+                } else {
+                    damageable.setDamage(newDamage);
+                    mainHandItem.setItemMeta(damageable);
                 }
+            } else {
+                player.getWorld().playSound(clickedEntity.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1F, 1f); // Burnt torch sound
             }
         }
     }
 
-    private void updateOffering(Inventory inventory) {
-        SmithingInventory s = (SmithingInventory) inventory;
-
-        if (s.getItem(1) != null && s.getItem(1).getType().equals(Material.SHEARS) && s.getItem(0) != null) {
-            ItemStack offering = getDeconstructionOffering(s.getItem(0));
-            s.setResult(offering);
-        }
-    }
 
     @Override
     public void onTick() {
