@@ -26,6 +26,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -109,11 +110,19 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
             if (p == null || !p.isOnline()) {
                 continue;
             }
+            AttributeInstance armorAttribute = p.getAttribute(Attribute.GENERIC_ARMOR);
+            if (armorAttribute == null) {
+                continue;
+            }
+            Collection<AttributeModifier> c = armorAttribute.getModifiers();
+            if (c == null || c.isEmpty()) {
+                continue;
+            }
+
             if (!hasAdaptation(p)) {
-                Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
                 for (AttributeModifier i : new ArrayList<>(c)) {
                     if (i.getName().equals("adapt-discovery-armor")) {
-                        p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
+                        armorAttribute.removeModifier(i);
                     }
                 }
             } else {
@@ -121,22 +130,20 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
                 double armor = getArmor(p.getLocation(), getLevel(p));
                 armor = Double.isNaN(armor) ? 0 : armor;
 
-                Collection<AttributeModifier> c = p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers();
                 for (AttributeModifier i : new ArrayList<>(c)) {
                     if (i.getName().equals("adapt-discovery-armor")) {
                         oldArmor = i.getAmount();
                         oldArmor = Double.isNaN(oldArmor) ? 0 : oldArmor;
-                        p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(i);
+                        armorAttribute.removeModifier(i);
                     }
                 }
                 double lArmor = M.lerp(oldArmor, armor, 0.3);
                 lArmor = Double.isNaN(lArmor) ? 0 : lArmor;
-                p.getAttribute(Attribute.GENERIC_ARMOR).addModifier(new AttributeModifier("adapt-discovery-armor", lArmor, AttributeModifier.Operation.ADD_NUMBER));
-
+                armorAttribute.addModifier(new AttributeModifier("adapt-discovery-armor", lArmor, AttributeModifier.Operation.ADD_NUMBER));
             }
         }
-
     }
+
 
     @Override
     public boolean isEnabled() {
