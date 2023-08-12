@@ -94,6 +94,9 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
                 @Override
                 public void onTick() {
                     try {
+                        if (!AdaptConfig.get().isHotReload()) {
+                            return;
+                        }
                         if (fw.checkModified() && file.exists()) {
                             config = null;
                             getConfig();

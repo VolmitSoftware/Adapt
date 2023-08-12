@@ -620,8 +620,8 @@
     "deconstruction": {
       "name": "Deconstruction",
       "description": "Deconstruct blocks & items into salvageable base components!",
-      "lore1": "Place an any item + shears",
-      "lore2": "in a smithing table to deconstruct."
+      "lore1": "Drop any item on the ground.",
+      "lore2": "Then, Sneak and Right-Click with SHears"
     },
     "xp": {
       "name": "Crafting XP",

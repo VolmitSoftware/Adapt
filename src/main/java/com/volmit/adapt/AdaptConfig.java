@@ -36,6 +36,7 @@ import java.util.Map;
 @Getter
 public class AdaptConfig {
     private static AdaptConfig config = null;
+    private boolean hotReload = false;
     public boolean debug = false;
     public boolean autoUpdateCheck = true;
     public boolean autoUpdateLanguage = true;

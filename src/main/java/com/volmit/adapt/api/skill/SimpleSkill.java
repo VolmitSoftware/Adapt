@@ -157,7 +157,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     public boolean checkValidEntity(EntityType e) {
-        if (!e.isAlive()) {
+        if (!e.isAlive() || e.equals(EntityType.PARROT)) {
             return false;
         }
         return !ItemListings.getInvalidDamageableEntities().contains(e);

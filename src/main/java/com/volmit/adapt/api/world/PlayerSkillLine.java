@@ -58,8 +58,77 @@ public class PlayerSkillLine {
         return Math.abs(a - b / (double) (a == 0 ? 1 : a));
     }
 
+    public void update(AdaptPlayer p, String line, PlayerData data) {
+        grantSkillsAndAdaptations(p, line);
+        checkMaxLevel(p, line);
+        updateFreshness();
+        updateMultiplier(data);
+        updateEarnedXP(p, line);
+        updateLevel(p, line, data);
+    }
+
+    private void grantSkillsAndAdaptations(AdaptPlayer p, String line) {
+        if (!p.getData().isGranted("skill_" + line) && AdaptConfig.get().isAdvancements()) {
+            p.getAdvancementHandler().grant("skill_" + line);
+        }
+
+        for (String i : getAdaptations().keySet()) {
+            if (!p.getData().isGranted("adaptation_" + i) && AdaptConfig.get().isAdvancements()) {
+                p.getAdvancementHandler().grant("adaptation_" + i);
+            }
+        }
+    }
+
+    private void checkMaxLevel(AdaptPlayer p, String line) {
+        if (!p.isBusy() && getXp() > XP.getXpForLevel(AdaptConfig.get().experienceMaxLevel)) {
+            p.getData().addWisdom();
+            Adapt.warn("A Player has reached the maximum level of " + AdaptConfig.get().experienceMaxLevel + " and has been granted 1 wisdom, Dropping Level to " + lastLevel);
+            setXp(XP.getXpForLevel(AdaptConfig.get().experienceMaxLevel - 1));
+        }
+    }
+
+    private void updateFreshness() {
+        double max = 1D + (getLevel() * 0.004);
+
+        freshness += (0.1 * freshness) + 0.00124;
+        if (freshness > max) freshness = max;
+        if (freshness < 0.01) freshness = 0.01;
+        if (freshness < rfreshness) rfreshness -= ((rfreshness - freshness) * 0.003);
+        if (freshness > rfreshness) rfreshness += (freshness - rfreshness) * 0.265;
+    }
+
+    private void updateMultiplier(PlayerData data) {
+        double m = rfreshness;
+        for (XPMultiplier i : multipliers.copy()) {
+            if (i.isExpired()) multipliers.remove(i);
+            else m += i.getMultiplier();
+        }
+
+        m = Math.max(0.01, Math.min(m, 1000));
+        multiplier = m * data.getMultiplier();
+    }
+
+    private void updateEarnedXP(AdaptPlayer p, String line) {
+        double earned = xp - lastXP;
+        if (earned > p.getServer().getSkillRegistry().getSkill(line).getMinXp()) lastXP = xp;
+    }
+
+    private void updateLevel(AdaptPlayer p, String line, PlayerData data) {
+        if (lastLevel < getLevel()) {
+            long kb = getKnowledge();
+            for (int i = lastLevel; i < getLevel(); i++) {
+                giveKnowledge((i / 13) + 1);
+                p.getData().giveMasterXp((i * AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier()) + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
+            }
+
+            if (AdaptConfig.get().isActionbarNotifyLevel()) notifyLevel(p, getLevel(), getKnowledge());
+            lastLevel = getLevel();
+        }
+    }
+
     public void giveXP(Notifier p, double xp) {
-        freshness -= xp * 0.001;
+//        freshness -= xp * 0.005; // Increased from 0.001
+        freshness -= Math.pow(xp, 2) * 0.0001; // Exponential decrease, attempt
         xp = multiplier * xp;
         this.xp += xp;
 
@@ -115,83 +184,6 @@ public class PlayerSkillLine {
 
     public Skill getRawSkill(AdaptPlayer p) {
         return p.getServer().getSkillRegistry().getSkill(line);
-    }
-
-    public void update(AdaptPlayer p, String line, PlayerData data) {
-        if (!p.getData().isGranted("skill_" + line) && AdaptConfig.get().isAdvancements()) {
-            p.getAdvancementHandler().grant("skill_" + line);
-        }
-
-        for (String i : getAdaptations().k()) {
-            if (!p.getData().isGranted("adaptation_" + i) && AdaptConfig.get().isAdvancements()) {
-                p.getAdvancementHandler().grant("adaptation_" + i);
-            }
-        }
-
-        //check if they are exceeding the max level, and just set it to the last level XP and level
-        if (!p.isBusy() && getXp() > XP.getXpForLevel(AdaptConfig.get().experienceMaxLevel)) {
-            p.getData().addWisdom();
-            Adapt.warn("A Player has reached the maximum level of " + AdaptConfig.get().experienceMaxLevel + " and has been granted 1 wisdom, Dropping Level to " + lastLevel);
-            setXp(XP.getXpForLevel(AdaptConfig.get().experienceMaxLevel -1));
-        }
-
-        double max = 1D + (getLevel() * 0.004);
-
-        freshness += (0.1 * freshness) + 0.00124;
-        if (freshness > max) {
-            freshness = max;
-        }
-
-        if (freshness < 0.01) {
-            freshness = 0.01;
-        }
-
-        if (freshness < rfreshness) {
-            rfreshness -= ((rfreshness - freshness) * 0.003);
-        }
-
-        if (freshness > rfreshness) {
-            rfreshness += (freshness - rfreshness) * 0.265;
-        }
-
-        double m = rfreshness;
-
-        for (XPMultiplier i : multipliers.copy()) {
-            if (i.isExpired()) {
-                multipliers.remove(i);
-                continue;
-            }
-
-            m += i.getMultiplier();
-        }
-
-        if (m <= 0) {
-            m = 0.01;
-        }
-
-        if (m > 1000) {
-            m = 1000;
-        }
-
-        multiplier = m * data.getMultiplier();
-
-        double earned = xp - lastXP;
-
-        if (earned > p.getServer().getSkillRegistry().getSkill(line).getMinXp()) {
-            lastXP = xp;
-        }
-
-        if (lastLevel < getLevel()) {
-            long kb = getKnowledge();
-            for (int i = lastLevel; i < getLevel(); i++) {
-                giveKnowledge((i / 13) + 1);
-                p.getData().giveMasterXp((i * AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier()) + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
-            }
-            if (AdaptConfig.get().isActionbarNotifyLevel()) {
-                notifyLevel(p, getLevel(), getKnowledge());
-            }
-            lastLevel = getLevel();
-        }
     }
 
     private void notifyLevel(AdaptPlayer p, double lvl, long kn) {
