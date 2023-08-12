@@ -26,16 +26,16 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.util.RayTraceResult;
 
 import java.util.*;
 
@@ -123,37 +123,45 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
 
     @EventHandler
-    public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
+    public void on(PlayerInteractEvent e) {
         Player player = e.getPlayer();
         ItemStack mainHandItem = player.getInventory().getItemInMainHand();
+        if (!hasAdaptation(player)) {
+            return;
+        }
 
         if (!player.isSneaking() || mainHandItem.getType() != Material.SHEARS) {
             return;
         }
 
-        Entity clickedEntity = e.getRightClicked();
-        if (clickedEntity instanceof Item itemEntity) {
-            ItemStack forStuff = itemEntity.getItemStack();
-            ItemStack offering = getDeconstructionOffering(forStuff);
+        // Perform a ray trace for 6 blocks looking for an item
+        RayTraceResult rayTrace = player.getWorld().rayTraceEntities(player.getEyeLocation(), player.getLocation().getDirection(), 6, entity -> entity instanceof Item);
+        if (rayTrace != null && rayTrace.getHitEntity() instanceof Item itemEntity) {
+            processItemInteraction(player, mainHandItem, itemEntity);
+        }
+    }
 
-            if (offering != null) {
-                itemEntity.setItemStack(offering);
-                player.getWorld().playSound(clickedEntity.getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
-                player.getWorld().playSound(clickedEntity.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
-                getSkill().xp(player, getValue(offering));
+    private void processItemInteraction(Player player, ItemStack mainHandItem, Item itemEntity) {
+        ItemStack forStuff = itemEntity.getItemStack();
+        ItemStack offering = getDeconstructionOffering(forStuff);
 
-                // Damage the shears
-                Damageable damageable = (Damageable) mainHandItem.getItemMeta();
-                int newDamage = damageable.getDamage() + 8 * forStuff.getAmount();
-                if (newDamage >= mainHandItem.getType().getMaxDurability()) {
-                    player.getInventory().setItemInMainHand(null); // Break the shears
-                } else {
-                    damageable.setDamage(newDamage);
-                    mainHandItem.setItemMeta(damageable);
-                }
+        if (offering != null) {
+            itemEntity.setItemStack(offering);
+            player.getWorld().playSound(itemEntity.getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
+            player.getWorld().playSound(itemEntity.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
+            getSkill().xp(player, getValue(offering));
+
+            // Damage the shears
+            Damageable damageable = (Damageable) mainHandItem.getItemMeta();
+            int newDamage = damageable.getDamage() + 8 * forStuff.getAmount();
+            if (newDamage >= mainHandItem.getType().getMaxDurability()) {
+                player.getInventory().setItemInMainHand(null); // Break the shears
             } else {
-                player.getWorld().playSound(clickedEntity.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1F, 1f); // Burnt torch sound
+                damageable.setDamage(newDamage);
+                mainHandItem.setItemMeta(damageable);
             }
+        } else {
+            player.getWorld().playSound(itemEntity.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1F, 1f); // Burnt torch sound
         }
     }
 
