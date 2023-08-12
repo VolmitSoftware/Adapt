@@ -53,8 +53,8 @@ public class Inventories {
 
         ItemStack[] vv = i.getContents();
 
-        for (int v = 0; v < vv.length; v++) {
-            if (vv[v] == null || vv[v].getType().equals(Material.AIR)) {
+        for (ItemStack itemStack : vv) {
+            if (itemStack == null || itemStack.getType().equals(Material.AIR)) {
                 ex++;
             }
         }
