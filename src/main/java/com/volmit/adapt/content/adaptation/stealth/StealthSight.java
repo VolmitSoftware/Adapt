@@ -21,6 +21,7 @@ package com.volmit.adapt.content.adaptation.stealth;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -31,7 +32,13 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
+    private final List<Player> sneaking;
+
+
     public StealthSight() {
         super("stealth-vision");
         registerConfiguration(Config.class);
@@ -39,10 +46,11 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         setDisplayName(Localizer.dLocalize("stealth", "nightvision", "name"));
         setIcon(Material.POTION);
         setBaseCost(getConfig().baseCost);
-        setInterval(5252);
+        setInterval(1500);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
+        sneaking = new ArrayList<>();
 
     }
 
@@ -60,18 +68,29 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         if (!hasAdaptation(p)) {
             return;
         }
+        sneaking.add(p);
         if (!p.isSneaking()) {
             p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
-            p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 8000, 0, false, false));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 1000, 0, false, false));
         } else {
             p.removePotionEffect(PotionEffectType.NIGHT_VISION);
         }
     }
 
+
     @Override
     public void onTick() {
-
+        List<Player> toRemove = new ArrayList<>();
+        for (Player p : sneaking) {
+            if (hasAdaptation(p) && !p.isSneaking()) {
+                toRemove.add(p);
+                J.s(() -> p.removePotionEffect(PotionEffectType.NIGHT_VISION));
+            }
+        }
+        sneaking.removeAll(toRemove);
     }
+
+
 
     @Override
     public boolean isEnabled() {
