@@ -55,6 +55,16 @@ public interface DataItem<T> {
         return null;
     }
 
+    default boolean hasData(ItemStack stack) {
+        if (stack != null
+                && stack.getType().equals(getMaterial())
+                && stack.getItemMeta() != null) {
+            return stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING);
+        }
+        return false;
+    }
+
+
     default void setData(ItemStack item, T t) {
         item.setItemMeta(withData(t).getItemMeta());
     }

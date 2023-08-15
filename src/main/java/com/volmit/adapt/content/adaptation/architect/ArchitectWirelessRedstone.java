@@ -18,29 +18,38 @@
 
 package com.volmit.adapt.content.adaptation.architect;
 
+import static com.volmit.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
+
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundRedstoneTorch;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.M;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.NoArgsConstructor;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.AnaloguePowerable;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.volmit.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 
 public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWirelessRedstone.Config> {
@@ -74,59 +83,52 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
 
     @EventHandler
-    public void onPlayerItemHeld(PlayerItemHeldEvent event) {
-        Player player = event.getPlayer();
-        ItemStack mainHand = player.getInventory().getItemInMainHand();
-        ItemStack offHand = player.getInventory().getItemInOffHand();
-
-        if (isRedstoneTorch(mainHand)) {
-            updateTorchCooldown(player, mainHand);
-        }
-
-        if (isRedstoneTorch(offHand)) {
-            updateTorchCooldown(player, offHand);
+    public void onPlaceBlock(BlockPlaceEvent event) {
+        ItemStack item = event.getItemInHand();
+        if (BoundRedstoneTorch.hasItemData(item) && isRedstoneTorch(item)) {
+            event.setBuild(false);
+            event.setCancelled(true);
         }
     }
 
-
-
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        ItemStack mainHand = player.getInventory().getItemInMainHand();
-        ItemStack offHand = player.getInventory().getItemInOffHand();
-
-        boolean mainHandBound = isRedstoneTorch(mainHand) && isBound(mainHand);
-        boolean offHandBound = isRedstoneTorch(offHand) && isBound(offHand);
-
-        if (shouldCancelEvent(player, event, mainHandBound, offHandBound)) {
-            event.setCancelled(true);
+        if (event.getHand() != EquipmentSlot.HAND && event.getHand() != EquipmentSlot.OFF_HAND) {
             return;
         }
+
+        ItemStack itemInHand = event.getItem();
+
+        if (itemInHand == null) {
+            return;
+        }
+
+        boolean specialItem =
+            isRedstoneTorch(itemInHand) && BoundRedstoneTorch.hasItemData(itemInHand);
+        if (!specialItem) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+
+        if (!hasAdaptation(player)) {
+            return;
+        }
+
+        boolean canUseInCreative = AdaptConfig.get().allowAdaptationsInCreative;
+        boolean inCreative = player.getGameMode() == GameMode.CREATIVE;
+        if (inCreative && !canUseInCreative) {
+            return;
+        }
+
         if (!canInteract(event.getPlayer(), event.getPlayer().getLocation())) {
             return;
         }
 
-        handleOffhandInteraction(event, player);
-
-        if (mainHandBound) {
-            handleRedstoneTorchInteraction(event, player, mainHand);
+        switch (event.getAction()) {
+            case LEFT_CLICK_BLOCK -> handleLeftClickBlock(event, player);
+            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> handleRightClick(event, player);
         }
-    }
-
-
-    private boolean shouldCancelEvent(Player player, PlayerInteractEvent event, boolean mainHandBound, boolean offHandBound) {
-        boolean hasAdaptation = hasAdaptation(player);
-        boolean canUseInCreative = AdaptConfig.get().allowAdaptationsInCreative;
-        boolean isCreative = player.getGameMode() == GameMode.CREATIVE;
-
-        boolean blockPlacementAction = event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getHand() == EquipmentSlot.HAND;
-
-        if ((mainHandBound || offHandBound) && ((!hasAdaptation && !isCreative) || (hasAdaptation && !canUseInCreative && isCreative))) {
-            return blockPlacementAction || (hasAdaptation && !isCreative);
-        }
-
-        return false;
     }
 
 
@@ -134,60 +136,50 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         return item.getType().equals(Material.REDSTONE_TORCH);
     }
 
-    private void updateTorchCooldown(Player player, ItemStack mainHand) {
-        int cooldown = isBound(mainHand) ? 50000 : 0;
-        player.setCooldown(Material.REDSTONE_TORCH, cooldown);
-    }
-
-    private void handleOffhandInteraction(PlayerInteractEvent event, Player player) {
-        ItemStack offhand = player.getInventory().getItemInOffHand();
-        if (event.getHand() != null && event.getHand().equals(EquipmentSlot.OFF_HAND) && BoundRedstoneTorch.isBindableItem(offhand)) {
-            event.setCancelled(true);
-        }
-    }
-
-    private void handleRedstoneTorchInteraction(PlayerInteractEvent event, Player player, ItemStack mainHand) {
-        if (BoundRedstoneTorch.isBindableItem(mainHand)) {
-            if (!hasAdaptation(player)) {
-                return;
-            }
-            Adapt.verbose("Player " + player.getName() + " is holding a bound redstone torch");
-            switch (event.getAction()) {
-                case LEFT_CLICK_BLOCK -> handleLeftClickBlock(event, player);
-                case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> handleRightClickBlock(event, player);
-            }
-        }
-    }
 
     private void handleLeftClickBlock(PlayerInteractEvent event, Player player) {
         Adapt.verbose("Player " + player.getName() + " is left clicking a block");
-        if (player.isSneaking()) {
-            Location location;
-            if (event.getClickedBlock() == null) {
-                player.playSound(player.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
-                return;
-            } else {
-                location = new Location(event.getClickedBlock().getWorld(), event.getClickedBlock().getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ());
-            }
-            event.setCancelled(true);
-            linkTorch(player, location);
-        } else {
-            event.setCancelled(false);
+        if (!player.isSneaking()) {
+            return;
         }
+
+        // main hand only
+        if (event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+
+        if (event.getClickedBlock() == null) {
+            player.playSound(player.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
+            return;
+        }
+
+        // prevent breaking block
+        event.setUseItemInHand(Result.DENY);
+
+        Location location = new Location(event.getClickedBlock().getWorld(), event.getClickedBlock().getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ());
+        linkTorch(player, location);
     }
 
-    private void handleRightClickBlock(PlayerInteractEvent event, Player player) {
-        Adapt.verbose("Player " + player.getName() + " is right clicking a block");
+    private void handleRightClick(PlayerInteractEvent event, Player player) {
+        Adapt.verbose("Player " + player.getName() + " is right clicking");
+
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            event.setUseItemInHand(Result.DENY);
+            event.setUseInteractedBlock(Result.DENY);
+        }
+
         if (hasCooldown(player)) {
             player.playSound(player.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1f, 0.9f);
         } else {
             cooldowns.put(player, System.currentTimeMillis() + getConfig().cooldown);
-            triggerPulse(player);
-            event.setCancelled(true);
+            updatePlayerCooldown(player, false);
+            triggerPulse(player, event.getItem());
         }
     }
 
-
+    public void updatePlayerCooldown(Player player, boolean reset) {
+        player.setCooldown(Material.REDSTONE_TORCH, reset ? 0 : 5000);
+    }
 
 
     private boolean hasCooldown(Player i) {
@@ -220,9 +212,9 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     }
 
 
-    private void triggerPulse(Player p) {
-        Location l = BoundRedstoneTorch.getLocation(p.getInventory().getItemInMainHand());
-        if (isBound(p.getInventory().getItemInMainHand()) && l != null) {
+    private void triggerPulse(Player p, ItemStack item) {
+        Location l = BoundRedstoneTorch.getLocation(item);
+        if (isBound(item) && l != null) {
             loadChunkAsync(l, chunk -> {
                 Block b = l.getBlock();
                 BlockData data = b.getBlockData();
@@ -257,10 +249,11 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         for (Player p : Bukkit.getOnlinePlayers()) {
             ItemStack hand = p.getInventory().getItemInMainHand();
             ItemStack offhand = p.getInventory().getItemInOffHand();
-            if (!isBound(hand)) {
-                J.s(() -> p.setCooldown(Material.REDSTONE_TORCH, 0));
+            if ((isRedstoneTorch(hand) && BoundRedstoneTorch.hasItemData(hand)) || (
+                isRedstoneTorch(offhand) && BoundRedstoneTorch.hasItemData(offhand))) {
+                J.s(() -> updatePlayerCooldown(p, false));
             } else {
-                J.s(() -> p.setCooldown(Material.REDSTONE_TORCH, 50000));
+                J.s(() -> updatePlayerCooldown(p, true));
             }
         }
     }

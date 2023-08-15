@@ -46,6 +46,13 @@ public class BoundRedstoneTorch implements DataItem<BoundRedstoneTorch.Data> {
         return null;
     }
 
+    /*
+    renamed from hasData as the types are the same (ItemStack -> boolean), but this is static
+     */
+    public static boolean hasItemData(ItemStack stack) {
+        return io.hasData(stack);
+    }
+
     public static void setData(ItemStack item, Location t) {
         io.setData(item, new Data(t));
     }
