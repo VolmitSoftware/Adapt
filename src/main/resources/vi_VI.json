@@ -1,0 +1,447 @@
+{
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "Phải di chuyển!"
+    },
+    "challenge_sprint_5k": {
+    },
+    "challenge_sprint_50k": {
+    },
+    "challenge_sprint_500k": {
+    },
+    "challenge_sprint_marathon": {
+    },
+    "challenge_place_1k": {
+    },
+    "challenge_place_5k": {
+    },
+    "challenge_place_50k": {
+    },
+    "challenge_place_500k": {
+    },
+    "challenge_place_5m": {
+    },
+    "challenge_chop_1k": {
+    },
+    "challenge_chop_5k": {
+    },
+    "challenge_chop_50k": {
+    },
+    "challenge_chop_500k": {
+    },
+    "challenge_chop_5m": {
+    },
+    "challenge_block_1k": {
+    },
+    "challenge_block_5k": {
+    },
+    "challenge_block_50k": {
+    },
+    "challenge_block_500k": {
+    },
+    "challenge_block_5m": {
+    },
+    "challenge_brew_1k": {
+    },
+    "challenge_brew_5k": {
+    },
+    "challenge_brew_50k": {
+    },
+    "challenge_brew_500k": {
+    },
+    "challenge_brew_5m": {
+    },
+    "challenge_brewsplash_1k": {
+    },
+    "challenge_brewsplash_5k": {
+    },
+    "challenge_brewsplash_50k": {
+    },
+    "challenge_brewsplash_500k": {
+    },
+    "challenge_brewsplash_5m": {
+    },
+    "challenge_craft_1k": {
+    },
+    "challenge_craft_5k": {
+    },
+    "challenge_craft_50k": {
+    },
+    "challenge_craft_500k": {
+    },
+    "challenge_craft_5m": {
+    },
+    "challenge_enchant_1k": {
+    },
+    "challenge_enchant_5k": {
+    },
+    "challenge_enchant_50k": {
+    },
+    "challenge_enchant_500k": {
+    },
+    "challenge_enchant_5m": {
+    },
+    "challenge_excavate_1k": {
+    },
+    "challenge_excavate_5k": {
+    },
+    "challenge_excavate_50k": {
+    },
+    "challenge_excavate_500k": {
+    },
+    "challenge_excavate_5m": {
+    },
+    "horrible_person": {
+    },
+    "challenge_turtle_egg_smasher": {
+    },
+    "challenge_turtle_egg_annihilator": {
+    },
+    "challenge_novice_hunter": {
+    },
+    "challenge_intermediate_hunter": {
+    },
+    "challenge_advanced_hunter": {
+    },
+    "challenge_creeper_conqueror": {
+    },
+    "challenge_creeper_annihilator": {
+    },
+    "challenge_pickaxe_1k": {
+    },
+    "challenge_pickaxe_5k": {
+    },
+    "challenge_pickaxe_50k": {
+    },
+    "challenge_pickaxe_500k": {
+    },
+    "challenge_pickaxe_5m": {
+    }
+  },
+  "items": {
+    "boundenderperal": {
+    },
+    "boundeyeofender": {
+    },
+    "boundredstonetorch": {
+    },
+    "boundsnowball": {
+    }
+  },
+  "snippets": {
+    "gui": {
+    },
+    "adaptmenu": {
+    },
+    "knowledgeorb": {
+    },
+    "experienceorb": {
+    }
+  },
+  "skill": {
+    "agility": {
+    },
+    "architect": {
+    },
+    "axes": {
+    },
+    "brewing": {
+    },
+    "blocking": {
+    },
+    "crafting": {
+    },
+    "discovery": {
+    },
+    "enchanting": {
+    },
+    "excavation": {
+    },
+    "herbalism": {
+    },
+    "hunter": {
+    },
+    "nether": {
+    },
+    "pickaxe": {
+    },
+    "ranged": {
+    },
+    "rift": {
+    },
+    "seaborne": {
+    },
+    "stealth": {
+    },
+    "swords": {
+    },
+    "taming": {
+    },
+    "tragoul": {
+    },
+    "chronos": {
+    },
+    "unarmed": {
+    }
+  },
+  "agility": {
+    "armorup": {
+    },
+    "superjump": {
+    },
+    "walljump": {
+    },
+    "windup": {
+    }
+  },
+  "architect": {
+    "foundation": {
+    },
+    "glass": {
+    },
+    "wirelessredstone": {
+    },
+    "placement": {
+    }
+  },
+  "axe": {
+    "chop": {
+    },
+    "logswap": {
+    },
+    "droptoinventory": {
+    },
+    "groundsmash": {
+    },
+    "leafminer": {
+    },
+    "woodminer": {
+    }
+  },
+  "brewing": {
+    "lingering": {
+    },
+    "superheated": {
+    },
+    "darkness": {
+    },
+    "haste": {
+    },
+    "absorption": {
+    },
+    "fatigue": {
+    },
+    "hunger": {
+    },
+    "nausea": {
+    },
+    "blindness": {
+    },
+    "resistance": {
+    },
+    "healthboost": {
+    },
+    "decay": {
+    },
+    "saturation": {
+    }
+  },
+  "blocking": {
+    "chainarmorer": {
+    },
+    "horsearmorer": {
+    },
+    "saddlecrafter": {
+    },
+    "multiarmor": {
+    }
+  },
+  "crafting": {
+    "deconstruction": {
+    },
+    "xp": {
+    },
+    "reconstruction": {
+    },
+    "leather": {
+    },
+    "backpacks": {
+    },
+    "stations": {
+    },
+    "skulls": {
+    }
+  },
+  "discovery": {
+    "armor": {
+    },
+    "unity": {
+    },
+    "resist": {
+    },
+    "villager": {
+    }
+  },
+  "enchanting": {
+    "lapisreturn": {
+    },
+    "quickenchant": {
+    },
+    "return": {
+    }
+  },
+  "excavation": {
+    "haste": {
+    },
+    "spelunker": {
+    },
+    "droptoinventory": {
+    },
+    "omnitool": {
+    }
+  },
+  "herbalism": {
+    "growthaura": {
+    },
+    "hippo": {
+    },
+    "myconid": {
+    },
+    "terralid": {
+    },
+    "cobweb": {
+    },
+    "mushroomblocks": {
+    },
+    "droptoinventory": {
+    },
+    "hungryshield": {
+    },
+    "luck": {
+    },
+    "replant": {
+    }
+  },
+  "hunter": {
+    "adrenaline": {
+    },
+    "penalty": {
+    },
+    "droptoinventory": {
+    },
+    "invisibility": {
+    },
+    "jumpboost": {
+    },
+    "luck": {
+    },
+    "regen": {
+    },
+    "resistance": {
+    },
+    "speed": {
+    },
+    "strength": {
+    }
+  },
+  "nether": {
+    "skulltoss": {
+    },
+    "witherresist": {
+    },
+    "fireresist": {
+    }
+  },
+  "pickaxe": {
+    "autosmelt": {
+    },
+    "chisel": {
+    },
+    "droptoinventory": {
+    },
+    "veinminer": {
+    }
+  },
+  "ranged": {
+    "arrowrecovery": {
+    },
+    "webshot": {
+    },
+    "forceshot": {
+    },
+    "lungeshot": {
+    },
+    "arrowpiercing": {
+    }
+  },
+  "rift": {
+    "remoteaccess": {
+    },
+    "blink": {
+    },
+    "chest": {
+    },
+    "descent": {
+    },
+    "gate": {
+    },
+    "resist": {
+    }
+  },
+  "seaborn": {
+    "oxygen": {
+    },
+    "fishersfantasy": {
+    },
+    "haste": {
+    },
+    "nightvision": {
+    },
+    "dolphingrace": {
+    }
+  },
+  "stealth": {
+    "ghostarmor": {
+    },
+    "nightvision": {
+    },
+    "snatch": {
+    },
+    "speed": {
+    }
+  },
+  "sword": {
+    "machete": {
+    },
+    "bloodyblade": {
+    },
+    "poisonedblade": {
+    }
+  },
+  "taming": {
+    "damage": {
+    },
+    "health": {
+    },
+    "regeneration": {
+    }
+  },
+  "tragoul": {
+    "thorns": {
+    },
+    "globe": {
+    },
+    "healing": {
+    },
+    "lance": {
+    }
+  },
+  "unarmed": {
+    "glasscannon": {
+    },
+    "power": {
+    },
+    "suckerpunch": {
+    }
+  }
+}
