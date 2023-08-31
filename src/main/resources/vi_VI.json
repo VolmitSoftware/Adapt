@@ -1,0 +1,1142 @@
+{
+  "advancement": {
+    "challenge_move_1k": {
+      "title": "Phải di chuyển!",
+      "description": "Đi bộ hơn 1 km (1.000 khối)"
+    },
+    "challenge_sprint_5k": {
+      "title": "Chạy nước rút 5K!",
+      "description": "Đi bộ hơn 5 km (5.000 khối)"
+    },
+    "challenge_sprint_50k": {
+      "title": "Thu phóng 50K!",
+      "description": "Đi bộ hơn 50 km (50.000 khối)"
+    },
+    "challenge_sprint_500k": {
+      "title": "Vượt qua vũ trụ Horizon!!",
+      "description": "Đi bộ hơn 500 km (500.000 khối)"
+    },
+    "challenge_sprint_marathon": {
+      "title": "Chạy một cuộc Marathon (theo nghĩa đen)!",
+      "description": "Chạy nhanh hơn 42.195 khối!"
+    },
+    "challenge_place_1k": {
+      "title": "Người mới xây dựng!",
+      "description": "Đặt 1.000 khối"
+    },
+    "challenge_place_5k": {
+      "title": "Thợ xây trung cấp!",
+      "description": "Đặt 5.000 khối"
+    },
+    "challenge_place_50k": {
+      "title": "Người xây dựng nâng cao!",
+      "description": "Đặt 50.000 khối"
+    },
+    "challenge_place_500k": {
+      "title": "Bậc thầy xây dựng!",
+      "description": "Đặt 500.000 khối"
+    },
+    "challenge_place_5m": {
+      "title": "Acolyte của Symmetry!",
+      "description": "THỰC TẾ LÀ SÂN CHƠI CỦA BẠN! (5 triệu khối)"
+    },
+    "challenge_chop_1k": {
+      "title": "Thợ rừng mới vào nghề!",
+      "description": "Chặt 1.000 khối"
+    },
+    "challenge_chop_5k": {
+      "title": "Thợ rừng trung cấp!",
+      "description": "Chặt 5.000 khối"
+    },
+    "challenge_chop_50k": {
+      "title": "Thợ rừng nâng cao!",
+      "description": "Chặt 50.000 khối"
+    },
+    "challenge_chop_500k": {
+      "title": "Thầy thợ rừng!",
+      "description": "Chặt 500.000 khối"
+    },
+    "challenge_chop_5m": {
+      "title": "Chú chó Jackson",
+      "description": "Cậu bé tốt bụng nhất! (5 triệu khối)"
+    },
+    "challenge_block_1k": {
+      "title": "Chặn thật sự!",
+      "description": "Chặn 1000 lượt truy cập"
+    },
+    "challenge_block_5k": {
+      "title": "Chặn là thú vị!",
+      "description": "Chặn 5000 lượt truy cập"
+    },
+    "challenge_block_50k": {
+      "title": "Chặn là cuộc sống của tôi!",
+      "description": "Chặn 50.000 lượt truy cập"
+    },
+    "challenge_block_500k": {
+      "title": "Chặn là mục đích của tôi!",
+      "description": "Chặn 500.000 lượt truy cập"
+    },
+    "challenge_block_5m": {
+      "title": "Chết Tay Chết Verletzt",
+      "description": "Chặn 5.000.000 lượt truy cập"
+    },
+    "challenge_brew_1k": {
+      "title": "Nhà giả kim mới vào nghề!",
+      "description": "Tiêu thụ 1000 bình thuốc"
+    },
+    "challenge_brew_5k": {
+      "title": "Nhà giả kim trung cấp!",
+      "description": "Tiêu thụ 5000 bình thuốc"
+    },
+    "challenge_brew_50k": {
+      "title": "Nhà giả kim cao cấp!",
+      "description": "Tiêu thụ 50.000 Thuốc"
+    },
+    "challenge_brew_500k": {
+      "title": "Bậc thầy giả kim!",
+      "description": "Tiêu thụ 500.000 Thuốc"
+    },
+    "challenge_brew_5m": {
+      "title": "Nhà giả kim",
+      "description": "Tiêu thụ 5.000.000 Thuốc"
+    },
+    "challenge_brewsplash_1k": {
+      "title": "Thuốc bắn tung tóe dành cho người mới bắt đầu!",
+      "description": "Splash 1000 độc dược"
+    },
+    "challenge_brewsplash_5k": {
+      "title": "Thuốc bắn tung tóe trung cấp!",
+      "description": "Thuốc Splash 5000"
+    },
+    "challenge_brewsplash_50k": {
+      "title": "Thuốc bắn tung tóe nâng cao!",
+      "description": "Bắn tung tóe 50.000 bình thuốc"
+    },
+    "challenge_brewsplash_500k": {
+      "title": "Bậc thầy Potion-Splasher!",
+      "description": "Bắn tung tóe 500.000 Thuốc"
+    },
+    "challenge_brewsplash_5m": {
+      "title": "Meister giật gân",
+      "description": "Bắn tung tóe 5.000.000 Thuốc"
+    },
+    "challenge_craft_1k": {
+      "title": "Thợ thủ công xảo quyệt!",
+      "description": "Chế tạo 1000 vật phẩm"
+    },
+    "challenge_craft_5k": {
+      "title": "Thợ thủ công gắt gỏng!",
+      "description": "Chế tạo 5000 vật phẩm"
+    },
+    "challenge_craft_50k": {
+      "title": "Thợ thủ công cổ tử cung!",
+      "description": "Chế tạo 50.000 vật phẩm"
+    },
+    "challenge_craft_500k": {
+      "title": "Người chế tạo cacophonous!",
+      "description": "Chế tạo 500.000 vật phẩm"
+    },
+    "challenge_craft_5m": {
+      "title": "McCcraftface tai họa",
+      "description": "Chế tạo 5.000.000 vật phẩm"
+    },
+    "challenge_enchant_1k": {
+      "title": "Người mới bắt đầu mê hoặc!",
+      "description": "Bùa mê 1000 vật phẩm"
+    },
+    "challenge_enchant_5k": {
+      "title": "Pháp sư trung cấp!",
+      "description": "Bùa mê 5000 vật phẩm"
+    },
+    "challenge_enchant_50k": {
+      "title": "Pháp sư cao cấp!",
+      "description": "Bùa mê 50.000 vật phẩm"
+    },
+    "challenge_enchant_500k": {
+      "title": "Bậc thầy phù thủy!",
+      "description": "Bùa mê 500.000 vật phẩm"
+    },
+    "challenge_enchant_5m": {
+      "title": "Người phù thủy bí ẩn",
+      "description": "Bùa mê 5.000.000 vật phẩm"
+    },
+    "challenge_excavate_1k": {
+      "title": "Máy xúc lôi kéo!",
+      "description": "Khai quật 1000 khối"
+    },
+    "challenge_excavate_5k": {
+      "title": "Máy xúc trung gian!",
+      "description": "Khai quật 5000 khối"
+    },
+    "challenge_excavate_50k": {
+      "title": "Máy xúc tiên tiến!",
+      "description": "Khai quật 50.000 khối"
+    },
+    "challenge_excavate_500k": {
+      "title": "Máy xúc bậc thầy!",
+      "description": "Khai quật 500.000 khối"
+    },
+    "challenge_excavate_5m": {
+      "title": "Máy xúc bí ẩn",
+      "description": "Khai quật 5.000.000 khối"
+    },
+    "horrible_person": {
+      "title": "Bạn là một người khủng khiếp",
+      "description": "Thật khó hiểu"
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "Máy đập trứng rùa!",
+      "description": "Đập vỡ 100 quả trứng rùa"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "Máy hủy diệt trứng rùa!",
+      "description": "Đập vỡ 500 quả trứng rùa"
+    },
+    "challenge_novice_hunter": {
+      "title": "Thợ săn mới vào nghề!",
+      "description": "Tiêu diệt 100 thực thể"
+    },
+    "challenge_intermediate_hunter": {
+      "title": "Thợ săn trung cấp!",
+      "description": "Tiêu diệt 500 thực thể"
+    },
+    "challenge_advanced_hunter": {
+      "title": "Thợ săn cao cấp!",
+      "description": "Tiêu diệt 5000 thực thể"
+    },
+    "challenge_creeper_conqueror": {
+      "title": "Kẻ chinh phục cây leo!",
+      "description": "Giết 50 dây leo"
+    },
+    "challenge_creeper_annihilator": {
+      "title": "Kẻ hủy diệt Creeper!",
+      "description": "Giết 200 dây leo"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "Thợ mỏ mới vào nghề",
+      "description": "Phá vỡ 1000 khối"
+    },
+    "challenge_pickaxe_5k": {
+      "title": "Thợ mỏ lành nghề",
+      "description": "Phá vỡ 5000 khối"
+    },
+    "challenge_pickaxe_50k": {
+      "title": "Thợ mỏ chuyên nghiệp",
+      "description": "Phá vỡ 50.000 khối"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "Thợ mỏ bậc thầy",
+      "description": "Phá vỡ 500.000 khối"
+    },
+    "challenge_pickaxe_5m": {
+      "title": "Thợ mỏ huyền thoại",
+      "description": "Phá vỡ 5.000.000 khối"
+    }
+  },
+  "items": {
+    "boundenderperal": {
+      "name": "Khóa cổng thánh tích",
+      "usage1": "Shift + Nhấp chuột trái để liên kết",
+      "usage2": "Nhấp chuột phải để truy cập Khoảng không quảng cáo bị ràng buộc"
+    },
+    "boundeyeofender": {
+      "name": "Neo mắt",
+      "usage1": "Nhấp chuột phải để tiêu thụ và dịch chuyển đến vị trí bị ràng buộc",
+      "usage2": "Shift + Nhấp chuột trái để liên kết với một khối"
+    },
+    "boundredstonetorch": {
+      "name": "Điều khiển từ xa bằng đá đỏ",
+      "usage1": "Nhấp chuột phải để tạo xung Redstone 1-Tick",
+      "usage2": "Shift + Nhấp chuột trái vào Khối 'Mục tiêu' để liên kết"
+    },
+    "boundsnowball": {
+      "name": "Bẫy web!",
+      "usage1": "Ném để tạo bẫy web tạm thời tại vị trí"
+    }
+  },
+  "snippets": {
+    "gui": {
+      "level": "Mức độ",
+      "knowledge": "kiến thức",
+      "powerused": "Nguồn điện sử dụng",
+      "notlearned": "Chưa học",
+      "xp": "XP tới",
+      "welcome": "Chào mừng!",
+      "welcomeback": "Chào mừng trở lại!",
+      "xpbonusfortime": "XP cho",
+      "unlockthisbyclicking": "Mở khóa cái này bằng cách nhấp chuột phải:",
+      "back": "Mặt sau",
+      "unlearnall": "Học tất cả",
+      "unlearnedall": "Chưa học hết"
+    },
+    "adaptmenu": {
+      "maynotunlearn": "BẠN CÓ THỂ KHÔNG HỌC",
+      "mayunlearn": "BẠN CÓ THỂ HỌC/KHÔNG HỌC",
+      "knowledgecost": "Chi phí kiến ​​thức",
+      "knowledgeavailable": "Kiến thức có sẵn",
+      "alreadylearned": "Đã học",
+      "unlearnrefund": "Bấm để học và hoàn tiền",
+      "norefunds": "HARDCORE, HOÀN TIỀN BỊ TẮT",
+      "knowledge": "kiến thức",
+      "clicklearn": "Bấm để tìm hiểu",
+      "noknowledge": "(Bạn chưa có Kiến thức)",
+      "youonlyhave": "Bạn chỉ có",
+      "howtolevelup": "Tăng cấp kỹ năng để tăng sức mạnh tối đa của bạn.",
+      "notenoughpower": "Không đủ sức mạnh! Mỗi cấp độ khả năng tốn 1 sức mạnh.",
+      "power": "quyền lực",
+      "powerdrain": "Xả điện",
+      "learned": "Đã học",
+      "unlearned": "Chưa học",
+      "activatorblock": "Giá sách"
+    },
+    "knowledgeorb": {
+      "contains": "chứa",
+      "knowledge": "kiến thức",
+      "rightclick": "Click chuột phải",
+      "togainknowledge": "để có được kiến ​​thức này",
+      "knowledgeorb": "Quả cầu tri thức"
+    },
+    "experienceorb": {
+      "contains": "chứa",
+      "xp": "Kinh nghiệm",
+      "rightclick": "Click chuột phải",
+      "togainxp": "để có được kinh nghiệm này",
+      "xporb": "Quả cầu kinh nghiệm"
+    }
+  },
+  "skill": {
+    "agility": {
+      "name": "Nhanh nhẹn",
+      "icon": "⇉",
+      "description": "Nhanh nhẹn là khả năng di chuyển nhanh chóng và trôi chảy khi đối mặt với chướng ngại vật."
+    },
+    "architect": {
+      "name": "Kiến trúc sư",
+      "icon": "⬧",
+      "description": "Các cấu trúc là những khối xây dựng của thế giới. Thực tế nằm trong tay bạn, bạn có thể kiểm soát."
+    },
+    "axes": {
+      "name": "Trục",
+      "icon": "🪓",
+      "description1": "Tại sao phải chặt cây khi bạn có thể chặt cây",
+      "description2": "đồ đạc",
+      "description3": "thay vào đó, kết quả cuối cùng tương tự!"
+    },
+    "brewing": {
+      "name": "Sản xuất bia",
+      "icon": "❦",
+      "description": "Bong bóng đôi, bong bóng ba, bong bóng bốn lần- Tôi vẫn không thể đặt lọ thuốc này vào vạc"
+    },
+    "blocking": {
+      "name": "Chặn",
+      "icon": "🛡",
+      "description": "Gậy và đá Sẽ không làm gãy xương bạn, Nhưng một tấm khiên sẽ làm được."
+    },
+    "crafting": {
+      "name": "Chế tạo",
+      "icon": "⌂",
+      "description": "Không còn mảnh nào để đặt nữa, tại sao không làm một mảnh khác?"
+    },
+    "discovery": {
+      "name": "Khám phá",
+      "icon": "⚛",
+      "description": "Khi Nhận thức của bạn mở rộng, tâm trí của bạn sẽ sáng tỏ để khám phá những điều mà bạn chưa từng khám phá."
+    },
+    "enchanting": {
+      "name": "mê hoặc",
+      "icon": "♰",
+      "description": "bạn đang làm gì đó? Những lời tiên tri, những khải tượng, những lời nói lắp bắp mê tín?"
+    },
+    "excavation": {
+      "name": "Moi lên",
+      "icon": "ᛳ",
+      "description": "Diggey Cái lỗ đào..."
+    },
+    "herbalism": {
+      "name": "thảo dược học",
+      "icon": "⚘",
+      "description": "Tôi không thể tìm thấy bất kỳ loại cây nào, nhưng tôi có thể tìm thấy một số hạt giống và- đó có phải là... Weed không?"
+    },
+    "hunter": {
+      "name": "thợ săn",
+      "icon": "☠",
+      "description": "Săn bắn là về cuộc hành trình chứ không phải là kết quả."
+    },
+    "nether": {
+      "name": "địa ngục",
+      "icon": "₪",
+      "description": "Từ sâu thẳm của Nether."
+    },
+    "pickaxe": {
+      "name": "Cuốc chim",
+      "icon": "⛏",
+      "description": "Người lùn là thợ mỏ, nhưng tôi đã học được một hoặc hai điều trong thời gian của mình. TÔI LÀ NGƯỜI THỤY ĐIỂN"
+    },
+    "ranged": {
+      "name": "tầm xa",
+      "icon": "🏹",
+      "description": "Khoảng cách là chìa khóa của chiến thắng và là chìa khóa của sự sống còn."
+    },
+    "rift": {
+      "name": "Rạn nứt",
+      "icon": "❍",
+      "description": "Rift là một dây nịt ăn mòn, nhưng bạn đã khai thác được dây nịt đó."
+    },
+    "seaborne": {
+      "name": "Đường biển",
+      "icon": "🎣",
+      "description": "Với kỹ năng này, bạn có thể khám phá được những điều kỳ diệu của nước"
+    },
+    "stealth": {
+      "name": "tàng hình",
+      "icon": "☯",
+      "description": "Nghệ thuật của cái không thể nhìn thấy. Đi trong bóng tối."
+    },
+    "swords": {
+      "name": "Kiếm",
+      "icon": "⚔",
+      "description": "Bằng sức mạnh của GreyStone!"
+    },
+    "taming": {
+      "name": "thuần hóa",
+      "icon": "♥",
+      "description": "Những con vẹt và những con ong... còn bạn?"
+    },
+    "tragoul": {
+      "name": "TragOul",
+      "icon": "🗡",
+      "description": "Máu chảy trong huyết quản của vũ trụ. Bị siết chặt bởi bàn tay của bạn."
+    },
+    "chronos": {
+      "name": "Thời gian",
+      "icon": "⏳",
+      "description": "Lên dây cót Đồng hồ của vũ trụ, trải nghiệm dòng chảy. Phá vỡ đồng hồ, trở thành nó."
+    },
+    "unarmed": {
+      "name": "không có vũ khí",
+      "icon": "»",
+      "description": "Không có vũ khí không phải là không có sức mạnh"
+    }
+  },
+  "agility": {
+    "armorup": {
+      "name": "Tăng giáp",
+      "description": "Nhận được nhiều áo giáp hơn khi bạn chạy nước rút lâu hơn!",
+      "lore1": "Giáp tối đa",
+      "lore2": "Thời gian tăng giáp"
+    },
+    "superjump": {
+      "name": "Siêu nhảy",
+      "description": "Lợi thế chiều cao vượt trội",
+      "lore1": "Chiều cao nhảy tối đa",
+      "lore2": "Lẻn + Nhảy để siêu nhảy!"
+    },
+    "walljump": {
+      "name": "Nhảy tường",
+      "description": "Giữ phím shift khi đang ở giữa không trung dựa vào tường để chốt tường và nhảy!",
+      "lore1": "Số lần nhảy tối đa",
+      "lore2": "Nhảy cao"
+    },
+    "windup": {
+      "name": "Lên dây cót",
+      "description": "Hãy nhanh hơn khi bạn chạy nước rút lâu hơn!",
+      "lore1": "Tốc độ tối đa",
+      "lore2": "Thời gian kết thúc"
+    }
+  },
+  "architect": {
+    "foundation": {
+      "name": "Tổ chức ma thuật",
+      "description": "Điều này cho phép bạn lẻn và đặt một nền móng tạm thời bên dưới bạn!",
+      "lore1": "Tạo một cách kỳ diệu:",
+      "lore2": "Khối bên dưới bạn!"
+    },
+    "glass": {
+      "name": "Kính cảm ứng lụa",
+      "description": "Điều này về cơ bản cho phép bạn ngăn chặn việc mất các khối thủy tinh khi bạn làm vỡ chúng bằng tay không!",
+      "lore1": "Bàn tay của bạn có được cảm giác chạm lụa cho Glass"
+    },
+    "wirelessredstone": {
+      "name": "Điều khiển từ xa bằng đá đỏ",
+      "description": "Điều này cho phép bạn sử dụng đèn pin đá đỏ để chuyển đổi đá đỏ từ xa!",
+      "lore1": "Mục tiêu + Đuốc đá đỏ + Enderperal = 1 Remote đá đỏ"
+    },
+    "placement": {
+      "name": "Cây đũa phép xây dựng",
+      "description": "Cho phép bạn đặt nhiều khối cùng một lúc để kích hoạt Lén lút và giữ một khối phù hợp với khối và vị trí tìm kiếm của bạn! Hãy nhớ rằng, bạn có thể cần phải di chuyển một chút để kích hoạt giới hạn các hộp!",
+      "lore1": "Bạn cần",
+      "lore2": "khối trong tay của bạn để đặt cái này",
+      "lore3": "Cây đũa phép xây dựng vật liệu"
+    }
+  },
+  "axe": {
+    "chop": {
+      "name": "Chặt rìu",
+      "description": "Chặt cây bằng cách nhấp chuột phải vào khúc gỗ cơ sở!",
+      "lore1": "Khối mỗi Chop",
+      "lore2": "Thời gian hồi chiêu của Chặt",
+      "lore3": "Dụng cụ mài mòn"
+    },
+    "logswap": {
+      "name": "Máy hoán đổi nhật ký của Lucy",
+      "description": "Thay đổi hương vị của các khúc gỗ trong Bảng chế tạo!",
+      "lore1": "8 khúc cây bất kỳ + 1 cây non = 8 khúc cây giống"
+    },
+    "droptoinventory": {
+      "name": "Axe thả vào kho"
+    },
+    "groundsmash": {
+      "name": "Cú đập đất bằng rìu",
+      "description": "Nhảy, sau đó cúi xuống và đập tan tất cả kẻ thù ở gần.",
+      "lore1": "Hư hại",
+      "lore2": "Bán kính khối",
+      "lore3": "Lực lượng",
+      "lore4": "Đập tan thời gian hồi chiêu"
+    },
+    "leafminer": {
+      "name": "thợ mỏ lá",
+      "description": "Cho phép bạn bẻ lá số lượng lớn cùng một lúc!",
+      "lore1": "Lén lút và của tôi LÁ",
+      "lore2": "phạm vi khai thác lá",
+      "lore3": "Bạn sẽ không nhận được giọt từ lá (Phòng chống khai thác)"
+    },
+    "woodminer": {
+      "name": "Thợ khai thác gỗ",
+      "description": "Cho phép bạn phá vỡ gỗ số lượng lớn cùng một lúc!",
+      "lore1": "Lén lút và khai thác GỖ/Gỗ (Không phải ván)",
+      "lore2": "phạm vi khai thác gỗ",
+      "lore3": "Hoạt động với Thả vào kho"
+    }
+  },
+  "brewing": {
+    "lingering": {
+      "name": "bia còn sót lại",
+      "description": "Thuốc ủ có tác dụng lâu hơn!",
+      "lore1": "Khoảng thời gian",
+      "lore2": "Khoảng thời gian"
+    },
+    "superheated": {
+      "name": "Bia siêu nóng",
+      "description": "Quầy sản xuất bia hoạt động nhanh hơn khi chúng nóng hơn.",
+      "lore1": "Mỗi lần chạm vào khối lửa",
+      "lore2": "Mỗi lần chạm vào khối dung nham"
+    },
+    "darkness": {
+      "name": "bóng tối đóng chai",
+      "description": "Không chắc chắn tại sao bạn cần điều này, nhưng bạn bắt đầu nhé!",
+      "lore1": "Thuốc nhìn đêm + Bê tông đen = Thuốc bóng tối (30 giây)",
+      "lore2": "Cần lưu ý rằng Điều này ngăn cản người dùng chạy nước rút!"
+    },
+    "haste": {
+      "name": "Sự vội vàng đóng chai",
+      "description": "Khi hiệu quả là không đủ",
+      "lore1": "Thuốc tăng tốc + Mảnh thạch anh tím = Thuốc tăng tốc (60 giây)",
+      "lore2": "Thuốc tăng tốc + Khối thạch anh tím = Thuốc tăng tốc-2 (30 giây)"
+    },
+    "absorption": {
+      "name": "Hấp thụ đóng chai",
+      "description": "Làm cứng cơ thể!",
+      "lore1": "Hồi máu tức thì + Thạch anh = Thuốc hấp thụ (60 giây)",
+      "lore2": "Hồi máu tức thì + Khối thạch anh = Thuốc hấp thụ-2 (30 giây)"
+    },
+    "fatigue": {
+      "name": "Mệt mỏi đóng chai",
+      "description": "Làm cơ thể suy yếu!",
+      "lore1": "Thuốc Điểm yếu + Bóng Slime = Thuốc Mệt mỏi (30 giây)",
+      "lore2": "Thuốc Điểm yếu + Khối Chất nhờn = Thuốc Mệt mỏi-2 (15 giây)"
+    },
+    "hunger": {
+      "name": "Đói đóng chai",
+      "description": "Thức ăn vô độ!",
+      "lore1": "Thuốc vụng về + Thịt thối = Thuốc đói (30 giây)",
+      "lore2": "Thuốc Điểm Yếu + Thịt Thối = Thuốc Đói-3 (15 giây)"
+    },
+    "nausea": {
+      "name": "Buồn nôn đóng chai",
+      "description": "Bạn làm tôi phát ốm!",
+      "lore1": "Thuốc vụng về + Nấm nâu = Thuốc buồn nôn (16 giây)",
+      "lore2": "Thuốc vụng về + Nấm đỏ = Thuốc buồn nôn-2 (8 giây)"
+    },
+    "blindness": {
+      "name": "Mù đóng chai",
+      "description": "Bạn là một người khủng khiếp...",
+      "lore1": "Thuốc vụng về + Bao mực = Thuốc mù (30 giây)",
+      "lore2": "Thuốc vụng về + Bao mực phát sáng = Thuốc mù-2 (15 giây)"
+    },
+    "resistance": {
+      "name": "Kháng đóng chai",
+      "description": "Sự củng cố tốt nhất của nó!",
+      "lore1": "Thuốc vụng về + Thỏi sắt = Thuốc kháng thuốc (60 giây)",
+      "lore2": "Thuốc vụng về + Khối sắt = Thuốc kháng chiến-2 (30 giây)"
+    },
+    "healthboost": {
+      "name": "Cuộc sống đóng chai",
+      "description": "Khi sức khỏe tối đa là không đủ...",
+      "lore1": "Thuốc chữa bệnh tức thì + Táo vàng = Thuốc tăng cường sức khỏe (120 giây)",
+      "lore2": "Thuốc chữa bệnh tức thì + Táo vàng mê hoặc = Thuốc tăng cường sức khỏe-2 (120 giây)"
+    },
+    "decay": {
+      "name": "Phân rã đóng chai",
+      "description": "Ai biết Detritus sẽ hữu ích như vậy?",
+      "lore1": "Thuốc yếu đuối + Khoai tây độc = Thuốc héo (16 giây)",
+      "lore2": "Thuốc yếu đuối + Rễ cây đỏ thẫm = Thuốc khô héo-2 (8 giây)"
+    },
+    "saturation": {
+      "name": "Độ bão hòa đóng chai",
+      "description": "Bạn biết đấy... Tôi thậm chí còn không đói...",
+      "lore1": "Thuốc Regen + Khoai tây nướng = Thuốc bão hòa",
+      "lore2": "Thuốc Regen + Hay Bale = Thuốc bão hòa-2"
+    }
+  },
+  "blocking": {
+    "chainarmorer": {
+      "name": "Chuỗi Mephistopheles",
+      "description": "Cho phép bạn chế tạo Áo giáp Chainmail",
+      "lore1": "Công thức Chế tạo cũng giống như các công thức khác nhưng thay vào đó là cốm sắt"
+    },
+    "horsearmorer": {
+      "name": "Áo giáp ngựa có thể chế tạo",
+      "description": "Cho phép bạn chế tạo Giáp Ngựa",
+      "lore1": "Bao quanh yên ngựa bằng vật liệu bạn muốn sử dụng để chế tạo áo giáp"
+    },
+    "saddlecrafter": {
+      "name": "Yên xe có thể chế tạo được",
+      "description": "Chế tạo yên xe bằng da",
+      "lore1": "Công thức: 5 Da:"
+    },
+    "multiarmor": {
+      "name": "Đa giáp",
+      "description": "Trói Elytras vào áo giáp",
+      "lore1": "Đây là một kỹ năng tuyệt vời để đi du lịch.",
+      "lore2": "tự động hợp nhất và thay đổi Armor/Elytra một cách nhanh chóng!",
+      "lore3": "để hợp nhất, hãy nhấp chuột vào một mục này qua mục khác trong kho của bạn.",
+      "lore4": "để cởi Giáp, Lén-Thả vật phẩm và nó sẽ tháo rời.",
+      "lore5": "Nếu MultiArmor của bạn bị phá hủy, bạn sẽ mất tất cả vật phẩm trong đó.",
+      "lore6": "Tôi không cần áo giáp, Nó làm tôi thất vọng..."
+    }
+  },
+  "crafting": {
+    "deconstruction": {
+      "name": "Giải cấu trúc",
+      "description": "Giải mã các khối và vật phẩm thành các thành phần cơ bản có thể tận dụng được!",
+      "lore1": "Thả bất kỳ vật phẩm nào xuống đất.",
+      "lore2": "Sau đó, Lén và Nhấp chuột phải bằng SHears"
+    },
+    "xp": {
+      "name": "Chế tạo XP",
+      "description": "Nhận XP thụ động khi chế tạo",
+      "lore1": "Nhận XP khi chế tạo"
+    },
+    "reconstruction": {
+      "name": "Tái thiết quặng",
+      "description": "Chế tạo lại quặng từ các thành phần cơ bản của chúng!",
+      "lore1": "8 Giọt và 1 Vật chủ = 1 Quặng (không có hình dạng)",
+      "lore2": "Giọt phải được nấu chảy (nếu có)",
+      "lore3": "Không bao gồm: Phế liệu, Quart, và Ngọc lục bảo, v.v...",
+      "lore4": "Máy chủ = Bao bọc. tức là: Đá, Netherack, Deepslate"
+    },
+    "leather": {
+      "name": "Da thủ công",
+      "description": "Da thủ công từ thịt thối",
+      "lore1": "Chỉ cần ném nó (thịt thối) vào lửa trại!"
+    },
+    "backpacks": {
+      "name": "Ba lô của Boutilier!",
+      "description": "Điều này chỉ mang Gói Mojang vào trò chơi!",
+      "lore1": "Bạn cần phải ở chế độ Survival để sử dụng tính năng này",
+      "lore2": "XLX : Da, Chì, Da",
+      "lore3": "XSX : Da, Hộp thùng, Da",
+      "lore4": "XCX : Da, Ngực, Da"
+    },
+    "stations": {
+      "name": "Bàn di động!",
+      "description": "Sử dụng một bảng trong lòng bàn tay của bạn!",
+      "lore2": "MỌI MÓN MÀ BẠN BỎ TRONG BẢNG KHI ĐÓNG ĐÓNG LÀ MẤT MÃI MÃI!",
+      "lore3": "Các bảng hợp lệ: Đe, Chế tạo, Đá mài, Bản đồ, Máy cắt đá, Máy dệt"
+    },
+    "skulls": {
+      "name": "Hộp sọ có thể chế tạo được!",
+      "description": "Sử dụng Vật liệu bạn có thể Chế tạo Đầu lâu Mob!",
+      "lore1": "Bao quanh Khối xương bằng những thứ sau để có được hộp sọ:",
+      "lore2": "Zombie: Thịt thối rữa",
+      "lore3": "Bộ xương: Xương",
+      "lore4": "Cây leo: Thuốc súng",
+      "lore5": "Héo: Gạch Nether",
+      "lore6": "Rồng: Hơi thở của rồng"
+    }
+  },
+  "discovery": {
+    "armor": {
+      "name": "Giáp thế giới",
+      "description": "Áo giáp thụ động tùy thuộc vào độ cứng của khối gần đó.",
+      "lore1": "Giáp thụ động",
+      "lore2": "Dựa trên độ cứng khối gần đó",
+      "lore3": "Sức mạnh giáp:"
+    },
+    "unity": {
+      "name": "Đoàn kết thực nghiệm",
+      "description": "Thu thập Quả cầu Kinh nghiệm sẽ thêm XP vào các kỹ năng ngẫu nhiên.",
+      "lore1": "XP",
+      "lore2": "mỗi quả cầu"
+    },
+    "resist": {
+      "name": "Sức đề kháng thực nghiệm",
+      "description": "Tiêu thụ kinh nghiệm để giảm thiểu thiệt hại bạn nhận từ mọi nguồn",
+      "lore0": "Điều này chỉ có thể xảy ra một lần trong 15 giây",
+      "lore1": " Giảm sát thương",
+      "lore2": "kinh nghiệm cạn kiệt"
+    },
+    "villager": {
+      "name": "Thu hút dân làng",
+      "description": "Cho phép bạn giao dịch tốt hơn với dân làng!",
+      "lore1": "Điều này tiêu tốn XP cho mỗi lần tương tác với Dân làng",
+      "lore2": "Cơ hội cho mỗi lần tương tác để tiêu thụ XP và nâng cao giao dịch",
+      "lore3": "yêu cầu tiêu hao XP cho mỗi Tương tác"
+    }
+  },
+  "enchanting": {
+    "lapisreturn": {
+      "name": "Lapis trở lại",
+      "description": "Với chi phí là tăng thêm 1 cấp XP và đổi lại bạn có cơ hội nhận được lapis miễn phí",
+      "lore1": "Đối với mọi cấp độ, nó tăng chi phí mê hoặc thêm 1, nhưng có thể trả lại tối đa 3 Lapis"
+    },
+    "quickenchant": {
+      "name": "Bùa mê nhấp chuột nhanh",
+      "description": "Bùa mê các vật phẩm bằng cách nhấp vào sách bùa mê trực tiếp trên chúng.",
+      "lore1": "Cấp độ kết hợp tối đa",
+      "lore2": "Không thể phù phép một vật phẩm có nhiều hơn",
+      "lore3": "quyền lực"
+    },
+    "return": {
+      "name": "Trả lại XP",
+      "description": "XP mê hoặc được trả lại cho bạn khi bạn mê hoặc một vật phẩm.",
+      "lore1": "Kinh nghiệm đã sử dụng có cơ hội được hoàn lại khi bạn phù phép một vật phẩm",
+      "lore2": "Kinh nghiệm mỗi Enchant"
+    }
+  },
+  "excavation": {
+    "haste": {
+      "name": "Máy xúc vội vàng",
+      "description": "Điều này sẽ đẩy nhanh quá trình khai quật, với HASTE!",
+      "lore1": "Đạt được sự vội vàng trong khi khai quật",
+      "lore2": "x Mức độ vội vàng khi bạn bắt đầu khai thác BẤT KỲ khối nào."
+    },
+    "spelunker": {
+      "name": "Người chơi trò chơi siêu nhìn thấy!",
+      "description": "Nhìn thấy quặng bằng mắt nhưng qua mặt đất!",
+      "lore1": "Quặng trong tay trái của bạn, Glowberry trong tay chính của bạn và Sneak!",
+      "lore2": "Phạm vi khối:",
+      "lore3": "Tiêu thụ Glowberry khi sử dụng"
+    },
+    "droptoinventory": {
+      "name": "Xẻng thả vào kho"
+    },
+    "omnitool": {
+      "name": "OMNI - T.O.O.L.",
+      "description": "Leatherman sang trọng được thiết kế quá mức của Tackle",
+      "lore1": "Có lẽ là mạnh nhất trong số nhiều cho phép bạn",
+      "lore2": "tự động hợp nhất và thay đổi các công cụ một cách nhanh chóng, dựa trên nhu cầu của bạn.",
+      "lore3": "để hợp nhất, hãy nhấp chuột vào một mục này qua mục khác trong kho của bạn.",
+      "lore4": "để hủy liên kết các công cụ, Lén-Thả vật phẩm và nó sẽ tháo rời.",
+      "lore5": "bạn không thể phá vỡ các công cụ trong Leatherman này nhưng bạn không thể sử dụng các công cụ bị hỏng",
+      "lore6": "tổng số mục có thể hợp nhất",
+      "lore7": "bạn có thể sử dụng năm hoặc sáu công cụ hoặc chỉ một công cụ!"
+    }
+  },
+  "herbalism": {
+    "growthaura": {
+      "name": "Hào quang tăng trưởng",
+      "description": "Phát triển thiên nhiên xung quanh bạn trong hào quang",
+      "lore1": "Bán kính khối",
+      "lore2": "Sức mạnh hào quang tăng trưởng",
+      "lore3": "Chi phí thực phẩm"
+    },
+    "hippo": {
+      "name": "Hà mã thảo mộc",
+      "description": "Tiêu thụ thực phẩm, mang lại cho bạn nhiều cảm giác no hơn",
+      "lore1": "Thực phẩm) điểm bão hòa bổ sung khi tiêu thụ"
+    },
+    "myconid": {
+      "name": "Myconid của nhà thảo dược",
+      "description": "Cung cấp cho bạn khả năng chế tạo Mycelium",
+      "lore1": "Bất kỳ Bụi bẩn nào và Nấm Nâu & Đỏ đều sẽ tạo ra Sợi nấm."
+    },
+    "terralid": {
+      "name": "Terralid của nhà thảo dược",
+      "description": "Cung cấp cho bạn khả năng chế tạo Khối cỏ",
+      "lore1": "Ba Hạt giống, trên 3 Đất sẽ tạo ra 3 Khối Cỏ."
+    },
+    "cobweb": {
+      "name": "Người tạo Webby",
+      "description": "Cung cấp cho bạn khả năng tạo Mạng nhện trong Bàn chế tạo",
+      "lore1": "Nine String, sẽ tạo ra Mạng nhện."
+    },
+    "mushroomblocks": {
+      "name": "Máy làm nấm",
+      "description": "Cung cấp cho bạn khả năng chế tạo Khối Nấm trong Bàn chế tạo",
+      "lore1": "Bốn Nấm để tạo khối, hoặc một khối để làm thân cây."
+    },
+    "droptoinventory": {
+      "name": "Hoe thả vào kho"
+    },
+    "hungryshield": {
+      "name": "Khiên đói",
+      "description": "Hãy gây sát thương cho cơn đói trước sức khỏe của bạn.",
+      "lore1": "Chống chọi với cơn đói"
+    },
+    "luck": {
+      "name": "May mắn của nhà thảo dược",
+      "description": "Khi phá Cỏ/Hoa, bạn có cơ hội nhận được vật phẩm ngẫu nhiên",
+      "lore0": "Hoa = Thức ăn và Cỏ = Hạt giống",
+      "lore1": "Cơ hội nhận được vật phẩm từ việc phá Hoa",
+      "lore2": "Cơ hội nhận được vật phẩm khi phá Cỏ"
+    },
+    "replant": {
+      "name": "Thu hoạch & trồng lại",
+      "description": "Nhấp chuột phải vào cây trồng bằng cuốc để thu hoạch và trồng lại.",
+      "lore1": "Chặn bán kính trồng lại"
+    }
+  },
+  "hunter": {
+    "adrenaline": {
+      "name": "Adrenalin",
+      "description": "Gây nhiều sát thương hơn khi máu của bạn thấp hơn (Cận chiến)",
+      "lore1": "Sát thương tối đa"
+    },
+    "penalty": {
+      "lore1": "Bạn sẽ nhận được điểm độc nếu hết đói"
+    },
+    "droptoinventory": {
+      "name": "Các mặt hàng thả vào kho",
+      "description": "Khi bạn giết thứ gì đó/Phá vỡ một khối Bằng một thanh kiếm, nó sẽ dịch chuyển những thứ rơi vào kho của bạn",
+      "lore1": "Bất cứ khi nào một vật phẩm bị rơi khỏi mob/khối mà bạn phá vỡ, nó sẽ được đưa vào kho của bạn nếu có thể."
+    },
+    "invisibility": {
+      "name": "Bước biến mất",
+      "description": "Khi bị tấn công, bạn sẽ có được khả năng tàng hình nhưng phải trả giá bằng sự đói khát",
+      "lore1": "Có được khả năng tàng hình thụ động khi bị tấn công",
+      "lore2": "x Cộng dồn tàng hình trong 3 giây khi đánh",
+      "lore3": "x Xếp chồng cơn đói",
+      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
+      "lore5": "Thời gian tàng hình"
+    },
+    "jumpboost": {
+      "name": "Đỉnh cao của thợ săn",
+      "description": "Khi bị tấn công, bạn sẽ có được khả năng tăng tốc, nhưng phải trả giá bằng sự đói khát",
+      "lore1": "Nhận được khả năng tăng tốc thụ động khi bị tấn công",
+      "lore2": "x Cộng dồn Jump-Boost trong 3 giây khi trúng đòn",
+      "lore3": "x Xếp chồng cơn đói",
+      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
+      "lore5": "Hệ số cộng dồn Jump-Boost chứ không phải thời lượng."
+    },
+    "luck": {
+      "name": "Thợ săn may mắn",
+      "description": "Khi bạn bị tấn công, bạn sẽ gặp may mắn nhưng phải trả giá bằng sự đói khát",
+      "lore1": "Đạt được may mắn thụ động khi bị tấn công",
+      "lore2": "x Cộng dồn may mắn trong 3 giây khi trúng đòn",
+      "lore3": "x Xếp chồng cơn đói",
+      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
+      "lore5": "May mắn được nhân lên theo cấp số nhân chứ không phải thời gian."
+    },
+    "regen": {
+      "name": "Thợ săn Regen",
+      "description": "Khi bị tấn công, bạn sẽ được hồi phục nhưng phải trả giá bằng sự đói khát",
+      "lore1": "Nhận được khả năng hồi phục thụ động khi bị tấn công",
+      "lore2": "x Cộng dồn hồi phục trong 3 giây khi trúng đòn",
+      "lore3": "x Xếp chồng cơn đói",
+      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
+      "lore5": "Số lần hồi phục tăng lên, không phải thời gian."
+    },
+    "resistance": {
+      "name": "Sự phản kháng của thợ săn",
+      "description": "Khi bị tấn công, bạn sẽ có được sức đề kháng nhưng phải trả giá bằng sự đói khát",
+      "lore1": "Có được sức đề kháng thụ động khi bị tấn công",
+      "lore2": "x Cộng dồn kháng cự trong 3 giây khi trúng đòn",
+      "lore3": "x Xếp chồng cơn đói",
+      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
+      "lore5": "Hệ số cộng dồn kháng cự chứ không phải thời lượng."
+    },
+    "speed": {
+      "name": "Tốc độ của thợ săn",
+      "description": "Khi bị tấn công, bạn sẽ tăng tốc độ nhưng phải trả giá bằng sự đói khát",
+      "lore1": "Tăng tốc độ thụ động khi bị tấn công",
+      "lore2": "x Cộng dồn tốc độ trong 3 giây khi đánh",
+      "lore3": "x Xếp chồng cơn đói",
+      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
+      "lore5": "Hệ số cộng dồn tốc độ chứ không phải thời lượng."
+    },
+    "strength": {
+      "name": "Sức mạnh của thợ săn",
+      "description": "Khi bị đánh, bạn có được sức mạnh nhưng phải trả giá bằng cơn đói",
+      "lore1": "Có được sức mạnh thụ động khi bị tấn công",
+      "lore2": "x Cộng dồn sức mạnh trong 3 giây khi đánh",
+      "lore3": "x Xếp chồng cơn đói",
+      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
+      "lore5": "Hệ số cộng dồn sức mạnh chứ không phải thời lượng."
+    }
+  },
+  "nether": {
+    "skulltoss": {
+      "name": "Ném hộp sọ khô héo",
+      "description1": "Giải phóng Wither bên trong của bạn bằng cách sử dụng",
+      "description2": "ai đó",
+      "description3": "cái đầu.",
+      "lore1": "Giây hồi chiêu giữa các lần ném đầu lâu.",
+      "lore2": "Sử dụng Wither Skull: Ném một",
+      "lore3": "hộp sọ khô héo",
+      "lore4": "nổ khi va chạm."
+    },
+    "witherresist": {
+      "name": "Kháng héo",
+      "description": "Chống héo nhờ sức mạnh của Netherite.",
+      "lore1": "cơ hội phủ nhận sự héo (mỗi mảnh).",
+      "lore2": "Bị động: Mặc áo giáp Netherite có cơ hội vô hiệu hóa",
+      "lore3": "héo úa."
+    },
+    "fireresist": {
+      "name": "Chống cháy",
+      "description": "Chống cháy bằng cách làm cứng da của bạn.",
+      "lore1": "cơ hội để vô hiệu hóa hiệu ứng đốt cháy!"
+    }
+  },
+  "pickaxe": {
+    "autosmelt": {
+      "name": "nấu chảy tự động",
+      "description": "Cho phép bạn nấu chảy quặng Vanilla đã khai thác",
+      "lore1": "Quặng có thể được nấu chảy sẽ được nấu chảy tự động",
+      "lore2": "% cơ hội nhận thêm"
+    },
+    "chisel": {
+      "name": "đục quặng",
+      "description": "Nhấp chuột phải vào Quặng để Đục nhiều quặng hơn với chi phí độ bền cao.",
+      "lore1": "Cơ hội để thả",
+      "lore2": "Dụng cụ mài mòn"
+    },
+    "droptoinventory": {
+      "name": "Cuốc thả vào kho",
+      "description": "Khi bạn phá vỡ một khối, nó sẽ dịch chuyển vật phẩm đó vào kho của bạn",
+      "lore1": "Bất cứ khi nào một vật phẩm bị rơi khỏi một khối mà bạn phá vỡ, nó sẽ được đưa vào kho của bạn nếu có thể."
+    },
+    "veinminer": {
+      "name": "máy lấy máu",
+      "description": "Cho phép bạn phá vỡ các khối trong Mạch/Cụm quặng Vanilla",
+      "lore1": "Lén lút và khai thác ORES",
+      "lore2": "phạm vi khai thác tĩnh mạch",
+      "lore3": "Kỹ năng này KHÔNG nhóm tất cả các giọt lại với nhau!"
+    }
+  },
+  "ranged": {
+    "arrowrecovery": {
+      "name": "Phục hồi mũi tên",
+      "description": "Thu hồi Mũi tên sau khi bạn đã tiêu diệt kẻ thù.",
+      "lore1": "Cơ hội phục hồi mũi tên khi đánh/tiêu diệt",
+      "lore2": "Cơ hội:"
+    },
+    "webshot": {
+      "name": "Bẫy web",
+      "description": "Bao quanh mạng nhện xung quanh mục tiêu của bạn khi bạn bắn trúng chúng!",
+      "lore1": "8 mạng nhện xung quanh quả cầu tuyết và ném đi!",
+      "lore2": "đại khái là vài giây của một cái lồng."
+    },
+    "forceshot": {
+      "name": "Lực bắn",
+      "description": "Bắn đạn xa hơn, nhanh hơn!",
+      "advancementname": "Cú sút xa",
+      "advancementlore": "Hãy bắn một phát từ khoảng cách hơn 30 khối nhà!",
+      "lore1": "Tốc độ đạn"
+    },
+    "lungeshot": {
+      "name": "Cú sút lunge",
+      "description": "Trong khi rơi mũi tên của bạn ném bạn theo một hướng ngẫu nhiên",
+      "lore1": "Tốc độ bùng nổ ngẫu nhiên"
+    },
+    "arrowpiercing": {
+      "name": "Mũi tên xuyên qua",
+      "description": "Thêm xuyên vào đạn! Bắn xuyên qua mọi thứ!",
+      "lore1": "Đâm mục tiêu"
+    }
+  },
+  "rift": {
+    "remoteaccess": {
+      "name": "Truy cập từ xa",
+      "description": "Kéo từ khoảng trống và vào thùng chứa được đánh dấu.",
+      "lore1": "Enderpearl + La bàn = Khóa cổng thánh tích",
+      "lore2": "Mục này cho phép bạn truy cập container từ xa",
+      "lore3": "Sau khi chế tạo, hãy nhìn vào vật phẩm để xem cách sử dụng",
+      "notcontainer": "Đó không phải là một thùng chứa"
+    },
+    "blink": {
+      "name": "Rạn nứt chớp mắt",
+      "description": "Dịch chuyển tức thời trong phạm vi ngắn, Chỉ trong nháy mắt!",
+      "lore1": "Khối khi nhấp nháy (2x dọc)",
+      "lore2": "Trong khi chạy nước rút: Nhấn đúp Nhảy tới",
+      "lore3": "chớp mắt"
+    },
+    "chest": {
+      "name": "Enderchest dễ dàng",
+      "description": "Mở enderchest bằng cách nhấp chuột trái vào nó trên tay bạn.",
+      "lore1": "Bấm vào Enderchest trên tay bạn để mở (Chỉ cần không đặt nó)"
+    },
+    "descent": {
+      "name": "Chống Bay Lên",
+      "description": "Bạn có mệt mỏi vì bị mắc kẹt trong không khí? Đây chính là kỹ năng dành cho bạn!",
+      "lore1": "Chỉ cần Lẻn đi xuống, bạn sẽ rơi với tốc độ thấp hơn bình thường!",
+      "lore2": "Nguội đi:"
+    },
+    "gate": {
+      "name": "Cổng rạn nứt",
+      "description": "Dịch chuyển đến một địa điểm được đánh dấu.",
+      "lore1": "CHẾ TẠO: Ngọc lục bảo + Mảnh thạch anh tím + Ngọc trai Ender",
+      "lore2": "Đọc trước khi sử dụng!",
+      "lore3": "độ trễ 5 giây,",
+      "lore4": "bạn có thể chết khi ở trong phim hoạt hình này"
+    },
+    "resist": {
+      "name": "Khả năng chống rạn nứt",
+      "description": "Đạt được sức đề kháng khi sử dụng Vật phẩm & Khả năng của Ender",
+      "lore1": "+ Bị động: Cung cấp khả năng kháng cự khi bạn sử dụng khả năng rạn nứt hoặc Vật phẩm Ender",
+      "lore2": "KHÔNG bao gồm Enderchest di động, chỉ những thứ bạn có thể tiêu thụ"
+    }
+  },
+  "seaborn": {
+    "oxygen": {
+      "name": "Bình oxy hữu cơ",
+      "description": "Giữ nhiều oxy hơn trong lá phổi nhỏ bé của bạn!",
+      "lore1": "Tăng công suất oxy"
+    },
+    "fishersfantasy": {
+      "name": "Ảo tưởng của Fisher",
+      "description": "Kiếm thêm XP từ câu cá và nhận được nhiều cá hơn!",
+      "lore1": "Đối với mỗi cấp độ, bạn có cơ hội nhận được nhiều XP và Cá hơn!"
+    },
+    "haste": {
+      "name": "Thợ mỏ rùa",
+      "description": "Trong khi khai thác dưới nước, bạn sẽ nhanh chóng hơn!",
+      "lore1": "Haste 3 được áp dụng dưới nước trong khi khai thác (cộng dồn AquaAffinity) sau khi hiệu ứng thở dưới nước của bạn hết tác dụng!"
+    },
+    "nightvision": {
+      "name": "Tầm nhìn của Rùa",
+      "description": "Khi ở dưới nước, bạn có được Tầm nhìn ban đêm",
+      "lore1": "Chỉ cần có được Tầm nhìn ban đêm khi ở dưới nước sau khi hiệu ứng thở dưới nước của bạn hết tác dụng!"
+    },
+    "dolphingrace": {
+      "name": "Ân điển của cá heo",
+      "description": "Bơi như cá heo mà không có cá heo",
+      "lore1": "+ Bị động: đạt được",
+      "lore2": "x tốc độ (ân sủng cá heo)",
+      "lore3": "kỹ sư chính xác của Đức- chờ đã không đúng... Không tương thích với Depth Strider"
+    }
+  },
+  "stealth": {
+    "ghostarmor": {
+      "name": "Giáp ma",
+      "description": "Tăng giáp chậm khi không nhận sát thương, Kéo dài trong 1 đòn",
+      "lore1": "Giáp tối đa",
+      "lore2": "Tốc độ"
+    },
+    "nightvision": {
+      "name": "Tầm nhìn tàng hình",
+      "description": "Có được tầm nhìn ban đêm khi lén lút",
+      "lore1": "Đạt được một loạt",
+      "lore2": "tầm nhìn ban đêm",
+      "lore3": "trong khi lén lút"
+    },
+    "snatch": {
+      "name": "Cướp vật phẩm",
+      "description": "Snatch Drops vật phẩm ngay lập tức trong khi lén lút!",
+      "lore1": "Bán kính cướp"
+    },
+    "speed": {
+      "name": "Tốc độ lén lút",
+      "description": "Tăng tốc độ trong khi lén lút",
+      "lore1": "Tốc độ lén lút"
+    }
+  },
+  "sword": {
+    "machete": {
+      "name": "dao rựa",
+      "description": "Cắt qua tán lá một cách dễ dàng!",
+      "lore1": "Bán kính chém",
+      "lore2": "Thời gian hồi chiêu của Chặt",
+      "lore3": "Dụng cụ mài mòn"
+    },
+    "bloodyblade": {
+      "name": "Lưỡi dao đẫm máu",
+      "description": "Tấn công bằng kiếm của bạn, gây chảy máu!",
+      "lore1": "Tấn công một thực thể sống bằng Kiếm của bạn sẽ gây Chảy máu",
+      "lore2": "Thời gian chảy máu",
+      "lore3": "Thời gian hồi máu"
+    },
+    "poisonedblade": {
+      "name": "Lưỡi độc",
+      "description": "Tấn công bằng thanh kiếm của bạn, gây ra Ngộ độc!",
+      "lore1": "Tấn công một thực thể sống bằng Kiếm của bạn sẽ gây ra Ngộ độc",
+      "lore2": "Thời gian độc",
+      "lore3": "Thời gian hồi chiêu của chất độc"
+    }
+  },
+  "taming": {
+    "damage": {
+      "name": "Thuần hóa sát thương",
+      "description": "Tăng sát thương gây ra cho động vật đã được thuần hóa của bạn.",
+      "lore1": "Gia tăng thiệt hại"
+    },
+    "health": {
+      "name": "Thuần hóa sức khỏe",
+      "description": "Tăng sức khỏe động vật được thuần hóa của bạn.",
+      "lore1": "Tăng cường sức khỏe"
+    },
+    "regeneration": {
+      "name": "Thuần hóa tái sinh",
+      "description": "Tăng khả năng tái sinh động vật đã được thuần hóa của bạn.",
+      "lore1": "HP/giây"
+    }
+  },
+  "tragoul": {
+    "thorns": {
+      "name": "gai",
+      "description": "Phản ánh thiệt hại trở lại kẻ tấn công của bạn!",
+      "lore1": "Thiệt hại trả đũa khi bị tấn công"
+    },
+    "globe": {
+      "name": "Quả cầu đau đớn",
+      "description": "Chia sát thương bạn gây ra dựa trên số lượng kẻ thù xung quanh bạn!",
+      "lore1": "Càng có nhiều kẻ thù xung quanh bạn, bạn càng gây ra ít sát thương cho chúng hơn",
+      "lore2": "Phạm vi:",
+      "lore3": "Đã thêm sát thương cho tất cả các thực thể:"
+    },
+    "healing": {
+      "name": "Ý chí đau đớn",
+      "description": "Lấy lại sức khỏe dựa trên sát thương bạn gây ra!",
+      "lore1": "Làm hại mọi thứ chưa bao giờ cảm thấy tốt như vậy! Hồi máu từ sát thương gây ra",
+      "lore2": "Có khoảng thời gian sát thương 3 giây, để hồi máu và thời gian hồi chiêu 1 giây",
+      "lore3": "Phần trăm hồi máu trên mỗi sát thương:"
+    },
+    "lance": {
+      "name": "Thương xác",
+      "description": "Giết kẻ thù hoặc có khả năng tiêu diệt kẻ thù, tạo ra một cây thương gây sát thương cho kẻ thù ở gần!",
+      "lore1": "Lances sẽ Tìm kiếm từ bất cứ thứ gì bạn giết VÀ nếu Khả năng này giết chết kẻ thù.",
+      "lore2": "Hy sinh một phần cuộc đời để tạo ra những ngọn thương (điều này có thể giết chết bạn)",
+      "lore3": "Số thương tối đa: 1 +"
+    }
+  },
+  "unarmed": {
+    "glasscannon": {
+      "name": "Pháo thủy tinh",
+      "description": "Sát thương không vũ trang cộng thêm giá trị giáp của bạn càng thấp",
+      "lore1": "x Sát thương ở mức 0 giáp",
+      "lore2": "Thiệt hại thưởng theo cấp độ"
+    },
+    "power": {
+      "name": "Quyền lực không vũ trang",
+      "description": "Cải thiện sát thương không vũ trang",
+      "lore1": "Hư hại"
+    },
+    "suckerpunch": {
+      "name": "Cú đấm",
+      "description": "Những cú đấm nước rút, nhưng nguy hiểm hơn.",
+      "lore1": "Hư hại",
+      "lore2": "Sát thương tăng theo tốc độ của bạn trong khi đấm"
+    }
+  }
+}

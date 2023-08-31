@@ -30,7 +30,7 @@ def specialSourceVersion = '1.11.0' //[NMS]
 def spigotJarVersion = '1.20.1-R0.1-SNAPSHOT' //[NMS]
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
-def manifoldVersion = '2023.1.10'
+def manifoldVersion = '2023.1.11'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
@@ -42,6 +42,7 @@ registerCustomOutputTask('Nowhere', 'E://Desktop/server/plugins')
 // ========================== UNIX ==============================
 registerCustomOutputTaskUnix('CyberpwnLT', '/Users/danielmills/development/server/plugins')
 registerCustomOutputTaskUnix('PsychoLT', '/Users/brianfopiano/Desktop/REMOTES/RemoteMinecraft/plugins')
+registerCustomOutputTaskUnix('the456gamer', '/home/the456gamer/projects/minecraft/adapt-testserver/plugins/update/', false)
 // ==============================================================
 
 /**
@@ -319,7 +320,7 @@ def registerCustomOutputTask(name, path) {
     }
 }
 
-def registerCustomOutputTaskUnix(name, path) {
+def registerCustomOutputTaskUnix(name, path, doRename=true) {
     if (System.properties['os.name'].toLowerCase().contains('windows')) {
         return
     }
@@ -330,8 +331,10 @@ def registerCustomOutputTaskUnix(name, path) {
         dependsOn(adapt)
         from(new File(buildDir, "Adapt-" + version + ".jar"))
         into(file(path))
-        rename { String fileName ->
-            fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
+        if (doRename) {
+            rename { String fileName ->
+                fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
+            }
         }
     }
 }

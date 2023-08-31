@@ -19,10 +19,7 @@
 package com.volmit.adapt.content.adaptation.stealth;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -32,7 +29,13 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
+    private final List<Player> sneaking;
+
+
     public StealthSpeed() {
         super("stealth-speed");
         registerConfiguration(Config.class);
@@ -43,6 +46,8 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         setInterval(2000);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        sneaking = new ArrayList<>();
+
     }
 
     @Override
@@ -65,25 +70,14 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
             return;
         }
 
-
+        sneaking.add(p);
         if (!p.isSneaking()) {
             p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
-            p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 8000, getLevel(p), false, false));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 1000, getLevel(p), false, false));
         } else {
             p.removePotionEffect(PotionEffectType.SPEED);
         }
 
-
-//        AttributeModifier mod = new AttributeModifier("adapt-sneak-speed", getSpeed(factor), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-//        if (e.isSneaking()) {
-//            p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(mod);
-//        } else {
-//            for (AttributeModifier i : p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
-//                if (i.getName().equals("adapt-sneak-speed")) {
-//                    p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(i);
-//                }
-//            }
-//        }
     }
 
     private double getSpeed(double factor) {
@@ -92,7 +86,14 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
 
     @Override
     public void onTick() {
-
+        List<Player> toRemove = new ArrayList<>();
+        for (Player p : sneaking) {
+            if (hasAdaptation(p) && !p.isSneaking()) {
+                toRemove.add(p);
+                J.s(() -> p.removePotionEffect(PotionEffectType.SPEED));
+            }
+        }
+        sneaking.removeAll(toRemove);
     }
 
     @Override
