@@ -84,7 +84,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
                         } catch (InterruptedException ex) {
                             throw new RuntimeException(ex);
                         }
-                        Adapt.verbose("[POST] Current Health: " + tam.getHealth() + " Max Health: " + mh);
+//                        Adapt.verbose("[POST] Current Health: " + tam.getHealth() + " Max Health: " + mh);
 
                     });
 
@@ -112,7 +112,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
     @Override
     public void onTick() {
-        for (UUID i : lastDamage.k()) {
+        for (UUID i : lastDamage.keySet()) {
             if (M.ms() - lastDamage.get(i) > 8000) {
                 lastDamage.remove(i);
             }
