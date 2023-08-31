@@ -55,7 +55,7 @@ public class ResidenceProtector implements Protector {
     }
 
     private boolean checkPerm(Player player, Location location, Flags flag) {
-        AtomicBoolean perm = new AtomicBoolean(false);
+        AtomicBoolean perm = new AtomicBoolean(true);
         J.s(() -> {
             if (!Residence.getInstance().isDisabledWorld(location.getWorld())) {
                 ClaimedResidence res = Residence.getInstance().getResidenceManager().getByLoc(location);
@@ -68,7 +68,7 @@ public class ResidenceProtector implements Protector {
     }
 
     private boolean checkPerm(Player player, Location location, String flag) {
-        AtomicBoolean perm = new AtomicBoolean(false);
+        AtomicBoolean perm = new AtomicBoolean(true);
         J.s(() -> {
             if (!Residence.getInstance().isDisabledWorld(location.getWorld())) {
                 ClaimedResidence res = Residence.getInstance().getResidenceManager().getByLoc(location);
@@ -77,7 +77,7 @@ public class ResidenceProtector implements Protector {
                 }
             }
         });
-        return true;
+        return perm.get();
     }
 
     @Override
