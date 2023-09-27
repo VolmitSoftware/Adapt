@@ -27,6 +27,7 @@ import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -171,13 +172,13 @@ public class PlayerData {
                             .out(2250)
                             .group("lvl")
                             .title("")
-                            .subtitle(C.GOLD + "Level " + level)
+                            .subtitle(C.GOLD + Localizer.dLocalize("snippets", "gui", "level") +" " + level)// I'm sorry I missed this!
                             .build());
             p.getActionBarNotifier().queue(
                     ActionBarNotification.builder()
                             .duration(450)
                             .group("power")
-                            .title(C.GOLD + "" + Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY + " Maximum Ability Power")
+                            .title(C.GOLD + "" + Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY + " " + Localizer.dLocalize("snippets", "gui", "maxabilitypower")) // I'm sorry I missed this!
                             .build());
 
         }
