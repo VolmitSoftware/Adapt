@@ -28,6 +28,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Config> {
     public UnarmedGlassCannon() {
@@ -59,17 +60,25 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
             if (!hasAdaptation(p)) {
                 return;
             }
-            if (isTool(p.getInventory().getItemInMainHand()) && isTool(p.getInventory().getItemInOffHand())) {
+
+            ItemStack mainHandItem = p.getInventory().getItemInMainHand();
+            ItemStack offHandItem = p.getInventory().getItemInOffHand();
+
+            boolean isMainHandEmptyOrShield = mainHandItem.getType() == Material.AIR || mainHandItem.getType() == Material.SHIELD;
+            boolean isOffHandEmptyOrShield = offHandItem.getType() == Material.AIR || offHandItem.getType() == Material.SHIELD;
+
+            if (!isMainHandEmptyOrShield || !isOffHandEmptyOrShield) {
                 return;
             }
+
             double armor = getArmorValue(p);
             double damage = e.getDamage();
+
             if (armor == 0) {
                 e.setDamage(damage * getConfig().maxDamageFactor);
             } else {
                 e.setDamage(damage - (damage * armor));
             }
-
         }
     }
 
