@@ -30,6 +30,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -135,6 +136,9 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
         if (hasAdaptation(p) && !p.isSneaking() && p.getInventory().getItemInMainHand().getType().isBlock()) {
             Block block = p.getTargetBlock(null, 5); // 5 is the range of player
+            if (block instanceof Container) { // return if block is a container
+                return;
+            }
             Material handMaterial = p.getInventory().getItemInMainHand().getType();
             if (handMaterial.isAir()) {
                 return;
@@ -157,6 +161,9 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
         if (hasAdaptation(p) && p.isSneaking() && p.getInventory().getItemInMainHand().getType().isBlock()) {
             Block block = p.getTargetBlock(null, 5); // 5 is the range of player
+            if (block instanceof Container) { // return if block is a container
+                return;
+            }
             Material handMaterial = p.getInventory().getItemInMainHand().getType();
             if (handMaterial.isAir()) {
                 return;
@@ -235,6 +242,9 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                     }
                     Map<Block, BlockFace> blockRender = totalMap.get(p);
                     for (Block b : blockRender.keySet()) { // Get the blocks in that map that bind with a BlockFace
+                        if (b instanceof Container) { // return if block is a container
+                            return;
+                        }
                         BlockFace bf = blockRender.get(b); // Get that blockface
                         Block transposedBlock = b.getRelative(bf);
                         if (getConfig().showParticles) {
