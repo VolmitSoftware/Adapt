@@ -95,21 +95,22 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             if (e.getEntity() instanceof Snowball || e.getEntity() instanceof EntityFishingHook) {
                 return; // Ignore snowballs and fishing hooks
             }
-            if (e.getEntity().getLocation().getWorld().equals(p.getLocation().getWorld())) {
-                getPlayer(p).getData().addStat("ranged.distance", e.getEntity().getLocation().distance(p.getLocation()));
-                getPlayer(p).getData().addStat("ranged.distance." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getEntity().getLocation().distance(p.getLocation()));
-            }
-            getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
-            getPlayer(p).getData().addStat("ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
+                if (e.getEntity().getLocation().getWorld().equals(p.getLocation().getWorld())) {
+                    getPlayer(p).getData().addStat("ranged.distance", e.getEntity().getLocation().distance(p.getLocation()));
+                    getPlayer(p).getData().addStat("ranged.distance." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getEntity().getLocation().distance(p.getLocation()));
                 }
-            }
-            cooldowns.put(p, System.currentTimeMillis());
-            xp(p, e.getEntity().getLocation(), (getConfig().hitDamageXPMultiplier * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * getConfig().hitDistanceXPMultiplier));
+                getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
+                getPlayer(p).getData().addStat("ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
+                if (cooldowns.containsKey(p)) {
+                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
+                        return;
+                    } else {
+                        cooldowns.remove(p);
+                    }
+                }
+                cooldowns.put(p, System.currentTimeMillis());
+                xp(p, e.getEntity().getLocation(), (getConfig().hitDamageXPMultiplier * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * getConfig().hitDistanceXPMultiplier));
+
         });
     }
 

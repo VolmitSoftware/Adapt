@@ -164,31 +164,45 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     protected boolean shouldReturnForPlayer(Player p) {
-        if (p == null) {
+        try {
+            if (p == null) {
+                return true;
+            }
+            Adapt.verbose("Checking " + p.getName() + " for " + getName());
+            return !this.isEnabled() || hasBlacklistPermission(p, this) || isWorldBlacklisted(p) || isInCreativeOrSpectator(p);
+        } catch (Exception ignored) {
             return true;
         }
-        Adapt.verbose("Checking " + p.getName() + " for " + getName());
-        return !this.isEnabled() || hasBlacklistPermission(p, this) || isWorldBlacklisted(p) || isInCreativeOrSpectator(p);
     }
     protected void shouldReturnForPlayer(Player p, Runnable r) {
-        if (shouldReturnForPlayer(p)) {
-            return;
+        try {
+            if (shouldReturnForPlayer(p)) {
+                return;
+            }
+            r.run();
+        } catch (Exception ignored) {
         }
-        r.run();
     }
 
     protected void shouldReturnForPlayer(Player p, Cancellable c, Runnable r) {
-        if (c.isCancelled()) {
-            return;
+        try {
+            if (c.isCancelled()) {
+                return;
+            }
+            if (shouldReturnForPlayer(p)) {
+                return;
+            }
+            r.run();
+        } catch (Exception ignored) {
         }
-        if (shouldReturnForPlayer(p)) {
-            return;
-        }
-        r.run();
     }
 
     protected boolean shouldReturnForWorld(World world, Skill skill) {
-        return !skill.isEnabled() || AdaptConfig.get().blacklistedWorlds.contains(world.getName());
+        try {
+            return !skill.isEnabled() || AdaptConfig.get().blacklistedWorlds.contains(world.getName());
+        } catch (Exception ignored) {
+            return true;
+        }
     }
 
     protected boolean isWorldBlacklisted(Player p) {
