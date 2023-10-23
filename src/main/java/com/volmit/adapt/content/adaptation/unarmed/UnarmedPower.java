@@ -57,7 +57,8 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
             if (!hasAdaptation(p)) {
                 return;
             }
-            if (p.getInventory().getItemInMainHand().getType() != Material.AIR && p.getInventory().getItemInOffHand().getType() != Material.AIR) {
+
+            if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
                 return;
             }
             double factor = getLevelPercent(p);

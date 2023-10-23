@@ -45,6 +45,10 @@ public interface AdaptComponent {
         return isTool(is);
     }
 
+    default boolean isShield(ItemStack is) {
+        return is.getType().equals(Material.SHIELD);
+    }
+
     default boolean isXpBlock(Material material) {
         return material.equals(Material.EXPERIENCE_BOTTLE);
     }

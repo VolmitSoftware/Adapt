@@ -80,7 +80,7 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
                 return;
             }
 
-            if (isTool(p.getInventory().getItemInMainHand())) {
+            if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
                 return;
             }
 
