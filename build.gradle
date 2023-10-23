@@ -30,7 +30,7 @@ def specialSourceVersion = '1.11.0' //[NMS]
 def spigotJarVersion = '1.20.2-R0.1-SNAPSHOT' //[NMS]
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
-def manifoldVersion = '2023.1.15'
+def manifoldVersion = '2023.1.29'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
@@ -101,7 +101,7 @@ compileJava {
  * Configure Adapt for shading
  */
 shadowJar {
-    minimize()
+//    minimize()
     append("plugin.yml")
     relocate 'manifold', 'com.volmit.adapt.util.manifold'
     relocate 'art.arcane', 'com.volmit.adapt.util.arcane'
@@ -161,7 +161,6 @@ dependencies {
     compileOnly 'io.github.mqzn:mCommands-common:1.1.0'
     implementation 'com.google.guava:guava:30.1-jre'
     compileOnly fileTree(dir: 'libs', include: ['*.jar'])
-    implementation fileTree(dir: 'libs', include: ['CrazyAdvancementsAPI.jar'])
 }
 
 if (JavaVersion.current().toString() != "17") {
