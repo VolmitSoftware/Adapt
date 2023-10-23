@@ -59,17 +59,20 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
             if (!hasAdaptation(p)) {
                 return;
             }
-            if (isTool(p.getInventory().getItemInMainHand()) && isTool(p.getInventory().getItemInOffHand())) {
+
+
+            if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
                 return;
             }
+
             double armor = getArmorValue(p);
             double damage = e.getDamage();
+
             if (armor == 0) {
                 e.setDamage(damage * getConfig().maxDamageFactor);
             } else {
                 e.setDamage(damage - (damage * armor));
             }
-
         }
     }
 

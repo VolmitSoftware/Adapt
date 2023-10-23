@@ -20,6 +20,7 @@ package com.volmit.adapt.api.world;
 
 import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.notification.SoundNotification;
@@ -211,7 +212,7 @@ public class AdaptServer extends TickedObject {
             return getPlayer(Bukkit.getPlayer(player)).getData();
         }
 
-        if (Adapt.instance.getSqlManager().useSql()) {
+        if (AdaptConfig.get().isUseSql()) {
             String sqlData = Adapt.instance.getSqlManager().fetchData(player);
             if (sqlData != null) {
                 return new Gson().fromJson(sqlData, PlayerData.class);

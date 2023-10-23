@@ -126,7 +126,7 @@ public class AdaptPlayer extends TickedObject {
         UUID uuid = player.getUniqueId();
         String data = new Gson().toJson(this.data);
 
-        if (Adapt.instance.getSqlManager().useSql()) {
+        if (AdaptConfig.get().isUseSql()) {
             Adapt.instance.getSqlManager().updateData(uuid, data);
         } else {
             IO.writeAll(getPlayerDataFile(uuid), new JSONObject(data).toString(4));
@@ -139,7 +139,7 @@ public class AdaptPlayer extends TickedObject {
         String data = new Gson().toJson(new PlayerData());
         unregister();
 
-        if (Adapt.instance.getSqlManager().useSql()) {
+        if (AdaptConfig.get().isUseSql()) {
             Adapt.instance.getSqlManager().updateData(uuid, data);
         } else {
             IO.writeAll(getPlayerDataFile(uuid), new JSONObject(data).toString(4));
@@ -173,7 +173,7 @@ public class AdaptPlayer extends TickedObject {
                 local.delete();
                 unSave();
             }
-            if (Adapt.instance.getSqlManager().useSql()) {
+            if (AdaptConfig.get().isUseSql()) {
                 Adapt.instance.getSqlManager().delete(uuid);
             }
         });
@@ -181,7 +181,7 @@ public class AdaptPlayer extends TickedObject {
 
     private PlayerData loadPlayerData() {
         boolean upload = false;
-        if (Adapt.instance.getSqlManager().useSql()) {
+        if (AdaptConfig.get().isUseSql()) {
             String sqlData = Adapt.instance.getSqlManager().fetchData(player.getUniqueId());
             if (sqlData != null) {
                 return new Gson().fromJson(sqlData, PlayerData.class);

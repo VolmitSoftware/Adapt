@@ -20,10 +20,10 @@ package com.volmit.adapt.api.notification;
 
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.RNG;
-import com.volmit.adapt.util.advancements.NameKey;
-import com.volmit.adapt.util.advancements.advancement.Advancement;
-import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
-import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
+import com.volmit.adapt.nms.advancements.NameKey;
+import com.volmit.adapt.nms.advancements.advancement.Advancement;
+import com.volmit.adapt.nms.advancements.advancement.AdvancementDisplay;
+import com.volmit.adapt.nms.advancements.advancement.AdvancementVisibility;
 import lombok.Builder;
 import lombok.Data;
 import org.bukkit.Material;
