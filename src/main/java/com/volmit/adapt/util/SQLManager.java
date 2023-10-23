@@ -20,28 +20,25 @@ public class SQLManager {
     private Connection connection;
 
     public void establishConnection() {
-        if (connection != null) {
-            closeConnection();
-        }
-
         AdaptConfig config = AdaptConfig.get();
         try {
             connection = DriverManager.getConnection(assembleUrl(config), config.getSql().getUsername(), config.getSql().getPassword());
             if (!connection.isValid(30)) {
-                throw new SQLException("Connection timed out");
+                Adapt.error("Timeout while trying to establish a connection to the SQL server!");
+                connection.close();
+                connection = null;
             } else {
-                setupDatabase();
+                Adapt.info(String.format("Connected to SQL Database \"%s\" at %s:%d.", config.getSql().getDatabase(), config.getSql().getHost(), config.getSql().getPort()));
+                if (!connection.getMetaData().getTables(null, null, TABLE_NAME, new String[]{"TABLE"}).next()) {
+                    Adapt.info("\tAdapt Table does not exist, creating...");
+                    connection.createStatement().executeUpdate(CREATE_TABLE_QUERY);
+                    Adapt.info("\tCreated Table \"" + TABLE_NAME + "\" on database " + config.getSql().getDatabase() + ".");
+                }
             }
         } catch (SQLException e) {
-            handleSQLException("Failed to establish a connection to the SQL server!", e);
+            Adapt.error("Failed to establish a connection to the SQL server!");
+            Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
             connection = null;
-        }
-    }
-
-    private void setupDatabase() throws SQLException {
-        AdaptConfig config = AdaptConfig.get();
-        if (!connection.getMetaData().getTables(null, null, TABLE_NAME, new String[]{"TABLE"}).next()) {
-            connection.createStatement().executeUpdate(CREATE_TABLE_QUERY);
         }
     }
 
@@ -50,58 +47,52 @@ public class SQLManager {
             try {
                 connection.close();
             } catch (SQLException e) {
-                handleSQLException("Failed to close the connection to the SQL server!", e);
+                Adapt.error("Failed to close the connection to the SQL server!");
+                Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
             }
-            connection = null;
         }
     }
 
     public void updateData(UUID uuid, String data) {
-        executeWithRetry(() -> connection.createStatement().executeUpdate(String.format(UPDATE_QUERY, uuid.toString(), data, data)), "Failed to write data to the SQL server!");
+        J.a(() -> {
+            try {
+                connection.createStatement().executeUpdate(String.format(UPDATE_QUERY, uuid.toString(), data, data));
+            } catch (SQLException e) {
+                Adapt.error("Failed to write data to the SQL server!");
+                Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
+            }
+        });
     }
 
     public void delete(UUID uuid) {
-        executeWithRetry(() -> connection.createStatement().executeUpdate(String.format(DELETE_QUERY, uuid.toString())), "Failed to delete data from the SQL server!");
+        J.a(() -> {
+            try {
+                connection.createStatement().executeUpdate(String.format(DELETE_QUERY, uuid.toString()));
+            } catch (SQLException e) {
+                Adapt.error("Failed to delete data from the SQL server!");
+                Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
+            }
+        });
     }
 
     public String fetchData(UUID uuid) {
         try {
-            checkAndReestablishConnection();
             ResultSet set = connection.prepareStatement(String.format(FETCH_QUERY, uuid.toString())).executeQuery();
-            if (!set.next()) return null;
+            if (!set.next())
+                return null;
             return set.getString("DATA");
         } catch (SQLException e) {
-            handleSQLException("Failed to read data from the SQL server!", e);
+            Adapt.error("Failed to read data from the SQL server!");
+            Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
             return null;
         }
     }
 
-    private void executeWithRetry(RunnableWithException action, String errorMessage) {
-        try {
-            checkAndReestablishConnection();
-            action.run();
-        } catch (SQLException e) {
-            handleSQLException(errorMessage, e);
-        }
-    }
-
-    private void checkAndReestablishConnection() throws SQLException {
-        if (connection == null || !connection.isValid(AdaptConfig.get().getSqlSecondsCheckverify())) { // 30 sec by default
-            establishConnection();
-        }
-    }
-
-    private void handleSQLException(String message, SQLException e) {
-        Adapt.error(message);
-        Adapt.error("\t" + e.getClass().getSimpleName() + (e.getMessage() != null ? ": " + e.getMessage() : ""));
+    public boolean useSql() {
+        return AdaptConfig.get().isUseSql() && connection != null;
     }
 
     private String assembleUrl(AdaptConfig config) {
         return String.format("jdbc:mysql://%s:%d/%s", config.getSql().getHost(), config.getSql().getPort(), config.getSql().getDatabase());
-    }
-
-    @FunctionalInterface
-    interface RunnableWithException {
-        void run() throws SQLException;
     }
 }

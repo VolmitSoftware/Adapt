@@ -64,7 +64,6 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
         if (p.hasCooldown(hand.getType())) {
             e.setCancelled(true);
         } else {
-            NMS.get().sendCooldown(p, Material.ENDER_CHEST, 100);
             p.setCooldown(Material.ENDER_CHEST, 100);
 
             if ((e.getAction() == Action.RIGHT_CLICK_AIR) || (e.getAction() == Action.LEFT_CLICK_AIR) || (e.getAction() == Action.LEFT_CLICK_BLOCK)) {

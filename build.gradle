@@ -92,10 +92,6 @@ compileJava {
 /**
  * Configure Adapt for shading
  */
-
-/**
- * Configure Adapt for shading
- */
 shadowJar {
     minimize()
     append("plugin.yml")

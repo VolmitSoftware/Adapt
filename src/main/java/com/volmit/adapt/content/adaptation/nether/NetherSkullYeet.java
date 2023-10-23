@@ -109,7 +109,6 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
             p.playSound(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
             return;
         } else {
-            NMS.get().sendCooldown(p, Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
             p.setCooldown(Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
         }
 

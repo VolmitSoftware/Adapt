@@ -34,8 +34,4 @@ public class NMS_Default implements NMS.Impl {
         return null;
     }
 
-    @Override
-    public void sendCooldown(Player p, Material m, int tick) {
-
-    }
 }

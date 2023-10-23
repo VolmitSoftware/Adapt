@@ -21,8 +21,6 @@ package com.volmit.adapt.nms;
 import com.google.common.collect.ImmutableMap;
 import com.volmit.adapt.Adapt;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
@@ -61,6 +59,5 @@ public final class NMS {
 
         ItemStack deserializeStack(String s);
 
-        void sendCooldown(Player p, Material m, int tick);
     }
 }

@@ -32,7 +32,7 @@ public final class CommandPSP {
     @Default
     public void execute(CommandSender sender) {
         StringBuilder builder = new StringBuilder();
-        Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> builder.append("adapt.blacklist." + skill.getName().replaceAll("-", "") + "\n"));
+        Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> builder.append("adapt.blacklist.").append(skill.getName().replaceAll("-", "")).append("\n"));
         Adapt.info("Permissions: \n" + builder);
         FConst.success("Permissions have been printed to console.").send(sender);
     }
