@@ -23,9 +23,9 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.advancements.NameKey;
-import com.volmit.adapt.util.advancements.advancement.Advancement;
-import com.volmit.adapt.util.advancements.manager.AdvancementManager;
+import eu.endercentral.crazy_advancements.NameKey;
+import eu.endercentral.crazy_advancements.advancement.Advancement;
+import eu.endercentral.crazy_advancements.manager.AdvancementManager;
 import lombok.Data;
 
 import java.util.HashMap;

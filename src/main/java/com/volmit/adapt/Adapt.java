@@ -74,6 +74,7 @@ public class Adapt extends VolmitPlugin {
     private Ticker ticker;
     @Getter
     private AdaptServer adaptServer;
+    @Getter
     private FolderWatcher configWatcher;
     @Getter
     private SQLManager sqlManager;
