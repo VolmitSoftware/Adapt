@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -64,90 +63,51 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
         }
 
         ItemStack hand = p.getInventory().getItemInMainHand();
-        switch (hand.getType()) {
-            case CRAFTING_TABLE -> {
-                if (p.hasCooldown(hand.getType())) {
-                    e.setCancelled(true);
-                    return;
-                } else {
-                    NMS.get().sendCooldown(p, hand.getType(), 1000);
+
+        if (p.hasCooldown(hand.getType())) {
+            e.setCancelled(true);
+            return;
+        }
+
+        if ((e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
+
+            switch (hand.getType()) {
+                case CRAFTING_TABLE -> {
                     p.setCooldown(hand.getType(), 1000);
-                }
-                if ((e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
                     p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
                     p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     p.openWorkbench(null, true);
                 }
-            }
-            case GRINDSTONE -> {
-                if (p.hasCooldown(hand.getType())) {
-                    e.setCancelled(true);
-                    return;
-                } else {
-                    NMS.get().sendCooldown(p, hand.getType(), 1000);
+                case GRINDSTONE -> {
                     p.setCooldown(hand.getType(), 1000);
-                }
-                if ((e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
                     p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
                     p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.GRINDSTONE);
                     p.openInventory(inv);
                 }
-            }
-            case ANVIL -> {
-                if (p.hasCooldown(hand.getType())) {
-                    e.setCancelled(true);
-                    return;
-                } else {
-                    NMS.get().sendCooldown(p, hand.getType(), 1000);
+                case ANVIL -> {
                     p.setCooldown(hand.getType(), 1000);
-                }
-                if ((e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
                     p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
                     p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.ANVIL);
                     p.openInventory(inv);
                 }
-            }
-            case STONECUTTER -> {
-                if (p.hasCooldown(hand.getType())) {
-                    e.setCancelled(true);
-                    return;
-                } else {
-                    NMS.get().sendCooldown(p, hand.getType(), 1000);
+                case STONECUTTER -> {
                     p.setCooldown(hand.getType(), 1000);
-                }
-                if ((e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
                     p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
                     p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.STONECUTTER);
                     p.openInventory(inv);
                 }
-            }
-            case CARTOGRAPHY_TABLE -> {
-                if (p.hasCooldown(hand.getType())) {
-                    e.setCancelled(true);
-                    return;
-                } else {
-                    NMS.get().sendCooldown(p, hand.getType(), 1000);
+                case CARTOGRAPHY_TABLE -> {
                     p.setCooldown(hand.getType(), 1000);
-                }
-                if ((e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
                     p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
                     p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.CARTOGRAPHY);
                     p.openInventory(inv);
                 }
-            }
-            case LOOM -> {
-                if (p.hasCooldown(hand.getType())) {
-                    e.setCancelled(true);
-                    return;
-                } else {
-                    NMS.get().sendCooldown(p, hand.getType(), 1000);
+                case LOOM -> {
                     p.setCooldown(hand.getType(), 1000);
-                }
-                if ((e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
                     p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
                     p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.LOOM);
