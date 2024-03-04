@@ -54,4 +54,9 @@ public class AdaptEvent extends Event implements Cancellable {
     public HandlerList getHandlers() {
         return handlers;
     }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
 }
