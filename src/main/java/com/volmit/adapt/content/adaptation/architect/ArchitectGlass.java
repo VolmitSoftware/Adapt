@@ -27,8 +27,6 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.ItemFrame;
-import org.bukkit.entity.Painting;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -64,12 +62,6 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
         Player p = e.getPlayer();
         if (hasAdaptation(p) && (p.getInventory().getItemInMainHand().getType() == Material.AIR || !isTool(p.getInventory().getItemInMainHand())) && !e.isCancelled()) {
             if (!canBlockBreak(p, e.getBlock().getLocation())) {
-                return;
-            }
-            boolean hasItemFrameOrPainting = e.getBlock().getWorld().getEntities().stream().anyMatch(entity ->
-                    (entity instanceof ItemFrame || entity instanceof Painting) && entity.getLocation().getBlock().equals(e.getBlock())
-            );
-            if (hasItemFrameOrPainting) {
                 return;
             }
             if (e.getBlock().getType().toString().contains("GLASS") && !e.getBlock().getType().toString().contains("TINTED_GLASS")) {
