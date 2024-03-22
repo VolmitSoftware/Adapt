@@ -72,7 +72,9 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
             BlockData b = e.getClickedBlock().getBlockData();
             if (isLog(new ItemStack(b.getMaterial()))) {
                 e.setCancelled(true);
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
+                for (Player players : p.getWorld().getPlayers()) {
+                    players.playSound(p.getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
+                }
                 for (int i = 0; i < getLevel(p); i++) {
                     if (breakStuff(e.getClickedBlock(), getRange(getLevel(p)), p)) {
                         p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
@@ -116,7 +118,9 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         }
 
         Block ll = last;
-        b.getWorld().playSound(ll.getLocation(), Sound.ITEM_AXE_STRIP, 0.75f, 1.3f);
+        for (Player players : b.getWorld().getPlayers()) {
+            players.playSound(ll.getLocation(), Sound.ITEM_AXE_STRIP, 0.75f, 1.3f);
+        }
 
         player.breakBlock(ll);
         return true;

@@ -30,6 +30,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.BrewEvent;
@@ -190,7 +191,9 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
         b.update();
 
         if (M.r(1D / (333D / getInterval()))) {
-            b.getBlock().getWorld().playSound(b.getBlock().getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1f + RNG.r.f(0.3f, 0.6f));
+            for (Player players : b.getWorld().getPlayers()) {
+                players.playSound(b.getBlock().getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1f + RNG.r.f(0.3f, 0.6f));
+            }
         }
     }
 

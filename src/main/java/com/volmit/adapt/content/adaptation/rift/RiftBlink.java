@@ -101,7 +101,9 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                     loc.add(0, 1, 0);
                 }
                 if (!isSafe(loc)) {
-                    p.getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
+                    for (Player players : p.getWorld().getPlayers()) {
+                        players.playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
+                    }
                     lastJump.put(p, M.ms());
                     return;
                 }
@@ -119,7 +121,9 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                     J.s(() -> p.setVelocity(v.multiply(3)), 2);
                 });
                 lastJump.put(p, M.ms());
-                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.50f, 1.0f);
+                for (Player players : p.getWorld().getPlayers()) {
+                    players.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.50f, 1.0f);
+                }
                 vfxLevelUp(p);
             }
         }

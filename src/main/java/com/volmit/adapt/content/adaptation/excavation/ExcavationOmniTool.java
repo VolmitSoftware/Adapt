@@ -118,7 +118,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 return;
             }
             J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
-            p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+            for (Player players : p.getWorld().getPlayers()) {
+                players.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+            }
             if (inHand != null && inHand.hasDamage()) {
                 if ((hand.getType().getMaxDurability() - inHand.getDamage() - 2) <= 2) {
                     e.setCancelled(true);
@@ -169,10 +171,14 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                     if (ItemListings.farmable.contains(block.getType())) {
                         if (isShovel(hand)) {
                             J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextHoe(hand)));
-                            p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                            for (Player players : p.getWorld().getPlayers()) {
+                                players.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                            }
                         } else {
                             J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextShovel(hand)));
-                            p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                            for (Player players : p.getWorld().getPlayers()) {
+                                players.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                            }
                         }
                         if (imHand != null && imHand.hasDamage()) {
                             if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
@@ -182,7 +188,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                         }
                     } else if (ItemListings.burnable.contains(block.getType())) {
                         J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextFnS(hand)));
-                        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                        for (Player players : p.getWorld().getPlayers()) {
+                            players.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                        }
                         if (imHand != null && imHand.hasDamage()) {
                             if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
                                 e.setCancelled(true);
@@ -310,7 +318,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                     e.setCancelled(true);
                     e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
                     e.getClickedInventory().setItem(e.getSlot(), omniTool.build(cursor, clicked));
-                    e.getWhoClicked().getWorld().playSound(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                    for (Player players : e.getWhoClicked().getWorld().getPlayers()) {
+                       players.playSound(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                    }
                 }
             }
         }
@@ -319,7 +329,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     private void itemDelegate(BlockDamageEvent e, ItemStack hand, Damageable imHand) {
         Player p = e.getPlayer();
-        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+        for (Player players : p.getWorld().getPlayers()) {
+            players.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+        }
         if (imHand != null && imHand.hasDamage()) {
             if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
                 e.setCancelled(true);

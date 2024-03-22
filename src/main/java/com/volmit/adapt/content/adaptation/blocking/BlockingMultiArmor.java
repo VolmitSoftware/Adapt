@@ -106,8 +106,10 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                 }
                 J.s(() -> p.getInventory().setChestplate(multiarmor.nextChestplate(chest)));
                 cooldowns.put(p, System.currentTimeMillis());
-                p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
-                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 0.5f, 0.77f);
+                for (Player players : p.getWorld().getPlayers()) {
+                    players.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                    players.playSound(p.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 0.5f, 0.77f);
+                }
 
             } else if (p.getFallDistance() > 4) {
                 if (isElytra(chest)) {
@@ -115,8 +117,10 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                 }
                 J.s(() -> p.getInventory().setChestplate(multiarmor.nextElytra(chest)));
                 cooldowns.put(p, System.currentTimeMillis());
-                p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
-                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.5f, 0.77f);
+                for (Player players : p.getWorld().getPlayers()) {
+                    players.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                    players.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.5f, 0.77f);
+                }
             }
         }
     }
@@ -194,7 +198,9 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                         e.setCancelled(true);
                         e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
                         e.getClickedInventory().setItem(e.getSlot(), multiarmor.build(cursor, clicked));
-                        e.getWhoClicked().getWorld().playSound(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                        for (Player players : e.getWhoClicked().getWorld().getPlayers()) {
+                            players.playSound(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                        }
                     }
                 }
             }

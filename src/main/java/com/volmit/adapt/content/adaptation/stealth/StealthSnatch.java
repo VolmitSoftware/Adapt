@@ -102,7 +102,9 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
                     if (Inventories.hasSpace(player.getInventory(), is)) {
                         holds.add(droppedItemEntity.getEntityId());
-                        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (Math.random() / 3)));
+                        for (Player players : player.getWorld().getPlayers()) {
+                            players.playSound(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (Math.random() / 3)));
+                        }
                         safeGiveItem(player, droppedItemEntity, is);
                         sendCollected(player, droppedItemEntity);
                         int id = droppedItemEntity.getEntityId();

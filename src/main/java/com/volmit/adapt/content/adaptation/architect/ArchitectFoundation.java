@@ -211,7 +211,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             block.setBlockData(BLOCK);
             activeBlocks.add(block);
         });
-        block.getWorld().playSound(block.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.0f, 1.0f);
+        for (Player players : block.getWorld().getPlayers()) {
+            players.playSound(block.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.0f, 1.0f);
+        }
         if (getConfig().showParticles) {
 
             vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
@@ -230,7 +232,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             block.setBlockData(AIR);
             activeBlocks.remove(block);
         });
-        block.getWorld().playSound(block.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
+        for (Player players : block.getWorld().getPlayers()) {
+            players.playSound(block.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
+        }
         if (getConfig().showParticles) {
             vfxCuboidOutline(block, Particle.ENCHANTMENT_TABLE);
         }
@@ -255,8 +259,10 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
                         return 0;
                     }
 
-                    i.getWorld().playSound(i.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 10.0f);
-                    i.getWorld().playSound(i.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 0.81f);
+                    for (Player players : i.getWorld().getPlayers()) {
+                        players.playSound(i.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 10.0f);
+                        players.playSound(i.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 0.81f);
+                    }
                     return availablePower;
                 }
                 return v;

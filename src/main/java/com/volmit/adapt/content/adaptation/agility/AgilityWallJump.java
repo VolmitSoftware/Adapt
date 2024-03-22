@@ -131,15 +131,19 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
                 if (!jumped && !p.hasGravity()) {
                     p.setGravity(true);
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.439f);
+                    for (Player players : p.getWorld().getPlayers()) {
+                        players.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.439f);
+                    }
                 }
                 continue;
             }
 
             if (canStick(p)) {
                 if (p.hasGravity()) {
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
+                    for (Player players : p.getWorld().getPlayers()) {
+                        players.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
+                        players.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
+                    }
                     if (getConfig().showParticles && getStick(p) != null) {
                         p.getWorld().spawnParticle(Particle.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.2, 0.1, 0.1, getStick(p).getBlockData());
                     }

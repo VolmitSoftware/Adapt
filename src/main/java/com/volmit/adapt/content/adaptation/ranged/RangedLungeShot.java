@@ -72,8 +72,10 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
                     if (!p.isOnGround()) {
                         Vector velocity = p.getPlayer().getLocation().getDirection().normalize().multiply(getSpeed(getLevelPercent(p)));
                         p.setVelocity(p.getVelocity().subtract(velocity));
-                        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_TURTLE, 1f, 0.75f);
-                        p.getWorld().playSound(p.getLocation(), Sound.ITEM_CROSSBOW_SHOOT, 1f, 1.95f);
+                        for (Player players : p.getWorld().getPlayers()) {
+                            players.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_TURTLE, 1f, 0.75f);
+                            players.playSound(p.getLocation(), Sound.ITEM_CROSSBOW_SHOOT, 1f, 1.95f);
+                        }
 
                         for (int i = 0; i < 9; i++) {
                             Vector v = velocity.clone().add(Vector.getRandom().subtract(Vector.getRandom()).multiply(0.3)).normalize();
