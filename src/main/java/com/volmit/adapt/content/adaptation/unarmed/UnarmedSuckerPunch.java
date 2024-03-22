@@ -85,8 +85,10 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
             }
 
             e.setDamage(e.getDamage() * getDamage(factor));
-            e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.8f);
-            e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.BLOCK_BASALT_BREAK, 1f, 0.6f);
+            for (Player players : e.getEntity().getWorld().getPlayers()) {
+                players.playSound(e.getEntity().getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.8f);
+                players.playSound(e.getEntity().getLocation(), Sound.BLOCK_BASALT_BREAK, 1f, 0.6f);
+            }
             getSkill().xp(p, 6.221 * e.getDamage());
             if (e.getDamage() > 5) {
                 getSkill().xp(p, 0.42 * e.getDamage());

@@ -799,7 +799,9 @@ public interface Component {
 
         if (dm.getDamage() > is.getType().getMaxDurability()) {
             p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
+            for (Player players : p.getWorld().getPlayers()) {
+                players.playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
+            }
             return;
         }
 
@@ -824,7 +826,9 @@ public interface Component {
 
         if (dm.getDamage() > is.getType().getMaxDurability()) {
             p.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
-            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
+            for (Player players : p.getWorld().getPlayers()) {
+                players.playSound(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
+            }
             return;
         }
 

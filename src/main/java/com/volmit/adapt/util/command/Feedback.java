@@ -6,7 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import lombok.experimental.Accessors;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -29,8 +32,11 @@ public class Feedback {
         }
 
         for (TextComponent i : messages) {
-            String prefix =  C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]:" ;
-            Adapt.audiences.sender(serverOrPlayer).sendMessage(i.content(prefix + " " + i.content()));
+            //TODO: we should replace all legacy message to MiniMessage format
+            //Suggestion: configurable prefix
+            Component prefix = MiniMessage.miniMessage().deserialize("<gray>[<dark_red>Adapt</dark_red>]:</gray> ");
+            //String prefix =  C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]:" ;
+            Adapt.audiences.sender(serverOrPlayer).sendMessage(prefix.append(i));
         }
     }
 }

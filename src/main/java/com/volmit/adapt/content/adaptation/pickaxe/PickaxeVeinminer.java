@@ -122,7 +122,9 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                         b.setType(Material.AIR);
                     } else {
                         b.breakNaturally(p.getItemInUse());
-                        e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
+                        for (Player players : e.getBlock().getWorld().getPlayers()) {
+                            players.playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
+                        }
                         if (getConfig().showParticles) {
 
                             e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);

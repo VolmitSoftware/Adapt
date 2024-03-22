@@ -147,8 +147,10 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
         if (offering != null) {
             itemEntity.setItemStack(offering);
-            player.getWorld().playSound(itemEntity.getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
-            player.getWorld().playSound(itemEntity.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
+            for (Player players : player.getWorld().getPlayers()) {
+                players.playSound(itemEntity.getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
+                players.playSound(itemEntity.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
+            }
             getSkill().xp(player, getValue(offering));
 
             // Damage the shears
@@ -161,7 +163,9 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
                 mainHandItem.setItemMeta(damageable);
             }
         } else {
-            player.getWorld().playSound(itemEntity.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1F, 1f); // Burnt torch sound
+            for (Player players : player.getWorld().getPlayers()) {
+                players.playSound(itemEntity.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1F, 1f); // Burnt torch sound
+            }
         }
     }
 

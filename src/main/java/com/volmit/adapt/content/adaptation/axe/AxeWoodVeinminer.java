@@ -126,7 +126,9 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                             blocks.setType(Material.AIR);
                         } else {
                             blocks.breakNaturally(p.getItemInUse());
-                            blocks.getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
+                            for (Player players : blocks.getWorld().getPlayers()) {
+                                players.playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
+                            }
                             if (getConfig().showParticles) {
                                 blocks.getWorld().spawnParticle(Particle.ASH, blocks.getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
                             }

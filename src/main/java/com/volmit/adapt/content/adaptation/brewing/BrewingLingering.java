@@ -29,6 +29,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.BrewingStand;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.BrewEvent;
@@ -98,8 +99,10 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
                     if (ef) {
                         ((BrewingStand) e.getBlock().getState()).getInventory().setStorageContents(c);
-                        e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 0.75f);
-                        e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 1.75f);
+                        for (Player players : e.getBlock().getWorld().getPlayers()) {
+                            players.playSound(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 0.75f);
+                            players.playSound(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 1.75f);
+                        }
                     }
                 });
             } else {

@@ -1,7 +1,6 @@
 package com.volmit.adapt.nms.advancements.advancement.progress;
 
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 import com.google.common.collect.Iterables;
@@ -30,7 +29,13 @@ public class AdvancementProgress {
 	 */
 	@Deprecated(forRemoval = true, since = "2.1.15")
 	public AdvancementProgress(Map<String, Criterion<?>> criteria, String[][] requirements) {
-		nmsProgress.a(new AdvancementRequirements(requirements));
+		List<List<String>> requirementsList = new ArrayList<>();
+
+		for(String[] outer : requirements) {
+			requirementsList.add(Arrays.asList(outer));
+		}
+
+		nmsProgress.a(new AdvancementRequirements(requirementsList));
 	}
 	
 	/**
@@ -40,7 +45,13 @@ public class AdvancementProgress {
 	 * @param requirements The Requirements
 	 */
 	public AdvancementProgress(String[][] requirements) {
-		nmsProgress.a(new AdvancementRequirements(requirements));
+		List<List<String>> requirementsList = new ArrayList<>();
+
+		for(String[] outer : requirements) {
+			requirementsList.add(Arrays.asList(outer));
+		}
+
+		nmsProgress.a(new AdvancementRequirements(requirementsList));
 	}
 	
 	/**

@@ -29,10 +29,10 @@ import java.util.logging.Logger;
 /**
  * A Spigot util to easily make entities glow.
  * <p>
- * <b>1.17 -> 1.20.2</b>
+ * <b>1.17 -> 1.20.4</b>
  *
- * @version 1.3.1
  * @author SkytAsul
+ * @version 1.3.1
  */
 public class GlowingEntities implements Listener {
 
@@ -109,7 +109,7 @@ public class GlowingEntities implements Listener {
     /**
      * Make the {@link Entity} passed as a parameter glow with its default team color.
      *
-     * @param entity entity to make glow
+     * @param entity   entity to make glow
      * @param receiver player which will see the entity glowing
      * @throws ReflectiveOperationException
      */
@@ -120,9 +120,9 @@ public class GlowingEntities implements Listener {
     /**
      * Make the {@link Entity} passed as a parameter glow with the specified color.
      *
-     * @param entity entity to make glow
+     * @param entity   entity to make glow
      * @param receiver player which will see the entity glowing
-     * @param color color of the glowing effect
+     * @param color    color of the glowing effect
      * @throws ReflectiveOperationException
      */
     public void setGlowing(Entity entity, Player receiver, ChatColor color) throws ReflectiveOperationException {
@@ -134,7 +134,7 @@ public class GlowingEntities implements Listener {
      * Make the entity with specified entity ID glow with its default team color.
      *
      * @param entityID entity id of the entity to make glow
-     * @param teamID internal string used to add the entity to a team
+     * @param teamID   internal string used to add the entity to a team
      * @param receiver player which will see the entity glowing
      * @throws ReflectiveOperationException
      */
@@ -146,9 +146,9 @@ public class GlowingEntities implements Listener {
      * Make the entity with specified entity ID glow with the specified color.
      *
      * @param entityID entity id of the entity to make glow
-     * @param teamID internal string used to add the entity to a team
+     * @param teamID   internal string used to add the entity to a team
      * @param receiver player which will see the entity glowing
-     * @param color color of the glowing effect
+     * @param color    color of the glowing effect
      * @throws ReflectiveOperationException
      */
     public void setGlowing(int entityID, String teamID, Player receiver, ChatColor color)
@@ -159,12 +159,12 @@ public class GlowingEntities implements Listener {
     /**
      * Make the entity with specified entity ID glow with the specified color, and keep some flags.
      *
-     * @param entityID entity id of the entity to make glow
-     * @param teamID internal string used to add the entity to a team
-     * @param receiver player which will see the entity glowing
-     * @param color color of the glowing effect
+     * @param entityID   entity id of the entity to make glow
+     * @param teamID     internal string used to add the entity to a team
+     * @param receiver   player which will see the entity glowing
+     * @param color      color of the glowing effect
      * @param otherFlags internal flags that must be kept (on fire, crouching...). See
-     *        <a href="https://wiki.vg/Entity_metadata#Entity">wiki.vg</a> for more informations.
+     *                   <a href="https://wiki.vg/Entity_metadata#Entity">wiki.vg</a> for more informations.
      * @throws ReflectiveOperationException
      */
     public void setGlowing(int entityID, String teamID, Player receiver, ChatColor color, byte otherFlags)
@@ -210,7 +210,7 @@ public class GlowingEntities implements Listener {
      * <p>
      * This has <b>no effect</b> on glowing status given by another plugin or vanilla behavior.
      *
-     * @param entity entity to remove glowing effect from
+     * @param entity   entity to remove glowing effect from
      * @param receiver player which will no longer see the glowing effect
      * @throws ReflectiveOperationException
      */
@@ -376,8 +376,7 @@ public class GlowingEntities implements Listener {
                 mappings = ProtocolMappings.getMappings(version, versionMinor);
                 if (mappings == null) {
                     mappings = ProtocolMappings.values()[ProtocolMappings.values().length - 1];
-                    logger.warning("Loaded not matching version of the mappings for your server version (1." + version + "."
-                            + versionMinor + ")");
+                    logger.warning("Loaded not matching version of the mappings for your server version");
                 }
                 logger.info("Loaded mappings " + mappings.name());
 
@@ -626,7 +625,7 @@ public class GlowingEntities implements Listener {
                     packets[i] = packetRemove.newInstance(entitiesId[i]);
                 }
             } else {
-                packets = new Object[] {packetRemove.newInstance(entitiesId)};
+                packets = new Object[]{packetRemove.newInstance(entitiesId)};
             }
 
             sendPackets(player, packets);
@@ -724,7 +723,7 @@ public class GlowingEntities implements Listener {
                 @SuppressWarnings("rawtypes")
                 private void handlePacketBundle(Object bundle) throws ReflectiveOperationException {
                     Iterable subPackets = (Iterable) packetBundlePackets.invoke(bundle);
-                    for (Iterator iterator = subPackets.iterator(); iterator.hasNext();) {
+                    for (Iterator iterator = subPackets.iterator(); iterator.hasNext(); ) {
                         Object packet = iterator.next();
 
                         if (packet.getClass().equals(packetMetadata)) {
@@ -923,7 +922,7 @@ public class GlowingEntities implements Listener {
                     20,
                     0,
                     "an",
-                    "ab",
+                    "am",
                     "aj",
                     "c",
                     "h",
@@ -946,8 +945,21 @@ public class GlowingEntities implements Listener {
                     null,
                     null,
                     null,
-                    null)
-            ;
+                    null),
+            V1_20_3(
+                    20,
+                    3,
+                    null,
+                    "an",
+                    "an",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
 
             private final int major, minor;
             private String watcherFlags;
@@ -1054,18 +1066,23 @@ public class GlowingEntities implements Listener {
             }
 
             public static ProtocolMappings getMappings(int major, int minor) {
-                ProtocolMappings lastGoodMajor = null;
+                ProtocolMappings lastGood = null;
                 for (ProtocolMappings map : values()) {
+                    // loop in ascending version order
                     if (major == map.getMajor()) {
-                        lastGoodMajor = map;
-
                         if (minor == map.getMinor())
-                            return map;
-                    } else if (lastGoodMajor != null) {
-                        return lastGoodMajor;
+                            return map; // perfect match
+
+                        if (minor > map.getMinor())
+                            lastGood = map; // looking for newer minor version
+
+                        if (minor < map.getMinor())
+                            return lastGood; // looking for older minor version: we get the last correct one
                     }
                 }
-                return null;
+                // will return either null if no mappings matched the major => fallback to latest major with a
+                // warning, either the last mappings with same major and smaller minor
+                return lastGood;
             }
 
         }

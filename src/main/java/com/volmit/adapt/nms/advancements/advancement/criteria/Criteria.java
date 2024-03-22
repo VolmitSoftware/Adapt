@@ -3,6 +3,7 @@ package com.volmit.adapt.nms.advancements.advancement.criteria;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import com.volmit.adapt.nms.advancements.CrazyAdvancementsAPI;
 import net.minecraft.advancements.AdvancementRequirements;
@@ -107,6 +108,12 @@ public class Criteria {
 	 * @return The Requirements
 	 */
 	public AdvancementRequirements getAdvancementRequirements() {
+		List<List<String>> requirements = new ArrayList<>();
+
+		for(String[] outer : this.requirements) {
+			requirements.add(Arrays.asList(outer));
+		}
+
 		return new AdvancementRequirements(requirements);
 	}
 	

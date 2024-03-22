@@ -384,9 +384,11 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default void openGui(Player player) {
-        player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-        player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
-        player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
+        for (Player players : player.getWorld().getPlayers()) {
+            players.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
+            players.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
+            players.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
+        }
         Window w = new UIWindow(player);
         w.setTag("skill/" + getSkill().getName() + "/" + getName());
         w.setDecorator((window, position, row) -> new UIElement("bg").setName(" ").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
@@ -433,12 +435,16 @@ public interface Adaptation<T> extends Ticked, Component {
                         if (mylevel >= lvl) {
                             unlearn(player, lvl, false);
 
-                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
-                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
+                            for (Player players : player.getWorld().getPlayers()) {
+                                players.playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
+                                players.playSound(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
+                            }
                             w.close();
                             if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
                                 if (isPermanent()) {
-                                    player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
+                                    for (Player players : player.getWorld().getPlayers()) {
+                                        players.playSound(player.getLocation(), Sound.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
+                                    }
                                     player.sendTitle(" ", C.RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "maynotunlearn") + " " + getDisplayName(mylevel), 1, 10, 11);
                                 } else {
                                     player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets", "adaptmenu", "unlearned") + " " + getDisplayName(mylevel), 1, 10, 11);
@@ -451,13 +457,15 @@ public interface Adaptation<T> extends Ticked, Component {
                         if (k >= c && getPlayer(player).getData().hasPowerAvailable(pc)) {
                             if (getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c)) {
                                 getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
-                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
-                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
-                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
-                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
-                                if (isPermanent()) {
-                                    player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.355f);
-                                    player.getWorld().playSound(player.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
+                                for (Player players : player.getWorld().getPlayers()) {
+                                    players.playSound(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
+                                    players.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
+                                    players.playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
+                                    players.playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
+                                    if (isPermanent()) {
+                                        players.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.355f);
+                                        players.playSound(player.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
+                                    }
                                 }
                                 w.close();
                                 if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
@@ -465,10 +473,14 @@ public interface Adaptation<T> extends Ticked, Component {
                                 }
                                 J.s(() -> openGui(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
                             } else {
-                                player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+                                for (Player players : player.getWorld().getPlayers()) {
+                                    players.playSound(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+                                }
                             }
                         } else {
-                            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+                            for (Player players : player.getWorld().getPlayers()) {
+                                players.playSound(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+                            }
                         }
                     });
             de.addLore(" ");
@@ -496,9 +508,11 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     private void onGuiClose(Player player, boolean openPrevGui) {
-        player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-        player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
-        player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
+        for (Player players : player.getWorld().getPlayers()) {
+            players.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
+            players.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
+            players.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
+        }
         if (openPrevGui) {
             getSkill().openGui(player);
         }

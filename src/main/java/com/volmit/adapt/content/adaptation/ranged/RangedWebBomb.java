@@ -151,7 +151,9 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
             block.setBlockData(BLOCK);
             activeBlocks.add(block);
         });
-        block.getWorld().playSound(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_PLACE, 1.0f, 1.0f);
+        for (Player players : block.getWorld().getPlayers()) {
+            players.playSound(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_PLACE, 1.0f, 1.0f);
+        }
         if (getConfig().showParticles) {
 
             vfxCuboidOutline(block, Particle.CLOUD);
@@ -169,7 +171,9 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
             block.setBlockData(AIR);
             activeBlocks.remove(block);
         });
-        block.getWorld().playSound(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 1.0f);
+        for (Player players : block.getWorld().getPlayers()) {
+            players.playSound(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 1.0f);
+        }
         if (getConfig().showParticles) {
             vfxCuboidOutline(block, Particle.ENCHANTMENT_TABLE);
         }
