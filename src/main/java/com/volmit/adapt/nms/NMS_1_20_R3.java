@@ -33,7 +33,7 @@ import org.bukkit.inventory.ItemStack;
 import java.io.*;
 import java.util.Base64;
 
-public class NMS_1_20_3 implements NMS.Impl {
+public class NMS_1_20_R3 implements NMS.Impl {
 
     @Override
     public String serializeStack(ItemStack is) {
