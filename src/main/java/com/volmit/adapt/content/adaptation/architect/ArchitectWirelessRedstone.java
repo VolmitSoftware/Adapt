@@ -199,8 +199,10 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         if (getConfig().showParticles) {
             vfxCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
         }
-        p.getWorld().playSound(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
-        p.getWorld().playSound(l, Sound.ENTITY_ENDER_EYE_DEATH, 0.2f, 0.48f);
+        for (Player players : p.getWorld().getPlayers()) {
+            players.playSound(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
+            players.playSound(l, Sound.ENTITY_ENDER_EYE_DEATH, 0.2f, 0.48f);
+        }
         ItemStack hand = p.getInventory().getItemInMainHand();
         if (hand.getAmount() == 1) {
             BoundRedstoneTorch.setData(hand, l);
@@ -219,7 +221,9 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                 Block b = l.getBlock();
                 BlockData data = b.getBlockData();
                 if (data instanceof AnaloguePowerable redBlock && b.getType().equals(Material.TARGET)) {
-                    p.getWorld().playSound(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
+                    for (Player players : p.getWorld().getPlayers()) {
+                        players.playSound(l, Sound.BLOCK_CHEST_OPEN, 0.1f, 9f);
+                    }
                     redBlock.setPower(15);
                     vfxCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
                     b.setBlockData(redBlock);

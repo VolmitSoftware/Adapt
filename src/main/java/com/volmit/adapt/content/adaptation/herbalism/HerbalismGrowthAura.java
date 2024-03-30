@@ -97,7 +97,9 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                                                     if (aab.getAge() < aab.getMaximumAge()) {
                                                         aab.setAge(aab.getAge() + 1);
                                                         a.setBlockData(aab, true);
-                                                        a.getWorld().playSound(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
+                                                        for (Player players : a.getWorld().getPlayers()) {
+                                                            players.playSound(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
+                                                        }
                                                         if (getConfig().showParticles) {
                                                             p.spawnParticle(Particle.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);
                                                         }

@@ -67,7 +67,9 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                 if (!p.getInventory().addItem(new ItemStack(Material.IRON_INGOT, fortune)).isEmpty()) {
                     b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.IRON_INGOT, fortune));
                 }
-                b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                for (Player players : b.getWorld().getPlayers()) {
+                    players.playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                }
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
             case GOLD_ORE, DEEPSLATE_GOLD_ORE, NETHER_GOLD_ORE -> {
@@ -79,7 +81,9 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                 if (!p.getInventory().addItem(new ItemStack(Material.GOLD_INGOT, fortune)).isEmpty()) {
                     b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.GOLD_INGOT, fortune));
                 }
-                b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                for (Player players : b.getWorld().getPlayers()) {
+                    players.playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                }
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
             case COPPER_ORE, DEEPSLATE_COPPER_ORE -> {
@@ -90,7 +94,9 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                 if (!p.getInventory().addItem(new ItemStack(Material.COPPER_INGOT, fortune)).isEmpty()) {
                     b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.COPPER_INGOT, fortune));
                 }
-                b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                for (Player players : b.getWorld().getPlayers()) {
+                    players.playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                }
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
 
@@ -113,7 +119,9 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
 
                 b.setType(Material.AIR);
                 b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.IRON_INGOT, fortune));
-                b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                for (Player players : b.getWorld().getPlayers()) {
+                    players.playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                }
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
             case GOLD_ORE, DEEPSLATE_GOLD_ORE, NETHER_GOLD_ORE -> {
@@ -123,7 +131,9 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
 
                 b.setType(Material.AIR);
                 b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.GOLD_INGOT, fortune));
-                b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                for (Player players : b.getWorld().getPlayers()) {
+                    players.playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                }
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
             case COPPER_ORE, DEEPSLATE_COPPER_ORE -> {
@@ -132,7 +142,9 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                 }
                 b.setType(Material.AIR);
                 b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.COPPER_INGOT, fortune));
-                b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                for (Player players : b.getWorld().getPlayers()) {
+                    players.playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                }
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
 

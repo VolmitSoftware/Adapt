@@ -95,7 +95,8 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                                     || i.getType().equals(Material.CARROT)
                                     || i.getType().equals(Material.POTATO)
                                     || i.getType().equals(Material.NETHER_WART)
-                                    || i.getType().equals(Material.GRASS)
+                                    || i.getType().equals(Material.SHORT_GRASS)
+                                    || i.getType().equals(Material.TALL_GRASS)
                                     || i.getType().equals(Material.FERN)
                                     || i.getType().equals(Material.LARGE_FERN)
                                     || i.getType().equals(Material.VINE)
@@ -140,7 +141,9 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                                     dmg += 1;
                                     J.s(() -> {
                                         i.breakNaturally();
-                                        p.getWorld().playSound(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4f, (float) Math.random() * 1.85f);
+                                        for (Player players : p.getWorld().getPlayers()) {
+                                            players.playSound(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4f, (float) Math.random() * 1.85f);
+                                        }
                                     }, RNG.r.i(0, (getMaxLevel() - lvl * 2) + 1));
                                 }
                             }
@@ -152,7 +155,9 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 //                        if (getConfig().showParticles) {
 //                            ParticleEffect.SWEEP_ATTACK.display(p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(1.25)).add(0, -0.5, 0), 0f, 0f, 0f, 0.1f, 1, null);
 //                        }
-                        p.getWorld().playSound(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (Math.random() / 2) + 0.65f);
+                        for (Player players : p.getWorld().getPlayers()) {
+                            players.playSound(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (Math.random() / 2) + 0.65f);
+                        }
                         damageHand(p, dmg * getDamagePerBlock(getLevelPercent(lvl)));
                         getSkill().xp(p, dmg * 11.25);
                     }

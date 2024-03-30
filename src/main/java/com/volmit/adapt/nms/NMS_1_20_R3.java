@@ -24,18 +24,16 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayOutSetCooldown;
 import net.minecraft.world.item.Item;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Base64;
 
-public class NMS_1_20_2 implements NMS.Impl {
+public class NMS_1_20_R3 implements NMS.Impl {
 
     @Override
     public String serializeStack(ItemStack is) {
@@ -55,7 +53,7 @@ public class NMS_1_20_2 implements NMS.Impl {
     public ItemStack deserializeStack(String s) {
         try {
             ByteArrayInputStream bin = new ByteArrayInputStream(Base64.getUrlDecoder().decode(s));
-            NBTTagCompound t = NBTCompressedStreamTools.a(bin);
+            NBTTagCompound t = NBTCompressedStreamTools.a(new DataInputStream(bin));
             return CraftItemStack.asBukkitCopy(net.minecraft.world.item.ItemStack.a(t));
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -19,6 +19,7 @@
 package com.volmit.adapt.util;
 
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -71,7 +72,9 @@ public abstract class MortarCommand implements ICommand {
         }
 
         if (sender.isPlayer()) {
-            sender.player().getWorld().playSound(sender.player().getLocation(), Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.25f, 1.7f);
+            for (Player players : sender.player().getWorld().getPlayers()) {
+                players.playSound(sender.player().getLocation(), Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.25f, 1.7f);
+            }
         }
 
         return v;
@@ -99,8 +102,10 @@ public abstract class MortarCommand implements ICommand {
         }
 
         if (sender.isPlayer()) {
-            sender.player().getWorld().playSound(sender.player().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.28f, 1.4f);
-            sender.player().getWorld().playSound(sender.player().getLocation(), Sound.ITEM_AXE_STRIP, 0.35f, 1.7f);
+            for (Player players : sender.player().getWorld().getPlayers()) {
+                players.playSound(sender.player().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.28f, 1.4f);
+                players.playSound(sender.player().getLocation(), Sound.ITEM_AXE_STRIP, 0.35f, 1.7f);
+            }
         }
     }
 

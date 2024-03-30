@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -107,7 +108,9 @@ public class VirtualCommand {
                     c.remove(0);
                     if (cmd.hit(sender, c, vs.getCommand())) {
                         if (vs.isPlayer()) {
-                            vs.player().getWorld().playSound(vs.player().getLocation(), Sound.ITEM_AXE_STRIP, 0.35f, 1.8f);
+                            for (Player players : vs.player().getWorld().getPlayers()) {
+                                players.playSound(vs.player().getLocation(), Sound.ITEM_AXE_STRIP, 0.35f, 1.8f);
+                            }
                         }
 
                         return true;
