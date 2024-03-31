@@ -22,6 +22,7 @@ libraries:
   - net.kyori:adventure-text-minimessage:4.13.1
   - io.github.mqzn:mCommands-spigot:1.1.0
   - io.github.mqzn:mCommands-common:1.1.0
+  - io.github.skytasul:glowingentities:1.3.2
 
 permissions:
   adapt.idontknowwhatimdoingiswear:
