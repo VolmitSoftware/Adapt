@@ -39,6 +39,7 @@ registerCustomOutputTask('Psycho', 'C://Dan/MinecraftDevelopment/Server/plugins'
 registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins')
 registerCustomOutputTask('Vatuu', 'D://Minecraft/Servers/1.20/plugins')
 registerCustomOutputTask('Nowhere', 'E://Desktop/server/plugins')
+registerCustomOutputTask('CrazyDev22', 'C://Users/Julian/Desktop/server/plugins')
 // ========================== UNIX ==============================
 registerCustomOutputTaskUnix('CyberpwnLT', '/Users/danielmills/development/server/plugins')
 registerCustomOutputTaskUnix('PsychoLT', '/Users/brianfopiano/Desktop/REMOTES/RemoteMinecraft/plugins')
