@@ -32,7 +32,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.JSONObject;
-import com.volmit.adapt.nms.advancements.advancement.AdvancementVisibility;
+import eu.endercentral.crazy_advancements.advancement.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.GameMode;

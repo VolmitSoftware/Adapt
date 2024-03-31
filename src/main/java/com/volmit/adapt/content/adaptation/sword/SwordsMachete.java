@@ -95,7 +95,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                                     || i.getType().equals(Material.CARROT)
                                     || i.getType().equals(Material.POTATO)
                                     || i.getType().equals(Material.NETHER_WART)
-                                    || i.getType().equals(Material.GRASS)
+                                    || i.getType().equals(Material.SHORT_GRASS)
                                     || i.getType().equals(Material.FERN)
                                     || i.getType().equals(Material.LARGE_FERN)
                                     || i.getType().equals(Material.VINE)
