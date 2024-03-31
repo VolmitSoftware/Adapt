@@ -19,7 +19,6 @@
 package com.volmit.adapt.api.advancement;
 
 
-
 import eu.endercentral.crazy_advancements.NameKey;
 import eu.endercentral.crazy_advancements.advancement.Advancement;
 import eu.endercentral.crazy_advancements.advancement.AdvancementDisplay;
