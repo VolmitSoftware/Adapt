@@ -29,6 +29,12 @@ public class Enchantments {
     public static final Enchantment BOUND = new Enchantment() {
         @NotNull
         @Override
+        public String getTranslationKey() {
+            return null;
+        }
+
+        @NotNull
+        @Override
         public NamespacedKey getKey() {
             return null;
         }

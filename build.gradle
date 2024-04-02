@@ -114,7 +114,7 @@ shadowJar {
         include(dependency('xyz.xenondevs:'))
         include(dependency('art.arcane:'))
         include(dependency('io.github.mqzn:'))
-        include(dependency('com.github.VolmitDev:'))
+        include(dependency('com.github.VolmitSoftware:AdvancementsAPI:'))
     }
 }
 
@@ -151,7 +151,7 @@ dependencies {
     implementation "com.github.TechFortress:GriefPrevention:16.18.1"
     implementation 'xyz.xenondevs:particle:1.8.1'
     //implementation 'com.github.ZockerAxel:CrazyAdvancementsAPI:v2.1.17a'
-    implementation 'com.github.VolmitDev:CrazyAdvancementsAPI:2.1.17:shadable'
+    implementation 'com.github.VolmitSoftware:AdvancementsAPI:2.1.17:shadable'
     compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
 
     // Dynamically Loaded
