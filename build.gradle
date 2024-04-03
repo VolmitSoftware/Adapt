@@ -30,7 +30,7 @@ def specialSourceVersion = '1.11.4' //[NMS]
 def spigotJarVersion = '1.20.4-R0.1-SNAPSHOT' //[NMS]
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
-def manifoldVersion = '2024.1.9'
+def manifoldVersion = '2024.1.10'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
