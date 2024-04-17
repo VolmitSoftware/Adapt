@@ -342,7 +342,7 @@
     "discovery": {
       "name": "Discovery",
       "icon": "⚛",
-      "description": "As your Perception expands, your mind unravels to discover that which you did not"
+      "description": "As your perception expands, your mind unravels to discover that which you did not."
     },
     "enchanting": {
       "name": "Enchanting",
@@ -352,7 +352,7 @@
     "excavation": {
       "name": "Excavation",
       "icon": "ᛳ",
-      "description": "Diggey Diggey hole..."
+      "description": "Diggy Diggy Hole..."
     },
     "herbalism": {
       "name": "Herbalism",
@@ -387,7 +387,7 @@
     "seaborne": {
       "name": "Seaborne",
       "icon": "\uD83C\uDFA3",
-      "description": "With this skill, you may will the wonders of the water"
+      "description": "With this skill, you may will the wonders of the water."
     },
     "stealth": {
       "name": "Stealth",
@@ -412,12 +412,12 @@
     "chronos": {
       "name": "Chronos",
       "icon": "⏳",
-      "description": "Wind the Clock of the universe, experience the flow. Break the clock, Become it."
+      "description": "Wind the Clock of the universe, experience the flow. Break the clock, become it."
     },
     "unarmed": {
       "name": "Unarmed",
       "icon": "»",
-      "description": "Without a weapon is not without strength"
+      "description": "Without a weapon is not without strength."
     }
   },
   "agility": {
@@ -429,7 +429,7 @@
     },
     "superjump": {
       "name": "Super Jump",
-      "description": "Exceptional Height Advantage",
+      "description": "Exceptional Height Advantage.",
       "lore1": "Max Jump Height",
       "lore2": "Sneak + Jump to Super Jump!"
     },
@@ -736,13 +736,13 @@
     "omnitool": {
       "name": "OMNI - T.O.O.L.",
       "description": "Tackle's overdesigned opulent Leatherman",
-      "lore1": "Probably the most powerful of  many allows you to",
+      "lore1": "Probably the most powerful of many allows you to",
       "lore2": "dynamically merge and change tools on the fly, based on your needs.",
-      "lore3": "to merge, shift click an item over another in your inventory.",
-      "lore4": "to unbind tools, Sneak-Drop the item, and it will disassemble.",
-      "lore5": "you can't break tools in this leatherman but you can't use broken tools",
-      "lore6": "total merge-able items",
-      "lore7": "you could use five or six tools, or just one!"
+      "lore3": "To merge, shift click an item over another in your inventory.",
+      "lore4": "To unbind tools, Sneak-Drop the item, and it will disassemble.",
+      "lore5": "You can't break tools in this leatherman but you can't use broken tools",
+      "lore6": "total merge-able items.",
+      "lore7": "You could use five or six tools, or just one!"
     }
   },
   "herbalism": {
