@@ -610,9 +610,9 @@
       "name": "Multi-Armor",
       "description": "Bind Elytras to Armor",
       "lore1": "This Is an amazing skill for traveling.",
-      "lore2": "dynamically merge and change Armor/Elytra on the Fly!",
-      "lore3": "to merge, shift click an item over another in your inventory.",
-      "lore4": "to unbind Armor, Sneak-Drop the item, and it will disassemble.",
+      "lore2": "Dynamically merge and change Armor/Elytra on the Fly!",
+      "lore3": "To merge, shift click an item over another in your inventory.",
+      "lore4": "To unbind Armor, Sneak-Drop the item, and it will disassemble.",
       "lore5": "If your MultiArmor is destroyed, you will lose all items in it.",
       "lore6": "I Don't need armor, It disappoints me..."
     }
