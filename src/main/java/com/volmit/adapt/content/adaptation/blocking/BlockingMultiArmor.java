@@ -68,7 +68,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GRAY + Localizer.dLocalize("blocking", "multiarmor", "lore1"));
-        v.addLore(C.GRAY + "" + (level) + C.GRAY + Localizer.dLocalize("blocking", "multiarmor", "lore2"));
+        v.addLore(C.GRAY + "" + C.GRAY + Localizer.dLocalize("blocking", "multiarmor", "lore2"));
         v.addLore(C.GREEN + Localizer.dLocalize("blocking", "multiarmor", "lore3"));
         v.addLore(C.RED + Localizer.dLocalize("blocking", "multiarmor", "lore4"));
         v.addLore(C.GRAY + Localizer.dLocalize("blocking", "multiarmor", "lore5"));
