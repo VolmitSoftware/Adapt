@@ -107,7 +107,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                 J.s(() -> {
                     for (Location l : blockMap.keySet()) {
                         Block b = e.getBlock().getWorld().getBlockAt(l);
-                        if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory").getLevel() > 0) {
+                        if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory") == null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory").getLevel() > 0) {
                             Collection<ItemStack> items = e.getBlock().getDrops();
                             for (ItemStack i : items) {
                                 p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.01f, 0.01f);
