@@ -20,6 +20,8 @@ package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.content.event.AdaptAdaptationTeleportEvent;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
@@ -115,7 +117,15 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                 }
                 Vector v = p.getVelocity().clone();
                 loadChunkAsync(loc, chunk -> {
-                    J.s(() -> p.teleport(loc.add(0, 1, 0), PlayerTeleportEvent.TeleportCause.PLUGIN));
+                    Location toLoc = loc.add(0, 1, 0);
+
+                    AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(!Bukkit.isPrimaryThread(), getPlayer(p), this, locOG, loc);
+                    Bukkit.getPluginManager().callEvent(event);
+                    if (event.isCancelled()) {
+                        return;
+                    }
+
+                    J.s(() -> p.teleport(toLoc, PlayerTeleportEvent.TeleportCause.PLUGIN));
                     J.s(() -> p.setVelocity(v.multiply(3)), 2);
                 });
                 lastJump.put(p, M.ms());
