@@ -26,7 +26,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 public class AdaptEvent extends Event implements Cancellable {
-    private static final HandlerList handlers = new HandlerList();
+    private static final HandlerList HANDLERS = new HandlerList();
     private boolean canceled;
 
 
@@ -49,9 +49,12 @@ public class AdaptEvent extends Event implements Cancellable {
         canceled = b;
     }
 
-    @NotNull
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     @Override
     public HandlerList getHandlers() {
-        return handlers;
+        return HANDLERS;
     }
 }
