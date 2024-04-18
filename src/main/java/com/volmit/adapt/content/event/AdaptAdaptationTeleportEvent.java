@@ -18,43 +18,18 @@
 
 package com.volmit.adapt.content.event;
 
-import com.volmit.adapt.Adapt;
-import com.volmit.adapt.api.world.AdaptServer;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
+import com.volmit.adapt.api.adaptation.Adaptation;
+import com.volmit.adapt.api.world.AdaptPlayer;
+import lombok.Getter;
+import org.bukkit.Location;
 
-public class AdaptEvent extends Event implements Cancellable {
-    private static final HandlerList HANDLERS = new HandlerList();
-    private boolean canceled;
+public class AdaptAdaptationTeleportEvent extends AdaptAdaptationEvent {
+    @Getter
+    Location fromLocation, toLocation;
 
-
-    public AdaptEvent(boolean async) {
-        super(async);
-        canceled = false;
-    }
-
-    public AdaptServer getServer() {
-        return Adapt.instance.getAdaptServer();
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return canceled;
-    }
-
-    @Override
-    public void setCancelled(boolean b) {
-        canceled = b;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
+    public AdaptAdaptationTeleportEvent(boolean async, AdaptPlayer player, Adaptation<?> adaptation, Location fromLocation, Location toLocation) {
+        super(async, player, adaptation);
+        this.fromLocation = fromLocation;
+        this.toLocation = toLocation;
     }
 }
