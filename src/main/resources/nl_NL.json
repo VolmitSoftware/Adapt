@@ -9,7 +9,7 @@
       "description": "Loop meer dan 5 kilometer (5.000 blokken)"
     },
     "challenge_sprint_50k": {
-      "title": "Zoom een 50K!",
+      "title": "Zoom 50K!",
       "description": "Loop meer dan 50 kilometer (50.000 blokken)"
     },
     "challenge_sprint_500k": {
@@ -85,7 +85,7 @@
       "description": "Verbruik 1000 drankjes"
     },
     "challenge_brew_5k": {
-      "title": "Intermediaire alchemist!",
+      "title": "Gemiddelde alchemist!",
       "description": "Consumeer 5000 drankjes"
     },
     "challenge_brew_50k": {
@@ -105,7 +105,7 @@
       "description": "Splash 1000 drankjes"
     },
     "challenge_brewsplash_5k": {
-      "title": "Intermediaire Potion-Splasher!",
+      "title": "Middelmatige toverdrank-splasher!",
       "description": "Splash 5000 drankjes"
     },
     "challenge_brewsplash_50k": {
@@ -121,44 +121,44 @@
       "description": "Splash 5.000.000 drankjes"
     },
     "challenge_craft_1k": {
-      "title": "Handige knutselaar!",
-      "description": "Maak 1000 items"
+      "title": "Handige Knutselaar!",
+      "description": "Maak 1000 Voorwerpen"
     },
     "challenge_craft_5k": {
-      "title": "Kankerige Crafter!",
-      "description": "Maak 5000 items"
+      "title": "Chagrijnige Knutselaar!",
+      "description": "Maak 5000 Voorwerpen"
     },
     "challenge_craft_50k": {
-      "title": "Cervile Crafter!",
-      "description": "Maak 50.000 items"
+      "title": "Cervile Knutselaar!",
+      "description": "Maak 50.000 Voorwerpen"
     },
     "challenge_craft_500k": {
-      "title": "Kakofone Crafter!",
-      "description": "Maak 500.000 items"
+      "title": "Kakofone Knutselaar!",
+      "description": "Maak 500.000 Voorwerpen"
     },
     "challenge_craft_5m": {
-      "title": "Calamitous McCraftface",
-      "description": "Maak 5.000.000 items"
+      "title": "Calamitieve McCraftface",
+      "description": "Maak 5.000.000 Voorwerpen"
     },
     "challenge_enchant_1k": {
-      "title": "Beginnende Enchanter!",
-      "description": "Enchant 1000 voorwerpen"
+      "title": "Beginnende Tovenaar!",
+      "description": "Enchant 1000 Voorwerpen"
     },
     "challenge_enchant_5k": {
-      "title": "Middelbare enchanter!",
+      "title": "Middelbare Tovenaar!",
       "description": "Enchant 5000 Voorwerpen"
     },
     "challenge_enchant_50k": {
-      "title": "Geavanceerde tovenaar!",
-      "description": "Betover 50.000 voorwerpen"
+      "title": "Geavanceerde Tovenaar!",
+      "description": "Betover 50.000 Voorwerpen"
     },
     "challenge_enchant_500k": {
-      "title": "Meester tovenaar!",
-      "description": "Betover 500.000 voorwerpen"
+      "title": "Meester Tovenaar!",
+      "description": "Betover 500.000 Voorwerpen"
     },
     "challenge_enchant_5m": {
-      "title": "Raadselachtige tovenaar",
-      "description": "Betover 5.000.000 voorwerpen"
+      "title": "Raadselachtige Tovenaar",
+      "description": "Betover 5.000.000 Voorwerpen"
     },
     "challenge_excavate_1k": {
       "title": "Verleide graafmachine!",
@@ -197,7 +197,7 @@
       "description": "Dood 100 entiteiten"
     },
     "challenge_intermediate_hunter": {
-      "title": "Intermediaire jager!",
+      "title": "Middelmatige Jager!",
       "description": "Dood 500 entiteiten"
     },
     "challenge_advanced_hunter": {
@@ -206,11 +206,11 @@
     },
     "challenge_creeper_conqueror": {
       "title": "Klimplant Veroveraar!",
-      "description": "Dood 50 klimplanten"
+      "description": "Dood 50 creepers"
     },
     "challenge_creeper_annihilator": {
       "title": "Creeper-vernietiger!",
-      "description": "Dood 200 klimplanten"
+      "description": "Dood 200 creepers"
     },
     "challenge_pickaxe_1k": {
       "title": "Beginnende mijnwerker",
@@ -251,7 +251,7 @@
     },
     "boundsnowball": {
       "name": "Webstrik!",
-      "usage1": "Gooi om een ​​tijdelijke webtrap op de locatie te maken"
+      "usage1": "Gooi om een ​​tijdelijke web-valstrik op de locatie te maken"
     }
   },
   "snippets": {
@@ -266,7 +266,7 @@
       "xpbonusfortime": "XP voor",
       "maxabilitypower": "Maximaal vermogen",
       "unlockthisbyclicking": "Ontgrendel dit door met de rechtermuisknop te klikken:",
-      "back": "Rug",
+      "back": "Terug",
       "unlearnall": "Alles afleren",
       "unlearnedall": "Alles afgeleerd"
     },
@@ -275,7 +275,7 @@
       "mayunlearn": "JE MAG LEREN/AFLEREN",
       "knowledgecost": "Kennis Kosten",
       "knowledgeavailable": "Kennis aanwezig",
-      "alreadylearned": "Geleerd",
+      "alreadylearned": "Al geleerd",
       "unlearnrefund": "Klik om te vergeten en terug te krijgen",
       "norefunds": "HARDCORE, TERUGBETALINGEN UITGESCHAKELD",
       "knowledge": "Kennis",
@@ -318,14 +318,14 @@
     },
     "axes": {
       "name": "Bijlen",
-      "icon": "❖",
+      "icon": "🪓",
       "description1": "Waarom zou je alleen bomen hakken, als je ook andere",
       "description2": "dingen",
       "description3": "kunt hakken?"
     },
     "brewing": {
       "name": "Brouwen",
-      "icon": "❖",
+      "icon": "❦",
       "description": "Dubbel Bubbel, Tripel Bubbel, Vierdubbel Bubbel - Ik kan dit drankje nog steeds niet in een pot doen"
     },
     "blocking": {
@@ -335,7 +335,7 @@
     },
     "crafting": {
       "name": "Bouwen",
-      "icon": "❖",
+      "icon": "⌂",
       "description": "Als je alles hebt geplaatst, maak je toch gewoon een nieuwe?"
     },
     "discovery": {
@@ -345,12 +345,12 @@
     },
     "enchanting": {
       "name": "Spreuken",
-      "icon": "⚜",
+      "icon": "♰",
       "description": "Waar heb je het over...? Voorspellingen, visies, bijgelovig gebrabbel?"
     },
     "excavation": {
       "name": "Graven",
-      "icon": "✥",
+      "icon": "ᛳ",
       "description": "Graaf graaf een gat..."
     },
     "herbalism": {
@@ -385,12 +385,12 @@
     },
     "seaborne": {
       "name": "Waterman",
-      "icon": "🌊",
+      "icon": "🎣",
       "description": "Met deze vaardigheid kun je de wonderen van het water ontdekken."
     },
     "stealth": {
       "name": "Heimelijkheid",
-      "icon": "✠",
+      "icon": "☯",
       "description": "De kunst van de schaduw. Loop in het ongeziene."
     },
     "swords": {
@@ -405,31 +405,31 @@
     },
     "tragoul": {
       "name": "TragOul",
-      "icon": "▼",
+      "icon": "🗡",
       "description": "Bloed stroomt door de aderen van het universum. Vernauwd door je handen."
     },
     "chronos": {
       "name": "Chronos",
-      "icon": "۞",
+      "icon": "⏳",
       "description": "Wind de klok van het universum op, ervaar de stroom. Breek de klok, word hem."
     },
     "unarmed": {
       "name": "Ongewapend",
-      "icon": "⚜",
+      "icon": "»",
       "description": "Zonder wapen is niet zonder kracht."
     }
   },
   "agility": {
     "armorup": {
       "name": "Armor-Up",
-      "description": "Krijg meer pantser (armor) naarmate je meer rent!",
-      "lore1": "Max Armor",
-      "lore2": "Armor-Up Tijd"
+      "description": "Krijg meer pantser naarmate je meer rent!",
+      "lore1": "Maximaal pantser",
+      "lore2": "Pantser-Up Tijd"
     },
     "superjump": {
       "name": "Super Sprong",
       "description": "Uitzonderlijk hoogtevoordeel.",
-      "lore1": "Max Hoogte",
+      "lore1": "Maximale spronghoogte",
       "lore2": "* Sluip + Spring voor Super Sprong!"
     },
     "walljump": {
@@ -472,10 +472,10 @@
   },
   "axe": {
     "chop": {
-      "name": "Axe Chop",
+      "name": "Bijl hak",
       "description": "Breek bomen door met rechtermuisknop op de stam te klikken!",
-      "lore1": "Blokken Per Chop",
-      "lore2": "Chop Cooldown",
+      "lore1": "Blokken Per Hak",
+      "lore2": "Hak-afkoeling",
       "lore3": "Gereedschapskosten"
     },
     "logswap": {
@@ -484,14 +484,15 @@
       "lore1": "8 stam van welke soort dan ook + 1 jonge boom = 8 stam van het type van de jonge boom"
     },
     "droptoinventory": {
-      "name": "Axe Drop-To-Inventory"
+      "name": "Bijl drop-naar-inventaris"
     },
     "groundsmash": {
-      "name": "Axe Ground Smash",
+      "name": "Bijl grondinslag",
       "description": "Spring, druk shift en, en stomp alle tegenstanders in de buurt.",
       "lore1": "Schade",
       "lore2": "Blokken Radius",
-      "lore3": "Kracht"
+      "lore3": "Kracht",
+      "lore4": "Inslag-afkoeling"
     },
     "leafminer": {
       "name": "Mineervlieg",
@@ -605,7 +606,7 @@
       "lore1": "Recept: 5 Leer:"
     },
     "multiarmor": {
-      "name": "Multi-Armor",
+      "name": "Multi-pantser",
       "description": "Bind Elytras aan Armor",
       "lore1": "Dit is een geweldige vaardigheid om te reizen.",
       "lore2": "Dynamisch samenvoegen en wijzigen van Armor/Elytra tijdens de vlucht!",
@@ -619,11 +620,13 @@
     "deconstruction": {
       "name": "Deconstructie",
       "description": "Ontmantel blokken & items tot bruikbare componenten!",
-      "lore1": "Laat een voorwerp op de grond vallen."
+      "lore1": "Laat een voorwerp op de grond vallen.",
+      "lore2": "Sluip vervolgens en klik met de rechtermuisknop met een schaar"
     },
     "xp": {
-      "description": "Krijg passief XP voor craften",
-      "lore1": "Krijg XP tijdens het craften"
+      "name": "XP maken",
+      "description": "Verkrijg passieve XP tijdens het maken",
+      "lore1": "Verdien XP tijdens het maken"
     },
     "reconstruction": {
       "name": "Erts wederopbouw",
@@ -665,14 +668,14 @@
   },
   "discovery": {
     "armor": {
-      "name": "Wereld Armor",
-      "description": "Passief pantser (armor) afhankelijk van de hardheid van bijzijnde blokken.",
-      "lore1": "Passieve Armor",
+      "name": "Wereld pantser",
+      "description": "Passief pantser afhankelijk van de hardheid van bijzijnde blokken.",
+      "lore1": "Passief pantser",
       "lore2": ", gebaseerd op bijzijne blok-hardheid",
-      "lore3": "Armor Kracht: +"
+      "lore3": "Pantsersterkte:"
     },
     "unity": {
-      "name": "Experimentele Unity",
+      "name": "Experimentele eenheid",
       "description": "Het verzamelen van experience bolletjes (Orbs) geeft XP voor willekeurige skills.",
       "lore1": "XP ",
       "lore2": "Per Orb"
@@ -715,13 +718,13 @@
   "excavation": {
     "haste": {
       "name": "Haastig Graven",
-      "description": "Versnelt het hakken van blokken, met HASTE!",
-      "lore1": "Krijg Haste tijdens het graven",
-      "lore2": "x Niveaus van haste als je begint een blok te hakken."
+      "description": "Dit versnelt het graafproces, met HAAST!",
+      "lore1": "Verkrijg haast tijdens het graven",
+      "lore2": "x Niveaus van haast als je ELK blok begint te minen."
     },
     "spelunker": {
       "name": "Superziende Spelunker!",
-      "description": "Zie Ores met je ogen, maar dan door de grond!",
+      "description": "Zie Ertsen met je ogen, maar dan door de grond!",
       "lore1": "Ore in je losse hand, Glowberries in je hoofdhand en Sneak!",
       "lore2": "Blok Bereik:",
       "lore3": "Verbruikt Glowberry bij gebruik"
@@ -786,8 +789,8 @@
       "name": "Het geluk van de kruidkundige",
       "description": "Als je Gras/Bloemen kapot maakt, heb je de kans om een ​​willekeurig item te krijgen",
       "lore0": "Bloemen = Voedsel, en Gras = Zaden",
-      "lore1": "Kans om een ​​item te krijgen door bloemen te breken",
-      "lore2": "Kans om een ​​item te krijgen van het breken van Grass"
+      "lore1": "Kans om een ​​voorwerp te krijgen door bloemen te breken",
+      "lore2": "Kans om een voorwerp te krijgen van het breken van Grass"
     },
     "replant": {
       "name": "Oogsten en opnieuw planten",
@@ -805,7 +808,7 @@
       "lore1": "You will Gain Poison stacks if you run out of hunger"
     },
     "droptoinventory": {
-      "name": "Items drop-naar-inventaris",
+      "name": "Voorwerpen drop-naar-inventaris",
       "description": "Wanneer je iets doodt / een blok breekt. Met een zwaard teleporteert het de druppels naar je inventaris",
       "lore1": "Telkens wanneer een item uit een mob/blok wordt gedropt dat je kapotmaakt, gaat het indien mogelijk naar je inventaris."
     },
@@ -819,7 +822,7 @@
       "lore5": "Onzichtbaarheidsduratie"
     },
     "jumpboost": {
-      "name": "Hunter's Heights",
+      "name": "Jagers hoogte",
       "description": "Als je wordt geraakt krijg je Super Sprong, ten koste van je voedingspunten",
       "lore1": "Krijg passieve springbonus als je bent geraakt",
       "lore2": "x Springbonus voor 3 seconds als je bent geraakt",
@@ -828,7 +831,7 @@
       "lore5": "Springbonus vermenigvuldigingsfactor."
     },
     "luck": {
-      "name": "Hunter's Luck",
+      "name": "Jagers geluk",
       "description": "Als je wordt getroffen, win je geluk, ten koste van de honger",
       "lore1": "Verkrijg passief geluk wanneer je wordt geraakt",
       "lore2": "x Het geluk stapelt zich gedurende 3 seconden op bij een treffer",
@@ -875,21 +878,21 @@
   },
   "nether": {
     "skulltoss": {
-      "name": "Wither-schedelworp",
-      "description1": "Laat je innerlijke Wither los door te gebruiken",
+      "name": "Verdorren-schedelworp",
+      "description1": "Laat je innerlijke Verdorring los door te gebruiken",
       "description2": "iemands",
       "description3": "hoofd.",
       "lore1": "Seconden van cooldown tussen schedelworpen.",
-      "lore2": "Wither Skull gebruiken: Gooi een ",
-      "lore3": "Wither schedel",
+      "lore2": "Verdorren schedel gebruiken: Gooi een ",
+      "lore3": "Verdorren schedel",
       "lore4": "exploderend bij impact."
     },
     "witherresist": {
-      "name": "Wither weerstand",
+      "name": "Verdorren weerstand",
       "description": "Weerstaat verwelking door de kracht van Netherite.",
       "lore1": "kans om verwelking tegen te gaan (per stuk).",
       "lore2": "Passief: het dragen van Netherite Armor heeft een kans om teniet te doen ",
-      "lore3": "withering."
+      "lore3": "verdorren."
     },
     "fireresist": {
       "name": "Vuurbestendig",
@@ -918,7 +921,7 @@
     "veinminer": {
       "name": "Vemineermiddel",
       "description": "Hiermee kun je blokken breken in een ader/cluster van vanille-erts",
-      "lore1": "Sluip en mijn ORES",
+      "lore1": "Sluip en mijn ERTSEN",
       "lore2": "bereik van adermijnbouw",
       "lore3": "Deze vaardigheid groepeert NIET alle druppels bij elkaar!"
     }
@@ -964,14 +967,14 @@
       "notcontainer": "Dat is geen container"
     },
     "blink": {
-      "name": "Rift Blink",
+      "name": "Rift-knippering",
       "description": "Directe teleportatie op korte afstand, slechts een oogwenk verwijderd!",
       "lore1": "Blocks on blink (2x Vertical)",
       "lore2": "Tijdens het sprinten: Dubbeltik op Spring naar ",
-      "lore3": "Blink"
+      "lore3": "Knipperen"
     },
     "chest": {
-      "name": "Easy Enderchest",
+      "name": "Gemakkelijke Enderchest",
       "description": "Open een enderkist door er met de linkermuisknop op te klikken in uw hand.",
       "lore1": "Klik op een Enderchest in je hand om deze te openen (plaats hem gewoon niet)"
     },
@@ -1027,7 +1030,7 @@
   },
   "stealth": {
     "ghostarmor": {
-      "name": "Geest Armor",
+      "name": "Het pantser van de geest",
       "description": "Langzaam opbouwend pantser als je geen schade oploopt, duurt 1 treffer",
       "lore1": "Maximaal Armor",
       "lore2": "Snelheid"
@@ -1040,7 +1043,7 @@
       "lore3": "tijdens het sluipen"
     },
     "snatch": {
-      "name": "Item snak",
+      "name": "Voorwerp ruk",
       "description": "Grijp gevallen voorwerpen onmiddellijk tijdens het sluipen!",
       "lore1": "Snakradius"
     },
@@ -1060,17 +1063,17 @@
     },
     "bloodyblade": {
       "name": "Bloedig mes",
-      "description": "Slaat met je zwaard, oorzaak Bloeden!",
+      "description": "Slaan met je zwaard, veroorzaakt Bloeding!",
       "lore1": "Een levend wezen slaan met je zwaard veroorzaakt bloedingen",
       "lore2": "Bloedingsduur",
-      "lore3": "Afkoelen bloeding"
+      "lore3": "Bloed Afkoeling"
     },
     "poisonedblade": {
       "name": "Vergiftigd mes",
       "description": "Stakingen met je zwaard, veroorzaken Poison!",
       "lore1": "Een levend wezen slaan met je zwaard veroorzaakt vergif",
       "lore2": "Vergif Duur",
-      "lore3": "Vergif Cooldown"
+      "lore3": "Gif Afkoeling"
     }
   },
   "taming": {
@@ -1092,7 +1095,7 @@
   },
   "tragoul": {
     "thorns": {
-      "name": "doornen",
+      "name": "Doornen",
       "description": "Reflecteer schade terug naar je aanvaller!",
       "lore1": "Schade wordt vergoed bij aanrijding"
     },
