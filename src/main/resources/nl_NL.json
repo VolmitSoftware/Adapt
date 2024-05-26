@@ -1055,6 +1055,7 @@
       "name": "Machete",
       "description": "Snijd gemakkelijk door het gebladerte!",
       "lore1": "Snij radius",
+      "lore2": "Chop-cooldown",
       "lore3": "Gereedschapsslijtage"
     },
     "bloodyblade": {
