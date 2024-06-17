@@ -19,7 +19,6 @@
 
 package com.volmit.adapt.util.decree;
 
-import static art.arcane.amulet.MagicalSugar.*;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;

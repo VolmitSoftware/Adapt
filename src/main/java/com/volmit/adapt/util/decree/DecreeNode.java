@@ -19,9 +19,6 @@
 
 package com.volmit.adapt.util.decree;
 
-//import com.volmit.react.util.collection.List;
-//import com.volmit.react.util.decree.annotations.Decree;
-//import com.volmit.react.util.decree.annotations.Param;
 import com.volmit.adapt.util.decree.annotations.Decree;
 import com.volmit.adapt.util.decree.annotations.Param;
 import lombok.Data;

@@ -19,9 +19,6 @@
 
 package com.volmit.adapt.util.decree;
 
-//import com.volmit.react.util.collection.List;
-//import com.volmit.react.util.decree.exceptions.DecreeParsingException;
-
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 
 import java.util.ArrayList;
