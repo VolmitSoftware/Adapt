@@ -20,29 +20,25 @@
 package com.volmit.adapt.util.decree.virtual;
 
 
+import art.arcane.amulet.format.Form;
 import art.arcane.chrono.ChronoLatch;
-//import com.volmit.react.React;
-//import com.volmit.react.util.collection.List;
-//import com.volmit.react.util.collection.KMap;
-//import com.volmit.react.util.collection.KSet;
-//import com.volmit.react.util.decree.DecreeContext;
-//import com.volmit.react.util.decree.DecreeContextHandler;
-//import com.volmit.react.util.decree.DecreeNode;
-//import com.volmit.react.util.decree.DecreeParameter;
-//import com.volmit.react.util.decree.annotations.Decree;
-//import com.volmit.react.util.decree.exceptions.DecreeParsingException;
-//import com.volmit.react.util.format.C;
-//import com.volmit.react.util.format.Form;
-//import com.volmit.react.util.plugin.CommandDummy;
-//import com.volmit.react.util.plugin.VolmitSender;
-//import com.volmit.react.util.scheduling.J;
+import com.volmit.adapt.Adapt;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CommandDummy;
+import com.volmit.adapt.util.VolmitSender;
+import com.volmit.adapt.util.decree.DecreeContext;
+import com.volmit.adapt.util.decree.DecreeContextHandler;
 import com.volmit.adapt.util.decree.DecreeNode;
+import com.volmit.adapt.util.decree.DecreeParameter;
 import com.volmit.adapt.util.decree.annotations.Decree;
+import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 import lombok.Data;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -106,7 +102,7 @@ public class VirtualDecreeCommand {
                 continue;
             }
 
-            c.getNodes().add(new VirtualDecreeCommand(v.getClass(), c, new List<>(), new DecreeNode(v, i)));
+            c.getNodes().add(new VirtualDecreeCommand(v.getClass(), c, new ArrayList<>(), new DecreeNode(v, i)));
         }
 
         return c;
@@ -125,7 +121,7 @@ public class VirtualDecreeCommand {
     }
 
     public String getPath() {
-        List<String> n = new List<>();
+        List<String> n = new ArrayList<>();
         VirtualDecreeCommand cursor = this;
 
         while (cursor.getParent() != null) {
@@ -154,7 +150,7 @@ public class VirtualDecreeCommand {
         }
 
         Decree dc = getType().getDeclaredAnnotation(Decree.class);
-        List<String> d = new List<>();
+        List<String> d = new ArrayList<>();
         d.add(dc.name());
         for (String i : dc.aliases()) {
             if (i.isEmpty()) {
@@ -174,8 +170,8 @@ public class VirtualDecreeCommand {
     }
 
     public List<String> tabComplete(List<String> args, String raw) {
-        List<Integer> skip = new List<>();
-        List<String> tabs = new List<>();
+        List<Integer> skip = new ArrayList<>();
+        List<String> tabs = new ArrayList<>();
         invokeTabComplete(args, skip, tabs, raw);
         return tabs;
     }
@@ -212,7 +208,7 @@ public class VirtualDecreeCommand {
 
     private void tab(List<String> args, List<String> tabs) {
         String last = null;
-        List<DecreeParameter> ignore = new List<>();
+        List<DecreeParameter> ignore = new ArrayList<>();
         Runnable la = () -> {
 
         };
@@ -282,12 +278,12 @@ public class VirtualDecreeCommand {
      * @param in     The input
      * @return A map of all the parameter names and their values
      */
-    private KMap<String, Object> map(VolmitSender sender, List<String> in) {
-        KMap<String, Object> data = new KMap<>();
-        KSet<Integer> nowhich = new KSet<>();
+    private HashMap<String, Object> map(VolmitSender sender, List<String> in) {
+        HashMap<String, Object> data = new HashMap<>();
+        List<Integer> nowhich = new ArrayList<>();
 
-        List<String> unknownInputs = new List<>(in.stream().filter(s -> !s.contains("=")).collect(Collectors.toList()));
-        List<String> knownInputs = new List<>(in.stream().filter(s -> s.contains("=")).collect(Collectors.toList()));
+        List<String> unknownInputs = new ArrayList<>(in.stream().filter(s -> !s.contains("=")).collect(Collectors.toList()));
+        List<String> knownInputs = new ArrayList<>(in.stream().filter(s -> s.contains("=")).collect(Collectors.toList()));
 
         //Loop known inputs
         for (int x = 0; x < knownInputs.size(); x++) {
@@ -323,7 +319,7 @@ public class VirtualDecreeCommand {
 
             //Still failed to find, error them
             if (param == null) {
-                React.debug("Can't find parameter key for " + key + "=" + value + " in " + getPath());
+                Adapt.debug("Can't find parameter key for " + key + "=" + value + " in " + getPath());
                 sender.sendMessage(C.YELLOW + "Unknown Parameter: " + key);
                 unknownInputs.add(value); //Add the value to the unknowns and see if we can assume it later
                 continue;
@@ -334,7 +330,7 @@ public class VirtualDecreeCommand {
             try {
                 data.put(key, param.getHandler().parse(value, nowhich.contains(original))); //Parse and put
             } catch (DecreeParsingException e) {
-                React.debug("Can't parse parameter value for " + key + "=" + value + " in " + getPath() + " using handler " + param.getHandler().getClass().getSimpleName());
+                Adapt.debug("Can't parse parameter value for " + key + "=" + value + " in " + getPath() + " using handler " + param.getHandler().getClass().getSimpleName());
                 sender.sendMessage(C.RED + "Cannot convert \"" + value + "\" into a " + param.getType().getSimpleName());
                 e.printStackTrace();
                 return null;
@@ -354,7 +350,7 @@ public class VirtualDecreeCommand {
                 try {
                     data.put(par.getName(), par.getHandler().parse(stringParam, nowhich.contains(original)));
                 } catch (DecreeParsingException e) {
-                    React.debug("Can't parse parameter value for " + par.getName() + "=" + stringParam + " in " + getPath() + " using handler " + par.getHandler().getClass().getSimpleName());
+                    Adapt.debug("Can't parse parameter value for " + par.getName() + "=" + stringParam + " in " + getPath() + " using handler " + par.getHandler().getClass().getSimpleName());
                     sender.sendMessage(C.RED + "Cannot convert \"" + stringParam + "\" into a " + par.getType().getSimpleName());
                     e.printStackTrace();
                     return null;
@@ -368,13 +364,13 @@ public class VirtualDecreeCommand {
     }
 
     public boolean invoke(VolmitSender sender, List<String> realArgs) {
-        return invoke(sender, realArgs, new List<>());
+        return invoke(sender, realArgs, new ArrayList<>());
     }
 
     public boolean invoke(VolmitSender sender, List<String> args, List<Integer> skip) {
-        React.debug("@ " + getPath() + " with " + args.toString(", "));
+        Adapt.debug("@ " + getPath() + " with " + args.toString(", "));
         if (isNode()) {
-            React.debug("Invoke " + getPath() + "(" + args.toString(",") + ") at ");
+            Adapt.debug("Invoke " + getPath() + "(" + args.toString(",") + ") at ");
             if (invokeNode(sender, map(sender, args))) {
                 return true;
             }
@@ -409,7 +405,7 @@ public class VirtualDecreeCommand {
         return false;
     }
 
-    private boolean invokeNode(VolmitSender sender, KMap<String, Object> map) {
+    private boolean invokeNode(VolmitSender sender, HashMap<String, Object> map) {
         if (map == null) {
             return false;
         }
@@ -424,31 +420,31 @@ public class VirtualDecreeCommand {
                     value = i.getDefaultValue();
                 }
             } catch (DecreeParsingException e) {
-                React.debug("Can't parse parameter value for " + i.getName() + "=" + i.getParam().defaultValue() + " in " + getPath() + " using handler " + i.getHandler().getClass().getSimpleName());
+                Adapt.debug("Can't parse parameter value for " + i.getName() + "=" + i.getParam().defaultValue() + " in " + getPath() + " using handler " + i.getHandler().getClass().getSimpleName());
                 sender.sendMessage(C.RED + "Cannot convert \"" + i.getParam().defaultValue() + "\" into a " + i.getType().getSimpleName());
                 return false;
             }
 
             if (sender.isPlayer() && i.isContextual() && value == null) {
-                React.debug("Contextual!");
+                Adapt.debug("Contextual!");
                 DecreeContextHandler<?> ch = DecreeContextHandler.contextHandlers.get(i.getType());
 
                 if (ch != null) {
                     value = ch.handle(sender);
 
                     if (value != null) {
-                        React.debug("Parameter \"" + i.getName() + "\" derived a value of \"" + i.getHandler().toStringForce(value) + "\" from " + ch.getClass().getSimpleName());
+                        Adapt.debug("Parameter \"" + i.getName() + "\" derived a value of \"" + i.getHandler().toStringForce(value) + "\" from " + ch.getClass().getSimpleName());
                     } else {
-                        React.debug("Parameter \"" + i.getName() + "\" could not derive a value from \"" + ch.getClass().getSimpleName());
+                        Adapt.debug("Parameter \"" + i.getName() + "\" could not derive a value from \"" + ch.getClass().getSimpleName());
                     }
                 } else {
-                    React.debug("Parameter \"" + i.getName() + "\" is contextual but has no context handler for \"" + i.getType().getCanonicalName() + "\"");
+                    Adapt.debug("Parameter \"" + i.getName() + "\" is contextual but has no context handler for \"" + i.getType().getCanonicalName() + "\"");
                 }
             }
 
             if (i.hasDefault() && value == null) {
                 try {
-                    React.debug("Parameter \"" + i.getName() + "\" is using default value \"" + i.getParam().defaultValue() + "\"");
+                    Adapt.debug("Parameter \"" + i.getName() + "\" is using default value \"" + i.getParam().defaultValue() + "\"");
                     value = i.getDefaultValue();
                 } catch (Throwable e) {
                     e.printStackTrace();
@@ -487,7 +483,7 @@ public class VirtualDecreeCommand {
     }
 
     public List<VirtualDecreeCommand> matchAllNodes(String in) {
-        List<VirtualDecreeCommand> g = new List<>();
+        List<VirtualDecreeCommand> g = new ArrayList<>();
 
         if (in.trim().isEmpty()) {
             g.addAll(nodes);

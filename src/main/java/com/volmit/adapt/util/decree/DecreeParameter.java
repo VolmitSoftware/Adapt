@@ -31,6 +31,7 @@ import com.volmit.adapt.util.decree.specialhandlers.DummyHandler;
 import lombok.Data;
 
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -80,7 +81,7 @@ public class DecreeParameter {
     }
 
     public List<String> getNames() {
-        List<String> d = new List<>();
+        List<String> d = new ArrayList<>();
 
         for (String i : param.aliases()) {
             if (i.isEmpty()) {
