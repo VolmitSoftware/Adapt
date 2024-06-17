@@ -42,6 +42,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import static art.arcane.amulet.MagicalSugar.*;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -208,7 +208,7 @@ public class Adapt extends VolmitPlugin {
 
     public static List<Object> initialize(String s, Class<? extends Annotation> slicedClass) {
         JarScanner js = new JarScanner(instance.jar(), s);
-        List<Object> v = new List<>();
+        List<Object> v = new ArrayList<>();
         J.attempt(js::scan);
         for (Class<?> i : js.getClasses()) {
             if (slicedClass == null || i.isAnnotationPresent(slicedClass)) {

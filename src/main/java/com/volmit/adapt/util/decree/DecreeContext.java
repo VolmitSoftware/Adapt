@@ -22,13 +22,14 @@ package com.volmit.adapt.util.decree;
 import art.arcane.chrono.ChronoLatch;
 import com.volmit.adapt.util.VolmitSender;
 
+import java.util.HashMap;
 import java.util.Map;
 //import com.volmit.react.util.collection.KMap;
 //import com.volmit.react.util.plugin.VolmitSender;
 
 public class DecreeContext {
     private static final ChronoLatch cl = new ChronoLatch(60000);
-    private static final Map<Thread, VolmitSender> context = new Map<>();
+    private static final Map<Thread, VolmitSender> context = new HashMap<>();
 
     public static VolmitSender get() {
         return context.get(Thread.currentThread());

@@ -28,6 +28,7 @@ import lombok.Data;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -51,8 +52,8 @@ public class DecreeNode {
      * @return The list of parameters if ALL are annotated by @{@link Param}, else null
      */
     public List<DecreeParameter> getParameters() {
-        List<DecreeParameter> required = new List<>();
-        List<DecreeParameter> optional = new List<>();
+        List<DecreeParameter> required = new ArrayList<>();
+        List<DecreeParameter> optional = new ArrayList<>();
 
         for (Parameter i : method.getParameters()) {
             DecreeParameter p = new DecreeParameter(i);
@@ -81,7 +82,7 @@ public class DecreeNode {
     }
 
     public List<String> getNames() {
-        List<String> d = new List<>();
+        List<String> d = new ArrayList<>();
         d.add(getName());
 
         for (String i : decree.aliases()) {
