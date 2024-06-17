@@ -19,11 +19,6 @@
 
 package com.volmit.adapt.util.decree;
 
-
-//import com.volmit.react.React;
-//import com.volmit.react.util.collection.Map;
-//import com.volmit.react.util.plugin.VolmitSender;
-
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.VolmitSender;
 
@@ -40,7 +35,6 @@ public interface DecreeContextHandler<T> {
             Adapt.initialize("com.volmit.react.util.decree.context").forEach((i)
                     -> contextHandlers.put(((DecreeContextHandler<?>) i).getType(), (DecreeContextHandler<?>) i));
         } catch (Throwable e) {
-            e.printStackTrace();
             e.printStackTrace();
         }
 
