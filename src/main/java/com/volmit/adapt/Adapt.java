@@ -52,12 +52,10 @@ import org.bukkit.event.Listener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class Adapt extends VolmitPlugin {
     public static Adapt instance;
@@ -202,6 +200,27 @@ public class Adapt extends VolmitPlugin {
         if (AdaptConfig.get().isMetrics()) {
             new Metrics(this, 13412);
         }
+    }
+
+    public static List<Object> initialize(String s) {
+        return initialize(s, null);
+    }
+
+    public static List<Object> initialize(String s, Class<? extends Annotation> slicedClass) {
+        JarScanner js = new JarScanner(instance.jar(), s);
+        List<Object> v = new List<>();
+        J.attempt(js::scan);
+        for (Class<?> i : js.getClasses()) {
+            if (slicedClass == null || i.isAnnotationPresent(slicedClass)) {
+                try {
+                    v.add(i.getDeclaredConstructor().newInstance());
+                } catch (Throwable ignored) {
+
+                }
+            }
+        }
+
+        return v;
     }
 
     public static int getJavaVersion() {
