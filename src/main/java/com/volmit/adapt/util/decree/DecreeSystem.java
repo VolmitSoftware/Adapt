@@ -19,14 +19,6 @@
 
 package com.volmit.adapt.util.decree;
 
-
-//import com.volmit.react.React;
-//import com.volmit.react.util.collection.List;
-//import com.volmit.react.util.decree.virtual.VirtualDecreeCommand;
-//import com.volmit.react.util.format.C;
-//import com.volmit.react.util.math.RNG;
-//import com.volmit.react.util.plugin.VolmitSender;
-//import com.volmit.react.util.scheduling.J;
 import static art.arcane.amulet.MagicalSugar.*;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.C;

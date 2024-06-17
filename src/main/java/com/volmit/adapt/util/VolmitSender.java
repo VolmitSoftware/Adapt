@@ -105,7 +105,7 @@ public class VolmitSender implements CommandSender {
         int totalPages = (int) Math.ceil((double) all.size() / linesPerPage);
         page = page < 0 ? 0 : page >= totalPages ? totalPages - 1 : page;
         hasNext.set(page < totalPages - 1);
-        List<T> d = new List<>();
+        List<T> d = new ArrayList<>();
 
         for (int i = linesPerPage * page; i < Math.min(all.size(), linesPerPage * (page + 1)); i++) {
             d.add(all.get(i));
