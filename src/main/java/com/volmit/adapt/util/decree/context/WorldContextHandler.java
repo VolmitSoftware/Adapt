@@ -19,8 +19,6 @@
 
 package com.volmit.adapt.util.decree.context;
 
-//import com.volmit.react.util.decree.DecreeContextHandler;
-//import com.volmit.react.util.plugin.VolmitSender;
 import com.volmit.adapt.util.VolmitSender;
 import com.volmit.adapt.util.decree.DecreeContextHandler;
 import org.bukkit.World;

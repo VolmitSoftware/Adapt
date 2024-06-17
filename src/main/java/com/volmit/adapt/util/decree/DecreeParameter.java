@@ -19,11 +19,6 @@
 
 package com.volmit.adapt.util.decree;
 
-//import com.volmit.react.util.cache.AtomicCache;
-//import com.volmit.react.util.collection.List;
-//import com.volmit.react.util.decree.annotations.Param;
-//import com.volmit.react.util.decree.exceptions.DecreeParsingException;
-//import com.volmit.react.util.decree.specialhandlers.DummyHandler;
 import art.arcane.amulet.MagicalSugar;
 import com.volmit.adapt.util.decree.annotations.Param;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
@@ -107,10 +102,10 @@ public class DecreeParameter {
 
     public String example() {
         List<?> ff = getHandler().getPossibilities();
-        ff = ff != null ? ff : new List<>();
+        ff = ff != null ? ff : new ArrayList<>();
         List<String> f = ff.convert((i) -> getHandler().toStringForce(i));
         if (f.isEmpty()) {
-            f = new List<>();
+            f = new ArrayList<>();
             f.add(getHandler().getRandomDefault());
         }
 

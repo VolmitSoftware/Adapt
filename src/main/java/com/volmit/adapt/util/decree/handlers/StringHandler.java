@@ -19,10 +19,6 @@
 
 package com.volmit.adapt.util.decree.handlers;
 
-import static art.arcane.amulet.MagicalSugar.*;
-//import com.volmit.react.util.collection.KList;
-//import com.volmit.react.util.decree.DecreeParameterHandler;
-//import com.volmit.react.util.decree.exceptions.DecreeParsingException;
 
 import com.volmit.adapt.util.decree.DecreeParameterHandler;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;

@@ -19,8 +19,6 @@
 
 package com.volmit.adapt.util.decree;
 
-//import com.volmit.react.util.plugin.VolmitSender;
-
 import com.volmit.adapt.util.VolmitSender;
 
 public enum DecreeOrigin {

@@ -19,8 +19,6 @@
 
 package com.volmit.adapt.util.decree.annotations;
 
-//import com.volmit.react.util.decree.DecreeOrigin;
-
 import com.volmit.adapt.util.decree.DecreeOrigin;
 
 import java.lang.annotation.ElementType;

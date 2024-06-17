@@ -19,9 +19,6 @@
 
 package com.volmit.adapt.util.decree.annotations;
 
-//import com.volmit.react.util.decree.DecreeParameterHandler;
-//import com.volmit.react.util.decree.specialhandlers.DummyHandler;
-
 import com.volmit.adapt.util.decree.DecreeParameterHandler;
 import com.volmit.adapt.util.decree.specialhandlers.DummyHandler;
 
