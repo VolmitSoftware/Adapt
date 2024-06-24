@@ -33,7 +33,7 @@ import java.util.List;
 
 public class VectorHandler implements DecreeParameterHandler<Vector> {
 
-    private static final List<String> randoms = new List<>(
+    private static final Klist<String> randoms = new Klist<>(
             "here",
             "0,0,0",
             "0,0",
