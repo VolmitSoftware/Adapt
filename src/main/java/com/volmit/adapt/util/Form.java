@@ -978,7 +978,7 @@ public class Form {
     /**
      * Get a formatted representation of the memory given in kilobytes
      *
-     * @param mb the kilobytes
+     * @param kb the kilobytes
      * @return the string representation with suffixes
      */
     public static String memx(long kb) {

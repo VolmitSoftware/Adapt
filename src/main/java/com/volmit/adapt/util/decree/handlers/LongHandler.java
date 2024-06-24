@@ -20,6 +20,7 @@
 package com.volmit.adapt.util.decree.handlers;
 
 import com.volmit.adapt.util.RNG;
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeParameterHandler;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 
@@ -28,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class LongHandler implements DecreeParameterHandler<Long> {
     @Override
-    public List<Long> getPossibilities() {
+    public KList<Long> getPossibilities() {
         return null;
     }
 

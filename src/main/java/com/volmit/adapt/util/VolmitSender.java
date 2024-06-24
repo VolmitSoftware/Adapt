@@ -27,6 +27,7 @@ package com.volmit.adapt.util;
 //import com.volmit.Adapt.util.decree.virtual.VirtualDecreeCommand;
 import static art.arcane.amulet.MagicalSugar.*;
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeParameter;
 import com.volmit.adapt.util.decree.virtual.VirtualDecreeCommand;
 import lombok.Getter;
@@ -431,7 +432,7 @@ public class VolmitSender implements CommandSender {
     }
 
     private String pickRandoms(int max, VirtualDecreeCommand i) {
-        List<String> m = new ArrayList<>();
+        KList<String> m = new KList<>();
         for (int ix = 0; ix < max; ix++) {
             m.add((i.isNode()
                     ? (i.getNode().getParameters().isNotEmpty())

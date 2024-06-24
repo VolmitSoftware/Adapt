@@ -19,6 +19,7 @@
 
 package com.volmit.adapt.util.decree;
 
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.annotations.Decree;
 import com.volmit.adapt.util.decree.annotations.Param;
 import lombok.Data;
@@ -48,9 +49,9 @@ public class DecreeNode {
      *
      * @return The list of parameters if ALL are annotated by @{@link Param}, else null
      */
-    public List<DecreeParameter> getParameters() {
-        List<DecreeParameter> required = new ArrayList<>();
-        List<DecreeParameter> optional = new ArrayList<>();
+    public KList<DecreeParameter> getParameters() {
+        KList<DecreeParameter> required = new KList<>();
+        KList<DecreeParameter> optional = new KList<>();
 
         for (Parameter i : method.getParameters()) {
             DecreeParameter p = new DecreeParameter(i);
@@ -79,7 +80,7 @@ public class DecreeNode {
     }
 
     public List<String> getNames() {
-        List<String> d = new ArrayList<>();
+        KList<String> d = new KList<>();
         d.add(getName());
 
         for (String i : decree.aliases()) {

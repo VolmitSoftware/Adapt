@@ -24,6 +24,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.RNG;
 import com.volmit.adapt.util.VolmitSender;
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.virtual.VirtualDecreeCommand;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -141,7 +142,7 @@ public interface DecreeSystem extends CommandExecutor, TabCompleter {
     @Override
     default List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         List<String> enhanced = new ArrayList<>(List.of(args));
-        List<String> v = getRoot().tabComplete(enhanced, enhanced.toString(" "));
+        KList<String> v = getRoot().tabComplete(enhanced, enhanced.toString(" "));
         v.removeDuplicates();
 
         if (sender instanceof Player) {

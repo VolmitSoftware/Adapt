@@ -20,6 +20,7 @@
 package com.volmit.adapt.util.decree;
 
 import art.arcane.amulet.MagicalSugar;
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.annotations.Param;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 import com.volmit.adapt.util.decree.specialhandlers.DummyHandler;
@@ -76,7 +77,7 @@ public class DecreeParameter {
     }
 
     public List<String> getNames() {
-        List<String> d = new ArrayList<>();
+        KList<String> d = new KList<>();
 
         for (String i : param.aliases()) {
             if (i.isEmpty()) {
@@ -101,11 +102,11 @@ public class DecreeParameter {
     }
 
     public String example() {
-        List<?> ff = getHandler().getPossibilities();
-        ff = ff != null ? ff : new ArrayList<>();
-        List<String> f = ff.convert((i) -> getHandler().toStringForce(i));
+        KList<?> ff = getHandler().getPossibilities();
+        ff = ff != null ? ff : new KList<>();
+        KList<String> f = ff.convert((i) -> getHandler().toStringForce(i));
         if (f.isEmpty()) {
-            f = new ArrayList<>();
+            f = new KList<>();
             f.add(getHandler().getRandomDefault());
         }
 

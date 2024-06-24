@@ -19,9 +19,9 @@
 
 package com.volmit.adapt.util.collection;
 
-import com.volmit.react.util.function.Consumer2;
-import com.volmit.react.util.function.Consumer3;
-import com.volmit.react.util.scheduling.Queue;
+import com.volmit.adapt.util.Consumer2;
+import com.volmit.adapt.util.Consumer3;
+import com.volmit.adapt.util.Queue;
 
 import java.util.Collections;
 import java.util.Comparator;

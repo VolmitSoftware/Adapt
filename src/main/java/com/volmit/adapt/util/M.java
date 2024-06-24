@@ -96,8 +96,8 @@ public class M {
      * @param b  the second point (1, 0)
      * @param c  the third point (0, 1)
      * @param d  the fourth point (1, 1)
-     * @param tx the x
-     * @param ty the y
+     * @param x the x
+     * @param y the y
      * @return the bilerped value
      */
     public static double bilerp(double a, double b, double c, double d, double x, double y) {

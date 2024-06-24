@@ -19,6 +19,7 @@
 
 package com.volmit.adapt.util.decree.handlers;
 
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeParameterHandler;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 import org.bukkit.Bukkit;
@@ -30,8 +31,8 @@ import java.util.stream.Collectors;
 
 public class WorldHandler implements DecreeParameterHandler<World> {
     @Override
-    public List<World> getPossibilities() {
-        List<World> options = new ArrayList<>();
+    public KList<World> getPossibilities() {
+        KList<World> options = new KList<>();
         for (World world : Bukkit.getWorlds()) {
             if (!world.getName().toLowerCase().startsWith("iris/")) {
                 options.add(world);

@@ -26,6 +26,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CommandDummy;
 import com.volmit.adapt.util.VolmitSender;
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeContext;
 import com.volmit.adapt.util.decree.DecreeContextHandler;
 import com.volmit.adapt.util.decree.DecreeNode;
@@ -150,7 +151,7 @@ public class VirtualDecreeCommand {
         }
 
         Decree dc = getType().getDeclaredAnnotation(Decree.class);
-        List<String> d = new ArrayList<>();
+        KList<String> d = new KList<>();
         d.add(dc.name());
         for (String i : dc.aliases()) {
             if (i.isEmpty()) {
@@ -169,9 +170,9 @@ public class VirtualDecreeCommand {
         return node != null;
     }
 
-    public List<String> tabComplete(List<String> args, String raw) {
-        List<Integer> skip = new ArrayList<>();
-        List<String> tabs = new ArrayList<>();
+    public KList<String> tabComplete(List<String> args, String raw) {
+        KList<Integer> skip = new KList<>();
+        KList<String> tabs = new KList<>();
         invokeTabComplete(args, skip, tabs, raw);
         return tabs;
     }

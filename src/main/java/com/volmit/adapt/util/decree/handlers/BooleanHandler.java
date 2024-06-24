@@ -20,6 +20,7 @@
 package com.volmit.adapt.util.decree.handlers;
 
 import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeParameterHandler;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 
@@ -27,7 +28,7 @@ import java.util.List;
 
 public class BooleanHandler implements DecreeParameterHandler<Boolean> {
     @Override
-    public List<Boolean> getPossibilities() {
+    public KList<Boolean> getPossibilities() {
         return null;
     }
 

@@ -21,6 +21,7 @@ package com.volmit.adapt.util.decree.handlers;
 
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.RNG;
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeParameterHandler;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 
@@ -29,7 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class FloatHandler implements DecreeParameterHandler<Float> {
     @Override
-    public List<Float> getPossibilities() {
+    public KList<Float> getPossibilities() {
         return null;
     }
 

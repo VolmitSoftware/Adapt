@@ -20,6 +20,7 @@
 package com.volmit.adapt.util.decree.handlers;
 
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeContext;
 import com.volmit.adapt.util.decree.DecreeParameterHandler;
 import com.volmit.adapt.util.decree.DecreeSystem;
@@ -33,7 +34,7 @@ import java.util.List;
 
 public class VectorHandler implements DecreeParameterHandler<Vector> {
 
-    private static final Klist<String> randoms = new Klist<>(
+    private static final KList<String> randoms = new KList<>(
             "here",
             "0,0,0",
             "0,0",
@@ -42,7 +43,7 @@ public class VectorHandler implements DecreeParameterHandler<Vector> {
     );
 
     @Override
-    public List<Vector> getPossibilities() {
+    public KList<Vector> getPossibilities() {
         return null;
     }
 

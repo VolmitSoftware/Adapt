@@ -20,9 +20,9 @@
 package com.volmit.adapt.util.collection;
 
 import com.google.common.util.concurrent.AtomicDoubleArray;
-import com.volmit.react.util.json.JSONArray;
-import com.volmit.react.util.math.M;
-import com.volmit.react.util.math.RNG;
+import com.volmit.adapt.util.JSONArray;
+import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.RNG;
 
 import java.util.*;
 import java.util.function.Function;

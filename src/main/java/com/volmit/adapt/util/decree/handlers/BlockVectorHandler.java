@@ -22,6 +22,7 @@ package com.volmit.adapt.util.decree.handlers;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.VolmitSender;
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeContext;
 import com.volmit.adapt.util.decree.DecreeParameterHandler;
 import com.volmit.adapt.util.decree.DecreeSystem;
@@ -35,8 +36,8 @@ import java.util.List;
 
 public class BlockVectorHandler implements DecreeParameterHandler<BlockVector> {
     @Override
-    public List<BlockVector> getPossibilities() {
-        List<BlockVector> vx = new ArrayList<>();
+    public KList<BlockVector> getPossibilities() {
+        KList<BlockVector> vx = new KList<>();
         VolmitSender s = DecreeContext.get();
 
         if (s.isPlayer()) {

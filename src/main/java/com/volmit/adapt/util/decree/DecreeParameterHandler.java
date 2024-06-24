@@ -19,6 +19,7 @@
 
 package com.volmit.adapt.util.decree;
 
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public interface DecreeParameterHandler<T> {
      *
      * @return Possibilities for this type.
      */
-    List<T> getPossibilities();
+    KList<T> getPossibilities();
 
     default boolean isDummy() {
         return false;
@@ -90,15 +91,15 @@ public interface DecreeParameterHandler<T> {
      * @param input The inputted string to check against
      * @return A {@link List} of possibilities
      */
-    default List<T> getPossibilities(String input) {
+    default KList<T> getPossibilities(String input) {
         if (input.trim().isEmpty()) {
-            List<T> f = getPossibilities();
-            return f == null ? new ArrayList<>() : f;
+            KList<T> f = getPossibilities();
+            return f == null ? new KList<>() : f;
         }
 
         input = input.trim();
-        List<T> possible = getPossibilities();
-        List<T> matches = new ArrayList<>();
+        KList<T> possible = getPossibilities();
+        KList<T> matches = new KList<>();
 
         if (possible == null || possible.isEmpty()) {
             return matches;
@@ -108,7 +109,7 @@ public interface DecreeParameterHandler<T> {
             return getPossibilities();
         }
 
-        List<String> converted = possible.convert(v -> toString(v).trim());
+        KList<String> converted = possible.convert(v -> toString(v).trim());
 
         for (int i = 0; i < converted.size(); i++) {
             String g = converted.get(i);
