@@ -24,6 +24,8 @@ import art.arcane.chrono.ChronoLatch;
 //import com.volmit.react.React;
 //import com.volmit.react.util.collection.KList;
 //import com.volmit.react.util.collection.KMap;
+import com.volmit.adapt.Adapt;
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.collection.KMap;
 import it.unimi.dsi.fastutil.ints.*;
 import org.bukkit.Bukkit;
@@ -141,7 +143,7 @@ public class B {
     private static IntSet buildDecorantCache() {
         IntSet b = new IntOpenHashSet();
         Arrays.stream(new Material[]{
-                GRASS,
+                SHORT_GRASS,
                 TALL_GRASS,
                 FERN,
                 LARGE_FERN,
@@ -383,7 +385,7 @@ public class B {
         } catch (Throwable e) {
             e.printStackTrace();
             if (clw.flip()) {
-                React.warn("Unknown Material: " + bdx);
+                Adapt.warn("Unknown Material: " + bdx);
             }
             return null;
         }
@@ -536,7 +538,7 @@ public class B {
             state = newStates.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining(","));
             if (!state.equals("")) state = "[" + state + "]";
             String newBlock = block + state;
-            React.debug("Converting " + ix + " to " + newBlock);
+            Adapt.debug("Converting " + ix + " to " + newBlock);
 
             try {
                 return createBlockData(newBlock);

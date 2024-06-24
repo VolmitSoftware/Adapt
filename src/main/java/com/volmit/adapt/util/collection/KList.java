@@ -605,7 +605,8 @@ public class KList<T> extends ArrayList<T> implements List<T> {
         return get(middleIndex());
     }
 
-    private int middleIndex() {
+    // todo: this should be private
+    public int middleIndex() {
         return size() % 2 == 0 ? (size() / 2) : ((size() / 2) + 1);
     }
 

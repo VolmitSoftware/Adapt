@@ -27,11 +27,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class Enchantments {
     public static final Enchantment BOUND = new Enchantment() {
-        @NotNull
-        @Override
-        public String getTranslationKey() {
-            return null;
-        }
+        // todo: Ignore for now?
+//        @NotNull
+//        @Override
+//        public String getTranslationKey() {
+//            return null;
+//        }
 
         @NotNull
         @Override
