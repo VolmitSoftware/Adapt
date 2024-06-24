@@ -284,7 +284,7 @@ public class KList<T> extends ArrayList<T> implements List<T> {
      * @return the string list
      */
     public KList<String> toStringList() {
-        return convert((t) -> t + "");
+        return kConvert((t) -> t + "");
     }
 
     /**
@@ -304,7 +304,7 @@ public class KList<T> extends ArrayList<T> implements List<T> {
      * Convert this list into another list type. Such as GList<Integer> to
      * GList<String>. list.convert((i) -> "" + i);
      */
-    public <V> KList<V> convert(Function<T, V> converter) {
+    public <V> KList<V> kConvert(Function<T, V> converter) {
         KList<V> v = new KList<V>();
         forEach((t) -> v.addNonNull(converter.apply(t)));
         return v;

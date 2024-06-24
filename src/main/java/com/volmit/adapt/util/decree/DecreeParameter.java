@@ -105,7 +105,7 @@ public class DecreeParameter {
     public String example() {
         KList<?> ff = getHandler().getPossibilities();
         ff = ff != null ? ff : new KList<>();
-        KList<String> f = ff.convert((i) -> getHandler().toStringForce(i));
+        KList<String> f = ff.kConvert((i) -> getHandler().toStringForce(i));
         if (f.isEmpty()) {
             f = new KList<>();
             f.add(getHandler().getRandomDefault());

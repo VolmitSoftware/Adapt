@@ -31,7 +31,7 @@ public class StateList {
     }
 
     public StateList(Enum<?>... states) {
-        this.states = new KList<Enum<?>>().convert(Enum::name);
+        this.states = new KList<Enum<?>>().kConvert(Enum::name);
 
         if (getBits() > 64) {
             throw new RuntimeException("StateLists cannot exceed 64 bits! You are trying to use " + getBits() + " bits!");

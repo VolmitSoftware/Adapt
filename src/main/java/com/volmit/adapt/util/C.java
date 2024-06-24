@@ -325,13 +325,21 @@ public enum C {
     private final String toString;
 
     C(char code, int intCode) {
-        this(code, intCode, false);
+        this("^", code, intCode, false);
+    }
+
+    C(String token, char code, int intCode) {
+        this(token, code, intCode, false);
     }
 
     C(char code, int intCode, boolean isFormat) {
+        this("^", code, intCode, isFormat);
+    }
+
+    C(String token, char code, int intCode, boolean isFormat) {
         this.code = code;
-        this.intCode = intCode;
         this.token = token.equalsIgnoreCase("^") ? "<" + name().toLowerCase(Locale.ROOT) + ">" : token;
+        this.intCode = intCode;
         this.isFormat = isFormat;
         this.toString = new String(new char[]{COLOR_CHAR, code});
     }

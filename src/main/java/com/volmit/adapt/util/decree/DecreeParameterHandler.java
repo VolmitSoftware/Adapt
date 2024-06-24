@@ -109,7 +109,7 @@ public interface DecreeParameterHandler<T> {
             return getPossibilities();
         }
 
-        KList<String> converted = possible.convert(v -> toString(v).trim());
+        KList<String> converted = possible.kConvert(v -> toString(v).trim());
 
         for (int i = 0; i < converted.size(); i++) {
             String g = converted.get(i);

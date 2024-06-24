@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface DecreeSystem extends CommandExecutor, TabCompleter {
-    KList<DecreeParameterHandler<?>> handlers = Adapt.initialize("com.volmit.react.util.decree.handlers", null).convert((i) -> (DecreeParameterHandler<?>) i);
+    KList<DecreeParameterHandler<?>> handlers = Adapt.initialize("com.volmit.react.util.decree.handlers", null).kConvert((i) -> (DecreeParameterHandler<?>) i);
 
     static List<String> enhanceArgs(String[] args) {
         return enhanceArgs(args, true);

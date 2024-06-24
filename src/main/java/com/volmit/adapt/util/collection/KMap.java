@@ -182,7 +182,7 @@ public class KMap<K, V> extends ConcurrentHashMap<K, V> {
      * @param f the function
      * @return the same gmap
      */
-    public KMap<K, V> each(Consumer2<K, V> f) {
+    public KMap<K, V> keach(Consumer2<K, V> f) {
         for (K i : k()) {
             f.accept(i, get(i));
         }
@@ -196,7 +196,7 @@ public class KMap<K, V> extends ConcurrentHashMap<K, V> {
      * @return the flipped and flattened hashmap
      */
     public KMap<V, K> flipFlatten() {
-        KMap<V, KList<K>> f = flip();
+        KMap<V, KList<K>> f = kFlip();
         KMap<V, K> m = new KMap<>();
 
         for (V i : f.k()) {
@@ -211,7 +211,7 @@ public class KMap<K, V> extends ConcurrentHashMap<K, V> {
      *
      * @return the flipped hashmap
      */
-    public KMap<V, KList<K>> flip() {
+    public KMap<V, KList<K>> kFlip() {
         KMap<V, KList<K>> flipped = new KMap<V, KList<K>>();
 
         for (K i : keySet()) {

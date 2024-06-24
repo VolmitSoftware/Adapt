@@ -248,12 +248,12 @@ public class VirtualDecreeCommand {
                     if (last.contains("=")) {
                         String[] vv = last.trim().split("\\Q=\\E");
                         String vx = vv.length == 2 ? vv[1] : "";
-                        for (String f : i.getHandler().getPossibilities(vx).convert((v) -> i.getHandler().toStringForce(v))) {
+                        for (String f : i.getHandler().getPossibilities(vx).kConvert((v) -> i.getHandler().toStringForce(v))) {
                             g++;
                             tabs.add(i.getName() + "=" + f);
                         }
                     } else {
-                        for (String f : i.getHandler().getPossibilities("").convert((v) -> i.getHandler().toStringForce(v))) {
+                        for (String f : i.getHandler().getPossibilities("").kConvert((v) -> i.getHandler().toStringForce(v))) {
                             g++;
                             tabs.add(i.getName() + "=" + f);
                         }
