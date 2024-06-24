@@ -31,6 +31,7 @@ import com.volmit.adapt.content.protector.*;
 import com.volmit.adapt.nms.GlowingEntities;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.command.*;
 import com.volmit.adapt.util.command.suggest.*;
 import com.volmit.adapt.util.secret.SecretSplash;
@@ -206,9 +207,9 @@ public class Adapt extends VolmitPlugin {
         return initialize(s, null);
     }
 
-    public static List<Object> initialize(String s, Class<? extends Annotation> slicedClass) {
+    public static KList<Object> initialize(String s, Class<? extends Annotation> slicedClass) {
         JarScanner js = new JarScanner(instance.jar(), s);
-        List<Object> v = new ArrayList<>();
+        KList<Object> v = new KList<>();
         J.attempt(js::scan);
         for (Class<?> i : js.getClasses()) {
             if (slicedClass == null || i.isAnnotationPresent(slicedClass)) {

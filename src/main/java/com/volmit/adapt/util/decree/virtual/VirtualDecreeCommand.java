@@ -25,8 +25,10 @@ import art.arcane.chrono.ChronoLatch;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CommandDummy;
+import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.VolmitSender;
 import com.volmit.adapt.util.collection.KList;
+import com.volmit.adapt.util.collection.KMap;
 import com.volmit.adapt.util.decree.DecreeContext;
 import com.volmit.adapt.util.decree.DecreeContextHandler;
 import com.volmit.adapt.util.decree.DecreeNode;
@@ -72,7 +74,7 @@ public class VirtualDecreeCommand {
     }
 
     public static VirtualDecreeCommand createRoot(VirtualDecreeCommand parent, Object v) throws Throwable {
-        VirtualDecreeCommand c = new VirtualDecreeCommand(v.getClass(), parent, new List<>(), null);
+        VirtualDecreeCommand c = new VirtualDecreeCommand(v.getClass(), parent, new KList<>(), null);
 
         for (Field i : v.getClass().getDeclaredFields()) {
             if (Modifier.isStatic(i.getModifiers()) || Modifier.isFinal(i.getModifiers()) || Modifier.isTransient(i.getModifiers()) || Modifier.isVolatile(i.getModifiers())) {
@@ -279,8 +281,8 @@ public class VirtualDecreeCommand {
      * @param in     The input
      * @return A map of all the parameter names and their values
      */
-    private HashMap<String, Object> map(VolmitSender sender, List<String> in) {
-        HashMap<String, Object> data = new HashMap<>();
+    private KMap<String, Object> map(VolmitSender sender, List<String> in) {
+        KMap<String, Object> data = new KMap<>();
         List<Integer> nowhich = new ArrayList<>();
 
         List<String> unknownInputs = new ArrayList<>(in.stream().filter(s -> !s.contains("=")).collect(Collectors.toList()));
@@ -339,7 +341,7 @@ public class VirtualDecreeCommand {
         }
 
         //Make a list of decree params that haven't been identified
-        List<DecreeParameter> decreeParameters = new List<>(getNode().getParameters().stream().filter(param -> !data.contains(param.getName())).collect(Collectors.toList()));
+        List<DecreeParameter> decreeParameters = new KList<>(getNode().getParameters().stream().filter(param -> !data.contains(param.getName())).collect(Collectors.toList()));
 
         //Loop Unknown inputs
         for (int x = 0; x < unknownInputs.size(); x++) {
@@ -406,7 +408,7 @@ public class VirtualDecreeCommand {
         return false;
     }
 
-    private boolean invokeNode(VolmitSender sender, HashMap<String, Object> map) {
+    private boolean invokeNode(VolmitSender sender, KMap<String, Object> map) {
         if (map == null) {
             return false;
         }
@@ -483,8 +485,8 @@ public class VirtualDecreeCommand {
         return true;
     }
 
-    public List<VirtualDecreeCommand> matchAllNodes(String in) {
-        List<VirtualDecreeCommand> g = new ArrayList<>();
+    public KList<VirtualDecreeCommand> matchAllNodes(String in) {
+        KList<VirtualDecreeCommand> g = new KList<>();
 
         if (in.trim().isEmpty()) {
             g.addAll(nodes);

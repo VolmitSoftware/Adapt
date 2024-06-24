@@ -20,6 +20,7 @@
 package com.volmit.adapt.util.decree;
 
 import art.arcane.amulet.MagicalSugar;
+import com.volmit.adapt.util.cache.AtomicCache;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.annotations.Param;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;

@@ -135,6 +135,7 @@ dependencies {
     implementation 'art.arcane:MultiBurst:22.9.2'
     implementation 'art.arcane:Chrono:22.9.10'
     implementation 'art.arcane:Spatial:22.11.1'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.0.6'
 
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
