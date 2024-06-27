@@ -67,13 +67,9 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
             return;
         }
         if (e.getEntity() instanceof Player p && hasAdaptation(p)) {
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + 1500 > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
-            }
+            Long cooldown = cooldowns.get(p);
+            if (cooldown != null && cooldown + 1500 > System.currentTimeMillis())
+                return;
 
             cooldowns.put(p, System.currentTimeMillis());
 

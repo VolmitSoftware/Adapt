@@ -147,14 +147,12 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
 
     private boolean isValidCraftEvent(CraftItemEvent e) {
-        if (cooldowns.containsKey(e.getWhoClicked())) {
-            if (cooldowns.get(e.getWhoClicked()) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                return false;
-            } else {
-                cooldowns.remove(e.getWhoClicked());
-            }
-        }
-        cooldowns.put((Player) e.getWhoClicked(), System.currentTimeMillis());
+        Player p = (Player) e.getWhoClicked();
+
+        Long cooldown = cooldowns.get(p);
+        if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+            return false;
+        cooldowns.put(p, System.currentTimeMillis());
 
         ItemStack result = e.getInventory().getResult();
         ItemStack cursor = e.getCursor();

@@ -92,12 +92,11 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
         Player p = e.getPlayer();
         ItemStack chest = p.getInventory().getChestplate();
         if (chest != null && hasAdaptation(p) && validateArmor(chest)) {
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + 3000 > System.currentTimeMillis()) {
+            Long cooldown = cooldowns.get(p);
+            if (cooldown != null) {
+                if (cooldown + 3000 > System.currentTimeMillis())
                     return;
-                } else {
-                    cooldowns.remove(p);
-                }
+                else cooldowns.remove(p);
             }
 
             if (p.isOnGround() && !p.isFlying()) {
