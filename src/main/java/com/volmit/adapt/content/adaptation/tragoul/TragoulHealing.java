@@ -87,7 +87,8 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
     }
 
     private boolean isOnCooldown(Player p) {
-        return cooldowns.containsKey(p) && cooldowns.get(p) > System.currentTimeMillis();
+        Long cooldown = cooldowns.get(p);
+        return cooldown != null && cooldown > System.currentTimeMillis();
     }
 
     private void startHealingWindow(Player p) {

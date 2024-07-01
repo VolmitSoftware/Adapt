@@ -83,13 +83,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
             AdaptPlayer a = getPlayer(p);
             a.getData().addStat("trag.hitsrecieved", 1);
             a.getData().addStat("trag.damage", e.getDamage());
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
-            }
+            Long cooldown = cooldowns.get(p);
+            if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+                return;
             cooldowns.put(p, System.currentTimeMillis());
             xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
         });
