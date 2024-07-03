@@ -34,6 +34,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.Random;
 
 public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> {
@@ -64,9 +65,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                 }
 
                 b.setType(Material.AIR);
-                if (!p.getInventory().addItem(new ItemStack(Material.IRON_INGOT, fortune)).isEmpty()) {
-                    b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.IRON_INGOT, fortune));
-                }
+                HashMap<Integer, ItemStack> excessItems = p.getInventory().addItem(new ItemStack(Material.IRON_INGOT, fortune));
+                excessItems.values().forEach(itemStack -> b.getLocation().getWorld().dropItemNaturally(b.getLocation(), itemStack));
                 b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
@@ -76,9 +76,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                 }
 
                 b.setType(Material.AIR);
-                if (!p.getInventory().addItem(new ItemStack(Material.GOLD_INGOT, fortune)).isEmpty()) {
-                    b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.GOLD_INGOT, fortune));
-                }
+                HashMap<Integer, ItemStack> excessItems = p.getInventory().addItem(new ItemStack(Material.GOLD_INGOT, fortune));
+                excessItems.values().forEach(itemStack -> b.getLocation().getWorld().dropItemNaturally(b.getLocation(), itemStack));
                 b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
@@ -87,9 +86,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                     return;
                 }
                 b.setType(Material.AIR);
-                if (!p.getInventory().addItem(new ItemStack(Material.COPPER_INGOT, fortune)).isEmpty()) {
-                    b.getLocation().getWorld().dropItemNaturally(b.getLocation(), new ItemStack(Material.COPPER_INGOT, fortune));
-                }
+                HashMap<Integer, ItemStack> excessItems = p.getInventory().addItem(new ItemStack(Material.COPPER_INGOT, fortune));
+                excessItems.values().forEach(itemStack -> b.getLocation().getWorld().dropItemNaturally(b.getLocation(), itemStack));
                 b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
