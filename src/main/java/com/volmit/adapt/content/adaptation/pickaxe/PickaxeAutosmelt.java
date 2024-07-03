@@ -70,7 +70,7 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                 b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
-            case GOLD_ORE, DEEPSLATE_GOLD_ORE, NETHER_GOLD_ORE -> {
+            case GOLD_ORE, DEEPSLATE_GOLD_ORE -> {
                 if (b.getLocation().getWorld() == null) {
                     return;
                 }
@@ -116,7 +116,7 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
                 b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
                 b.getWorld().spawnParticle(Particle.LAVA, b.getLocation(), 3, 0.5, 0.5, 0.5);
             }
-            case GOLD_ORE, DEEPSLATE_GOLD_ORE, NETHER_GOLD_ORE -> {
+            case GOLD_ORE, DEEPSLATE_GOLD_ORE -> {
                 if (b.getLocation().getWorld() == null) {
                     return;
                 }
