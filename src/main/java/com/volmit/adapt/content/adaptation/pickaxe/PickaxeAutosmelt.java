@@ -38,6 +38,8 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> {
+    private static final Random RANDOM = new Random();
+
     public PickaxeAutosmelt() {
         super("pickaxe-autosmelt");
         registerConfiguration(PickaxeAutosmelt.Config.class);
@@ -52,12 +54,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     }
 
     static void autosmeltBlockDTI(Block b, Player p) {
-        int fortune = 1;
-        Random random = new Random();
-        if (p.getInventory().getItemInMainHand().getEnchantments().get(Enchantment.LOOT_BONUS_BLOCKS) != null) {
-            fortune = p.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) + (random.nextInt(3));
-
-        }
+        int fortune = getFortuneOreMultiplier(p.getInventory().getItemInMainHand()
+                .getEnchantments().get(Enchantment.LOOT_BONUS_BLOCKS));
         switch (b.getType()) {
             case IRON_ORE, DEEPSLATE_IRON_ORE -> {
                 if (b.getLocation().getWorld() == null) {
@@ -96,12 +94,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     }
 
     static void autosmeltBlock(Block b, Player p) {
-        int fortune = 1;
-        Random random = new Random();
-        if (p.getInventory().getItemInMainHand().getEnchantments().get(Enchantment.LOOT_BONUS_BLOCKS) != null) {
-            fortune = p.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) + (random.nextInt(3));
-
-        }
+        int fortune = getFortuneOreMultiplier(p.getInventory().getItemInMainHand()
+                .getEnchantments().get(Enchantment.LOOT_BONUS_BLOCKS));
         switch (b.getType()) {
             case IRON_ORE, DEEPSLATE_IRON_ORE -> {
 
@@ -135,6 +129,19 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
             }
 
         }
+    }
+
+    // https://minecraft.fandom.com/wiki/Fortune?oldid=2359015#Ore
+    private static int getFortuneOreMultiplier(Integer fortuneLevel) {
+        if (fortuneLevel == null || fortuneLevel < 1) return 1;
+
+        double averageBonusMultiplier = (1.0/(fortuneLevel+2) + (fortuneLevel+1)/2.0) - 1;
+        int sumOfBonusMultipliers = (fortuneLevel*(fortuneLevel+1))/2;
+        double chancePerMultiplier = averageBonusMultiplier/sumOfBonusMultipliers;
+
+        int bonusMultiplier = ((int) (RANDOM.nextDouble()/chancePerMultiplier)) + 1;
+
+        return bonusMultiplier <= fortuneLevel ? bonusMultiplier+1 : 1;
     }
 
     @Override
