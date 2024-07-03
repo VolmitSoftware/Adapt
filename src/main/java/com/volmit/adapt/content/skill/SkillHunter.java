@@ -158,7 +158,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getBlock().getType().equals(Material.TURTLE_EGG)) {
                 handleCooldownAndXp(p, getConfig().turtleEggKillXP);
-                getPlayer(p).getData().addStat("killed.tutleeggs", 1);
+                getPlayer(p).getData().addStat("killed.turtleeggs", 1);
             }
         });
     }
@@ -172,7 +172,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock() != null && e.getClickedBlock().getType().equals(Material.TURTLE_EGG)) {
                 handleCooldownAndXp(p, getConfig().turtleEggKillXP);
-                getPlayer(p).getData().addStat("killed.tutleeggs", 1);
+                getPlayer(p).getData().addStat("killed.turtleeggs", 1);
             }
         });
     }
