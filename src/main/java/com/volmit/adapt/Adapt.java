@@ -58,6 +58,8 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.*;
 
+import static com.volmit.adapt.util.decree.context.AdaptationListingHandler.initializeAdaptationListings;
+
 public class Adapt extends VolmitPlugin {
     public static Adapt instance;
     public static HashMap<String, String> wordKey = new HashMap<>();
@@ -82,8 +84,7 @@ public class Adapt extends VolmitPlugin {
     @Getter
     private Map<String, Window> guiLeftovers = new HashMap<>();
 
-
-
+    private static VolmitSender sender;
     
 
     public Adapt() {
@@ -147,6 +148,7 @@ public class Adapt extends VolmitPlugin {
         }
         glowingEntities = new GlowingEntities(this);
         parser.parse(new CommandAdapt());
+        initializeAdaptationListings();
     }
 
 
@@ -201,6 +203,14 @@ public class Adapt extends VolmitPlugin {
         if (AdaptConfig.get().isMetrics()) {
             new Metrics(this, 13412);
         }
+    }
+
+    public static VolmitSender getSender() {
+        if (sender == null) {
+            sender = new VolmitSender(Bukkit.getConsoleSender());
+            sender.setTag(instance.getTag());
+        }
+        return sender;
     }
 
     public static List<Object> initialize(String s) {
