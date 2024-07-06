@@ -1,6 +1,7 @@
 package com.volmit.adapt.api.potion;
 
 import com.google.common.collect.Lists;
+import com.volmit.adapt.util.reflect.Reflect;
 import lombok.AllArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -21,7 +22,7 @@ public class PotionBuilder {
     private String name;
     private Color color;
     private boolean upgraded, extended;
-    private PotionType baseType = PotionType.UNCRAFTABLE;
+    private PotionType baseType = Reflect.getEnum(PotionType.class, "UNCRAFTABLE").orElse(null);
 
     private PotionBuilder(Type type) {
         this.type = type;
@@ -71,7 +72,7 @@ public class PotionBuilder {
         effects.forEach(e -> meta.addCustomEffect(e, true));
         if (color != null)
             meta.setColor(color);
-        meta.setBasePotionData(new PotionData(baseType, extended, upgraded));
+        meta.setBasePotionData(baseType != null && Reflect.getEnum(PotionType.class, "UNCRAFTABLE").isPresent() ? new PotionData(baseType, extended, upgraded) : null);
         if (name != null)
             meta.setDisplayName("§r" + name);
         stack.setItemMeta(meta);

@@ -27,6 +27,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -171,7 +172,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
         });
         block.getWorld().playSound(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 1.0f);
         if (getConfig().showParticles) {
-            vfxCuboidOutline(block, Particle.ENCHANTMENT_TABLE);
+            vfxCuboidOutline(block, Particles.ENCHANTMENT_TABLE);
         }
     }
 

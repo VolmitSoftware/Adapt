@@ -23,12 +23,12 @@ import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.Enchantments;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -53,8 +53,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     static void autosmeltBlockDTI(Block b, Player p) {
         int fortune = 1;
         Random random = new Random();
-        if (p.getInventory().getItemInMainHand().getEnchantments().get(Enchantment.LOOT_BONUS_BLOCKS) != null) {
-            fortune = p.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) + (random.nextInt(3));
+        if (p.getInventory().getItemInMainHand().getEnchantments().get(Enchantments.LOOT_BONUS_BLOCKS) != null) {
+            fortune = p.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantments.LOOT_BONUS_BLOCKS) + (random.nextInt(3));
 
         }
         switch (b.getType()) {
@@ -100,8 +100,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     static void autosmeltBlock(Block b, Player p) {
         int fortune = 1;
         Random random = new Random();
-        if (p.getInventory().getItemInMainHand().getEnchantments().get(Enchantment.LOOT_BONUS_BLOCKS) != null) {
-            fortune = p.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) + (random.nextInt(3));
+        if (p.getInventory().getItemInMainHand().getEnchantments().get(Enchantments.LOOT_BONUS_BLOCKS) != null) {
+            fortune = p.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantments.LOOT_BONUS_BLOCKS) + (random.nextInt(3));
 
         }
         switch (b.getType()) {

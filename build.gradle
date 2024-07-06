@@ -125,7 +125,7 @@ dependencies {
     // Provided or Classpath
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    implementation 'org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT'
+    implementation 'org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT'
 
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'

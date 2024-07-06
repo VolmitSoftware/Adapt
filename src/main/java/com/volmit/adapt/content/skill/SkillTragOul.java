@@ -30,6 +30,7 @@ import com.volmit.adapt.content.adaptation.tragoul.TragoulLance;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulThorns;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.Particles;
 import de.slikey.effectlib.effect.CloudEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -109,7 +110,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                 if (getConfig().showParticles) {
                     CloudEffect ce = new CloudEffect(Adapt.instance.adaptEffectManager);
                     ce.mainParticle = Particle.ASH;
-                    ce.cloudParticle = Particle.REDSTONE;
+                    ce.cloudParticle = Particles.REDSTONE;
                     ce.duration = 10000;
                     ce.iterations = 1000;
                     ce.setEntity(p);
@@ -148,7 +149,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
             return;
         }
         for (Player i : Bukkit.getOnlinePlayers()) {
-            shouldReturnForPlayer(i,  () -> {
+            shouldReturnForPlayer(i, () -> {
                 AdaptPlayer player = getPlayer(i);
                 checkStatTrackers(player);
             });
