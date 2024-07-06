@@ -19,6 +19,9 @@
 package com.volmit.adapt;
 
 import art.arcane.amulet.io.FolderWatcher;
+import com.fren_gor.ultimateAdvancementAPI.AdvancementMain;
+import com.fren_gor.ultimateAdvancementAPI.UltimateAdvancementAPI;
+import com.volmit.adapt.api.advancement.AdvancementManager;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.potion.BrewingManager;
 import com.volmit.adapt.api.protection.ProtectorRegistry;
@@ -29,7 +32,6 @@ import com.volmit.adapt.command.CommandAdapt;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.protector.*;
 import com.volmit.adapt.nms.GlowingEntities;
-import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.command.*;
 import com.volmit.adapt.util.command.suggest.*;
@@ -83,6 +85,8 @@ public class Adapt extends VolmitPlugin {
     @Getter
     private Map<String, Window> guiLeftovers = new HashMap<>();
 
+    @Getter
+    private AdvancementManager manager;
 
 
     
@@ -90,6 +94,11 @@ public class Adapt extends VolmitPlugin {
     public Adapt() {
         super();
         instance = this;
+    }
+
+    @Override
+    public void onLoad() {
+        manager = new AdvancementManager();
     }
 
     @Override
@@ -107,7 +116,6 @@ public class Adapt extends VolmitPlugin {
         commandManager.suggestionProviderRegistry().register(new ParticleSuggestionProvider());
         commandManager.suggestionProviderRegistry().register(new BooleanSuggestionProvider());
 
-        NMS.init();
         Localizer.updateLanguageFile();
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PapiExpansion().register();
@@ -154,11 +162,13 @@ public class Adapt extends VolmitPlugin {
     public void startSim() {
         ticker = new Ticker();
         adaptServer = new AdaptServer();
+        manager.enable();
     }
 
     public void stopSim() {
         ticker.clear();
         adaptServer.unregister();
+        manager.disable();
         MaterialValue.save();
         WorldData.stop();
     }

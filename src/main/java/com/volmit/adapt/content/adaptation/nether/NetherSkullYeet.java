@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -109,7 +108,6 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
             p.playSound(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
             return;
         } else {
-            NMS.get().sendCooldown(p, Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
             p.setCooldown(Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
         }
 

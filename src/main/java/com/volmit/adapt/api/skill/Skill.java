@@ -72,9 +72,6 @@ public interface Skill<T> extends Ticked, Component {
         if (!player.getPlayer().getClass().getSimpleName().equals("CraftPlayer")) {
             return;
         }
-        if (!player.getAdvancementHandler().isReady()) {
-            return;
-        }
         if (!AdaptConfig.get().isAdvancements()) {
             return;
         }

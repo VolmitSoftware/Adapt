@@ -23,8 +23,8 @@ import com.volmit.adapt.content.adaptation.ranged.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
-import net.minecraft.world.entity.projectile.EntityFishingHook;
 import org.bukkit.Material;
+import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
@@ -92,7 +92,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             return;
         }
         shouldReturnForPlayer(p, e, () -> {
-            if (e.getEntity() instanceof Snowball || e.getEntity() instanceof EntityFishingHook) {
+            if (e.getEntity() instanceof Snowball || e.getEntity() instanceof FishHook) {
                 return; // Ignore snowballs and fishing hooks
             }
                 if (e.getEntity().getLocation().getWorld().equals(p.getLocation().getWorld())) {

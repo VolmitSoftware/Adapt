@@ -24,10 +24,7 @@ plugins {
 }
 
 version '1.14.2-1.20.4'
-def nmsVersion = "1.20.4" //[NMS]
 def apiVersion = '1.20'
-def specialSourceVersion = '1.11.4' //[NMS]
-def spigotJarVersion = '1.20.4-R0.1-SNAPSHOT' //[NMS]
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
 def manifoldVersion = '2024.1.10'
@@ -77,6 +74,7 @@ repositories {
     maven { url "https://repo.papermc.io/repository/maven-public/"}
     maven { url "https://repo.codemc.org/repository/maven-public" }
     maven { url "https://mvn.lumine.io/repository/maven-public/" }
+    maven { url "https://nexus.frengor.com/repository/public/"}
     maven { url "https://jitpack.io"}
     maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
     maven { url 'https://jitpack.io' }
@@ -108,13 +106,13 @@ shadowJar {
     relocate 'art.arcane', 'com.volmit.adapt.util.arcane'
     relocate 'Fukkit.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'Amulet.extensions', 'com.volmit.adapt.util.extensions'
-    relocate 'eu.endercentral.crazy_advancements', 'com.volmit.adapt.util.advancements'
+    relocate 'com.fren_gor.ultimateAdvancementAPI', 'com.volmit.adapt.util.advancements'
     dependencies {
         include(dependency('systems.manifold:'))
         include(dependency('xyz.xenondevs:'))
         include(dependency('art.arcane:'))
         include(dependency('io.github.mqzn:'))
-        include(dependency('com.github.VolmitSoftware:AdvancementsAPI:'))
+        include(dependency('com.frengor:ultimateadvancementapi-shadeable:2.4.0'))
     }
 }
 
@@ -127,8 +125,7 @@ dependencies {
     // Provided or Classpath
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    implementation 'org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT' //[NMS]
-    implementation 'org.bukkit:craftbukkit:1.20.4-R0.1-SNAPSHOT' //[NMS]
+    implementation 'org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT'
 
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
@@ -150,9 +147,9 @@ dependencies {
     implementation "com.github.angeschossen:ChestProtectAPI:3.9.1"
     implementation "com.github.TechFortress:GriefPrevention:16.18.1"
     implementation 'xyz.xenondevs:particle:1.8.1'
-    //implementation 'com.github.ZockerAxel:CrazyAdvancementsAPI:v2.1.17a'
-    implementation 'com.github.VolmitSoftware:AdvancementsAPI:2.1.17:shadable'
+    implementation "com.frengor:ultimateadvancementapi-shadeable:2.4.0"
     compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
+    compileOnly 'io.netty:netty-all:4.1.68.Final'
 
     // Dynamically Loaded
     compileOnly 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
@@ -186,104 +183,8 @@ if (JavaVersion.current().toString() != "17") {
     System.exit(69)
 }
 
-
-def buildToolsJar = new File(buildDir, "buildtools/BuildTools.jar")
-def specialSourceJar = new File(buildDir, "specialsource/SpecialSource.jar")
-def buildToolsFolder = new File(buildDir, "buildtools")
-def specialSourceFolder = new File(buildDir, "specialsource")
-def buildToolsHint = new File(buildDir, "buildtools/craftbukkit-" + nmsVersion + ".jar")
-def outputShadeJar = new File(buildDir, "libs/Adapt-" + version + "-all.jar")
-def ssiJar = new File(buildDir, "specialsource/Adapt-" + version + "-all.jar")
-def ssobfJar = new File(buildDir, "specialsource/Adapt-" + version + "-rmo.jar")
-def ssJar = new File(buildDir, "specialsource/Adapt-" + version + "-rma.jar")
-def homePath = System.properties['user.home']
-def m2 = new File(homePath + "/.m2/repository")
-def m2s = m2.getAbsolutePath()
-
-// ======================== Building Mapped Jars =============================
-task downloadBuildtools(type: Download) {
-    group "remapping"
-    src 'https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar'
-    dest buildToolsJar
-    onlyIf {
-        !buildToolsJar.exists()
-    }
-}
-
-task downloadSpecialSource(type: Download) {
-    group "remapping"
-    src 'https://repo.maven.apache.org/maven2/net/md-5/SpecialSource/' + specialSourceVersion + '/SpecialSource-' + specialSourceVersion + '-shaded.jar'
-    dest specialSourceJar
-    onlyIf {
-        !specialSourceJar.exists()
-    }
-}
-
-task executeBuildTools(dependsOn: downloadBuildtools, type: JavaExec)
-{
-    group "remapping"
-    classpath = files(buildToolsJar)
-    workingDir = buildToolsFolder
-    args = [
-            "--rev",
-            nmsVersion,
-            "--compile",
-            "craftbukkit",
-            "--remap"
-    ]
-    onlyIf {
-        !buildToolsHint.exists()
-    }
-}
-
-task copyBuildToSpecialSource(type: Copy)
-{
-    group "remapping"
-    from outputShadeJar
-    into specialSourceFolder
-    dependsOn(downloadSpecialSource, shadowJar)
-}
-
-task specialSourceRemapObfuscate(type: JavaExec)
-{
-    group "remapping"
-    dependsOn(copyBuildToSpecialSource, downloadSpecialSource, shadowJar)
-    workingDir = specialSourceFolder
-    classpath = files(specialSourceJar,
-            new File(m2s + "/org/spigotmc/spigot/" + spigotJarVersion + "/spigot-" + spigotJarVersion + "-remapped-mojang.jar"))
-    mainClass = "net.md_5.specialsource.SpecialSource"
-    args = [
-            "--live",
-            "-i",
-            ssiJar.getName(),
-            "-o",
-            ssobfJar.getName(),
-            "-m",
-            m2s + "/org/spigotmc/minecraft-server/" + spigotJarVersion + "/minecraft-server-" + spigotJarVersion + "-maps-mojang.txt",
-            "--reverse",
-    ]
-}
-
-task specialSourceRemap(type: JavaExec)
-{
-    group "remapping"
-    dependsOn(specialSourceRemapObfuscate)
-    workingDir = specialSourceFolder
-    classpath = files(specialSourceJar,
-            new File(m2s + "/org/spigotmc/spigot/" + spigotJarVersion + "/spigot-" + spigotJarVersion + "-remapped-obf.jar"))
-    mainClass = "net.md_5.specialsource.SpecialSource"
-    args = [
-            "--live",
-            "-i",
-            ssobfJar.getName(),
-            "-o",
-            ssJar.getName(),
-            "-m",
-            m2s + "/org/spigotmc/minecraft-server/" + spigotJarVersion + "/minecraft-server-" + spigotJarVersion + "-maps-spigot.csrg"
-    ]
-}
-
-tasks.compileJava.dependsOn(executeBuildTools)
+def buildDir = layout.buildDirectory.asFile.get();
+def outputJar = new File(buildDir, "libs/Adapt-" + version + "-all.jar")
 
 java {
     toolchain {
@@ -295,21 +196,17 @@ compileJava {
     options.encoding = "UTF-8"
 }
 
-task setup()
-{
-    group("adapt")
-    dependsOn(clean, executeBuildTools)
-}
+tasks.build.dependsOn(shadowJar)
 
 task adapt(type: Copy)
 {
     group "adapt"
-    from ssJar
+    from outputJar
     into buildDir
     rename { String fileName ->
-        fileName.replace('Adapt-' + version + '-rma.jar', "Adapt-" + version + ".jar")
+        fileName.replace(outputJar.getName(), "Adapt-" + version + ".jar")
     }
-    dependsOn(specialSourceRemap)
+    dependsOn(build)
 }
 
 def registerCustomOutputTask(name, path) {

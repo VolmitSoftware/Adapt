@@ -18,15 +18,15 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.herbalism.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
-import eu.endercentral.crazy_advancements.advancement.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -71,20 +71,20 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                 .key("challenge_eat_100")
                 .title("So much to eat!")
                 .description("Eat over 100 Items!")
-                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.COOKED_BEEF)
                         .key("challenge_eat_1000")
                         .title("Unquenchable Hunger!")
                         .description("Eat over 1,000 Items!")
-                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.COOKED_BEEF)
                                 .key("challenge_eat_10000")
                                 .title("EVERLASTING HUNGER!")
                                 .description("Eat over 10,000 Items!")
-                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .frame(AdvancementFrameType.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                 .build())
                         .build())
@@ -99,14 +99,14 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                 .key("challenge_harvest_100")
                 .title("Full Harvest")
                 .description("Harvest over 100 crops!")
-                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.COOKED_BEEF)
                         .key("challenge_harvest_1000")
                         .title("Grand Harvest")
                         .description("Harvest 1,000 crops!")
-                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
