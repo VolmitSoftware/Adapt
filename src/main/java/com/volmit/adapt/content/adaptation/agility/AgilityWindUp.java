@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.agility;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -29,8 +30,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDismountEvent;
-import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
@@ -50,6 +49,8 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         setInitialCost(getConfig().initialCost);
         setInterval(120);
         ticksRunning = new HashMap<>();
+        Version.get().addEntityMountListener(ticksRunning::remove);
+        Version.get().addEntityDismountListener(ticksRunning::remove);
     }
 
     @Override
@@ -62,20 +63,6 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         ticksRunning.remove(p);
-    }
-
-    @EventHandler
-    public void on(EntityMountEvent e) {
-        if (e.getEntity() instanceof Player p) {
-            ticksRunning.remove(p);
-        }
-    }
-
-    @EventHandler
-    public void on(EntityDismountEvent e) {
-        if (e.getEntity() instanceof Player p) {
-            ticksRunning.remove(p);
-        }
     }
 
     private double getWindupTicks(double factor) {

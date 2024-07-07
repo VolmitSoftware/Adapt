@@ -20,10 +20,9 @@ plugins {
     id 'java-library'
     id "io.freefair.lombok" version "6.3.0"
     id "com.github.johnrengelman.shadow" version "7.1.2"
-    id "de.undercouch.download" version "5.0.1"
 }
 
-version '1.14.2-1.20.4'
+version '1.14.2-1.19.2-1.20.6'
 def apiVersion = '1.20'
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
@@ -42,6 +41,26 @@ registerCustomOutputTaskUnix('CyberpwnLT', '/Users/danielmills/development/serve
 registerCustomOutputTaskUnix('PsychoLT', '/Users/brianfopiano/Desktop/REMOTES/RemoteMinecraft/plugins')
 registerCustomOutputTaskUnix('the456gamer', '/home/the456gamer/projects/minecraft/adapt-testserver/plugins/update/', false)
 // ==============================================================
+
+def VERSIONS = Map.of(
+        "v1_20_5", "1.20.5-R0.1-SNAPSHOT",
+        "v1_20_4", "1.20.4-R0.1-SNAPSHOT",
+        "v1_19_2", "1.19.2-R0.1-SNAPSHOT"
+)
+
+VERSIONS.each {
+    def key = it.key;
+    def value = it.value;
+    project(":version:${key}") {
+        apply plugin: 'java'
+        apply plugin: 'java-library'
+
+        dependencies {
+            implementation rootProject
+            compileOnly "org.spigotmc:spigot-api:${value}"
+        }
+    }
+}
 
 /**
  * Gradle is weird sometimes, we need to delete the plugin yml from the build folder to actually filter properly.
@@ -63,44 +82,93 @@ processResources {
     }
 }
 
-repositories {
-    mavenLocal {
-        content {
-            includeGroup("org.bukkit")
-            includeGroup("org.spigotmc")
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+
+    repositories {
+        mavenLocal {
+            content {
+                includeGroup("org.bukkit")
+                includeGroup("org.spigotmc")
+            }
         }
+        mavenCentral()
+        maven { url "https://repo.papermc.io/repository/maven-public/"}
+        maven { url "https://repo.codemc.org/repository/maven-public" }
+        maven { url "https://mvn.lumine.io/repository/maven-public/" }
+        maven { url "https://nexus.frengor.com/repository/public/"}
+        maven { url "https://jitpack.io"}
+        maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+        maven { url 'https://jitpack.io' }
+        maven { url 'https://ci.ender.zone/plugin/repository/everything/' }
+        maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
+        maven { url "https://repo.glaremasters.me/repository/bloodshot/" }
+        mavenLocal()
+
     }
-    mavenCentral()
-    maven { url "https://repo.papermc.io/repository/maven-public/"}
-    maven { url "https://repo.codemc.org/repository/maven-public" }
-    maven { url "https://mvn.lumine.io/repository/maven-public/" }
-    maven { url "https://nexus.frengor.com/repository/public/"}
-    maven { url "https://jitpack.io"}
-    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
-    maven { url 'https://jitpack.io' }
-    maven { url 'https://ci.ender.zone/plugin/repository/everything/' }
-    maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
-    maven { url "https://repo.glaremasters.me/repository/bloodshot/" }
-    mavenLocal()
 
+    /**
+     * We need parameter meta for the decree command system
+     */
+    compileJava {
+        options.compilerArgs << '-parameters'
+    }
+
+    dependencies {
+        // Provided or Classpath
+        compileOnly 'org.projectlombok:lombok:1.18.24'
+        annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+        // Cancer
+        implementation 'art.arcane:Amulet:22.7.18'
+        implementation 'art.arcane:Fukkit:22.7.5'
+        implementation 'art.arcane:Curse:23.5.2'
+        implementation "io.papermc:paperlib:1.0.7"
+        annotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
+        testAnnotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
+        implementation 'systems.manifold:manifold-rt:' + manifoldVersion
+
+        //Random Api's
+        implementation 'com.github.DeadSilenceIV:AdvancedChestsAPI:2.9-BETA'
+        implementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.8'
+        implementation "com.github.FrancoBM12:API-MagicCosmetics:2.2.2"
+        implementation 'me.clip:placeholderapi:2.11.2'
+        implementation 'com.github.LoneDev6:api-itemsadder:3.2.5'
+        implementation 'io.th0rgal:oraxen:1.94.0'
+        implementation 'com.massivecraft:Factions:1.6.9.5-U0.6.21'
+        implementation "com.github.angeschossen:ChestProtectAPI:3.9.1"
+        implementation "com.github.TechFortress:GriefPrevention:16.18.1"
+        implementation 'xyz.xenondevs:particle:1.8.1'
+        implementation "com.frengor:ultimateadvancementapi-shadeable:2.4.0"
+        compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
+        compileOnly 'io.netty:netty-all:4.1.68.Final'
+
+        // Dynamically Loaded
+        compileOnly 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
+        compileOnly 'org.apache.commons:commons-lang3:3.12.0'
+        compileOnly 'com.google.code.gson:gson:2.10'
+        compileOnly 'com.elmakers.mine.bukkit:EffectLib:9.4'
+        compileOnly 'net.kyori:adventure-text-minimessage:4.13.1'
+        compileOnly 'net.kyori:adventure-platform-bukkit:4.3.0'
+        compileOnly 'net.kyori:adventure-api:4.13.1'
+        compileOnly 'io.github.mqzn:mCommands-spigot:1.1.0'
+        compileOnly 'io.github.mqzn:mCommands-common:1.1.0'
+        implementation 'com.google.guava:guava:30.1-jre'
+        compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+    }
 }
-
-/**
- * We need parameter meta for the decree command system
- */
-compileJava {
-    options.compilerArgs << '-parameters'
-}
-
-/**
- * Configure Adapt for shading
- */
 
 /**
  * Configure Adapt for shading
  */
 shadowJar {
 //    minimize()
+    VERSIONS.each {
+        dependsOn(":version:${it.key}:build")
+        from(project(":version:${it.key}").layout.buildDirectory.file("libs/${it.key}.jar").get())
+    }
+
     append("plugin.yml")
     relocate 'manifold', 'com.volmit.adapt.util.manifold'
     relocate 'art.arcane', 'com.volmit.adapt.util.arcane'
@@ -125,7 +193,7 @@ dependencies {
     // Provided or Classpath
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    implementation 'org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT'
+    implementation 'org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT'
 
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'

@@ -1,19 +1,20 @@
 package com.volmit.adapt.api.potion;
 
 import com.google.common.collect.Lists;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.reflect.Reflect;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
 import java.util.List;
 
+@Getter
 public class PotionBuilder {
 
     private final List<PotionEffect> effects = Lists.newArrayList();
@@ -67,18 +68,10 @@ public class PotionBuilder {
 
     @SuppressWarnings("ConstantConditions")
     public ItemStack build() {
-        ItemStack stack = new ItemStack(type.material);
-        PotionMeta meta = (PotionMeta) stack.getItemMeta();
-        effects.forEach(e -> meta.addCustomEffect(e, true));
-        if (color != null)
-            meta.setColor(color);
-        meta.setBasePotionData(baseType != null && Reflect.getEnum(PotionType.class, "UNCRAFTABLE").isPresent() ? new PotionData(baseType, extended, upgraded) : null);
-        if (name != null)
-            meta.setDisplayName("§r" + name);
-        stack.setItemMeta(meta);
-        return stack;
+        return Version.get().buildPotion(this);
     }
 
+    @Getter
     @AllArgsConstructor
     public enum Type {
         REGULAR(Material.POTION),

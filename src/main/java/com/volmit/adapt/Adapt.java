@@ -19,14 +19,13 @@
 package com.volmit.adapt;
 
 import art.arcane.amulet.io.FolderWatcher;
-import com.fren_gor.ultimateAdvancementAPI.AdvancementMain;
-import com.fren_gor.ultimateAdvancementAPI.UltimateAdvancementAPI;
 import com.volmit.adapt.api.advancement.AdvancementManager;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.potion.BrewingManager;
 import com.volmit.adapt.api.protection.ProtectorRegistry;
 import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.api.value.MaterialValue;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.command.CommandAdapt;
 import com.volmit.adapt.content.gui.SkillsGui;
@@ -127,6 +126,7 @@ public class Adapt extends VolmitPlugin {
         }
         startSim();
         registerListener(new BrewingManager());
+        registerListener(Version.get());
         setupMetrics();
         startupPrint(); // Splash screen
         if (AdaptConfig.get().isAutoUpdateCheck()) {
