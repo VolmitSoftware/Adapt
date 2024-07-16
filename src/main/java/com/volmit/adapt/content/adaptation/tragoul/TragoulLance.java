@@ -57,13 +57,9 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     public void onEntityDeath(EntityDeathEvent event) {
         if (event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent e) {
             if (e.getDamager() instanceof Player p && hasAdaptation(p)) {
-                if (cooldowns.containsKey(p)) {
-                    if (cooldowns.get(p) + 5000 > System.currentTimeMillis()) {
-                        return;
-                    } else {
-                        cooldowns.remove(p);
-                    }
-                }
+                Long cooldown = cooldowns.get(p);
+                if (cooldown != null && cooldown + 5000 > System.currentTimeMillis())
+                    return;
 
                 cooldowns.put(p, System.currentTimeMillis());
                 int level = getLevel(p);

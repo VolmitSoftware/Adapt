@@ -118,13 +118,9 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         AdaptPlayer a = getPlayer(p);
         ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
         if (isShovel(hand)) {
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
-            }
+            Long cooldown = cooldowns.get(p);
+            if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+                return;
             cooldowns.put(p, System.currentTimeMillis());
             getPlayer(p).getData().addStat("excavation.swings", 1);
             getPlayer(p).getData().addStat("excavation.damage", e.getDamage());
@@ -149,13 +145,9 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     private void handleBlockBreakWithShovel(Player p, BlockBreakEvent e) {
         getPlayer(p).getData().addStat("excavation.blocks.broken", 1);
         getPlayer(p).getData().addStat("excavation.blocks.value", getValue(e.getBlock().getBlockData()));
-        if (cooldowns.containsKey(p)) {
-            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                return;
-            } else {
-                cooldowns.remove(p);
-            }
-        }
+        Long cooldown = cooldowns.get(p);
+        if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+            return;
         cooldowns.put(p, System.currentTimeMillis());
         double v = getValue(e.getBlock().getType());
         xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v));

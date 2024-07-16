@@ -70,14 +70,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     }
 
     private boolean isOnCooldown(Player p, long cooldown) {
-        if (cooldowns.containsKey(p)) {
-            if (cooldowns.get(p) + cooldown > System.currentTimeMillis()) {
-                return true;
-            } else {
-                cooldowns.remove(p);
-            }
-        }
-        return false;
+        Long lastCooldown = cooldowns.get(p);
+        return lastCooldown != null && lastCooldown + cooldown > System.currentTimeMillis();
     }
 
     private void setCooldown(Player p) {

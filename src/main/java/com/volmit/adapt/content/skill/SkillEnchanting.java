@@ -114,13 +114,9 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         adaptPlayer.getData().addStat("enchanted.power", e.getEnchantsToAdd().values().stream().mapToInt(i -> i).sum());
         adaptPlayer.getData().addStat("enchanted.levels.spent", e.getExpLevelCost());
 
-        if (cooldowns.containsKey(p)) {
-            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                return;
-            } else {
-                cooldowns.remove(p);
-            }
-        }
+        Long cooldown = cooldowns.get(p);
+        if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+            return;
         cooldowns.put(p, System.currentTimeMillis());
         xp(p, getConfig().enchantPowerXPMultiplier * e.getEnchantsToAdd().values().stream().mapToInt((i) -> i).sum());
     }
