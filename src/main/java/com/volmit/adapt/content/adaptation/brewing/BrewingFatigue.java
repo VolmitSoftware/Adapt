@@ -24,10 +24,10 @@ import com.volmit.adapt.api.potion.PotionBuilder;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.PotionEffectTypes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
 
@@ -52,7 +52,7 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Fatigue")
                         .setColor(Color.fromRGB(0, 66, 0))
-                        .addEffect(PotionEffectType.SLOW_DIGGING, 1200, 1, true, true, true)
+                        .addEffect(PotionEffectTypes.SLOW_DIGGING, 1200, 1, true, true, true)
                         .build())
                 .build());
         registerBrewingRecipe(BrewingRecipe.builder()
@@ -64,7 +64,7 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Fatigue 2")
                         .setColor(Color.fromRGB(0, 66, 0))
-                        .addEffect(PotionEffectType.SLOW_DIGGING, 600, 2, true, true, true)
+                        .addEffect(PotionEffectTypes.SLOW_DIGGING, 600, 2, true, true, true)
                         .build())
                 .build());
     }

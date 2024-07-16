@@ -18,7 +18,9 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -28,8 +30,6 @@ import com.volmit.adapt.content.adaptation.blocking.BlockingMultiArmor;
 import com.volmit.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
-import eu.endercentral.crazy_advancements.advancement.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -61,31 +61,31 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
                 .icon(Material.LEATHER_CHESTPLATE).key("challenge_block_1k")
                 .title(Localizer.dLocalize("advancement", "challenge_block_1k", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_block_1k", "description"))
-                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.CHAINMAIL_CHESTPLATE)
                         .key("challenge_block_5k")
                         .title(Localizer.dLocalize("advancement", "challenge_block_5k", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_block_5k", "description"))
-                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.IRON_CHESTPLATE)
                                 .key("challenge_block_50k")
                                 .title(Localizer.dLocalize("advancement", "challenge_block_50k", "title"))
                                 .description(Localizer.dLocalize("advancement", "challenge_block_50k", "description"))
-                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .frame(AdvancementFrameType.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                         .icon(Material.GOLDEN_CHESTPLATE)
                                         .key("challenge_block_500k")
                                         .title(Localizer.dLocalize("advancement", "challenge_block_500k", "title"))
                                         .description(Localizer.dLocalize("advancement", "challenge_block_500k", "description"))
-                                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                        .frame(AdvancementFrameType.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                                 .icon(Material.DIAMOND_CHESTPLATE)
                                                 .key("challenge_block_5m")
                                                 .title(Localizer.dLocalize("advancement", "challenge_block_5m", "title"))
                                                 .description(Localizer.dLocalize("advancement", "challenge_block_5m", "description"))
-                                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                                .frame(AdvancementFrameType.CHALLENGE)
                                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                                 .build())
                                         .build())

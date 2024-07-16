@@ -46,7 +46,6 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
         registerRecipe(AdaptRecipe.shaped()
                 .key("blocking-chainarmorer-boots")
                 .ingredient(new MaterialChar('I', Material.IRON_NUGGET))
-                .ingredient(new MaterialChar(' ', Material.AIR))
                 .shapes(List.of(
                         "I I",
                         "I I"))
@@ -55,7 +54,6 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
         registerRecipe(AdaptRecipe.shaped()
                 .key("blocking-chainarmorer-leggings")
                 .ingredient(new MaterialChar('I', Material.IRON_NUGGET))
-                .ingredient(new MaterialChar(' ', Material.AIR))
                 .shapes(List.of(
                         "III",
                         "I I",
@@ -65,7 +63,6 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
         registerRecipe(AdaptRecipe.shaped()
                 .key("blocking-chainarmorer-chestplate")
                 .ingredient(new MaterialChar('I', Material.IRON_NUGGET))
-                .ingredient(new MaterialChar(' ', Material.AIR))
                 .shapes(List.of(
                         "I I",
                         "III",
@@ -75,7 +72,6 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
         registerRecipe(AdaptRecipe.shaped()
                 .key("blocking-chainarmorer-helmet")
                 .ingredient(new MaterialChar('I', Material.IRON_NUGGET))
-                .ingredient(new MaterialChar(' ', Material.AIR))
                 .shapes(List.of(
                         "III",
                         "I I"))

@@ -18,14 +18,14 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
-import eu.endercentral.crazy_advancements.advancement.AdvancementDisplay;
-import eu.endercentral.crazy_advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -70,7 +70,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                 .key("horrible_person")
                 .title(Localizer.dLocalize("advancement", "horrible_person", "title"))
                 .description(Localizer.dLocalize("advancement", "horrible_person", "description"))
-                .frame(AdvancementDisplay.AdvancementFrame.GOAL)
+                .frame(AdvancementFrameType.GOAL)
                 .visibility(AdvancementVisibility.HIDDEN)
                 .build()
         );
@@ -79,14 +79,14 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                 .key("challenge_turtle_egg_smasher")
                 .title(Localizer.dLocalize("advancement", "challenge_turtle_egg_smasher", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_turtle_egg_smasher", "description"))
-                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.TURTLE_EGG)
                         .key("challenge_turtle_egg_annihilator")
                         .title(Localizer.dLocalize("advancement", "challenge_turtle_egg_annihilator", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_turtle_egg_annihilator", "description"))
-                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());
@@ -95,21 +95,21 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                 .key("challenge_novice_hunter")
                 .title(Localizer.dLocalize("advancement", "challenge_novice_hunter", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_novice_hunter", "description"))
-                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.IRON_SWORD)
                         .key("challenge_intermediate_hunter")
                         .title(Localizer.dLocalize("advancement", "challenge_intermediate_hunter", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_intermediate_hunter", "description"))
-                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.DIAMOND_SWORD)
                                 .key("challenge_advanced_hunter")
                                 .title(Localizer.dLocalize("advancement", "challenge_advanced_hunter", "title"))
                                 .description(Localizer.dLocalize("advancement", "challenge_advanced_hunter", "description"))
-                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .frame(AdvancementFrameType.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                 .build())
                         .build())
@@ -119,14 +119,14 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                 .key("challenge_creeper_conqueror")
                 .title(Localizer.dLocalize("advancement", "challenge_creeper_conqueror", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_creeper_conqueror", "description"))
-                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.TNT)
                         .key("challenge_creeper_annihilator")
                         .title(Localizer.dLocalize("advancement", "challenge_creeper_annihilator", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_creeper_annihilator", "description"))
-                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());

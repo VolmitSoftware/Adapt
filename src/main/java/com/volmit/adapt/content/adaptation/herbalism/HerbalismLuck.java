@@ -23,6 +23,7 @@ import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.Materials;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -69,7 +70,7 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
         }
 
         Block broken = e.getBlock();
-        if (broken.getType() == Material.SHORT_GRASS || broken.getType() == Material.TALL_GRASS) {
+        if (broken.getType() == Materials.GRASS || broken.getType() == Material.TALL_GRASS) {
             var d = Math.random() * 100;
             Material m = ItemListings.getHerbalLuckSeeds().getRandom();
             if (d < getEffectiveness(getLevel(p))) {

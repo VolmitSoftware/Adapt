@@ -24,7 +24,6 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.M;
 import lombok.NoArgsConstructor;
-import net.minecraft.world.item.ItemEnderEye;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
@@ -84,7 +83,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         shouldReturnForPlayer(p, e, () -> {
             if (e.getEntity() instanceof EnderPearl) {
                 xp(p, getConfig().throwEnderpearlXP);
-            } else if (e.getEntity() instanceof ItemEnderEye) {
+            } else if (e.getEntity() instanceof EnderSignal) {
                 xp(p, getConfig().throwEnderEyeXP);
             }
         });

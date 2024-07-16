@@ -26,6 +26,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -125,7 +126,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
                                 while (particleLocation.distance(blockLocation) > 0.5) {
                                     particleLocation.add(vector);
-                                    J.s(() -> p.spawnParticle(Particle.REDSTONE, particleLocation, 1, dustOptions));
+                                    J.s(() -> p.spawnParticle(Particles.REDSTONE, particleLocation, 1, dustOptions));
                                 }
 
                                 J.s(() -> {
@@ -202,7 +203,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     protected static class Config {
         boolean permanent = false;
         boolean enabled = true;
-        double cooldown =6.0;
+        double cooldown = 6.0;
         int baseCost = 5;
         int initialCost = 10;
         double costFactor = 1;
