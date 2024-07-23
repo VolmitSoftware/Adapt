@@ -32,6 +32,7 @@ import com.volmit.adapt.nms.GlowingEntities;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KList;
+import com.volmit.adapt.util.collection.KMap;
 import com.volmit.adapt.util.command.*;
 import com.volmit.adapt.util.command.suggest.*;
 import com.volmit.adapt.util.secret.SecretSplash;
@@ -65,6 +66,7 @@ public class Adapt extends VolmitPlugin {
     public static HashMap<String, String> wordKey = new HashMap<>();
     public final EffectManager adaptEffectManager = new EffectManager(this);
     public static BukkitAudiences audiences;
+    private KMap<Class<? extends AdaptService>, AdaptService> services;
 
     private SpigotCommandManager commandManager;
     private AnnotationParser<CommandSender> parser;
@@ -84,6 +86,7 @@ public class Adapt extends VolmitPlugin {
     @Getter
     private Map<String, Window> guiLeftovers = new HashMap<>();
 
+    private final KList<Runnable> postShutdown = new KList<>();
     private static VolmitSender sender;
     
 
@@ -92,9 +95,15 @@ public class Adapt extends VolmitPlugin {
         instance = this;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> T service(Class<T> c) {
+        return (T) instance.services.get(c);
+    }
+
     @Override
     public void start() {
         audiences = BukkitAudiences.create(this);
+        initialize("com.volmit.adapt.core.service").forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i));
         commandManager = new SpigotCommandManager(this, CommandExecutionCoordinator.Type.SYNC);
         parser = new AnnotationParser<>(commandManager);
         commandManager.suggestionProviderRegistry().register(new AdaptSkillListingProvider());
@@ -147,7 +156,7 @@ public class Adapt extends VolmitPlugin {
             protectorRegistry.registerProtector(new LocketteProProtector());
         }
         glowingEntities = new GlowingEntities(this);
-        parser.parse(new CommandAdapt());
+        //parser.parse(new CommandAdapt());
         initializeAdaptationListings();
     }
 
@@ -157,8 +166,13 @@ public class Adapt extends VolmitPlugin {
         adaptServer = new AdaptServer();
     }
 
+    public void postShutdown(Runnable r) {
+        postShutdown.add(r);
+    }
+
     public void stopSim() {
         ticker.clear();
+        postShutdown.forEach(Runnable::run);
         adaptServer.unregister();
         MaterialValue.save();
         WorldData.stop();

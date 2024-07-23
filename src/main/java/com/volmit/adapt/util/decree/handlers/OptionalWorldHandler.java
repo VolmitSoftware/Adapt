@@ -34,7 +34,7 @@ public class OptionalWorldHandler implements DecreeParameterHandler<String> {
         KList<String> options = new KList<>();
         options.add("ALL");
         for (World world : Bukkit.getWorlds()) {
-            if (!world.getName().toLowerCase().startsWith("iris/")) {
+            if (!world.getName().toLowerCase().startsWith("adapt/")) {
                 options.add(world.getName());
             }
         }

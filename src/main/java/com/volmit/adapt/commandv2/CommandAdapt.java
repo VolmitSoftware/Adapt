@@ -23,6 +23,7 @@ import com.volmit.adapt.util.decree.annotations.Decree;
 import com.volmit.adapt.util.decree.annotations.Param;
 import com.volmit.adapt.util.decree.context.AdaptationListingHandler;
 import com.volmit.adapt.util.decree.handlers.BooleanHandler;
+import com.volmit.adapt.util.decree.handlers.IntegerHandler;
 import com.volmit.adapt.util.decree.specialhandlers.NullablePlayerHandler;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -166,11 +167,11 @@ public class CommandAdapt implements DecreeExecutor {
 
     @Decree(description = "Give yourself a knowledge orb")
     public void knowledge(
-            @Param(description = "skill")
+            @Param(aliases = "skill")
             AdaptationListingHandler.AdaptationSkillList skillName,
-            @Param(description = "amount", defaultValue = "10")
+            @Param(aliases = "amount", defaultValue = "10")
             int amount,
-            @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+            @Param(aliases = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
             Player player
     ) {
         Player targetPlayer = player;
@@ -205,5 +206,52 @@ public class CommandAdapt implements DecreeExecutor {
         }
     }
 
+    @Decree(description = "Assign a skill, or UnAssign a skill as if you are learning / unlearning a skill.")
+    public void determine(
+            @Param(aliases = "adaptationTarget")
+            AdaptationListingHandler.AdaptationProvider adaptationTarget,
+            @Param(aliases = "assign", customHandler = BooleanHandler.class)
+            boolean assign,
+            @Param(aliases = "force", customHandler = BooleanHandler.class)
+            boolean force,
+            @Param(aliases = "level", customHandler = IntegerHandler.class)
+            int level,
+            @Param(aliases = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
+            Player player
+
+    ) {
+
+        Player targetPlayer = player;
+        if (targetPlayer == null && sender instanceof ConsoleCommandSender) {
+            FConst.error("You must specify a player when using this command from console.").send(sender);
+        } else if (targetPlayer == null) {
+            targetPlayer = (Player) sender;
+        }
+
+        //the format is skillname:adaptationname
+        String[] split = adaptationTarget.toString().split(":");
+        String skillname = split[0];
+        String adaptationname = split[1];
+
+        for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+            if (skill.getName().equalsIgnoreCase(skillname)) {
+                for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                    if (adaptation.getName().equalsIgnoreCase(adaptationname)) {
+                        if (targetPlayer != null) {
+                            if (assign) {
+                                adaptation.learn(player, level, force);
+                            } else {
+                                adaptation.unlearn(player, level, force);
+                            }
+                        } else {
+                            FConst.error("You must specify a player when using this command from console.").send(sender);
+                        }
+                        return;
+                    }
+                }
+                return;
+            }
+        }
+    }
 
 }

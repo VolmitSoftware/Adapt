@@ -11,11 +11,20 @@ public class AdaptationListingHandler {
 
     private static List<AdaptationList> adaptationLists;
     private static List<AdaptationSkillList> adaptationSkillLists;
+    private static List<AdaptationProvider> adaptationProviders;
+    private static List<SkillProvider> skillProviders;
 
 
     public static void initializeAdaptationListings() {
+        adaptationLists = new ArrayList<>();
+        adaptationSkillLists = new ArrayList<>();
+        adaptationProviders = new ArrayList<>();
+        skillProviders = new ArrayList<>();
+
         getAdaptionListings();
         getAdaptionSkillListings();
+        getAdaptationProviders();
+        getSkillProvider();
     }
 
     private static List<AdaptationList> getAdaptionListings() {
@@ -48,7 +57,24 @@ public class AdaptationListingHandler {
         }
         return adaptationSkillLists;
     }
-    
+
+    private static List<AdaptationProvider> getAdaptationProviders() {
+        for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+            for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                AdaptationProvider suggestion = new AdaptationProvider(skill.getName() + ":" +adaptation.getName());
+                adaptationProviders.add(suggestion);
+            }
+        }
+        return adaptationProviders;
+    }
+
+    private static List<SkillProvider> getSkillProvider() {
+        for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+            SkillProvider t1 = new SkillProvider(skill.getName());
+            skillProviders.add(t1);
+        }
+        return skillProviders;
+    }
 
     public static class AdaptationList {
         private String name;
@@ -80,5 +106,39 @@ public class AdaptationListingHandler {
         public boolean equals(String prefix) {
             return name.startsWith(prefix);
         }
+    }
+
+    public static class AdaptationProvider {
+        private String name;
+
+        public AdaptationProvider(String name) {
+            this.name = name;
+        }
+
+        public boolean startsWith(String prefix) {
+            return name.startsWith(prefix);
+        }
+
+        public boolean equals(String prefix) {
+            return name.startsWith(prefix);
+        }
+
+    }
+
+    public static class SkillProvider {
+        private String name;
+
+        public SkillProvider(String name) {
+            this.name = name;
+        }
+
+        public boolean startsWith(String prefix) {
+            return name.startsWith(prefix);
+        }
+
+        public boolean equals(String prefix) {
+            return name.startsWith(prefix);
+        }
+
     }
 }

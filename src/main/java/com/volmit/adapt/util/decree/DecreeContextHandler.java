@@ -32,7 +32,7 @@ public interface DecreeContextHandler<T> {
         Map<Class<?>, DecreeContextHandler<?>> contextHandlers = new HashMap<>();
 
         try {
-            Adapt.initialize("com.volmit.react.util.decree.context").forEach((i)
+            Adapt.initialize("com.volmit.adapt.util.decree.context").forEach((i)
                     -> contextHandlers.put(((DecreeContextHandler<?>) i).getType(), (DecreeContextHandler<?>) i));
         } catch (Throwable e) {
             e.printStackTrace();
