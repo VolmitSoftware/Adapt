@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.sword;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.reflect.enums.Materials;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -95,7 +96,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                                     || i.getType().equals(Material.CARROT)
                                     || i.getType().equals(Material.POTATO)
                                     || i.getType().equals(Material.NETHER_WART)
-                                    || i.getType().equals(Material.SHORT_GRASS)
+                                    || i.getType().equals(Materials.GRASS)
                                     || i.getType().equals(Material.FERN)
                                     || i.getType().equals(Material.LARGE_FERN)
                                     || i.getType().equals(Material.VINE)

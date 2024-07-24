@@ -19,17 +19,18 @@
 package com.volmit.adapt;
 
 import art.arcane.amulet.io.FolderWatcher;
+import com.volmit.adapt.api.advancement.AdvancementManager;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.potion.BrewingManager;
 import com.volmit.adapt.api.protection.ProtectorRegistry;
 import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.api.value.MaterialValue;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.command.CommandAdapt;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.protector.*;
 import com.volmit.adapt.nms.GlowingEntities;
-import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.collection.KMap;
@@ -86,9 +87,13 @@ public class Adapt extends VolmitPlugin {
     @Getter
     private Map<String, Window> guiLeftovers = new HashMap<>();
 
+    @Getter
+    private AdvancementManager manager;
+
+
     private final KList<Runnable> postShutdown = new KList<>();
     private static VolmitSender sender;
-    
+
 
     public Adapt() {
         super();
@@ -98,6 +103,11 @@ public class Adapt extends VolmitPlugin {
     @SuppressWarnings("unchecked")
     public static <T> T service(Class<T> c) {
         return (T) instance.services.get(c);
+    }
+
+    @Override
+    public void onLoad() {
+        manager = new AdvancementManager();
     }
 
     @Override
@@ -116,7 +126,6 @@ public class Adapt extends VolmitPlugin {
         commandManager.suggestionProviderRegistry().register(new ParticleSuggestionProvider());
         commandManager.suggestionProviderRegistry().register(new BooleanSuggestionProvider());
 
-        NMS.init();
         Localizer.updateLanguageFile();
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PapiExpansion().register();
@@ -128,6 +137,7 @@ public class Adapt extends VolmitPlugin {
         }
         startSim();
         registerListener(new BrewingManager());
+        registerListener(Version.get());
         setupMetrics();
         startupPrint(); // Splash screen
         if (AdaptConfig.get().isAutoUpdateCheck()) {
@@ -164,6 +174,7 @@ public class Adapt extends VolmitPlugin {
     public void startSim() {
         ticker = new Ticker();
         adaptServer = new AdaptServer();
+        manager.enable();
     }
 
     public void postShutdown(Runnable r) {
@@ -174,6 +185,7 @@ public class Adapt extends VolmitPlugin {
         ticker.clear();
         postShutdown.forEach(Runnable::run);
         adaptServer.unregister();
+        manager.disable();
         MaterialValue.save();
         WorldData.stop();
     }

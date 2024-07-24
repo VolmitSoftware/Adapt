@@ -24,6 +24,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -132,7 +133,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                             }
                         }
                         if (getConfig().showParticles) {
-                            this.vfxCuboidOutline(blocks, Particle.ENCHANTMENT_TABLE);
+                            this.vfxCuboidOutline(blocks, Particles.ENCHANTMENT_TABLE);
                         }
                     }
                 });

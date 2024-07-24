@@ -63,7 +63,6 @@ public class AdaptPlayer extends TickedObject {
         advancementHandler = new AdvancementHandler(this);
         speed = new RollingSequence(7);
         lastloc = M.ms();
-        getAdvancementHandler().activate();
         velocity = new Vector();
     }
 
@@ -149,7 +148,6 @@ public class AdaptPlayer extends TickedObject {
     @Override
     public void unregister() {
         super.unregister();
-        getAdvancementHandler().deactivate();
         save();
     }
 

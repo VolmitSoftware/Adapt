@@ -24,11 +24,11 @@ import com.volmit.adapt.api.potion.PotionBuilder;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.PotionTypes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
 
 
 public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config> {
@@ -48,7 +48,7 @@ public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config
                 .brewingTime(320)
                 .fuelCost(16)
                 .ingredient(Material.QUARTZ)
-                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.INSTANT_HEAL, false, false))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.INSTANT_HEAL, false, false))
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Absorption")
                         .setColor(Color.GRAY)
@@ -61,7 +61,7 @@ public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config
                 .brewingTime(320)
                 .fuelCost(32)
                 .ingredient(Material.QUARTZ_BLOCK)
-                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.INSTANT_HEAL, false, false))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.INSTANT_HEAL, false, false))
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Haste 2")
                         .setColor(Color.GRAY)

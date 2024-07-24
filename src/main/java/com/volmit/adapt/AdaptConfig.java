@@ -128,6 +128,8 @@ public class AdaptConfig {
         private String database = "adapt";
         private String username = "user";
         private String password = "password";
+        private int poolSize = 10;
+        private long connectionTimeout = 5000;
     }
 
     @Getter

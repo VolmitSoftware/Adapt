@@ -31,7 +31,11 @@ import com.volmit.adapt.content.skill.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.M;
-import org.bukkit.*;
+import com.volmit.adapt.util.reflect.enums.Particles;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -81,7 +85,7 @@ public class SkillRegistry extends TickedObject {
     public void on(PlayerExpChangeEvent e) {
         Player p = e.getPlayer();
         if (e.getAmount() > 0) {
-            getPlayer(p).boostXPToRecents( 0.03, 10000);
+            getPlayer(p).boostXPToRecents(0.03, 10000);
         }
     }
 
@@ -108,8 +112,8 @@ public class SkillRegistry extends TickedObject {
             e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
             SkillsGui.open(p);
             e.setCancelled(true);
-            p.getWorld().spawnParticle(Particle.CRIT_MAGIC, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 25, 0, 0, 0, 1.1);
-            p.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
+            p.getWorld().spawnParticle(Particles.CRIT_MAGIC, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 25, 0, 0, 0, 1.1);
+            p.getWorld().spawnParticle(Particles.ENCHANTMENT_TABLE, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 12, 0, 0, 0, 1.1);
         }
 
         if (isLectern) {
@@ -154,7 +158,8 @@ public class SkillRegistry extends TickedObject {
             }
         }
     }
-        private void playDebug(Player p) {
+
+    private void playDebug(Player p) {
         p.playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 1f, 0.6f);
         p.playSound(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1f, 0.1f);
         p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.6f);
