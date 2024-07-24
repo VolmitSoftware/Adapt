@@ -78,13 +78,9 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
             return;
         }
         if (e.getDamager() instanceof Player p && hasAdaptation(p) && ItemListings.getToolSwords().contains(p.getInventory().getItemInMainHand().getType())) {
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
-            }
+            Long cooldown = cooldowns.get(p);
+            if (cooldown != null && cooldown > System.currentTimeMillis())
+                return;
             Entity victim = e.getEntity();
             cooldowns.put(p, System.currentTimeMillis() + getCooldown(getLevel(p)));
             if (victim instanceof Player pvic) {

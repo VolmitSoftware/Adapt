@@ -144,13 +144,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     }
 
     private void handleCooldown(Player p, Runnable action) {
-        if (cooldowns.containsKey(p)) {
-            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                return;
-            } else {
-                cooldowns.remove(p);
-            }
-        }
+        Long cooldown = cooldowns.get(p);
+        if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+            return;
         cooldowns.put(p, System.currentTimeMillis());
         action.run();
     }

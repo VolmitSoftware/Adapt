@@ -71,13 +71,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
             getPlayer(p).getData().addStat("ranged.shotsfired", 1);
             getPlayer(p).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
-            }
+            Long cooldown = cooldowns.get(p);
+            if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+                return;
             cooldowns.put(p, System.currentTimeMillis());
             xp(p, getConfig().shootXP);
         });
@@ -95,21 +91,17 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             if (e.getEntity() instanceof Snowball || e.getEntity() instanceof EntityFishingHook) {
                 return; // Ignore snowballs and fishing hooks
             }
-                if (e.getEntity().getLocation().getWorld().equals(p.getLocation().getWorld())) {
-                    getPlayer(p).getData().addStat("ranged.distance", e.getEntity().getLocation().distance(p.getLocation()));
-                    getPlayer(p).getData().addStat("ranged.distance." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getEntity().getLocation().distance(p.getLocation()));
-                }
-                getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
-                getPlayer(p).getData().addStat("ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
-                if (cooldowns.containsKey(p)) {
-                    if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                        return;
-                    } else {
-                        cooldowns.remove(p);
-                    }
-                }
-                cooldowns.put(p, System.currentTimeMillis());
-                xp(p, e.getEntity().getLocation(), (getConfig().hitDamageXPMultiplier * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * getConfig().hitDistanceXPMultiplier));
+            if (e.getEntity().getLocation().getWorld().equals(p.getLocation().getWorld())) {
+                getPlayer(p).getData().addStat("ranged.distance", e.getEntity().getLocation().distance(p.getLocation()));
+                getPlayer(p).getData().addStat("ranged.distance." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getEntity().getLocation().distance(p.getLocation()));
+            }
+            getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
+            getPlayer(p).getData().addStat("ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
+            Long cooldown = cooldowns.get(p);
+            if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+                return;
+            cooldowns.put(p, System.currentTimeMillis());
+            xp(p, e.getEntity().getLocation(), (getConfig().hitDamageXPMultiplier * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * getConfig().hitDistanceXPMultiplier));
 
         });
     }

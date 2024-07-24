@@ -87,14 +87,8 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     }
 
     private boolean isOnCooldown(Player p) {
-        if (cooldowns.containsKey(p)) {
-            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                return true;
-            } else {
-                cooldowns.remove(p);
-            }
-        }
-        return false;
+        Long cooldown = cooldowns.get(p);
+        return cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis();
     }
 
     private void setCooldown(Player p) {

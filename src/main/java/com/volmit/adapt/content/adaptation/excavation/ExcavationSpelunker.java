@@ -75,11 +75,10 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
         // Check if player is sneaking, has Glowberries in main hand, and an ore in offhand
         if (p.isSneaking() && hasGlowberries(p) && hasOreInOffhand(p) && hasAdaptation(p)) {
             // Check if player is on cooldown
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) > System.currentTimeMillis()) {
-                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
-                    return;
-                }
+            Long cooldown = cooldowns.get(p);
+            if (cooldown != null && cooldown > System.currentTimeMillis()) {
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
+                return;
             }
             int radius = getConfig().rangeMultiplier * getLevel(p);
             consumeGlowberry(p);

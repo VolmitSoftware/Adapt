@@ -61,7 +61,7 @@
       "description": "The bestest good Boy! (5 Million Blocks)"
     },
     "challenge_block_1k": {
-      "title": "Balrely Blocking!",
+      "title": "Barely Blocking!",
       "description": "Block 1000 Hits"
     },
     "challenge_block_5k": {
@@ -129,7 +129,7 @@
       "description": "Craft 5000 Items"
     },
     "challenge_craft_50k": {
-      "title": "Cervile Crafter!",
+      "title": "Servile Crafter!",
       "description": "Craft 50,000 Items"
     },
     "challenge_craft_500k": {
@@ -461,7 +461,7 @@
     "wirelessredstone": {
       "name": "Redstone Remote",
       "description": "This allows for you to use a redstone torch to toggle redstone, remotely!",
-      "lore1": "Target + Redstone Torch + Enderperal = 1 Redstone Remote"
+      "lore1": "Target + Redstone Torch + Enderpearl = 1 Redstone Remote"
     },
     "placement": {
       "name": "Builders Wand",
@@ -622,7 +622,7 @@
       "name": "Deconstruction",
       "description": "Deconstruct blocks & items into salvageable base components!",
       "lore1": "Drop any item on the ground.",
-      "lore2": "Then, Sneak and Right-Click with SHears"
+      "lore2": "Then, Sneak and Right-Click with Shears"
     },
     "xp": {
       "name": "Crafting XP",
