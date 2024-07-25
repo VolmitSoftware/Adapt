@@ -1,4 +1,4 @@
-package com.volmit.adapt.commandv2;
+package com.volmit.adapt.command;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
