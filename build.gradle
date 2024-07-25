@@ -23,7 +23,7 @@ plugins {
 }
 
 version '1.14.2-1.19.2-1.20.6'
-def apiVersion = '1.20'
+def apiVersion = '1.19'
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
 def manifoldVersion = '2024.1.10'
@@ -155,6 +155,7 @@ allprojects {
         compileOnly 'net.kyori:adventure-api:4.13.1'
         compileOnly 'io.github.mqzn:mCommands-spigot:1.1.0'
         compileOnly 'io.github.mqzn:mCommands-common:1.1.0'
+        compileOnly 'it.unimi.dsi:fastutil:8.5.13'
         implementation 'com.google.guava:guava:30.1-jre'
         compileOnly fileTree(dir: 'libs', include: ['*.jar'])
     }
@@ -180,7 +181,6 @@ shadowJar {
         include(dependency('systems.manifold:'))
         include(dependency('xyz.xenondevs:'))
         include(dependency('art.arcane:'))
-        include(dependency('io.github.mqzn:'))
         include(dependency('com.frengor:ultimateadvancementapi-shadeable:2.4.0'))
     }
 }
@@ -237,6 +237,7 @@ dependencies {
     compileOnly 'net.kyori:adventure-api:4.13.1'
     compileOnly 'io.github.mqzn:mCommands-spigot:1.1.0'
     compileOnly 'io.github.mqzn:mCommands-common:1.1.0'
+    compileOnly 'it.unimi.dsi:fastutil:8.5.13'
     implementation 'com.google.guava:guava:30.1-jre'
     compileOnly fileTree(dir: 'libs', include: ['*.jar'])
 }

@@ -38,6 +38,7 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
@@ -140,6 +141,15 @@ public class VolmitSender implements CommandSender {
      */
     public boolean isPlayer() {
         return getS() instanceof Player;
+    }
+
+    /**
+     * Is this sender a console?
+     *
+     * @return true if it is
+     */
+    public boolean isConsole() {
+        return getS() instanceof ConsoleCommandSender;
     }
 
     /**
@@ -440,7 +450,7 @@ public class VolmitSender implements CommandSender {
                     + i.getParentPath()
                     + " <#00CED1>"
                     + i.getName() + " "
-                    + i.getNode().getParameters().shuffleCopy(RNG.r).convert((f)
+                    + i.getNode().getParameters().shuffleCopy(RNG.r).kConvert((f)
                             -> (f.isRequired() || RNG.r.b(0.5)
                             ? "<#f2e15e>" + f.getNames().getRandom() + "="
                             + "<#9370DB>" + f.example()
@@ -450,7 +460,7 @@ public class VolmitSender implements CommandSender {
                     : ""));
         }
 
-        return m.removeDuplicates().convert((iff) -> iff.replaceAll("\\Q  \\E", " ")).toString("\n");
+        return m.removeDuplicates().kConvert((iff) -> iff.replaceAll("\\Q  \\E", " ")).toString("\n");
     }
 
     public void sendHeader(String name, int overrideLength) {
@@ -528,7 +538,7 @@ public class VolmitSender implements CommandSender {
                 /// Command
                 // Contains main command & aliases
                 String realText = i.getPath() + " >" + "<#E6F2FF>⇀<gradient:#00BFFF:#003366> " + i.getName();
-                String hoverTitle = i.getNames().copy().reverse().convert((f) -> "<#00BFFF>" + f).toString(", ");
+                String hoverTitle = i.getNames().copy().reverse().kConvert((f) -> "<#00BFFF>" + f).toString(", ");
                 String description = "<#3fe05a>✎ <#6ad97d><font:minecraft:uniform>" + i.getDescription();
                 String usage = "<#FF0000>✒ <#A52A2A><font:minecraft:uniform>";
 
@@ -550,7 +560,7 @@ public class VolmitSender implements CommandSender {
                 String suggestions = "";
                 if (i.isNode() && i.getNode().getParameters().isNotEmpty()) {
                     suggestion += newline + "<#B0E0E6>✦ <#00FA9A><font:minecraft:uniform>" + i.getParentPath() + " <#00CED1>" + i.getName() + " "
-                            + i.getNode().getParameters().convert((f) -> "<#9370DB>" + f.example()).toString(" ");
+                            + i.getNode().getParameters().kConvert((f) -> "<#9370DB>" + f.example()).toString(" ");
                     suggestions += newline + "<font:minecraft:uniform>" + pickRandoms(Math.min(i.getNode().getParameters().size() + 1, 5), i);
                 }
 
@@ -560,7 +570,7 @@ public class VolmitSender implements CommandSender {
                     for (DecreeParameter p : i.getNode().getParameters()) {
 
                         String nTitle = "<gradient:#9370DB:#BA55D3>" + p.getName();
-                        String nHoverTitle = p.getNames().convert((ff) -> "<#ff9900>" + ff).toString(", ");
+                        String nHoverTitle = p.getNames().kConvert((ff) -> "<#ff9900>" + ff).toString(", ");
                         String nDescription = "<#2E8B57>✎ <#3CB371><font:minecraft:uniform>" + p.getDescription();
                         String nUsage;
                         String fullTitle;

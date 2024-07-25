@@ -147,7 +147,7 @@ public class VirtualDecreeCommand {
         return isNode() ? getNode().getDescription() : getType().getDeclaredAnnotation(Decree.class).description();
     }
 
-    public List<String> getNames() {
+    public KList<String> getNames() {
         if (isNode()) {
             return getNode().getNames();
         }

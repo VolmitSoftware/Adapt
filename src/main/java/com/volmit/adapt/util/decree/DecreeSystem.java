@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface DecreeSystem extends CommandExecutor, TabCompleter {
-    KList<DecreeParameterHandler<?>> handlers = Adapt.initialize("com.volmit.react.util.decree.handlers", null).kConvert((i) -> (DecreeParameterHandler<?>) i);
+    KList<DecreeParameterHandler<?>> handlers = Adapt.initialize("com.volmit.adapt.util.decree.handlers", null).kConvert((i) -> (DecreeParameterHandler<?>) i);
 
     static List<String> enhanceArgs(String[] args) {
         return enhanceArgs(args, true);
@@ -154,8 +154,8 @@ public interface DecreeSystem extends CommandExecutor, TabCompleter {
 
     @Override
     default boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission("react.use")) {
-            sender.sendMessage("You lack the Permission 'react.use'");
+        if (!sender.hasPermission("adapt.main")) {
+            sender.sendMessage("You lack the Permission 'adapt.main'");
             return true;
         }
 

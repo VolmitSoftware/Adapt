@@ -19,7 +19,6 @@
 
 package com.volmit.adapt.util.decree;
 
-import art.arcane.amulet.MagicalSugar;
 import com.volmit.adapt.util.cache.AtomicCache;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.annotations.Param;
@@ -28,8 +27,6 @@ import com.volmit.adapt.util.decree.specialhandlers.DummyHandler;
 import lombok.Data;
 
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 public class DecreeParameter {
@@ -77,7 +74,7 @@ public class DecreeParameter {
         return !hasDefault();
     }
 
-    public List<String> getNames() {
+    public KList<String> getNames() {
         KList<String> d = new KList<>();
 
         for (String i : param.aliases()) {

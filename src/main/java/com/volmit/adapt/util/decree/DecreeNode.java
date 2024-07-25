@@ -79,7 +79,7 @@ public class DecreeNode {
         return decree.description().isEmpty() ? Decree.DEFAULT_DESCRIPTION : decree.description();
     }
 
-    public List<String> getNames() {
+    public KList<String> getNames() {
         KList<String> d = new KList<>();
         d.add(getName());
 

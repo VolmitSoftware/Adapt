@@ -3,23 +3,21 @@ package com.volmit.adapt.util.decree.context;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.skill.SkillRegistry;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.volmit.adapt.util.collection.KList;
 
 public class AdaptationListingHandler {
 
-    private static List<AdaptationList> adaptationLists;
-    private static List<AdaptationSkillList> adaptationSkillLists;
-    private static List<AdaptationProvider> adaptationProviders;
-    private static List<SkillProvider> skillProviders;
+    private static KList<AdaptationList> adaptationLists;
+    private static KList<AdaptationSkillList> adaptationSkillLists;
+    private static KList<AdaptationProvider> adaptationProviders;
+    private static KList<SkillProvider> skillProviders;
 
 
     public static void initializeAdaptationListings() {
-        adaptationLists = new ArrayList<>();
-        adaptationSkillLists = new ArrayList<>();
-        adaptationProviders = new ArrayList<>();
-        skillProviders = new ArrayList<>();
+        adaptationLists = new KList<>();
+        adaptationSkillLists = new KList<>();
+        adaptationProviders = new KList<>();
+        skillProviders = new KList<>();
 
         getAdaptionListings();
         getAdaptionSkillListings();
@@ -27,26 +25,27 @@ public class AdaptationListingHandler {
         getSkillProvider();
     }
 
-    private static List<AdaptationList> getAdaptionListings() {
-        if (adaptationLists == null || adaptationLists.isEmpty()) {
-            adaptationLists = new ArrayList<>();
-            AdaptationList main = new AdaptationList("[Main]");
-            adaptationLists.add(main);
+    public static KList<AdaptationList> getAdaptionListings() {
+        if (adaptationLists.isNotEmpty()) return adaptationLists;
 
-            for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-                AdaptationList skillList = new AdaptationList("[Skill] " + skill.getName());
-                adaptationLists.add(skillList);
+        AdaptationList main = new AdaptationList("[Main]");
+        adaptationLists.add(main);
 
-                for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                    AdaptationList adaptationList = new AdaptationList("[Adaptation] " + adaptation.getName());
-                    adaptationLists.add(adaptationList);
-                }
+        for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+            AdaptationList skillList = new AdaptationList("[Skill] " + skill.getName());
+            adaptationLists.add(skillList);
+
+            for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                AdaptationList adaptationList = new AdaptationList("[Adaptation] " + adaptation.getName());
+                adaptationLists.add(adaptationList);
             }
         }
         return adaptationLists;
     }
 
-    private static List<AdaptationSkillList> getAdaptionSkillListings() {
+    public static KList<AdaptationSkillList> getAdaptionSkillListings() {
+        if (adaptationSkillLists.isNotEmpty()) return adaptationSkillLists;
+
         AdaptationSkillList t1 = new AdaptationSkillList("[All]");
         adaptationSkillLists.add(t1);
         AdaptationSkillList t2 = new AdaptationSkillList("[random]");
@@ -58,7 +57,9 @@ public class AdaptationListingHandler {
         return adaptationSkillLists;
     }
 
-    private static List<AdaptationProvider> getAdaptationProviders() {
+    public static KList<AdaptationProvider> getAdaptationProviders() {
+        if (adaptationProviders.isNotEmpty()) return adaptationProviders;
+
         for (Skill<?> skill : SkillRegistry.skills.sortV()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
                 AdaptationProvider suggestion = new AdaptationProvider(skill.getName() + ":" +adaptation.getName());
@@ -68,7 +69,9 @@ public class AdaptationListingHandler {
         return adaptationProviders;
     }
 
-    private static List<SkillProvider> getSkillProvider() {
+    public static KList<SkillProvider> getSkillProvider() {
+        if (skillProviders.isNotEmpty()) return skillProviders;
+
         for (Skill<?> skill : SkillRegistry.skills.sortV()) {
             SkillProvider t1 = new SkillProvider(skill.getName());
             skillProviders.add(t1);
@@ -76,13 +79,7 @@ public class AdaptationListingHandler {
         return skillProviders;
     }
 
-    public static class AdaptationList {
-        private String name;
-
-        public AdaptationList(String name) {
-            this.name = name;
-        }
-
+    public record AdaptationList(String name) {
         public boolean startsWith(String prefix) {
             return name.startsWith(prefix);
         }
@@ -92,13 +89,7 @@ public class AdaptationListingHandler {
         }
     }
 
-    public static class AdaptationSkillList {
-        private String name;
-
-        public AdaptationSkillList(String name) {
-            this.name = name;
-        }
-
+    public record AdaptationSkillList(String name) {
         public boolean startsWith(String prefix) {
             return name.startsWith(prefix);
         }
@@ -108,13 +99,7 @@ public class AdaptationListingHandler {
         }
     }
 
-    public static class AdaptationProvider {
-        private String name;
-
-        public AdaptationProvider(String name) {
-            this.name = name;
-        }
-
+    public record AdaptationProvider(String name) {
         public boolean startsWith(String prefix) {
             return name.startsWith(prefix);
         }
@@ -122,16 +107,9 @@ public class AdaptationListingHandler {
         public boolean equals(String prefix) {
             return name.startsWith(prefix);
         }
-
     }
 
-    public static class SkillProvider {
-        private String name;
-
-        public SkillProvider(String name) {
-            this.name = name;
-        }
-
+    public record SkillProvider(String name) {
         public boolean startsWith(String prefix) {
             return name.startsWith(prefix);
         }
@@ -139,6 +117,5 @@ public class AdaptationListingHandler {
         public boolean equals(String prefix) {
             return name.startsWith(prefix);
         }
-
     }
 }

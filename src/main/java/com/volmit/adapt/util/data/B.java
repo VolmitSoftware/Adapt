@@ -27,6 +27,7 @@ import art.arcane.chrono.ChronoLatch;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.collection.KMap;
+import com.volmit.adapt.util.reflect.enums.Materials;
 import it.unimi.dsi.fastutil.ints.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -85,7 +86,7 @@ public class B {
                 WHITE_TULIP,
                 FERN,
                 LARGE_FERN,
-                SHORT_GRASS,
+                Materials.GRASS,
                 TALL_GRASS
         }).forEach((i) -> b.add(i.ordinal()));
 
@@ -143,7 +144,7 @@ public class B {
     private static IntSet buildDecorantCache() {
         IntSet b = new IntOpenHashSet();
         Arrays.stream(new Material[]{
-                SHORT_GRASS,
+                Materials.GRASS,
                 TALL_GRASS,
                 FERN,
                 LARGE_FERN,
