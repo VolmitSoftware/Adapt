@@ -18,15 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.stealth;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
-import net.minecraft.network.protocol.game.PacketPlayOutCollect;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -104,7 +101,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
                         holds.add(droppedItemEntity.getEntityId());
                         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (Math.random() / 3)));
                         safeGiveItem(player, droppedItemEntity, is);
-                        sendCollected(player, droppedItemEntity);
+                        //sendCollected(player, droppedItemEntity);
                         int id = droppedItemEntity.getEntityId();
                         J.s(() -> holds.remove(Integer.valueOf(id)));
                     }
@@ -118,6 +115,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         return (factor * getConfig().radiusFactor) + 1;
     }
 
+    /*
     public void sendCollected(Player p, Item item) {
         try {
             PacketPlayOutCollect packet = new PacketPlayOutCollect(item.getEntityId(), p.getEntityId(), item.getItemStack().getAmount());
@@ -128,7 +126,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
             Adapt.error("Failed to send collected packet");
             e.printStackTrace();
         }
-    }
+    }*/
 
     @Override
     public void onTick() {

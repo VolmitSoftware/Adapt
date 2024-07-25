@@ -24,11 +24,11 @@ import com.volmit.adapt.api.potion.PotionBuilder;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.PotionEffectTypes;
+import com.volmit.adapt.util.reflect.enums.PotionTypes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
 
 
 public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
@@ -48,11 +48,11 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
                 .brewingTime(320)
                 .fuelCost(16)
                 .ingredient(Material.AMETHYST_SHARD)
-                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.SPEED, false, false))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.SPEED, false, false))
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Haste")
                         .setColor(Color.YELLOW)
-                        .addEffect(PotionEffectType.FAST_DIGGING, 1200, 1, true, true, true)
+                        .addEffect(PotionEffectTypes.FAST_DIGGING, 1200, 1, true, true, true)
                         .build())
                 .build());
         registerBrewingRecipe(BrewingRecipe.builder()
@@ -60,11 +60,11 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
                 .brewingTime(320)
                 .fuelCost(32)
                 .ingredient(Material.AMETHYST_BLOCK)
-                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionType.SPEED, false, false))
+                .basePotion(PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, PotionTypes.SPEED, false, false))
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Haste 2")
                         .setColor(Color.YELLOW)
-                        .addEffect(PotionEffectType.FAST_DIGGING, 600, 2, true, true, true)
+                        .addEffect(PotionEffectTypes.FAST_DIGGING, 600, 2, true, true, true)
                         .build())
                 .build());
     }

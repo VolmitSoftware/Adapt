@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.item;
 
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.reflect.enums.EntityTypes;
 import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -47,15 +48,15 @@ public class ItemListings {
             EntityType.BOAT,
             EntityType.ITEM_FRAME,
             EntityType.MINECART,
-            EntityType.MINECART_CHEST,
-            EntityType.MINECART_COMMAND,
-            EntityType.MINECART_FURNACE,
-            EntityType.MINECART_HOPPER,
-            EntityType.MINECART_MOB_SPAWNER,
-            EntityType.MINECART_TNT,
+            EntityTypes.MINECART_CHEST,
+            EntityTypes.MINECART_COMMAND,
+            EntityTypes.MINECART_FURNACE,
+            EntityTypes.MINECART_HOPPER,
+            EntityTypes.MINECART_MOB_SPAWNER,
+            EntityTypes.MINECART_TNT,
             EntityType.PAINTING,
             EntityType.CHEST_BOAT,
-            EntityType.LEASH_HITCH,
+            EntityTypes.LEASH_HITCH,
             EntityType.EVOKER_FANGS,
             EntityType.MARKER
     );

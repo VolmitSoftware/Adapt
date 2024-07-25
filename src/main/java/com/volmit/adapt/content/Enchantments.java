@@ -26,6 +26,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class Enchantments {
+
+    /*
     public static final Enchantment BOUND = new Enchantment() {
         @NotNull
         @Override
@@ -80,7 +82,7 @@ public class Enchantments {
         public boolean canEnchantItem(@NotNull ItemStack item) {
             return false;
         }
-    };
+    }; */
 
 
 }

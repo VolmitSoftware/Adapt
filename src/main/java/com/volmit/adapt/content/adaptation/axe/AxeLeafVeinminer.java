@@ -23,6 +23,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -125,7 +126,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                             }
                         }
                         if (getConfig().showParticles) {
-                            this.vfxCuboidOutline(b, Particle.ENCHANTMENT_TABLE);
+                            this.vfxCuboidOutline(b, Particles.ENCHANTMENT_TABLE);
                         }
                     }
                 });
