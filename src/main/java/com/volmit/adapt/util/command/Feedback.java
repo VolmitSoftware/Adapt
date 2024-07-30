@@ -2,6 +2,7 @@ package com.volmit.adapt.util.command;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.VolmitSender;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -32,5 +33,9 @@ public class Feedback {
             String prefix =  C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]:" ;
             Adapt.audiences.sender(serverOrPlayer).sendMessage(i.content(prefix + " " + i.content()));
         }
+    }
+
+    public void send(VolmitSender sender) {
+        send(sender.getS());
     }
 }

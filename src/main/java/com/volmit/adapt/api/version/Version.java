@@ -38,7 +38,7 @@ public class Version {
 
     private static Entry of(String version) {
         var s = version.split("\\.");
-        return new Entry(Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]));
+        return new Entry(Integer.parseInt(s[0]), Integer.parseInt(s[1]), s.length == 3 ? Integer.parseInt(s[2]) : 0);
     }
 
     private record Entry(int major, int minor, int patch) implements Comparable<Entry> {
