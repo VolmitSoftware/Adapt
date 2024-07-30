@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Version {
     private static final List<Entry> BINDINGS = List.of(
-        of("1.20.6"),
+        of("1.20.5"),
         of("1.20.4"),
         of("1.19.2")
     );

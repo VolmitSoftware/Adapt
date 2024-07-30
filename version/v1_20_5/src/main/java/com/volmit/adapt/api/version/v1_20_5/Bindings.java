@@ -1,4 +1,4 @@
-package com.volmit.adapt.api.version.v1_20_6;
+package com.volmit.adapt.api.version.v1_20_5;
 
 import com.volmit.adapt.api.potion.PotionBuilder;
 import com.volmit.adapt.api.version.IBindings;
