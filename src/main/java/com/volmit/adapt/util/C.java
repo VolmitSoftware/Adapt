@@ -24,8 +24,11 @@ import org.bukkit.Color;
 import org.bukkit.DyeColor;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import static com.volmit.adapt.util.LZString.compress;
 
 /**
  * Colors
@@ -73,6 +76,15 @@ public enum C {
      * Represents dark red
      */
     DARK_RED('4', 0x4) {
+        @Override
+        public net.md_5.bungee.api.ChatColor asBungee() {
+            return net.md_5.bungee.api.ChatColor.DARK_RED;
+        }
+    },
+    /**
+     * Represents dark red
+     */
+    ADAPT('4', 0x4) {
         @Override
         public net.md_5.bungee.api.ChatColor asBungee() {
             return net.md_5.bungee.api.ChatColor.DARK_RED;
@@ -253,6 +265,7 @@ public enum C {
         chatHexMap.put(C.DARK_GREEN, "#0a0");
         chatHexMap.put(C.DARK_AQUA, "#0aa");
         chatHexMap.put(C.DARK_RED, "#a00");
+        chatHexMap.put(C.ADAPT, "#a00");
         chatHexMap.put(C.DARK_PURPLE, "#a0a");
         chatHexMap.put(C.GOLD, "#fa0");
         chatHexMap.put(C.GRAY, "#999");
@@ -308,18 +321,29 @@ public enum C {
     private final int intCode;
     private final char code;
     private final boolean isFormat;
+    private final String token;
     private final String toString;
 
     C(char code, int intCode) {
-        this(code, intCode, false);
+        this("^", code, intCode, false);
+    }
+
+    C(String token, char code, int intCode) {
+        this(token, code, intCode, false);
     }
 
     C(char code, int intCode, boolean isFormat) {
+        this("^", code, intCode, isFormat);
+    }
+
+    C(String token, char code, int intCode, boolean isFormat) {
         this.code = code;
+        this.token = token.equalsIgnoreCase("^") ? "<" + name().toLowerCase(Locale.ROOT) + ">" : token;
         this.intCode = intCode;
         this.isFormat = isFormat;
         this.toString = new String(new char[]{COLOR_CHAR, code});
     }
+
 
     /**
      * Gets the color represented by the specified color code
@@ -428,6 +452,81 @@ public enum C {
         }
 
         return Color.fromBGR(x & 0xffffff);
+    }
+
+    public java.awt.Color awtColor() {
+        return java.awt.Color.decode(hex());
+    }
+
+    public static float[] spin(float[] c, int shift) {
+        return new float[]{spin(c[0], shift), spinc(c[1], shift), spinc(c[2], shift)};
+    }
+
+    public static float[] spin(float[] c, int a, int b, int d) {
+        return new float[]{spin(c[0], a), spinc(c[1], b), spinc(c[2], d)};
+    }
+
+    public static float spin(float c, int shift) {
+        float g = ((((int) Math.floor(c * 360)) + shift) % 360) / 360F;
+        return g < 0 ? 1f - g : g;
+    }
+
+    public static float spinc(float c, int shift) {
+        float g = ((((int) Math.floor(c * 255)) + shift)) / 255F;
+        return Math.max(0f, Math.min(g, 1f));
+    }
+
+    public static java.awt.Color spin(java.awt.Color c, int h, int s, int b) {
+        float[] hsb = java.awt.Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+        hsb = spin(hsb, h, s, b);
+        return java.awt.Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
+    }
+
+    public static String spinToHex(C color, int h, int s, int b) {
+        return "#" + Integer.toHexString(spin(color.awtColor(), h, s, b).getRGB()).substring(2);
+    }
+
+    public static String aura(String s, int hrad, int srad, int vrad) {
+        return aura(s, hrad, srad, vrad, 0.3D);
+    }
+
+    public static String aura(String s, int hrad, int srad, int vrad, double pulse) {
+        String msg = compress(s);
+        StringBuilder b = new StringBuilder();
+        boolean c = false;
+
+        for (char i : msg.toCharArray()) {
+            if (c) {
+                c = false;
+
+                C o = C.getByChar(i);
+
+                if (hrad != 0 || srad != 0 || vrad != 0) {
+                    if (pulse > 0) {
+                        b.append(VolmitSender.pulse(spinToHex(o, hrad, srad, vrad), spinToHex(o, -hrad, -srad, -vrad), pulse));
+                    } else {
+                        b.append("<gradient:")
+                                .append(spinToHex(o, hrad, srad, vrad))
+                                .append(":")
+                                .append(spinToHex(o, -hrad, -srad, -vrad))
+                                .append(">");
+                    }
+                } else {
+                    b.append(C.getByChar(i).token);
+                }
+
+                continue;
+            }
+
+            if (i == C.COLOR_CHAR) {
+                c = true;
+                continue;
+            }
+
+            b.append(i);
+        }
+
+        return b.toString();
     }
 
     public static Color rgbToColor(String rgb) {
@@ -550,7 +649,7 @@ public enum C {
 
     @Override
     public String toString() {
-        return toString;
+        return intCode == -1 ? token : toString;
     }
 
     /**

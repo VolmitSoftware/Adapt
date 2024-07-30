@@ -27,25 +27,20 @@ import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.api.world.AdaptServer;
-import com.volmit.adapt.command.CommandAdapt;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.protector.*;
 import com.volmit.adapt.nms.GlowingEntities;
 import com.volmit.adapt.util.*;
-import com.volmit.adapt.util.command.*;
-import com.volmit.adapt.util.command.suggest.*;
+import com.volmit.adapt.util.collection.KList;
+import com.volmit.adapt.util.collection.KMap;
 import com.volmit.adapt.util.secret.SecretSplash;
 import de.slikey.effectlib.EffectManager;
-import io.github.mqzn.commands.SpigotCommandManager;
-import io.github.mqzn.commands.annotations.AnnotationParser;
-import io.github.mqzn.commands.base.manager.CommandExecutionCoordinator;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -53,21 +48,19 @@ import org.bukkit.event.Listener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
+
+import static com.volmit.adapt.util.decree.context.AdaptationListingHandler.initializeAdaptationListings;
 
 public class Adapt extends VolmitPlugin {
     public static Adapt instance;
     public static HashMap<String, String> wordKey = new HashMap<>();
     public final EffectManager adaptEffectManager = new EffectManager(this);
     public static BukkitAudiences audiences;
-
-    private SpigotCommandManager commandManager;
-    private AnnotationParser<CommandSender> parser;
+    private KMap<Class<? extends AdaptService>, AdaptService> services;
 
     @Getter
     private GlowingEntities glowingEntities;
@@ -88,11 +81,18 @@ public class Adapt extends VolmitPlugin {
     private AdvancementManager manager;
 
 
-    
+    private final KList<Runnable> postShutdown = new KList<>();
+    private static VolmitSender sender;
+
 
     public Adapt() {
         super();
         instance = this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T service(Class<T> c) {
+        return (T) instance.services.get(c);
     }
 
     @Override
@@ -103,17 +103,8 @@ public class Adapt extends VolmitPlugin {
     @Override
     public void start() {
         audiences = BukkitAudiences.create(this);
-        commandManager = new SpigotCommandManager(this, CommandExecutionCoordinator.Type.SYNC);
-        parser = new AnnotationParser<>(commandManager);
-        commandManager.suggestionProviderRegistry().register(new AdaptSkillListingProvider());
-        commandManager.suggestionProviderRegistry().register(new AdaptSkillProvider());
-
-        commandManager.suggestionProviderRegistry().register(new AdaptAdaptationListingProvider());
-        commandManager.suggestionProviderRegistry().register(new AdaptAdaptationProvider());
-
-        commandManager.suggestionProviderRegistry().register(new SoundSuggestionProvider());
-        commandManager.suggestionProviderRegistry().register(new ParticleSuggestionProvider());
-        commandManager.suggestionProviderRegistry().register(new BooleanSuggestionProvider());
+        services = new KMap<>();
+        initialize("com.volmit.adapt.service").forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i));
 
         Localizer.updateLanguageFile();
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -155,7 +146,9 @@ public class Adapt extends VolmitPlugin {
             protectorRegistry.registerProtector(new LocketteProProtector());
         }
         glowingEntities = new GlowingEntities(this);
-        parser.parse(new CommandAdapt());
+        initializeAdaptationListings();
+        services.values().forEach(AdaptService::onEnable);
+        services.values().forEach(this::registerListener);
     }
 
 
@@ -165,8 +158,13 @@ public class Adapt extends VolmitPlugin {
         manager.enable();
     }
 
+    public void postShutdown(Runnable r) {
+        postShutdown.add(r);
+    }
+
     public void stopSim() {
         ticker.clear();
+        postShutdown.forEach(Runnable::run);
         adaptServer.unregister();
         manager.disable();
         MaterialValue.save();
@@ -176,9 +174,11 @@ public class Adapt extends VolmitPlugin {
 
     @Override
     public void stop() {
+        services.values().forEach(AdaptService::onDisable);
         sqlManager.closeConnection();
         stopSim();
         protectorRegistry.unregisterAll();
+        services.clear();
     }
 
     private void startupPrint() {
@@ -212,6 +212,35 @@ public class Adapt extends VolmitPlugin {
         if (AdaptConfig.get().isMetrics()) {
             new Metrics(this, 13412);
         }
+    }
+
+    public static VolmitSender getSender() {
+        if (sender == null) {
+            sender = new VolmitSender(Bukkit.getConsoleSender());
+            sender.setTag(instance.getTag());
+        }
+        return sender;
+    }
+
+    public static List<Object> initialize(String s) {
+        return initialize(s, null);
+    }
+
+    public static KList<Object> initialize(String s, Class<? extends Annotation> slicedClass) {
+        JarScanner js = new JarScanner(instance.jar(), s);
+        KList<Object> v = new KList<>();
+        J.attempt(js::scan);
+        for (Class<?> i : js.getClasses()) {
+            if (slicedClass == null || i.isAnnotationPresent(slicedClass)) {
+                try {
+                    v.add(i.getDeclaredConstructor().newInstance());
+                } catch (Throwable ignored) {
+
+                }
+            }
+        }
+
+        return v;
     }
 
     public static int getJavaVersion() {

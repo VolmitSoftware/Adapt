@@ -20,6 +20,7 @@ package com.volmit.adapt.util.command.suggest;
 
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.skill.SkillRegistry;
+import com.volmit.adapt.util.collection.KList;
 import io.github.mqzn.commands.base.SuggestionProvider;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AdaptSkillProvider implements SuggestionProvider {
-    private final List<String> suggestions = new ArrayList<>();
+    private final KList<String> suggestions = new KList<>();
 
     @Override
     public @NotNull List<String> suggestions() {

@@ -23,7 +23,7 @@ plugins {
 }
 
 version '1.14.2-1.19.2-1.20.6'
-def apiVersion = '1.20'
+def apiVersion = '1.19'
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
 def manifoldVersion = '2024.1.10'
@@ -36,6 +36,7 @@ registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/s
 registerCustomOutputTask('Vatuu', 'D://Minecraft/Servers/1.20/plugins')
 registerCustomOutputTask('Nowhere', 'E://Desktop/server/plugins')
 registerCustomOutputTask('CrazyDev22', 'C://Users/Julian/Desktop/server/plugins')
+registerCustomOutputTask('Pixel', 'D://Iris Dimension Engine//1.20.4 - Development//plugins')
 // ========================== UNIX ==============================
 registerCustomOutputTaskUnix('CyberpwnLT', '/Users/danielmills/development/server/plugins')
 registerCustomOutputTaskUnix('PsychoLT', '/Users/brianfopiano/Desktop/REMOTES/RemoteMinecraft/plugins')
@@ -152,8 +153,7 @@ allprojects {
         compileOnly 'net.kyori:adventure-text-minimessage:4.13.1'
         compileOnly 'net.kyori:adventure-platform-bukkit:4.3.0'
         compileOnly 'net.kyori:adventure-api:4.13.1'
-        compileOnly 'io.github.mqzn:mCommands-spigot:1.1.0'
-        compileOnly 'io.github.mqzn:mCommands-common:1.1.0'
+        compileOnly 'it.unimi.dsi:fastutil:8.5.13'
         implementation 'com.google.guava:guava:30.1-jre'
         compileOnly fileTree(dir: 'libs', include: ['*.jar'])
     }
@@ -179,7 +179,6 @@ shadowJar {
         include(dependency('systems.manifold:'))
         include(dependency('xyz.xenondevs:'))
         include(dependency('art.arcane:'))
-        include(dependency('io.github.mqzn:'))
         include(dependency('com.frengor:ultimateadvancementapi-shadeable:2.4.0'))
     }
 }
@@ -194,6 +193,13 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     implementation 'org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT'
+
+    // Vomit
+    implementation 'art.arcane:Curse:23.5.2'
+    implementation 'art.arcane:MultiBurst:22.9.2'
+    implementation 'art.arcane:Chrono:22.9.10'
+    implementation 'art.arcane:Spatial:22.11.1'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.0.6'
 
     // Cancer
     implementation 'art.arcane:Amulet:22.7.18'
@@ -227,8 +233,7 @@ dependencies {
     compileOnly 'net.kyori:adventure-text-minimessage:4.13.1'
     compileOnly 'net.kyori:adventure-platform-bukkit:4.3.0'
     compileOnly 'net.kyori:adventure-api:4.13.1'
-    compileOnly 'io.github.mqzn:mCommands-spigot:1.1.0'
-    compileOnly 'io.github.mqzn:mCommands-common:1.1.0'
+    compileOnly 'it.unimi.dsi:fastutil:8.5.13'
     implementation 'com.google.guava:guava:30.1-jre'
     compileOnly fileTree(dir: 'libs', include: ['*.jar'])
 }
@@ -244,7 +249,7 @@ if (JavaVersion.current().toString() != "17") {
     System.err.println()
     System.err.println("=== For Command Line (gradlew) ===")
     System.err.println("1. Install JDK 17 from https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html")
-    System.err.println("2. Set JAVA_HOME environment variable to the new jdk installation folder such as C:\\Program Files\\Java\\jdk-17.0.1")
+    System.err.println("2. Set JAVA_HOME environment variable to the new jdk installation folder such as C:/Program Files/Java/jdk-17.0.1")
     System.err.println("3. Open a new command prompt window to get the new environment variables if need be.")
     System.err.println("=========================================================================================================")
     System.err.println()
