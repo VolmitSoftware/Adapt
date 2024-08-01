@@ -32,11 +32,11 @@ public class AdaptationListingHandler {
         adaptationLists.add(main);
 
         for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-            AdaptationList skillList = new AdaptationList("[Skill] " + skill.getName());
+            AdaptationList skillList = new AdaptationList("[Skill]-" + skill.getName());
             adaptationLists.add(skillList);
 
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                AdaptationList adaptationList = new AdaptationList("[Adaptation] " + adaptation.getName());
+                AdaptationList adaptationList = new AdaptationList("[Adaptation]-" + adaptation.getName());
                 adaptationLists.add(adaptationList);
             }
         }
@@ -46,7 +46,7 @@ public class AdaptationListingHandler {
     public static KList<AdaptationSkillList> getAdaptionSkillListings() {
         if (adaptationSkillLists.isNotEmpty()) return adaptationSkillLists;
 
-        AdaptationSkillList t1 = new AdaptationSkillList("[All]");
+        AdaptationSkillList t1 = new AdaptationSkillList("[all]");
         adaptationSkillLists.add(t1);
         AdaptationSkillList t2 = new AdaptationSkillList("[random]");
         adaptationSkillLists.add(t2);
@@ -85,7 +85,7 @@ public class AdaptationListingHandler {
         }
 
         public boolean equals(String prefix) {
-            return name.startsWith(prefix);
+            return name.equalsIgnoreCase(prefix);
         }
     }
 
@@ -95,7 +95,7 @@ public class AdaptationListingHandler {
         }
 
         public boolean equals(String prefix) {
-            return name.startsWith(prefix);
+            return name.equalsIgnoreCase(prefix);
         }
     }
 
@@ -105,7 +105,7 @@ public class AdaptationListingHandler {
         }
 
         public boolean equals(String prefix) {
-            return name.startsWith(prefix);
+            return name.equalsIgnoreCase(prefix);
         }
     }
 
@@ -115,7 +115,7 @@ public class AdaptationListingHandler {
         }
 
         public boolean equals(String prefix) {
-            return name.startsWith(prefix);
+            return name.equalsIgnoreCase(prefix);
         }
     }
 }

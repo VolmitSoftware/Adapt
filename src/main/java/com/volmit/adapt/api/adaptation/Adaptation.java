@@ -384,6 +384,11 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default void openGui(Player player) {
+        if (!Bukkit.isPrimaryThread()) {
+            J.s(() -> openGui(player));
+            return;
+        }
+
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);

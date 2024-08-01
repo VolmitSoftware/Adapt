@@ -177,6 +177,7 @@ public class Adapt extends VolmitPlugin {
         services.values().forEach(AdaptService::onDisable);
         sqlManager.closeConnection();
         stopSim();
+        glowingEntities.disable();
         protectorRegistry.unregisterAll();
         services.clear();
     }

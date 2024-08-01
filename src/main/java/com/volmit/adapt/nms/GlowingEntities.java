@@ -1015,7 +1015,6 @@ public class GlowingEntities implements Listener {
               "id",
               "packedItems"
       ),
-      // remapping not complete: should also use remapped class names
       V1_21(
               21,
               0,
@@ -1023,6 +1022,23 @@ public class GlowingEntities implements Listener {
               null,
               null,
               "ar",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+      ),
+      V1_21_REMAPPED(
+              21,
+              0,
+              true,
+              null,
+              null,
+              null,
               null,
               null,
               null,

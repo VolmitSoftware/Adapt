@@ -31,6 +31,7 @@ import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -199,6 +200,11 @@ public interface Skill<T> extends Ticked, Component {
         if (!player.getClass().getSimpleName().equals("CraftPlayer")) {
             return;
         }
+        if (!Bukkit.isPrimaryThread()) {
+            J.s(() -> openGui(player));
+            return;
+        }
+
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);

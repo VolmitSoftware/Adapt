@@ -26,12 +26,18 @@ import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.util.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 public class SkillsGui {
     public static void open(Player player) {
+        if (!Bukkit.isPrimaryThread()) {
+            J.s(() -> open(player));
+            return;
+        }
+
         Window w = new UIWindow(player);
         w.setTag("/");
         w.setDecorator((window, position, row) -> new UIElement("bg")
