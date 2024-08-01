@@ -72,9 +72,9 @@ public class CommandAdapt implements DecreeExecutor {
             return;
         }
 
-        if (guiTarget.startsWith("[Skill]")) {
+        if (guiTarget.startsWith("[Skill]-")) {
             for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-                if (guiTarget.equals("[Skill]" + skill.getName())) {
+                if (guiTarget.equals("[Skill]-" + skill.getName())) {
                     if (force || skill.openGui(targetPlayer, true)) {
                         FConst.success("Opened GUI for " + skill.getName() + " for " + targetPlayer.getName()).send(sender());
                     } else {
@@ -85,10 +85,10 @@ public class CommandAdapt implements DecreeExecutor {
             }
         }
 
-        if (guiTarget.startsWith("[Adaptation]")) {
+        if (guiTarget.startsWith("[Adaptation]-")) {
             for (Skill<?> skill : SkillRegistry.skills.sortV()) {
                 for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                    if (guiTarget.equals("[Adaptation]" + adaptation.getName())) {
+                    if (guiTarget.equals("[Adaptation]-" + adaptation.getName())) {
                         if (force || adaptation.openGui(targetPlayer, true)) {
                             FConst.success("Opened GUI for " + adaptation.getName() + " for " + targetPlayer.getName()).send(sender());
                         } else {
@@ -141,7 +141,7 @@ public class CommandAdapt implements DecreeExecutor {
             return;
         }
 
-        Skill<?> skill = SkillRegistry.skills.get(skillName.toString());
+        Skill<?> skill = SkillRegistry.skills.get(skillName.name());
         if (skill != null) {
             targetPlayer.getInventory().addItem(ExperienceOrb.with(skill.getName(), amount));
             FConst.success("Giving " + skill.getName() + " orb").send(sender());
