@@ -230,8 +230,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         J.s(() -> {
             block.setBlockData(AIR);
             activeBlocks.remove(block);
+            block.getWorld().playSound(block.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
         });
-        block.getWorld().playSound(block.getLocation(), Sound.BLOCK_DEEPSLATE_BREAK, 1.0f, 1.0f);
         if (getConfig().showParticles) {
             vfxCuboidOutline(block, Particles.ENCHANTMENT_TABLE);
         }
@@ -255,9 +255,15 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
                     if (i == null) {
                         return 0;
                     }
+                    final var world = i.getWorld();
+                    final var location = i.getLocation();
 
-                    i.getWorld().playSound(i.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 10.0f);
-                    i.getWorld().playSound(i.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 0.81f);
+
+                    J.s(() -> {
+                        world.playSound(location, Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 10.0f);
+                        world.playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.0f, 0.81f);
+                    });
+
                     return availablePower;
                 }
                 return v;
