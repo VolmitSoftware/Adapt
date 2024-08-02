@@ -61,7 +61,7 @@
       "description": "Cậu bé tốt bụng nhất! (5 triệu khối)"
     },
     "challenge_block_1k": {
-      "title": "Chặn thật sự!",
+      "title": "Tao có khiên!",
       "description": "Chặn 1000 lượt truy cập"
     },
     "challenge_block_5k": {
@@ -129,7 +129,7 @@
       "description": "Chế tạo 5000 vật phẩm"
     },
     "challenge_craft_50k": {
-      "title": "Thợ thủ công cổ tử cung!",
+      "title": "Nô lệ chế tạo!",
       "description": "Chế tạo 50.000 vật phẩm"
     },
     "challenge_craft_500k": {
@@ -264,6 +264,7 @@
       "welcome": "Chào mừng!",
       "welcomeback": "Chào mừng trở lại!",
       "xpbonusfortime": "XP cho",
+      "maxabilitypower": "Sức mạnh khả năng đã đạt tối đa",
       "unlockthisbyclicking": "Mở khóa cái này bằng cách nhấp chuột phải:",
       "back": "Mặt sau",
       "unlearnall": "Học tất cả",
@@ -340,7 +341,7 @@
     "discovery": {
       "name": "Khám phá",
       "icon": "⚛",
-      "description": "Khi Nhận thức của bạn mở rộng, tâm trí của bạn sẽ sáng tỏ để khám phá những điều mà bạn chưa từng khám phá."
+      "description": "Khi nhận thức của bạn được mở rộng, tâm trí của bạn sẽ mở rộng hơn để khám phá ra điều mà bạn chưa từng khám phá."
     },
     "enchanting": {
       "name": "mê hoặc",
@@ -350,7 +351,7 @@
     "excavation": {
       "name": "Moi lên",
       "icon": "ᛳ",
-      "description": "Diggey Cái lỗ đào..."
+      "description": "Đào đào cái hố..."
     },
     "herbalism": {
       "name": "thảo dược học",
@@ -385,7 +386,7 @@
     "seaborne": {
       "name": "Đường biển",
       "icon": "🎣",
-      "description": "Với kỹ năng này, bạn có thể khám phá được những điều kỳ diệu của nước"
+      "description": "Với kỹ năng này, bạn có thể khám phá được những điều kỳ diệu của nước."
     },
     "stealth": {
       "name": "tàng hình",
@@ -410,12 +411,12 @@
     "chronos": {
       "name": "Thời gian",
       "icon": "⏳",
-      "description": "Lên dây cót Đồng hồ của vũ trụ, trải nghiệm dòng chảy. Phá vỡ đồng hồ, trở thành nó."
+      "description": "Cuốn đồng hồ của vũ trụ, trải nghiệm dòng chảy. Đập vỡ đồng hồ, trở thành nó."
     },
     "unarmed": {
       "name": "không có vũ khí",
       "icon": "»",
-      "description": "Không có vũ khí không phải là không có sức mạnh"
+      "description": "Không có vũ khí không phải là không có sức mạnh."
     }
   },
   "agility": {
@@ -427,7 +428,7 @@
     },
     "superjump": {
       "name": "Siêu nhảy",
-      "description": "Lợi thế chiều cao vượt trội",
+      "description": "Đôi chân vượt trội.",
       "lore1": "Chiều cao nhảy tối đa",
       "lore2": "Lẻn + Nhảy để siêu nhảy!"
     },
@@ -459,7 +460,7 @@
     "wirelessredstone": {
       "name": "Điều khiển từ xa bằng đá đỏ",
       "description": "Điều này cho phép bạn sử dụng đèn pin đá đỏ để chuyển đổi đá đỏ từ xa!",
-      "lore1": "Mục tiêu + Đuốc đá đỏ + Enderperal = 1 Remote đá đỏ"
+      "lore1": "Mục tiêu + Đuốc Redstone + Enderpearl = 1 Điều khiển từ xa bằng đá đỏ"
     },
     "placement": {
       "name": "Cây đũa phép xây dựng",
@@ -608,9 +609,9 @@
       "name": "Đa giáp",
       "description": "Trói Elytras vào áo giáp",
       "lore1": "Đây là một kỹ năng tuyệt vời để đi du lịch.",
-      "lore2": "tự động hợp nhất và thay đổi Armor/Elytra một cách nhanh chóng!",
-      "lore3": "để hợp nhất, hãy nhấp chuột vào một mục này qua mục khác trong kho của bạn.",
-      "lore4": "để cởi Giáp, Lén-Thả vật phẩm và nó sẽ tháo rời.",
+      "lore2": "Tự động kết hợp và thay thế Armor/Elytra một cách nhanh chóng!",
+      "lore3": "Để kết hợp, hãy bấm shift + click  vào vật phẩm vào slot khác trong túi đồ của bạn.",
+      "lore4": "Để tháo Giáp, hãy ngồi và bấm vào vật phẩm rồi nó sẽ tự động tháo rời.",
       "lore5": "Nếu MultiArmor của bạn bị phá hủy, bạn sẽ mất tất cả vật phẩm trong đó.",
       "lore6": "Tôi không cần áo giáp, Nó làm tôi thất vọng..."
     }
@@ -620,7 +621,7 @@
       "name": "Giải cấu trúc",
       "description": "Giải mã các khối và vật phẩm thành các thành phần cơ bản có thể tận dụng được!",
       "lore1": "Thả bất kỳ vật phẩm nào xuống đất.",
-      "lore2": "Sau đó, Lén và Nhấp chuột phải bằng SHears"
+      "lore2": "Sau đó bấm ngồi và chuột phải khi đang cầm Shears."
     },
     "xp": {
       "name": "Chế tạo XP",
@@ -734,13 +735,13 @@
     "omnitool": {
       "name": "OMNI - T.O.O.L.",
       "description": "Leatherman sang trọng được thiết kế quá mức của Tackle",
-      "lore1": "Có lẽ là mạnh nhất trong số nhiều cho phép bạn",
+      "lore1": "Có lẽ là mạnh nhất sẽ cho phép bạn",
       "lore2": "tự động hợp nhất và thay đổi các công cụ một cách nhanh chóng, dựa trên nhu cầu của bạn.",
-      "lore3": "để hợp nhất, hãy nhấp chuột vào một mục này qua mục khác trong kho của bạn.",
-      "lore4": "để hủy liên kết các công cụ, Lén-Thả vật phẩm và nó sẽ tháo rời.",
-      "lore5": "bạn không thể phá vỡ các công cụ trong Leatherman này nhưng bạn không thể sử dụng các công cụ bị hỏng",
-      "lore6": "tổng số mục có thể hợp nhất",
-      "lore7": "bạn có thể sử dụng năm hoặc sáu công cụ hoặc chỉ một công cụ!"
+      "lore3": "Để kết hợp, hãy nhấp chuột vào vật phẩm trong túi đồ của bạn.",
+      "lore4": "Để tháo công cụ, hãy bấm ngồi và quăng vật phẩm rồi nó sẽ tự động tháo rời.",
+      "lore5": "Bạn không thể phá vỡ các công cụ trong Leatherman cũng như bạn không thể sử dụng các công cụ bị hỏng",
+      "lore6": "tổng các vật phẩm có thể kết hợp lại.",
+      "lore7": "Bạn có thể sử dụng năm hoặc sáu công cụ hoặc chỉ một công cụ!"
     }
   },
   "herbalism": {
