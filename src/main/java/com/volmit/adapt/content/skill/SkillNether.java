@@ -18,7 +18,11 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.nether.NetherFireResist;
 import com.volmit.adapt.content.adaptation.nether.NetherSkullYeet;
 import com.volmit.adapt.content.adaptation.nether.NetherWitherResist;
@@ -51,6 +55,42 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         registerAdaptation(new NetherWitherResist());
         registerAdaptation(new NetherSkullYeet());
         registerAdaptation(new NetherFireResist());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WITHER_SKELETON_SKULL)
+                .key("challenge_wither_skeleton_kill_1k")
+                .title(Localizer.dLocalize("advancement", "challenge_wither_skeleton_kill_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_wither_skeleton_kill_1k", "description"))
+                .frame(AdvancementFrameType.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.WITHER_SKELETON_SKULL)
+                        .key("challenge_wither_skeleton_kill_5k")
+                        .title(Localizer.dLocalize("advancement", "challenge_wither_skeleton_kill_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_wither_skeleton_kill_5k", "description"))
+                        .frame(AdvancementFrameType.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.WITHER_SKELETON_SKULL)
+                                .key("challenge_wither_skeleton_kill_50k")
+                                .title(Localizer.dLocalize("advancement", "challenge_wither_skeleton_kill_50k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_wither_skeleton_kill_50k", "description"))
+                                .frame(AdvancementFrameType.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .child(AdaptAdvancement.builder()
+                                        .icon(Material.WITHER_SKELETON_SKULL)
+                                        .key("challenge_wither_skeleton_kill_500k")
+                                        .title(Localizer.dLocalize("advancement", "challenge_wither_skeleton_kill_500k", "title"))
+                                        .description(Localizer.dLocalize("advancement", "challenge_wither_skeleton_kill_500k", "description"))
+                                        .frame(AdvancementFrameType.CHALLENGE)
+                                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                        .build())
+                                .build())
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_skeleton_kill_1k").goal(1000).stat("wither_skeleton_kills").reward(getConfig().getWitherSkeletonKillXp()).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_skeleton_kill_5k").goal(5000).stat("wither_skeleton_kills").reward(getConfig().getWitherSkeletonKillXp()).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_skeleton_kill_50k").goal(50000).stat("wither_skeleton_kills").reward(getConfig().getWitherSkeletonKillXp()).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_skeleton_kill_500k").goal(500000).stat("wither_skeleton_kills").reward(getConfig().getWitherSkeletonKillXp()).build());
     }
 
     private boolean shouldReturnForEventWithCause(Player p, EntityDamageEvent.DamageCause cause) {

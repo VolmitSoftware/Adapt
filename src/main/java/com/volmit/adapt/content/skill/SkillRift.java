@@ -18,7 +18,11 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.rift.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
@@ -56,6 +60,44 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         registerAdaptation(new RiftBlink());
         registerAdaptation(new RiftDescent());
         lasttp = new HashMap<>();
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_EYE)
+                .key("challenge_rift_1k")
+                .title(Localizer.dLocalize("advancement", "challenge_rift_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_rift_1k", "description"))
+                .frame(AdvancementFrameType.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENDER_PEARL)
+                        .key("challenge_rift_5k")
+                        .title(Localizer.dLocalize("advancement", "challenge_rift_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_rift_5k", "description"))
+                        .frame(AdvancementFrameType.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.END_CRYSTAL)
+                                .key("challenge_rift_50k")
+                                .title(Localizer.dLocalize("advancement", "challenge_rift_50k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_rift_50k", "description"))
+                                .frame(AdvancementFrameType.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .child(AdaptAdvancement.builder()
+                                        .icon(Material.END_PORTAL_FRAME)
+                                        .key("challenge_rift_500k")
+                                        .title(Localizer.dLocalize("advancement", "challenge_rift_500k", "title"))
+                                        .description(Localizer.dLocalize("advancement", "challenge_rift_500k", "description"))
+                                        .frame(AdvancementFrameType.CHALLENGE)
+                                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                        .build())
+                                .build())
+                        .build())
+                .build());
+
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_1k").goal(1000).stat("rift.teleports").reward(getConfig().challengeRift1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_5k").goal(5000).stat("rift.teleports").reward(getConfig().challengeRift5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_50k").goal(50000).stat("rift.teleports").reward(getConfig().challengeRift50kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_500k").goal(500000).stat("rift.teleports").reward(getConfig().challengeRift500kReward).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -159,5 +201,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         double throwEnderEyeXP = 45;
         double teleportXP = 15;
         double teleportXPCooldown = 60000;
+        double challengeRift1kReward = 1000;
+        double challengeRift5kReward = 5000;
+        double challengeRift50kReward = 50000;
+        double challengeRift500kReward = 500000;
     }
 }
