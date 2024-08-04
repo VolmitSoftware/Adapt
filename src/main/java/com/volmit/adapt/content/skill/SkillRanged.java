@@ -18,7 +18,10 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.ranged.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
@@ -54,6 +57,44 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         registerAdaptation(new RangedWebBomb());
         setIcon(Material.CROSSBOW);
         cooldowns = new HashMap<>();
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BOW)
+                .key("challenge_ranged_1k")
+                .title(Localizer.dLocalize("advancement", "challenge_ranged_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_ranged_1k", "description"))
+                .frame(AdvancementFrameType.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.CROSSBOW)
+                        .key("challenge_ranged_5k")
+                        .title(Localizer.dLocalize("advancement", "challenge_ranged_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_ranged_5k", "description"))
+                        .frame(AdvancementFrameType.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.TIPPED_ARROW)
+                                .key("challenge_ranged_50k")
+                                .title(Localizer.dLocalize("advancement", "challenge_ranged_50k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_ranged_50k", "description"))
+                                .frame(AdvancementFrameType.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .child(AdaptAdvancement.builder()
+                                        .icon(Material.SPECTRAL_ARROW)
+                                        .key("challenge_ranged_500k")
+                                        .title(Localizer.dLocalize("advancement", "challenge_ranged_500k", "title"))
+                                        .description(Localizer.dLocalize("advancement", "challenge_ranged_500k", "description"))
+                                        .frame(AdvancementFrameType.CHALLENGE)
+                                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                        .build())
+                                .build())
+                        .build())
+                .build());
+
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_1k").goal(1000).stat("ranged.shotsfired").reward(getConfig().challengeRanged1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_5k").goal(5000).stat("ranged.shotsfired").reward(getConfig().challengeRanged5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_50k").goal(50000).stat("ranged.shotsfired").reward(getConfig().challengeRanged50kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_500k").goal(500000).stat("ranged.shotsfired").reward(getConfig().challengeRanged500kReward).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -124,5 +165,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         long cooldownDelay = 1250;
         double hitDamageXPMultiplier = 2.125;
         double hitDistanceXPMultiplier = 1.7;
+        double challengeRanged1kReward = 1000;
+        double challengeRanged5kReward = 5000;
+        double challengeRanged50kReward = 50000;
+        double challengeRanged500kReward = 500000;
     }
 }
