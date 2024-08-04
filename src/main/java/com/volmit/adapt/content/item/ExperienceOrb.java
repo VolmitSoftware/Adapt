@@ -73,7 +73,7 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
         for (Map.Entry<String, Double> entry : data.getExperienceMap().entrySet()) {
             String skill = entry.getKey();
             double experience = entry.getValue();
-            lore.add(C.WHITE + Localizer.dLocalize("snippets", "experienceorb", "contains") + " " + C.UNDERLINE + C.WHITE + Form.f(experience, 0) + " " + Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + C.GRAY + " " + Localizer.dLocalize("snippets", "experienceorb", "xp"));
+            lore.add(C.WHITE + Form.capitalize(Localizer.dLocalize("snippets", "experienceorb", "contains")) + " " + C.UNDERLINE + C.WHITE + Form.f(experience, 0) + " " + Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + C.GRAY + " " + Localizer.dLocalize("snippets", "experienceorb", "xp"));
         }
         lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("snippets", "experienceorb", "rightclick") + " " + C.GRAY + Localizer.dLocalize("snippets", "experienceorb", "togainxp"));
     }
