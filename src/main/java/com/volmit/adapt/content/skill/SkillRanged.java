@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
