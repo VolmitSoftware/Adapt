@@ -232,7 +232,6 @@
       "title": "Legendary Miner",
       "description": "Break 5,000,000 Blocks"
     }
-
   },
   "items": {
     "boundenderperal": {
@@ -1000,6 +999,11 @@
       "description": "Gain Resistance when using Ender Items & Abilities",
       "lore1": "+ Passive: Provides resistance when you use rift abilities, or Ender Items",
       "lore2": "NOT Including Portable Enderchest, only things you can Consume"
+    },
+    "visage": {
+      "name": "Rift Visage",
+      "description": "Prevents Endermen from becoming aggressive if you have Enderpearls in your inventory.",
+      "lore1": "Endermen will not become aggressive if you have Enderpearls in your inventory."
     }
   },
   "seaborn": {
