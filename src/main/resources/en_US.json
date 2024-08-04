@@ -234,19 +234,19 @@
     },
     "challenge_wither_skeleton_kill_1k": {
       "title": "Wither Skeleton Slayer",
-      "description": "Kill 1,000 Wither Skeletons"
+      "description": "You really dont like these guys do you?"
     },
     "challenge_wither_skeleton_kill_5k": {
       "title": "Wither Skeleton Hunter",
-      "description": "Kill 5,000 Wither Skeletons"
+      "description": "Ok, you really dont like these guys are you done?"
     },
     "challenge_wither_skeleton_kill_50k": {
       "title": "Wither Skeleton Conqueror",
-      "description": "Kill 50,000 Wither Skeletons"
+      "description": "Stop killing these guys, they have families!"
     },
     "challenge_wither_skeleton_kill_500k": {
       "title": "Wither Skeleton Annihilator",
-      "description": "Kill 500,000 Wither Skeletons"
+      "description": "What on gods earth made you kill this many..."
     },
     "challenge_ranged_1k": {
       "title": "Novice Archer",
@@ -265,11 +265,11 @@
       "description": "Fire 500,000 Shots"
     },
     "challenge_rift_1k": {
-      "title": "Novice Teleporter",
+      "title": "Novice V'Woop-er",
       "description": "Teleport 1,000 Times"
     },
     "challenge_rift_5k": {
-      "title": "Skilled Teleporter",
+      "title": "Skilled Portal Jumper",
       "description": "Teleport 5,000 Times"
     },
     "challenge_rift_50k": {
@@ -277,8 +277,8 @@
       "description": "Teleport 50,000 Times"
     },
     "challenge_rift_500k": {
-      "title": "Master Teleporter",
-      "description": "Teleport 500,000 Times"
+      "title": "Master Ender-person (Teleporter)",
+      "description": "Teleport 500,000 Times, Woah..."
     },
     "challenge_swim_1nm": {
       "title": "Novice Swimmer",
