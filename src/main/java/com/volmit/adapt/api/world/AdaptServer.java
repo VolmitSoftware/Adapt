@@ -136,17 +136,17 @@ public class AdaptServer extends TickedObject {
                 Skill<?> skill = getSkillRegistry().getSkill(data.getSkill());
                 data.apply(p);
                 SoundNotification.builder()
-                        .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
-                        .volume(0.35f).pitch(1.455f)
-                        .build().play(getPlayer(p));
+                    .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
+                    .volume(0.35f).pitch(1.455f)
+                    .build().play(getPlayer(p));
                 SoundNotification.builder()
-                        .sound(Sound.ENTITY_SHULKER_OPEN)
-                        .volume(1f).pitch(1.655f)
-                        .build().play(getPlayer(p));
+                    .sound(Sound.ENTITY_SHULKER_OPEN)
+                    .volume(1f).pitch(1.655f)
+                    .build().play(getPlayer(p));
                 getPlayer(p).getNot().queue(AdvancementNotification.builder()
-                        .icon(Material.BOOK)
-                        .title(C.GRAY + "+ " + C.WHITE + data.getKnowledge() + " " + skill.getDisplayName() + " Knowledge")
-                        .build());
+                    .icon(Material.BOOK)
+                    .title(C.GRAY + "+ " + C.WHITE + data.getKnowledge() + " " + skill.getDisplayName() + " Knowledge")
+                    .build());
                 e.setCancelled(false);
                 e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(1000));
             } else {
@@ -154,13 +154,13 @@ public class AdaptServer extends TickedObject {
                 if (datax != null) {
                     datax.apply(p);
                     SoundNotification.builder()
-                            .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
-                            .volume(0.35f).pitch(1.455f)
-                            .build().play(getPlayer(p));
+                        .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
+                        .volume(0.35f).pitch(1.455f)
+                        .build().play(getPlayer(p));
                     SoundNotification.builder()
-                            .sound(Sound.ENTITY_SHULKER_OPEN)
-                            .volume(1f).pitch(1.655f)
-                            .build().play(getPlayer(p));
+                        .sound(Sound.ENTITY_SHULKER_OPEN)
+                        .volume(1f).pitch(1.655f)
+                        .build().play(getPlayer(p));
                     e.setCancelled(false);
                     e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(1000));
                 }
