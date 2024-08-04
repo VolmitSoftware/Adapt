@@ -26,7 +26,7 @@ version '1.15.0-1.19.2-1.21'
 def apiVersion = '1.19'
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
-def manifoldVersion = '2024.1.20'
+def manifoldVersion = '2024.1.10'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
@@ -39,7 +39,7 @@ registerCustomOutputTask('CrazyDev22', 'C://Users/Julian/Desktop/server/plugins'
 registerCustomOutputTask('Pixel', 'D://Iris Dimension Engine//1.20.4 - Development//plugins')
 // ========================== UNIX ==============================
 registerCustomOutputTaskUnix('CyberpwnLT', '/Users/danielmills/development/server/plugins')
-registerCustomOutputTaskUnix('PsychoLT', '/Users/brianfopiano/Developer/RemoteGit/Server/plugins', false)
+registerCustomOutputTaskUnix('PsychoLT', '/Users/brianfopiano/Developer/RemoteGit/Server/plugins')
 registerCustomOutputTaskUnix('the456gamer', '/home/the456gamer/projects/minecraft/adapt-testserver/plugins/update/', false)
 // ==============================================================
 

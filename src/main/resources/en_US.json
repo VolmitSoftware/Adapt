@@ -231,71 +231,8 @@
     "challenge_pickaxe_5m": {
       "title": "Legendary Miner",
       "description": "Break 5,000,000 Blocks"
-    },
-    "challenge_wither_skeleton_kill_1k": {
-      "title": "Wither Skeleton Slayer",
-      "description": "You really dont like these guys do you?"
-    },
-    "challenge_wither_skeleton_kill_5k": {
-      "title": "Wither Skeleton Hunter",
-      "description": "Ok, you really dont like these guys are you done?"
-    },
-    "challenge_wither_skeleton_kill_50k": {
-      "title": "Wither Skeleton Conqueror",
-      "description": "Stop killing these guys, they have families!"
-    },
-    "challenge_wither_skeleton_kill_500k": {
-      "title": "Wither Skeleton Annihilator",
-      "description": "What on gods earth made you kill this many..."
-    },
-    "challenge_ranged_1k": {
-      "title": "Novice Archer",
-      "description": "Fire 1,000 Shots"
-    },
-    "challenge_ranged_5k": {
-      "title": "Skilled Archer",
-      "description": "Fire 5,000 Shots"
-    },
-    "challenge_ranged_50k": {
-      "title": "Expert Archer",
-      "description": "Fire 50,000 Shots"
-    },
-    "challenge_ranged_500k": {
-      "title": "Master Archer",
-      "description": "Fire 500,000 Shots"
-    },
-    "challenge_rift_1k": {
-      "title": "Novice V'Woop-er",
-      "description": "Teleport 1,000 Times"
-    },
-    "challenge_rift_5k": {
-      "title": "Skilled Portal Jumper",
-      "description": "Teleport 5,000 Times"
-    },
-    "challenge_rift_50k": {
-      "title": "Expert Teleporter",
-      "description": "Teleport 50,000 Times"
-    },
-    "challenge_rift_500k": {
-      "title": "Master Ender-person (Teleporter)",
-      "description": "Teleport 500,000 Times, Woah..."
-    },
-    "challenge_swim_1nm": {
-      "title": "Novice Swimmer",
-      "description": "Swim 1 Nautical Mile (1,852 blocks)"
-    },
-    "challenge_swim_5nm": {
-      "title": "Skilled Swimmer",
-      "description": "Swim 5 Nautical Miles (9,260 blocks)"
-    },
-    "challenge_swim_50nm": {
-      "title": "Expert Swimmer",
-      "description": "Swim 50 Nautical Miles (92,600 blocks)"
-    },
-    "challenge_swim_500nm": {
-      "title": "Master Swimmer",
-      "description": "Swim 500 Nautical Miles (926,000 blocks)"
     }
+
   },
   "items": {
     "boundenderperal": {
