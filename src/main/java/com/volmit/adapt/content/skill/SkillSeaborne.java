@@ -60,39 +60,12 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.TURTLE_HELMET)
                 .key("challenge_swim_1nm")
-                .title(Localizer.dLocalize("advancement", "challenge_swim_1nm", "title"))
-                .description(Localizer.dLocalize("advancement", "challenge_swim_1nm", "description"))
+                .title("Human Submarine!")
+                .description("Swim 1 Nautical Mile (1,852 blocks)")
                 .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
-                .child(AdaptAdvancement.builder()
-                        .icon(Material.HEART_OF_THE_SEA)
-                        .key("challenge_swim_5nm")
-                        .title(Localizer.dLocalize("advancement", "challenge_swim_5nm", "title"))
-                        .description(Localizer.dLocalize("advancement", "challenge_swim_5nm", "description"))
-                        .frame(AdvancementFrameType.CHALLENGE)
-                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                        .child(AdaptAdvancement.builder()
-                                .icon(Material.NAUTILUS_SHELL)
-                                .key("challenge_swim_50nm")
-                                .title(Localizer.dLocalize("advancement", "challenge_swim_50nm", "title"))
-                                .description(Localizer.dLocalize("advancement", "challenge_swim_50nm", "description"))
-                                .frame(AdvancementFrameType.CHALLENGE)
-                                .visibility(AdvancementVisibility.PARENT_GRANTED)
-                                .child(AdaptAdvancement.builder()
-                                        .icon(Material.CONDUIT)
-                                        .key("challenge_swim_500nm")
-                                        .title(Localizer.dLocalize("advancement", "challenge_swim_500nm", "title"))
-                                        .description(Localizer.dLocalize("advancement", "challenge_swim_500nm", "description"))
-                                        .frame(AdvancementFrameType.CHALLENGE)
-                                        .visibility(AdvancementVisibility.PARENT_GRANTED)
-                                        .build())
-                                .build())
-                        .build())
                 .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_1nm").goal(1852).stat("move.swim").reward(getConfig().challengeSwim1nmReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_5nm").goal(9260).stat("move.swim").reward(getConfig().challengeSwim5nmReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_50nm").goal(92600).stat("move.swim").reward(getConfig().challengeSwim50nmReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_500nm").goal(926000).stat("move.swim").reward(getConfig().challengeSwim500nmReward).build());
         cooldowns = new HashMap<>();
     }
 
@@ -190,9 +163,6 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         double damagedrownxpmultiplier = 3;
         boolean enabled = true;
         double challengeSwim1nmReward = 750;
-        double challengeSwim5nmReward = 1500;
-        double challengeSwim50nmReward = 7500;
-        double challengeSwim500nmReward = 15000;
         double swimXP = 28.7;
     }
 }
