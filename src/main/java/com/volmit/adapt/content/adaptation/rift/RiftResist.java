@@ -82,7 +82,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
             switch (hand.getType()) {
                 case ENDER_EYE, ENDER_PEARL -> {
                     xp(p, 3);
-                    riftResistStackAdd(p, 80, 10);
+                    riftResistStackAdd(p, getConfig().duration, getConfig().amplitude);
                 }
             }
         }
@@ -111,6 +111,8 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         int baseCost = 3;
         double costFactor = 1;
         int maxLevel = 1;
+        int amplitude = 1;
+        int duration = 80;
         int initialCost = 5;
     }
 }
