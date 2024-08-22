@@ -22,7 +22,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
 }
 
-version '1.15.0-1.19.2-1.21'
+version '1.15.1-1.19.2-1.21.1'
 def apiVersion = '1.19'
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
