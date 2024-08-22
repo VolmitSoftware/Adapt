@@ -179,7 +179,7 @@ shadowJar {
         include(dependency('systems.manifold:'))
         include(dependency('xyz.xenondevs:'))
         include(dependency('art.arcane:'))
-        include(dependency('com.frengor:ultimateadvancementapi-shadeable:2.4.0'))
+        include(dependency('com.frengor:ultimateadvancementapi-shadeable:'))
     }
 }
 
