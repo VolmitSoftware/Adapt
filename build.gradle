@@ -22,11 +22,11 @@ plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
 }
 
-version '1.15.0-1.19.2-1.21'
+version '1.15.1-1.19.2-1.21.1'
 def apiVersion = '1.19'
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
-def manifoldVersion = '2024.1.10'
+def manifoldVersion = '2024.1.30'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
@@ -141,7 +141,7 @@ allprojects {
         implementation "com.github.angeschossen:ChestProtectAPI:3.9.1"
         implementation "com.github.TechFortress:GriefPrevention:16.18.1"
         implementation 'xyz.xenondevs:particle:1.8.1'
-        implementation "com.frengor:ultimateadvancementapi-shadeable:2.4.0"
+        implementation "com.frengor:ultimateadvancementapi-shadeable:2.4.1"
         compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
         compileOnly 'io.netty:netty-all:4.1.68.Final'
 
@@ -179,7 +179,7 @@ shadowJar {
         include(dependency('systems.manifold:'))
         include(dependency('xyz.xenondevs:'))
         include(dependency('art.arcane:'))
-        include(dependency('com.frengor:ultimateadvancementapi-shadeable:2.4.0'))
+        include(dependency('com.frengor:ultimateadvancementapi-shadeable:'))
     }
 }
 
@@ -221,7 +221,7 @@ dependencies {
     implementation "com.github.angeschossen:ChestProtectAPI:3.9.1"
     implementation "com.github.TechFortress:GriefPrevention:16.18.1"
     implementation 'xyz.xenondevs:particle:1.8.1'
-    implementation "com.frengor:ultimateadvancementapi-shadeable:2.4.0"
+    implementation "com.frengor:ultimateadvancementapi-shadeable:2.4.1"
     compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
     compileOnly 'io.netty:netty-all:4.1.68.Final'
 

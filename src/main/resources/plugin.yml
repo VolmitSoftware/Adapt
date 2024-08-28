@@ -29,6 +29,9 @@ permissions:
   adapt.idontknowwhatimdoingiswear:
     description: This is for the Adapt Testing command DEVELOPERS ONLY
     default: op
+  adapt.listboosts:
+    description: Allows for you to view the boosts on a player
+    default: op
   adapt.opengui:
     description: Open the GUI without needing a Bookshelf
     default: op
@@ -355,6 +358,9 @@ permissions:
         default: false
       adapt.blacklist.riftresist:
         description: Blacklist the adaptation RiftResist
+        default: false
+      adapt.blacklist.riftvisage:
+        description: Blacklist the adaptation RiftVisage
         default: false
   adapt.blacklist.seaborne:
     description: Blacklist the skill Seaborne
