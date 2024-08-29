@@ -31,6 +31,7 @@ import com.volmit.adapt.content.skill.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.SoundPlayer;
 import com.volmit.adapt.util.reflect.enums.Particles;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -108,8 +109,9 @@ public class SkillRegistry extends TickedObject {
                 (p.getInventory().getItemInOffHand().getType().equals(Material.AIR) || !p.getInventory().getItemInOffHand().getType().isBlock());
 
         if (isAdaptActivator) {
-            e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.5f, 0.72f);
-            e.getClickedBlock().getWorld().playSound(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
+            SoundPlayer spw = SoundPlayer.of(e.getClickedBlock().getWorld());
+            spw.play(e.getClickedBlock().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.5f, 0.72f);
+            spw.play(e.getClickedBlock().getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
             SkillsGui.open(p);
             e.setCancelled(true);
             p.getWorld().spawnParticle(Particles.CRIT_MAGIC, e.getClickedBlock().getLocation().clone().add(0.5, 1, 0.5), 25, 0, 0, 0, 1.1);
@@ -160,10 +162,11 @@ public class SkillRegistry extends TickedObject {
     }
 
     private void playDebug(Player p) {
-        p.playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 1f, 0.6f);
-        p.playSound(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1f, 0.1f);
-        p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.6f);
-        p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.2f);
+        SoundPlayer sp = SoundPlayer.of(p);
+        sp.play(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 1f, 0.6f);
+        sp.play(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1f, 0.1f);
+        sp.play(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.6f);
+        sp.play(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.2f);
 
     }
 

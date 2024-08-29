@@ -23,6 +23,7 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import com.volmit.adapt.util.reflect.enums.PotionEffectTypes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -54,9 +55,10 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         if (p.getLocation().getWorld() == null) {
             return;
         }
-        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
-        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1f, 0.01f);
-        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1f, 0.01f);
+        SoundPlayer spw = SoundPlayer.of(p.getWorld());
+        spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
+        spw.play(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1f, 0.01f);
+        spw.play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1f, 0.01f);
         p.addPotionEffect(new PotionEffect(PotionEffectTypes.DAMAGE_RESISTANCE, duration, amplifier, true, false, false));
     }
 

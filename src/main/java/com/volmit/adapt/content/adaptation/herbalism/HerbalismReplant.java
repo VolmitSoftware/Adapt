@@ -72,6 +72,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        SoundPlayer spw = SoundPlayer.of(p.getWorld());
         if (e.getClickedBlock() == null) {
             return;
         }
@@ -111,8 +112,8 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
                 for (Block i : c) {
                     J.s(() -> hit(p, i), M.irand(1, 6));
                 }
-                p.getWorld().playSound(p.getLocation(), Sound.ITEM_SHOVEL_FLATTEN, 1f, 0.66f);
-                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BAMBOO_SAPLING_BREAK, 1f, 0.66f);
+                spw.play(p.getLocation(), Sound.ITEM_SHOVEL_FLATTEN, 1f, 0.66f);
+                spw.play(p.getLocation(), Sound.BLOCK_BAMBOO_SAPLING_BREAK, 1f, 0.66f);
                 if (getConfig().showParticles) {
                     p.spawnParticle(Particles.VILLAGER_HAPPY, p.getLocation().clone().add(0.5, 0.5, 0.5), getLevel(p) * 3, 0.3 * getLevel(p), 0.3 * getLevel(p), 0.3 * getLevel(p), 0.9);
                 }
@@ -132,8 +133,9 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
             xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
             if (getPlayer(p).getData().getSkillLines().get("herbalism").getAdaptations().get("herbalism-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("herbalism").getAdaptations().get("herbalism-drop-to-inventory").getLevel() > 0) {
                 Collection<ItemStack> items = b.getDrops();
+                SoundPlayer sp = SoundPlayer.of(p);
                 for (ItemStack i : items) {
-                    p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
+                    sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
                     i.setAmount(1);
                     if (!p.getInventory().addItem(i).isEmpty()) {
                         p.getWorld().dropItem(p.getLocation(), i);
@@ -153,7 +155,8 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
             getPlayer(p).getData().addStat("harvest.planted", 1);
 
             if (M.r(1D / (double) getLevel(p))) {
-                p.getWorld().playSound(b.getLocation(), Sound.ITEM_CROP_PLANT, 1f, 0.7f);
+                SoundPlayer spw = SoundPlayer.of(p.getWorld());
+                spw.play(b.getLocation(), Sound.ITEM_CROP_PLANT, 1f, 0.7f);
             }
         }
     }

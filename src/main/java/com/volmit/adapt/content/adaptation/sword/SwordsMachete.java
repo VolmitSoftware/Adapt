@@ -68,6 +68,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        SoundPlayer spw = SoundPlayer.of(p.getWorld());
         if (e.getHand() != null && e.getHand().equals(EquipmentSlot.HAND) && e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
             int dmg = 0;
             ItemStack is = e.getItem();
@@ -141,7 +142,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                                     dmg += 1;
                                     J.s(() -> {
                                         i.breakNaturally();
-                                        p.getWorld().playSound(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4f, (float) Math.random() * 1.85f);
+                                        spw.play(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4f, (float) Math.random() * 1.85f);
                                     }, RNG.r.i(0, (getMaxLevel() - lvl * 2) + 1));
                                 }
                             }
@@ -153,7 +154,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 //                        if (getConfig().showParticles) {
 //                            ParticleEffect.SWEEP_ATTACK.display(p.getEyeLocation().clone().add(p.getLocation().getDirection().clone().multiply(1.25)).add(0, -0.5, 0), 0f, 0f, 0f, 0.1f, 1, null);
 //                        }
-                        p.getWorld().playSound(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (Math.random() / 2) + 0.65f);
+                        spw.play(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (Math.random() / 2) + 0.65f);
                         damageHand(p, dmg * getDamagePerBlock(getLevelPercent(lvl)));
                         getSkill().xp(p, dmg * 11.25);
                     }

@@ -98,8 +98,9 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
                     if (ef) {
                         ((BrewingStand) e.getBlock().getState()).getInventory().setStorageContents(c);
-                        e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 0.75f);
-                        e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 1.75f);
+                        SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
+                        spw.play(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 0.75f);
+                        spw.play(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 1.75f);
                     }
                 });
             } else {

@@ -21,10 +21,7 @@ package com.volmit.adapt.content.adaptation.blocking;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.content.item.multiItems.MultiArmor;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -99,14 +96,15 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                 else cooldowns.remove(p);
             }
 
+            SoundPlayer spw = SoundPlayer.of(p.getWorld());
             if (p.isOnGround() && !p.isFlying()) {
                 if (isChestplate(chest)) {
                     return;
                 }
                 J.s(() -> p.getInventory().setChestplate(multiarmor.nextChestplate(chest)));
                 cooldowns.put(p, System.currentTimeMillis());
-                p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
-                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 0.5f, 0.77f);
+                spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                spw.play(p.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 0.5f, 0.77f);
 
             } else if (p.getFallDistance() > 4) {
                 if (isElytra(chest)) {
@@ -114,8 +112,8 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                 }
                 J.s(() -> p.getInventory().setChestplate(multiarmor.nextElytra(chest)));
                 cooldowns.put(p, System.currentTimeMillis());
-                p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
-                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.5f, 0.77f);
+                spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                spw.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.5f, 0.77f);
             }
         }
     }
@@ -124,6 +122,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerDropItemEvent e) {
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
         if (!hasAdaptation(p)) {
             return;
         }
@@ -154,7 +153,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                 }
 
                 J.s(() -> {
-                    p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_DEATH, 0.25f, 0.77f);
+                    sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_DEATH, 0.25f, 0.77f);
                     for (ItemStack i : drops) {
                         p.getWorld().dropItem(p.getLocation(), i);
                     }
@@ -183,7 +182,8 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
 
                     if (multiarmor.explode(cursor).size() >= getSlots(getLevel((Player) e.getWhoClicked())) || multiarmor.explode(clicked).size() >= getSlots(getLevel((Player) e.getWhoClicked()))) {
                         e.setCancelled(true);
-                        ((Player) e.getWhoClicked()).playSound(e.getWhoClicked().getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
+                        SoundPlayer sp = SoundPlayer.of((Player) e.getWhoClicked());
+                        sp.play(e.getWhoClicked().getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
                         return;
                     }
                 }
@@ -193,7 +193,8 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                         e.setCancelled(true);
                         e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
                         e.getClickedInventory().setItem(e.getSlot(), multiarmor.build(cursor, clicked));
-                        e.getWhoClicked().getWorld().playSound(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                        SoundPlayer spw = SoundPlayer.of(e.getWhoClicked().getWorld());
+                        spw.play(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                     }
                 }
             }

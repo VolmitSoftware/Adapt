@@ -85,6 +85,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                     for (int i = 0; i < Math.min(Math.min(rad * rad, 256), 3); i++) {
                         Location m = p.getLocation().clone().add(new Vector(Math.sin(angle), RNG.r.i(-1, 1), Math.cos(angle)).multiply(Math.random() * rad));
                         Block a = m.getWorld().getHighestBlockAt(m).getRelative(BlockFace.UP);
+                        SoundPlayer spw = SoundPlayer.of(a.getWorld());
                         if (a.getBlockData() instanceof Ageable) {
                             Ageable ab = (Ageable) a.getBlockData();
                             int toGrowLeft = ab.getMaximumAge() - ab.getAge();
@@ -101,7 +102,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                                                     if (aab.getAge() < aab.getMaximumAge()) {
                                                         aab.setAge(aab.getAge() + 1);
                                                         a.setBlockData(aab, true);
-                                                        a.getWorld().playSound(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
+                                                        spw.play(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
                                                         if (getConfig().showParticles) {
                                                             p.spawnParticle(Particles.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);
                                                         }

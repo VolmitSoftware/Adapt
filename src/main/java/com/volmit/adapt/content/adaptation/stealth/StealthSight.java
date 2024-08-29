@@ -19,10 +19,7 @@
 package com.volmit.adapt.content.adaptation.stealth;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -65,12 +62,13 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
             return;
         }
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
         if (!hasAdaptation(p)) {
             return;
         }
         sneaking.add(p);
         if (!p.isSneaking()) {
-            p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
+            sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
             p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 1000, 0, false, false));
         } else {
             p.removePotionEffect(PotionEffectType.NIGHT_VISION);

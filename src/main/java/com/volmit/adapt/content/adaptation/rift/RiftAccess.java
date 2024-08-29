@@ -23,10 +23,7 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundEnderPearl;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -144,7 +141,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
             vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
         }
         ItemStack hand = p.getInventory().getItemInMainHand();
-        p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 0.8f);
+        SoundPlayer sp = SoundPlayer.of(p);
+        sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 0.8f);
 
         if (hand.getAmount() == 1) {
             BoundEnderPearl.setData(hand, block);
@@ -156,9 +154,10 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     }
 
     private void openPearl(Player p) {
+        SoundPlayer sp = SoundPlayer.of(p);
         Block b = BoundEnderPearl.getBlock(p.getInventory().getItemInMainHand());
         if (b == null || !canAccessChest(p, b.getLocation())) {
-            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1f);
+            sp.play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1f);
             return;
         }
         loadChunkAsync(b.getLocation(), chunk -> {
@@ -170,8 +169,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                 InventoryView view = p.openInventory(holder.getInventory());
                 activeViewsMap.computeIfAbsent(b.getLocation(), k -> new ArrayList<>()).add(view);
             }
-            p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-            p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+            sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+            sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
         });
     }
 

@@ -71,7 +71,8 @@ public abstract class MortarCommand implements ICommand {
         }
 
         if (sender.isPlayer()) {
-            sender.player().getWorld().playSound(sender.player().getLocation(), Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.25f, 1.7f);
+            SoundPlayer spw = SoundPlayer.of(sender.player().getWorld());
+            spw.play(sender.player().getLocation(), Sound.ENTITY_ITEM_FRAME_ROTATE_ITEM, 0.25f, 1.7f);
         }
 
         return v;
@@ -99,8 +100,9 @@ public abstract class MortarCommand implements ICommand {
         }
 
         if (sender.isPlayer()) {
-            sender.player().getWorld().playSound(sender.player().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.28f, 1.4f);
-            sender.player().getWorld().playSound(sender.player().getLocation(), Sound.ITEM_AXE_STRIP, 0.35f, 1.7f);
+            SoundPlayer spw = SoundPlayer.of(sender.player().getWorld());
+            spw.play(sender.player().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.28f, 1.4f);
+            spw.play(sender.player().getLocation(), Sound.ITEM_AXE_STRIP, 0.35f, 1.7f);
         }
     }
 

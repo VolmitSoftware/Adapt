@@ -23,6 +23,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -115,9 +116,10 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
                 bookEnchants.remove(i);
             }
 
+            SoundPlayer sp = SoundPlayer.of(p);
             if (power > getTotalLevelCount(getLevel(p))) {
                 Adapt.actionbar(p, C.RED + Localizer.dLocalize("enchanting", "quickenchant", "lore2") + getTotalLevelCount(getLevel(p)) + " " + Localizer.dLocalize("enchanting", "quickenchant", "lore3"));
-                p.playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.7f);
+                sp.play(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.7f);
                 return;
             }
 
@@ -138,8 +140,8 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
                 item.setItemMeta(im);
                 e.setCurrentItem(item);
                 e.setCancelled(true);
-                p.playSound(p.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.7f);
-                p.playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_TILES_BREAK, 0.5f, 0.7f);
+                sp.play(p.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.7f);
+                sp.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_TILES_BREAK, 0.5f, 0.7f);
                 getSkill().xp(p, 320 * addEnchants.values().stream().mapToInt((i) -> i).sum());
 
                 if (bookEnchants.isEmpty()) {

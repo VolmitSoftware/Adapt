@@ -22,6 +22,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -71,45 +72,46 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
 
         if ((e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK))) {
 
+            SoundPlayer sp = SoundPlayer.of(p);
             switch (hand.getType()) {
                 case CRAFTING_TABLE -> {
                     p.setCooldown(hand.getType(), 1000);
-                    p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-                    p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+                    sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+                    sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     p.openWorkbench(null, true);
                 }
                 case GRINDSTONE -> {
                     p.setCooldown(hand.getType(), 1000);
-                    p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-                    p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+                    sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+                    sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.GRINDSTONE);
                     p.openInventory(inv);
                 }
                 case ANVIL -> {
                     p.setCooldown(hand.getType(), 1000);
-                    p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-                    p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+                    sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+                    sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.ANVIL);
                     p.openInventory(inv);
                 }
                 case STONECUTTER -> {
                     p.setCooldown(hand.getType(), 1000);
-                    p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-                    p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+                    sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+                    sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.STONECUTTER);
                     p.openInventory(inv);
                 }
                 case CARTOGRAPHY_TABLE -> {
                     p.setCooldown(hand.getType(), 1000);
-                    p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-                    p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+                    sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+                    sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.CARTOGRAPHY);
                     p.openInventory(inv);
                 }
                 case LOOM -> {
                     p.setCooldown(hand.getType(), 1000);
-                    p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-                    p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+                    sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+                    sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.LOOM);
                     p.openInventory(inv);
                 }

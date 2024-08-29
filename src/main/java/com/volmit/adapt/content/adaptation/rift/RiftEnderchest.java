@@ -22,6 +22,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -54,6 +55,7 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
         ItemStack hand = p.getInventory().getItemInMainHand();
 
         if (hand.getType() != Material.ENDER_CHEST || !hasAdaptation(p)) {
@@ -70,8 +72,8 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
                         && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
                     RiftResist.riftResistStackAdd(p, 10, 2);
                 }
-                p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-                p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+                sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+                sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                 p.openInventory(p.getEnderChest());
             }
         }

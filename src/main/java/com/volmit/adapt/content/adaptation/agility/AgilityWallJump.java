@@ -19,10 +19,7 @@
 package com.volmit.adapt.content.adaptation.agility;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.enums.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -131,15 +128,17 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
                 if (!jumped && !p.hasGravity()) {
                     p.setGravity(true);
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.439f);
+                    SoundPlayer spw = SoundPlayer.of(p.getWorld());
+                    spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.439f);
                 }
                 continue;
             }
 
             if (canStick(p)) {
                 if (p.hasGravity()) {
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
+                    SoundPlayer spw = SoundPlayer.of(p.getWorld());
+                    spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
+                    spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
                     if (getConfig().showParticles && getStick(p) != null) {
                         p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.2, 0.1, 0.1, getStick(p).getBlockData());
                     }

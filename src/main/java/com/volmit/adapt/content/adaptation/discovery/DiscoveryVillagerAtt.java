@@ -20,10 +20,7 @@ package com.volmit.adapt.content.adaptation.discovery;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -74,6 +71,7 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
             return;
         }
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
         if (e.getRightClicked() instanceof Villager v && hasAdaptation(p)) {
             Random r = new Random();
             if (r.nextDouble() <= getEffectiveness(getLevelPercent(getLevel(p)))) {
@@ -82,15 +80,15 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
                     blood.material = Material.EMERALD;
                     blood.setEntity(v);
                     p.setLevel((p.getLevel() - getXpTaken(getLevel(p))));
-                    p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1f, 1f);
-                    p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
+                    sp.play(p.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1f, 1f);
+                    sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
                     p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 10, getLevel(p), true, true));
                 } else {
                     BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
                     blood.material = Material.STONE;
                     v.shakeHead();
                     blood.setEntity(v);
-                    p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+                    sp.play(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
                 }
             }
         }

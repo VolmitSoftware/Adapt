@@ -20,10 +20,7 @@ package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -85,6 +82,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
             return;
         }
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
 
         if (hasAdaptation(p) && !totalMap.isEmpty() && totalMap.get(p) != null && totalMap.get(p).size() > 0) {
             ItemStack is = p.getInventory().getItemInMainHand().clone();
@@ -104,7 +102,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                                 b.getWorld().setBlockData(b.getRelative(face).getLocation(), b.getBlockData());
                                 getPlayer(p).getData().addStat("blocks.placed", 1);
                                 getPlayer(p).getData().addStat("blocks.placed.value", v);
-                                p.playSound(b.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
+                                sp.play(b.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
                                 xp(p, 2);
                             }
                         }

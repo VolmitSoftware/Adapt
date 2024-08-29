@@ -30,6 +30,7 @@ import com.volmit.adapt.content.adaptation.blocking.BlockingMultiArmor;
 import com.volmit.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -115,6 +116,7 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             return;
         }
         if (e.getEntity() instanceof Player p) {
+            SoundPlayer sp = SoundPlayer.of(p);
             shouldReturnForPlayer(p, e, () -> {
                 if (p.isBlocking()) {
                     AdaptPlayer adaptPlayer = getPlayer(p);
@@ -123,8 +125,8 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
                     handleCooldown(p, () -> {
                         xp(p, getConfig().xpOnBlockedAttack);
-                        p.playSound(p.getLocation(), Sound.BLOCK_IRON_DOOR_CLOSE, 0.5f, 0.77f);
-                        p.playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.5f, 0.77f);
+                        sp.play(p.getLocation(), Sound.BLOCK_IRON_DOOR_CLOSE, 0.5f, 0.77f);
+                        sp.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 0.5f, 0.77f);
                     });
                 }
             });

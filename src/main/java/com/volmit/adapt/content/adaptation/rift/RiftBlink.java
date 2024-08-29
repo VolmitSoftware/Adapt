@@ -20,7 +20,6 @@ package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.content.event.AdaptAdaptationTeleportEvent;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -102,8 +101,9 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                 while (!isSafe(loc) && cd-- > 0) {
                     loc.add(0, 1, 0);
                 }
+                SoundPlayer spw = SoundPlayer.of(p.getWorld());
                 if (!isSafe(loc)) {
-                    p.getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
+                    spw.play(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
                     lastJump.put(p, M.ms());
                     return;
                 }
@@ -129,7 +129,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                     J.s(() -> p.setVelocity(v.multiply(3)), 2);
                 });
                 lastJump.put(p, M.ms());
-                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.50f, 1.0f);
+                spw.play(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.50f, 1.0f);
                 vfxLevelUp(p);
             }
         }
