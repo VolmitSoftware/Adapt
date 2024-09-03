@@ -73,7 +73,10 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     @Override
     public void onTick() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            for (AttributeModifier j : p.getAttribute(Attribute.GENERIC_ARMOR).getModifiers()) {
+            var attribute = p.getAttribute(Attribute.GENERIC_ARMOR);
+            if (attribute == null) continue;
+
+            for (AttributeModifier j : attribute.getModifiers()) {
                 if (j.getName().equals("adapt-armor-up")) {
                     p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(j);
                 }
@@ -81,12 +84,10 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
             if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSneaking()) {
                 ticksRunning.remove(p);
-                return;
+                continue;
             }
 
             if (p.isSprinting() && hasAdaptation(p)) {
-
-
                 ticksRunning.compute(p, (k, v) -> {
                     if (v == null) {
                         return 1;

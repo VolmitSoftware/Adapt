@@ -76,11 +76,11 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     @Override
     public void onTick() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED) == null) {
-                return;
-            }
+            var attribute = p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+            if (attribute == null) continue;
+
             try {
-                for (AttributeModifier j : p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
+                for (AttributeModifier j : attribute.getModifiers()) {
                     if (j.getName().equals("adapt-wind-up")) {
                         p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(j);
                     }
@@ -90,9 +90,9 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
             }
             if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSneaking()) {
                 ticksRunning.remove(p);
-                return;
+                continue;
             }
-            if (p.isSprinting() && getLevel(p) > 0) {
+            if (p.isSprinting() && hasAdaptation(p)) {
                 ticksRunning.compute(p, (k, v) -> {
                     if (v == null) {
                         return 1;
