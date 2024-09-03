@@ -1,4 +1,4 @@
-package com.volmit.adapt.api.version.v1_21;
+package com.volmit.adapt.api.version.v1_21_0;
 
 import com.volmit.adapt.api.version.IAttribute;
 import org.bukkit.NamespacedKey;
