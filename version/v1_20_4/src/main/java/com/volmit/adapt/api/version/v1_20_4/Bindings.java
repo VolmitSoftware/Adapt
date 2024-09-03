@@ -1,7 +1,9 @@
 package com.volmit.adapt.api.version.v1_20_4;
 
 import com.volmit.adapt.api.potion.PotionBuilder;
+import com.volmit.adapt.api.version.IAttribute;
 import com.volmit.adapt.api.version.IBindings;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDismountEvent;
@@ -11,12 +13,20 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
 public class Bindings implements IBindings {
     private final Set<Consumer<Player>> mountListeners = new HashSet<>();
     private final Set<Consumer<Player>> dismountListeners = new HashSet<>();
+
+    @Override
+    public IAttribute getAttribute(Player player, Attribute modifier) {
+        return Optional.ofNullable(player.getAttribute(modifier))
+                .map(AttributeImpl::new)
+                .orElse(null);
+    }
 
     @Override
     public void addEntityMountListener(Consumer<Player> consumer) {

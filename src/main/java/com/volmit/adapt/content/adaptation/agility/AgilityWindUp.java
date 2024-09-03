@@ -25,6 +25,7 @@ import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -34,8 +35,12 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
+    private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-wind-up".getBytes());
+    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:wind-up");
+
     private final Map<Player, Integer> ticksRunning;
 
     public AgilityWindUp() {
@@ -76,15 +81,11 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     @Override
     public void onTick() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            var attribute = p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+            var attribute = Version.get().getAttribute(p, Attribute.GENERIC_MOVEMENT_SPEED);
             if (attribute == null) continue;
 
             try {
-                for (AttributeModifier j : attribute.getModifiers()) {
-                    if (j.getName().equals("adapt-wind-up")) {
-                        p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(j);
-                    }
-                }
+                attribute.removeAttributeModifier(MODIFIER, MODIFIER_KEY);
             } catch (Exception e) {
                 Adapt.verbose("Failed to remove windup modifier: " + e.getMessage());
             }
@@ -118,7 +119,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
                         p.getWorld().spawnParticle(Particle.FLAME, p.getLocation(), 1, 0, 0, 0, 0);
                     }
                 }
-                p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(new AttributeModifier("adapt-wind-up", speedIncrease, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                attribute.setAttributeModifier(MODIFIER, MODIFIER_KEY, speedIncrease, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
             } else {
                 ticksRunning.remove(p);
             }

@@ -1,6 +1,7 @@
 package com.volmit.adapt.api.version;
 
 import com.volmit.adapt.api.potion.PotionBuilder;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
@@ -9,6 +10,8 @@ import org.bukkit.inventory.meta.PotionMeta;
 import java.util.function.Consumer;
 
 public interface IBindings extends Listener {
+
+    IAttribute getAttribute(Player player, Attribute modifier);
 
     void addEntityMountListener(Consumer<Player> consumer);
 

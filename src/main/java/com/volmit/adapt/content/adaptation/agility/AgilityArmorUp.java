@@ -18,11 +18,14 @@
 
 package com.volmit.adapt.content.adaptation.agility;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -32,8 +35,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
+    private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-armor-up".getBytes());
+    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:armor-up");
     private final Map<Player, Integer> ticksRunning;
 
 
@@ -73,13 +79,13 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     @Override
     public void onTick() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            var attribute = p.getAttribute(Attribute.GENERIC_ARMOR);
+            var attribute = Version.get().getAttribute(p, Attribute.GENERIC_ARMOR);
             if (attribute == null) continue;
 
-            for (AttributeModifier j : attribute.getModifiers()) {
-                if (j.getName().equals("adapt-armor-up")) {
-                    p.getAttribute(Attribute.GENERIC_ARMOR).removeModifier(j);
-                }
+            try {
+                attribute.removeAttributeModifier(MODIFIER, MODIFIER_KEY);
+            } catch (Exception e) {
+                Adapt.verbose("Failed to remove windup modifier: " + e.getMessage());
             }
 
             if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSneaking()) {
@@ -115,8 +121,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
                         p.getWorld().spawnParticle(Particle.WAX_ON, p.getLocation(), 1, 0, 0, 0, 0);
                     }
                 }
-                p.getAttribute(Attribute.GENERIC_ARMOR).addModifier(new AttributeModifier("adapt-armor-up", armorInc * 10, AttributeModifier.Operation.ADD_NUMBER));
-
+                attribute.setAttributeModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
             } else {
                 ticksRunning.remove(p);
             }
