@@ -23,10 +23,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.event.AdaptAdaptationTeleportEvent;
 import com.volmit.adapt.content.item.BoundEyeOfEnder;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -147,7 +144,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         if (getConfig().showParticles) {
             vfxCuboidOutline(location.getBlock(), location.add(0, 1, 0).getBlock(), Particle.REVERSE_PORTAL);
         }
-        p.playSound(p.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 0.50f, 0.22f);
+        SoundPlayer sp = SoundPlayer.of(p);
+        sp.play(p.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 0.50f, 0.22f);
         ItemStack hand = p.getInventory().getItemInMainHand();
 
         if (hand.getAmount() == 1) {
@@ -162,6 +160,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
     private void openEye(Player p) {
         Adapt.verbose("Using eye");
+        SoundPlayer sp = SoundPlayer.of(p);
         Location l = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
         ItemStack hand = p.getInventory().getItemInMainHand();
 
@@ -170,7 +169,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             decrementItemstack(hand, p);
         } else {
             if (p.getCooldown(Material.ENDER_EYE) > 0) {
-                p.playSound(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1, 1);
+                sp.play(p.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1, 1);
                 return;
             }
         }
@@ -183,8 +182,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
         p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
         p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
-        p.playSound(l, Sound.BLOCK_LODESTONE_PLACE, 1f, 0.1f);
-        p.playSound(l, Sound.BLOCK_BELL_RESONATE, 1f, 0.1f);
+        sp.play(l, Sound.BLOCK_LODESTONE_PLACE, 1f, 0.1f);
+        sp.play(l, Sound.BLOCK_BELL_RESONATE, 1f, 0.1f);
 
         J.a(() -> {
             long dur = 4000; // time in miliseconds
@@ -201,7 +200,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             }
         });
         vfxLevelUp(p);
-        p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
+        sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
         J.s(() -> {
             AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(!Bukkit.isPrimaryThread(), getPlayer(p), this, p.getLocation(), l);
             Bukkit.getPluginManager().callEvent(event);
@@ -211,7 +210,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
             p.teleport(l, PlayerTeleportEvent.TeleportCause.PLUGIN);
             vfxLevelUp(p);
-            p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
+            sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
         }, 85);
     }
 

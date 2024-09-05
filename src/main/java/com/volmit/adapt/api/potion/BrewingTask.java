@@ -1,6 +1,7 @@
 package com.volmit.adapt.api.potion;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -86,7 +87,8 @@ public class BrewingTask extends BukkitRunnable {
 
             inventory.getViewers().forEach(e -> {
                 if (e instanceof Player p) {
-                    p.playSound(block.getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1, 1);
+                    SoundPlayer sp = SoundPlayer.of(p);
+                    sp.play(block.getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1, 1);
                 }
             });
             cancel();

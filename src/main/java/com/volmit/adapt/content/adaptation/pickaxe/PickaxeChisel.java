@@ -86,8 +86,9 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
             }
             BlockData b = e.getClickedBlock().getBlockData();
             if (isOre(b)) {
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f);
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_METAL_HIT, 1.25f, 1.7f);
+                SoundPlayer spw = SoundPlayer.of(p.getWorld());
+                spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f);
+                spw.play(p.getLocation(), Sound.BLOCK_METAL_HIT, 1.25f, 1.7f);
 
                 p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
                 damageHand(p, getDamagePerBlock(getLevelPercent(p)));
@@ -99,8 +100,8 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
                     if (getConfig().showParticles) {
                         e.getClickedBlock().getWorld().spawnParticle(Particles.ITEM_CRACK, c, 14, 0.10, 0.01, 0.01, 0.1, is);
                     }
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
+                    spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
+                    spw.play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
                     e.getClickedBlock().getWorld().dropItemNaturally(c.clone().subtract(p.getLocation().getDirection().clone().multiply(0.1)), is);
                 } else {
                     if (getConfig().showParticles) {
@@ -110,8 +111,8 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
                 }
 
                 if (M.r(getBreakChance(getLevelPercent(p)))) {
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_BASALT_BREAK, 1.25f, 0.4f);
-                    p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.887f);
+                    spw.play(p.getLocation(), Sound.BLOCK_BASALT_BREAK, 1.25f, 0.4f);
+                    spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.887f);
                     e.getClickedBlock().breakNaturally(p.getInventory().getItemInMainHand());
                 }
             }

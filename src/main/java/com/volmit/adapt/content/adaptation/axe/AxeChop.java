@@ -20,10 +20,7 @@ package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -72,7 +69,8 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
             BlockData b = e.getClickedBlock().getBlockData();
             if (isLog(new ItemStack(b.getMaterial()))) {
                 e.setCancelled(true);
-                p.getLocation().getWorld().playSound(p.getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
+                SoundPlayer spw = SoundPlayer.of(p.getWorld());
+                spw.play(p.getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
                 for (int i = 0; i < getLevel(p); i++) {
                     if (breakStuff(e.getClickedBlock(), getRange(getLevel(p)), p)) {
                         p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
@@ -116,7 +114,9 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         }
 
         Block ll = last;
-        b.getWorld().playSound(ll.getLocation(), Sound.ITEM_AXE_STRIP, 0.75f, 1.3f);
+
+        SoundPlayer spw = SoundPlayer.of(b.getWorld());
+        spw.play(ll.getLocation(), Sound.ITEM_AXE_STRIP, 0.75f, 1.3f);
 
         player.breakBlock(ll);
         return true;

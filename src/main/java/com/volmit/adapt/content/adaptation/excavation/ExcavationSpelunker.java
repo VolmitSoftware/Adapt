@@ -22,10 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.nms.GlowingEntities;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.enums.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
@@ -73,12 +70,13 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     @EventHandler(priority = EventPriority.HIGH)
     public void on(PlayerToggleSneakEvent e) {
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
         // Check if player is sneaking, has Glowberries in main hand, and an ore in offhand
         if (p.isSneaking() && hasGlowberries(p) && hasOreInOffhand(p) && hasAdaptation(p)) {
             // Check if player is on cooldown
             Long cooldown = cooldowns.get(p);
             if (cooldown != null && cooldown > System.currentTimeMillis()) {
-                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
+                sp.play(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1, 1);
                 return;
             }
             int radius = getConfig().rangeMultiplier * getLevel(p);
@@ -130,8 +128,8 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
                                 }
 
                                 J.s(() -> {
-
-                                    world.playSound(block.getLocation().add(0.5, 0, 0.5), Sound.BLOCK_BEACON_ACTIVATE, 1, 1);
+                                    SoundPlayer spw = SoundPlayer.of(world);
+                                    spw.play(block.getLocation().add(0.5, 0, 0.5), Sound.BLOCK_BEACON_ACTIVATE, 1, 1);
                                     Slime slime = block.getWorld().spawn(block.getLocation().add(0.5, 0, 0.5), Slime.class, (s) -> {
                                         s.setRotation(0, 0);
                                         s.setInvulnerable(true);

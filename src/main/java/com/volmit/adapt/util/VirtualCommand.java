@@ -107,7 +107,8 @@ public class VirtualCommand {
                     c.remove(0);
                     if (cmd.hit(sender, c, vs.getCommand())) {
                         if (vs.isPlayer()) {
-                            vs.player().getWorld().playSound(vs.player().getLocation(), Sound.ITEM_AXE_STRIP, 0.35f, 1.8f);
+                            SoundPlayer spw = SoundPlayer.of(vs.player().getWorld());
+                            spw.play(vs.player().getLocation(), Sound.ITEM_AXE_STRIP, 0.35f, 1.8f);
                         }
 
                         return true;

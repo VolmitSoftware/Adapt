@@ -30,6 +30,7 @@ import com.volmit.adapt.content.adaptation.tragoul.TragoulLance;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulThorns;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import com.volmit.adapt.util.reflect.enums.Particles;
 import de.slikey.effectlib.effect.CloudEffect;
 import lombok.NoArgsConstructor;
@@ -117,7 +118,8 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                     return;
                 }
 
-                p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_DEATH, 1f, 1f);
+                SoundPlayer sp = SoundPlayer.of(p);
+                sp.play(p.getLocation(), Sound.ENTITY_BLAZE_DEATH, 1f, 1f);
 
                 PlayerSkillLine tragoul = a.getData().getSkillLines().get("tragoul");
                 if (tragoul != null) {

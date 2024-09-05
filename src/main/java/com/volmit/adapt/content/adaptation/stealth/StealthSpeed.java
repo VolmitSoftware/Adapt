@@ -61,6 +61,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
             return;
         }
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
         double factor = getLevelPercent(p);
         if (!hasAdaptation(p)) {
             return;
@@ -72,7 +73,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
 
         sneaking.add(p);
         if (!p.isSneaking()) {
-            p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
+            sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
             p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 1000, getLevel(p), false, false));
         } else {
             p.removePotionEffect(PotionEffectType.SPEED);

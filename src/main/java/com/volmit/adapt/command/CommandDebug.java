@@ -3,6 +3,7 @@ package com.volmit.adapt.command;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.SoundPlayer;
 import com.volmit.adapt.util.command.FConst;
 import com.volmit.adapt.util.decree.DecreeExecutor;
 import com.volmit.adapt.util.decree.DecreeOrigin;
@@ -78,6 +79,7 @@ public class CommandDebug implements DecreeExecutor {
             return;
         }
 
-        player().playSound(player().getLocation(), sound, 1, 1);
+        SoundPlayer sp = SoundPlayer.of(player());
+        sp.play(player().getLocation(), sound, 1, 1);
     }
 }

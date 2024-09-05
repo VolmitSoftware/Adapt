@@ -20,6 +20,7 @@ package com.volmit.adapt.api.notification;
 
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.Builder;
 import lombok.Data;
 import org.bukkit.Sound;
@@ -71,6 +72,6 @@ public class SoundNotification implements Notification {
     }
 
     public void play(AdaptPlayer p) {
-        J.s(() -> p.getPlayer().playSound(p.getPlayer().getLocation(), sound, volume, pitch));
+        SoundPlayer.of(p.getPlayer()).play(p.getPlayer().getLocation(), sound, volume, pitch);
     }
 }

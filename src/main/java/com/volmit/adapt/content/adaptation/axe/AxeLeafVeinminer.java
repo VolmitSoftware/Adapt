@@ -19,10 +19,7 @@
 package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.enums.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
@@ -74,6 +71,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
             return;
         }
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
         if (hasAdaptation(p)) {
             if (!p.isSneaking()) {
                 return;
@@ -111,7 +109,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                         if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory") == null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory").getLevel() > 0) {
                             Collection<ItemStack> items = e.getBlock().getDrops();
                             for (ItemStack i : items) {
-                                p.playSound(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.01f, 0.01f);
+                                sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.01f, 0.01f);
                                 HashMap<Integer, ItemStack> extra = p.getInventory().addItem(i);
                                 if (!extra.isEmpty()) {
                                     p.getWorld().dropItem(p.getLocation(), extra.get(0));
@@ -120,7 +118,8 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                             p.breakBlock(l.getBlock());
                         } else {
                             b.breakNaturally(p.getItemInUse());
-                            e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
+                            SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
+                            spw.play(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
                             if (getConfig().showParticles) {
                                 e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
                             }
