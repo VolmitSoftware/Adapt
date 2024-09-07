@@ -19,7 +19,7 @@ public class CommandDebug implements DecreeExecutor {
     @Decree(description = "Toggle verbose mode")
     public void verbose() {
         if (!sender().hasPermission("adapt.idontknowwhatimdoingiswear")) {
-            sender().sendMessage("You lack the Permission 'adapt.idontknowwhatimdoingiswear'");
+            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(sender());
             return;
         }
 
@@ -30,7 +30,7 @@ public class CommandDebug implements DecreeExecutor {
     @Decree(name = "pap", description = "Generate Perms for Adaptations!")
     public void pap() {
         if (!sender().hasPermission("adapt.idontknowwhatimdoingiswear")) {
-            sender().sendMessage("You lack the Permission 'adapt.idontknowwhatimdoingiswear'");
+            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(sender());
             return;
         }
 
@@ -47,7 +47,7 @@ public class CommandDebug implements DecreeExecutor {
     @Decree(name = "psp", description = "Generate Perms for Skills!")
     public void psp() {
         if (!sender().hasPermission("adapt.idontknowwhatimdoingiswear")) {
-            sender().sendMessage("You lack the Permission 'adapt.idontknowwhatimdoingiswear'");
+            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(sender());
             return;
         }
 
@@ -64,7 +64,7 @@ public class CommandDebug implements DecreeExecutor {
     @Decree(name = "particle", origin = DecreeOrigin.PLAYER, description = "Summon a particle in front of you for testing!")
     public void particle(@Param Particle particle) {
         if (!sender().hasPermission("adapt.idontknowwhatimdoingiswear")) {
-            sender().sendMessage("You lack the Permission 'adapt.idontknowwhatimdoingiswear'");
+            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(sender());
             return;
         }
 
@@ -75,7 +75,7 @@ public class CommandDebug implements DecreeExecutor {
     @Decree(name = "particle", origin = DecreeOrigin.PLAYER, description = "Summon a particle in front of you for testing!")
     public void particle(@Param Sound sound) {
         if (!sender().hasPermission("adapt.idontknowwhatimdoingiswear")) {
-            sender().sendMessage("You lack the Permission 'adapt.idontknowwhatimdoingiswear'");
+            FConst.error("You lack the Permission 'adapt.idontknowwhatimdoingiswear'").send(sender());
             return;
         }
 
