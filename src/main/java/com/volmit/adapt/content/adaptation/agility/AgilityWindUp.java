@@ -85,7 +85,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
             if (attribute == null) continue;
 
             try {
-                attribute.removeAttributeModifier(MODIFIER, MODIFIER_KEY);
+                attribute.removeModifier(MODIFIER, MODIFIER_KEY);
             } catch (Exception e) {
                 Adapt.verbose("Failed to remove windup modifier: " + e.getMessage());
             }
@@ -119,7 +119,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
                         p.getWorld().spawnParticle(Particle.FLAME, p.getLocation(), 1, 0, 0, 0, 0);
                     }
                 }
-                attribute.setAttributeModifier(MODIFIER, MODIFIER_KEY, speedIncrease, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+                attribute.setModifier(MODIFIER, MODIFIER_KEY, speedIncrease, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
             } else {
                 ticksRunning.remove(p);
             }
