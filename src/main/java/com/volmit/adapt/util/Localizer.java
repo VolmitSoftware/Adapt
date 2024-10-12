@@ -25,6 +25,8 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.util.secret.SecretSplash;
 import lombok.SneakyThrows;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.io.File;
 import java.io.InputStream;
@@ -113,6 +115,7 @@ public class Localizer {
                 Adapt.wordKey.put(s1 + s2 + s3, jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
             }
         }
-        return Adapt.wordKey.get(s1 + s2 + s3);
+        return LegacyComponentSerializer.legacySection()
+                .serialize(MiniMessage.miniMessage().deserialize(Adapt.wordKey.get(s1 + s2 + s3)));
     }
 }
