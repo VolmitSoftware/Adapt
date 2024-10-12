@@ -29,6 +29,7 @@ import com.volmit.adapt.content.adaptation.pickaxe.PickaxeChisel;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeDropToInventory;
 import com.volmit.adapt.content.adaptation.pickaxe.PickaxeVeinminer;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
@@ -66,6 +67,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                 .key("challenge_pickaxe_1k")
                 .title(Localizer.dLocalize("advancement", "challenge_pickaxe_1k", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_pickaxe_1k", "description"))
+                .model(CustomModel.get(Material.WOODEN_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_1k"))
                 .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
@@ -73,6 +75,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                         .key("challenge_pickaxe_5k")
                         .title(Localizer.dLocalize("advancement", "challenge_pickaxe_5k", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_pickaxe_5k", "description"))
+                        .model(CustomModel.get(Material.STONE_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_5k"))
                         .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
@@ -80,6 +83,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                                 .key("challenge_pickaxe_50k")
                                 .title(Localizer.dLocalize("advancement", "challenge_pickaxe_50k", "title"))
                                 .description(Localizer.dLocalize("advancement", "challenge_pickaxe_50k", "description"))
+                                .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_50k"))
                                 .frame(AdvancementFrameType.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                 .child(AdaptAdvancement.builder()
@@ -87,6 +91,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                                         .key("challenge_pickaxe_500k")
                                         .title(Localizer.dLocalize("advancement", "challenge_pickaxe_500k", "title"))
                                         .description(Localizer.dLocalize("advancement", "challenge_pickaxe_500k", "description"))
+                                        .model(CustomModel.get(Material.DIAMOND_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_500k"))
                                         .frame(AdvancementFrameType.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                                         .child(AdaptAdvancement.builder()
@@ -94,6 +99,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                                                 .key("challenge_pickaxe_5m")
                                                 .title(Localizer.dLocalize("advancement", "challenge_pickaxe_5m", "title"))
                                                 .description(Localizer.dLocalize("advancement", "challenge_pickaxe_5m", "description"))
+                                                .model(CustomModel.get(Material.NETHERITE_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_5m"))
                                                 .frame(AdvancementFrameType.CHALLENGE)
                                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                                 .build())

@@ -25,6 +25,7 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.herbalism.*;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
@@ -71,6 +72,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                 .key("challenge_eat_100")
                 .title("So much to eat!")
                 .description("Eat over 100 Items!")
+                .model(CustomModel.get(Material.COOKED_BEEF, "advancement", "herbalism", "challenge_eat_100"))
                 .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
@@ -78,12 +80,14 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                         .key("challenge_eat_1000")
                         .title("Unquenchable Hunger!")
                         .description("Eat over 1,000 Items!")
+                        .model(CustomModel.get(Material.COOKED_BEEF, "advancement", "herbalism", "challenge_eat_1000"))
                         .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.COOKED_BEEF)
                                 .key("challenge_eat_10000")
                                 .title("EVERLASTING HUNGER!")
                                 .description("Eat over 10,000 Items!")
+                                .model(CustomModel.get(Material.COOKED_BEEF, "advancement", "herbalism", "challenge_eat_10000"))
                                 .frame(AdvancementFrameType.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                 .build())
@@ -99,6 +103,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                 .key("challenge_harvest_100")
                 .title("Full Harvest")
                 .description("Harvest over 100 crops!")
+                .model(CustomModel.get(Material.COOKED_BEEF, "advancement", "herbalism", "harvest_100"))
                 .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
@@ -106,6 +111,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
                         .key("challenge_harvest_1000")
                         .title("Grand Harvest")
                         .description("Harvest 1,000 crops!")
+                        .model(CustomModel.get(Material.COOKED_BEEF, "advancement", "herbalism", "harvest_1000"))
                         .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())

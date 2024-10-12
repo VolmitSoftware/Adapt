@@ -30,6 +30,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -291,6 +292,7 @@ public class AdaptPlayer extends TickedObject {
             getNot().queue(AdvancementNotification.builder()
                     .title(first ? Localizer.dLocalize("snippets", "gui", "welcome") : Localizer.dLocalize("snippets", "gui", "welcomeback"))
                     .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " " + Localizer.dLocalize("snippets", "gui", "xpbonusfortime") + " " + C.AQUA + Form.duration(boostTime, 0))
+                    .model(CustomModel.get(Material.DIAMOND, "snippets", "gui", first ? "welcome" : "welcomeback"))
                     .build());
         }
     }

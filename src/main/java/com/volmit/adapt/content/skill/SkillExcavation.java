@@ -29,6 +29,7 @@ import com.volmit.adapt.content.adaptation.excavation.ExcavationHaste;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationOmniTool;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationSpelunker;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -62,30 +63,35 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
                 .icon(Material.WOODEN_SHOVEL).key("challenge_excavate_1k")
                 .title(Localizer.dLocalize("advancement", "challenge_excavate_1k", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_excavate_1k", "description"))
+                .model(CustomModel.get(Material.WOODEN_SHOVEL, "advancement", "excavation", "challenge_excavate_1k"))
                 .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.KNOWLEDGE_BOOK)
                         .key("challenge_excavate_5k")
                         .title(Localizer.dLocalize("advancement", "challenge_excavate_5k", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_excavate_5k", "description"))
+                        .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "excavation", "challenge_excavate_5k"))
                         .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.STONE_SHOVEL)
                                 .key("challenge_excavate_50k")
                                 .title(Localizer.dLocalize("advancement", "challenge_excavate_50k", "title"))
                                 .description(Localizer.dLocalize("advancement", "challenge_excavate_50k", "description"))
+                                .model(CustomModel.get(Material.STONE_SHOVEL, "advancement", "excavation", "challenge_excavate_50k"))
                                 .frame(AdvancementFrameType.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                         .icon(Material.IRON_SHOVEL)
                                         .key("challenge_excavate_500k")
                                         .title(Localizer.dLocalize("advancement", "challenge_excavate_500k", "title"))
                                         .description(Localizer.dLocalize("advancement", "challenge_excavate_500k", "description"))
+                                        .model(CustomModel.get(Material.IRON_SHOVEL, "advancement", "excavation", "challenge_excavate_500k"))
                                         .frame(AdvancementFrameType.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                                 .icon(Material.DIAMOND_SHOVEL)
                                                 .key("challenge_excavate_5m")
                                                 .title(Localizer.dLocalize("advancement", "challenge_excavate_5m", "title"))
                                                 .description(Localizer.dLocalize("advancement", "challenge_excavate_5m", "description"))
+                                                .model(CustomModel.get(Material.DIAMOND_SHOVEL, "advancement", "excavation", "challenge_excavate_5m"))
                                                 .frame(AdvancementFrameType.CHALLENGE)
                                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                                 .build())

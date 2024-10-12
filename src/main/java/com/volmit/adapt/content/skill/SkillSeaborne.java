@@ -26,6 +26,7 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.seaborrne.*;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -62,6 +63,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                 .key("challenge_swim_1nm")
                 .title("Human Submarine!")
                 .description("Swim 1 Nautical Mile (1,852 blocks)")
+                .model(CustomModel.get(Material.TURTLE_HELMET, "advancement", "seaborne", "challenge_swim_1nm"))
                 .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());

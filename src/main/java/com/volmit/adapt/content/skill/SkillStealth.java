@@ -28,6 +28,7 @@ import com.volmit.adapt.content.adaptation.stealth.StealthSight;
 import com.volmit.adapt.content.adaptation.stealth.StealthSnatch;
 import com.volmit.adapt.content.adaptation.stealth.StealthSpeed;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -59,6 +60,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
                 .key("challenge_sneak_1k")
                 .title("Knee Pain")
                 .description("Sneak over a kilometer (1,000 blocks)")
+                .model(CustomModel.get(Material.LEATHER_LEGGINGS, "advancement", "stealth", "challenge_sneak_1k"))
                 .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());

@@ -145,6 +145,7 @@ public class AdaptServer extends TickedObject {
                     .build().play(getPlayer(p));
                 getPlayer(p).getNot().queue(AdvancementNotification.builder()
                     .icon(Material.BOOK)
+                    .model(CustomModel.get(Material.BOOK, "snippets", "gui", "knowledge"))
                     .title(C.GRAY + "+ " + C.WHITE + data.getKnowledge() + " " + skill.getDisplayName() + " Knowledge")
                     .build());
                 e.setCancelled(false);
