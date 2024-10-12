@@ -37,6 +37,10 @@ public interface Element {
 
     Element setName(String name);
 
+    CustomModel getModel();
+
+    Element setModel(CustomModel model);
+
     double getProgress();
 
     Element setProgress(double progress);
