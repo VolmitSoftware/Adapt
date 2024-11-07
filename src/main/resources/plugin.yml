@@ -21,6 +21,7 @@ libraries:
   - net.kyori:adventure-api:4.13.1
   - net.kyori:adventure-text-minimessage:4.13.1
   - it.unimi.dsi:fastutil:8.5.13
+  - fr.skytasul:glowingentities:1.4
 
 commands:
   adapt: {}

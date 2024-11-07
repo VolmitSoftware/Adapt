@@ -93,6 +93,7 @@ allprojects {
             content {
                 includeGroup("org.bukkit")
                 includeGroup("org.spigotmc")
+                includeGroup("com.frengor")
             }
         }
         mavenCentral()
@@ -146,7 +147,7 @@ allprojects {
         implementation "com.github.angeschossen:ChestProtectAPI:3.9.1"
         implementation "com.github.TechFortress:GriefPrevention:16.18.1"
         implementation 'xyz.xenondevs:particle:1.8.1'
-        implementation "com.frengor:ultimateadvancementapi-shadeable:2.4.1"
+        implementation "com.frengor:ultimateadvancementapi-shadeable:2.4.2"
         compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
         compileOnly 'io.netty:netty-all:4.1.68.Final'
 
@@ -159,6 +160,7 @@ allprojects {
         compileOnly 'net.kyori:adventure-platform-bukkit:4.3.0'
         compileOnly 'net.kyori:adventure-api:4.13.1'
         compileOnly 'it.unimi.dsi:fastutil:8.5.13'
+        compileOnly "fr.skytasul:glowingentities:1.4"
         implementation 'com.google.guava:guava:30.1-jre'
         compileOnly fileTree(dir: 'libs', include: ['*.jar'])
     }
@@ -180,10 +182,12 @@ shadowJar {
     relocate 'Fukkit.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'Amulet.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'com.fren_gor.ultimateAdvancementAPI', 'com.volmit.adapt.util.advancements'
+    relocate 'de.crazydev22.translations', 'com.volmit.adapt.util.translations'
     dependencies {
         include(dependency('systems.manifold:'))
         include(dependency('xyz.xenondevs:'))
         include(dependency('com.github.VolmitDev:'))
+        include(dependency('com.github.CrazyDev05:'))
         include(dependency('com.frengor:ultimateadvancementapi-shadeable:'))
     }
 }

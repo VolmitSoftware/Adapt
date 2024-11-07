@@ -29,7 +29,7 @@ import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.protector.*;
-import com.volmit.adapt.nms.GlowingEntities;
+import fr.skytasul.glowingentities.GlowingEntities;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.collection.KMap;
