@@ -23,13 +23,13 @@ import com.volmit.adapt.api.version.IAttribute;
 import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KMap;
+import com.volmit.adapt.util.reflect.enums.Attributes;
 import com.volmit.adapt.util.reflect.enums.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -126,7 +126,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
                 if (nextUpdate > now) return;
                 playerData.put(p.getUniqueId(), now + UPDATE_COOLDOWN);
 
-                var attribute = Version.get().getAttribute(p, Attribute.GENERIC_ARMOR);
+                var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
                 if (attribute == null) return;
 
                 if (!hasAdaptation(p)) {

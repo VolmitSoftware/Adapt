@@ -19,13 +19,15 @@
 package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.content.adaptation.rift.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.reflect.enums.Attributes;
+import com.volmit.adapt.util.reflect.enums.EntityTypes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -91,14 +93,18 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     }
 
     private void handleEntityDamageByEntity(Entity entity, Player p, double damage) {
-
-        if (entity instanceof Enderman) {
-            xp(p, getConfig().damageEndermanXPMultiplier * Math.min(damage, ((Enderman) entity).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
-        } else if (entity instanceof Endermite) {
-            xp(p, getConfig().damageEndermiteXPMultiplier * Math.min(damage, ((Endermite) entity).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
-        } else if (entity instanceof EnderDragon) {
-            xp(p, getConfig().damageEnderdragonXPMultiplier * Math.min(damage, ((EnderDragon) entity).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
-        } else if (entity instanceof EnderCrystal) {
+        if (entity instanceof LivingEntity living) {
+            var attribute = Version.get().getAttribute(living, Attributes.GENERIC_MAX_HEALTH);
+            double baseHealth = attribute == null ? 1 : attribute.getBaseValue();
+            double multiplier = switch (entity.getType()) {
+                case ENDERMAN -> getConfig().damageEndermanXPMultiplier;
+                case ENDERMITE -> getConfig().damageEndermiteXPMultiplier;
+                case ENDER_DRAGON -> getConfig().damageEnderdragonXPMultiplier;
+                default -> 0;
+            };
+            double xp = multiplier * Math.min(damage, baseHealth);
+            if (xp > 0) xp(p, xp);
+        } else if (entity.getType() == EntityTypes.ENDER_CRYSTAL) {
             xp(p, getConfig().damageEndCrystalXP);
         }
     }

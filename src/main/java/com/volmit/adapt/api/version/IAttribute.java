@@ -10,6 +10,14 @@ import java.util.UUID;
 
 public interface IAttribute {
 
+    double getValue();
+
+    double getDefaultValue();
+
+    double getBaseValue();
+
+    void setBaseValue(double baseValue);
+
     default void setModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
         removeModifier(uuid, key);
         addModifier(uuid, key, amount, operation);

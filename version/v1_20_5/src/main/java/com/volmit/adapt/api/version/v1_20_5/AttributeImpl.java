@@ -14,6 +14,26 @@ import java.util.stream.Collectors;
 public record AttributeImpl(AttributeInstance instance) implements IAttribute {
 
     @Override
+    public double getValue() {
+        return instance.getValue();
+    }
+
+    @Override
+    public double getDefaultValue() {
+        return instance.getDefaultValue();
+    }
+
+    @Override
+    public double getBaseValue() {
+        return instance.getBaseValue();
+    }
+
+    @Override
+    public void setBaseValue(double baseValue) {
+        instance.setBaseValue(baseValue);
+    }
+
+    @Override
     @SuppressWarnings("all")
     public void addModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
         instance.addModifier(new AttributeModifier(uuid, key.getNamespace() + "-" + key.getKey(), amount, operation, EquipmentSlotGroup.ANY));

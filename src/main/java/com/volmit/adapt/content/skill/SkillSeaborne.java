@@ -23,15 +23,16 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.seaborrne.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -133,24 +134,34 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(EntityDamageByEntityEvent e) {
-        if (e.isCancelled()) {
+        if (e.isCancelled() || !(e.getEntity() instanceof LivingEntity entity))
             return;
-        }
-        if (e.getEntity() instanceof Drowned && e.getDamager() instanceof Player p) {
+
+        if (e.getEntity().getType() == EntityType.DROWNED && e.getDamager().getType() == EntityType.PLAYER) {
+            var p = (Player) e.getDamager();
             shouldReturnForPlayer(p, e, () -> {
                 if (isOnCooldown(p, getConfig().seaPickleCooldown)) {
                     return;
                 }
                 setCooldown(p);
-                xp(p, getConfig().damagedrownxpmultiplier * Math.min(e.getDamage(), ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue()));
+                xp(p, getConfig().damagedrownxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity)));
             });
+        } else if (e.getDamager().getType() == EntityType.TRIDENT) {
+            var shooter = ((Trident) e.getDamager()).getShooter();
+            if (shooter instanceof Player p) {
+                shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity))));
+            }
+        } else if (e.getDamager().getType() == EntityType.PLAYER) {
+            var p = (Player) e.getDamager();
+            if (p.getInventory().getItemInMainHand().getType().equals(Material.TRIDENT)) {
+                shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity))));
+            }
         }
-        if (e.getDamager() instanceof Projectile projectile && projectile instanceof Trident && ((Projectile) e.getDamager()).getShooter() instanceof Player p) {
-            shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue())));
-        }
-        if (e.getDamager() instanceof Player p && p.getInventory().getItemInMainHand().getType().equals(Material.TRIDENT)) {
-            shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), ((LivingEntity) e.getEntity()).getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue())));
-        }
+    }
+
+    private double getBaseHealth(LivingEntity entity) {
+        var attribute = Version.get().getAttribute(entity, Attributes.GENERIC_MAX_HEALTH);
+        return attribute == null ? 0 : attribute.getBaseValue();
     }
 
     @Override

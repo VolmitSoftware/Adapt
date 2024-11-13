@@ -20,10 +20,11 @@ package com.volmit.adapt.content.adaptation.taming;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.reflect.enums.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
@@ -71,7 +72,8 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
                 Adapt.verbose("Tamed Entity " + tam.getUniqueId() + " last damaged " + (M.ms() - lastDamage.get(tam.getUniqueId())) + "ms ago");
                 return;
             }
-            double mh = tam.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+            var attribute = Version.get().getAttribute(tam, Attributes.GENERIC_MAX_HEALTH);
+            double mh = attribute == null ? tam.getHealth() : attribute.getValue();
             if (tam.isTamed() && tam.getOwner() instanceof Player && tam.getHealth() < mh) {
                 Adapt.verbose("Successfully healed tamed entity " + tam.getUniqueId());
                 int level = getLevel(p);

@@ -22,14 +22,15 @@ import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameT
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -200,7 +201,8 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         shouldReturnForPlayer(p, () -> {
             if (e.getEntity().getType().equals(EntityType.CREEPER)) {
                 double cmult = getConfig().creeperKillMultiplier;
-                double xpAmount = e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult;
+                var attribute = Version.get().getAttribute(e.getEntity(), Attributes.GENERIC_MAX_HEALTH);
+                double xpAmount = (attribute == null ? 1 : attribute.getValue()) * getConfig().killMaxHealthXPMultiplier * cmult;
                 if (e.getEntity().getPortalCooldown() > 0) {
                     xpAmount *= getConfig().spawnerMobReductionXpMultiplier;
                 }
@@ -226,7 +228,8 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     private void handleEntityKill(Player p, Entity entity) {
         if (entity instanceof LivingEntity livingEntity) {
-            double xpAmount = livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier;
+            var attribute = Version.get().getAttribute(livingEntity, Attributes.GENERIC_MAX_HEALTH);
+            double xpAmount = (attribute == null ? 1 : attribute.getValue()) * getConfig().killMaxHealthXPMultiplier;
             if (entity.getPortalCooldown() > 0) {
                 xpAmount *= getConfig().spawnerMobReductionXpMultiplier;
             }

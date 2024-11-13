@@ -19,12 +19,14 @@
 package com.volmit.adapt.content.adaptation.taming;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.reflect.enums.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
@@ -33,9 +35,8 @@ import java.util.Collection;
 import java.util.UUID;
 
 public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config> {
-    private final UUID attUUID = UUID.nameUUIDFromBytes("health-boost".getBytes());
-    private final String attid = "att-health-boost";
-
+    private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-health-boost".getBytes());
+    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:tame-health-boost");
 
     public TamingHealthBoost() {
         super("tame-health");
@@ -78,11 +79,12 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     }
 
     private void update(Tameable j, int level) {
-        AttributeModifier mod = new AttributeModifier(attUUID, attid, getHealthBoost(level), AttributeModifier.Operation.ADD_SCALAR);
-        j.getAttribute(Attribute.GENERIC_MAX_HEALTH).removeModifier(mod);
+        var attribute = Version.get().getAttribute(j, Attributes.GENERIC_MAX_HEALTH);
+        if (attribute == null) return;
+        attribute.removeModifier(MODIFIER, MODIFIER_KEY);
 
         if (level > 0) {
-            j.getAttribute(Attribute.GENERIC_MAX_HEALTH).addModifier(mod);
+            attribute.addModifier(MODIFIER, MODIFIER_KEY, getHealthBoost(level), AttributeModifier.Operation.ADD_SCALAR);
         }
     }
 

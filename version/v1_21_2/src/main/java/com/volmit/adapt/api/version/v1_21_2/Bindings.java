@@ -1,8 +1,9 @@
-package com.volmit.adapt.api.version.v1_20_4;
+package com.volmit.adapt.api.version.v1_21_2;
 
 import com.volmit.adapt.api.potion.PotionBuilder;
 import com.volmit.adapt.api.version.IAttribute;
 import com.volmit.adapt.api.version.IBindings;
+import com.volmit.adapt.util.reflect.Reflect;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
@@ -12,7 +13,7 @@ import org.bukkit.event.entity.EntityDismountEvent;
 import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.HashSet;
@@ -48,7 +49,17 @@ public class Bindings implements IBindings {
         PotionMeta meta = (PotionMeta) stack.getItemMeta();
         assert meta != null;
 
-        meta.setBasePotionData(new PotionData(builder.getBaseType(), builder.isExtended(), builder.isUpgraded()));
+        PotionType type = builder.getBaseType();
+        if (type == null) {
+            meta.setBasePotionType(null);
+        } else if (builder.isExtended()) {
+            meta.setBasePotionType(Reflect.getEnum(PotionType.class, "LONG_"+type.name()).orElse(type));
+        } else if (builder.isUpgraded()) {
+            meta.setBasePotionType(Reflect.getEnum(PotionType.class, "STRONG_"+type.name()).orElse(type));
+        } else {
+            meta.setBasePotionType(type);
+        }
+        
         stack.setItemMeta(meta);
         return stack;
     }
@@ -58,18 +69,36 @@ public class Bindings implements IBindings {
     public List<EntityType> getInvalidDamageableEntities() {
         return List.of(
                 EntityType.ARMOR_STAND,
-                EntityType.BOAT,
+                
+                EntityType.BIRCH_BOAT,
+                EntityType.ACACIA_BOAT,
+                EntityType.CHERRY_BOAT,
+                EntityType.JUNGLE_BOAT,
+                EntityType.DARK_OAK_BOAT,
+                EntityType.MANGROVE_BOAT,
+                EntityType.SPRUCE_BOAT,
+                EntityType.OAK_BOAT,
+
                 EntityType.ITEM_FRAME,
                 EntityType.MINECART,
-                EntityType.MINECART_CHEST,
-                EntityType.MINECART_COMMAND,
-                EntityType.MINECART_FURNACE,
-                EntityType.MINECART_HOPPER,
-                EntityType.MINECART_MOB_SPAWNER,
-                EntityType.MINECART_TNT,
+                EntityType.CHEST_MINECART,
+                EntityType.COMMAND_BLOCK_MINECART,
+                EntityType.FURNACE_MINECART,
+                EntityType.HOPPER_MINECART,
+                EntityType.SPAWNER_MINECART,
+                EntityType.TNT_MINECART,
                 EntityType.PAINTING,
-                EntityType.CHEST_BOAT,
-                EntityType.LEASH_HITCH,
+
+                EntityType.BIRCH_CHEST_BOAT,
+                EntityType.ACACIA_CHEST_BOAT,
+                EntityType.CHERRY_CHEST_BOAT,
+                EntityType.JUNGLE_CHEST_BOAT,
+                EntityType.DARK_OAK_CHEST_BOAT,
+                EntityType.MANGROVE_CHEST_BOAT,
+                EntityType.SPRUCE_CHEST_BOAT,
+                EntityType.OAK_CHEST_BOAT,
+
+                EntityType.LEASH_KNOT,
                 EntityType.EVOKER_FANGS,
                 EntityType.MARKER
         );

@@ -26,7 +26,7 @@ version '1.15.2-1.19.2-1.21.1'
 def apiVersion = '1.19'
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
-def manifoldVersion = '2024.1.34'
+def manifoldVersion = '2024.1.37'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
@@ -44,6 +44,7 @@ registerCustomOutputTaskUnix('the456gamer', '/home/the456gamer/projects/minecraf
 // ==============================================================
 
 def VERSIONS = Map.of(
+        "v1_21_2", "1.21.2-R0.1-SNAPSHOT",
         "v1_21", "1.21-R0.1-SNAPSHOT",
         "v1_20_5", "1.20.5-R0.1-SNAPSHOT",
         "v1_20_4", "1.20.4-R0.1-SNAPSHOT",
@@ -51,8 +52,8 @@ def VERSIONS = Map.of(
 )
 
 VERSIONS.each {
-    def key = it.key;
-    def value = it.value;
+    def key = it.key
+    def value = it.value
     project(":version:${key}") {
         apply plugin: 'java'
         apply plugin: 'java-library'
@@ -182,17 +183,15 @@ shadowJar {
     relocate 'Fukkit.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'Amulet.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'com.fren_gor.ultimateAdvancementAPI', 'com.volmit.adapt.util.advancements'
-    relocate 'de.crazydev22.translations', 'com.volmit.adapt.util.translations'
     dependencies {
         include(dependency('systems.manifold:'))
         include(dependency('xyz.xenondevs:'))
         include(dependency('com.github.VolmitDev:'))
-        include(dependency('com.github.CrazyDev05:'))
         include(dependency('com.frengor:ultimateadvancementapi-shadeable:'))
     }
 }
 
-configurations.all {
+configurations.configureEach {
     resolutionStrategy.cacheChangingModulesFor 60, 'minutes'
     resolutionStrategy.cacheDynamicVersionsFor 60, 'minutes'
 }
@@ -219,7 +218,7 @@ if (JavaVersion.current().toString() != "17") {
     System.exit(69)
 }
 
-def buildDir = layout.buildDirectory.asFile.get();
+def buildDir = layout.buildDirectory.asFile.get()
 def outputJar = new File(buildDir, "libs/Adapt-" + version + "-all.jar")
 
 java {

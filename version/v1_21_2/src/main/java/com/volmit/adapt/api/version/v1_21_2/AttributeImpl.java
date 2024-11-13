@@ -1,13 +1,13 @@
-package com.volmit.adapt.api.version.v1_20_4;
+package com.volmit.adapt.api.version.v1_21_2;
 
 import com.volmit.adapt.api.version.IAttribute;
 import com.volmit.adapt.util.collection.KList;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.inventory.EquipmentSlotGroup;
 
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public record AttributeImpl(AttributeInstance instance) implements IAttribute {
@@ -35,21 +35,21 @@ public record AttributeImpl(AttributeInstance instance) implements IAttribute {
     @Override
     @SuppressWarnings("all")
     public void addModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
-        instance.addModifier(new AttributeModifier(uuid, key.getNamespace() + "-" + key.getKey(), amount, operation));
+        instance.addModifier(new AttributeModifier(key, amount, operation, EquipmentSlotGroup.ANY));
     }
 
     @Override
     public boolean hasModifier(UUID uuid, NamespacedKey key) {
         return instance.getModifiers()
                 .stream()
-                .anyMatch(filter(uuid, key));
+                .anyMatch(m -> m.getKey().equals(key));
     }
 
     @Override
     public void removeModifier(UUID uuid, NamespacedKey key) {
         instance.getModifiers()
                 .stream()
-                .filter(filter(uuid, key))
+                .filter(m -> m.getKey().equals(key))
                 .forEach(instance::removeModifier);
     }
 
@@ -57,17 +57,12 @@ public record AttributeImpl(AttributeInstance instance) implements IAttribute {
     public KList<Modifier> getModifier(UUID uuid, NamespacedKey key) {
         return instance.getModifiers()
                 .stream()
-                .filter(filter(uuid, key))
+                .filter(m -> m.getKey().equals(key))
                 .map(AttributeImpl::wrap)
                 .collect(Collectors.toCollection(KList::new));
     }
 
-    private Predicate<AttributeModifier> filter(UUID uuid, NamespacedKey key) {
-        String name = key.getNamespace() + "-" + key.getKey();
-        return m -> m.getUniqueId().equals(uuid) || m.getName().equals(name);
-    }
-
     private static Modifier wrap(AttributeModifier modifier) {
-        return new Modifier(modifier.getUniqueId(), null, modifier.getAmount() ,modifier.getOperation());
+        return new Modifier(null, modifier.getKey(), modifier.getAmount() ,modifier.getOperation());
     }
 }
