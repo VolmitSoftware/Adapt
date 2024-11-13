@@ -33,7 +33,6 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.block.Biome;
 import org.bukkit.entity.EntityType;
 
 import java.util.*;
@@ -45,7 +44,7 @@ public class PlayerData {
     private Map<String, Double> stats = new HashMap<>();
     private String last = "none";
     private Set<String> advancements = new HashSet<>();
-    private Discovery<Biome> seenBiomes = new Discovery<>();
+    private Discovery<String> seenBiomes = new Discovery<>();
     private Discovery<EntityType> seenMobs = new Discovery<>();
     private Discovery<Material> seenFoods = new Discovery<>();
     private Discovery<Material> seenItems = new Discovery<>();
