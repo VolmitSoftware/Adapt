@@ -52,7 +52,7 @@ public class SkillsGui {
             return;
         }
 
-        if (adaptPlayer.getData().getSkillLines().size() > 0) {
+        if (!adaptPlayer.getData().getSkillLines().isEmpty()) {
             for (PlayerSkillLine i : adaptPlayer.getData().getSkillLines().sortV()) {
                 if (i.getRawSkill(adaptPlayer).hasBlacklistPermission(adaptPlayer.getPlayer(), i.getRawSkill(adaptPlayer)) || i.getLevel() < 0) {
                     continue;
