@@ -50,22 +50,22 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class AdaptServer extends TickedObject {
-    private final Map<Player, AdaptPlayer> players;
+    private final ReentrantLock clearLock = new ReentrantLock();
+    private final Map<Player, AdaptPlayer> players = new ConcurrentHashMap<>();
     @Getter
-    private final List<SpatialXP> spatialTickets;
+    private final List<SpatialXP> spatialTickets = new ArrayList<>();
     @Getter
-    private SkillRegistry skillRegistry;
+    private final SkillRegistry skillRegistry = new SkillRegistry();
     @Getter
     private AdaptServerData data = new AdaptServerData();
 
     public AdaptServer() {
         super("core", UUID.randomUUID().toString(), 1000);
-        spatialTickets = new ArrayList<>();
-        players = new HashMap<>();
         load();
-        skillRegistry = new SkillRegistry();
 
         Bukkit.getOnlinePlayers().forEach(this::join);
     }
@@ -201,12 +201,19 @@ public class AdaptServer extends TickedObject {
     @Override
     public void onTick() {
         synchronized (spatialTickets) {
-            for (int i = 0; i < spatialTickets.size(); i++) {
-                if (M.ms() > spatialTickets.get(i).getMs()) {
-                    spatialTickets.remove(i);
-                }
-            }
+            spatialTickets.removeIf(ticket -> M.ms() > ticket.getMs());
         }
+
+        J.a(() -> {
+            if (!clearLock.tryLock())
+                return;
+
+            try {
+                players.keySet().removeIf(player -> !player.isOnline());
+            } finally {
+                clearLock.unlock();
+            }
+        });
     }
 
     public PlayerData peekData(UUID player) {
@@ -234,7 +241,11 @@ public class AdaptServer extends TickedObject {
     }
 
     public AdaptPlayer getPlayer(Player p) {
-        return players.get(p);
+        return players.computeIfAbsent(p, player -> {
+            Adapt.warn("Failed to find AdaptPlayer for " + p.getName() + " (" + p.getUniqueId() + ")");
+            Adapt.warn("Loading new AdaptPlayer...");
+            return new AdaptPlayer(player);
+        });
     }
 
     public void openSkillGUI(Skill<?> skill, Player p) {
