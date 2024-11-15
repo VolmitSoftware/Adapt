@@ -920,6 +920,11 @@
       "description": "When you break a block it teleports the item into your inventory",
       "lore1": "Whenever an item is dropped from a block you break it goes into your inventory if it can."
     },
+    "silkspawner": {
+      "name": "Pickaxe Silk-Spawner",
+      "description": "Allows you to break a spawner with silk touch",
+      "lore1": "Makes Spawners breakable with silk touch."
+    },
     "veinminer": {
       "name": "Veinminer",
       "description": "Allows you to break blocks in a Vein/Cluster of Vanilla ores",
