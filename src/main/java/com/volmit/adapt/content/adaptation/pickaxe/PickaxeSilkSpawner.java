@@ -8,6 +8,7 @@ import com.volmit.adapt.util.collection.KList;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -36,6 +37,12 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
         var block = event.getBlock();
         if (!event.isDropItems() || !hasAdaptation(player) || block.getType() != Material.SPAWNER || !canBlockBreak(player, event.getBlock().getLocation()))
             return;
+        var level = getLevel(player);
+        if (level == 1 && !player.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
+            return;
+        } else if (level > 1 && !player.isSneaking()) {
+            return;
+        }
 
         event.setDropItems(false);
         var items = new KList<Item>();
@@ -56,7 +63,7 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("pickaxe", "silkspawner", "lore1"));
+        v.addLore(C.GREEN + Localizer.dLocalize("pickaxe", "silkspawner", "lore" + (level < 2 ? 1 : 2)));
     }
 
     @Override
@@ -73,7 +80,7 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
         boolean permanent = false;
         boolean enabled = true;
         int baseCost = 6;
-        int maxLevel = 4;
+        int maxLevel = 2;
         int initialCost = 4;
         double costFactor = 2.325;
     }

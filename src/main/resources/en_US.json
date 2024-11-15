@@ -922,8 +922,9 @@
     },
     "silkspawner": {
       "name": "Pickaxe Silk-Spawner",
-      "description": "Allows you to break a spawner with silk touch",
-      "lore1": "Makes Spawners breakable with silk touch."
+      "description": "Makes Spawners drop when broken",
+      "lore1": "Makes Spawners breakable with silk touch.",
+      "lore2": "Makes Spawners breakable while sneaking."
     },
     "veinminer": {
       "name": "Veinminer",
