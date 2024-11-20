@@ -90,13 +90,6 @@ allprojects {
     apply plugin: 'java-library'
 
     repositories {
-        mavenLocal {
-            content {
-                includeGroup("org.bukkit")
-                includeGroup("org.spigotmc")
-                includeGroup("com.frengor")
-            }
-        }
         mavenCentral()
         maven { url "https://repo.papermc.io/repository/maven-public/"}
         maven { url "https://repo.codemc.org/repository/maven-public" }
@@ -107,8 +100,6 @@ allprojects {
         maven { url "https://maven.enginehub.org/repo/" }
         maven { url "https://repo.oraxen.com/releases" }
         maven { url 'https://jitpack.io' }
-        mavenLocal()
-
     }
 
     /**
@@ -127,8 +118,6 @@ allprojects {
         implementation 'com.github.VolmitDev:Fukkit:23.6.1'
         implementation 'com.github.VolmitDev:Amulet:23.5.1'
         implementation 'com.github.VolmitDev:Chrono:22.9.10'
-        implementation 'com.github.VolmitDev:Curse:23.4.3'
-        implementation 'com.github.VolmitDev:MultiBurst:22.9.2'
         implementation 'com.github.VolmitDev:Spatial:22.11.1'
 
         implementation "io.papermc:paperlib:1.0.7"
@@ -138,15 +127,15 @@ allprojects {
         implementation 'systems.manifold:manifold-rt:' + manifoldVersion
 
         //Random Api's
-        implementation 'com.github.DeadSilenceIV:AdvancedChestsAPI:2.9-BETA'
-        implementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.8'
-        implementation "com.github.FrancoBM12:API-MagicCosmetics:2.2.8"
-        implementation 'me.clip:placeholderapi:2.11.2'
-        implementation 'com.github.LoneDev6:api-itemsadder:3.2.5'
-        implementation 'io.th0rgal:oraxen:1.182.0'
-        implementation 'com.massivecraft:Factions:1.6.9.5-U0.6.21'
-        implementation "com.github.angeschossen:ChestProtectAPI:3.9.1"
-        implementation "com.github.TechFortress:GriefPrevention:16.18.1"
+        compileOnly 'com.github.DeadSilenceIV:AdvancedChestsAPI:2.9-BETA'
+        compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.8'
+        compileOnly "com.github.FrancoBM12:API-MagicCosmetics:2.2.8"
+        compileOnly 'me.clip:placeholderapi:2.11.6'
+        compileOnly 'com.github.LoneDev6:api-itemsadder:3.2.5'
+        compileOnly 'io.th0rgal:oraxen:1.182.0'
+        compileOnly 'com.massivecraft:Factions:1.6.9.5-U0.6.21'
+        compileOnly "com.github.angeschossen:ChestProtectAPI:3.9.1"
+        compileOnly "com.github.TechFortress:GriefPrevention:16.18.1"
         implementation 'xyz.xenondevs:particle:1.8.1'
         implementation "com.frengor:ultimateadvancementapi-shadeable:2.4.2"
         compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
@@ -157,9 +146,8 @@ allprojects {
         compileOnly 'org.apache.commons:commons-lang3:3.12.0'
         compileOnly 'com.google.code.gson:gson:2.10'
         compileOnly 'com.elmakers.mine.bukkit:EffectLib:9.4'
-        compileOnly 'net.kyori:adventure-text-minimessage:4.13.1'
-        compileOnly 'net.kyori:adventure-platform-bukkit:4.3.0'
-        compileOnly 'net.kyori:adventure-api:4.13.1'
+        compileOnly 'net.kyori:adventure-text-minimessage:4.17.0'
+        compileOnly 'net.kyori:adventure-platform-bukkit:4.3.4'
         compileOnly 'it.unimi.dsi:fastutil:8.5.13'
         compileOnly "fr.skytasul:glowingentities:1.4"
         implementation 'com.google.guava:guava:30.1-jre'

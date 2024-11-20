@@ -22,24 +22,12 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public class Bindings implements IBindings {
-    private final Set<Consumer<Player>> mountListeners = new HashSet<>();
-    private final Set<Consumer<Player>> dismountListeners = new HashSet<>();
 
     @Override
     public IAttribute getAttribute(Attributable attributable, Attribute modifier) {
         return Optional.ofNullable(attributable.getAttribute(modifier))
                 .map(AttributeImpl::new)
                 .orElse(null);
-    }
-
-    @Override
-    public void addEntityMountListener(Consumer<Player> consumer) {
-        mountListeners.add(consumer);
-    }
-
-    @Override
-    public void addEntityDismountListener(Consumer<Player> consumer) {
-        dismountListeners.add(consumer);
     }
 
     @Override
@@ -73,19 +61,5 @@ public class Bindings implements IBindings {
                 EntityType.EVOKER_FANGS,
                 EntityType.MARKER
         );
-    }
-
-    @EventHandler
-    public void on(EntityMountEvent e) {
-        if (e.getEntity() instanceof Player p) {
-            mountListeners.forEach(l -> l.accept(p));
-        }
-    }
-
-    @EventHandler
-    public void on(EntityDismountEvent e) {
-        if (e.getEntity() instanceof Player p) {
-            dismountListeners.forEach(l -> l.accept(p));
-        }
     }
 }

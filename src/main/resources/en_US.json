@@ -1092,6 +1092,12 @@
       "name": "Sneak Speed",
       "description": "Gain speed while sneaking",
       "lore1": "Sneaking Speed"
+    },
+    "enderveil": {
+      "name": "Enderveil",
+      "description": "No more Pumpkins to prevent Enderman attacks",
+      "lore1": "Prevent enderman attacks while sneaking",
+      "lore2": "Prevent all enderman attacks"
     }
   },
   "sword": {

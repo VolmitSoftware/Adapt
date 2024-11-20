@@ -19,6 +19,7 @@
 package com.volmit.adapt.util;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.util.reflect.events.ReflectiveEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -239,6 +240,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
             return;
         }
         Bukkit.getPluginManager().registerEvents(l, this);
+        ReflectiveEvents.register(l);
     }
 
     public void unregisterListener(Listener l) {

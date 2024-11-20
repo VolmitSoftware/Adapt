@@ -23,10 +23,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
-import com.volmit.adapt.content.adaptation.stealth.StealthGhostArmor;
-import com.volmit.adapt.content.adaptation.stealth.StealthSight;
-import com.volmit.adapt.content.adaptation.stealth.StealthSnatch;
-import com.volmit.adapt.content.adaptation.stealth.StealthSpeed;
+import com.volmit.adapt.content.adaptation.stealth.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
@@ -55,6 +52,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         registerAdaptation(new StealthSnatch());
         registerAdaptation(new StealthGhostArmor());
         registerAdaptation(new StealthSight());
+        registerAdaptation(new StealthEnderVeil());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LEATHER_LEGGINGS)
                 .key("challenge_sneak_1k")
