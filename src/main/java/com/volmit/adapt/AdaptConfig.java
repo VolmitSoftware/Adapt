@@ -67,6 +67,7 @@ public class AdaptConfig {
     private boolean escClosesAllGuis = false;
     private boolean guiBackButton = false;
     private boolean customModels = true;
+    private boolean automaticGradients = false;
     private int learnUnlearnButtonDelayTicks = 14;
     private int maxRecipeListPrecaution = 25;
     private boolean actionbarNotifyXp = true;

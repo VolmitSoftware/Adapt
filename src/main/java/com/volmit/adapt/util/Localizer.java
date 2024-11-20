@@ -115,7 +115,13 @@ public class Localizer {
                 Adapt.wordKey.put(s1 + s2 + s3, jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
             }
         }
+        var s = Adapt.wordKey.get(s1 + s2 + s3);
+        if (AdaptConfig.get().isAutomaticGradients()) {
+            s = C.translateAlternateColorCodes('&', s);
+            s = C.aura(s, -20, 7, 8, 0.36);
+        }
+
         return LegacyComponentSerializer.legacySection()
-                .serialize(MiniMessage.miniMessage().deserialize(Adapt.wordKey.get(s1 + s2 + s3)));
+                .serialize(MiniMessage.miniMessage().deserialize(s));
     }
 }
