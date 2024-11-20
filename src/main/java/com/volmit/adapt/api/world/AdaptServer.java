@@ -128,7 +128,7 @@ public class AdaptServer extends TickedObject {
         super.unregister();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void on(ProjectileLaunchEvent e) {
         if (e.getEntity() instanceof Snowball s && e.getEntity().getShooter() instanceof Player p) {
             KnowledgeOrb.Data data = KnowledgeOrb.get(s.getItem());
@@ -148,8 +148,6 @@ public class AdaptServer extends TickedObject {
                     .model(CustomModel.get(Material.BOOK, "snippets", "gui", "knowledge"))
                     .title(C.GRAY + "+ " + C.WHITE + data.getKnowledge() + " " + skill.getDisplayName() + " Knowledge")
                     .build());
-                e.setCancelled(false);
-                e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(1000));
             } else {
                 ExperienceOrb.Data datax = ExperienceOrb.get(s.getItem());
                 if (datax != null) {
@@ -162,8 +160,6 @@ public class AdaptServer extends TickedObject {
                         .sound(Sound.ENTITY_SHULKER_OPEN)
                         .volume(1f).pitch(1.655f)
                         .build().play(getPlayer(p));
-                    e.setCancelled(false);
-                    e.getEntity().setVelocity(e.getEntity().getVelocity().multiply(1000));
                 }
             }
         }
