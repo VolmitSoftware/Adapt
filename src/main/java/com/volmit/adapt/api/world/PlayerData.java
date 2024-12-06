@@ -30,20 +30,23 @@ import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import manifold.util.concurrent.ConcurrentHashSet;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Data
 @NoArgsConstructor
 public class PlayerData {
-    private final Map<String, PlayerSkillLine> skillLines = new HashMap<>();
-    private Map<String, Double> stats = new HashMap<>();
+    private final Map<String, PlayerSkillLine> skillLines = new ConcurrentHashMap<>();
+    private Map<String, Double> stats = new ConcurrentHashMap<>();
     private String last = "none";
-    private Set<String> advancements = new HashSet<>();
+    private Set<String> advancements = new ConcurrentHashSet<>();
     private Discovery<String> seenBiomes = new Discovery<>();
     private Discovery<EntityType> seenMobs = new Discovery<>();
     private Discovery<Material> seenFoods = new Discovery<>();
@@ -55,7 +58,7 @@ public class PlayerData {
     private Discovery<World.Environment> seenEnvironments = new Discovery<>();
     private Discovery<String> seenPotionEffects = new Discovery<>();
     private Discovery<String> seenBlocks = new Discovery<>();
-    private List<XPMultiplier> multipliers = new ArrayList<>();
+    private List<XPMultiplier> multipliers = new CopyOnWriteArrayList<>();
     private long wisdom = 0;
     private double multiplier = 0;
     private long lastLogin = 0;
