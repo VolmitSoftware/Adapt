@@ -166,13 +166,13 @@ public class AdaptServer extends TickedObject {
 
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void on(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         join(p);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         quit(p);
