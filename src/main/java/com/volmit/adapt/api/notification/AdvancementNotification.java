@@ -22,6 +22,7 @@ import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameT
 import com.volmit.adapt.util.AdvancementUtils;
 import com.volmit.adapt.api.world.AdaptPlayer;
 
+import com.volmit.adapt.util.CustomModel;
 import lombok.Builder;
 import lombok.Data;
 import org.bukkit.Material;
@@ -32,6 +33,8 @@ import org.bukkit.inventory.ItemStack;
 public class AdvancementNotification implements Notification {
     @Builder.Default
     private final Material icon = Material.DIAMOND;
+    @Builder.Default
+    private final CustomModel model = null;
     @Builder.Default
     private final String title = " ";
     @Builder.Default
@@ -54,7 +57,8 @@ public class AdvancementNotification implements Notification {
     @Override
     public void play(AdaptPlayer p) {
         if (p.getPlayer() != null) {
-            AdvancementUtils.displayToast(p.getPlayer(), new ItemStack(icon), title, description, frameType);
+            var icon = getModel() != null ? getModel().toItemStack() : new ItemStack(getIcon());
+            AdvancementUtils.displayToast(p.getPlayer(), icon, title, description, frameType);
         }
     }
 

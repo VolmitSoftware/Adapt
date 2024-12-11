@@ -5,5 +5,5 @@ import org.bukkit.inventory.ItemFlag;
 
 public class ItemFlags {
 
-    public static ItemFlag HIDE_POTION_EFFECTS = Reflect.getEnum(ItemFlag.class, "HIDE_POTION_EFFECTS", "HIDE_ADDITIONAL_TOOLTIP");
+    public static final ItemFlag HIDE_POTION_EFFECTS = Reflect.getEnum(ItemFlag.class, "HIDE_POTION_EFFECTS", "HIDE_ADDITIONAL_TOOLTIP");
 }

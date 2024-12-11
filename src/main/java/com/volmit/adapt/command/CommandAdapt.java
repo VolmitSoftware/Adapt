@@ -35,7 +35,7 @@ public class CommandAdapt implements DecreeExecutor {
 
     ) {
         if (!sender().hasPermission("adapt.boost")) {
-            sender().sendMessage("You lack the Permission 'adapt.boost'");
+            FConst.error("You lack the Permission 'adapt.boost'").send(sender());
             return;
         }
 
@@ -59,7 +59,7 @@ public class CommandAdapt implements DecreeExecutor {
         boolean force
     ) {
         if (!sender().hasPermission("adapt.gui")) {
-            sender().sendMessage("You lack the Permission 'adapt.gui'");
+            FConst.error("You lack the Permission 'adapt.gui'").send(sender());
             return;
         }
 
@@ -115,7 +115,7 @@ public class CommandAdapt implements DecreeExecutor {
 
     ) {
         if (!sender().hasPermission("adapt.cheatitem")) {
-            sender().sendMessage("You lack the Permission 'adapt.cheatitem'");
+            FConst.error("You lack the Permission 'adapt.cheatitem'").send(sender());
             return;
         }
 
@@ -163,7 +163,7 @@ public class CommandAdapt implements DecreeExecutor {
         Player player
     ) {
         if (!sender().hasPermission("adapt.cheatitem")) {
-            sender().sendMessage("You lack the Permission 'adapt.cheatitem'");
+            FConst.error("You lack the Permission 'adapt.cheatitem'").send(sender());
             return;
         }
         Player targetPlayer = player;
@@ -215,7 +215,7 @@ public class CommandAdapt implements DecreeExecutor {
 
     ) {
         if (!sender().hasPermission("adapt.determine")) {
-            sender().sendMessage("You lack the Permission 'adapt.determine'");
+            FConst.error("You lack the Permission 'adapt.determine'").send(sender());
             return;
         }
 

@@ -182,7 +182,7 @@ public class PlayerSkillLine {
         adaptations.put(a.getName(), v);
     }
 
-    public Skill getRawSkill(AdaptPlayer p) {
+    public Skill<?> getRawSkill(AdaptPlayer p) {
         return p.getServer().getSkillRegistry().getSkill(line);
     }
 

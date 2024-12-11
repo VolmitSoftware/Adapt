@@ -18,8 +18,8 @@
 
 package com.volmit.adapt.content.item;
 
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.reflect.enums.EntityTypes;
 import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -31,7 +31,7 @@ import java.util.List;
 public class ItemListings {
 
     @Getter
-    public static List<Material> shearList = List.of(
+    public static final List<Material> shearList = List.of(
             Material.ACACIA_LEAVES,
             Material.AZALEA_LEAVES,
             Material.BIRCH_LEAVES,
@@ -43,26 +43,10 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<EntityType> invalidDamageableEntities = List.of(
-            EntityType.ARMOR_STAND,
-            EntityType.BOAT,
-            EntityType.ITEM_FRAME,
-            EntityType.MINECART,
-            EntityTypes.MINECART_CHEST,
-            EntityTypes.MINECART_COMMAND,
-            EntityTypes.MINECART_FURNACE,
-            EntityTypes.MINECART_HOPPER,
-            EntityTypes.MINECART_MOB_SPAWNER,
-            EntityTypes.MINECART_TNT,
-            EntityType.PAINTING,
-            EntityType.CHEST_BOAT,
-            EntityTypes.LEASH_HITCH,
-            EntityType.EVOKER_FANGS,
-            EntityType.MARKER
-    );
+    public static final List<EntityType> invalidDamageableEntities = Version.get().getInvalidDamageableEntities();
 
     @Getter
-    public static List<Material> smeltOre = List.of(
+    public static final List<Material> smeltOre = List.of(
             Material.NETHER_GOLD_ORE,
             Material.IRON_ORE,
             Material.GOLD_ORE,
@@ -73,7 +57,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> ores = List.of(
+    public static final List<Material> ores = List.of(
             Material.IRON_ORE,
             Material.GOLD_ORE,
             Material.COPPER_ORE,

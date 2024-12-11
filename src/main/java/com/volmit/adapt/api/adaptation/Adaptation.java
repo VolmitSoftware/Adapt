@@ -374,6 +374,19 @@ public interface Adaptation<T> extends Ticked, Component {
         return targetBlock.getFace(adjacentBlock);
     }
 
+    default CustomModel getModel() {
+        return CustomModel.get(getIcon(), "adaptation", getName(), "icon");
+    }
+
+    default CustomModel getModel(int level) {
+        var model = CustomModel.get(getIcon(), "adaptation", getName(), "level-" + level);
+        if (model.material() == getIcon() && model.model() == 0)
+            model = CustomModel.get(Material.PAPER, "snippets", "gui", "level", String.valueOf(level));
+        if (model.material() == Material.PAPER && model.model() == 0)
+            model = getModel();
+        return model;
+    }
+
     default boolean openGui(Player player, boolean checkPermissions) {
         if (hasBlacklistPermission(player, this)) {
             return false;
@@ -395,7 +408,10 @@ public interface Adaptation<T> extends Ticked, Component {
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
         Window w = new UIWindow(player);
         w.setTag("skill/" + getSkill().getName() + "/" + getName());
-        w.setDecorator((window, position, row) -> new UIElement("bg").setName(" ").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
+        w.setDecorator((window, position, row) -> new UIElement("bg")
+                .setName(" ")
+                .setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE))
+                .setModel(CustomModel.get(Material.BLACK_STAINED_GLASS_PANE, "snippets", "gui", "background")));
         w.setResolution(WindowResolution.W9_H6);
         int o = 0;
 
@@ -427,6 +443,7 @@ public interface Adaptation<T> extends Ticked, Component {
             int lvl = i;
             Element de = new UIElement("lp-" + i + "g")
                     .setMaterial(new MaterialBlock(getIcon()))
+                    .setModel(getModel(i))
                     .setName(getDisplayName(i))
                     .setEnchanted(mylevel >= lvl)
                     .setProgress(1D)
@@ -486,11 +503,9 @@ public interface Adaptation<T> extends Ticked, Component {
             int backRow = w.getViewportHeight() - 1;
             w.setElement(backPos, backRow, new UIElement("back")
                     .setMaterial(new MaterialBlock(Material.RED_BED))
+                    .setModel(CustomModel.get(Material.RED_BED, "snippets", "gui", "back"))
                     .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets", "gui", "back"))
-                    .onLeftClick((e) -> {
-                        w.close();
-                        onGuiClose(player, true);
-                    }));
+                    .onLeftClick((e) -> onGuiClose(player, true)));
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
@@ -507,6 +522,8 @@ public interface Adaptation<T> extends Ticked, Component {
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
         if (openPrevGui) {
             getSkill().openGui(player);
+        } else {
+            Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
         }
     }
 

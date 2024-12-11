@@ -22,13 +22,15 @@ import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameT
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -70,6 +72,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                 .key("horrible_person")
                 .title(Localizer.dLocalize("advancement", "horrible_person", "title"))
                 .description(Localizer.dLocalize("advancement", "horrible_person", "description"))
+                .model(CustomModel.get(Material.TURTLE_EGG, "advancement", "hunter", "horrible_person"))
                 .frame(AdvancementFrameType.GOAL)
                 .visibility(AdvancementVisibility.HIDDEN)
                 .build()
@@ -79,6 +82,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                 .key("challenge_turtle_egg_smasher")
                 .title(Localizer.dLocalize("advancement", "challenge_turtle_egg_smasher", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_turtle_egg_smasher", "description"))
+                .model(CustomModel.get(Material.TURTLE_EGG, "advancement", "hunter", "challenge_turtle_egg_smasher"))
                 .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
@@ -86,6 +90,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                         .key("challenge_turtle_egg_annihilator")
                         .title(Localizer.dLocalize("advancement", "challenge_turtle_egg_annihilator", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_turtle_egg_annihilator", "description"))
+                        .model(CustomModel.get(Material.TURTLE_EGG, "advancement", "hunter", "challenge_turtle_egg_annihilator"))
                         .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
@@ -95,6 +100,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                 .key("challenge_novice_hunter")
                 .title(Localizer.dLocalize("advancement", "challenge_novice_hunter", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_novice_hunter", "description"))
+                .model(CustomModel.get(Material.BONE, "advancement", "hunter", "challenge_novice_hunter"))
                 .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
@@ -102,6 +108,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                         .key("challenge_intermediate_hunter")
                         .title(Localizer.dLocalize("advancement", "challenge_intermediate_hunter", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_intermediate_hunter", "description"))
+                        .model(CustomModel.get(Material.IRON_SWORD, "advancement", "hunter", "challenge_intermediate_hunter"))
                         .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
@@ -109,6 +116,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                                 .key("challenge_advanced_hunter")
                                 .title(Localizer.dLocalize("advancement", "challenge_advanced_hunter", "title"))
                                 .description(Localizer.dLocalize("advancement", "challenge_advanced_hunter", "description"))
+                                .model(CustomModel.get(Material.DIAMOND_SWORD, "advancement", "hunter", "challenge_advanced_hunter"))
                                 .frame(AdvancementFrameType.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                 .build())
@@ -119,6 +127,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                 .key("challenge_creeper_conqueror")
                 .title(Localizer.dLocalize("advancement", "challenge_creeper_conqueror", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_creeper_conqueror", "description"))
+                .model(CustomModel.get(Material.CREEPER_HEAD, "advancement", "hunter", "challenge_creeper_conqueror"))
                 .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
@@ -126,6 +135,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                         .key("challenge_creeper_annihilator")
                         .title(Localizer.dLocalize("advancement", "challenge_creeper_annihilator", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_creeper_annihilator", "description"))
+                        .model(CustomModel.get(Material.TNT, "advancement", "hunter", "challenge_creeper_annihilator"))
                         .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
@@ -191,7 +201,8 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         shouldReturnForPlayer(p, () -> {
             if (e.getEntity().getType().equals(EntityType.CREEPER)) {
                 double cmult = getConfig().creeperKillMultiplier;
-                double xpAmount = e.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier * cmult;
+                var attribute = Version.get().getAttribute(e.getEntity(), Attributes.GENERIC_MAX_HEALTH);
+                double xpAmount = (attribute == null ? 1 : attribute.getValue()) * getConfig().killMaxHealthXPMultiplier * cmult;
                 if (e.getEntity().getPortalCooldown() > 0) {
                     xpAmount *= getConfig().spawnerMobReductionXpMultiplier;
                 }
@@ -217,7 +228,8 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     private void handleEntityKill(Player p, Entity entity) {
         if (entity instanceof LivingEntity livingEntity) {
-            double xpAmount = livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() * getConfig().killMaxHealthXPMultiplier;
+            var attribute = Version.get().getAttribute(livingEntity, Attributes.GENERIC_MAX_HEALTH);
+            double xpAmount = (attribute == null ? 1 : attribute.getValue()) * getConfig().killMaxHealthXPMultiplier;
             if (entity.getPortalCooldown() > 0) {
                 xpAmount *= getConfig().spawnerMobReductionXpMultiplier;
             }

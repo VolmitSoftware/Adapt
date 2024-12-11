@@ -23,11 +23,9 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
-import com.volmit.adapt.content.adaptation.stealth.StealthGhostArmor;
-import com.volmit.adapt.content.adaptation.stealth.StealthSight;
-import com.volmit.adapt.content.adaptation.stealth.StealthSnatch;
-import com.volmit.adapt.content.adaptation.stealth.StealthSpeed;
+import com.volmit.adapt.content.adaptation.stealth.*;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -54,11 +52,13 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         registerAdaptation(new StealthSnatch());
         registerAdaptation(new StealthGhostArmor());
         registerAdaptation(new StealthSight());
+        registerAdaptation(new StealthEnderVeil());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LEATHER_LEGGINGS)
                 .key("challenge_sneak_1k")
-                .title("Knee Pain")
-                .description("Sneak over a kilometer (1,000 blocks)")
+                .title(Localizer.dLocalize("advancement", "challenge_sneak_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_sneak_1k", "description"))
+                .model(CustomModel.get(Material.LEATHER_LEGGINGS, "advancement", "stealth", "challenge_sneak_1k"))
                 .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());

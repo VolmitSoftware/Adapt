@@ -94,7 +94,7 @@ public interface Skill<T> extends Ticked, Component {
 
     void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
-    default boolean hasBlacklistPermission(Player p, Skill s) {
+    default boolean hasBlacklistPermission(Player p, Skill<?> s) {
         if (p.isOp()) { // If the player is an operator, bypass the permission check
             return false;
         }
@@ -122,6 +122,10 @@ public interface Skill<T> extends Ticked, Component {
             this.unregister();
         }
         return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
+    }
+
+    default CustomModel getModel() {
+        return CustomModel.get(getIcon(), "skill", getName());
     }
 
     default void xp(Player p, double xp) {
@@ -211,11 +215,14 @@ public interface Skill<T> extends Ticked, Component {
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
         Window w = new UIWindow(player);
         w.setTag("skill/" + getName());
-        w.setDecorator((window, position, row) -> new UIElement("bg").setName(" ").setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE)));
+        w.setDecorator((window, position, row) -> new UIElement("bg")
+                .setName(" ")
+                .setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE))
+                .setModel(CustomModel.get(Material.BLACK_STAINED_GLASS_PANE, "snippets", "gui", "background")));
 
         int ind = 0;
 
-        for (Adaptation i : getAdaptations()) {
+        for (Adaptation<?> i : getAdaptations()) {
             if (i.hasBlacklistPermission(player, i)) {
                 continue;
             }
@@ -224,14 +231,12 @@ public interface Skill<T> extends Ticked, Component {
             int lvl = getPlayer(player).getData().getSkillLine(getName()).getAdaptationLevel(i.getName());
             w.setElement(pos, row, new UIElement("ada-" + i.getName())
                     .setMaterial(new MaterialBlock(i.getIcon()))
+                    .setModel(i.getModel())
                     .setName(i.getDisplayName(lvl))
                     .addLore(Form.wrapWordsPrefixed(i.getDescription(), "" + C.GRAY, 45)) // Set to the actual Description
                     .addLore(lvl == 0 ? (C.DARK_GRAY + Localizer.dLocalize("snippets", "gui", "notlearned")) : (C.GRAY + Localizer.dLocalize("snippets", "gui", "level") + " " + C.WHITE + Form.toRoman(lvl)))
                     .setProgress(1D)
-                    .onLeftClick((e) -> {
-                        w.close();
-                        i.openGui(player);
-                    }));
+                    .onLeftClick((e) -> i.openGui(player)));
             ind++;
         }
 
@@ -241,11 +246,9 @@ public interface Skill<T> extends Ticked, Component {
             if (w.getElement(backPos, backRow) != null) backRow++;
             w.setElement(backPos, backRow, new UIElement("back")
                     .setMaterial(new MaterialBlock(Material.RED_BED))
+                    .setModel(CustomModel.get(Material.RED_BED, "snippets", "gui", "back"))
                     .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets", "gui", "back"))
-                    .onLeftClick((e) -> {
-                        w.close();
-                        onGuiClose(player, true);
-                    }));
+                    .onLeftClick((e) -> onGuiClose(player, true)));
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
@@ -262,6 +265,8 @@ public interface Skill<T> extends Ticked, Component {
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
         if (openPrevGui) {
             SkillsGui.open(player);
+        } else {
+            Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
         }
     }
 }

@@ -22,12 +22,12 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.reflect.enums.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -79,11 +79,11 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     @Override
     public void onTick() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            var attribute = Version.get().getAttribute(p, Attribute.GENERIC_ARMOR);
+            var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
             if (attribute == null) continue;
 
             try {
-                attribute.removeAttributeModifier(MODIFIER, MODIFIER_KEY);
+                attribute.removeModifier(MODIFIER, MODIFIER_KEY);
             } catch (Exception e) {
                 Adapt.verbose("Failed to remove windup modifier: " + e.getMessage());
             }
@@ -121,7 +121,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
                         p.getWorld().spawnParticle(Particle.WAX_ON, p.getLocation(), 1, 0, 0, 0, 0);
                     }
                 }
-                attribute.setAttributeModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+                attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
             } else {
                 ticksRunning.remove(p);
             }

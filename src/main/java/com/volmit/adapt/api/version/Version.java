@@ -1,21 +1,33 @@
 package com.volmit.adapt.api.version;
 
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class Version {
     private static final List<Entry> BINDINGS = List.of(
+        of("1.21.2"),
         of("1.21"),
         of("1.20.5"),
         of("1.20.4"),
         of("1.19.2")
     );
     private static final IBindings bindings = bind();
+    public static final boolean SET_TITLE;
 
     public static IBindings get() {
         return bindings;
+    }
+
+    static {
+        boolean titleMethod = false;
+        try {
+            InventoryView.class.getDeclaredMethod("setTitle", String.class);
+            titleMethod = true;
+        } catch (Throwable ignored) {}
+        SET_TITLE = titleMethod;
     }
 
     private static IBindings bind() {

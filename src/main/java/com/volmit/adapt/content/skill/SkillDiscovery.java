@@ -240,8 +240,8 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     }
 
     public void seeBiome(Player p, Biome e) {
-        Discovery<Biome> d = getPlayer(p).getData().getSeenBiomes();
-        if (d.isNewDiscovery(e)) {
+        Discovery<String> d = getPlayer(p).getData().getSeenBiomes();
+        if (d.isNewDiscovery(e.getKey().toString())) {
             xp(p, getConfig().discoverBiomeXP);
         }
     }

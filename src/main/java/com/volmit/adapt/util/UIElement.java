@@ -32,6 +32,7 @@ public class UIElement implements Element {
     private final String id;
     private final List<String> lore;
     private MaterialBlock material;
+    private CustomModel model;
     private boolean enchanted;
     private String name;
     private double progress;
@@ -91,6 +92,17 @@ public class UIElement implements Element {
     @Override
     public UIElement setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    @Override
+    public CustomModel getModel() {
+        return model;
+    }
+
+    @Override
+    public UIElement setModel(CustomModel model) {
+        this.model = model;
         return this;
     }
 
@@ -215,8 +227,13 @@ public class UIElement implements Element {
     @Override
     public ItemStack computeItemStack() {
         try {
-            ItemStack is = new ItemStack(getMaterial().getMaterial(), getCount(), getEffectiveDurability());
+            ItemStack is = getModel() != null ? getModel().toItemStack() :
+                    new ItemStack(getMaterial().getMaterial());
+            is.setAmount(getCount());
+            is.setDurability(getEffectiveDurability());
+
             ItemMeta im = is.getItemMeta();
+            if (im == null) return is;
             im.setDisplayName(getName());
             im.setLore(getLore().copy());
             if (isEnchanted()) {

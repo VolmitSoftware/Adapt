@@ -59,12 +59,15 @@ public class AdaptConfig {
     private boolean hardcoreResetOnPlayerDeath = false;
     private boolean hardcoreNoRefunds = false;
     private boolean loginBonus = true;
+    private boolean welcomeMessage = true;
     private boolean advancements = true;
     private boolean useSql = false;
     private int sqlSecondsCheckverify = 30;
     private boolean useEnchantmentTableParticleForActiveEffects = true;
     private boolean escClosesAllGuis = false;
     private boolean guiBackButton = false;
+    private boolean customModels = true;
+    private boolean automaticGradients = false;
     private int learnUnlearnButtonDelayTicks = 14;
     private int maxRecipeListPrecaution = 25;
     private boolean actionbarNotifyXp = true;
