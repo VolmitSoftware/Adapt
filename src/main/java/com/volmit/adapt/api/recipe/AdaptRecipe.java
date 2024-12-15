@@ -291,7 +291,7 @@ public interface AdaptRecipe {
         public void register() {
             ShapedRecipe s = new ShapedRecipe(new NamespacedKey(Adapt.instance, getKey()), result);
             s.shape(shapes.toArray(new String[0]));
-            ingredients.forEach(i -> s.setIngredient(i.getCharacter(), i.getMaterial()));
+            ingredients.forEach(i -> s.setIngredient(i.getCharacter(), i.getChoice()));
             Bukkit.getServer().addRecipe(s);
             Adapt.verbose("Registered Shaped Crafting Recipe " + s.getKey());
         }
