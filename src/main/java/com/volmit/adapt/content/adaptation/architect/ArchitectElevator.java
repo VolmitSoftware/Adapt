@@ -32,16 +32,18 @@ import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -51,7 +53,6 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     private static final NamespacedKey TARGET_DOWN = new NamespacedKey(Adapt.instance, "target_down");
     private static final NamespacedKey TARGET_UP = new NamespacedKey(Adapt.instance, "target_up");
 
-    private static final double TELEPORT_OFFSET = 0.5;
     private static final int PARTICLE_COUNT = 20;
     private static final float SOUND_VOLUME = 1f;
     private static final float SOUND_PITCH = 1f;
@@ -85,7 +86,8 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     }
 
     public ItemStack getElevatorItem() {
-        ItemStack elevatorItem = new ItemStack(Material.NOTE_BLOCK);
+        ItemStack elevatorItem = CustomModel.get(Material.NOTE_BLOCK, "architect", "elevator", "item")
+                        .toItemStack();
         ItemMeta meta = elevatorItem.getItemMeta();
         if (meta != null) {
             meta.getPersistentDataContainer().set(ELEVATOR_KEY, PersistentDataType.BYTE, (byte) 0);
@@ -163,6 +165,21 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     public void on(CustomBlockDataMoveEvent event) {
         if (!event.getCustomBlockData().has(ELEVATOR_KEY)) return;
         event.setCancelled(true);
+
+        Event bukkit = event.getBukkitEvent();
+        if (bukkit instanceof Cancellable cancellable) {
+            cancellable.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void on(BlockExplodeEvent event) {
+        event.blockList().removeIf(ArchitectElevator::isElevator);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void on(EntityExplodeEvent event) {
+        event.blockList().removeIf(ArchitectElevator::isElevator);
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -171,6 +188,8 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
         if (!data.has(ELEVATOR_KEY)) return;
         Event bukkit = event.getBukkitEvent();
         if (!(bukkit instanceof BlockBreakEvent breakEvent)) {
+            if (bukkit instanceof Cancellable cancellable)
+                cancellable.setCancelled(true);
             event.setCancelled(true);
             return;
         }
@@ -293,12 +312,14 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     }
 
     private void teleportPlayer(Player p, Location l) {
-        Location tpl = l.add(TELEPORT_OFFSET, 1, TELEPORT_OFFSET);
-        tpl.setYaw(p.getLocation().getYaw());
-        tpl.setPitch(p.getLocation().getPitch());
+        Location loc = p.getLocation();
+        l.setYaw(loc.getYaw());
+        l.setPitch(loc.getPitch());
+        l.add(new Vector(loc.getX() - loc.getBlockX(), 1, loc.getZ() - loc.getBlockZ()));
+
         playTeleportEffects(p);
-        p.teleport(tpl);
-        p.playSound(tpl, Sound.ENTITY_ENDERMAN_TELEPORT, SOUND_VOLUME, SOUND_PITCH);
+        p.teleport(l);
+        SoundPlayer.of(p.getWorld()).play(p, Sound.ENTITY_ENDERMAN_TELEPORT, SOUND_VOLUME, SOUND_PITCH);
         playTeleportEffects(p);
     }
 
