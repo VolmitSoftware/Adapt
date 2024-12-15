@@ -1,0 +1,28 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/java",
+  "remoteUser": "root",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true
+    },
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "formulahendry.code-runner",
+        "github.copilot",
+        "github.vscode-github-actions",
+        "pkief.material-icon-theme",
+        "qwtel.sqlite-viewer",
+        "usernamehw.errorlens",
+        "vsls-contrib.gistfs"
+      ]
+    }
+  },
+  "postCreateCommand": "sudo apt update -y && sudo apt install gradle -y",
+  "shutdownAction": "stopContainer"
+}
