@@ -43,10 +43,11 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.util.Vector;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.*;
 
 public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config> {
     private static final NamespacedKey ELEVATOR_KEY = new NamespacedKey(Adapt.instance, "elevator");
@@ -56,6 +57,8 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     private static final int PARTICLE_COUNT = 20;
     private static final float SOUND_VOLUME = 1f;
     private static final float SOUND_PITCH = 1f;
+
+    private final Set<UUID> players = new HashSet<>();
 
     public ArchitectElevator() {
         super("architect-elevator");
@@ -91,8 +94,10 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
         ItemMeta meta = elevatorItem.getItemMeta();
         if (meta != null) {
             meta.getPersistentDataContainer().set(ELEVATOR_KEY, PersistentDataType.BYTE, (byte) 0);
-            meta.setDisplayName(Localizer.dLocalize("architect", "elevator", "item-name"));
-            meta.setLore(List.of(Localizer.dLocalize("architect", "elevator", "item-description").split("\\n")));
+            meta.setDisplayName(Localizer.dLocalize("items", "elevatorblock", "name"));
+            meta.setLore(List.of(Localizer.dLocalize("items", "elevatorblock", "usage1"),
+                    Localizer.dLocalize("items", "elevatorblock", "usage2"),
+                    Localizer.dLocalize("items", "elevatorblock", "usage3")));
             elevatorItem.setItemMeta(meta);
         }
         return elevatorItem;
@@ -101,8 +106,14 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(PlayerMoveEvent e) {
         if (e.getTo() == null) return;
-
         Player player = e.getPlayer();
+
+        if (!players.add(player.getUniqueId())) {
+            if (e.getFrom().getY() < e.getTo().getY() || player.isFlying())
+                players.remove(player.getUniqueId());
+            return;
+        }
+
         if (player.isFlying() || player.getVelocity().getY() <= 0 || e.getFrom().getY() >= e.getTo().getY())
             return;
 
@@ -293,10 +304,16 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
             return;
 
         Block target = block.getRelative(down ? BlockFace.DOWN : BlockFace.UP, distance);
-        if (!isElevator(target) || !hasEnoughSpace(target))
+        if (!isElevator(target))
             return;
 
-        teleportPlayer(player, target.getLocation());
+        var loc = player.getLocation();
+        loc.setY(target.getY() + 1);
+
+        if (!hasEnoughSpace(player, loc.getBlockY()))
+            return;
+
+        teleportPlayer(player, loc);
     }
 
     private static boolean isElevator(Block b) {
@@ -306,17 +323,33 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
                 .has(ELEVATOR_KEY, PersistentDataType.INTEGER);
     }
 
-    private static boolean hasEnoughSpace(Block b) {
-        Block above = b.getRelative(BlockFace.UP);
-        return above.getType().isAir() && above.getRelative(BlockFace.UP).getType().isAir();
+    private static boolean hasEnoughSpace(Player player, int targetY) {
+        BoundingBox box = player.getBoundingBox()
+                .shift(0, -player.getLocation().y(), 0)
+                .shift(0, targetY, 0);
+
+        double maxX = Math.ceil(box.getMaxX());
+        double maxY = Math.ceil(box.getMaxY());
+        double maxZ = Math.ceil(box.getMaxZ());
+        World world = player.getWorld();
+        for (int x = (int) box.getMinX(); x <= maxX; x++) {
+            for (int z = (int) box.getMinZ(); z <= maxZ; z++) {
+                for (int y = (int) box.getMinY(); y <= maxY; y++) {
+                    Block block = world.getBlockAt(x, y, z);
+                    if (block.isPassable() || block.isLiquid())
+                        continue;
+                    VoxelShape shape = block.getCollisionShape();
+                    box.shift(-x, -y, -z);
+                    if (shape.overlaps(box))
+                        return false;
+                    box.shift(x, y, z);
+                }
+            }
+        }
+        return true;
     }
 
     private void teleportPlayer(Player p, Location l) {
-        Location loc = p.getLocation();
-        l.setYaw(loc.getYaw());
-        l.setPitch(loc.getPitch());
-        l.add(new Vector(loc.getX() - loc.getBlockX(), 1, loc.getZ() - loc.getBlockZ()));
-
         playTeleportEffects(p);
         p.teleport(l);
         SoundPlayer.of(p.getWorld()).play(p, Sound.ENTITY_ENDERMAN_TELEPORT, SOUND_VOLUME, SOUND_PITCH);
