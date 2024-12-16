@@ -19,6 +19,7 @@
 package com.volmit.adapt;
 
 import art.arcane.amulet.io.FolderWatcher;
+import com.jeff_media.customblockdata.CustomBlockData;
 import com.volmit.adapt.api.advancement.AdvancementManager;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.potion.BrewingManager;
@@ -116,6 +117,7 @@ public class Adapt extends VolmitPlugin {
             sqlManager.establishConnection();
         }
         startSim();
+        CustomBlockData.registerListener(this);
         registerListener(new BrewingManager());
         registerListener(Version.get());
         setupMetrics();

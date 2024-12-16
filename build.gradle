@@ -138,6 +138,7 @@ allprojects {
         compileOnly "com.github.TechFortress:GriefPrevention:16.18.1"
         implementation 'xyz.xenondevs:particle:1.8.1'
         implementation "com.frengor:ultimateadvancementapi-shadeable:2.4.2"
+        implementation 'com.jeff-media:custom-block-data:2.2.3'
         compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
         compileOnly 'io.netty:netty-all:4.1.68.Final'
 
@@ -171,11 +172,13 @@ shadowJar {
     relocate 'Fukkit.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'Amulet.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'com.fren_gor.ultimateAdvancementAPI', 'com.volmit.adapt.util.advancements'
+    relocate 'com.jeff_media.customblockdata', 'com.volmit.util.customblocks'
     dependencies {
         include(dependency('systems.manifold:'))
         include(dependency('xyz.xenondevs:'))
         include(dependency('com.github.VolmitDev:'))
         include(dependency('com.frengor:ultimateadvancementapi-shadeable:'))
+        include(dependency('com.jeff-media:custom-block-data:'))
     }
 }
 
