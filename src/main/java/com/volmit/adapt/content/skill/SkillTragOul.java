@@ -146,7 +146,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (Player i : Adapt.instance.getAdaptServer().getAdaptPlayers()) {
             shouldReturnForPlayer(i, () -> {
                 AdaptPlayer player = getPlayer(i);
                 checkStatTrackers(player);

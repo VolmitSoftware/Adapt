@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.content.adaptation.taming.TamingDamage;
 import com.volmit.adapt.content.adaptation.taming.TamingHealthBoost;
@@ -59,7 +60,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         if (e.isCancelled()) {
             return;
         }
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (Player p : Adapt.instance.getAdaptServer().getAdaptPlayers()) {
             shouldReturnForPlayer(p, e, () -> {
                 if (p.getWorld() == e.getEntity().getWorld() && p.getLocation().distance(e.getEntity().getLocation()) <= 15) {
                     if (!isOnCooldown(p)) {

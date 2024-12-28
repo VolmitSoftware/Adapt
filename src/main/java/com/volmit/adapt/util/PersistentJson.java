@@ -25,7 +25,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 public class PersistentJson {
-    private static final Gson gson = new Gson();
+    private static final Gson gson = Adapt.gson;
 
     public static void write(PersistentDataContainer c, String key, Object data) {
         c.set(new NamespacedKey(Adapt.instance, key), PersistentDataType.STRING, gson.toJson(data));

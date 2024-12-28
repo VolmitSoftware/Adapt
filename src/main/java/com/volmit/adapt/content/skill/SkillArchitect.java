@@ -142,7 +142,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (Player i : Adapt.instance.getAdaptServer().getAdaptPlayers()) {
             shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
         }
     }

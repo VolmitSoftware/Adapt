@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.util.C;
@@ -45,7 +46,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (Player p : Adapt.instance.getAdaptServer().getAdaptPlayers()) {
             if (shouldReturnForPlayer(p)) {
                 return;
             }

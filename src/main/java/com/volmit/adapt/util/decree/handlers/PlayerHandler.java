@@ -19,6 +19,7 @@
 
 package com.volmit.adapt.util.decree.handlers;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeParameterHandler;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 public class PlayerHandler implements DecreeParameterHandler<Player> {
     @Override
     public KList<Player> getPossibilities() {
-        return new KList<>(new ArrayList<>(Bukkit.getOnlinePlayers()));
+        return new KList<>(new ArrayList<>(Adapt.instance.getAdaptServer().getAdaptPlayers()));
     }
 
     @Override

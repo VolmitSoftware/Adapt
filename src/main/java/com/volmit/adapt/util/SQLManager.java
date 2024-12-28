@@ -5,6 +5,7 @@ import com.volmit.adapt.AdaptConfig;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -12,10 +13,22 @@ import java.util.UUID;
 public class SQLManager {
 
     private static final String TABLE_NAME = "ADAPT_DATA";
-    private static final String CREATE_TABLE_QUERY = "CREATE TABLE " + TABLE_NAME + " (UUID char(36) NOT NULL UNIQUE, DATA MEDIUMTEXT NOT NULL)";
-    private static final String UPDATE_QUERY = "INSERT INTO " + TABLE_NAME + " (UUID, DATA) VALUES('%s', '%s') ON DUPLICATE KEY UPDATE DATA='%s'";
-    private static final String FETCH_QUERY = "SELECT DATA FROM " + TABLE_NAME + " WHERE UUID='%s'";
-    private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE UUID='%s'";
+    private static final String CHECK_TABLE_QUERY = "SELECT 1 FROM " + TABLE_NAME + " LIMIT 1";
+    private static final String CREATE_TABLE_QUERY =
+            "CREATE TABLE " + TABLE_NAME + " (" +
+                    "UUID char(36) NOT NULL UNIQUE, " +
+                    "DATA MEDIUMTEXT NOT NULL, " +
+                    "TIME BIGINT NOT NULL)";
+    private static final String ALTER_TABLE_QUERY =
+            "ALTER TABLE " + TABLE_NAME + " " +
+                    "ADD COLUMN TIME BIGINT NOT NULL";
+    private static final String UPDATE_QUERY =
+            "INSERT INTO " + TABLE_NAME + " (UUID, DATA, TIME) VALUES(?, ?, ?) ON DUPLICATE KEY UPDATE DATA=?, TIME=?";
+    private static final String UPDATE_TIME_QUERY =
+            "UPDATE " + TABLE_NAME + " SET TIME=? WHERE UUID=?";
+    private static final String FETCH_QUERY = "SELECT DATA FROM " + TABLE_NAME + " WHERE UUID=?";
+    private static final String FETCH_TIME_QUERY = "SELECT TIME FROM " + TABLE_NAME + " WHERE UUID=?";
+    private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE UUID=?";
 
     private Connection connection;
 
@@ -39,9 +52,30 @@ public class SQLManager {
     }
 
     private void setupDatabase() throws SQLException {
-        AdaptConfig config = AdaptConfig.get();
-        if (!connection.getMetaData().getTables(null, null, TABLE_NAME, new String[]{"TABLE"}).next()) {
-            connection.createStatement().executeUpdate(CREATE_TABLE_QUERY);
+        boolean tableExists;
+        try (PreparedStatement stmt = connection.prepareStatement(CHECK_TABLE_QUERY)) {
+            stmt.executeQuery();
+            tableExists = true;
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 1146) {
+                tableExists = false;
+            } else {
+                throw e;
+            }
+        }
+
+        if (!tableExists) {
+            executeUpdate(CREATE_TABLE_QUERY, "Failed to create table!");
+        } else {
+            // Check if the TIME column exists
+            boolean timeColumnExists;
+            try (ResultSet rs = connection.getMetaData().getColumns(null, null, TABLE_NAME, "TIME")) {
+                timeColumnExists = rs.next();
+            }
+
+            if (!timeColumnExists) {
+                executeUpdate(ALTER_TABLE_QUERY, "Failed to add TIME column!");
+            }
         }
     }
 
@@ -57,29 +91,62 @@ public class SQLManager {
     }
 
     public void updateData(UUID uuid, String data) {
-        executeWithRetry(() -> connection.createStatement().executeUpdate(String.format(UPDATE_QUERY, uuid.toString(), data, data)), "Failed to write data to the SQL server!");
+        long time = System.currentTimeMillis();
+        if (data.equals("null") || data.isEmpty()) {
+            throw new IllegalArgumentException("Data cannot be null or empty!");
+        }
+        executeUpdate(UPDATE_QUERY, "Failed to write data to the SQL server!", uuid.toString(), data, time, data, time);
+    }
+
+    public void updateTime(UUID uuid, long time) {
+        executeUpdate(UPDATE_TIME_QUERY, "Failed to update time for UUID in the SQL server!", time, uuid.toString());
     }
 
     public void delete(UUID uuid) {
-        executeWithRetry(() -> connection.createStatement().executeUpdate(String.format(DELETE_QUERY, uuid.toString())), "Failed to delete data from the SQL server!");
+        executeUpdate(DELETE_QUERY, "Failed to delete data from the SQL server!", uuid.toString());
     }
 
     public String fetchData(UUID uuid) {
         try {
             checkAndReestablishConnection();
-            ResultSet set = connection.prepareStatement(String.format(FETCH_QUERY, uuid.toString())).executeQuery();
-            if (!set.next()) return null;
-            return set.getString("DATA");
+            try (PreparedStatement stmt = connection.prepareStatement(FETCH_QUERY)) {
+                stmt.setString(1, uuid.toString());
+                try (ResultSet set = stmt.executeQuery()) {
+                    if (!set.next()) return null;
+                    return set.getString("DATA");
+                }
+            }
         } catch (SQLException e) {
             handleSQLException("Failed to read data from the SQL server!", e);
             return null;
         }
     }
 
-    private void executeWithRetry(RunnableWithException action, String errorMessage) {
+    public Long fetchTime(UUID uuid) {
         try {
             checkAndReestablishConnection();
-            action.run();
+            try (PreparedStatement stmt = connection.prepareStatement(FETCH_TIME_QUERY)) {
+                stmt.setString(1, uuid.toString());
+                try (ResultSet set = stmt.executeQuery()) {
+                    if (!set.next()) return null;
+                    return set.getLong("TIME");
+                }
+            }
+        } catch (SQLException e) {
+            handleSQLException("Failed to read time from the SQL server!", e);
+            return null;
+        }
+    }
+
+    private void executeUpdate(String query, String errorMessage, Object... params) {
+        try {
+            checkAndReestablishConnection();
+            try (PreparedStatement stmt = connection.prepareStatement(query)) {
+                for (int i = 0; i < params.length; i++) {
+                    stmt.setObject(i + 1, params[i]);
+                }
+                stmt.executeUpdate();
+            }
         } catch (SQLException e) {
             handleSQLException(errorMessage, e);
         }
@@ -98,10 +165,5 @@ public class SQLManager {
 
     private String assembleUrl(AdaptConfig config) {
         return String.format("jdbc:mysql://%s:%d/%s", config.getSql().getHost(), config.getSql().getPort(), config.getSql().getDatabase());
-    }
-
-    @FunctionalInterface
-    interface RunnableWithException {
-        void run() throws SQLException;
     }
 }

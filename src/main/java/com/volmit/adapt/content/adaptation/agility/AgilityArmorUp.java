@@ -78,7 +78,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (Player p : Adapt.instance.getAdaptServer().getAdaptPlayers()) {
             var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
             if (attribute == null) continue;
 

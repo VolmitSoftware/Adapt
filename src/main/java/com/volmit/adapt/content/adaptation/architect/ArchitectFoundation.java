@@ -248,7 +248,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @Override
     public void onTick() {
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (Player i : Adapt.instance.getAdaptServer().getAdaptPlayers()) {
             if (!hasAdaptation(i)) {
                 continue;
             }

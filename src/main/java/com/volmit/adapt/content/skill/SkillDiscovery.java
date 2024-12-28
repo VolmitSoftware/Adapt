@@ -249,7 +249,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     @Override
     public void onTick() {
         if (!this.isEnabled()) return;
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (Player i : Adapt.instance.getAdaptServer().getAdaptPlayers()) {
             if (shouldReturnForPlayer(i)) continue;
             seeTargetBlock(i);
         }

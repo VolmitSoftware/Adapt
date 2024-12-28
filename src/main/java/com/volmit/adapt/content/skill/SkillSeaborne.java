@@ -86,7 +86,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         if (!this.isEnabled()) {
             return;
         }
-        for (Player i : Bukkit.getOnlinePlayers()) {
+        for (Player i : Adapt.instance.getAdaptServer().getAdaptPlayers()) {
             shouldReturnForPlayer(i, () -> {
                 if (i.getWorld().getBlockAt(i.getLocation()).isLiquid() && i.isSwimming() && i.getPlayer() != null && i.getPlayer().getRemainingAir() < i.getMaximumAir()) {
                     Adapt.verbose("seaborne Tick");

@@ -23,7 +23,7 @@ import com.volmit.adapt.Adapt;
 import org.bukkit.ChatColor;
 
 public class DirtyString {
-    private static final Gson gson = new Gson();
+    private static final Gson gson = Adapt.gson;
 
     public static String write(Object data) {
         return write(gson.toJson(data));

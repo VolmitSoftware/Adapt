@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.agility;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.enums.Particles;
@@ -91,7 +92,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (Player p : Adapt.instance.getAdaptServer().getAdaptPlayers()) {
             int level = getLevel(p);
             if (level <= 0) {
                 continue;

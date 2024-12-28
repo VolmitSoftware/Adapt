@@ -52,6 +52,7 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 public class AdaptServer extends TickedObject {
     private final ReentrantLock clearLock = new ReentrantLock();
@@ -113,11 +114,15 @@ public class AdaptServer extends TickedObject {
     public void join(Player p) {
         AdaptPlayer a = new AdaptPlayer(p);
         players.put(p, a);
-        a.loggedIn();
     }
 
     public void quit(Player p) {
-        Optional.ofNullable(players.remove(p)).ifPresent(AdaptPlayer::unregister);
+        Optional.ofNullable(players.remove(p)).ifPresent((ap) -> {
+            ap.unregister();
+            if (AdaptConfig.get().isUseSql()) {
+                Adapt.instance.getSqlManager().updateTime(p.getUniqueId(), 0L);
+            }
+        });
     }
 
     @Override
@@ -220,14 +225,14 @@ public class AdaptServer extends TickedObject {
         if (AdaptConfig.get().isUseSql()) {
             String sqlData = Adapt.instance.getSqlManager().fetchData(player);
             if (sqlData != null) {
-                return new Gson().fromJson(sqlData, PlayerData.class);
+                return Adapt.gson.fromJson(sqlData, PlayerData.class);
             }
         }
 
         File f = new File(Adapt.instance.getDataFolder("data", "players"), player + ".json");
         if (f.exists()) {
             try {
-                return new Gson().fromJson(IO.readAll(f), PlayerData.class);
+                return Adapt.gson.fromJson(IO.readAll(f), PlayerData.class);
             } catch (Throwable ignored) {
                 Adapt.verbose("Failed to load player data for " + player);
             }
@@ -237,11 +242,22 @@ public class AdaptServer extends TickedObject {
     }
 
     public AdaptPlayer getPlayer(Player p) {
-        return players.computeIfAbsent(p, player -> {
-            Adapt.warn("Failed to find AdaptPlayer for " + p.getName() + " (" + p.getUniqueId() + ")");
-            Adapt.warn("Loading new AdaptPlayer...");
-            return new AdaptPlayer(player);
-        });
+        if (players.containsKey(p)) {
+            return players.get(p);
+        }
+        Adapt.warn("Failed to find AdaptPlayer for " + p.getName() + " (" + p.getUniqueId() + ")");
+        Adapt.warn("Loading new AdaptPlayer...");
+        throw new RuntimeException("Failed to find AdaptPlayer for " + p.getName() + " (" + p.getUniqueId() + ")");
+    }
+
+    public List<Player> getAdaptPlayers() {
+        List<Player> result = new ArrayList<>(players.size());
+        for (Map.Entry<Player, AdaptPlayer> entry : players.entrySet()) {
+            if (entry.getValue().isActive()) {
+                result.add(entry.getKey());
+            }
+        }
+        return result;
     }
 
     public void openSkillGUI(Skill<?> skill, Player p) {
@@ -265,7 +281,7 @@ public class AdaptServer extends TickedObject {
         if (f.exists()) {
             try {
                 String text = IO.readAll(f);
-                data = new Gson().fromJson(text, AdaptServerData.class);
+                data = Adapt.gson.fromJson(text, AdaptServerData.class);
             } catch (Throwable ignored) {
                 Adapt.verbose("Failed to load global boosts data");
             }

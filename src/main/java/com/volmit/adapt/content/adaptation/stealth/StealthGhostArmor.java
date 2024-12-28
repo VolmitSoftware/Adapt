@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.stealth;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.version.IAttribute;
 import com.volmit.adapt.api.version.Version;
@@ -68,7 +69,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (Player p : Adapt.instance.getAdaptServer().getAdaptPlayers()) {
             var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
 
             if (!hasAdaptation(p)) {

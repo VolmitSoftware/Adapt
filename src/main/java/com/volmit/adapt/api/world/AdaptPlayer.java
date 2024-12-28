@@ -29,9 +29,12 @@ import com.volmit.adapt.util.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -42,7 +45,8 @@ import java.util.concurrent.TimeUnit;
 @Data
 public class AdaptPlayer extends TickedObject {
     private final Player player;
-    private final PlayerData data;
+    private PlayerData data;
+    private boolean isActive;
     private ChronoLatch savelatch;
     private ChronoLatch updatelatch;
     private Notifier not;
@@ -56,7 +60,8 @@ public class AdaptPlayer extends TickedObject {
     public AdaptPlayer(Player p) {
         super("players", p.getUniqueId().toString(), 50);
         this.player = p;
-        data = loadPlayerData();
+        data = null;
+        isActive = false;
         updatelatch = new ChronoLatch(1000);
         savelatch = new ChronoLatch(60000);
         not = new Notifier(this);
@@ -65,6 +70,44 @@ public class AdaptPlayer extends TickedObject {
         speed = new RollingSequence(7);
         lastloc = M.ms();
         velocity = new Vector();
+
+        if (AdaptConfig.get().isUseSql()) {
+            FinalInteger fi = new FinalInteger(0);
+            BukkitRunnable fr = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (!player.isOnline()) cancel();
+                    Long l = Adapt.instance.getSqlManager().fetchTime(player.getUniqueId());
+                    if (l == null) {
+                        cancelAndFinishInitial();
+                        return;
+                    }
+                    if (l == 0) {
+                        cancelAndFinishInitial();
+                    } else {
+                        fi.add(1);
+                        if (fi.get() > 9) {
+                            Adapt.error("Failed to load player data for " + player.getName() + " after 10 tries. Fallback to local file.");
+
+                            cancelAndFinishInitial();
+                        }
+                    }
+                }
+
+                private void cancelAndFinishInitial() {
+                    cancel();
+                    data = loadPlayerData();
+                    isActive = true;
+                    loggedIn();
+                }
+            };
+            fr.runTaskTimerAsynchronously(Adapt.instance, 0, 4);
+        } else {
+            PlayerData d = loadPlayerData();
+            data = d == null ? new PlayerData() : d;
+            isActive = true;
+            loggedIn();
+        }
     }
 
     public boolean canConsumeFood(double cost, int minFood) {
@@ -124,7 +167,8 @@ public class AdaptPlayer extends TickedObject {
     @SneakyThrows
     private void save() {
         UUID uuid = player.getUniqueId();
-        String data = new Gson().toJson(this.data);
+        if (this.data == null) return;
+        String data = Adapt.gson.toJson(this.data);
 
         if (AdaptConfig.get().isUseSql()) {
             Adapt.instance.getSqlManager().updateData(uuid, data);
@@ -136,7 +180,7 @@ public class AdaptPlayer extends TickedObject {
     @SneakyThrows
     private void unSave() {
         UUID uuid = player.getUniqueId();
-        String data = new Gson().toJson(new PlayerData());
+        String data = Adapt.gson.toJson(new PlayerData());
         unregister();
 
         if (AdaptConfig.get().isUseSql()) {
@@ -181,9 +225,10 @@ public class AdaptPlayer extends TickedObject {
     private PlayerData loadPlayerData() {
         boolean upload = false;
         if (AdaptConfig.get().isUseSql()) {
+            Adapt.instance.getSqlManager().updateTime(player.getUniqueId(), System.currentTimeMillis());
             String sqlData = Adapt.instance.getSqlManager().fetchData(player.getUniqueId());
             if (sqlData != null) {
-                return new Gson().fromJson(sqlData, PlayerData.class);
+                return Adapt.gson.fromJson(sqlData, PlayerData.class);
             }
             upload = true;
         }
@@ -195,7 +240,7 @@ public class AdaptPlayer extends TickedObject {
                 if (upload) {
                     Adapt.instance.getSqlManager().updateData(player.getUniqueId(), text);
                 }
-                return new Gson().fromJson(text, PlayerData.class);
+                return Adapt.gson.fromJson(text, PlayerData.class);
             } catch (Throwable ignored) {
                 Adapt.verbose("Failed to load player data for " + player.getName() + " (" + player.getUniqueId() + ")");
             }
@@ -299,6 +344,13 @@ public class AdaptPlayer extends TickedObject {
 
     public boolean hasSkill(Skill s) {
         return getData().getSkillLines().containsKey(s.getName()) && getData().getSkillLines().get(s.getId()).getXp() > 1;
+    }
+
+    public PlayerData getData() {
+        if (!isActive || data == null) {
+            throw new RuntimeException("Player data not loaded");
+        }
+        return data;
     }
 
     private File getPlayerDataFile(UUID uuid) {

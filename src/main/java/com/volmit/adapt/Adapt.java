@@ -19,6 +19,7 @@
 package com.volmit.adapt;
 
 import art.arcane.amulet.io.FolderWatcher;
+import com.google.gson.Gson;
 import com.jeff_media.customblockdata.CustomBlockData;
 import com.volmit.adapt.api.advancement.AdvancementManager;
 import com.volmit.adapt.api.data.WorldData;
@@ -58,6 +59,7 @@ import static com.volmit.adapt.util.decree.context.AdaptationListingHandler.init
 
 public class Adapt extends VolmitPlugin {
     public static Adapt instance;
+    public static Gson gson;
     public static HashMap<String, String> wordKey = new HashMap<>();
     public final EffectManager adaptEffectManager = new EffectManager(this);
     public static BukkitAudiences audiences;
@@ -88,6 +90,7 @@ public class Adapt extends VolmitPlugin {
 
     public Adapt() {
         super();
+        gson = new Gson();
         instance = this;
     }
 

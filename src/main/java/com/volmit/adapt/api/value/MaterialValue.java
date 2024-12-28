@@ -60,7 +60,7 @@ public class MaterialValue {
 
         File l = Adapt.instance.getDataFile("data", "value-cache.json");
         try {
-            IO.writeAll(l, new JSONObject(new Gson().toJson(valueCache)).toString(4));
+            IO.writeAll(l, new JSONObject(Adapt.gson.toJson(valueCache)).toString(4));
         } catch (IOException e) {
             Adapt.verbose("Failed to save value cache");
         }
@@ -73,7 +73,7 @@ public class MaterialValue {
 
             if (!l.exists()) {
                 try {
-                    IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
+                    IO.writeAll(l, new JSONObject(Adapt.gson.toJson(dummy)).toString(4));
                 } catch (IOException e) {
                     e.printStackTrace();
                     valueCache = dummy;
@@ -82,7 +82,7 @@ public class MaterialValue {
             }
 
             try {
-                valueCache = new Gson().fromJson(IO.readAll(l), MaterialValue.class);
+                valueCache = Adapt.gson.fromJson(IO.readAll(l), MaterialValue.class);
             } catch (IOException e) {
                 e.printStackTrace();
                 valueCache = new MaterialValue();

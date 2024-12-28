@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.discovery;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.version.IAttribute;
 import com.volmit.adapt.api.version.Version;
@@ -114,7 +115,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @Override
     public void onTick() {
-        var players = Bukkit.getOnlinePlayers();
+        var players = Adapt.instance.getAdaptServer().getAdaptPlayers();
         var executor = MultiBurst.burst.burst(players.size());
 
         for (Player p : players) {

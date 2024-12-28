@@ -27,6 +27,7 @@ import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
@@ -124,7 +125,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
                 if (!l.exists()) {
                     try {
-                        IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
+                        IO.writeAll(l, new JSONObject(Adapt.gson.toJson(dummy)).toString(4));
                     } catch (IOException e) {
                         e.printStackTrace();
                         config = dummy;
@@ -133,8 +134,8 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
                 }
 
                 try {
-                    config = new Gson().fromJson(IO.readAll(l), getConfigurationClass());
-                    IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
+                    config = Adapt.gson.fromJson(IO.readAll(l), getConfigurationClass());
+                    IO.writeAll(l, new JSONObject(Adapt.gson.toJson(config)).toString(4));
                 } catch (IOException e) {
                     e.printStackTrace();
                     config = dummy;
@@ -168,8 +169,13 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
             if (p == null) {
                 return true;
             }
+
+            AdaptPlayer adaptPlayer = getPlayer(p);
+            if (adaptPlayer == null || !adaptPlayer.isActive()) {
+                return true;
+            }
             Adapt.verbose("Checking " + p.getName() + " for " + getName());
-            return !this.isEnabled() || hasBlacklistPermission(p, this) || isWorldBlacklisted(p) || isInCreativeOrSpectator(p) || getPlayer(p) == null;
+            return !this.isEnabled() || hasBlacklistPermission(p, this) || isWorldBlacklisted(p) || isInCreativeOrSpectator(p);
         } catch (Exception ignored) {
             return true;
         }

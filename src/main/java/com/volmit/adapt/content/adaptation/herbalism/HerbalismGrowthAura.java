@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.herbalism;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.enums.Particles;
@@ -73,7 +74,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        for (Player p : Adapt.instance.getAdaptServer().getAdaptPlayers()) {
             try {
                 if (hasAdaptation(p)) {
                     double rad = getRadius(getLevelPercent(p));
