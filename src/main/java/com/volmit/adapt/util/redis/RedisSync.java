@@ -46,6 +46,7 @@ public class RedisSync implements AutoCloseable {
         if (!channelMessage.getChannel().equals("Adapt:data")) return;
         Message raw = channelMessage.getMessage();
         if (raw instanceof DataMessage message) {
+            Adapt.verbose("Received player data for " + message.uuid());
             dataCache.put(message.uuid(), message.json());
         } else if (raw instanceof DataRequest message) {
             Adapt.instance.getAdaptServer()
@@ -57,6 +58,7 @@ public class RedisSync implements AutoCloseable {
 
     public void publish(@NonNull UUID uuid, @NonNull String playerData) {
         if (pubSub == null) return;
+        Adapt.verbose("Publishing player data for " + uuid);
         pubSub.publish("Adapt:data", new DataMessage(uuid, playerData))
                 .subscribe()
                 .dispose();

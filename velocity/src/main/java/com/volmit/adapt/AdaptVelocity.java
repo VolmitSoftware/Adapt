@@ -10,7 +10,7 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.PluginManager;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
-import com.volmit.adapt.util.redis.RedisConfig;
+import com.volmit.adapt.util.redis.VelocityConfig;
 import net.byteflux.libby.Library;
 import net.byteflux.libby.VelocityLibraryManager;
 import org.slf4j.Logger;
@@ -69,17 +69,17 @@ public class AdaptVelocity {
             if (!configFile.getParentFile().exists() && !configFile.getParentFile().mkdirs())
                 throw new IOException("Unable to create directory " + configFile.getParentFile());
             try (FileWriter writer = new FileWriter(configFile)) {
-                GSON.toJson(new RedisConfig(), writer);
+                GSON.toJson(new VelocityConfig(), writer);
             }
             return;
         }
 
-        RedisConfig config;
+        VelocityConfig config;
         try (FileReader reader = new FileReader(configFile)) {
-            config = GSON.fromJson(reader, RedisConfig.class);
+            config = GSON.fromJson(reader, VelocityConfig.class);
         }
 
-        this.handler = new RedisHandler(config.createClient());
+        this.handler = new RedisHandler(config.isDebug(), config.createClient());
         proxy.getEventManager().register(this, handler);
     }
 

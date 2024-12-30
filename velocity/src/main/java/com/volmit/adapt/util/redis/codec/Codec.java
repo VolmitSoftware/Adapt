@@ -32,8 +32,7 @@ public final class Codec implements RedisCodec<String, Message> {
 
     @Override
     public Message decodeValue(ByteBuffer bytes) {
-        try {
-            var in = ByteStreams.newDataInput(bytes.array(), bytes.arrayOffset());
+        try (var in = new DataInputStream(new ByteBufferInputStream(bytes))){
             int id = in.readInt();
             if (id < 0 || id >= messages.size()) return null;
             return messages.get(id).decode(in);

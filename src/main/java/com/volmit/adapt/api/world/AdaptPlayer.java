@@ -193,7 +193,10 @@ public class AdaptPlayer extends TickedObject {
         boolean upload = false;
         if (AdaptConfig.get().isUseSql()) {
             var opt = Adapt.instance.getRedisSync().cachedData(player.getUniqueId());
-            if (opt.isPresent()) return opt.get();
+            if (opt.isPresent()) {
+                Adapt.verbose("Using cached data for player: " + player.getUniqueId());
+                return opt.get();
+            }
 
             String sqlData = Adapt.instance.getSqlManager().fetchData(player.getUniqueId());
             if (sqlData != null) {

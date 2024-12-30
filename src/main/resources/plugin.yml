@@ -23,6 +23,7 @@ libraries:
   - it.unimi.dsi:fastutil:8.5.13
   - fr.skytasul:glowingentities:1.4.1
   - io.lettuce:lettuce-core:6.5.1.RELEASE
+  - com.github.ben-manes.caffeine:caffeine:3.0.6
 
 commands:
   adapt: {}
