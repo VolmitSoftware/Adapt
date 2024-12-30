@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyReloadEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.PluginManager;
@@ -64,6 +65,30 @@ public class AdaptVelocity {
         dependency("io.projectreactor:reactor-core:3.6.6");
         dependency("org.reactivestreams:reactive-streams:1.0.4");
 
+        load();
+    }
+
+    @Subscribe
+    public void onReload(ProxyReloadEvent event) throws Exception {
+        if (handler != null) {
+            proxy.getEventManager().unregisterListener(this, handler);
+            handler.close();
+            handler = null;
+        }
+
+        load();
+    }
+
+    @Subscribe
+    public void onShutdown(ProxyShutdownEvent event) throws Exception {
+        if (this.handler != null) {
+            proxy.getEventManager().unregisterListener(this, handler);
+            handler.close();
+            handler = null;
+        }
+    }
+
+    private void load() throws IOException {
         if (!configFile.exists()) {
             logger.info("Config file does not exist. Creating one.");
             if (!configFile.getParentFile().exists() && !configFile.getParentFile().mkdirs())
@@ -81,13 +106,6 @@ public class AdaptVelocity {
 
         this.handler = new RedisHandler(config.isDebug(), config.createClient());
         proxy.getEventManager().register(this, handler);
-    }
-
-    @Subscribe
-    public void onShutdown(ProxyShutdownEvent event) throws Exception {
-        if (this.handler != null) {
-            handler.close();
-        }
     }
 
     private void dependency(String dependency) {
