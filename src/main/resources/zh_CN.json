@@ -61,7 +61,7 @@
       "description": "最棒的好孩子！ （砍伐五百万个方块）"
     },
     "challenge_block_1k": {
-      "title": "防御入门",
+      "title": "勉强挡住！",
       "description": "防御 1000 次攻击"
     },
     "challenge_block_5k": {
@@ -129,7 +129,7 @@
       "description": "合成 5000 个物品"
     },
     "challenge_craft_50k": {
-      "title": "成风之斫",
+      "title": "谄媚的工匠！",
       "description": "合成 50,000 个物品"
     },
     "challenge_craft_500k": {
@@ -231,6 +231,34 @@
     "challenge_pickaxe_5m": {
       "title": "一段传奇",
       "description": "破坏 5,000,000 个方块"
+    },
+    "challenge_eat_100": {
+      "title": "大快朵颐！",
+      "description": "吃掉 100 多种食物！"
+    },
+    "challenge_eat_1000": {
+      "title": "暴食！",
+      "description": "吃掉 1,000 多种食物！"
+    },
+    "challenge_eat_10000": {
+      "title": "饕餮！",
+      "description": "吃掉超过 10,000 种食物！"
+    },
+    "challenge_harvest_100": {
+      "title": "丰年",
+      "description": "收获 100 多种农作物！"
+    },
+    "challenge_harvest_1000": {
+      "title": "大丰收",
+      "description": "收获 1,000 多种农作物！"
+    },
+    "challenge_swim_1nm": {
+      "title": "人体潜艇！",
+      "description": "游泳 1 海里（1,852 格）"
+    },
+    "challenge_sneak_1k": {
+      "title": "膝盖疼痛",
+      "description": "潜行超过一公里（1,000 个方块）"
     }
   },
   "items": {
@@ -252,6 +280,12 @@
     "boundsnowball": {
       "name": "蛛网陷阱！",
       "usage1": "投掷以在目标位置创建一个临时的蛛网陷阱"
+    },
+    "elevatorblock": {
+      "name": "电梯方块",
+      "usage1": "跳跃传送至上方",
+      "usage2": "潜行传送至下方",
+      "usage3": "电梯之间至少有 2 个空气块"
     }
   },
   "snippets": {
@@ -264,6 +298,7 @@
       "welcome": "欢迎！",
       "welcomeback": "欢迎回来！",
       "xpbonusfortime": "经验增益，持续",
+      "maxabilitypower": "最大能力数量",
       "unlockthisbyclicking": "右键该方块以解锁：",
       "back": "返回",
       "unlearnall": "忘却全部技能",
@@ -340,7 +375,7 @@
     "discovery": {
       "name": "探索",
       "icon": "⚛",
-      "description": "当洞察力提升时，你的思维便会愈发澄澈，探索更多的奥秘。"
+      "description": "随着你的感知范围扩大，你的思维就会逐渐展开，发现那些你从未发现过的事物。"
     },
     "enchanting": {
       "name": "附魔",
@@ -350,7 +385,7 @@
     "excavation": {
       "name": "挖掘",
       "icon": "ᛳ",
-      "description": "挖大洞......"
+      "description": "在小小的花园里面挖呀挖呀挖……"
     },
     "herbalism": {
       "name": "草药学",
@@ -385,7 +420,7 @@
     "seaborne": {
       "name": "激流",
       "icon": "🎣",
-      "description": "带着它吧，也许有一天你会见到由水组成的奇观。"
+      "description": "有了这项技能，你就可以领略水的奇妙。"
     },
     "stealth": {
       "name": "隐形",
@@ -410,12 +445,12 @@
     "chronos": {
       "name": "时空",
       "icon": "⏳",
-      "description": "尝试着宇宙的钟上个发条，便可以感受到流动。若能把时钟弄坏，或许就能成为它。"
+      "description": "天人合一！"
     },
     "unarmed": {
       "name": "搏击",
       "icon": "»",
-      "description": "赤手空拳并不意味着失去力量。"
+      "description": "没有武器并不意味着没有力量。"
     }
   },
   "agility": {
@@ -427,7 +462,7 @@
     },
     "superjump": {
       "name": "高跳",
-      "description": "一览众山小",
+      "description": "绝佳的高度优势。",
       "lore1": "最大跳跃高度",
       "lore2": "按下 潜行 + 跳跃 键进行高跳！"
     },
@@ -445,6 +480,14 @@
     }
   },
   "architect": {
+    "elevator": {
+      "name": "电梯",
+      "description": "这使您可以建造一个电梯来快速垂直传送！",
+      "lore1": "解锁电梯配方：X=任意羊毛，Y=末影珍珠",
+      "lore2": "XXX",
+      "lore3": "XYX",
+      "lore4": "XXX"
+    },
     "foundation": {
       "name": "魔法基建",
       "description": "潜行时在脚下放置临时方块。",
@@ -608,9 +651,9 @@
       "name": "盔甲套组",
       "description": "在盔甲上绑定鞘翅",
       "lore1": "旅行必备品。",
-      "lore2": "飞行时动态合并或切换盔甲与鞘翅！",
-      "lore3": "要合并，在物品栏按住Shift拖拽合并物品到被合并物品上。",
-      "lore4": "要解绑盔甲上的物品，按住潜行并丢弃物品以拆解。",
+      "lore2": "动态合并并在飞行时动态切换铠甲/鞘翅！",
+      "lore3": "要合并，请按住 Shift 键单击库存中的某件物品，使其覆盖另一件物品。",
+      "lore4": "要解除盔甲的绑定，请潜行投掷该物品，它就会解除。",
       "lore5": "当盔甲耐久值至零时，合并到该盔甲上的所有物品都将丢失",
       "lore6": "我不再需要盔甲了，它让我太失望了..."
     }
@@ -619,8 +662,8 @@
     "deconstruction": {
       "name": "分解器",
       "description": "分解方块或物品，回收部分合成时的材料。",
-      "lore1": "将 被分解物品 + 剪刀",
-      "lore2": "放入锻造台进行回收。"
+      "lore1": "将物品丢弃在地上。",
+      "lore2": "然后潜行并用剪刀右键点击"
     },
     "xp": {
       "name": "熟能生巧",
@@ -734,13 +777,13 @@
     "omnitool": {
       "name": "OMNI - T.O.O.L.",
       "description": "Tackle设计的豪华多功能工具钳。",
-      "lore1": "这也许是最强大的设计。",
+      "lore1": "可能是其中最强大的一个，可以让你",
       "lore2": "可以根据实际需要合并或拆解工具。",
-      "lore3": "合并：按住潜行键，在物品栏中用预合并的物品点击被合并的物品。",
-      "lore4": "拆解：手持预拆解的物品，按住潜行键丢弃以拆解。",
-      "lore5": "注意：如果此工具钳套件中任何一个物品耐久度至零，该工具钳将报废！",
-      "lore6": "个可合并物品。",
-      "lore7": "有时候你需要五、六种物品在同一个工具钳里，或许仅仅需要一个。"
+      "lore3": "要合并，请按住 Shift 键单击库存中的某件物品，然后使其覆盖另一件物品。",
+      "lore4": "要解除工具绑定，请潜行放下该物品，它就会解除。",
+      "lore5": "在这个皮套工具里你不能弄坏工具，但你也不能使用已损坏的工具",
+      "lore6": "可合并项目总数。",
+      "lore7": "您可以使用五六种工具，或者只使用一种！"
     }
   },
   "herbalism": {
@@ -917,6 +960,12 @@
       "description": "当你击杀生物/破坏某方块，它的掉落物将会自动进入背包。",
       "lore1": "如果可以，击杀生物/破坏某方块的掉落物将会自动进入背包。"
     },
+    "silkspawner": {
+      "name": "精准刷怪笼采集",
+      "description": "刷怪笼被破坏时会掉落",
+      "lore1": "使刷怪笼可被精准采集的稿子破坏时掉落。",
+      "lore2": "使得刷怪笼在潜行时可被破坏。"
+    },
     "veinminer": {
       "name": "连锁挖矿",
       "description": "允许你遇到原版矿物的矿脉时进行连锁挖矿。",
@@ -996,6 +1045,11 @@
       "description": "当使用末影物品或技能时，给予抗性提升",
       "lore1": "+ 被动效果：当你使用末影物品或技能时，给予抗性提升效果。",
       "lore2": "不包含便捷式末影箱。只对实际消耗的物品有效。"
+    },
+    "visage": {
+      "name": "裂隙面容",
+      "description": "如果您的库存中有末影珍珠，则可以防止末影人变得具有攻击性。",
+      "lore1": "如果你的库存中有末影珍珠，末影人将不会变得具有攻击性。"
     }
   },
   "seaborn": {
@@ -1050,6 +1104,12 @@
       "name": "潜行加速",
       "description": "当潜行时给予速度效果",
       "lore1": "潜行速度"
+    },
+    "enderveil": {
+      "name": "末影面纱",
+      "description": "不再使用南瓜来避免末影人的攻击",
+      "lore1": "潜行时防止末影人的攻击",
+      "lore2": "阻止所有末影人攻击"
     }
   },
   "sword": {
@@ -1101,7 +1161,7 @@
     "globe": {
       "name": "痛苦之珠",
       "description": "根据你周围敌人的数量来分配你所造成的伤害!",
-      "lore1": "你周围的敌人越多，你对他们每个人造成的伤害就越少",
+      "lore1": "你周围的敌人越多，你对每个敌人造成的伤害就越少",
       "lore2": "范围：",
       "lore3": "对所有实体增加伤害："
     },
