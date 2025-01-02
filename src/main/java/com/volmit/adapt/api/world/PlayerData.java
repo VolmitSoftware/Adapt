@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.api.world;
 
+import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.notification.ActionBarNotification;
@@ -43,6 +44,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Data
 @NoArgsConstructor
 public class PlayerData {
+    private static final Gson GSON = new Gson();
     private final Map<String, PlayerSkillLine> skillLines = new ConcurrentHashMap<>();
     private Map<String, Double> stats = new ConcurrentHashMap<>();
     private String last = "none";
@@ -236,5 +238,13 @@ public class PlayerData {
 
     public void addWisdom() {
         wisdom++;
+    }
+
+    public String toJson() {
+        return GSON.toJson(this);
+    }
+
+    public static PlayerData fromJson(String json) {
+        return GSON.fromJson(json, PlayerData.class);
     }
 }

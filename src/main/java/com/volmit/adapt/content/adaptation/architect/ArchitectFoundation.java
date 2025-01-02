@@ -69,7 +69,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("architect", "foundation", "lore1") + (getBlockPower(getLevelPercent(level))) + C.GRAY + " " + Localizer.dLocalize("architect", "foundation", "lore2"));
+        v.addLore(C.GREEN + Localizer.dLocalize("architect", "foundation", "lore1")
+                + (getBlockPower(getLevelPercent(level))) + C.GRAY + " "
+                + Localizer.dLocalize("architect", "foundation", "lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -120,7 +122,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         blockPower.put(p, power);
     }
 
-    //prevent piston from moving blocks // Dupe fix
+    // prevent piston from moving blocks // Dupe fix
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPistonExtendEvent e) {
         if (e.isCancelled()) {
@@ -134,7 +136,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         });
     }
 
-    //prevent piston from pulling blocks // Dupe fix
+    // prevent piston from pulling blocks // Dupe fix
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockPistonRetractEvent e) {
         if (e.isCancelled()) {
@@ -148,7 +150,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         });
     }
 
-    //prevent TNT from destroying blocks // Dupe fix
+    // prevent TNT from destroying blocks // Dupe fix
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockExplodeEvent e) {
         if (e.isCancelled()) {
@@ -160,7 +162,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         }
     }
 
-    //prevent block from being destroyed // Dupe fix
+    // prevent block from being destroyed // Dupe fix
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(BlockBreakEvent e) {
         if (activeBlocks.contains(e.getBlock())) {
@@ -168,7 +170,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         }
     }
 
-    //prevent Entities from destroying blocks // Dupe fix
+    // prevent Entities from destroying blocks // Dupe fix
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityExplodeEvent e) {
         if (e.isCancelled()) {
@@ -281,7 +283,6 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
         return cooldowns.containsKey(i);
     }
-
 
     @Override
     public boolean isEnabled() {
