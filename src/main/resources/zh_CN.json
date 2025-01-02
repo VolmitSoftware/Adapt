@@ -298,6 +298,7 @@
       "welcome": "欢迎！",
       "welcomeback": "欢迎回来！",
       "xpbonusfortime": "经验增益，持续",
+      "maxabilitypower": "最大能力数量",
       "unlockthisbyclicking": "右键该方块以解锁：",
       "back": "返回",
       "unlearnall": "忘却全部技能",
@@ -661,6 +662,7 @@
     "deconstruction": {
       "name": "分解器",
       "description": "分解方块或物品，回收部分合成时的材料。",
+      "lore1": "将物品丢弃在地上。",
       "lore2": "然后潜行并用剪刀右键点击"
     },
     "xp": {
