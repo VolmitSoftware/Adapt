@@ -214,14 +214,11 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             return false;
         }
 
-        boolean hasFrameOrPainting = block.getWorld()
+        if(!block.getWorld()
                 .getNearbyEntities(block.getLocation()
                         .add(.5, .5, .5), .5, .5, .5, entity ->
-                        entity instanceof ItemFrame || entity instanceof Painting).isEmpty();
-
-        if (hasFrameOrPainting) {
+                        entity instanceof ItemFrame || entity instanceof Painting).isEmpty())
             return false;
-        }
 
 
         J.s(() -> {
