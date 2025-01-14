@@ -23,8 +23,8 @@ import com.volmit.adapt.content.adaptation.ranged.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
-import net.minecraft.world.entity.projectile.EntityFishingHook;
 import org.bukkit.Material;
+import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
@@ -71,13 +71,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
             getPlayer(p).getData().addStat("ranged.shotsfired", 1);
             getPlayer(p).getData().addStat("ranged.shotsfired." + e.getEntity().getType().name().toLowerCase(Locale.ROOT), 1);
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
-            }
+            Long cooldown = cooldowns.get(p);
+            if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+                return;
             cooldowns.put(p, System.currentTimeMillis());
             xp(p, getConfig().shootXP);
         });
@@ -92,7 +88,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             return;
         }
         shouldReturnForPlayer(p, e, () -> {
-            if (e.getEntity() instanceof Snowball || e.getEntity() instanceof EntityFishingHook) {
+            if (e.getEntity() instanceof Snowball || e.getEntity() instanceof FishHook) {
                 return; // Ignore snowballs and fishing hooks
             }
             if (e.getEntity().getLocation().getWorld().equals(p.getLocation().getWorld())) {
@@ -101,15 +97,12 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             }
             getPlayer(p).getData().addStat("ranged.damage", e.getDamage());
             getPlayer(p).getData().addStat("ranged.damage." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getDamage());
-            if (cooldowns.containsKey(p)) {
-                if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                    return;
-                } else {
-                    cooldowns.remove(p);
-                }
-            }
+            Long cooldown = cooldowns.get(p);
+            if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+                return;
             cooldowns.put(p, System.currentTimeMillis());
             xp(p, e.getEntity().getLocation(), (getConfig().hitDamageXPMultiplier * e.getDamage()) + (e.getEntity().getLocation().distance(p.getLocation()) * getConfig().hitDistanceXPMultiplier));
+
         });
     }
 

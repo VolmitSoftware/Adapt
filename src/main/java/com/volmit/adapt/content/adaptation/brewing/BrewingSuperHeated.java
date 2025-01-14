@@ -190,7 +190,8 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
         b.update();
 
         if (M.r(1D / (333D / getInterval()))) {
-            b.getBlock().getWorld().playSound(b.getBlock().getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1f + RNG.r.f(0.3f, 0.6f));
+            SoundPlayer spw = SoundPlayer.of(b.getBlock().getWorld());
+            spw.play(b.getBlock().getLocation(), Sound.BLOCK_FIRE_AMBIENT, 1f, 1f + RNG.r.f(0.3f, 0.6f));
         }
     }
 

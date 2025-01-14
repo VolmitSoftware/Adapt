@@ -33,7 +33,9 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @Data
@@ -52,6 +54,10 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
         return io.withData(new Data(skill, xp));
     }
 
+    public static ItemStack with(Map<String, Double> experienceMap) {
+        return io.withData(new Data(experienceMap));
+    }
+
     @Override
     public Material getMaterial() {
         return Material.SNOWBALL;
@@ -64,8 +70,11 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill);
-        lore.add(C.WHITE + Localizer.dLocalize("snippets", "experienceorb", "contains") + " " + C.UNDERLINE + C.WHITE + Form.f(data.experience, 0) + " " + skill.getDisplayName() + C.GRAY + " " + Localizer.dLocalize("snippets", "experienceorb", "xp"));
+        for (Map.Entry<String, Double> entry : data.getExperienceMap().entrySet()) {
+            String skill = entry.getKey();
+            double experience = entry.getValue();
+            lore.add(C.WHITE + Form.capitalize(Localizer.dLocalize("snippets", "experienceorb", "contains")) + " " + C.UNDERLINE + C.WHITE + Form.f(experience, 0) + " " + Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + C.GRAY + " " + Localizer.dLocalize("snippets", "experienceorb", "xp"));
+        }
         lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("snippets", "experienceorb", "rightclick") + " " + C.GRAY + Localizer.dLocalize("snippets", "experienceorb", "togainxp"));
     }
 
@@ -73,17 +82,33 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " " + Localizer.dLocalize("snippets", "experienceorb", "xporb"));
+        meta.setDisplayName(Localizer.dLocalize("snippets", "experienceorb", "xporb"));
     }
 
     @AllArgsConstructor
     @lombok.Data
     public static class Data {
-        private String skill;
-        private double experience;
+        private Map<String, Double> experienceMap;
+
+        public Data(String skill, double experience) {
+            this.experienceMap = new HashMap<>();
+            this.experienceMap.put(skill, experience);
+        }
+
+        public String getSkill() {
+            return experienceMap.keySet().iterator().next();
+        }
+
+        public double getExperience() {
+            return experienceMap.values().iterator().next();
+        }
 
         public void apply(Player p) {
-            Adapt.instance.getAdaptServer().getPlayer(p).getSkillLine(skill).giveXPFresh(Adapt.instance.getAdaptServer().getPlayer(p).getNot(), experience);
+            for (Map.Entry<String, Double> entry : experienceMap.entrySet()) {
+                String skill = entry.getKey();
+                double experience = entry.getValue();
+                Adapt.instance.getAdaptServer().getPlayer(p).getSkillLine(skill).giveXPFresh(Adapt.instance.getAdaptServer().getPlayer(p).getNot(), experience);
+            }
         }
     }
 }

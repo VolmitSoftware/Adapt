@@ -22,10 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerSkillLine;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -61,10 +58,11 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     @EventHandler(priority = EventPriority.LOW)
     public void on(PlayerExpChangeEvent e) {
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
         AdaptPlayer ap = getPlayer(p);
         if (hasAdaptation(p) && e.getAmount() > 0) {
             xp(p, 5);
-            p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.9f);
+            sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.9f);
             //get a random skill that they have unlocked already
             List<PlayerSkillLine> skills = ap.getData().getSkillLines().sortV();
             if (skills.size() > 0) {

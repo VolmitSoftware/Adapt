@@ -22,6 +22,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -145,10 +146,11 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
         ItemStack forStuff = itemEntity.getItemStack();
         ItemStack offering = getDeconstructionOffering(forStuff);
 
+        SoundPlayer spw = SoundPlayer.of(player.getWorld());
         if (offering != null) {
             itemEntity.setItemStack(offering);
-            player.getWorld().playSound(itemEntity.getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
-            player.getWorld().playSound(itemEntity.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
+            spw.play(itemEntity.getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
+            spw.play(itemEntity.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
             getSkill().xp(player, getValue(offering));
 
             // Damage the shears
@@ -161,7 +163,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
                 mainHandItem.setItemMeta(damageable);
             }
         } else {
-            player.getWorld().playSound(itemEntity.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1F, 1f); // Burnt torch sound
+            spw.play(itemEntity.getLocation(), Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1F, 1f); // Burnt torch sound
         }
     }
 

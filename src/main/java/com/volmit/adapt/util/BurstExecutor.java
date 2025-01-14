@@ -55,7 +55,7 @@ public class BurstExecutor {
     public void complete() {
         synchronized (futures) {
             try {
-                CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()])).get();
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
                 futures.clear();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();

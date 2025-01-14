@@ -18,15 +18,15 @@
 
 package com.volmit.adapt.api.notification;
 
+import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
+import com.volmit.adapt.util.AdvancementUtils;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.util.RNG;
-import com.volmit.adapt.util.advancements.NameKey;
-import com.volmit.adapt.util.advancements.advancement.Advancement;
-import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
-import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
+
+import com.volmit.adapt.util.CustomModel;
 import lombok.Builder;
 import lombok.Data;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 @Data
 @Builder
@@ -34,11 +34,13 @@ public class AdvancementNotification implements Notification {
     @Builder.Default
     private final Material icon = Material.DIAMOND;
     @Builder.Default
+    private final CustomModel model = null;
+    @Builder.Default
     private final String title = " ";
     @Builder.Default
     private final String description = " ";
     @Builder.Default
-    private final AdvancementDisplay.AdvancementFrame frameType = AdvancementDisplay.AdvancementFrame.TASK;
+    private final AdvancementFrameType frameType = AdvancementFrameType.TASK;
     @Builder.Default
     private final String group = "default";
 
@@ -54,10 +56,9 @@ public class AdvancementNotification implements Notification {
 
     @Override
     public void play(AdaptPlayer p) {
-        AdvancementDisplay d = new AdvancementDisplay(icon, buildTitle(), description, frameType, AdvancementVisibility.ALWAYS);
-        Advancement a = new Advancement(null, new NameKey("adapt-notifications", "n" + p.getId() + RNG.r.lmax()), d);
         if (p.getPlayer() != null) {
-            a.displayToast(p.getPlayer());
+            var icon = getModel() != null ? getModel().toItemStack() : new ItemStack(getIcon());
+            AdvancementUtils.displayToast(p.getPlayer(), icon, title, description, frameType);
         }
     }
 

@@ -61,7 +61,7 @@
       "description": "The bestest good Boy! (5 Million Blocks)"
     },
     "challenge_block_1k": {
-      "title": "Balrely Blocking!",
+      "title": "Barely Blocking!",
       "description": "Block 1000 Hits"
     },
     "challenge_block_5k": {
@@ -129,7 +129,7 @@
       "description": "Craft 5000 Items"
     },
     "challenge_craft_50k": {
-      "title": "Cervile Crafter!",
+      "title": "Servile Crafter!",
       "description": "Craft 50,000 Items"
     },
     "challenge_craft_500k": {
@@ -231,8 +231,35 @@
     "challenge_pickaxe_5m": {
       "title": "Legendary Miner",
       "description": "Break 5,000,000 Blocks"
+    },
+    "challenge_eat_100": {
+      "title": "So much to eat!",
+      "description": "Eat over 100 Items!"
+    },
+    "challenge_eat_1000": {
+      "title": "Unquenchable Hunger!",
+      "description": "Eat over 1,000 Items!"
+    },
+    "challenge_eat_10000": {
+      "title": "EVERLASTING HUNGER!",
+      "description": "Eat over 10,000 Items!"
+    },
+    "challenge_harvest_100": {
+      "title": "Full Harvest",
+      "description": "Harvest over 100 crops!"
+    },
+    "challenge_harvest_1000": {
+      "title": "Grand Harvest",
+      "description": "Harvest over 1,000 crops!"
+    },
+    "challenge_swim_1nm": {
+      "title": "Human Submarine!",
+      "description": "Swim 1 Nautical Mile (1,852 blocks)"
+    },
+    "challenge_sneak_1k": {
+      "title": "Knee Pain",
+      "description": "Sneak over a kilometer (1,000 blocks)"
     }
-
   },
   "items": {
     "boundenderperal": {
@@ -253,6 +280,12 @@
     "boundsnowball": {
       "name": "Web Snare!",
       "usage1": "Throw to create a temporary web trap at the location"
+    },
+    "elevatorblock": {
+      "name": "Elevator Block",
+      "usage1": "Jump to teleport up",
+      "usage2": "Shift to teleport down",
+      "usage3": "Minimum of 2 air blocks between the elevators"
     }
   },
   "snippets": {
@@ -265,6 +298,7 @@
       "welcome": "Welcome!",
       "welcomeback": "Welcome back!",
       "xpbonusfortime": "XP for",
+      "maxabilitypower": "Maximum Ability Power",
       "unlockthisbyclicking": "Unlock this by Right-Clicking: ",
       "back": "Back",
       "unlearnall": "Unlearn all",
@@ -341,7 +375,7 @@
     "discovery": {
       "name": "Discovery",
       "icon": "⚛",
-      "description": "As your Perception expands, your mind unravels to discover that which you did not"
+      "description": "As your perception expands, your mind unravels to discover that which you did not."
     },
     "enchanting": {
       "name": "Enchanting",
@@ -351,7 +385,7 @@
     "excavation": {
       "name": "Excavation",
       "icon": "ᛳ",
-      "description": "Diggey Diggey hole..."
+      "description": "Diggy Diggy Hole..."
     },
     "herbalism": {
       "name": "Herbalism",
@@ -386,7 +420,7 @@
     "seaborne": {
       "name": "Seaborne",
       "icon": "\uD83C\uDFA3",
-      "description": "With this skill, you may will the wonders of the water"
+      "description": "With this skill, you may will the wonders of the water."
     },
     "stealth": {
       "name": "Stealth",
@@ -411,12 +445,12 @@
     "chronos": {
       "name": "Chronos",
       "icon": "⏳",
-      "description": "Wind the Clock of the universe, experience the flow. Break the clock, Become it."
+      "description": "Wind the Clock of the universe, experience the flow. Break the clock, become it."
     },
     "unarmed": {
       "name": "Unarmed",
       "icon": "»",
-      "description": "Without a weapon is not without strength"
+      "description": "Without a weapon is not without strength."
     }
   },
   "agility": {
@@ -428,7 +462,7 @@
     },
     "superjump": {
       "name": "Super Jump",
-      "description": "Exceptional Height Advantage",
+      "description": "Exceptional Height Advantage.",
       "lore1": "Max Jump Height",
       "lore2": "Sneak + Jump to Super Jump!"
     },
@@ -446,6 +480,14 @@
     }
   },
   "architect": {
+    "elevator": {
+      "name": "Elevator",
+      "description": "This allows for you to build an elevator to teleport vertically fast!",
+      "lore1": "Unlocks elevator recipe: X=WOOL, Y=ENDER PEARL",
+      "lore2": "XXX",
+      "lore3": "XYX",
+      "lore4": "XXX"
+    },
     "foundation": {
       "name": "Magic Foundation",
       "description": "This allows for you to sneak and place a temporary foundation beneath you!",
@@ -460,7 +502,7 @@
     "wirelessredstone": {
       "name": "Redstone Remote",
       "description": "This allows for you to use a redstone torch to toggle redstone, remotely!",
-      "lore1": "Target + Redstone Torch + Enderperal = 1 Redstone Remote"
+      "lore1": "Target + Redstone Torch + Enderpearl = 1 Redstone Remote"
     },
     "placement": {
       "name": "Builders Wand",
@@ -609,9 +651,9 @@
       "name": "Multi-Armor",
       "description": "Bind Elytras to Armor",
       "lore1": "This Is an amazing skill for traveling.",
-      "lore2": "dynamically merge and change Armor/Elytra on the Fly!",
-      "lore3": "to merge, shift click an item over another in your inventory.",
-      "lore4": "to unbind Armor, Sneak-Drop the item, and it will disassemble.",
+      "lore2": "Dynamically merge and change Armor/Elytra on the Fly!",
+      "lore3": "To merge, shift click an item over another in your inventory.",
+      "lore4": "To unbind Armor, Sneak-Drop the item, and it will disassemble.",
       "lore5": "If your MultiArmor is destroyed, you will lose all items in it.",
       "lore6": "I Don't need armor, It disappoints me..."
     }
@@ -621,7 +663,7 @@
       "name": "Deconstruction",
       "description": "Deconstruct blocks & items into salvageable base components!",
       "lore1": "Drop any item on the ground.",
-      "lore2": "Then, Sneak and Right-Click with SHears"
+      "lore2": "Then, Sneak and Right-Click with Shears"
     },
     "xp": {
       "name": "Crafting XP",
@@ -735,13 +777,13 @@
     "omnitool": {
       "name": "OMNI - T.O.O.L.",
       "description": "Tackle's overdesigned opulent Leatherman",
-      "lore1": "Probably the most powerful of  many allows you to",
+      "lore1": "Probably the most powerful of many allows you to",
       "lore2": "dynamically merge and change tools on the fly, based on your needs.",
-      "lore3": "to merge, shift click an item over another in your inventory.",
-      "lore4": "to unbind tools, Sneak-Drop the item, and it will disassemble.",
-      "lore5": "you can't break tools in this leatherman but you can't use broken tools",
-      "lore6": "total merge-able items",
-      "lore7": "you could use five or six tools, or just one!"
+      "lore3": "To merge, shift click an item over another in your inventory.",
+      "lore4": "To unbind tools, Sneak-Drop the item, and it will disassemble.",
+      "lore5": "You can't break tools in this leatherman but you can't use broken tools",
+      "lore6": "total merge-able items.",
+      "lore7": "You could use five or six tools, or just one!"
     }
   },
   "herbalism": {
@@ -920,6 +962,12 @@
       "description": "When you break a block it teleports the item into your inventory",
       "lore1": "Whenever an item is dropped from a block you break it goes into your inventory if it can."
     },
+    "silkspawner": {
+      "name": "Pickaxe Silk-Spawner",
+      "description": "Makes Spawners drop when broken",
+      "lore1": "Makes Spawners breakable with silk touch.",
+      "lore2": "Makes Spawners breakable while sneaking."
+    },
     "veinminer": {
       "name": "Veinminer",
       "description": "Allows you to break blocks in a Vein/Cluster of Vanilla ores",
@@ -999,6 +1047,11 @@
       "description": "Gain Resistance when using Ender Items & Abilities",
       "lore1": "+ Passive: Provides resistance when you use rift abilities, or Ender Items",
       "lore2": "NOT Including Portable Enderchest, only things you can Consume"
+    },
+    "visage": {
+      "name": "Rift Visage",
+      "description": "Prevents Endermen from becoming aggressive if you have Enderpearls in your inventory.",
+      "lore1": "Endermen will not become aggressive if you have Enderpearls in your inventory."
     }
   },
   "seaborn": {
@@ -1053,6 +1106,12 @@
       "name": "Sneak Speed",
       "description": "Gain speed while sneaking",
       "lore1": "Sneaking Speed"
+    },
+    "enderveil": {
+      "name": "Enderveil",
+      "description": "No more Pumpkins to prevent Enderman attacks",
+      "lore1": "Prevent enderman attacks while sneaking",
+      "lore2": "Prevent all enderman attacks"
     }
   },
   "sword": {

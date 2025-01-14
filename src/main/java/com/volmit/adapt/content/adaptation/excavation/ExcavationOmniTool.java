@@ -22,10 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.content.item.multiItems.OmniTool;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -118,11 +115,13 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 return;
             }
             J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
-            p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+            SoundPlayer spw = SoundPlayer.of(p.getWorld());
+            spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
             if (inHand != null && inHand.hasDamage()) {
                 if ((hand.getType().getMaxDurability() - inHand.getDamage() - 2) <= 2) {
                     e.setCancelled(true);
-                    p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+                    SoundPlayer sp = SoundPlayer.of(p);
+                    sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
                 }
             }
 
@@ -166,27 +165,29 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 Damageable imHand = (Damageable) hand.getItemMeta();
                 Block block = e.getClickedBlock();
                 if (block != null) {
+                    SoundPlayer sp = SoundPlayer.of(p);
+                    SoundPlayer spw = SoundPlayer.of(p.getWorld());
                     if (ItemListings.farmable.contains(block.getType())) {
                         if (isShovel(hand)) {
                             J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextHoe(hand)));
-                            p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                            spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                         } else {
                             J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextShovel(hand)));
-                            p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                            spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                         }
                         if (imHand != null && imHand.hasDamage()) {
                             if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
                                 e.setCancelled(true);
-                                p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+                                sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
                             }
                         }
                     } else if (ItemListings.burnable.contains(block.getType())) {
                         J.s(() -> p.getInventory().setItemInMainHand(omniTool.nextFnS(hand)));
-                        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                        spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                         if (imHand != null && imHand.hasDamage()) {
                             if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
                                 e.setCancelled(true);
-                                p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+                                sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
                             }
                         }
                     }
@@ -229,7 +230,8 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 }
 
                 J.s(() -> {
-                    p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_DEATH, 0.25f, 0.77f);
+                    SoundPlayer sp = SoundPlayer.of(p);
+                    sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_DEATH, 0.25f, 0.77f);
                     for (ItemStack i : drops) {
                         p.getWorld().dropItem(p.getLocation(), i);
                     }
@@ -301,7 +303,8 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
             if (omniTool.explode(cursor).size() > 1 || omniTool.explode(clicked).size() > 1) {
                 if (omniTool.explode(cursor).size() >= getSlots(getLevel((Player) e.getWhoClicked())) || omniTool.explode(clicked).size() >= getSlots(getLevel((Player) e.getWhoClicked()))) {
                     e.setCancelled(true);
-                    ((Player) e.getWhoClicked()).playSound(e.getWhoClicked().getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
+                    SoundPlayer sp = SoundPlayer.of((Player) e.getWhoClicked());
+                    sp.play(e.getWhoClicked().getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.77f);
                     return;
                 }
             }
@@ -310,7 +313,8 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                     e.setCancelled(true);
                     e.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
                     e.getClickedInventory().setItem(e.getSlot(), omniTool.build(cursor, clicked));
-                    e.getWhoClicked().getWorld().playSound(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+                    SoundPlayer spw = SoundPlayer.of(e.getWhoClicked().getWorld());
+                    spw.play(e.getWhoClicked().getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 }
             }
         }
@@ -319,11 +323,13 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     private void itemDelegate(BlockDamageEvent e, ItemStack hand, Damageable imHand) {
         Player p = e.getPlayer();
-        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+        SoundPlayer sp = SoundPlayer.of(p);
+        SoundPlayer spw = SoundPlayer.of(p.getWorld());
+        spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
         if (imHand != null && imHand.hasDamage()) {
             if ((hand.getType().getMaxDurability() - imHand.getDamage() - 2) <= 2) {
                 e.setCancelled(true);
-                p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
+                sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.77f);
             }
         }
     }

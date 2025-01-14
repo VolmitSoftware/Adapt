@@ -23,8 +23,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
-import com.volmit.adapt.util.secret.SecretSplash;
 import lombok.SneakyThrows;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.io.File;
 import java.io.InputStream;
@@ -86,7 +87,8 @@ public class Localizer {
                         || jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3) == null
                         || jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString() == null) {
 
-                    Adapt.verbose("Your Language File is missing the following key: " + s1 + "." + s2 + "." + s3);
+                    String key = s1 + "." + s2 + "." + s3;
+                    Adapt.verbose("Your Language File is missing the following key: " + key);
                     Adapt.verbose("Loading English Language File FallBack");
 
                     JsonObject jsonObjFallback;
@@ -99,10 +101,9 @@ public class Localizer {
                             || jsonObjFallback.get(s1).getAsJsonObject().get(s2) == null
                             || jsonObjFallback.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3) == null
                             || jsonObjFallback.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString() == null) {
-                        String f = SecretSplash.randomString7();
-                        Adapt.wordKey.put(s1 + s2 + s3, f);
-                        Adapt.error("Your Fallback Language File is missing the following key: " + s1 + "." + s2 + "." + s3);
-                        Adapt.verbose("New Assignement: " + f);
+                        Adapt.wordKey.put(s1 + s2 + s3, key);
+                        Adapt.error("Your Fallback Language File is missing the following key: " + key);
+                        Adapt.verbose("New Assignement: " + key);
                         Adapt.error("Please report this to the developer!");
                     } else {
                         Adapt.wordKey.put(s1 + s2 + s3, jsonObjFallback.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
@@ -113,6 +114,13 @@ public class Localizer {
                 Adapt.wordKey.put(s1 + s2 + s3, jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
             }
         }
-        return Adapt.wordKey.get(s1 + s2 + s3);
+        var s = Adapt.wordKey.get(s1 + s2 + s3);
+        if (AdaptConfig.get().isAutomaticGradients()) {
+            s = C.translateAlternateColorCodes('&', s);
+            s = C.aura(s, -20, 7, 8, 0.36);
+        }
+
+        return LegacyComponentSerializer.legacySection()
+                .serialize(MiniMessage.miniMessage().deserialize(s));
     }
 }

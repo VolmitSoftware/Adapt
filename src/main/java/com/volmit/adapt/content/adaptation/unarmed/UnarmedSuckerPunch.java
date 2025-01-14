@@ -19,10 +19,7 @@
 package com.volmit.adapt.content.adaptation.unarmed;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -80,13 +77,14 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
                 return;
             }
 
-            if (isTool(p.getInventory().getItemInMainHand())) {
+            if (isTool(p.getInventory().getItemInMainHand()) || isTool(p.getInventory().getItemInOffHand())) {
                 return;
             }
 
             e.setDamage(e.getDamage() * getDamage(factor));
-            e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.8f);
-            e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.BLOCK_BASALT_BREAK, 1f, 0.6f);
+            SoundPlayer spw = SoundPlayer.of(e.getEntity().getWorld());
+            spw.play(e.getEntity().getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.8f);
+            spw.play(e.getEntity().getLocation(), Sound.BLOCK_BASALT_BREAK, 1f, 0.6f);
             getSkill().xp(p, 6.221 * e.getDamage());
             if (e.getDamage() > 5) {
                 getSkill().xp(p, 0.42 * e.getDamage());

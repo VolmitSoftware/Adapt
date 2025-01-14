@@ -23,6 +23,7 @@ import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -58,12 +59,13 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
             return;
         }
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
         if (!hasAdaptation(p)) {
             return;
         }
         if (ItemListings.getFood().contains(e.getItem().getType())) {
             p.setFoodLevel(p.getFoodLevel() + 2 + getLevel(p));
-            p.playSound(p.getLocation(), Sound.BLOCK_POINTED_DRIPSTONE_LAND, 1, 0.25f);
+            sp.play(p.getLocation(), Sound.BLOCK_POINTED_DRIPSTONE_LAND, 1, 0.25f);
             vfxFastRing(p.getLocation().add(0, 0.25, 0), 2, Color.GREEN);
             xp(p, 5);
         }

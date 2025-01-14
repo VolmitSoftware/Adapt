@@ -18,19 +18,17 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
-import com.volmit.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
-import com.volmit.adapt.content.adaptation.pickaxe.PickaxeChisel;
-import com.volmit.adapt.content.adaptation.pickaxe.PickaxeDropToInventory;
-import com.volmit.adapt.content.adaptation.pickaxe.PickaxeVeinminer;
+import com.volmit.adapt.content.adaptation.pickaxe.*;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
-import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
-import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -61,40 +59,46 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         registerAdaptation(new PickaxeVeinminer());
         registerAdaptation(new PickaxeAutosmelt());
         registerAdaptation(new PickaxeDropToInventory());
+        registerAdaptation(new PickaxeSilkSpawner());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WOODEN_PICKAXE)
                 .key("challenge_pickaxe_1k")
                 .title(Localizer.dLocalize("advancement", "challenge_pickaxe_1k", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_pickaxe_1k", "description"))
-                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .model(CustomModel.get(Material.WOODEN_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_1k"))
+                .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.STONE_PICKAXE)
                         .key("challenge_pickaxe_5k")
                         .title(Localizer.dLocalize("advancement", "challenge_pickaxe_5k", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_pickaxe_5k", "description"))
-                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .model(CustomModel.get(Material.STONE_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_5k"))
+                        .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.IRON_PICKAXE)
                                 .key("challenge_pickaxe_50k")
                                 .title(Localizer.dLocalize("advancement", "challenge_pickaxe_50k", "title"))
                                 .description(Localizer.dLocalize("advancement", "challenge_pickaxe_50k", "description"))
-                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_50k"))
+                                .frame(AdvancementFrameType.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                 .child(AdaptAdvancement.builder()
                                         .icon(Material.DIAMOND_PICKAXE)
                                         .key("challenge_pickaxe_500k")
                                         .title(Localizer.dLocalize("advancement", "challenge_pickaxe_500k", "title"))
                                         .description(Localizer.dLocalize("advancement", "challenge_pickaxe_500k", "description"))
-                                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                        .model(CustomModel.get(Material.DIAMOND_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_500k"))
+                                        .frame(AdvancementFrameType.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                                         .child(AdaptAdvancement.builder()
                                                 .icon(Material.NETHERITE_PICKAXE)
                                                 .key("challenge_pickaxe_5m")
                                                 .title(Localizer.dLocalize("advancement", "challenge_pickaxe_5m", "title"))
                                                 .description(Localizer.dLocalize("advancement", "challenge_pickaxe_5m", "description"))
-                                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                                .model(CustomModel.get(Material.NETHERITE_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_5m"))
+                                                .frame(AdvancementFrameType.CHALLENGE)
                                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                                 .build())
                                         .build())
@@ -116,7 +120,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
             return;
         }
         Player p = e.getDamager() instanceof Player ? (Player) e.getDamager() : null;
-        if (!getConfig().getXpForAttackingWithTools) {
+        if (!getConfig().getXpForAttackingWithTools || p == null) {
             return;
         }
 
@@ -196,13 +200,9 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
 
     private void handleCooldown(Player p, Runnable action) {
-        if (cooldowns.containsKey(p)) {
-            if (cooldowns.get(p) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                return;
-            } else {
-                cooldowns.remove(p);
-            }
-        }
+        Long cooldown = cooldowns.get(p);
+        if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+            return;
         cooldowns.put(p, System.currentTimeMillis());
         action.run();
     }

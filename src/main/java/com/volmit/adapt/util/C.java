@@ -18,12 +18,15 @@
 
 package com.volmit.adapt.util;
 
-import org.apache.commons.lang.Validate;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.apache.commons.lang3.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -73,6 +76,15 @@ public enum C {
      * Represents dark red
      */
     DARK_RED('4', 0x4) {
+        @Override
+        public net.md_5.bungee.api.ChatColor asBungee() {
+            return net.md_5.bungee.api.ChatColor.DARK_RED;
+        }
+    },
+    /**
+     * Represents dark red
+     */
+    ADAPT('4', 0x4) {
         @Override
         public net.md_5.bungee.api.ChatColor asBungee() {
             return net.md_5.bungee.api.ChatColor.DARK_RED;
@@ -180,7 +192,7 @@ public enum C {
     /**
      * Represents magical characters that change around randomly
      */
-    MAGIC('k', 0x10, true) {
+    MAGIC("<obf>", 'k', 0x10, true) {
         @Override
         public net.md_5.bungee.api.ChatColor asBungee() {
             return net.md_5.bungee.api.ChatColor.MAGIC;
@@ -207,7 +219,7 @@ public enum C {
     /**
      * Makes the text appear underlined.
      */
-    UNDERLINE('n', 0x13, true) {
+    UNDERLINE("<underlined>", 'n', 0x13, true) {
         @Override
         public net.md_5.bungee.api.ChatColor asBungee() {
             return net.md_5.bungee.api.ChatColor.UNDERLINE;
@@ -231,8 +243,10 @@ public enum C {
         public net.md_5.bungee.api.ChatColor asBungee() {
             return net.md_5.bungee.api.ChatColor.RESET;
         }
-    };
+    },
 
+
+    ;
     /**
      * The special character which prefixes all chat colour codes. Use this if you
      * need to dynamically convert colour codes from your custom format.
@@ -241,29 +255,31 @@ public enum C {
     public final static C[] COLORCYCLE = new C[]{C.GOLD, C.YELLOW, C.GREEN, C.AQUA, C.LIGHT_PURPLE, C.AQUA, C.GREEN, C.YELLOW, C.GOLD, C.RED};
     private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + COLOR_CHAR + "[0-9A-FK-OR]");
     private final static C[] COLORS = new C[]{C.BLACK, C.DARK_BLUE, C.DARK_GREEN, C.DARK_AQUA, C.DARK_RED, C.DARK_PURPLE, C.GOLD, C.GRAY, C.DARK_GRAY, C.BLUE, C.GREEN, C.AQUA, C.RED, C.LIGHT_PURPLE, C.YELLOW, C.WHITE};
-    private final static Map<Integer, C> BY_ID = new HashMap<Integer, C>();
-    private final static Map<Character, C> BY_CHAR = new HashMap<Character, C>();
-    private final static Map<DyeColor, C> dyeChatMap = new HashMap<DyeColor, C>();
-    private final static Map<C, String> chatHexMap = new HashMap<C, String>();
-    private final static Map<DyeColor, String> dyeHexMap = new HashMap<DyeColor, String>();
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    private final static Map<Integer, C> BY_ID = new HashMap<>();
+    private final static Map<Character, C> BY_CHAR = new HashMap<>();
+    private final static Map<DyeColor, C> dyeChatMap = new HashMap<>();
+    private final static Map<C, String> chatHexMap = new HashMap<>();
+    private final static Map<DyeColor, String> dyeHexMap = new HashMap<>();
 
     static {
-        chatHexMap.put(C.BLACK, "#000");
-        chatHexMap.put(C.DARK_BLUE, "#00a");
-        chatHexMap.put(C.DARK_GREEN, "#0a0");
-        chatHexMap.put(C.DARK_AQUA, "#0aa");
-        chatHexMap.put(C.DARK_RED, "#a00");
-        chatHexMap.put(C.DARK_PURPLE, "#a0a");
-        chatHexMap.put(C.GOLD, "#fa0");
-        chatHexMap.put(C.GRAY, "#999");
-        chatHexMap.put(C.DARK_GRAY, "#555");
-        chatHexMap.put(C.BLUE, "#55f");
-        chatHexMap.put(C.GREEN, "#5c5");
-        chatHexMap.put(C.AQUA, "#5cc");
-        chatHexMap.put(C.RED, "#f55");
-        chatHexMap.put(C.LIGHT_PURPLE, "#f5f");
-        chatHexMap.put(C.YELLOW, "#cc5");
-        chatHexMap.put(C.WHITE, "#aaa");
+        chatHexMap.put(C.BLACK, "#000000");
+        chatHexMap.put(C.DARK_BLUE, "#0000AA");
+        chatHexMap.put(C.DARK_GREEN, "#00AA00");
+        chatHexMap.put(C.DARK_AQUA, "#00AAAA");
+        chatHexMap.put(C.DARK_RED, "#AA0000");
+        chatHexMap.put(C.ADAPT, "#AA0000");
+        chatHexMap.put(C.DARK_PURPLE, "#AA00AA");
+        chatHexMap.put(C.GOLD, "#FFAA00");
+        chatHexMap.put(C.GRAY, "#AAAAAA");
+        chatHexMap.put(C.DARK_GRAY, "#555555");
+        chatHexMap.put(C.BLUE, "#5555FF");
+        chatHexMap.put(C.GREEN, "#55FF55");
+        chatHexMap.put(C.AQUA, "#55FFFF");
+        chatHexMap.put(C.RED, "#FF5555");
+        chatHexMap.put(C.LIGHT_PURPLE, "#FF55FF");
+        chatHexMap.put(C.YELLOW, "#FFFF55");
+        chatHexMap.put(C.WHITE, "#FFFFFF");
         dyeChatMap.put(DyeColor.BLACK, C.DARK_GRAY);
         dyeChatMap.put(DyeColor.BLUE, C.DARK_BLUE);
         dyeChatMap.put(DyeColor.BROWN, C.GOLD);
@@ -307,18 +323,103 @@ public enum C {
 
     private final int intCode;
     private final char code;
+    private final String token;
     private final boolean isFormat;
     private final String toString;
 
     C(char code, int intCode) {
-        this(code, intCode, false);
+        this("^", code, intCode, false);
+    }
+
+    C(String token, char code, int intCode) {
+        this(token, code, intCode, false);
     }
 
     C(char code, int intCode, boolean isFormat) {
+        this("^", code, intCode, false);
+    }
+
+    C(String token, char code, int intCode, boolean isFormat) {
         this.code = code;
+        this.token = token.equalsIgnoreCase("^") ? "<" + name().toLowerCase(Locale.ROOT) + ">" : token;
         this.intCode = intCode;
         this.isFormat = isFormat;
         this.toString = new String(new char[]{COLOR_CHAR, code});
+    }
+
+    public static float[] spin(float[] c, int shift) {
+        return new float[]{spin(c[0], shift), spinc(c[1], shift), spinc(c[2], shift)};
+    }
+
+    public static float[] spin(float[] c, int a, int b, int d) {
+        return new float[]{spin(c[0], a), spinc(c[1], b), spinc(c[2], d)};
+    }
+
+    public static float spin(float c, int shift) {
+        float g = ((((int) Math.floor(c * 360)) + shift) % 360) / 360F;
+        return g < 0 ? 1f - g : g;
+    }
+
+    public static float spinc(float c, int shift) {
+        float g = ((((int) Math.floor(c * 255)) + shift)) / 255F;
+        return Math.max(0f, Math.min(g, 1f));
+    }
+
+    public static java.awt.Color spin(java.awt.Color c, int h, int s, int b) {
+        float[] hsb = java.awt.Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+        hsb = spin(hsb, h, s, b);
+        return java.awt.Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
+    }
+
+    public static String spinToHex(C color, int h, int s, int b) {
+        return "#" + Integer.toHexString(spin(color.awtColor(), h, s, b).getRGB()).substring(2);
+    }
+
+    public static String aura(String s, int hrad, int srad, int vrad) {
+        return aura(s, hrad, srad, vrad, 0.3D);
+    }
+
+    public static String aura(String s, int hrad, int srad, int vrad, double pulse) {
+        String msg = compress(s);
+        StringBuilder b = new StringBuilder();
+        boolean c = false;
+
+        for (char i : msg.toCharArray()) {
+            if (c) {
+                c = false;
+
+                C o = C.getByChar(i);
+
+                if (hrad != 0 || srad != 0 || vrad != 0) {
+                    if (pulse > 0) {
+                        b.append(VolmitSender.pulse(spinToHex(o, hrad, srad, vrad), spinToHex(o, -hrad, -srad, -vrad), pulse));
+                    } else {
+                        b.append("<gradient:")
+                                .append(spinToHex(o, hrad, srad, vrad))
+                                .append(":")
+                                .append(spinToHex(o, -hrad, -srad, -vrad))
+                                .append(">");
+                    }
+                } else {
+                    b.append(C.getByChar(i).token);
+                }
+
+                continue;
+            }
+
+            if (i == C.COLOR_CHAR) {
+                c = true;
+                continue;
+            }
+
+            b.append(i);
+        }
+
+        return b.toString();
+    }
+
+    public static String compress(String c) {
+        return BaseComponent.toLegacyText(TextComponent.fromLegacyText(c));
     }
 
     /**
@@ -330,7 +431,8 @@ public enum C {
      */
     public static C getByChar(char code) {
         try {
-            return BY_CHAR.get(code);
+            C c = BY_CHAR.get(code);
+            return c == null ? C.WHITE : c;
         } catch (Exception e) {
             return C.WHITE;
         }
@@ -383,9 +485,9 @@ public enum C {
     }
 
     public static DyeColor chatToDye(ChatColor color) {
-        for (DyeColor i : dyeChatMap.keySet()) {
-            if (dyeChatMap.get(i).toString().equals(color.toString())) {
-                return i;
+        for (Map.Entry<DyeColor, C> entry : dyeChatMap.entrySet()) {
+            if (entry.getValue().toString().equals(color.toString())) {
+                return entry.getKey();
             }
         }
 
@@ -393,12 +495,12 @@ public enum C {
     }
 
     @SuppressWarnings("unlikely-arg-type")
-    public static String chatToHex(ChatColor clr) {
+    public static String chatToHex(C clr) {
         if (chatHexMap.containsKey(clr)) {
             return chatHexMap.get(clr);
         }
 
-        return "#000";
+        return "#000000";
     }
 
     public static String dyeToHex(DyeColor clr) {
@@ -406,7 +508,7 @@ public enum C {
             return dyeHexMap.get(clr);
         }
 
-        return "#000";
+        return "#000000";
     }
 
     public static Color hexToColor(String hex) {
@@ -414,7 +516,7 @@ public enum C {
             hex = hex.substring(1);
         }
 
-        if (hex.indexOf("x") != -1) {
+        if (hex.contains("x")) {
             hex = hex.substring(hex.indexOf("x"));
         }
 
@@ -511,7 +613,7 @@ public enum C {
      * @return Any remaining ChatColors to pass onto the next line.
      */
     public static String getLastColors(String input) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         int length = input.length();
 
         // Search backwards from the end as it is faster
@@ -522,7 +624,7 @@ public enum C {
                 C color = getByChar(c);
 
                 if (color != null) {
-                    result = color + result;
+                    result.insert(0, color);
 
                     // Once we find a color or reset we can stop searching
                     if (color.isColor() || color.equals(RESET)) {
@@ -532,7 +634,7 @@ public enum C {
             }
         }
 
-        return result;
+        return result.toString();
     }
 
     public net.md_5.bungee.api.ChatColor asBungee() {
@@ -550,7 +652,7 @@ public enum C {
 
     @Override
     public String toString() {
-        return toString;
+        return intCode == -1 ? token : toString;
     }
 
     /**
@@ -561,7 +663,11 @@ public enum C {
     }
 
     public String hex() {
-        return chatToHex(chatColor());
+        return chatToHex(this);
+    }
+
+    public java.awt.Color awtColor() {
+        return java.awt.Color.decode(hex());
     }
 
     /**
@@ -590,104 +696,42 @@ public enum C {
     }
 
     public byte getMeta() {
-        switch (this) {
-            case AQUA:
-                return 11;
-            case BLACK:
-                return 0;
-            case BLUE:
-                return 9;
-            case BOLD:
-                return -1;
-            case DARK_AQUA:
-                return 9;
-            case DARK_BLUE:
-                return 1;
-            case DARK_GRAY:
-                return 8;
-            case DARK_GREEN:
-                return 2;
-            case DARK_PURPLE:
-                return 5;
-            case DARK_RED:
-                return 4;
-            case GOLD:
-                return 6;
-            case GRAY:
-                return 7;
-            case GREEN:
-                return 10;
-            case ITALIC:
-                return -1;
-            case LIGHT_PURPLE:
-                return 13;
-            case MAGIC:
-                return -1;
-            case RED:
-                return 12;
-            case RESET:
-                return -1;
-            case STRIKETHROUGH:
-                return -1;
-            case UNDERLINE:
-                return -1;
-            case WHITE:
-                return 15;
-            case YELLOW:
-                return 14;
-            default:
-                return -1;
-        }
+        return switch (this) {
+            case AQUA -> (byte) 11;
+            case BLACK -> (byte) 0;
+            case BLUE, DARK_AQUA -> (byte) 9;
+            case BOLD, UNDERLINE, STRIKETHROUGH, RESET, MAGIC, ITALIC -> (byte) -1;
+            case DARK_BLUE -> (byte) 1;
+            case DARK_GRAY -> (byte) 8;
+            case DARK_GREEN -> (byte) 2;
+            case DARK_PURPLE -> (byte) 5;
+            case DARK_RED -> (byte) 4;
+            case GOLD -> (byte) 6;
+            case GRAY -> (byte) 7;
+            case GREEN -> (byte) 10;
+            case LIGHT_PURPLE -> (byte) 13;
+            case RED -> (byte) 12;
+            case YELLOW -> (byte) 14;
+            default -> (byte) 15;
+        };
     }
 
     public byte getItemMeta() {
-        switch (this) {
-            case AQUA:
-                return 9;
-            case BLACK:
-                return 15;
-            case BLUE:
-                return 3;
-            case BOLD:
-                return -1;
-            case DARK_AQUA:
-                return 9;
-            case DARK_BLUE:
-                return 11;
-            case DARK_GRAY:
-                return 7;
-            case DARK_GREEN:
-                return 13;
-            case DARK_PURPLE:
-                return 10;
-            case DARK_RED:
-                return 14;
-            case GOLD:
-                return 4;
-            case GRAY:
-                return 8;
-            case GREEN:
-                return 5;
-            case ITALIC:
-                return -1;
-            case LIGHT_PURPLE:
-                return 2;
-            case MAGIC:
-                return -1;
-            case RED:
-                return 14;
-            case RESET:
-                return -1;
-            case STRIKETHROUGH:
-                return -1;
-            case UNDERLINE:
-                return -1;
-            case WHITE:
-                return 0;
-            case YELLOW:
-                return 4;
-            default:
-                return -1;
-        }
+        return switch (this) {
+            case AQUA, DARK_AQUA -> (byte) 9;
+            case BLUE -> (byte) 3;
+            case BOLD, UNDERLINE, RESET, STRIKETHROUGH, MAGIC, ITALIC -> (byte) -1;
+            case DARK_BLUE -> (byte) 11;
+            case DARK_GRAY -> (byte) 7;
+            case DARK_GREEN -> (byte) 13;
+            case DARK_PURPLE -> (byte) 10;
+            case DARK_RED, RED -> (byte) 14;
+            case GOLD, YELLOW -> (byte) 4;
+            case GRAY -> (byte) 8;
+            case GREEN -> (byte) 5;
+            case LIGHT_PURPLE -> (byte) 2;
+            case WHITE -> (byte) 0;
+            default -> (byte) 15;
+        };
     }
 }

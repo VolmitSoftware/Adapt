@@ -20,16 +20,14 @@ package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -84,6 +82,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
             return;
         }
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
 
         if (hasAdaptation(p) && !totalMap.isEmpty() && totalMap.get(p) != null && totalMap.get(p).size() > 0) {
             ItemStack is = p.getInventory().getItemInMainHand().clone();
@@ -103,7 +102,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                                 b.getWorld().setBlockData(b.getRelative(face).getLocation(), b.getBlockData());
                                 getPlayer(p).getData().addStat("blocks.placed", 1);
                                 getPlayer(p).getData().addStat("blocks.placed.value", v);
-                                p.playSound(b.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
+                                sp.play(b.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
                                 xp(p, 2);
                             }
                         }
@@ -135,6 +134,9 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
         if (hasAdaptation(p) && !p.isSneaking() && p.getInventory().getItemInMainHand().getType().isBlock()) {
             Block block = p.getTargetBlock(null, 5); // 5 is the range of player
+            if (block instanceof Container) { // return if block is a container
+                return;
+            }
             Material handMaterial = p.getInventory().getItemInMainHand().getType();
             if (handMaterial.isAir()) {
                 return;
@@ -157,6 +159,9 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
         if (hasAdaptation(p) && p.isSneaking() && p.getInventory().getItemInMainHand().getType().isBlock()) {
             Block block = p.getTargetBlock(null, 5); // 5 is the range of player
+            if (block instanceof Container) { // return if block is a container
+                return;
+            }
             Material handMaterial = p.getInventory().getItemInMainHand().getType();
             if (handMaterial.isAir()) {
                 return;
@@ -235,6 +240,9 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                     }
                     Map<Block, BlockFace> blockRender = totalMap.get(p);
                     for (Block b : blockRender.keySet()) { // Get the blocks in that map that bind with a BlockFace
+                        if (b instanceof Container) { // return if block is a container
+                            return;
+                        }
                         BlockFace bf = blockRender.get(b); // Get that blockface
                         Block transposedBlock = b.getRelative(bf);
                         if (getConfig().showParticles) {

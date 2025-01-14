@@ -20,17 +20,14 @@ plugins {
     id 'java-library'
     id "io.freefair.lombok" version "6.3.0"
     id "com.github.johnrengelman.shadow" version "7.1.2"
-    id "de.undercouch.download" version "5.0.1"
+    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.9"
 }
 
-version '1.13.1-1.20.1'
-def nmsVersion = "1.20.1" //[NMS]
-def apiVersion = '1.20'
-def specialSourceVersion = '1.11.0' //[NMS]
-def spigotJarVersion = '1.20.1-R0.1-SNAPSHOT' //[NMS]
+version '1.16.0-1.19.2-1.21.3'
+def apiVersion = '1.19'
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
-def manifoldVersion = '2023.1.15'
+def manifoldVersion = '2024.1.37'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
@@ -39,11 +36,35 @@ registerCustomOutputTask('Psycho', 'C://Dan/MinecraftDevelopment/Server/plugins'
 registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins')
 registerCustomOutputTask('Vatuu', 'D://Minecraft/Servers/1.20/plugins')
 registerCustomOutputTask('Nowhere', 'E://Desktop/server/plugins')
+registerCustomOutputTask('CrazyDev22', 'C://Users/Julian/Desktop/server/plugins')
+registerCustomOutputTask('Pixel', 'D://Iris Dimension Engine//1.20.4 - Development//plugins')
 // ========================== UNIX ==============================
 registerCustomOutputTaskUnix('CyberpwnLT', '/Users/danielmills/development/server/plugins')
-registerCustomOutputTaskUnix('PsychoLT', '/Users/brianfopiano/Desktop/REMOTES/RemoteMinecraft/plugins')
+registerCustomOutputTaskUnix('PsychoLT', '/Users/brianfopiano/Developer/RemoteGit/Server/plugins')
 registerCustomOutputTaskUnix('the456gamer', '/home/the456gamer/projects/minecraft/adapt-testserver/plugins/update/', false)
 // ==============================================================
+
+def VERSIONS = Map.of(
+        "v1_21_2", "1.21.2-R0.1-SNAPSHOT",
+        "v1_21", "1.21-R0.1-SNAPSHOT",
+        "v1_20_5", "1.20.5-R0.1-SNAPSHOT",
+        "v1_20_4", "1.20.4-R0.1-SNAPSHOT",
+        "v1_19_2", "1.19.2-R0.1-SNAPSHOT"
+)
+
+VERSIONS.each {
+    def key = it.key
+    def value = it.value
+    project(":version:${key}") {
+        apply plugin: 'java'
+        apply plugin: 'java-library'
+
+        dependencies {
+            implementation rootProject
+            compileOnly "org.spigotmc:spigot-api:${value}"
+        }
+    }
+}
 
 /**
  * Gradle is weird sometimes, we need to delete the plugin yml from the build folder to actually filter properly.
@@ -65,98 +86,123 @@ processResources {
     }
 }
 
-repositories {
-    mavenLocal {
-        content {
-            includeGroup("org.bukkit")
-            includeGroup("org.spigotmc")
-        }
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+
+    repositories {
+        mavenCentral()
+        maven { url "https://repo.papermc.io/repository/maven-public/"}
+        maven { url "https://repo.codemc.org/repository/maven-public" }
+        maven { url "https://mvn.lumine.io/repository/maven-public/" }
+        maven { url "https://nexus.frengor.com/repository/public/"}
+        maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+        maven { url "https://repo.glaremasters.me/repository/bloodshot/" }
+        maven { url "https://maven.enginehub.org/repo/" }
+        maven { url "https://repo.oraxen.com/releases" }
+        maven { url "https://repo.alessiodp.com/releases" }
+        maven { url 'https://jitpack.io' }
     }
-    mavenCentral()
-    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
-    maven { url 'https://jitpack.io' }
-    maven { url 'https://ci.ender.zone/plugin/repository/everything/' }
-    maven { url "https://arcanearts.jfrog.io/artifactory/archives" }
-    maven { url "https://repo.glaremasters.me/repository/bloodshot/" }
-    mavenLocal()
 
+    /**
+     * We need parameter meta for the decree command system
+     */
+    compileJava {
+        options.compilerArgs << '-parameters'
+    }
+
+    dependencies {
+        // Provided or Classpath
+        compileOnly 'org.projectlombok:lombok:1.18.24'
+        annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+        // Cancer
+        implementation 'com.github.VolmitDev:Fukkit:23.6.1'
+        implementation 'com.github.VolmitDev:Amulet:23.5.1'
+        implementation 'com.github.VolmitDev:Chrono:22.9.10'
+        implementation 'com.github.VolmitDev:Spatial:22.11.1'
+        implementation 'net.byteflux:libby-velocity:1.3.1'
+
+        compileOnly "io.papermc:paperlib:1.0.7"
+        compileOnly 'com.github.ben-manes.caffeine:caffeine:3.0.6'
+        annotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
+        testAnnotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
+        implementation 'systems.manifold:manifold-rt:' + manifoldVersion
+        compileOnly 'io.lettuce:lettuce-core:6.5.1.RELEASE'
+
+        //Random Api's
+        compileOnly 'com.github.DeadSilenceIV:AdvancedChestsAPI:2.9-BETA'
+        compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.8'
+        compileOnly "com.github.FrancoBM12:API-MagicCosmetics:2.2.8"
+        compileOnly 'me.clip:placeholderapi:2.11.6'
+        compileOnly 'com.github.LoneDev6:api-itemsadder:3.2.5'
+        compileOnly 'io.th0rgal:oraxen:1.182.0'
+        compileOnly 'com.massivecraft:Factions:1.6.9.5-U0.6.21'
+        compileOnly "com.github.angeschossen:ChestProtectAPI:3.9.1"
+        compileOnly "com.github.TechFortress:GriefPrevention:16.18.1"
+        implementation 'xyz.xenondevs:particle:1.8.1'
+        implementation "com.frengor:ultimateadvancementapi-shadeable:2.4.2"
+        implementation 'com.jeff-media:custom-block-data:2.2.3'
+        compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
+        compileOnly 'io.netty:netty-all:4.1.68.Final'
+
+        // Dynamically Loaded
+        compileOnly 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
+        compileOnly 'org.apache.commons:commons-lang3:3.12.0'
+        compileOnly 'com.google.code.gson:gson:2.10'
+        compileOnly 'com.elmakers.mine.bukkit:EffectLib:9.4'
+        compileOnly 'net.kyori:adventure-text-minimessage:4.17.0'
+        compileOnly 'net.kyori:adventure-platform-bukkit:4.3.4'
+        compileOnly 'it.unimi.dsi:fastutil:8.5.13'
+        compileOnly "fr.skytasul:glowingentities:1.4.1"
+        compileOnly 'com.google.guava:guava:30.1-jre'
+        compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+    }
 }
 
-/**
- * We need parameter meta for the decree command system
- */
-compileJava {
-    options.compilerArgs << '-parameters'
+dependencies {
+    compileOnly(project(":velocity")) {
+        transitive = false
+    }
 }
-
-/**
- * Configure Adapt for shading
- */
 
 /**
  * Configure Adapt for shading
  */
 shadowJar {
-    minimize()
+//    minimize()
+    VERSIONS.each {
+        dependsOn(":version:${it.key}:build")
+        from(project(":version:${it.key}").tasks.named("jar", Jar).get().archiveFile)
+    }
+    dependsOn(":velocity:build")
+    from(project(":velocity").tasks.named("jar", Jar).get().archiveFile)
+
     append("plugin.yml")
     relocate 'manifold', 'com.volmit.adapt.util.manifold'
     relocate 'art.arcane', 'com.volmit.adapt.util.arcane'
     relocate 'Fukkit.extensions', 'com.volmit.adapt.util.extensions'
     relocate 'Amulet.extensions', 'com.volmit.adapt.util.extensions'
+    relocate 'com.fren_gor.ultimateAdvancementAPI', 'com.volmit.adapt.util.advancements'
+    relocate 'net.byteflux.libby', 'com.volmit.adapt.util.libby'
+    relocate 'com.jeff_media.customblockdata', 'com.volmit.util.customblocks'
     dependencies {
         include(dependency('systems.manifold:'))
         include(dependency('xyz.xenondevs:'))
-        include(dependency('art.arcane:'))
-        include(dependency('io.github.mqzn:'))
+        include(dependency('com.github.VolmitDev:'))
+        include(dependency('com.frengor:ultimateadvancementapi-shadeable:'))
+        include(dependency('net.byteflux:'))
+        include(dependency('com.jeff-media:custom-block-data:'))
     }
 }
 
-configurations.all {
+configurations.configureEach {
     resolutionStrategy.cacheChangingModulesFor 60, 'minutes'
     resolutionStrategy.cacheDynamicVersionsFor 60, 'minutes'
 }
 
 dependencies {
-    // Provided or Classpath
-    compileOnly 'org.projectlombok:lombok:1.18.24'
-    annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    implementation 'org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT' //[NMS]
-    implementation 'org.bukkit:craftbukkit:1.20.1-R0.1-SNAPSHOT' //[NMS]
-
-    // Cancer
-    implementation 'art.arcane:Amulet:22.7.18'
-    implementation 'art.arcane:Fukkit:22.7.5'
-    implementation 'art.arcane:Curse:23.5.2'
-    implementation "io.papermc:paperlib:1.0.7"
-    annotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
-    testAnnotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
-    implementation 'systems.manifold:manifold-rt:' + manifoldVersion
-
-    //Random Api's
-    implementation 'com.github.DeadSilenceIV:AdvancedChestsAPI:2.9-BETA'
-    implementation 'com.sk89q.worldguard:worldguard-bukkit:7.0.8'
-    implementation "com.github.FrancoBM12:API-MagicCosmetics:2.2.2"
-    implementation 'me.clip:placeholderapi:2.11.2'
-    implementation 'com.github.LoneDev6:api-itemsadder:3.2.5'
-    implementation 'io.th0rgal:oraxen:1.94.0'
-    implementation 'com.massivecraft:Factions:1.6.9.5-U0.6.21'
-    implementation "com.github.angeschossen:ChestProtectAPI:3.9.1"
-    implementation "com.github.TechFortress:GriefPrevention:16.18.1"
-    implementation 'xyz.xenondevs:particle:1.8.1'
-    compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
-
-    // Dynamically Loaded
-    compileOnly 'com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2'
-    compileOnly 'org.apache.commons:commons-lang3:3.12.0'
-    compileOnly 'com.google.code.gson:gson:2.10'
-    compileOnly 'com.elmakers.mine.bukkit:EffectLib:9.4'
-    compileOnly 'net.kyori:adventure-text-minimessage:4.13.1'
-    compileOnly 'net.kyori:adventure-platform-bukkit:4.3.0'
-    compileOnly 'net.kyori:adventure-api:4.13.1'
-    compileOnly 'io.github.mqzn:mCommands-spigot:1.1.0'
-    compileOnly 'io.github.mqzn:mCommands-common:1.1.0'
-    implementation 'com.google.guava:guava:30.1-jre'
-    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT'
 }
 
 if (JavaVersion.current().toString() != "17") {
@@ -170,111 +216,15 @@ if (JavaVersion.current().toString() != "17") {
     System.err.println()
     System.err.println("=== For Command Line (gradlew) ===")
     System.err.println("1. Install JDK 17 from https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html")
-    System.err.println("2. Set JAVA_HOME environment variable to the new jdk installation folder such as C:\\Program Files\\Java\\jdk-17.0.1")
+    System.err.println("2. Set JAVA_HOME environment variable to the new jdk installation folder such as C:/Program Files/Java/jdk-17.0.1")
     System.err.println("3. Open a new command prompt window to get the new environment variables if need be.")
     System.err.println("=========================================================================================================")
     System.err.println()
     System.exit(69)
 }
 
-
-def buildToolsJar = new File(buildDir, "buildtools/BuildTools.jar")
-def specialSourceJar = new File(buildDir, "specialsource/SpecialSource.jar")
-def buildToolsFolder = new File(buildDir, "buildtools")
-def specialSourceFolder = new File(buildDir, "specialsource")
-def buildToolsHint = new File(buildDir, "buildtools/craftbukkit-" + nmsVersion + ".jar")
-def outputShadeJar = new File(buildDir, "libs/Adapt-" + version + "-all.jar")
-def ssiJar = new File(buildDir, "specialsource/Adapt-" + version + "-all.jar")
-def ssobfJar = new File(buildDir, "specialsource/Adapt-" + version + "-rmo.jar")
-def ssJar = new File(buildDir, "specialsource/Adapt-" + version + "-rma.jar")
-def homePath = System.properties['user.home']
-def m2 = new File(homePath + "/.m2/repository")
-def m2s = m2.getAbsolutePath()
-
-// ======================== Building Mapped Jars =============================
-task downloadBuildtools(type: Download) {
-    group "remapping"
-    src 'https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar'
-    dest buildToolsJar
-    onlyIf {
-        !buildToolsJar.exists()
-    }
-}
-
-task downloadSpecialSource(type: Download) {
-    group "remapping"
-    src 'https://repo.maven.apache.org/maven2/net/md-5/SpecialSource/' + specialSourceVersion + '/SpecialSource-' + specialSourceVersion + '-shaded.jar'
-    dest specialSourceJar
-    onlyIf {
-        !specialSourceJar.exists()
-    }
-}
-
-task executeBuildTools(dependsOn: downloadBuildtools, type: JavaExec)
-{
-    group "remapping"
-    classpath = files(buildToolsJar)
-    workingDir = buildToolsFolder
-    args = [
-            "--rev",
-            nmsVersion,
-            "--compile",
-            "craftbukkit",
-            "--remap"
-    ]
-    onlyIf {
-        !buildToolsHint.exists()
-    }
-}
-
-task copyBuildToSpecialSource(type: Copy)
-{
-    group "remapping"
-    from outputShadeJar
-    into specialSourceFolder
-    dependsOn(downloadSpecialSource, shadowJar)
-}
-
-task specialSourceRemapObfuscate(type: JavaExec)
-{
-    group "remapping"
-    dependsOn(copyBuildToSpecialSource, downloadSpecialSource, shadowJar)
-    workingDir = specialSourceFolder
-    classpath = files(specialSourceJar,
-            new File(m2s + "/org/spigotmc/spigot/" + spigotJarVersion + "/spigot-" + spigotJarVersion + "-remapped-mojang.jar"))
-    mainClass = "net.md_5.specialsource.SpecialSource"
-    args = [
-            "--live",
-            "-i",
-            ssiJar.getName(),
-            "-o",
-            ssobfJar.getName(),
-            "-m",
-            m2s + "/org/spigotmc/minecraft-server/" + spigotJarVersion + "/minecraft-server-" + spigotJarVersion + "-maps-mojang.txt",
-            "--reverse",
-    ]
-}
-
-task specialSourceRemap(type: JavaExec)
-{
-    group "remapping"
-    dependsOn(specialSourceRemapObfuscate)
-    workingDir = specialSourceFolder
-    classpath = files(specialSourceJar,
-            new File(m2s + "/org/spigotmc/spigot/" + spigotJarVersion + "/spigot-" + spigotJarVersion + "-remapped-obf.jar"))
-    mainClass = "net.md_5.specialsource.SpecialSource"
-    args = [
-            "--live",
-            "-i",
-            ssobfJar.getName(),
-            "-o",
-            ssJar.getName(),
-            "-m",
-            m2s + "/org/spigotmc/minecraft-server/" + spigotJarVersion + "/minecraft-server-" + spigotJarVersion + "-maps-spigot.csrg"
-    ]
-}
-
-tasks.compileJava.dependsOn(executeBuildTools)
+def buildDir = layout.buildDirectory.asFile.get()
+def outputJar = new File(buildDir, "libs/Adapt-" + version + "-all.jar")
 
 java {
     toolchain {
@@ -286,21 +236,17 @@ compileJava {
     options.encoding = "UTF-8"
 }
 
-task setup()
-{
-    group("adapt")
-    dependsOn(clean, executeBuildTools)
-}
+tasks.build.dependsOn(shadowJar)
 
 task adapt(type: Copy)
 {
     group "adapt"
-    from ssJar
+    from outputJar
     into buildDir
     rename { String fileName ->
-        fileName.replace('Adapt-' + version + '-rma.jar', "Adapt-" + version + ".jar")
+        fileName.replace(outputJar.getName(), "Adapt-" + version + ".jar")
     }
-    dependsOn(specialSourceRemap)
+    dependsOn(build)
 }
 
 def registerCustomOutputTask(name, path) {
@@ -350,3 +296,6 @@ if (JavaVersion.current() != JavaVersion.VERSION_1_8 &&
     }
 }
 
+idea.project.settings.taskTriggers {
+    afterSync(":velocity:generateTemplates")
+}

@@ -20,23 +20,31 @@ package com.volmit.adapt.content.adaptation.agility;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.reflect.enums.Attributes;
+import com.volmit.adapt.util.reflect.events.api.ReflectiveHandler;
+import com.volmit.adapt.util.reflect.events.api.entity.EntityDismountEvent;
+import com.volmit.adapt.util.reflect.events.api.entity.EntityMountEvent;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.spigotmc.event.entity.EntityDismountEvent;
-import org.spigotmc.event.entity.EntityMountEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
+    private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-wind-up".getBytes());
+    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:wind-up");
+
     private final Map<Player, Integer> ticksRunning;
 
     public AgilityWindUp() {
@@ -54,8 +62,8 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getWindupSpeed(getLevelPercent(level)), 0) + C.GRAY + Localizer.dLocalize("agility", "windup", "lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + Localizer.dLocalize("agility", "windup", "lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getWindupSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("agility", "windup", "lore1"));
+        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("agility", "windup", "lore2"));
     }
 
     @EventHandler
@@ -64,18 +72,18 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         ticksRunning.remove(p);
     }
 
-    @EventHandler
-    public void on(EntityMountEvent e) {
-        if(e.getEntity() instanceof Player p) {
-            ticksRunning.remove(p);
-        }
+    @ReflectiveHandler
+    public void on(EntityMountEvent event) {
+        if (event.getEntity().getType() != EntityType.PLAYER)
+            return;
+        ticksRunning.remove((Player) event.getEntity());
     }
 
-    @EventHandler
-    public void on(EntityDismountEvent e) {
-        if(e.getEntity() instanceof Player p) {
-            ticksRunning.remove(p);
-        }
+    @ReflectiveHandler
+    public void on(EntityDismountEvent event) {
+        if (event.getEntity().getType() != EntityType.PLAYER)
+            return;
+        ticksRunning.remove((Player) event.getEntity());
     }
 
     private double getWindupTicks(double factor) {
@@ -89,23 +97,19 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     @Override
     public void onTick() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED) == null) {
-                return;
-            }
+            var attribute = Version.get().getAttribute(p, Attributes.GENERIC_MOVEMENT_SPEED);
+            if (attribute == null) continue;
+
             try {
-                for (AttributeModifier j : p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).getModifiers()) {
-                    if (j.getName().equals("adapt-wind-up")) {
-                        p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).removeModifier(j);
-                    }
-                }
+                attribute.removeModifier(MODIFIER, MODIFIER_KEY);
             } catch (Exception e) {
                 Adapt.verbose("Failed to remove windup modifier: " + e.getMessage());
             }
             if (p.isSwimming() || p.isFlying() || p.isGliding() || p.isSneaking()) {
                 ticksRunning.remove(p);
-                return;
+                continue;
             }
-            if (p.isSprinting() && getLevel(p) > 0) {
+            if (p.isSprinting() && hasAdaptation(p)) {
                 ticksRunning.compute(p, (k, v) -> {
                     if (v == null) {
                         return 1;
@@ -131,7 +135,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
                         p.getWorld().spawnParticle(Particle.FLAME, p.getLocation(), 1, 0, 0, 0, 0);
                     }
                 }
-                p.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).addModifier(new AttributeModifier("adapt-wind-up", speedIncrease, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                attribute.setModifier(MODIFIER, MODIFIER_KEY, speedIncrease, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
             } else {
                 ticksRunning.remove(p);
             }

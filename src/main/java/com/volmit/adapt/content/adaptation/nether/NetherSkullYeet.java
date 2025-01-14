@@ -19,11 +19,7 @@
 package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.nms.NMS;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Localizer;
-import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
@@ -94,9 +90,10 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         }
 
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
 
         if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration(p)) {
-            p.playSound(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
+            sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
             return;
         }
 
@@ -106,10 +103,9 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
         if (p.hasCooldown(p.getInventory().getItemInMainHand().getType())) {
             e.setCancelled(true);
-            p.playSound(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
+            sp.play(p, Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 1F);
             return;
         } else {
-            NMS.get().sendCooldown(p, Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
             p.setCooldown(Material.WITHER_SKELETON_SKULL, getCooldownDuration(p));
         }
 
@@ -122,7 +118,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         Vector dir = p.getEyeLocation().getDirection();
         Location spawn = p.getEyeLocation().add(new Vector(.5, -.5, .5)).add(dir);
         p.getWorld().spawn(spawn, WitherSkull.class, entity -> {
-            p.playSound(entity, Sound.ENTITY_WITHER_SHOOT, 1, 1);
+            sp.play(entity, Sound.ENTITY_WITHER_SHOOT, 1, 1);
             entity.setRotation(p.getEyeLocation().getYaw(), p.getEyeLocation().getPitch());
             entity.setCharged(false);
             entity.setBounce(false);

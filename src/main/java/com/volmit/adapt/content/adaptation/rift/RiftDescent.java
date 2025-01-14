@@ -19,10 +19,7 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -61,6 +58,7 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerToggleSneakEvent e) {
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
         if (p.getPotionEffect(PotionEffectType.LEVITATION) == null) {
             return;
         }
@@ -82,14 +80,14 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
-                p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
+                sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
                 cooldown.remove(p);
 
             });
 
             J.s(() -> {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, (int) (20 * getConfig().cooldown), 0));
-                p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f);
+                sp.play(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f);
             });
         }
     }

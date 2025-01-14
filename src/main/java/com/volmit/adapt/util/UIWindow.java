@@ -19,6 +19,9 @@
 package com.volmit.adapt.util;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.api.version.Version;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,6 +32,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -74,8 +78,7 @@ public class UIWindow implements Window, Listener {
             return;
         }
 
-        // 1.14 bukkit api change, removed getTitle() and getName() from Inventory.class
-        if (!viewer.getOpenInventory().getTitle().equals(title)) {
+        if (!(e.getInventory().getHolder() instanceof Holder)) {
             return;
         }
 
@@ -174,7 +177,7 @@ public class UIWindow implements Window, Listener {
             return;
         }
 
-        if (!e.getPlayer().getOpenInventory().getTitle().equals(title)) {
+        if (!(e.getInventory().getHolder() instanceof Holder)) {
             return;
         }
 
@@ -221,22 +224,20 @@ public class UIWindow implements Window, Listener {
         if (visible) {
             Bukkit.getPluginManager().registerEvents(this, Adapt.instance);
 
-            if (getResolution().getType().equals(InventoryType.CHEST)) {
-                inventory = Bukkit.createInventory(null, getViewportHeight() * 9, getTitle());
+            var openInventory = viewer.getOpenInventory().getTopInventory();
+            if (openInventory.getHolder() instanceof Holder holder) {
+                inventory = getCurrentInventory(this, holder);
             } else {
-                inventory = Bukkit.createInventory(null, getResolution().getType(), getTitle());
+                inventory = createInventory(this);
             }
 
-            viewer.openInventory(inventory);
-            this.visible = visible;
+            this.visible = true;
             updateInventory();
         } else {
-            this.visible = visible;
+            this.visible = false;
             HandlerList.unregisterAll(this);
             viewer.closeInventory();
         }
-
-        this.visible = visible;
         return this;
     }
 
@@ -413,6 +414,9 @@ public class UIWindow implements Window, Listener {
     @Override
     public Window updateInventory() {
         if (isVisible()) {
+            if (Version.SET_TITLE) {
+                viewer.getOpenInventory().setTitle(getTitle());
+            }
             ItemStack[] is = inventory.getContents();
             Set<ItemStack> isf = new HashSet<>();
 
@@ -452,6 +456,54 @@ public class UIWindow implements Window, Listener {
 
     @Override
     public Window reopen() {
+        if (Version.SET_TITLE) {
+            visible = false;
+            HandlerList.unregisterAll(this);
+            return open();
+        }
         return this.close().open();
+    }
+
+    @Setter
+    @Getter
+    private static class Holder implements InventoryHolder {
+        private Inventory inventory;
+        private WindowResolution resolution;
+        private UIWindow window;
+
+        public void unregister() {
+            HandlerList.unregisterAll(window);
+            window.visible = false;
+        }
+    }
+
+    private static Inventory createInventory(UIWindow window) {
+        var holder = new Holder();
+        Inventory inventory;
+        if (window.getResolution().getType().equals(InventoryType.CHEST)) {
+            inventory = Bukkit.createInventory(holder, window.getViewportHeight() * 9, window.getTitle());
+        } else {
+            inventory = Bukkit.createInventory(holder, window.getResolution().getType(), window.getTitle());
+        }
+        holder.setResolution(window.getResolution());
+        holder.setInventory(inventory);
+        holder.setWindow(window);
+
+        window.viewer.openInventory(inventory);
+        return inventory;
+    }
+
+    private static Inventory getCurrentInventory(UIWindow window, Holder holder) {
+        if (!Version.SET_TITLE || holder.getResolution() != window.getResolution()) {
+            holder.window.close();
+            return createInventory(window);
+        }
+
+        var openInventory = holder.inventory;
+        holder.unregister();
+        holder.setWindow(window);
+
+        openInventory.clear();
+        return openInventory;
     }
 }

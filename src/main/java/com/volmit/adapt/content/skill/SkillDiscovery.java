@@ -29,6 +29,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.reflect.enums.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
@@ -147,7 +148,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         if (d.isNewDiscovery(bd.getAsString())) {
             xp(p, getConfig().discoverBlockBaseXP + (getValue(bd) * getConfig().discoverBlockValueXPMultiplier));
             if (getConfig().showParticles) {
-                p.spawnParticle(Particle.TOTEM, l.clone().add(0.5, 0.5, 0.5), 9, 0, 0, 0, 0.3);
+                p.spawnParticle(Particles.TOTEM, l.clone().add(0.5, 0.5, 0.5), 9, 0, 0, 0, 0.3);
             }
         }
 
@@ -239,8 +240,8 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     }
 
     public void seeBiome(Player p, Biome e) {
-        Discovery<Biome> d = getPlayer(p).getData().getSeenBiomes();
-        if (d.isNewDiscovery(e)) {
+        Discovery<String> d = getPlayer(p).getData().getSeenBiomes();
+        if (d.isNewDiscovery(e.getKey().toString())) {
             xp(p, getConfig().discoverBiomeXP);
         }
     }

@@ -18,14 +18,15 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.crafting.*;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
-import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
-import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -63,42 +64,47 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                 .icon(Material.CRAFTING_TABLE).key("challenge_craft_1k")
                 .title(Localizer.dLocalize("advancement", "challenge_craft_1k", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_craft_1k", "description"))
-                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_1k"))
+                .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.CRAFTING_TABLE)
                         .key("challenge_craft_5k")
                         .title(Localizer.dLocalize("advancement", "challenge_craft_5k", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_craft_5k", "description"))
-                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                        .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_5k"))
+                        .frame(AdvancementFrameType.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.CRAFTING_TABLE)
                                 .key("challenge_craft_50k")
                                 .title(Localizer.dLocalize("advancement", "challenge_craft_50k", "title"))
                                 .description(Localizer.dLocalize("advancement", "challenge_craft_50k", "description"))
-                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_50k"))
+                                .frame(AdvancementFrameType.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                         .icon(Material.CRAFTING_TABLE)
                                         .key("challenge_craft_500k")
                                         .title(Localizer.dLocalize("advancement", "challenge_craft_500k", "title"))
                                         .description(Localizer.dLocalize("advancement", "challenge_craft_500k", "description"))
-                                        .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                        .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_500k"))
+                                        .frame(AdvancementFrameType.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                                 .icon(Material.CRAFTING_TABLE)
                                                 .key("challenge_craft_5m")
                                                 .title(Localizer.dLocalize("advancement", "challenge_craft_5m", "title"))
                                                 .description(Localizer.dLocalize("advancement", "challenge_craft_5m", "description"))
-                                                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                                                .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_5m"))
+                                                .frame(AdvancementFrameType.CHALLENGE)
                                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                                 .build())
                                         .build())
                                 .build())
                         .build())
                 .build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_1k").goal(1000).stat("blocked.hits").reward(getConfig().challengeCraft1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_5k").goal(5000).stat("blocked.hits").reward(getConfig().challengeCraft1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_50k").goal(50000).stat("blocked.hits").reward(getConfig().challengeCraft1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_500k").goal(500000).stat("blocked.hits").reward(getConfig().challengeCraft1kReward).build());
-        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_5m").goal(5000000).stat("blocked.hits").reward(getConfig().challengeCraft1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_1k").goal(1000).stat("crafted.items").reward(getConfig().challengeCraft1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_5k").goal(5000).stat("crafted.items").reward(getConfig().challengeCraft1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_50k").goal(50000).stat("crafted.items").reward(getConfig().challengeCraft1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_500k").goal(500000).stat("crafted.items").reward(getConfig().challengeCraft1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_5m").goal(5000000).stat("crafted.items").reward(getConfig().challengeCraft1kReward).build());
 
         cooldowns = new HashMap<>();
     }
@@ -147,14 +153,12 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
 
     private boolean isValidCraftEvent(CraftItemEvent e) {
-        if (cooldowns.containsKey(e.getWhoClicked())) {
-            if (cooldowns.get(e.getWhoClicked()) + getConfig().cooldownDelay > System.currentTimeMillis()) {
-                return false;
-            } else {
-                cooldowns.remove(e.getWhoClicked());
-            }
-        }
-        cooldowns.put((Player) e.getWhoClicked(), System.currentTimeMillis());
+        Player p = (Player) e.getWhoClicked();
+
+        Long cooldown = cooldowns.get(p);
+        if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
+            return false;
+        cooldowns.put(p, System.currentTimeMillis());
 
         ItemStack result = e.getInventory().getResult();
         ItemStack cursor = e.getCursor();

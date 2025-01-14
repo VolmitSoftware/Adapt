@@ -19,12 +19,14 @@
 package com.volmit.adapt.content.adaptation.taming;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.reflect.enums.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
@@ -33,9 +35,8 @@ import java.util.Collection;
 import java.util.UUID;
 
 public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
-    private final UUID attUUID = UUID.nameUUIDFromBytes("tame-damage-boost".getBytes());
-    private final String attid = "att-tame-damage-boost";
-
+    private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-damage-boost".getBytes());
+    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:tame-damage-boost");
 
     public TamingDamage() {
         super("tame-damage");
@@ -77,15 +78,12 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     }
 
     private void update(Tameable j, int level) {
-        AttributeModifier mod = new AttributeModifier(attUUID, attid, getDamageBoost(level), AttributeModifier.Operation.ADD_SCALAR);
-        if (j.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null) {
-            j.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).removeModifier(mod);
-        } else {
-            return;
-        }
+        var attribute = Version.get().getAttribute(j, Attributes.GENERIC_ATTACK_DAMAGE);
+        if (attribute == null) return;
+        attribute.removeModifier(MODIFIER, MODIFIER_KEY);
 
         if (level > 0) {
-            j.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).addModifier(mod);
+            attribute.addModifier(MODIFIER, MODIFIER_KEY, getDamageBoost(level), AttributeModifier.Operation.ADD_SCALAR);
         }
     }
 

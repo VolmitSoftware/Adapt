@@ -23,6 +23,8 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
+import com.volmit.adapt.util.reflect.enums.PotionEffectTypes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -33,7 +35,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 
 public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
@@ -54,10 +55,11 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         if (p.getLocation().getWorld() == null) {
             return;
         }
-        p.getWorld().playSound(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
-        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1f, 0.01f);
-        p.getLocation().getWorld().playSound(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1f, 0.01f);
-        p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, duration, amplifier, true, false, false));
+        SoundPlayer spw = SoundPlayer.of(p.getWorld());
+        spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_IRON, 1f, 1.24f);
+        spw.play(p.getLocation(), Sound.BLOCK_CONDUIT_AMBIENT_SHORT, 1f, 0.01f);
+        spw.play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1f, 0.01f);
+        p.addPotionEffect(new PotionEffect(PotionEffectTypes.DAMAGE_RESISTANCE, duration, amplifier, true, false, false));
     }
 
     public static boolean hasRiftResistPerk(AdaptPlayer p) {
@@ -82,7 +84,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
             switch (hand.getType()) {
                 case ENDER_EYE, ENDER_PEARL -> {
                     xp(p, 3);
-                    riftResistStackAdd(p, 80, 10);
+                    riftResistStackAdd(p, getConfig().duration, getConfig().amplitude);
                 }
             }
         }
@@ -111,6 +113,8 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         int baseCost = 3;
         double costFactor = 1;
         int maxLevel = 1;
+        int amplitude = 1;
+        int duration = 80;
         int initialCost = 5;
     }
 }

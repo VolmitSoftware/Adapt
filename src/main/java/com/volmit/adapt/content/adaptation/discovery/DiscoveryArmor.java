@@ -19,30 +19,42 @@
 package com.volmit.adapt.content.adaptation.discovery;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.version.IAttribute;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.collection.KMap;
+import com.volmit.adapt.util.reflect.enums.Attributes;
+import com.volmit.adapt.util.reflect.enums.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
+    private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-discovery-armor".getBytes());
+    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:discovery-armor");
+    private static final long UPDATE_COOLDOWN = TimeUnit.SECONDS.toMillis(3);
+    private static final Sphere SPHERE = new Sphere(5);
+
+    private final KMap<UUID, Long> playerData = new KMap<>();
+
     public DiscoveryArmor() {
         super("discovery-world-armor");
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("discovery", "armor", "description"));
         setDisplayName(Localizer.dLocalize("discovery", "armor", "name"));
         setIcon(Material.TURTLE_HELMET);
-        setInterval(1305);
+        setInterval(305);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
@@ -63,33 +75,29 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
         Block center = l.getBlock();
         double armorValue = 0.0;
         double count = 0;
-        int r = 5;
 
-        for (int x = -r; x <= r; x++) {
-            for (int y = -r; y <= r; y++) {
-                for (int z = -r; z <= r; z++) {
-                    Block b = center.getRelative(x, y, z);
-                    if (center.getLocation().distanceSquared(b.getLocation()) <= r * r) {
-                        if (b.getType() != Material.AIR && !b.isLiquid()) {
-                            count++;
-                            double a = getArmorPoints(b.getType());
-                            if (Double.isNaN(a) || a < 0) {
-                                a = 0;
-                            }
-                            armorValue += a;
+        var sphere = SPHERE.clone();
 
-                            if (a > 2 && M.r(0.005 * a)) {
-                                Vector v = VectorMath.directionNoNormal(l, b.getLocation().add(0.5, 0.5, 0.5));
-                                if (getConfig().showParticles) {
-                                    l.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, l.clone().add(0, 1, 0), 0, v.getX(), v.getY(), v.getZ());
-                                }
-                            }
-                        }
-                    }
+        while (sphere.hasNext()) {
+            var r = sphere.next();
+            Block b = center.getRelative(r.getX(), r.getY(), r.getZ());
+            if (b.isEmpty() || b.isLiquid())
+                continue;
+
+            count++;
+            double a = getArmorPoints(b.getType());
+            if (Double.isNaN(a) || a < 0) {
+                a = 0;
+            }
+            armorValue += a;
+
+            if (a > 2 && M.r(0.005 * a)) {
+                Vector v = VectorMath.directionNoNormal(l, b.getLocation().add(0.5, 0.5, 0.5));
+                if (getConfig().showParticles) {
+                    l.getWorld().spawnParticle(Particles.ENCHANTMENT_TABLE, l.clone().add(0, 1, 0), 0, v.getX(), v.getY(), v.getZ());
                 }
             }
         }
-
 
         return Math.min((armorValue / count) * (level / 2D) * 0.65, 10);
     }
@@ -106,44 +114,46 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @Override
     public void onTick() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p == null || !p.isOnline()) {
-                continue;
-            }
-            AttributeInstance armorAttribute = p.getAttribute(Attribute.GENERIC_ARMOR);
-            if (armorAttribute == null) {
-                continue;
-            }
-            Collection<AttributeModifier> c = armorAttribute.getModifiers();
-            if (c == null || c.isEmpty()) {
-                continue;
-            }
+        var players = Bukkit.getOnlinePlayers();
+        var executor = MultiBurst.burst.burst(players.size());
 
-            if (!hasAdaptation(p)) {
-                for (AttributeModifier i : new ArrayList<>(c)) {
-                    if (i.getName().equals("adapt-discovery-armor")) {
-                        armorAttribute.removeModifier(i);
-                    }
-                }
-            } else {
-                double oldArmor = 0;
-                double armor = getArmor(p.getLocation(), getLevel(p));
-                armor = Double.isNaN(armor) ? 0 : armor;
+        for (Player p : players) {
+            executor.queue(() -> {
+                if (p == null || !p.isOnline()) return;
 
-                for (AttributeModifier i : new ArrayList<>(c)) {
-                    if (i.getName().equals("adapt-discovery-armor")) {
-                        oldArmor = i.getAmount();
-                        oldArmor = Double.isNaN(oldArmor) ? 0 : oldArmor;
-                        armorAttribute.removeModifier(i);
-                    }
+                long now = M.ms();
+                var nextUpdate = playerData.getOrDefault(p.getUniqueId(), now);
+                if (nextUpdate > now) return;
+                playerData.put(p.getUniqueId(), now + UPDATE_COOLDOWN);
+
+                var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
+                if (attribute == null) return;
+
+                if (!hasAdaptation(p)) {
+                    attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+                } else {
+                    double oldArmor = attribute.getModifier(MODIFIER, MODIFIER_KEY)
+                            .stream()
+                            .mapToDouble(IAttribute.Modifier::getAmount)
+                            .max()
+                            .orElse(0);
+
+                    double armor = getArmor(p.getLocation(), getLevel(p));
+                    armor = Double.isNaN(armor) ? 0 : armor;
+
+                    double lArmor = M.lerp(oldArmor, armor, 0.3);
+                    lArmor = Double.isNaN(lArmor) ? 0 : lArmor;
+                    attribute.setModifier(MODIFIER, MODIFIER_KEY, lArmor, AttributeModifier.Operation.ADD_NUMBER);
                 }
-                double lArmor = M.lerp(oldArmor, armor, 0.3);
-                lArmor = Double.isNaN(lArmor) ? 0 : lArmor;
-                armorAttribute.addModifier(new AttributeModifier("adapt-discovery-armor", lArmor, AttributeModifier.Operation.ADD_NUMBER));
-            }
+            });
         }
+        executor.complete();
     }
 
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        playerData.remove(event.getPlayer().getUniqueId());
+    }
 
     @Override
     public boolean isEnabled() {

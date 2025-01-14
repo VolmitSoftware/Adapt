@@ -18,8 +18,9 @@
 
 package com.volmit.adapt.util;
 
+import com.volmit.adapt.util.reflect.enums.Enchantments;
+import com.volmit.adapt.util.reflect.enums.ItemFlags;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -31,6 +32,7 @@ public class UIElement implements Element {
     private final String id;
     private final List<String> lore;
     private MaterialBlock material;
+    private CustomModel model;
     private boolean enchanted;
     private String name;
     private double progress;
@@ -90,6 +92,17 @@ public class UIElement implements Element {
     @Override
     public UIElement setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    @Override
+    public CustomModel getModel() {
+        return model;
+    }
+
+    @Override
+    public UIElement setModel(CustomModel model) {
+        this.model = model;
         return this;
     }
 
@@ -214,17 +227,22 @@ public class UIElement implements Element {
     @Override
     public ItemStack computeItemStack() {
         try {
-            ItemStack is = new ItemStack(getMaterial().getMaterial(), getCount(), getEffectiveDurability());
+            ItemStack is = getModel() != null ? getModel().toItemStack() :
+                    new ItemStack(getMaterial().getMaterial());
+            is.setAmount(getCount());
+            is.setDurability(getEffectiveDurability());
+
             ItemMeta im = is.getItemMeta();
+            if (im == null) return is;
             im.setDisplayName(getName());
             im.setLore(getLore().copy());
             if (isEnchanted()) {
-                im.addEnchant(Enchantment.DURABILITY, 1, true);
+                im.addEnchant(Enchantments.DURABILITY, 1, true);
             }
             // Hide all attributes and enchants and stuff!
             im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-            im.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+            im.addItemFlags(ItemFlags.HIDE_POTION_EFFECTS);
             im.addItemFlags(ItemFlag.HIDE_DYE);
             im.addItemFlags(ItemFlag.HIDE_DESTROYS);
             im.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);

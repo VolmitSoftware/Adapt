@@ -19,10 +19,10 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -55,6 +55,7 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
     @EventHandler
     public void on(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        SoundPlayer sp = SoundPlayer.of(p);
         ItemStack hand = p.getInventory().getItemInMainHand();
 
         if (hand.getType() != Material.ENDER_CHEST || !hasAdaptation(p)) {
@@ -64,7 +65,6 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
         if (p.hasCooldown(hand.getType())) {
             e.setCancelled(true);
         } else {
-            NMS.get().sendCooldown(p, Material.ENDER_CHEST, 100);
             p.setCooldown(Material.ENDER_CHEST, 100);
 
             if ((e.getAction() == Action.RIGHT_CLICK_AIR) || (e.getAction() == Action.LEFT_CLICK_AIR) || (e.getAction() == Action.LEFT_CLICK_BLOCK)) {
@@ -72,8 +72,8 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
                         && getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
                     RiftResist.riftResistStackAdd(p, 10, 2);
                 }
-                p.playSound(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
-                p.playSound(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+                sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
+                sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                 p.openInventory(p.getEnderChest());
             }
         }

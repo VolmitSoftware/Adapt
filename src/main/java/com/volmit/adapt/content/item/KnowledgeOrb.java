@@ -31,7 +31,9 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @Data
@@ -66,6 +68,10 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
         return io.withData(new Data(skill, knowledge));
     }
 
+    public static ItemStack with(Map<String, Integer> knowledgeMap) {
+        return io.withData(new Data(knowledgeMap));
+    }
+
     @Override
     public Material getMaterial() {
         return Material.SNOWBALL;
@@ -78,7 +84,11 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Localizer.dLocalize("snippets", "knowledgeorb", "contains") + " " + C.UNDERLINE + C.WHITE + "" + data.knowledge + " " + Localizer.dLocalize("snippets", "knowledgeorb", "knowledge"));
+        for (Map.Entry<String, Integer> entry : data.getKnowledgeMap().entrySet()) {
+            String skill = entry.getKey();
+            int knowledge = entry.getValue();
+            lore.add(C.WHITE + Localizer.dLocalize("snippets", "knowledgeorb", "contains") + " " + C.UNDERLINE + C.WHITE + "" + knowledge + " " + Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + " " + Localizer.dLocalize("snippets", "knowledgeorb", "knowledge"));
+        }
         lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("snippets", "knowledgeorb", "rightclick") + " " + C.GRAY + Localizer.dLocalize("snippets", "knowledgeorb", "togainknowledge"));
     }
 
@@ -86,17 +96,33 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(data.skill).getDisplayName() + " " + Localizer.dLocalize("snippets", "knowledgeorb", "knowledgeorb"));
+        meta.setDisplayName(Localizer.dLocalize("snippets", "knowledgeorb", "knowledgeorb"));
     }
 
     @AllArgsConstructor
     @lombok.Data
     public static class Data {
-        private String skill;
-        private int knowledge;
+        private Map<String, Integer> knowledgeMap;
+
+        public Data(String skill, int knowledge) {
+            this.knowledgeMap = new HashMap<>();
+            this.knowledgeMap.put(skill, knowledge);
+        }
+
+        public String getSkill() {
+            return knowledgeMap.keySet().iterator().next();
+        }
+
+        public int getKnowledge() {
+            return knowledgeMap.values().iterator().next();
+        }
 
         public void apply(Player p) {
-            Adapt.instance.getAdaptServer().getPlayer(p).getSkillLine(skill).giveKnowledge(knowledge);
+            for (Map.Entry<String, Integer> entry : knowledgeMap.entrySet()) {
+                String skill = entry.getKey();
+                int knowledge = entry.getValue();
+                Adapt.instance.getAdaptServer().getPlayer(p).getSkillLine(skill).giveKnowledge(knowledge);
+            }
         }
     }
 }

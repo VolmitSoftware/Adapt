@@ -71,27 +71,29 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
             return;
         }
         if (e.getEntity() instanceof Player p && hasAdaptation(p) && p.getLevel() > 1) {
+            SoundPlayer sp = SoundPlayer.of(p);
             if (p.getLevel() < p.getLevel() - getXpTaken(getLevel(p))) {
                 vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);
-                p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
+                sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
                 return;
             }
-            if (!cooldowns.containsKey(p) || (cooldowns.containsKey(p) && M.ms() - cooldowns.get(p) > 15000)) {
+            Long cooldown = cooldowns.get(p);
+            if (cooldown == null || M.ms() - cooldown > 15000) {
                 e.setDamage(e.getDamage() - (e.getDamage() * (getEffectiveness(getLevelPercent(getLevel(p))))));
                 xp(p, 5);
                 cooldowns.put(p, M.ms());
                 if (p.getLevel() - getXpTaken(getLevel(p)) > 0) {
                     p.setLevel(p.getLevel() - getXpTaken(getLevel(p)));
                     vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.LIME);
-                    p.playSound(p.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 3, 0.01f);
-                    p.playSound(p.getLocation(), Sound.BLOCK_SHROOMLIGHT_HIT, 15, 0.01f);
+                    sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 3, 0.01f);
+                    sp.play(p.getLocation(), Sound.BLOCK_SHROOMLIGHT_HIT, 15, 0.01f);
                 } else {
                     vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);
-                    p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
+                    sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
                 }
             } else {
                 vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);
-                p.playSound(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
+                sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
             }
         }
     }

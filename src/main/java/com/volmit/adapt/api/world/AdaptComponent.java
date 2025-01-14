@@ -24,6 +24,10 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
+
+import static org.bukkit.Material.*;
+
 public interface AdaptComponent {
     default AdaptServer getServer() {
         return Adapt.instance.getAdaptServer();
@@ -43,6 +47,10 @@ public interface AdaptComponent {
 
     default boolean isMelee(ItemStack is) {
         return isTool(is);
+    }
+
+    default boolean isShield(ItemStack is) {
+        return is.getType().equals(Material.SHIELD);
     }
 
     default boolean isXpBlock(Material material) {
@@ -117,16 +125,9 @@ public interface AdaptComponent {
 
     default boolean isLog(ItemStack it) {
         if (isItem(it)) {
-            return switch (it.getType()) {
-                case ACACIA_LOG, BIRCH_LOG, CHERRY_LOG, STRIPPED_CHERRY_LOG, STRIPPED_CHERRY_WOOD, DARK_OAK_LOG, JUNGLE_LOG, OAK_LOG, SPRUCE_LOG, STRIPPED_ACACIA_LOG,
-                        STRIPPED_BIRCH_LOG, STRIPPED_DARK_OAK_LOG, STRIPPED_JUNGLE_LOG, STRIPPED_OAK_LOG,
-                        STRIPPED_SPRUCE_LOG, ACACIA_WOOD, BIRCH_WOOD, DARK_OAK_WOOD, JUNGLE_WOOD, OAK_WOOD,
-                        SPRUCE_WOOD, STRIPPED_ACACIA_WOOD, STRIPPED_BIRCH_WOOD, STRIPPED_DARK_OAK_WOOD, STRIPPED_JUNGLE_WOOD,
-                        STRIPPED_OAK_WOOD, STRIPPED_SPRUCE_WOOD, MUSHROOM_STEM, BROWN_MUSHROOM_BLOCK, RED_MUSHROOM_BLOCK,
-                        MANGROVE_LOG, MANGROVE_ROOTS, MUDDY_MANGROVE_ROOTS, STRIPPED_MANGROVE_LOG, MANGROVE_WOOD, STRIPPED_MANGROVE_WOOD ->
-                        true;
-                default -> false;
-            };
+            return List.of(MUSHROOM_STEM, BROWN_MUSHROOM_BLOCK, RED_MUSHROOM_BLOCK, MANGROVE_ROOTS, MUDDY_MANGROVE_ROOTS).contains(it.getType())
+                    || it.getType().name().endsWith("_LOG")
+                    || it.getType().name().endsWith("_WOOD");
         }
 
         return false;
@@ -134,12 +135,8 @@ public interface AdaptComponent {
 
     default boolean isLeaves(ItemStack it) {
         if (isItem(it)) {
-            return switch (it.getType()) {
-                case OAK_LEAVES, MANGROVE_ROOTS, MUDDY_MANGROVE_ROOTS, SPRUCE_LEAVES, BIRCH_LEAVES,
-                        JUNGLE_LEAVES, ACACIA_LEAVES, DARK_OAK_LEAVES, MANGROVE_LEAVES, CHERRY_LEAVES,
-                        AZALEA_LEAVES, FLOWERING_AZALEA_LEAVES -> true;
-                default -> false;
-            };
+            return List.of(Material.MANGROVE_ROOTS, Material.MUDDY_MANGROVE_ROOTS).contains(it.getType())
+                    || it.getType().name().endsWith("_LEAVES");
         }
 
         return false;

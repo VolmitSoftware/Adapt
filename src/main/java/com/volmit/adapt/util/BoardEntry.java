@@ -19,7 +19,7 @@
 package com.volmit.adapt.util;
 
 import lombok.Getter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Missionary (missionarymc@gmail.com)

@@ -2,34 +2,34 @@
   "advancement": {
     "challenge_move_1k": {
       "title": "Hareket Etmeliyim!",
-      "description": "1 Kilometreden fazla yürüyün (1.000 blok)"
+      "description": "1 Kilometre yürü (1.000 blok)"
     },
     "challenge_sprint_5k": {
-      "title": "5K depar at!",
-      "description": "5 Kilometreden Fazla Yürüyün (5.000 blok)"
+      "title": "5K Depar At!",
+      "description": "5 Kilometre yürü (5.000 blok)"
     },
     "challenge_sprint_50k": {
-      "title": "50K yakınlaştırın!",
-      "description": "50 Kilometreden fazla yürüyün (50.000 blok)"
+      "title": "Uçarcasına!",
+      "description": "50 Kilometre yürü (50.000 blok)"
     },
     "challenge_sprint_500k": {
-      "title": "Evreni Geçin!!",
-      "description": "500 Kilometreden fazla yürüyün (500.000 blok)"
+      "title": "Evreni Dolaş!!",
+      "description": "500 Kilometre yürü (500.000 blok)"
     },
     "challenge_sprint_marathon": {
-      "title": "Bir (gerçek) Maraton Sprint!",
-      "description": "42.195 Blok üzerinde Sprint!"
+      "title": "Kelimenin tam anlamıyla Maraton!",
+      "description": "42.195 Blok koş!"
     },
     "challenge_place_1k": {
-      "title": "Acemi Oluşturucu!",
+      "title": "Acemi İnşaatçı!",
       "description": "1.000 Blok Yerleştir"
     },
     "challenge_place_5k": {
-      "title": "Orta Düzey Oluşturucu!",
+      "title": "Orta Düzey İnşaatçı!",
       "description": "5.000 Blok Yerleştir"
     },
     "challenge_place_50k": {
-      "title": "Gelişmiş Oluşturucu!",
+      "title": "İleri Düzey İnşaatçı!",
       "description": "50.000 Blok Yerleştir"
     },
     "challenge_place_500k": {
@@ -37,200 +37,200 @@
       "description": "500.000 Blok Yerleştir"
     },
     "challenge_place_5m": {
-      "title": "Simetrinin Yardımcısı!",
-      "description": "GERÇEKLİK SİZİN OYUN ALANINIZDIR! (5 Milyon Blok)"
+      "title": "Simetrinin Çırağı!",
+      "description": "GERÇEKLİK SENİN OYUN ALANIN! (5 Milyon Blok)"
     },
     "challenge_chop_1k": {
       "title": "Acemi Oduncu!",
-      "description": "1.000 Blok Yerleştir"
+      "description": "1.000 Blok Kes"
     },
     "challenge_chop_5k": {
-      "title": "Orta seviye oduncu!",
-      "description": "5.000 Blok Yerleştir"
+      "title": "Orta Düzey oduncu!",
+      "description": "5.000 Blok Kes"
     },
     "challenge_chop_50k": {
-      "title": "Gelişmiş Oduncu!",
-      "description": "50.000 Blok Yerleştir"
+      "title": "İleri Düzey Oduncu!",
+      "description": "50.000 Blok Kes"
     },
     "challenge_chop_500k": {
       "title": "Usta Oduncu!",
-      "description": "500.000 Blok Yerleştir"
+      "description": "500.000 Blok Kes"
     },
     "challenge_chop_5m": {
       "title": "Köpek Jackson",
-      "description": "En iyi iyi çocuk! (5 Milyon Blok)"
+      "description": "En en iyi, iyi çocuk! (5 Milyon Blok)"
     },
     "challenge_block_1k": {
-      "title": "Balrely Engelleme!",
-      "description": "1000 İsabeti Engelle"
+      "title": "Neredeyse Engelleme!",
+      "description": "1000 Vuruşu Engelle"
     },
     "challenge_block_5k": {
       "title": "Engellemek Eğlencelidir!",
-      "description": "5000 İsabeti Engelle"
+      "description": "5000 Vuruşu Engelle"
     },
     "challenge_block_50k": {
-      "title": "Engellemek benim hayatım!",
-      "description": "50.000 İsabeti Engelle"
+      "title": "Engellemek benim Hayatım!",
+      "description": "50.000 Vuruşu Engelle"
     },
     "challenge_block_500k": {
-      "title": "Engellemek Benim Amacım!",
-      "description": "500.000 İsabeti Engelle"
+      "title": "Engellemek benim Amacım!",
+      "description": "500.000 Vuruşu Engelle"
     },
     "challenge_block_5m": {
-      "title": "Die El Die Verletzt",
-      "description": "5.000.000 Hit'i Engelle"
+      "title": "Yaralı Eller",
+      "description": "5.000.000 Vuruşu Engelle"
     },
     "challenge_brew_1k": {
-      "title": "Acemi Kimyager!",
-      "description": "1000 İksir tüket"
+      "title": "Acemi Simyacı!",
+      "description": "1000 İksir Tüket"
     },
     "challenge_brew_5k": {
-      "title": "Orta Düzey Kimyager!",
-      "description": "5000 İksir tüket"
+      "title": "Orta Düzey Simyacı!",
+      "description": "5000 İksir Tüket"
     },
     "challenge_brew_50k": {
-      "title": "Gelişmiş Simyacı!",
-      "description": "50.000 İksir tüket"
+      "title": "İleri Düzey Simyacı!",
+      "description": "50.000 İksir Tüket"
     },
     "challenge_brew_500k": {
-      "title": "Usta Kimyager!",
-      "description": "500.000 İksir tüket"
+      "title": "Usta Simyacı!",
+      "description": "500.000 İksir Tüket"
     },
     "challenge_brew_5m": {
-      "title": "Kimyager",
-      "description": "5.000.000 İksir tüket"
+      "title": "Eşsiz Simyacı",
+      "description": "5.000.000 İksir Tüket"
     },
     "challenge_brewsplash_1k": {
-      "title": "Acemi İksir-Sıçrayan!",
-      "description": "1000 İksir Sıçrama"
+      "title": "Acemi İksir-Patlatıcı!",
+      "description": "1000 İksir Patlat"
     },
     "challenge_brewsplash_5k": {
-      "title": "Orta Seviye İksir-Sıçrayan!",
-      "description": "Sıçrayan 5000 İksir"
+      "title": "Orta Düzey İksir-Patlatıcı!",
+      "description": "5000 İksir Patlat"
     },
     "challenge_brewsplash_50k": {
-      "title": "Gelişmiş İksir-Sıçrama!",
-      "description": "50.000 İksir Sıçrat"
+      "title": "İleri Düzey İksir-Patlatıcı!",
+      "description": "50.000 İksir Patlat"
     },
     "challenge_brewsplash_500k": {
-      "title": "Usta İksir-Sıçrayan!",
-      "description": "500.000 İksir Sıçrat"
+      "title": "Usta İksir-Patlatıcı!",
+      "description": "500.000 İksir Patlat"
     },
     "challenge_brewsplash_5m": {
-      "title": "Sıçrayan Meister",
-      "description": "5.000.000 İksir Sıçrat"
+      "title": "İksir Patlatma Üstadı",
+      "description": "5.000.000 İksir Patlat"
     },
     "challenge_craft_1k": {
       "title": "Kurnaz Zanaatkar!",
-      "description": "1000 Öğe Üret"
+      "description": "1000 Eşya Üret"
     },
     "challenge_craft_5k": {
       "title": "Huysuz Zanaatkar!",
-      "description": "5000 Öğe Üret"
+      "description": "5000 Eşya Üret"
     },
     "challenge_craft_50k": {
-      "title": "Rahim Ağzı Yapan!",
-      "description": "50.000 Öğe Üret"
+      "title": "Köle Zanaatkar!",
+      "description": "50.000 Eşya Üret"
     },
     "challenge_craft_500k": {
       "title": "Kakofonik Zanaatkar!",
-      "description": "500.000 Öğe Üret"
+      "description": "500.000 Eşya Üret"
     },
     "challenge_craft_5m": {
-      "title": "belalı McCraftface",
+      "title": "Belalı Zanaatsuratoğlu",
       "description": "5.000.000 Eşya Üret"
     },
     "challenge_enchant_1k": {
       "title": "Acemi Büyücü!",
-      "description": "1000 Öğeyi Büyüle"
+      "description": "1000 Eşya Büyüle"
     },
     "challenge_enchant_5k": {
-      "title": "Ara Büyücü!",
-      "description": "5000 Öğeyi Büyüle"
+      "title": "Orta Düzey Büyücü!",
+      "description": "5000 Eşya Büyüle"
     },
     "challenge_enchant_50k": {
-      "title": "Gelişmiş Büyücü!",
-      "description": "50.000 Öğeyi Büyüle"
+      "title": "İleri Düzey Büyücü!",
+      "description": "50.000 Eşya Büyüle"
     },
     "challenge_enchant_500k": {
       "title": "Usta Büyücü!",
-      "description": "500.000 Öğeyi Büyüle"
+      "description": "500.000 Eşya Büyüle"
     },
     "challenge_enchant_5m": {
       "title": "Esrarengiz Büyücü",
-      "description": "5.000.000 Öğeyi Büyüle"
+      "description": "5.000.000 Eşya Büyüle"
     },
     "challenge_excavate_1k": {
-      "title": "Baştan çıkarıcı Ekskavatör!",
-      "description": "1000 Blok Kazı"
+      "title": "Ayartılmış Kazıcı!",
+      "description": "1000 Blok Kaz"
     },
     "challenge_excavate_5k": {
-      "title": "Ara Ekskavatör!",
-      "description": "5000 Blok Kazı"
+      "title": "Orta Düzey Kazıcı!",
+      "description": "5000 Blok Kaz"
     },
     "challenge_excavate_50k": {
-      "title": "Gelişmiş Ekskavatör!",
-      "description": "50.000 Blok Kazı"
+      "title": "İleri Düzey Kazıcı!",
+      "description": "50.000 Blok Kaz"
     },
     "challenge_excavate_500k": {
-      "title": "Usta Ekskavatör!",
-      "description": "500.000 Blok Kazı"
+      "title": "Usta Kazıcı!",
+      "description": "500.000 Blok Kaz"
     },
     "challenge_excavate_5m": {
-      "title": "Esrarengiz Ekskavatör",
-      "description": "5.000.000 Blok Kazın"
+      "title": "Esrarengiz Kazıcı",
+      "description": "5.000.000 Blok Kaz"
     },
     "horrible_person": {
-      "title": "Sen Korkunç Bir İnsansın",
-      "description": "Anlaşılmaz, gerçekten"
+      "title": "Sen Korkunç bir İnsansın",
+      "description": "Akılalmaz, gerçekten"
     },
     "challenge_turtle_egg_smasher": {
-      "title": "Kaplumbağa Yumurta Parçalayıcı!",
-      "description": "100 kaplumbağa yumurtası kırın"
+      "title": "Kaplumbağa Yumurtası Ezici!",
+      "description": "100 kaplumbağa yumurtası kır"
     },
     "challenge_turtle_egg_annihilator": {
       "title": "Kaplumbağa Yumurtası Yok Edici!",
-      "description": "500 kaplumbağa yumurtası kırın"
+      "description": "500 kaplumbağa yumurtası kır"
     },
     "challenge_novice_hunter": {
-      "title": "Acemi Avcısı!",
+      "title": "Acemi Avcı!",
       "description": "100 varlık öldür"
     },
     "challenge_intermediate_hunter": {
-      "title": "Ara Avcı!",
+      "title": "Orta Düzey Avcı!",
       "description": "500 varlık öldür"
     },
     "challenge_advanced_hunter": {
-      "title": "Gelişmiş Avcı!",
-      "description": "5000 varlığı öldür"
+      "title": "İleri Düzey Avcı!",
+      "description": "5000 varlık öldür"
     },
     "challenge_creeper_conqueror": {
-      "title": "Sarmaşık Fatihi!",
-      "description": "50 sürüngen öldür"
+      "title": "Creeper Fatihi!",
+      "description": "50 creeper öldür"
     },
     "challenge_creeper_annihilator": {
       "title": "Creeper Yok Edici!",
-      "description": "200 sürüngen öldür"
+      "description": "200 creeper öldür"
     },
     "challenge_pickaxe_1k": {
       "title": "Acemi Madenci",
-      "description": "1000 Bloğu Kır"
+      "description": "1000 Blok Kır"
     },
     "challenge_pickaxe_5k": {
       "title": "Yetenekli Madenci",
-      "description": "5000 Bloğu Kırın"
+      "description": "5000 Blok Kır"
     },
     "challenge_pickaxe_50k": {
       "title": "Uzman Madenci",
-      "description": "50.000 Bloğu Kırın"
+      "description": "50.000 Blok Kır"
     },
     "challenge_pickaxe_500k": {
-      "title": "usta madenci",
-      "description": "500.000 Bloğu Kırın"
+      "title": "Usta Madenci",
+      "description": "500.000 Blok Kır"
     },
     "challenge_pickaxe_5m": {
       "title": "Efsanevi Madenci",
-      "description": "5.000.000 Bloğu Kırın"
+      "description": "5.000.000 Blok Kır"
     }
   },
   "items": {

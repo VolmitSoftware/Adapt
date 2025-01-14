@@ -18,15 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.ranged;
 
+import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.Localizer;
-import com.volmit.adapt.util.advancements.advancement.AdvancementDisplay;
-import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -55,7 +52,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
                 .key("challenge_force_30")
                 .title(Localizer.dLocalize("ranged", "forceshot", "advancementname"))
                 .description(Localizer.dLocalize("ranged", "forceshot", "advancementlore"))
-                .frame(AdvancementDisplay.AdvancementFrame.CHALLENGE)
+                .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
     }
@@ -97,7 +94,8 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
             if (hasAdaptation(p)) {
                 double factor = getLevelPercent(p);
                 e.getEntity().setVelocity(e.getEntity().getVelocity().clone().multiply(1 + getSpeed(factor)));
-                e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_SNOWBALL_THROW, 0.5f + ((float) factor * 0.25f), 0.7f + (float) (factor / 2f));
+                SoundPlayer spw = SoundPlayer.of(e.getEntity().getWorld());
+                spw.play(e.getEntity().getLocation(), Sound.ENTITY_SNOWBALL_THROW, 0.5f + ((float) factor * 0.25f), 0.7f + (float) (factor / 2f));
             }
         }
     }

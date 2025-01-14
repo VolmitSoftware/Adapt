@@ -23,10 +23,8 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
 import com.volmit.adapt.content.item.BoundSnowBall;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.reflect.enums.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -151,7 +149,8 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
             block.setBlockData(BLOCK);
             activeBlocks.add(block);
         });
-        block.getWorld().playSound(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_PLACE, 1.0f, 1.0f);
+        SoundPlayer spw = SoundPlayer.of(block.getWorld());
+        spw.play(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_PLACE, 1.0f, 1.0f);
         if (getConfig().showParticles) {
 
             vfxCuboidOutline(block, Particle.CLOUD);
@@ -169,9 +168,10 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
             block.setBlockData(AIR);
             activeBlocks.remove(block);
         });
-        block.getWorld().playSound(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 1.0f);
+        SoundPlayer spw = SoundPlayer.of(block.getWorld());
+        spw.play(block.getLocation(), Sound.BLOCK_ROOTED_DIRT_BREAK, 1.0f, 1.0f);
         if (getConfig().showParticles) {
-            vfxCuboidOutline(block, Particle.ENCHANTMENT_TABLE);
+            vfxCuboidOutline(block, Particles.ENCHANTMENT_TABLE);
         }
     }
 

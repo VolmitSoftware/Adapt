@@ -19,7 +19,6 @@
 package com.volmit.adapt.content;
 
 
-import com.volmit.adapt.Adapt;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentTarget;
@@ -27,7 +26,21 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class Enchantments {
-    public static final Enchantment BOUND = new Enchantment(new NamespacedKey(Adapt.instance, "bound")) {
+
+    /*
+    public static final Enchantment BOUND = new Enchantment() {
+        @NotNull
+        @Override
+        public String getTranslationKey() {
+            return null;
+        }
+
+        @NotNull
+        @Override
+        public NamespacedKey getKey() {
+            return null;
+        }
+
         @NotNull
         @Override
         public String getName() {
@@ -69,7 +82,7 @@ public class Enchantments {
         public boolean canEnchantItem(@NotNull ItemStack item) {
             return false;
         }
-    };
+    }; */
 
 
 }

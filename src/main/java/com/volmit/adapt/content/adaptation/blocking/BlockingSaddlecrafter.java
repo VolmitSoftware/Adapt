@@ -46,7 +46,6 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
         registerRecipe(AdaptRecipe.shaped()
                 .key("blocking-saddlecrafter")
                 .ingredient(new MaterialChar('I', Material.LEATHER))
-                .ingredient(new MaterialChar(' ', Material.AIR))
                 .shapes(List.of(
                         "I I",
                         "III"))

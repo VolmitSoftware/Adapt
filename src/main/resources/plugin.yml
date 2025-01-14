@@ -20,12 +20,20 @@ libraries:
   - net.kyori:adventure-platform-bukkit:4.3.0
   - net.kyori:adventure-api:4.13.1
   - net.kyori:adventure-text-minimessage:4.13.1
-  - io.github.mqzn:mCommands-spigot:1.1.0
-  - io.github.mqzn:mCommands-common:1.1.0
+  - it.unimi.dsi:fastutil:8.5.13
+  - fr.skytasul:glowingentities:1.4.1
+  - io.lettuce:lettuce-core:6.5.1.RELEASE
+  - com.github.ben-manes.caffeine:caffeine:3.0.6
+
+commands:
+  adapt: {}
 
 permissions:
   adapt.idontknowwhatimdoingiswear:
     description: This is for the Adapt Testing command DEVELOPERS ONLY
+    default: op
+  adapt.listboosts:
+    description: Allows for you to view the boosts on a player
     default: op
   adapt.opengui:
     description: Open the GUI without needing a Bookshelf
@@ -353,6 +361,9 @@ permissions:
         default: false
       adapt.blacklist.riftresist:
         description: Blacklist the adaptation RiftResist
+        default: false
+      adapt.blacklist.riftvisage:
+        description: Blacklist the adaptation RiftVisage
         default: false
   adapt.blacklist.seaborne:
     description: Blacklist the skill Seaborne

@@ -24,6 +24,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptStatTracker;
@@ -32,7 +33,6 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.JSONObject;
-import com.volmit.adapt.util.advancements.advancement.AdvancementVisibility;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.GameMode;
@@ -164,31 +164,45 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     protected boolean shouldReturnForPlayer(Player p) {
-        if (p == null) {
+        try {
+            if (p == null) {
+                return true;
+            }
+            Adapt.verbose("Checking " + p.getName() + " for " + getName());
+            return !this.isEnabled() || hasBlacklistPermission(p, this) || isWorldBlacklisted(p) || isInCreativeOrSpectator(p) || getPlayer(p) == null;
+        } catch (Exception ignored) {
             return true;
         }
-        Adapt.verbose("Checking " + p.getName() + " for " + getName());
-        return !this.isEnabled() || hasBlacklistPermission(p, this) || isWorldBlacklisted(p) || isInCreativeOrSpectator(p);
     }
     protected void shouldReturnForPlayer(Player p, Runnable r) {
-        if (shouldReturnForPlayer(p)) {
-            return;
+        try {
+            if (shouldReturnForPlayer(p)) {
+                return;
+            }
+            r.run();
+        } catch (Exception ignored) {
         }
-        r.run();
     }
 
     protected void shouldReturnForPlayer(Player p, Cancellable c, Runnable r) {
-        if (c.isCancelled()) {
-            return;
+        try {
+            if (c.isCancelled()) {
+                return;
+            }
+            if (shouldReturnForPlayer(p)) {
+                return;
+            }
+            r.run();
+        } catch (Exception ignored) {
         }
-        if (shouldReturnForPlayer(p)) {
-            return;
-        }
-        r.run();
     }
 
-    protected boolean shouldReturnForWorld(World world, Skill skill) {
-        return !skill.isEnabled() || AdaptConfig.get().blacklistedWorlds.contains(world.getName());
+    protected boolean shouldReturnForWorld(World world, Skill<?> skill) {
+        try {
+            return !skill.isEnabled() || AdaptConfig.get().blacklistedWorlds.contains(world.getName());
+        } catch (Exception ignored) {
+            return true;
+        }
     }
 
     protected boolean isWorldBlacklisted(Player p) {
@@ -223,6 +237,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
                 .title(displayName)
                 .description(getDescription())
                 .icon(getIcon())
+                .model(getModel())
                 .children(a)
                 .visibility(AdvancementVisibility.HIDDEN)
                 .build();
