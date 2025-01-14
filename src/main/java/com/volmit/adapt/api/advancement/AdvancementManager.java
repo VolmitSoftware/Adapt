@@ -9,17 +9,18 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.JSONObject;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.volmit.adapt.Adapt.instance;
 
 public class AdvancementManager {
     private final AdvancementMain main;
     private final Map<String, Advancement> advancements;
+    private final AtomicBoolean loaded = new AtomicBoolean(true);
+    private final AtomicBoolean enabled = new AtomicBoolean(false);
 
     public AdvancementManager() {
         main = new AdvancementMain(instance);
@@ -33,6 +34,7 @@ public class AdvancementManager {
 
     public void grant(AdaptPlayer player, String key, boolean toast) {
         player.getData().ensureGranted(key);
+        if (!AdaptConfig.get().isAdvancements() || !enabled.get()) return;
         Advancement advancement = advancements.get(key);
         try {
             J.s(() -> advancement.grant(player.getPlayer(), true), 5);
@@ -52,6 +54,7 @@ public class AdvancementManager {
     }
 
     public void unlockExisting(AdaptPlayer player) {
+        if (!AdaptConfig.get().isAdvancements() || !enabled.get()) return;
         J.s(() -> {
             instance.getAdaptServer()
                     .getSkillRegistry()
@@ -77,6 +80,11 @@ public class AdvancementManager {
     }
 
     public void enable() {
+        if (loaded.compareAndSet(false, true))
+            main.load();
+
+        if (!AdaptConfig.get().isAdvancements() || !enabled.compareAndSet(false, true))
+            return;
         if (AdaptConfig.get().isUseSql()) {
             AdaptConfig.SqlSettings sql = AdaptConfig.get().getSql();
             main.enableMySQL(sql.getUsername(), sql.getPassword(), sql.getDatabase(), sql.getHost(), sql.getPort(), sql.getPoolSize(), sql.getConnectionTimeout());
@@ -105,5 +113,7 @@ public class AdvancementManager {
 
     public void disable() {
         main.disable();
+        enabled.set(false);
+        loaded.set(false);
     }
 }
