@@ -66,7 +66,6 @@ public class PotionBuilder {
         return this;
     }
 
-    @SuppressWarnings("ConstantConditions")
     public ItemStack build() {
         return Version.get().buildPotion(this);
     }

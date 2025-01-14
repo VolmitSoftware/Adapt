@@ -143,7 +143,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @Override
     public void onTick() {
-        if (!this.isEnabled()) {
+        if (this.isEnabled()) {
             return;
         }
         for (Player i : Bukkit.getOnlinePlayers()) {
@@ -157,16 +157,16 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        public double deathXpLoss = -750;
-        boolean takeAwaySkillsOnDeath = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        long cooldownDelay = 1000;
-        double damageReceivedXpMultiplier = 2.26;
+        public final double deathXpLoss = -750;
+        final boolean takeAwaySkillsOnDeath = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final long cooldownDelay = 1000;
+        final double damageReceivedXpMultiplier = 2.26;
     }
 }

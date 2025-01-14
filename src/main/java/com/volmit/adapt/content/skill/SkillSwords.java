@@ -91,13 +91,13 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        long cooldownDelay = 1250;
-        double damageXPMultiplier = 7.26;
+        final boolean enabled = true;
+        final long cooldownDelay = 1250;
+        final double damageXPMultiplier = 7.26;
     }
 }

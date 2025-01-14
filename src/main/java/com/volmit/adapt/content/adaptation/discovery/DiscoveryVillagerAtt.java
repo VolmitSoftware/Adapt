@@ -101,7 +101,7 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -111,16 +111,16 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 1;
-        int initialCost = 5;
-        double costFactor = 0.01;
-        int maxLevel = 5;
-        double effectivenessBase = 0.005;
-        double maxEffectiveness = 100;
-        int levelDrain = 2;
-        int levelCostAdd = 10;
-        double amplifier = 1.0;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 1;
+        final int initialCost = 5;
+        final double costFactor = 0.01;
+        final int maxLevel = 5;
+        final double effectivenessBase = 0.005;
+        final double maxEffectiveness = 100;
+        final int levelDrain = 2;
+        final int levelCostAdd = 10;
+        final double amplifier = 1.0;
     }
 }

@@ -84,7 +84,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         if (!hasAdaptation(p)) {
             return;
         }
-        if (!canBlockPlace(p, p.getLocation())) {
+        if (canBlockPlace(p, p.getLocation())) {
             return;
         }
         if (!e.getFrom().getBlock().equals(e.getTo().getBlock())) {
@@ -188,7 +188,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             return;
         }
 
-        boolean ready = !hasCooldown(p);
+        boolean ready = hasCooldown(p);
         boolean active = this.active.contains(p);
 
         if (e.isSneaking() && ready && !active) {
@@ -251,7 +251,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
                 continue;
             }
 
-            boolean ready = !hasCooldown(i);
+            boolean ready = hasCooldown(i);
             int availablePower = getBlockPower(getLevelPercent(i));
             blockPower.compute(i, (k, v) -> {
                 if ((k == null || v == null) || (ready && v != availablePower)) {
@@ -279,13 +279,13 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             }
         }
 
-        return cooldowns.containsKey(i);
+        return !cooldowns.containsKey(i);
     }
 
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -296,15 +296,15 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     @NoArgsConstructor
     protected static class Config {
         public long duration = 3000;
-        public int minBlocks = 9;
-        public int maxBlocks = 35;
-        public int cooldown = 5000;
-        boolean permanent = false;
-        boolean showParticles = true;
-        boolean enabled = true;
-        int baseCost = 5;
-        int maxLevel = 5;
-        int initialCost = 1;
-        double costFactor = 0.40;
+        public final int minBlocks = 9;
+        public final int maxBlocks = 35;
+        public final int cooldown = 5000;
+        final boolean permanent = false;
+        final boolean showParticles = true;
+        final boolean enabled = true;
+        final int baseCost = 5;
+        final int maxLevel = 5;
+        final int initialCost = 1;
+        final double costFactor = 0.40;
     }
 }

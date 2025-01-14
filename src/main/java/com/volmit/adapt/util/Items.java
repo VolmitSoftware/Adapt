@@ -345,7 +345,7 @@ public class Items {
                     return false;
                 }
 
-                if (!new ArrayList<String>(a.getItemMeta().getLore()).equals(new ArrayList<>(b.getItemMeta().getLore()))) {
+                if (!new ArrayList<>(a.getItemMeta().getLore()).equals(new ArrayList<>(b.getItemMeta().getLore()))) {
                     return false;
                 }
             }

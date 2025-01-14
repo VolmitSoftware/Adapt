@@ -62,7 +62,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         for (Player p : Bukkit.getOnlinePlayers()) {
             shouldReturnForPlayer(p, e, () -> {
                 if (p.getWorld() == e.getEntity().getWorld() && p.getLocation().distance(e.getEntity().getLocation()) <= 15) {
-                    if (!isOnCooldown(p)) {
+                    if (isOnCooldown(p)) {
                         setCooldown(p);
                         xp(p, getConfig().tameXpBase);
                     }
@@ -78,7 +78,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         }
         if (e.getDamager() instanceof Tameable tameable && tameable.isTamed() && tameable.getOwner() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> {
-                if (!isOnCooldown(p)) {
+                if (isOnCooldown(p)) {
                     setCooldown(p);
                     xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
                 }
@@ -88,7 +88,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     private boolean isOnCooldown(Player p) {
         Long cooldown = cooldowns.get(p);
-        return cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis();
+        return cooldown == null || cooldown + getConfig().cooldownDelay <= System.currentTimeMillis();
     }
 
     private void setCooldown(Player p) {
@@ -102,14 +102,14 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        double tameXpBase = 30;
-        long cooldownDelay = 2250;
-        double tameDamageXPMultiplier = 7.85;
+        final boolean enabled = true;
+        final double tameXpBase = 30;
+        final long cooldownDelay = 2250;
+        final double tameDamageXPMultiplier = 7.85;
     }
 }

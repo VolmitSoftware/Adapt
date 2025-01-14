@@ -130,7 +130,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -140,16 +140,16 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 3;
-        double costFactor = 0.35;
-        int maxLevel = 5;
-        int initialCost = 2;
-        int rangeLevelMultiplier = 5;
-        double cooldownTicksBase = 15;
-        double cooldownTicksInverseLevelMultiplier = 16;
-        double damagePerBlockBase = 1;
-        double damagePerBlockInverseLevelMultiplier = 4;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 3;
+        final double costFactor = 0.35;
+        final int maxLevel = 5;
+        final int initialCost = 2;
+        final int rangeLevelMultiplier = 5;
+        final double cooldownTicksBase = 15;
+        final double cooldownTicksInverseLevelMultiplier = 16;
+        final double damagePerBlockBase = 1;
+        final double damagePerBlockInverseLevelMultiplier = 4;
     }
 }

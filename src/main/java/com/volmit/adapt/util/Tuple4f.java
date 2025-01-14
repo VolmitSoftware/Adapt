@@ -18,13 +18,16 @@
 
 package com.volmit.adapt.util;
 
+import java.io.Serial;
+
 /**
  * A 4-element tuple represented by single-precision floating point x,y,z,w
  * coordinates.
  */
 public abstract class Tuple4f implements java.io.Serializable, Cloneable {
 
-    static final long serialVersionUID = 7068460319248845763L;
+    @Serial
+    private static final long serialVersionUID = 7068460319248845763L;
 
     /**
      * The x coordinate.
@@ -374,9 +377,7 @@ public abstract class Tuple4f implements java.io.Serializable, Cloneable {
             Tuple4f t2 = (Tuple4f) t1;
             return (this.x == t2.x && this.y == t2.y &&
                     this.z == t2.z && this.w == t2.w);
-        } catch (NullPointerException e2) {
-            return false;
-        } catch (ClassCastException e1) {
+        } catch (NullPointerException | ClassCastException e2) {
             return false;
         }
     }

@@ -25,9 +25,9 @@ import org.apache.commons.lang3.StringUtils;
  * @author Missionary (missionarymc@gmail.com)
  * @since 3/29/2018
  */
+@Getter
 public class BoardEntry {
 
-    @Getter
     private final String prefix, suffix;
 
     private BoardEntry(final String prefix, final String suffix) {
@@ -45,9 +45,9 @@ public class BoardEntry {
             String prefix = input.substring(0, 16);
             String suffix = "";
 
-            if (prefix.endsWith("\u00a7")) {
+            if (prefix.endsWith("§")) {
                 prefix = prefix.substring(0, prefix.length() - 1);
-                suffix = "\u00a7" + suffix;
+                suffix = "§" + suffix;
             }
 
             suffix = StringUtils.left(C.getLastColors(prefix) + suffix + input.substring(16), 16);

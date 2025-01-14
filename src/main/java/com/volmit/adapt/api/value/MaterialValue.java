@@ -188,7 +188,7 @@ public class MaterialValue {
             }
             Bukkit.getRecipesFor(is).forEach(i -> {
                 if (i instanceof AdaptRecipe) {
-                    Adapt.verbose("Skipping Adapt Recipe to prevent duplicates, " + mat.name() + " -> " + ((AdaptRecipe) i).getKey() + "");
+                    Adapt.verbose("Skipping Adapt Recipe to prevent duplicates, " + mat.name() + " -> " + ((AdaptRecipe) i).getKey());
                     return;
                 }
                 MaterialRecipe rx = toMaterial(i);

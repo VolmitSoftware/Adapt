@@ -71,7 +71,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         this.name = name;
 
         J.a(() -> {
-            if (!isEnabled()) {
+            if (isEnabled()) {
                 unregister();
             }
         }, 1);

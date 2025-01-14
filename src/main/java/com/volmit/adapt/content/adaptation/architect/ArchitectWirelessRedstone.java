@@ -118,7 +118,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             return;
         }
 
-        if (!canInteract(event.getPlayer(), event.getPlayer().getLocation())) {
+        if (canInteract(event.getPlayer(), event.getPlayer().getLocation())) {
             return;
         }
 
@@ -242,7 +242,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
 
@@ -267,13 +267,13 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
     @NoArgsConstructor
     protected static class Config {
-        public int cooldown = 125;
-        boolean permanent = true;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 5;
-        int maxLevel = 1;
-        int initialCost = 0;
-        double costFactor = 1;
+        public final int cooldown = 125;
+        final boolean permanent = true;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 5;
+        final int maxLevel = 1;
+        final int initialCost = 0;
+        final double costFactor = 1;
     }
 }

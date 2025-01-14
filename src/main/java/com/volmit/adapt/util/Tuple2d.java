@@ -18,13 +18,16 @@
 
 package com.volmit.adapt.util;
 
+import java.io.Serial;
+
 /**
  * A generic 2-element tuple that is represented by double-precision
  * floating point x,y coordinates.
  */
 public abstract class Tuple2d implements java.io.Serializable, Cloneable {
 
-    static final long serialVersionUID = 6205762482756093838L;
+    @Serial
+    private static final long serialVersionUID = 6205762482756093838L;
 
     /**
      * The x coordinate.

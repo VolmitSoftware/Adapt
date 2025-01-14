@@ -33,11 +33,10 @@ public class BurstExecutor {
         futures = new ArrayList<>(burstSizeEstimate);
     }
 
-    public CompletableFuture<Void> queue(Runnable r) {
+    public void queue(Runnable r) {
         synchronized (futures) {
             CompletableFuture<Void> c = CompletableFuture.runAsync(r, executor);
             futures.add(c);
-            return c;
         }
     }
 

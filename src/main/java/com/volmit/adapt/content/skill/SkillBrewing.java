@@ -242,16 +242,16 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        double challengeBrew1k = 1000;
-        double challengeBrewSplash1k = 1000;
-        double splashXP = 100;
-        long cooldownDelay = 3250;
-        double splashMultiplier = 0.25;
+        final boolean enabled = true;
+        final double challengeBrew1k = 1000;
+        final double challengeBrewSplash1k = 1000;
+        final double splashXP = 100;
+        final long cooldownDelay = 3250;
+        final double splashMultiplier = 0.25;
     }
 }

@@ -19,6 +19,8 @@
 
 package com.volmit.adapt.util.data;
 
+import lombok.Getter;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -138,16 +140,13 @@ public class Recycler<T> {
     }
 
     public static class RecycledObject<T> {
+        @Getter
         private final T object;
         private final AtomicBoolean used;
 
         public RecycledObject(T object) {
             this.object = object;
             used = new AtomicBoolean(false);
-        }
-
-        public T getObject() {
-            return object;
         }
 
         public boolean isUsed() {

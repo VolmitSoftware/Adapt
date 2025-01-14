@@ -61,7 +61,7 @@ public interface Element {
 
     List<String> getLore();
 
-    Element call(ElementEvent event, Element context);
+    void call(ElementEvent event, Element context);
 
     Element onLeftClick(Callback<Element> clicked);
 

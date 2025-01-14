@@ -22,10 +22,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Changes : Neil Wightman - Support 19133 Tag_Int_Array tag
- */
-
-/**
  * A class which holds constant values.
  *
  * @author Graham Edgecombe

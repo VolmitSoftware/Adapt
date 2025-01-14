@@ -22,7 +22,9 @@ import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerSkillLine;
+import lombok.Getter;
 
+@Getter
 public class AdaptAdaptationEvent extends AdaptPlayerEvent {
     private final Skill<?> skill;
     private final PlayerSkillLine playerSkill;
@@ -35,15 +37,4 @@ public class AdaptAdaptationEvent extends AdaptPlayerEvent {
         this.skill = adaptation.getSkill();
     }
 
-    public Skill<?> getSkill() {
-        return skill;
-    }
-
-    public Adaptation<?> getAdaptation() {
-        return adaptation;
-    }
-
-    public PlayerSkillLine getPlayerSkill() {
-        return playerSkill;
-    }
 }

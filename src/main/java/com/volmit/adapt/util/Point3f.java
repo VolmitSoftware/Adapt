@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.util;
 
+import java.io.Serial;
+
 /**
  * A 3 element point that is represented by single precision floating point
  * x,y,z coordinates.
@@ -26,7 +28,8 @@ public class Point3f extends Tuple3f implements java.io.Serializable {
 
 
     // Compatible with 1.1
-    static final long serialVersionUID = -8689337816398030143L;
+    @Serial
+    private static final long serialVersionUID = -8689337816398030143L;
 
     /**
      * Constructs and initializes a Point3f from the specified xyz coordinates.

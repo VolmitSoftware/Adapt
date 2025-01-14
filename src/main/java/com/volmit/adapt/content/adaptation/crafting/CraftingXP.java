@@ -87,7 +87,7 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
 
@@ -102,11 +102,11 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 2;
-        int initialCost = 3;
-        double costFactor = 0.3;
-        int maxLevel = 7;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 2;
+        final int initialCost = 3;
+        final double costFactor = 0.3;
+        final int maxLevel = 7;
     }
 }

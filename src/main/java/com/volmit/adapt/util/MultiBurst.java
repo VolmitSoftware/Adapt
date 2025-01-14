@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MultiBurst {
-    public static MultiBurst burst = new MultiBurst(Runtime.getRuntime().availableProcessors());
+    public static final MultiBurst burst = new MultiBurst(Runtime.getRuntime().availableProcessors());
     @Getter
     private final ExecutorService service;
     private int tid;

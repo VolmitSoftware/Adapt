@@ -24,7 +24,6 @@ import org.bukkit.Bukkit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -41,21 +40,19 @@ public class J {
         }
     }
 
-    public static boolean doif(Supplier<Boolean> c, Runnable g) {
+    public static void doif(Supplier<Boolean> c, Runnable g) {
         if (c.get()) {
             g.run();
-            return true;
         }
 
-        return false;
     }
 
     public static void a(Runnable a) {
         MultiBurst.burst.lazy(a);
     }
 
-    public static <T> Future<T> a(Callable<T> a) {
-        return MultiBurst.burst.getService().submit(a);
+    public static <T> void a(Callable<T> a) {
+        MultiBurst.burst.getService().submit(a);
     }
 
     public static void attemptAsync(NastyRunnable r) {
@@ -82,8 +79,8 @@ public class J {
         return onError;
     }
 
-    public static boolean sleep(long ms) {
-        return J.attempt(() -> Thread.sleep(ms));
+    public static void sleep(long ms) {
+        J.attempt(() -> Thread.sleep(ms));
     }
 
     public static boolean attempt(NastyRunnable r) {

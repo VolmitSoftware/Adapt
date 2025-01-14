@@ -23,7 +23,7 @@ public class StateList {
     private final KList<String> states;
 
     public StateList(String... states) {
-        this.states = new KList<String>(states);
+        this.states = new KList<>(states);
 
         if (getBits() > 64) {
             throw new RuntimeException("StateLists cannot exceed 64 bits! You are trying to use " + getBits() + " bits!");

@@ -141,7 +141,7 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
     @Override
     public void onTick() {
-        if (!this.isEnabled()) {
+        if (this.isEnabled()) {
             return;
         }
 
@@ -159,16 +159,16 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        double xpOnBlockedAttack = 10;
-        double challengeBlock1kReward = 500;
-        double challengeBlock5kReward = 2000;
-        long cooldownDelay = 3000;
-        long passiveXpForUsingShield = 1;
+        final boolean enabled = true;
+        final double xpOnBlockedAttack = 10;
+        final double challengeBlock1kReward = 500;
+        final double challengeBlock5kReward = 2000;
+        final long cooldownDelay = 3000;
+        final long passiveXpForUsingShield = 1;
     }
 }

@@ -58,9 +58,9 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
         if (e.isCancelled()) {
             return;
         }
-        if (e.getDamager() instanceof Player p && hasAdaptation(p) && getLevel((Player) e.getDamager()) > 0) {
+        if (e.getDamager() instanceof Player p && hasAdaptation(p) && getLevel(p) > 0) {
             double damageMax = getDamage(getLevel(p));
-            double hpp = ((Player) e.getDamager()).getHealth() / ((Player) e.getDamager()).getMaxHealth();
+            double hpp = p.getHealth() / p.getMaxHealth();
 
             if (hpp >= 1) {
                 return;
@@ -78,7 +78,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -88,13 +88,13 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 4;
-        int maxLevel = 5;
-        int initialCost = 8;
-        double costFactor = 0.4;
-        double damageBase = 0.12;
-        double damageFactor = 0.21;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 4;
+        final int maxLevel = 5;
+        final int initialCost = 8;
+        final double costFactor = 0.4;
+        final double damageBase = 0.12;
+        final double damageFactor = 0.21;
     }
 }

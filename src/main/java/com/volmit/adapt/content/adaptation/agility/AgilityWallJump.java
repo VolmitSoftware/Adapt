@@ -79,7 +79,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
             return;
         }
         Player p = e.getPlayer();
-        if (!canInteract(p, p.getLocation())) {
+        if (canInteract(p, p.getLocation())) {
             return;
         }
         if (airjumps.containsKey(p)) {
@@ -104,7 +104,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                 continue;
             }
 
-            if (!canInteract(p, p.getLocation())) {
+            if (canInteract(p, p.getLocation())) {
                 return;
             }
 
@@ -211,7 +211,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -221,15 +221,15 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 2;
-        double costFactor = 0.65;
-        int maxLevel = 5;
-        int initialCost = 8;
-        double maxJumpsLevelBonusDivisor = 2;
-        double jumpHeightBase = 0.625;
-        double jumpHeightBonusLevelMultiplier = 0.225;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 2;
+        final double costFactor = 0.65;
+        final int maxLevel = 5;
+        final int initialCost = 8;
+        final double maxJumpsLevelBonusDivisor = 2;
+        final double jumpHeightBase = 0.625;
+        final double jumpHeightBonusLevelMultiplier = 0.225;
     }
 }

@@ -114,15 +114,15 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        double shootXP = 5;
-        long cooldownDelay = 1250;
-        double hitDamageXPMultiplier = 2.125;
-        double hitDistanceXPMultiplier = 1.7;
+        final boolean enabled = true;
+        final double shootXP = 5;
+        final long cooldownDelay = 1250;
+        final double hitDamageXPMultiplier = 2.125;
+        final double hitDistanceXPMultiplier = 1.7;
     }
 }

@@ -35,7 +35,7 @@ public class HiddenStringUtils {
     public static boolean hasHiddenString(String input) {
         if (input == null) return false;
 
-        return input.indexOf(SEQUENCE_HEADER) > -1 && input.indexOf(SEQUENCE_FOOTER) > -1;
+        return input.contains(SEQUENCE_HEADER) && input.contains(SEQUENCE_FOOTER);
     }
 
     public static String extractHiddenString(String input) {

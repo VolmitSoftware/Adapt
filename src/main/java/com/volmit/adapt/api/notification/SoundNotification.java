@@ -19,7 +19,6 @@
 package com.volmit.adapt.api.notification;
 
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.SoundPlayer;
 import lombok.Builder;
 import lombok.Data;
@@ -45,11 +44,11 @@ public class SoundNotification implements Notification {
         double sig = xp / 1000D;
         float pitch = this.pitch;
         float volume = this.volume;
-        pitch -= sig / 6.6;
+        pitch -= (float) (sig / 6.6);
         pitch = pitch < 0.1 ? (float) 0.1 : pitch;
         double vp = sig / 5;
         vp = Math.min(vp, 0.8);
-        volume += vp;
+        volume += (float) vp;
         pitch = pitch < 0.1 ? (float) 0.1 : pitch;
 
         return SoundNotification.builder()

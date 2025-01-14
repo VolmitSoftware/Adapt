@@ -20,7 +20,6 @@ package com.volmit.adapt.content.item;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.item.DataItem;
-import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;

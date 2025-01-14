@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class VolmitPlugin extends JavaPlugin implements Listener {
-    public static boolean bad = false;
+    public static final boolean bad = false;
     private Map<String, IController> controllers;
     private List<IController> cachedControllers;
     private Map<Class<? extends IController>, IController> cachedClassControllers;

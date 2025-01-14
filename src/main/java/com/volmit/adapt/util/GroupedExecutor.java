@@ -45,14 +45,11 @@ public class GroupedExecutor {
                 return t;
             });
         } else if (threadLimit > 1) {
-            final ForkJoinWorkerThreadFactory factory = new ForkJoinWorkerThreadFactory() {
-                @Override
-                public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
-                    final ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-                    worker.setName(name + " " + xc++);
-                    worker.setPriority(priority);
-                    return worker;
-                }
+            final ForkJoinWorkerThreadFactory factory = pool -> {
+                final ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+                worker.setName(name + " " + xc++);
+                worker.setPriority(priority);
+                return worker;
             };
 
             service = new ForkJoinPool(threadLimit, factory, null, false);

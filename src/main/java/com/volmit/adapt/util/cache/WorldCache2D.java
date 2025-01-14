@@ -19,9 +19,6 @@
 
 package com.volmit.adapt.util.cache;
 
-//import com.volmit.react.util.data.KCache;
-//import com.volmit.react.util.function.Function2;
-
 import com.volmit.adapt.util.Function2;
 import com.volmit.adapt.util.data.KCache;
 

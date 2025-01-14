@@ -39,9 +39,9 @@ public abstract class DataPalette<T> implements Writable {
         getPaletteId(defaultValue);
     }
 
-    public abstract T readType(DataInputStream i) throws IOException;
+    public abstract T readType(DataInputStream i);
 
-    public abstract void writeType(T t, DataOutputStream o) throws IOException;
+    public abstract void writeType(T t, DataOutputStream o);
 
     @Override
     public void write(DataOutputStream o) throws IOException {
@@ -68,7 +68,7 @@ public abstract class DataPalette<T> implements Writable {
         data = new NibbleArray(CAPACITY, i);
     }
 
-    private final void expand() {
+    private void expand() {
         if (bpb < 8) {
             changeBitsPerBlock(bpb + 1);
         } else {
@@ -90,7 +90,7 @@ public abstract class DataPalette<T> implements Writable {
         changeBitsPerBlock(targetBits);
     }
 
-    private final void changeBitsPerBlock(int bits) {
+    private void changeBitsPerBlock(int bits) {
         bpb = bits;
         data = new NibbleArray(bpb, CAPACITY, data);
     }
@@ -103,7 +103,7 @@ public abstract class DataPalette<T> implements Writable {
         return palette.get(data.get(getCoordinateIndex(x, y, z)));
     }
 
-    private final int getPaletteId(T d) {
+    private int getPaletteId(T d) {
         int index = palette.indexOf(d);
 
         if (index == -1) {
@@ -118,7 +118,7 @@ public abstract class DataPalette<T> implements Writable {
         return index + Byte.MIN_VALUE;
     }
 
-    private final int getCoordinateIndex(int x, int y, int z) {
+    private int getCoordinateIndex(int x, int y, int z) {
         return y << 8 | z << 4 | x;
     }
 }

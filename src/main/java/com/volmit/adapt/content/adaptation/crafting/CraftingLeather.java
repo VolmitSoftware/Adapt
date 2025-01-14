@@ -73,7 +73,7 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -83,11 +83,11 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = true;
-        boolean enabled = true;
-        int baseCost = 3;
-        int maxLevel = 1;
-        int initialCost = 2;
-        double costFactor = 1;
+        final boolean permanent = true;
+        final boolean enabled = true;
+        final int baseCost = 3;
+        final int maxLevel = 1;
+        final int initialCost = 2;
+        final double costFactor = 1;
     }
 }

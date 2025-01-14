@@ -180,7 +180,7 @@ public class JsonCompressor {
 
     void incrementEach(byte[] bytes, int inc) {
         for (int i = 0; i < bytes.length; i++) {
-            bytes[i] += inc;
+            bytes[i] += (byte) inc;
         }
     }
 
@@ -240,12 +240,8 @@ public class JsonCompressor {
         }
         byte[] resultBytes = new byte[resultLength];
         int offset = 0;
-        for (int i = 0; i < resultBytes.length; i++) {
-            resultBytes[i] = 0;
-        }
         int indent = 8 - bits;
-        for (int i = 0; i < sourceBytes.length; i++) {
-            byte source = sourceBytes[i];
+        for (byte source : sourceBytes) {
             int into = offset & 0x7;
             int byteNo = offset >> 3;
             if (into == 0) {
@@ -256,7 +252,7 @@ public class JsonCompressor {
                 resultBytes[byteNo] |= source;
             } else {
                 // We're crossing a byte boundary
-                resultBytes[byteNo] |= source >> (into - indent);
+                resultBytes[byteNo] |= (byte) (source >> (into - indent));
                 resultBytes[byteNo + 1] = (byte) (0xff & (source << (16 - bits - into)));
             }
             offset = offset + bits;
@@ -314,8 +310,7 @@ public class JsonCompressor {
         StringBuilder sb = new StringBuilder();
         char[] chars = s.toCharArray();
         boolean inString = false;
-        for (int i = 0; i < chars.length; i++) {
-            char c = chars[i];
+        for (char c : chars) {
             if (c == '"') {
                 inString = !inString;
                 continue;

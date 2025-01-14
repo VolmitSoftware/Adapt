@@ -242,23 +242,23 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     public static class Config {
-        public boolean enabled = true;
-        public double harvestXpCooldown = 5000;
-        public double foodConsumeXP = 25;
-        public double shearXP = 25;
-        public double harvestPerAgeXP = 2.5;
-        public double plantCropSeedsXP = 2.5;
-        public double composterBaseXP = 2.5;
-        public double composterLevelXPMultiplier = 1.25;
-        public double composterNonZeroLevelBonus = 25;
-        public double challengeEat100Reward = 1250;
-        public double challengeEat1kReward = 6250;
-        public double challengeHarvest100Reward = 1250;
-        public double challengeHarvest1kReward = 6250;
+        public final boolean enabled = true;
+        public final double harvestXpCooldown = 5000;
+        public final double foodConsumeXP = 25;
+        public final double shearXP = 25;
+        public final double harvestPerAgeXP = 2.5;
+        public final double plantCropSeedsXP = 2.5;
+        public final double composterBaseXP = 2.5;
+        public final double composterLevelXPMultiplier = 1.25;
+        public final double composterNonZeroLevelBonus = 25;
+        public final double challengeEat100Reward = 1250;
+        public final double challengeEat1kReward = 6250;
+        public final double challengeHarvest100Reward = 1250;
+        public final double challengeHarvest1kReward = 6250;
     }
 }

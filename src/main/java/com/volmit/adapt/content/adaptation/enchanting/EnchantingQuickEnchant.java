@@ -163,7 +163,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -173,13 +173,13 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 6;
-        int maxLevel = 7;
-        int initialCost = 8;
-        double costFactor = 1.355;
-        int maxPowerBonusLimit = 4;
-        int maxPowerBonus1PerLevels = 3;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 6;
+        final int maxLevel = 7;
+        final int initialCost = 8;
+        final double costFactor = 1.355;
+        final int maxPowerBonusLimit = 4;
+        final int maxPowerBonus1PerLevels = 3;
     }
 }

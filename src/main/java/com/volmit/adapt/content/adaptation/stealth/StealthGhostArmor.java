@@ -111,7 +111,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -121,15 +121,15 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 3;
-        int maxArmor = 16;
-        int minArmor = 2;
-        int maxArmorPerTick = 3;
-        int minArmorPerTick = 1;
-        int initialCost = 1;
-        double costFactor = 0.335;
-        int maxLevel = 7;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 3;
+        final int maxArmor = 16;
+        final int minArmor = 2;
+        final int maxArmorPerTick = 3;
+        final int minArmorPerTick = 1;
+        final int initialCost = 1;
+        final double costFactor = 0.335;
+        final int maxLevel = 7;
     }
 }

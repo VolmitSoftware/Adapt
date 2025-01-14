@@ -83,7 +83,7 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -93,15 +93,15 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 3;
-        int maxLevel = 7;
-        int initialCost = 6;
-        double costFactor = 0.425;
-        double perLevelBonusMultiplier = 0.25;
-        double maxDamageFactor = 4.0;
-        double maxDamagePerLevelMultiplier = 0.15;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 3;
+        final int maxLevel = 7;
+        final int initialCost = 6;
+        final double costFactor = 0.425;
+        final double perLevelBonusMultiplier = 0.25;
+        final double maxDamageFactor = 4.0;
+        final double maxDamagePerLevelMultiplier = 0.15;
     }
 
 }

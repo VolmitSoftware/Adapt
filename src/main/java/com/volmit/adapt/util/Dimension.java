@@ -18,11 +18,14 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
+
 /**
  * Dimensions
  *
  * @author cyberpwn
  */
+@Getter
 public class Dimension {
     private final int width;
     private final int height;
@@ -75,15 +78,4 @@ public class Dimension {
         return null;
     }
 
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public int getDepth() {
-        return depth;
-    }
 }

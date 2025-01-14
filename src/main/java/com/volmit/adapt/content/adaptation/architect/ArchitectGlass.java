@@ -77,7 +77,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
 
@@ -92,12 +92,12 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = true;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 3;
-        int maxLevel = 1;
-        int initialCost = 0;
-        double costFactor = 5;
+        final boolean permanent = true;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 3;
+        final int maxLevel = 1;
+        final int initialCost = 0;
+        final double costFactor = 5;
     }
 }

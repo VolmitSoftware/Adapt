@@ -180,7 +180,7 @@ public class PlayerData {
                     ActionBarNotification.builder()
                             .duration(450)
                             .group("power")
-                            .title(C.GOLD + "" + Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY + " " + Localizer.dLocalize("snippets", "gui", "maxabilitypower")) // I'm sorry I missed this!
+                            .title(C.GOLD + Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY + " " + Localizer.dLocalize("snippets", "gui", "maxabilitypower")) // I'm sorry I missed this!
                             .build());
 
         }

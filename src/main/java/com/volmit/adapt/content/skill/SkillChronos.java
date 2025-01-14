@@ -42,7 +42,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
     @Override
     public void onTick() {
-        if (!this.isEnabled()) {
+        if (this.isEnabled()) {
             return;
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -59,12 +59,12 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        public long setInterval = 5050;
-        boolean enabled = false;
+        public final long setInterval = 5050;
+        final boolean enabled = false;
     }
 }

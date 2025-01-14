@@ -99,7 +99,7 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -109,12 +109,12 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = true;
-        boolean enabled = true;
-        double cooldown = 5.0;
-        int baseCost = 1;
-        double costFactor = 2;
-        int initialCost = 3;
+        final boolean permanent = true;
+        final boolean enabled = true;
+        final double cooldown = 5.0;
+        final int baseCost = 1;
+        final double costFactor = 2;
+        final int initialCost = 3;
     }
 
 }

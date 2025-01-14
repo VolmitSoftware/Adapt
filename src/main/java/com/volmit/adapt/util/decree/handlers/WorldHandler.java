@@ -25,7 +25,6 @@ import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,7 +53,7 @@ public class WorldHandler implements DecreeParameterHandler<World> {
             throw new DecreeParsingException("Unable to find World \"" + in + "\"");
         }
         try {
-            return options.stream().filter((i) -> toString(i).equalsIgnoreCase(in)).collect(Collectors.toList()).get(0);
+            return options.stream().filter((i) -> toString(i).equalsIgnoreCase(in)).toList().get(0);
         } catch (Throwable e) {
             throw new DecreeParsingException("Unable to filter which Biome \"" + in + "\"");
         }

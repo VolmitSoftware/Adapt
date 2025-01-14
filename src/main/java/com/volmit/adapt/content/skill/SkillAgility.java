@@ -45,7 +45,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
-    private Map<UUID, Location> lastLocations;
 
     public SkillAgility() {
         super("agility", Localizer.dLocalize("skill", "agility", "icon"));
@@ -107,7 +106,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_50k").goal(50000).stat("move").reward(getConfig().challengeSprint5kReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_500k").goal(500000).stat("move").reward(getConfig().challengeSprint5kReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_marathon").goal(42195).stat("move").reward(getConfig().challengeSprintMarathonReward).build());
-        lastLocations = new HashMap<>();
+        Map<UUID, Location> lastLocations = new HashMap<>();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -171,19 +170,19 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        double challengeMove1kReward = 500;
-        double challengeSprint5kReward = 2000;
-        double challengeSprintMarathonReward = 6500;
-        double sprintXpPassive = 1.25;
-        double swimXpPassive = 1.25;
-        double jumpXpPassive = 0.25;
-        double climbXpPassive = 1.25;
-        double moveXpPassive = 0.1;
+        final boolean enabled = true;
+        final double challengeMove1kReward = 500;
+        final double challengeSprint5kReward = 2000;
+        final double challengeSprintMarathonReward = 6500;
+        final double sprintXpPassive = 1.25;
+        final double swimXpPassive = 1.25;
+        final double jumpXpPassive = 0.25;
+        final double climbXpPassive = 1.25;
+        final double moveXpPassive = 0.1;
     }
 }

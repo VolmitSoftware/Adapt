@@ -29,7 +29,7 @@ import java.util.Random;
 public class SecretSplash {
 
     @Getter
-    public static List<String> secretSplash = List.of(
+    public static final List<String> secretSplash = List.of(
             "\n" + C.BLUE + "       ⣞⢽⢪⢣⢣⢣⢫⡺⡵⣝⡮⣗⢷⢽⢽⢽⣮⡷⡽⣜⣜⢮⢺⣜⢷⢽⢝⡽⣝   \n" +
                     C.BLUE + "       ⠸⡸⠜⠕⠕⠁⢁⢇⢏⢽⢺⣪⡳⡝⣎⣏⢯⢞⡿⣟⣷⣳⢯⡷⣽⢽⢯⣳⣫⠇  \n" +
                     C.BLUE + "        ⢀⢀⢄⢬⢪⡪⡎⣆⡈⠚⠜⠕⠇⠗⠝⢕⢯⢫⣞⣯⣿⣻⡽⣏⢗⣗⠏⠀    " + C.DARK_RED + "Adapt\n" +
@@ -80,8 +80,7 @@ public class SecretSplash {
     public static String randomString7() {
         byte[] array = new byte[7]; // length is bounded by 7
         new Random().nextBytes(array);
-        String generatedString = new String(array, StandardCharsets.UTF_8);
 
-        return generatedString;
+        return new String(array, StandardCharsets.UTF_8);
     }
 }

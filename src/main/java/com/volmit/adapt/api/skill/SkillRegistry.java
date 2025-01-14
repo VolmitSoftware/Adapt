@@ -182,7 +182,7 @@ public class SkillRegistry extends TickedObject {
         try {
             Skill<?> sk = skill.getConstructor().newInstance();
 
-            if (!sk.isEnabled()) {
+            if (sk.isEnabled()) {
                 return;
             }
 
@@ -196,9 +196,7 @@ public class SkillRegistry extends TickedObject {
 
     private void unregisterRecipes(Skill<?> s) {
         s.getRecipes().forEach(AdaptRecipe::unregister);
-        s.getAdaptations().forEach(i -> {
-            i.getRecipes().forEach(AdaptRecipe::unregister);
-        });
+        s.getAdaptations().forEach(i -> i.getRecipes().forEach(AdaptRecipe::unregister));
     }
 
     private void registerRecipes(Skill<?> s) {

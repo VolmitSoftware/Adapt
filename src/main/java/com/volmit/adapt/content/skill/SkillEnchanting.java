@@ -108,9 +108,7 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
             return;
         }
         Player p = e.getEnchanter();
-        shouldReturnForPlayer(p, e, () -> {
-            handleEnchantItemEvent(p, e);
-        });
+        shouldReturnForPlayer(p, e, () -> handleEnchantItemEvent(p, e));
 
     }
 
@@ -134,14 +132,14 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        double enchantPowerXPMultiplier = 70;
-        long cooldownDelay = 5250;
-        double challengeEnchantReward = 2500;
+        final boolean enabled = true;
+        final double enchantPowerXPMultiplier = 70;
+        final long cooldownDelay = 5250;
+        final double challengeEnchantReward = 2500;
     }
 }

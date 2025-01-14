@@ -248,7 +248,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @Override
     public void onTick() {
-        if (!this.isEnabled()) return;
+        if (this.isEnabled()) return;
         for (Player i : Bukkit.getOnlinePlayers()) {
             if (shouldReturnForPlayer(i)) continue;
             seeTargetBlock(i);
@@ -269,27 +269,27 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        boolean showParticles = true;
-        double discoverBiomeXP = 15;
-        double discoverPotionXP = 36;
-        double discoverEntityTypeXP = 125;
-        double discoverFoodTypeXP = 75;
-        double discoverPlayerXP = 125;
-        double discoverEnvironmentXP = 750;
-        double discoverWorldXP = 750;
-        double discoverEnchantMaxXP = 250;
-        double discoverEnchantLevelXPMultiplier = 52;
-        double discoverEnchantBaseXP = 5;
-        double discoverItemBaseXP = 10;
-        double discoverRecipeBaseXP = 15;
-        double discoverItemValueXPMultiplier = 1;
-        double discoverBlockBaseXP = 3;
-        double discoverBlockValueXPMultiplier = 0.333;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final double discoverBiomeXP = 15;
+        final double discoverPotionXP = 36;
+        final double discoverEntityTypeXP = 125;
+        final double discoverFoodTypeXP = 75;
+        final double discoverPlayerXP = 125;
+        final double discoverEnvironmentXP = 750;
+        final double discoverWorldXP = 750;
+        final double discoverEnchantMaxXP = 250;
+        final double discoverEnchantLevelXPMultiplier = 52;
+        final double discoverEnchantBaseXP = 5;
+        final double discoverItemBaseXP = 10;
+        final double discoverRecipeBaseXP = 15;
+        final double discoverItemValueXPMultiplier = 1;
+        final double discoverBlockBaseXP = 3;
+        final double discoverBlockValueXPMultiplier = 0.333;
     }
 }

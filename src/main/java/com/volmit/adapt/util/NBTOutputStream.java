@@ -24,9 +24,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
-/**
- * Changes : Neil Wightman - Support 19133 Tag_Int_Array tag
- */
 
 /**
  * <p>
@@ -259,7 +256,6 @@ public final class NBTOutputStream implements Closeable {
      * Writes a <code>TAG_Empty</code> tag.
      *
      * @param tag The tag.
-     * @throws IOException if an I/O error occurs.
      */
     private void writeEndTagPayload(EndTag tag) {
         /* empty */

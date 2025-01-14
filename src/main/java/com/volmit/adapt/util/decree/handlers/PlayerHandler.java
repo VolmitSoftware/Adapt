@@ -48,7 +48,7 @@ public class PlayerHandler implements DecreeParameterHandler<Player> {
             throw new DecreeParsingException("Unable to find Player \"" + in + "\"");
         }
         try {
-            return options.stream().filter((i) -> toString(i).equalsIgnoreCase(in)).collect(Collectors.toList()).get(0);
+            return options.stream().filter((i) -> toString(i).equalsIgnoreCase(in)).toList().get(0);
         } catch (Throwable e) {
             throw new DecreeParsingException("Unable to filter which Biome \"" + in + "\"");
         }

@@ -174,18 +174,18 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        boolean getXpForAttackingWithTools = true;
-        double maxHardnessBonus = 9;
-        double maxBlastResistanceBonus = 10;
-        double challengeExcavationReward = 1200;
-        double valueXPMultiplier = 0.825;
-        long cooldownDelay = 1250;
-        double axeDamageXPMultiplier = 6.5;
+        final boolean enabled = true;
+        final boolean getXpForAttackingWithTools = true;
+        final double maxHardnessBonus = 9;
+        final double maxBlastResistanceBonus = 10;
+        final double challengeExcavationReward = 1200;
+        final double valueXPMultiplier = 0.825;
+        final long cooldownDelay = 1250;
+        final double axeDamageXPMultiplier = 6.5;
     }
 }

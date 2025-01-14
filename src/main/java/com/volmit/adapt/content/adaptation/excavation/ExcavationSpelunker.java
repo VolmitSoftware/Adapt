@@ -170,8 +170,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent e) {
-        if (e.getEntity() instanceof Slime && e.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
-            Slime slime = (Slime) e.getEntity();
+        if (e.getEntity() instanceof Slime slime && e.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
             if (slime.hasMetadata("preventSuffocation")) {
                 e.setCancelled(true);
             } else {
@@ -184,7 +183,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
 
@@ -199,13 +198,13 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        double cooldown = 6.0;
-        int baseCost = 5;
-        int initialCost = 10;
-        double costFactor = 1;
-        int maxLevel = 5;
-        int rangeMultiplier = 5;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final double cooldown = 6.0;
+        final int baseCost = 5;
+        final int initialCost = 10;
+        final double costFactor = 1;
+        final int maxLevel = 5;
+        final int rangeMultiplier = 5;
     }
 }

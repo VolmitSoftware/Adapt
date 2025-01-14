@@ -32,11 +32,10 @@ public class O<T> implements Observable<T> {
 
     @Override
     public O<T> set(T t) {
-        T x = t;
         this.t = t;
 
         if (observers != null && observers.isNotEmpty()) {
-            observers.forEach((o) -> o.onChanged(x, t));
+            observers.forEach((o) -> o.onChanged(t, t));
         }
 
         return this;

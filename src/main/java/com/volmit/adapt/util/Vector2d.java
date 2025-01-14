@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.util;
 
+import java.io.Serial;
+
 /**
  * A 2-element vector that is represented by double-precision floating
  * point x,y coordinates.
@@ -25,7 +27,8 @@ package com.volmit.adapt.util;
 public class Vector2d extends Tuple2d implements java.io.Serializable {
 
     // Combatible with 1.1
-    static final long serialVersionUID = 8572646365302599857L;
+    @Serial
+    private static final long serialVersionUID = 8572646365302599857L;
 
     /**
      * Constructs and initializes a Vector2d from the specified xy coordinates.

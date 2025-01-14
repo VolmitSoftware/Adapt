@@ -149,7 +149,7 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     public void addStats(int level, Element v) {
@@ -191,11 +191,11 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 6;
-        int maxLevel = 4;
-        int initialCost = 4;
-        double costFactor = 2.325;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 6;
+        final int maxLevel = 4;
+        final int initialCost = 4;
+        final double costFactor = 2.325;
     }
 }

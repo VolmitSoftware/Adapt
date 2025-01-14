@@ -107,12 +107,6 @@ public class BrewingManager implements Listener {
                 newStack.setType(Material.SPLASH_POTION);
             } else {
                 newStack.setType(Material.LINGERING_POTION);
-                /*PotionMeta meta = (PotionMeta)newStack.getItemMeta();
-                List<PotionEffect> newEffects = Lists.newArrayList();
-                meta.getCustomEffects().forEach(effect -> newEffects.add(new PotionEffect(effect.getType(), effect.getDuration() / 4, effect.getAmplifier())));
-                meta.clearCustomEffects();
-                newEffects.forEach(effect -> meta.addCustomEffect(effect, true));
-                newStack.setItemMeta(meta);*/
             }
             e.getResults().set(i, newStack);
         }

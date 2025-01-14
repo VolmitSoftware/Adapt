@@ -18,13 +18,16 @@
 
 package com.volmit.adapt.util;
 
+import java.io.Serial;
+
 /**
  * A generic 3-element tuple that is represented by double-precision
  * floating point x,y,z coordinates.
  */
 public abstract class Tuple3d implements java.io.Serializable, Cloneable {
 
-    static final long serialVersionUID = 5542096614926168415L;
+    @Serial
+    private static final long serialVersionUID = 5542096614926168415L;
 
     /**
      * The x coordinate.
@@ -361,9 +364,7 @@ public abstract class Tuple3d implements java.io.Serializable, Cloneable {
         try {
             Tuple3d t2 = (Tuple3d) t1;
             return (this.x == t2.x && this.y == t2.y && this.z == t2.z);
-        } catch (ClassCastException e1) {
-            return false;
-        } catch (NullPointerException e2) {
+        } catch (ClassCastException | NullPointerException e1) {
             return false;
         }
 

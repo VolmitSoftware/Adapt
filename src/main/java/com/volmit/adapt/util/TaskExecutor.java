@@ -48,14 +48,11 @@ public class TaskExecutor {
                 return t;
             });
         } else if (threadLimit > 1) {
-            final ForkJoinWorkerThreadFactory factory = new ForkJoinWorkerThreadFactory() {
-                @Override
-                public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
-                    final ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-                    worker.setName(name + " " + xc++);
-                    worker.setPriority(priority);
-                    return worker;
-                }
+            final ForkJoinWorkerThreadFactory factory = pool -> {
+                final ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+                worker.setName(name + " " + xc++);
+                worker.setPriority(priority);
+                return worker;
             };
 
             service = new ForkJoinPool(threadLimit, factory, null, false);
@@ -161,24 +158,12 @@ public class TaskExecutor {
     }
 
     @ToString
-    public static class TaskResult {
-        public final double timeElapsed;
-        public final int tasksExecuted;
-        public final int tasksFailed;
-        public final int tasksCompleted;
-
-        public TaskResult(double timeElapsed, int tasksExecuted, int tasksFailed, int tasksCompleted) {
-            this.timeElapsed = timeElapsed;
-            this.tasksExecuted = tasksExecuted;
-            this.tasksFailed = tasksFailed;
-            this.tasksCompleted = tasksCompleted;
-        }
+        public record TaskResult(double timeElapsed, int tasksExecuted, int tasksFailed, int tasksCompleted) {
     }
 
+    @Getter
     public static class AssignedTask {
-        @Getter
         private final NastyRunnable task;
-        @Getter
         @Setter
         private TaskState state;
 

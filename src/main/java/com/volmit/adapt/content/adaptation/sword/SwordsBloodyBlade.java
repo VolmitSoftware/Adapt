@@ -84,9 +84,9 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
             Entity victim = e.getEntity();
             cooldowns.put(p, System.currentTimeMillis() + getCooldown(getLevel(p)));
             if (victim instanceof Player pvic) {
-                if (!canPVP(p, pvic.getLocation())) return;
+                if (canPVP(p, pvic.getLocation())) return;
             } else {
-                if (!canPVE(p, victim.getLocation())) return;
+                if (canPVE(p, victim.getLocation())) return;
             }
             if (getConfig().showParticles) {
                 BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, getConfig().damagePerBleedProc, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
@@ -123,7 +123,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -133,16 +133,16 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
 
     @NoArgsConstructor
     protected static class Config {
-        public long cooldown = 5000;
-        public double damagePerBleedProc = 0.5;
-        public long effectDuration = 1000;
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 7;
-        int maxLevel = 7;
-        int initialCost = 7;
-        double costFactor = 0.325;
+        public final long cooldown = 5000;
+        public final double damagePerBleedProc = 0.5;
+        public final long effectDuration = 1000;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 7;
+        final int maxLevel = 7;
+        final int initialCost = 7;
+        final double costFactor = 0.325;
 
     }
 }

@@ -137,7 +137,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @Override
     public void onTick() {
-        if (!this.isEnabled()) {
+        if (this.isEnabled()) {
             return;
         }
         for (Player i : lasttp.k()) {
@@ -151,20 +151,20 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        double destroyEndCrystalXP = 350;
-        double damageEndCrystalXP = 110;
-        double damageEndermanXPMultiplier = 4;
-        double damageEndermiteXPMultiplier = 2;
-        double damageEnderdragonXPMultiplier = 8;
-        double throwEnderpearlXP = 105;
-        double throwEnderEyeXP = 45;
-        double teleportXP = 15;
-        double teleportXPCooldown = 60000;
+        final boolean enabled = true;
+        final double destroyEndCrystalXP = 350;
+        final double damageEndCrystalXP = 110;
+        final double damageEndermanXPMultiplier = 4;
+        final double damageEndermiteXPMultiplier = 2;
+        final double damageEnderdragonXPMultiplier = 8;
+        final double throwEnderpearlXP = 105;
+        final double throwEnderEyeXP = 45;
+        final double teleportXP = 15;
+        final double teleportXPCooldown = 60000;
     }
 }

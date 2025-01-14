@@ -135,7 +135,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -145,15 +145,15 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 3;
-        double costFactor = 0.75;
-        int maxLevel = 5;
-        int initialCost = 5;
-        double baseDurationBoostTicks = 100;
-        double durationBoostFactorTicks = 500;
-        double durationMultiplierFactor = 0.45;
-        double baseDurationMultiplier = 0.05;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 3;
+        final double costFactor = 0.75;
+        final int maxLevel = 5;
+        final int initialCost = 5;
+        final double baseDurationBoostTicks = 100;
+        final double durationBoostFactorTicks = 500;
+        final double durationMultiplierFactor = 0.45;
+        final double baseDurationMultiplier = 0.05;
     }
 }

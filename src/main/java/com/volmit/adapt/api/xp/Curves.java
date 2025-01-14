@@ -22,27 +22,28 @@ import lombok.Getter;
 
 import java.util.function.Function;
 
+@Getter
 public enum Curves {
     // Strange ones
-    QLOG(resolved(level -> Math.pow(level, 2) * Math.log(level), xp -> Math.sqrt(xp / Math.log(xp)), 0.001)),
-    ELIN(resolved(level -> 1000 * Math.exp(0.001 * level), xp -> Math.log(xp / 1000) / 0.001, 0.001)),
-    CUBRT(resolved(level -> Math.pow(level, 1 / 3.0), xp -> Math.pow(xp, 3), 0.001)),
-    HYPER(resolved(level -> 1000 / (2 - level), xp -> 2 - (1000 / xp), 0.001)),
-    SIGM(resolved(level -> 1000 / (1 + Math.exp(-0.01 * (level - 50))), xp -> 50 + Math.log(xp / (1000 - xp)) / -0.01, 0.001)),
+    QLOG(resolved(level -> Math.pow(level, 2) * Math.log(level), xp -> Math.sqrt(xp / Math.log(xp)))),
+    ELIN(resolved(level -> 1000 * Math.exp(0.001 * level), xp -> Math.log(xp / 1000) / 0.001)),
+    CUBRT(resolved(level -> Math.pow(level, 1 / 3.0), xp -> Math.pow(xp, 3))),
+    HYPER(resolved(level -> 1000 / (2 - level), xp -> 2 - (1000 / xp))),
+    SIGM(resolved(level -> 1000 / (1 + Math.exp(-0.01 * (level - 50))), xp -> 50 + Math.log(xp / (1000 - xp)) / -0.01)),
 
     // Normal ones
-    X1D2(resolved(level -> Math.pow(level, 1.2), xp -> Math.pow(xp, 1D / 1.2D), 0.001)),
-    X1D5(resolved(level -> Math.pow(level, 1.5), xp -> Math.pow(xp, 1D / 1.5D), 0.001)),
-    X2(resolved(level -> Math.pow(level, 2), xp -> Math.pow(xp, 1D / 2D), 0.001)),
-    X3(resolved(level -> Math.pow(level, 3), xp -> Math.pow(xp, 1D / 3D), 0.001)),
-    X4(resolved(level -> Math.pow(level, 4), xp -> Math.pow(xp, 1D / 4D), 0.001)),
-    X5(resolved(level -> Math.pow(level, 5), xp -> Math.pow(xp, 1D / 5D), 0.001)),
-    X6(resolved(level -> Math.pow(level, 6), xp -> Math.pow(xp, 1D / 6D), 0.001)),
-    X7(resolved(level -> Math.pow(level, 7), xp -> Math.pow(xp, 1D / 7D), 0.001)),
-    L1K(resolved(level -> level * 1000D, xp -> xp / 1000D, 0.001)),
-    L4K(resolved(level -> level * 4000D, xp -> xp / 4000D, 0.001)),
-    L8K(resolved(level -> level * 8000D, xp -> xp / 8000D, 0.001)),
-    L16K(resolved(level -> level * 16000D, xp -> xp / 16000D, 0.001)),
+    X1D2(resolved(level -> Math.pow(level, 1.2), xp -> Math.pow(xp, 1D / 1.2D))),
+    X1D5(resolved(level -> Math.pow(level, 1.5), xp -> Math.pow(xp, 1D / 1.5D))),
+    X2(resolved(level -> Math.pow(level, 2), xp -> Math.pow(xp, 1D / 2D))),
+    X3(resolved(level -> Math.pow(level, 3), xp -> Math.pow(xp, 1D / 3D))),
+    X4(resolved(level -> Math.pow(level, 4), xp -> Math.pow(xp, 1D / 4D))),
+    X5(resolved(level -> Math.pow(level, 5), xp -> Math.pow(xp, 1D / 5D))),
+    X6(resolved(level -> Math.pow(level, 6), xp -> Math.pow(xp, 1D / 6D))),
+    X7(resolved(level -> Math.pow(level, 7), xp -> Math.pow(xp, 1D / 7D))),
+    L1K(resolved(level -> level * 1000D, xp -> xp / 1000D)),
+    L4K(resolved(level -> level * 4000D, xp -> xp / 4000D)),
+    L8K(resolved(level -> level * 8000D, xp -> xp / 8000D)),
+    L16K(resolved(level -> level * 16000D, xp -> xp / 16000D)),
 
     // Game ones
     SKYRIM(SkyrimNewtonCurve.create()),
@@ -69,31 +70,30 @@ public enum Curves {
         double a = 1000;
         double b = 100;
         return (-a + Math.sqrt(a * a + 4 * b * xp)) / (2 * b);
-    }, 0.001)),
+    })),
 
     LINEAR_EXPONENTIAL_2(resolved(level -> 2000 * level + 50 * Math.pow(level, 2.5), xp -> {
         double a = 2000;
         double b = 50;
         double lvl = (-a + Math.sqrt(a * a + 4 * b * xp)) / (2 * b);
         return Math.pow((xp - a * lvl) / b, 1 / 2.5);
-    }, 0.001)),
+    })),
 
     LINEAR_EXPONENTIAL_3(resolved(level -> 500 * level + 200 * Math.pow(level, 1.5), xp -> {
         double a = 500;
         double b = 200;
         double lvl = (-a + Math.sqrt(a * a + 4 * b * xp)) / (2 * b);
         return Math.pow((xp - a * lvl) / b, 1 / 1.5);
-    }, 0.001));
+    }));
 
 
-    @Getter
     private final NewtonCurve curve;
 
     Curves(NewtonCurve curve) {
         this.curve = curve;
     }
 
-    private static NewtonCurve resolved(Function<Double, Double> xpForLevel, Function<Double, Double> levelForXP, double maxError) {
+    private static NewtonCurve resolved(Function<Double, Double> xpForLevel, Function<Double, Double> levelForXP) {
         return new NewtonCurve() {
             @Override
             public double getXPForLevel(double level) {
@@ -126,7 +126,7 @@ public enum Curves {
                 return currentLevel;
             };
 
-            return Curves.resolved(xpForLevel, levelForXP, 0.001);
+            return Curves.resolved(xpForLevel, levelForXP);
         }
 
         private static double getNextLevelCost(double currentLevel) {
@@ -154,7 +154,7 @@ public enum Curves {
                 return currentLevel;
             };
 
-            return Curves.resolved(xpForLevel, levelForXP, 0.001);
+            return Curves.resolved(xpForLevel, levelForXP);
         }
 
         private static double getNextLevelCost(double currentLevel) {

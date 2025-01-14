@@ -160,15 +160,15 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        double challengePlace1kReward = 1750;
-        double xpValueMultiplier = 1;
-        long cooldownDelay = 1250;
-        double xpBase = 1;
+        final boolean enabled = true;
+        final double challengePlace1kReward = 1750;
+        final double xpValueMultiplier = 1;
+        final long cooldownDelay = 1250;
+        final double xpBase = 1;
     }
 }

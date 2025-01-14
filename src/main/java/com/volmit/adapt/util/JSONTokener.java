@@ -167,15 +167,13 @@ public class JSONTokener {
      * character.
      *
      * @param c The character to match.
-     * @return The character.
      * @throws JSONException if the character does not match.
      */
-    public char next(char c) throws JSONException {
+    public void next(char c) throws JSONException {
         char n = this.next();
         if (n != c) {
             throw this.syntaxError("Expected '" + c + "' and instead saw '" + n + "'");
         }
-        return n;
     }
 
     /**
@@ -362,7 +360,7 @@ public class JSONTokener {
         this.back();
 
         string = sb.toString().trim();
-        if ("".equals(string)) {
+        if (string.isEmpty()) {
             throw this.syntaxError("Missing value");
         }
         return JSONObject.stringToValue(string);

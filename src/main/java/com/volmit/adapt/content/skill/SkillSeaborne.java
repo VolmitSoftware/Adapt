@@ -83,7 +83,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @Override
     public void onTick() {
-        if (!this.isEnabled()) {
+        if (this.isEnabled()) {
             return;
         }
         for (Player i : Bukkit.getOnlinePlayers()) {
@@ -166,16 +166,16 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        public long seaPickleCooldown = 60000;
-        public double tridentxpmultiplier = 2.5;
-        double damagedrownxpmultiplier = 3;
-        boolean enabled = true;
-        double challengeSwim1nmReward = 750;
-        double swimXP = 28.7;
+        public final long seaPickleCooldown = 60000;
+        public final double tridentxpmultiplier = 2.5;
+        final double damagedrownxpmultiplier = 3;
+        final boolean enabled = true;
+        final double challengeSwim1nmReward = 750;
+        final double swimXP = 28.7;
     }
 }

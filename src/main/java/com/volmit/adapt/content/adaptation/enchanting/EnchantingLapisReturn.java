@@ -92,7 +92,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -102,11 +102,11 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 5;
-        int maxLevel = 3;
-        int initialCost = 2;
-        double costFactor = 2.25;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 5;
+        final int maxLevel = 3;
+        final int initialCost = 2;
+        final double costFactor = 2.25;
     }
 }

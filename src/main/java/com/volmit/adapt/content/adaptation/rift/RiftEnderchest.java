@@ -87,7 +87,7 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -97,7 +97,7 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
+        final boolean permanent = false;
+        final boolean enabled = true;
     }
 }

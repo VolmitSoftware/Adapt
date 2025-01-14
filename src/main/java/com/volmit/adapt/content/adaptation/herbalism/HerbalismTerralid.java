@@ -67,7 +67,7 @@ public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -77,11 +77,11 @@ public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = true;
-        boolean enabled = true;
-        int baseCost = 4;
-        int maxLevel = 1;
-        int initialCost = 3;
-        double costFactor = 0.75;
+        final boolean permanent = true;
+        final boolean enabled = true;
+        final int baseCost = 4;
+        final int maxLevel = 1;
+        final int initialCost = 3;
+        final double costFactor = 0.75;
     }
 }

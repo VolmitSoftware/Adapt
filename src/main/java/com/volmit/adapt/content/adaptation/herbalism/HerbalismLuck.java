@@ -100,7 +100,7 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -110,13 +110,13 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 8;
-        int maxLevel = 7;
-        int initialCost = 3;
-        double costFactor = 0.75;
-        double lowChance = 0.0;
-        double highChance = 90;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 8;
+        final int maxLevel = 7;
+        final int initialCost = 3;
+        final double costFactor = 0.75;
+        final double lowChance = 0.0;
+        final double highChance = 90;
     }
 }

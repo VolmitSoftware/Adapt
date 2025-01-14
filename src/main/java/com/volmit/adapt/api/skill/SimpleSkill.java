@@ -169,7 +169,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
                 return true;
             }
             Adapt.verbose("Checking " + p.getName() + " for " + getName());
-            return !this.isEnabled() || hasBlacklistPermission(p, this) || isWorldBlacklisted(p) || isInCreativeOrSpectator(p) || getPlayer(p) == null;
+            return this.isEnabled() || hasBlacklistPermission(p, this) || isWorldBlacklisted(p) || isInCreativeOrSpectator(p) || getPlayer(p) == null;
         } catch (Exception ignored) {
             return true;
         }
@@ -199,7 +199,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
     protected boolean shouldReturnForWorld(World world, Skill<?> skill) {
         try {
-            return !skill.isEnabled() || AdaptConfig.get().blacklistedWorlds.contains(world.getName());
+            return skill.isEnabled() || AdaptConfig.get().blacklistedWorlds.contains(world.getName());
         } catch (Exception ignored) {
             return true;
         }
@@ -255,7 +255,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
     @Override
     public void registerAdaptation(Adaptation<?> a) {
-        if (!a.isEnabled()) {
+        if (a.isEnabled()) {
             return;
         }
 

@@ -87,7 +87,7 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
         for (Map.Entry<String, Integer> entry : data.getKnowledgeMap().entrySet()) {
             String skill = entry.getKey();
             int knowledge = entry.getValue();
-            lore.add(C.WHITE + Localizer.dLocalize("snippets", "knowledgeorb", "contains") + " " + C.UNDERLINE + C.WHITE + "" + knowledge + " " + Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + " " + Localizer.dLocalize("snippets", "knowledgeorb", "knowledge"));
+            lore.add(C.WHITE + Localizer.dLocalize("snippets", "knowledgeorb", "contains") + " " + C.UNDERLINE + C.WHITE + knowledge + " " + Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + " " + Localizer.dLocalize("snippets", "knowledgeorb", "knowledge"));
         }
         lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("snippets", "knowledgeorb", "rightclick") + " " + C.GRAY + Localizer.dLocalize("snippets", "knowledgeorb", "togainknowledge"));
     }

@@ -91,7 +91,7 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -101,11 +101,11 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = true;
-        boolean enabled = true;
-        int baseCost = 1;
-        int maxLevel = 1;
-        int initialCost = 1;
-        double costFactor = 0;
+        final boolean permanent = true;
+        final boolean enabled = true;
+        final int baseCost = 1;
+        final int maxLevel = 1;
+        final int initialCost = 1;
+        final double costFactor = 0;
     }
 }

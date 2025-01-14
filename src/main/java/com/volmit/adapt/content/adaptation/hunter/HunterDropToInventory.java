@@ -56,7 +56,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     public void addStats(int level, Element v) {
@@ -76,10 +76,10 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         if (p.getGameMode() != GameMode.SURVIVAL) {
             return;
         }
-        if (!canInteract(p, e.getBlock().getLocation())) {
+        if (canInteract(p, e.getBlock().getLocation())) {
             return;
         }
-        if (!canPVP(p, e.getBlock().getLocation())) {
+        if (canPVP(p, e.getBlock().getLocation())) {
             return;
         }
         if (ItemListings.toolSwords.contains(p.getInventory().getItemInMainHand().getType())) {
@@ -131,11 +131,11 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 1;
-        int maxLevel = 1;
-        int initialCost = 2;
-        double costFactor = 1;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 1;
+        final int maxLevel = 1;
+        final int initialCost = 2;
+        final double costFactor = 1;
     }
 }

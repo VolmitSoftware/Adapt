@@ -329,30 +329,30 @@ public class IO {
 
     public static String readAll(File f) throws IOException {
         BufferedReader bu = new BufferedReader(new FileReader(f));
-        String c = "";
+        StringBuilder c = new StringBuilder();
         String l = "";
 
         while ((l = bu.readLine()) != null) {
-            c += l + "\n";
+            c.append(l).append("\n");
         }
 
         bu.close();
 
-        return c;
+        return c.toString();
     }
 
     public static String readAll(InputStream in) throws IOException {
         BufferedReader bu = new BufferedReader(new InputStreamReader(in));
-        String c = "";
+        StringBuilder c = new StringBuilder();
         String l = "";
 
         while ((l = bu.readLine()) != null) {
-            c += l + "\n";
+            c.append(l).append("\n");
         }
 
         bu.close();
 
-        return c;
+        return c.toString();
     }
 
     /**
@@ -384,7 +384,6 @@ public class IO {
      * @throws NullPointerException if source or destination is null
      * @throws IOException          if source or destination is invalid
      * @throws IOException          if an IO error occurs during copying
-     * @see #copyFileToDirectory
      */
     public static void copyFile(File srcFile, File destFile) throws IOException {
         copyFile(srcFile, destFile, true);
@@ -405,7 +404,6 @@ public class IO {
      * @throws NullPointerException if source or destination is null
      * @throws IOException          if source or destination is invalid
      * @throws IOException          if an IO error occurs during copying
-     * @see #copyFileToDirectory
      */
     public static void copyFile(File srcFile, File destFile, boolean preserveFileDate) throws IOException {
         if (srcFile == null) {
@@ -414,7 +412,7 @@ public class IO {
         if (destFile == null) {
             throw new NullPointerException("Destination must not be null");
         }
-        if (srcFile.exists() == false) {
+        if (!srcFile.exists()) {
             throw new FileNotFoundException("Source '" + srcFile + "' does not exist");
         }
         if (srcFile.isDirectory()) {
@@ -423,12 +421,12 @@ public class IO {
         if (srcFile.getCanonicalPath().equals(destFile.getCanonicalPath())) {
             throw new IOException("Source '" + srcFile + "' and destination '" + destFile + "' are the same");
         }
-        if (destFile.getParentFile() != null && destFile.getParentFile().exists() == false) {
-            if (destFile.getParentFile().mkdirs() == false) {
+        if (destFile.getParentFile() != null && !destFile.getParentFile().exists()) {
+            if (!destFile.getParentFile().mkdirs()) {
                 throw new IOException("Destination '" + destFile + "' directory cannot be created");
             }
         }
-        if (destFile.exists() && destFile.canWrite() == false) {
+        if (destFile.exists() && !destFile.canWrite()) {
             throw new IOException("Destination '" + destFile + "' exists but is read-only");
         }
         doCopyFile(srcFile, destFile, preserveFileDate);
@@ -607,11 +605,9 @@ public class IO {
      *
      * @param input the <code>String</code> to convert
      * @return the requested byte array
-     * @throws NullPointerException if the input is null
-     * @throws IOException          if an I/O error occurs (never occurs)
      * @Deprecated Use {@link String#getBytes()}
      */
-    public static byte[] toByteArray(String input) throws IOException {
+    public static byte[] toByteArray(String input) {
         return input.getBytes();
     }
 
@@ -741,11 +737,9 @@ public class IO {
      *
      * @param input the byte array to read from
      * @return the requested String
-     * @throws NullPointerException if the input is null
-     * @throws IOException          if an I/O error occurs (never occurs)
      * @Deprecated Use {@link String#String(byte[])}
      */
-    public static String toString(byte[] input) throws IOException {
+    public static String toString(byte[] input) {
         return new String(input);
     }
 
@@ -835,7 +829,7 @@ public class IO {
      */
     public static List<String> readLines(Reader input) throws IOException {
         BufferedReader reader = new BufferedReader(input);
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         String line = reader.readLine();
         while (line != null) {
             list.add(line);
@@ -1149,8 +1143,7 @@ public class IO {
         if (lineEnding == null) {
             lineEnding = LINE_SEPARATOR;
         }
-        for (Iterator<String> it = lines.iterator(); it.hasNext(); ) {
-            Object line = it.next();
+        for (Object line : lines) {
             if (line != null) {
                 output.write(line.toString().getBytes());
             }
@@ -1184,8 +1177,7 @@ public class IO {
             if (lineEnding == null) {
                 lineEnding = LINE_SEPARATOR;
             }
-            for (Iterator<String> it = lines.iterator(); it.hasNext(); ) {
-                Object line = it.next();
+            for (Object line : lines) {
                 if (line != null) {
                     output.write(line.toString().getBytes(encoding));
                 }
@@ -1215,8 +1207,7 @@ public class IO {
         if (lineEnding == null) {
             lineEnding = LINE_SEPARATOR;
         }
-        for (Iterator<String> it = lines.iterator(); it.hasNext(); ) {
-            Object line = it.next();
+        for (Object line : lines) {
             if (line != null) {
                 writer.write(line.toString());
             }
@@ -1237,18 +1228,15 @@ public class IO {
      *
      * @param input  the <code>InputStream</code> to read from
      * @param output the <code>OutputStream</code> to write to
-     * @return the number of bytes copied
      * @throws NullPointerException if the input or output is null
      * @throws IOException          if an I/O error occurs
      * @throws ArithmeticException  if the byte count is too large
      * @since Commons IO 1.1
      */
-    public static int copy(InputStream input, OutputStream output) throws IOException {
+    public static void copy(InputStream input, OutputStream output) throws IOException {
         long count = copyLarge(input, output);
         if (count > Integer.MAX_VALUE) {
-            return -1;
         }
-        return (int) count;
     }
 
     /**
@@ -1340,18 +1328,15 @@ public class IO {
      *
      * @param input  the <code>Reader</code> to read from
      * @param output the <code>Writer</code> to write to
-     * @return the number of characters copied
      * @throws NullPointerException if the input or output is null
      * @throws IOException          if an I/O error occurs
      * @throws ArithmeticException  if the character count is too large
      * @since Commons IO 1.1
      */
-    public static int copy(Reader input, Writer output) throws IOException {
+    public static void copy(Reader input, Writer output) throws IOException {
         long count = copyLarge(input, output);
         if (count > Integer.MAX_VALUE) {
-            return -1;
         }
-        return (int) count;
     }
 
     /**

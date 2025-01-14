@@ -19,9 +19,6 @@
 
 package com.volmit.adapt.util.data;
 
-//import com.volmit.react.util.collection.KList;
-//import com.volmit.react.util.collection.KeyPair;
-
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.collection.KeyPair;
 

@@ -19,7 +19,9 @@
 package com.volmit.adapt.content.event;
 
 import com.volmit.adapt.api.world.AdaptPlayer;
+import lombok.Getter;
 
+@Getter
 public class AdaptPlayerEvent extends AdaptEvent {
     private final AdaptPlayer player;
 
@@ -28,7 +30,4 @@ public class AdaptPlayerEvent extends AdaptEvent {
         this.player = player;
     }
 
-    public AdaptPlayer getPlayer() {
-        return player;
-    }
 }

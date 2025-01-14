@@ -84,7 +84,7 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
             Entity victim = e.getEntity();
             cooldowns.put(p, System.currentTimeMillis() + getCooldown(getLevel(p)));
             if (victim instanceof Player pvic) {
-                if (!canPVP(p, pvic.getLocation())) return;
+                if (canPVP(p, pvic.getLocation())) return;
                 BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);
                 blood.setEntity(pvic);
                 blood.material = Material.LARGE_FERN;
@@ -95,7 +95,7 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
                 blood.start();
                 addPotionStacks(pvic, PotionEffectType.POISON, 2, 50 * getLevel(p), true);
             } else {
-                if (!canPVE(p, victim.getLocation())) return;
+                if (canPVE(p, victim.getLocation())) return;
                 BleedEffect blood = victim instanceof LivingEntity l ? new DamagingBleedEffect(Adapt.instance.adaptEffectManager, 1, l) : new BleedEffect(Adapt.instance.adaptEffectManager);
                 blood.setEntity(victim);
                 blood.material = Material.LARGE_FERN;
@@ -117,7 +117,7 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -127,14 +127,13 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
 
     @NoArgsConstructor
     protected static class Config {
-        public long cooldown = 5000;
-        public long effectDuration = 1000;
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 7;
-        int maxLevel = 7;
-        int initialCost = 7;
-        double costFactor = 0.325;
+        public final long cooldown = 5000;
+        public final long effectDuration = 1000;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 7;
+        final int maxLevel = 7;
+        final int initialCost = 7;
+        final double costFactor = 0.325;
     }
 }
-

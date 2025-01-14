@@ -133,7 +133,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
 
@@ -148,13 +148,13 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 6;
-        int maxLevel = 5;
-        int initialCost = 4;
-        double costFactor = 2.325;
-        int baseRange = 2;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 6;
+        final int maxLevel = 5;
+        final int initialCost = 4;
+        final double costFactor = 2.325;
+        final int baseRange = 2;
     }
 }

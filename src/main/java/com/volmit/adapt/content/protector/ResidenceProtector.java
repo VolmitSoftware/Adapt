@@ -21,7 +21,7 @@ public class ResidenceProtector implements Protector {
 
     @Override
     public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
-        return checkPerm(player, location, "use-adaptations");
+        return checkPerm(player, location);
     }
 
     @Override
@@ -67,13 +67,13 @@ public class ResidenceProtector implements Protector {
         return perm.get();
     }
 
-    private boolean checkPerm(Player player, Location location, String flag) {
+    private boolean checkPerm(Player player, Location location) {
         AtomicBoolean perm = new AtomicBoolean(true);
         J.s(() -> {
             if (!Residence.getInstance().isDisabledWorld(location.getWorld())) {
                 ClaimedResidence res = Residence.getInstance().getResidenceManager().getByLoc(location);
                 if (res != null) {
-                    perm.set(res.getPermissions().playerHas(player.getName(), flag, true));
+                    perm.set(res.getPermissions().playerHas(player.getName(), "use-adaptations", true));
                 }
             }
         });

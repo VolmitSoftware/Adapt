@@ -62,7 +62,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         if (e.isCancelled()) {
             return;
         }
-        if (!this.isEnabled() || e.isCancelled() || !(e.getEntity() instanceof Player p) || shouldReturnForEventWithCause(p, e.getCause()) || e instanceof EntityDamageByBlockEvent) {
+        if (this.isEnabled() || e.isCancelled() || !(e.getEntity() instanceof Player p) || shouldReturnForEventWithCause(p, e.getCause()) || e instanceof EntityDamageByBlockEvent) {
             return;
         }
         xp(p, getConfig().getWitherDamageXp());
@@ -109,7 +109,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @Override
     public void onTick() {
-        if (!this.isEnabled()) {
+        if (this.isEnabled()) {
             return;
         }
         if (witherRoseCooldown > 0) {
@@ -119,7 +119,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().isEnabled();
+        return !getConfig().isEnabled();
     }
 
     @Data

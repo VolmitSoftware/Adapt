@@ -23,13 +23,14 @@ import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.volmit.adapt.util.RollingSequence;
+import lombok.Setter;
 //import com.volmit.react.util.math.RollingSequence;
 
 public class KCache<K, V> {
     private final long max;
     private final LoadingCache<K, V> cache;
-    private final boolean fastDump;
     private final RollingSequence msu = new RollingSequence(100);
+    @Setter
     private CacheLoader<K, V> loader;
 
     public KCache(CacheLoader<K, V> loader, long max) {
@@ -38,7 +39,6 @@ public class KCache<K, V> {
 
     public KCache(CacheLoader<K, V> loader, long max, boolean fastDump) {
         this.max = max;
-        this.fastDump = fastDump;
         this.loader = loader;
         this.cache = create(loader);
     }
@@ -51,10 +51,6 @@ public class KCache<K, V> {
                 .build((k) -> loader == null ? null : loader.load(k));
     }
 
-
-    public void setLoader(CacheLoader<K, V> loader) {
-        this.loader = loader;
-    }
 
     public void invalidate(K k) {
         cache.invalidate(k);

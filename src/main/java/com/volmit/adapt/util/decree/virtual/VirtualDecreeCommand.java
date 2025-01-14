@@ -41,7 +41,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -289,8 +288,7 @@ public class VirtualDecreeCommand {
         List<String> knownInputs = new ArrayList<>(in.stream().filter(s -> s.contains("=")).collect(Collectors.toList()));
 
         //Loop known inputs
-        for (int x = 0; x < knownInputs.size(); x++) {
-            String stringParam = knownInputs.get(x);
+        for (String stringParam : knownInputs) {
             int original = in.indexOf(stringParam);
 
             String[] v = stringParam.split("\\Q=\\E");

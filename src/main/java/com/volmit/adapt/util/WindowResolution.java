@@ -18,8 +18,10 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
 import org.bukkit.event.inventory.InventoryType;
 
+@Getter
 public enum WindowResolution {
     W9_H6(9, 6, InventoryType.CHEST),
     W5_H1(5, 1, InventoryType.HOPPER),
@@ -39,15 +41,4 @@ public enum WindowResolution {
         return (getWidth() - 1) / 2;
     }
 
-    public int getWidth() {
-        return width;
-    }
-
-    public int getMaxHeight() {
-        return maxHeight;
-    }
-
-    public InventoryType getType() {
-        return type;
-    }
 }

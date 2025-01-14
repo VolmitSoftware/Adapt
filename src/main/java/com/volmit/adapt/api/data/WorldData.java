@@ -66,19 +66,19 @@ public class WorldData extends TickedObject {
             return 1;
         }
 
-        return 1 / (double) (e.getEarnings() == 0 ? 1 : e.getEarnings());
+        return 1 / (double) (e.earnings() == 0 ? 1 : e.earnings());
     }
 
     public double reportEarnings(Block block) {
         Earnings e = mantle.get(block.getX(), block.getY(), block.getZ(), Earnings.class);
         e = e == null ? new Earnings(0) : e;
 
-        if (e.getEarnings() >= 127) {
-            return 1 / (double) (e.getEarnings() == 0 ? 1 : e.getEarnings());
+        if (e.earnings() >= 127) {
+            return 1 / (double) (e.earnings() == 0 ? 1 : e.earnings());
         }
 
         mantle.set(block.getX(), block.getY(), block.getZ(), e.increment());
-        return 1 / (double) (e.getEarnings() == 0 ? 1 : e.getEarnings());
+        return 1 / (double) (e.earnings() == 0 ? 1 : e.earnings());
     }
 
     public void unregister() {

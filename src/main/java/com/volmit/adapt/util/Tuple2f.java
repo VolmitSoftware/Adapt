@@ -18,13 +18,16 @@
 
 package com.volmit.adapt.util;
 
+import java.io.Serial;
+
 /**
  * A generic 2-element tuple that is represented by single-precision
  * floating point x,y coordinates.
  */
 public abstract class Tuple2f implements java.io.Serializable, Cloneable {
 
-    static final long serialVersionUID = 9011180388985266884L;
+    @Serial
+    private static final long serialVersionUID = 9011180388985266884L;
 
     /**
      * The x coordinate.
@@ -313,9 +316,7 @@ public abstract class Tuple2f implements java.io.Serializable, Cloneable {
         try {
             Tuple2f t2 = (Tuple2f) t1;
             return (this.x == t2.x && this.y == t2.y);
-        } catch (NullPointerException e2) {
-            return false;
-        } catch (ClassCastException e1) {
+        } catch (NullPointerException | ClassCastException e2) {
             return false;
         }
 

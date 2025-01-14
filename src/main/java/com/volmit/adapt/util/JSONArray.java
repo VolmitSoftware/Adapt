@@ -19,6 +19,8 @@
 package com.volmit.adapt.util;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -85,7 +87,7 @@ public class JSONArray implements Iterable<Object> {
      * Construct an empty JSONArray.
      */
     public JSONArray() {
-        this.myArrayList = new ArrayList<Object>();
+        this.myArrayList = new ArrayList<>();
     }
 
     /**
@@ -143,11 +145,10 @@ public class JSONArray implements Iterable<Object> {
      * @param collection A Collection.
      */
     public JSONArray(Collection<Object> collection) {
-        this.myArrayList = new ArrayList<Object>();
+        this.myArrayList = new ArrayList<>();
         if (collection != null) {
-            Iterator<Object> iter = collection.iterator();
-            while (iter.hasNext()) {
-                this.myArrayList.add(JSONObject.wrap(iter.next()));
+            for (Object o : collection) {
+                this.myArrayList.add(JSONObject.wrap(o));
             }
         }
     }
@@ -170,7 +171,7 @@ public class JSONArray implements Iterable<Object> {
     }
 
     @Override
-    public Iterator<Object> iterator() {
+    public @NotNull Iterator<Object> iterator() {
         return myArrayList.iterator();
     }
 
@@ -530,9 +531,7 @@ public class JSONArray implements Iterable<Object> {
                 return myE;
             }
             return Enum.valueOf(clazz, val.toString());
-        } catch (IllegalArgumentException e) {
-            return defaultValue;
-        } catch (NullPointerException e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
             return defaultValue;
         }
     }
@@ -872,28 +871,28 @@ public class JSONArray implements Iterable<Object> {
      */
     public boolean similar(Object other) {
         if (!(other instanceof JSONArray)) {
-            return false;
+            return true;
         }
         int len = this.length();
         if (len != ((JSONArray) other).length()) {
-            return false;
+            return true;
         }
         for (int i = 0; i < len; i += 1) {
             Object valueThis = this.get(i);
             Object valueOther = ((JSONArray) other).get(i);
             if (valueThis instanceof JSONObject) {
-                if (!((JSONObject) valueThis).similar(valueOther)) {
-                    return false;
+                if (((JSONObject) valueThis).similar(valueOther)) {
+                    return true;
                 }
             } else if (valueThis instanceof JSONArray) {
-                if (!((JSONArray) valueThis).similar(valueOther)) {
-                    return false;
+                if (((JSONArray) valueThis).similar(valueOther)) {
+                    return true;
                 }
             } else if (!valueThis.equals(valueOther)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     /**

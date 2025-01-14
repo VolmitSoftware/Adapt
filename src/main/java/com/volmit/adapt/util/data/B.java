@@ -501,7 +501,7 @@ public class B {
             String block = ix.contains(":") ? ix.split(":")[1].toLowerCase() : ix.toLowerCase();
             String state = block.contains("[") ? block.split("\\Q[\\E")[1].split("\\Q]\\E")[0] : "";
             Map<String, String> stateMap = new HashMap<>();
-            if (!state.equals("")) {
+            if (!state.isEmpty()) {
                 Arrays.stream(state.split(",")).forEach(s -> stateMap.put(s.split("=")[0], s.split("=")[1]));
             }
             block = block.split("\\Q[\\E")[0];
@@ -537,7 +537,7 @@ public class B {
 
             //Combine all the "good" states again
             state = newStates.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining(","));
-            if (!state.equals("")) state = "[" + state + "]";
+            if (!state.isEmpty()) state = "[" + state + "]";
             String newBlock = block + state;
             Adapt.debug("Converting " + ix + " to " + newBlock);
 

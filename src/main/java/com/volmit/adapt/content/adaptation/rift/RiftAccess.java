@@ -263,7 +263,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -273,11 +273,11 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 3;
-        double costFactor = 0.2;
-        int initialCost = 15;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 3;
+        final double costFactor = 0.2;
+        final int initialCost = 15;
     }
 }

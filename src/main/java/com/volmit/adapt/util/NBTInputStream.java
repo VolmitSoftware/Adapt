@@ -29,11 +29,6 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 /**
- * Changes :
- * Neil Wightman - Support 19133 Tag_Int_Array tag
- */
-
-/**
  * <p>
  * This class reads <strong>NBT</strong>, or
  * <strong>Named Binary Tag</strong> streams, and produces an object graph of subclasses of the <code>Tag</code>
@@ -149,7 +144,7 @@ public final class NBTInputStream implements Closeable {
                 int childType = is.readByte();
                 length = is.readInt();
 
-                List<Tag> tagList = new ArrayList<Tag>();
+                List<Tag> tagList = new ArrayList<>();
                 for (int i = 0; i < length; i++) {
                     Tag tag = readTagPayload(childType, "", depth + 1);
                     if (tag instanceof EndTag) {
@@ -160,7 +155,7 @@ public final class NBTInputStream implements Closeable {
 
                 return new ListTag(name, NBTUtils.getTypeClass(childType), tagList);
             case NBTConstants.TYPE_COMPOUND:
-                Map<String, Tag> tagMap = new HashMap<String, Tag>();
+                Map<String, Tag> tagMap = new HashMap<>();
                 while (true) {
                     Tag tag = readTag(depth + 1);
                     if (tag instanceof EndTag) {

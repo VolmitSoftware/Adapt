@@ -19,6 +19,7 @@
 package com.volmit.adapt.util;
 
 import com.google.common.util.concurrent.AtomicDoubleArray;
+import lombok.Getter;
 
 /**
  * Provides an incredibly fast averaging object. It swaps values from a sum
@@ -28,10 +29,11 @@ import com.google.common.util.concurrent.AtomicDoubleArray;
  * @author cyberpwn
  */
 public class AtomicAverage {
-    protected AtomicDoubleArray values;
+    protected final AtomicDoubleArray values;
     protected int cursor;
     private double average;
     private double lastSum;
+    @Getter
     private boolean dirty;
     private boolean brandNew;
 
@@ -95,7 +97,4 @@ public class AtomicAverage {
         return values.length();
     }
 
-    public boolean isDirty() {
-        return dirty;
-    }
 }

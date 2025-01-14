@@ -99,7 +99,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -109,21 +109,21 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean useConsumable = false;
-        boolean poisonPenalty = true;
-        boolean stackHungerPenalty = false;
-        boolean stackPoisonPenalty = false;
-        boolean stackBuff = false;
-        int baseEffectbyLevel = 100;
-        int baseHungerDuration = 50;
-        int baseHungerFromLevel = 10;
-        int basePoisonFromLevel = 6;
-        String consumable = "ROTTEN_FLESH";
-        int baseCost = 4;
-        int maxLevel = 5;
-        int initialCost = 8;
-        double costFactor = 0.4;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean useConsumable = false;
+        final boolean poisonPenalty = true;
+        final boolean stackHungerPenalty = false;
+        final boolean stackPoisonPenalty = false;
+        final boolean stackBuff = false;
+        final int baseEffectbyLevel = 100;
+        final int baseHungerDuration = 50;
+        final int baseHungerFromLevel = 10;
+        final int basePoisonFromLevel = 6;
+        final String consumable = "ROTTEN_FLESH";
+        final int baseCost = 4;
+        final int maxLevel = 5;
+        final int initialCost = 8;
+        final double costFactor = 0.4;
     }
 }

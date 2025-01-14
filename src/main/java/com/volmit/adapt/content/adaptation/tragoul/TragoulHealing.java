@@ -104,7 +104,7 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -118,16 +118,16 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 5;
-        int maxLevel = 5;
-        int initialCost = 5;
-        double costFactor = 1.10;
-        double minHealPercent = 0.10; // 0.10%
-        double maxHealPercent = 0.45; // 0.45%
-        int cooldownDuration = 1000; // 1 second
-        int windowDuration = 3000; // 3 seconds
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 5;
+        final int maxLevel = 5;
+        final int initialCost = 5;
+        final double costFactor = 1.10;
+        final double minHealPercent = 0.10; // 0.10%
+        final double maxHealPercent = 0.45; // 0.45%
+        final int cooldownDuration = 1000; // 1 second
+        final int windowDuration = 3000; // 3 seconds
     }
 }

@@ -20,6 +20,10 @@
 package com.volmit.adapt.util.collection;
 
 
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -29,10 +33,33 @@ import java.io.Serializable;
  * @param <B> the second object type
  * @author cyberpwn
  */
+@Setter
+@Getter
 @SuppressWarnings("hiding")
 public class GBiset<A, B> implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
+    /**
+     * -- GETTER --
+     *  Get the object of the type A
+     *
+     *
+     * -- SETTER --
+     *  Set the first object
+     *
+     @return the first object
+      * @param a the first object A
+     */
     private A a;
+    /**
+     * -- GETTER --
+     *  Get the second object
+     *
+     *
+     * -- SETTER --
+     *  Set the second object
+     @return the second object
+     */
     private B b;
 
     /**
@@ -46,37 +73,4 @@ public class GBiset<A, B> implements Serializable {
         this.b = b;
     }
 
-    /**
-     * Get the object of the type A
-     *
-     * @return the first object
-     */
-    public A getA() {
-        return a;
-    }
-
-    /**
-     * Set the first object
-     *
-     * @param a the first object A
-     */
-    public void setA(A a) {
-        this.a = a;
-    }
-
-    /**
-     * Get the second object
-     *
-     * @return the second object
-     */
-    public B getB() {
-        return b;
-    }
-
-    /**
-     * Set the second object
-     */
-    public void setB(B b) {
-        this.b = b;
-    }
 }

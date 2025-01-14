@@ -58,7 +58,7 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -77,11 +77,11 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 6;
-        int maxLevel = 2;
-        int initialCost = 4;
-        double costFactor = 2.325;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 6;
+        final int maxLevel = 2;
+        final int initialCost = 4;
+        final double costFactor = 2.325;
     }
 }

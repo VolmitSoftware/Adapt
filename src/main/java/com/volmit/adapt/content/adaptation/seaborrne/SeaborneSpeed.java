@@ -69,7 +69,7 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -79,11 +79,11 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 3;
-        int maxLevel = 7;
-        int initialCost = 2;
-        double costFactor = 0.525;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 3;
+        final int maxLevel = 7;
+        final int initialCost = 2;
+        final double costFactor = 0.525;
     }
 }

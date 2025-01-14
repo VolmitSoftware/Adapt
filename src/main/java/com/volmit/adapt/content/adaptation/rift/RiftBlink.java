@@ -44,8 +44,6 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     private final Map<Player, Long> lastJump = new HashMap<>();
     private final Map<Player, Boolean> canBlink = new HashMap<>();
 
-    private final double jumpVelocity = -0.0784000015258789;
-
     public RiftBlink() {
         super("rift-blink");
         registerConfiguration(Config.class);
@@ -138,6 +136,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     @EventHandler
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
+        double jumpVelocity = -0.0784000015258789;
         boolean isJumping = p.getVelocity().getY() > jumpVelocity;
         if (isJumping && !canBlink.containsKey(p) && hasAdaptation(p) && p.getGameMode().equals(GameMode.SURVIVAL) && p.isSprinting()) {
             if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration()) {
@@ -159,11 +158,11 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
             if (isSafe(loc)) {
                 canBlink.put(p, true);
                 p.setAllowFlight(true);
-                Adapt.verbose("Allowing flight for " + p.getName() + "");
+                Adapt.verbose("Allowing flight for " + p.getName());
                 J.a(() -> {
                     p.setAllowFlight(false);
                     p.setFlying(false);
-                    Adapt.verbose("Disabling flight for " + p.getName() + "");
+                    Adapt.verbose("Disabling flight for " + p.getName());
                     canBlink.remove(p);
                 }, 25);
             }
@@ -186,7 +185,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -196,14 +195,14 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 7;
-        double costFactor = 0.12;
-        int maxLevel = 5;
-        int initialCost = 1;
-        double baseDistance = 6;
-        double distanceFactor = 5;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 7;
+        final double costFactor = 0.12;
+        final int maxLevel = 5;
+        final int initialCost = 1;
+        final double baseDistance = 6;
+        final double distanceFactor = 5;
     }
 }

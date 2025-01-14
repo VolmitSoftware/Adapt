@@ -101,13 +101,7 @@ public class MathHelper {
     }
 
     public static int clamp(int var0, int var1, int var2) {
-        if (var0 < var1) {
-            return var1;
-        }
-        if (var0 > var2) {
-            return var2;
-        }
-        return var0;
+        return a(var0, var1, var2);
     }
 
     public static float a(float var0, float var1, float var2) {
@@ -293,7 +287,7 @@ public class MathHelper {
     }
 
     public static long c(int var0, int var1, int var2) {
-        long var3 = (long) (var0 * 3129871) ^ (long) var2 * 116129781L ^ (long) var1;
+        long var3 = (long) (var0 * 3129871L) ^ (long) var2 * 116129781L ^ (long) var1;
         var3 = var3 * var3 * 42317861L + var3 * 11L;
         return var3 >> 16;
     }

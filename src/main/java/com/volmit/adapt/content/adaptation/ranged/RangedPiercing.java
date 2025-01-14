@@ -75,7 +75,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -85,11 +85,11 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 3;
-        int maxLevel = 5;
-        int initialCost = 8;
-        double costFactor = 0.5;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 3;
+        final int maxLevel = 5;
+        final int initialCost = 8;
+        final double costFactor = 0.5;
     }
 }

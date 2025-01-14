@@ -71,7 +71,7 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -81,11 +81,11 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = true;
-        boolean enabled = true;
-        int baseCost = 3;
-        double costFactor = 1;
-        int maxLevel = 1;
-        int initialCost = 2;
+        final boolean permanent = true;
+        final boolean enabled = true;
+        final int baseCost = 3;
+        final double costFactor = 1;
+        final int maxLevel = 1;
+        final int initialCost = 2;
     }
 }

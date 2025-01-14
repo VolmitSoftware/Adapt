@@ -84,7 +84,7 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -94,11 +94,11 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 5;
-        int maxLevel = 7;
-        int initialCost = 2;
-        double costFactor = 1.525;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 5;
+        final int maxLevel = 7;
+        final int initialCost = 2;
+        final double costFactor = 1.525;
     }
 }

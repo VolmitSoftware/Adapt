@@ -44,6 +44,7 @@ public class Sphere implements Iterator<BlockPosition>, Cloneable {
 
     @Override
     public Sphere clone() {
+        Sphere sphere = (Sphere) super.clone();
         return new Sphere(blocks);
     }
 }

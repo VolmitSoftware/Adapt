@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.command.CommandSender;
 
 import java.lang.reflect.Field;
@@ -26,6 +28,8 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
+@Getter
 public abstract class MortarPermission {
     private MortarPermission parent;
 
@@ -81,14 +85,6 @@ public abstract class MortarPermission {
 
     public boolean hasParent() {
         return getParent() != null;
-    }
-
-    public MortarPermission getParent() {
-        return parent;
-    }
-
-    public void setParent(MortarPermission parent) {
-        this.parent = parent;
     }
 
     public boolean has(CommandSender sender) {

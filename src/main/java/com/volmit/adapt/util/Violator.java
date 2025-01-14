@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Violator {
-    protected static ConcurrentSkipListMap<String, Object> nodes = new ConcurrentSkipListMap<String, Object>();
+    protected static final ConcurrentSkipListMap<String, Object> nodes = new ConcurrentSkipListMap<>();
 
     private static String id(Object o, Object h) {
         if (o instanceof Field) {
@@ -42,34 +42,32 @@ public class Violator {
             return ((Class<?>) o).getCanonicalName();
         }
 
-        if (o instanceof Constructor<?>) {
-            Constructor<?> co = (Constructor<?>) o;
+        if (o instanceof Constructor<?> co) {
 
-            String mx = "";
+            StringBuilder mx = new StringBuilder();
 
             for (Class<?> i : co.getParameterTypes()) {
-                mx += "," + i.getCanonicalName();
+                mx.append(",").append(i.getCanonicalName());
             }
 
-            mx = mx.length() >= 1 ? mx.substring(1) : mx;
+            mx = new StringBuilder(mx.length() >= 1 ? mx.substring(1) : mx.toString());
 
             return id(co.getDeclaringClass(), null) + "(" + mx + ")";
         }
 
         if (o instanceof Method) {
-            String mx = "";
+            StringBuilder mx = new StringBuilder();
 
             for (Class<?> i : ((Method) o).getParameterTypes()) {
-                mx += "," + i.getCanonicalName();
+                mx.append(",").append(i.getCanonicalName());
             }
 
-            mx = mx.length() >= 1 ? mx.substring(1) : mx;
+            mx = new StringBuilder(mx.length() >= 1 ? mx.substring(1) : mx.toString());
 
             return id(((Method) o).getDeclaringClass(), null) + "." + ((Method) o).getName() + "(" + mx + ")";
         }
 
-        if (o instanceof Annotation) {
-            Annotation a = (Annotation) o;
+        if (o instanceof Annotation a) {
             return "@" + a.annotationType().getCanonicalName() + "[" + id(h, null) + "]";
         }
 
@@ -81,7 +79,7 @@ public class Violator {
     }
 
     private static boolean h(String n) {
-        return nodes.containsKey(n);
+        return !nodes.containsKey(n);
     }
 
     private static Object g(String n) {
@@ -89,15 +87,15 @@ public class Violator {
     }
 
     public static Constructor<?> getConstructor(Class<?> c, Class<?>... params) throws NoSuchMethodException, SecurityException {
-        String mx = "";
+        StringBuilder mx = new StringBuilder();
 
         for (Class<?> i : params) {
-            mx += "," + i.getCanonicalName();
+            mx.append(",").append(i.getCanonicalName());
         }
 
-        mx = mx.length() >= 1 ? mx.substring(1) : mx;
+        mx = new StringBuilder(mx.length() >= 1 ? mx.substring(1) : mx.toString());
 
-        if (!h(id(c, null) + "(" + mx + ")")) {
+        if (h(id(c, null) + "(" + mx + ")")) {
             Constructor<?> co = c.getConstructor(params);
             co.setAccessible(true);
             p(id(co, null), co);
@@ -108,7 +106,7 @@ public class Violator {
 
     @SuppressWarnings("rawtypes")
     public static Field getField(Class<?> c, String name) throws Throwable {
-        if (!h(id(c, null) + "." + name)) {
+        if (h(id(c, null) + "." + name)) {
             try {
                 Field f = c.getField(name);
                 f.setAccessible(true);
@@ -129,7 +127,7 @@ public class Violator {
 
     @SuppressWarnings("rawtypes")
     public static Field getDeclaredField(Class<?> c, String name) throws Throwable {
-        if (!h(id(c, null) + "." + name)) {
+        if (h(id(c, null) + "." + name)) {
             try {
                 Field f = c.getDeclaredField(name);
                 f.setAccessible(true);
@@ -150,16 +148,16 @@ public class Violator {
 
     public static Method getMethod(Class<?> c, String name, Class<?>... pars) throws Throwable {
         String iv = "";
-        String mx = "";
+        StringBuilder mx = new StringBuilder();
 
         for (Class<?> i : pars) {
-            mx += "," + i.getCanonicalName();
+            mx.append(",").append(i.getCanonicalName());
         }
 
-        mx = mx.length() >= 1 ? mx.substring(1) : mx;
+        mx = new StringBuilder(mx.length() >= 1 ? mx.substring(1) : mx.toString());
         iv = id(c, null) + "." + name + "(" + mx + ")";
 
-        if (!h(iv)) {
+        if (h(iv)) {
             Method f = c.getMethod(name, pars);
             f.setAccessible(true);
             p(iv, f);
@@ -170,14 +168,14 @@ public class Violator {
 
     @SuppressWarnings("unchecked")
     public static <T> T construct(Class<?> c, Object... parameters) {
-        List<Class<?>> cv = new ArrayList<Class<?>>();
+        List<Class<?>> cv = new ArrayList<>();
 
         for (Object i : parameters) {
             cv.add(i.getClass());
         }
 
         try {
-            Constructor<?> co = getConstructor(c, cv.toArray(new Class<?>[cv.size()]));
+            Constructor<?> co = getConstructor(c, cv.toArray(new Class<?>[0]));
             return (T) co.newInstance(parameters);
         } catch (Exception e) {
             e.printStackTrace();
@@ -188,16 +186,16 @@ public class Violator {
 
     public static Method getDeclaredMethod(Class<?> c, String name, Class<?>... pars) throws Throwable {
         String iv = "";
-        String mx = "";
+        StringBuilder mx = new StringBuilder();
 
         for (Class<?> i : pars) {
-            mx += "," + i.getCanonicalName();
+            mx.append(",").append(i.getCanonicalName());
         }
 
-        mx = mx.length() >= 1 ? mx.substring(1) : mx;
+        mx = new StringBuilder(mx.length() >= 1 ? mx.substring(1) : mx.toString());
         iv = id(c, null) + "." + name + "(" + mx + ")";
 
-        if (!h(iv)) {
+        if (h(iv)) {
             Method f = c.getDeclaredMethod(name, pars);
             f.setAccessible(true);
             p(iv, f);
@@ -207,8 +205,8 @@ public class Violator {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T getAnnotation(Class<?> c, Class<? extends T> a) throws Throwable {
-        if (!h("@" + a.getCanonicalName() + "[" + c.getCanonicalName() + "]")) {
+    public static <T extends Annotation> T getAnnotation(Class<?> c, Class<? extends T> a) {
+        if (h("@" + a.getCanonicalName() + "[" + c.getCanonicalName() + "]")) {
             T f = c.getAnnotation(a);
             p(id(f, c), f);
         }
@@ -217,8 +215,8 @@ public class Violator {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T getDeclaredAnnotation(Class<?> c, Class<? extends T> a) throws Throwable {
-        if (!h("@" + a.getCanonicalName() + "[" + c.getCanonicalName() + "]")) {
+    public static <T extends Annotation> T getDeclaredAnnotation(Class<?> c, Class<? extends T> a) {
+        if (h("@" + a.getCanonicalName() + "[" + c.getCanonicalName() + "]")) {
             T f = c.getDeclaredAnnotation(a);
             p(id(f, c), f);
         }
@@ -227,8 +225,8 @@ public class Violator {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T getAnnotation(Field c, Class<? extends T> a) throws Throwable {
-        if (!h("@" + a.getCanonicalName() + "[" + id(c, null) + "]")) {
+    public static <T extends Annotation> T getAnnotation(Field c, Class<? extends T> a) {
+        if (h("@" + a.getCanonicalName() + "[" + id(c, null) + "]")) {
             T f = c.getAnnotation(a);
             p(id(f, c), f);
         }
@@ -237,8 +235,8 @@ public class Violator {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T getDeclaredAnnotation(Field c, Class<? extends T> a) throws Throwable {
-        if (!h("@" + a.getCanonicalName() + "[" + id(c, null) + "]")) {
+    public static <T extends Annotation> T getDeclaredAnnotation(Field c, Class<? extends T> a) {
+        if (h("@" + a.getCanonicalName() + "[" + id(c, null) + "]")) {
             T f = c.getDeclaredAnnotation(a);
             p(id(f, c), f);
         }
@@ -247,8 +245,8 @@ public class Violator {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T getAnnotation(Method c, Class<? extends T> a) throws Throwable {
-        if (!h("@" + a.getCanonicalName() + "[" + id(c, null) + "]")) {
+    public static <T extends Annotation> T getAnnotation(Method c, Class<? extends T> a) {
+        if (h("@" + a.getCanonicalName() + "[" + id(c, null) + "]")) {
             T f = c.getAnnotation(a);
             p(id(f, c), f);
         }
@@ -257,8 +255,8 @@ public class Violator {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T getDeclaredAnnotation(Method c, Class<? extends T> a) throws Throwable {
-        if (!h("@" + a.getCanonicalName() + "[" + id(c, null) + "]")) {
+    public static <T extends Annotation> T getDeclaredAnnotation(Method c, Class<? extends T> a) {
+        if (h("@" + a.getCanonicalName() + "[" + id(c, null) + "]")) {
             T f = c.getDeclaredAnnotation(a);
             p(id(f, c), f);
 

@@ -28,15 +28,13 @@ import java.io.IOException;
 
 @Data
 @AllArgsConstructor
-public class Earnings {
-    private final int earnings;
-
+public record Earnings(int earnings) {
     public Earnings increment() {
         if (earnings >= 127) {
             return this;
         }
 
-        return new Earnings(getEarnings() + 1);
+        return new Earnings(earnings() + 1);
     }
 
     public static class EarningsMatter extends RawMatter<Earnings> {
@@ -50,7 +48,7 @@ public class Earnings {
 
         @Override
         public void writeNode(Earnings earnings, DataOutputStream dataOutputStream) throws IOException {
-            dataOutputStream.writeByte(earnings.getEarnings());
+            dataOutputStream.writeByte(earnings.earnings());
         }
 
         @Override

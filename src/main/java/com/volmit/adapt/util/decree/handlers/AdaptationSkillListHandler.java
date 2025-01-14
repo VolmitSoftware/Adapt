@@ -17,7 +17,7 @@ public class AdaptationSkillListHandler implements DecreeParameterHandler<Adapta
     }
 
     @Override
-    public AdaptationListingHandler.AdaptationSkillList parse(String in, boolean force) throws DecreeParsingException {
+    public AdaptationListingHandler.AdaptationSkillList parse(String in, boolean force) {
         return new AdaptationListingHandler.AdaptationSkillList(in);
     }
 

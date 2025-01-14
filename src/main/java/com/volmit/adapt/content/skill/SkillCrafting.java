@@ -233,19 +233,19 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        double furnaceBaseXP = 24;
-        double furnaceValueXPMultiplier = 4;
-        int furnaceXPRadius = 32;
-        long cooldownDelay = 10000;
-        long furnaceXPDuration = 10000;
-        double craftingValueXPMultiplier = 1;
-        double baseCraftingXP = 0.25;
-        double challengeCraft1kReward = 1200;
+        final boolean enabled = true;
+        final double furnaceBaseXP = 24;
+        final double furnaceValueXPMultiplier = 4;
+        final int furnaceXPRadius = 32;
+        final long cooldownDelay = 10000;
+        final long furnaceXPDuration = 10000;
+        final double craftingValueXPMultiplier = 1;
+        final double baseCraftingXP = 0.25;
+        final double challengeCraft1kReward = 1200;
     }
 }

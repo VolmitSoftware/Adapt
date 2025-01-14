@@ -23,8 +23,8 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class Discovery<T> {
-    @Getter
     private final List<T> seen = new ArrayList<>();
 
     public boolean isNewDiscovery(T t) {

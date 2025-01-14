@@ -19,6 +19,7 @@
 package com.volmit.adapt.util;
 
 import com.volmit.adapt.Adapt;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
@@ -35,6 +36,7 @@ import java.util.Map;
  *
  * @author cyberpwn
  */
+@Getter
 public class VirtualCommand {
     private final ICommand command;
     private final String tag;
@@ -64,18 +66,6 @@ public class VirtualCommand {
         }
     }
 
-    public String getTag() {
-        return tag;
-    }
-
-    public ICommand getCommand() {
-        return command;
-    }
-
-    public Map<List<String>, VirtualCommand> getChildren() {
-        return children;
-    }
-
     public boolean hit(CommandSender sender, List<String> chain) {
         return hit(sender, chain, null);
     }
@@ -89,7 +79,7 @@ public class VirtualCommand {
         }
 
         if (chain.isEmpty()) {
-            if (!checkPermissions(sender, command)) {
+            if (checkPermissions(sender, command)) {
                 return true;
             }
 
@@ -117,11 +107,11 @@ public class VirtualCommand {
             }
         }
 
-        if (!checkPermissions(sender, command)) {
+        if (checkPermissions(sender, command)) {
             return true;
         }
 
-        return command.handle(vs, chain.toArray(new String[chain.size()]));
+        return command.handle(vs, chain.toArray(new String[0]));
     }
 
     public List<String> hitTab(CommandSender sender, List<String> chain, String label) {
@@ -132,7 +122,7 @@ public class VirtualCommand {
             vs.setCommand(label);
 
         if (chain.isEmpty()) {
-            if (!checkPermissions(sender, command)) {
+            if (checkPermissions(sender, command)) {
                 return null;
             }
 
@@ -156,11 +146,11 @@ public class VirtualCommand {
             }
         }
 
-        if (!checkPermissions(sender, command)) {
+        if (checkPermissions(sender, command)) {
             return null;
         }
 
-        return command.handleTab(vs, chain.toArray(new String[chain.size()]));
+        return command.handleTab(vs, chain.toArray(new String[0]));
     }
 
     private boolean checkPermissions(CommandSender sender, ICommand command2) {
@@ -175,9 +165,9 @@ public class VirtualCommand {
 
         if (failed) {
             Adapt.messagePlayer(sender.getServer().getPlayer(sender.getName()), "Insufficient Permissions");
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 }

@@ -19,6 +19,9 @@
 
 package com.volmit.adapt.util.collection;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Represents a keypair
  *
@@ -26,6 +29,8 @@ package com.volmit.adapt.util.collection;
  * @param <V> the value type
  * @author cyberpwn
  */
+@Setter
+@Getter
 @SuppressWarnings("hiding")
 public class KeyPair<K, V> {
     private K k;
@@ -42,19 +47,4 @@ public class KeyPair<K, V> {
         this.v = v;
     }
 
-    public K getK() {
-        return k;
-    }
-
-    public void setK(K k) {
-        this.k = k;
-    }
-
-    public V getV() {
-        return v;
-    }
-
-    public void setV(V v) {
-        this.v = v;
-    }
 }

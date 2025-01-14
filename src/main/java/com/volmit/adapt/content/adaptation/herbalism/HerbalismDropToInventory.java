@@ -53,7 +53,7 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     public void addStats(int level, Element v) {
@@ -98,11 +98,11 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 1;
-        int maxLevel = 1;
-        int initialCost = 2;
-        double costFactor = 1;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 1;
+        final int maxLevel = 1;
+        final int initialCost = 2;
+        final double costFactor = 1;
     }
 }

@@ -60,7 +60,7 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
         if (!hasAdaptation(p)) {
             return;
         }
-        if (!canInteract(p, e.getBlock().getLocation())) {
+        if (canInteract(p, e.getBlock().getLocation())) {
             return;
         }
         p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, 15, getLevel(p), false, false, true));
@@ -69,7 +69,7 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
 
@@ -84,11 +84,11 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 2;
-        int initialCost = 3;
-        double costFactor = 0.3;
-        int maxLevel = 3;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 2;
+        final int initialCost = 3;
+        final double costFactor = 0.3;
+        final int maxLevel = 3;
     }
 }

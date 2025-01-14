@@ -22,9 +22,9 @@ package com.volmit.adapt.util.data;
 import java.awt.*;
 
 public class TinyColor {
-    private int r;
-    private int g;
-    private int b;
+    private final int r;
+    private final int g;
+    private final int b;
 
     public TinyColor(int color) {
         this.r = (color >> 16) & 0xFF;
@@ -83,7 +83,7 @@ public class TinyColor {
     }
 
     public TinyColor spin(int amount) {
-        int h = (int) Math.round(getHue() * 360);
+        int h = Math.round(getHue() * 360);
         h = (h + amount) % 360;
         return hue((float) h / 360.0f);
     }
@@ -120,8 +120,8 @@ public class TinyColor {
         return spin(180);
     }
 
-    private float fclamp(float f, float min, float max) {
-        return Math.max(min, Math.min(max, f));
+    private float fclamp(float f) {
+        return Math.max((float) 0.0, Math.min((float) 1.0, f));
     }
 
     private int iclamp(int i, int min, int max) {
@@ -129,7 +129,7 @@ public class TinyColor {
     }
 
     public TinyColor saturate(int amount) {
-        return saturation(fclamp(getSaturation() + ((float) amount / 100.0f), 0.0f, 1.0f));
+        return saturation(fclamp(getSaturation() + ((float) amount / 100.0f)));
     }
 
     public TinyColor desaturate(int amount) {
@@ -137,7 +137,7 @@ public class TinyColor {
     }
 
     public TinyColor brighten(int amount) {
-        return brightness(fclamp(getBrightness() + ((float) amount / 100.0f), 0.0f, 1.0f));
+        return brightness(fclamp(getBrightness() + ((float) amount / 100.0f)));
     }
 
     public TinyColor darken(int amount) {

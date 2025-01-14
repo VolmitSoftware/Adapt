@@ -85,7 +85,7 @@ public class SkillsGui {
                         .setModel(CustomModel.get(Material.BARRIER, "snippets", "gui", "unlearnall"))
                         .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets", "gui", "unlearnall")
                                 + (AdaptConfig.get().isHardcoreNoRefunds()
-                                ? " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "norefunds")
+                                ? " " + C.DARK_RED + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "norefunds")
                                 : ""))
                         .onLeftClick((e) -> {
                             Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> skill.getAdaptations().forEach(adaptation -> adaptation.unlearn(player, 1, false)));

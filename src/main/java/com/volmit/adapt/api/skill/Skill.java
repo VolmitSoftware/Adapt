@@ -67,7 +67,7 @@ public interface Skill<T> extends Ticked, Component {
     List<AdaptStatTracker> getStatTrackers();
 
     default void checkStatTrackers(AdaptPlayer player) {
-        if (!this.isEnabled()) {
+        if (this.isEnabled()) {
             this.unregister();
         }
         if (!player.getPlayer().getClass().getSimpleName().equals("CraftPlayer")) {
@@ -104,21 +104,21 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default String getDisplayName() {
-        if (!this.isEnabled()) {
+        if (this.isEnabled()) {
             this.unregister();
         }
         return C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName() + " " + Form.capitalize(getName());
     }
 
     default String getShortName() {
-        if (!this.isEnabled()) {
+        if (this.isEnabled()) {
             this.unregister();
         }
         return C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName();
     }
 
     default String getDisplayName(int level) {
-        if (!this.isEnabled()) {
+        if (this.isEnabled()) {
             this.unregister();
         }
         return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
@@ -198,7 +198,7 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void openGui(Player player) {
-        if (!this.isEnabled()) {
+        if (this.isEnabled()) {
             this.unregister();
         }
         if (!player.getClass().getSimpleName().equals("CraftPlayer")) {

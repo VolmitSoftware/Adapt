@@ -19,6 +19,8 @@
 package com.volmit.adapt.util;
 
 
+import java.io.Serial;
+
 /**
  * The JSONException is thrown by the JSON.org classes when things are amiss.
  *
@@ -26,6 +28,7 @@ package com.volmit.adapt.util;
  * @version 2014-05-03
  */
 public class JSONException extends RuntimeException {
+    @Serial
     private static final long serialVersionUID = 0;
     private Throwable cause;
 

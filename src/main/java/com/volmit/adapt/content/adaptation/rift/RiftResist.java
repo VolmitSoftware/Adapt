@@ -98,7 +98,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -108,13 +108,13 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 3;
-        double costFactor = 1;
-        int maxLevel = 1;
-        int amplitude = 1;
-        int duration = 80;
-        int initialCost = 5;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 3;
+        final double costFactor = 1;
+        final int maxLevel = 1;
+        final int amplitude = 1;
+        final int duration = 80;
+        final int initialCost = 5;
     }
 }

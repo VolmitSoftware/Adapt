@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.util;
 
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.UUID;
@@ -25,6 +26,7 @@ import java.util.UUID;
 public class RNG extends Random {
     public static final RNG r = new RNG();
     private static final char[] CHARGEN = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-=!@#$%^&*()_+`~[];',./<>?:\\\"{}|\\\\".toCharArray();
+    @Serial
     private static final long serialVersionUID = 5222938581174415179L;
     private final long sx;
 
@@ -44,7 +46,7 @@ public class RNG extends Random {
      * @param seed the seed (string)
      */
     public RNG(String seed) {
-        this(UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8)).getLeastSignificantBits() + UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8)).getMostSignificantBits() + (seed.length() * 32564));
+        this(UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8)).getLeastSignificantBits() + UUID.nameUUIDFromBytes(seed.getBytes(StandardCharsets.UTF_8)).getMostSignificantBits() + (seed.length() * 32564L));
     }
 
     public RNG nextParallelRNG(int signature) {

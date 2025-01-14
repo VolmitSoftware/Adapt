@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.util;
 
+import java.io.Serial;
+
 /**
  * A 4 element vector represented by double precision floating point
  * x,y,z,w coordinates.
@@ -25,7 +27,8 @@ package com.volmit.adapt.util;
 public class Point4d extends Tuple4d implements java.io.Serializable {
 
     // Compatible with 1.1
-    static final long serialVersionUID = 1733471895962736949L;
+    @Serial
+    private static final long serialVersionUID = 1733471895962736949L;
 
 
     /**

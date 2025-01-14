@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
 import org.bukkit.Color;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
@@ -119,6 +120,7 @@ public enum ParticleType {
     }
 
     private final String legacyName;
+    @Getter
     private final String name;
     private final int minimumVersion;
 
@@ -169,27 +171,18 @@ public enum ParticleType {
         return legacyName;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public boolean isSupported() {
         return minimumVersion <= 0 || SERVER_VERSION_ID >= minimumVersion;
     }
 
     public Class<?> getDataType() {
-        switch (this) {
-            case ITEM_CRACK:
-                return ItemStack.class;
-            case BLOCK_CRACK:
-            case BLOCK_DUST:
-            case FALLING_DUST:
+        return switch (this) {
+            case ITEM_CRACK -> ItemStack.class;
+            case BLOCK_CRACK, BLOCK_DUST, FALLING_DUST ->
                 //noinspection deprecation
-                return MaterialData.class;
-            case REDSTONE:
-                return Color.class;
-            default:
-                return Void.class;
-        }
+                    MaterialData.class;
+            case REDSTONE -> Color.class;
+            default -> Void.class;
+        };
     }
 }

@@ -221,7 +221,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -231,9 +231,9 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean consumeOnUse = true;
-        boolean showParticles = true;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean consumeOnUse = true;
+        final boolean showParticles = true;
     }
 }

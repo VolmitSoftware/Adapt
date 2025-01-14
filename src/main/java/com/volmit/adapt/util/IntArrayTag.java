@@ -52,7 +52,7 @@ public final class IntArrayTag extends Tag {
     public String toString() {
         String name = getName();
         String append = "";
-        if (name != null && !name.equals("")) {
+        if (name != null && !name.isEmpty()) {
             append = "(\"" + this.getName() + "\")";
         }
         return "TAG_Int_Array" + append + ": " + Arrays.toString(value);

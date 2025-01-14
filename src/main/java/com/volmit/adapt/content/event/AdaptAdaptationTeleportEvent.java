@@ -23,9 +23,11 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import lombok.Getter;
 import org.bukkit.Location;
 
+@Getter
 public class AdaptAdaptationTeleportEvent extends AdaptAdaptationEvent {
-    @Getter
-    Location fromLocation, toLocation;
+    final
+    Location fromLocation;
+    final Location toLocation;
 
     public AdaptAdaptationTeleportEvent(boolean async, AdaptPlayer player, Adaptation<?> adaptation, Location fromLocation, Location toLocation) {
         super(async, player, adaptation);

@@ -197,7 +197,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -207,14 +207,14 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 3;
-        double costFactor = 0.75;
-        int maxLevel = 5;
-        int initialCost = 5;
-        double multiplierFactor = 1.33;
-        double fireMultiplier = 0.14;
-        double lavaMultiplier = 0.69;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 3;
+        final double costFactor = 0.75;
+        final int maxLevel = 5;
+        final int initialCost = 5;
+        final double multiplierFactor = 1.33;
+        final double fireMultiplier = 0.14;
+        final double lavaMultiplier = 0.69;
     }
 }

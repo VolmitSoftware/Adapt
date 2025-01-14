@@ -241,7 +241,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -251,12 +251,12 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 5;
-        int maxLevel = 5;
-        int initialCost = 1;
-        double costFactor = 1.5;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 5;
+        final int maxLevel = 5;
+        final int initialCost = 1;
+        final double costFactor = 1.5;
     }
 }

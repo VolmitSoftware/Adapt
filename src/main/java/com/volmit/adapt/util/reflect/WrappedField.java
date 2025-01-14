@@ -14,7 +14,7 @@ public class WrappedField<C, T> {
             f = origin.getDeclaredField(methodName);
             f.setAccessible(true);
         } catch (NoSuchFieldException e) {
-            Adapt.error("Failed to created WrappedField %s#%s: %s%s".formatted(origin.getSimpleName(), methodName, e.getClass().getSimpleName(), e.getMessage().equals("") ? "" : " | " + e.getMessage()));
+            Adapt.error("Failed to created WrappedField %s#%s: %s%s".formatted(origin.getSimpleName(), methodName, e.getClass().getSimpleName(), e.getMessage().isEmpty() ? "" : " | " + e.getMessage()));
         }
         this.field = f;
     }
@@ -31,7 +31,7 @@ public class WrappedField<C, T> {
         try {
             return (T) field.get(instance);
         } catch (IllegalAccessException e) {
-            Adapt.error("Failed to get WrappedField %s#%s: %s%s".formatted(field.getDeclaringClass().getSimpleName(), field.getName(), e.getClass().getSimpleName(), e.getMessage().equals("") ? "" : " | " + e.getMessage()));
+            Adapt.error("Failed to get WrappedField %s#%s: %s%s".formatted(field.getDeclaringClass().getSimpleName(), field.getName(), e.getClass().getSimpleName(), e.getMessage().isEmpty() ? "" : " | " + e.getMessage()));
             return null;
         }
     }

@@ -68,8 +68,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
                 J.a(() -> {
                     for (Tameable j : gl) {
-                        if (j.isTamed() && j.getOwner() instanceof Player) {
-                            Player p = (Player) j.getOwner();
+                        if (j.isTamed() && j.getOwner() instanceof Player p) {
                             update(j, getLevel(p));
                         }
                     }
@@ -90,7 +89,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -100,13 +99,13 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 6;
-        int maxLevel = 5;
-        int initialCost = 3;
-        double costFactor = 0.4;
-        double healthBoostFactor = 2.5;
-        double healthBoostBase = 0.57;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 6;
+        final int maxLevel = 5;
+        final int initialCost = 3;
+        final double costFactor = 0.4;
+        final double healthBoostFactor = 2.5;
+        final double healthBoostBase = 0.57;
     }
 }

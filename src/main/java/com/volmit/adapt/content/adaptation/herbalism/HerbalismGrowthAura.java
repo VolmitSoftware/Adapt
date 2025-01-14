@@ -86,8 +86,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                         Location m = p.getLocation().clone().add(new Vector(Math.sin(angle), RNG.r.i(-1, 1), Math.cos(angle)).multiply(Math.random() * rad));
                         Block a = m.getWorld().getHighestBlockAt(m).getRelative(BlockFace.UP);
                         SoundPlayer spw = SoundPlayer.of(a.getWorld());
-                        if (a.getBlockData() instanceof Ageable) {
-                            Ageable ab = (Ageable) a.getBlockData();
+                        if (a.getBlockData() instanceof Ageable ab) {
                             int toGrowLeft = ab.getMaximumAge() - ab.getAge();
 
                             if (toGrowLeft > 0) {
@@ -96,8 +95,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
                                     while (add-- > 0) {
                                         J.s(() -> {
                                             if (getPlayer(p).consumeFood(foodCost, 10)) {
-                                                if (a.getBlockData() instanceof Ageable) {
-                                                    Ageable aab = (Ageable) a.getBlockData();
+                                                if (a.getBlockData() instanceof Ageable aab) {
 
                                                     if (aab.getAge() < aab.getMaximumAge()) {
                                                         aab.setAge(aab.getAge() + 1);
@@ -127,7 +125,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -137,16 +135,16 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 8;
-        int maxLevel = 7;
-        int initialCost = 12;
-        double costFactor = 0.325;
-        double minFoodCost = 0.05;
-        double maxFoodCost = 0.4;
-        double radiusFactor = 18;
-        double strengthFactor = 0.75;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 8;
+        final int maxLevel = 7;
+        final int initialCost = 12;
+        final double costFactor = 0.325;
+        final double minFoodCost = 0.05;
+        final double maxFoodCost = 0.4;
+        final double radiusFactor = 18;
+        final double strengthFactor = 0.75;
     }
 }

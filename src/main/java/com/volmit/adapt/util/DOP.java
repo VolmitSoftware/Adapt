@@ -18,8 +18,10 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
 import org.bukkit.util.Vector;
 
+@Getter
 public abstract class DOP {
     private final String type;
 
@@ -29,7 +31,4 @@ public abstract class DOP {
 
     public abstract Vector op(Vector v);
 
-    public String getType() {
-        return type;
-    }
 }

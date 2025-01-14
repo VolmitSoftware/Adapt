@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
-    private final Map<Player, Long> cooldowns;
 
     public SkillStealth() {
         super("stealth", Localizer.dLocalize("skill", "stealth", "icon"));
@@ -45,7 +44,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         setColor(C.DARK_GRAY);
         setInterval(1412);
         setIcon(Material.WITHER_ROSE);
-        cooldowns = new HashMap<>();
+        Map<Player, Long> cooldowns = new HashMap<>();
         setDescription(Localizer.dLocalize("skill", "stealth", "description"));
         setDisplayName(Localizer.dLocalize("skill", "stealth", "name"));
         registerAdaptation(new StealthSpeed());
@@ -67,7 +66,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
 
     @Override
     public void onTick() {
-        if (!this.isEnabled()) {
+        if (this.isEnabled()) {
             return;
         }
         for (Player i : Bukkit.getOnlinePlayers()) {
@@ -82,13 +81,13 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        double challengeSneak1kReward = 1750;
-        double sneakXP = 10.5;
+        final boolean enabled = true;
+        final double challengeSneak1kReward = 1750;
+        final double sneakXP = 10.5;
     }
 }

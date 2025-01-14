@@ -130,7 +130,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().isEnabled();
+        return !getConfig().isEnabled();
     }
 
     @Override

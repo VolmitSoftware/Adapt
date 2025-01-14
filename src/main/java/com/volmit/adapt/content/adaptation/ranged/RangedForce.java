@@ -107,7 +107,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -117,13 +117,13 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 2;
-        int maxLevel = 7;
-        int initialCost = 5;
-        double costFactor = 0.225;
-        double challengeRewardLongShotReward = 2000;
-        double speedFactor = 1.135;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 2;
+        final int maxLevel = 7;
+        final int initialCost = 5;
+        final double costFactor = 0.225;
+        final double challengeRewardLongShotReward = 2000;
+        final double speedFactor = 1.135;
     }
 }

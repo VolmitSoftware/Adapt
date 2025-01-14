@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -35,8 +37,32 @@ import java.util.Random;
  *
  * @author cyberpwn
  */
+@Setter
+@Getter
 public class Area {
+    /**
+     * -- GETTER --
+     *  Get the defined center location
+     *
+     *
+     * -- SETTER --
+     *  Set the defined center location
+     *
+     @return Returns the center location of the area
+      * @param location The new location to be set
+     */
     private Location location;
+    /**
+     * -- GETTER --
+     *  Gets the area's radius
+     *
+     *
+     * -- SETTER --
+     *  Set the area's radius
+     *
+     @return Returns the area's radius
+      * @param radius The new radius to be set
+     */
     private Double radius;
 
     /**
@@ -136,7 +162,7 @@ public class Area {
             }
         }
 
-        return e.toArray(new Entity[e.size()]);
+        return e.toArray(new Entity[0]);
     }
 
     /**
@@ -167,10 +193,10 @@ public class Area {
     public Entity[] getNearbyEntities() {
         try {
             int chunkRadius = (int) (radius < 16 ? 1 : (radius - (radius % 16)) / 16);
-            HashSet<Entity> radiusEntities = new HashSet<Entity>();
+            HashSet<Entity> radiusEntities = new HashSet<>();
 
-            for (int chX = 0 - chunkRadius; chX <= chunkRadius; chX++) {
-                for (int chZ = 0 - chunkRadius; chZ <= chunkRadius; chZ++) {
+            for (int chX = -chunkRadius; chX <= chunkRadius; chX++) {
+                for (int chZ = -chunkRadius; chZ <= chunkRadius; chZ++) {
                     int x = (int) location.getX(), y = (int) location.getY(), z = (int) location.getZ();
 
                     for (Entity e : new Location(location.getWorld(), x + (chX * 16), y, z + (chZ * 16)).getChunk().getEntities()) {
@@ -181,7 +207,7 @@ public class Area {
                 }
             }
 
-            return radiusEntities.toArray(new Entity[radiusEntities.size()]);
+            return radiusEntities.toArray(new Entity[0]);
         } catch (Exception e) {
             return new ArrayList<Entity>().toArray(new Entity[0]);
         }
@@ -202,42 +228,6 @@ public class Area {
         }
 
         return px.toArray(new Player[0]);
-    }
-
-    /**
-     * Get the defined center location
-     *
-     * @return Returns the center location of the area
-     */
-    public Location getLocation() {
-        return location;
-    }
-
-    /**
-     * Set the defined center location
-     *
-     * @param location The new location to be set
-     */
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    /**
-     * Gets the area's radius
-     *
-     * @return Returns the area's radius
-     */
-    public Double getRadius() {
-        return radius;
-    }
-
-    /**
-     * Set the area's radius
-     *
-     * @param radius The new radius to be set
-     */
-    public void setRadius(Double radius) {
-        this.radius = radius;
     }
 
     /**

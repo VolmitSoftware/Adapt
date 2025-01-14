@@ -85,7 +85,7 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override

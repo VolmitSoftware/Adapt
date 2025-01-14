@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Sound;
 
 import java.lang.reflect.Field;
@@ -31,11 +33,15 @@ import java.util.List;
  * @author cyberpwn
  */
 public abstract class MortarCommand implements ICommand {
+    @Getter
     private final List<MortarCommand> children;
     private final List<String> nodes;
     private final List<String> requiredPermissions;
     private final String node;
+    @Setter
+    @Getter
     private String category;
+    @Getter
     private String description;
 
     /**
@@ -86,7 +92,6 @@ public abstract class MortarCommand implements ICommand {
         for (MortarCommand i : getChildren()) {
             for (String j : i.getRequiredPermissions()) {
                 if (!sender.hasPermission(j)) {
-                    continue;
                 }
             }
 
@@ -107,10 +112,6 @@ public abstract class MortarCommand implements ICommand {
     }
 
     protected abstract String getArgsUsage();
-
-    public String getDescription() {
-        return description;
-    }
 
     protected void setDescription(String description) {
         this.description = description;
@@ -136,16 +137,16 @@ public abstract class MortarCommand implements ICommand {
         if (a.length > past) {
             int p = past;
 
-            String m = "";
+            StringBuilder m = new StringBuilder();
 
             for (String i : a) {
                 p--;
                 if (p < 0) {
-                    m += i + ", ";
+                    m.append(i).append(", ");
                 }
             }
 
-            if (!m.trim().isEmpty()) {
+            if (!m.toString().trim().isEmpty()) {
                 sender.sendMessage("Parameters Ignored: " + m);
             }
         }
@@ -169,10 +170,6 @@ public abstract class MortarCommand implements ICommand {
     @Override
     public void addNode(String node) {
         getNodes().add(node);
-    }
-
-    public List<MortarCommand> getChildren() {
-        return children;
     }
 
     private List<MortarCommand> buildChildren() {
@@ -207,11 +204,4 @@ public abstract class MortarCommand implements ICommand {
         return requiredPermissions;
     }
 
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
 }

@@ -18,6 +18,9 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 
 public class AtomicRollingSequence extends AtomicAverage {
@@ -26,6 +29,8 @@ public class AtomicRollingSequence extends AtomicAverage {
     private double min;
     private boolean dirtyMedian;
     private int dirtyExtremes;
+    @Setter
+    @Getter
     private boolean precision;
 
     public AtomicRollingSequence(int size) {
@@ -44,14 +49,6 @@ public class AtomicRollingSequence extends AtomicAverage {
         }
 
         return f;
-    }
-
-    public boolean isPrecision() {
-        return precision;
-    }
-
-    public void setPrecision(boolean p) {
-        this.precision = p;
     }
 
     public double getMin() {

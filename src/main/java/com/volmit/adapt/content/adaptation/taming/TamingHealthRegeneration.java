@@ -123,7 +123,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -133,14 +133,14 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 7;
-        int maxLevel = 3;
-        int initialCost = 8;
-        double costFactor = 0.4;
-        double regenFactor = 5;
-        double regenBase = 1;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 7;
+        final int maxLevel = 3;
+        final int initialCost = 8;
+        final double costFactor = 0.4;
+        final double regenFactor = 5;
+        final double regenBase = 1;
     }
 }

@@ -25,9 +25,6 @@ import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class OptionalWorldHandler implements DecreeParameterHandler<String> {
     @Override
     public KList<String> getPossibilities() {
@@ -47,7 +44,7 @@ public class OptionalWorldHandler implements DecreeParameterHandler<String> {
     }
 
     @Override
-    public String parse(String in, boolean force) throws DecreeParsingException {
+    public String parse(String in, boolean force) {
         return in;
     }
 

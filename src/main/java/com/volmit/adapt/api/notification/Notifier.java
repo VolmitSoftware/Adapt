@@ -69,7 +69,7 @@ public class Notifier extends TickedObject {
             StringBuilder sb = new StringBuilder();
 
             for (String i : lastSkills.sortKNumber().reverse()) {
-                Skill sk = getServer().getSkillRegistry().getSkill(i);
+                Skill<?> sk = getServer().getSkillRegistry().getSkill(i);
                 sb.append(i.equals(line) ? sk.getDisplayName() : sk.getShortName())
                         .append(C.RESET).append(C.GRAY)
                         .append(" +").append(C.WHITE)
@@ -140,7 +140,7 @@ public class Notifier extends TickedObject {
             return;
         }
 
-        delayTicks += (n.getTotalDuration() / 50D) + 1;
+        delayTicks += (int) ((n.getTotalDuration() / 50D) + 1);
         Adapt.verbose("Playing Notification " + n + " --> " + System.identityHashCode(this));
         n.play(target);
     }

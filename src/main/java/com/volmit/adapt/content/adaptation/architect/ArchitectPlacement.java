@@ -92,7 +92,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                 int handSizeAfter = is.getAmount() - totalMap.get(p).size();
                 if (handSizeAfter >= 0) {
                     for (Block b : totalMap.get(p).keySet()) { // Block Placer
-                        if (!canBlockPlace(p, b.getLocation())) {
+                        if (canBlockPlace(p, b.getLocation())) {
                             Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
                             continue;
                         }
@@ -220,7 +220,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -257,13 +257,13 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @NoArgsConstructor
     protected static class Config {
-        public int maxBlocks = 20;
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 6;
-        int maxLevel = 1;
-        int initialCost = 4;
-        double costFactor = 2;
+        public final int maxBlocks = 20;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 6;
+        final int maxLevel = 1;
+        final int initialCost = 4;
+        final double costFactor = 2;
     }
 }

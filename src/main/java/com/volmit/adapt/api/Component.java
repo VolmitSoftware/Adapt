@@ -564,7 +564,7 @@ public interface Component {
     }
 
 
-    private List<Location> getHollowCuboid(Location loc, double particleDistance) {
+    private List<Location> getHollowCuboid(Location loc) {
         List<Location> result = Lists.newArrayList();
         World world = loc.getWorld();
         double minX = loc.getBlockX();
@@ -574,9 +574,9 @@ public interface Component {
         double maxY = loc.getBlockY() + 1;
         double maxZ = loc.getBlockZ() + 1;
 
-        for (double x = minX; x <= maxX; x += particleDistance) {
-            for (double y = minY; y <= maxY; y += particleDistance) {
-                for (double z = minZ; z <= maxZ; z += particleDistance) {
+        for (double x = minX; x <= maxX; x += 0.25) {
+            for (double y = minY; y <= maxY; y += 0.25) {
+                for (double z = minZ; z <= maxZ; z += 0.25) {
                     int components = 0;
                     if (x == minX || x == maxX) components++;
                     if (y == minY || y == maxY) components++;
@@ -590,7 +590,7 @@ public interface Component {
         return result;
     }
 
-    private List<Location> getHollowCuboid(Location loc, Location loc2, double particleDistance) {
+    private List<Location> getHollowCuboid(Location loc, Location loc2) {
         List<Location> result = Lists.newArrayList();
         World world = loc.getWorld();
 
@@ -601,9 +601,9 @@ public interface Component {
         double maxY = loc2.getBlockY() + 1;
         double maxZ = loc2.getBlockZ() + 1;
 
-        for (double x = minX; x <= maxX; x += particleDistance) {
-            for (double y = minY; y <= maxY; y += particleDistance) {
-                for (double z = minZ; z <= maxZ; z += particleDistance) {
+        for (double x = minX; x <= maxX; x += 0.25) {
+            for (double y = minY; y <= maxY; y += 0.25) {
+                for (double z = minZ; z <= maxZ; z += 0.25) {
                     int components = 0;
                     if (x == minX || x == maxX) components++;
                     if (y == minY || y == maxY) components++;
@@ -618,21 +618,21 @@ public interface Component {
     }
 
     default void vfxCuboidOutline(Block block, Particle particle) {
-        List<Location> hollowCube = getHollowCuboid(block.getLocation(), 0.25);
+        List<Location> hollowCube = getHollowCuboid(block.getLocation());
         for (Location l : hollowCube) {
             block.getWorld().spawnParticle(particle, l, 1, 0F, 0F, 0F, 0.000);
         }
     }
 
     default void vfxCuboidOutline(Block blockStart, Block blockEnd, Particle particle) {
-        List<Location> hollowCube = getHollowCuboid(blockStart.getLocation(), blockEnd.getLocation(), 0.25);
+        List<Location> hollowCube = getHollowCuboid(blockStart.getLocation(), blockEnd.getLocation());
         for (Location l : hollowCube) {
             blockStart.getWorld().spawnParticle(particle, l, 2, 0F, 0F, 0F, 0.000);
         }
     }
 
     default void vfxCuboidOutline(Block blockStart, Block blockEnd, Color color, int size) {
-        List<Location> hollowCube = getHollowCuboid(blockStart.getLocation(), blockEnd.getLocation(), 0.25);
+        List<Location> hollowCube = getHollowCuboid(blockStart.getLocation(), blockEnd.getLocation());
         Particle.DustOptions dustOptions = new Particle.DustOptions(color, size);
         for (Location l : hollowCube) {
             blockStart.getWorld().spawnParticle(REDSTONE, l, 2, 0F, 0F, 0F, 0.000, dustOptions);

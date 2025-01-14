@@ -68,7 +68,7 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -78,11 +78,11 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = true;
-        boolean enabled = true;
-        int baseCost = 5;
-        int maxLevel = 1;
-        int initialCost = 1;
-        double costFactor = 0;
+        final boolean permanent = true;
+        final boolean enabled = true;
+        final int baseCost = 5;
+        final int maxLevel = 1;
+        final int initialCost = 1;
+        final double costFactor = 0;
     }
 }

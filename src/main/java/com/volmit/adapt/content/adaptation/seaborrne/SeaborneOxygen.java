@@ -62,7 +62,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -72,12 +72,12 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 3;
-        int maxLevel = 5;
-        int initialCost = 5;
-        double costFactor = 0.525;
-        int airPerLevelTics = 15;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 3;
+        final int maxLevel = 5;
+        final int initialCost = 5;
+        final double costFactor = 0.525;
+        final int airPerLevelTics = 15;
     }
 }

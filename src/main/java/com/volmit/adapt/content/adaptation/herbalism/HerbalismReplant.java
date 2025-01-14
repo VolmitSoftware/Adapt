@@ -169,7 +169,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -179,17 +179,17 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 6;
-        int maxLevel = 3;
-        int initialCost = 4;
-        double costFactor = 2.325;
-        double cooldownLvl1 = 2;
-        double baseCooldown = 30;
-        double cooldownFactor = 30;
-        double bonusCooldown = 20;
-        int radiusSub = 1;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 6;
+        final int maxLevel = 3;
+        final int initialCost = 4;
+        final double costFactor = 2.325;
+        final double cooldownLvl1 = 2;
+        final double baseCooldown = 30;
+        final double cooldownFactor = 30;
+        final double bonusCooldown = 20;
+        final int radiusSub = 1;
     }
 }

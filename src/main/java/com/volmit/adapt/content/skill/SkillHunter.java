@@ -217,7 +217,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(CreatureSpawnEvent e) {
-        if (!isEnabled() || e.isCancelled()) {
+        if (isEnabled() || e.isCancelled()) {
             return;
         }
         if (e.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.SPAWNER)) {
@@ -246,17 +246,17 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        boolean getXpForAttackingWithTools = true;
-        double turtleEggKillXP = 100;
-        double creeperKillMultiplier = 2;
-        double killMaxHealthXPMultiplier = 4;
-        long cooldownDelay = 1000;
-        double spawnerMobReductionXpMultiplier = 0.5;
+        final boolean enabled = true;
+        final boolean getXpForAttackingWithTools = true;
+        final double turtleEggKillXP = 100;
+        final double creeperKillMultiplier = 2;
+        final double killMaxHealthXPMultiplier = 4;
+        final long cooldownDelay = 1000;
+        final double spawnerMobReductionXpMultiplier = 0.5;
     }
 }

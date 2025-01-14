@@ -59,7 +59,7 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
 
   @Override
   public boolean isEnabled() {
-    return getConfig().enabled;
+    return !getConfig().enabled;
   }
 
   @Override
@@ -69,11 +69,11 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
 
   @NoArgsConstructor
   protected static class Config {
-    boolean permanent = true;
-    boolean enabled = true;
-    int baseCost = 8;
-    double costFactor = 0;
-    int maxLevel = 1;
-    int initialCost = 2;
+    final boolean permanent = true;
+    final boolean enabled = true;
+    final int baseCost = 8;
+    final double costFactor = 0;
+    final int maxLevel = 1;
+    final int initialCost = 2;
   }
 }

@@ -83,7 +83,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -93,12 +93,12 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 3;
-        int maxLevel = 7;
-        int initialCost = 6;
-        double costFactor = 0.425;
-        double damageFactor = 2.57;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 3;
+        final int maxLevel = 7;
+        final int initialCost = 6;
+        final double costFactor = 0.425;
+        final double damageFactor = 2.57;
     }
 }

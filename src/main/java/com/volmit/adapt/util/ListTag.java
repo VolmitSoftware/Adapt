@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -30,7 +32,13 @@ public final class ListTag extends Tag {
 
     /**
      * The type.
+     * -- GETTER --
+     *  Gets the type of item in this list.
+     *
+     * @return The type of item in this list.
+
      */
+    @Getter
     private final Class<? extends Tag> type;
 
     /**
@@ -51,15 +59,6 @@ public final class ListTag extends Tag {
         this.value = Collections.unmodifiableList(value);
     }
 
-    /**
-     * Gets the type of item in this list.
-     *
-     * @return The type of item in this list.
-     */
-    public Class<? extends Tag> getType() {
-        return type;
-    }
-
     @Override
     public List<Tag> getValue() {
         return value;
@@ -69,13 +68,13 @@ public final class ListTag extends Tag {
     public String toString() {
         String name = getName();
         String append = "";
-        if (name != null && !name.equals("")) {
+        if (name != null && !name.isEmpty()) {
             append = "(\"" + this.getName() + "\")";
         }
         StringBuilder bldr = new StringBuilder();
-        bldr.append("TAG_List" + append + ": " + value.size() + " entries of type " + NBTUtils.getTypeName(type) + "\r\n{\r\n");
+        bldr.append("TAG_List").append(append).append(": ").append(value.size()).append(" entries of type ").append(NBTUtils.getTypeName(type)).append("\r\n{\r\n");
         for (Tag t : value) {
-            bldr.append("   " + t.toString().replaceAll("\r\n", "\r\n   ") + "\r\n");
+            bldr.append("   ").append(t.toString().replaceAll("\r\n", "\r\n   ")).append("\r\n");
         }
         bldr.append("}");
         return bldr.toString();

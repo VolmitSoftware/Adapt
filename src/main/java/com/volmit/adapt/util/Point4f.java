@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.util;
 
+import java.io.Serial;
+
 /**
  * A 4 element point represented by single precision floating point x,y,z,w
  * coordinates.
@@ -26,7 +28,8 @@ public class Point4f extends Tuple4f implements java.io.Serializable {
 
 
     // Compatible with 1.1
-    static final long serialVersionUID = 4643134103185764459L;
+    @Serial
+    private static final long serialVersionUID = 4643134103185764459L;
 
     /**
      * Constructs and initializes a Point4f from the specified xyzw coordinates.

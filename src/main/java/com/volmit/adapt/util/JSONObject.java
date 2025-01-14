@@ -97,7 +97,7 @@ public class JSONObject {
      * Construct an empty JSONObject.
      */
     public JSONObject() {
-        this.map = new HashMap<String, Object>();
+        this.map = new HashMap<>();
     }
 
     /**
@@ -112,9 +112,9 @@ public class JSONObject {
      */
     public JSONObject(JSONObject jo, String[] names) {
         this();
-        for (int i = 0; i < names.length; i += 1) {
+        for (String name : names) {
             try {
-                this.putOnce(names[i], jo.opt(names[i]));
+                this.putOnce(name, jo.opt(name));
             } catch (Exception ignore) {
             }
         }
@@ -180,11 +180,9 @@ public class JSONObject {
      *            the JSONObject.
      */
     public JSONObject(Map<String, Object> map) {
-        this.map = new HashMap<String, Object>();
+        this.map = new HashMap<>();
         if (map != null) {
-            Iterator<Entry<String, Object>> i = map.entrySet().iterator();
-            while (i.hasNext()) {
-                Entry<String, Object> entry = i.next();
+            for (Entry<String, Object> entry : map.entrySet()) {
                 Object value = entry.getValue();
                 if (value != null) {
                     this.map.put(entry.getKey(), wrap(value));
@@ -233,8 +231,7 @@ public class JSONObject {
     public JSONObject(Object object, String[] names) {
         this();
         Class<?> c = object.getClass();
-        for (int i = 0; i < names.length; i += 1) {
-            String name = names[i];
+        for (String name : names) {
             try {
                 this.putOpt(name, c.getField(name).get(object));
             } catch (Exception ignore) {
@@ -271,7 +268,7 @@ public class JSONObject {
 
         Enumeration<String> keys = bundle.getKeys();
         while (keys.hasMoreElements()) {
-            Object key = keys.nextElement();
+            String key = keys.nextElement();
             if (key != null) {
 
                 // Go through the path, ensuring that there is a nested
@@ -280,7 +277,7 @@ public class JSONObject {
                 // segment's name into
                 // the deepest nested JSONObject.
 
-                String[] path = ((String) key).split("\\.");
+                String[] path = key.split("\\.");
                 int last = path.length - 1;
                 JSONObject target = this;
                 for (int i = 0; i < last; i += 1) {
@@ -292,7 +289,7 @@ public class JSONObject {
                     }
                     target = nextTarget;
                 }
-                target.put(path[last], bundle.getString((String) key));
+                target.put(path[last], bundle.getString(key));
             }
         }
     }
@@ -457,7 +454,7 @@ public class JSONObject {
                     w.write("\\r");
                     break;
                 default:
-                    if (c < ' ' || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')) {
+                    if (c < ' ' || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '℀')) {
                         w.write("\\u");
                         hhhh = Integer.toHexString(c);
                         w.write("0000", 0, 4 - hhhh.length());
@@ -479,8 +476,8 @@ public class JSONObject {
      * @return A simple JSON value.
      */
     public static Object stringToValue(String string) {
-        Double d;
-        if (string.equals("")) {
+        double d;
+        if (string.isEmpty()) {
             return string;
         }
         if (string.equalsIgnoreCase("true")) {
@@ -502,8 +499,8 @@ public class JSONObject {
         if ((b >= '0' && b <= '9') || b == '-') {
             try {
                 if (string.indexOf('.') > -1 || string.indexOf('e') > -1 || string.indexOf('E') > -1) {
-                    d = Double.valueOf(string);
-                    if (!d.isInfinite() && !d.isNaN()) {
+                    d = Double.parseDouble(string);
+                    if (!Double.isInfinite(d) && !Double.isNaN(d)) {
                         return d;
                     }
                 } else {
@@ -569,14 +566,14 @@ public class JSONObject {
             return "null";
         }
         if (value instanceof JSONString) {
-            Object object;
+            String object;
             try {
                 object = ((JSONString) value).toJSONString();
             } catch (Exception e) {
                 throw new JSONException(e);
             }
             if (object instanceof String) {
-                return (String) object;
+                return object;
             }
             throw new JSONException("Bad value from toJSONString: " + object);
         }
@@ -646,7 +643,7 @@ public class JSONObject {
         }
     }
 
-    static final Writer writeValue(Writer writer, Object value, int indentFactor, int indent) throws JSONException, IOException {
+    static void writeValue(Writer writer, Object value, int indentFactor, int indent) throws JSONException, IOException {
         if (value == null || value.equals(null)) {
             writer.write("null");
         } else if (value instanceof JSONObject) {
@@ -678,10 +675,9 @@ public class JSONObject {
         } else {
             quote(value.toString(), writer);
         }
-        return writer;
     }
 
-    static final void indent(Writer writer, int indent) throws IOException {
+    static void indent(Writer writer, int indent) throws IOException {
         for (int i = 0; i < indent; i += 1) {
             writer.write(' ');
         }
@@ -1067,9 +1063,7 @@ public class JSONObject {
                 return myE;
             }
             return Enum.valueOf(clazz, val.toString());
-        } catch (IllegalArgumentException e) {
-            return defaultValue;
-        } catch (NullPointerException e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
             return defaultValue;
         }
     }
@@ -1280,9 +1274,9 @@ public class JSONObject {
         boolean includeSuperClass = klass.getClassLoader() != null;
 
         Method[] methods = includeSuperClass ? klass.getMethods() : klass.getDeclaredMethods();
-        for (int i = 0; i < methods.length; i += 1) {
+        for (Method value : methods) {
             try {
-                Method method = methods[i];
+                Method method = value;
                 if (Modifier.isPublic(method.getModifiers())) {
                     String name = method.getName();
                     String key = "";
@@ -1457,11 +1451,9 @@ public class JSONObject {
      * Remove a name and its value, if present.
      *
      * @param key The name to be removed.
-     * @return The value that was associated with the name, or null if there was
-     * no value.
      */
-    public Object remove(String key) {
-        return this.map.remove(key);
+    public void remove(String key) {
+        this.map.remove(key);
     }
 
     /**
@@ -1474,32 +1466,30 @@ public class JSONObject {
     public boolean similar(Object other) {
         try {
             if (!(other instanceof JSONObject)) {
-                return false;
+                return true;
             }
             Set<String> set = this.keySet();
             if (!set.equals(((JSONObject) other).keySet())) {
-                return false;
+                return true;
             }
-            Iterator<String> iterator = set.iterator();
-            while (iterator.hasNext()) {
-                String name = iterator.next();
+            for (String name : set) {
                 Object valueThis = this.get(name);
                 Object valueOther = ((JSONObject) other).get(name);
                 if (valueThis instanceof JSONObject) {
-                    if (!((JSONObject) valueThis).similar(valueOther)) {
-                        return false;
+                    if (((JSONObject) valueThis).similar(valueOther)) {
+                        return true;
                     }
                 } else if (valueThis instanceof JSONArray) {
-                    if (!((JSONArray) valueThis).similar(valueOther)) {
-                        return false;
+                    if (((JSONArray) valueThis).similar(valueOther)) {
+                        return true;
                     }
                 } else if (!valueThis.equals(valueOther)) {
-                    return false;
+                    return true;
                 }
             }
-            return true;
-        } catch (Throwable exception) {
             return false;
+        } catch (Throwable exception) {
+            return true;
         }
     }
 
@@ -1642,7 +1632,8 @@ public class JSONObject {
          * @return NULL.
          */
         @Override
-        protected final Object clone() {
+        protected Object clone() {
+            Object o = super.clone();
             return this;
         }
 

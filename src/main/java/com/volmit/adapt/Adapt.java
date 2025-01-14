@@ -57,7 +57,7 @@ import static com.volmit.adapt.util.decree.context.AdaptationListingHandler.init
 
 public class Adapt extends VolmitPlugin {
     public static Adapt instance;
-    public static HashMap<String, String> wordKey = new HashMap<>();
+    public static final HashMap<String, String> wordKey = new HashMap<>();
     public final EffectManager adaptEffectManager = new EffectManager(this);
     public static BukkitAudiences audiences;
     private KMap<Class<? extends AdaptService>, AdaptService> services;
@@ -75,7 +75,7 @@ public class Adapt extends VolmitPlugin {
     @Getter
     private ProtectorRegistry protectorRegistry;
     @Getter
-    private Map<String, Window> guiLeftovers = new HashMap<>();
+    private final Map<String, Window> guiLeftovers = new HashMap<>();
 
     @Getter
     private AdvancementManager manager;
@@ -207,7 +207,7 @@ public class Adapt extends VolmitPlugin {
 
     @Override
     public String getTag(String subTag) {
-        return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.DARK_RED + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
+        return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + C.DARK_RED + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + C.GRAY + ": ";
     }
 
     private void setupMetrics() {

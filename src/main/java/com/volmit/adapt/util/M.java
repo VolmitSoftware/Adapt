@@ -21,6 +21,7 @@ package com.volmit.adapt.util;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.util.Objects;
 import java.util.regex.Matcher;
 
 /**
@@ -144,11 +145,8 @@ public class M {
      * @return true if true
      */
     public static boolean r(Double d) {
-        if (d == null) {
-            return Math.random() < 0.5;
-        }
+        return Math.random() < Objects.requireNonNullElse(d, 0.5);
 
-        return Math.random() < d;
     }
 
     /**
@@ -329,7 +327,7 @@ public class M {
         ScriptEngineManager mgr = new ScriptEngineManager();
         ScriptEngine scriptEngine = mgr.getEngineByName("JavaScript");
 
-        return Double.valueOf(scriptEngine.eval(expression).toString());
+        return Double.parseDouble(scriptEngine.eval(expression).toString());
     }
 
     /**
@@ -343,25 +341,6 @@ public class M {
     public static boolean within(int from, int to, int is) {
         return is >= from && is <= to;
     }
-
-//    /**
-//     * Get the amount of days past since the epoch time (1970 jan 1 utc)
-//     *
-//     * @return the epoch days
-//     */
-//    public static long epochDays() {
-//        return epochDays(M.ms());
-//    }
-//
-//    /**
-//     * Get the amount of days past since the epoch time (1970 jan 1 utc)
-//     *
-//     * @param ms the time in milliseconds
-//     * @return the epoch days
-//     */
-//    private static long epochDays(long ms) {
-//        return ms / 1000 / 60 / 60 / 24;
-//    }
 
     private static float sinLookup(int a) {
         return a >= 0 ? sin[a % (modulus)] : -sin[-a % (modulus)];

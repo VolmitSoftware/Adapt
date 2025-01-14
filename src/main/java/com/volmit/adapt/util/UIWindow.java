@@ -193,9 +193,8 @@ public class UIWindow implements Window, Listener {
     }
 
     @Override
-    public UIWindow setDecorator(WindowDecorator decorator) {
+    public void setDecorator(WindowDecorator decorator) {
         this.decorator = decorator;
-        return this;
     }
 
     @Override
@@ -290,14 +289,13 @@ public class UIWindow implements Window, Listener {
     }
 
     @Override
-    public UIWindow setTitle(String title) {
+    public void setTitle(String title) {
         this.title = title;
 
         if (isVisible()) {
             reopen();
         }
 
-        return this;
     }
 
     @Override
@@ -311,14 +309,13 @@ public class UIWindow implements Window, Listener {
     }
 
     @Override
-    public UIWindow setElement(int position, int row, Element e) {
+    public void setElement(int position, int row, Element e) {
         if (row > highestRow) {
             highestRow = row;
         }
 
         elements.put(getRealPosition((int) clip(position, -getResolution().getMaxWidthOffset(), getResolution().getMaxWidthOffset()).doubleValue(), row), e);
         updateInventory();
-        return this;
     }
 
     @Override
@@ -332,9 +329,8 @@ public class UIWindow implements Window, Listener {
     }
 
     @Override
-    public UIWindow onClosed(Callback<Window> window) {
+    public void onClosed(Callback<Window> window) {
         eClose = window;
-        return this;
     }
 
     @Override
@@ -396,11 +392,10 @@ public class UIWindow implements Window, Listener {
     }
 
     @Override
-    public Window setResolution(WindowResolution resolution) {
+    public void setResolution(WindowResolution resolution) {
         close();
         this.resolution = resolution;
         setViewportHeight((int) clip(getViewportHeight(), 1, getResolution().getMaxHeight()).doubleValue());
-        return this;
     }
 
     @Override

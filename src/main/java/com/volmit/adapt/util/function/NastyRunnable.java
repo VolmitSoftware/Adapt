@@ -20,5 +20,5 @@
 package com.volmit.adapt.util.function;
 
 public interface NastyRunnable {
-    void run() throws Throwable;
+    void run();
 }

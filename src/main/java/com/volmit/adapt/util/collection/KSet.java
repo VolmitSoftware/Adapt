@@ -19,10 +19,12 @@
 
 package com.volmit.adapt.util.collection;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.HashSet;
 
 public class KSet<T> extends HashSet<T> {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public KSet() {
@@ -42,6 +44,6 @@ public class KSet<T> extends HashSet<T> {
     }
 
     public KSet<T> copy() {
-        return new KSet<T>(this);
+        return new KSet<>(this);
     }
 }

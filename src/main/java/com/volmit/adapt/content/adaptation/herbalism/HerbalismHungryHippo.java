@@ -79,7 +79,7 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -89,11 +89,11 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 8;
-        int maxLevel = 7;
-        int initialCost = 3;
-        double costFactor = 0.75;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 8;
+        final int maxLevel = 7;
+        final int initialCost = 3;
+        final double costFactor = 0.75;
     }
 }

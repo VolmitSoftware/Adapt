@@ -24,11 +24,11 @@ import org.bukkit.inventory.ItemStack;
 public interface Window {
     WindowDecorator getDecorator();
 
-    Window setDecorator(WindowDecorator decorator);
+    void setDecorator(WindowDecorator decorator);
 
     WindowResolution getResolution();
 
-    Window setResolution(WindowResolution resolution);
+    void setResolution(WindowResolution resolution);
 
     Window clearElements();
 
@@ -74,7 +74,7 @@ public interface Window {
 
     String getTitle();
 
-    Window setTitle(String title);
+    void setTitle(String title);
 
     String getTag();
 
@@ -82,7 +82,7 @@ public interface Window {
 
     boolean hasElement(int position, int row);
 
-    Window setElement(int position, int row, Element e);
+    void setElement(int position, int row, Element e);
 
     Element getElement(int position, int row);
 
@@ -90,5 +90,5 @@ public interface Window {
 
     Window reopen();
 
-    Window onClosed(Callback<Window> window);
+    void onClosed(Callback<Window> window);
 }

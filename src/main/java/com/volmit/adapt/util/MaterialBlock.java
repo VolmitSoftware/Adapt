@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -28,6 +30,8 @@ import org.bukkit.block.BlockState;
  *
  * @author cyberpwn
  */
+@Setter
+@Getter
 @SuppressWarnings("deprecation")
 public class MaterialBlock {
     private Material material;
@@ -66,22 +70,6 @@ public class MaterialBlock {
     public MaterialBlock() {
         material = Material.AIR;
         data = 0;
-    }
-
-    public Material getMaterial() {
-        return material;
-    }
-
-    public void setMaterial(Material material) {
-        this.material = material;
-    }
-
-    public Byte getData() {
-        return data;
-    }
-
-    public void setData(Byte data) {
-        this.data = data;
     }
 
     @Override

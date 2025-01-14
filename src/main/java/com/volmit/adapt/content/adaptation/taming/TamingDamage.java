@@ -89,7 +89,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -99,13 +99,13 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 6;
-        int maxLevel = 5;
-        int initialCost = 5;
-        double costFactor = 0.4;
-        double baseDamage = 0.08;
-        double damageFactor = 0.65;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 6;
+        final int maxLevel = 5;
+        final int initialCost = 5;
+        final double costFactor = 0.4;
+        final double baseDamage = 0.08;
+        final double damageFactor = 0.65;
     }
 }

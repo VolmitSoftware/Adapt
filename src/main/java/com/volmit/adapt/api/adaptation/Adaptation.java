@@ -200,19 +200,19 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default boolean canBlockPlace(Player player, Location blockLocation) {
-        return getProtectors().stream().allMatch(protector -> protector.canBlockPlace(player, blockLocation, this));
+        return !getProtectors().stream().allMatch(protector -> protector.canBlockPlace(player, blockLocation, this));
     }
 
     default boolean canPVP(Player player, Location victimLocation) {
-        return getProtectors().stream().allMatch(protector -> protector.canPVP(player, victimLocation, this));
+        return !getProtectors().stream().allMatch(protector -> protector.canPVP(player, victimLocation, this));
     }
 
     default boolean canPVE(Player player, Location victimLocation) {
-        return getProtectors().stream().allMatch(protector -> protector.canPVE(player, victimLocation, this));
+        return !getProtectors().stream().allMatch(protector -> protector.canPVE(player, victimLocation, this));
     }
 
     default boolean canInteract(Player player, Location targetLocation) {
-        return getProtectors().stream().allMatch(protector -> protector.canInteract(player, targetLocation, this));
+        return !getProtectors().stream().allMatch(protector -> protector.canInteract(player, targetLocation, this));
     }
 
     default boolean canAccessChest(Player player, Location chestLocation) {
@@ -228,7 +228,7 @@ public interface Adaptation<T> extends Ticked, Component {
             if (p == null || p.isDead()) { // Check if player is not invalid
                 return false;
             }
-            if (!this.getSkill().isEnabled()) {
+            if (this.getSkill().isEnabled()) {
                 Adapt.verbose("Skill " + this.getSkill().getName() + " is disabled. Skipping adaptation " + this.getName());
                 this.unregister();
             }
@@ -278,7 +278,7 @@ public interface Adaptation<T> extends Ticked, Component {
             Adapt.verbose("Simple name: " + p.getClass().getSimpleName());
             return 0;
         }
-        if (!this.getSkill().isEnabled()) {
+        if (this.getSkill().isEnabled()) {
             this.unregister();
             return 0;
         } else {
@@ -290,7 +290,7 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default double getLevelPercent(Player p) {
-        if (!this.getSkill().isEnabled()) {
+        if (this.getSkill().isEnabled()) {
             this.unregister();
         }
         if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
@@ -341,14 +341,14 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default String getDisplayName() {
-        if (!this.getSkill().isEnabled()) {
+        if (this.getSkill().isEnabled()) {
             this.unregister();
         }
         return C.RESET + "" + C.BOLD + getSkill().getColor().toString() + Form.capitalizeWords(getName().replaceAll("\\Q" + getSkill().getName() + "-\\E", "").replaceAll("\\Q-\\E", " "));
     }
 
     default String getDisplayName(int level) {
-        if (!this.getSkill().isEnabled()) {
+        if (this.getSkill().isEnabled()) {
             this.unregister();
         }
         if (level >= 1) {
@@ -449,7 +449,7 @@ public interface Adaptation<T> extends Ticked, Component {
                     .setProgress(1D)
                     .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
                     .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledgecost") + " " + (AdaptConfig.get().isHardcoreNoRefunds() ? C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "norefunds") : "")))
-                    .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Localizer.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "norefunds")) : (isPermanent() ? "" : (C.GREEN + Localizer.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.GRAY + Localizer.dLocalize("snippets", "adaptmenu", "unlearnrefund") + " " + C.GREEN + rc + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledgecost"))) : (k >= c ? (C.BLUE + Localizer.dLocalize("snippets", "adaptmenu", "clicklearn") + " " + getDisplayName(i)) : (k == 0 ? (C.RED + Localizer.dLocalize("snippets", "adaptmenu", "noknowledge")) : (C.RED + "(" + Localizer.dLocalize("snippets", "adaptmenu", "youonlyhave") + " " + C.WHITE + k + C.RED + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledgeavailable") + ")"))))
+                    .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Localizer.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.DARK_RED + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "norefunds")) : (isPermanent() ? "" : (C.GREEN + Localizer.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.GRAY + Localizer.dLocalize("snippets", "adaptmenu", "unlearnrefund") + " " + C.GREEN + rc + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledgecost"))) : (k >= c ? (C.BLUE + Localizer.dLocalize("snippets", "adaptmenu", "clicklearn") + " " + getDisplayName(i)) : (k == 0 ? (C.RED + Localizer.dLocalize("snippets", "adaptmenu", "noknowledge")) : (C.RED + "(" + Localizer.dLocalize("snippets", "adaptmenu", "youonlyhave") + " " + C.WHITE + k + C.RED + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledgeavailable") + ")"))))
                     .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets", "adaptmenu", "powerdrain") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets", "adaptmenu", "powerdrain") : C.RED + Localizer.dLocalize("snippets", "adaptmenu", "notenoughpower") + "\n" + C.RED + Localizer.dLocalize("snippets", "adaptmenu", "howtolevelup"))
                     .addLore((isPermanent() ? C.RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "maynotunlearn") : ""))
                     .onLeftClick((e) -> {
@@ -550,7 +550,7 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default boolean isAdaptationRecipe(Recipe recipe) {
-        if (!this.getSkill().isEnabled()) {
+        if (this.getSkill().isEnabled()) {
             this.unregister();
         }
         for (AdaptRecipe i : getRecipes()) {

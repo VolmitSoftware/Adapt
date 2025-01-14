@@ -157,7 +157,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -167,14 +167,14 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        public int radiusFactor = 3;
-        public double strengthExponent = 1.25;
-        public boolean showParticles = true;
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 2;
-        int initialCost = 3;
-        double costFactor = 0.3;
-        int maxLevel = 3;
+        public final int radiusFactor = 3;
+        public final double strengthExponent = 1.25;
+        public final boolean showParticles = true;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 2;
+        final int initialCost = 3;
+        final double costFactor = 0.3;
+        final int maxLevel = 3;
     }
 }

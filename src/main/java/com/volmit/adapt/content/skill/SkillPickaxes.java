@@ -214,29 +214,29 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        public double debrisBonus = 300;
-        boolean enabled = true;
-        boolean getXpForAttackingWithTools = true;
-        double damageXPMultiplier = 13.26;
-        double blockValueMultiplier = 0.125;
-        double maxHardnessBonus = 9;
-        double maxBlastResistanceBonus = 10;
-        double coalBonus = 25;
-        double ironBonus = 40;
-        double redstoneBonus = 75;
-        double copperBonus = 30;
-        double goldBonus = 50;
-        double lapisBonus = 105;
-        long cooldownDelay = 1250;
-        double diamondBonus = 250;
-        double emeraldBonus = 300;
-        double netherGoldBonus = 150;
-        double netherQuartzBonus = 175;
-        double deepslateMultiplier = 1.35;
+        public final double debrisBonus = 300;
+        final boolean enabled = true;
+        final boolean getXpForAttackingWithTools = true;
+        final double damageXPMultiplier = 13.26;
+        final double blockValueMultiplier = 0.125;
+        final double maxHardnessBonus = 9;
+        final double maxBlastResistanceBonus = 10;
+        final double coalBonus = 25;
+        final double ironBonus = 40;
+        final double redstoneBonus = 75;
+        final double copperBonus = 30;
+        final double goldBonus = 50;
+        final double lapisBonus = 105;
+        final long cooldownDelay = 1250;
+        final double diamondBonus = 250;
+        final double emeraldBonus = 300;
+        final double netherGoldBonus = 150;
+        final double netherQuartzBonus = 175;
+        final double deepslateMultiplier = 1.35;
     }
 }

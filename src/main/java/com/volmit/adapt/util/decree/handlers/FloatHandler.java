@@ -25,7 +25,6 @@ import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeParameterHandler;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class FloatHandler implements DecreeParameterHandler<Float> {
@@ -57,6 +56,6 @@ public class FloatHandler implements DecreeParameterHandler<Float> {
 
     @Override
     public String getRandomDefault() {
-        return Form.f(RNG.r.d(0, 99.99), 1) + "";
+        return Form.f(RNG.r.d(0, 99.99), 1);
     }
 }

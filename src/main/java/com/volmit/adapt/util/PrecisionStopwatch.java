@@ -18,6 +18,9 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
+
+@Getter
 public class PrecisionStopwatch {
     private long nanos;
     private long startNano;
@@ -91,30 +94,6 @@ public class PrecisionStopwatch {
 
     public long getNanoseconds() {
         return (long) (time * 1000000.0);
-    }
-
-    public long getNanos() {
-        return nanos;
-    }
-
-    public long getStartNano() {
-        return startNano;
-    }
-
-    public long getMillis() {
-        return millis;
-    }
-
-    public long getStartMillis() {
-        return startMillis;
-    }
-
-    public double getTime() {
-        return time;
-    }
-
-    public boolean isProfiling() {
-        return profiling;
     }
 
     public void rewind(long l) {

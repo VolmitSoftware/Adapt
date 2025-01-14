@@ -20,9 +20,6 @@
 package com.volmit.adapt.util.cache;
 
 
-//import com.volmit.react.React;
-//import com.volmit.react.util.function.NastySupplier;
-
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.function.NastySupplier;
 

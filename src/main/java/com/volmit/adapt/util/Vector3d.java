@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.util;
 
+import java.io.Serial;
+
 /**
  * A 3-element vector that is represented by double-precision floating point
  * x,y,z coordinates.  If this value represents a normal, then it should
@@ -26,7 +28,8 @@ package com.volmit.adapt.util;
 public class Vector3d extends Tuple3d implements java.io.Serializable {
 
     // Combatible with 1.1
-    static final long serialVersionUID = 3761969948420550442L;
+    @Serial
+    private static final long serialVersionUID = 3761969948420550442L;
 
     /**
      * Constructs and initializes a Vector3d from the specified xyz coordinates.

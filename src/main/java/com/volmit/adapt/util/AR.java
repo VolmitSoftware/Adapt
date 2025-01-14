@@ -18,6 +18,9 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
+
+@Getter
 public abstract class AR implements Runnable, CancellableTask {
     private int id = 0;
 
@@ -34,7 +37,4 @@ public abstract class AR implements Runnable, CancellableTask {
         J.car(id);
     }
 
-    public int getId() {
-        return id;
-    }
 }

@@ -105,7 +105,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -115,16 +115,16 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 5;
-        int initialCost = 3;
-        double costFactor = 0.8;
-        int maxLevel = 5;
-        double effectivenessBase = 0.15;
-        double maxEffectiveness = 0.95;
-        int levelDrain = 2;
-        int levelCostAdd = 12;
-        double amplifier = 1.0;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 5;
+        final int initialCost = 3;
+        final double costFactor = 0.8;
+        final int maxLevel = 5;
+        final double effectivenessBase = 0.15;
+        final double maxEffectiveness = 0.95;
+        final int levelDrain = 2;
+        final int levelCostAdd = 12;
+        final double amplifier = 1.0;
     }
 }

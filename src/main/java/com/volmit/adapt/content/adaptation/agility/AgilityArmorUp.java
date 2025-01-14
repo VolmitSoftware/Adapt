@@ -130,7 +130,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -141,16 +141,16 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 2;
-        double costFactor = 0.65;
-        int initialCost = 8;
-        double windupTicksSlowest = 180;
-        double windupTicksFastest = 60;
-        double windupArmorBase = 0.22;
-        double windupArmorLevelMultiplier = 0.525;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 2;
+        final double costFactor = 0.65;
+        final int initialCost = 8;
+        final double windupTicksSlowest = 180;
+        final double windupTicksFastest = 60;
+        final double windupArmorBase = 0.22;
+        final double windupArmorLevelMultiplier = 0.525;
     }
 
 }

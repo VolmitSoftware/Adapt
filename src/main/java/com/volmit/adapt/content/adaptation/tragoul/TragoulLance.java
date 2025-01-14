@@ -113,7 +113,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -134,14 +134,14 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 5;
-        int maxLevel = 5;
-        int initialCost = 5;
-        int seekerDelay = 20;
-        double costFactor = 1.10;
-        double seekerDamageMultiplier = 0.5;
-        double selfDamageMultiplier = 0.5;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 5;
+        final int maxLevel = 5;
+        final int initialCost = 5;
+        final int seekerDelay = 20;
+        final double costFactor = 1.10;
+        final double seekerDamageMultiplier = 0.5;
+        final double selfDamageMultiplier = 0.5;
     }
 }

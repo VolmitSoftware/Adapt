@@ -18,6 +18,8 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
+
 /**
  * Provides an incredibly fast averaging object. It swaps values from a sum
  * using an array. Averages do not use any form of looping. An average of 10,000
@@ -26,10 +28,11 @@ package com.volmit.adapt.util;
  * @author cyberpwn
  */
 public class Average {
-    protected double[] values;
+    protected final double[] values;
     protected int cursor;
     private double average;
     private double lastSum;
+    @Getter
     private boolean dirty;
     private boolean brandNew;
 
@@ -93,7 +96,4 @@ public class Average {
         return values.length;
     }
 
-    public boolean isDirty() {
-        return dirty;
-    }
 }

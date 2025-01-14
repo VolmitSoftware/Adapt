@@ -54,7 +54,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     public void addStats(int level, Element v) {
@@ -151,14 +151,14 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 3;
-        int maxLevel = 5;
-        int initialCost = 4;
-        double costFactor = 2.325;
-        int maxBlocks = 20;
-        int baseRange = 3;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 3;
+        final int maxLevel = 5;
+        final int initialCost = 4;
+        final double costFactor = 2.325;
+        final int maxBlocks = 20;
+        final int baseRange = 3;
     }
 }

@@ -239,10 +239,6 @@ public enum C {
      * Resets all previous chat colors or formats.
      */
     RESET('r', 0x15) {
-        @Override
-        public net.md_5.bungee.api.ChatColor asBungee() {
-            return net.md_5.bungee.api.ChatColor.RESET;
-        }
     },
 
 
@@ -251,7 +247,7 @@ public enum C {
      * The special character which prefixes all chat colour codes. Use this if you
      * need to dynamically convert colour codes from your custom format.
      */
-    public static final char COLOR_CHAR = '\u00A7';
+    public static final char COLOR_CHAR = '§';
     public final static C[] COLORCYCLE = new C[]{C.GOLD, C.YELLOW, C.GREEN, C.AQUA, C.LIGHT_PURPLE, C.AQUA, C.GREEN, C.YELLOW, C.GOLD, C.RED};
     private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + COLOR_CHAR + "[0-9A-FK-OR]");
     private final static C[] COLORS = new C[]{C.BLACK, C.DARK_BLUE, C.DARK_GREEN, C.DARK_AQUA, C.DARK_RED, C.DARK_PURPLE, C.GOLD, C.GRAY, C.DARK_GRAY, C.BLUE, C.GREEN, C.AQUA, C.RED, C.LIGHT_PURPLE, C.YELLOW, C.WHITE};

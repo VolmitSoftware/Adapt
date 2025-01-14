@@ -24,5 +24,5 @@ import java.io.IOException;
 @SuppressWarnings({"hiding", "RedundantSuppression"})
 @FunctionalInterface
 public interface Consumer2IO<A, B> {
-    void accept(A a, B b) throws IOException;
+    void accept(A a, B b);
 }

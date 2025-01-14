@@ -85,7 +85,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -95,13 +95,13 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 2;
-        int initialCost = 3;
-        double costFactor = 0.3;
-        int maxLevel = 7;
-        double xpGainedMultiplier = 8;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 2;
+        final int initialCost = 3;
+        final double costFactor = 0.3;
+        final int maxLevel = 7;
+        final double xpGainedMultiplier = 8;
         double xpBoostMultiplier = 0.01;
         int xpBoostDuration = 15000;
     }

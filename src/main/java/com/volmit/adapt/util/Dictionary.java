@@ -28,12 +28,7 @@ class Dictionary {
     private static final Pattern longCodesPattern = Pattern.compile("<[N-Z0-9!\\\\\"#$%\\[\\]& _][A-Z0-9!\\\\\"#$%\\[\\]& _]");
     private static final Pattern shortCodesPattern = Pattern.compile("<[A-M]");
 
-    private static final Comparator<String> byLength = new Comparator<String>() {
-        @Override
-        public int compare(String a, String b) {
-            return b.length() - a.length();
-        }
-    };
+    private static final Comparator<String> byLength = (a, b) -> b.length() - a.length();
 
 
     private static final String[] wordsAndCodes = {
@@ -345,8 +340,8 @@ class Dictionary {
             "_#", "SCALE", "_$", "STAND", "_%", "ECONOMY", "_&", "HIGHEST", "_[", "HELPFUL",
             "_]", "MONTHLY", "_ ", "CRITICAL", "__", "FRAME"
     };
-    private static final Map<String, String> wordsToCodes = new HashMap<String, String>();
-    private static final Map<String, String> codesToWords = new HashMap<String, String>();
+    private static final Map<String, String> wordsToCodes = new HashMap<>();
+    private static final Map<String, String> codesToWords = new HashMap<>();
 
     static {
         for (int i = 0; i < wordsAndCodes.length; i = i + 2) {
@@ -401,12 +396,12 @@ class Dictionary {
 
     public static List<String> wordsForPattern(Pattern p, String str) {
         Matcher m = p.matcher(str);
-        List<String> words = new ArrayList<String>();
+        List<String> words = new ArrayList<>();
         while (m.find()) {
             words.add(m.group(0));
         }
 
-        Collections.sort(words, byLength);
+        words.sort(byLength);
         return words;
     }
 }

@@ -18,7 +18,7 @@ public class AdaptationProviderHandler implements DecreeParameterHandler<Adaptat
     }
 
     @Override
-    public AdaptationListingHandler.AdaptationProvider parse(String in, boolean force) throws DecreeParsingException {
+    public AdaptationListingHandler.AdaptationProvider parse(String in, boolean force) {
         return new AdaptationListingHandler.AdaptationProvider(in);
     }
 

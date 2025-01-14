@@ -22,11 +22,13 @@ package com.volmit.adapt.util.data;
 //import com.volmit.react.util.collection.KList;
 
 import com.volmit.adapt.util.collection.KList;
+import lombok.Getter;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+@Getter
 public class DataPalette<T> {
     private final KList<T> palette;
 
@@ -47,10 +49,6 @@ public class DataPalette<T> {
         }
 
         return new DataPalette<>(palette);
-    }
-
-    public KList<T> getPalette() {
-        return palette;
     }
 
     public T get(int index) {

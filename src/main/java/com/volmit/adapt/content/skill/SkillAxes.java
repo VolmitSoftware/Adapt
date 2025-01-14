@@ -184,21 +184,21 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @NoArgsConstructor
     protected static class Config {
-        boolean enabled = true;
-        boolean getXpForAttackingWithTools = true;
+        final boolean enabled = true;
+        final boolean getXpForAttackingWithTools = true;
 
-        double maxHardnessBonus = 9;
-        double maxBlastResistanceBonus = 10;
-        double challengeChopReward = 1750;
-        double logOrWoodXPMultiplier = 2.67;
-        double leavesMultiplier = 1.11;
-        long cooldownDelay = 2250;
-        double valueXPMultiplier = 0.225;
-        double axeDamageXPMultiplier = 13.26;
+        final double maxHardnessBonus = 9;
+        final double maxBlastResistanceBonus = 10;
+        final double challengeChopReward = 1750;
+        final double logOrWoodXPMultiplier = 2.67;
+        final double leavesMultiplier = 1.11;
+        final long cooldownDelay = 2250;
+        final double valueXPMultiplier = 0.225;
+        final double axeDamageXPMultiplier = 13.26;
     }
 }

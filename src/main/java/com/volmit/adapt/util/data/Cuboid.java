@@ -19,14 +19,13 @@
 
 package com.volmit.adapt.util.data;
 
-//import com.volmit.react.util.collection.KList;
-//import com.volmit.react.util.math.Direction;
 import com.volmit.adapt.util.Direction;
 import com.volmit.adapt.util.collection.KList;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -161,7 +160,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
     }
 
     @Override
-    public Map<String, Object> serialize() {
+    public @NotNull Map<String, Object> serialize() {
         Map<String, Object> map = new HashMap<>();
         map.put("worldName", worldName);
         map.put("x1", x1);
@@ -383,14 +382,13 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
      * @return a new Cuboid outset by the given direction and amount
      */
     public Cuboid outset(CuboidDirection dir, int amount) {
-        Cuboid c = switch (dir) {
+        return switch (dir) {
             case Horizontal ->
                     expand(CuboidDirection.North, amount).expand(CuboidDirection.South, amount).expand(CuboidDirection.East, amount).expand(CuboidDirection.West, amount);
             case Vertical -> expand(CuboidDirection.Down, amount).expand(CuboidDirection.Up, amount);
             case Both -> outset(CuboidDirection.Horizontal, amount).outset(CuboidDirection.Vertical, amount);
             default -> throw new IllegalArgumentException("invalid direction " + dir);
         };
-        return c;
     }
 
     /**
@@ -650,7 +648,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
      * @see java.lang.Iterable#iterator()
      */
     @Override
-    public Iterator<Block> iterator() {
+    public @NotNull Iterator<Block> iterator() {
         return new CuboidIterator(getWorld(), x1, y1, z1, x2, y2, z2);
     }
 

@@ -25,30 +25,31 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 
 public class PhantomInventory implements PhantomInventoryWrapper {
-    protected Inventory i;
+    protected final Inventory i;
 
     public PhantomInventory(Inventory i) {
         this.i = i;
     }
 
     @Override
-    public HashMap<Integer, ItemStack> addItem(ItemStack... arg0) throws IllegalArgumentException {
+    public @NotNull HashMap<Integer, ItemStack> addItem(ItemStack... arg0) throws IllegalArgumentException {
         return i.addItem(arg0);
     }
 
     @Override
-    public HashMap<Integer, ? extends ItemStack> all(Material arg0) throws IllegalArgumentException {
+    public @NotNull HashMap<Integer, ? extends ItemStack> all(@NotNull Material arg0) throws IllegalArgumentException {
         return i.all(arg0);
     }
 
     @Override
-    public HashMap<Integer, ? extends ItemStack> all(ItemStack arg0) {
+    public @NotNull HashMap<Integer, ? extends ItemStack> all(ItemStack arg0) {
         return i.all(arg0);
     }
 
@@ -63,7 +64,7 @@ public class PhantomInventory implements PhantomInventoryWrapper {
     }
 
     @Override
-    public boolean contains(Material arg0) throws IllegalArgumentException {
+    public boolean contains(@NotNull Material arg0) throws IllegalArgumentException {
         return i.contains(arg0);
     }
 
@@ -73,7 +74,7 @@ public class PhantomInventory implements PhantomInventoryWrapper {
     }
 
     @Override
-    public boolean contains(Material arg0, int arg1) throws IllegalArgumentException {
+    public boolean contains(@NotNull Material arg0, int arg1) throws IllegalArgumentException {
         return i.contains(arg0, arg1);
     }
 
@@ -88,12 +89,12 @@ public class PhantomInventory implements PhantomInventoryWrapper {
     }
 
     @Override
-    public int first(Material arg0) throws IllegalArgumentException {
+    public int first(@NotNull Material arg0) throws IllegalArgumentException {
         return i.first(arg0);
     }
 
     @Override
-    public int first(ItemStack arg0) {
+    public int first(@NotNull ItemStack arg0) {
         return i.first(arg0);
     }
 
@@ -143,37 +144,37 @@ public class PhantomInventory implements PhantomInventoryWrapper {
     }
 
     @Override
-    public InventoryType getType() {
+    public @NotNull InventoryType getType() {
         return i.getType();
     }
 
     @Override
-    public List<HumanEntity> getViewers() {
+    public @NotNull List<HumanEntity> getViewers() {
         return i.getViewers();
     }
 
     @Override
-    public ListIterator<ItemStack> iterator() {
+    public @NotNull ListIterator<ItemStack> iterator() {
         return i.iterator();
     }
 
     @Override
-    public ListIterator<ItemStack> iterator(int arg0) {
+    public @NotNull ListIterator<ItemStack> iterator(int arg0) {
         return i.iterator(arg0);
     }
 
     @Override
-    public void remove(Material arg0) throws IllegalArgumentException {
+    public void remove(@NotNull Material arg0) throws IllegalArgumentException {
         i.remove(arg0);
     }
 
     @Override
-    public void remove(ItemStack arg0) {
+    public void remove(@NotNull ItemStack arg0) {
         i.remove(arg0);
     }
 
     @Override
-    public HashMap<Integer, ItemStack> removeItem(ItemStack... arg0) throws IllegalArgumentException {
+    public @NotNull HashMap<Integer, ItemStack> removeItem(ItemStack... arg0) throws IllegalArgumentException {
         return i.removeItem(arg0);
     }
 

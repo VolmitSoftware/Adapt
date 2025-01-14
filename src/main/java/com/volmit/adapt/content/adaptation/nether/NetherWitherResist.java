@@ -73,7 +73,7 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
 
     @Override
     public boolean isEnabled() {
-        return getConfig().isEnabled();
+        return !getConfig().isEnabled();
     }
 
     @Override

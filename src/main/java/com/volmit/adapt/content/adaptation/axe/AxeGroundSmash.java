@@ -113,7 +113,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -123,18 +123,18 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 6;
-        double costFactor = 0.75;
-        int maxLevel = 5;
-        int initialCost = 8;
-        double falloffFactor = 3;
-        double radiusLevelFactorMultiplier = 8;
-        double damageLevelFactorMultiplier = 8;
-        double forceFactorMultiplier = 1.15;
-        double forceBase = 0.27;
-        double cooldownTicksBase = 80;
-        double cooldownTicksInverseLevelMultiplier = 225;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 6;
+        final double costFactor = 0.75;
+        final int maxLevel = 5;
+        final int initialCost = 8;
+        final double falloffFactor = 3;
+        final double radiusLevelFactorMultiplier = 8;
+        final double damageLevelFactorMultiplier = 8;
+        final double forceFactorMultiplier = 1.15;
+        final double forceBase = 0.27;
+        final double cooldownTicksBase = 80;
+        final double cooldownTicksInverseLevelMultiplier = 225;
     }
 }

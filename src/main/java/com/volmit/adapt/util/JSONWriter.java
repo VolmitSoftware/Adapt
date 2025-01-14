@@ -69,7 +69,7 @@ public class JSONWriter {
     /**
      * The writer that will receive the output.
      */
-    protected Writer writer;
+    protected final Writer writer;
     /**
      * The comma flag determines if a comma should be output before the next
      * value.

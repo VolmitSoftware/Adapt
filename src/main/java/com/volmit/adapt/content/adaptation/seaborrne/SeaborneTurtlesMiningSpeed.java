@@ -64,7 +64,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -74,11 +74,11 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 15;
-        int maxLevel = 1;
-        int initialCost = 3;
-        double costFactor = 1;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 15;
+        final int maxLevel = 1;
+        final int initialCost = 3;
+        final double costFactor = 1;
     }
 }

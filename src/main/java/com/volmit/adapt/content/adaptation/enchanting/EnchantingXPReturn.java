@@ -90,7 +90,7 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -100,12 +100,12 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
 
     @NoArgsConstructor
     protected static class Config {
-        public int xpReturn = 2;
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 1;
-        int maxLevel = 7;
-        int initialCost = 2;
-        double costFactor = 1.97;
+        public final int xpReturn = 2;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 1;
+        final int maxLevel = 7;
+        final int initialCost = 2;
+        final double costFactor = 1.97;
     }
 }

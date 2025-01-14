@@ -116,19 +116,6 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         return (factor * getConfig().radiusFactor) + 1;
     }
 
-    /*
-    public void sendCollected(Player p, Item item) {
-        try {
-            PacketPlayOutCollect packet = new PacketPlayOutCollect(item.getEntityId(), p.getEntityId(), item.getItemStack().getAmount());
-            for (Entity i : p.getWorld().getNearbyEntities(p.getLocation(), 8, 8, 8, entity -> entity instanceof Player)) {
-                ((CraftPlayer) i).getHandle().c.a(packet);
-            }
-        } catch (Exception e) {
-            Adapt.error("Failed to send collected packet");
-            e.printStackTrace();
-        }
-    }*/
-
     @Override
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
@@ -140,7 +127,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -150,13 +137,13 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int snatchRate = 250;
-        int baseCost = 4;
-        int maxLevel = 3;
-        int initialCost = 12;
-        double costFactor = 0.125;
-        double radiusFactor = 5.55;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int snatchRate = 250;
+        final int baseCost = 4;
+        final int maxLevel = 3;
+        final int initialCost = 12;
+        final double costFactor = 0.125;
+        final double radiusFactor = 5.55;
     }
 }

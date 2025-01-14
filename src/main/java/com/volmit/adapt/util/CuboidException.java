@@ -18,12 +18,15 @@
 
 package com.volmit.adapt.util;
 
+import java.io.Serial;
+
 /**
  * Represents a cuboid exception
  *
  * @author cyberpwn
  */
 public class CuboidException extends Exception {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public CuboidException(String string) {

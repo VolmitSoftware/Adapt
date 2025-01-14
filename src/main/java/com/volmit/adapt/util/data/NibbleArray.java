@@ -81,13 +81,7 @@ public class NibbleArray implements Writable {
     }
 
     public static int powerOfTwo(int power) {
-        int result = 1;
-
-        for (int i = 0; i < power; i++) {
-            result *= 2;
-        }
-
-        return result;
+        return com.volmit.adapt.util.NibbleArray.powerOfTwo(power);
     }
 
     public static String binaryString(byte b, ByteOrder byteOrder) {

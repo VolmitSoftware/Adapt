@@ -20,12 +20,6 @@
 package com.volmit.adapt.util;
 
 
-//import com.volmit.Adapt.Adapt;
-//import com.volmit.Adapt.util.collection.List;
-//import com.volmit.Adapt.util.collection.Map;
-//import com.volmit.Adapt.util.decree.DecreeParameter;
-//import com.volmit.Adapt.util.decree.virtual.VirtualDecreeCommand;
-import static art.arcane.amulet.MagicalSugar.*;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeParameter;
@@ -44,6 +38,7 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.*;
@@ -61,12 +56,32 @@ import java.util.concurrent.atomic.AtomicReference;
 public class VolmitSender implements CommandSender {
     @Getter
     private static final Map<String, String> helpCache = new HashMap<>();
+    /**
+     * -- GETTER --
+     *  Get the origin sender this object is wrapping
+     *
+     * @return the command sender
+     */
+    @Getter
     private final CommandSender s;
-    public boolean useConsoleCustomColors = true;
-    public boolean useCustomColorsIngame = true;
-    public int spinh = -20;
-    public int spins = 7;
-    public int spinb = 8;
+    public final boolean useConsoleCustomColors = true;
+    public final boolean useCustomColorsIngame = true;
+    public final int spinh = -20;
+    public final int spins = 7;
+    public final int spinb = 8;
+    /**
+     * -- GETTER --
+     *  Get the command tag
+     *
+     *
+     * -- SETTER --
+     *  Set a command tag (prefix for sendMessage)
+     *
+     @return the command tag
+      * @param tag the tag
+     */
+    @Setter
+    @Getter
     private String tag;
     @Getter
     @Setter
@@ -117,24 +132,6 @@ public class VolmitSender implements CommandSender {
     }
 
     /**
-     * Get the command tag
-     *
-     * @return the command tag
-     */
-    public String getTag() {
-        return tag;
-    }
-
-    /**
-     * Set a command tag (prefix for sendMessage)
-     *
-     * @param tag the tag
-     */
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    /**
      * Is this sender a player?
      *
      * @return true if it is
@@ -161,57 +158,48 @@ public class VolmitSender implements CommandSender {
         return (Player) getS();
     }
 
-    /**
-     * Get the origin sender this object is wrapping
-     *
-     * @return the command sender
-     */
-    public CommandSender getS() {
-        return s;
-    }
-
     @Override
-    public boolean isPermissionSet(String name) {
+    public boolean isPermissionSet(@NotNull String name) {
         return s.isPermissionSet(name);
     }
 
     @Override
-    public boolean isPermissionSet(Permission perm) {
+    public boolean isPermissionSet(@NotNull Permission perm) {
         return s.isPermissionSet(perm);
     }
 
     @Override
-    public boolean hasPermission(String name) {
+    public boolean hasPermission(@NotNull String name) {
         return s.hasPermission(name);
     }
 
     @Override
-    public boolean hasPermission(Permission perm) {
+    public boolean hasPermission(@NotNull Permission perm) {
         return s.hasPermission(perm);
     }
 
     @Override
-    public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value) {
+    public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value) {
         return s.addAttachment(plugin, name, value);
     }
 
     @Override
-    public PermissionAttachment addAttachment(Plugin plugin) {
+    public @NotNull PermissionAttachment addAttachment(@NotNull Plugin plugin) {
         return s.addAttachment(plugin);
     }
 
     @Override
-    public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value, int ticks) {
+    public PermissionAttachment addAttachment(@NotNull Plugin plugin, @NotNull String name, boolean value, int ticks) {
         return s.addAttachment(plugin, name, value, ticks);
     }
 
     @Override
-    public PermissionAttachment addAttachment(Plugin plugin, int ticks) {
+    public PermissionAttachment addAttachment(@NotNull Plugin plugin, int ticks) {
         return s.addAttachment(plugin, ticks);
     }
 
     @Override
-    public void removeAttachment(PermissionAttachment attachment) {
+    public void removeAttachment(@NotNull PermissionAttachment attachment) {
         s.removeAttachment(attachment);
     }
 
@@ -221,7 +209,7 @@ public class VolmitSender implements CommandSender {
     }
 
     @Override
-    public Set<PermissionAttachmentInfo> getEffectivePermissions() {
+    public @NotNull Set<PermissionAttachmentInfo> getEffectivePermissions() {
         return s.getEffectivePermissions();
     }
 
@@ -252,12 +240,12 @@ public class VolmitSender implements CommandSender {
             int l = 44;
             int g = (int) (1D * l);
             sendTitle(C.ADAPT + thing + " ", 0, 500, 250);
-            sendActionNoProcessing("" + "" + pulse("#00BFFF", "#003366", 1D) + "<underlined> " + Form.repeat(" ", g) + "<reset>" + Form.repeat(" ", l - g));
+            sendActionNoProcessing(pulse("#00BFFF", "#003366", 1D) + "<underlined> " + Form.repeat(" ", g) + "<reset>" + Form.repeat(" ", l - g));
         } else {
             int l = 44;
             int g = (int) (percent * l);
             sendTitle(C.ADAPT + thing + " " + C.BLUE + "<font:minecraft:uniform>" + Form.pc(percent, 0), 0, 500, 250);
-            sendActionNoProcessing("" + "" + pulse("#00BFFF", "#003366", 1D) + "<underlined> " + Form.repeat(" ", g) + "<reset>" + Form.repeat(" ", l - g));
+            sendActionNoProcessing(pulse("#00BFFF", "#003366", 1D) + "<underlined> " + Form.repeat(" ", g) + "<reset>" + Form.repeat(" ", l - g));
         }
     }
 
@@ -332,9 +320,7 @@ public class VolmitSender implements CommandSender {
         J.a(() -> {
             try {
                 g.set(f.get());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         });
@@ -342,7 +328,7 @@ public class VolmitSender implements CommandSender {
     }
 
     @Override
-    public void sendMessage(String message) {
+    public void sendMessage(@NotNull String message) {
         if (s instanceof CommandDummy) {
             return;
         }
@@ -417,7 +403,7 @@ public class VolmitSender implements CommandSender {
     }
 
     @Override
-    public void sendMessage(UUID uuid, String message) {
+    public void sendMessage(UUID uuid, @NotNull String message) {
         sendMessage(message);
     }
 
@@ -427,17 +413,17 @@ public class VolmitSender implements CommandSender {
     }
 
     @Override
-    public Server getServer() {
+    public @NotNull Server getServer() {
         return s.getServer();
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return s.getName();
     }
 
     @Override
-    public Spigot spigot() {
+    public @NotNull Spigot spigot() {
         return s.spigot();
     }
 
@@ -464,9 +450,8 @@ public class VolmitSender implements CommandSender {
     }
 
     public void sendHeader(String name, int overrideLength) {
-        int len = overrideLength;
         int h = name.length() + 2;
-        String s = Form.repeat(" ", len - h - 4);
+        String s = Form.repeat(" ", overrideLength - h - 4);
         String si = Form.repeat("(", 3);
         String so = Form.repeat(")", 3);
         String sf = "[";
@@ -605,24 +590,24 @@ public class VolmitSender implements CommandSender {
                 }
 
                 /// Wrapper
-                String wrapper =
-                        "<hover:show_text:'" +
-                                hoverTitle + newline +
-                                description + newline +
-                                usage +
-                                suggestion + //Newlines for suggestions are added when they're built, to prevent blanklines.
-                                suggestions + // ^
-                                "'>" +
-                                "<click:" +
-                                onClick +
-                                ":" +
-                                realText +
-                                "</click>" +
-                                "</hover>" +
-                                " " +
-                                nodes;
+                //Newlines for suggestions are added when they're built, to prevent blanklines.
+                // ^
 
-                return wrapper;
+                return "<hover:show_text:'" +
+                        hoverTitle + newline +
+                        description + newline +
+                        usage +
+                        suggestion + //Newlines for suggestions are added when they're built, to prevent blanklines.
+                        suggestions + // ^
+                        "'>" +
+                        "<click:" +
+                        onClick +
+                        ":" +
+                        realText +
+                        "</click>" +
+                        "</hover>" +
+                        " " +
+                        nodes;
             }));
         } else {
             sendMessage(i.getPath());

@@ -18,6 +18,9 @@
 
 package com.volmit.adapt.util;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 
 public class RollingSequence extends Average {
@@ -26,6 +29,8 @@ public class RollingSequence extends Average {
     private double min;
     private boolean dirtyMedian;
     private int dirtyExtremes;
+    @Setter
+    @Getter
     private boolean precision;
 
     public RollingSequence(int size) {
@@ -44,14 +49,6 @@ public class RollingSequence extends Average {
         }
 
         return f;
-    }
-
-    public boolean isPrecision() {
-        return precision;
-    }
-
-    public void setPrecision(boolean p) {
-        this.precision = p;
     }
 
     public double getMin() {

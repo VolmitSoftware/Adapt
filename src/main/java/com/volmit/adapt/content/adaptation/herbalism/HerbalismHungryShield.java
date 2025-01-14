@@ -81,7 +81,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -91,13 +91,13 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        int baseCost = 7;
-        int maxLevel = 5;
-        int initialCost = 14;
-        double costFactor = 0.925;
-        double effectivenessBase = 0.15;
-        double maxEffectiveness = 0.95;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final int baseCost = 7;
+        final int maxLevel = 5;
+        final int initialCost = 14;
+        final double costFactor = 0.925;
+        final double effectivenessBase = 0.15;
+        final double maxEffectiveness = 0.95;
     }
 }

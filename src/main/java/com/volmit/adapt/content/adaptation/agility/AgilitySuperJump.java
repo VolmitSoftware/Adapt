@@ -135,7 +135,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
 
     @Override
     public boolean isEnabled() {
-        return getConfig().enabled;
+        return !getConfig().enabled;
     }
 
     @Override
@@ -145,14 +145,14 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
 
     @NoArgsConstructor
     protected static class Config {
-        boolean permanent = false;
-        boolean enabled = true;
-        boolean showParticles = true;
-        int baseCost = 2;
-        double costFactor = 0.55;
-        int maxLevel = 3;
-        int initialCost = 5;
-        double baseJumpMultiplier = 0.23;
-        double jumpLevelMultiplier = 0.23;
+        final boolean permanent = false;
+        final boolean enabled = true;
+        final boolean showParticles = true;
+        final int baseCost = 2;
+        final double costFactor = 0.55;
+        final int maxLevel = 3;
+        final int initialCost = 5;
+        final double baseJumpMultiplier = 0.23;
+        final double jumpLevelMultiplier = 0.23;
     }
 }

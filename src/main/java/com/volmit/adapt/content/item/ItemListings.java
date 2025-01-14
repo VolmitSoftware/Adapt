@@ -80,7 +80,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static HashMap<Material, ChatColor> oreColorsChatColor = new HashMap<>() {{
+    public static final HashMap<Material, ChatColor> oreColorsChatColor = new HashMap<>() {{
         put(Material.IRON_ORE, ChatColor.GRAY);
         put(Material.GOLD_ORE, ChatColor.YELLOW);
         put(Material.COPPER_ORE, ChatColor.GOLD);
@@ -126,14 +126,14 @@ public class ItemListings {
     }};
 
     @Getter
-    public static List<Material> herbalLuckSeeds = List.of(
+    public static final List<Material> herbalLuckSeeds = List.of(
             Material.MELON_SEEDS,
             Material.PUMPKIN_SEEDS,
             Material.COCOA_BEANS
     );
 
     @Getter
-    public static List<Material> swordPreference = List.of(
+    public static final List<Material> swordPreference = List.of(
             Material.COBWEB,
             Material.CAVE_VINES,
             Material.CAVE_VINES_PLANT,
@@ -144,7 +144,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> herbalLuckFood = List.of(
+    public static final List<Material> herbalLuckFood = List.of(
             Material.POTATOES,
             Material.CARROTS,
             Material.BEETROOTS,
@@ -152,7 +152,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> flowers = List.of(
+    public static final List<Material> flowers = List.of(
             Material.DANDELION,
             Material.POPPY,
             Material.BLUE_ORCHID,
@@ -172,7 +172,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> food = List.of(
+    public static final List<Material> food = List.of(
             Material.APPLE,
             Material.BAKED_POTATO,
             Material.BEETROOT,
@@ -251,7 +251,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> multiArmorable = List.of(
+    public static final List<Material> multiArmorable = List.of(
             Material.ELYTRA,
             Material.CHAINMAIL_CHESTPLATE,
             Material.DIAMOND_CHESTPLATE,
@@ -262,7 +262,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> farmable = List.of(
+    public static final List<Material> farmable = List.of(
             Material.GRASS_BLOCK,
             Material.DIRT,
             Material.COARSE_DIRT,
@@ -285,7 +285,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> burnable = List.of(
+    public static final List<Material> burnable = List.of(
             Material.OBSIDIAN,
             Material.NETHERRACK,
             Material.SOUL_SAND,
@@ -315,7 +315,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> toolPickaxes = List.of(
+    public static final List<Material> toolPickaxes = List.of(
             Material.WOODEN_PICKAXE,
             Material.STONE_PICKAXE,
             Material.IRON_PICKAXE,
@@ -325,7 +325,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> toolAxes = List.of(
+    public static final List<Material> toolAxes = List.of(
             Material.WOODEN_AXE,
             Material.STONE_AXE,
             Material.IRON_AXE,
@@ -335,7 +335,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> toolSwords = List.of(
+    public static final List<Material> toolSwords = List.of(
             Material.WOODEN_SWORD,
             Material.STONE_SWORD,
             Material.IRON_SWORD,
@@ -345,7 +345,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> toolShovels = List.of(
+    public static final List<Material> toolShovels = List.of(
             Material.WOODEN_SHOVEL,
             Material.STONE_SHOVEL,
             Material.IRON_SHOVEL,
@@ -355,7 +355,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> toolHoes = List.of(
+    public static final List<Material> toolHoes = List.of(
             Material.WOODEN_HOE,
             Material.STONE_HOE,
             Material.IRON_HOE,
@@ -365,7 +365,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> tool = List.of(
+    public static final List<Material> tool = List.of(
             Material.WOODEN_PICKAXE,
             Material.STONE_PICKAXE,
             Material.IRON_PICKAXE,
@@ -406,7 +406,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> shovelPreference = List.of(
+    public static final List<Material> shovelPreference = List.of(
             Material.CLAY,
             Material.DIRT,
             Material.FARMLAND,
@@ -423,7 +423,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> fishingDrops = List.of(
+    public static final List<Material> fishingDrops = List.of(
             Material.COD,
             Material.COD,
             Material.COD,
@@ -504,7 +504,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> axePreference = List.of(
+    public static final List<Material> axePreference = List.of(
             //FENCES
             Material.ACACIA_FENCE,
             Material.BIRCH_FENCE,
