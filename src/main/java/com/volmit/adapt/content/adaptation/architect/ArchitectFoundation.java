@@ -215,7 +215,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         }
 
         boolean hasFrameOrPainting = block.getWorld()
-                .getNearbyEntities(block.getLocation(), 1, 1, 1)
+                .getNearbyEntities(block.getLocation(), 0.5, 0.5, 0.5)
                 .stream()
                 .anyMatch(entity ->
                 (entity instanceof ItemFrame || entity instanceof Painting) &&
