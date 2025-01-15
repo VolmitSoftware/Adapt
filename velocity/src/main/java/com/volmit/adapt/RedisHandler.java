@@ -41,7 +41,7 @@ public class RedisHandler implements AutoCloseable {
         if (debug) log.info(message.formatted(args));
     }
 
-    public void close() throws Exception {
+    public void close() {
         redisClient.close();
     }
 }

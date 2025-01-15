@@ -178,13 +178,6 @@ public class JSONML {
                         if (x.nextToken() != XML.GT) {
                             throw x.syntaxError("Misshaped tag");
                         }
-                        if (ja == null) {
-                            if (arrayForm) {
-                                return newja;
-                            } else {
-                                return newjo;
-                            }
-                        }
 
                         // Content, between <...> and </...>
 
@@ -200,12 +193,12 @@ public class JSONML {
                         if (!arrayForm && newja.length() > 0) {
                             newjo.put("childNodes", newja);
                         }
-                        if (ja == null) {
-                            if (arrayForm) {
-                                return newja;
-                            } else {
-                                return newjo;
-                            }
+                    }
+                    if (ja == null) {
+                        if (arrayForm) {
+                            return newja;
+                        } else {
+                            return newjo;
                         }
                     }
                 }

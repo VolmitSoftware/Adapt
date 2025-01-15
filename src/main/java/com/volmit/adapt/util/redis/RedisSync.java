@@ -72,7 +72,7 @@ public class RedisSync implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (redisClient != null)
             redisClient.close();
     }

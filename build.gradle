@@ -237,7 +237,7 @@ compileJava {
 
 tasks.build.dependsOn(shadowJar)
 
-task adapt(type: Copy)
+tasks.register('adapt', Copy)
 {
     group "adapt"
     from outputJar
@@ -286,11 +286,11 @@ def registerCustomOutputTaskUnix(name, path, doRename = true) {
 
 if (JavaVersion.current() != JavaVersion.VERSION_1_8 &&
         sourceSets.main.allJava.files.any { it.name == "module-info.java" }) {
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile).configureEach {
         options.compilerArgs += ['-Xplugin:Manifold', '--module-path', it.classpath.asPath]
     }
 } else {
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile).configureEach {
         options.compilerArgs += ['-Xplugin:Manifold']
     }
 }
