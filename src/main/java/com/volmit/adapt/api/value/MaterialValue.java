@@ -161,7 +161,7 @@ public class MaterialValue {
                 }
                 d.add(vx / i.getOutput().getAmount());
             }
-            if (d.size() > 0) {
+            if (!d.isEmpty()) {
                 v += d.stream().mapToDouble(i -> i).average().getAsDouble();
             }
             if (v > AdaptConfig.get().getMaxRecipeListPrecaution()) {

@@ -21,9 +21,6 @@ package com.volmit.adapt.util.data;
 
 
 import art.arcane.chrono.ChronoLatch;
-//import com.volmit.react.React;
-//import com.volmit.react.util.collection.KList;
-//import com.volmit.react.util.collection.KMap;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.collection.KMap;
@@ -464,18 +461,16 @@ public class B {
         try {
             BlockData bx = null;
 
-            if (bx == null) {
-                try {
-                    bx = createBlockData(ix.toLowerCase());
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
+            try {
+                bx = createBlockData(ix.toLowerCase());
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
 
             if (bx == null) {
                 try {
                     bx = createBlockData("minecraft:" + ix.toLowerCase());
-                } catch (Throwable e) {
+                } catch (Throwable ignored) {
 
                 }
             }
@@ -483,7 +478,7 @@ public class B {
             if (bx == null) {
                 try {
                     bx = Material.valueOf(ix.toUpperCase()).createBlockData();
-                } catch (Throwable e) {
+                } catch (Throwable ignored) {
 
                 }
             }

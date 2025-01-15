@@ -49,7 +49,7 @@ public class Localizer {
             Adapt.verbose("Updating Primary Language File: " + AdaptConfig.get().getLanguage());
             InputStream in = Adapt.instance.getResource(AdaptConfig.get().getLanguage() + ".json");
             Files.deleteIfExists(langFile.toPath());
-            Files.copy(in, langFile.toPath());
+            Files.copy(Objects.requireNonNull(in), langFile.toPath());
             Adapt.verbose("Loaded Primary Language: " + AdaptConfig.get().getLanguage());
 
             if (!Objects.equals(AdaptConfig.get().getLanguage(), AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing())) {
@@ -57,7 +57,7 @@ public class Localizer {
                 File langFileFallback = new File(langFolder, AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
                 InputStream inFB = Adapt.instance.getResource(AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
                 Files.deleteIfExists(langFileFallback.toPath());
-                Files.copy(inFB, langFileFallback.toPath());
+                Files.copy(Objects.requireNonNull(inFB), langFileFallback.toPath());
                 Adapt.verbose("Loaded Fallback: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
             }
         } else {

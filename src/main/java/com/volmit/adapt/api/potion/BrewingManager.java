@@ -23,6 +23,7 @@ import org.bukkit.potion.PotionType;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public class BrewingManager implements Listener {
@@ -63,7 +64,7 @@ public class BrewingManager implements Listener {
             }
             BrewingStand stand = inv.getHolder();
             AdaptPlayer p = Adapt.instance.getAdaptServer().getPlayer((Player) e.getWhoClicked());
-            Optional<BrewingRecipe> recipe = recipes.keySet().stream().filter(r -> BrewingTask.isValid(r, stand.getLocation())).findFirst();
+            Optional<BrewingRecipe> recipe = recipes.keySet().stream().filter(r -> BrewingTask.isValid(r, Objects.requireNonNull(stand).getLocation())).findFirst();
             recipe.ifPresent(r -> {
                 if (activeTasks.containsKey(stand.getLocation())) {
                     BrewingTask t = activeTasks.get(stand.getLocation());
@@ -81,7 +82,7 @@ public class BrewingManager implements Listener {
                     activeTasks.put(stand.getLocation(), new BrewingTask(r, stand.getLocation()));
                 }
             });
-            if (recipe.isEmpty() && activeTasks.containsKey(stand.getLocation())) {
+            if (recipe.isEmpty() && activeTasks.containsKey(Objects.requireNonNull(stand).getLocation())) {
                 activeTasks.remove(stand.getLocation()).cancel();
             }
         });
@@ -89,7 +90,7 @@ public class BrewingManager implements Listener {
 
     @EventHandler
     public void onBrew(BrewEvent e) {
-        Material m = e.getContents().getIngredient().getType();
+        Material m = Objects.requireNonNull(e.getContents().getIngredient()).getType();
         if (m != Material.GUNPOWDER && m != Material.DRAGON_BREATH) {
             return;
         }
@@ -98,9 +99,11 @@ public class BrewingManager implements Listener {
             if (s == null) continue;
             PotionMeta meta = (PotionMeta) s.getItemMeta();
             var opt = Reflect.getEnum(PotionType.class, "UNCRAFTABLE");
-            if (opt.isEmpty() && meta.getBasePotionData() != null)
+            if (opt.isEmpty()) {
+                meta.getBasePotionData();
                 continue;
-            if (opt.isPresent() && meta.getBasePotionData().getType() == opt.get())
+            }
+            if (Objects.requireNonNull(meta).getBasePotionData().getType() == opt.get())
                 continue;
             ItemStack newStack = s.clone();
             if (m == Material.GUNPOWDER) {

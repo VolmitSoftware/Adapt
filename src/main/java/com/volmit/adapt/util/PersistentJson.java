@@ -35,7 +35,7 @@ public class PersistentJson {
         String s = c.get(new NamespacedKey(Adapt.instance, key), PersistentDataType.STRING);
 
         if (s == null) {
-            return gson.fromJson(s, type);
+            return gson.fromJson((String) null, type);
         }
 
         return null;

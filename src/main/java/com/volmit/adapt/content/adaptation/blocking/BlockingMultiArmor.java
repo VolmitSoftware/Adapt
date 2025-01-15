@@ -41,6 +41,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Config> {
@@ -132,7 +133,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                 for (ItemStack i : drops) {
                     Damageable iDmgable = (Damageable) i.getItemMeta();
                     if (i.hasItemMeta()) {
-                        ItemMeta im = i.getItemMeta().clone();
+                        ItemMeta im = Objects.requireNonNull(i.getItemMeta()).clone();
                         if (im.hasDisplayName()) {
                             im.setDisplayName(im.getDisplayName());
                         }
@@ -173,7 +174,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                 && e.getClickedInventory().getItem(e.getSlot()) != null
                 && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
             ItemStack cursor = e.getWhoClicked().getItemOnCursor().clone();
-            ItemStack clicked = e.getClickedInventory().getItem(e.getSlot()).clone();
+            ItemStack clicked = Objects.requireNonNull(e.getClickedInventory().getItem(e.getSlot())).clone();
 
             if (cursor.getType().equals(Material.ELYTRA) || clicked.getType().equals(Material.ELYTRA)) { // One must be an ELYTRA
 

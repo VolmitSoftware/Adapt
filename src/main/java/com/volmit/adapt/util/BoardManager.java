@@ -23,10 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @DontObfuscate
@@ -69,7 +66,7 @@ public class BoardManager {
     public void setup(Player player) {
         Optional.ofNullable(scoreboards.remove(player.getUniqueId())).ifPresent(Board::resetScoreboard);
         if (player.getScoreboard().equals(Bukkit.getScoreboardManager() != null && player.getScoreboard().equals(Bukkit.getScoreboardManager().getMainScoreboard()))) {
-            player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+            player.setScoreboard(Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
         }
         scoreboards.put(player.getUniqueId(), new Board(player, boardSettings));
     }

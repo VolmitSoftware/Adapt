@@ -28,36 +28,39 @@ import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameT
 import com.fren_gor.ultimateAdvancementAPI.database.TeamProgression;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.CustomModel;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Singular;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @Data
 public class AdaptAdvancement {
     private String background;
     @Builder.Default
-    private Material icon = Material.EMERALD;
+    private Material icon;
     @Builder.Default
-    private CustomModel model = null;
+    private CustomModel model;
     @Builder.Default
-    private String title = "MISSING TITLE";
+    private String title;
     @Builder.Default
-    private String description = "MISSING DESCRIPTION";
+    private String description;
     @Builder.Default
-    private AdvancementFrameType frame = AdvancementFrameType.TASK;
+    private AdvancementFrameType frame;
     @Builder.Default
-    private boolean toast = false;
+    private boolean toast;
     @Builder.Default
-    private boolean announce = false;
+    private boolean announce;
     @Builder.Default
-    private AdvancementVisibility visibility = AdvancementVisibility.PARENT_GRANTED;
+    private AdvancementVisibility visibility;
     @Builder.Default
-    private String key = "root";
+    private String key;
     @Singular
     private List<AdaptAdvancement> children;
 

@@ -169,7 +169,7 @@ public class UIElement implements Element {
                 case SHIFT_RIGHT:
                     eShiftRight.run(context);
             }
-        } catch (NullPointerException e) {
+        } catch (NullPointerException ignored) {
 
         } catch (Throwable e) {
             e.printStackTrace();

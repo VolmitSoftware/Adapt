@@ -36,14 +36,11 @@ public class EntityThings {
         // Filter out non-living entities and the player
         List<LivingEntity> livingEntities = nearbyEntities.stream()
                 .filter(entity -> entity instanceof LivingEntity && !entity.equals(player))
-                .map(entity -> (LivingEntity) entity)
-                .collect(Collectors.toList());
+                .map(entity -> (LivingEntity) entity).sorted(Comparator.comparingDouble(entity -> entity.getLocation().distance(location))).collect(Collectors.toList());
 
         // Sort by distance to the reference entity
-        livingEntities.sort(Comparator.comparingDouble(entity -> entity.getLocation().distance(location)));
 
         // Return the nearest living entity, or null if no valid entity is found
         return livingEntities.isEmpty() ? null : livingEntities.get(0);
     }
 }
-

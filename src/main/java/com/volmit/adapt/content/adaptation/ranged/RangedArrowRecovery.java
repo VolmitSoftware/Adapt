@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
 
@@ -39,7 +40,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     @EventHandler
     public void onEntityShootBow(EntityShootBowEvent event) {
         if (event.getEntity() instanceof Player player && hasAdaptation(player)) {
-            if (!event.getBow().containsEnchantment(Enchantments.ARROW_INFINITE)) {
+            if (!Objects.requireNonNull(event.getBow()).containsEnchantment(Enchantments.ARROW_INFINITE)) {
                 if (event.getProjectile() instanceof Arrow arrow) {
                     shotArrows.put(arrow, player);
                 }

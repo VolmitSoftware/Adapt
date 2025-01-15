@@ -33,6 +33,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Objects;
+
 public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     public PickaxeChisel() {
         super("pickaxe-chisel");
@@ -93,7 +95,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
                 p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
                 damageHand(p, getDamagePerBlock(getLevelPercent(p)));
 
-                Location c = p.rayTraceBlocks(8).getHitPosition().toLocation(p.getWorld());
+                Location c = Objects.requireNonNull(p.rayTraceBlocks(8)).getHitPosition().toLocation(p.getWorld());
 
                 ItemStack is = getDropFor(b);
                 if (M.r(getDropChance(getLevelPercent(p)))) {

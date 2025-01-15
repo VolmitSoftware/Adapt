@@ -34,6 +34,7 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Config> {
     private final List<Integer> holds = new ArrayList<>();
@@ -84,7 +85,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
                     for (int i = 0; i < Math.min(Math.min(rad * rad, 256), 3); i++) {
                         Location m = p.getLocation().clone().add(new Vector(Math.sin(angle), RNG.r.i(-1, 1), Math.cos(angle)).multiply(Math.random() * rad));
-                        Block a = m.getWorld().getHighestBlockAt(m).getRelative(BlockFace.UP);
+                        Block a = Objects.requireNonNull(m.getWorld()).getHighestBlockAt(m).getRelative(BlockFace.UP);
                         SoundPlayer spw = SoundPlayer.of(a.getWorld());
                         if (a.getBlockData() instanceof Ageable ab) {
                             int toGrowLeft = ab.getMaximumAge() - ab.getAge();

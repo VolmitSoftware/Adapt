@@ -35,6 +35,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -101,7 +102,6 @@ public class AdaptPlayer extends TickedObject {
 
             if (sat >= cost && cost > 0) {
                 sat -= cost;
-                cost = 0;
             }
 
             player.setFoodLevel(food);
@@ -219,7 +219,7 @@ public class AdaptPlayer extends TickedObject {
         Location at = player.getLocation();
 
         if (lastpos != null) {
-            if (lastpos.getWorld().equals(at.getWorld())) {
+            if (Objects.requireNonNull(lastpos.getWorld()).equals(at.getWorld())) {
                 if (lastpos.distanceSquared(at) <= 7 * 7) {
                     speed.put(lastpos.distance(at) / ((double) (M.ms() - lastloc) / 50D));
                     velocity = velocity.clone().add(at.clone().subtract(lastpos).toVector()).multiply(0.5);

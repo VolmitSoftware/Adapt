@@ -319,7 +319,7 @@ public class Form {
      * @return the fancy duration
      */
     public static String duration(RollingSequence rollingSequence, long duration) {
-        String suffix = "Millisecond";
+        String suffix;
         double phantom = duration;
         int div = 1000;
 
@@ -355,10 +355,8 @@ public class Form {
                                 if (phantom > div) {
                                     phantom /= div;
                                     suffix = "Year";
-                                    return Form.fd(phantom, 0) + " " + suffix + ((int) phantom == 1 ? "" : "s");
-                                } else {
-                                    return Form.fd(phantom, 0) + " " + suffix + ((int) phantom == 1 ? "" : "s");
                                 }
+                                return Form.fd(phantom, 0) + " " + suffix + ((int) phantom == 1 ? "" : "s");
                             } else {
                                 return Form.fd(phantom, 0) + " " + suffix + ((int) phantom == 1 ? "" : "s");
                             }
@@ -1140,7 +1138,7 @@ public class Form {
     /**
      * nanoseconds to seconds (double) custom decimals
      *
-     * @param p  number of decimal points
+     * @param p number of decimal points
      * @return a formatted string to nanoseconds
      */
     public static String nsMs(long ns, int p) {
@@ -1150,7 +1148,7 @@ public class Form {
     /**
      * nanoseconds to seconds (double) custom decimals
      *
-     * @param p  number of decimal points
+     * @param p number of decimal points
      * @return a formatted string to nanoseconds
      */
     public static String nsMsd(long ns, int p) {
@@ -1257,10 +1255,6 @@ public class Form {
             return null;
         }
 
-        final StringBuilder sb = new StringBuilder();
-
-        sb.append(s.repeat(Math.max(0, n)));
-
-        return sb.toString();
+        return s.repeat(Math.max(0, n));
     }
 }

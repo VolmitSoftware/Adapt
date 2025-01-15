@@ -145,10 +145,6 @@ public class Notifier extends TickedObject {
         n.play(target);
     }
 
-    private void cleanupStackedNotifications() {
-
-    }
-
     private void cleanupSkills() {
         for (String i : lastSkills.k()) {
             if (lastSkills.get(i) == null) { // Shouldn't happen, but just in case I guess.

@@ -10,29 +10,42 @@ _Adapt is a drag and drop solution for balanced passive abilities and skills tha
 
 ### Description
 
-Adapt Abilities are all accessible in the in-game GUI by right-clicking any bookshelf **face**, providing a more user-friendly experience to a "skills" system. Most servers aim to enhance the quality of the "vanilla" experience. However, most skill-based plugins offer powers, game-breaking systems, and are riddled with bugs. That's where Adapt comes in, being lightweight on the server and providing mere quality-of-life enhancements to a user's experience. 
+Adapt Abilities are all accessible in the in-game GUI by right-clicking any bookshelf **face**, providing a more
+user-friendly experience to a "skills" system. Most servers aim to enhance the quality of the "vanilla" experience.
+However, most skill-based plugins offer powers, game-breaking systems, and are riddled with bugs. That's where Adapt
+comes in, being lightweight on the server and providing mere quality-of-life enhancements to a user's experience.
 
-Below is a **WIP** list of features _(and descriptions)_ that I'll fill in when I can. But this should give you a good idea of the roadmap for this plugin! Keep in mind that this is all WIP, can change at any time, and all of these features can be configured/disabled!
+Below is a **WIP** list of features _(and descriptions)_ that I'll fill in when I can. But this should give you a good
+idea of the roadmap for this plugin! Keep in mind that this is all WIP, can change at any time, and all of these
+features can be configured/disabled!
 
 The master branch is for the latest version of Minecraft.
 
 ### Language and Localization
 
-Do you know a language other than English? Do you want to play a big part in Adapt's localization into different languages? Join the [Discord](https://discord.gg/volmit) and let us know or visit the [gitlocalize repository](https://gitlocalize.com/repo/8085) to help remotely with language localizations! 
+Do you know a language other than English? Do you want to play a big part in Adapt's localization into different
+languages? Join the [Discord](https://discord.gg/volmit) and let us know or visit
+the [gitlocalize repository](https://gitlocalize.com/repo/8085) to help remotely with language localizations!
 
-If you don't see a language you can easily add it, or let us know here in discussions! We take this on an honor system, so please submit a translation key only if you are confident in the language, and they will be verified.
+If you don't see a language you can easily add it, or let us know here in discussions! We take this on an honor system,
+so please submit a translation key only if you are confident in the language, and they will be verified.
 
 # [Support](https://discord.gg/volmit) **|** [Documentation](https://docs.volmit.com/adapt/)
 
 ## Building
 
 ### Download .jar release
+
 **Consider supporting our development by buying Adapt**
-On [SpigotMC](https://www.spigotmc.org/resources/adapt-leveling-skills-and-abilities.103790/)! We work hard to make Adapt
+On [SpigotMC](https://www.spigotmc.org/resources/adapt-leveling-skills-and-abilities.103790/)! We work hard to make
+Adapt
 the best it can be for everyone.
 
 ### Build your own .jar
-**Building Adapt can be challenging and requires some technical knowledge**, such as with [Iris](https://www.spigotmc.org/resources/iris-world-gen-custom-biome-colors.84586/). However, you will need to set up a few things if your system has never been used for Java development.
+
+**Building Adapt can be challenging and requires some technical knowledge**, such as
+with [Iris](https://www.spigotmc.org/resources/iris-world-gen-custom-biome-colors.84586/). However, you will need to set
+up a few things if your system has never been used for Java development.
 
 <details>
 
@@ -74,11 +87,11 @@ plugin [Manifold](https://plugins.jetbrains.com/plugin/10057-manifold)
 
 </details>
 
-4. INSTALL [MANIFOLD](https://plugins.jetbrains.com/plugin/10057-manifold)
-5. If this is your first time building Adapt for MC 1.19+ run `gradlew setup` inside the root Adapt project folder.
+1. INSTALL [MANIFOLD](https://plugins.jetbrains.com/plugin/10057-manifold)
+2. If this is your first time building Adapt for MC 1.19+ run `gradlew setup` inside the root Adapt project folder.
    Otherwise, skip this step. Grab a coffee, this may take up to 5 minutes depending on your cpu & internet connection.
-6. Once the project has setup, run `gradlew adapt`
-7. The Adapt jar will be placed in `Adapt/build/Adapt-XXX-XXX.jar` Enjoy! Consider supporting us by buying it on spigot!
+3. Once the project has setup, run `gradlew adapt`
+4. The Adapt jar will be placed in `Adapt/build/Adapt-XXX-XXX.jar` Enjoy! Consider supporting us by buying it on spigot!
 
 </details>
 
@@ -86,7 +99,9 @@ plugin [Manifold](https://plugins.jetbrains.com/plugin/10057-manifold)
 <details>
 <summary> SKILLS </summary>
 
-_The skills listed below are the fundamentals that we want to implement. However, please feel free to make an issue request for any ideas or additional abilities that you would like to see in Adapt. Keep in mind that simpler ideas are preferred, but complex ones are welcome too!_
+_The skills listed below are the fundamentals that we want to implement. However, please feel free to make an issue
+request for any ideas or additional abilities that you would like to see in Adapt. Keep in mind that simpler ideas are
+preferred, but complex ones are welcome too!_
 
 ## Agility:
 

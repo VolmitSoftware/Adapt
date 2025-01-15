@@ -30,10 +30,6 @@ public class Spiraler {
         retarget(sizeX, sizeZ);
     }
 
-    static void Spiral(int X, int Y) {
-
-    }
-
     public void drain() {
         while (hasNext()) {
             next();

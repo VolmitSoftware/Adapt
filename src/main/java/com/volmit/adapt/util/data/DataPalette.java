@@ -62,7 +62,7 @@ public class DataPalette<T> {
     }
 
     public int getIndex(T t) {
-        int v = 0;
+        int v;
 
         synchronized (palette) {
             v = palette.indexOf(t);

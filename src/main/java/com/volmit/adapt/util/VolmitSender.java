@@ -60,7 +60,6 @@ public class VolmitSender implements CommandSender {
      * -- GETTER --
      *  Get the origin sender this object is wrapping
      *
-     * @return the command sender
      */
     @Getter
     private final CommandSender s;
@@ -72,13 +71,11 @@ public class VolmitSender implements CommandSender {
     /**
      * -- GETTER --
      *  Get the command tag
-     *
+     * <p>
      *
      * -- SETTER --
      *  Set a command tag (prefix for sendMessage)
      *
-     @return the command tag
-      * @param tag the tag
      */
     @Setter
     @Getter
@@ -240,7 +237,7 @@ public class VolmitSender implements CommandSender {
             int l = 44;
             int g = (int) (1D * l);
             sendTitle(C.ADAPT + thing + " ", 0, 500, 250);
-            sendActionNoProcessing(pulse("#00BFFF", "#003366", 1D) + "<underlined> " + Form.repeat(" ", g) + "<reset>" + Form.repeat(" ", l - g));
+            sendActionNoProcessing(pulse("#00BFFF", "#003366", 1D) + "<underlined> " + Form.repeat(" ", g) + "<reset>" + Form.repeat(" ", 0));
         } else {
             int l = 44;
             int g = (int) (percent * l);

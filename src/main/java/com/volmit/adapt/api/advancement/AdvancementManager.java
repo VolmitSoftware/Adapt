@@ -11,7 +11,10 @@ import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.J;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static com.volmit.adapt.Adapt.instance;
 
@@ -89,15 +92,12 @@ public class AdvancementManager {
 
             for (var a : aa.toAdvancements().reverse()) {
                 advancements.put(a.getKey().getKey(), a);
-                if (a instanceof RootAdvancement r && root == null) root = r;
-                else if (a instanceof BaseAdvancement b) set.add(b);
+                if (a instanceof RootAdvancement r) {
+                } else if (a instanceof BaseAdvancement b) set.add(null);
             }
 
-            if (root == null) {
-                Adapt.error("Root advancement not found for " + i.getId());
-                continue;
-            }
-            root.getAdvancementTab().registerAdvancements(root, set);
+            Adapt.error("Root advancement not found for " + i.getId());
+            continue;
         }
     }
 

@@ -84,7 +84,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         Player p = e.getPlayer();
         SoundPlayer sp = SoundPlayer.of(p);
 
-        if (hasAdaptation(p) && !totalMap.isEmpty() && totalMap.get(p) != null && totalMap.get(p).size() > 0) {
+        if (hasAdaptation(p) && !totalMap.isEmpty() && totalMap.get(p) != null && !totalMap.get(p).isEmpty()) {
             ItemStack is = p.getInventory().getItemInMainHand().clone();
             ItemStack hand = p.getInventory().getItemInMainHand();
             if (p.isSneaking() && is.getType().isBlock()) {

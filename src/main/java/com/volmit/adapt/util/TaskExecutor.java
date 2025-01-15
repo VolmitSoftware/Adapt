@@ -117,7 +117,7 @@ public class TaskExecutor {
         }
 
         public TaskResult execute() {
-            double timeElapsed = 0;
+            double timeElapsed;
             int tasksExecuted = 0;
             int tasksFailed = 0;
             int tasksCompleted = 0;

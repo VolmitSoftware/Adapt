@@ -85,10 +85,6 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                     c = c.expand(Cuboid.CuboidDirection.East, (int) Math.round(getRadius(lvl)));
                     c = c.expand(Cuboid.CuboidDirection.West, (int) Math.round(getRadius(lvl)));
 
-                    if (dmg > 0) {
-                        return;
-                    }
-
                     for (Block i : c) {
                         if (M.r((getLevelPercent(lvl) * 2.8) / (i.getLocation().distanceSquared(ctr)))) {
                             if (i.getType().equals(Material.TALL_GRASS)

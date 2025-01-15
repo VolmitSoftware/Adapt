@@ -42,23 +42,20 @@ public class GBiset<A, B> implements Serializable {
     /**
      * -- GETTER --
      *  Get the object of the type A
-     *
+     * <p>
      *
      * -- SETTER --
      *  Set the first object
      *
-     @return the first object
-      * @param a the first object A
      */
     private A a;
     /**
      * -- GETTER --
      *  Get the second object
-     *
+     * <p>
      *
      * -- SETTER --
      *  Set the second object
-     @return the second object
      */
     private B b;
 

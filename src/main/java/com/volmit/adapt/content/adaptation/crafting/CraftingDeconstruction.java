@@ -155,7 +155,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
 
             // Damage the shears
             Damageable damageable = (Damageable) mainHandItem.getItemMeta();
-            int newDamage = damageable.getDamage() + 8 * forStuff.getAmount();
+            int newDamage = Objects.requireNonNull(damageable).getDamage() + 8 * forStuff.getAmount();
             if (newDamage >= mainHandItem.getType().getMaxDurability()) {
                 player.getInventory().setItemInMainHand(null); // Break the shears
             } else {

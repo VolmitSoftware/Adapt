@@ -40,6 +40,7 @@ import org.bukkit.event.inventory.InventoryType;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Config> {
@@ -81,7 +82,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
         }
         J.s(() -> {
             if (e.getDestination().getType().equals(InventoryType.BREWING)) {
-                activeStands.put(e.getDestination().getLocation().getBlock(), MAX_CHECKS_BEFORE_REMOVE);
+                activeStands.put(Objects.requireNonNull(e.getDestination().getLocation()).getBlock(), MAX_CHECKS_BEFORE_REMOVE);
             }
         });
     }
@@ -104,7 +105,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
             return;
         }
         if (e.getView().getTopInventory().getType().equals(InventoryType.BREWING)) {
-            activeStands.put(e.getView().getTopInventory().getLocation().getBlock(), MAX_CHECKS_BEFORE_REMOVE);
+            activeStands.put(Objects.requireNonNull(e.getView().getTopInventory().getLocation()).getBlock(), MAX_CHECKS_BEFORE_REMOVE);
         }
     }
 

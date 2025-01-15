@@ -45,6 +45,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     private final Map<Player, Long> cooldown = new HashMap<>();
@@ -223,7 +224,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     }
 
     private void handleComposterInteraction(PlayerInteractEvent e, Player p) {
-        Levelled c = ((Levelled) e.getClickedBlock().getBlockData());
+        Levelled c = ((Levelled) Objects.requireNonNull(e.getClickedBlock()).getBlockData());
         int ol = c.getLevel();
         J.s(() -> {
             int nl = ((Levelled) e.getClickedBlock().getBlockData()).getLevel();

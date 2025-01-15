@@ -201,7 +201,7 @@ public enum C {
     /**
      * Makes the text bold.
      */
-    BOLD('l', 0x11, true) {
+    BOLD('l', 0x11) {
         @Override
         public net.md_5.bungee.api.ChatColor asBungee() {
             return net.md_5.bungee.api.ChatColor.BOLD;
@@ -210,7 +210,7 @@ public enum C {
     /**
      * Makes a line appear through the text.
      */
-    STRIKETHROUGH('m', 0x12, true) {
+    STRIKETHROUGH('m', 0x12) {
         @Override
         public net.md_5.bungee.api.ChatColor asBungee() {
             return net.md_5.bungee.api.ChatColor.STRIKETHROUGH;
@@ -228,7 +228,7 @@ public enum C {
     /**
      * Makes the text italic.
      */
-    ITALIC('o', 0x14, true) {
+    ITALIC('o', 0x14) {
         @Override
         public net.md_5.bungee.api.ChatColor asBungee() {
             return net.md_5.bungee.api.ChatColor.ITALIC;
@@ -331,7 +331,7 @@ public enum C {
         this(token, code, intCode, false);
     }
 
-    C(char code, int intCode, boolean isFormat) {
+    C(char code, int intCode) {
         this("^", code, intCode, false);
     }
 
@@ -444,7 +444,7 @@ public enum C {
     public static C getByChar(String code) {
         try {
             Validate.notNull(code, "Code cannot be null");
-            Validate.isTrue(code.length() > 0, "Code must have at least one char");
+            Validate.isTrue(!code.isEmpty(), "Code must have at least one char");
 
             return BY_CHAR.get(code.charAt(0));
         } catch (Exception e) {

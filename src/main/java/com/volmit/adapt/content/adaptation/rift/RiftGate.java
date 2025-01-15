@@ -36,6 +36,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.Objects;
+
 
 public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     public RiftGate() {
@@ -182,7 +184,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
         p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
         p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
-        sp.play(l, Sound.BLOCK_LODESTONE_PLACE, 1f, 0.1f);
+        sp.play(Objects.requireNonNull(l), Sound.BLOCK_LODESTONE_PLACE, 1f, 0.1f);
         sp.play(l, Sound.BLOCK_BELL_RESONATE, 1f, 0.1f);
 
         J.a(() -> {

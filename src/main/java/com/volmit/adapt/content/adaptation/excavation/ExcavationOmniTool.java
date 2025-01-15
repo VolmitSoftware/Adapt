@@ -46,6 +46,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Config> {
@@ -208,7 +209,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
                 for (ItemStack i : drops) {
                     Damageable iDmgable = (Damageable) i.getItemMeta();
                     if (i.hasItemMeta()) {
-                        ItemMeta im = i.getItemMeta().clone();
+                        ItemMeta im = Objects.requireNonNull(i.getItemMeta()).clone();
                         if (im.hasDisplayName()) {
                             im.setDisplayName(im.getDisplayName());
                         }
@@ -296,7 +297,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         }
         if (e.getClickedInventory() != null && e.getClick().equals(ClickType.SHIFT_LEFT) && e.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
             ItemStack cursor = e.getWhoClicked().getItemOnCursor().clone();
-            ItemStack clicked = e.getClickedInventory().getItem(e.getSlot()).clone();
+            ItemStack clicked = Objects.requireNonNull(e.getClickedInventory().getItem(e.getSlot())).clone();
 
             if (omniTool.explode(cursor).size() > 1 || omniTool.explode(clicked).size() > 1) {
                 if (omniTool.explode(cursor).size() >= getSlots(getLevel((Player) e.getWhoClicked())) || omniTool.explode(clicked).size() >= getSlots(getLevel((Player) e.getWhoClicked()))) {

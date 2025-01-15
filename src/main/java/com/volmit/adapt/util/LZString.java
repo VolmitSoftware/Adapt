@@ -49,10 +49,10 @@ public class LZString {
         });
         return switch (res.length() % 4) { // To produce valid Base64
             // When could this happen ?
-            default -> res;
             case 1 -> res + "===";
             case 2 -> res + "==";
             case 3 -> res + "=";
+            default -> res;
         };
     }
 
@@ -132,8 +132,8 @@ public class LZString {
         int i, value;
         Map<String, Integer> context_dictionary = new HashMap<>();
         Set<String> context_dictionaryToCreate = new HashSet<>();
-        String context_c = "";
-        String context_wc = "";
+        String context_c;
+        String context_wc;
         String context_w = "";
         int context_enlargeIn = 2; // Compensate for the first entry which should not count
         int context_dictSize = 3;
@@ -311,7 +311,6 @@ public class LZString {
             }
             context_enlargeIn--;
             if (context_enlargeIn == 0) {
-                context_enlargeIn = powerOf2(context_numBits);
                 context_numBits++;
             }
         }
@@ -371,7 +370,7 @@ public class LZString {
         int enlargeIn = 4;
         int dictSize = 4;
         int numBits = 3;
-        String entry = "";
+        String entry;
         StringBuilder result = new StringBuilder();
         String w;
         int bits, resb;
@@ -400,9 +399,8 @@ public class LZString {
             power <<= 1;
         }
 
-        switch (next = bits) {
+        switch (bits) {
             case 0:
-                bits = 0;
                 maxpower = powerOf2(8);
                 power = 1;
                 while (power != maxpower) {
@@ -461,7 +459,6 @@ public class LZString {
             int cc;
             switch (cc = bits) {
                 case 0:
-                    bits = 0;
                     maxpower = powerOf2(8);
                     power = 1;
                     while (power != maxpower) {

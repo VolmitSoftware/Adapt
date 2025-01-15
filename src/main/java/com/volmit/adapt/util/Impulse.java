@@ -96,7 +96,7 @@ public class Impulse {
                 }
 
                 i.setVelocity(i.getVelocity().add(force));
-            } catch (Exception e) {
+            } catch (Exception ignored) {
 
             }
         }

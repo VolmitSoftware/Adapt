@@ -12,6 +12,8 @@ import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Objects;
+
 public class BrewingTask extends BukkitRunnable {
 
     private static final int DEFAULT_BREW_TIME = 400;
@@ -32,7 +34,7 @@ public class BrewingTask extends BukkitRunnable {
             block.setFuelLevel(block.getFuelLevel() - recipe.getFuelCost());
         } else {
             int rest = recipe.getFuelCost() - block.getFuelLevel();
-            block.getInventory().setIngredient(decrease(block.getInventory().getFuel(), 1 + rest / 20));
+            block.getInventory().setIngredient(decrease(Objects.requireNonNull(block.getInventory().getFuel()), 1 + rest / 20));
             block.setFuelLevel(20 - rest % 20);
         }
 
@@ -77,7 +79,7 @@ public class BrewingTask extends BukkitRunnable {
         BrewingStand block = (BrewingStand) this.location.getBlock().getState();
         BrewerInventory inventory = block.getInventory();
         if (brewTime <= 0) {
-            inventory.setIngredient(decrease(inventory.getIngredient(), 1));
+            inventory.setIngredient(decrease(Objects.requireNonNull(inventory.getIngredient()), 1));
 
             for (int i = 0; i < 3; i++) {
                 if (recipe.getBasePotion().equals(inventory.getItem(i))) {

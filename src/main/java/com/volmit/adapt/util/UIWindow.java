@@ -427,7 +427,7 @@ public class UIWindow implements Window, Listener {
                     isf.add(gg);
                 }
 
-                if (((isc == null) != (isx == null)) || isx != null && isc != null && !isc.equals(isx)) {
+                if ((isc == null) != (isx == null) || isx != null && !isc.equals(isx)) {
                     inventory.setItem(i, isx);
                 }
             }

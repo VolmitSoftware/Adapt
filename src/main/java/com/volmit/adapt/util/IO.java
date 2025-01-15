@@ -168,7 +168,7 @@ public class IO {
         long total = totalSize;
         long wrote = 0;
         byte[] buf = new byte[targetBuffer];
-        int r = 0;
+        int r;
 
         while ((r = in.read(buf, 0, (int) (total < targetBuffer ? total : targetBuffer))) != -1) {
             total -= r;
@@ -197,7 +197,7 @@ public class IO {
         if (f.exists()) {
             f.delete();
 
-            if (f.getParentFile().list().length == 0) {
+            if (Objects.requireNonNull(f.getParentFile().list()).length == 0) {
                 deleteUp(f.getParentFile());
             }
         }
@@ -216,7 +216,7 @@ public class IO {
     public static long fullTransfer(InputStream in, OutputStream out, int bufferSize) throws IOException {
         long wrote = 0;
         byte[] buf = new byte[bufferSize];
-        int r = 0;
+        int r;
 
         while ((r = in.read(buf)) != -1) {
             out.write(buf, 0, r);
@@ -237,7 +237,7 @@ public class IO {
         }
 
         if (f.isDirectory()) {
-            for (File i : f.listFiles()) {
+            for (File i : Objects.requireNonNull(f.listFiles())) {
                 delete(i);
             }
         }
@@ -250,7 +250,7 @@ public class IO {
 
         if (file.exists()) {
             if (file.isDirectory()) {
-                for (File i : file.listFiles()) {
+                for (File i : Objects.requireNonNull(file.listFiles())) {
                     s += size(i);
                 }
             } else {
@@ -266,7 +266,7 @@ public class IO {
 
         if (file.exists()) {
             if (file.isDirectory()) {
-                for (File i : file.listFiles()) {
+                for (File i : Objects.requireNonNull(file.listFiles())) {
                     s += count(i);
                 }
             } else {
@@ -280,7 +280,7 @@ public class IO {
     public static long transfer(InputStream in, OutputStream out, byte[] buf, int totalSize) throws IOException {
         long total = totalSize;
         long wrote = 0;
-        int r = 0;
+        int r;
 
         while ((r = in.read(buf, 0, (int) (total < buf.length ? total : buf.length))) != -1) {
             total -= r;
@@ -330,7 +330,7 @@ public class IO {
     public static String readAll(File f) throws IOException {
         BufferedReader bu = new BufferedReader(new FileReader(f));
         StringBuilder c = new StringBuilder();
-        String l = "";
+        String l;
 
         while ((l = bu.readLine()) != null) {
             c.append(l).append("\n");
@@ -344,7 +344,7 @@ public class IO {
     public static String readAll(InputStream in) throws IOException {
         BufferedReader bu = new BufferedReader(new InputStreamReader(in));
         StringBuilder c = new StringBuilder();
-        String l = "";
+        String l;
 
         while ((l = bu.readLine()) != null) {
             c.append(l).append("\n");
@@ -1235,8 +1235,6 @@ public class IO {
      */
     public static void copy(InputStream input, OutputStream output) throws IOException {
         long count = copyLarge(input, output);
-        if (count > Integer.MAX_VALUE) {
-        }
     }
 
     /**
@@ -1256,7 +1254,7 @@ public class IO {
     public static long copyLarge(InputStream input, OutputStream output) throws IOException {
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         long count = 0;
-        int n = 0;
+        int n;
         while (-1 != (n = input.read(buffer))) {
             output.write(buffer, 0, n);
             count += n;
@@ -1335,8 +1333,6 @@ public class IO {
      */
     public static void copy(Reader input, Writer output) throws IOException {
         long count = copyLarge(input, output);
-        if (count > Integer.MAX_VALUE) {
-        }
     }
 
     /**
@@ -1356,7 +1352,7 @@ public class IO {
     public static long copyLarge(Reader input, Writer output) throws IOException {
         char[] buffer = new char[DEFAULT_BUFFER_SIZE];
         long count = 0;
-        int n = 0;
+        int n;
         while (-1 != (n = input.read(buffer))) {
             output.write(buffer, 0, n);
             count += n;

@@ -36,6 +36,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
 public class WorldGuardProtector implements Protector {
@@ -124,7 +125,7 @@ public class WorldGuardProtector implements Protector {
 
     private boolean hasBypass(Player p, Location l) {
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
-        com.sk89q.worldedit.world.World world = BukkitAdapter.adapt(l.getWorld());
+        com.sk89q.worldedit.world.World world = BukkitAdapter.adapt(Objects.requireNonNull(l.getWorld()));
         return WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, world);
     }
 }

@@ -74,7 +74,7 @@ public class WorldData extends TickedObject {
         e = e == null ? new Earnings(0) : e;
 
         if (e.earnings() >= 127) {
-            return 1 / (double) (e.earnings() == 0 ? 1 : e.earnings());
+            return 1 / (double) e.earnings();
         }
 
         mantle.set(block.getX(), block.getY(), block.getZ(), e.increment());

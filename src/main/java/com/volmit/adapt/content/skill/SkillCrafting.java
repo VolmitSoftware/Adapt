@@ -41,6 +41,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     private final Map<Player, Long> cooldowns;
@@ -168,7 +169,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
 
     private int calculateRecipeAmount(CraftItemEvent e) {
         ItemStack test = e.getRecipe().getResult().clone();
-        int recipeAmount = e.getInventory().getResult().getAmount();
+        int recipeAmount = Objects.requireNonNull(e.getInventory().getResult()).getAmount();
         switch (e.getClick()) {
             case NUMBER_KEY -> {
                 if (e.getWhoClicked().getInventory().getItem(e.getHotbarButton()) != null) {

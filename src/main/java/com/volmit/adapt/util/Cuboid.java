@@ -44,7 +44,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
      * @param l2 the other corner
      */
     public Cuboid(Location l1, Location l2) {
-        if (!l1.getWorld().equals(l2.getWorld())) {
+        if (!Objects.requireNonNull(l1.getWorld()).equals(l2.getWorld())) {
             throw new IllegalArgumentException("locations must be on the same world");
         }
 
@@ -379,14 +379,13 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
      * @return a new Cuboid outset by the given direction and amount
      */
     public Cuboid outset(CuboidDirection dir, int amount) {
-        Cuboid c = switch (dir) {
+        return switch (dir) {
             case Horizontal ->
                     expand(CuboidDirection.North, amount).expand(CuboidDirection.South, amount).expand(CuboidDirection.East, amount).expand(CuboidDirection.West, amount);
             case Vertical -> expand(CuboidDirection.Down, amount).expand(CuboidDirection.Up, amount);
             case Both -> outset(CuboidDirection.Horizontal, amount).outset(CuboidDirection.Vertical, amount);
             default -> throw new IllegalArgumentException("invalid direction " + dir);
         };
-        return c;
     }
 
     /**
@@ -431,7 +430,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
      * @return true if the Location is within this Cuboid, false otherwise
      */
     public boolean contains(Location l) {
-        return worldName.equals(l.getWorld().getName()) && contains(l.getBlockX(), l.getBlockY(), l.getBlockZ());
+        return worldName.equals(Objects.requireNonNull(l.getWorld()).getName()) && contains(l.getBlockX(), l.getBlockY(), l.getBlockZ());
     }
 
     /**

@@ -214,11 +214,7 @@ public class VectorMath {
             if (to.equals(Direction.U) || to.equals(Direction.D)) {
                 return new Vector(1, 0, 0);
             } else {
-                if (current.equals(Direction.N) || current.equals(Direction.S)) {
-                    return Direction.E.toVector();
-                } else {
-                    return Direction.S.toVector();
-                }
+                return Direction.S.toVector();
             }
         }
 

@@ -23,10 +23,7 @@ import org.bukkit.Axis;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Directions
@@ -58,24 +55,11 @@ public enum Direction {
     public static Direction getDirection(BlockFace f) {
         return switch (f) {
             case DOWN -> D;
-            case EAST -> E;
-            case EAST_NORTH_EAST -> E;
-            case EAST_SOUTH_EAST -> E;
-            case NORTH -> N;
-            case NORTH_EAST -> N;
-            case NORTH_NORTH_EAST -> N;
-            case NORTH_NORTH_WEST -> N;
-            case NORTH_WEST -> N;
-            case SELF -> U;
-            case SOUTH -> S;
-            case SOUTH_EAST -> S;
-            case SOUTH_SOUTH_EAST -> S;
-            case SOUTH_SOUTH_WEST -> S;
-            case SOUTH_WEST -> S;
-            case UP -> U;
-            case WEST -> W;
-            case WEST_NORTH_WEST -> W;
-            case WEST_SOUTH_WEST -> W;
+            case EAST, EAST_SOUTH_EAST, EAST_NORTH_EAST -> E;
+            case NORTH, NORTH_WEST, NORTH_NORTH_WEST, NORTH_NORTH_EAST, NORTH_EAST -> N;
+            case SELF, UP -> U;
+            case SOUTH, SOUTH_WEST, SOUTH_SOUTH_WEST, SOUTH_SOUTH_EAST, SOUTH_EAST -> S;
+            case WEST, WEST_SOUTH_WEST, WEST_NORTH_WEST -> W;
         };
 
     }
@@ -201,7 +185,7 @@ public enum Direction {
                             return v;
                         }
                     });
-                } else if (i.reverse().equals(j)) {
+                } else if (Objects.requireNonNull(i.reverse()).equals(j)) {
                     if (i.isVertical()) {
                         permute.put(b, new DOP("R180CCZ") {
                             @Override
@@ -320,7 +304,6 @@ public enum Direction {
             case S -> N;
             case U -> D;
             case W -> E;
-            default -> null;
         };
 
     }
@@ -354,7 +337,6 @@ public enum Direction {
             case S -> 3;
             case U -> 1;
             case W -> 4;
-            default -> -1;
         };
 
     }
@@ -373,12 +355,9 @@ public enum Direction {
 
     public Axis getAxis() {
         return switch (this) {
-            case D -> Axis.Y;
-            case E -> Axis.X;
-            case N -> Axis.Z;
-            case S -> Axis.Z;
-            case U -> Axis.Y;
-            case W -> Axis.X;
+            case D, U -> Axis.Y;
+            case E, W -> Axis.X;
+            case N, S -> Axis.Z;
         };
 
     }

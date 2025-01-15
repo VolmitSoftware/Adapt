@@ -57,6 +57,4 @@ public interface Protector {
 
     boolean isEnabledByDefault();
 
-    default void unregister() {
-    }
 }

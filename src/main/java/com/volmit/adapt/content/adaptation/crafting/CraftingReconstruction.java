@@ -25,8 +25,6 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 
@@ -301,11 +299,6 @@ public class CraftingReconstruction extends SimpleAdaptation<CraftingReconstruct
         v.addLore(C.UNDERLINE + Localizer.dLocalize("crafting", "reconstruction", "lore2"));
         v.addLore(C.YELLOW + Localizer.dLocalize("crafting", "reconstruction", "lore3"));
         v.addLore(C.YELLOW + Localizer.dLocalize("crafting", "reconstruction", "lore4"));
-    }
-
-    @EventHandler
-    public void on(PlayerInteractEvent e) {
-
     }
 
     @Override

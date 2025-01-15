@@ -37,10 +37,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Config> {
     private static final BlockData AIR = Material.AIR.createBlockData();
@@ -87,7 +84,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         if (canBlockPlace(p, p.getLocation())) {
             return;
         }
-        if (!e.getFrom().getBlock().equals(e.getTo().getBlock())) {
+        if (!e.getFrom().getBlock().equals(Objects.requireNonNull(e.getTo()).getBlock())) {
             return;
         }
         if (!this.active.contains(p)) {
@@ -102,7 +99,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         Location l = e.getTo();
         World world = l.getWorld();
         Set<Block> locs = new HashSet<>();
-        locs.add(world.getBlockAt(l.clone().add(0.3, -1, -0.3)));
+        locs.add(Objects.requireNonNull(world).getBlockAt(l.clone().add(0.3, -1, -0.3)));
         locs.add(world.getBlockAt(l.clone().add(-0.3, -1, -0.3)));
         locs.add(world.getBlockAt(l.clone().add(0.3, -1, 0.3)));
         locs.add(world.getBlockAt(l.clone().add(-0.3, -1, +0.3)));

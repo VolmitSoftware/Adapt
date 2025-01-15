@@ -31,6 +31,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class CommandSVC implements AdaptService, DecreeSystem {
@@ -40,13 +41,8 @@ public class CommandSVC implements AdaptService, DecreeSystem {
 
     @Override
     public void onEnable() {
-        Adapt.instance.getCommand("adapt").setExecutor(this);
+        Objects.requireNonNull(Adapt.instance.getCommand("adapt")).setExecutor(this);
         J.a(() -> getRoot().cacheAll());
-    }
-
-    @Override
-    public void onDisable() {
-
     }
 
     @EventHandler

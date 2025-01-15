@@ -47,7 +47,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
      * @param l2 the other corner
      */
     public Cuboid(Location l1, Location l2) {
-        if (!l1.getWorld().equals(l2.getWorld())) {
+        if (!Objects.requireNonNull(l1.getWorld()).equals(l2.getWorld())) {
             throw new IllegalArgumentException("locations must be on the same world");
         }
 
@@ -433,7 +433,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
      * @return true if the Location is within this Cuboid, false otherwise
      */
     public boolean contains(Location l) {
-        return worldName.equals(l.getWorld().getName()) && contains(l.getBlockX(), l.getBlockY(), l.getBlockZ());
+        return worldName.equals(Objects.requireNonNull(l.getWorld()).getName()) && contains(l.getBlockX(), l.getBlockY(), l.getBlockZ());
     }
 
     /**

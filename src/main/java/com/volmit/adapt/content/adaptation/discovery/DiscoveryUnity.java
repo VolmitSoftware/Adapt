@@ -65,7 +65,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
             sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.9f);
             //get a random skill that they have unlocked already
             List<PlayerSkillLine> skills = ap.getData().getSkillLines().sortV();
-            if (skills.size() > 0) {
+            if (!skills.isEmpty()) {
                 PlayerSkillLine skill = skills.get(RANDOM.nextInt(skills.size()));
                 //give them a random amount of XP in that skill
                 skill.giveXPFresh(Adapt.instance.getAdaptServer().getPlayer(p).getNot(), getXPGained(getLevelPercent(getLevel(p)), RANDOM.nextInt(3) + 1));

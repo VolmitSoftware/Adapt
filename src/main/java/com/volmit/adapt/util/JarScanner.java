@@ -33,7 +33,6 @@ public class JarScanner {
      * -- GETTER --
      *  Get the scanned clases
      *
-     * @return a gset of classes
      */
     @Getter
     private final Set<Class<?>> classes;
@@ -41,7 +40,6 @@ public class JarScanner {
      * -- GETTER --
      *  Get the file object for the jar
      *
-     * @return a file object representing the jar
      */
     @Getter
     private final File jar;

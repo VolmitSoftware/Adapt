@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Decree(name = "adapt", description = "Basic Command")
 public class CommandAdapt implements DecreeExecutor {
@@ -79,9 +80,9 @@ public class CommandAdapt implements DecreeExecutor {
             for (Skill<?> skill : SkillRegistry.skills.sortV()) {
                 if (guiTarget.equals("[Skill]-" + skill.getName())) {
                     if (force || skill.openGui(targetPlayer, true)) {
-                        FConst.success("Opened GUI for " + skill.getName() + " for " + targetPlayer.getName()).send(sender());
+                        FConst.success("Opened GUI for " + skill.getName() + " for " + Objects.requireNonNull(targetPlayer).getName()).send(sender());
                     } else {
-                        FConst.error("Failed to open GUI for " + skill.getName() + " for " + targetPlayer.getName() + " - No Permission, remove from blacklist!").send(sender());
+                        FConst.error("Failed to open GUI for " + skill.getName() + " for " + Objects.requireNonNull(targetPlayer).getName() + " - No Permission, remove from blacklist!").send(sender());
                     }
                     return;
                 }
@@ -93,9 +94,9 @@ public class CommandAdapt implements DecreeExecutor {
                 for (Adaptation<?> adaptation : skill.getAdaptations()) {
                     if (guiTarget.equals("[Adaptation]-" + adaptation.getName())) {
                         if (force || adaptation.openGui(targetPlayer, true)) {
-                            FConst.success("Opened GUI for " + adaptation.getName() + " for " + targetPlayer.getName()).send(sender());
+                            FConst.success("Opened GUI for " + adaptation.getName() + " for " + Objects.requireNonNull(targetPlayer).getName()).send(sender());
                         } else {
-                            FConst.error("Failed to open GUI for " + adaptation.getName() + " for " + targetPlayer.getName() + " - No Permission, remove from blacklist!").send(sender());
+                            FConst.error("Failed to open GUI for " + adaptation.getName() + " for " + Objects.requireNonNull(targetPlayer).getName() + " - No Permission, remove from blacklist!").send(sender());
                         }
                         return;
                     }

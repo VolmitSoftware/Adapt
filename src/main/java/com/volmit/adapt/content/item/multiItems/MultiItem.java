@@ -30,6 +30,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -134,7 +135,7 @@ public interface MultiItem {
         ItemStack c = multi.clone();
         if (c.hasItemMeta()) {
             ItemMeta meta = c.getItemMeta();
-            meta.getPersistentDataContainer().remove(new NamespacedKey(Adapt.instance, getKey()));
+            Objects.requireNonNull(meta).getPersistentDataContainer().remove(new NamespacedKey(Adapt.instance, getKey()));
             c.setItemMeta(meta);
         }
 
@@ -144,7 +145,7 @@ public interface MultiItem {
     default MultiItemData getMultiItemData(ItemStack multi) {
         try {
             ItemMeta meta = multi.getItemMeta();
-            String st = meta.getPersistentDataContainer()
+            String st = Objects.requireNonNull(meta).getPersistentDataContainer()
                     .get(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING);
             return BukkitGson.gson.fromJson(st, MultiItemData.class);
         } catch (Throwable e) {
@@ -155,7 +156,7 @@ public interface MultiItem {
     default void setMultiItemData(ItemStack multi, MultiItemData data) {
         String s = BukkitGson.gson.toJson(data);
         ItemMeta meta = multi.getItemMeta();
-        meta.getPersistentDataContainer()
+        Objects.requireNonNull(meta).getPersistentDataContainer()
                 .set(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING, s);
         multi.setItemMeta(meta);
         meta = multi.getItemMeta();

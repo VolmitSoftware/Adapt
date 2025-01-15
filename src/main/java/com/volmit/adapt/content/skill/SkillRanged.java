@@ -36,6 +36,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     private final Map<Player, Long> cooldowns;
@@ -91,7 +92,7 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             if (e.getEntity() instanceof Snowball || e.getEntity() instanceof FishHook) {
                 return; // Ignore snowballs and fishing hooks
             }
-            if (e.getEntity().getLocation().getWorld().equals(p.getLocation().getWorld())) {
+            if (Objects.requireNonNull(e.getEntity().getLocation().getWorld()).equals(p.getLocation().getWorld())) {
                 getPlayer(p).getData().addStat("ranged.distance", e.getEntity().getLocation().distance(p.getLocation()));
                 getPlayer(p).getData().addStat("ranged.distance." + e.getDamager().getType().name().toLowerCase(Locale.ROOT), e.getEntity().getLocation().distance(p.getLocation()));
             }

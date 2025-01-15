@@ -411,7 +411,7 @@ public class JSONObject {
     }
 
     public static Writer quote(String string, Writer w) throws IOException {
-        if (string == null || string.length() == 0) {
+        if (string == null || string.isEmpty()) {
             w.write("\"\"");
             return w;
         }
@@ -562,7 +562,7 @@ public class JSONObject {
      * @throws JSONException If the value is or contains an invalid number.
      */
     public static String valueToString(Object value) throws JSONException {
-        if (value == null || value.equals(null)) {
+        if (value == null) {
             return "null";
         }
         if (value instanceof JSONString) {
@@ -572,10 +572,10 @@ public class JSONObject {
             } catch (Exception e) {
                 throw new JSONException(e);
             }
-            if (object instanceof String) {
+            if (object != null) {
                 return object;
             }
-            throw new JSONException("Bad value from toJSONString: " + object);
+            throw new JSONException("Bad value from toJSONString: " + null);
         }
         if (value instanceof Number) {
             return numberToString((Number) value);
@@ -644,7 +644,7 @@ public class JSONObject {
     }
 
     static void writeValue(Writer writer, Object value, int indentFactor, int indent) throws JSONException, IOException {
-        if (value == null || value.equals(null)) {
+        if (value == null) {
             writer.write("null");
         } else if (value instanceof JSONObject) {
             ((JSONObject) value).write(writer, indentFactor, indent);
@@ -1276,9 +1276,8 @@ public class JSONObject {
         Method[] methods = includeSuperClass ? klass.getMethods() : klass.getDeclaredMethods();
         for (Method value : methods) {
             try {
-                Method method = value;
-                if (Modifier.isPublic(method.getModifiers())) {
-                    String name = method.getName();
+                if (Modifier.isPublic(value.getModifiers())) {
+                    String name = value.getName();
                     String key = "";
                     if (name.startsWith("get")) {
                         if ("getClass".equals(name) || "getDeclaringClass".equals(name)) {
@@ -1289,14 +1288,14 @@ public class JSONObject {
                     } else if (name.startsWith("is")) {
                         key = name.substring(2);
                     }
-                    if (key.length() > 0 && Character.isUpperCase(key.charAt(0)) && method.getParameterTypes().length == 0) {
+                    if (!key.isEmpty() && Character.isUpperCase(key.charAt(0)) && value.getParameterTypes().length == 0) {
                         if (key.length() == 1) {
                             key = key.toLowerCase();
                         } else if (!Character.isUpperCase(key.charAt(1))) {
                             key = key.substring(0, 1).toLowerCase() + key.substring(1);
                         }
 
-                        Object result = method.invoke(bean, (Object[]) null);
+                        Object result = value.invoke(bean, (Object[]) null);
                         if (result != null) {
                             this.map.put(key, wrap(result));
                         }

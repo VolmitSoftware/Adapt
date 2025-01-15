@@ -3,7 +3,6 @@ package com.volmit.adapt.util.decree.handlers;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeParameterHandler;
 import com.volmit.adapt.util.decree.context.AdaptationListingHandler;
-import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 
 public class AdaptationListHandler implements DecreeParameterHandler<AdaptationListingHandler.AdaptationList> {
     @Override

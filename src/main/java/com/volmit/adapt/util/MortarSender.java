@@ -44,19 +44,16 @@ public class MortarSender implements CommandSender {
      * -- GETTER --
      *  Get the origin sender this object is wrapping
      *
-     * @return the command sender
      */
     private final CommandSender s;
     /**
      * -- GETTER --
      *  Get the command tag
-     *
+     * <p>
      *
      * -- SETTER --
      *  Set a command tag (prefix for sendMessage)
      *
-     @return the command tag
-      * @param tag the tag
      */
     @Setter
     private String tag;

@@ -50,7 +50,7 @@ public class Violator {
                 mx.append(",").append(i.getCanonicalName());
             }
 
-            mx = new StringBuilder(mx.length() >= 1 ? mx.substring(1) : mx.toString());
+            mx = new StringBuilder(!mx.isEmpty() ? mx.substring(1) : mx.toString());
 
             return id(co.getDeclaringClass(), null) + "(" + mx + ")";
         }
@@ -62,7 +62,7 @@ public class Violator {
                 mx.append(",").append(i.getCanonicalName());
             }
 
-            mx = new StringBuilder(mx.length() >= 1 ? mx.substring(1) : mx.toString());
+            mx = new StringBuilder(!mx.isEmpty() ? mx.substring(1) : mx.toString());
 
             return id(((Method) o).getDeclaringClass(), null) + "." + ((Method) o).getName() + "(" + mx + ")";
         }
@@ -93,7 +93,7 @@ public class Violator {
             mx.append(",").append(i.getCanonicalName());
         }
 
-        mx = new StringBuilder(mx.length() >= 1 ? mx.substring(1) : mx.toString());
+        mx = new StringBuilder(!mx.isEmpty() ? mx.substring(1) : mx.toString());
 
         if (h(id(c, null) + "(" + mx + ")")) {
             Constructor<?> co = c.getConstructor(params);
@@ -147,14 +147,14 @@ public class Violator {
     }
 
     public static Method getMethod(Class<?> c, String name, Class<?>... pars) throws Throwable {
-        String iv = "";
+        String iv;
         StringBuilder mx = new StringBuilder();
 
         for (Class<?> i : pars) {
             mx.append(",").append(i.getCanonicalName());
         }
 
-        mx = new StringBuilder(mx.length() >= 1 ? mx.substring(1) : mx.toString());
+        mx = new StringBuilder(!mx.isEmpty() ? mx.substring(1) : mx.toString());
         iv = id(c, null) + "." + name + "(" + mx + ")";
 
         if (h(iv)) {
@@ -185,14 +185,14 @@ public class Violator {
     }
 
     public static Method getDeclaredMethod(Class<?> c, String name, Class<?>... pars) throws Throwable {
-        String iv = "";
+        String iv;
         StringBuilder mx = new StringBuilder();
 
         for (Class<?> i : pars) {
             mx.append(",").append(i.getCanonicalName());
         }
 
-        mx = new StringBuilder(mx.length() >= 1 ? mx.substring(1) : mx.toString());
+        mx = new StringBuilder(!mx.isEmpty() ? mx.substring(1) : mx.toString());
         iv = id(c, null) + "." + name + "(" + mx + ")";
 
         if (h(iv)) {

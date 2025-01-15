@@ -26,6 +26,7 @@ import com.volmit.adapt.api.protection.Protector;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class GriefDefenderProtector implements Protector {
@@ -50,7 +51,7 @@ public class GriefDefenderProtector implements Protector {
     public boolean canPVP(Player player, Location entityLocation, Adaptation<?> adaptation) {
         final Claim claim = GriefDefender.getCore().getClaimAt(entityLocation);
         if (checkPerm(player, claim, adaptation)) {
-            return claim.isPvpAllowed();
+            return Objects.requireNonNull(claim).isPvpAllowed();
         }
         return false;
     }

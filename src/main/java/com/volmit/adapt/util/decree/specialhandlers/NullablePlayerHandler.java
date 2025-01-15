@@ -1,6 +1,5 @@
 package com.volmit.adapt.util.decree.specialhandlers;
 
-import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 import com.volmit.adapt.util.decree.handlers.PlayerHandler;
 import org.bukkit.entity.Player;
 

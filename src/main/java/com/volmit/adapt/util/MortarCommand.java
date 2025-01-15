@@ -91,8 +91,7 @@ public abstract class MortarCommand implements ICommand {
 
         for (MortarCommand i : getChildren()) {
             for (String j : i.getRequiredPermissions()) {
-                if (!sender.hasPermission(j)) {
-                }
+                sender.hasPermission(j);
             }
 
             b = true;

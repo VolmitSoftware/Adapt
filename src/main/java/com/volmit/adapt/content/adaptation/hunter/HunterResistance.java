@@ -78,7 +78,8 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
                     addPotionStacks(p, PotionEffectTypes.DAMAGE_RESISTANCE, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
                 }
             } else {
-                if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
+                getConfig();
+                if (Material.getMaterial(getConfig().consumable) != null) {
                     Material mat = Material.getMaterial(getConfig().consumable);
                     if (mat != null && p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));

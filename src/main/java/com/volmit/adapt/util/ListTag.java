@@ -35,7 +35,6 @@ public final class ListTag extends Tag {
      * -- GETTER --
      *  Gets the type of item in this list.
      *
-     * @return The type of item in this list.
 
      */
     @Getter

@@ -24,8 +24,6 @@ import org.bukkit.event.Listener;
 public interface AdaptService extends Listener {
     void onEnable();
 
-    void onDisable();
-
     default void postShutdown(Runnable r) {
         Adapt.instance.postShutdown(r);
     }

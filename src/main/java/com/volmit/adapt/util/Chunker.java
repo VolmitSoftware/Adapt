@@ -53,13 +53,13 @@ public class Chunker<T> {
 
         while (remaining > 0) {
             int at = remaining;
-            remaining -= (remaining > workload ? workload : remaining);
+            remaining -= (Math.min(remaining, workload));
             int to = remaining;
 
             executor.submit(() ->
             {
                 J.dofor(at, (i) -> i >= to, -1, (i) -> J.attempt(() -> consumer.accept(q.get(i))));
-                consumed.mod((c) -> c += workload);
+                consumed.mod((c) -> c + workload);
                 J.doif(() -> progress != null && cl.flip(), () -> progress.run((double) consumed.get() / (double) length));
             });
         }

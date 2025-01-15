@@ -43,25 +43,21 @@ public class Area {
     /**
      * -- GETTER --
      *  Get the defined center location
-     *
+     * <p>
      *
      * -- SETTER --
      *  Set the defined center location
      *
-     @return Returns the center location of the area
-      * @param location The new location to be set
      */
     private Location location;
     /**
      * -- GETTER --
      *  Gets the area's radius
-     *
+     * <p>
      *
      * -- SETTER --
      *  Set the area's radius
      *
-     @return Returns the area's radius
-      * @param radius The new radius to be set
      */
     private Double radius;
 

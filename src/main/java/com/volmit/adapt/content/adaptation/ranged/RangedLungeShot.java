@@ -32,6 +32,7 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     private final List<Integer> holds = new ArrayList<>();
@@ -67,7 +68,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
             if (e.getEntity() instanceof AbstractArrow a) {
                 if (hasAdaptation(p)) {
                     if (!p.isOnGround()) {
-                        Vector velocity = p.getPlayer().getLocation().getDirection().normalize().multiply(getSpeed(getLevelPercent(p)));
+                        Vector velocity = Objects.requireNonNull(p.getPlayer()).getLocation().getDirection().normalize().multiply(getSpeed(getLevelPercent(p)));
                         p.setVelocity(p.getVelocity().subtract(velocity));
                         SoundPlayer spw = SoundPlayer.of(p.getWorld());
                         spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_TURTLE, 1f, 0.75f);

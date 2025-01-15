@@ -32,6 +32,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.BlockVector;
 
 import java.util.List;
+import java.util.Objects;
 
 public class BlockVectorHandler implements DecreeParameterHandler<BlockVector> {
     @Override
@@ -81,12 +82,12 @@ public class BlockVectorHandler implements DecreeParameterHandler<BlockVector> {
                     throw new DecreeParsingException("You cannot specify look,cursor,crosshair as a console.");
                 }
 
-                return DecreeContext.get().player().getTargetBlockExact(256, FluidCollisionMode.NEVER).getLocation().toVector().toBlockVector();
+                return Objects.requireNonNull(DecreeContext.get().player().getTargetBlockExact(256, FluidCollisionMode.NEVER)).getLocation().toVector().toBlockVector();
             } else if (in.trim().toLowerCase().startsWith("player:")) {
                 String v = in.trim().split("\\Q:\\E")[1];
 
 
-                List<?> px = DecreeSystem.getHandler(Player.class).getPossibilities(v);
+                List<?> px = Objects.requireNonNull(DecreeSystem.getHandler(Player.class)).getPossibilities(v);
 
                 if (px != null && px.isNotEmpty()) {
                     return ((Player) px.get(0)).getLocation().toVector().toBlockVector();

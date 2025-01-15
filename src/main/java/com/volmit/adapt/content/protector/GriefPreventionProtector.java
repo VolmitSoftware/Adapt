@@ -53,12 +53,6 @@ public class GriefPreventionProtector implements Protector {
         return AdaptConfig.get().getProtectorSupport().isGriefprevention();
     }
 
-    @Override
-    public void unregister() {
-        Protector.super.unregister();
-    }
-
-
 
     private boolean canEditClaim(Player player, Location location) {
         Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null);
@@ -70,8 +64,7 @@ public class GriefPreventionProtector implements Protector {
         //If doesn't check is adminclaim getting ownerid return null
         if (!claim.isAdminClaim() && Objects.equals(claim.getOwnerID(), player.getUniqueId())) {
             return true;
-        }
-        else if (claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Build) {
+        } else if (claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Build) {
             return true;
         }
 
@@ -81,4 +74,3 @@ public class GriefPreventionProtector implements Protector {
 
 
 }
-

@@ -21,11 +21,13 @@ package com.volmit.adapt.api.data.unit;
 import art.arcane.spatial.matter.slices.RawMatter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 public record Earnings(int earnings) {

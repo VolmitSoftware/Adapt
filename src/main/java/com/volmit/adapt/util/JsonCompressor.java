@@ -198,7 +198,7 @@ public class JsonCompressor {
     byte[] unpack(byte[] sourceBytes, int bits) {
         byte[] resultBytes = new byte[sourceBytes.length * 8 / bits];
         int offset = 0;
-        int mask = 0;
+        int mask;
         if (bits == 6) {
             mask = 0x3f;
         } else if (bits == 7) {
@@ -277,7 +277,7 @@ public class JsonCompressor {
         Inflater inflater = new Inflater();
         inflater.setInput(deflated, 0, deflated.length);
         byte[] result = new byte[400];
-        int resultLength = 0;
+        int resultLength;
         try {
             inflater.inflate(result);
             inflater.setDictionary(prototypeCompact.getBytes());
@@ -387,7 +387,7 @@ public class JsonCompressor {
             aWalk = "+" + aWalk + "^";
         }
         pos = 0;
-        Object jsonObject = null;
+        Object jsonObject;
         try {
             jsonObject = readWalk();
         } catch (JSONException e) {

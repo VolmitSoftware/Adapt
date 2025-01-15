@@ -23,6 +23,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 /**
@@ -61,7 +62,7 @@ public class Items {
      */
     @SuppressWarnings("deprecation")
     public static boolean is(ItemStack is, MaterialBlock mb) {
-        return is(is, mb.getMaterial()) && is.getData().getData() == mb.getData();
+        return is(is, mb.getMaterial()) && Objects.requireNonNull(is.getData()).getData() == mb.getData();
     }
 
     /**
@@ -105,7 +106,7 @@ public class Items {
      * @return true if it has a name
      */
     public static boolean hasName(ItemStack is) {
-        return hasMeta(is) && is.getItemMeta().hasDisplayName();
+        return hasMeta(is) && Objects.requireNonNull(is.getItemMeta()).hasDisplayName();
     }
 
     /**
@@ -115,7 +116,7 @@ public class Items {
      * @return true if it does
      */
     public static boolean hasLore(ItemStack is) {
-        return hasMeta(is) && is.getItemMeta().hasLore();
+        return hasMeta(is) && Objects.requireNonNull(is.getItemMeta()).hasLore();
     }
 
     /**
@@ -126,7 +127,7 @@ public class Items {
      * @return true if it has the name
      */
     public static boolean hasName(ItemStack is, String name) {
-        return hasName(is) && is.getItemMeta().getDisplayName().equals(name);
+        return hasName(is) && Objects.requireNonNull(is.getItemMeta()).getDisplayName().equals(name);
     }
 
 
@@ -180,7 +181,7 @@ public class Items {
     @SuppressWarnings("deprecation")
     public static MaterialBlock toMaterialBlock(ItemStack is) {
         if (is != null) {
-            return new MaterialBlock(is.getType(), is.getData().getData());
+            return new MaterialBlock(is.getType(), Objects.requireNonNull(is.getData()).getData());
         }
 
         return null;
@@ -235,7 +236,7 @@ public class Items {
             return;
         }
 
-        pc = (pc > 1.0 ? 1.0 : (pc < 0.0 ? 0.0 : pc));
+        pc = (pc > 1.0 ? 1.0 : (Math.max(pc, 0.0)));
 
         if (getDurability(is) == 0) {
             return;
@@ -328,7 +329,7 @@ public class Items {
                 return false;
             }
 
-            if (a.getData().getData() != b.getData().getData()) {
+            if (Objects.requireNonNull(a.getData()).getData() != Objects.requireNonNull(b.getData()).getData()) {
                 return false;
             }
 
@@ -341,11 +342,11 @@ public class Items {
             }
 
             if (a.hasItemMeta()) {
-                if (!a.getItemMeta().getDisplayName().equals(b.getItemMeta().getDisplayName())) {
+                if (!Objects.requireNonNull(a.getItemMeta()).getDisplayName().equals(Objects.requireNonNull(b.getItemMeta()).getDisplayName())) {
                     return false;
                 }
 
-                if (!new ArrayList<>(a.getItemMeta().getLore()).equals(new ArrayList<>(b.getItemMeta().getLore()))) {
+                if (!new ArrayList<>(Objects.requireNonNull(a.getItemMeta().getLore())).equals(new ArrayList<>(Objects.requireNonNull(b.getItemMeta().getLore())))) {
                     return false;
                 }
             }

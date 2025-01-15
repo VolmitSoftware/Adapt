@@ -445,35 +445,19 @@ public abstract class Tuple4f implements java.io.Serializable, Cloneable {
     public final void clamp(float min, float max, Tuple4f t) {
         if (t.x > max) {
             x = max;
-        } else if (t.x < min) {
-            x = min;
-        } else {
-            x = t.x;
-        }
+        } else x = Math.max(t.x, min);
 
         if (t.y > max) {
             y = max;
-        } else if (t.y < min) {
-            y = min;
-        } else {
-            y = t.y;
-        }
+        } else y = Math.max(t.y, min);
 
         if (t.z > max) {
             z = max;
-        } else if (t.z < min) {
-            z = min;
-        } else {
-            z = t.z;
-        }
+        } else z = Math.max(t.z, min);
 
         if (t.w > max) {
             w = max;
-        } else if (t.w < min) {
-            w = min;
-        } else {
-            w = t.w;
-        }
+        } else w = Math.max(t.w, min);
 
     }
 
@@ -486,29 +470,13 @@ public abstract class Tuple4f implements java.io.Serializable, Cloneable {
      * @param t   the source tuple, which will not be modified
      */
     public final void clampMin(float min, Tuple4f t) {
-        if (t.x < min) {
-            x = min;
-        } else {
-            x = t.x;
-        }
+        x = Math.max(t.x, min);
 
-        if (t.y < min) {
-            y = min;
-        } else {
-            y = t.y;
-        }
+        y = Math.max(t.y, min);
 
-        if (t.z < min) {
-            z = min;
-        } else {
-            z = t.z;
-        }
+        z = Math.max(t.z, min);
 
-        if (t.w < min) {
-            w = min;
-        } else {
-            w = t.w;
-        }
+        w = Math.max(t.w, min);
 
 
     }
@@ -522,23 +490,11 @@ public abstract class Tuple4f implements java.io.Serializable, Cloneable {
      * @param t   the source tuple, which will not be modified
      */
     public final void clampMax(float max, Tuple4f t) {
-        if (t.x > max) {
-            x = max;
-        } else {
-            x = t.x;
-        }
+        x = Math.min(t.x, max);
 
-        if (t.y > max) {
-            y = max;
-        } else {
-            y = t.y;
-        }
+        y = Math.min(t.y, max);
 
-        if (t.z > max) {
-            z = max;
-        } else {
-            z = t.z;
-        }
+        z = Math.min(t.z, max);
 
         if (t.w > max) {
             w = max;

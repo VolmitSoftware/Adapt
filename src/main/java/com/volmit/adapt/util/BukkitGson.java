@@ -27,6 +27,8 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
+import java.util.Objects;
+
 public class BukkitGson {
     public static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(World.class, (JsonSerializer<World>) (world, type, s) -> s.serialize(world.getName()))
@@ -35,7 +37,7 @@ public class BukkitGson {
             .registerTypeAdapter(BlockData.class, (JsonDeserializer<BlockData>) (j, type, d) -> Bukkit.createBlockData(j.getAsString()))
             .registerTypeAdapter(Location.class, (JsonSerializer<Location>) (data, type, s) -> {
                 JsonArray a = new JsonArray();
-                a.add(data.getWorld().getName());
+                a.add(Objects.requireNonNull(data.getWorld()).getName());
                 a.add(truncate(data.getX()));
                 a.add(truncate(data.getY()));
                 a.add(truncate(data.getZ()));

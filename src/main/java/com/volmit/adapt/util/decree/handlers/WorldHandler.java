@@ -26,7 +26,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class WorldHandler implements DecreeParameterHandler<World> {
     @Override
