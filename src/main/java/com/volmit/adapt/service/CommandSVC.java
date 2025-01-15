@@ -30,7 +30,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -62,12 +61,8 @@ public class CommandSVC implements AdaptService, DecreeSystem {
 
     @EventHandler
     public void on(ServerCommandEvent e) {
-        if (consoleFuture != null && !consoleFuture.isCancelled() && !consoleFuture.isDone()) {
-            if (!e.getCommand().contains(" ")) {
-                String pick = e.getCommand().trim().toLowerCase(Locale.ROOT);
-                consoleFuture.complete(pick);
-                e.setCancelled(true);
-            }
+        if (consoleFuture != null && !consoleFuture.isCancelled()) {
+            consoleFuture.isDone();
         }
     }
 
