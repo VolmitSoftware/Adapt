@@ -36,6 +36,7 @@ import com.volmit.adapt.util.decree.DecreeParameter;
 import com.volmit.adapt.util.decree.annotations.Decree;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 import lombok.Data;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -171,14 +172,14 @@ public class VirtualDecreeCommand {
         return node != null;
     }
 
-    public KList<String> tabComplete(List<String> args, String raw) {
+    public KList<String> tabComplete(List<String> args) {
         KList<Integer> skip = new KList<>();
         KList<String> tabs = new KList<>();
-        invokeTabComplete(args, skip, tabs, raw);
+        invokeTabComplete(args, skip, tabs);
         return tabs;
     }
 
-    private boolean invokeTabComplete(List<String> args, List<Integer> skip, List<String> tabs, String raw) {
+    private boolean invokeTabComplete(List<String> args, List<Integer> skip, List<String> tabs) {
         if (isNode()) {
             tab(args, tabs);
             skip.add(hashCode());
@@ -197,7 +198,7 @@ public class VirtualDecreeCommand {
 
             if (match != null) {
                 args.pop();
-                return match.invokeTabComplete(args, skip, tabs, raw);
+                return match.invokeTabComplete(args, skip, tabs);
             }
 
             skip.add(hashCode());
@@ -282,41 +283,16 @@ public class VirtualDecreeCommand {
      */
     private KMap<String, Object> map(VolmitSender sender, List<String> in) {
         KMap<String, Object> data = new KMap<>();
-        List<Integer> nowhich = new ArrayList<>();
 
         List<String> unknownInputs = in.stream().filter(s -> !s.contains("=")).collect(Collectors.toList());
-        List<String> knownInputs = in.stream().filter(s -> s.contains("=")).collect(Collectors.toList());
+        List<String> knownInputs = in.stream().filter(s -> s.contains("=")).toList();
 
         //Loop known inputs
         for (String stringParam : knownInputs) {
-            int original = in.indexOf(stringParam);
-
             String[] v = stringParam.split("\\Q=\\E");
             String key = v[0];
             String value = v[1];
-            DecreeParameter param = null;
-
-            //Find decree parameter from string param
-            for (DecreeParameter j : getNode().getParameters()) {
-                for (String k : j.getNames()) {
-                    if (k.equalsIgnoreCase(key)) {
-                        param = j;
-                        break;
-                    }
-                }
-            }
-
-            //If it failed, see if we can find it by checking if the names contain the param
-            if (param == null) {
-                for (DecreeParameter j : getNode().getParameters()) {
-                    for (String k : j.getNames()) {
-                        if (k.toLowerCase().contains(key.toLowerCase()) || key.toLowerCase().contains(k.toLowerCase())) {
-                            param = j;
-                            break;
-                        }
-                    }
-                }
-            }
+            DecreeParameter param = getDecreeParameter(key);
 
             //Still failed to find, error them
             if (param == null) {
@@ -344,7 +320,6 @@ public class VirtualDecreeCommand {
         //Loop Unknown inputs
         for (int x = 0; x < unknownInputs.size(); x++) {
             String stringParam = unknownInputs.get(x);
-            int original = in.indexOf(stringParam);
             try {
                 DecreeParameter par = decreeParameters.get(x);
 
@@ -362,6 +337,33 @@ public class VirtualDecreeCommand {
         }
 
         return data;
+    }
+
+    private @Nullable DecreeParameter getDecreeParameter(String key) {
+        DecreeParameter param = null;
+
+        //Find decree parameter from string param
+        for (DecreeParameter j : getNode().getParameters()) {
+            for (String k : j.getNames()) {
+                if (k.equalsIgnoreCase(key)) {
+                    param = j;
+                    break;
+                }
+            }
+        }
+
+        //If it failed, see if we can find it by checking if the names contain the param
+        if (param == null) {
+            for (DecreeParameter j : getNode().getParameters()) {
+                for (String k : j.getNames()) {
+                    if (k.toLowerCase().contains(key.toLowerCase()) || key.toLowerCase().contains(k.toLowerCase())) {
+                        param = j;
+                        break;
+                    }
+                }
+            }
+        }
+        return param;
     }
 
     public boolean invoke(VolmitSender sender, List<String> realArgs) {
@@ -481,30 +483,6 @@ public class VirtualDecreeCommand {
         }
 
         return true;
-    }
-
-    public KList<VirtualDecreeCommand> matchAllNodes(String in) {
-        KList<VirtualDecreeCommand> g = new KList<>();
-
-        if (in.trim().isEmpty()) {
-            g.addAll(nodes);
-            return g;
-        }
-
-        for (VirtualDecreeCommand i : nodes) {
-            if (i.matches(in)) {
-                g.add(i);
-            }
-        }
-
-        for (VirtualDecreeCommand i : nodes) {
-            if (i.deepMatches(in)) {
-                g.add(i);
-            }
-        }
-
-        g.removeDuplicates();
-        return g;
     }
 
     public VirtualDecreeCommand matchNode(String in, List<Integer> skip) {

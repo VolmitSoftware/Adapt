@@ -71,7 +71,6 @@ public interface DecreeSystem extends CommandExecutor, TabCompleter {
         for (int x = 0; x < flat.length(); x++) {
             char i = flat.charAt(x);
             char j = x < flat.length() - 1 ? flat.charAt(x + 1) : i;
-            boolean hasNext = true;
 
             if (i == ' ' && !quoting) {
                 if (!arg.toString().trim().isEmpty() && trim) {
@@ -133,7 +132,7 @@ public interface DecreeSystem extends CommandExecutor, TabCompleter {
     @Override
     default List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         List<String> enhanced = new ArrayList<>(List.of(args));
-        KList<String> v = getRoot().tabComplete(enhanced, enhanced.toString(" "));
+        KList<String> v = getRoot().tabComplete(enhanced);
         v.removeDuplicates();
 
         if (sender instanceof Player p) {
