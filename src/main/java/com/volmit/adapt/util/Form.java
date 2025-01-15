@@ -18,12 +18,13 @@
 
 package com.volmit.adapt.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,23 +61,6 @@ public class Form {
         if (NF == null) {
             NF = NumberFormat.getInstance(Locale.US);
         }
-    }
-
-    /**
-     * Scroll text
-     *
-     * @param smx      the text
-     * @param viewport the viewport length
-     * @param time     the timeline value
-     */
-    public static String scroll(String smx, int viewport, long time) {
-        String src = Form.repeat(" ", viewport) + smx + Form.repeat(" ", viewport);
-        int len = src.length();
-        int walk = (int) (time % (len - viewport));
-        String base = src.substring(walk, M.min(walk + viewport, len - 1));
-        base = base.length() < viewport ? base + Form.repeat(" ", (viewport - base.length()) - 3) : base;
-
-        return base;
     }
 
     /**
@@ -118,17 +102,6 @@ public class Form {
     }
 
     /**
-     * Hard word wrap
-     *
-     * @param s   the words
-     * @param len the length per line
-     * @return the wrapped string
-     */
-    public static String wrap(String s, int len) {
-        return wrap(s, len, null, false);
-    }
-
-    /**
      * Soft Word wrap
      *
      * @param s   the string
@@ -157,7 +130,7 @@ public class Form {
     }
 
     public static String wrapPrefixed(String s, String pref, int len, String newLineSep, boolean soft) {
-        return pref + wrapPrefixed(s, pref, len, newLineSep, soft, " ").replaceAll("\\Q\n\\E", "\n" + pref);
+        return pref + wrapPrefixed(s, len, newLineSep, soft, " ").replaceAll("\\Q\n\\E", "\n" + pref);
     }
 
     /**
@@ -241,7 +214,7 @@ public class Form {
         }
     }
 
-    public static String wrapPrefixed(String s, String pref, int len, String newLineSep, boolean soft, String regex) {
+    public static String wrapPrefixed(String s, int len, String newLineSep, boolean soft, String regex) {
         if (s == null) {
             return null;
         } else {
@@ -312,212 +285,6 @@ public class Form {
         }
     }
 
-    /**
-     * Returns a fancy duration up to Years
-     *
-     * @param duration the duration in ms
-     * @return the fancy duration
-     */
-    public static String duration(RollingSequence rollingSequence, long duration) {
-        String suffix;
-        double phantom = duration;
-        int div = 1000;
-
-        if (phantom > div) {
-            phantom /= div;
-            suffix = "Second";
-            div = 60;
-
-            if (phantom > div) {
-                phantom /= div;
-                suffix = "Minute";
-
-                if (phantom > div) {
-                    phantom /= div;
-                    suffix = "Hour";
-                    div = 24;
-
-                    if (phantom > 24) {
-                        phantom /= div;
-                        suffix = "Day";
-                        div = 7;
-
-                        if (phantom > div) {
-                            phantom /= div;
-                            suffix = "Week";
-                            div = 4;
-
-                            if (phantom > div) {
-                                phantom /= div;
-                                suffix = "Month";
-                                div = 12;
-
-                                if (phantom > div) {
-                                    phantom /= div;
-                                    suffix = "Year";
-                                }
-                            }
-                            return Form.fd(phantom, 0) + " " + suffix + ((int) phantom == 1 ? "" : "s");
-                        } else {
-                            return Form.fd(phantom, 0) + " " + suffix + ((int) phantom == 1 ? "" : "s");
-                        }
-                    } else {
-                        return Form.fd(phantom, 0) + " " + suffix + ((int) phantom == 1 ? "" : "s");
-                    }
-                } else {
-                    return Form.fd(phantom, 0) + " " + suffix + ((int) phantom == 1 ? "" : "s");
-                }
-            } else {
-                return Form.fd(phantom, 0) + " " + suffix + ((int) phantom == 1 ? "" : "s");
-            }
-        } else {
-            return "Under a Second";
-        }
-    }
-
-    /**
-     * Fixes the minute issue with formatting
-     *
-     * @param c the calendar
-     * @return the minute string
-     */
-    public static String fmin(Calendar c) {
-        String s = c.get(Calendar.MINUTE) + "";
-        if (s.length() == 1) {
-            return "0" + s;
-        }
-
-        return s;
-    }
-
-    /**
-     * Get a fancy time stamp
-     *
-     * @param time the stamp in time (ago)
-     * @return the fancy stamp in time (ago)
-     */
-    public static String ago(long time) {
-        long current = M.ms();
-
-        if (time > current - TimeUnit.SECONDS.toMillis(30) && time < current) {
-            return "Just Now";
-        } else if (time > current - TimeUnit.SECONDS.toMillis(60) && time < current) {
-            return "Seconds Ago";
-        } else if (time > current - TimeUnit.MINUTES.toMillis(10) && time < current) {
-            return "Minutes Ago";
-        } else {
-            Calendar now = Calendar.getInstance();
-            Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(time);
-            boolean sameYear = now.get(Calendar.YEAR) == c.get(Calendar.YEAR);
-            boolean sameDay = now.get(Calendar.DAY_OF_YEAR) == c.get(Calendar.DAY_OF_YEAR);
-
-            if (sameDay) {
-                int h = c.get(Calendar.HOUR);
-                h = h == 0 ? 12 : h;
-
-                return "Today at " + h + ":" + fmin(c) + " " + (c.get(Calendar.AM_PM) == Calendar.PM ? "PM" : "AM");
-            } else if (sameYear) {
-                boolean yesterday = now.get(Calendar.DAY_OF_YEAR) - 1 == c.get(Calendar.DAY_OF_YEAR);
-
-                if (yesterday) {
-                    int h = c.get(Calendar.HOUR);
-                    h = h == 0 ? 12 : h;
-
-                    return "Yesterday at " + h + ":" + fmin(c) + " " + (c.get(Calendar.AM_PM) == Calendar.PM ? "PM" : "AM");
-                } else {
-                    int h = c.get(Calendar.HOUR);
-                    h = h == 0 ? 12 : h;
-                    String dow = switch (c.get(Calendar.DAY_OF_WEEK)) {
-                        case Calendar.SUNDAY -> "Sunday";
-                        case Calendar.MONDAY -> "Monday";
-                        case Calendar.TUESDAY -> "Tuesday";
-                        case Calendar.WEDNESDAY -> "Wednesday";
-                        case Calendar.THURSDAY -> "Thursday";
-                        case Calendar.FRIDAY -> "Friday";
-                        case Calendar.SATURDAY -> "Saturday";
-                        default -> "Error Day";
-                    };
-
-                    String monthName = "Error Month";
-                    int month = c.get(Calendar.MONTH);
-
-                    monthName = switch (month) {
-                        case Calendar.JANUARY -> "Jan";
-                        case Calendar.FEBRUARY -> "Feb";
-                        case Calendar.MARCH -> "Mar";
-                        case Calendar.APRIL -> "Apr";
-                        case Calendar.MAY -> "May";
-                        case Calendar.JUNE -> "Jun";
-                        case Calendar.JULY -> "Jul";
-                        case Calendar.AUGUST -> "Aug";
-                        case Calendar.SEPTEMBER -> "Sep";
-                        case Calendar.OCTOBER -> "Oct";
-                        case Calendar.NOVEMBER -> "Nov";
-                        case Calendar.DECEMBER -> "Dec";
-                        default -> monthName;
-                    };
-
-                    int dayOfMonth = c.get(Calendar.DAY_OF_MONTH);
-                    String suffix = numberSuffix(dayOfMonth);
-
-                    return dow + ", " + monthName + " " + suffix + " at " + h + ":" + fmin(c) + " " + (c.get(Calendar.AM_PM) == Calendar.PM ? "PM" : "AM");
-                }
-            } else {
-                int h = c.get(Calendar.HOUR);
-                h = h == 0 ? 12 : h;
-                String dow = switch (c.get(Calendar.DAY_OF_WEEK)) {
-                    case Calendar.SUNDAY -> "Sunday";
-                    case Calendar.MONDAY -> "Monday";
-                    case Calendar.TUESDAY -> "Tuesday";
-                    case Calendar.WEDNESDAY -> "Wednesday";
-                    case Calendar.THURSDAY -> "Thursday";
-                    case Calendar.FRIDAY -> "Friday";
-                    case Calendar.SATURDAY -> "Saturday";
-                    default -> "Error Day";
-                };
-
-                String monthName = "Error Month";
-                int month = c.get(Calendar.MONTH);
-
-                monthName = switch (month) {
-                    case Calendar.JANUARY -> "Jan";
-                    case Calendar.FEBRUARY -> "Feb";
-                    case Calendar.MARCH -> "Mar";
-                    case Calendar.APRIL -> "Apr";
-                    case Calendar.MAY -> "May";
-                    case Calendar.JUNE -> "Jun";
-                    case Calendar.JULY -> "Jul";
-                    case Calendar.AUGUST -> "Aug";
-                    case Calendar.SEPTEMBER -> "Sep";
-                    case Calendar.OCTOBER -> "Oct";
-                    case Calendar.NOVEMBER -> "Nov";
-                    case Calendar.DECEMBER -> "Dec";
-                    default -> monthName;
-                };
-
-                int dayOfMonth = c.get(Calendar.DAY_OF_MONTH);
-                String suffix = numberSuffix(dayOfMonth);
-                int year = c.get(Calendar.YEAR);
-
-                return year + ", " + dow + ", " + monthName + " " + suffix + " at " + h + ":" + fmin(c) + " " + (c.get(Calendar.AM_PM) == Calendar.PM ? "PM" : "AM");
-            }
-        }
-    }
-
-    /**
-     * Get the suffix for a number i.e. 1st 2nd 3rd
-     *
-     * @param i the number
-     * @return the suffix
-     */
-    public static String numberSuffix(int i) {
-        String[] sufixes = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
-        return switch (i % 100) {
-            case 11, 12, 13 -> i + "th";
-            default -> i + sufixes[i % 10];
-        };
-    }
 
     /**
      * Get a high accuracy but limited range duration (accurate up to a couple of
@@ -540,6 +307,11 @@ public class Form {
             return Form.f(ms / 1000.0 / 60.0, prec) + "m";
         }
 
+        return getString(ms, prec, Form.f(ms, prec));
+    }
+
+    @NotNull
+    private static String getString(double ms, int prec, String f) {
         if (ms / 1000.0 / 60.0 / 60.0 < 24.0) {
             return Form.f(ms / 1000.0 / 60.0 / 60.0, prec) + " hours";
         }
@@ -548,7 +320,7 @@ public class Form {
             return Form.f(ms / 1000.0 / 60.0 / 24.0, prec) + " days";
         }
 
-        return Form.f(ms, prec) + "ms";
+        return f + "ms";
     }
 
     public static String duration(long ms) {
@@ -575,15 +347,7 @@ public class Form {
             return Form.f(ms / 1000.0 / 60.0, prec) + " minutes";
         }
 
-        if (ms / 1000.0 / 60.0 / 60.0 < 24.0) {
-            return Form.f(ms / 1000.0 / 60.0 / 60.0, prec) + " hours";
-        }
-
-        if (ms / 1000.0 / 60.0 / 60.0 / 24.0 < 7) {
-            return Form.f(ms / 1000.0 / 60.0 / 24.0, prec) + " days";
-        }
-
-        return Form.f(ms, prec) + "ms";
+        return getString(ms, prec, Form.f(ms, prec));
     }
 
     /**
@@ -642,17 +406,6 @@ public class Form {
     }
 
     /**
-     * Calculate a fancy string representation of a file size. Adds a suffix of B,
-     * KB, MB, GB, or TB
-     *
-     * @param s the size (in bytes)
-     * @return the string
-     */
-    public static String fileSize(long s) {
-        return ofSize(s, 1000);
-    }
-
-    /**
      * ":", "a", "b", "c" -> a:b:c
      *
      * @param splitter the splitter that goes in between
@@ -671,172 +424,6 @@ public class Form {
     }
 
     /**
-     * Calculate a fancy string representation of a file size. Adds a suffix of B,
-     * KB, MB, GB, or TB
-     *
-     * @param s the size (in bytes)
-     * @return the string
-     */
-    public static String memSize(long s) {
-        return ofSize(s, 1024);
-    }
-
-    public static String memSize(long s, int dec) {
-        return ofSize(s, 1024, dec);
-    }
-
-    /**
-     * Get the timestamp of the time t (ms since 1970)
-     *
-     * @param t the time
-     * @return the stamp
-     */
-    @SuppressWarnings("deprecation")
-    public static String stamp(long t) {
-        Date d = new Date(t);
-        return d.getMonth() + "-" + d.getDate() + "-" + (d.getYear() + 1900) + " " + d.getHours() + "h " + d.getMinutes() + "m " + d.getSeconds() + "s ";
-    }
-
-    @SuppressWarnings("deprecation")
-    public static String stampTime(long t) {
-        Date d = new Date(t);
-
-        return Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + ":" + forceDoubleDigit(d.getMinutes()) + ":" + forceDoubleDigit(d.getSeconds());
-    }
-
-    public static String forceDoubleDigit(int dig) {
-        if (dig < 10) {
-            return "0" + dig;
-        }
-
-        return dig + "";
-    }
-
-    @SuppressWarnings("deprecation")
-    public static String stampDay(long t) {
-        Date d = new Date(t);
-        return d.getMonth() + "-" + d.getDate() + "-" + (d.getYear() + 1900);
-    }
-
-    /**
-     * Calculate a fancy string representation of a size in B, KB, MB, GB, or TB
-     * with a special divisor. The divisor decides how much goes up in the suffix
-     * chain.
-     *
-     * @param s   the size (in bytes)
-     * @param div the divisor
-     * @return the string
-     */
-    public static String ofSize(long s, int div) {
-        double d = (double) s;
-        String sub = "Bytes";
-
-        if (d > div - 1) {
-            d /= div;
-            sub = "KB";
-
-            if (d > div - 1) {
-                d /= div;
-                sub = "MB";
-
-                if (d > div - 1) {
-                    d /= div;
-                    sub = "GB";
-
-                    if (d > div - 1) {
-                        d /= div;
-                        sub = "TB";
-                    }
-                }
-            }
-        }
-
-        if (sub.equals("GB") || sub.equals("TB")) {
-            return Form.f(d, 1) + sub;
-        } else {
-            return Form.f(d, 0) + sub;
-        }
-    }
-
-    /**
-     * Calculate a fancy string representation of a size in B, KB, MB, GB, or TB
-     * with a special divisor. The divisor decides how much goes up in the suffix
-     * chain.
-     *
-     * @param s   the size (in bytes)
-     * @param div the divisor
-     * @param dec the decimal places
-     * @return the string
-     */
-    public static String ofSize(long s, int div, int dec) {
-        double d = (double) s;
-        String sub = "Bytes";
-
-        if (d > div - 1) {
-            d /= div;
-            sub = "KB";
-
-            if (d > div - 1) {
-                d /= div;
-                sub = "MB";
-
-                if (d > div - 1) {
-                    d /= div;
-                    sub = "GB";
-
-                    if (d > div - 1) {
-                        d /= div;
-                        sub = "TB";
-                    }
-                }
-            }
-        }
-
-        return Form.f(d, dec) + " " + sub;
-    }
-
-    /**
-     * Calculate a fancy string representation of a size in Grams, KG, MG, GG, TG
-     * with a special divisor. The divisor decides how much goes up in the suffix
-     * chain.
-     *
-     * @param s   the size (in bytes)
-     * @param div the divisor
-     * @param dec the decimal places
-     * @return the string
-     */
-    public static String ofSizeMetricWeight(long s, int div, int dec) {
-        boolean neg = s < 0;
-        if (neg) {
-            s = -s;
-        }
-        double d = (double) s;
-        String sub = "Grams";
-
-        if (d > div - 1) {
-            d /= div;
-            sub = "KG";
-
-            if (d > div - 1) {
-                d /= div;
-                sub = "MG";
-
-                if (d > div - 1) {
-                    d /= div;
-                    sub = "GG";
-
-                    if (d > div - 1) {
-                        d /= div;
-                        sub = "TG";
-                    }
-                }
-            }
-        }
-
-        return (neg ? "-" : "") + Form.f(d, dec) + " " + sub;
-    }
-
-    /**
      * Trim a string to a length, then append ... at the end if it extends the limit
      *
      * @param s the string
@@ -849,67 +436,6 @@ public class Form {
         }
 
         return s.substring(0, l) + "...";
-    }
-
-    /**
-     * Get a class name into a configuration/filename key For example,
-     * 'PhantomController.class' is converted to phantom-controller
-     *
-     * @param clazz the class
-     * @return the string representation
-     */
-    public static String cname(String clazz) {
-        StringBuilder codeName = new StringBuilder();
-
-        for (Character i : clazz.toCharArray()) {
-            if (Character.isUpperCase(i)) {
-                codeName.append("-").append(Character.toLowerCase(i));
-            } else {
-                codeName.append(i);
-            }
-        }
-
-        if (codeName.toString().startsWith("-")) {
-            codeName = new StringBuilder(codeName.substring(1));
-        }
-
-        return codeName.toString();
-    }
-
-    /**
-     * Get a formatted representation of the memory given in megabytes
-     *
-     * @param mb the megabytes
-     * @return the string representation with suffixes
-     */
-    public static String mem(long mb) {
-        if (mb < 1024) {
-            return f(mb) + " MB";
-        } else {
-            return f(((double) mb / (double) 1024), 1) + " GB";
-        }
-    }
-
-    /**
-     * Get a formatted representation of the memory given in kilobytes
-     *
-     * @param kb the kilobytes
-     * @return the string representation with suffixes
-     */
-    public static String memx(long kb) {
-        if (kb < 1024) {
-            return fd(kb, 2) + " KB";
-        } else {
-            double mb = (double) kb / 1024.0;
-
-            if (mb < 1024) {
-                return fd(mb, 2) + " MB";
-            } else {
-                double gb = mb / 1024.0;
-
-                return fd(gb, 2) + " GB";
-            }
-        }
     }
 
     /**
@@ -946,27 +472,6 @@ public class Form {
 
         if (p > 0) {
             form = form + "." + repeat("#", p);
-        }
-
-        DF = new DecimalFormat(form);
-
-        return DF.format(i);
-    }
-
-    /**
-     * Formats a double's decimals to a limit, however, this will add zeros to the
-     * decimal places that don't need to be placed down. 2.4343 formatted with 6
-     * decimals gets returned as 2.434300
-     *
-     * @param i the double
-     * @param p the number of decimal places to use
-     * @return the formated string
-     */
-    public static String fd(double i, int p) {
-        String form = "0";
-
-        if (p > 0) {
-            form = form + "." + repeat("0", p);
         }
 
         DF = new DecimalFormat(form);
@@ -1104,56 +609,6 @@ public class Form {
     }
 
     /**
-     * Milliseconds to seconds (double)
-     *
-     * @param ms the milliseconds
-     * @return a formatted string to milliseconds
-     */
-    public static String msSeconds(long ms) {
-        return f((double) ms / 1000.0);
-    }
-
-    /**
-     * Milliseconds to seconds (double) custom decimals
-     *
-     * @param ms the milliseconds
-     * @param p  number of decimal points
-     * @return a formatted string to milliseconds
-     */
-    public static String msSeconds(long ms, int p) {
-        return f((double) ms / 1000.0, p);
-    }
-
-    /**
-     * nanoseconds to seconds (double)
-     *
-     * @return a formatted string to nanoseconds
-     */
-    public static String nsMs(long ns) {
-        return f((double) ns / 1000000.0);
-    }
-
-    /**
-     * nanoseconds to seconds (double) custom decimals
-     *
-     * @param p number of decimal points
-     * @return a formatted string to nanoseconds
-     */
-    public static String nsMs(long ns, int p) {
-        return f((double) ns / 1000000.0, p);
-    }
-
-    /**
-     * nanoseconds to seconds (double) custom decimals
-     *
-     * @param p number of decimal points
-     * @return a formatted string to nanoseconds
-     */
-    public static String nsMsd(long ns, int p) {
-        return fd((double) ns / 1000000.0, p);
-    }
-
-    /**
      * Get roman numeral representation of the int
      *
      * @param num the int
@@ -1171,74 +626,6 @@ public class Form {
         }
 
         return res.toString();
-    }
-
-    /**
-     * Get the number representation from roman numerals.
-     *
-     * @param number the roman number
-     * @return the int representation
-     */
-    public static int fromRoman(String number) {
-        if (number.isEmpty()) {
-            return 0;
-        }
-
-        number = number.toUpperCase();
-
-        if (number.startsWith("M")) {
-            return 1000 + fromRoman(number.substring(1));
-        }
-
-        if (number.startsWith("CM")) {
-            return 900 + fromRoman(number.substring(2));
-        }
-
-        if (number.startsWith("D")) {
-            return 500 + fromRoman(number.substring(1));
-        }
-
-        if (number.startsWith("CD")) {
-            return 400 + fromRoman(number.substring(2));
-        }
-
-        if (number.startsWith("C")) {
-            return 100 + fromRoman(number.substring(1));
-        }
-
-        if (number.startsWith("XC")) {
-            return 90 + fromRoman(number.substring(2));
-        }
-
-        if (number.startsWith("L")) {
-            return 50 + fromRoman(number.substring(1));
-        }
-
-        if (number.startsWith("XL")) {
-            return 40 + fromRoman(number.substring(2));
-        }
-
-        if (number.startsWith("X")) {
-            return 10 + fromRoman(number.substring(1));
-        }
-
-        if (number.startsWith("IX")) {
-            return 9 + fromRoman(number.substring(2));
-        }
-
-        if (number.startsWith("V")) {
-            return 5 + fromRoman(number.substring(1));
-        }
-
-        if (number.startsWith("IV")) {
-            return 4 + fromRoman(number.substring(2));
-        }
-
-        if (number.startsWith("I")) {
-            return 1 + fromRoman(number.substring(1));
-        }
-
-        return 0;
     }
 
     /**
