@@ -41,6 +41,5 @@ body:
       description: What alternatives have you considered?
       value: plugins... commands...
   - type: markdown
-    id: thanks
     attributes:
       value: "Thank you for filling out the form! We read it soon.."

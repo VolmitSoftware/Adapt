@@ -33,10 +33,10 @@ body:
       label: Minecraft Version
       description: What version of Minecraft is the server on?
       options:
-        - 1.19.2
-        - 1.20
-        - 1.21
-        - 1.22
+        - '1.19.2'
+        - '1.20'
+        - '1.21'
+        - '1.22'
     validations:
       required: true
   - type: input
@@ -56,6 +56,5 @@ body:
     validations:
       required: true
   - type: markdown
-    id: thanks
     attributes:
       value: "Thank you for filling out the form! We will be with you soon. Please do not ask support to review your report."

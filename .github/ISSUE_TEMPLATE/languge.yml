@@ -42,6 +42,5 @@ body:
     validations:
       required: true
   - type: markdown
-    id: thanks
     attributes:
       value: "Thank you for filling out the form! We will be with you soon. Please do not ask support to review your report."
