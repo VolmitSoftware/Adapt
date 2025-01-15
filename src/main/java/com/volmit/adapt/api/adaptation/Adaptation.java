@@ -29,13 +29,10 @@ import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
-import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.event.AdaptAdaptationUseEvent;
 import com.volmit.adapt.util.*;
 import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Recipe;
 
@@ -50,30 +47,6 @@ public interface Adaptation<T> extends Ticked, Component {
 
     default void xp(Player p, Location l, double amount) {
         getSkill().xp(p, l, amount);
-    }
-
-    default <F> F getStorage(Player p, String key, F defaultValue) {
-        PlayerData data = getPlayer(p).getData();
-        if (data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName())) {
-            Object o = data.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getStorage().get(key);
-            return o == null ? defaultValue : (F) o;
-        }
-
-        return defaultValue;
-    }
-
-    default <F> F getStorage(Player p, String key) {
-        return getStorage(p, key, null);
-    }
-
-    default boolean setStorage(Player p, String key, Object value) {
-        PlayerData data = getPlayer(p).getData();
-        if (data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName())) {
-            data.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getStorage().put(key, value);
-            return true;
-        }
-
-        return false;
     }
 
     default boolean canUse(AdaptPlayer player) {
@@ -95,46 +68,6 @@ public interface Adaptation<T> extends Ticked, Component {
         Adapt.verbose("Checking if player " + p.getName() + " has blacklist permission " + blacklistPermission);
 
         return p.hasPermission(blacklistPermission);
-    }
-
-    default String getStorageString(Player p, String key, String defaultValue) {
-        return getStorage(p, key, defaultValue);
-    }
-
-    default String getStorageString(Player p, String key) {
-        return getStorage(p, key);
-    }
-
-    default Integer getStorageInt(Player p, String key, Integer defaultValue) {
-        return getStorage(p, key, defaultValue);
-    }
-
-    default Integer getStorageInt(Player p, String key) {
-        return getStorage(p, key);
-    }
-
-    default Double getStorageDouble(Player p, String key, Double defaultValue) {
-        return getStorage(p, key, defaultValue);
-    }
-
-    default Double getStorageDouble(Player p, String key) {
-        return getStorage(p, key);
-    }
-
-    default Boolean getStorageBoolean(Player p, String key, Boolean defaultValue) {
-        return getStorage(p, key, defaultValue);
-    }
-
-    default Boolean getStorageBoolean(Player p, String key) {
-        return getStorage(p, key);
-    }
-
-    default Long getStorageLong(Player p, String key, Long defaultValue) {
-        return getStorage(p, key, defaultValue);
-    }
-
-    default Long getStorageLong(Player p, String key) {
-        return getStorage(p, key);
     }
 
     Class<T> getConfigurationClass();
@@ -225,7 +158,7 @@ public interface Adaptation<T> extends Ticked, Component {
 
     default boolean hasAdaptation(Player p) {
         try {
-            if (p == null || p.isDead()) { // Check if player is not invalid
+            if (p == null || p.isDead()) { // Check if the player is not invalid
                 return false;
             }
             if (this.getSkill().isEnabled()) {
@@ -358,22 +291,6 @@ public interface Adaptation<T> extends Ticked, Component {
         return getDisplayName();
     }
 
-    default String getDisplayNameNoRoman(int level) {
-        if (level >= 1) {
-            return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
-        }
-
-        return getDisplayName();
-    }
-
-    default BlockFace getBlockFace(Player player, int maxrange) {
-        List<Block> lastTwoTargetBlocks = player.getLastTwoTargetBlocks(null, maxrange);
-        if (lastTwoTargetBlocks.size() != 2 || !lastTwoTargetBlocks.get(1).getType().isOccluding()) return null;
-        Block targetBlock = lastTwoTargetBlocks.get(1);
-        Block adjacentBlock = lastTwoTargetBlocks.get(0);
-        return targetBlock.getFace(adjacentBlock);
-    }
-
     default CustomModel getModel() {
         return CustomModel.get(getIcon(), "adaptation", getName(), "icon");
     }
@@ -385,15 +302,6 @@ public interface Adaptation<T> extends Ticked, Component {
         if (model.material() == Material.PAPER && model.model() == 0)
             model = getModel();
         return model;
-    }
-
-    default boolean openGui(Player player, boolean checkPermissions) {
-        if (hasBlacklistPermission(player, this)) {
-            return false;
-        } else {
-            openGui(player);
-            return true;
-        }
     }
 
     default void openGui(Player player) {
@@ -537,16 +445,6 @@ public interface Adaptation<T> extends Ticked, Component {
             getPlayer(player).getData().getSkillLine(getSkill().getName()).giveKnowledge(rc);
         }
         getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl - 1);
-    }
-
-    default void learn(Player player, int lvl, boolean force) {
-        int myLevel = getPlayer(player).getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
-        int c = getCostFor(lvl, myLevel);
-        if (getPlayer(player).getData().hasPowerAvailable(c) || force) {
-            if (getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c) || force) {
-                getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
-            }
-        }
     }
 
     default boolean isAdaptationRecipe(Recipe recipe) {

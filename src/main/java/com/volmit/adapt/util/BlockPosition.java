@@ -49,14 +49,6 @@ public class BlockPosition {
         return false;
     }
 
-    public int getChunkX() {
-        return x >> 4;
-    }
-
-    public int getChunkZ() {
-        return z >> 4;
-    }
-
     public boolean is(int x, int z) {
         return this.x == x && this.z == z;
     }

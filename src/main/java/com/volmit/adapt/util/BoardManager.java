@@ -21,7 +21,6 @@ package com.volmit.adapt.util;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,37 +28,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @DontObfuscate
 public class BoardManager {
     @DontObfuscate
-    private final JavaPlugin plugin;
-    @DontObfuscate
     private final Map<UUID, Board> scoreboards;
     @DontObfuscate
-    private final BukkitTask updateTask;
-    @DontObfuscate
-    private BoardSettings boardSettings;
+    private final BoardSettings boardSettings;
 
     @DontObfuscate
     public BoardManager(JavaPlugin plugin, BoardSettings boardSettings) {
-        this.plugin = plugin;
         this.boardSettings = boardSettings;
         this.scoreboards = new ConcurrentHashMap<>();
-        this.updateTask = new BoardUpdateTask(this).runTaskTimer(plugin, 2L, 2L);
         plugin.getServer().getOnlinePlayers().forEach(this::setup);
-    }
-
-    @DontObfuscate
-    public void setBoardSettings(BoardSettings boardSettings) {
-        this.boardSettings = boardSettings;
-        scoreboards.values().forEach(board -> board.setBoardSettings(boardSettings));
-    }
-
-    @DontObfuscate
-    public boolean hasBoard(Player player) {
-        return scoreboards.containsKey(player.getUniqueId());
-    }
-
-    @DontObfuscate
-    public Optional<Board> getBoard(Player player) {
-        return Optional.ofNullable(scoreboards.get(player.getUniqueId()));
     }
 
     @DontObfuscate
@@ -81,10 +58,4 @@ public class BoardManager {
         return Collections.unmodifiableMap(scoreboards);
     }
 
-    @DontObfuscate
-    public void onDisable() {
-        updateTask.cancel();
-        plugin.getServer().getOnlinePlayers().forEach(this::remove);
-        scoreboards.clear();
-    }
 }

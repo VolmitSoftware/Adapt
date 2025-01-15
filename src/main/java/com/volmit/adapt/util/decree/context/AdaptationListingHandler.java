@@ -25,8 +25,8 @@ public class AdaptationListingHandler {
         getSkillProvider();
     }
 
-    public static KList<AdaptationList> getAdaptionListings() {
-        if (adaptationLists.isNotEmpty()) return adaptationLists;
+    public static void getAdaptionListings() {
+        if (adaptationLists.isNotEmpty()) return;
 
         AdaptationList main = new AdaptationList("[Main]");
         adaptationLists.add(main);
@@ -40,7 +40,6 @@ public class AdaptationListingHandler {
                 adaptationLists.add(adaptationList);
             }
         }
-        return adaptationLists;
     }
 
     public static KList<AdaptationSkillList> getAdaptionSkillListings() {
@@ -62,7 +61,7 @@ public class AdaptationListingHandler {
 
         for (Skill<?> skill : SkillRegistry.skills.sortV()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                AdaptationProvider suggestion = new AdaptationProvider(skill.getName() + ":" +adaptation.getName());
+                AdaptationProvider suggestion = new AdaptationProvider(skill.getName() + ":" + adaptation.getName());
                 adaptationProviders.add(suggestion);
             }
         }

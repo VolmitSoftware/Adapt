@@ -53,16 +53,6 @@ public class AtomicCache<T> {
         }
     }
 
-    public T aquireNasty(NastySupplier<T> t) {
-        return aquire(() -> {
-            try {
-                return t.get();
-            } catch (Throwable e) {
-                return null;
-            }
-        });
-    }
-
     public T aquireNastyPrint(NastySupplier<T> t) {
         return aquire(() -> {
             try {

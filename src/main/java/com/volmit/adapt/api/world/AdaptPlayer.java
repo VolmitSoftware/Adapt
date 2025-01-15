@@ -22,7 +22,6 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.notification.AdvancementNotification;
 import com.volmit.adapt.api.notification.Notifier;
-import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.*;
 import lombok.Data;
@@ -269,22 +268,6 @@ public class AdaptPlayer extends TickedObject {
         return line.getAdaptation(id).getLevel() > 0;
     }
 
-    public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {
-        for (PlayerSkillLine i : p.getData().getSkillLines().v()) {
-            if (M.ms() - i.getLast() < ms) {
-                i.giveXP(not, xpGained);
-            }
-        }
-    }
-
-    public void giveXPToRandom(AdaptPlayer p, double xpGained) {
-        p.getData().getSkillLines().v().getRandom().giveXP(p.getNot(), xpGained);
-    }
-
-    public void boostXPToRandom(AdaptPlayer p, double boost, int ms) {
-        p.getData().getSkillLines().v().getRandom().boost(boost, ms);
-    }
-
     public void boostXPToRecents(double boost, int ms) {
         for (PlayerSkillLine i : this.getData().getSkillLines().v()) {
             if (M.ms() - i.getLast() < ms) {
@@ -312,10 +295,6 @@ public class AdaptPlayer extends TickedObject {
                     .model(CustomModel.get(Material.DIAMOND, "snippets", "gui", first ? "welcome" : "welcomeback"))
                     .build());
         }
-    }
-
-    public boolean hasSkill(Skill s) {
-        return getData().getSkillLines().containsKey(s.getName()) && getData().getSkillLines().get(s.getId()).getXp() > 1;
     }
 
     private File getPlayerDataFile(UUID uuid) {

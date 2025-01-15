@@ -31,14 +31,6 @@ public class ChronoLatch {
         this(interval, true);
     }
 
-    public void flipDown() {
-        since = System.currentTimeMillis();
-    }
-
-    public boolean couldFlip() {
-        return System.currentTimeMillis() - since > interval;
-    }
-
     public boolean flip() {
         if (System.currentTimeMillis() - since > interval) {
             since = System.currentTimeMillis();

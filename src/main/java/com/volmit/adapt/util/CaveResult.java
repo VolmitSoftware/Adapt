@@ -30,7 +30,4 @@ public class CaveResult {
         this.ceiling = ceiling;
     }
 
-    public boolean isWithin(int v) {
-        return v > floor || v < ceiling;
-    }
 }
