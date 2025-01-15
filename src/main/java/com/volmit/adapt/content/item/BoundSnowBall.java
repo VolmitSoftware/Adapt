@@ -46,10 +46,6 @@ public class BoundSnowBall implements DataItem<BoundSnowBall.Data> {
         return null;
     }
 
-    public static void setData(ItemStack item, Player t) {
-        io.setData(item, new Data(t));
-    }
-
     public static ItemStack withData(Player t) {
         return io.withData(new Data(t));
     }

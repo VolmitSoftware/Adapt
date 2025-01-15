@@ -151,21 +151,6 @@ public interface Skill<T> extends Ticked, Component {
         }
     }
 
-    default void xpS(Player p, Location at, double xp) {
-        if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
-            return;
-        }
-        try {
-            XP.xpSilent(p, this, xp);
-            if (xp > 50) {
-                vfxXP(p, at, (int) xp);
-            }
-            Adapt.verbose("Gave " + p.getName() + " " + xp + " xp in " + getName() + " " + this.getClass());
-        } catch (Exception e) {
-            Adapt.verbose("Failed to give xp to " + p.getName() + " for " + getName() + " (" + xp + ")");
-        }
-    }
-
     default void xpSilent(Player p, double xp) {
         if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
             return;
@@ -187,15 +172,6 @@ public interface Skill<T> extends Ticked, Component {
 
     default void knowledge(Player p, long k) {
         XP.knowledge(p, this, k);
-    }
-
-    default boolean openGui(Player player, boolean checkPermissions) {
-        if (hasBlacklistPermission(player, this)) {
-            return false;
-        } else {
-            openGui(player);
-            return true;
-        }
     }
 
     default void openGui(Player player) {

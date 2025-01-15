@@ -21,7 +21,6 @@ package com.volmit.adapt.content.item.multiItems;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.BukkitGson;
-import com.volmit.adapt.util.WindowResolution;
 import lombok.*;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -38,10 +37,6 @@ public interface MultiItem {
     boolean supportsItem(ItemStack itemStack);
 
     String getKey();
-
-    default WindowResolution getWindowType() {
-        return WindowResolution.W5_H1;
-    }
 
     default ItemStack build(ItemStack... stacks) {
         ItemStack s = stacks[0];
@@ -86,10 +81,6 @@ public interface MultiItem {
         }
 
         return item;
-    }
-
-    default ItemStack nextTool(ItemStack multi) {
-        return switchTo(multi, 0);
     }
 
     default ItemStack switchTo(ItemStack multi, int index) {
@@ -174,10 +165,6 @@ public interface MultiItem {
 
         List<ItemStack> getItems() {
             return rawItems.stream().map(NMS::deserializeStack).collect(Collectors.toList());
-        }
-
-        void setItems(List<ItemStack> is) {
-            rawItems = is.stream().map(NMS::serializeStack).collect(Collectors.toList());
         }
     }
 }

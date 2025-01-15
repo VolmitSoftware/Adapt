@@ -1,7 +1,10 @@
 package com.volmit.adapt.api.version;
 
 import com.volmit.adapt.util.collection.KList;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
 
@@ -16,16 +19,12 @@ public interface IAttribute {
 
     double getBaseValue();
 
-    void setBaseValue(double baseValue);
-
     default void setModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
         removeModifier(uuid, key);
         addModifier(uuid, key, amount, operation);
     }
 
     void addModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation);
-
-    boolean hasModifier(UUID uuid, NamespacedKey key);
 
     void removeModifier(UUID uuid, NamespacedKey key);
 

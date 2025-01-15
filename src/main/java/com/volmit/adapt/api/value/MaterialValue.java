@@ -22,10 +22,8 @@ import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
-import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.JSONObject;
-import com.volmit.adapt.util.PrecisionStopwatch;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -90,38 +88,6 @@ public class MaterialValue {
         }
 
         return valueCache;
-    }
-
-    public static void debugValue(Material m) {
-        debugValue(m, 0, 1, new HashSet<>());
-    }
-
-    private static void debugValue(Material m, int ind, int x, Set<MaterialRecipe> ignore) {
-        PrecisionStopwatch p = PrecisionStopwatch.start();
-        Adapt.verbose(Form.repeat("  ", ind) + m.name() + ": " + getValue(m) + (x == 1 ? "" : " (x" + x + ")"));
-
-        int r = 0;
-        for (MaterialRecipe i : getRecipes(m)) {
-            if (ignore.contains(i)) {
-                continue;
-            }
-
-            ignore.add(i);
-            if (ignore.size() > AdaptConfig.get().getMaxRecipeListPrecaution()) {
-                Adapt.verbose("Avoiding infinite loop");
-                return;
-            }
-
-            int o = i.getOutput().getAmount();
-            Adapt.verbose(Form.repeat("  ", ind) + "# Recipe [" + ind + "x" + r + (o == 1 ? "]" : "] (x" + o + ") "));
-
-            for (MaterialCount j : i.getInput()) {
-                debugValue(j.getMaterial(), ind + 1, j.getAmount(), ignore);
-            }
-
-            r++;
-        }
-        Adapt.verbose(Form.repeat("  ", ind) + " took " + Form.duration(p.getMilliseconds(), 0));
     }
 
     private static double getMultiplier(Material m) {

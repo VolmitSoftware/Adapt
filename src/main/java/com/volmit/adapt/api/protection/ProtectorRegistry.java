@@ -32,11 +32,6 @@ public class ProtectorRegistry {
         protectors.add(protector);
     }
 
-    public void unregisterProtector(Protector protector) {
-        protector.unregister();
-        protectors.remove(protector);
-    }
-
     public List<Protector> getDefaultProtectors() {
         return protectors.stream().filter(Protector::isEnabledByDefault).collect(ImmutableList.toImmutableList());
     }

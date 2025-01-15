@@ -4,8 +4,6 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
-import com.volmit.adapt.util.reflect.events.api.ReflectiveHandler;
-import com.volmit.adapt.util.reflect.events.api.entity.EndermanAttackPlayerEvent;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -41,7 +39,7 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("stealth", "enderveil",  "lore" + (level < 2 ? 1 : 2)));
+        v.addLore(C.GRAY + Localizer.dLocalize("stealth", "enderveil", "lore" + (level < 2 ? 1 : 2)));
     }
 
     @Override
@@ -57,18 +55,6 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
                 || event.getEntityType() != EntityType.ENDERMAN
                 || !(event.getTarget() instanceof Player player)
                 || !hasAdaptation(player)) {
-            return;
-        }
-
-        if (getLevel(player) > 1 || player.isSneaking()) {
-            event.setCancelled(true);
-        }
-    }
-
-    @ReflectiveHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onTarget(EndermanAttackPlayerEvent event) {
-        var player = event.getPlayer();
-        if (!hasAdaptation(player)) {
             return;
         }
 

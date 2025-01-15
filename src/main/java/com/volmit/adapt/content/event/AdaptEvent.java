@@ -49,10 +49,6 @@ public class AdaptEvent extends Event implements Cancellable {
         canceled = b;
     }
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
-
     @Override
     public @NotNull HandlerList getHandlers() {
         return HANDLERS;

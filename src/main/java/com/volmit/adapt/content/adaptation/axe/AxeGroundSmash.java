@@ -29,11 +29,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
-    private final List<Integer> holds = new ArrayList<>();
 
     public AxeGroundSmash() {
         super("axe-ground-smash");

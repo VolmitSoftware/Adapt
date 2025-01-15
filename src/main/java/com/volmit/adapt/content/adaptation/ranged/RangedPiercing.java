@@ -29,12 +29,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
-    private final List<Integer> holds = new ArrayList<>();
-
     public RangedPiercing() {
         super("ranged-piercing");
         registerConfiguration(Config.class);

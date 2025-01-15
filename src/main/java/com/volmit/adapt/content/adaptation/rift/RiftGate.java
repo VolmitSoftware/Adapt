@@ -26,7 +26,6 @@ import com.volmit.adapt.content.item.BoundEyeOfEnder;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -105,41 +104,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         }
     }
 
-
-    private void handleEyeOfEnderInteraction(PlayerInteractEvent event, Player player, Block block) {
-        boolean sneaking = player.isSneaking();
-        ItemStack mainHand = player.getInventory().getItemInMainHand();
-        Location location = block == null ? player.getLocation() : block.getLocation();
-
-        switch (event.getAction()) {
-            case LEFT_CLICK_BLOCK, LEFT_CLICK_AIR -> {
-                if (sneaking) {
-                    if (isBound(mainHand)) {
-                        unlinkEye(player);
-                    } else {
-                        linkEye(player, location);
-                    }
-                }
-            }
-            case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> {
-                if (isBound(mainHand)) {
-                    openEye(player);
-                }
-            }
-            default -> {
-            }
-        }
-    }
-
     private boolean isBound(ItemStack stack) {
         return stack.getType().equals(Material.ENDER_EYE) && BoundEyeOfEnder.getLocation(stack) != null;
-    }
-
-    private void unlinkEye(Player p) {
-        ItemStack hand = p.getInventory().getItemInMainHand();
-        decrementItemstack(hand, p);
-        ItemStack eye = new ItemStack(Material.ENDER_EYE);
-        p.getInventory().addItem(eye).values().forEach(i -> p.getWorld().dropItemNaturally(p.getLocation(), i));
     }
 
     private void linkEye(Player p, Location location) {

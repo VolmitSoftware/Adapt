@@ -40,26 +40,6 @@ public class SoundNotification implements Notification {
     @Builder.Default
     private final String group = "default";
 
-    public SoundNotification withXP(double xp) {
-        double sig = xp / 1000D;
-        float pitch = this.pitch;
-        float volume = this.volume;
-        pitch -= (float) (sig / 6.6);
-        pitch = pitch < 0.1 ? (float) 0.1 : pitch;
-        double vp = sig / 5;
-        vp = Math.min(vp, 0.8);
-        volume += (float) vp;
-        pitch = pitch < 0.1 ? (float) 0.1 : pitch;
-
-        return SoundNotification.builder()
-                .sound(sound)
-                .isolation(isolation)
-                .predelay(predelay)
-                .volume(volume)
-                .pitch(pitch)
-                .build();
-    }
-
     @Override
     public long getTotalDuration() {
         return isolation;

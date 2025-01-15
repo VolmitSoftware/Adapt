@@ -54,17 +54,14 @@ public class PlayerSkillLine {
     private Map<String, PlayerAdaptation> adaptations = new HashMap<>();
     private List<XPMultiplier> multipliers = new ArrayList<>();
 
-    private static double diff(long a, long b) {
-        return Math.abs(a - b / (double) (a == 0 ? 1 : a));
-    }
 
     public void update(AdaptPlayer p, String line, PlayerData data) {
         grantSkillsAndAdaptations(p, line);
-        checkMaxLevel(p, line);
+        checkMaxLevel(p);
         updateFreshness();
         updateMultiplier(data);
         updateEarnedXP(p, line);
-        updateLevel(p, line, data);
+        updateLevel(p);
     }
 
     private void grantSkillsAndAdaptations(AdaptPlayer p, String line) {
@@ -79,7 +76,7 @@ public class PlayerSkillLine {
         }
     }
 
-    private void checkMaxLevel(AdaptPlayer p, String line) {
+    private void checkMaxLevel(AdaptPlayer p) {
         if (!p.isBusy() && getXp() > XP.getXpForLevel(AdaptConfig.get().experienceMaxLevel)) {
             p.getData().addWisdom();
             Adapt.warn("A Player has reached the maximum level of " + AdaptConfig.get().experienceMaxLevel + " and has been granted 1 wisdom, Dropping Level to " + lastLevel);
@@ -113,9 +110,8 @@ public class PlayerSkillLine {
         if (earned > p.getServer().getSkillRegistry().getSkill(line).getMinXp()) lastXP = xp;
     }
 
-    private void updateLevel(AdaptPlayer p, String line, PlayerData data) {
+    private void updateLevel(AdaptPlayer p) {
         if (lastLevel < getLevel()) {
-            long kb = getKnowledge();
             for (int i = lastLevel; i < getLevel(); i++) {
                 giveKnowledge((i / 13) + 1);
                 p.getData().giveMasterXp((i * AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier()) + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
@@ -151,10 +147,6 @@ public class PlayerSkillLine {
                 p.notifyXP(line, xp);
             }
         }
-    }
-
-    public boolean hasEarnedWithin(long ms) {
-        return M.ms() - last < ms;
     }
 
     public PlayerAdaptation getAdaptation(String id) {
@@ -242,32 +234,8 @@ public class PlayerSkillLine {
         this.knowledge += points;
     }
 
-    public double getMinimumXPForLevel() {
-        return XP.getXpForLevel(getLevel());
-    }
-
-    public double getXPForLevelUpAbsolute() {
-        return getMaximumXPForLevel() - getXp();
-    }
-
-    public double getXPForLevelUp() {
-        return getMaximumXPForLevel() - getMinimumXPForLevel();
-    }
-
-    public double getMaximumXPForLevel() {
-        return XP.getXpForLevel(getLevel());
-    }
-
     public double getAbsoluteLevel() {
         return XP.getLevelForXp(xp);
-    }
-
-    public double getLevelProgress() {
-        return getAbsoluteLevel() - getLevel();
-    }
-
-    public double getLevelProgressRemaining() {
-        return 1D - getLevelProgress();
     }
 
     public int getLevel() {

@@ -59,16 +59,6 @@ public class WorldData extends TickedObject {
         return mantles.computeIfAbsent(world, WorldData::new);
     }
 
-    public double getEarningsMultiplier(Block block) {
-        Earnings e = mantle.get(block.getX(), block.getY(), block.getZ(), Earnings.class);
-
-        if (e == null) {
-            return 1;
-        }
-
-        return 1 / (double) (e.earnings() == 0 ? 1 : e.earnings());
-    }
-
     public double reportEarnings(Block block) {
         Earnings e = mantle.get(block.getX(), block.getY(), block.getZ(), Earnings.class);
         e = e == null ? new Earnings(0) : e;

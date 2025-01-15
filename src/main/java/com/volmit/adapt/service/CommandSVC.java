@@ -37,7 +37,7 @@ import java.util.concurrent.CompletableFuture;
 public class CommandSVC implements AdaptService, DecreeSystem {
     private final KMap<String, CompletableFuture<String>> futures = new KMap<>();
     private final transient AtomicCache<VirtualDecreeCommand> commandCache = new AtomicCache<>();
-    private CompletableFuture<String> consoleFuture = null;
+    private final CompletableFuture<String> consoleFuture = null;
 
     @Override
     public void onEnable() {
@@ -74,13 +74,5 @@ public class CommandSVC implements AdaptService, DecreeSystem {
     @Override
     public VirtualDecreeCommand getRoot() {
         return commandCache.aquireNastyPrint(() -> VirtualDecreeCommand.createRoot(new CommandAdapt()));
-    }
-
-    public void post(String password, CompletableFuture<String> future) {
-        futures.put(password, future);
-    }
-
-    public void postConsole(CompletableFuture<String> future) {
-        consoleFuture = future;
     }
 }

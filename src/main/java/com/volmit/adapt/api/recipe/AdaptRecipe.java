@@ -38,26 +38,6 @@ public interface AdaptRecipe {
         return Shaped.builder();
     }
 
-    static Smithing.SmithingBuilder smithing() {
-        return Smithing.builder();
-    }
-
-    static Stonecutter.StonecutterBuilder stonecutter() {
-        return Stonecutter.builder();
-    }
-
-    static Smoker.SmokerBuilder smoker() {
-        return Smoker.builder();
-    }
-
-    static Blast.BlastBuilder blast() {
-        return Blast.builder();
-    }
-
-    static Furnace.FurnaceBuilder furnace() {
-        return Furnace.builder();
-    }
-
     static Campfire.CampfireBuilder campfire() {
         return Campfire.builder();
     }
@@ -75,72 +55,6 @@ public interface AdaptRecipe {
     boolean is(Recipe recipe);
 
     void unregister();
-
-    @Builder
-    @Data
-    class Smoker implements AdaptRecipe {
-        private String key;
-        private ItemStack result;
-        private Material ingredient;
-        private float experience;
-        private int cookTime;
-
-        @Override
-        public ItemStack getResult() {
-            return null;
-        }
-
-        public void register() {
-            SmokingRecipe s = new SmokingRecipe(new NamespacedKey(Adapt.instance, getKey()), result, ingredient, experience, cookTime);
-            Bukkit.getServer().addRecipe(s);
-            Adapt.verbose("Registered Smoker Recipe " + s.getKey());
-        }
-
-        @Override
-        public boolean is(Recipe recipe) {
-            return recipe instanceof SmokingRecipe s && s.getKey().equals(getNSKey());
-        }
-
-
-        @Override
-        public void unregister() {
-            Bukkit.getServer().removeRecipe(getNSKey());
-            Adapt.verbose("Unregistered Smoker Recipe " + getKey());
-        }
-    }
-
-    @Builder
-    @Data
-    class Furnace implements AdaptRecipe {
-        private String key;
-        private ItemStack result;
-        private Material ingredient;
-        private float experience;
-        private int cookTime;
-
-        @Override
-        public ItemStack getResult() {
-            return null;
-        }
-
-        public void register() {
-            FurnaceRecipe s = new FurnaceRecipe(new NamespacedKey(Adapt.instance, getKey()), result, ingredient, experience, cookTime);
-            Bukkit.getServer().addRecipe(s);
-            Adapt.verbose("Registered Furnace Recipe " + s.getKey());
-        }
-
-        @Override
-        public boolean is(Recipe recipe) {
-            return recipe instanceof FurnaceRecipe s && s.getKey().equals(getNSKey());
-        }
-
-
-        @Override
-        public void unregister() {
-            Bukkit.getServer().removeRecipe(getNSKey());
-            Adapt.verbose("Unregistered Furnace Recipe " + getKey());
-        }
-    }
 
     @Builder
     @Data
@@ -171,39 +85,6 @@ public interface AdaptRecipe {
         public void unregister() {
             Bukkit.getServer().removeRecipe(getNSKey());
             Adapt.verbose("Unregistered Campfire Recipe " + getKey());
-        }
-    }
-
-    @Builder
-    @Data
-    class Blast implements AdaptRecipe {
-        private String key;
-        private ItemStack result;
-        private Material ingredient;
-        private float experience;
-        private int cookTime;
-
-        @Override
-        public ItemStack getResult() {
-            return null;
-        }
-
-        public void register() {
-            BlastingRecipe s = new BlastingRecipe(new NamespacedKey(Adapt.instance, getKey()), result, ingredient, experience, cookTime);
-            Bukkit.getServer().addRecipe(s);
-            Adapt.verbose("Registered Blast Furnace Recipe " + s.getKey());
-        }
-
-        @Override
-        public boolean is(Recipe recipe) {
-            return recipe instanceof BlastingRecipe s && s.getKey().equals(getNSKey());
-        }
-
-
-        @Override
-        public void unregister() {
-            Bukkit.getServer().removeRecipe(getNSKey());
-            Adapt.verbose("Unregistered Blast Furnace Recipe " + getKey());
         }
     }
 
@@ -242,37 +123,6 @@ public interface AdaptRecipe {
 
     @Builder
     @Data
-    class Stonecutter implements AdaptRecipe {
-        private String key;
-        private ItemStack result;
-        private Material ingredient;
-
-        @Override
-        public ItemStack getResult() {
-            return null;
-        }
-
-        public void register() {
-            StonecuttingRecipe s = new StonecuttingRecipe(new NamespacedKey(Adapt.instance, getKey()), result, ingredient);
-            Bukkit.getServer().addRecipe(s);
-            Adapt.verbose("Registered Stone Cutter Recipe " + s.getKey());
-        }
-
-        @Override
-        public boolean is(Recipe recipe) {
-            return recipe instanceof StonecuttingRecipe s && s.getKey().equals(getNSKey());
-        }
-
-
-        @Override
-        public void unregister() {
-            Bukkit.getServer().removeRecipe(getNSKey());
-            Adapt.verbose("Unregistered Stone Cutter Recipe " + getKey());
-        }
-    }
-
-    @Builder
-    @Data
     class Shaped implements AdaptRecipe {
         private String key;
         private ItemStack result;
@@ -306,34 +156,4 @@ public interface AdaptRecipe {
         }
     }
 
-    @Builder
-    @Data
-    class Smithing implements AdaptRecipe {
-        private String key;
-        private ItemStack result;
-        private Material base;
-        private Material addition;
-
-        @Override
-        public ItemStack getResult() {
-            return null;
-        }
-
-        public void register() {
-            SmithingRecipe s = new SmithingRecipe(new NamespacedKey(Adapt.instance, getKey()), result, new RecipeChoice.ExactChoice(new ItemStack(base)), new RecipeChoice.ExactChoice(new ItemStack(addition)));
-            Bukkit.getServer().addRecipe(s);
-            Adapt.verbose("Registered Smithing Table Recipe " + s.getKey());
-        }
-
-        @Override
-        public boolean is(Recipe recipe) {
-            return recipe instanceof SmithingRecipe s && s.getKey().equals(getNSKey());
-        }
-
-        @Override
-        public void unregister() {
-            Bukkit.getServer().removeRecipe(getNSKey());
-            Adapt.verbose("Unregistered Smithing Table Recipe " + getKey());
-        }
-    }
 }

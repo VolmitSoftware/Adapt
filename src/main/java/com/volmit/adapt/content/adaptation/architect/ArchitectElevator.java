@@ -99,7 +99,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
 
     private static boolean hasEnoughSpace(Player player, int targetY) {
         BoundingBox box = player.getBoundingBox()
-                .shift(0, -player.getLocation().y(), 0)
+                .shift(0, -player.getLocation().getY(), 0)
                 .shift(0, targetY, 0);
 
         double maxX = Math.ceil(box.getMaxX());

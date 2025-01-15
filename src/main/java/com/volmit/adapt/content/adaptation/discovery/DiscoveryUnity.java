@@ -102,7 +102,5 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
         final double costFactor = 0.3;
         final int maxLevel = 7;
         final double xpGainedMultiplier = 8;
-        double xpBoostMultiplier = 0.01;
-        int xpBoostDuration = 15000;
     }
 }

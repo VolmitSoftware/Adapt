@@ -55,7 +55,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
         v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Localizer.dLocalize("pickaxe", "chisel", "lore2"));
     }
 
-    private int getCooldownTime(double levelPercent) {
+    private int getCooldownTime() {
         return getConfig().cooldownTime;
     }
 
@@ -63,7 +63,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
         return ((levelPercent) * getConfig().dropChanceFactor) + getConfig().dropChanceBase;
     }
 
-    private double getBreakChance(double levelPercent) {
+    private double getBreakChance() {
         return getConfig().breakChance;
     }
 
@@ -92,7 +92,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
                 spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f);
                 spw.play(p.getLocation(), Sound.BLOCK_METAL_HIT, 1.25f, 1.7f);
 
-                p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
+                p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime());
                 damageHand(p, getDamagePerBlock(getLevelPercent(p)));
 
                 Location c = Objects.requireNonNull(p.rayTraceBlocks(8)).getHitPosition().toLocation(p.getWorld());
@@ -112,7 +112,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
                     }
                 }
 
-                if (M.r(getBreakChance(getLevelPercent(p)))) {
+                if (M.r(getBreakChance())) {
                     spw.play(p.getLocation(), Sound.BLOCK_BASALT_BREAK, 1.25f, 0.4f);
                     spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.887f);
                     e.getClickedBlock().breakNaturally(p.getInventory().getItemInMainHand());

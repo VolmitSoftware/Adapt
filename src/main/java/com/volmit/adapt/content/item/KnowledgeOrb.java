@@ -52,14 +52,6 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
         return null;
     }
 
-    public static long getKnowledge(ItemStack stack) {
-        if (io.getData(stack) != null) {
-            return io.getData(stack).getKnowledge();
-        }
-
-        return 0;
-    }
-
     public static void set(ItemStack item, String skill, int knowledge) {
         io.setData(item, new Data(skill, knowledge));
     }

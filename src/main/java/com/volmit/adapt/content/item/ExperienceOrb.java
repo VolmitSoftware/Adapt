@@ -98,10 +98,6 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
             return experienceMap.keySet().iterator().next();
         }
 
-        public double getExperience() {
-            return experienceMap.values().iterator().next();
-        }
-
         public void apply(Player p) {
             for (Map.Entry<String, Double> entry : experienceMap.entrySet()) {
                 String skill = entry.getKey();

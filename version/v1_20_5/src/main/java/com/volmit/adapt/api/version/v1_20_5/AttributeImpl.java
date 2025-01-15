@@ -13,6 +13,10 @@ import java.util.stream.Collectors;
 
 public record AttributeImpl(AttributeInstance instance) implements IAttribute {
 
+    private static Modifier wrap(AttributeModifier modifier) {
+        return new Modifier(modifier.getUniqueId(), null, modifier.getAmount(), modifier.getOperation());
+    }
+
     @Override
     public double getValue() {
         return instance.getValue();
@@ -29,21 +33,9 @@ public record AttributeImpl(AttributeInstance instance) implements IAttribute {
     }
 
     @Override
-    public void setBaseValue(double baseValue) {
-        instance.setBaseValue(baseValue);
-    }
-
-    @Override
     @SuppressWarnings("all")
     public void addModifier(UUID uuid, NamespacedKey key, double amount, AttributeModifier.Operation operation) {
         instance.addModifier(new AttributeModifier(uuid, key.getNamespace() + "-" + key.getKey(), amount, operation, EquipmentSlotGroup.ANY));
-    }
-
-    @Override
-    public boolean hasModifier(UUID uuid, NamespacedKey key) {
-        return instance.getModifiers()
-                .stream()
-                .anyMatch(filter(uuid, key));
     }
 
     @Override
@@ -66,9 +58,5 @@ public record AttributeImpl(AttributeInstance instance) implements IAttribute {
     private Predicate<AttributeModifier> filter(UUID uuid, NamespacedKey key) {
         String name = key.getNamespace() + "-" + key.getKey();
         return m -> m.getUniqueId().equals(uuid) || m.getName().equals(name);
-    }
-
-    private static Modifier wrap(AttributeModifier modifier) {
-        return new Modifier(modifier.getUniqueId(), null, modifier.getAmount() ,modifier.getOperation());
     }
 }

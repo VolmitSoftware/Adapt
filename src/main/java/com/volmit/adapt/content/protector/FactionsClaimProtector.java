@@ -30,16 +30,16 @@ public class FactionsClaimProtector implements Protector {
     @Override
     public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
         Faction f = Board.getInstance().getFactionAt(new FLocation(player.getLocation()));
-        return checkPerm(player, f, adaptation) || f.isWilderness();
+        return checkPerm(player, f) || f.isWilderness();
     }
 
     @Override
     public boolean canPVP(Player player, Location victimLocation, Adaptation<?> adaptation) {
         Faction f = Board.getInstance().getFactionAt(new FLocation(victimLocation));
-        return checkPerm(player, f, adaptation) || !f.noPvPInTerritory();
+        return checkPerm(player, f) || !f.noPvPInTerritory();
     }
 
-    private boolean checkPerm(Player player, Faction f, Adaptation<?> adaptation) {
+    private boolean checkPerm(Player player, Faction f) {
         FPlayer fp = FPlayers.getInstance().getByPlayer(player);
         return f == null
                 || fp.getFaction() == f

@@ -88,16 +88,14 @@ public class AdvancementManager {
         for (Skill<?> i : instance.getAdaptServer().getSkillRegistry().getSkills()) {
             AdaptAdvancement aa = i.buildAdvancements();
             Set<BaseAdvancement> set = new HashSet<>();
-            RootAdvancement root = null;
 
             for (var a : aa.toAdvancements().reverse()) {
                 advancements.put(a.getKey().getKey(), a);
-                if (a instanceof RootAdvancement r) {
-                } else if (a instanceof BaseAdvancement b) set.add(null);
+                if (a instanceof RootAdvancement) {
+                } else if (a instanceof BaseAdvancement) set.add(null);
             }
 
             Adapt.error("Root advancement not found for " + i.getId());
-            continue;
         }
     }
 

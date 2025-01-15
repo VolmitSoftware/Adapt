@@ -22,7 +22,6 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.M;
 import org.bukkit.event.Listener;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -32,28 +31,10 @@ public abstract class TickedObject implements Ticked, Listener {
     private final AtomicLong interval;
     private final AtomicInteger skip;
     private final AtomicInteger burst;
-    private final AtomicLong ticks;
     private final AtomicInteger dieIn;
     private final AtomicBoolean die;
-    private final long start;
     private final String group;
     private final String id;
-
-    public TickedObject() {
-        this("null");
-    }
-
-    public TickedObject(String group, String id) {
-        this(group, id, 1000);
-    }
-
-    public TickedObject(String group) {
-        this(group, UUID.randomUUID().toString(), 1000);
-    }
-
-    public TickedObject(String group, long interval) {
-        this(group, UUID.randomUUID().toString(), interval);
-    }
 
     public TickedObject(String group, String id, long interval) {
         this.group = group;
@@ -64,15 +45,8 @@ public abstract class TickedObject implements Ticked, Listener {
         this.lastTick = new AtomicLong(M.ms());
         this.burst = new AtomicInteger(0);
         this.skip = new AtomicInteger(0);
-        this.ticks = new AtomicLong(0);
-        this.start = M.ms();
         Adapt.instance.getTicker().register(this);
         Adapt.instance.registerListener(this);
-    }
-
-    public void dieAfter(int ticks) {
-        dieIn.set(ticks);
-        die.set(true);
     }
 
     @Override
@@ -128,53 +102,4 @@ public abstract class TickedObject implements Ticked, Listener {
         return id;
     }
 
-    @Override
-    public long getTickCount() {
-        return ticks.get();
-    }
-
-    @Override
-    public long getAge() {
-        return M.ms() - start;
-    }
-
-    @Override
-    public boolean isBursting() {
-        return burst.get() > 0;
-    }
-
-    @Override
-    public void burst(int ticks) {
-        if (burst.get() < 0) {
-            burst.set(ticks);
-            return;
-        }
-
-        burst.addAndGet(ticks);
-    }
-
-    @Override
-    public boolean isSkipping() {
-        return skip.get() > 0;
-    }
-
-    @Override
-    public void stopBursting() {
-        burst.set(0);
-    }
-
-    @Override
-    public void stopSkipping() {
-        skip.set(0);
-    }
-
-    @Override
-    public void skip(int ticks) {
-        if (skip.get() < 0) {
-            skip.set(ticks);
-            return;
-        }
-
-        skip.addAndGet(ticks);
-    }
 }

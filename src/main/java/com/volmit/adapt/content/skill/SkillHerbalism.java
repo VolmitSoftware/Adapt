@@ -34,7 +34,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -135,7 +134,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
-            if (e.getItem().getItemMeta() instanceof PotionMeta o) {
+            if (e.getItem().getItemMeta() instanceof PotionMeta) {
                 return;
             }
 
@@ -162,7 +161,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (e.isCancelled()) {
             return;
         }
-        shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e, e.getPlayer(), e.getHarvestedBlock(), "harvest.blocks"));
+        shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e.getPlayer(), e.getHarvestedBlock(), "harvest.blocks"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -170,7 +169,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (e.isCancelled()) {
             return;
         }
-        shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e, e.getPlayer(), e.getBlock(), "harvest.planted"));
+        shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e.getPlayer(), e.getBlock(), "harvest.planted"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -198,7 +197,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         if (e.isCancelled()) {
             return;
         }
-        shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e, e.getPlayer(), e.getBlock(), "harvest.blocks"));
+        shouldReturnForPlayer(e.getPlayer(), e, () -> handleEvent(e.getPlayer(), e.getBlock(), "harvest.blocks"));
     }
 
     private void handleHerbCooldown(Player p, Runnable action) {
@@ -214,7 +213,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         action.run();
     }
 
-    private void handleEvent(Cancellable e, Player p, Block block, String stat) {
+    private void handleEvent(Player p, Block block, String stat) {
         handleHerbCooldown(p, () -> {
             if (block.getBlockData() instanceof Ageable ageableBlock) {
                 xp(p, block.getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * ageableBlock.getAge());

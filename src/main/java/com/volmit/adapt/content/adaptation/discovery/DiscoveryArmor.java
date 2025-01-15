@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-discovery-armor".getBytes());
-    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:discovery-armor");
+    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:discovery-armor");
     private static final long UPDATE_COOLDOWN = TimeUnit.SECONDS.toMillis(3);
     private static final Sphere SPHERE = new Sphere(5);
 
@@ -103,16 +103,6 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
         return Math.min((armorValue / count) * (level / 2D) * 0.65, 10);
     }
 
-
-    private double getRadius(double factor) {
-        return factor * getConfig().radiusFactor;
-    }
-
-    private double getStrength(double factor) {
-        return Math.pow(factor, getConfig().strengthExponent);
-    }
-
-
     @Override
     public void onTick() {
         var players = Bukkit.getOnlinePlayers();
@@ -168,8 +158,6 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @NoArgsConstructor
     protected static class Config {
-        public final int radiusFactor = 3;
-        public final double strengthExponent = 1.25;
         public final boolean showParticles = true;
         final boolean permanent = false;
         final boolean enabled = true;

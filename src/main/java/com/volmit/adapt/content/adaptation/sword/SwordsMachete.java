@@ -35,12 +35,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
-    private final List<Integer> holds = new ArrayList<>();
-
     public SwordsMachete() {
         super("sword-machete");
         registerConfiguration(Config.class);
@@ -183,7 +178,6 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     protected static class Config {
         final boolean permanent = false;
         final boolean enabled = true;
-        boolean showParticles = true;
         final int baseCost = 4;
         final int maxLevel = 3;
         final int initialCost = 7;

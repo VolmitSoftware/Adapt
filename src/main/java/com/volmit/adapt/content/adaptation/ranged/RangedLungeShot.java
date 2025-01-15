@@ -30,13 +30,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
-    private final List<Integer> holds = new ArrayList<>();
-
     public RangedLungeShot() {
         super("ranged-lunge-shot");
         registerConfiguration(Config.class);
@@ -65,7 +61,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
             return;
         }
         if (e.getEntity().getShooter() instanceof Player p) {
-            if (e.getEntity() instanceof AbstractArrow a) {
+            if (e.getEntity() instanceof AbstractArrow) {
                 if (hasAdaptation(p)) {
                     if (!p.isOnGround()) {
                         Vector velocity = Objects.requireNonNull(p.getPlayer()).getLocation().getDirection().normalize().multiply(getSpeed(getLevelPercent(p)));

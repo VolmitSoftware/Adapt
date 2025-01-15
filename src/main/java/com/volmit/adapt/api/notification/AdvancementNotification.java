@@ -19,9 +19,8 @@
 package com.volmit.adapt.api.notification;
 
 import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
-import com.volmit.adapt.util.AdvancementUtils;
 import com.volmit.adapt.api.world.AdaptPlayer;
-
+import com.volmit.adapt.util.AdvancementUtils;
 import com.volmit.adapt.util.CustomModel;
 import lombok.Builder;
 import lombok.Data;
@@ -60,13 +59,5 @@ public class AdvancementNotification implements Notification {
             var icon = getModel() != null ? getModel().toItemStack() : new ItemStack(getIcon());
             AdvancementUtils.displayToast(p.getPlayer(), icon, title, description, frameType);
         }
-    }
-
-    public String buildTitle() {
-        if (description.trim().isEmpty()) {
-            return title;
-        }
-
-        return title + "\n" + description;
     }
 }

@@ -37,7 +37,9 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -66,6 +68,10 @@ public class PlayerData {
     private long lastLogin = 0;
     private double masterXp = 1;
     private double lastMasterXp = 0;
+
+    public static PlayerData fromJson(String json) {
+        return GSON.fromJson(json, PlayerData.class);
+    }
 
     public void giveMasterXp(double xp) {
         masterXp += xp;
@@ -176,7 +182,7 @@ public class PlayerData {
                             .out(2250)
                             .group("lvl")
                             .title("")
-                            .subtitle(C.GOLD + Localizer.dLocalize("snippets", "gui", "level") +" " + level)// I'm sorry I missed this!
+                            .subtitle(C.GOLD + Localizer.dLocalize("snippets", "gui", "level") + " " + level)// I'm sorry I missed this!
                             .build());
             p.getActionBarNotifier().queue(
                     ActionBarNotification.builder()
@@ -190,10 +196,6 @@ public class PlayerData {
 
     public int getAvailablePower() {
         return getMaxPower() - getUsedPower();
-    }
-
-    public boolean hasPowerAvailable() {
-        return hasPowerAvailable(1);
     }
 
     public boolean hasPowerAvailable(int amount) {
@@ -242,9 +244,5 @@ public class PlayerData {
 
     public String toJson() {
         return GSON.toJson(this);
-    }
-
-    public static PlayerData fromJson(String json) {
-        return GSON.fromJson(json, PlayerData.class);
     }
 }
