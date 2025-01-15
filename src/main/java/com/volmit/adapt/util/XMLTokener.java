@@ -208,7 +208,7 @@ public class XMLTokener extends JSONTokener {
      * string wrapped in single quotes or double quotes, or it may be a name.
      *
      * @return a String or a Character.
-     * @throws JSONException If the XML is not well formed.
+     * @throws JSONException If the XML is not well-formed.
      */
     public Object nextToken() throws JSONException {
         char c;
@@ -313,7 +313,7 @@ public class XMLTokener extends JSONTokener {
             circle[i] = c;
         }
 
-        /* We will loop, possibly for all of the remaining characters. */
+        /* We will loop, possibly for all the remaining characters. */
 
         for (; ; ) {
             j = offset;

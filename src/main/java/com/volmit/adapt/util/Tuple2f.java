@@ -274,7 +274,7 @@ public abstract class Tuple2f implements java.io.Serializable, Cloneable {
     /**
      * Returns a hash code value based on the data values in this
      * object.  Two different Tuple2f objects with identical data values
-     * (i.e., Tuple2f.equals returns true) will return the same hash
+     * (i.e., Tuple2f. Equals returns true) will return the same hash
      * code value.  Two objects with different data members may return the
      * same hash value, although this is not likely.
      *
@@ -289,7 +289,7 @@ public abstract class Tuple2f implements java.io.Serializable, Cloneable {
 
 
     /**
-     * Returns true if all of the data members of Tuple2f t1 are
+     * Returns true if all the data members of Tuple2f t1 are
      * equal to the corresponding data members in this Tuple2f.
      *
      * @param t1 the vector with which the comparison is made
@@ -305,7 +305,7 @@ public abstract class Tuple2f implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Returns true if the Object t1 is of type Tuple2f and all of the
+     * Returns true if the Object t1 is of type Tuple2f and all the
      * data members of t1 are equal to the corresponding data members in
      * this Tuple2f.
      *

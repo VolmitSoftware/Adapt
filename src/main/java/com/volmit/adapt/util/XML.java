@@ -349,7 +349,7 @@ public class XML {
      * JSONObject. Some information may be lost in this transformation because
      * JSON is a data format and XML is a document format. XML uses elements,
      * attributes, and content text, while JSON uses unordered collections of
-     * name/value pairs and arrays of values. JSON does not does not like to
+     * name/value pairs and arrays of values. JSON does not like to
      * distinguish between elements and attributes. Sequences of similar
      * elements are represented as JSONArrays. Content text may be placed in a
      * "content" member. Comments, prologs, DTDs, and <code>&lt;[ [ ]]></code>
@@ -404,7 +404,7 @@ public class XML {
                 sb.append('>');
             }
 
-            // Loop thru the keys.
+            // Loop through the keys.
 
             jo = (JSONObject) object;
             keys = jo.keys();

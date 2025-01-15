@@ -173,7 +173,8 @@ public interface Skill<T> extends Ticked, Component {
         try {
             XP.xpSilent(p, this, xp);
         } catch (
-                Exception ignored) { // Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.
+            // Player was Given XP (Likely Teleportation) before I can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as I know why it's happening.
+                Exception ignored) {
             Adapt.verbose("Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.");
         }
     }

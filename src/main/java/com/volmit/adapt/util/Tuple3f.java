@@ -322,7 +322,7 @@ public abstract class Tuple3f implements java.io.Serializable, Cloneable {
 
 
     /**
-     * Returns true if the Object t1 is of type Tuple3f and all of the
+     * Returns true if the Object t1 is of type Tuple3f and all the
      * data members of t1 are equal to the corresponding data members in
      * this Tuple3f.
      *
@@ -338,7 +338,7 @@ public abstract class Tuple3f implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Returns true if the Object t1 is of type Tuple3f and all of the
+     * Returns true if the Object t1 is of type Tuple3f and all the
      * data members of t1 are equal to the corresponding data members in
      * this Tuple3f.
      *
@@ -386,7 +386,7 @@ public abstract class Tuple3f implements java.io.Serializable, Cloneable {
     /**
      * Returns a hash code value based on the data values in this
      * object.  Two different Tuple3f objects with identical data values
-     * (i.e., Tuple3f.equals returns true) will return the same hash
+     * (i.e., Tuple3f. Equals returns true) will return the same hash
      * code value.  Two objects with different data members may return the
      * same hash value, although this is not likely.
      *

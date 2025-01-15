@@ -60,7 +60,7 @@ public @interface Decree {
      * The aliases of this parameter (instead of just the {@link #name() name} (if specified) or Method Name (name of
      * method))<br>
      * Can be initialized as just a string (ex. "alias") or as an array (ex. {"alias1", "alias2"})<br>
-     * If someone uses /plugin foo and you specify alias="f" here, /plugin f will do the exact same.
+     * If someone uses /plugin foo, and you specify alias="f" here, /plugin f will do the exact same.
      */
     String[] aliases() default "";
 }

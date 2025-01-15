@@ -144,7 +144,7 @@ public enum Direction {
      * (MUST BE BETWEEN 0 and 5 INCLUSIVE)
      *
      * @param b the byte
-     * @return the direction or null if the byte is outside of the inclusive range
+     * @return the direction or null if the byte is outside the inclusive range
      * 0-5
      */
     public static Direction fromByte(byte b) {

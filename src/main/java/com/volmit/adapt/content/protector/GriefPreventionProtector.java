@@ -61,7 +61,7 @@ public class GriefPreventionProtector implements Protector {
         if (claim == null) {
             return true;
         }
-        //If doesn't check is adminclaim getting ownerid return null
+        //If it doesn't check is admin claim getting ownerid return null
         if (!claim.isAdminClaim() && Objects.equals(claim.getOwnerID(), player.getUniqueId())) {
             return true;
         } else if (claim.getPermission(player.getUniqueId().toString()) == ClaimPermission.Build) {

@@ -42,18 +42,16 @@ import java.util.UUID;
 public class MortarSender implements CommandSender {
     /**
      * -- GETTER --
-     *  Get the origin sender this object is wrapping
-     *
+     * Get the origin sender this object is wrapping
      */
     private final CommandSender s;
     /**
      * -- GETTER --
-     *  Get the command tag
+     * Get the command tag
      * <p>
-     *
+     * <p>
      * -- SETTER --
-     *  Set a command tag (prefix for sendMessage)
-     *
+     * Set a command tag (prefix for sendMessage)
      */
     @Setter
     private String tag;
@@ -88,7 +86,7 @@ public class MortarSender implements CommandSender {
     /**
      * Force cast to player (be sure to check first)
      *
-     * @return a casted player
+     * @return a cast player
      */
     public Player player() {
         return (Player) getS();

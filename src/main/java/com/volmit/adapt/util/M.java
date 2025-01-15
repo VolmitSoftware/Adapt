@@ -69,9 +69,9 @@ public class M {
      * <p>
      * If from = 0 and to = 100 and at = 25 then it would return 0.25
      *
-     * @param from the from
-     * @param to   the to
-     * @param at   the at
+     * @param from the 'from'
+     * @param to   the 'to'
+     * @param at   the 'at'
      * @return the percent
      */
     public static double lerpInverse(double from, double to, double at) {
@@ -93,10 +93,10 @@ public class M {
     /**
      * Bilinear interpolation
      *
-     * @param a  the first point (0, 0)
-     * @param b  the second point (1, 0)
-     * @param c  the third point (0, 1)
-     * @param d  the fourth point (1, 1)
+     * @param a the first point (0, 0)
+     * @param b the second point (1, 0)
+     * @param c the third point (0, 1)
+     * @param d the fourth point (1, 1)
      * @param x the x
      * @param y the y
      * @return the bilerped value
@@ -174,8 +174,8 @@ public class M {
     /**
      * Get a random int from to (inclusive)
      *
-     * @param f the from
-     * @param t the to
+     * @param f the 'from'
+     * @param t the 'to'
      * @return the value
      */
     public static int irand(int f, int t) {
@@ -185,8 +185,8 @@ public class M {
     /**
      * Get a random float from to (inclusive)
      *
-     * @param f the from
-     * @param t the to
+     * @param f the 'from'
+     * @param t the 'to'
      * @return the value
      */
     public static float frand(float f, float t) {
@@ -196,8 +196,8 @@ public class M {
     /**
      * Get a random double from to (inclusive)
      *
-     * @param f the from
-     * @param t the to
+     * @param f the 'from'
+     * @param t the 'to'
      * @return the value
      */
     public static double drand(double f, double t) {

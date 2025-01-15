@@ -56,13 +56,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class VolmitSender implements CommandSender {
     @Getter
     private static final Map<String, String> helpCache = new HashMap<>();
-    /**
-     * -- GETTER --
-     *  Get the origin sender this object is wrapping
-     *
-     */
-    @Getter
-    private final CommandSender s;
     public final boolean useConsoleCustomColors = true;
     public final boolean useCustomColorsIngame = true;
     public final int spinh = -20;
@@ -70,12 +63,17 @@ public class VolmitSender implements CommandSender {
     public final int spinb = 8;
     /**
      * -- GETTER --
-     *  Get the command tag
+     * Get the origin sender this object is wrapping
+     */
+    @Getter
+    private final CommandSender s;
+    /**
+     * -- GETTER --
+     * Get the command tag
      * <p>
-     *
+     * <p>
      * -- SETTER --
-     *  Set a command tag (prefix for sendMessage)
-     *
+     * Set a command tag (prefix for sendMessage)
      */
     @Setter
     @Getter
@@ -149,7 +147,7 @@ public class VolmitSender implements CommandSender {
     /**
      * Force cast to player (be sure to check first)
      *
-     * @return a casted player
+     * @return a cast player
      */
     public Player player() {
         return (Player) getS();

@@ -66,9 +66,9 @@ public interface Component {
     /**
      * Attempts to "damage" an item.
      * 1. If the item is null, null is returned
-     * 2. If the item doesnt have durability, (damage) amount will be consumed from the stack, null will be returned if
+     * 2. If the item doesn't have durability, (damage) amount will be consumed from the stack, null will be returned if
      * more consumed than amount
-     * 3. If the item has durability, the damage will be consuemd and return the item affected, OR null if it broke
+     * 3. If the item has durability, the damage will be consumed and return the item affected, OR null if it broke
      *
      * @param item   the item (tool)
      * @param damage the damage to cause
@@ -1024,7 +1024,7 @@ public interface Component {
      *
      * @param inv the inv
      * @param is  uses the amount
-     * @return returns false if it couldnt get enough (and none was taken)
+     * @return returns false if it couldn't get enough (and none was taken)
      */
     default boolean takeAll(Inventory inv, ItemStack is) {
         ItemStack[] items = inv.getStorageContents();

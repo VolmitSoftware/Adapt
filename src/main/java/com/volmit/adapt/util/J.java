@@ -106,7 +106,7 @@ public class J {
     }
 
     /**
-     * Dont call this unless you know what you are doing!
+     * Don't call this unless you know what you are doing!
      */
     public static void executeAfterStartupQueue() {
         if (started) {
@@ -131,7 +131,7 @@ public class J {
      * Schedule a sync task to be run right after startup. If the server has already
      * started ticking, it will simply run it in a sync task.
      * <p>
-     * If you dont know if you should queue this or not, do so, it's pretty
+     * If you don't know if you should queue this or not, do so, it's pretty
      * forgiving.
      *
      * @param r the runnable
@@ -148,7 +148,7 @@ public class J {
      * Schedule an async task to be run right after startup. If the server has
      * already started ticking, it will simply run it in an async task.
      * <p>
-     * If you dont know if you should queue this or not, do so, it's pretty
+     * If you don't know if you should queue this or not, do so, it's pretty
      * forgiving.
      *
      * @param r the runnable

@@ -32,31 +32,30 @@ import java.util.UUID;
 public class GriefDefenderProtector implements Protector {
     /**
      * This api is garbage, and obfuscated.
-     * If i can get a jar ill improve it, but for now this is the best i can do.
+     * If I can get a jar ill improve it, but for now this is the best I can do.
      * Or if someone wants to make a PR feel free.
      * <p>
      * I as an author do not support this api, and do not recommend it,
      * as they are making ME pay $15(spigot) + $5(patreon) per month to be
-     * able to ask questions in their discord, and get unobfuscated jars.
-     *
+     * able to ask questions in their discord, and get un-obfuscated jars.
      */
 
     @Override
     public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
         final Claim claim = GriefDefender.getCore().getClaimAt(location);
-        return checkPerm(player, claim, adaptation) || claim.isWilderness();
+        return checkPerm(player, claim) || claim.isWilderness();
     }
 
     @Override
     public boolean canPVP(Player player, Location entityLocation, Adaptation<?> adaptation) {
         final Claim claim = GriefDefender.getCore().getClaimAt(entityLocation);
-        if (checkPerm(player, claim, adaptation)) {
+        if (checkPerm(player, claim)) {
             return Objects.requireNonNull(claim).isPvpAllowed();
         }
         return false;
     }
 
-    private boolean checkPerm(Player player, Claim claim, Adaptation<?> adaptation) {
+    private boolean checkPerm(Player player, Claim claim) {
         if (claim == null) {
             return true;
         }
@@ -68,27 +67,27 @@ public class GriefDefenderProtector implements Protector {
 
     @Override
     public boolean canPVE(Player player, Location entityLocation, Adaptation<?> adaptation) {
-        return checkPerm(player, GriefDefender.getCore().getClaimAt(entityLocation), adaptation);
+        return checkPerm(player, GriefDefender.getCore().getClaimAt(entityLocation));
     }
 
     @Override
     public boolean canInteract(Player player, Location targetLocation, Adaptation<?> adaptation) {
-        return checkPerm(player, GriefDefender.getCore().getClaimAt(targetLocation), adaptation);
+        return checkPerm(player, GriefDefender.getCore().getClaimAt(targetLocation));
     }
 
     @Override
     public boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
-        return checkPerm(player, GriefDefender.getCore().getClaimAt(chestLocation), adaptation);
+        return checkPerm(player, GriefDefender.getCore().getClaimAt(chestLocation));
     }
 
     @Override
     public boolean canBlockBreak(Player player, Location blockLocation, Adaptation<?> adaptation) {
-        return checkPerm(player, GriefDefender.getCore().getClaimAt(blockLocation), adaptation);
+        return checkPerm(player, GriefDefender.getCore().getClaimAt(blockLocation));
     }
 
     @Override
     public boolean canBlockPlace(Player player, Location blockLocation, Adaptation<?> adaptation) {
-        return checkPerm(player, GriefDefender.getCore().getClaimAt(blockLocation), adaptation);
+        return checkPerm(player, GriefDefender.getCore().getClaimAt(blockLocation));
     }
 
     @Override

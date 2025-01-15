@@ -42,22 +42,20 @@ import java.util.Random;
 public class Area {
     /**
      * -- GETTER --
-     *  Get the defined center location
+     * Get the defined center location
      * <p>
-     *
+     * <p>
      * -- SETTER --
-     *  Set the defined center location
-     *
+     * Set the defined center location
      */
     private Location location;
     /**
      * -- GETTER --
-     *  Gets the area's radius
+     * Gets the area's radius
      * <p>
-     *
+     * <p>
      * -- SETTER --
-     *  Set the area's radius
-     *
+     * Set the area's radius
      */
     private Double radius;
 
@@ -212,7 +210,7 @@ public class Area {
     /**
      * Get all players within the area.
      *
-     * @return Returns an Player[] array of all players within the given area.
+     * @return Returns a Player[] array of all players within the given area.
      */
     public Player[] getNearbyPlayers() {
         List<Player> px = new ArrayList<>();

@@ -522,7 +522,7 @@ public class Form {
     }
 
     /**
-     * Get a high accuracy but limited range duration (accurate up to a couple
+     * Get a high accuracy but limited range duration (accurate up to a couple of
      * minutes)
      *
      * @param ms   the milliseconds (double)
@@ -855,7 +855,7 @@ public class Form {
 
     /**
      * Get a class name into a configuration/filename key For example,
-     * PhantomController.class is converted to phantom-controller
+     * 'PhantomController.class' is converted to phantom-controller
      *
      * @param clazz the class
      * @return the string representation
@@ -957,7 +957,7 @@ public class Form {
 
     /**
      * Formats a double's decimals to a limit, however, this will add zeros to the
-     * decimal places that dont need to be placed down. 2.4343 formatted with 6
+     * decimal places that don't need to be placed down. 2.4343 formatted with 6
      * decimals gets returned as 2.434300
      *
      * @param i the double
@@ -1060,10 +1060,10 @@ public class Form {
     }
 
     /**
-     * Get a percent as the percent of i out of "of" with custom decimal places
+     * Get a percent as the percent of I out of "of" with custom decimal places
      *
      * @param i  the percent out of
-     * @param of of of
+     * @param of of
      * @param p  the decimal places
      * @return the string
      */
@@ -1072,10 +1072,10 @@ public class Form {
     }
 
     /**
-     * Get a percent as the percent of i out of "of"
+     * Get a percent as the percent of I out of "of"
      *
      * @param i  the percent out of
-     * @param of of of
+     * @param of of
      * @return the string
      */
     public static String pc(int i, int of) {
@@ -1083,10 +1083,10 @@ public class Form {
     }
 
     /**
-     * Get a percent as the percent of i out of "of" with custom decimal places
+     * Get a percent as the percent of I out of "of" with custom decimal places
      *
      * @param i  the percent out of
-     * @param of of of
+     * @param of of
      * @param p  the decimal places
      * @return the string
      */
@@ -1095,10 +1095,10 @@ public class Form {
     }
 
     /**
-     * Get a percent as the percent of i out of "of"
+     * Get a percent as the percent of I out of "of"
      *
      * @param i  the percent out of
-     * @param of of of
+     * @param of of
      * @return the string
      */
     public static String pc(long i, long of) {

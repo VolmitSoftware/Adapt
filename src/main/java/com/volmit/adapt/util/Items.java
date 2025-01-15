@@ -316,7 +316,7 @@ public class Items {
     }
 
     /**
-     * Can the item a be stacked onto the item b (following max stack size)
+     * Can the item 'a' be stacked onto the item b (following max stack size)
      *
      * @param a the item a
      * @param b the item b

@@ -100,7 +100,7 @@ public class Vector2d extends Tuple2d implements java.io.Serializable {
 
 
     /**
-     * Computes the dot product of the this vector and vector v1.
+     * Computes the dot product of the vector and vector v1.
      *
      * @param v1 the other vector
      */

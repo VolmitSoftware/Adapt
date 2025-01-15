@@ -30,7 +30,7 @@ import java.io.IOException;
  * Google's Protocol Buffers</a>. It uses fewer bytes to encode smaller values,
  * but will use slightly more bytes to encode large values.</p>
  * <p/>
- * <br><br>Signed values are further encoded using so-called zig-zag encoding
+ * <br><br>Signed values are further encoded using so-called zigzag encoding
  * in order to make them "compatible" with variable-length encoding.</p>
  */
 public final class Varint {
@@ -41,7 +41,7 @@ public final class Varint {
     /**
      * Encodes a value using the variable-length encoding from
      * <a href="http://code.google.com/apis/protocolbuffers/docs/encoding.html">
-     * Google Protocol Buffers</a>. It uses zig-zag encoding to efficiently
+     * Google Protocol Buffers</a>. It uses zigzag encoding to efficiently
      * encode signed values. If values are known to be nonnegative,
      * {@link #writeUnsignedVarLong(long, DataOutput)} should be used.
      *
@@ -57,7 +57,7 @@ public final class Varint {
     /**
      * Encodes a value using the variable-length encoding from
      * <a href="http://code.google.com/apis/protocolbuffers/docs/encoding.html">
-     * Google Protocol Buffers</a>. Zig-zag is not used, so input must not be negative.
+     * Google Protocol Buffers</a>. Zigzag is not used, so input must not be negative.
      * If values can be negative, use {@link #writeSignedVarLong(long, DataOutput)}
      * instead. This method treats negative input as like a large unsigned value.
      *

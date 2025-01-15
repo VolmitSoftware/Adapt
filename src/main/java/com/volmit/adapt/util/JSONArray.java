@@ -413,7 +413,7 @@ public class JSONArray implements Iterable<Object> {
 
     /**
      * Get the optional boolean value associated with an index. It returns false
-     * if there is no value at that index, or if the value is not Boolean.TRUE
+     * if there is no value at that index, or if the value is not Boolean. TRUE
      * or the String "true".
      *
      * @param index The index must be between 0 and length() - 1.
@@ -426,7 +426,7 @@ public class JSONArray implements Iterable<Object> {
     /**
      * Get the optional boolean value associated with an index. It returns the
      * defaultValue if there is no value at that index or if it is not a Boolean
-     * or the String "true" or "false" (case insensitive).
+     * or the String "true" or "false" (case-insensitive).
      *
      * @param index        The index must be between 0 and length() - 1.
      * @param defaultValue A boolean default.
@@ -698,7 +698,7 @@ public class JSONArray implements Iterable<Object> {
     }
 
     /**
-     * Append an long value. This increases the array's length by one.
+     * Append a long value. This increases the array's length by one.
      *
      * @param value A long value.
      * @return this.
@@ -725,7 +725,7 @@ public class JSONArray implements Iterable<Object> {
      *
      * @param value An object value. The value should be a Boolean, Double,
      *              Integer, JSONArray, JSONObject, Long, or String, or the
-     *              JSONObject.NULL object.
+     *              JSONObject. NULL object.
      * @return this.
      */
     public JSONArray put(Object value) {
@@ -814,7 +814,7 @@ public class JSONArray implements Iterable<Object> {
      * @param index The subscript.
      * @param value The Map value.
      * @return this.
-     * @throws JSONException If the index is negative or if the the value is an invalid
+     * @throws JSONException If the index is negative or if the value is an invalid
      *                       number.
      */
     public JSONArray put(int index, Map<String, Object> value) throws JSONException {
@@ -830,9 +830,9 @@ public class JSONArray implements Iterable<Object> {
      * @param index The subscript.
      * @param value The value to put into the array. The value should be a
      *              Boolean, Double, Integer, JSONArray, JSONObject, Long, or
-     *              String, or the JSONObject.NULL object.
+     *              String, or the JSONObject. NULL object.
      * @return this.
-     * @throws JSONException If the index is negative or if the the value is an invalid
+     * @throws JSONException If the index is negative or if the value is an invalid
      *                       number.
      */
     public JSONArray put(int index, Object value) throws JSONException {

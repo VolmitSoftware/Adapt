@@ -193,7 +193,7 @@ public class JSONObject {
 
     /**
      * Construct a JSONObject from an Object using bean getters. It reflects on
-     * all of the public methods of the object. For each of the methods with no
+     * all the public methods of the object. For each of the methods with no
      * parameters and a name starting with <code>"get"</code> or
      * <code>"is"</code> followed by an uppercase letter, the method is invoked,
      * and a key and the value returned from the getter method are put into the
@@ -540,7 +540,7 @@ public class JSONObject {
     }
 
     /**
-     * Make a JSON text of an Object value. If the object has an
+     * Make a JSON text of an Object value. If the object has a
      * value.toJSONString() method, then that method will be used to produce the
      * JSON text. The method is required to produce a strictly conforming text.
      * If the object does not contain a toJSONString method (which is the most
@@ -603,7 +603,7 @@ public class JSONObject {
      * Wrap an object, if necessary. If the object is null, return the NULL
      * object. If it is an array or collection, wrap it in a JSONArray. If it is
      * a map, wrap it in a JSONObject. If it is a standard property (Double,
-     * String, et al) then it is already wrapped. Otherwise, if it comes from
+     * String, et al.) then it is already wrapped. Otherwise, if it comes from
      * one of the java packages, turn it into a string. And if it doesn't, try
      * to wrap it in a JSONObject. If the wrapping fails, then null is returned.
      *
@@ -686,7 +686,7 @@ public class JSONObject {
     /**
      * Accumulate values under a key. It is similar to the put method except
      * that if there is already an object stored under the key then a JSONArray
-     * is stored under the key to hold all of the accumulated values. If there
+     * is stored under the key to hold all the accumulated values. If there
      * is already a JSONArray, then the new value is appended to it. In
      * contrast, the put method replaces the previous value.
      * <p>
@@ -971,7 +971,7 @@ public class JSONObject {
      *
      * @param key A key string.
      * @return true if there is no value associated with the key or if the value
-     * is the JSONObject.NULL object.
+     * is the JSONObject. NULL object.
      */
     public boolean isNull(String key) {
         return JSONObject.NULL.equals(this.opt(key));
@@ -1070,7 +1070,7 @@ public class JSONObject {
 
     /**
      * Get an optional boolean associated with a key. It returns false if there
-     * is no such key, or if the value is not Boolean.TRUE or the String "true".
+     * is no such key, or if the value is not Boolean. TRUE or the String "true".
      *
      * @param key A key string.
      * @return The truth.
@@ -1082,7 +1082,7 @@ public class JSONObject {
     /**
      * Get an optional boolean associated with a key. It returns the
      * defaultValue if there is no such key, or if it is not a Boolean or the
-     * String "true" or "false" (case insensitive).
+     * String "true" or "false" (case-insensitive).
      *
      * @param key          A key string.
      * @param defaultValue The default.
@@ -1391,7 +1391,7 @@ public class JSONObject {
      * @param key   A key string.
      * @param value An object which is the value. It should be of one of these
      *              types: Boolean, Double, Integer, JSONArray, JSONObject, Long,
-     *              String, or the JSONObject.NULL object.
+     *              String, or the JSONObject. NULL object.
      * @return this.
      * @throws JSONException If the value is non-finite number or if the key is null.
      */
@@ -1435,7 +1435,7 @@ public class JSONObject {
      * @param key   A key string.
      * @param value An object which is the value. It should be of one of these
      *              types: Boolean, Double, Integer, JSONArray, JSONObject, Long,
-     *              String, or the JSONObject.NULL object.
+     *              String, or the JSONObject. NULL object.
      * @return this.
      * @throws JSONException If the value is a non-finite number.
      */
@@ -1640,7 +1640,7 @@ public class JSONObject {
          * A Null object is equal to the null value and to itself.
          *
          * @param object An object to test for nullness.
-         * @return true if the object parameter is the JSONObject.NULL object or
+         * @return true if the object parameter is the JSONObject. NULL object or
          * null.
          */
         @Override
