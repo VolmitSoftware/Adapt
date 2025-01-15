@@ -61,7 +61,7 @@
       "description": "De beste goede jongen! (5 miljoen blokken)"
     },
     "challenge_block_1k": {
-      "title": "Blokkerend!",
+      "title": "Nauwelijks geblokkeerd!",
       "description": "Blokkeer 1000 treffers"
     },
     "challenge_block_5k": {
@@ -129,7 +129,7 @@
       "description": "Maak 5000 Voorwerpen"
     },
     "challenge_craft_50k": {
-      "title": "Cervile Knutselaar!",
+      "title": "Onderdanige ambachtsman!",
       "description": "Maak 50.000 Voorwerpen"
     },
     "challenge_craft_500k": {
@@ -231,6 +231,34 @@
     "challenge_pickaxe_5m": {
       "title": "Legendarische mijnwerker",
       "description": "Breek 5.000.000 blokken"
+    },
+    "challenge_eat_100": {
+      "title": "Zoveel te eten!",
+      "description": "Eet meer dan 100 items!"
+    },
+    "challenge_eat_1000": {
+      "title": "Onblusbare honger!",
+      "description": "Eet meer dan 1000 items!"
+    },
+    "challenge_eat_10000": {
+      "title": "EEUWIGDURENDE HONGER!",
+      "description": "Eet meer dan 10.000 items!"
+    },
+    "challenge_harvest_100": {
+      "title": "Volledige oogst",
+      "description": "Oogst meer dan 100 gewassen!"
+    },
+    "challenge_harvest_1000": {
+      "title": "Grote oogst",
+      "description": "Oogst meer dan 1.000 gewassen!"
+    },
+    "challenge_swim_1nm": {
+      "title": "Menselijke onderzeeër!",
+      "description": "Zwem 1 zeemijl (1.852 blokken)"
+    },
+    "challenge_sneak_1k": {
+      "title": "Kniepijn",
+      "description": "Sluip over een kilometer (1.000 blokken)"
     }
   },
   "items": {
@@ -252,6 +280,12 @@
     "boundsnowball": {
       "name": "Webstrik!",
       "usage1": "Gooi om een ​​tijdelijke web-valstrik op de locatie te maken"
+    },
+    "elevatorblock": {
+      "name": "Liftblok",
+      "usage1": "Spring om omhoog te teleporteren",
+      "usage2": "Shift om naar beneden te teleporteren",
+      "usage3": "Minimaal 2 luchtblokken tussen de liften"
     }
   },
   "snippets": {
@@ -446,6 +480,14 @@
     }
   },
   "architect": {
+    "elevator": {
+      "name": "Lift",
+      "description": "Hiermee kun je een lift bouwen waarmee je snel verticaal kunt teleporteren!",
+      "lore1": "Ontgrendelt liftrecept: X=WOL, Y=ENDER PEARL",
+      "lore2": "XXX",
+      "lore3": "XYX",
+      "lore4": "XXX"
+    },
     "foundation": {
       "name": "Magisch Fundament",
       "description": "Dit laat je een tijdelijk platform onder je plaatsen als je shift indrukt!",
@@ -460,7 +502,7 @@
     "wirelessredstone": {
       "name": "Redstone-afstandsbediening",
       "description": "Hierdoor kun je een Redstone-fakkel gebruiken om Redstone op afstand te schakelen!",
-      "lore1": "Doelwit + Redstone-fakkel + Enderperal = 1 Redstone-afstandsbediening"
+      "lore1": "Doelwit + Redstone-fakkel + Enderpearl = 1 Redstone-afstandsbediening"
     },
     "placement": {
       "name": "Bouwers Staf",
@@ -918,8 +960,14 @@
       "description": "Wanneer je een blok breekt, wordt het item naar je inventaris geteleporteerd",
       "lore1": "Telkens wanneer een item uit een door jou gebroken blok wordt verwijderd, wordt het indien mogelijk in je inventaris geplaatst."
     },
+    "silkspawner": {
+      "name": "Houweel Silk-Spawner",
+      "description": "Zorgt ervoor dat Spawners vallen als ze kapot gaan",
+      "lore1": "Maakt Spawners breekbaar door silk touch.",
+      "lore2": "Maakt Spawners breekbaar tijdens het sluipen."
+    },
     "veinminer": {
-      "name": "Vemineermiddel",
+      "name": "Veinminer",
       "description": "Hiermee kun je blokken breken in een ader/cluster van vanille-erts",
       "lore1": "Sluip en mijn ERTSEN",
       "lore2": "bereik van adermijnbouw",
@@ -997,6 +1045,11 @@
       "description": "Krijg weerstand bij het gebruik van Ender-items en -vaardigheden",
       "lore1": "+ Passief: biedt weerstand wanneer je rift-vaardigheden of Ender-items gebruikt",
       "lore2": "NIET inclusief draagbare Enderchest, alleen dingen die u kunt consumeren"
+    },
+    "visage": {
+      "name": "Rift Visage",
+      "description": "Voorkomt dat Endermannen agressief worden als je Enderpearls in je inventaris hebt.",
+      "lore1": "Endermannen worden niet agressief als je Enderpearls in je inventaris hebt."
     }
   },
   "seaborn": {
@@ -1051,6 +1104,12 @@
       "name": "Sluipsnelheid",
       "description": "Verkrijg snelheid tijdens het sluipen",
       "lore1": "Sluipende snelheid"
+    },
+    "enderveil": {
+      "name": "Enderveil",
+      "description": "Geen pompoenen meer nodig om Enderman-aanvallen te voorkomen",
+      "lore1": "Voorkom Enderman-aanvallen tijdens het sluipen",
+      "lore2": "Voorkom alle Enderman-aanvallen"
     }
   },
   "sword": {

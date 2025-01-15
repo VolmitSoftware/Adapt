@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.api.world;
 
-import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.notification.AdvancementNotification;
@@ -53,6 +52,7 @@ public class AdaptPlayer extends TickedObject {
     private long lastloc;
     private Vector velocity;
     private Location lastpos;
+    private long lastSeen = -1;
 
     public AdaptPlayer(Player p) {
         super("players", p.getUniqueId().toString(), 50);
@@ -124,9 +124,10 @@ public class AdaptPlayer extends TickedObject {
     @SneakyThrows
     private void save() {
         UUID uuid = player.getUniqueId();
-        String data = new Gson().toJson(this.data);
+        String data = this.data.toJson();
 
         if (AdaptConfig.get().isUseSql()) {
+            Adapt.instance.getRedisSync().publish(uuid, data);
             Adapt.instance.getSqlManager().updateData(uuid, data);
         } else {
             IO.writeAll(getPlayerDataFile(uuid), new JSONObject(data).toString(4));
@@ -136,10 +137,11 @@ public class AdaptPlayer extends TickedObject {
     @SneakyThrows
     private void unSave() {
         UUID uuid = player.getUniqueId();
-        String data = new Gson().toJson(new PlayerData());
+        String data = new PlayerData().toJson();
         unregister();
 
         if (AdaptConfig.get().isUseSql()) {
+            Adapt.instance.getRedisSync().publish(uuid, data);
             Adapt.instance.getSqlManager().updateData(uuid, data);
         } else {
             IO.writeAll(getPlayerDataFile(uuid), new JSONObject(data).toString(4));
@@ -178,12 +180,27 @@ public class AdaptPlayer extends TickedObject {
         });
     }
 
+    public boolean shouldUnload() {
+        if (player.isOnline()) {
+            lastSeen = M.ms();
+            return false;
+        }
+
+        return lastSeen + 60_000 < System.currentTimeMillis();
+    }
+
     private PlayerData loadPlayerData() {
         boolean upload = false;
         if (AdaptConfig.get().isUseSql()) {
+            var opt = Adapt.instance.getRedisSync().cachedData(player.getUniqueId());
+            if (opt.isPresent()) {
+                Adapt.verbose("Using cached data for player: " + player.getUniqueId());
+                return opt.get();
+            }
+
             String sqlData = Adapt.instance.getSqlManager().fetchData(player.getUniqueId());
             if (sqlData != null) {
-                return new Gson().fromJson(sqlData, PlayerData.class);
+                return PlayerData.fromJson(sqlData);
             }
             upload = true;
         }
@@ -195,7 +212,7 @@ public class AdaptPlayer extends TickedObject {
                 if (upload) {
                     Adapt.instance.getSqlManager().updateData(player.getUniqueId(), text);
                 }
-                return new Gson().fromJson(text, PlayerData.class);
+                return PlayerData.fromJson(text);
             } catch (Throwable ignored) {
                 Adapt.verbose("Failed to load player data for " + player.getName() + " (" + player.getUniqueId() + ")");
             }

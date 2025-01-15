@@ -21,10 +21,28 @@ package com.volmit.adapt.api.recipe;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Material;
+import org.bukkit.Tag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 
 @AllArgsConstructor
 @Data
 public class MaterialChar {
     private char character;
-    private Material material;
+    private RecipeChoice choice;
+
+    public MaterialChar(char character, Tag<Material> tag) {
+        this.character = character;
+        this.choice = new RecipeChoice.MaterialChoice(tag);
+    }
+
+    public MaterialChar(char character, Material... material) {
+        this.character = character;
+        this.choice = new RecipeChoice.MaterialChoice(material);
+    }
+
+    public MaterialChar(char character, ItemStack... itemStack) {
+        this.character = character;
+        this.choice = new RecipeChoice.ExactChoice(itemStack);
+    }
 }

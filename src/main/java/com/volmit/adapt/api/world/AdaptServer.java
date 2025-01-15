@@ -35,6 +35,7 @@ import com.volmit.adapt.content.item.ExperienceOrb;
 import com.volmit.adapt.content.item.KnowledgeOrb;
 import com.volmit.adapt.util.*;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -55,7 +56,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class AdaptServer extends TickedObject {
     private final ReentrantLock clearLock = new ReentrantLock();
-    private final Map<Player, AdaptPlayer> players = new ConcurrentHashMap<>();
+    private final Map<UUID, AdaptPlayer> players = new ConcurrentHashMap<>();
     @Getter
     private final List<SpatialXP> spatialTickets = new ArrayList<>();
     @Getter
@@ -112,12 +113,15 @@ public class AdaptServer extends TickedObject {
 
     public void join(Player p) {
         AdaptPlayer a = new AdaptPlayer(p);
-        players.put(p, a);
+        players.put(p.getUniqueId(), a);
         a.loggedIn();
     }
 
-    public void quit(Player p) {
-        Optional.ofNullable(players.remove(p)).ifPresent(AdaptPlayer::unregister);
+    public void quit(UUID p) {
+        AdaptPlayer a = players.get(p);
+        if (a == null) return;
+        a.unregister();
+        players.remove(p);
     }
 
     @Override
@@ -175,7 +179,7 @@ public class AdaptServer extends TickedObject {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        quit(p);
+        quit(p.getUniqueId());
     }
 
     @EventHandler
@@ -205,7 +209,7 @@ public class AdaptServer extends TickedObject {
                 return;
 
             try {
-                players.keySet().removeIf(player -> !player.isOnline());
+                players.values().removeIf(AdaptPlayer::shouldUnload);
             } finally {
                 clearLock.unlock();
             }
@@ -236,11 +240,17 @@ public class AdaptServer extends TickedObject {
         return new PlayerData();
     }
 
+    @NonNull
+    public Optional<PlayerData> getPlayerData(@NonNull UUID uuid) {
+        return Optional.ofNullable(players.get(uuid))
+                .map(AdaptPlayer::getData);
+    }
+
     public AdaptPlayer getPlayer(Player p) {
-        return players.computeIfAbsent(p, player -> {
+        return players.computeIfAbsent(p.getUniqueId(), player -> {
             Adapt.warn("Failed to find AdaptPlayer for " + p.getName() + " (" + p.getUniqueId() + ")");
             Adapt.warn("Loading new AdaptPlayer...");
-            return new AdaptPlayer(player);
+            return new AdaptPlayer(p);
         });
     }
 

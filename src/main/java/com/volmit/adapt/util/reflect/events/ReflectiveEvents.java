@@ -96,6 +96,10 @@ public class ReflectiveEvents {
         }
     }
 
+    public static boolean exists(@NonNull Class<? extends Event> eventInterface) {
+        return EVENTS.containsKey(eventInterface);
+    }
+
     @Nullable
     private static HandlerList getHandlerList(Class<?> parent) {
         while (parent != null) {

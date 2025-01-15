@@ -25,10 +25,7 @@ import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
-import com.volmit.adapt.content.adaptation.architect.ArchitectFoundation;
-import com.volmit.adapt.content.adaptation.architect.ArchitectGlass;
-import com.volmit.adapt.content.adaptation.architect.ArchitectPlacement;
-import com.volmit.adapt.content.adaptation.architect.ArchitectWirelessRedstone;
+import com.volmit.adapt.content.adaptation.architect.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.J;
@@ -107,6 +104,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         registerAdaptation(new ArchitectFoundation());
         registerAdaptation(new ArchitectPlacement());
         registerAdaptation(new ArchitectWirelessRedstone());
+        registerAdaptation(new ArchitectElevator());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

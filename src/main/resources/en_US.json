@@ -280,6 +280,12 @@
     "boundsnowball": {
       "name": "Web Snare!",
       "usage1": "Throw to create a temporary web trap at the location"
+    },
+    "elevatorblock": {
+      "name": "Elevator Block",
+      "usage1": "Jump to teleport up",
+      "usage2": "Shift to teleport down",
+      "usage3": "Minimum of 2 air blocks between the elevators"
     }
   },
   "snippets": {
@@ -474,6 +480,14 @@
     }
   },
   "architect": {
+    "elevator": {
+      "name": "Elevator",
+      "description": "This allows for you to build an elevator to teleport vertically fast!",
+      "lore1": "Unlocks elevator recipe: X=WOOL, Y=ENDER PEARL",
+      "lore2": "XXX",
+      "lore3": "XYX",
+      "lore4": "XXX"
+    },
     "foundation": {
       "name": "Magic Foundation",
       "description": "This allows for you to sneak and place a temporary foundation beneath you!",
