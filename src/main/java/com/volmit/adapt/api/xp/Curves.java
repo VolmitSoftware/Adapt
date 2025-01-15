@@ -135,7 +135,7 @@ public enum Curves {
     }
 
 
-    public class WOWNewtonCurve {
+    public static class WOWNewtonCurve {
         public static NewtonCurve create() {
             Function<Double, Double> xpForLevel = level -> {
                 double f = 0;

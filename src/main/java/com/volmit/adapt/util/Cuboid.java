@@ -689,7 +689,7 @@ public class Cuboid implements Iterable<Block>, Cloneable, ConfigurationSerializ
         }
     }
 
-    public class CuboidIterator implements Iterator<Block> {
+    public static class CuboidIterator implements Iterator<Block> {
         private final World w;
         private final int baseX;
         private final int baseY;

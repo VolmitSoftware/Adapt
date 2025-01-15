@@ -80,7 +80,7 @@ public class AdaptVelocity {
     }
 
     @Subscribe
-    public void onShutdown(ProxyShutdownEvent event) throws Exception {
+    public void onShutdown(ProxyShutdownEvent event) {
         if (this.handler != null) {
             proxy.getEventManager().unregisterListener(this, handler);
             handler.close();

@@ -100,7 +100,7 @@ public class BrewingManager implements Listener {
             PotionMeta meta = (PotionMeta) s.getItemMeta();
             var opt = Reflect.getEnum(PotionType.class, "UNCRAFTABLE");
             if (opt.isEmpty()) {
-                meta.getBasePotionData();
+                Objects.requireNonNull(meta).getBasePotionData();
                 continue;
             }
             if (Objects.requireNonNull(meta).getBasePotionData().getType() == opt.get())
