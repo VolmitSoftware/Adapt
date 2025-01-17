@@ -42,6 +42,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Painting;
+
 public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Config> {
     private static final BlockData AIR = Material.AIR.createBlockData();
     private static final BlockData BLOCK = Material.TINTED_GLASS.createBlockData();
@@ -210,6 +213,13 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         if (!block.getType().isAir()) {
             return false;
         }
+
+        if(!block.getWorld()
+                .getNearbyEntities(block.getLocation()
+                        .add(.5, .5, .5), .5, .5, .5, entity ->
+                        entity instanceof ItemFrame || entity instanceof Painting).isEmpty())
+            return false;
+
 
         J.s(() -> {
             block.setBlockData(BLOCK);

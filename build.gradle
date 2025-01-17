@@ -27,7 +27,7 @@ version '1.16.0-1.19.2-1.21.3'
 def apiVersion = '1.19'
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
-def manifoldVersion = '2024.1.37'
+def manifoldVersion = '2024.1.49'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
