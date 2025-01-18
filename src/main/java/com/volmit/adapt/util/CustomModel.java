@@ -113,7 +113,12 @@ public record CustomModel(Material material, int model, NamespacedKey modelKey) 
                     }
                     json = v.getAsJsonObject();
                 }
-                return new CustomModel(Material.valueOf(json.get("material").getAsString().toUpperCase()), json.get("model").getAsInt(), NamespacedKey.fromString(json.get("modelKey").getAsString()));
+
+                return new CustomModel(
+                        json.has("material") ? Material.valueOf(json.get("material").getAsString()) : fallback,
+                        json.has("model") ? json.get("model").getAsInt() : 0,
+                        json.has("modelKey") ? NamespacedKey.fromString(json.get("modelKey").getAsString()) : EMPTY_KEY
+                );
             });
         }
 
