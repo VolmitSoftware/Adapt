@@ -24,7 +24,7 @@ import com.volmit.adapt.api.potion.PotionBuilder;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
-import com.volmit.adapt.util.reflect.enums.PotionTypes;
+import com.volmit.adapt.util.reflect.registries.PotionTypes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;

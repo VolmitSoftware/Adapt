@@ -20,7 +20,7 @@ package com.volmit.adapt.content.adaptation.sword;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
-import com.volmit.adapt.util.reflect.enums.Materials;
+import com.volmit.adapt.util.reflect.registries.Materials;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

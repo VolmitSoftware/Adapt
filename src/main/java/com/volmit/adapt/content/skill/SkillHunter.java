@@ -28,7 +28,7 @@ import com.volmit.adapt.content.adaptation.hunter.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
-import com.volmit.adapt.util.reflect.enums.Attributes;
+import com.volmit.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
