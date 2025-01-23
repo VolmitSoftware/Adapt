@@ -19,6 +19,7 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.enums.Particles;
 import lombok.NoArgsConstructor;
@@ -84,7 +85,14 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
                     for (int i = 0; i < Math.min(Math.min(rad * rad, 256), 3); i++) {
                         Location m = p.getLocation().clone().add(new Vector(Math.sin(angle), RNG.r.i(-1, 1), Math.cos(angle)).multiply(Math.random() * rad));
-                        Block a = m.getWorld().getHighestBlockAt(m).getRelative(BlockFace.UP);
+                        Block a = m.getBlock();
+                        if (getConfig().surfaceOnly) {
+                            int max = a.getWorld().getHighestBlockYAt(m);
+
+                            if (max + 1 != a.getY())
+                                continue;
+                        }
+
                         SoundPlayer spw = SoundPlayer.of(a.getWorld());
                         if (a.getBlockData() instanceof Ageable) {
                             Ageable ab = (Ageable) a.getBlockData();
@@ -92,24 +100,23 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
                             if (toGrowLeft > 0) {
                                 int add = (int) Math.max(1, Math.min(strength, toGrowLeft));
-                                if (ab.getMaximumAge() > ab.getAge() && getPlayer(p).canConsumeFood(foodCost, 10)) {
+                                AdaptPlayer player = getPlayer(p);
+                                if (ab.getMaximumAge() > ab.getAge() && player.canConsumeFood(foodCost, 10)) {
                                     while (add-- > 0) {
                                         J.s(() -> {
-                                            if (getPlayer(p).consumeFood(foodCost, 10)) {
-                                                if (a.getBlockData() instanceof Ageable) {
-                                                    Ageable aab = (Ageable) a.getBlockData();
+                                            if (!p.isOnline()
+                                                    || !player.consumeFood(foodCost, 10)
+                                                    || !(a.getBlockData() instanceof Ageable aab)
+                                                    || aab.getAge() == aab.getMaximumAge())
+                                                return;
 
-                                                    if (aab.getAge() < aab.getMaximumAge()) {
-                                                        aab.setAge(aab.getAge() + 1);
-                                                        a.setBlockData(aab, true);
-                                                        spw.play(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
-                                                        if (getConfig().showParticles) {
-                                                            p.spawnParticle(Particles.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);
-                                                        }
-//                                                        xp(p, 1); // JESUS THIS IS FUCKING BUSTED
-                                                    }
-                                                }
+                                            aab.setAge(aab.getAge() + 1);
+                                            a.setBlockData(aab, true);
+                                            spw.play(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
+                                            if (getConfig().showParticles) {
+                                                p.spawnParticle(Particles.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);
                                             }
+//                                          xp(p, 1); // JESUS THIS IS FUCKING BUSTED
                                         }, RNG.r.i(30, 60));
                                     }
                                 }
@@ -140,6 +147,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         boolean permanent = false;
         boolean enabled = true;
         boolean showParticles = true;
+        boolean surfaceOnly = true;
         int baseCost = 8;
         int maxLevel = 7;
         int initialCost = 12;
