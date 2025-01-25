@@ -18,8 +18,8 @@
 
 package com.volmit.adapt.util;
 
-import com.volmit.adapt.util.reflect.enums.Enchantments;
-import com.volmit.adapt.util.reflect.enums.ItemFlags;
+import com.volmit.adapt.util.reflect.registries.Enchantments;
+import com.volmit.adapt.util.reflect.registries.ItemFlags;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;

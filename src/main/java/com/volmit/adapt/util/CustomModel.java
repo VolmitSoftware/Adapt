@@ -7,8 +7,10 @@ import com.google.gson.JsonObject;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.tick.TickedObject;
+import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.collection.KMap;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
@@ -17,7 +19,8 @@ import java.io.IOException;
 
 import static com.volmit.adapt.Adapt.instance;
 
-public record CustomModel(Material material, int model) {
+public record CustomModel(Material material, int model, NamespacedKey modelKey) {
+    public static final NamespacedKey EMPTY_KEY = NamespacedKey.minecraft("empty");
     private static UpdateChecker updateChecker = null;
     private static final Gson GSON = new GsonBuilder()
             .disableHtmlEscaping()
@@ -33,14 +36,14 @@ public record CustomModel(Material material, int model) {
         if (meta == null || model == 0)
             return itemStack;
 
-        meta.setCustomModelData(model);
+        Version.get().applyModel(this, meta);
         itemStack.setItemMeta(meta);
         return itemStack;
     }
 
     public static CustomModel get(Material fallback, String... path) {
         if (!AdaptConfig.get().isCustomModels())
-            return new CustomModel(fallback, 0);
+            return new CustomModel(fallback, 0, null);
 
         if (updateChecker == null)
             updateChecker = new UpdateChecker();
@@ -102,15 +105,20 @@ public record CustomModel(Material material, int model) {
                 var json = this.json;
                 for (var s : path) {
                     if (!json.has(s))
-                        return set(new CustomModel(fallback, 0), path);
+                        return set(new CustomModel(fallback, 0, EMPTY_KEY), path);
                     var v = json.get(s);
                     if (!v.isJsonObject()) {
                         Adapt.warn("Invalid json at path: " + String.join(".", path));
-                        return new CustomModel(fallback, 0);
+                        return new CustomModel(fallback, 0, EMPTY_KEY);
                     }
                     json = v.getAsJsonObject();
                 }
-                return new CustomModel(Material.valueOf(json.get("material").getAsString().toUpperCase()), json.get("model").getAsInt());
+
+                return new CustomModel(
+                        json.has("material") ? Material.valueOf(json.get("material").getAsString()) : fallback,
+                        json.has("model") ? json.get("model").getAsInt() : 0,
+                        json.has("modelKey") ? NamespacedKey.fromString(json.get("modelKey").getAsString()) : EMPTY_KEY
+                );
             });
         }
 
@@ -130,6 +138,7 @@ public record CustomModel(Material material, int model) {
 
             json.addProperty("material", data.material.name());
             json.addProperty("model", data.model);
+            json.addProperty("modelKey", data.modelKey.toString());
 
             try {
                 writeFile();

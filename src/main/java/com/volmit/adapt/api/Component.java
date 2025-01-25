@@ -28,7 +28,7 @@ import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.SoundPlayer;
-import com.volmit.adapt.util.reflect.enums.PotionTypes;
+import com.volmit.adapt.util.reflect.registries.PotionTypes;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -56,8 +56,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static com.volmit.adapt.util.reflect.enums.Particles.ENCHANTMENT_TABLE;
-import static com.volmit.adapt.util.reflect.enums.Particles.REDSTONE;
+import static com.volmit.adapt.util.reflect.registries.Particles.ENCHANTMENT_TABLE;
+import static com.volmit.adapt.util.reflect.registries.Particles.REDSTONE;
 import static org.bukkit.potion.PotionType.*;
 import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
 

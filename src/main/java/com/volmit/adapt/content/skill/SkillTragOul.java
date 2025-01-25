@@ -31,7 +31,7 @@ import com.volmit.adapt.content.adaptation.tragoul.TragoulThorns;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
-import com.volmit.adapt.util.reflect.enums.Particles;
+import com.volmit.adapt.util.reflect.registries.Particles;
 import de.slikey.effectlib.effect.CloudEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
