@@ -218,7 +218,7 @@ public class Adapt extends VolmitPlugin {
 
     private void setupMetrics() {
         if (AdaptConfig.get().isMetrics()) {
-            new Metrics(this, 13412);
+            new Metrics(this, 24221);
         }
     }
 

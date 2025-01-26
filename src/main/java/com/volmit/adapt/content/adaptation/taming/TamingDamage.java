@@ -21,7 +21,7 @@ package com.volmit.adapt.content.adaptation.taming;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
-import com.volmit.adapt.util.reflect.enums.Attributes;
+import com.volmit.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

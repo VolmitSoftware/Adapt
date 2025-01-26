@@ -22,7 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.*;
-import com.volmit.adapt.util.reflect.enums.Particles;
+import com.volmit.adapt.util.reflect.registries.Particles;
 import fr.skytasul.glowingentities.GlowingEntities;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;

@@ -23,7 +23,7 @@ import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
-import com.volmit.adapt.util.reflect.enums.Materials;
+import com.volmit.adapt.util.reflect.registries.Materials;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
