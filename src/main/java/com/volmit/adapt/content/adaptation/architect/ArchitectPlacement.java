@@ -76,48 +76,66 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         totalMap.remove(p);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(BlockPlaceEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
         Player p = e.getPlayer();
         SoundPlayer sp = SoundPlayer.of(p);
+        if (!hasAdaptation(p) || !p.isSneaking())
+            return;
 
-        if (hasAdaptation(p) && !totalMap.isEmpty() && totalMap.get(p) != null && totalMap.get(p).size() > 0) {
-            ItemStack is = p.getInventory().getItemInMainHand().clone();
-            ItemStack hand = p.getInventory().getItemInMainHand();
-            if (p.isSneaking() && is.getType().isBlock()) {
-                double v = getValue(e.getBlock());
-                int handSizeAfter = is.getAmount() - totalMap.get(p).size();
-                if (handSizeAfter >= 0) {
-                    for (Block b : totalMap.get(p).keySet()) { // Block Placer
-                        if (!canBlockPlace(p, b.getLocation())) {
-                            Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
-                            continue;
-                        }
-                        BlockFace face = totalMap.get(p).get(b);
-                        if (b.getWorld().getBlockAt(b.getRelative(face).getLocation()).getType() == Material.AIR) {
-                            if (b.getRelative(face).getLocation() != e.getBlock().getLocation()) {
-                                b.getWorld().setBlockData(b.getRelative(face).getLocation(), b.getBlockData());
-                                getPlayer(p).getData().addStat("blocks.placed", 1);
-                                getPlayer(p).getData().addStat("blocks.placed.value", v);
-                                sp.play(b.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
-                                xp(p, 2);
-                            }
-                        }
-                        is.setAmount(is.getAmount() - 1);
-                        hand.setAmount(is.getAmount());
-                    }
-                    totalMap.remove(p);
-                    if (hand.getAmount() > 0) {
-                        runPlayerViewport(getBlockFace(p), p.getTargetBlock(null, 5), p.getInventory().getItemInMainHand().getType(), p);
-                    }
-                    e.setCancelled(true);
-                } else {
-                    Adapt.messagePlayer(p, C.RED + Localizer.dLocalize("architect", "placement", "lore1") + " " + C.GREEN + totalMap.get(p).size() + C.RED + " " + Localizer.dLocalize("architect", "placement", "lore2"));
-                }
+        var blocks = totalMap.get(p);
+        if (blocks == null || blocks.isEmpty())
+            return;
+
+        ItemStack hand = e.getItemInHand();
+        if (!hand.getType().isBlock())
+            return;
+
+        double v = getValue(e.getBlock());
+        Block ignored = blocks.keySet()
+                        .stream()
+                        .filter(b -> b.getRelative(blocks.get(b)).equals(e.getBlock()))
+                        .findFirst()
+                        .orElse(null);
+
+        if (hand.getAmount() < blocks.size()) {
+            Adapt.messagePlayer(p, C.RED + Localizer.dLocalize("architect", "placement", "lore1") + " " + C.GREEN + blocks.size() + C.RED + " " + Localizer.dLocalize("architect", "placement", "lore2"));
+            return;
+        }
+
+        blocks.remove(ignored);
+        for (Block b : blocks.keySet()) { // Block Placer
+            Block relative = b.getRelative(blocks.get(b));
+            if (!relative.getType().isAir())
+                continue;
+
+            if (!canBlockPlace(p, relative.getLocation())) {
+                Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
+                continue;
             }
+
+            relative.setBlockData(b.getBlockData());
+            getPlayer(p).getData().addStat("blocks.placed", 1);
+            getPlayer(p).getData().addStat("blocks.placed.value", v);
+            sp.play(b.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
+            xp(p, 2);
+
+            hand.setAmount(hand.getAmount() - 1);
+        }
+
+        if (ignored != null) {
+            e.getBlock().setBlockData(ignored.getBlockData());
+            getPlayer(p).getData().addStat("blocks.placed", 1);
+            getPlayer(p).getData().addStat("blocks.placed.value", v);
+            sp.play(ignored.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
+            xp(p, 2);
+
+            hand.setAmount(hand.getAmount() - 1);
+        } else e.setCancelled(true);
+
+        totalMap.remove(p);
+        if (hand.getAmount() > 0) {
+            runPlayerViewport(getBlockFace(p), p.getTargetBlock(null, 5), p.getInventory().getItemInMainHand().getType(), p);
         }
     }
 
