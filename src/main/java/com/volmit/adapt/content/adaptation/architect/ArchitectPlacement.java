@@ -88,7 +88,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
             return;
 
         ItemStack hand = e.getItemInHand();
-        if (!hand.getType().isBlock())
+        if (!hand.getType().isBlock() || blocks.keySet().getFirst().getType() != hand.getType())
             return;
 
         double v = getValue(e.getBlock());
