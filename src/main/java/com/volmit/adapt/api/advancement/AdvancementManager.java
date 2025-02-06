@@ -10,6 +10,8 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.J;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,21 +36,23 @@ public class AdvancementManager {
 
     public void grant(AdaptPlayer player, String key, boolean toast) {
         player.getData().ensureGranted(key);
-        if (!AdaptConfig.get().isAdvancements() || !enabled.get()) return;
+        Player p = player.getPlayer();
+        if (!AdaptConfig.get().isAdvancements() || !enabled.get() || p == null || !p.isOnline()) return;
         Advancement advancement = advancements.get(key);
         try {
-            J.s(() -> advancement.grant(player.getPlayer(), true), 5);
+            J.s(() -> {
+                if (!p.isOnline()) return;
+                advancement.grant(player.getPlayer(), true);
+            }, 5);
         } catch (Exception e) {
             Adapt.error("Failed to grant advancement " + key);
         }
 
         if (toast) {
-            if (player.getPlayer() != null) {
-                try {
-                    advancement.displayToastToPlayer(player.getPlayer());
-                } catch (Exception e) {
-                    Adapt.error("Failed to grant advancement " + key + " Reattaching!");
-                }
+            try {
+                advancement.displayToastToPlayer(p);
+            } catch (Exception e) {
+                Adapt.error("Failed to grant advancement " + key + " Reattaching!");
             }
         }
     }
