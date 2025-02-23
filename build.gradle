@@ -123,8 +123,7 @@ allprojects {
         implementation 'com.github.VolmitDev:Spatial:22.11.1'
         implementation 'net.byteflux:libby-velocity:1.3.1'
 
-        compileOnly "io.papermc:paperlib:1.0.7"
-        compileOnly 'com.github.ben-manes.caffeine:caffeine:3.0.6'
+        implementation "io.papermc:paperlib:1.0.7"
         annotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
         testAnnotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
         implementation 'systems.manifold:manifold-rt:' + manifoldVersion
@@ -156,6 +155,7 @@ allprojects {
         compileOnly 'it.unimi.dsi:fastutil:8.5.13'
         compileOnly "fr.skytasul:glowingentities:1.4.3"
         compileOnly 'com.google.guava:guava:30.1-jre'
+        compileOnly 'com.github.ben-manes.caffeine:caffeine:3.0.6'
         compileOnly fileTree(dir: 'libs', include: ['*.jar'])
     }
 }
@@ -186,6 +186,7 @@ shadowJar {
     relocate 'com.fren_gor.ultimateAdvancementAPI', 'com.volmit.adapt.util.advancements'
     relocate 'net.byteflux.libby', 'com.volmit.adapt.util.libby'
     relocate 'com.jeff_media.customblockdata', 'com.volmit.util.customblocks'
+    relocate 'io.papermc.lib', 'com.volmit.util.paperlib'
     dependencies {
         include(dependency('systems.manifold:'))
         include(dependency('xyz.xenondevs:'))
@@ -193,6 +194,7 @@ shadowJar {
         include(dependency('com.frengor:ultimateadvancementapi-shadeable:'))
         include(dependency('net.byteflux:'))
         include(dependency('com.jeff-media:custom-block-data:'))
+        include(dependency('io.papermc:paperlib:'))
     }
 }
 
@@ -202,7 +204,7 @@ configurations.configureEach {
 }
 
 dependencies {
-    implementation 'org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT'
 }
 
 if (JavaVersion.current().toString() != "17") {
