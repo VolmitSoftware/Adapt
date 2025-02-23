@@ -40,7 +40,7 @@ public class CommandAdapt implements DecreeExecutor {
         }
 
         AdaptServer adaptServer = Adapt.instance.getAdaptServer();
-        if (player() == null) {
+        if (player == null) {
             adaptServer.boostXP(multiplier, seconds * 1000);
         } else {
             AdaptPlayer adaptPlayer = adaptServer.getPlayer(player);
@@ -220,7 +220,7 @@ public class CommandAdapt implements DecreeExecutor {
         }
 
         Player targetPlayer = player;
-        if (targetPlayer == null && sender().isPlayer()) {
+        if (targetPlayer == null && sender().isConsole()) {
             FConst.error("You must specify a player when using this command from console.").send(sender());
         } else if (targetPlayer == null) {
             targetPlayer = player();
