@@ -69,44 +69,37 @@ public class WorldGuardProtector implements Protector {
 
     @Override
     public boolean canBlockBreak(Player player, Location blockLocation, Adaptation<?> adaptation) {
-        return checkRegion(player, blockLocation, adaptation) && checkPerm(blockLocation, Flags.BLOCK_BREAK);
+        return checkRegion(player, blockLocation, adaptation) && checkPerm(player, blockLocation, Flags.BLOCK_BREAK);
     }
 
     @Override
     public boolean canBlockPlace(Player player, Location blockLocation, Adaptation<?> adaptation) {
-        return checkRegion(player, blockLocation, adaptation) && checkPerm(blockLocation, Flags.BLOCK_PLACE);
+        return checkRegion(player, blockLocation, adaptation) && checkPerm(player, blockLocation, Flags.BLOCK_PLACE);
     }
 
     @Override
     public boolean canPVP(Player player, Location entityLocation, Adaptation<?> adaptation) {
-        return checkRegion(player, entityLocation, adaptation) && checkPerm(entityLocation, Flags.PVP);
+        return checkRegion(player, entityLocation, adaptation) && checkPerm(player, entityLocation, Flags.PVP);
     }
 
     @Override
     public boolean canPVE(Player player, Location entityLocation, Adaptation<?> adaptation) {
-        return checkRegion(player, entityLocation, adaptation) && checkPerm(entityLocation, Flags.DAMAGE_ANIMALS);
+        return checkRegion(player, entityLocation, adaptation) && checkPerm(player, entityLocation, Flags.DAMAGE_ANIMALS);
     }
 
     @Override
     public boolean canInteract(Player player, Location targetLocation, Adaptation<?> adaptation) {
-        return checkRegion(player, targetLocation, adaptation) && checkPerm(targetLocation, Flags.INTERACT);
+        return checkRegion(player, targetLocation, adaptation) && checkPerm(player, targetLocation, Flags.INTERACT);
     }
 
     @Override
     public boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
-        return checkRegion(player, chestLocation, adaptation) && checkPerm(chestLocation, Flags.CHEST_ACCESS);
-    }
-
-    private boolean checkPerm(Location location, StateFlag flag) {
-        return checkPerm(null, location, flag);
+        return checkRegion(player, chestLocation, adaptation) && checkPerm(player, chestLocation, Flags.CHEST_ACCESS);
     }
 
     private boolean checkPerm(Player player, Location location, StateFlag flag) {
         RegionQuery regionQuery = container.createQuery();
         com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(location);
-        if (player == null) {
-            return regionQuery.queryState(loc, new DelayedRegionOverlapAssociation(regionQuery, loc), flag) != StateFlag.State.DENY;
-        }
         if (!hasBypass(player, location))
             return regionQuery.queryState(loc, WorldGuardPlugin.inst().wrapPlayer(player), flag) != StateFlag.State.DENY;
         return true;
