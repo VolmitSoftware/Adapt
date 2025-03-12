@@ -243,8 +243,9 @@ public class Adapt extends VolmitPlugin {
                 try {
                     Adapt.verbose("Found class: " + i.getName());
                     v.add(i.getDeclaredConstructor().newInstance());
-                } catch (Throwable ignored) {
-
+                } catch (Throwable e) {
+                    Adapt.verbose("Failed to load class: " + i.getName());
+                    e.printAsStrings().forEach(Adapt::verbose);
                 }
             }
         }
