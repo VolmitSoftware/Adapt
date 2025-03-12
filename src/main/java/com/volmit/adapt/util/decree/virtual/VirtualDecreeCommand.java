@@ -40,10 +40,7 @@ import lombok.Data;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -281,8 +278,8 @@ public class VirtualDecreeCommand {
      * @param in     The input
      * @return A map of all the parameter names and their values
      */
-    private KMap<String, Object> map(VolmitSender sender, List<String> in) {
-        KMap<String, Object> data = new KMap<>();
+    private KMap<String, Optional<Object>> map(VolmitSender sender, List<String> in) {
+        KMap<String, Optional<Object>> data = new KMap<>();
         List<Integer> nowhich = new ArrayList<>();
 
         List<String> unknownInputs = new ArrayList<>(in.stream().filter(s -> !s.contains("=")).collect(Collectors.toList()));
@@ -331,7 +328,7 @@ public class VirtualDecreeCommand {
             key = param.getName();
 
             try {
-                data.put(key, param.getHandler().parse(value, nowhich.contains(original))); //Parse and put
+                data.put(key, Optional.ofNullable(param.getHandler().parse(value, nowhich.contains(original)))); //Parse and put
             } catch (DecreeParsingException e) {
                 Adapt.debug("Can't parse parameter value for " + key + "=" + value + " in " + getPath() + " using handler " + param.getHandler().getClass().getSimpleName());
                 sender.sendMessage(C.RED + "Cannot convert \"" + value + "\" into a " + param.getType().getSimpleName());
@@ -351,7 +348,7 @@ public class VirtualDecreeCommand {
                 DecreeParameter par = decreeParameters.get(x);
 
                 try {
-                    data.put(par.getName(), par.getHandler().parse(stringParam, nowhich.contains(original)));
+                    data.put(par.getName(), Optional.ofNullable(par.getHandler().parse(stringParam, nowhich.contains(original))));
                 } catch (DecreeParsingException e) {
                     Adapt.debug("Can't parse parameter value for " + par.getName() + "=" + stringParam + " in " + getPath() + " using handler " + par.getHandler().getClass().getSimpleName());
                     sender.sendMessage(C.RED + "Cannot convert \"" + stringParam + "\" into a " + par.getType().getSimpleName());
@@ -408,7 +405,7 @@ public class VirtualDecreeCommand {
         return false;
     }
 
-    private boolean invokeNode(VolmitSender sender, KMap<String, Object> map) {
+    private boolean invokeNode(VolmitSender sender, KMap<String, Optional<Object>> map) {
         if (map == null) {
             return false;
         }
@@ -416,7 +413,7 @@ public class VirtualDecreeCommand {
         Object[] params = new Object[getNode().getMethod().getParameterCount()];
         int vm = 0;
         for (DecreeParameter i : getNode().getParameters()) {
-            Object value = map.get(i.getName());
+            Object value = map.getOrDefault(i.getName(), Optional.empty()).orElse(null);
 
             try {
                 if (value == null && i.hasDefault()) {
