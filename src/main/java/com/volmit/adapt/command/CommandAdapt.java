@@ -41,11 +41,11 @@ public class CommandAdapt implements DecreeExecutor {
         Player targetPlayer = player;
         if (targetPlayer == null && sender().isConsole()) {
             FConst.error("You must specify a player when using this command from console.").send(sender());
+            return;
         } else if (targetPlayer == null) {
             targetPlayer = player();
         }
 
-        assert targetPlayer != null;
         AdaptServer adaptServer = Adapt.instance.getAdaptServer();
         PlayerData playerData = adaptServer.getPlayer(targetPlayer).getData();
         playerData.globalXPMultiplier(multiplier, seconds * 1000);
@@ -88,6 +88,7 @@ public class CommandAdapt implements DecreeExecutor {
         Player targetPlayer = player;
         if (targetPlayer == null && sender().isConsole()) {
             FConst.error("You must specify a player when using this command from console.").send(sender());
+            return;
         } else if (targetPlayer == null) {
             targetPlayer = player();
         }
