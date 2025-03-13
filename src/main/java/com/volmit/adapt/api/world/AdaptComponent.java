@@ -19,6 +19,7 @@
 package com.volmit.adapt.api.world;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.util.reflect.registries.Materials;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
@@ -42,11 +43,15 @@ public interface AdaptComponent {
     }
 
     default boolean isTool(ItemStack is) {
-        return isAxe(is) || isPickaxe(is) || isHoe(is) || isShovel(is) || isSword(is) || isTrident(is);
+        return isAxe(is) || isPickaxe(is) || isHoe(is) || isShovel(is) || isSword(is) || isTrident(is) || isMace(is);
     }
 
     default boolean isMelee(ItemStack is) {
         return isTool(is);
+    }
+
+    default boolean isMace(ItemStack is) {
+        return is.getType().getKey().equals(Materials.MACE_KEY);
     }
 
     default boolean isShield(ItemStack is) {
