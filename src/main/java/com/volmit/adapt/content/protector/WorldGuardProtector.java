@@ -26,6 +26,7 @@ import com.sk89q.worldguard.protection.association.DelayedRegionOverlapAssociati
 import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
@@ -44,21 +45,27 @@ public class WorldGuardProtector implements Protector {
     private final StateFlag flag;
 
     public WorldGuardProtector() {
-        this.flag = new StateFlag("use-adaptations", false);
+        StateFlag flag = new StateFlag("use-adaptations", false);
         FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
-
         try {
-            // Access the flags field of the registry
-            Field field = registry.getClass().getDeclaredField("flags");
-            // This line makes the private field accessible
-            field.setAccessible(true);
-            // Get the flags from the registry
-            ConcurrentMap<String, Flag<?>> flags = (ConcurrentMap<String, Flag<?>>) field.get(registry);
-            // Add it to the registry
-            flags.put(flag.getName().toLowerCase(), flag);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+            registry.register(flag);
+        } catch (FlagConflictException e) {
+            flag = (StateFlag) registry.get("use-adaptations");
+        } catch (IllegalStateException ignored) {
+            try {
+                // Access the flags field of the registry
+                Field field = registry.getClass().getDeclaredField("flags");
+                // This line makes the private field accessible
+                field.setAccessible(true);
+                // Get the flags from the registry
+                ConcurrentMap<String, Flag<?>> flags = (ConcurrentMap<String, Flag<?>>) field.get(registry);
+                // Add it to the registry
+                flags.put(flag.getName().toLowerCase(), flag);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
+        this.flag = flag;
     }
 
 

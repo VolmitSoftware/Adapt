@@ -102,6 +102,9 @@ public class Adapt extends VolmitPlugin {
     @Override
     public void onLoad() {
         manager = new AdvancementManager();
+        if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
+            new WorldGuardProtector();
+        }
     }
 
     @Override
