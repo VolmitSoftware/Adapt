@@ -124,7 +124,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(PlayerToggleSneakEvent event) {
-        if (!event.isSneaking()) return;
+        if (!event.isSneaking() || event.getPlayer().isInsideVehicle()) return;
         Player player = event.getPlayer();
         Block block = findElevator(player);
         if (block == null) return;
@@ -292,7 +292,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     }
 
     private void handleElevatorMovement(Block block, Player player, boolean down) {
-        if (!isElevator(block))
+        if (!isElevator(block) || player.isInsideVehicle())
             return;
 
         CustomBlockData data = new CustomBlockData(block, Adapt.instance);
