@@ -167,6 +167,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                 Adapt.verbose("Opening AdvancedChests GUI");
             } else if (b.getState() instanceof InventoryHolder holder) {
                 InventoryView view = p.openInventory(holder.getInventory());
+                if (view == null) return;
                 activeViewsMap.computeIfAbsent(b.getLocation(), k -> new ArrayList<>()).add(view);
             }
             sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
