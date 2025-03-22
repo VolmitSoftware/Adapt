@@ -48,7 +48,6 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
         }
 
         event.setDropItems(false);
-        var items = new KList<Item>();
         var spawner = new ItemStack(Material.SPAWNER);
         var state = block.getState();
         if (spawner.getItemMeta() instanceof BlockStateMeta meta) {
@@ -65,7 +64,7 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
         item.setItemStack(spawner);
         item.setOwner(player.getUniqueId());
 
-        var dropEvent = new BlockDropItemEvent(block, state, player, items);
+        var dropEvent = new BlockDropItemEvent(block, state, player, new KList<Item>().qadd(item));
         Bukkit.getPluginManager().callEvent(dropEvent);
         if (dropEvent.isCancelled()) {
             for (Item i : dropEvent.getItems()) {
