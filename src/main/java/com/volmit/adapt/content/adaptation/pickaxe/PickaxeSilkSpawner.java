@@ -15,6 +15,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 
 public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Config> {
 
@@ -46,9 +47,16 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
 
         event.setDropItems(false);
         var items = new KList<Item>();
-        block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(Material.SPAWNER), items::add);
+        var spawner = new ItemStack(Material.SPAWNER);
+        var state = block.getState();
+        if (spawner.getItemMeta() instanceof BlockStateMeta meta) {
+            meta.setBlockState(state);
+            spawner.setItemMeta(meta);
+        }
 
-        var dropEvent = new BlockDropItemEvent(block, block.getState(), player, items);
+        block.getWorld().dropItemNaturally(block.getLocation(), spawner, items::add);
+
+        var dropEvent = new BlockDropItemEvent(block, state, player, items);
         Bukkit.getPluginManager().callEvent(dropEvent);
         if (dropEvent.isCancelled() && !items.isEmpty()) {
             items.forEach(Item::remove);
