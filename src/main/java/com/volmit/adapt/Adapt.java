@@ -103,7 +103,7 @@ public class Adapt extends VolmitPlugin {
     public void onLoad() {
         manager = new AdvancementManager();
         if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
-            new WorldGuardProtector();
+            WorldGuardProtector.registerFlag();
         }
     }
 

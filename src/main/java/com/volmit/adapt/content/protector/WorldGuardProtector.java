@@ -22,14 +22,13 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.association.DelayedRegionOverlapAssociation;
 import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.protection.Protector;
@@ -42,31 +41,7 @@ import java.util.concurrent.ConcurrentMap;
 public class WorldGuardProtector implements Protector {
 
     private final RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-    private final StateFlag flag;
-
-    public WorldGuardProtector() {
-        StateFlag flag = new StateFlag("use-adaptations", false);
-        FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
-        try {
-            registry.register(flag);
-        } catch (FlagConflictException e) {
-            flag = (StateFlag) registry.get("use-adaptations");
-        } catch (IllegalStateException ignored) {
-            try {
-                // Access the flags field of the registry
-                Field field = registry.getClass().getDeclaredField("flags");
-                // This line makes the private field accessible
-                field.setAccessible(true);
-                // Get the flags from the registry
-                ConcurrentMap<String, Flag<?>> flags = (ConcurrentMap<String, Flag<?>>) field.get(registry);
-                // Add it to the registry
-                flags.put(flag.getName().toLowerCase(), flag);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        this.flag = flag;
-    }
+    private final StateFlag flag = registerFlag();
 
 
     @Override
@@ -126,5 +101,31 @@ public class WorldGuardProtector implements Protector {
         LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
         com.sk89q.worldedit.world.World world = BukkitAdapter.adapt(l.getWorld());
         return WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(localPlayer, world);
+    }
+
+    public static StateFlag registerFlag() {
+        FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+        StateFlag flag = (StateFlag) registry.get("use-adaptations");
+        if (flag != null) return flag;
+        flag = new StateFlag("use-adaptations", false);
+
+        try {
+            registry.register(flag);
+        } catch (IllegalStateException ignored) {
+            Adapt.warn("WorldGuard flag was not registered! Injecting it now...");
+            try {
+                // Access the flags field of the registry
+                Field field = registry.getClass().getDeclaredField("flags");
+                // This line makes the private field accessible
+                field.setAccessible(true);
+                // Get the flags from the registry
+                ConcurrentMap<String, Flag<?>> flags = (ConcurrentMap<String, Flag<?>>) field.get(registry);
+                // Add it to the registry
+                flags.put(flag.getName().toLowerCase(), flag);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return flag;
     }
 }
