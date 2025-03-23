@@ -19,6 +19,8 @@
 package com.volmit.adapt.api.world;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.notification.ActionBarNotification;
@@ -37,6 +39,8 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -44,7 +48,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Data
 @NoArgsConstructor
 public class PlayerData {
-    private static final Gson GSON = new Gson();
+    private static final Gson GSON = new GsonBuilder().setLenient().disableHtmlEscaping().create();
     private final Map<String, PlayerSkillLine> skillLines = new ConcurrentHashMap<>();
     private Map<String, Double> stats = new ConcurrentHashMap<>();
     private String last = "none";
@@ -240,8 +244,17 @@ public class PlayerData {
         wisdom++;
     }
 
-    public String toJson() {
-        return GSON.toJson(this);
+    public String toJson(boolean pretty) {
+        if (!pretty) return GSON.toJson(this);
+        StringWriter writer = new StringWriter();
+        try {
+            var json = GSON.newJsonWriter(writer);
+            json.setIndent("  ");
+            GSON.toJson(this, PlayerData.class, json);
+            return writer.toString();
+        } catch (IOException e) {
+            throw new JsonIOException(e);
+        }
     }
 
     public static PlayerData fromJson(String json) {
