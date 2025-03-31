@@ -51,7 +51,7 @@ public interface AdaptComponent {
     }
 
     default boolean isMace(ItemStack is) {
-        return is.getType().getKey().equals(Materials.MACE_KEY);
+        return is.getType() == Materials.MACE;
     }
 
     default boolean isShield(ItemStack is) {
