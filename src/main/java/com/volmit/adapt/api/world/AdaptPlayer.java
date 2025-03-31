@@ -294,6 +294,7 @@ public class AdaptPlayer extends TickedObject {
     }
 
     public void loggedIn() {
+        lastSeen = M.ms();
         if (AdaptConfig.get().isLoginBonus()) {
             long timeGone = M.ms() - getData().getLastLogin();
             boolean first = getData().getLastLogin() == 0;
