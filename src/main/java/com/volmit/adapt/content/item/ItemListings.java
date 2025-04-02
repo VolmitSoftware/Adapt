@@ -438,11 +438,14 @@ public class ItemListings {
             Material.MYCELIUM,
             Material.SAND,
             Material.SOUL_SAND,
+            Material.SOUL_SOIL,
             Material.SNOW,
             Material.SNOW_BLOCK,
             Material.POWDER_SNOW,
             Material.PODZOL,
-            Material.RED_SAND
+            Material.RED_SAND,
+            Material.MUD,
+            Material.MUDDY_MANGROVE_ROOTS
     );
 
     @Getter
