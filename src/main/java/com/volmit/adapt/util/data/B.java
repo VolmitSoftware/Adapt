@@ -79,6 +79,8 @@ public class B {
                 JUNGLE_SAPLING,
                 BIRCH_SAPLING,
                 SPRUCE_SAPLING,
+                Materials.CHERRY_SAPLING,
+                Materials.PALE_OAK_SAPLING,
                 OAK_SAPLING,
                 ORANGE_TULIP,
                 PINK_TULIP,

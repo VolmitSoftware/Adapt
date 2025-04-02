@@ -51,7 +51,7 @@ public class AdaptPlayer extends TickedObject {
     private long lastloc;
     private Vector velocity;
     private Location lastpos;
-    private long lastSeen = -1;
+    private long lastSeen;
 
     public AdaptPlayer(Player p) {
         super("players", p.getUniqueId().toString(), 50);
@@ -64,6 +64,7 @@ public class AdaptPlayer extends TickedObject {
         advancementHandler = new AdvancementHandler(this);
         speed = new RollingSequence(7);
         lastloc = M.ms();
+        lastSeen = M.ms();
         velocity = new Vector();
     }
 
