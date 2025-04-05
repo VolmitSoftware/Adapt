@@ -2,6 +2,7 @@ package com.volmit.adapt.util.reflect.registries;
 
 import com.volmit.adapt.util.cache.AtomicCache;
 import lombok.NonNull;
+import manifold.rt.api.util.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
@@ -12,10 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
@@ -28,20 +27,46 @@ public class RegistryUtil {
 
     @NonNull
     public static <T> T find(@NonNull Class<T> typeClass, @NonNull String... keys) {
-        return find(typeClass, defaultLookup(), keys);
+        return findOptional(typeClass, keys).orElseThrow(notFound(typeClass, keys));
+    }
+
+    @NonNull
+    public static <T> Optional<T> findOptional(@NonNull Class<T> typeClass, @NonNull String... keys) {
+        return findOptional(typeClass, defaultLookup(), keys);
+    }
+
+    @Nullable
+    public static <T> T findNullable(@NonNull Class<T> typeClass, @NonNull String... keys) {
+        return findOptional(typeClass, defaultLookup(), keys).orElse(null);
     }
 
     @NonNull
     public static <T> T find(@NonNull Class<T> typeClass, @Nullable Lookup<T> lookup, @NonNull String... keys) {
-        return find(typeClass, lookup, Arrays.stream(keys).map(NamespacedKey::minecraft).toArray(NamespacedKey[]::new));
+        return findOptional(typeClass, lookup, keys).orElseThrow(notFound(typeClass, keys));
     }
 
+    @NonNull
+    public static <T> Optional<T> findOptional(@NonNull Class<T> typeClass, @Nullable Lookup<T> lookup, @NonNull String... keys) {
+        return findOptional(typeClass, lookup, Arrays.stream(keys).map(NamespacedKey::minecraft).toArray(NamespacedKey[]::new));
+    }
+
+    @NonNull
     public static <T> T find(@NonNull Class<T> typeClass, @NonNull NamespacedKey... keys) {
-        return find(typeClass, defaultLookup(), keys);
+        return findOptional(typeClass, keys).orElseThrow(notFound(typeClass, keys));
+    }
+
+    @NonNull
+    public static <T> Optional<T> findOptional(@NonNull Class<T> typeClass, @NonNull NamespacedKey... keys) {
+        return findOptional(typeClass, defaultLookup(), keys);
     }
 
     @NonNull
     public static <T> T find(@NonNull Class<T> typeClass, @Nullable Lookup<T> lookup, @NonNull NamespacedKey... keys) {
+        return findOptional(typeClass, lookup, keys).orElseThrow(notFound(typeClass, keys));
+    }
+
+    @NonNull
+    public static <T> Optional<T> findOptional(@NonNull Class<T> typeClass, @Nullable Lookup<T> lookup, @NonNull NamespacedKey... keys) {
         if (keys.length == 0) throw new IllegalArgumentException("Need at least one key");
         Registry<Keyed> registry = null;
         if (Keyed.class.isAssignableFrom(typeClass)) {
@@ -68,35 +93,35 @@ public class RegistryUtil {
             for (NamespacedKey key : keys) {
                 Keyed value = registry.get(key);
                 if (value != null)
-                    return (T) value;
+                    return Optional.of((T) value);
             }
         }
 
         if (lookup != null)
             return lookup.find(typeClass, keys);
-        throw new IllegalArgumentException("No element found for keys: " + Arrays.toString(keys));
+        return Optional.empty();
     }
 
     @NonNull
-    public static <T> T findByField(@NonNull Class<T> typeClass, @NonNull NamespacedKey... keys) {
+    public static <T> Optional<T> findByField(@NonNull Class<T> typeClass, @NonNull NamespacedKey... keys) {
         var values = KEYED_REGISTRY.computeIfAbsent(typeClass, RegistryUtil::getKeyedValues);
         for (NamespacedKey key : keys) {
             var value = values.get(key);
             if (value != null)
-                return (T) value;
+                return Optional.of((T) value);
         }
-        throw new IllegalArgumentException("No element found for keys: " + Arrays.toString(keys));
+        return Optional.empty();
     }
 
     @NonNull
-    public static <T> T findByEnum(@NonNull Class<T> typeClass, @NonNull NamespacedKey... keys) {
+    public static <T> Optional<T> findByEnum(@NonNull Class<T> typeClass, @NonNull NamespacedKey... keys) {
         var values = ENUM_REGISTRY.computeIfAbsent(typeClass, RegistryUtil::getEnumValues);
         for (NamespacedKey key : keys) {
             var value = values.get(key);
             if (value != null)
-                return (T) value;
+                return Optional.of((T) value);
         }
-        throw new IllegalArgumentException("No element found for keys: " + Arrays.toString(keys));
+        return Optional.empty();
     }
 
     @NonNull
@@ -115,8 +140,16 @@ public class RegistryUtil {
                         return null;
                     }
                 })
+                .map(keyed -> {
+                    if (keyed == null) return null;
+                    try {
+                        return Pair.make(keyed.getKey(), keyed);
+                    } catch (Throwable e) {
+                        return null;
+                    }
+                })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toMap(Keyed::getKey, keyed -> keyed));
+                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
     }
 
     private static Map<NamespacedKey, Object> getEnumValues(@NonNull Class<?> typeClass) {
@@ -138,17 +171,16 @@ public class RegistryUtil {
     @FunctionalInterface
     public interface Lookup<T> {
         @NonNull
-        T find(@NonNull Class<T> typeClass, @NonNull NamespacedKey... keys);
+        Optional<T> find(@NonNull Class<T> typeClass, @NonNull NamespacedKey... keys);
 
         static <T> Lookup<T> combine(@NonNull Lookup<T>... lookups) {
             if (lookups.length == 0) throw new IllegalArgumentException("Need at least one lookup");
             return (typeClass, keys) -> {
+                Optional<T> opt = Optional.empty();
                 for (Lookup<T> lookup : lookups) {
-                    try {
-                        return lookup.find(typeClass, keys);
-                    } catch (IllegalArgumentException ignored) {}
+                    opt = opt.or(() -> lookup.find(typeClass, keys));
                 }
-                throw new IllegalArgumentException("No element found for keys: " + Arrays.toString(keys));
+                return opt;
             };
         }
     }
@@ -203,5 +235,9 @@ public class RegistryUtil {
                 return (Registry<T>) registries.get(type);
             }
         }
+    }
+
+    public static <T> Supplier<IllegalArgumentException> notFound(Class<?> type, T... keys) {
+        return () -> new IllegalArgumentException("No " + type.getSimpleName() + " found for keys: " + Arrays.deepToString(keys));
     }
 }

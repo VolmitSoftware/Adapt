@@ -671,6 +671,10 @@ public class KList<T> extends ArrayList<T> implements List<T> {
         return m;
     }
 
+    public KList<T> nonNull() {
+        return removeWhere(Objects::isNull);
+    }
+
     public boolean addIfMissing(T t) {
         if (!contains(t)) {
             add(t);
