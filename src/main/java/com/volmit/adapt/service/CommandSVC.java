@@ -26,6 +26,7 @@ import com.volmit.adapt.util.cache.AtomicCache;
 import com.volmit.adapt.util.collection.KMap;
 import com.volmit.adapt.util.decree.DecreeSystem;
 import com.volmit.adapt.util.decree.virtual.VirtualDecreeCommand;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
@@ -40,7 +41,13 @@ public class CommandSVC implements AdaptService, DecreeSystem {
 
     @Override
     public void onEnable() {
-        Adapt.instance.getCommand("adapt").setExecutor(this);
+        Adapt.verbose("Initializing Commands...");
+        PluginCommand command = Adapt.instance.getCommand("adapt");
+        if (command == null) {
+            Adapt.warn("Failed to find command 'adapt'");
+            return;
+        }
+        command.setExecutor(this);
         J.a(() -> getRoot().cacheAll());
     }
 

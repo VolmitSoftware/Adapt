@@ -4,8 +4,8 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.Adaptation;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.skill.SkillRegistry;
-import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptServer;
+import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.item.ExperienceOrb;
 import com.volmit.adapt.content.item.KnowledgeOrb;
@@ -24,28 +24,50 @@ import java.util.Map;
 public class CommandAdapt implements DecreeExecutor {
     private CommandDebug debug;
 
-    @Decree(description = "Boost Target player, or Global Experience gain.")
+    @Decree(description = "Boost Target player Experience gain.")
     public void boost(
         @Param(aliases = "seconds", description = "Amount of seconds", defaultValue = "10")
         int seconds,
         @Param(aliases = "multiplier", description = "Strength of the boost ", defaultValue = "10")
-        int multiplier,
+        double multiplier,
         @Param(description = "player", defaultValue = "---", customHandler = NullablePlayerHandler.class)
         Player player
-
     ) {
         if (!sender().hasPermission("adapt.boost")) {
             FConst.error("You lack the Permission 'adapt.boost'").send(sender());
             return;
         }
 
-        AdaptServer adaptServer = Adapt.instance.getAdaptServer();
-        if (player() == null) {
-            adaptServer.boostXP(multiplier, seconds * 1000);
-        } else {
-            AdaptPlayer adaptPlayer = adaptServer.getPlayer(player);
-            adaptPlayer.boostXPToRecents(multiplier, seconds * 1000);
+        Player targetPlayer = player;
+        if (targetPlayer == null && sender().isConsole()) {
+            FConst.error("You must specify a player when using this command from console.").send(sender());
+            return;
+        } else if (targetPlayer == null) {
+            targetPlayer = player();
         }
+
+        AdaptServer adaptServer = Adapt.instance.getAdaptServer();
+        PlayerData playerData = adaptServer.getPlayer(targetPlayer).getData();
+        playerData.globalXPMultiplier(multiplier, seconds * 1000);
+
+        FConst.success("Boosted XP by " + multiplier + " for " + seconds + " seconds").send(sender());
+    }
+
+    @Decree(description = "Boost Global Experience gain.", name = "global-boost")
+    public void globalBoost(
+            @Param(aliases = "seconds", description = "Amount of seconds", defaultValue = "10")
+            int seconds,
+            @Param(aliases = "multiplier", description = "Strength of the boost ", defaultValue = "10")
+            double multiplier
+    ) {
+        if (!sender().hasPermission("adapt.boost.global")) {
+            FConst.error("You lack the Permission 'adapt.boost.global'").send(sender());
+            return;
+        }
+
+        AdaptServer adaptServer = Adapt.instance.getAdaptServer();
+        adaptServer.boostXP(multiplier, seconds * 1000);
+
         FConst.success("Boosted XP by " + multiplier + " for " + seconds + " seconds").send(sender());
     }
 
@@ -66,6 +88,7 @@ public class CommandAdapt implements DecreeExecutor {
         Player targetPlayer = player;
         if (targetPlayer == null && sender().isConsole()) {
             FConst.error("You must specify a player when using this command from console.").send(sender());
+            return;
         } else if (targetPlayer == null) {
             targetPlayer = player();
         }
@@ -220,7 +243,7 @@ public class CommandAdapt implements DecreeExecutor {
         }
 
         Player targetPlayer = player;
-        if (targetPlayer == null && sender().isPlayer()) {
+        if (targetPlayer == null && sender().isConsole()) {
             FConst.error("You must specify a player when using this command from console.").send(sender());
         } else if (targetPlayer == null) {
             targetPlayer = player();
