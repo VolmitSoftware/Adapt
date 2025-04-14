@@ -138,6 +138,7 @@ public interface DecreeSystem extends CommandExecutor, TabCompleter {
     @Nullable
     @Override
     default List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        Adapt.verbose("Received Tab Complete from %s for %s".formatted(sender.getName(), "/" + alias + String.join(" ", args)));
         List<String> enhanced = new ArrayList<>(List.of(args));
         KList<String> v = getRoot().tabComplete(enhanced, enhanced.toString(" "));
         v.removeDuplicates();
@@ -152,6 +153,7 @@ public interface DecreeSystem extends CommandExecutor, TabCompleter {
 
     @Override
     default boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        Adapt.verbose("Received Command from %s: /%s".formatted(sender.getName(), label + String.join(" ", args)));
         if (!sender.hasPermission("adapt.main")) {
             sender.sendMessage("You lack the Permission 'adapt.main'");
             return true;
