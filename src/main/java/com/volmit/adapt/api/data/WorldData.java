@@ -89,11 +89,13 @@ public class WorldData extends TickedObject {
 
     @EventHandler
     public void on(WorldSaveEvent e) {
+        if (e.getWorld() != world) return;
         J.a(mantle::saveAll);
     }
 
     @EventHandler
     public void on(WorldUnloadEvent e) {
+        if (e.getWorld() != world) return;
         unregister();
     }
 
