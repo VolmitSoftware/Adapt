@@ -61,7 +61,7 @@
       "description": "Kiečiausias Darbininkas! (5 Milijonai Blokų)"
     },
     "challenge_block_1k": {
-      "title": "Vos Blokuoja!",
+      "title": "Vos Pabėgi!",
       "description": "Užblokuok 1000 Smūgių"
     },
     "challenge_block_5k": {
@@ -129,7 +129,7 @@
       "description": "Pagamink 5000 Daiktų"
     },
     "challenge_craft_50k": {
-      "title": "Nesveikas Gamintojas!",
+      "title": "Paslaugus Meistras!",
       "description": "Pagamink 50,000 Daiktų"
     },
     "challenge_craft_500k": {
@@ -231,6 +231,34 @@
     "challenge_pickaxe_5m": {
       "title": "Legendinis Kalnakasys",
       "description": "Sugriauti 5 000 000 000 Blokus"
+    },
+    "challenge_eat_100": {
+      "title": "Tiek daug valgyti!",
+      "description": "Suvalgykite daugiau nei 100 Maisto!"
+    },
+    "challenge_eat_1000": {
+      "title": "Nenumaldomas Alkis!",
+      "description": "Suvalgykite daugiau nei 1000 Maisto!"
+    },
+    "challenge_eat_10000": {
+      "title": "AMŽINAS ALKIS!",
+      "description": "Suvalgykite daugiau nei 10 000 Maisto!"
+    },
+    "challenge_harvest_100": {
+      "title": "Pilnas Derlius",
+      "description": "Nuimkite daugiau nei 100 pasėlių!"
+    },
+    "challenge_harvest_1000": {
+      "title": "Didysis Derlius",
+      "description": "Nuimkite daugiau nei 1000 pasėlių!"
+    },
+    "challenge_swim_1nm": {
+      "title": "Žmogus Povandeninis Laivas!",
+      "description": "Plaukti 1 Jūrmylė (1 852 blokai)"
+    },
+    "challenge_sneak_1k": {
+      "title": "Kelio Skausmas",
+      "description": "Nušliaužti daugiau nei kilometrą (1 000 blokų)"
     }
   },
   "items": {
@@ -252,6 +280,12 @@
     "boundsnowball": {
       "name": "Voratinklių Spąstai!",
       "usage1": "Meskite, kad vietoje sukurtumėte laikinus voratinklių spąstus"
+    },
+    "elevatorblock": {
+      "name": "Lifto Blokas",
+      "usage1": "Peršokti, kad teleportuotis aukštyn",
+      "usage2": "Shift, kad teleportuotumėtes žemyn",
+      "usage3": "Mažiausiai 2 oro blokai tarp liftų"
     }
   },
   "snippets": {
@@ -264,6 +298,7 @@
       "welcome": "Sveikas!",
       "welcomeback": "Sveikas sugrįžęs!",
       "xpbonusfortime": "XP už",
+      "maxabilitypower": "Didžiausia Gebėjimų Galia",
       "unlockthisbyclicking": "Atrakinkite tai paspausdami dešiniuoju pelės mygtuku:",
       "back": "Grįžti",
       "unlearnall": "Pamiršti viską",
@@ -340,7 +375,7 @@
     "discovery": {
       "name": "Aptikimas",
       "icon": "⚛",
-      "description": "Kai jūsų suvokimas didėja, jūsų protas išsiskleidžia ir atranda tai, ko nepadarėte"
+      "description": "Kai jūsų suvokimas plečiasi, jūsų protas išsiskleidžia ir atranda tai, ko nepadarėte."
     },
     "enchanting": {
       "name": "Kerėjimas",
@@ -350,7 +385,7 @@
     "excavation": {
       "name": "Kasinėjimas",
       "icon": "✥",
-      "description": "Kask kask tą šulinį..."
+      "description": "Kasam Kasam Duobę..."
     },
     "herbalism": {
       "name": "Žolininkystė",
@@ -415,7 +450,7 @@
     "unarmed": {
       "name": "Beginklis",
       "icon": "⚜",
-      "description": "Būti be ginklo nereiškia, kad neturite jėgos."
+      "description": "Be ginklo nebūnate be jėgos."
     }
   },
   "agility": {
@@ -427,7 +462,7 @@
     },
     "superjump": {
       "name": "Super Šuolis",
-      "description": "Išskirtinis aukščio pranašumas",
+      "description": "Išskirtinis aukščio pranašumas.",
       "lore1": "Maksimalus šuolio aukštis",
       "lore2": "Sėlinti + Pašokti, kad panaudoti super šuolį!"
     },
@@ -445,6 +480,14 @@
     }
   },
   "architect": {
+    "elevator": {
+      "name": "Liftas",
+      "description": "Tai leidžia jums pastatyti liftą, kuris greitai leis teleportuotis vertikaliai!",
+      "lore1": "Atrakina lifto receptą: X=VILNA, Y=ENDERIO PERLAS",
+      "lore2": "XXX",
+      "lore3": "XYX",
+      "lore4": "XXX"
+    },
     "foundation": {
       "name": "Magiškas fondas",
       "description": "Tai leidžia sėlinti ir pasidėti po savimi laikiną pagrindą!",
@@ -459,7 +502,7 @@
     "wirelessredstone": {
       "name": "Redstone valdymo pultas",
       "description": "Tai leidžia naudoti restone deglą, kad perjungtumėte Redstone nuotoliniu būdu!",
-      "lore1": "Taikinys + Redstone Deglas + Enderio Perlas = 1 Redstone valdymo pultas"
+      "lore1": "Tikslas + Raudonakmenio Deglas + Ender perlas = 1 Raudonakmenio Nuotolinio Valdymo Pultas"
     },
     "placement": {
       "name": "Statybininkų lazdelė",
@@ -608,9 +651,9 @@
       "name": "Multi-Šarvai",
       "description": "Pririškite Elytrą prie šarvų",
       "lore1": "Tai nuostabus įgūdis keliaujant.",
-      "lore2": " dinamiškai sujunkite ir keiskite Šarvus/Elytra skrydžio metu!",
-      "lore3": "norėdami sujungti, spauskite kitą daiktą savo inventoriuje.",
-      "lore4": "kad atrištų Šarvus, Sėlinti-Išmesti daiktą, ir jį išardysit.",
+      "lore2": "Dinamiškai sujunkite ir keiskite Šarvus/Sparnus skraidant!",
+      "lore3": "Jei norite sujungti, su shift spauskite daiktą virš kito inventoriuje esančio daikto.",
+      "lore4": "Norėdami atrišti Šarvą, Sėlinkite-Meskite daiktą ir jis bus išardytas.",
       "lore5": "Jei jūsų Multi-Šarvai bus sunaikinti, prarasite visus jame esančius daiktus.",
       "lore6": "Man nereikia šarvų, tai mane nuvilia..."
     }
@@ -619,8 +662,8 @@
     "deconstruction": {
       "name": "Dekonstrukcija",
       "description": "Išardykite blokus ir daiktus į išgelbėjamus pagrindinius komponentus!",
-      "lore1": "Padėkite bet kokį daiktą + žirklės",
-      "lore2": "kalvystės lentelėje dekonstruoti."
+      "lore1": "Numeskite bet kokį daiktą ant žemės.",
+      "lore2": "Tada Sėlinkite ir Dešiniu pelės mygtuku spauskite su Žirklėmis"
     },
     "xp": {
       "name": "Gamybos XP",
@@ -734,13 +777,13 @@
     "omnitool": {
       "name": "OMNI - Į.R.A.N.K.I.S",
       "description": "„Tackle“ perdėtas prabangus „Leatherman“.",
-      "lore1": "Turbūt galingiausias iš daugelio leidžia dinamiškai sujungti ir",
+      "lore1": "Tikriausiai galingiausias iš daugelio leidžia jums",
       "lore2": "keisti įrankius skrydžio metu, atsižvelgiant į jūsų poreikius.",
-      "lore3": "norėdami sujungti, spauskite kitą daiktą savo inventoriuje.",
-      "lore4": "Norėdami atrišti įrankius, Sėlinti-Mesti daiktą ir jis bus išardytas.",
-      "lore5": "Jūs negalite sulaužyti įrankių šiame „Leatherman“, bet jūs negalite naudoti sulūžusių įrankių",
-      "lore6": "viso sujungiamų daiktų",
-      "lore7": "galite naudoti penkis ar šešis įrankius arba tik vieną!"
+      "lore3": "Jei norite sujungti, su shift spauskite daiktą virš kito inventoriuje esančio daikto.",
+      "lore4": "Norėdami atrišti įrankius, Sėlinkite-Meskite daiktą ir bus išardytas.",
+      "lore5": "Jūs negalite sulaužyti įrankių šiame odų žmogūje, bet ir negalite naudoti sulaužytų įrankių",
+      "lore6": "visi galimi sujungti daiktai.",
+      "lore7": "Galite naudoti penkis ar šešis įrankius arba tik vieną!"
     }
   },
   "herbalism": {
@@ -917,6 +960,12 @@
       "description": "Kai nugriausite bloką, daiktas atsiras jūsų inventoriuje",
       "lore1": "Vietoj to, kad daiktas iškrenta iš bloko, daiktas pateks į jūsų inventorių, jei įmanoma."
     },
+    "silkspawner": {
+      "name": "Kirtiklis Šilko-Narvas",
+      "description": "Priverčia Narvus nukristi, kai būna sugriauti",
+      "lore1": "Padaro narvus sugriaunamais šilko prisilietimu.",
+      "lore2": "Padaro narvus sugriaunamais sėlinant."
+    },
     "veinminer": {
       "name": "Veinkasėjas",
       "description": "Leidžia sugriauti rūdų blokus gysloje/klasteryje",
@@ -996,6 +1045,11 @@
       "description": "Įgykite apsaugą naudodami Enderio daiktus & galimybes",
       "lore1": "+ Pasyvus: Suteikia apsaugą, kai naudojate Slėnio sugebėjimus arba Enderio daiktus.",
       "lore2": "Neįeina nešiojamoji Enderio Skrynia, įeina tik tai, ką galite vartoti"
+    },
+    "visage": {
+      "name": "Rifto Vizažas",
+      "description": "Neleidžia Endermenams tapti agresyviems, jei jūsų inventoriuje yra Ender perlų.",
+      "lore1": "Endermenai netaps agresyvūs, jei jūsų inventoriuje yra Ender perlų."
     }
   },
   "seaborn": {
@@ -1050,6 +1104,12 @@
       "name": "Sėlinimo Greitis",
       "description": "Įgykite greitį sėlinant",
       "lore1": " Sėlinimo Greitis"
+    },
+    "enderveil": {
+      "name": "Enderveilas",
+      "description": "Daugiau jokių moliūgų, kad būtų išvengta Endermano atakų",
+      "lore1": "Išvengti endermno atakų sėlinant",
+      "lore2": "Išvengti visų endermeno atakų"
     }
   },
   "sword": {
