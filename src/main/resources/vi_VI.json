@@ -62,18 +62,18 @@
     },
     "challenge_block_1k": {
       "title": "Tao có khiên!",
-      "description": "Chặn 1000 lượt truy cập"
+      "description": "Chặn 1000 tấn công"
     },
     "challenge_block_5k": {
-      "title": "Chặn là thú vị!",
-      "description": "Chặn 5000 lượt truy cập"
+      "title": "Chặn là vui !",
+      "description": "Chặn 5000 tấn công"
     },
     "challenge_block_50k": {
-      "title": "Chặn là cuộc sống của tôi!",
-      "description": "Chặn 50.000 lượt truy cập"
+      "title": "Chặn tấn công là đời của tôi !",
+      "description": "Chặn 50.000 tấn công"
     },
     "challenge_block_500k": {
-      "title": "Chặn là mục đích của tôi!",
+      "title": "Chặn tân công là ý chí sống của tôi !",
       "description": "Chặn 500.000 lượt truy cập"
     },
     "challenge_block_5m": {
@@ -133,7 +133,7 @@
       "description": "Chế tạo 50.000 vật phẩm"
     },
     "challenge_craft_500k": {
-      "title": "Người chế tạo cacophonous!",
+      "title": "Người chế tạo tiếng hỗn loạn!",
       "description": "Chế tạo 500.000 vật phẩm"
     },
     "challenge_craft_5m": {
@@ -231,6 +231,20 @@
     "challenge_pickaxe_5m": {
       "title": "Thợ mỏ huyền thoại",
       "description": "Phá vỡ 5.000.000 khối"
+    },
+    "challenge_eat_100": {
+    },
+    "challenge_eat_1000": {
+    },
+    "challenge_eat_10000": {
+    },
+    "challenge_harvest_100": {
+    },
+    "challenge_harvest_1000": {
+    },
+    "challenge_swim_1nm": {
+    },
+    "challenge_sneak_1k": {
     }
   },
   "items": {
@@ -252,6 +266,8 @@
     "boundsnowball": {
       "name": "Bẫy web!",
       "usage1": "Ném để tạo bẫy web tạm thời tại vị trí"
+    },
+    "elevatorblock": {
     }
   },
   "snippets": {
@@ -346,10 +362,10 @@
     "enchanting": {
       "name": "mê hoặc",
       "icon": "♰",
-      "description": "bạn đang làm gì đó? Những lời tiên tri, những khải tượng, những lời nói lắp bắp mê tín?"
+      "description": "Bạn đang làm gì đó? Những lời tiên tri, những khải tượng, những lời nói lắp bắp mê tín?"
     },
     "excavation": {
-      "name": "Moi lên",
+      "name": "Khai Quật",
       "icon": "ᛳ",
       "description": "Đào đào cái hố..."
     },
@@ -384,7 +400,7 @@
       "description": "Rift là một dây nịt ăn mòn, nhưng bạn đã khai thác được dây nịt đó."
     },
     "seaborne": {
-      "name": "Đường biển",
+      "name": "Người biển",
       "icon": "🎣",
       "description": "Với kỹ năng này, bạn có thể khám phá được những điều kỳ diệu của nước."
     },
@@ -411,7 +427,7 @@
     "chronos": {
       "name": "Thời gian",
       "icon": "⏳",
-      "description": "Cuốn đồng hồ của vũ trụ, trải nghiệm dòng chảy. Đập vỡ đồng hồ, trở thành nó."
+      "description": "Vặn đồng hồ của vũ trụ, trải nghiệm dòng chảy. Đập vỡ đồng hồ, trở thành nó."
     },
     "unarmed": {
       "name": "không có vũ khí",
@@ -427,8 +443,8 @@
       "lore2": "Thời gian tăng giáp"
     },
     "superjump": {
-      "name": "Siêu nhảy",
-      "description": "Đôi chân vượt trội.",
+      "name": "Nhảy cao",
+      "description": "Lợi thế chiều cao đặc biệt",
       "lore1": "Chiều cao nhảy tối đa",
       "lore2": "Lẻn + Nhảy để siêu nhảy!"
     },
@@ -446,6 +462,8 @@
     }
   },
   "architect": {
+    "elevator": {
+    },
     "foundation": {
       "name": "Tổ chức ma thuật",
       "description": "Điều này cho phép bạn lẻn và đặt một nền móng tạm thời bên dưới bạn!",
@@ -458,8 +476,8 @@
       "lore1": "Bàn tay của bạn có được cảm giác chạm lụa cho Glass"
     },
     "wirelessredstone": {
-      "name": "Điều khiển từ xa bằng đá đỏ",
-      "description": "Điều này cho phép bạn sử dụng đèn pin đá đỏ để chuyển đổi đá đỏ từ xa!",
+      "name": "Điều khiển đá đỏ từ xa",
+      "description": "Cho phép bạn sử dụng đuốc đá đỏ để bật đá đỏ từ xa !",
       "lore1": "Mục tiêu + Đuốc Redstone + Enderpearl = 1 Điều khiển từ xa bằng đá đỏ"
     },
     "placement": {
@@ -607,9 +625,9 @@
     },
     "multiarmor": {
       "name": "Đa giáp",
-      "description": "Trói Elytras vào áo giáp",
-      "lore1": "Đây là một kỹ năng tuyệt vời để đi du lịch.",
-      "lore2": "Tự động kết hợp và thay thế Armor/Elytra một cách nhanh chóng!",
+      "description": "Trói Elytra vào áo giáp",
+      "lore1": "Đây là một kỹ năng tuyệt vời để đi lại.",
+      "lore2": "Tự động kết hợp và thay thế Armor/Elytra khi cần sử dụng!",
       "lore3": "Để kết hợp, hãy bấm shift + click  vào vật phẩm vào slot khác trong túi đồ của bạn.",
       "lore4": "Để tháo Giáp, hãy ngồi và bấm vào vật phẩm rồi nó sẽ tự động tháo rời.",
       "lore5": "Nếu MultiArmor của bạn bị phá hủy, bạn sẽ mất tất cả vật phẩm trong đó.",
@@ -618,10 +636,10 @@
   },
   "crafting": {
     "deconstruction": {
-      "name": "Giải cấu trúc",
-      "description": "Giải mã các khối và vật phẩm thành các thành phần cơ bản có thể tận dụng được!",
+      "name": "Giải thể.",
+      "description": "Giải thể các khối và vật phẩm thành các thành phần cơ bản !",
       "lore1": "Thả bất kỳ vật phẩm nào xuống đất.",
-      "lore2": "Sau đó bấm ngồi và chuột phải khi đang cầm Shears."
+      "lore2": "Sau đó bấm ngồi và chuột phải khi đang cầm Kéo."
     },
     "xp": {
       "name": "Chế tạo XP",
@@ -733,14 +751,14 @@
       "name": "Xẻng thả vào kho"
     },
     "omnitool": {
-      "name": "OMNI - T.O.O.L.",
-      "description": "Leatherman sang trọng được thiết kế quá mức của Tackle",
+      "name": "D.Ụ.N.G C.Ụ TOÀN NĂNG",
+      "description": "Dụng cụ toàn năng mà Tackle đã thiết kế quá tay",
       "lore1": "Có lẽ là mạnh nhất sẽ cho phép bạn",
       "lore2": "tự động hợp nhất và thay đổi các công cụ một cách nhanh chóng, dựa trên nhu cầu của bạn.",
       "lore3": "Để kết hợp, hãy nhấp chuột vào vật phẩm trong túi đồ của bạn.",
       "lore4": "Để tháo công cụ, hãy bấm ngồi và quăng vật phẩm rồi nó sẽ tự động tháo rời.",
-      "lore5": "Bạn không thể phá vỡ các công cụ trong Leatherman cũng như bạn không thể sử dụng các công cụ bị hỏng",
-      "lore6": "tổng các vật phẩm có thể kết hợp lại.",
+      "lore5": "Bạn không thể phá vỡ các công cụ trong dụng cụ toàn năng cũng như bạn không thể sử dụng các công cụ bị hỏng",
+      "lore6": "Tất cả những vật phẩm có thể kết hợp lại.",
       "lore7": "Bạn có thể sử dụng năm hoặc sáu công cụ hoặc chỉ một công cụ!"
     }
   },
@@ -918,6 +936,8 @@
       "description": "Khi bạn phá vỡ một khối, nó sẽ dịch chuyển vật phẩm đó vào kho của bạn",
       "lore1": "Bất cứ khi nào một vật phẩm bị rơi khỏi một khối mà bạn phá vỡ, nó sẽ được đưa vào kho của bạn nếu có thể."
     },
+    "silkspawner": {
+    },
     "veinminer": {
       "name": "máy lấy máu",
       "description": "Cho phép bạn phá vỡ các khối trong Mạch/Cụm quặng Vanilla",
@@ -997,6 +1017,8 @@
       "description": "Đạt được sức đề kháng khi sử dụng Vật phẩm & Khả năng của Ender",
       "lore1": "+ Bị động: Cung cấp khả năng kháng cự khi bạn sử dụng khả năng rạn nứt hoặc Vật phẩm Ender",
       "lore2": "KHÔNG bao gồm Enderchest di động, chỉ những thứ bạn có thể tiêu thụ"
+    },
+    "visage": {
     }
   },
   "seaborn": {
@@ -1051,6 +1073,8 @@
       "name": "Tốc độ lén lút",
       "description": "Tăng tốc độ trong khi lén lút",
       "lore1": "Tốc độ lén lút"
+    },
+    "enderveil": {
     }
   },
   "sword": {
