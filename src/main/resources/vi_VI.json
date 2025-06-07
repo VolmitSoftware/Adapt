@@ -233,18 +233,32 @@
       "description": "Phá vỡ 5.000.000 khối"
     },
     "challenge_eat_100": {
+      "title": "Chuyên gia ẩm thực!",
+      "description": "Eat over 100 Items!"
     },
     "challenge_eat_1000": {
+      "title": "Unquenchable Hunger!",
+      "description": "Eat over 1,000 Items!"
     },
     "challenge_eat_10000": {
+      "title": "Cơn Đói Bất Tận!",
+      "description": "Ăn hơn 10,000 lần!"
     },
     "challenge_harvest_100": {
+      "title": "Nông dân chăm chỉ",
+      "description": "Thu hoạch hơn 100 loại cây trồng!"
     },
     "challenge_harvest_1000": {
+      "title": "Nông dân giàu kinh nghiệm",
+      "description": "Thu hoạch hơn 1.000 loại cây trồng!"
     },
     "challenge_swim_1nm": {
+      "title": "Vận động viên bơi lội!",
+      "description": "Bơi hơn 1 hải lý (1.852 khối)"
     },
     "challenge_sneak_1k": {
+      "title": "Cơn Đau Đầu Gối Kéo Dài",
+      "description": "Lén lút hơn 1km (1.000 khối)"
     }
   },
   "items": {
@@ -268,6 +282,10 @@
       "usage1": "Ném để tạo bẫy web tạm thời tại vị trí"
     },
     "elevatorblock": {
+      "name": "Khối Thang Máy",
+      "usage1": "Nhảy để dịch chuyển lên",
+      "usage2": "Ngồi để dịch chuyển xuống",
+      "usage3": "Tối thiểu cách 2 block trống giữa các thang máy"
     }
   },
   "snippets": {
@@ -463,6 +481,12 @@
   },
   "architect": {
     "elevator": {
+      "name": "Thang máy",
+      "description": "Cái này cho phép bạn xây dựng một cái thang máy để dịch chuyển tức thời theo chiều dọc một cách nhanh chóng!",
+      "lore1": "Mở khóa công thức thang máy: X=WOOL, Y=ENDER PEARL",
+      "lore2": "XXX",
+      "lore3": "XYX",
+      "lore4": "XXX"
     },
     "foundation": {
       "name": "Tổ chức ma thuật",
@@ -937,6 +961,10 @@
       "lore1": "Bất cứ khi nào một vật phẩm bị rơi khỏi một khối mà bạn phá vỡ, nó sẽ được đưa vào kho của bạn nếu có thể."
     },
     "silkspawner": {
+      "name": "Pickaxe Silk-Spawner",
+      "description": "Khiến Spawners rơi ra khi đào",
+      "lore1": "Khiến Spawners dễ rơi ra khi đào bằng phù phép mềm mại.",
+      "lore2": "Khiến Spawners có thể rơi ra khi đang trạng thái ngồi."
     },
     "veinminer": {
       "name": "máy lấy máu",
@@ -1019,6 +1047,9 @@
       "lore2": "KHÔNG bao gồm Enderchest di động, chỉ những thứ bạn có thể tiêu thụ"
     },
     "visage": {
+      "name": "Mặt Nạ Khe Nứt\n",
+      "description": "Ngăn chặn Endermen trở nên tức giận nếu bạn có Enderpearls trong kho của mình.",
+      "lore1": "Endermen sẽ không trở nên tức giận nếu bạn có Enderpearls trong    túi đồ của mình."
     }
   },
   "seaborn": {
@@ -1075,6 +1106,10 @@
       "lore1": "Tốc độ lén lút"
     },
     "enderveil": {
+      "name": "Tấm Khiên Tàng Hình Ender",
+      "description": "Không cần dùng bí ngô để tránh con enderman tấn công bạn khi nhìn vào mắt nó nữa!",
+      "lore1": "Ngăn chặn Enderman tấn công khi đang ngồi",
+      "lore2": "Ngăn chặn Enderman tấn công bạn"
     }
   },
   "sword": {
