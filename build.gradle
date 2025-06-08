@@ -26,7 +26,7 @@ plugins {
     id "xyz.jpenilla.run-paper" version "2.3.1"
 }
 
-version '1.16.9-1.19.2-1.21.5'
+version '1.16.10-1.19.2-1.21.5'
 def apiVersion = '1.19'
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
