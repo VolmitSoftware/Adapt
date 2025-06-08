@@ -238,7 +238,7 @@ public class Adapt extends VolmitPlugin {
     }
 
     public static KList<Object> initialize(String s, Class<? extends Annotation> slicedClass) {
-        JarScanner js = new JarScanner(instance.jar(), s);
+        JarScanner js = new JarScanner(instance.getFile(), s);
         KList<Object> v = new KList<>();
         J.attempt(js::scan);
         for (Class<?> i : js.getClasses()) {
