@@ -128,13 +128,17 @@ public class PlayerData {
 
         for (String i : skillLines.k()) {
             if (getSkillLine(i) == null) {
-                skillLines.remove(i);
+                synchronized (skillLines) {
+                    skillLines.remove(i);
+                }
                 Adapt.warn("Removed unknown skill line '" + i + "' from " + p.getPlayer().getName());
                 continue;
             }
 
             if (getSkillLine(i).getXp() == 0 && getSkillLine(i).getKnowledge() == 0) {
-                skillLines.remove(i);
+                synchronized (skillLines) {
+                    skillLines.remove(i);
+                }
                 continue;
             }
 
@@ -201,7 +205,7 @@ public class PlayerData {
     }
 
     public int getUsedPower() {
-        return getSkillLines().values().stream().mapToInt(i -> i.getAdaptations().values().stream().mapToInt(PlayerAdaptation::getLevel).sum()).sum();
+        return skillLines.values().stream().mapToInt(i -> i.getAdaptations().values().stream().mapToInt(PlayerAdaptation::getLevel).sum()).sum();
     }
 
     public int getLevel() {
@@ -236,12 +240,18 @@ public class PlayerData {
         }
     }
 
+    public PlayerSkillLine getSkillLineNullable(String skillLine) {
+        return skillLines.get(skillLine);
+    }
+
     public void addWisdom() {
         wisdom++;
     }
 
     public String toJson(boolean raw) {
-        return Json.toJson(this, !raw);
+        synchronized (skillLines) {
+            return Json.toJson(this, !raw);
+        }
     }
 
     public static PlayerData fromJson(String json) {

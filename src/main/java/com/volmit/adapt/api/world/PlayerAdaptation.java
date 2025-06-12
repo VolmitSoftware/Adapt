@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.api.world;
 
+import com.volmit.adapt.util.collection.KMap;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -27,5 +28,5 @@ import java.util.Map;
 public class PlayerAdaptation {
     private String id;
     private int level;
-    private Map<String, Object> storage = new HashMap<>();
+    private final KMap<String, Object> storage = new KMap<>();
 }

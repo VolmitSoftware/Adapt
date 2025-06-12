@@ -317,7 +317,7 @@ public class AdaptPlayer extends TickedObject {
     }
 
     public boolean hasSkill(Skill s) {
-        return getData().getSkillLines().containsKey(s.getName()) && getData().getSkillLines().get(s.getId()).getXp() > 1;
+        return getData().getSkillLines().containsKey(s.getName()) && getData().getSkillLine(s.getId()).getXp() > 1;
     }
 
     private File getPlayerDataFile(UUID uuid) {

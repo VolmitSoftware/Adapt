@@ -121,7 +121,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
                 SoundPlayer sp = SoundPlayer.of(p);
                 sp.play(p.getLocation(), Sound.ENTITY_BLAZE_DEATH, 1f, 1f);
 
-                PlayerSkillLine tragoul = a.getData().getSkillLines().get("tragoul");
+                PlayerSkillLine tragoul = a.getData().getSkillLineNullable("tragoul");
                 if (tragoul != null) {
                     double xp = tragoul.getXp();
                     if (xp > getConfig().deathXpLoss) {

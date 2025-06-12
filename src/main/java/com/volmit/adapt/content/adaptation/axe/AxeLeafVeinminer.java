@@ -19,6 +19,8 @@
 package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.world.PlayerAdaptation;
+import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
@@ -106,7 +108,9 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                 J.s(() -> {
                     for (Location l : blockMap.keySet()) {
                         Block b = e.getBlock().getWorld().getBlockAt(l);
-                        if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory") == null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory").getLevel() > 0) {
+                        PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("axes");
+                        PlayerAdaptation adaptation = line != null ? line.getAdaptation("axe-drop-to-inventory") : null;
+                        if (adaptation != null && adaptation.getLevel() > 0) {
                             Collection<ItemStack> items = e.getBlock().getDrops();
                             for (ItemStack i : items) {
                                 sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.01f, 0.01f);

@@ -47,9 +47,9 @@ public class PlayerSkillLine {
     private double rfreshness = 1D;
     private int lastLevel = 0;
     private long last = M.ms();
-    private KMap<String, Object> storage = new KMap<>();
-    private KMap<String, PlayerAdaptation> adaptations = new KMap<>();
-    private KList<XPMultiplier> multipliers = new KList<>();
+    private final KMap<String, Object> storage = new KMap<>();
+    private final KMap<String, PlayerAdaptation> adaptations = new KMap<>();
+    private final KList<XPMultiplier> multipliers = new KList<>();
 
     private static double diff(long a, long b) {
         return Math.abs(a - b / (double) (a == 0 ? 1 : a));
