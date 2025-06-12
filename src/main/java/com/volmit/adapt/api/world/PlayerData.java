@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.api.world;
 
-import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.notification.ActionBarNotification;
@@ -28,6 +27,7 @@ import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Json;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.collection.KMap;
@@ -45,7 +45,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Data
 @NoArgsConstructor
 public class PlayerData {
-    private static final Gson GSON = new Gson();
     private final KMap<String, PlayerSkillLine> skillLines = new KMap<>();
     private KMap<String, Double> stats = new KMap<>();
     private String last = "none";
@@ -241,11 +240,11 @@ public class PlayerData {
         wisdom++;
     }
 
-    public String toJson() {
-        return GSON.toJson(this);
+    public String toJson(boolean raw) {
+        return Json.toJson(this, !raw);
     }
 
     public static PlayerData fromJson(String json) {
-        return GSON.fromJson(json, PlayerData.class);
+        return Json.fromJson(json, PlayerData.class);
     }
 }

@@ -125,27 +125,27 @@ public class AdaptPlayer extends TickedObject {
     @SneakyThrows
     private void save() {
         UUID uuid = player.getUniqueId();
-        String data = this.data.toJson();
+        String data = this.data.toJson(AdaptConfig.get().isUseSql());
 
         if (AdaptConfig.get().isUseSql()) {
             Adapt.instance.getRedisSync().publish(uuid, data);
             Adapt.instance.getSqlManager().updateData(uuid, data);
         } else {
-            IO.writeAll(getPlayerDataFile(uuid), new JSONObject(data).toString(4));
+            IO.writeAll(getPlayerDataFile(uuid), data);
         }
     }
 
     @SneakyThrows
     private void unSave() {
         UUID uuid = player.getUniqueId();
-        String data = new PlayerData().toJson();
+        String data = new PlayerData().toJson(AdaptConfig.get().isUseSql());
         unregister();
 
         if (AdaptConfig.get().isUseSql()) {
             Adapt.instance.getRedisSync().publish(uuid, data);
             Adapt.instance.getSqlManager().updateData(uuid, data);
         } else {
-            IO.writeAll(getPlayerDataFile(uuid), new JSONObject(data).toString(4));
+            IO.writeAll(getPlayerDataFile(uuid), data);
         }
     }
 

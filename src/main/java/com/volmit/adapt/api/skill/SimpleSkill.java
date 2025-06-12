@@ -19,7 +19,6 @@
 package com.volmit.adapt.api.skill;
 
 import art.arcane.amulet.io.FileWatcher;
-import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
@@ -29,10 +28,7 @@ import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.IO;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.JSONObject;
+import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KList;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -123,7 +119,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
                 if (!l.exists()) {
                     try {
-                        IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
+                        IO.writeAll(l, Json.toJson(dummy, true));
                     } catch (IOException e) {
                         e.printStackTrace();
                         config = dummy;
@@ -132,8 +128,8 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
                 }
 
                 try {
-                    config = new Gson().fromJson(IO.readAll(l), getConfigurationClass());
-                    IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
+                    config = Json.fromJson(IO.readAll(l), getConfigurationClass());
+                    IO.writeAll(l, Json.toJson(config, true));
                 } catch (IOException e) {
                     e.printStackTrace();
                     config = dummy;
