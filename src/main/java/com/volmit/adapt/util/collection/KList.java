@@ -27,6 +27,8 @@ import com.volmit.adapt.util.RNG;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("ALL")
 public class KList<T> extends ArrayList<T> implements List<T> {
@@ -54,6 +56,10 @@ public class KList<T> extends ArrayList<T> implements List<T> {
     public KList(Enumeration<T> e) {
         super();
         add(e);
+    }
+
+    public static <T> Collector<T, ?, KList<T>> collector() {
+        return Collectors.toCollection(KList::new);
     }
 
     public static KList<String> fromJSONAny(JSONArray oo) {

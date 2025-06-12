@@ -25,30 +25,30 @@ import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.collection.KMap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class Notifier extends TickedObject {
-    private final List<Notification> queue;
+    private final Queue<Notification> queue;
     private final AdaptPlayer target;
-    private final Map<String, Long> lastSkills;
-    private final Map<String, Double> lastSkillValues;
+    private final KMap<String, Long> lastSkills;
+    private final KMap<String, Double> lastSkillValues;
     private int busyTicks;
     private int delayTicks;
     private long lastInstance;
 
     public Notifier(AdaptPlayer target) {
         super("notifications", target.getPlayer().getUniqueId() + "-notify", 97);
-        queue = new ArrayList<>();
-        lastSkills = new HashMap<>();
-        lastSkillValues = new HashMap<>();
+        queue = new ConcurrentLinkedQueue<>();
+        lastSkills = new KMap<>();
+        lastSkillValues = new KMap<>();
         busyTicks = 0;
         delayTicks = 0;
         this.target = target;
@@ -97,11 +97,11 @@ public class Notifier extends TickedObject {
     }
 
     public void queue(Notification... f) {
-        queue.add(f);
+        queue.addAll(Arrays.asList(f));
     }
 
     public boolean isBusy() {
-        return busyTicks > 1 || queue.isNotEmpty();
+        return busyTicks > 1 || !queue.isEmpty();
     }
 
     @Override
@@ -134,7 +134,7 @@ public class Notifier extends TickedObject {
             cleanupStackedNotifications();
         }
 
-        Notification n = queue.pop();
+        Notification n = queue.poll();
 
         if (n == null) {
             return;

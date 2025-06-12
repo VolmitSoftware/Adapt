@@ -31,13 +31,12 @@ import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.collection.KList;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 public interface Skill<T> extends Ticked, Component {
     AdaptAdvancement buildAdvancements();
@@ -58,13 +57,13 @@ public interface Skill<T> extends Ticked, Component {
 
     String getDescription();
 
-    List<AdaptRecipe> getRecipes();
+    KList<AdaptRecipe> getRecipes();
 
     void registerAdaptation(Adaptation<?> a);
 
     void registerStatTracker(AdaptStatTracker tracker);
 
-    List<AdaptStatTracker> getStatTrackers();
+    KList<AdaptStatTracker> getStatTrackers();
 
     default void checkStatTrackers(AdaptPlayer player) {
         if (!this.isEnabled()) {
@@ -86,13 +85,13 @@ public interface Skill<T> extends Ticked, Component {
         }
     }
 
-    List<Adaptation<?>> getAdaptations();
+    KList<Adaptation<?>> getAdaptations();
 
     C getColor();
 
     double getMinXp();
 
-    void onRegisterAdvancements(List<AdaptAdvancement> advancements);
+    void onRegisterAdvancements(KList<AdaptAdvancement> advancements);
 
     default boolean hasBlacklistPermission(Player p, Skill<?> s) {
         if (p.isOp()) { // If the player is an operator, bypass the permission check

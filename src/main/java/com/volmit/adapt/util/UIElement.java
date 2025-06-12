@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.util;
 
+import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.reflect.registries.Enchantments;
 import com.volmit.adapt.util.reflect.registries.ItemFlags;
 import org.bukkit.Material;
@@ -25,12 +26,9 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class UIElement implements Element {
     private final String id;
-    private final List<String> lore;
+    private final KList<String> lore;
     private MaterialBlock material;
     private CustomModel model;
     private boolean enchanted;
@@ -47,7 +45,7 @@ public class UIElement implements Element {
 
     public UIElement(String id) {
         this.id = id;
-        lore = new ArrayList<>();
+        lore = new KList<>();
         enchanted = false;
         count = 1;
         material = new MaterialBlock(Material.AIR);
@@ -107,7 +105,7 @@ public class UIElement implements Element {
     }
 
     @Override
-    public List<String> getLore() {
+    public KList<String> getLore() {
         return lore;
     }
 

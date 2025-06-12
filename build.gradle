@@ -30,7 +30,6 @@ version '1.16.10-1.19.2-1.21.5'
 def apiVersion = '1.19'
 def name = getRootProject().getName() // Defined in settings.gradle
 def main = 'com.volmit.adapt.Adapt'
-def manifoldVersion = '2024.1.49'
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
 // ======================== WINDOWS =============================
@@ -151,9 +150,6 @@ allprojects {
         implementation 'net.byteflux:libby-velocity:1.3.1'
 
         implementation "io.papermc:paperlib:1.0.7"
-        annotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
-        testAnnotationProcessor 'systems.manifold:manifold-ext:' + manifoldVersion
-        implementation 'systems.manifold:manifold-rt:' + manifoldVersion
         compileOnly 'io.lettuce:lettuce-core:6.5.1.RELEASE'
 
         //Random Api's
@@ -311,17 +307,6 @@ def registerCustomOutputTaskUnix(name, path, doRename=true) {
                 fileName.replace("Adapt-" + version + ".jar", "Adapt.jar")
             }
         }
-    }
-}
-
-if (JavaVersion.current() != JavaVersion.VERSION_1_8 &&
-        sourceSets.main.allJava.files.any { it.name == "module-info.java" }) {
-    tasks.withType(JavaCompile) {
-        options.compilerArgs += ['-Xplugin:Manifold', '--module-path', it.classpath.asPath]
-    }
-} else {
-    tasks.withType(JavaCompile) {
-        options.compilerArgs += ['-Xplugin:Manifold']
     }
 }
 

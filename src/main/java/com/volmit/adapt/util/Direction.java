@@ -23,7 +23,7 @@ import org.bukkit.Axis;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,9 +152,7 @@ public enum Direction {
     }
 
     public static List<Direction> news() {
-        List<Direction> d = new ArrayList<>();
-        d.add(N, E, W, S);
-        return d;
+        return Arrays.asList(N, E, W, S);
     }
 
     public static Direction getDirection(Vector v) {
@@ -170,9 +168,7 @@ public enum Direction {
     }
 
     public static List<Direction> udnews() {
-        List<Direction> d = new ArrayList<>();
-        d.add(U, D, N, E, W, S);
-        return d;
+        return Arrays.asList(U, D, N, E, W, S);
     }
 
     /**

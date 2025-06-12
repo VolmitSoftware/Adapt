@@ -25,10 +25,12 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.CustomModel;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -36,7 +38,9 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.*;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
@@ -47,7 +51,10 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config> {
     private static final NamespacedKey ELEVATOR_KEY = new NamespacedKey(Adapt.instance, "elevator");
@@ -325,7 +332,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
 
     private static boolean hasEnoughSpace(Player player, int targetY) {
         BoundingBox box = player.getBoundingBox()
-                .shift(0, -player.getLocation().y(), 0)
+                .shift(0, -player.getLocation().getY(), 0)
                 .shift(0, targetY, 0);
 
         double maxX = Math.ceil(box.getMaxX());

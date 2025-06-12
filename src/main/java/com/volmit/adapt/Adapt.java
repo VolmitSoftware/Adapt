@@ -30,13 +30,13 @@ import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.protector.*;
-import com.volmit.adapt.util.redis.RedisSync;
-import fr.skytasul.glowingentities.GlowingEntities;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.collection.KMap;
+import com.volmit.adapt.util.redis.RedisSync;
 import com.volmit.adapt.util.secret.SecretSplash;
 import de.slikey.effectlib.EffectManager;
+import fr.skytasul.glowingentities.GlowingEntities;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -47,9 +47,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -248,7 +246,11 @@ public class Adapt extends VolmitPlugin {
                     v.add(i.getDeclaredConstructor().newInstance());
                 } catch (Throwable e) {
                     Adapt.verbose("Failed to load class: " + i.getName());
-                    e.printAsStrings().forEach(Adapt::verbose);
+                    StringWriter writer = new StringWriter();
+                    e.printStackTrace(new PrintWriter(writer));
+                    for (String line : writer.toString().split("\n")) {
+                        verbose(line);
+                    }
                 }
             }
         }
@@ -374,8 +376,12 @@ public class Adapt extends VolmitPlugin {
                         } else if (split.length == 3) {
                             if (split[0].equals("skill")) {
                                 try {
-                                    instance.getAdaptServer().getSkillRegistry().getSkill(split[1]).getAdaptations().where(a -> a.getId().equals(split[2])).get(0).openGui(Bukkit.getPlayer(UUID.fromString(s)));
-
+                                    instance.getAdaptServer().getSkillRegistry().getSkill(split[1]).getAdaptations()
+                                            .stream()
+                                            .filter(a -> a.getId().equals(split[2]))
+                                            .findFirst()
+                                            .orElseThrow()
+                                            .openGui(Bukkit.getPlayer(UUID.fromString(s)));
                                 } catch (Throwable e) {
                                     instance.getAdaptServer().getSkillRegistry().getSkill(split[1]).openGui(Bukkit.getPlayer(UUID.fromString(s)));
                                 }

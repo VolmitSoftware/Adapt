@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.util;
 
+import com.volmit.adapt.util.collection.KList;
 import org.bukkit.Sound;
 
 import java.lang.reflect.Field;
@@ -31,9 +32,9 @@ import java.util.List;
  * @author cyberpwn
  */
 public abstract class MortarCommand implements ICommand {
-    private final List<MortarCommand> children;
-    private final List<String> nodes;
-    private final List<String> requiredPermissions;
+    private final KList<MortarCommand> children;
+    private final KList<String> nodes;
+    private final KList<String> requiredPermissions;
     private final String node;
     private String category;
     private String description;
@@ -48,9 +49,9 @@ public abstract class MortarCommand implements ICommand {
     public MortarCommand(String node, String... nodes) {
         category = "";
         this.node = node;
-        this.nodes = new ArrayList<>();
+        this.nodes = new KList<>();
         this.nodes.add(nodes);
-        requiredPermissions = new ArrayList<>();
+        requiredPermissions = new KList<>();
         children = buildChildren();
         description = "No Description";
     }
@@ -157,12 +158,12 @@ public abstract class MortarCommand implements ICommand {
     }
 
     @Override
-    public List<String> getNodes() {
+    public KList<String> getNodes() {
         return nodes;
     }
 
     @Override
-    public List<String> getAllNodes() {
+    public KList<String> getAllNodes() {
         return getNodes().copy().qadd(getNode());
     }
 
@@ -175,8 +176,8 @@ public abstract class MortarCommand implements ICommand {
         return children;
     }
 
-    private List<MortarCommand> buildChildren() {
-        List<MortarCommand> p = new ArrayList<>();
+    private KList<MortarCommand> buildChildren() {
+        KList<MortarCommand> p = new KList<>();
 
         for (Field i : getClass().getDeclaredFields()) {
             if (i.isAnnotationPresent(Command.class)) {

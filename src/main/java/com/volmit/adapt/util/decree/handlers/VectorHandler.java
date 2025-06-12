@@ -30,8 +30,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
-import java.util.List;
-
 public class VectorHandler implements DecreeParameterHandler<Vector> {
 
     private static final KList<String> randoms = new KList<>(
@@ -87,7 +85,7 @@ public class VectorHandler implements DecreeParameterHandler<Vector> {
                 String v = in.trim().split("\\Q:\\E")[1];
 
 
-                List<?> px = DecreeSystem.getHandler(Player.class).getPossibilities(v);
+                KList<?> px = DecreeSystem.getHandler(Player.class).getPossibilities(v);
 
                 if (px != null && px.isNotEmpty()) {
                     return ((Player) px.get(0)).getLocation().toVector();

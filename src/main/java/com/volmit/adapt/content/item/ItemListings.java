@@ -130,7 +130,7 @@ public class ItemListings {
     }};
 
     @Getter
-    public static List<Material> herbalLuckSeeds = List.of(
+    public static KList<Material> herbalLuckSeeds = new KList<>(
             Material.MELON_SEEDS,
             Material.PUMPKIN_SEEDS,
             Material.COCOA_BEANS
@@ -148,7 +148,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> herbalLuckFood = List.of(
+    public static KList<Material> herbalLuckFood = new KList<>(
             Material.POTATOES,
             Material.CARROTS,
             Material.BEETROOTS,
@@ -449,7 +449,7 @@ public class ItemListings {
     );
 
     @Getter
-    public static List<Material> fishingDrops = List.of(
+    public static KList<Material> fishingDrops = new KList<>(
             Material.COD,
             Material.COD,
             Material.COD,

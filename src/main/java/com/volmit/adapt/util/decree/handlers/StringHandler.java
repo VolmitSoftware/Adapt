@@ -24,9 +24,6 @@ import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.decree.DecreeParameterHandler;
 import com.volmit.adapt.util.decree.exceptions.DecreeParsingException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Abstraction can sometimes breed stupidity
  */
@@ -53,7 +50,7 @@ public class StringHandler implements DecreeParameterHandler<String> {
 
     @Override
     public String getRandomDefault() {
-        return new ArrayList<String>().qadd("text").qadd("string")
+        return new KList<String>().qadd("text").qadd("string")
                 .qadd("blah").qadd("derp").qadd("yolo").getRandom();
     }
 }

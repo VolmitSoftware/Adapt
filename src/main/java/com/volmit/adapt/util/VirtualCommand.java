@@ -19,12 +19,13 @@
 package com.volmit.adapt.util;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.util.collection.KList;
+import com.volmit.adapt.util.collection.KMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ public class VirtualCommand {
     private final ICommand command;
     private final String tag;
 
-    private final Map<List<String>, VirtualCommand> children;
+    private final KMap<List<String>, VirtualCommand> children;
 
     public VirtualCommand(ICommand command) {
         this(command, "");
@@ -47,7 +48,7 @@ public class VirtualCommand {
 
     public VirtualCommand(ICommand command, String tag) {
         this.command = command;
-        children = new HashMap<>();
+        children = new KMap<>();
         this.tag = tag;
 
         for (Field i : command.getClass().getDeclaredFields()) {
@@ -76,11 +77,11 @@ public class VirtualCommand {
         return children;
     }
 
-    public boolean hit(CommandSender sender, List<String> chain) {
+    public boolean hit(CommandSender sender, KList<String> chain) {
         return hit(sender, chain, null);
     }
 
-    public boolean hit(CommandSender sender, List<String> chain, String label) {
+    public boolean hit(CommandSender sender, KList<String> chain, String label) {
         MortarSender vs = new MortarSender(sender);
         vs.setTag(tag);
 
@@ -103,7 +104,7 @@ public class VirtualCommand {
                 if (j.equalsIgnoreCase(nl)) {
                     vs.setCommand(chain.get(0));
                     VirtualCommand cmd = children.get(i);
-                    List<String> c = chain.copy();
+                    KList<String> c = chain.copy();
                     c.remove(0);
                     if (cmd.hit(sender, c, vs.getCommand())) {
                         if (vs.isPlayer()) {
@@ -124,7 +125,7 @@ public class VirtualCommand {
         return command.handle(vs, chain.toArray(new String[chain.size()]));
     }
 
-    public List<String> hitTab(CommandSender sender, List<String> chain, String label) {
+    public List<String> hitTab(CommandSender sender, KList<String> chain, String label) {
         MortarSender vs = new MortarSender(sender);
         vs.setTag(tag);
 
@@ -146,7 +147,7 @@ public class VirtualCommand {
                 if (j.equalsIgnoreCase(nl)) {
                     vs.setCommand(chain.get(0));
                     VirtualCommand cmd = children.get(i);
-                    List<String> c = chain.copy();
+                    KList<String> c = chain.copy();
                     c.remove(0);
                     List<String> v = cmd.hitTab(sender, c, vs.getCommand());
                     if (v != null) {

@@ -22,13 +22,13 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.nms.NMS;
 import com.volmit.adapt.util.BukkitGson;
 import com.volmit.adapt.util.WindowResolution;
+import com.volmit.adapt.util.collection.KList;
 import lombok.*;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -77,9 +77,9 @@ public interface MultiItem {
     }
 
     default ItemStack nextMatching(ItemStack item, Predicate<ItemStack> predicate) {
-        List<ItemStack> items = getItems(item);
+        KList<ItemStack> items = getItems(item);
         for (int i = 0; i < items.size(); i++) {
-            if (predicate.test(items[i])) {
+            if (predicate.test(items.get(i))) {
                 return switchTo(item, i);
             }
         }
@@ -107,18 +107,18 @@ public interface MultiItem {
                 .build());
     }
 
-    default List<ItemStack> getItems(ItemStack multi) {
+    default KList<ItemStack> getItems(ItemStack multi) {
         MultiItemData d = getMultiItemData(multi);
 
         if (d == null) {
-            return new ArrayList<>();
+            return new KList<>();
         }
 
         return d.getItems();
     }
 
-    default List<ItemStack> explode(ItemStack multi) {
-        List<ItemStack> it = new ArrayList<>();
+    default KList<ItemStack> explode(ItemStack multi) {
+        KList<ItemStack> it = new KList<>();
         it.add(getRealItem(multi));
         it.add(getItems(multi));
         return it;
@@ -171,12 +171,12 @@ public interface MultiItem {
         @Singular
         List<String> rawItems;
 
-        List<ItemStack> getItems() {
-            return rawItems.stream().map(NMS::deserializeStack).collect(Collectors.toList());
+        KList<ItemStack> getItems() {
+            return rawItems.stream().map(NMS::deserializeStack).collect(KList.collector());
         }
 
         void setItems(List<ItemStack> is) {
-            rawItems = is.stream().map(NMS::serializeStack).collect(Collectors.toList());
+            rawItems = is.stream().map(NMS::serializeStack).collect(KList.collector());
         }
     }
 }

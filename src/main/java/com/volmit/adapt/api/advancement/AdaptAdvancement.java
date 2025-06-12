@@ -28,13 +28,17 @@ import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameT
 import com.fren_gor.ultimateAdvancementAPI.database.TeamProgression;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.CustomModel;
-import lombok.*;
+import com.volmit.adapt.util.collection.KList;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Singular;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @Data
@@ -87,12 +91,12 @@ public class AdaptAdvancement {
         return new SubAdvancement(getKey(), d, parent, getVisibility());
     }
 
-    public List<Advancement> toAdvancements() {
+    public KList<Advancement> toAdvancements() {
         return toAdvancements(null, 0, 0);
     }
 
-    private List<Advancement> toAdvancements(Advancement p, int index, int depth) {
-        List<Advancement> aa = new ArrayList<>();
+    private KList<Advancement> toAdvancements(Advancement p, int index, int depth) {
+        KList<Advancement> aa = new KList<>();
         Advancement a = toAdvancement(p, index, depth);
         if (children != null && !children.isEmpty()) {
             for (AdaptAdvancement i : children) {
