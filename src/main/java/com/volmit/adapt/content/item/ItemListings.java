@@ -51,7 +51,6 @@ public class ItemListings {
 
     @Getter
     public static final List<Material> smeltOre = List.of(
-            Material.NETHER_GOLD_ORE,
             Material.IRON_ORE,
             Material.GOLD_ORE,
             Material.COPPER_ORE,

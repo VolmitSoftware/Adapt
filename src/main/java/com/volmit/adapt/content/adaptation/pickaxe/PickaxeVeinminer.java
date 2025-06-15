@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
+import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
@@ -109,7 +110,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                 PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("pickaxe");
                 PlayerAdaptation autoSmelt = line != null ? line.getAdaptation("pickaxe-autosmelt") : null;
                 PlayerAdaptation drop2Inv = line != null ? line.getAdaptation("pickaxe-drop-to-inventory") : null;
-                if (autoSmelt != null && autoSmelt.getLevel() > 0) {
+                if (autoSmelt != null && autoSmelt.getLevel() > 0 && ItemListings.getSmeltOre().contains(b.getType())) {
                     if (drop2Inv != null && drop2Inv.getLevel() > 0) {
                         PickaxeAutosmelt.autosmeltBlockDTI(b, p);
                     } else {
