@@ -98,6 +98,10 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
             Adapt.instance.getTicker().register(new TickedObject("config", "config-" + getName(), 1000) {
                 @Override
                 public void onTick() {
+                    if (!AdaptConfig.get().isHotReload()) {
+                        return;
+                    }
+
                     if (fw.checkModified() && file.exists()) {
                         config = null;
                         getConfig();
