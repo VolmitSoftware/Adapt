@@ -20,6 +20,8 @@ package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.world.PlayerAdaptation;
+import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
@@ -115,7 +117,9 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
 
                 J.s(() -> {
                     for (Block blocks : blockMap) {
-                        if (getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory").getLevel() > 0) {
+                        PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("axes");
+                        PlayerAdaptation adaptation = line != null ? line.getAdaptation("axe-drop-to-inventory") : null;
+                        if (adaptation != null && adaptation.getLevel() > 0) {
                             Collection<ItemStack> items = blocks.getDrops();
                             for (ItemStack item : items) {
                                 safeGiveItem(p, item);

@@ -18,7 +18,7 @@
 
 package com.volmit.adapt.util;
 
-import java.util.ArrayList;
+import com.volmit.adapt.util.collection.KList;
 
 public class AtomicRollingSequence extends AtomicAverage {
     private double median;
@@ -83,7 +83,7 @@ public class AtomicRollingSequence extends AtomicAverage {
         for (int i = 0; i < a.length; i++) {
             a[i] = values.get(i);
         }
-        median = new ArrayList<Double>().forceAdd(a).sort().middleValue();
+        median = new KList<Double>().forceAdd(a).sort().middleValue();
         dirtyMedian = false;
     }
 

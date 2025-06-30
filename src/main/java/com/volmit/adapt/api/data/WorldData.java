@@ -24,6 +24,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.data.unit.Earnings;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.collection.KMap;
 import lombok.Getter;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -31,11 +32,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class WorldData extends TickedObject {
-    private static final Map<World, WorldData> mantles = new HashMap<>();
+    private static final KMap<World, WorldData> mantles = new KMap<>();
 
     static {
         SpatialMatter.registerSliceType(new Earnings.EarningsMatter());

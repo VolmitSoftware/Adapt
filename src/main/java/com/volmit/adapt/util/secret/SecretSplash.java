@@ -20,16 +20,16 @@ package com.volmit.adapt.util.secret;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.collection.KList;
 import lombok.Getter;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Random;
 
 public class SecretSplash {
 
     @Getter
-    public static List<String> secretSplash = List.of(
+    public static KList<String> secretSplash = new KList<>(
             "\n" + C.BLUE + "       ⣞⢽⢪⢣⢣⢣⢫⡺⡵⣝⡮⣗⢷⢽⢽⢽⣮⡷⡽⣜⣜⢮⢺⣜⢷⢽⢝⡽⣝   \n" +
                     C.BLUE + "       ⠸⡸⠜⠕⠕⠁⢁⢇⢏⢽⢺⣪⡳⡝⣎⣏⢯⢞⡿⣟⣷⣳⢯⡷⣽⢽⢯⣳⣫⠇  \n" +
                     C.BLUE + "        ⢀⢀⢄⢬⢪⡪⡎⣆⡈⠚⠜⠕⠇⠗⠝⢕⢯⢫⣞⣯⣿⣻⡽⣏⢗⣗⠏⠀    " + C.DARK_RED + "Adapt\n" +

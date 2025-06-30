@@ -18,19 +18,17 @@
 
 package com.volmit.adapt.util;
 
-import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import org.bukkit.ChatColor;
 
 public class DirtyString {
-    private static final Gson gson = new Gson();
 
     public static String write(Object data) {
-        return write(gson.toJson(data));
+        return write(Json.toJson(data, false));
     }
 
     public static <T> T fromJson(String data, Class<T> t) {
-        return gson.fromJson(read(data), t);
+        return Json.fromJson(read(data), t);
     }
 
     public static boolean has(String data) {

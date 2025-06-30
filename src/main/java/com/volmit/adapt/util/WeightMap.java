@@ -18,9 +18,9 @@
 
 package com.volmit.adapt.util;
 
-import java.util.HashMap;
+import com.volmit.adapt.util.collection.KMap;
 
-public class WeightMap<T> extends HashMap<T, Double> {
+public class WeightMap<T> extends KMap<T, Double> {
     private static final long serialVersionUID = 87558033900969389L;
     private boolean modified = false;
     private double lastWeight = 0;

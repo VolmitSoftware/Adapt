@@ -32,6 +32,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.SoundPlayer;
+import com.volmit.adapt.util.collection.KMap;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -49,12 +50,10 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class SkillRegistry extends TickedObject {
-    public static final Map<String, Skill<?>> skills = new ConcurrentHashMap<>();
+    public static final KMap<String, Skill<?>> skills = new KMap<>();
 
     public SkillRegistry() {
         super("registry", UUID.randomUUID() + "-sk", 1250);

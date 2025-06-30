@@ -223,10 +223,15 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     }
 
     private void handleComposterInteraction(PlayerInteractEvent e, Player p) {
-        Levelled c = ((Levelled) e.getClickedBlock().getBlockData());
-        int ol = c.getLevel();
+        Block b = e.getClickedBlock();
+        assert b != null;
+        if (!(b.getBlockData() instanceof Levelled oldData))
+            return;
+        int ol = oldData.getLevel();
         J.s(() -> {
-            int nl = ((Levelled) e.getClickedBlock().getBlockData()).getLevel();
+            if (!(b.getBlockData() instanceof Levelled newData))
+                return;
+            int nl = newData.getLevel();
             if (nl > ol || (ol > 0 && nl == 0)) {
                 xp(p, e.getClickedBlock().getLocation().clone().add(0.5, 0.5, 0.5), getConfig().composterBaseXP + (nl * getConfig().composterLevelXPMultiplier) + (nl == 0 ? getConfig().composterNonZeroLevelBonus : 5));
                 getPlayer(p).getData().addStat("harvest.composted", 1);

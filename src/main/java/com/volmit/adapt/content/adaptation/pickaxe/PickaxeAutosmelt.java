@@ -19,6 +19,8 @@
 package com.volmit.adapt.content.adaptation.pickaxe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.world.PlayerAdaptation;
+import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -32,6 +34,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -157,7 +160,7 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         v.addLore(C.GREEN + "" + (level * 1.25) + C.GRAY + Localizer.dLocalize("pickaxe", "autosmelt", "lore2"));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void on(BlockBreakEvent e) {
         Player p = e.getPlayer();
         if (e.isCancelled()) {
@@ -172,7 +175,10 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         if (!canBlockBreak(p, e.getBlock().getLocation())) {
             return;
         }
-        if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-drop-to-inventory") != null && getPlayer(p).getData().getSkillLines().get("pickaxe").getAdaptations().get("pickaxe-drop-to-inventory").getLevel() > 0) {
+
+        PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("pickaxe");
+        PlayerAdaptation adaptation = line != null ? line.getAdaptation("pickaxe-drop-to-inventory") : null;
+        if (adaptation != null && adaptation.getLevel() > 0) {
             PickaxeAutosmelt.autosmeltBlockDTI(e.getBlock(), p);
         } else {
             autosmeltBlock(e.getBlock(), p);
