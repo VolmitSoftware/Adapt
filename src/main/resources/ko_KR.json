@@ -978,7 +978,8 @@
     "arrowrecovery": {
       "name": "화살 회수",
       "description": "적을 죽인 후 화살을 회복하십시오.",
-      "lore1": "적중/사살 시 화살 회수 확률"
+      "lore1": "적중/사살 시 화살 회수 확률",
+      "lore2": "확률: "
     },
     "webshot": {
       "name": "웹 스네어",
