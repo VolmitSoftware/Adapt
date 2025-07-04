@@ -1,23 +1,23 @@
 {
   "advancement": {
     "challenge_move_1k": {
-      "title": "1KM",
+      "title": "움직입시다!",
       "description": "1KM 이상 이동하기 (1,000 블럭)"
     },
     "challenge_sprint_5k": {
-      "title": "5KM",
+      "title": "5KM 뜀박질!",
       "description": "5KM 이상 이동하기 (5,000 블럭)"
     },
     "challenge_sprint_50k": {
-      "title": "50KM",
+      "title": "50KM 전력질주!",
       "description": "50KM 이상 이동하기 (50,000 블럭)"
     },
     "challenge_sprint_500k": {
-      "title": "우주를 가로질러라!!",
+      "title": "광활한 세계를 탐험하세요!",
       "description": "500KM 이상 이동하기 (500,000 블럭)"
     },
     "challenge_sprint_marathon": {
-      "title": "마라톤!",
+      "title": "마라톤 뛸시간!",
       "description": "42,195 블럭을 달리세요!"
     },
     "challenge_place_1k": {
@@ -29,7 +29,7 @@
       "description": "블럭 5,000개를 배치하세요"
     },
     "challenge_place_50k": {
-      "title": "베테랑 건축가!",
+      "title": "숙련된 건축가!",
       "description": "블럭 50,000개를 배치하세요"
     },
     "challenge_place_500k": {
@@ -38,7 +38,7 @@
     },
     "challenge_place_5m": {
       "title": "대칭의 수호자!",
-      "description": "현실은 당신의 캔버스입니다! (5백만 블럭을 배치하세요)"
+      "description": "이곳이 당신만의 놀이터입니다! (5백만 블럭을 배치하세요)"
     },
     "challenge_chop_1k": {
       "title": "풋내기 나무꾼!",
@@ -49,7 +49,6 @@
       "description": "나무 블럭 5,000개를 베세요"
     },
     "challenge_chop_50k": {
-      "title": "베테랑 나무꾼!",
       "description": "나무 블럭 50,000개를 베세요"
     },
     "challenge_chop_500k": {
@@ -58,10 +57,9 @@
     },
     "challenge_chop_5m": {
       "title": "나무 베는 체인소맨",
-      "description": "최고의 전기톱! (나무 블럭 5백만 개를 베세요)"
+      "description": "최고의 인간 전기톱! (나무 블럭 5백만 개를 베세요)"
     },
     "challenge_block_1k": {
-      "title": "막았죠?",
       "description": "공격 1,000번을 막으세요"
     },
     "challenge_block_5k": {
@@ -73,7 +71,7 @@
       "description": "공격 50,000번을 막으세요"
     },
     "challenge_block_500k": {
-      "title": "고기 방패라도...",
+      "title": "막기만이 내 삶의 목표야!",
       "description": "공격 500,000번을 막으세요"
     },
     "challenge_block_5m": {
@@ -89,7 +87,7 @@
       "description": "물약 5,000개를 사용하세요"
     },
     "challenge_brew_50k": {
-      "title": "베테랑 연금술사!",
+      "title": "숙련된 연금술사!",
       "description": "물약 50,000개를 사용하세요"
     },
     "challenge_brew_500k": {
@@ -101,23 +99,23 @@
       "description": "물약 5,000,000개를 사용하세요"
     },
     "challenge_brewsplash_1k": {
-      "title": "풋내기 마녀!",
+      "title": "풋내기 마도학자!",
       "description": "물약 1,000개를 던지세요"
     },
     "challenge_brewsplash_5k": {
-      "title": "중급 마녀!",
+      "title": "중급 마도학자!",
       "description": "물약 5,000개를 던지세요"
     },
     "challenge_brewsplash_50k": {
-      "title": "베테랑 마녀!",
+      "title": "숙련된 마도학자!",
       "description": "물약 50,000개를 던지세요"
     },
     "challenge_brewsplash_500k": {
-      "title": "마스터 마녀!",
+      "title": "마스터 마도학자!",
       "description": "물약 500,000개를 던지세요"
     },
     "challenge_brewsplash_5m": {
-      "title": "위대한 마녀",
+      "title": "지니위즈",
       "description": "물약 5,000,000개를 던지세요"
     },
     "challenge_craft_1k": {
@@ -129,7 +127,6 @@
       "description": "아이템 5,000개를 제작하세요"
     },
     "challenge_craft_50k": {
-      "title": "베테랑 제작자!",
       "description": "아이템 50,000개를 제작하세요"
     },
     "challenge_craft_500k": {
@@ -141,23 +138,23 @@
       "description": "아이템 5,000,000개를 제작하세요"
     },
     "challenge_enchant_1k": {
-      "title": "풋내기 인챈터!",
+      "title": "풋내기 마법부여가!",
       "description": "아이템 1,000개를 인챈트하세요"
     },
     "challenge_enchant_5k": {
-      "title": "중급 인챈터!",
+      "title": "중급 마법부여가!",
       "description": "아이템 5,000개를 인챈트하세요"
     },
     "challenge_enchant_50k": {
-      "title": "베테랑 인챈터!",
+      "title": "숙련된 마법부여가!",
       "description": "아이템 50,000개를 인챈트하세요"
     },
     "challenge_enchant_500k": {
-      "title": "마스터 인챈터!",
+      "title": "마스터 마법부여가!",
       "description": "아이템 500,000개를 인챈트하세요"
     },
     "challenge_enchant_5m": {
-      "title": "위대한 인챈터",
+      "title": "위대한 마법부여가",
       "description": "아이템 5,000,000개를 인챈트하세요"
     },
     "challenge_excavate_1k": {
@@ -169,7 +166,7 @@
       "description": "블럭 5,000개를 파내세요"
     },
     "challenge_excavate_50k": {
-      "title": "베테랑 발굴가",
+      "title": "숙련된 발굴가!",
       "description": "블럭 50,000개를 파내세요"
     },
     "challenge_excavate_500k": {
@@ -179,63 +176,121 @@
     "challenge_excavate_5m": {
       "title": "위대한 발굴가",
       "description": "블럭 5,000,000개를 파내세요"
+    },
+    "horrible_person": {
+      "title": "당신은 끔찍한 사람입니다",
+      "description": "정말 말도 안돼.."
+    },
+    "challenge_turtle_egg_smasher": {
+      "title": "거북이 알 분쇄!"
+    },
+    "challenge_turtle_egg_annihilator": {
+      "title": "거북알 멸종위기!"
+    },
+    "challenge_novice_hunter": {
+      "description": "몹 100마리 처치"
+    },
+    "challenge_intermediate_hunter": {
+      "description": "몹 500마리 처치"
+    },
+    "challenge_advanced_hunter": {
+      "description": "몹 5000마리 처치"
+    },
+    "challenge_creeper_conqueror": {
+    },
+    "challenge_creeper_annihilator": {
+      "title": "크리퍼 학살자!"
+    },
+    "challenge_pickaxe_1k": {
+      "title": "초보 광부"
+    },
+    "challenge_pickaxe_5k": {
+    },
+    "challenge_pickaxe_50k": {
+      "title": "전문 광부"
+    },
+    "challenge_pickaxe_500k": {
+      "title": "마스터 광부"
+    },
+    "challenge_pickaxe_5m": {
+    },
+    "challenge_eat_100": {
+    },
+    "challenge_eat_1000": {
+    },
+    "challenge_eat_10000": {
+    },
+    "challenge_harvest_100": {
+    },
+    "challenge_harvest_1000": {
+    },
+    "challenge_swim_1nm": {
+    },
+    "challenge_sneak_1k": {
     }
   },
   "items": {
     "boundenderperal": {
       "name": "원격 상자",
-      "usage1": "바인딩: 상자에 웅크리기 + 좌클릭",
-      "usage2": "엑세스: 아이템 우클릭"
+      "usage1": "원하는 상자에 웅크리기 + 좌클릭을 해서 연결하세요",
+      "usage2": "우클릭으로 열수있습니다"
     },
     "boundeyeofender": {
       "name": "랑데부",
-      "usage1": "우클릭: 아이템을 소모하여 바인딩한 위치로 순간이동합니다",
-      "usage2": "바인딩: 블럭에 웅크리기 + 좌클릭"
+      "usage1": "우클릭시 아이템을 소모하여 '연결'한 위치로 순간이동합니다",
+      "usage2": "해당 블럭에 웅크리기 + 좌클릭으로 '연결'"
     },
     "boundredstonetorch": {
-      "name": "원격 레드스톤",
-      "usage1": "우클릭: 1틱의 레드스턴 신호를 발생시킵니다",
-      "usage2": "바인딩: 블럭에 웅크리기 + 좌클릭"
+      "name": "리모콘",
+      "usage1": "우클릭: 1틱의 레드스톤 신호를 발생시킵니다",
+      "usage2": "신호를 줄 블럭에 웅크리기 + 좌클릭"
+    },
+    "boundsnowball": {
+      "name": "인스네어!",
+      "usage1": "던져서 해당 구역에 임시 거미줄 함정을 만듭니다"
+    },
+    "elevatorblock": {
     }
   },
   "snippets": {
     "gui": {
       "level": "레벨",
-      "knowledge": "지식",
-      "powerused": "파워",
-      "notlearned": "습득 포기",
-      "xp": "XP에",
+      "knowledge": "스킬 포인트",
+      "powerused": "사용중인 마력",
+      "notlearned": "배우지않음",
+      "xp": "XP 다음레벨",
       "welcome": "반갑습니다!",
       "welcomeback": "다시 오신 것을 환영합니다!",
       "xpbonusfortime": "XP",
-      "unlockthisbyclicking": "우클릭 - 스킬 잠금 해제: ",
+      "unlockthisbyclicking": "우클릭하여 잠금해제:",
       "back": "뒤로 가기",
-      "unlearnall": "모두 습득 포기",
-      "unlearnedall": "모두 습득하지 않음"
+      "unlearnall": "모두 배우지않음",
+      "unlearnedall": "모두 배우지 않았음"
     },
     "adaptmenu": {
-      "maynotunlearn": "습득할 수 없습니다",
-      "mayunlearn": "습득하거나 습득 포기할 수 있습니다",
-      "knowledgecost": "필요한 지식",
-      "alreadylearned": "이미 습득함",
+      "maynotunlearn": "배울 수 없습니다",
+      "mayunlearn": "배우거나 배우지 않을 수 있습니다",
+      "knowledgecost": "필요한 스킬포인트",
+      "knowledgeavailable": "사용 가능한 스킬포인트",
+      "alreadylearned": "이미 배움",
       "unlearnrefund": "클릭하여 습득 포기 및 환불을 받습니다",
       "norefunds": "하드코어, 환불 불가",
-      "knowledge": "지식",
-      "clicklearn": "클릭하여 습득: ",
-      "noknowledge": "(지식을 갖고 있지 않습니다)",
-      "youonlyhave": "현재 보유중인 지식: ",
-      "howtolevelup": "스킬을 강화하여 최대 파워를 높이세요",
-      "notenoughpower": "파워가 부족합니다 (필요한 파워: 1)",
-      "power": "파워",
-      "powerdrain": "파워 초기화",
-      "learned": "습득: ",
-      "unlearned": "미습득: "
+      "knowledge": "스킬포인트",
+      "clicklearn": "클릭하여 배웁니다 : ",
+      "noknowledge": "(스킬포인트를 갖고 있지 않습니다)",
+      "youonlyhave": "현재 보유중인 스킬포인트: ",
+      "howtolevelup": "레벨업을 하여 최대 마력을 높이세요",
+      "notenoughpower": "마력이 부족합니다!",
+      "power": "마력",
+      "powerdrain": "의 마력 사용",
+      "learned": "배움:",
+      "unlearned": "배우지않음: "
     },
     "knowledgeorb": {
       "contains": "포함",
-      "knowledge": "지식",
+      "knowledge": "스킬포인트",
       "rightclick": "우클릭",
-      "togainknowledge": "이 지식을 얻기 위해",
+      "togainknowledge": "이 스킬을 얻기 위해",
       "knowledgeorb": "지식의 구체"
     },
     "experienceorb": {
@@ -250,24 +305,22 @@
     "agility": {
       "name": "민첩성",
       "icon": "⇉",
-      "description": "빠르게 대처하고 움직이는 능력"
+      "description": "빠르게 움직이고 대처하는 능력"
     },
     "architect": {
       "name": "건축",
       "icon": "⬧",
-      "description": "현실의 구조를 통제하는 능력"
+      "description": "당신이 꿈꾸는 세상은 당신의 손에 달려 있습니다."
     },
     "axes": {
       "name": "도끼",
       "icon": "🪓",
-      "description1": "나무를 베어 넘길 수 있다",
-      "description2": " ",
-      "description3": " "
+      "description1": "나무를 베어 넘길 수 있다"
     },
     "brewing": {
-      "name": "연금술",
+      "name": "양조술",
       "icon": "❦",
-      "description": "증명할 수 없는 이상 효과를 다루는 능력"
+      "description": "양조가 될지 연금술이 될지..\n무한한 가능성이 열려있습니다"
     },
     "blocking": {
       "name": "방패",
@@ -277,22 +330,20 @@
     "crafting": {
       "name": "제작",
       "icon": "⌂",
-      "description": "모든 것을 조합하여 또 다른 것을 제작해내다"
+      "description": "우리 함께 새로운 가능성을 열어보자구요!"
     },
     "discovery": {
       "name": "탐험",
-      "icon": "⚛",
-      "description": "세계의 비밀을 찾아내는 과정"
+      "icon": "⚛"
     },
     "enchanting": {
       "name": "인챈트",
       "icon": "♰",
-      "description": "알 수 없는 현상을 가져오는 마법"
+      "description": "마법부여의 길"
     },
     "excavation": {
       "name": "발굴",
-      "icon": "ᛳ",
-      "description": "기초가 단단하면 쉽게 무너지지 않는다"
+      "icon": "ᛳ"
     },
     "herbalism": {
       "name": "생명공학",
@@ -300,34 +351,32 @@
       "description": "생명에 대해 자세히 알아가는 능력"
     },
     "hunter": {
-      "name": "사냥",
+      "name": "사냥꾼",
       "icon": "☠",
       "description": "생존하기 위해 사냥하는 것이 아닌 사냥하기 위해 생존하는 것이다"
     },
     "nether": {
       "name": "네더",
       "icon": "₪",
-      "description": "또 다른 세계, 깊은 곳에서"
+      "description": "또 다른 세계의 깊은 곳에서 나오는 능력."
     },
     "pickaxe": {
-      "name": "채굴",
+      "name": "곡괭이",
       "icon": "⛏",
       "description": "지하 탐험에 가장 큰 영향을 주는 능력"
     },
     "ranged": {
-      "name": "저격",
       "icon": "🏹",
-      "description": "저격은 가장 안전한 승리와 생존의 방법입니다"
+      "description": "가장 안전한 승리와 생존의 방법입니다"
     },
     "rift": {
       "name": "균열",
       "icon": "❍",
-      "description": "세계와 세계 사이의 충돌로 발생한 불가사의한 힘"
+      "description": "세계와 세계 사이의 충돌로 발생한 불가사의한 균열의 힘"
     },
     "seaborne": {
       "name": "해상",
-      "icon": "🎣",
-      "description": "물의 경이로움을 다룰 수 있는 능력"
+      "icon": "🎣"
     },
     "stealth": {
       "name": "잡입",
@@ -340,42 +389,39 @@
       "description": "모든 것을 베어버리는 능력"
     },
     "taming": {
-      "name": "테이밍",
+      "name": "조련",
       "icon": "♥",
       "description": "동물을 길들이는 능력"
     },
     "tragoul": {
-      "name": "경험",
+      "name": "사령술",
       "icon": "🗡",
-      "description": "전투에서 얻는 경험을 활용하는 능력"
+      "description": "나는 군단이다."
     },
     "chronos": {
       "name": "크로노스",
-      "icon": "⏳",
-      "description": "우주의 시간을 느끼고 통제해라"
+      "icon": "⏳"
     },
     "unarmed": {
       "name": "비무장",
-      "icon": "»",
-      "description": "무기가 없다고 힘이 없는 것이 아니다"
+      "icon": "»"
     }
   },
   "agility": {
     "armorup": {
       "name": "방어구 강화",
-      "description": "달릴수록 더 강화된 방어구를 적용받으세요!",
+      "description": "오래 달릴수록 더 많은 방어력을 얻을 수 있습니다!",
       "lore1": "최대 방어구 적용",
       "lore2": "방어력 상승 시간"
     },
     "superjump": {
       "name": "슈퍼 점프",
-      "description": "매우 높게 점프하세요!",
       "lore1": "최대 점프 높이",
       "lore2": "웅크리기 + 점프"
     },
     "walljump": {
       "name": "벽타기",
-      "description": "공중에서 벽에 붙어 웅크리고 점프하세요!",
+      "description": "벽을 기댄상태로 웅크리면 한번더 점프할수 있습니다!",
       "lore1": "최대 점프",
       "lore2": "점프 높이"
     },
@@ -387,28 +433,27 @@
     }
   },
   "architect": {
+    "elevator": {
+    },
     "foundation": {
-      "name": "마법 기초",
-      "description": "웅크려서 발 빝에 임시 기초 블럭을 생성합니다",
-      "lore1": "생성:",
-      "lore2": " "
+      "name": "마법 발판",
+      "description": "웅크려서 발 밑에 임시 발판 블럭을 생성합니다",
+      "lore1": "한번에 생성할수있는 발판:"
     },
     "glass": {
-      "name": "섬세한 손길",
-      "description": "유리 블럭을 손실없이 아이템으로 돌려받을 수 있습니다",
-      "lore1": "빈 손에 유리에 대한 섬세한 손길 효과를 부여합니다"
+      "name": "유리전용 섬세한 손길",
+      "description": "유리 블럭을 캐도 돌려받을수 있습니다.",
+      "lore1": "자신에게 유리에 대한 섬세한 손길 효과를 부여합니다"
     },
     "wirelessredstone": {
       "name": "원격 레드스톤",
-      "description": "레드사톤 횃불을 사용하여 원격으로 레드스톤 신호를 조작할 수 있습니다",
-      "lore1": "과녁 블럭 + 레드스톤 횃불 + 엔더 진주 = 원격 레드스톤"
+      "description": "원격으로 제어할수있는 레드스톤 리모콘을 만들수 있습니다!"
     },
     "placement": {
-      "name": "월드 에딧",
-      "description": "웅크린 상태로 범위를 지정하고 블럭을 한번에 여러개를 설치할 수 있습니다",
+      "name": "건축도구",
+      "description": "웅크려 범위를 지정해 한번에 여러 블럭을 설치할 수 있습니다.",
       "lore1": "필요한 블럭 수: ",
-      "lore2": " ",
-      "lore3": " "
+      "lore3": "건축도구 재료"
     }
   },
   "axe": {
@@ -425,121 +470,114 @@
       "lore1": "아무 종류의 원목 1개 + 묘목 1개 = 묘목과 같은 종류의 원목 1개"
     },
     "droptoinventory": {
-      "name": "도끼 인벤토리에 드롭"
+      "name": "자석 도끼"
     },
     "groundsmash": {
-      "name": "대지 분쇄",
+      "name": "도끼 나가신다!",
       "description": "점프하고 웅크려서 공격하여 주변 몹에게 광역 피해를 가합니다",
-      "lore1": "데미지",
-      "lore2": "데미지 반경 (블럭)",
+      "lore1": "대미지",
+      "lore2": "대미지 범위",
       "lore3": "힘",
-      "lore4": "스매시 쿨다운"
+      "lore4": "쿨타임"
     },
     "leafminer": {
       "name": "나뭇잎 제거",
-      "description": "한번에 많은 나뭇잎을 제거할 수 있습니다!",
-      "lore1": "몰래, 그리고 내 LEAVES",
-      "lore2": "리프 마이닝의 범위",
-      "lore3": "잎에서 방울을 얻지 못할 것입니다(취약점 방지)"
+      "description": "한번에 많은 나뭇잎을 제거할 수 있습니다!"
     },
     "woodminer": {
-      "name": "목재 광부",
-      "description": "벌크 목재를 한 번에 깰 수 있습니다!",
-      "lore1": "몰래 나무/통나무를 캐십시오( 널빤지 아님)",
+      "description": "큰 나무 뭉치를 한 번에 깰 수 있습니다!",
+      "lore1": "웅크려 나무/통나무를 캐십시오( 판자 적용안됨)",
       "lore2": "목재 채굴의 범위",
-      "lore3": "인벤토리에 드롭과 함께 작동"
+      "lore3": "자석도끼와 함께 작동"
     }
   },
   "brewing": {
     "lingering": {
       "name": "잔잔한 양조주",
-      "description": "양조 물약은 더 오래 지속됩니다!",
+      "description": "양조 물약이 더 오래 지속됩니다!",
       "lore1": "지속",
       "lore2": "지속"
     },
     "superheated": {
-      "name": "슈퍼히티드 브루",
-      "description": "양조 스탠드는 뜨거울수록 더 빨리 작동합니다.",
-      "lore1": "터치 파이어 블록당",
+      "name": "초 고열 양조",
+      "description": "양조기가 뜨거울수록 더 빨리 작동합니다.",
+      "lore1": "닿은 불 블록당",
       "lore2": "닿는 용암 블록당"
     },
     "darkness": {
-      "name": "병에 담긴 어둠",
-      "description": "이것이 왜 필요한지 잘 모르겠지만 여기 있습니다!",
-      "lore1": "나이트비전 포션 + 블랙 콘크리트 = 어둠의 포션 (30초)",
-      "lore2": "이것은 사용자가 전력 질주를 방지한다는 점에 유의해야 합니다!"
+      "description": "이것이 왜 필요한지 잘 모르겠지만 여기 있습니다!"
     },
     "haste": {
-      "name": "병에 담긴 가속",
+      "name": "성급함의 물약",
       "description": "효율성이 충분하지 않을 때",
       "lore1": "신속 물약 + 자수정 조각 = Potion of Haste (60 seconds)",
       "lore2": "신속 물약 + 자수정 블럭 = Potion of Haste-2 (30 seconds)"
     },
     "absorption": {
-      "name": "병에 담긴 흡수",
-      "description": "몸을 굳혀라!",
+      "name": "흡수의 물약",
+      "description": "몸을 단단하게 합니다!",
       "lore1": "즉시 치유 + 석영 = 흡수의 물약(60초)",
       "lore2": "즉시 치유 + 석영 블록 = 흡수의 물약-2(30초)"
     },
     "fatigue": {
-      "name": "병에 담긴 피로",
-      "description": "몸을 약하게!",
+      "name": "피로의 물약",
+      "description": "허약하게 만들어 채굴하는속도를 줄입니다...",
       "lore1": "약점포션 + 슬라임볼 = 피로의 포션 (30초)",
       "lore2": "약점 물약 + 슬라임 블록 = 피로의 물약-2 (15초)"
     },
     "hunger": {
-      "name": "병에 담긴 기아",
-      "description": "만족할 줄 모르는 피드!",
+      "name": "굶주림의 물약",
+      "description": "끝없는 공복감!",
       "lore1": "어색한 물약 + 썩은 살점 = 굶주림의 물약(30초)",
       "lore2": "약점 물약 + 썩은 살 = 굶주림의 물약-3 (15초)"
     },
     "nausea": {
-      "name": "병에 담긴 메스꺼움",
-      "description": "당신이 나를 아프게!",
+      "name": "멀미의 물약",
+      "description": "구와아아악!",
       "lore1": "어색한 물약 + 갈색 버섯 = 메스꺼움의 물약(16초)",
       "lore2": "어색한 물약 + 진홍색 곰팡이 = 메스꺼움의 물약-2 (8초)"
     },
     "blindness": {
-      "name": "병에 담긴 실명",
-      "description": "당신은 무서운 사람입니다 ...",
+      "name": "실명의 물약",
+      "description": "티모가 화살에 바르고는 했죠..",
       "lore1": "어색한 물약 + 잉크 자루 = 실명의 물약(30초)",
       "lore2": "어색한 물약 + 빛나는 잉크 자루 = 실명의 물약-2 (15초)"
     },
     "resistance": {
-      "name": "병에 담긴 저항",
+      "name": "저항의 물약",
       "description": "최강의 강화!",
       "lore1": "어색한 물약 + 철 주괴 = 저항의 물약(60초)",
       "lore2": "어색한 물약 + 철 블록 = 저항의 물약-2 (30초)"
     },
     "healthboost": {
-      "name": "병에 든 생명",
+      "name": "생명의 물약",
       "description": "최대 체력이 부족할 때...",
       "lore1": "즉시 치유 물약 + 황금 사과 = 건강 증진 물약(120초)",
       "lore2": "즉시 치유 물약 + 마법에 걸린 황금 사과 = 건강 증진 물약-2 (120초)"
     },
     "decay": {
-      "name": "병에 담긴 부패",
-      "description": "누가 Detritus가 그렇게 유용할 줄 알았습니까?",
+      "name": "부패 물약",
+      "description": "개똥을 약에쓰면 병난다..",
       "lore1": "약점 물약 + 독 감자 = 시들기의 물약 (16초)",
       "lore2": "약점 물약 + 크림슨 뿌리 = 위더-2의 물약(8초)"
     },
     "saturation": {
-      "name": "병에 담긴 포화도",
-      "description": "알겠어... 배고프지도 않아...",
+      "name": "포만감의 물약",
+      "description": "음식을 갈아넣은것일까요?",
       "lore1": "재생 물약 + 구운 감자 = 포화 물약",
-      "lore2": "재생 물약 + 건초 베일 = 포화 물약-2"
+      "lore2": "재생 물약 + 건초 더미 = 포화 물약-2"
     }
   },
   "blocking": {
     "chainarmorer": {
       "name": "메피스토펠레스의 사슬",
       "description": "사슬 갑옷을 제작할 수 있습니다.",
-      "lore1": "크래프팅 레시피는 다른 레시피와 동일하지만 대신 철 덩어리가 있습니다."
+      "lore1": "제작 레시피는 기존 레시피와 동일하지만 대신 철 조각이 필요합니다."
     },
     "horsearmorer": {
       "name": "제작 가능한 말 갑옷",
       "description": "말 갑옷을 만들 수 있습니다.",
-      "lore1": "갑옷 제작에 사용할 재료로 안장을 둘러쌉니다."
+      "lore1": "갑옷 제작에 사용할 재료로 안장을 둘러싸세요. 예시)다이아몬드"
     },
     "saddlecrafter": {
       "name": "제작 가능한 안장",
@@ -550,24 +588,26 @@
       "name": "다중 갑옷",
       "description": "겉날개를 갑옷에 묶기",
       "lore1": "이것은 여행에 대한 놀라운 기술입니다.",
-      "lore2": "즉시 갑옷/딱지날개를 동적으로 병합하고 변경합니다!",
-      "lore3": "병합하려면 인벤토리의 다른 항목 위로 이동 클릭하십시오.",
-      "lore4": "갑옷의 바인딩을 해제하려면 아이템을 몰래 드랍하면 분해됩니다.",
-      "lore5": "MultiArmor가 파괴되면 그 안의 모든 아이템을 잃게 됩니다.",
-      "lore6": "갑옷은 필요없어, 실망이야..."
+      "lore5": "합친 장비가 파괴되면 그 안의 모든 아이템을 잃게 됩니다.",
+      "lore6": "평범한 갑옷은 필요없어요. 실망스럽네요..."
     }
   },
   "crafting": {
     "deconstruction": {
       "name": "해체",
-      "description": "블록과 아이템을 회수 가능한 기본 구성 요소로 분해하십시오!",
-      "lore1": "아무 물건이나 놓기 + 가위",
-      "lore2": "분해하기 위해 대장간에서."
+      "description": "블록과 아이템을 재료로 분해하십시오!"
     },
     "xp": {
-      "name": "제작 경험치",
+      "name": "경험치 제작",
       "description": "제작 시 패시브 XP 획득",
       "lore1": "제작 시 XP 획득"
+    },
+    "reconstruction": {
+      "name": "광석 복원",
+      "description": "광물 원석을 만들 수 있습니다",
+      "lore1": "광물8개와 돌 1개 = 광석 1개",
+      "lore3": "제외: 파편, 석영, 에메랄드 등...",
+      "lore4": "예시 : 돌, 네더랙, 심층암"
     },
     "leather": {
       "name": "제작 가능한 가죽",
@@ -575,22 +615,22 @@
       "lore1": "모닥불에 (썩은 살코기) 던지기만 하면 끝!"
     },
     "backpacks": {
-      "name": "부틸리에의 백팩!",
+      "name": "보조 주머니",
       "description": "이것은 Mojang 번들을 게임으로 가져옵니다!",
       "lore1": "이것을 사용하려면 서바이벌에 있어야 합니다.",
-      "lore2": "XLX : 가죽, 납, 가죽",
-      "lore3": "XSX : 가죽, 셜커 박스, 가죽",
-      "lore4": "XCX : 가죽, 가슴, 가죽"
+      "lore2": "XLX : 가죽, 끈, 가죽",
+      "lore3": "XSX : 가죽, 통, 가죽",
+      "lore4": "XCX : 가죽, 상자, 가죽"
     },
     "stations": {
       "name": "휴대용 테이블",
-      "description": "손바닥 안의 테이블을 사용하세요!",
-      "lore2": "테이블을 닫을 때 잊어버린 항목은 영원히 사라집니다!",
-      "lore3": "유효한 테이블: Anvil, Crafting, Grindstone, Cartography, Stone-Cutter, Loom"
+      "description": "제작대를 사용하세요!",
+      "lore2": "테이블을 닫을 때 놔둔 항목은 영원히 사라집니다!",
+      "lore3": "유효한 테이블: 모루, 제작대, 숫돌, 지도제작대, 석재절단기, 베틀"
     },
     "skulls": {
-      "name": "제작 가능한 해골!",
-      "description": "재료를 사용하여 몹 해골을 만들 수 있습니다!",
+      "name": "제작 가능한 머리!",
+      "description": "재료를 사용하여 해골을 만들 수 있습니다! 와샌즈!",
       "lore1": "해골을 얻으려면 뼈 블록을 다음과 같이 둘러싸십시오.",
       "lore2": "좀비: 썩어가는 살",
       "lore3": "해골: 뼈",
@@ -608,8 +648,8 @@
       "lore3": "방어력:"
     },
     "unity": {
-      "name": "실험적 통일성",
-      "description": "경험치 오브를 모으면 랜덤 스킬에 XP가 추가됩니다.",
+      "name": "경험치 결합",
+      "description": "경험치 구체를 모으면 랜덤 스킬에 XP가 추가됩니다.",
       "lore1": "XP",
       "lore2": "오브 당"
     },
@@ -618,10 +658,10 @@
       "description": "경험치를 소모하여 모든 출처에서 받는 피해를 완화합니다.",
       "lore0": "15초에 한 번만 발생할 수 있습니다.",
       "lore1": " 피해 감소",
-      "lore2": "고갈된 경험"
+      "lore2": "경험치 소모량"
     },
     "villager": {
-      "name": "주민 매력",
+      "name": "주민 교류",
       "description": "마을 사람들과 더 나은 거래를 할 수 있습니다!",
       "lore1": "이것은 주민과의 상호작용당 XP를 소모합니다.",
       "lore2": "상호작용당 XP를 소비하고 거래를 강화할 기회",
@@ -630,16 +670,16 @@
   },
   "enchanting": {
     "lapisreturn": {
-      "name": "라피스 리턴",
+      "name": "청금석 반환",
       "description": "XP 1레벨 추가 비용으로 무료 청금석을 대가로 받을 수 있습니다.",
       "lore1": "레벨마다 마법부여 비용이 1씩 증가하지만 최대 3라피스까지 반환할 수 있습니다."
     },
     "quickenchant": {
-      "name": "빠른 클릭 인챈트",
+      "name": "퀵 인챈트",
       "description": "책에 직접 마법 부여를 클릭하여 아이템에 마법을 부여하십시오.",
       "lore1": "최대 결합 레벨",
       "lore2": "이상으로 아이템을 인챈트할 수 없습니다.",
-      "lore3": "힘"
+      "lore3": "마력"
     },
     "return": {
       "name": "XP 반환",
@@ -653,21 +693,21 @@
       "name": "성급한 굴착기",
       "description": "이렇게 하면 HASTE와 함께 굴착 프로세스의 속도가 빨라집니다!",
       "lore1": "발굴하는 동안 가속 획득",
-      "lore2": "x 블록 채굴을 시작할 때의 서두름 수준."
+      "lore2": "x 블록 채굴을 시작할 때의 성급함 수준."
+    },
+    "spelunker": {
+      "name": "발광 엑스레이!",
+      "description": "원하는 광물을 골라 볼 수 있습니다!",
+      "lore1": "왼손에 광석 오른손엔 발광열매를 들고 웅크리세요!",
+      "lore3": "사용시 발광열매 소모"
     },
     "droptoinventory": {
-      "name": "삽 재고에 드롭"
+      "name": "자석 삽"
     },
     "omnitool": {
-      "name": "옴니 - T.O.O.L.",
-      "description": "태클의 과도하게 디자인된 호화로운 레더맨",
-      "lore1": "아마도 가장 강력한 것은 당신이 할 수 있습니다",
-      "lore2": "필요에 따라 즉시 도구를 동적으로 병합하고 변경할 수 있습니다.",
-      "lore3": "병합하려면 인벤토리의 다른 항목 위로 이동 클릭하십시오.",
-      "lore4": "도구를 해제하려면 항목을 몰래 떨어뜨리면 분해됩니다.",
-      "lore5": "이 레더맨에서는 도구를 부러뜨릴 수 없지만 부러진 도구는 사용할 수 없습니다.",
-      "lore6": "총 병합 가능 항목",
-      "lore7": "5개 또는 6개의 도구를 사용할 수도 있고 하나만 사용할 수도 있습니다!"
+      "name": "도적의 7가지 도구",
+      "description": "맥가이버칼이라고도 부르죠.",
+      "lore2": "필요에 따라 즉시 도구를 동적으로 병합하고 변경할 수 있습니다."
     }
   },
   "herbalism": {
@@ -679,24 +719,24 @@
       "lore3": "배고픔 비용"
     },
     "hippo": {
-      "name": "약초학자의 하마",
-      "description": "음식을 섭취하면 더 많은 포만감을 줍니다.",
-      "lore1": "음식) 섭취 시 추가 포화점"
+      "name": "풀먹는 하마",
+      "description": "음식을 섭취하면 더 많은 포만감을 줍니다. 풀 먹는 하마가 끝내줍니다~",
+      "lore1": "음식) 섭취시 포만감"
     },
     "myconid": {
-      "name": "약초학자의 미코니드",
+      "name": "약초학자의 균류",
       "description": "균사체를 만드는 능력을 줍니다.",
       "lore1": "모든 흙, 그리고 갈색과 붉은 버섯은 균사체를 만들 것입니다."
     },
     "terralid": {
-      "name": "약초학자의 테랄리드",
+      "name": "잔디 심기",
       "description": "잔디 블록을 만들 수 있는 능력 제공",
       "lore1": "3개의 씨앗, 3개 이상의 흙으로 3개의 잔디 블록을 만들 수 있습니다."
     },
     "cobweb": {
-      "name": "웨비 크리에이터",
+      "name": "거미줄 제작자",
       "description": "제작대에서 거미줄을 만드는 기능을 제공합니다.",
-      "lore1": "Four String은 거미줄을 만들 것입니다."
+      "lore1": "9개의 실로 거미줄을 만들수있습니다."
     },
     "mushroomblocks": {
       "name": "버섯 제조기",
@@ -704,15 +744,15 @@
       "lore1": "4개의 버섯으로 블록을 만들거나 블록으로 줄기를 만듭니다."
     },
     "droptoinventory": {
-      "name": "괭이 드롭-투-인벤토리"
+      "name": "자석 괭이"
     },
     "hungryshield": {
-      "name": "배고픈 방패",
-      "description": "건강보다 굶주림에 피해를 입으십시오.",
-      "lore1": "배고픔에 저항하다"
+      "name": "배고픔 방패",
+      "description": "배고플때 대미지를 받지않습니다",
+      "lore1": "배고픔에 저항"
     },
     "luck": {
-      "name": "약초의 행운",
+      "name": "약초꾼의 행운",
       "description": "풀/꽃을 부수면 일정 확률로 랜덤 아이템 획득",
       "lore0": "꽃 = 음식, 풀 = 씨앗",
       "lore1": "꽃을 부수면 아이템 획득 확률",
@@ -731,17 +771,17 @@
       "lore1": "최대 피해"
     },
     "penalty": {
-      "lore1": "굶주림이 떨어지면 독 스택을 얻습니다."
+      "lore1": "배고픔이 떨어지면 독 스택을 얻습니다."
     },
     "droptoinventory": {
-      "name": "품목 드롭-투-인벤토리",
-      "description": "당신이 무언가를 죽일 때 / 블록을 부술 때 그것은 당신의 인벤토리로 방울을 순간 이동시킵니다.",
-      "lore1": "몹/블록에서 아이템을 떨어뜨릴 때마다 가능한 한 인벤토리로 들어갑니다."
+      "name": "자석 아이템",
+      "description": "당신이 무언가를 죽일 때 / 블록을 부술 때 그것을 당신의 인벤토리로 아이템을 순간 이동시킵니다.",
+      "lore1": "몹/블록에서 아이템을 드랍할 때마다 가능한 한 인벤토리로 들어갑니다."
     },
     "invisibility": {
       "name": "배니싱 스텝",
-      "description": "공격을 받으면 굶주림의 대가로 투명화를 얻습니다.",
-      "lore1": "피격 시 수동 투명화 획득",
+      "description": "공격을 받으면 굶주림을 대가로 투명화를 얻습니다.",
+      "lore1": "피격 시 임시 투명화 획득",
       "lore2": "x 적중 시 3초 동안 투명화 중첩",
       "lore3": "x 쌓인 배고픔",
       "lore4": "굶주림은 지속 시간과 승수를 중첩합니다.",
@@ -753,16 +793,16 @@
       "lore1": "타격 시 패시브 점프 부스트 획득",
       "lore2": "x 적중 시 3초 동안 점프 부스트 중첩",
       "lore3": "x 쌓인 배고픔",
-      "lore4": "굶주림은 지속 시간과 승수를 중첩합니다.",
+      "lore4": "배고픔은 지속 시간과 스택을 중첩합니다.",
       "lore5": "점프 부스트 스택 배수가 아니라 지속 시간입니다."
     },
     "luck": {
       "name": "사냥꾼의 행운",
-      "description": "타격을 입으면 행운을 얻고 굶주림을 대가로",
+      "description": "공격당하면 배고픔을 대가로 행운을 얻습니다",
       "lore1": "공격을 받으면 패시브 운을 얻습니다.",
       "lore2": "x 행운은 적중 시 3초 동안 중첩됩니다.",
       "lore3": "x 쌓인 배고픔",
-      "lore4": "굶주림은 지속 시간과 승수를 중첩합니다.",
+      "lore4": "배고픔은 지속 시간과 스택을 중첩합니다.",
       "lore5": "행운은 지속 시간이 아니라 배율을 중첩합니다."
     },
     "regen": {
@@ -771,7 +811,7 @@
       "lore1": "공격을 받으면 패시브 재생을 얻습니다.",
       "lore2": "x 적중 시 3초 동안 재생 중첩",
       "lore3": "x 쌓인 배고픔",
-      "lore4": "굶주림은 지속 시간과 승수를 중첩합니다.",
+      "lore4": "배고픔은 지속 시간과 스택을 중첩합니다.",
       "lore5": "지속 시간이 아니라 재생 스택 배수입니다."
     },
     "resistance": {
@@ -780,7 +820,7 @@
       "lore1": "패시브 - 공격을 받으면 저항을 얻습니다.",
       "lore2": "x 적중 시 3초 동안 저항 중첩",
       "lore3": "x 쌓인 배고픔",
-      "lore4": "굶주림은 지속 시간과 승수를 중첩합니다.",
+      "lore4": "배고픔은 지속 시간과 스택을 중첩합니다.",
       "lore5": "지속 시간이 아니라 저항 스택 배수입니다."
     },
     "speed": {
@@ -789,7 +829,7 @@
       "lore1": "패시브 - 공격을 받으면 속도를 얻습니다.",
       "lore2": "x 속도는 적중 시 3초 동안 중첩됩니다.",
       "lore3": "x 쌓인 배고픔",
-      "lore4": "굶주림은 지속 시간과 승수를 중첩합니다.",
+      "lore4": "배고픔은 지속 시간과 스택을 중첩합니다.",
       "lore5": "지속 시간이 아니라 속도 스택 배수입니다."
     },
     "strength": {
@@ -805,7 +845,7 @@
   "nether": {
     "skulltoss": {
       "name": "위더 해골 던지기",
-      "description1": "다음을 사용하여 내면의 위더를 해방하십시오.",
+      "description1": "사용하여 내면의 위더를 해방하십시오.",
       "description2": "누군가",
       "description3": "머리.",
       "lore1": "해골 던지기 사이에 몇 초의 쿨다운이 있습니다.",
@@ -816,9 +856,12 @@
     "witherresist": {
       "name": "위더 저항",
       "description": "네더라이트의 힘으로 시들기를 저항합니다.",
-      "lore1": "시들음을 무효화할 기회(조각당).",
+      "lore1": "시들음을 무효화할 기회(부위당).",
       "lore2": "패시브: 네더라이트 갑옷을 입으면 일정 확률로 무효화됩니다.",
       "lore3": "시들게 하는."
+    },
+    "fireresist": {
+      "lore1": "불탐 효과 무효화 기회!"
     }
   },
   "pickaxe": {
@@ -830,116 +873,125 @@
     },
     "chisel": {
       "name": "광석 끌",
-      "description": "광석을 마우스 우클릭하면 심각한 내구도 비용으로 더 많은 광석을 끌 수 있습니다.",
+      "description": "광석을 마우스 우클릭하면 많은 내구도 소모로 더 많은 광석을 얻을 수 있습니다.",
       "lore1": "드롭 기회",
-      "lore2": "공구 마모"
+      "lore2": "도구 마모"
     },
     "droptoinventory": {
-      "name": "곡괭이 인벤토리에 드롭",
+      "name": "자석 곡괭이",
       "description": "블록을 깨면 아이템을 인벤토리로 텔레포트합니다.",
-      "lore1": "항목이 블록에서 떨어질 때마다 가능한 경우 인벤토리로 들어갑니다."
+      "lore1": "아이템이 블록에서 떨어질 때마다 가능한 경우 인벤토리로 들어갑니다."
+    },
+    "silkspawner": {
     },
     "veinminer": {
-      "name": "베인마이너",
-      "description": "광맥/바닐라 광석 클러스터의 블록을 부술 수 있습니다.",
-      "lore1": "몰래, 그리고 광산 ORES",
-      "lore2": "정맥 채광 범위",
-      "lore3": "이 기술은 모든 방울을 함께 그룹화하지 않습니다!"
+      "name": "광맥 채굴가",
+      "description": "자연상태의 광물을 광맥상태로 채굴할 수 있습니다.",
+      "lore1": "웅크린채, 광물을 채굴해보세요",
+      "lore2": "광맥 채광 범위",
+      "lore3": "이 기술은 모든 아이템을 함께 그룹화하지 않습니다!"
     }
   },
   "ranged": {
     "arrowrecovery": {
-      "name": "화살 회복",
+      "name": "화살 회수",
       "description": "적을 죽인 후 화살을 회복하십시오.",
       "lore1": "적중/사살 시 화살 회수 확률"
     },
+    "webshot": {
+      "lore2": "우리에 가두었군. (쑻)"
+    },
     "forceshot": {
       "name": "포스 샷",
-      "description": "더 멀리, 더 빠르게 투사체를 쏴라!",
+      "description": "더 멀리, 더 빠르게 화살을 쏴라!",
       "advancementname": "장거리 슛",
       "advancementlore": "30블록 이상 떨어진 곳에서 사격하세요!",
       "lore1": "발사체 속도"
     },
     "lungeshot": {
       "name": "런지 샷",
-      "description": "화살이 떨어지는 동안 무작위 방향으로 당신을 던집니다.",
-      "lore1": "랜덤 버스트 속도"
+      "description": "화살을 발사할 때, 사용자가 무작위 방향으로 뜁니다",
+      "lore1": "랜덤 뜀 속도"
     },
     "arrowpiercing": {
       "name": "화살 피어싱",
-      "description": "발사체에 피어싱을 추가합니다! 물건을 쏴!",
-      "lore1": "피어싱 타겟"
+      "description": "발사체에 피어싱을 추가합니다! 꿰뚫어 보세요!",
+      "lore1": "꿰뚫을 타겟"
     }
   },
   "rift": {
     "remoteaccess": {
-      "name": "원격 액세스",
+      "name": "원격 연결",
       "description": "공허에서 당겨서 표시된 용기에 넣으십시오.",
-      "lore1": "Enderpearl + 나침반 = 유물 포트키",
-      "lore2": "이 항목을 사용하면 원격으로 컨테이너에 액세스할 수 있습니다.",
+      "lore1": "엔더진주 + 나침반 = 유물포트키",
+      "lore2": "이 항목을 사용하면 원격으로 상자에 액세스할 수 있습니다.",
       "lore3": "일단 제작된 아이템을 보고 사용법을 확인하세요.",
-      "notcontainer": "저건 컨테이너가 아니야"
+      "notcontainer": "저건 보관함이 아닌거같다.."
     },
     "blink": {
       "name": "균열 점멸",
       "description": "근거리 순간이동, 눈 깜짝할 사이!",
-      "lore1": "깜박임 차단(2x 수직)",
+      "lore1": "블록 순간이동(2x 수직)",
       "lore2": "질주 중: 두 번 탭하여 점프",
-      "lore3": "깜박거리다"
+      "lore3": "순간이동"
     },
     "chest": {
-      "name": "쉬운 엔더체스트",
+      "name": "엔더상자 개선",
       "description": "엔더상자를 손에서 마우스 왼쪽 버튼으로 클릭하여 엽니다.",
-      "lore1": "손에 있는 Enderchest를 클릭하여 엽니다(두지 마세요)."
+      "lore1": "손에 있는 엔더상자를 클릭하여 엽니다(두지 마세요)."
+    },
+    "descent": {
+      "description": "셜커가 지겹습니까? 이것은 당신을 위한 기술입니다!",
+      "lore1": "웅크리면 천천히 하강합니다"
     },
     "gate": {
-      "name": "리프트 게이트",
+      "name": "균열 게이트",
       "description": "표시된 위치로 순간이동합니다.",
       "lore1": "제작: 에메랄드 + 자수정 조각 + 엔더 진주",
       "lore2": "사용하기 전에 읽어보세요!",
       "lore3": "5초 지연,",
-      "lore4": "이 애니메이션에 있는 동안 죽을 수 있습니다."
+      "lore4": "사용중엔 무방비 상태라 죽을 수 있습니다."
     },
     "resist": {
       "name": "균열 저항",
       "description": "엔더 아이템 및 능력 사용 시 저항력 획득",
       "lore1": "+ 패시브: 균열 능력 또는 엔더 아이템을 사용할 때 저항을 제공합니다.",
-      "lore2": "휴대용 Enderchest를 포함하지 않고 당신이 소비할 수 있는 것들만"
+      "lore2": "소비 아이템만 해당."
+    },
+    "visage": {
     }
   },
   "seaborn": {
     "oxygen": {
       "name": "유기 산소 탱크",
-      "description": "작은 폐에 더 많은 산소를 담으십시오!",
-      "lore1": "산소"
+      "description": "작은 폐에 더 많은 산소를 담으십시오!"
     },
     "fishersfantasy": {
-      "name": "피셔의 판타지",
+      "name": "낚시꾼의 판타지",
       "description": "낚시에서 더 많은 XP를 얻고 더 많은 물고기를 얻으십시오!",
       "lore1": "각 레벨마다 더 많은 XP와 물고기를 얻을 수 있는 기회가 있습니다!"
     },
     "haste": {
       "name": "거북이 광부",
       "description": "수중에서 채굴하는 동안 가속을 얻습니다!",
-      "lore1": "Haste 3는 수중 호흡 효과가 사라진 후 채광(AquaAffinity와 중첩)하는 동안 수중에서 적용됩니다!"
+      "lore1": "성급함 3은 수중 호흡 효과가 사라진 후 채광하는 동안 수중에서 적용됩니다!"
     },
     "nightvision": {
-      "name": "거북이의 비전",
+      "name": "거북이의 시야",
       "description": "수중에서 야간 투시를 얻습니다.",
-      "lore1": "수중 호흡 효과가 사라진 후 수중에서 나이트 비전을 얻으세요!"
+      "lore1": "수중 호흡 효과가 사라진 후에 수중에서 간단하게 야간 시력을 얻을 수 있습니다!"
     },
     "dolphingrace": {
       "name": "돌고래의 은혜",
       "description": "돌고래 없이 돌고래처럼 헤엄쳐라",
       "lore1": "+ 패시브: 이득",
-      "lore2": "x 속도(돌핀스 그레이스)",
-      "lore3": "정밀 독일 엔지니어- 잠깐, 그건 옳지 않아..."
+      "lore2": "x 속도(돌핀스 그레이스)"
     }
   },
   "stealth": {
     "ghostarmor": {
-      "name": "유령의 갑옷",
-      "description": "피해를 입지 않을 때 느리게 갑옷 적용, 피해를 입기 전까지 지속",
+      "name": "망자의 갑옷",
+      "description": "피해를 입지 않을 때 느리게 방어력 추가, 피해를 입기 전까지 지속",
       "lore1": "최대 갑옷",
       "lore2": "속도"
     },
@@ -951,23 +1003,25 @@
       "lore3": "웅크리고 있는 동안"
     },
     "snatch": {
-      "name": "아이템 강탈",
+      "name": "아이템 스내치",
       "description": "은신 중 드랍된 아이템을 즉시 낚아채세요!",
       "lore1": "스내치 반경"
     },
     "speed": {
-      "name": "몰래 속도",
+      "name": "잠행",
       "description": "은신하는 동안 속도를 얻습니다.",
-      "lore1": "몰래 속도"
+      "lore1": "웅크린채 움직이는 속도"
+    },
+    "enderveil": {
     }
   },
   "sword": {
     "machete": {
-      "name": "칼",
-      "description": "쉽게 단풍을 잘라!",
+      "name": "마체테",
+      "description": "쉽게 나뭇잎을 자르세요",
       "lore1": "슬래시 반경",
-      "lore2": "찹 쿨다운",
-      "lore3": "공구 마모"
+      "lore2": "쿨타임",
+      "lore3": "도구 마모"
     },
     "bloodyblade": {
       "name": "블러디 블레이드",
@@ -986,18 +1040,18 @@
   },
   "taming": {
     "damage": {
-      "name": "데미지 길들이기",
-      "description": "길들인 동물에게 입히는 피해를 늘립니다.",
+      "name": "펫 대미지",
+      "description": "길들인 동물이 입히는 피해를 늘립니다.",
       "lore1": "데미지 증가"
     },
     "health": {
-      "name": "길들인 건강",
-      "description": "길들인 동물의 건강을 높이십시오.",
-      "lore1": "건강 증가"
+      "name": "건강한 펫",
+      "description": "길들인 동물의 체력을 높이십시오.",
+      "lore1": "체력 증가"
     },
     "regeneration": {
-      "name": "길들인 재생",
-      "description": "길들인 동물의 재생력을 높이세요.",
+      "name": "펫 재생",
+      "description": "펫의 재생력을 높이세요.",
       "lore1": "HP/초"
     }
   },
@@ -1005,26 +1059,39 @@
     "thorns": {
       "name": "가시",
       "description": "공격자에게 피해를 되돌려 주세요!",
-      "lore1": "피격시 피해보상"
+      "lore1": "피격시 반사"
+    },
+    "globe": {
+    },
+    "healing": {
+      "lore1": "입힌 피해로부터 일정 체력 회복",
+      "lore2": "치유를 위한 3초의 피해와 1초의 재사용 대기시간이 있습니다.",
+      "lore3": "대미지 퍼센트당 치유:"
+    },
+    "lance": {
+      "name": "시체 창",
+      "description": "적을 죽이거나 적을 죽이는 능력이 있으면 근처의 적에게 피해를 주는 창이 생성됩니다!",
+      "lore1": "창은 당신이 죽이는 모든 것에서 발현될 것입니다. 그리고 이 능력이 적을 죽일 수 있습니다.",
+      "lore3": "최대 창: 1 +"
     }
   },
   "unarmed": {
     "glasscannon": {
       "name": "유리 대포",
-      "description": "보너스 비무장 피해는 갑옷 값이 낮을수록",
+      "description": "비무장 피해는 방어력 값이 낮을수록 보너스",
       "lore1": "x 방어력이 0일 때의 피해",
       "lore2": "레벨당 보너스 데미지"
     },
     "power": {
-      "name": "비무장 전력",
+      "name": "비무장 파워",
       "description": "비무장 피해 개선",
       "lore1": "손상"
     },
     "suckerpunch": {
-      "name": "어리버리 펀치",
-      "description": "달리기 펀치이지만 더 치명적입니다.",
-      "lore1": "손상",
-      "lore2": "펀치하는 동안 속도에 따라 데미지가 증가합니다."
+      "name": "기습",
+      "description": "나비처럼 날아서 벌처럼 쏘세요.",
+      "lore1": "대미지",
+      "lore2": "달리는 동안 속도에 따라 대미지가 증가합니다."
     }
   }
 }
