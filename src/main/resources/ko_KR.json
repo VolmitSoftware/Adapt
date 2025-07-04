@@ -61,6 +61,7 @@
       "description": "최고의 인간 전기톱! (나무 블럭 5백만 개를 베세요)"
     },
     "challenge_block_1k": {
+      "title": "거의 막지 못함!",
       "description": "공격 1,000번을 막으세요"
     },
     "challenge_block_5k": {
@@ -128,6 +129,7 @@
       "description": "아이템 5,000개를 제작하세요"
     },
     "challenge_craft_50k": {
+      "title": "헌신적인 장인!",
       "description": "아이템 50,000개를 제작하세요"
     },
     "challenge_craft_500k": {
@@ -183,37 +185,52 @@
       "description": "정말 말도 안돼.."
     },
     "challenge_turtle_egg_smasher": {
-      "title": "거북이 알 분쇄!"
+      "title": "거북이 알 분쇄!",
+      "description": "거북이 알 100개 깨기"
     },
     "challenge_turtle_egg_annihilator": {
-      "title": "거북알 멸종위기!"
+      "title": "거북알 멸종위기!",
+      "description": "거북알 500개 깨기"
     },
     "challenge_novice_hunter": {
+      "title": "초보 헌터!",
       "description": "몹 100마리 처치"
     },
     "challenge_intermediate_hunter": {
+      "title": "중급 헌터!",
       "description": "몹 500마리 처치"
     },
     "challenge_advanced_hunter": {
+      "title": "고급 헌터!",
       "description": "몹 5000마리 처치"
     },
     "challenge_creeper_conqueror": {
+      "title": "크리퍼 정복자!",
+      "description": "크리퍼 50마리 처치"
     },
     "challenge_creeper_annihilator": {
-      "title": "크리퍼 학살자!"
+      "title": "크리퍼 학살자!",
+      "description": "크리퍼 200마리 처치"
     },
     "challenge_pickaxe_1k": {
-      "title": "초보 광부"
+      "title": "초보 광부",
+      "description": "1000 블록 깨기"
     },
     "challenge_pickaxe_5k": {
+      "title": "숙련된 광부",
+      "description": "5000 블록 깨기"
     },
     "challenge_pickaxe_50k": {
-      "title": "전문 광부"
+      "title": "전문 광부",
+      "description": "50,000 블록 깨기"
     },
     "challenge_pickaxe_500k": {
-      "title": "마스터 광부"
+      "title": "마스터 광부",
+      "description": "500,000 블록 깨기"
     },
     "challenge_pickaxe_5m": {
+      "title": "전설적인 광부",
+      "description": "5,000,000 블록 깨기"
     },
     "challenge_eat_100": {
       "title": "먹을 게 너무 많아요!",
@@ -644,6 +661,7 @@
     "deconstruction": {
       "name": "해체",
       "description": "블록과 아이템을 재료로 분해하십시오!",
+      "lore1": "물건을 땅에 떨어뜨리세요.",
       "lore2": "그런 다음 가위로 몰래 움직이고 마우스 오른쪽 버튼을 클릭하세요."
     },
     "xp": {
