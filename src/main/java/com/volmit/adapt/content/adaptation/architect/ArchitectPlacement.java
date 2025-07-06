@@ -103,7 +103,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
             return;
         }
 
-        blocks.remove(ignored);
+        if (ignored != null) blocks.remove(ignored);
         for (Block b : blocks.keySet()) { // Block Placer
             Block relative = b.getRelative(blocks.get(b));
             if (!relative.getType().isAir())
