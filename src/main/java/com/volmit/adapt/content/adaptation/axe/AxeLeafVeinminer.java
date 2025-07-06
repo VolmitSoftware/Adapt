@@ -83,7 +83,8 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                 return;
             }
 
-            if (isLeaves(new ItemStack(e.getBlock().getType()))) {
+            Material blockType = e.getBlock().getType();
+            if (blockType.isItem() && isLeaves(new ItemStack(blockType))) {
                 Block block = e.getBlock();
                 Map<Location, Block> blockMap = new HashMap<>();
                 Deque<Block> stack = new LinkedList<>();
