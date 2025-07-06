@@ -34,6 +34,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     private final List<Integer> holds;
@@ -86,7 +87,8 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         for (Entity droppedItemEntity : player.getWorld().getNearbyEntities(player.getLocation(), range, range / 1.5, range)) {
             if (droppedItemEntity instanceof Item droppedItem) {
                 if (droppedItem.getPickupDelay() <= 0 || droppedItem.getTicksLived() > 1) {
-                    items.add(droppedItem);
+                    UUID owner = droppedItem.getOwner();
+                    if (owner == null || owner.equals(player.getUniqueId())) items.add(droppedItem);
                 }
             }
         }
