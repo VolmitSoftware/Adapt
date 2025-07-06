@@ -53,7 +53,7 @@ def VERSIONS = Map.of(
         "v1_20_4", "1.20.4-R0.1-SNAPSHOT",
         "v1_19_2", "1.19.2-R0.1-SNAPSHOT"
 )
-def SUPPORTED = ["1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20.1", "1.20.2", "1.20.4", "1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5"]
+def SUPPORTED = ["1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20.1", "1.20.2", "1.20.4", "1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5", "1.21.7"]
 def jdk = ["1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5"]
 
 def MIN_HEAP_SIZE = "2G"
@@ -163,7 +163,7 @@ allprojects {
         compileOnly "com.github.angeschossen:ChestProtectAPI:3.9.1"
         compileOnly "com.github.TechFortress:GriefPrevention:16.18.1"
         implementation 'xyz.xenondevs:particle:1.8.4'
-        implementation "com.frengor:ultimateadvancementapi-shadeable:2.5.1"
+        implementation "com.frengor:ultimateadvancementapi-shadeable:2.5.2"
         implementation 'com.jeff-media:custom-block-data:2.2.3'
         compileOnly 'com.griefdefender:api:2.1.0-SNAPSHOT'
         compileOnly 'io.netty:netty-all:4.1.68.Final'
