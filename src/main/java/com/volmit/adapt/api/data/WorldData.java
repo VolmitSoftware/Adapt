@@ -19,6 +19,7 @@
 package com.volmit.adapt.api.data;
 
 import art.arcane.spatial.mantle.Mantle;
+import art.arcane.spatial.matter.ClassReader;
 import art.arcane.spatial.matter.SpatialMatter;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.data.unit.Earnings;
@@ -37,6 +38,7 @@ public class WorldData extends TickedObject {
 
     static {
         SpatialMatter.registerSliceType(new Earnings.EarningsMatter());
+        ClassReader.add(WorldData.class.getClassLoader());
     }
 
     private final World world;
