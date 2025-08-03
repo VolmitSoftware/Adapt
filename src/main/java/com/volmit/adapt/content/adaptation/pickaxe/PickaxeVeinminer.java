@@ -38,6 +38,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.volmit.adapt.util.data.Metadata.VEIN_MINED;
+
 public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> {
     public PickaxeVeinminer() {
         super("pickaxe-veinminer");
@@ -67,6 +69,10 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         if (e.isCancelled()) {
             return;
         }
+        if (VEIN_MINED.get(e.getBlock())) {
+            return;
+        }
+
         Player p = e.getPlayer();
         if (!hasAdaptation(p)) {
             return;
@@ -80,12 +86,14 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                 return;
             }
         }
+        VEIN_MINED.add(e.getBlock());
 
         Block block = e.getBlock();
         Map<Location, Block> blockMap = new HashMap<>();
         blockMap.put(block.getLocation(), block);
 
-        for (int i = 0; i < getRadius(getLevel(p)); i++) {
+        int radius = getRadius(getLevel(p));
+        for (int i = 0; i < radius; i++) {
             for (int x = -i; x <= i; x++) {
                 for (int y = -i; y <= i; y++) {
                     for (int z = -i; z <= i; z++) {
@@ -100,16 +108,18 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                 }
             }
         }
+
         J.s(() -> {
             for (Location l : blockMap.keySet()) {
                 if (!canBlockBreak(p, l)) {
                     Adapt.verbose("Player " + p.getName() + " doesn't have permission.");
                     continue;
                 }
-                Block b = e.getBlock().getWorld().getBlockAt(l);
+                Block b = block.getWorld().getBlockAt(l);
                 PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("pickaxe");
                 PlayerAdaptation autoSmelt = line != null ? line.getAdaptation("pickaxe-autosmelt") : null;
                 PlayerAdaptation drop2Inv = line != null ? line.getAdaptation("pickaxe-drop-to-inventory") : null;
+                VEIN_MINED.add(b);
                 if (autoSmelt != null && autoSmelt.getLevel() > 0 && ItemListings.getSmeltOre().contains(b.getType())) {
                     if (drop2Inv != null && drop2Inv.getLevel() > 0) {
                         PickaxeAutosmelt.autosmeltBlockDTI(b, p);
@@ -125,15 +135,16 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                         b.setType(Material.AIR);
                     } else {
                         b.breakNaturally(p.getItemInUse());
-                        SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
-                        spw.play(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
+                        SoundPlayer spw = SoundPlayer.of(block.getWorld());
+                        spw.play(block.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.4f, 0.25f);
                         if (getConfig().showParticles) {
-
-                            e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
+                            block.getWorld().spawnParticle(Particle.ASH, b.getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
                         }
                     }
                 }
+                VEIN_MINED.remove(b);
             }
+            VEIN_MINED.remove(block);
         });
     }
 
