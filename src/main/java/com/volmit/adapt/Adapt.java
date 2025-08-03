@@ -310,7 +310,7 @@ public class Adapt extends VolmitPlugin {
     }
 
     public static void actionbar(Player p, String msg) {
-        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(msg));
+        new VolmitSender(p).sendAction(msg);
     }
 
     public static void debug(String string) {
