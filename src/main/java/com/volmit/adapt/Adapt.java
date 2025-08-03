@@ -33,13 +33,14 @@ import com.volmit.adapt.content.protector.*;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.collection.KMap;
+import com.volmit.adapt.util.misc.Adventure;
 import com.volmit.adapt.util.redis.RedisSync;
 import com.volmit.adapt.util.secret.SecretSplash;
 import de.slikey.effectlib.EffectManager;
 import fr.skytasul.glowingentities.GlowingEntities;
+import io.github.slimjar.app.builder.SpigotApplicationBuilder;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -58,8 +59,8 @@ import static com.volmit.adapt.util.decree.context.AdaptationListingHandler.init
 public class Adapt extends VolmitPlugin {
     public static Adapt instance;
     public static HashMap<String, String> wordKey = new HashMap<>();
-    public final EffectManager adaptEffectManager = new EffectManager(this);
-    public static BukkitAudiences audiences;
+    public final EffectManager adaptEffectManager;
+    public static Adventure audiences;
     private KMap<Class<? extends AdaptService>, AdaptService> services;
 
     @Getter
@@ -88,8 +89,13 @@ public class Adapt extends VolmitPlugin {
 
 
     public Adapt() {
-        super();
         instance = this;
+        getLogger().info("Loading Libraries...");
+        new SpigotApplicationBuilder(this)
+                .remap(true)
+                .build();
+        getLogger().info("Libraries Loaded!");
+        adaptEffectManager = new EffectManager(this);
     }
 
     @SuppressWarnings("unchecked")
@@ -107,7 +113,7 @@ public class Adapt extends VolmitPlugin {
 
     @Override
     public void start() {
-        audiences = BukkitAudiences.create(this);
+        audiences = Adventure.create(this);
         services = new KMap<>();
         initialize("com.volmit.adapt.service").forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i));
 
@@ -188,6 +194,7 @@ public class Adapt extends VolmitPlugin {
         glowingEntities.disable();
         protectorRegistry.unregisterAll();
         services.clear();
+        audiences.close();
     }
 
     private void startupPrint() {

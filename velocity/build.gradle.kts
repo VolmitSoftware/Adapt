@@ -1,10 +1,16 @@
+import io.github.slimjar.func.slimjarHelper
+
 plugins {
     java
 }
 
 dependencies {
-    compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
-    annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
+    compileOnly(libs.velocity)
+    annotationProcessor(libs.velocity)
+
+    compileOnly(slimjarHelper("velocity"))
+    compileOnly(libs.lettuce)
+    compileOnly(libs.fastutil)
 }
 
 val templateSource = file("src/main/templates")

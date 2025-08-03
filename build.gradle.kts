@@ -15,18 +15,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import io.freefair.gradle.plugins.lombok.LombokPlugin
+import io.github.slimjar.func.slimjarHelper
+import io.github.slimjar.resolver.data.Mirror
 import org.jetbrains.gradle.ext.settings
 import org.jetbrains.gradle.ext.taskTriggers
 import xyz.jpenilla.runpaper.task.RunServer
 import kotlin.system.exitProcess
 
 plugins {
-    id("java")
-    id("java-library")
-    id("io.freefair.lombok") version "6.3.0"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.9"
-    id("xyz.jpenilla.run-paper") version "2.3.1"
+    `java-library`
+    alias(libs.plugins.lombok)
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.runPaper)
+    alias(libs.plugins.runVelocity)
+    alias(libs.plugins.idea)
+    alias(libs.plugins.slimjar)
 }
 
 version = "1.16.10-1.19.2-1.21.5"
@@ -56,7 +60,7 @@ val versions = mapOf(
     "v1_19_2" to "1.19.2-R0.1-SNAPSHOT"
 )
 val supported = listOf("1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20.1", "1.20.2", "1.20.4", "1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5", "1.21.7")
-val jdk = listOf("1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5", "1.21.7")
+val jdk = listOf("1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20.1", "1.20.2", "1.20.4")
 
 val MIN_HEAP_SIZE = "2G"
 val MAX_HEAP_SIZE = "8G"
@@ -65,11 +69,10 @@ val COLOR = "truecolor"
 
 versions.forEach { (key, value) ->
     project(":version:${key}") {
-        apply(plugin = "java")
-        apply(plugin = "java-library")
+        apply<JavaPlugin>()
 
         dependencies {
-            implementation(rootProject)
+            compileOnly(rootProject)
             compileOnly("org.spigotmc:spigot-api:${value}")
         }
     }
@@ -87,31 +90,37 @@ supported.forEach { version ->
         pluginJars(tasks.shadowJar.flatMap { it.archiveFile} )
         runDirectory.convention(layout.buildDirectory.dir("run/$version"))
 
-        if (jdk.contains(version)) {
+        if (!jdk.contains(version)) {
             javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21)}
         }
     }
+}
+
+tasks.runVelocity {
+    group = "servers"
+    velocityVersion(libs.versions.velocity.get())
+    runDirectory.convention(layout.buildDirectory.dir("run/velocity"))
 }
 
 /**
  * Expand properties into plugin yml
  */
 tasks.processResources {
+    inputs.properties(
+        "name" to rootProject.name,
+        "version" to version,
+        "main" to main,
+        "apiVersion" to apiVersion,
+    )
+
     filesMatching("**/plugin.yml") {
-        inputs.properties(
-            "name" to rootProject.name,
-            "version" to version,
-            "main" to main,
-            "apiVersion" to apiVersion,
-        )
-        
         expand(inputs.properties)
     }
 }
 
 allprojects {
-    apply(plugin = "java")
-    apply(plugin = "java-library")
+    apply<JavaPlugin>()
+    apply<LombokPlugin>()
 
     repositories {
         mavenCentral()
@@ -134,71 +143,56 @@ allprojects {
         options.compilerArgs.add("-parameters")
         options.encoding = "UTF-8"
     }
-
-    dependencies {
-        // Provided or Classpath
-        compileOnly("org.projectlombok:lombok:1.18.24")
-        annotationProcessor("org.projectlombok:lombok:1.18.24")
-
-        // Cancer
-        implementation("com.github.VolmitDev:Fukkit:23.6.1")
-        implementation("com.github.VolmitDev:Amulet:23.5.1")
-        implementation("com.github.VolmitDev:Chrono:22.9.10")
-        implementation("com.github.VolmitDev:Spatial:22.11.1")
-        implementation("net.byteflux:libby-velocity:1.3.1")
-
-        implementation("io.papermc:paperlib:1.0.7")
-        compileOnly("io.lettuce:lettuce-core:6.5.1.RELEASE")
-
-        //Random Api"s
-        compileOnly("com.github.DeadSilenceIV:AdvancedChestsAPI:2.9-BETA")
-        compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.8")
-        compileOnly("com.github.FrancoBM12:API-MagicCosmetics:2.2.8")
-        compileOnly("me.clip:placeholderapi:2.11.6")
-        compileOnly("com.github.LoneDev6:api-itemsadder:3.2.5")
-        compileOnly("io.th0rgal:oraxen:1.182.0")
-        compileOnly("com.massivecraft:Factions:1.6.9.5-U0.6.21")
-        compileOnly("com.github.angeschossen:ChestProtectAPI:3.9.1")
-        compileOnly("com.github.TechFortress:GriefPrevention:16.18.1")
-        implementation("xyz.xenondevs:particle:1.8.4")
-        implementation("com.frengor:ultimateadvancementapi-shadeable:2.6.0")
-        implementation("com.jeff-media:custom-block-data:2.2.3")
-        compileOnly("com.griefdefender:api:2.1.0-SNAPSHOT")
-        compileOnly("io.netty:netty-all:4.1.68.Final")
-
-        // Dynamically Loaded
-        compileOnly("com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2")
-        compileOnly("org.apache.commons:commons-lang3:3.12.0")
-        compileOnly("com.google.code.gson:gson:2.10")
-        compileOnly("com.elmakers.mine.bukkit:EffectLib:10.4")
-        compileOnly("net.kyori:adventure-text-minimessage:4.18.0")
-        compileOnly("net.kyori:adventure-platform-bukkit:4.3.4")
-        compileOnly("it.unimi.dsi:fastutil:8.5.13")
-        compileOnly("fr.skytasul:glowingentities:1.4.6")
-        compileOnly("com.google.guava:guava:30.1-jre")
-        compileOnly("com.github.ben-manes.caffeine:caffeine:3.0.6")
-        compileOnly(fileTree("libs") { include("*.jar") })
-    }
 }
 
 dependencies {
-    compileOnly(project(":velocity")) {
-        isTransitive = false
-    }
+    implementation(project(":velocity"))
+    implementation(slimjarHelper("spigot"))
+    implementation(slimjarHelper("velocity"))
+
+    compileOnly(libs.spigot)
+
+    // Cancer
+    slimApi(libs.fukkit)
+    slimApi(libs.amulet)
+    slimApi(libs.chrono)
+    slimApi(libs.spatial)
+
+    // Dynamically Loaded
+    slimApi(libs.adventure.minimessage)
+    slimApi(libs.adventure.platform)
+    slimApi(libs.lettuce)
+    slimApi(libs.paperlib)
+    slimApi(libs.particle)
+    slimApi(libs.ultimateAdvancementApi)
+    slimApi(libs.customBlockData)
+    slimApi(libs.lur)
+    slimApi(libs.lang3)
+    slimApi(libs.effectLib)
+    slimApi(libs.gson)
+    slimApi(libs.fastutil)
+    slimApi(libs.glowingentities)
+    slimApi(libs.caffeine)
+
+    //Random Api's
+    compileOnlyApi("me.clip:placeholderapi:2.11.6")
+    compileOnlyApi("com.github.DeadSilenceIV:AdvancedChestsAPI:2.9-BETA")
+    compileOnlyApi("com.sk89q.worldguard:worldguard-bukkit:7.0.8")
+    compileOnlyApi("com.github.FrancoBM12:API-MagicCosmetics:2.2.8")
+    compileOnlyApi("com.massivecraft:Factions:1.6.9.5-U0.6.21")
+    compileOnlyApi("com.github.angeschossen:ChestProtectAPI:3.9.1")
+    compileOnlyApi("com.github.TechFortress:GriefPrevention:16.18.1")
+    compileOnlyApi("com.griefdefender:api:2.1.0-SNAPSHOT")
+    compileOnlyApi(fileTree("libs") { include("*.jar") })
 }
 
-/**
- * Configure Adapt for shading
- */
-tasks.shadowJar {
-//    minimize()
-    versions.forEach {
-        from(project(":version:${it.key}").tasks.jar.flatMap { archiveFile })
-    }
-    from(project(":velocity").tasks.jar.flatMap { archiveFile })
+val lib = "com.volmit.adapt.util"
+slimJar {
+    mirrors = listOf(Mirror(
+        uri("https://maven-central.storage-download.googleapis.com/maven2").toURL(),
+        uri("https://repo.maven.apache.org/maven2/").toURL()
+    ))
 
-    append("plugin.yml")
-    val lib = "com.volmit.adapt.util"
     relocate("manifold", "$lib.manifold")
     relocate("art.arcane", "$lib.arcane")
     relocate("Fukkit.extensions", "$lib.extensions")
@@ -207,24 +201,23 @@ tasks.shadowJar {
     relocate("net.byteflux.libby", "$lib.libby")
     relocate("com.jeff_media.customblockdata", "$lib.customblocks")
     relocate("io.papermc.lib", "$lib.paperlib")
-    dependencies {
-        include(dependency("systems.manifold:"))
-        include(dependency("xyz.xenondevs:"))
-        include(dependency("com.github.VolmitDev:"))
-        include(dependency("com.frengor:ultimateadvancementapi-shadeable:"))
-        include(dependency("net.byteflux:"))
-        include(dependency("com.jeff-media:custom-block-data:"))
-        include(dependency("io.papermc:paperlib:"))
+}
+
+/**
+ * Configure Adapt for shading
+ */
+tasks.shadowJar {
+//    minimize()
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    versions.forEach { (key, _) ->
+        dependsOn(":version:$key:build")
+        from(project(":version:$key").tasks.jar.flatMap { it.archiveFile }.map { zipTree(it) })
     }
 }
 
 configurations.configureEach {
     resolutionStrategy.cacheChangingModulesFor(60, "minutes")
     resolutionStrategy.cacheDynamicVersionsFor(60, "minutes")
-}
-
-dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT")
 }
 
 if (JavaVersion.current().toString() != "17") {

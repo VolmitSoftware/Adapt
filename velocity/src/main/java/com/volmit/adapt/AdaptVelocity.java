@@ -12,8 +12,7 @@ import com.velocitypowered.api.plugin.PluginManager;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.volmit.adapt.util.redis.VelocityConfig;
-import net.byteflux.libby.Library;
-import net.byteflux.libby.VelocityLibraryManager;
+import io.github.slimjar.app.builder.VelocityApplicationBuilder;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -33,7 +32,7 @@ public class AdaptVelocity {
             .setPrettyPrinting()
             .create();
 
-    private final VelocityLibraryManager<AdaptVelocity> libby;
+    private final Runnable libraries;
     private final Logger logger;
     private final ProxyServer proxy;
     private final File configFile;
@@ -44,9 +43,14 @@ public class AdaptVelocity {
                          ProxyServer proxy,
                          PluginManager pluginManager,
                          @DataDirectory Path dataFolder) {
-        libby = new VelocityLibraryManager<>(logger, dataFolder, pluginManager, this);
-        libby.addMavenCentral();
-
+        libraries = () -> {
+            logger.info("Loading libraries...");
+            new VelocityApplicationBuilder(pluginManager, this)
+                    .downloadDirectoryPath(dataFolder.resolve(".libs"))
+                    .logger(logger)
+                    .build();
+            logger.info("Libraries loaded.");
+        };
         this.logger = logger;
         this.proxy = proxy;
         this.configFile = dataFolder.resolve("config.yml").toFile();
@@ -54,17 +58,7 @@ public class AdaptVelocity {
 
     @Subscribe
     public void onInitialize(ProxyInitializeEvent event) throws IOException {
-        netty("common");
-        netty("handler");
-        netty("buffer");
-        netty("codec");
-        netty("resolver");
-        netty("transport");
-        netty("transport-native-unix-common");
-        dependency("io.lettuce:lettuce-core:6.5.1.RELEASE");
-        dependency("io.projectreactor:reactor-core:3.6.6");
-        dependency("org.reactivestreams:reactive-streams:1.0.4");
-
+        libraries.run();
         load();
     }
 
@@ -106,25 +100,5 @@ public class AdaptVelocity {
 
         this.handler = new RedisHandler(config.isDebug(), config.createClient());
         proxy.getEventManager().register(this, handler);
-    }
-
-    private void dependency(String dependency) {
-        String[] part = dependency.split(":", 3);
-        if (part.length != 3) throw new IllegalArgumentException("Invalid dependency: " + dependency);
-        libby.loadLibrary(Library.builder()
-                .id(part[1])
-                .groupId(part[0])
-                .artifactId(part[1])
-                .version(part[2])
-                .build());
-    }
-
-    private void netty(String artifactId) {
-        libby.loadLibrary(Library.builder()
-                .id("netty-" + artifactId)
-                .groupId("io.netty")
-                .artifactId("netty-" + artifactId)
-                .version("4.1.115.Final")
-                .build());
     }
 }
