@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.content.adaptation.brewing;
 
-import com.google.gson.internal.bind.MapTypeAdapterFactory;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.world.PlayerAdaptation;
@@ -140,7 +139,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
                         continue;
                     }
 
-                    BrewingStandOwner owner = WorldData.of(b.getWorld()).getMantle().get(b.getX(), b.getY(), b.getZ(), BrewingStandOwner.class);
+                    BrewingStandOwner owner = WorldData.of(b.getWorld()).get(b.getBlock(), BrewingStandOwner.class);
 
                     if (owner == null) {
                         it.remove();

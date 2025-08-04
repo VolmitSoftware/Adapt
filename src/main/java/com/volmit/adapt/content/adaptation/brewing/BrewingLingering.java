@@ -70,7 +70,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
             return;
         }
         if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
-            BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).getMantle().get(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);
+            BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
 
             if (owner != null) {
                 J.s(() -> {

@@ -40,7 +40,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.meta.PotionMeta;
 
 import java.util.HashMap;
@@ -218,8 +220,29 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         }
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
-                WorldData.of(e.getBlock().getWorld()).getMantle().set(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), new BrewingStandOwner(e.getPlayer().getUniqueId()));
+                WorldData.of(e.getBlock().getWorld()).set(e.getBlock(), new BrewingStandOwner(e.getPlayer().getUniqueId()));
             }
+        });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(InventoryOpenEvent e) {
+        if (e.isCancelled()
+                || !(e.getPlayer() instanceof Player player)
+                || !(e.getInventory() instanceof BrewerInventory inv)) {
+            return;
+        }
+
+        var holder = inv.getHolder();
+        if (holder == null) return;
+        var block = holder.getBlock();
+        if (block.getType() != Material.BREWING_STAND) return;
+
+        shouldReturnForPlayer(player, e, () -> {
+            var data = WorldData.of(block.getWorld());
+            var owner = data.get(block, BrewingStandOwner.class);
+            if (owner != null) return;
+            data.set(block, new BrewingStandOwner(player.getUniqueId()));
         });
     }
 
@@ -229,9 +252,10 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
             return;
         }
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
-            if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
-                WorldData.of(e.getBlock().getWorld()).getMantle().remove(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);
+            if (!e.getBlock().getType().equals(Material.BREWING_STAND)) {
+                return;
             }
+            WorldData.of(e.getBlock().getWorld()).remove(e.getBlock(), BrewingStandOwner.class);
         });
     }
 
