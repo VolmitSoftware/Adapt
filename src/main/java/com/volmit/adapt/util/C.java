@@ -336,7 +336,7 @@ public enum C {
     }
 
     C(char code, int intCode, boolean isFormat) {
-        this("^", code, intCode, false);
+        this("^", code, intCode, isFormat);
     }
 
     C(String token, char code, int intCode, boolean isFormat) {
@@ -380,17 +380,16 @@ public enum C {
     }
 
     public static String aura(String s, int hrad, int srad, int vrad, double pulse) {
-        String msg = compress(s);
         StringBuilder b = new StringBuilder();
         boolean c = false;
 
-        for (char i : msg.toCharArray()) {
+        for (char i : s.toCharArray()) {
             if (c) {
                 c = false;
 
                 C o = C.getByChar(i);
 
-                if (hrad != 0 || srad != 0 || vrad != 0) {
+                if (o.isColor() && (hrad != 0 || srad != 0 || vrad != 0)) {
                     if (pulse > 0) {
                         b.append(VolmitSender.pulse(spinToHex(o, hrad, srad, vrad), spinToHex(o, -hrad, -srad, -vrad), pulse));
                     } else {
