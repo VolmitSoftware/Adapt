@@ -56,8 +56,7 @@ val versions = mapOf(
     "v1_21_2" to "1.21.2-R0.1-SNAPSHOT", 
     "v1_21" to "1.21-R0.1-SNAPSHOT", 
     "v1_20_5" to "1.20.5-R0.1-SNAPSHOT", 
-    "v1_20_4" to "1.20.4-R0.1-SNAPSHOT", 
-    "v1_19_2" to "1.19.2-R0.1-SNAPSHOT"
+    "v1_20_2" to "1.20.2-R0.1-SNAPSHOT",
 )
 val supported = listOf("1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20.1", "1.20.2", "1.20.4", "1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5", "1.21.8")
 val jdk = listOf("1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20.1", "1.20.2", "1.20.4")
@@ -149,6 +148,9 @@ dependencies {
     implementation(project(":velocity"))
     implementation(slimjarHelper("spigot"))
     implementation(slimjarHelper("velocity"))
+    implementation(libs.platformUtils) {
+        isTransitive = false
+    }
 
     compileOnly(libs.spigot)
 
@@ -161,8 +163,9 @@ dependencies {
     // Dynamically Loaded
     slimApi(libs.adventure.minimessage)
     slimApi(libs.adventure.platform)
+    slimApi(libs.adventure.gson)
+    slimApi(libs.adventure.legacy)
     slimApi(libs.lettuce)
-    slimApi(libs.paperlib)
     slimApi(libs.particle)
     slimApi(libs.ultimateAdvancementApi)
     slimApi(libs.customBlockData)
@@ -200,7 +203,6 @@ slimJar {
     relocate("com.fren_gor.ultimateAdvancementAPI", "$lib.advancements")
     relocate("net.byteflux.libby", "$lib.libby")
     relocate("com.jeff_media.customblockdata", "$lib.customblocks")
-    relocate("io.papermc.lib", "$lib.paperlib")
 }
 
 /**

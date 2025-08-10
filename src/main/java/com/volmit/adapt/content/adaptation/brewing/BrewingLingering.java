@@ -25,16 +25,21 @@ import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.collection.KList;
 import lombok.NoArgsConstructor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.BrewingStand;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.BrewEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> {
     public BrewingLingering() {
@@ -69,62 +74,108 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         if (e.isCancelled()) {
             return;
         }
-        if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
-            BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
+        if (!e.getBlock().getType().equals(Material.BREWING_STAND)) {
+            return;
+        }
+        BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
 
-            if (owner != null) {
-                J.s(() -> {
-                    PlayerData data = null;
-                    ItemStack[] c = ((BrewingStand) e.getBlock().getState()).getInventory().getStorageContents();
-                    boolean ef = false;
-                    for (int i = 0; i < c.length; i++) {
-                        ItemStack is = c[i];
+        if (owner == null) {
+            Adapt.verbose("No Owner");
+            return;
+        }
 
-                        if (is != null && is.getItemMeta() != null && is.getItemMeta() instanceof PotionMeta p) {
-                            is = is.clone();
-                            data = data == null ? getServer().peekData(owner.getOwner()) : data;
+        PlayerData data = null;
+        var results = e.getResults();
+        boolean ef = false;
+        for (int i = 0; i < results.size(); i++) {
+            ItemStack is = results.get(i);
 
-                            if (data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLine(getSkill().getName()).getAdaptations().containsKey(getName())) {
-                                PlayerAdaptation a = data.getSkillLine(getSkill().getName()).getAdaptations().get(getName());
+            if (is == null || is.getItemMeta() == null || !(is.getItemMeta() instanceof PotionMeta p))
+                continue;
 
-                                if (a.getLevel() > 0) {
-                                    double factor = getLevelPercent(a.getLevel());
-                                    ef = enhance(factor, is, p) || ef;
-                                    c[i] = is;
-                                }
-                            }
-                        }
-                    }
+            data = data == null ? getServer().peekData(owner.getOwner()) : data;
 
-                    if (ef) {
-                        ((BrewingStand) e.getBlock().getState()).getInventory().setStorageContents(c);
-                        SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
-                        spw.play(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 0.75f);
-                        spw.play(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 1.75f);
-                    }
-                });
-            } else {
-                Adapt.verbose("No Owner");
+            if (data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLine(getSkill().getName()).getAdaptations().containsKey(getName())) {
+                PlayerAdaptation a = data.getSkillLine(getSkill().getName()).getAdaptations().get(getName());
+
+                if (a.getLevel() > 0) {
+                    double factor = getLevelPercent(a.getLevel());
+                    ef = enhance(factor, is, p) || ef;
+                    results.set(i, is);
+                }
             }
+        }
+
+        if (ef) {
+            SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
+            spw.play(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 0.75f);
+            spw.play(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 1.75f);
         }
     }
 
     private boolean enhance(double factor, ItemStack is, PotionMeta p) {
-        if (!p.getBasePotionData().getType().isInstant()) {
-            PotionEffect effect = getRawPotionEffect(is);
+        var effects = p.getBasePotionType().getPotionEffects();
+        if (effects.stream()
+                .map(PotionEffect::getType)
+                .allMatch(PotionEffectType::isInstant))
+            return false;
 
-            if (effect != null) {
-                p.addCustomEffect(new PotionEffect(effect.getType(),
-
-                        (int) (getDurationBoost(factor) + (effect.getDuration() * getPercentBoost(factor))),
-
-                        effect.getAmplifier()), true);
-                is.setItemMeta(p);
-                return true;
+        p.clearCustomEffects();
+        for (final PotionEffect effect : effects) {
+            if (effect.getType().isInstant()) {
+                p.addCustomEffect(effect, true);
+                continue;
             }
+
+            p.addCustomEffect(new PotionEffect(
+                    effect.getType(),
+                    (int) (getDurationBoost(factor) + (effect.getDuration() * getPercentBoost(factor))),
+                    effect.getAmplifier()
+            ), true);
         }
 
-        return false;
+        p.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+        is.setItemMeta(p);
+
+        if (getConfig().useCustomLore) {
+            KList<Component> lore = new KList<>();
+            for (var effect : p.getCustomEffects()) {
+                var type = effect.getType();
+                var key = type.getKey();
+                var name = Component.translatable("effect." + key.getNamespace() + "." + key.getKey());
+                if (effect.getAmplifier() > 0) {
+                    name = Component.translatable("potion.withAmplifier", name,
+                            Component.translatable("potion.potency." + effect.getAmplifier()));
+                }
+
+                if (effect.getDuration() > 20) {
+                    name = Component.translatable("potion.withDuration", name, formatDuration(effect));
+                }
+
+                lore.add(name.color(TextColor.color(type.getColor().asRGB()))
+                        .decoration(TextDecoration.ITALIC, false));
+            }
+            Adapt.platform.editItem(is)
+                    .lore(lore)
+                    .build();
+        }
+
+        return true;
+    }
+
+    private Component formatDuration(PotionEffect effect) {
+        if (effect.isInfinite()) {
+            return Component.translatable("effect.duration.infinite");
+        } else {
+            int seconds = effect.getDuration() / 20;
+            int minutes = seconds / 60;
+            seconds %= 60;
+            int hours = minutes / 60;
+            minutes %= 60;
+            return Component.text(hours > 0 ?
+                    "%02d:%02d:%02d".formatted(hours, minutes, seconds) :
+                    "%02d:%02d".formatted(minutes, seconds));
+        }
     }
 
 
@@ -155,5 +206,6 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         double durationBoostFactorTicks = 500;
         double durationMultiplierFactor = 0.45;
         double baseDurationMultiplier = 0.05;
+        boolean useCustomLore = true;
     }
 }

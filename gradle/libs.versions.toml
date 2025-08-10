@@ -13,21 +13,21 @@ chrono = "22.9.10"
 spatial = "22.11.2"
 
 velocity = "3.4.0-SNAPSHOT"
-spigot = "1.20.4-R0.1-SNAPSHOT"
+spigot = "1.20.2-R0.1-SNAPSHOT"
+platformUtils = "e17ac2c698"
 
 # Dynamically Loaded
 adventure-api = "4.24.0" # https://github.com/KyoriPowered/adventure
 adventure-platform = "4.4.1" # https://github.com/KyoriPowered/adventure-platform
 
 lettuce = "6.5.1.RELEASE"
-paperlib = "1.0.7"
 particle = "1.8.4"
 ultimateAdvancementApi = "2.6.0"
 customBlockData = "2.2.3"
 lur = "1.4.2"
 lang3 = "3.12.0"
 effectLib = "10.4"
-gson = "2.10"
+gson = "2.10.1"
 fastutil = "8.5.13"
 glowingentities = "1.4.6"
 caffeine = "3.0.6"
@@ -40,12 +40,14 @@ spatial = { module = "com.github.VolmitDev:Spatial", version.ref = "spatial" }
 
 velocity = { module = "com.velocitypowered:velocity-api", version.ref = "velocity" }
 spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
+platformUtils = { module = "com.github.CrazyDev05:PlatformUtils", version.ref = "platformUtils" }
 
 adventure-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure-api" }
+adventure-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure-api" }
+adventure-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "adventure-api" }
 adventure-platform = { module = "net.kyori:adventure-platform-bukkit", version.ref = "adventure-platform" }
 
 lettuce = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
-paperlib = { module = "io.papermc:paperlib", version.ref = "paperlib" }
 particle = { module = "xyz.xenondevs:particle", version.ref = "particle" }
 ultimateAdvancementApi = { module = "com.frengor:ultimateadvancementapi-shadeable", version.ref = "ultimateAdvancementApi" }
 customBlockData = { module = "com.jeff-media:custom-block-data", version.ref = "customBlockData" }

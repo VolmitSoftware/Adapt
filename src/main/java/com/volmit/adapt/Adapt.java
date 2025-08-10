@@ -33,16 +33,16 @@ import com.volmit.adapt.content.protector.*;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.collection.KMap;
-import com.volmit.adapt.util.misc.Adventure;
 import com.volmit.adapt.util.redis.RedisSync;
 import com.volmit.adapt.util.secret.SecretSplash;
+import de.crazydev22.platformutils.AudienceProvider;
+import de.crazydev22.platformutils.Platform;
+import de.crazydev22.platformutils.PlatformUtils;
 import de.slikey.effectlib.EffectManager;
 import fr.skytasul.glowingentities.GlowingEntities;
 import io.github.slimjar.app.builder.SpigotApplicationBuilder;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -60,7 +60,8 @@ public class Adapt extends VolmitPlugin {
     public static Adapt instance;
     public static HashMap<String, String> wordKey = new HashMap<>();
     public final EffectManager adaptEffectManager;
-    public static Adventure audiences;
+    public static Platform platform;
+    public static AudienceProvider audiences;
     private KMap<Class<? extends AdaptService>, AdaptService> services;
 
     @Getter
@@ -113,7 +114,8 @@ public class Adapt extends VolmitPlugin {
 
     @Override
     public void start() {
-        audiences = Adventure.create(this);
+        platform = PlatformUtils.createPlatform(this);
+        audiences = platform.getAudienceProvider();
         services = new KMap<>();
         initialize("com.volmit.adapt.service").forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i));
 
@@ -194,7 +196,6 @@ public class Adapt extends VolmitPlugin {
         glowingEntities.disable();
         protectorRegistry.unregisterAll();
         services.clear();
-        audiences.close();
     }
 
     private void startupPrint() {

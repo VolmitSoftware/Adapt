@@ -1,6 +1,8 @@
 package com.volmit.adapt.api.version;
 
+import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.potion.PotionBuilder;
+import com.volmit.adapt.api.potion.PotionBuilder.Type;
 import com.volmit.adapt.util.CustomModel;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
@@ -22,16 +24,51 @@ public interface IBindings extends Listener {
     IAttribute getAttribute(Attributable attributable, Attribute modifier);
 
     default ItemStack buildPotion(PotionBuilder builder) {
-        ItemStack stack = new ItemStack(builder.getType().getMaterial());
+        ItemStack stack = builder.getBaseItem();
+        if (stack == null) stack = new ItemStack(builder.getType().getMaterial());
+        else if (stack.getType() != builder.getType().getMaterial()) stack.setType(builder.getType().getMaterial());
         PotionMeta meta = (PotionMeta) stack.getItemMeta();
         assert meta != null;
+        meta.clearCustomEffects();
         builder.getEffects().forEach(e -> meta.addCustomEffect(e, true));
         if (builder.getColor() != null)
             meta.setColor(builder.getColor());
-        if (builder.getName() != null)
-            meta.setDisplayName("§r" + builder.getName());
         stack.setItemMeta(meta);
+
+        Adapt.platform.editItem(stack)
+                .lore(builder.getLore())
+                .customName(builder.getName())
+                .build();
         return stack;
+    }
+
+    default PotionBuilder editPotion(ItemStack stack) {
+        Type type = null;
+        for (final var val : Type.values()) {
+            if (val.getMaterial() == stack.getType()) {
+                type = val;
+                break;
+            }
+        }
+
+        if (type == null) {
+            throw new IllegalArgumentException("Invalid potion type!");
+        }
+        final var editor = Adapt.platform.editItem(stack);
+        final var builder = PotionBuilder.of(type)
+                .setBaseItem(stack);
+
+        PotionMeta meta = (PotionMeta) stack.getItemMeta();
+        assert meta != null;
+        builder.setBaseType(meta.getBasePotionType())
+                .setLore(editor.lore())
+                .setColor(meta.getColor())
+                .setName(editor.customName());
+        for (var effect : meta.getCustomEffects()) {
+            builder.addEffect(effect);
+        }
+
+        return builder;
     }
 
     @Unmodifiable
