@@ -28,10 +28,13 @@ import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KList;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.BrewEvent;
@@ -41,7 +44,21 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
+
 public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> {
+    private static final Function<PotionEffectType, TextColor> getColor;
+    private static final Function<PotionEffectType, Map<Attribute, AttributeModifier>> getEffectAttributes;
+    private static final Function3<PotionEffectType, Attribute, Integer, Double> getAttributeModifierAmount;
+    private static final DecimalFormat ATTRIBUTE_MODIFIER_FORMAT = new DecimalFormat("#.##");
+
     public BrewingLingering() {
         super("brewing-lingering");
         registerConfiguration(Config.class);
@@ -139,6 +156,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
         if (getConfig().useCustomLore) {
             KList<Component> lore = new KList<>();
+            KList<Modifier> modifiers = new KList<>();
             for (var effect : p.getCustomEffects()) {
                 var type = effect.getType();
                 var key = type.getKey();
@@ -152,9 +170,36 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
                     name = Component.translatable("potion.withDuration", name, formatDuration(effect));
                 }
 
-                lore.add(name.color(TextColor.color(type.getColor().asRGB()))
-                        .decoration(TextDecoration.ITALIC, false));
+                lore.add(name.color(getColor.apply(type)));
+                getEffectAttributes.apply(type)
+                        .entrySet()
+                        .stream()
+                        .map(Modifier::new)
+                        .map(m -> m.adjust(type, effect.getAmplifier()))
+                        .filter(m -> m.amount != 0)
+                        .forEach(modifiers::add);
             }
+
+            if (!modifiers.isEmpty()) {
+                lore.add(Component.empty());
+                lore.add(Component.translatable("potion.whenDrank").color(NamedTextColor.DARK_PURPLE));
+
+                for (Modifier modifier : modifiers) {
+                    double amount = modifier.amount;
+                    var formatted = Component.text(ATTRIBUTE_MODIFIER_FORMAT.format(modifier.operation == AttributeModifier.Operation.ADD_NUMBER ? amount : amount * 100d));
+                    var name = Component.translatable("attribute.name." + modifier.attribute.getKey().getKey());
+
+                    if (amount > 0) {
+                        lore.add(Component.translatable("attribute.modifier.plus." + modifier.operation.ordinal(), formatted, name)
+                                .color(NamedTextColor.BLUE));
+                    } else {
+                        lore.add(Component.translatable("attribute.modifier.take." + modifier.operation.ordinal(), formatted, name)
+                                .color(NamedTextColor.RED));
+                    }
+                }
+            }
+            lore.replaceAll(c -> c.decoration(TextDecoration.ITALIC, false));
+
             Adapt.platform.editItem(is)
                     .lore(lore)
                     .build();
@@ -207,5 +252,80 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         double durationMultiplierFactor = 0.45;
         double baseDurationMultiplier = 0.05;
         boolean useCustomLore = true;
+    }
+
+    private record Modifier(Attribute attribute, AttributeModifier.Operation operation, double amount) {
+        private Modifier(Map.Entry<Attribute, AttributeModifier> entry) {
+            this(entry.getKey(), entry.getValue());
+        }
+
+        private Modifier(Attribute attribute, AttributeModifier modifier) {
+            this(attribute, modifier.getOperation(), modifier.getAmount());
+        }
+
+        private Modifier adjust(PotionEffectType type, int amplifier) {
+            return new Modifier(
+                    attribute,
+                    operation,
+                    getAttributeModifierAmount.apply(type, attribute, amplifier)
+            );
+        }
+    }
+
+    static {
+        var lookup = MethodHandles.lookup();
+        MethodHandle getCategory;
+        try {
+            var method = PotionEffectType.class.getDeclaredMethod("getCategory");
+            getCategory = lookup.unreflect(method);
+        } catch (Throwable ignored) {
+            getCategory = null;
+        }
+
+        MethodHandle modifiersHandle;
+        MethodHandle amountHandle;
+        try {
+            modifiersHandle = lookup.findVirtual(PotionEffectType.class, "getEffectAttributes", MethodType.methodType(Map.class));
+            amountHandle = lookup.findVirtual(PotionEffectType.class, "getAttributeModifierAmount", MethodType.methodType(double.class, Attribute.class, int.class));
+        } catch (Throwable ignored) {
+            Adapt.verbose("Failed to find attributes for potion effect type");
+            modifiersHandle = null;
+            amountHandle = null;
+        }
+
+        if (getCategory != null) {
+            MethodHandle handle = getCategory;
+            getColor = type -> {
+                try {
+                    return ((Enum<?>) handle.invoke(type)).ordinal() == 1 ? NamedTextColor.RED : NamedTextColor.BLUE;
+                } catch (Throwable err) {
+                    throw new RuntimeException(err);
+                }
+            };
+        } else getColor = $ -> NamedTextColor.BLUE;
+
+        if (modifiersHandle != null) {
+            MethodHandle handle = modifiersHandle;
+            getEffectAttributes = type -> {
+                try {
+                    return (Map<Attribute, AttributeModifier>) handle.invoke(type);
+                } catch (Throwable err) {
+                    throw new RuntimeException(err);
+                }
+            };
+        } else getEffectAttributes = $ -> Map.of();
+
+        if (amountHandle != null) {
+            MethodHandle handle = amountHandle;
+            getAttributeModifierAmount = (type, attribute, level) -> {
+                try {
+                    return (double) handle.invoke(type, attribute, level);
+                } catch (Throwable err) {
+                    throw new RuntimeException(err);
+                }
+            };
+        } else getAttributeModifierAmount = ($, $$, $$$) -> 0d;
+
+        ATTRIBUTE_MODIFIER_FORMAT.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
     }
 }
