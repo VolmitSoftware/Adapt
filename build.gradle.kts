@@ -33,7 +33,7 @@ plugins {
     alias(libs.plugins.slimjar)
 }
 
-version = "1.16.10-1.19.2-1.21.5"
+version = "1.16.10-1.20.2-1.21.8"
 val apiVersion = "1.19"
 val main = "com.volmit.adapt.Adapt"
 
@@ -58,8 +58,8 @@ val versions = mapOf(
     "v1_20_5" to "1.20.5-R0.1-SNAPSHOT", 
     "v1_20_2" to "1.20.2-R0.1-SNAPSHOT",
 )
-val supported = listOf("1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20.1", "1.20.2", "1.20.4", "1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5", "1.21.8")
-val jdk = listOf("1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20.1", "1.20.2", "1.20.4")
+val supported = listOf("1.20.2", "1.20.4", "1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5", "1.21.8")
+val jdk = listOf("1.20.2", "1.20.4")
 
 val MIN_HEAP_SIZE = "2G"
 val MAX_HEAP_SIZE = "8G"
