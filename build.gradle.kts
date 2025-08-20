@@ -34,7 +34,7 @@ plugins {
 }
 
 version = "1.16.10-1.20.2-1.21.8"
-val apiVersion = "1.19"
+val apiVersion = "1.20"
 val main = "com.volmit.adapt.Adapt"
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
