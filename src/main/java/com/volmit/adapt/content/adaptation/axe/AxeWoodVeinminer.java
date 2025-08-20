@@ -97,7 +97,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
             return;
         }
 
-        VEIN_MINED.set(e.getBlock(), true);
+        VEIN_MINED.add(e.getBlock());
         Block block = e.getBlock();
         Set<Block> blockMap = new HashSet<>();
         int blockCount = 0;
@@ -154,7 +154,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
                 }
                 VEIN_MINED.remove(blocks);
             }
-            VEIN_MINED.add(block);
+            VEIN_MINED.remove(block);
         });
     }
 

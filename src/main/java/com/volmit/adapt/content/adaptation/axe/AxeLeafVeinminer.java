@@ -22,7 +22,6 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.util.*;
-import com.volmit.adapt.util.data.Metadata;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
@@ -114,8 +113,13 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
             for (int x = -1; x <= 1; x++) {
                 for (int y = -1; y <= 1; y++) {
                     for (int z = -1; z <= 1; z++) {
+                        if (x == 0 && y == 0 && z == 0) continue;
                         Block b = currentBlock.getRelative(x, y, z);
-                        if (b.getType() == block.getType() && currentBlock.getLocation().distanceSquared(b.getLocation()) <= radiusSquared && canBlockBreak(p, b.getLocation())) {
+                        if (b.getType() != block.getType()
+                                || blockMap.containsKey(b.getLocation())
+                                || stack.contains(b))
+                            continue;
+                        if (currentBlock.getLocation().distanceSquared(b.getLocation()) <= radiusSquared && canBlockBreak(p, b.getLocation())) {
                             stack.push(b);
                         }
                     }
@@ -151,9 +155,9 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
                 if (getConfig().showParticles) {
                     this.vfxCuboidOutline(b, Particles.ENCHANTMENT_TABLE);
                 }
-                VEIN_MINED.add(b);
+                VEIN_MINED.remove(b);
             }
-            VEIN_MINED.add(block);
+            VEIN_MINED.remove(block);
         });
     }
 
