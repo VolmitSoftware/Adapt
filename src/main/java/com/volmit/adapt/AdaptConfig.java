@@ -18,10 +18,9 @@
 
 package com.volmit.adapt;
 
-import com.google.gson.Gson;
 import com.volmit.adapt.api.xp.Curves;
 import com.volmit.adapt.util.IO;
-import com.volmit.adapt.util.JSONObject;
+import com.volmit.adapt.util.Json;
 import com.volmit.adapt.util.redis.RedisConfig;
 import lombok.Getter;
 import lombok.Setter;
@@ -95,7 +94,7 @@ public class AdaptConfig {
 
             if (!l.exists()) {
                 try {
-                    IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
+                    IO.writeAll(l, Json.toJson(dummy, true));
                 } catch (IOException e) {
                     e.printStackTrace();
                     config = dummy;
@@ -104,8 +103,8 @@ public class AdaptConfig {
             }
 
             try {
-                config = new Gson().fromJson(IO.readAll(l), AdaptConfig.class);
-                IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
+                config = Json.fromJson(IO.readAll(l), AdaptConfig.class);
+                IO.writeAll(l, Json.toJson(config, true));
             } catch (IOException e) {
                 e.printStackTrace();
                 config = new AdaptConfig();

@@ -7,7 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import lombok.experimental.Accessors;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -29,9 +31,14 @@ public class Feedback {
             }
         }
 
+        Component prefix = Component.text("[").color(NamedTextColor.GRAY)
+                .append(Component.text("Adapt").color(NamedTextColor.DARK_RED))
+                .append(Component.text("] "));
         for (TextComponent i : messages) {
-            String prefix =  C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]:" ;
-            Adapt.audiences.sender(serverOrPlayer).sendMessage(i.content(prefix + " " + i.content()));
+            Adapt.audiences.sender(serverOrPlayer).sendMessage(Component.text()
+                    .append(prefix)
+                    .append(i)
+                    .build());
         }
     }
 

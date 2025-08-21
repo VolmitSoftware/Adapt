@@ -21,6 +21,7 @@ package com.volmit.adapt.content.adaptation.architect;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.collection.KMap;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -37,12 +38,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Config> {
-    private final HashMap<Player, Map<Block, BlockFace>> totalMap = new HashMap<>();
+    private final KMap<Player, KMap<Block, BlockFace>> totalMap = new KMap<>();
 
     public ArchitectPlacement() {
         super("architect-placement");
@@ -88,7 +88,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
             return;
 
         ItemStack hand = e.getItemInHand();
-        if (!hand.getType().isBlock() || blocks.keySet().getFirst().getType() != hand.getType())
+        if (!hand.getType().isBlock() || blocks.keys().nextElement().getType() != hand.getType())
             return;
 
         double v = getValue(e.getBlock());
@@ -103,7 +103,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
             return;
         }
 
-        blocks.remove(ignored);
+        if (ignored != null) blocks.remove(ignored);
         for (Block b : blocks.keySet()) { // Block Placer
             Block relative = b.getRelative(blocks.get(b));
             if (!relative.getType().isAir())
@@ -196,7 +196,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                 for (int y = block.getY() - 1; y <= block.getY() + 1; y++) {
                     if (handMaterial == block.getWorld().getBlockAt(x, y, block.getZ()).getType()) {
                         if (totalMap.get(p) == null) {
-                            Map<Block, BlockFace> map = new HashMap<>();
+                            KMap<Block, BlockFace> map = new KMap<>();
                             map.put(block.getWorld().getBlockAt(x, y, block.getZ()), viewPortBlock);
                             totalMap.put(p, map);
                         } else if (totalMap.get(p).size() <= getConfig().maxBlocks) {
@@ -210,7 +210,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                 for (int y = block.getY() - 1; y <= block.getY() + 1; y++) {
                     if (handMaterial == block.getWorld().getBlockAt(block.getX(), y, z).getType()) {
                         if (totalMap.get(p) == null) {
-                            Map<Block, BlockFace> map = new HashMap<>();
+                            KMap<Block, BlockFace> map = new KMap<>();
                             map.put(block.getWorld().getBlockAt(block.getX(), y, z), viewPortBlock);
                             totalMap.put(p, map);
                         } else if (totalMap.get(p).size() <= getConfig().maxBlocks) {
@@ -224,7 +224,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
                 for (int x = block.getX() - 1; x <= block.getX() + 1; x++) {
                     if (handMaterial == block.getWorld().getBlockAt(x, block.getY(), z).getType()) {
                         if (totalMap.get(p) == null) {
-                            Map<Block, BlockFace> map = new HashMap<>();
+                            KMap<Block, BlockFace> map = new KMap<>();
                             map.put(block.getWorld().getBlockAt(x, block.getY(), z), viewPortBlock);
                             totalMap.put(p, map);
                         } else if (totalMap.get(p).size() <= getConfig().maxBlocks) {

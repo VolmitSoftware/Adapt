@@ -48,7 +48,7 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
     public void addStats(int level, Element v) {
         v.addLore(C.GRAY + Localizer.dLocalize("hunter", "regen", "lore1"));
         v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter", "regen", "lore2"));
-        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter", "regen", "lore3"));
+        v.addLore(C.RED + "- " + (getConfig().basePoisonFromLevel - level) + C.GRAY + Localizer.dLocalize("hunter", "regen", "lore3"));
         v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "regen", "lore4"));
         v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "regen", "lore5"));
         v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter", "penalty", "lore1"));

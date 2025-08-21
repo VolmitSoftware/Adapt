@@ -11,8 +11,7 @@ public class Version {
         of("1.21.2"),
         of("1.21"),
         of("1.20.5"),
-        of("1.20.4"),
-        of("1.19.2")
+        of("1.20.2")
     );
     private static final IBindings bindings = bind();
     public static final boolean SET_TITLE;

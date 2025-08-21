@@ -21,27 +21,36 @@ package com.volmit.adapt.content.adaptation.discovery;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.collection.KMap;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Random;
+import java.util.UUID;
 
 public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.Config> {
+    private final KMap<UUID, Integer> active = new KMap<>();
+
     public DiscoveryVillagerAtt() {
         super("discovery-villager-att");
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("discovery", "villager", "description"));
         setDisplayName(Localizer.dLocalize("discovery", "villager", "name"));
         setIcon(Material.GLASS_BOTTLE);
-        setInterval(5832);
+        setInterval(2432);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
@@ -65,7 +74,7 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
         return (int) d;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerInteractEntityEvent e) {
         if (e.isCancelled()) {
             return;
@@ -82,7 +91,9 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
                     p.setLevel((p.getLevel() - getXpTaken(getLevel(p))));
                     sp.play(p.getLocation(), Sound.ENTITY_VILLAGER_CELEBRATE, 1f, 1f);
                     sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
-                    p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 10, getLevel(p), true, true));
+                    int level = getLevel(p);
+                    active.put(p.getUniqueId(), level);
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, level, true, true));
                 } else {
                     BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
                     blood.material = Material.STONE;
@@ -94,9 +105,44 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
         }
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(InventoryOpenEvent event) {
+        if (!(event.getPlayer() instanceof Player p)) {
+            return;
+        }
+        int level = active.getOrDefault(p.getUniqueId(), 0);
+        if (level == 0) return;
+
+        if (event.isCancelled()) {
+            active.remove(p.getUniqueId());
+            p.removePotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
+        } else {
+            p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, level, true, true));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(InventoryCloseEvent event) {
+        if (!(event.getPlayer() instanceof Player p) || !active.containsKey(p.getUniqueId())) {
+            return;
+        }
+
+        active.remove(p.getUniqueId());
+        p.removePotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
+    }
+
+    @EventHandler
+    public void on(PlayerQuitEvent event) {
+        active.remove(event.getPlayer().getUniqueId());
+    }
+
     @Override
     public void onTick() {
-
+        J.s(() -> active.forEach((p, lvl) -> {
+            var player = Bukkit.getPlayer(p);
+            if (player == null) return;
+            player.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, lvl, true, true));
+        }));
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.volmit.adapt.api.version.v1_20_4;
+package com.volmit.adapt.api.version.v1_20_2;
 
 import com.volmit.adapt.api.version.IAttribute;
 import com.volmit.adapt.util.collection.KList;

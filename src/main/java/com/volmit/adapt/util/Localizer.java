@@ -18,9 +18,7 @@
 
 package com.volmit.adapt.util;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import lombok.SneakyThrows;
@@ -70,11 +68,9 @@ public class Localizer {
     public static String dLocalize(String s1, String s2, String s3) {
         if (!Adapt.wordKey.containsKey(s1 + s2 + s3)) { // Not in cache or Not in file
 
-            JsonObject jsonObj;
             File langFile = new File(Adapt.instance.getDataFolder() + "/languages", AdaptConfig.get().getLanguage() + ".json");
             String jsonFromFile = Files.readString(langFile.toPath());
-            JsonElement jsonElement = JsonParser.parseString(jsonFromFile);
-            jsonObj = jsonElement.getAsJsonObject();
+            JsonObject jsonObj = Json.fromJson(jsonFromFile, JsonObject.class);
 
             if (jsonObj.get(s1) == null
                     || jsonObj.get(s1).getAsJsonObject().get(s2) == null
@@ -91,11 +87,9 @@ public class Localizer {
                     Adapt.verbose("Your Language File is missing the following key: " + key);
                     Adapt.verbose("Loading English Language File FallBack");
 
-                    JsonObject jsonObjFallback;
                     File langFileFallback = new File(Adapt.instance.getDataFolder() + "/languages", AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
                     String jsonFromFileFallback = Files.readString(langFileFallback.toPath());
-                    JsonElement jsonElementFallback = JsonParser.parseString(jsonFromFileFallback);
-                    jsonObjFallback = jsonElementFallback.getAsJsonObject();
+                    JsonObject jsonObjFallback = Json.fromJson(jsonFromFileFallback, JsonObject.class);
 
                     if (jsonObjFallback.get(s1) == null
                             || jsonObjFallback.get(s1).getAsJsonObject().get(s2) == null

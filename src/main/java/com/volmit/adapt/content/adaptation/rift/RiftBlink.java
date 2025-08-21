@@ -20,6 +20,8 @@ package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.world.PlayerAdaptation;
+import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.event.AdaptAdaptationTeleportEvent;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -107,8 +109,9 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                     lastJump.put(p, M.ms());
                     return;
                 }
-                if (getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist") != null &&
-                        getPlayer(p).getData().getSkillLines().get("rift").getAdaptations().get("rift-resist").getLevel() > 0) {
+                PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("rift");
+                PlayerAdaptation adaptation = line != null ? line.getAdaptation("rift-resist") : null;
+                if (adaptation != null && adaptation.getLevel() > 0) {
                     RiftResist.riftResistStackAdd(p, 10, 5);
                 }
                 if (getConfig().showParticles) {
@@ -117,16 +120,16 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                 }
                 Vector v = p.getVelocity().clone();
                 loadChunkAsync(loc, chunk -> {
-                    Location toLoc = loc.add(0, 1, 0);
+                    J.s(() -> {
+                        Location toLoc = loc.clone().add(0, 1, 0);
 
-                    AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(!Bukkit.isPrimaryThread(), getPlayer(p), this, locOG, loc);
-                    Bukkit.getPluginManager().callEvent(event);
-                    if (event.isCancelled()) {
-                        return;
-                    }
+                        AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(false, getPlayer(p), this, locOG, loc.clone());
+                        Bukkit.getPluginManager().callEvent(event);
+                        if (event.isCancelled()) return;
 
-                    J.s(() -> p.teleport(toLoc, PlayerTeleportEvent.TeleportCause.PLUGIN));
-                    J.s(() -> p.setVelocity(v.multiply(3)), 2);
+                        p.teleport(toLoc, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        p.setVelocity(v.multiply(3));
+                    });
                 });
                 lastJump.put(p, M.ms());
                 spw.play(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.50f, 1.0f);

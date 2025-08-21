@@ -18,14 +18,12 @@
 
 package com.volmit.adapt.api.world;
 
+import com.volmit.adapt.util.collection.KList;
 import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Discovery<T> {
     @Getter
-    private final List<T> seen = new ArrayList<>();
+    private final KList<T> seen = new KList<>();
 
     public boolean isNewDiscovery(T t) {
         return seen.addIfMissing(t);

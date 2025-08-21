@@ -24,6 +24,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
+import com.volmit.adapt.util.collection.KList;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -81,7 +82,7 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
             return;
         }
         if (ItemListings.toolShovels.contains(p.getInventory().getItemInMainHand().getType())) {
-            List<Item> items = e.getItems().copy();
+            List<Item> items = new KList<>(e.getItems());
             e.getItems().clear();
             for (Item i : items) {
                 sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);

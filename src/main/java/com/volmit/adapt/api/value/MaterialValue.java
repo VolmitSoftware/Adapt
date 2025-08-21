@@ -18,14 +18,10 @@
 
 package com.volmit.adapt.api.value;
 
-import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
-import com.volmit.adapt.util.Form;
-import com.volmit.adapt.util.IO;
-import com.volmit.adapt.util.JSONObject;
-import com.volmit.adapt.util.PrecisionStopwatch;
+import com.volmit.adapt.util.*;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -60,7 +56,7 @@ public class MaterialValue {
 
         File l = Adapt.instance.getDataFile("data", "value-cache.json");
         try {
-            IO.writeAll(l, new JSONObject(new Gson().toJson(valueCache)).toString(4));
+            IO.writeAll(l, Json.toJson(valueCache, true));
         } catch (IOException e) {
             Adapt.verbose("Failed to save value cache");
         }
@@ -73,7 +69,7 @@ public class MaterialValue {
 
             if (!l.exists()) {
                 try {
-                    IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
+                    IO.writeAll(l, Json.toJson(dummy, true));
                 } catch (IOException e) {
                     e.printStackTrace();
                     valueCache = dummy;
@@ -82,7 +78,7 @@ public class MaterialValue {
             }
 
             try {
-                valueCache = new Gson().fromJson(IO.readAll(l), MaterialValue.class);
+                valueCache = Json.fromJson(IO.readAll(l), MaterialValue.class);
             } catch (IOException e) {
                 e.printStackTrace();
                 valueCache = new MaterialValue();

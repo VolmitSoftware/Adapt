@@ -4,14 +4,12 @@ import com.volmit.adapt.api.potion.PotionBuilder;
 import com.volmit.adapt.api.version.IAttribute;
 import com.volmit.adapt.api.version.IBindings;
 import com.volmit.adapt.util.CustomModel;
-import com.volmit.adapt.util.reflect.Reflect;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
@@ -39,17 +37,7 @@ public class Bindings implements IBindings {
         PotionMeta meta = (PotionMeta) stack.getItemMeta();
         assert meta != null;
 
-        PotionType type = builder.getBaseType();
-        if (type == null) {
-            meta.setBasePotionType(null);
-        } else if (builder.isExtended()) {
-            meta.setBasePotionType(Reflect.getEnum(PotionType.class, "LONG_"+type.name()).orElse(type));
-        } else if (builder.isUpgraded()) {
-            meta.setBasePotionType(Reflect.getEnum(PotionType.class, "STRONG_"+type.name()).orElse(type));
-        } else {
-            meta.setBasePotionType(type);
-        }
-        
+        meta.setBasePotionType(builder.getBaseType());
         stack.setItemMeta(meta);
         return stack;
     }

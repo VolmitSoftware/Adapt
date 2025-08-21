@@ -29,6 +29,7 @@ import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.tick.Ticked;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.event.AdaptAdaptationUseEvent;
@@ -54,12 +55,12 @@ public interface Adaptation<T> extends Ticked, Component {
 
     default <F> F getStorage(Player p, String key, F defaultValue) {
         PlayerData data = getPlayer(p).getData();
-        if (data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName())) {
-            Object o = data.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getStorage().get(key);
-            return o == null ? defaultValue : (F) o;
-        }
-
-        return defaultValue;
+        PlayerSkillLine line = data.getSkillLineNullable(getSkill().getName());
+        if (line == null) return defaultValue;
+        PlayerAdaptation adaptation = line.getAdaptation(getName());
+        if (adaptation == null) return defaultValue;
+        Object o = adaptation.getStorage().get(key);
+        return o == null ? defaultValue : (F) o;
     }
 
     default <F> F getStorage(Player p, String key) {
@@ -68,12 +69,12 @@ public interface Adaptation<T> extends Ticked, Component {
 
     default boolean setStorage(Player p, String key, Object value) {
         PlayerData data = getPlayer(p).getData();
-        if (data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName())) {
-            data.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getStorage().put(key, value);
-            return true;
-        }
-
-        return false;
+        PlayerSkillLine line = data.getSkillLineNullable(getSkill().getName());
+        if (line == null) return false;
+        PlayerAdaptation adaptation = line.getAdaptation(getName());
+        if (adaptation == null) return false;
+        adaptation.getStorage().put(key, value);
+        return true;
     }
 
     default boolean canUse(AdaptPlayer player) {

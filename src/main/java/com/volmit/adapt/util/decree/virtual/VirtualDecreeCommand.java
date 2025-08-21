@@ -40,14 +40,17 @@ import lombok.Data;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Data
 public class VirtualDecreeCommand {
     private final Class<?> type;
     private final VirtualDecreeCommand parent;
-    private final List<VirtualDecreeCommand> nodes;
+    private final KList<VirtualDecreeCommand> nodes;
     private final DecreeNode node;
     String[] gradients = new String[]{
             "<gradient:#f5bc42:#45b32d>",
@@ -59,7 +62,7 @@ public class VirtualDecreeCommand {
     };
     private ChronoLatch cl = new ChronoLatch(1000);
 
-    private VirtualDecreeCommand(Class<?> type, VirtualDecreeCommand parent, List<VirtualDecreeCommand> nodes, DecreeNode node) {
+    private VirtualDecreeCommand(Class<?> type, VirtualDecreeCommand parent, KList<VirtualDecreeCommand> nodes, DecreeNode node) {
         this.parent = parent;
         this.type = type;
         this.nodes = nodes;
@@ -102,7 +105,7 @@ public class VirtualDecreeCommand {
                 continue;
             }
 
-            c.getNodes().add(new VirtualDecreeCommand(v.getClass(), c, new ArrayList<>(), new DecreeNode(v, i)));
+            c.getNodes().add(new VirtualDecreeCommand(v.getClass(), c, new KList<>(), new DecreeNode(v, i)));
         }
 
         return c;
@@ -121,7 +124,7 @@ public class VirtualDecreeCommand {
     }
 
     public String getPath() {
-        List<String> n = new ArrayList<>();
+        KList<String> n = new KList<>();
         VirtualDecreeCommand cursor = this;
 
         while (cursor.getParent() != null) {
@@ -169,14 +172,14 @@ public class VirtualDecreeCommand {
         return node != null;
     }
 
-    public KList<String> tabComplete(List<String> args, String raw) {
+    public KList<String> tabComplete(KList<String> args, String raw) {
         KList<Integer> skip = new KList<>();
         KList<String> tabs = new KList<>();
         invokeTabComplete(args, skip, tabs, raw);
         return tabs;
     }
 
-    private boolean invokeTabComplete(List<String> args, List<Integer> skip, List<String> tabs, String raw) {
+    private boolean invokeTabComplete(KList<String> args, KList<Integer> skip, KList<String> tabs, String raw) {
         if (isNode()) {
             tab(args, tabs);
             skip.add(hashCode());
@@ -363,11 +366,11 @@ public class VirtualDecreeCommand {
         return data;
     }
 
-    public boolean invoke(VolmitSender sender, List<String> realArgs) {
-        return invoke(sender, realArgs, new ArrayList<>());
+    public boolean invoke(VolmitSender sender, KList<String> realArgs) {
+        return invoke(sender, realArgs, new KList<>());
     }
 
-    public boolean invoke(VolmitSender sender, List<String> args, List<Integer> skip) {
+    public boolean invoke(VolmitSender sender, KList<String> args, List<Integer> skip) {
         Adapt.debug("@ " + getPath() + " with " + args.toString(", "));
         if (isNode()) {
             Adapt.debug("Invoke " + getPath() + "(" + args.toString(",") + ") at ");

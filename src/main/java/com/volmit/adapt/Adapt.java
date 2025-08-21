@@ -30,26 +30,25 @@ import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.protector.*;
-import com.volmit.adapt.util.redis.RedisSync;
-import fr.skytasul.glowingentities.GlowingEntities;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.collection.KMap;
+import com.volmit.adapt.util.redis.RedisSync;
 import com.volmit.adapt.util.secret.SecretSplash;
+import de.crazydev22.platformutils.AudienceProvider;
+import de.crazydev22.platformutils.Platform;
+import de.crazydev22.platformutils.PlatformUtils;
 import de.slikey.effectlib.EffectManager;
+import fr.skytasul.glowingentities.GlowingEntities;
+import io.github.slimjar.app.builder.SpigotApplicationBuilder;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -60,8 +59,9 @@ import static com.volmit.adapt.util.decree.context.AdaptationListingHandler.init
 public class Adapt extends VolmitPlugin {
     public static Adapt instance;
     public static HashMap<String, String> wordKey = new HashMap<>();
-    public final EffectManager adaptEffectManager = new EffectManager(this);
-    public static BukkitAudiences audiences;
+    public final EffectManager adaptEffectManager;
+    public static Platform platform;
+    public static AudienceProvider audiences;
     private KMap<Class<? extends AdaptService>, AdaptService> services;
 
     @Getter
@@ -90,8 +90,13 @@ public class Adapt extends VolmitPlugin {
 
 
     public Adapt() {
-        super();
         instance = this;
+        getLogger().info("Loading Libraries...");
+        new SpigotApplicationBuilder(this)
+                .remap(true)
+                .build();
+        getLogger().info("Libraries Loaded!");
+        adaptEffectManager = new EffectManager(this);
     }
 
     @SuppressWarnings("unchecked")
@@ -109,7 +114,8 @@ public class Adapt extends VolmitPlugin {
 
     @Override
     public void start() {
-        audiences = BukkitAudiences.create(this);
+        platform = PlatformUtils.createPlatform(this);
+        audiences = platform.getAudienceProvider();
         services = new KMap<>();
         initialize("com.volmit.adapt.service").forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i));
 
@@ -248,7 +254,11 @@ public class Adapt extends VolmitPlugin {
                     v.add(i.getDeclaredConstructor().newInstance());
                 } catch (Throwable e) {
                     Adapt.verbose("Failed to load class: " + i.getName());
-                    e.printAsStrings().forEach(Adapt::verbose);
+                    StringWriter writer = new StringWriter();
+                    e.printStackTrace(new PrintWriter(writer));
+                    for (String line : writer.toString().split("\n")) {
+                        verbose(line);
+                    }
                 }
             }
         }
@@ -301,7 +311,7 @@ public class Adapt extends VolmitPlugin {
     }
 
     public static void actionbar(Player p, String msg) {
-        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(msg));
+        new VolmitSender(p).sendAction(msg);
     }
 
     public static void debug(String string) {
@@ -374,8 +384,12 @@ public class Adapt extends VolmitPlugin {
                         } else if (split.length == 3) {
                             if (split[0].equals("skill")) {
                                 try {
-                                    instance.getAdaptServer().getSkillRegistry().getSkill(split[1]).getAdaptations().where(a -> a.getId().equals(split[2])).get(0).openGui(Bukkit.getPlayer(UUID.fromString(s)));
-
+                                    instance.getAdaptServer().getSkillRegistry().getSkill(split[1]).getAdaptations()
+                                            .stream()
+                                            .filter(a -> a.getId().equals(split[2]))
+                                            .findFirst()
+                                            .orElseThrow()
+                                            .openGui(Bukkit.getPlayer(UUID.fromString(s)));
                                 } catch (Throwable e) {
                                     instance.getAdaptServer().getSkillRegistry().getSkill(split[1]).openGui(Bukkit.getPlayer(UUID.fromString(s)));
                                 }

@@ -19,35 +19,35 @@
 package com.volmit.adapt.api.data;
 
 import art.arcane.spatial.mantle.Mantle;
+import art.arcane.spatial.matter.ClassReader;
 import art.arcane.spatial.matter.SpatialMatter;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.data.unit.Earnings;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.J;
-import lombok.Getter;
+import com.volmit.adapt.util.collection.KMap;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class WorldData extends TickedObject {
-    private static final Map<World, WorldData> mantles = new HashMap<>();
+    private static final KMap<World, WorldData> mantles = new KMap<>();
 
     static {
         SpatialMatter.registerSliceType(new Earnings.EarningsMatter());
+        ClassReader.add(WorldData.class.getClassLoader());
     }
 
     private final World world;
-    @Getter
+    private final int minHeight;
     private final Mantle mantle;
 
     public WorldData(World world) {
         super("world-data", world.getUID().toString(), 30_000);
         this.world = world;
+        this.minHeight = world.getMinHeight();
         mantle = new Mantle(Adapt.instance.getDataFolder("data", "mantle", world.getName()), world.getMaxHeight());
     }
 
@@ -60,7 +60,7 @@ public class WorldData extends TickedObject {
     }
 
     public double getEarningsMultiplier(Block block) {
-        Earnings e = mantle.get(block.getX(), block.getY(), block.getZ(), Earnings.class);
+        Earnings e = get(block, Earnings.class);
 
         if (e == null) {
             return 1;
@@ -69,15 +69,27 @@ public class WorldData extends TickedObject {
         return 1 / (double) (e.getEarnings() == 0 ? 1 : e.getEarnings());
     }
 
+    public <T> T get(Block block, Class<T> type) {
+        return mantle.get(block.getX(), block.getY() - minHeight, block.getZ(), type);
+    }
+
+    public <T> void set(Block block, T value) {
+        mantle.set(block.getX(), block.getY() - minHeight, block.getZ(), value);
+    }
+
+    public <T> void remove(Block block, Class<T> type) {
+        mantle.remove(block.getX(), block.getY() - minHeight, block.getZ(), type);
+    }
+
     public double reportEarnings(Block block) {
-        Earnings e = mantle.get(block.getX(), block.getY(), block.getZ(), Earnings.class);
+        Earnings e = get(block, Earnings.class);
         e = e == null ? new Earnings(0) : e;
 
         if (e.getEarnings() >= 127) {
             return 1 / (double) (e.getEarnings() == 0 ? 1 : e.getEarnings());
         }
 
-        mantle.set(block.getX(), block.getY(), block.getZ(), e.increment());
+        set(block, e.increment());
         return 1 / (double) (e.getEarnings() == 0 ? 1 : e.getEarnings());
     }
 

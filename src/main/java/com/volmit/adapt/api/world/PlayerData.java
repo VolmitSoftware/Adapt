@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.api.world;
 
-import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.notification.ActionBarNotification;
@@ -28,27 +27,28 @@ import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Json;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.collection.KList;
+import com.volmit.adapt.util.collection.KMap;
+import com.volmit.adapt.util.collection.KSet;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import manifold.util.concurrent.ConcurrentHashSet;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Data
 @NoArgsConstructor
 public class PlayerData {
-    private static final Gson GSON = new Gson();
-    private final Map<String, PlayerSkillLine> skillLines = new ConcurrentHashMap<>();
-    private Map<String, Double> stats = new ConcurrentHashMap<>();
+    private final KMap<String, PlayerSkillLine> skillLines = new KMap<>();
+    private KMap<String, Double> stats = new KMap<>();
     private String last = "none";
-    private Set<String> advancements = new ConcurrentHashSet<>();
+    private KSet<String> advancements = new KSet<>();
     private Discovery<String> seenBiomes = new Discovery<>();
     private Discovery<EntityType> seenMobs = new Discovery<>();
     private Discovery<Material> seenFoods = new Discovery<>();
@@ -98,7 +98,7 @@ public class PlayerData {
 
     public void update(AdaptPlayer p) {
         double m = 1;
-        for (XPMultiplier i : multipliers.copy()) {
+        for (XPMultiplier i : new KList<>(multipliers)) {
             if (i.isExpired()) {
                 multipliers.remove(i);
                 continue;
@@ -128,13 +128,17 @@ public class PlayerData {
 
         for (String i : skillLines.k()) {
             if (getSkillLine(i) == null) {
-                skillLines.remove(i);
+                synchronized (skillLines) {
+                    skillLines.remove(i);
+                }
                 Adapt.warn("Removed unknown skill line '" + i + "' from " + p.getPlayer().getName());
                 continue;
             }
 
             if (getSkillLine(i).getXp() == 0 && getSkillLine(i).getKnowledge() == 0) {
-                skillLines.remove(i);
+                synchronized (skillLines) {
+                    skillLines.remove(i);
+                }
                 continue;
             }
 
@@ -201,7 +205,7 @@ public class PlayerData {
     }
 
     public int getUsedPower() {
-        return getSkillLines().values().stream().mapToInt(i -> i.getAdaptations().values().stream().mapToInt(PlayerAdaptation::getLevel).sum()).sum();
+        return skillLines.values().stream().mapToInt(i -> i.getAdaptations().values().stream().mapToInt(PlayerAdaptation::getLevel).sum()).sum();
     }
 
     public int getLevel() {
@@ -236,15 +240,21 @@ public class PlayerData {
         }
     }
 
+    public PlayerSkillLine getSkillLineNullable(String skillLine) {
+        return skillLines.get(skillLine);
+    }
+
     public void addWisdom() {
         wisdom++;
     }
 
-    public String toJson() {
-        return GSON.toJson(this);
+    public String toJson(boolean raw) {
+        synchronized (skillLines) {
+            return Json.toJson(this, !raw);
+        }
     }
 
     public static PlayerData fromJson(String json) {
-        return GSON.fromJson(json, PlayerData.class);
+        return Json.fromJson(json, PlayerData.class);
     }
 }

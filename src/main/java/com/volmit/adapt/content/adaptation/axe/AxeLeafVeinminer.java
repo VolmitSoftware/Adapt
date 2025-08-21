@@ -19,6 +19,8 @@
 package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.world.PlayerAdaptation;
+import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
@@ -34,6 +36,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+
+import static com.volmit.adapt.util.data.Metadata.VEIN_MINED;
 
 public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> {
     public AxeLeafVeinminer() {
@@ -70,67 +74,91 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
         if (e.isCancelled()) {
             return;
         }
+
+        if (VEIN_MINED.get(e.getBlock())) {
+            return;
+        }
+
         Player p = e.getPlayer();
         SoundPlayer sp = SoundPlayer.of(p);
-        if (hasAdaptation(p)) {
-            if (!p.isSneaking()) {
-                return;
-            }
+        if (!hasAdaptation(p)) {
+            return;
+        }
 
-            if (!isAxe(p.getInventory().getItemInMainHand())) {
-                return;
-            }
+        if (!p.isSneaking()) {
+            return;
+        }
 
-            if (isLeaves(new ItemStack(e.getBlock().getType()))) {
-                Block block = e.getBlock();
-                Map<Location, Block> blockMap = new HashMap<>();
-                Deque<Block> stack = new LinkedList<>();
-                stack.push(block);
-                int radius = getRadius(getLevel(p));
-                while (!stack.isEmpty() && blockMap.size() < radius) {
-                    Block currentBlock = stack.pop();
-                    if (blockMap.containsKey(currentBlock.getLocation())) continue;
-                    blockMap.put(currentBlock.getLocation(), currentBlock);
-                    for (int x = -1; x <= 1; x++) {
-                        for (int y = -1; y <= 1; y++) {
-                            for (int z = -1; z <= 1; z++) {
-                                Block b = currentBlock.getRelative(x, y, z);
-                                if (b.getType() == block.getType() && currentBlock.getLocation().distance(b.getLocation()) <= radius && canBlockBreak(p, b.getLocation())) {
-                                    stack.push(b);
-                                }
-                            }
+        if (!isAxe(p.getInventory().getItemInMainHand())) {
+            return;
+        }
+
+        Material blockType = e.getBlock().getType();
+        if (!blockType.isItem() || !isLeaves(new ItemStack(blockType))) {
+            return;
+        }
+
+        VEIN_MINED.add(e.getBlock());
+
+        Block block = e.getBlock();
+        Map<Location, Block> blockMap = new HashMap<>();
+        Deque<Block> stack = new LinkedList<>();
+        stack.push(block);
+        int radius = getRadius(getLevel(p));
+        int radiusSquared = radius * radius;
+        while (!stack.isEmpty() && blockMap.size() < radius) {
+            Block currentBlock = stack.pop();
+            if (blockMap.containsKey(currentBlock.getLocation())) continue;
+            blockMap.put(currentBlock.getLocation(), currentBlock);
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    for (int z = -1; z <= 1; z++) {
+                        if (x == 0 && y == 0 && z == 0) continue;
+                        Block b = currentBlock.getRelative(x, y, z);
+                        if (b.getType() != block.getType()
+                                || blockMap.containsKey(b.getLocation())
+                                || stack.contains(b))
+                            continue;
+                        if (currentBlock.getLocation().distanceSquared(b.getLocation()) <= radiusSquared && canBlockBreak(p, b.getLocation())) {
+                            stack.push(b);
                         }
                     }
                 }
-
-                J.s(() -> {
-                    for (Location l : blockMap.keySet()) {
-                        Block b = e.getBlock().getWorld().getBlockAt(l);
-                        if (getPlayer(p).getData().getSkillLines() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations() != null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory") == null && getPlayer(p).getData().getSkillLines().get("axes").getAdaptations().get("axe-drop-to-inventory").getLevel() > 0) {
-                            Collection<ItemStack> items = e.getBlock().getDrops();
-                            for (ItemStack i : items) {
-                                sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.01f, 0.01f);
-                                HashMap<Integer, ItemStack> extra = p.getInventory().addItem(i);
-                                if (!extra.isEmpty()) {
-                                    p.getWorld().dropItem(p.getLocation(), extra.get(0));
-                                }
-                            }
-                            p.breakBlock(l.getBlock());
-                        } else {
-                            b.breakNaturally(p.getItemInUse());
-                            SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
-                            spw.play(e.getBlock().getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
-                            if (getConfig().showParticles) {
-                                e.getBlock().getWorld().spawnParticle(Particle.ASH, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
-                            }
-                        }
-                        if (getConfig().showParticles) {
-                            this.vfxCuboidOutline(b, Particles.ENCHANTMENT_TABLE);
-                        }
-                    }
-                });
             }
         }
+
+        J.s(() -> {
+            for (Location l : blockMap.keySet()) {
+                Block b = block.getWorld().getBlockAt(l);
+                PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("axes");
+                PlayerAdaptation adaptation = line != null ? line.getAdaptation("axe-drop-to-inventory") : null;
+
+                VEIN_MINED.add(b);
+                if (adaptation != null && adaptation.getLevel() > 0) {
+                    Collection<ItemStack> items = block.getDrops();
+                    for (ItemStack i : items) {
+                        sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.01f, 0.01f);
+                        HashMap<Integer, ItemStack> extra = p.getInventory().addItem(i);
+                        if (!extra.isEmpty()) {
+                            p.getWorld().dropItem(p.getLocation(), extra.get(0));
+                        }
+                    }
+                    p.breakBlock(b);
+                } else {
+                    b.breakNaturally(p.getItemInUse());
+                    SoundPlayer spw = SoundPlayer.of(block.getWorld());
+                    spw.play(b.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 0.01f, 0.25f);
+                    if (getConfig().showParticles) {
+                        b.getWorld().spawnParticle(Particle.ASH, b.getLocation().add(0.5, 0.5, 0.5), 25, 0.5, 0.5, 0.5, 0.1);
+                    }
+                }
+                if (getConfig().showParticles) {
+                    this.vfxCuboidOutline(b, Particles.ENCHANTMENT_TABLE);
+                }
+                VEIN_MINED.remove(b);
+            }
+            VEIN_MINED.remove(block);
+        });
     }
 
 

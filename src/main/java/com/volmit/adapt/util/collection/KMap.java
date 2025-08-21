@@ -357,7 +357,7 @@ public class KMap<K, V> extends ConcurrentHashMap<K, V> {
      */
     public KList<KeyPair<K, V>> keypair() {
         KList<KeyPair<K, V>> g = new KList<>();
-        each((k, v) -> g.add(new KeyPair<K, V>(k, v)));
+        forEach((k, v) -> g.add(new KeyPair<K, V>(k, v)));
         return g;
     }
 

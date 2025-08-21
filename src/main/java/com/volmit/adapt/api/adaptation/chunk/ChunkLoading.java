@@ -20,7 +20,6 @@ package com.volmit.adapt.api.adaptation.chunk;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.J;
-import io.papermc.lib.PaperLib;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 
@@ -33,11 +32,6 @@ public class ChunkLoading {
             return;
         }
         Adapt.verbose("Loading chunk async for " + l);
-        if (PaperLib.isPaper()) {
-            PaperLib.getChunkAtAsync(l, false).thenAccept(c -> J.s(() -> chunk.accept(c)));
-        } else { // :(
-            Adapt.verbose("Shitty server software");
-            chunk.accept(l.getChunk());
-        }
+        Adapt.platform.getChunkAtAsync(l).thenAccept(c -> J.s(() -> chunk.accept(c)));
     }
 }

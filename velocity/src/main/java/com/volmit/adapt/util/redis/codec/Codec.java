@@ -2,9 +2,9 @@ package com.volmit.adapt.util.redis.codec;
 
 import com.google.common.io.ByteStreams;
 import io.lettuce.core.codec.RedisCodec;
+import it.unimi.dsi.fastutil.Pair;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import manifold.rt.api.util.Pair;
 import org.jetbrains.annotations.Contract;
 
 import java.io.*;
@@ -51,7 +51,7 @@ public final class Codec implements RedisCodec<String, Message> {
     public ByteBuffer encodeValue(Message value) {
         try {
             var out = ByteStreams.newDataOutput();
-            int id = Optional.ofNullable(types.get(value.getClass()).getSecond())
+            int id = Optional.ofNullable(types.get(value.getClass()).value())
                     .orElse(-1);
             out.writeInt(id);
             value.encode(out);
@@ -69,7 +69,7 @@ public final class Codec implements RedisCodec<String, Message> {
             throw new IllegalArgumentException("Type " + type + " already registered");
         int id = messages.size();
         messages.add(decoder);
-        types.put(type, Pair.make(decoder, id));
+        types.put(type, Pair.of(decoder, id));
         return this;
     }
 }

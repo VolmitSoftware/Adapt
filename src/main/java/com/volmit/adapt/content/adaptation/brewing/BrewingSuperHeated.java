@@ -20,7 +20,9 @@ package com.volmit.adapt.content.adaptation.brewing;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.data.WorldData;
+import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerData;
+import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.util.*;
 import lombok.NoArgsConstructor;
@@ -137,7 +139,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
                         continue;
                     }
 
-                    BrewingStandOwner owner = WorldData.of(b.getWorld()).getMantle().get(b.getX(), b.getY(), b.getZ(), BrewingStandOwner.class);
+                    BrewingStandOwner owner = WorldData.of(b.getWorld()).get(b.getBlock(), BrewingStandOwner.class);
 
                     if (owner == null) {
                         it.remove();
@@ -146,9 +148,10 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
 
                     PlayerData p = getServer().peekData(owner.getOwner());
 
-                    if (p.getSkillLines().get(getSkill().getName()) != null && p.getSkillLines().get(getSkill().getName()).getAdaptations().containsKey(getName())
-                            && p.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getLevel() > 0) {
-                        updateHeat(b, getLevelPercent(p.getSkillLines().get(getSkill().getName()).getAdaptations().get(getName()).getLevel()));
+                    PlayerSkillLine line = p.getSkillLineNullable(getSkill().getName());
+                    PlayerAdaptation adaptation = line != null ? line.getAdaptation(getName()) : null;
+                    if (adaptation != null && adaptation.getLevel() > 0) {
+                        updateHeat(b, getLevelPercent(adaptation.getLevel()));
                     } else {
                         it.remove();
                     }

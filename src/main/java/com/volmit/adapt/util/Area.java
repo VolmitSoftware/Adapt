@@ -18,6 +18,7 @@
 
 package com.volmit.adapt.util;
 
+import com.volmit.adapt.util.collection.KList;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -127,8 +128,7 @@ public class Area {
      * @return the nearby entities matching the given type
      */
     public Entity[] getNearbyEntities(EntityType type) {
-        List<Entity> e = new ArrayList<>();
-        e.add(getNearbyEntities());
+        KList<Entity> e = new KList<>(getNearbyEntities());
 
         for (Entity i : e.copy()) {
             if (!i.getType().equals(type)) {
@@ -146,8 +146,7 @@ public class Area {
      * @return the nearby entities assignable from the given class
      */
     public Entity[] getNearbyEntities(Class<? extends Entity> entityClass) {
-        List<Entity> e = new ArrayList<>();
-        e.add(getNearbyEntities());
+        KList<Entity> e = new KList<>(getNearbyEntities());
 
         for (Entity i : e.copy()) {
             if (!i.getClass().isAssignableFrom(entityClass)) {

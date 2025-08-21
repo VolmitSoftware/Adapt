@@ -20,13 +20,14 @@
 package com.volmit.adapt.util.collection;
 
 import com.google.common.util.concurrent.AtomicDoubleArray;
-import com.volmit.adapt.util.JSONArray;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.RNG;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("ALL")
 public class KList<T> extends ArrayList<T> implements List<T> {
@@ -56,14 +57,8 @@ public class KList<T> extends ArrayList<T> implements List<T> {
         add(e);
     }
 
-    public static KList<String> fromJSONAny(JSONArray oo) {
-        KList<String> s = new KList<String>();
-
-        for (int i = 0; i < oo.length(); i++) {
-            s.add(oo.get(i).toString());
-        }
-
-        return s;
+    public static <T> Collector<T, ?, KList<T>> collector() {
+        return Collectors.toCollection(KList::new);
     }
 
     public static KList<String> asStringList(List<?> oo) {
@@ -508,16 +503,6 @@ public class KList<T> extends ArrayList<T> implements List<T> {
         }
 
         return g;
-    }
-
-    public JSONArray toJSONStringArray() {
-        JSONArray j = new JSONArray();
-
-        for (Object i : this) {
-            j.put(i.toString());
-        }
-
-        return j;
     }
 
     @SuppressWarnings("unchecked")

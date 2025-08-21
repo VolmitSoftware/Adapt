@@ -25,18 +25,40 @@ import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.collection.KList;
 import lombok.NoArgsConstructor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.BrewingStand;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.BrewEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
 
 public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> {
+    private static final Function<PotionEffectType, TextColor> getColor;
+    private static final Function<PotionEffectType, Map<Attribute, AttributeModifier>> getEffectAttributes;
+    private static final Function3<PotionEffectType, Attribute, Integer, Double> getAttributeModifierAmount;
+    private static final DecimalFormat ATTRIBUTE_MODIFIER_FORMAT = new DecimalFormat("#.##");
+
     public BrewingLingering() {
         super("brewing-lingering");
         registerConfiguration(Config.class);
@@ -69,62 +91,136 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         if (e.isCancelled()) {
             return;
         }
-        if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
-            BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).getMantle().get(e.getBlock().getX(), e.getBlock().getY(), e.getBlock().getZ(), BrewingStandOwner.class);
+        if (!e.getBlock().getType().equals(Material.BREWING_STAND)) {
+            return;
+        }
+        BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
 
-            if (owner != null) {
-                J.s(() -> {
-                    PlayerData data = null;
-                    ItemStack[] c = ((BrewingStand) e.getBlock().getState()).getInventory().getStorageContents();
-                    boolean ef = false;
-                    for (int i = 0; i < c.length; i++) {
-                        ItemStack is = c[i];
+        if (owner == null) {
+            Adapt.verbose("No Owner");
+            return;
+        }
 
-                        if (is != null && is.getItemMeta() != null && is.getItemMeta() instanceof PotionMeta p) {
-                            is = is.clone();
-                            data = data == null ? getServer().peekData(owner.getOwner()) : data;
+        PlayerData data = null;
+        var results = e.getResults();
+        boolean ef = false;
+        for (int i = 0; i < results.size(); i++) {
+            ItemStack is = results.get(i);
 
-                            if (data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLine(getSkill().getName()).getAdaptations().containsKey(getName())) {
-                                PlayerAdaptation a = data.getSkillLine(getSkill().getName()).getAdaptations().get(getName());
+            if (is == null || is.getItemMeta() == null || !(is.getItemMeta() instanceof PotionMeta p))
+                continue;
 
-                                if (a.getLevel() > 0) {
-                                    double factor = getLevelPercent(a.getLevel());
-                                    ef = enhance(factor, is, p) || ef;
-                                    c[i] = is;
-                                }
-                            }
-                        }
-                    }
+            data = data == null ? getServer().peekData(owner.getOwner()) : data;
 
-                    if (ef) {
-                        ((BrewingStand) e.getBlock().getState()).getInventory().setStorageContents(c);
-                        SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
-                        spw.play(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 0.75f);
-                        spw.play(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 1.75f);
-                    }
-                });
-            } else {
-                Adapt.verbose("No Owner");
+            if (data.getSkillLines().containsKey(getSkill().getName()) && data.getSkillLine(getSkill().getName()).getAdaptations().containsKey(getName())) {
+                PlayerAdaptation a = data.getSkillLine(getSkill().getName()).getAdaptations().get(getName());
+
+                if (a.getLevel() > 0) {
+                    double factor = getLevelPercent(a.getLevel());
+                    ef = enhance(factor, is, p) || ef;
+                    results.set(i, is);
+                }
             }
+        }
+
+        if (ef) {
+            SoundPlayer spw = SoundPlayer.of(e.getBlock().getWorld());
+            spw.play(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 0.75f);
+            spw.play(e.getBlock().getLocation(), Sound.BLOCK_BREWING_STAND_BREW, 1f, 1.75f);
         }
     }
 
     private boolean enhance(double factor, ItemStack is, PotionMeta p) {
-        if (!p.getBasePotionData().getType().isInstant()) {
-            PotionEffect effect = getRawPotionEffect(is);
+        var effects = p.getBasePotionType().getPotionEffects();
+        if (effects.stream()
+                .map(PotionEffect::getType)
+                .allMatch(PotionEffectType::isInstant))
+            return false;
 
-            if (effect != null) {
-                p.addCustomEffect(new PotionEffect(effect.getType(),
-
-                        (int) (getDurationBoost(factor) + (effect.getDuration() * getPercentBoost(factor))),
-
-                        effect.getAmplifier()), true);
-                is.setItemMeta(p);
-                return true;
+        p.clearCustomEffects();
+        for (final PotionEffect effect : effects) {
+            if (effect.getType().isInstant()) {
+                p.addCustomEffect(effect, true);
+                continue;
             }
+
+            p.addCustomEffect(new PotionEffect(
+                    effect.getType(),
+                    (int) (getDurationBoost(factor) + (effect.getDuration() * getPercentBoost(factor))),
+                    effect.getAmplifier()
+            ), true);
         }
 
-        return false;
+        p.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+        is.setItemMeta(p);
+
+        if (getConfig().useCustomLore) {
+            KList<Component> lore = new KList<>();
+            KList<Modifier> modifiers = new KList<>();
+            for (var effect : p.getCustomEffects()) {
+                var type = effect.getType();
+                var key = type.getKey();
+                var name = Component.translatable("effect." + key.getNamespace() + "." + key.getKey());
+                if (effect.getAmplifier() > 0) {
+                    name = Component.translatable("potion.withAmplifier", name,
+                            Component.translatable("potion.potency." + effect.getAmplifier()));
+                }
+
+                if (effect.getDuration() > 20) {
+                    name = Component.translatable("potion.withDuration", name, formatDuration(effect));
+                }
+
+                lore.add(name.color(getColor.apply(type)));
+                getEffectAttributes.apply(type)
+                        .entrySet()
+                        .stream()
+                        .map(Modifier::new)
+                        .map(m -> m.adjust(type, effect.getAmplifier()))
+                        .filter(m -> m.amount != 0)
+                        .forEach(modifiers::add);
+            }
+
+            if (!modifiers.isEmpty()) {
+                lore.add(Component.empty());
+                lore.add(Component.translatable("potion.whenDrank").color(NamedTextColor.DARK_PURPLE));
+
+                for (Modifier modifier : modifiers) {
+                    double amount = modifier.amount;
+                    var formatted = Component.text(ATTRIBUTE_MODIFIER_FORMAT.format(modifier.operation == AttributeModifier.Operation.ADD_NUMBER ? amount : amount * 100d));
+                    var name = Component.translatable("attribute.name." + modifier.attribute.getKey().getKey());
+
+                    if (amount > 0) {
+                        lore.add(Component.translatable("attribute.modifier.plus." + modifier.operation.ordinal(), formatted, name)
+                                .color(NamedTextColor.BLUE));
+                    } else {
+                        lore.add(Component.translatable("attribute.modifier.take." + modifier.operation.ordinal(), formatted, name)
+                                .color(NamedTextColor.RED));
+                    }
+                }
+            }
+            lore.replaceAll(c -> c.decoration(TextDecoration.ITALIC, false));
+
+            Adapt.platform.editItem(is)
+                    .lore(lore)
+                    .build();
+        }
+
+        return true;
+    }
+
+    private Component formatDuration(PotionEffect effect) {
+        if (effect.isInfinite()) {
+            return Component.translatable("effect.duration.infinite");
+        } else {
+            int seconds = effect.getDuration() / 20;
+            int minutes = seconds / 60;
+            seconds %= 60;
+            int hours = minutes / 60;
+            minutes %= 60;
+            return Component.text(hours > 0 ?
+                    "%02d:%02d:%02d".formatted(hours, minutes, seconds) :
+                    "%02d:%02d".formatted(minutes, seconds));
+        }
     }
 
 
@@ -155,5 +251,81 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         double durationBoostFactorTicks = 500;
         double durationMultiplierFactor = 0.45;
         double baseDurationMultiplier = 0.05;
+        boolean useCustomLore = true;
+    }
+
+    private record Modifier(Attribute attribute, AttributeModifier.Operation operation, double amount) {
+        private Modifier(Map.Entry<Attribute, AttributeModifier> entry) {
+            this(entry.getKey(), entry.getValue());
+        }
+
+        private Modifier(Attribute attribute, AttributeModifier modifier) {
+            this(attribute, modifier.getOperation(), modifier.getAmount());
+        }
+
+        private Modifier adjust(PotionEffectType type, int amplifier) {
+            return new Modifier(
+                    attribute,
+                    operation,
+                    getAttributeModifierAmount.apply(type, attribute, amplifier)
+            );
+        }
+    }
+
+    static {
+        var lookup = MethodHandles.lookup();
+        MethodHandle getCategory;
+        try {
+            var method = PotionEffectType.class.getDeclaredMethod("getCategory");
+            getCategory = lookup.unreflect(method);
+        } catch (Throwable ignored) {
+            getCategory = null;
+        }
+
+        MethodHandle modifiersHandle;
+        MethodHandle amountHandle;
+        try {
+            modifiersHandle = lookup.findVirtual(PotionEffectType.class, "getEffectAttributes", MethodType.methodType(Map.class));
+            amountHandle = lookup.findVirtual(PotionEffectType.class, "getAttributeModifierAmount", MethodType.methodType(double.class, Attribute.class, int.class));
+        } catch (Throwable ignored) {
+            Adapt.verbose("Failed to find attributes for potion effect type");
+            modifiersHandle = null;
+            amountHandle = null;
+        }
+
+        if (getCategory != null) {
+            MethodHandle handle = getCategory;
+            getColor = type -> {
+                try {
+                    return ((Enum<?>) handle.invoke(type)).ordinal() == 1 ? NamedTextColor.RED : NamedTextColor.BLUE;
+                } catch (Throwable err) {
+                    throw new RuntimeException(err);
+                }
+            };
+        } else getColor = $ -> NamedTextColor.BLUE;
+
+        if (modifiersHandle != null) {
+            MethodHandle handle = modifiersHandle;
+            getEffectAttributes = type -> {
+                try {
+                    return (Map<Attribute, AttributeModifier>) handle.invoke(type);
+                } catch (Throwable err) {
+                    throw new RuntimeException(err);
+                }
+            };
+        } else getEffectAttributes = $ -> Map.of();
+
+        if (amountHandle != null) {
+            MethodHandle handle = amountHandle;
+            getAttributeModifierAmount = (type, attribute, level) -> {
+                try {
+                    return (double) handle.invoke(type, attribute, level);
+                } catch (Throwable err) {
+                    throw new RuntimeException(err);
+                }
+            };
+        } else getAttributeModifierAmount = ($, $$, $$$) -> 0d;
+
+        ATTRIBUTE_MODIFIER_FORMAT.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
     }
 }

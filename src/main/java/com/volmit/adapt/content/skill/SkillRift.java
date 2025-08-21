@@ -24,6 +24,7 @@ import com.volmit.adapt.content.adaptation.rift.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.collection.KMap;
 import com.volmit.adapt.util.reflect.registries.Attributes;
 import com.volmit.adapt.util.reflect.registries.EntityTypes;
 import lombok.NoArgsConstructor;
@@ -37,11 +38,8 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class SkillRift extends SimpleSkill<SkillRift.Config> {
-    private final Map<Player, Long> lasttp;
+    private final KMap<Player, Long> lasttp;
 
     public SkillRift() {
         super("rift", Localizer.dLocalize("skill", "rift", "icon"));
@@ -58,7 +56,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         registerAdaptation(new RiftBlink());
         registerAdaptation(new RiftDescent());
         registerAdaptation(new RiftVisage());
-        lasttp = new HashMap<>();
+        lasttp = new KMap<>();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

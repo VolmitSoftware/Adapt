@@ -51,7 +51,7 @@ public class RedisSync implements AutoCloseable {
         } else if (raw instanceof DataRequest message) {
             Adapt.instance.getAdaptServer()
                     .getPlayerData(message.uuid())
-                    .map(PlayerData::toJson)
+                    .map(data -> data.toJson(false))
                     .ifPresent(data -> publish(message.uuid(), data));
         }
     }

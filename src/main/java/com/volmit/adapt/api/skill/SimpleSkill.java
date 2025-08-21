@@ -19,7 +19,6 @@
 package com.volmit.adapt.api.skill;
 
 import art.arcane.amulet.io.FileWatcher;
-import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.Adaptation;
@@ -29,10 +28,8 @@ import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
-import com.volmit.adapt.util.C;
-import com.volmit.adapt.util.IO;
-import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.JSONObject;
+import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.collection.KList;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.GameMode;
@@ -44,8 +41,6 @@ import org.bukkit.event.Cancellable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = false)
@@ -59,21 +54,21 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     private String displayName;
     private Material icon;
     @EqualsAndHashCode.Exclude
-    private List<Adaptation<?>> adaptations;
-    private List<AdaptStatTracker> statTrackers;
-    private List<AdaptAdvancement> cachedAdvancements;
+    private KList<Adaptation<?>> adaptations;
+    private KList<AdaptStatTracker> statTrackers;
+    private KList<AdaptAdvancement> cachedAdvancements;
     private String advancementBackground;
-    private List<AdaptRecipe> recipes;
+    private KList<AdaptRecipe> recipes;
     private Class<T> configType;
     private T config;
 
     public SimpleSkill(String name, String emojiName) {
         super("skill", UUID.randomUUID() + "-skill-" + name, 50);
-        statTrackers = new ArrayList<>();
-        recipes = new ArrayList<>();
-        cachedAdvancements = new ArrayList<>();
+        statTrackers = new KList<>();
+        recipes = new KList<>();
+        cachedAdvancements = new KList<>();
         this.emojiName = emojiName;
-        adaptations = new ArrayList<>();
+        adaptations = new KList<>();
         setColor(C.WHITE);
         this.name = name;
         setIcon(Material.BOOK);
@@ -103,6 +98,10 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
             Adapt.instance.getTicker().register(new TickedObject("config", "config-" + getName(), 1000) {
                 @Override
                 public void onTick() {
+                    if (!AdaptConfig.get().isHotReload()) {
+                        return;
+                    }
+
                     if (fw.checkModified() && file.exists()) {
                         config = null;
                         getConfig();
@@ -124,7 +123,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
 
                 if (!l.exists()) {
                     try {
-                        IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
+                        IO.writeAll(l, Json.toJson(dummy, true));
                     } catch (IOException e) {
                         e.printStackTrace();
                         config = dummy;
@@ -133,8 +132,8 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
                 }
 
                 try {
-                    config = new Gson().fromJson(IO.readAll(l), getConfigurationClass());
-                    IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
+                    config = Json.fromJson(IO.readAll(l), getConfigurationClass());
+                    IO.writeAll(l, Json.toJson(config, true));
                 } catch (IOException e) {
                     e.printStackTrace();
                     config = dummy;
@@ -219,12 +218,12 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     @Override
-    public void onRegisterAdvancements(List<AdaptAdvancement> advancements) {
+    public void onRegisterAdvancements(KList<AdaptAdvancement> advancements) {
         advancements.addAll(cachedAdvancements);
     }
 
     public AdaptAdvancement buildAdvancements() {
-        List<AdaptAdvancement> a = new ArrayList<>();
+        KList<AdaptAdvancement> a = new KList<>();
         onRegisterAdvancements(a);
 
         for (Adaptation<?> i : getAdaptations()) {
@@ -249,7 +248,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     @Override
-    public List<AdaptStatTracker> getStatTrackers() {
+    public KList<AdaptStatTracker> getStatTrackers() {
         return statTrackers;
     }
 

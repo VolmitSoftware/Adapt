@@ -19,7 +19,6 @@
 package com.volmit.adapt.api.adaptation;
 
 import art.arcane.amulet.io.FileWatcher;
-import com.google.gson.Gson;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
@@ -121,7 +120,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
 
                 if (!l.exists()) {
                     try {
-                        IO.writeAll(l, new JSONObject(new Gson().toJson(dummy)).toString(4));
+                        IO.writeAll(l, Json.toJson(dummy, true));
                     } catch (IOException e) {
                         e.printStackTrace();
                         config = dummy;
@@ -130,8 +129,8 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
                 }
 
                 try {
-                    config = new Gson().fromJson(IO.readAll(l), getConfigurationClass());
-                    IO.writeAll(l, new JSONObject(new Gson().toJson(config)).toString(4));
+                    config = Json.fromJson(IO.readAll(l), getConfigurationClass());
+                    IO.writeAll(l, Json.toJson(config, true));
                 } catch (IOException e) {
                     e.printStackTrace();
                     config = dummy;
