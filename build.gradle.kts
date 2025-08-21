@@ -33,7 +33,7 @@ plugins {
     alias(libs.plugins.slimjar)
 }
 
-version = "1.16.10-1.20.2-1.21.8"
+version = "1.17.0-1.20.2-1.21.8"
 val apiVersion = "1.20"
 val main = "com.volmit.adapt.Adapt"
 
