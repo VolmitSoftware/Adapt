@@ -21,7 +21,6 @@ package com.volmit.adapt.content.adaptation.brewing;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.potion.PotionBuilder;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
@@ -35,8 +34,8 @@ public class BrewingDecay extends SimpleAdaptation<BrewingDecay.Config> {
     public BrewingDecay() {
         super("brewing-decay");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "decay", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "decay", "name"));
+        setDescription(Localizer.dLocalize("brewing.decay.description"));
+        setDisplayName(Localizer.dLocalize("brewing.decay.name"));
         setIcon(Material.WITHER_ROSE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -71,8 +70,7 @@ public class BrewingDecay extends SimpleAdaptation<BrewingDecay.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "decay", "lore1"));
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "decay", "lore2"));
+        v.addLore(Localizer.dLocalize("brewing.decay.lore"));
     }
 
 

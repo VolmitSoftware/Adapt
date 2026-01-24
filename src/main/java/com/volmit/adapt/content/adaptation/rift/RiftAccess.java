@@ -23,7 +23,10 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundEnderPearl;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import manifold.rt.api.util.Pair;
@@ -57,8 +60,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     public RiftAccess() {
         super("rift-access");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("rift", "remoteaccess", "description"));
-        setDisplayName(Localizer.dLocalize("rift", "remoteaccess", "name"));
+        setDescription(Localizer.dLocalize("rift.remote_access.description"));
+        setDisplayName(Localizer.dLocalize("rift.remote_access.name"));
         setMaxLevel(1);
         setIcon(Material.NETHER_STAR);
         setBaseCost(getConfig().baseCost);
@@ -75,9 +78,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "remoteaccess", "lore1"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "remoteaccess", "lore2"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "remoteaccess", "lore3"));
+        v.addLore(Localizer.dLocalize("rift.remote_access.lore"));
     }
 
 
@@ -263,8 +264,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
             activeViewsMap.remove(block.getLocation());
         }
     }
-
-
 
 
     @Override

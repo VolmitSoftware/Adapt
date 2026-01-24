@@ -222,7 +222,7 @@ configurations.configureEach {
     resolutionStrategy.cacheDynamicVersionsFor(60, "minutes")
 }
 
-if (JavaVersion.current().toString() != "17") {
+if (JavaVersion.current().toString() != "21") {
     System.err.println()
     System.err.println("=========================================================================================================")
     System.err.println("You must run gradle on Java 17. You are using " + JavaVersion.current())
@@ -242,7 +242,7 @@ if (JavaVersion.current().toString() != "17") {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 

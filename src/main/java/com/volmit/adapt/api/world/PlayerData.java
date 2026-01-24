@@ -25,7 +25,6 @@ import com.volmit.adapt.api.notification.SoundNotification;
 import com.volmit.adapt.api.notification.TitleNotification;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Json;
 import com.volmit.adapt.util.Localizer;
@@ -180,13 +179,13 @@ public class PlayerData {
                             .out(2250)
                             .group("lvl")
                             .title("")
-                            .subtitle(C.GOLD + Localizer.dLocalize("snippets", "gui", "level") +" " + level)// I'm sorry I missed this!
+                            .subtitle(Localizer.dLocalize("snippets.gui.level", level))// I'm sorry I missed this!
                             .build());
             p.getActionBarNotifier().queue(
                     ActionBarNotification.builder()
                             .duration(450)
                             .group("power")
-                            .title(C.GOLD + "" + Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY + " " + Localizer.dLocalize("snippets", "gui", "maxabilitypower")) // I'm sorry I missed this!
+                            .title(Localizer.dLocalize("snippets.gui.max_ability_power", Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0))) // I'm sorry I missed this!
                             .build());
 
         }

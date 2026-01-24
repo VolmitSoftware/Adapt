@@ -21,7 +21,10 @@ package com.volmit.adapt.content.adaptation.axe;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
@@ -43,8 +46,8 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     public AxeLeafVeinminer() {
         super("axe-leaf-veinminer");
         registerConfiguration(AxeLeafVeinminer.Config.class);
-        setDescription(Localizer.dLocalize("axe", "leafminer", "description"));
-        setDisplayName(Localizer.dLocalize("axe", "leafminer", "name"));
+        setDescription(Localizer.dLocalize("axe.leaf_miner.description"));
+        setDisplayName(Localizer.dLocalize("axe.leaf_miner.name"));
         setIcon(Material.BIRCH_LEAVES);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -59,10 +62,9 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
         return getConfig().enabled;
     }
 
+    @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("axe", "leafminer", "lore1"));
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Localizer.dLocalize("axe", "leafminer", "lore2"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("axe", "leafminer", "lore3"));
+        v.addLore(Localizer.dLocalize("axe.leaf_miner.lore", level + getConfig().baseRange));
     }
 
     private int getRadius(int lvl) {

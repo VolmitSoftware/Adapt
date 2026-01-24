@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.adaptation.unarmed;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
@@ -33,8 +32,8 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
     public UnarmedGlassCannon() {
         super("unarmed-glass-cannon");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("unarmed", "glasscannon", "description"));
-        setDisplayName(Localizer.dLocalize("unarmed", "glasscannon", "name"));
+        setDescription(Localizer.dLocalize("unarmed.glass_cannon.description"));
+        setDisplayName(Localizer.dLocalize("unarmed.glass_cannon.name"));
         setIcon(Material.DISC_FRAGMENT_5);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -46,8 +45,9 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + (getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier)) + C.GRAY + " " + Localizer.dLocalize("unarmed", "glasscannon", "lore1"));
-        v.addLore(C.GREEN + "+ " + Form.f(level * getConfig().perLevelBonusMultiplier) + C.GRAY + " " + Localizer.dLocalize("unarmed", "glasscannon", "lore2"));
+        v.addLore(Localizer.dLocalize("unarmed.glass_cannon.lore",
+                (getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier)),
+                Form.f(level * getConfig().perLevelBonusMultiplier)));
     }
 
     @EventHandler

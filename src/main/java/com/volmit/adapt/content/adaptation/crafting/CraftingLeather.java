@@ -20,7 +20,6 @@ package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
@@ -34,8 +33,8 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
     public CraftingLeather() {
         super("crafting-leather");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("crafting", "leather", "description"));
-        setDisplayName(Localizer.dLocalize("crafting", "leather", "name"));
+        setDescription(Localizer.dLocalize("crafting.leather.description"));
+        setDisplayName(Localizer.dLocalize("crafting.leather.name"));
         setIcon(Material.LEATHER);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -54,7 +53,7 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting", "leather", "lore1"));
+        v.addLore(Localizer.dLocalize("crafting.leather.lore"));
     }
 
     @EventHandler

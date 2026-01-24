@@ -262,941 +262,1254 @@
     }
   },
   "items": {
-    "boundenderperal": {
-      "name": "Relikvijoriaus Prievado Raktas",
-      "usage1": "Shift + Kairys paspaudimas, kad susieti",
-      "usage2": "Dešinys paspaudimas, kad pasiektumėte susietą inventorių"
+    "bound_ender_peral": {
+      "name": "<white>Reliquary Portkey</white>",
+      "usage1": "<gray>Shift + Left Click to bind</gray>",
+      "usage2": "<gray>Right Click to access the bound Inventory</gray>"
     },
-    "boundeyeofender": {
-      "name": "Akių Inkaras",
-      "usage1": "Dešinys Paspaudimas, kad vartoti ir teleportuotis į susietą vietą",
-      "usage2": "Shift + Kairys paspaudimas, kad susieti prie bloko"
+    "bound_eye_of_ender": {
+      "name": "<white>Ocular Anchor</white>",
+      "usage1": "<gray>Right Click to consume and teleport to the bound location</gray>",
+      "usage2": "<gray>Shift + Left Click to bind to a block</gray>"
     },
-    "boundredstonetorch": {
-      "name": "Raudonakmenio valdymo pultas",
-      "usage1": "Dešinys Paspaudimas, kad sukurti 1-tick raudonakmenio impulsą",
-      "usage2": "Shift + Kairys paspaudimas ant tikslaus bloko, kad būtų galima susieti"
+    "bound_redstone_torch": {
+      "name": "<white>Redstone Remote</white>",
+      "usage1": "<gray>Right Click to create a 1-Tick Redstone pulse</gray>",
+      "usage2": "<gray>Shift + Left Click on a 'Target' Block to bind</gray>"
     },
-    "boundsnowball": {
-      "name": "Voratinklių Spąstai!",
-      "usage1": "Meskite, kad vietoje sukurtumėte laikinus voratinklių spąstus"
+    "bound_snowball": {
+      "name": "<white>Web Snare!</white>",
+      "usage1": "<gray>Throw to create a temporary web trap at the location</gray>"
     },
-    "elevatorblock": {
-      "name": "Lifto Blokas",
-      "usage1": "Peršokti, kad teleportuotis aukštyn",
-      "usage2": "Shift, kad teleportuotumėtes žemyn",
-      "usage3": "Mažiausiai 2 oro blokai tarp liftų"
+    "elevator_block": {
+      "name": "Elevator Block",
+      "usage1": "Jump to teleport up",
+      "usage2": "Shift to teleport down",
+      "usage3": "Minimum of 2 air blocks between the elevators"
     }
   },
   "snippets": {
     "gui": {
-      "level": "Levelis",
-      "knowledge": "žinios",
-      "powerused": "Galios",
-      "notlearned": "Neišmokta",
-      "xp": "XP iki",
-      "welcome": "Sveikas!",
-      "welcomeback": "Sveikas sugrįžęs!",
-      "xpbonusfortime": "XP už",
-      "maxabilitypower": "Didžiausia Gebėjimų Galia",
-      "unlockthisbyclicking": "Atrakinkite tai paspausdami dešiniuoju pelės mygtuku:",
-      "back": "Grįžti",
-      "unlearnall": "Pamiršti viską",
-      "unlearnedall": "Viskas pamiršta"
+      "level": "<dark_gray>Level {0}</dark_gray>",
+      "knowledge": "<white>{0}</white> <gray>knowledge</gray>",
+      "power_used": "<gray>Power Used</gray> <dark_green>{0}</dark_green>",
+      "power_used_ratio": "<dark_gray>({0}/{1} Power Used)</dark_gray>",
+      "not_learned": "<dark_gray>Not Learned</dark_gray>",
+      "xp": "<dark_gray>{0}XP to {1}</dark_gray>",
+      "welcome": "<white>Welcome!</white>",
+      "welcome_back": "<white>Welcome back!</white>",
+      "xp_bonus_for_time": "+<green>{0}</green> <gray>XP for</gray> <aqua>{1}</aqua>",
+      "max_ability_power": "<gold>Maximum Ability Power</gold> <gray>+{0}</gray>",
+      "unlock_this_by_clicking": "<gray>Unlock this by Right-Clicking:</gray> <white>{0}</white>",
+      "back": "<gray>Back</gray>",
+      "unlearn_all": "<gray>Unlearn all</gray>{0}",
+      "unlearned_all": "<gray>Unlearned all</gray>"
     },
-    "adaptmenu": {
-      "maynotunlearn": "JŪS NEGALĖSITE PAMIRŠTI",
-      "mayunlearn": "GALITE IŠMOKTI/PAMIRŠTI",
-      "knowledgecost": "Žinių kaina",
-      "knowledgeavailable": "Žinia Prieinama",
-      "alreadylearned": "Jau išmokta",
-      "unlearnrefund": "Spausk, kad pamirštum & Atlygintu",
-      "norefunds": "HARDCORE, GRĄŽINIMAS IŠJUNGTAS",
-      "knowledge": "žinių",
-      "clicklearn": "Spausk, kad išmoktum",
-      "noknowledge": "(Jūs neturite pakankamai žinių)",
-      "youonlyhave": "Tu turi tik",
-      "howtolevelup": "Pasikelkite įgūdžius, kad padidintumėte maksimalią galią.",
-      "notenoughpower": "Nepakanka galios! Kiekvienas Gebėjimų lygis kainuoja 1 galią.",
-      "power": "galia",
-      "powerdrain": "Galios Eikvavimas",
-      "learned": "Išmokta ",
-      "unlearned": "Pamiršta ",
-      "activatorblock": "Knygų Lentyna"
+    "adapt_menu": {
+      "may_not_unlearn": "<red><bold>YOU MAY NOT UNLEARN</bold></red>",
+      "may_unlearn": "<green>YOU MAY LEARN/UNLEARN</green>",
+      "knowledge_cost": "<white>{0}</white> <gray>Knowledge Cost</gray>",
+      "knowledge_available": "<gray>Knowledge Available</gray>",
+      "knowledge_available_title": "<dark_gray>{0} knowledge</dark_gray>",
+      "unlearn_refund": "<gray><u>Click to Unlearn & Refund <white>{0}</white> Knowledge Cost</u></gray>",
+      "no_refunds": "<dark_red><bold>HARDCORE, REFUNDS DISABLED</bold></dark_red>",
+      "knowledge": "<dark_gray>knowledge</dark_gray>",
+      "no_knowledge": "<red>(You don't have any Knowledge)</red>",
+      "you_only_have": "<red>(You only have <white>{0}</white> Knowledge Available)</red>",
+      "how_to_level_up": "<red>Level up skills to increase your max power.</red>",
+      "not_enough_power": "<red>Not enough power! Each Ability Level costs 1 power.</red>",
+      "power": "<gray>power</gray>",
+      "power_drain": "<green>{0} Power Drain</green>",
+      "learned": "<gray>Learned {0}</gray>",
+      "unlearned": "<gray>Unlearned {0}</gray>",
+      "activator_block": "<gold>Bookshelf</gold>"
     },
-    "knowledgeorb": {
-      "contains": "yra",
-      "knowledge": "žinių",
-      "rightclick": "Dešinys-paspaudimas",
-      "togainknowledge": ",kad įgyti šių žinių",
-      "knowledgeorb": "Žinių Rutulys"
+    "knowledge_orb": {
+      "contains": "<white>contains</white> <white><u>{0}</u></white> <gray>{1}</gray> <gray>knowledge</gray>",
+      "knowledge": "<gray>knowledge</gray>",
+      "right_click_to_gain_knowledge": "<light_purple>Right-Click</light_purple> <gray>to gain this knowledge</gray>",
+      "knowledge_orb": "<gold>Knowledge Orb</gold>"
     },
-    "experienceorb": {
-      "contains": "yra",
-      "xp": "XP",
-      "rightclick": "Dešinys-paspaudimas",
-      "togainxp": "įgyti šios patirties",
-      "xporb": "Patirties Rutulys"
+    "experience_orb": {
+      "contains": "<white>contains</white> <white><u>{0}</u></white> <gray>{1}</gray> <gray>Experience</gray>",
+      "xp": "<gray>Experience</gray>",
+      "right_click_to_gain_xp": "<light_purple>Right-Click</light_purple> <gray>to gain this experience</gray>",
+      "xp_orb": "<gold>Experience Orb</gold>"
     }
   },
   "skill": {
     "agility": {
-      "name": "Judrumas",
+      "name": "Agility",
       "icon": "⇉",
-      "description": "Judrumas – tai gebėjimas greitai ir sklandžiai judėti susidūrus su kliūtimis."
+      "description": "Agility is the ability to move quick and fluidly in the face of obstacles."
     },
     "architect": {
-      "name": "Architektas",
+      "name": "Architect",
       "icon": "⬧",
-      "description": "Struktūros yra pasaulio statybiniai blokai. Realybė yra jūsų rankose, jūs turite tai valdyti."
+      "description": "Structures are the building blocks of the world. Reality is in your hands, yours to control."
     },
     "axes": {
-      "name": "Medkirtystė",
-      "icon": "❖",
-      "description1": "Kam kirsti medžius, kai gali kirsti ",
-      "description2": "dalykus",
-      "description3": "vietoj to vistiek tas pats dalykas!"
+      "name": "Axes",
+      "icon": "🪓",
+      "description": "<gray>Why chop down trees, when you could chop</gray> <italic><gray>things</gray></italic> <gray>instead, same end result!</gray>"
     },
     "brewing": {
-      "name": "Vyrimas",
+      "name": "Brewing",
       "icon": "❦",
-      "description": "Dvigubas burbulas, Įrigubas burbulas, Keturgubas burbulas – aš vis tiek dar negaliu įpilti šio gėrimo į katilą"
+      "description": "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
     },
     "blocking": {
-      "name": "Blokavimas",
-      "icon": "▒",
-      "description": "Lazdos ir akmenys tau kaulų nesulaužys, bet skydas sulaužys."
+      "name": "Blocking",
+      "icon": "🛡",
+      "description": "Sticks and stones Won't break your bones, But a shield will."
     },
     "crafting": {
-      "name": "Gamyba",
+      "name": "Crafting",
       "icon": "⌂",
-      "description": "Jei nebeliko resursų, kuriuos būtų galima įdėti, kodėl gi nepadarius kitų?"
+      "description": "With no more pieces left to place, why not make another?"
     },
     "discovery": {
-      "name": "Aptikimas",
+      "name": "Discovery",
       "icon": "⚛",
-      "description": "Kai jūsų suvokimas plečiasi, jūsų protas išsiskleidžia ir atranda tai, ko nepadarėte."
+      "description": "As your perception expands, your mind unravels to discover that which you did not."
     },
     "enchanting": {
-      "name": "Kerėjimas",
+      "name": "Enchanting",
       "icon": "♰",
-      "description": "Ką tu darai? Pranašystės, regėjimai, prietaringi šlamštai?"
+      "description": "What are you going on about? Prophecies, visions, superstitious jibber-jabber?"
     },
     "excavation": {
-      "name": "Kasinėjimas",
-      "icon": "✥",
-      "description": "Kasam Kasam Duobę..."
+      "name": "Excavation",
+      "icon": "ᛳ",
+      "description": "Diggy Diggy Hole..."
     },
     "herbalism": {
-      "name": "Žolininkystė",
+      "name": "Herbalism",
       "icon": "⚘",
-      "description": "Aš nerandu augalų, bet galiu rasti keletą sėklų ir... ar tai... Piktžolė?"
+      "description": "I can't find any plants, but I can find some seeds and- is that... Weed?"
     },
     "hunter": {
-      "name": "Medžiotojas",
+      "name": "Hunter",
       "icon": "☠",
-      "description": "Medžioklė – tai kelionė, o ne rezultatas"
+      "description": "Hunting is about the journey not the outcome."
     },
     "nether": {
-      "name": "Pragaras",
+      "name": "Nether",
       "icon": "₪",
-      "description": "Iš paties pragaro gelmių."
+      "description": "From the depths of the Nether itself."
     },
     "pickaxe": {
-      "name": "Kalnakasys",
+      "name": "Pickaxe",
       "icon": "⛏",
-      "description": "Visa kūrinija yra kasykla, o kiekvienas žmogus yra kalnakasys."
+      "description": "Dwarves are the miners, but ive learned a thing or two in my time. IM SWEDISH"
     },
     "ranged": {
-      "name": "Nuotolis",
+      "name": "Ranged",
       "icon": "🏹",
-      "description": "Atstumas yra raktas į pergalę ir raktas į išlikimą."
+      "description": "Distance is the key to victory, and the key to survival."
     },
     "rift": {
-      "name": "Slėnis",
+      "name": "Rift",
       "icon": "❍",
-      "description": "Kelias yra čia, - tyliai pasakė jis. - Bet jūs galite laisvai eiti juo arba pasirinkti kitą kelią."
+      "description": "The Rift is a caustic harness, but you have harnessed the harness."
     },
     "seaborne": {
-      "name": "Jūrininkas",
-      "icon": "🌊",
-      "description": "Turėdami šį įgūdį galėsite patirti vandens stebuklus."
+      "name": "Seaborne",
+      "icon": "🎣",
+      "description": "With this skill, you may will the wonders of the water."
     },
     "stealth": {
-      "name": "Slaptumas",
-      "icon": "✠",
-      "description": "Nematomo menas. Vaikščiokite šešėlyje."
+      "name": "Stealth",
+      "icon": "☯",
+      "description": "The art of the unseen. Walk in the shadows."
     },
     "swords": {
-      "name": "Ginklai",
+      "name": "Swords",
       "icon": "⚔",
-      "description": "Pilko akmens galia!"
+      "description": "By the power of GreyStone!"
     },
     "taming": {
-      "name": "Prisijaukinimas",
+      "name": "Taming",
       "icon": "♥",
-      "description": "Papūgos ir bitės... ir tu?"
+      "description": "The parrots and the bees... and you?"
     },
     "tragoul": {
-      "name": "Trag'Oul",
-      "icon": "▼",
-      "description": "Kraujas teka visatos gyslomis. Suspaustas tavo rankomis."
+      "name": "TragOul",
+      "icon": "🗡",
+      "description": "Blood flows through the veins of the universe. Constricted by your hands."
     },
     "chronos": {
       "name": "Chronos",
-      "icon": "۞",
-      "description": "Sukite visatos laikrodį, patirkite tėkmę. Sudaužyk laikrodį, tapk juo."
+      "icon": "⏳",
+      "description": "Wind the Clock of the universe, experience the flow. Break the clock, become it."
     },
     "unarmed": {
-      "name": "Beginklis",
-      "icon": "⚜",
-      "description": "Be ginklo nebūnate be jėgos."
+      "name": "Unarmed",
+      "icon": "»",
+      "description": "Without a weapon is not without strength."
     }
   },
   "agility": {
-    "armorup": {
-      "name": "Šarvai Aukštyn",
-      "description": "Kuo ilgiau bėgsite, tuo daugiau šarvų!",
-      "lore1": "Max Šarvai",
-      "lore2": "Šarvai Aukštyn laikas"
+    "armor_up": {
+      "name": "Armor Up",
+      "description": "Get more armor the longer you sprint!",
+      "lore": [
+        "<gray>Passive: Build armor while sprinting</gray>",
+        "<green>+ {0}</green> <gray>Maximum armor gained</gray>",
+        "<yellow>* {1}</yellow> <gray>Time to reach max armor</gray>"
+      ]
     },
-    "superjump": {
-      "name": "Super Šuolis",
-      "description": "Išskirtinis aukščio pranašumas.",
-      "lore1": "Maksimalus šuolio aukštis",
-      "lore2": "Sėlinti + Pašokti, kad panaudoti super šuolį!"
+    "super_jump": {
+      "name": "Super Jump",
+      "description": "Exceptional Height Advantage.",
+      "lore": [
+        "<gray>Sneak + Jump to perform a Super Jump</gray>",
+        "<green>+ {0}</green> <gray>Maximum jump height</gray>"
+      ]
     },
-    "walljump": {
-      "name": "Sienos Šuolis",
-      "description": "Laikykite shift, kol ore nuo sienos iki sienos ir šokinėkite!",
-      "lore1": "Max Šuoliai",
-      "lore2": "Šuolio aukštis"
+    "wall_jump": {
+      "name": "Wall Jump",
+      "description": "Hold shift while mid-air against a wall to wall latch & jump!",
+      "lore": [
+        "<gray>Hold Sneak against wall mid-air to latch and jump</gray>",
+        "<green>+ {0}</green> <gray>Maximum wall jumps</gray>",
+        "<green>+ {1}</green> <gray>Jump height per wall jump</gray>"
+      ]
     },
-    "windup": {
-      "name": "Greitis",
-      "description": "Kuo ilgiau bėgsit, bėksite greičiau!",
-      "lore1": "Max Greitis",
-      "lore2": "Užbaigimo laikas"
+    "wind_up": {
+      "name": "Wind Up",
+      "description": "Get faster the longer you sprint!",
+      "lore": [
+        "<gray>Passive: Build speed while sprinting</gray>",
+        "<green>+ {0}</green> <gray>Maximum speed multiplier</gray>",
+        "<yellow>* {1}</yellow> <gray>Time to reach max speed</gray>"
+      ]
     }
   },
   "architect": {
     "elevator": {
-      "name": "Liftas",
-      "description": "Tai leidžia jums pastatyti liftą, kuris greitai leis teleportuotis vertikaliai!",
-      "lore1": "Atrakina lifto receptą: X=VILNA, Y=ENDERIO PERLAS",
-      "lore2": "XXX",
-      "lore3": "XYX",
-      "lore4": "XXX"
+      "name": "Elevator",
+      "description": "This allows for you to build an elevator to teleport vertically fast!",
+      "lore": [
+        "<gray>Craft: 8 Wool around 1 Ender Pearl</gray>",
+        "<green>+ </green><gray>Unlocks Elevator Block crafting</gray>",
+        "<yellow>* </yellow><gray>Jump to go up, Sneak to go down</gray>"
+      ]
     },
     "foundation": {
-      "name": "Magiškas fondas",
-      "description": "Tai leidžia sėlinti ir pasidėti po savimi laikiną pagrindą!",
-      "lore1": "Magiškai sukurti: ",
-      "lore2": "Blokai po tavimi!"
+      "name": "Magic Foundation",
+      "description": "This allows for you to sneak and place a temporary foundation beneath you!",
+      "lore": [
+        "<gray>Sneak in mid-air to create temporary blocks</gray>",
+        "<green>+ {0}</green> <gray>Blocks you can place beneath you</gray>",
+        "<yellow>* </yellow><gray>Blocks disappear after a short time</gray>"
+      ]
     },
     "glass": {
-      "name": "Šilko jutiklinis stiklas",
-      "description": "Tai leidžia iš esmės išvengti stiklo blokelių praradimo, kai juos sulaužysite tuščia ranka!",
-      "lore1": "Jūsų rankos įgauna šilko prisilietimą stiklui"
+      "name": "Silk-Touch Glass",
+      "description": "This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand!",
+      "lore": [
+        "<gray>Passive: Break glass with bare hands</gray>",
+        "<green>+ </green><gray>Glass drops as item instead of breaking</gray>"
+      ]
     },
-    "wirelessredstone": {
-      "name": "Redstone valdymo pultas",
-      "description": "Tai leidžia naudoti restone deglą, kad perjungtumėte Redstone nuotoliniu būdu!",
-      "lore1": "Tikslas + Raudonakmenio Deglas + Ender perlas = 1 Raudonakmenio Nuotolinio Valdymo Pultas"
+    "wireless_redstone": {
+      "name": "Redstone Remote",
+      "description": "This allows for you to use a redstone torch to toggle redstone, remotely!",
+      "lore": [
+        "<gray>Craft: Target + Redstone Torch + Enderpearl</gray>",
+        "<green>+ </green><gray>Remotely toggle redstone signals</gray>",
+        "<yellow>* </yellow><gray>Shift + Left-click to bind, Right-click to pulse</gray>"
+      ]
     },
     "placement": {
-      "name": "Statybininkų lazdelė",
-      "description": "Leidžia dėti kelis blokus vienu metu, kad suaktyvintumėte spauskite shift, ir dėkite tokį patį bloką į kurį žiūrite! Atminkite, kad gali tekti šiek tiek pajudėti, kad suaktyvintumėte langelių apribojimą!",
-      "lore1": "Tau reikia",
-      "lore2": "blokų, kad statyti",
-      "lore3": "Medžiagų statybininkų lazdelę"
+      "name": "Builders Wand",
+      "description": "Allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!",
+      "need_blocks": "<red>You need <green>{0}</green> blocks in your hand to place this</red>",
+      "lore": [
+        "<gray>Sneak + Place to extend block surfaces</gray>",
+        "<green>+ </green><gray>Place multiple blocks at once</gray>",
+        "<yellow>* </yellow><gray>Hold matching blocks in hand</gray>"
+      ]
     }
   },
   "axe": {
     "chop": {
-      "name": "Kapotojas",
-      "description": "Nukirskite medžius dešiniuoju pelės mygtuku spausdami ant pagrindinio rąsto!",
-      "lore1": "Blokai per nukirtimą",
-      "lore2": "Kirtimo laiko tarpas",
-      "lore3": "Įrankio susidėvėjimas"
+      "name": "Axe Chop",
+      "description": "Chop down trees by right clicking the base log!",
+      "lore": [
+        "<gray>Right-click base log to chop entire tree</gray>",
+        "<green>+ {0}</green> <gray>Blocks chopped per use</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between chops</gray>",
+        "<red>- {2}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "logswap": {
-      "name": "Liucijos rąstų keitiklis",
-      "description": "Pakeiskite rąstų tipą darbastalyje!",
-      "lore1": "8 betkokio tipo rąstai + 1 sodinukas = 8 sodinuko tipo rąstas"
+    "log_swap": {
+      "name": "Lucy's Log-Swapper",
+      "description": "Change the flavor of logs in a Crafting Table!",
+      "lore": [
+        "<gray>Craft: 8 Logs + 1 Sapling = 8 Logs of sapling type</gray>",
+        "<green>+ </green><gray>Convert any log type to another</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Kirvio Trauka"
+    "drop_to_inventory": {
+      "name": "Axe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Chopped items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped logs</gray>"
+      ]
     },
-    "groundsmash": {
-      "name": "Žemės Drebėjimas",
-      "description": "Pašokite, tada pritūpkite ir sudaužykite visus netoliese esančius priešus.",
-      "lore1": "Žala",
-      "lore2": "Blokų spindulys",
-      "lore3": "Jėga",
-      "lore4": "Drebėjimo laiko tarpas"
+    "ground_smash": {
+      "name": "Axe Ground Smash",
+      "description": "Jump, then crouch and smash all nearby enemies.",
+      "lore": [
+        "<gray>Jump + Sneak with axe to ground smash</gray>",
+        "<green>+ {0}-{1}</green> <gray>Damage dealt</gray>",
+        "<green>+ {2}</green> <gray>Block radius</gray>",
+        "<green>+ {3}</green> <gray>Knockback force</gray>",
+        "<yellow>* {4}</yellow> <gray>Cooldown</gray>"
+      ]
     },
-    "leafminer": {
-      "name": "Lapų Kirtėjas",
-      "description": "Leidžia vienu metu sudraskyti masinius lapus!",
-      "lore1": "Sėlink, ir kirsk LAPUS",
-      "lore2": "lapų kirtimo spindulys",
-      "lore3": "Negausite dropų nuo lapų (Exploit prevencija)"
+    "leaf_miner": {
+      "name": "Leaf-miner",
+      "description": "Allows you to break bulk leaves at once!",
+      "lore": [
+        "<gray>Sneak + Mine leaves to break in bulk</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<red>- </red><gray>No drops from leaves (exploit prevention)</gray>"
+      ]
     },
-    "woodminer": {
-      "name": "Medienos Kirtėjas",
-      "description": "Leidžia iš karto nukirsti masinį kiekį medienos!",
-      "lore1": "Sėlink, ir kirsk medieną ( Ne Lentas )",
-      "lore2": "Medinos kirtimo spindulys",
-      "lore3": "Veikia kartu su Kirvio Trauka"
+    "wood_miner": {
+      "name": "Wood-miner",
+      "description": "Allows you to break bulk wood at once!",
+      "lore": [
+        "<gray>Sneak + Mine logs to break in bulk</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<yellow>* </yellow><gray>Works with Drop-to-Inventory</gray>",
+        "<yellow>* </yellow><gray>Does not work on planks</gray>"
+      ]
     }
   },
   "brewing": {
     "lingering": {
-      "name": "Užsitęsęs Vyrimas",
-      "description": "Paruošti eleksyrai išsilaiko ilgiau!",
-      "lore1": "Trukmė",
-      "lore2": "Trukmė"
+      "name": "Lingering Brew",
+      "description": "Brewed potions last longer!",
+      "lore": [
+        "<gray>Passive: Potion effects last longer</gray>",
+        "<green>+ {0}</green> <gray>Bonus duration for regular potions</gray>",
+        "<green>+ {1}</green> <gray>Bonus duration for splash potions</gray>"
+      ]
     },
-    "superheated": {
-      "name": "Super Įkaitęs Stovas",
-      "description": "Eleksyrų stovai dirba greičiau, kai yra kuo karštesni.",
-      "lore1": "Už Priliestą Ugnies Bloką",
-      "lore2": "Už Priliestą Lavos Bloką"
+    "super_heated": {
+      "name": "Super Heated Brew",
+      "description": "Brewing stands work faster the hotter they are.",
+      "lore": [
+        "<gray>Passive: Heat sources speed up brewing</gray>",
+        "<green>+ {0}</green> <gray>Speed per adjacent fire block</gray>",
+        "<green>+ {1}</green> <gray>Speed per adjacent lava block</gray>"
+      ]
     },
     "darkness": {
-      "name": "Butelių Tamsa",
-      "description": "Nežinome, kodėl jums to reikia, bet štai!",
-      "lore1": "NightVision Eleksyras + Juodas Betonas = Tamsos Eleksyras (30 sekundžių)",
-      "lore2": "Reikėtų pažymėti, kad tai neleidžia žaidėjui bėgti greitai!"
+      "name": "Bottled Darkness",
+      "description": "Not sure why you need this, but here you go!",
+      "lore": [
+        "<gray>Craft: Night Vision Potion + Black Concrete</gray>",
+        "<green>+ {0}</green> <gray>Darkness effect</gray>",
+        "<red>- </red><gray>Prevents sprinting while active</gray>"
+      ]
     },
     "haste": {
-      "name": "Greitas Kasimas",
-      "description": "Kai efektyvumo nepakanka",
-      "lore1": "Greičio eleksyras + ametisto šukė = greito kasimo eleksyras (60 sekundžių)",
-      "lore2": "Greičio eleksyras + ametisto blokas = greito kasimo eleksyras-2 (30 sekundžių)"
+      "name": "Bottled Haste",
+      "description": "When Efficiency is not enough",
+      "lore": [
+        "<gray>Craft: Speed Potion + Amethyst Shard = Haste I (60s)</gray>",
+        "<gray>Craft: Speed Potion + Amethyst Block = Haste II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Haste potion brewing</gray>"
+      ]
     },
     "absorption": {
-      "name": "Absorbcija",
-      "description": "Grūdinti kūną!",
-      "lore1": "Momentinis gydymas + kvarcas = absorbcijos eleksyras (60 sekundžių)",
-      "lore2": "Momentinis gydymas + kvarco blokas = absorbcijos eleksyras-2 (30 sekundžių)"
+      "name": "Bottled Absorption",
+      "description": "Harden the body!",
+      "lore": [
+        "<gray>Craft: Instant Heal + Quartz = Absorption I (60s)</gray>",
+        "<gray>Craft: Instant Heal + Quartz Block = Absorption II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Absorption potion brewing</gray>"
+      ]
     },
     "fatigue": {
-      "name": "Nuovargis",
-      "description": "Susilpninkite kūną!",
-      "lore1": "Silpnumo Eleksyras + Gleivių Kamuolys = Silpnumo Eleksyras (30 sekundžių)",
-      "lore2": "Silpnumo Eleksyras + Gleivių Blokas = Silpnumo Eleksyras-2 (15 sekundžių)"
+      "name": "Bottled Fatigue",
+      "description": "Weaken the body!",
+      "lore": [
+        "<gray>Craft: Weakness Potion + Slime Ball = Fatigue I (30s)</gray>",
+        "<gray>Craft: Weakness Potion + Slime Block = Fatigue II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Mining Fatigue potion brewing</gray>"
+      ]
     },
     "hunger": {
-      "name": "Badas",
-      "description": "Maitinkite nepasotinamąjį!",
-      "lore1": "Keistas Eleksyras + Supuvusi Mėsa = Bado Eleksyras (30 sekundžių)",
-      "lore2": "Silpnumo Eleksyras + Supuvusi Mėsa = Bado Eleksyras-3 (15 sekundžių)"
+      "name": "Bottled Hunger",
+      "description": "Feed the Insatiable!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Rotten Flesh = Hunger I (30s)</gray>",
+        "<gray>Craft: Weakness Potion + Rotten Flesh = Hunger II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Hunger potion brewing</gray>"
+      ]
     },
     "nausea": {
-      "name": "Pykinimas",
-      "description": "Man nuo tavęs bloga!",
-      "lore1": "Keistas Eleksyras + Rudas Grybas = Pykinimo Eleksyras (16 sekundžių)",
-      "lore2": "KeistasEleksyras + Raudonasis Grybas (Pragaro) = Pykinimo Eleksyras-2 (8 sekundžių)"
+      "name": "Bottled Nausea",
+      "description": "You make me sick!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Brown Mushroom = Nausea I (16s)</gray>",
+        "<gray>Craft: Awkward Potion + Crimson Fungus = Nausea II (8s)</gray>",
+        "<green>+ </green><gray>Unlocks Nausea potion brewing</gray>"
+      ]
     },
     "blindness": {
-      "name": "Aklumas",
-      "description": "Tu esi baisus žmogus...",
-      "lore1": "Keistas Eleksyras + Rašalo Maišas = Aklumo Eleksyras (30 sekundžių)",
-      "lore2": "Keistas Eleksyras + Švytintis Rašalo Maišas = Aklumo Eleksyras-2 (15 sekundžių)"
+      "name": "Bottled Blindness",
+      "description": "You're a horrible person...",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Ink Sac = Blindness I (30s)</gray>",
+        "<gray>Craft: Awkward Potion + Glow Ink Sac = Blindness II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Blindness potion brewing</gray>"
+      ]
     },
     "resistance": {
-      "name": "Atsparumas",
-      "description": "Įtvirtinimai geriausiu būdu!",
-      "lore1": "Keistas Eleksyras + Geležies Liejinys = Atsparumo Eleksyras (60 sekundžių)",
-      "lore2": "Keistas Eleksyras + Geležies Blokas = Atsparumo Eleksyras-2 (30 sekundžių)"
+      "name": "Bottled Resistance",
+      "description": "Fortification at its finest!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Iron Ingot = Resistance I (60s)</gray>",
+        "<gray>Craft: Awkward Potion + Iron Block = Resistance II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Resistance potion brewing</gray>"
+      ]
     },
-    "healthboost": {
-      "name": "Givybė",
-      "description": "Kai maksimalios givybių nepakanka...",
-      "lore1": "Momentinis Gydymas Eleksyras + Auksinis Obuolys = Sveikatos Stiprinimo Eleksyras (120 sekundžių)",
-      "lore2": "Momentinis Gydymas Eleksyras + Užburtas Auksinis Obuolys = Sveikatos Stiprinimo Eleksyras-2 (120 sekundžių)"
+    "health_boost": {
+      "name": "Bottled Life",
+      "description": "When Maximum health is not enough...",
+      "lore": [
+        "<gray>Craft: Instant Heal + Golden Apple = Health Boost I (120s)</gray>",
+        "<gray>Craft: Instant Heal + Enchanted Apple = Health Boost II (120s)</gray>",
+        "<green>+ </green><gray>Unlocks Health Boost potion brewing</gray>"
+      ]
     },
     "decay": {
-      "name": "Nykimas",
-      "description": "Kas žinojo, kad Detritus bus toks naudingas?",
-      "lore1": "Silpnumo Eleksyras + Nuodinga Bulvė = Nykimo Eleksyras (16 sekundžių)",
-      "lore2": "Silpnumo Eleksyras + Raudonio Šaknys = Nykimo Eleksyras-2 (8 sekundes)"
+      "name": "Bottled Decay",
+      "description": "Who knew Detritus would be so useful?",
+      "lore": [
+        "<gray>Craft: Weakness Potion + Poisonous Potato = Wither I (16s)</gray>",
+        "<gray>Craft: Weakness Potion + Crimson Roots = Wither II (8s)</gray>",
+        "<green>+ </green><gray>Unlocks Wither potion brewing</gray>"
+      ]
     },
     "saturation": {
-      "name": "Saturacija",
-      "description": "Žinai... aš net ne alkanas...",
-      "lore1": "Regeneracijos Eleksyras + Kepta Bulvė = Saturacijos Eleksyras",
-      "lore2": "Regeneracijos Eleksyras + Šieno Ryšulys = Saturacijos Eleksyras-2"
+      "name": "Bottled Saturation",
+      "description": "Ya know... Im not even Hungry...",
+      "lore": [
+        "<gray>Craft: Regen Potion + Baked Potato = Saturation I</gray>",
+        "<gray>Craft: Regen Potion + Hay Bale = Saturation II</gray>",
+        "<green>+ </green><gray>Unlocks Saturation potion brewing</gray>"
+      ]
     }
   },
   "blocking": {
-    "chainarmorer": {
-      "name": "Grandininiai Šarvai",
-      "description": "Leidžia jums gaminti grandininius šarvus.",
-      "lore1": "Gaminimo receptas yra toks pat kaip ir bet kuris kitas, tačiau vietoj jo naudojami geležies grynuoliai"
+    "chain_armorer": {
+      "name": "Chains of Mephistopheles",
+      "description": "Allows you to craft Chainmail Armor",
+      "lore": [
+        "<gray>Craft: Use Iron Nuggets in armor patterns</gray>",
+        "<green>+ </green><gray>Unlocks Chainmail Armor crafting</gray>"
+      ]
     },
-    "horsearmorer": {
-      "name": "Arklių Šarvai",
-      "description": "Leidžia pasigaminti arklių šarvus",
-      "lore1": "Apsupkite balną medžiaga, kurią norite naudoti šarvams gaminti"
+    "horse_armorer": {
+      "name": "Craftable Horse Armor",
+      "description": "Allows you to craft Horse Armor",
+      "lore": [
+        "<gray>Craft: Surround Saddle with armor material</gray>",
+        "<green>+ </green><gray>Unlocks Horse Armor crafting</gray>",
+        "<yellow>* </yellow><gray>Use Iron/Gold/Diamond for different tiers</gray>"
+      ]
     },
-    "saddlecrafter": {
-      "name": "Balnas",
-      "description": "Pagaminkite balną iš odos",
-      "lore1": "Receptas: 5 Odos:"
+    "saddle_crafter": {
+      "name": "Craftable Saddle",
+      "description": "Craft a Saddle with Leather",
+      "lore": [
+        "<gray>Craft: 5 Leather in saddle pattern</gray>",
+        "<green>+ </green><gray>Unlocks Saddle crafting</gray>"
+      ]
     },
-    "multiarmor": {
-      "name": "Multi-Šarvai",
-      "description": "Pririškite Elytrą prie šarvų",
-      "lore1": "Tai nuostabus įgūdis keliaujant.",
-      "lore2": "Dinamiškai sujunkite ir keiskite Šarvus/Sparnus skraidant!",
-      "lore3": "Jei norite sujungti, su shift spauskite daiktą virš kito inventoriuje esančio daikto.",
-      "lore4": "Norėdami atrišti Šarvą, Sėlinkite-Meskite daiktą ir jis bus išardytas.",
-      "lore5": "Jei jūsų Multi-Šarvai bus sunaikinti, prarasite visus jame esančius daiktus.",
-      "lore6": "Man nereikia šarvų, tai mane nuvilia..."
+    "multi_armor": {
+      "name": "Multi-Armor",
+      "description": "Bind Elytras to Armor",
+      "lore": [
+        "<gray>Merge Elytra with Chestplate for dual functionality</gray>",
+        "<green>+ </green><gray>Shift-click to merge items in inventory</gray>",
+        "<yellow>* </yellow><gray>Sneak-Drop to disassemble</gray>",
+        "<red>- </red><gray>Destroying MultiArmor loses all merged items</gray>"
+      ]
     }
   },
   "crafting": {
     "deconstruction": {
-      "name": "Dekonstrukcija",
-      "description": "Išardykite blokus ir daiktus į išgelbėjamus pagrindinius komponentus!",
-      "lore1": "Numeskite bet kokį daiktą ant žemės.",
-      "lore2": "Tada Sėlinkite ir Dešiniu pelės mygtuku spauskite su Žirklėmis"
+      "name": "Deconstruction",
+      "description": "Deconstruct blocks & items into salvageable base components!",
+      "lore": [
+        "<gray>Drop item + Sneak + Right-click with Shears</gray>",
+        "<green>+ </green><gray>Break items into base components</gray>"
+      ]
     },
     "xp": {
-      "name": "Gamybos XP",
-      "description": "Gamindami gaukite pasyvų XP",
-      "lore1": "Gaukite XP gamindami"
+      "name": "Crafting XP",
+      "description": "Gain passive XP when crafting",
+      "lore": [
+        "<gray>Passive: Earn XP from crafting items</gray>",
+        "<green>+ </green><gray>XP gained per craft</gray>"
+      ]
     },
     "reconstruction": {
-      "name": "Rūdų Rekonstrukcija",
-      "description": "Perdirbkite rūdas iš jų bazinių komponentų!",
-      "lore1": "8 dropai ir 1 priimantis = 1 rūda (beformė)",
-      "lore2": "Dropai turi būti išlydyti (jei taikoma)",
-      "lore3": "Neįskaitant: Neįskaitant atraižų, kvarco, smaragdų ir kt.",
-      "lore4": "Šeimininkas = Apgaubas, t. y.: Akmuo, Neterio Akmuo, Gilakemnis."
+      "name": "Ore Reconstruction",
+      "description": "Recraft ores from their base components!",
+      "lore": [
+        "<gray>Craft: 8 Smelted drops + 1 Host block = 1 Ore</gray>",
+        "<green>+ </green><gray>Reconstruct ore blocks from materials</gray>",
+        "<yellow>* </yellow><gray>Host = Stone, Netherrack, or Deepslate</gray>",
+        "<red>- </red><gray>Excludes Scraps, Quartz, Emeralds, etc.</gray>"
+      ]
     },
     "leather": {
-      "name": "Gaminama Oda",
-      "description": "Oda gaminama iš supuvusios mėsos",
-      "lore1": "Tiesiog išmeskite supuvusią mėsą ant laužo!"
+      "name": "Craftable Leather",
+      "description": "Craft Leather from Rotten Flesh",
+      "lore": [
+        "<gray>Cook Rotten Flesh on a Campfire</gray>",
+        "<green>+ </green><gray>Converts Rotten Flesh to Leather</gray>"
+      ]
     },
     "backpacks": {
-      "name": "Kurpinės",
-      "description": "Tai tiesiog įneša į žaidimą Mojang ryšulį!",
-      "lore1": "Norėdami tai naudoti, turite būti išlikimo režime.",
-      "lore2": "XLX : Oda, Pavadėlis, Oda",
-      "lore3": "XSX : Oda, Statinės Dėžė, Oda",
-      "lore4": "XCX : Oda, Skrynia, Oda"
+      "name": "A Boutilier's Backpacks!",
+      "description": "This just Brings the Mojang Bundle into the game!",
+      "lore": [
+        "<gray>Craft bundles with various recipes</gray>",
+        "<green>+ </green><gray>Unlocks Bundle crafting</gray>",
+        "<yellow>* </yellow><gray>Leather + Lead + Leather (row)</gray>",
+        "<yellow>* </yellow><gray>Survival mode only</gray>"
+      ]
     },
     "stations": {
-      "name": "Nešiojami Stalai!",
-      "description": "Naudokite stalą savo rankoje!",
-      "lore2": "VISI DAIKTAI, KURIUOS PALIKSTE ANT STALO KAI UŽDARYSITE, BUS PRARASTI VISAM!",
-      "lore3": "Galiojantys stalai: Priekalas, Darbastalis, Tekėlas, Kartografijos stalas, Akmens pjaustyklė, Staklės"
+      "name": "Portable Tables!",
+      "description": "Use a table in the palm of your hand!",
+      "lore": [
+        "<gray>Right-click workstation in hand to use</gray>",
+        "<green>+ </green><gray>Portable Anvil, Crafting, Grindstone, etc.</gray>",
+        "<red>- </red><gray>Items left inside are LOST when closed!</gray>"
+      ]
     },
     "skulls": {
-      "name": "Gaminamos Galvos!",
-      "description": "Naudodami medžiagas galite pagaminto monstrų galvas!",
-      "lore1": "Apsupkite kaulų bloką šiais daiktais, kad gautumėte galva:",
-      "lore2": "Zombio: Supuvusi Mėsa",
-      "lore3": "Skeletono: Kaulas",
-      "lore4": "Pasalūno: Parakas",
-      "lore5": "Viterio: Pragaro Plytos",
-      "lore6": "Drakono: Drakono Dvelksmas"
+      "name": "Craftable skulls!",
+      "description": "Using Materials you can Craft Mob Skulls!",
+      "lore": [
+        "<gray>Craft: Surround Bone Block with mob materials</gray>",
+        "<green>+ </green><gray>Unlocks mob skull crafting</gray>",
+        "<yellow>* </yellow><gray>Zombie=Flesh, Skeleton=Bone, Creeper=Gunpowder</gray>",
+        "<yellow>* </yellow><gray>Wither=Nether Brick, Dragon=Dragon's Breath</gray>"
+      ]
     }
   },
   "discovery": {
     "armor": {
-      "name": "Pasaulio Šarvai",
-      "description": "Pasyvūs šarvai, priklausomai nuo šalia esančio bloko kietumo.",
-      "lore1": "Pasyvūs Šarvai",
-      "lore2": "Remiantis šalia esančio bloko kietumu",
-      "lore3": "Šarvų Stiprumas:"
+      "name": "World Armor",
+      "description": "Passive armor depending on nearby block hardness.",
+      "lore": [
+        "<gray>Passive: Gain armor from nearby hard blocks</gray>",
+        "<green>+ {0}</green> <gray>Armor strength multiplier</gray>",
+        "<yellow>* </yellow><gray>Harder blocks = More armor</gray>"
+      ]
     },
     "unity": {
-      "name": "Eksperimentinė Vienybė",
-      "description": "Patirties kamuolių rinkimas prideda XP prie atsitiktinių įgūdžių.",
-      "lore1": "XP ",
-      "lore2": "Per Kamuolį"
+      "name": "Experimental Unity",
+      "description": "Collecting Experience Orbs adds XP to random skills.",
+      "lore": [
+        "<gray>Passive: XP orbs boost random Adapt skills</gray>",
+        "<green>+ {0}</green> <gray>Skill XP per orb collected</gray>"
+      ]
     },
     "resist": {
-      "name": "Eksperimentinis Atsparumas",
-      "description": "Pasinaudokite patirtimi, kad sumažintumėte žalą, kurią darote iš visų šaltinių",
-      "lore0": "Tai gali įvykti tik kartą per 15 sekundžių",
-      "lore1": " Sumažinta žala",
-      "lore2": "patirtis išsekusi"
+      "name": "Experimental Resistance",
+      "description": "Consume experience to mitigate the damage you take from all sources",
+      "lore": [
+        "<gray>Passive: Spend XP to reduce incoming damage</gray>",
+        "<green>+ {0}</green> <gray>Damage reduction</gray>",
+        "<red>- {1}</red> <gray>XP drained per activation</gray>",
+        "<yellow>* {2}</yellow> <gray>Cooldown between activations</gray>"
+      ]
     },
     "villager": {
-      "name": "Kaimiečių Atrakcija",
-      "description": "Leidžia sudaryti geresnius sandorius su kaimo gyventojais!",
-      "lore1": "Tai sunaudoja XP vienam bendravimui su kaimiečiais",
-      "lore2": "Tikimybė per sąveiką sunaudoti XP ir pagerinti sandorius",
-      "lore3": "reikalingas XP suanudojimas vienai sąveikai"
+      "name": "Villager Attraction",
+      "description": "Allows for you to get Better trades with villagers!",
+      "lore": [
+        "<gray>Passive: Better trades with villagers</gray>",
+        "<green>+ {0}</green> <gray>Chance for enhanced trades</gray>",
+        "<red>- {1}</red> <gray>XP cost per interaction</gray>"
+      ]
     }
   },
   "enchanting": {
-    "lapisreturn": {
-      "name": "Lapis Sugrįžimas",
-      "description": "Kaina dar 1 XP lygis, o mainais turite šansą gauti nemokamų lapis",
-      "lore1": "Kiekvienam lygiui tai padidina kerėjimo kainą - 1, bet gali grąžinti daugiau nei 3 lapis"
+    "lapis_return": {
+      "name": "Lapis Return",
+      "description": "At the cost of 1 more level of XP, and has a chance to give you free lapis in return",
+      "lore": [
+        "<gray>Trade extra XP for lapis refund</gray>",
+        "<green>+ {0}</green> <gray>Lapis returned per enchant</gray>",
+        "<red>- 1</red> <gray>Extra XP level cost per enchant</gray>"
+      ]
     },
-    "quickenchant": {
-      "name": "Staigus Burtas",
-      "description": "Užburkite daiktus dėdami užburtas knygas tiesiai ant jų.",
-      "lore1": "Maksimalus Kombinuotas Lygis",
-      "lore2": "Negalima užburti daikto, kuriame yra daugiau nei ",
-      "lore3": "galia"
+    "quick_enchant": {
+      "name": "Quick-Click Enchant",
+      "description": "Enchant items by clicking enchant books directly on them.",
+      "max_power": "<red>Cannot enchant items above {0} power</red>",
+      "lore": [
+        "<gray>Click enchant books directly on items to apply</gray>",
+        "<green>+ {0}</green> <gray>Maximum combined enchant levels</gray>"
+      ]
     },
     "return": {
-      "name": "XP Grąžinimas",
-      "description": "Buriant jums XP grąžinamas, kai užburiate daiktą.",
-      "lore1": "Išleista patirtis turi galimybę būti grąžinta, kai užburiate daiktą",
-      "lore2": "Patirtis per Burtą"
+      "name": "XP Return",
+      "description": "Enchanting XP is returned to you when you enchant an item.",
+      "lore": [
+        "<gray>Passive: Chance to refund XP when enchanting</gray>",
+        "<green>+ {0}</green> <gray>XP returned per enchant</gray>"
+      ]
     }
   },
   "excavation": {
     "haste": {
-      "name": "Skubus Ekskavatoristas",
-      "description": "Tai paspartins kasimo procesą, su GREITU KASIMU!",
-      "lore1": "Gaukite greita kasimą kasant",
-      "lore2": "x Greito kasimo lygiai, kai pradedate kasti bet kokį bloką."
+      "name": "Hasty Excavator",
+      "description": "This will speed up the excavation process, with HASTE!",
+      "lore": [
+        "<gray>Passive: Gain Haste while digging</gray>",
+        "<green>+ {0}</green> <gray>Haste levels when mining</gray>"
+      ]
     },
     "spelunker": {
-      "name": "Super-Žiūrovas Spelunkeris!",
-      "description": "Žiūrėkite į rūdas pro žemę!",
-      "lore1": "Rūda laikykite rankose, o Švytinčias uogas laikykite pagrindinėje rankoje ir \"Sneak'ink\"!",
-      "lore2": "Blokų diapazonas:",
-      "lore3": "Naudojant sunaudoja švytinčias uogas"
+      "name": "Super-Seeing Spelunker!",
+      "description": "See Ores with your eyes, but through the ground!",
+      "lore": [
+        "<gray>Hold Ore in offhand + Glowberries in main hand + Sneak</gray>",
+        "<green>+ {0}</green> <gray>Block detection range</gray>",
+        "<yellow>* </yellow><gray>Consumes 1 Glowberry per use</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Kastuvo Trauka"
+    "drop_to_inventory": {
+      "name": "Shovel Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Dug items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "omnitool": {
-      "name": "OMNI - Į.R.A.N.K.I.S",
-      "description": "„Tackle“ perdėtas prabangus „Leatherman“.",
-      "lore1": "Tikriausiai galingiausias iš daugelio leidžia jums",
-      "lore2": "keisti įrankius skrydžio metu, atsižvelgiant į jūsų poreikius.",
-      "lore3": "Jei norite sujungti, su shift spauskite daiktą virš kito inventoriuje esančio daikto.",
-      "lore4": "Norėdami atrišti įrankius, Sėlinkite-Meskite daiktą ir bus išardytas.",
-      "lore5": "Jūs negalite sulaužyti įrankių šiame odų žmogūje, bet ir negalite naudoti sulaužytų įrankių",
-      "lore6": "visi galimi sujungti daiktai.",
-      "lore7": "Galite naudoti penkis ar šešis įrankius arba tik vieną!"
+    "omni_tool": {
+      "name": "OMNI - T.O.O.L.",
+      "description": "Tackle's overdesigned opulent Leatherman",
+      "lore": [
+        "<gray>Merge multiple tools into one super-tool</gray>",
+        "<green>+ {0}</green> <gray>Maximum tools that can be merged</gray>",
+        "<yellow>* </yellow><gray>Shift-click to merge tools in inventory</gray>",
+        "<yellow>* </yellow><gray>Sneak-Drop to disassemble</gray>",
+        "<red>- </red><gray>Broken tools in the merge cannot be used</gray>"
+      ]
     }
   },
   "herbalism": {
-    "growthaura": {
-      "name": "Augimo Aura",
-      "description": "Auginkite gamtą aplink save auroje",
-      "lore1": "Bloko Spindulys",
-      "lore2": "Augimo Auros Stiprumas",
-      "lore3": "Maisto Kaina"
+    "growth_aura": {
+      "name": "Growth Aura",
+      "description": "Grow nature around you in an aura",
+      "lore": [
+        "<gray>Passive: Crops grow faster around you</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<green>+ {1}</green> <gray>Growth speed multiplier</gray>",
+        "<red>- {2}</red> <gray>Hunger cost per tick</gray>"
+      ]
     },
     "hippo": {
-      "name": "Žolininko Begemotas",
-      "description": "Maisto vartojimas suteikia daugiau sotumo",
-      "lore1": "Maistas) papildomi vartojimo prisotinimo taškai"
+      "name": "Herbalist's Hippo",
+      "description": "Consuming food, gives you more saturation",
+      "lore": [
+        "<gray>Passive: Food gives bonus saturation</gray>",
+        "<green>+ {0}</green> <gray>Extra saturation per food consumed</gray>"
+      ]
     },
     "myconid": {
-      "name": "Žolininkų Mikonidas",
-      "description": "Suteikia jums galimybę gaminti grybieną",
-      "lore1": "Bet koks žemės blokas ir rudas & raudonas grybas sukurs grybieną."
+      "name": "Herbalist's Myconid",
+      "description": "Gives you the ability to craft Mycelium",
+      "lore": [
+        "<gray>Craft: Any Dirt + Brown Mushroom + Red Mushroom</gray>",
+        "<green>+ </green><gray>Unlocks Mycelium crafting recipe</gray>"
+      ]
     },
     "terralid": {
-      "name": "Žolininko Žolė",
-      "description": "Suteikia jums galimybę gaminti žolės blokus",
-      "lore1": "Trys sėklos, daugiau nei 3 žemės blokai ir sukurs 3 žolės blokus."
+      "name": "Herbalist's Terralid",
+      "description": "Gives you the ability to craft Grass Blocks",
+      "lore": [
+        "<gray>Craft: 3 Seeds over 3 Dirt</gray>",
+        "<green>+ </green><gray>Unlocks Grass Block crafting recipe</gray>",
+        "<yellow>* </yellow><gray>Produces 3 Grass Blocks per craft</gray>"
+      ]
     },
     "cobweb": {
-      "name": "Voratinklių Kūrėjas",
-      "description": "Suteikia galimybę kurti voratinklius darbastalyje",
-      "lore1": "Devyni siūlai pagamins voratinklį."
+      "name": "Webby Creator",
+      "description": "Gives you the ability to craft Cobwebs in a Crafting Table",
+      "lore": [
+        "<gray>Craft: 9 String in a 3x3 grid</gray>",
+        "<green>+ </green><gray>Unlocks Cobweb crafting recipe</gray>"
+      ]
     },
-    "mushroomblocks": {
-      "name": "Grybų Gamintojas",
-      "description": "Suteikia jums galimybę gaminti grybų blokus darbastalyje",
-      "lore1": "Keturi grybai, kad padarytumėte bloką, arba blokas, kad padarytumėte stiebą."
+    "mushroom_blocks": {
+      "name": "Mushroom Maker",
+      "description": "Gives you the ability to craft Mushroom Blocks in a Crafting Table",
+      "lore": [
+        "<gray>Craft: 4 Mushrooms = 1 Mushroom Block</gray>",
+        "<gray>Craft: 1 Mushroom Block = 1 Mushroom Stem</gray>",
+        "<green>+ </green><gray>Unlocks Mushroom Block crafting recipes</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Kauptuko Trauka"
+    "drop_to_inventory": {
+      "name": "Hoe Drop-To-Inventory",
+      "description": "When you break a crop it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Harvested crops go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "hungryshield": {
-      "name": "Alkanas Skydas",
-      "description": "Gaukite žalą savo alkiui prieš savo givybes.",
-      "lore1": "Apsaugota nuo Alkio"
+    "hungry_shield": {
+      "name": "Hungry Shield",
+      "description": "Take damage to your hunger before your health.",
+      "lore": [
+        "<gray>Passive: Damage is absorbed by hunger first</gray>",
+        "<green>+ {0}</green> <gray>Damage converted to hunger</gray>",
+        "<yellow>* </yellow><gray>Requires food in hunger bar to activate</gray>"
+      ]
     },
     "luck": {
-      "name": "Žolininko Sėkmė",
-      "description": "Kai sulaužysite žolę/gėles, turite galimybę gauti atsitiktinį daiktą",
-      "lore0": "Gėlės = Maistas, ir Žolė = Sėklos",
-      "lore1": "Galimybė gauti daiktą griaunant gėles",
-      "lore2": "Galimybė gauti daiktą sugriovus žolę"
+      "name": "Herbalist's Luck",
+      "description": "When you break Grass/Flowers, you have a chance to get a random item",
+      "lore": [
+        "<gray>Flowers = Food, and Grass = Seeds</gray>",
+        "<green>+ {0}</green> <gray>Chance to get an item from breaking flowers</gray>",
+        "<green>+ {1}</green> <gray>Chance to get an item from breaking grass</gray>"
+      ]
     },
     "replant": {
-      "name": "Derliaus nuėmimas ir persodinimas",
-      "description": "Dešiniuoju pelės mygtuku spauskite ant pasėlių su kapliu, kad nuimtumėte derlių ir persodintumėte.",
-      "lore1": "Blokų Persodinimo Spindulys"
+      "name": "Harvest & Replant",
+      "description": "Right click a crop with a hoe to harvest & replant it.",
+      "lore": [
+        "<gray>Right-click crops with hoe to harvest and replant</gray>",
+        "<green>+ {0}</green> <gray>Block radius for mass harvesting</gray>"
+      ]
     }
   },
   "hunter": {
     "adrenaline": {
-      "name": "Adrenalinas",
-      "description": "Kuo mažiau givybių, tuo daugiau žalos padarysite (Melee)",
-      "lore1": "Maksimali žala"
+      "name": "Adrenaline",
+      "description": "Deal more damage the lower health you are (Melee)",
+      "lore": [
+        "<gray>Passive: Lower health = Higher damage</gray>",
+        "<green>+ {0}</green> <gray>Maximum bonus damage at low HP</gray>"
+      ]
     },
     "penalty": {
-      "lore1": "Jūs gausite vis daugiau nuodų, jeigu tapsite alkanas"
+      "name": "",
+      "description": "",
+      "lore": [
+        "<red>-{0}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Daiktų Trauka",
-      "description": "Kai ką nors užmušate/sulaužote bloką kardu, daiktai atsiras jūsų inventoriūje",
-      "lore1": "Kiekvieną kartą, kai daiktas iškrenta iš monstro/bloko, kuri sugriaunate, patenka į jūsų inventorių, jei įmanoma."
+    "drop_to_inventory": {
+      "name": "Items Drop-To-Inventory",
+      "description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
+      "lore": [
+        "<gray>Passive: Mob drops go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped loot</gray>"
+      ]
     },
     "invisibility": {
-      "name": "Nykstantis Žingsnis",
-      "description": "Kai esi sumuštas, tu įgyji nematomumą, tai išnaudos daug alkio",
-      "lore1": "Smūgio metu įgykite pasyvų nematomumą",
-      "lore2": "x Nematomumas kaupiasi 3 sekundes po smūgio",
-      "lore3": "x Kaupiamas alkis",
-      "lore4": "Badas kaups trukmę ir daugiklį.",
-      "lore5": "Nematomumo trukmė"
+      "name": "Vanishing Step",
+      "description": "When you are struck you gain invisibility, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Invisibility when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Invisibility stacks for 3 seconds on hit</gray>",
+        "<green>+ {2}</green> <gray>Invisibility duration</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<red>- {4}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
-    "jumpboost": {
-      "name": "Medžiotojo Aukštumos",
-      "description": "Kai tave ištiko išpuolis, tu įgyji šuolio impulsą, tai kainuos alkį",
-      "lore1": "Įgykite pasyvų šuolio padidinimą smūgio metu",
-      "lore2": "x Šuoliavimas kaupiasi 3 sekundes po smūgio",
-      "lore3": "x Kaupiamas alkis",
-      "lore4": "Badas kaups trukmę ir daugiklį.",
-      "lore5": "Šuoliavima kaups daugiklį, o ne trukmę"
+    "jump_boost": {
+      "name": "Hunter's Heights",
+      "description": "When you are struck you gain jump-boost, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Jump-Boost when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Jump-Boost stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Jump-Boost stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "luck": {
-      "name": "Medžiotojo Sėkmė",
-      "description": "Kai tave užklumpa, tu laimi sėkmę, tai kainuos alkį",
-      "lore1": "Pasiekite pasyvią sėkmę, kai nukentėsite",
-      "lore2": "x Sėkmė kaupiasi 3 sekundes po smūgio",
-      "lore3": "x Kaupiamas alkis",
-      "lore4": "Badas kaups trukmę ir daugiklį.",
-      "lore5": "Sėkmė kaups daugiklį, o ne trukmę."
+      "name": "Hunter's Luck",
+      "description": "When you are struck you gain luck, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Luck when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Luck stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Luck stacks multiplier, not duration</gray>",
+        "<red>- {4}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "regen": {
-      "name": "Medžiotojo Regenracija",
-      "description": "Kai esi sumuštas, tu atsiregenruosi, tai kainuos alkį",
-      "lore1": "Įgykite pasyvią regeneraciją, kai įtrenkia",
-      "lore2": "x Regeneracija kaupsis 3 sekundes po smūgio",
-      "lore3": "x Kaupiamas alkis",
-      "lore4": "Badas kaups trukmę ir daugiklį.",
-      "lore5": "Regeneracija kaups daugiklį, ne trukmę."
+      "name": "Hunter's Regen",
+      "description": "When you are struck you gain regeneration, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Regeneration when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Regeneration stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Regeneration stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "resistance": {
-      "name": "Medžiotojo Atsparumas",
-      "description": "Kai tave užklumpa, tu įgyji atsparumą, tai kainuos alkį",
-      "lore1": "Įgykite pasyvų pasipriešinimą, kai įtrenkia",
-      "lore2": "x Atsparumas kaupsis 3 sekundes po smūgio",
-      "lore3": "x Kaupiamas alkis",
-      "lore4": "Badas kaups trukmę ir daugiklį.",
-      "lore5": "Atsparumas kaups daugiklį, o ne trukmę."
+      "name": "Hunter's Resistance",
+      "description": "When you are struck you gain resistance, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Resistance when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Resistance stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Resistance stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "speed": {
-      "name": "Medžiotojo Greitis",
-      "description": "Kai tave užklumpa, tu įgyji greitį, tai kainuos alkį",
-      "lore1": "Smūgio metu padidinkite pasyvų greitį",
-      "lore2": "x Greitis kaupiasi 3 sekundes po smūgio",
-      "lore3": "x Kaupiamas alkis",
-      "lore4": "Badas kaups trukmę ir daugiklį.",
-      "lore5": "Greičio kaups daugiklį, o ne trukmę."
+      "name": "Hunter's Speed",
+      "description": "When you are struck you gain speed, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Speed when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Speed stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Speed stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
+    },
+    "jumpboost": {
+      "name": "Hunter's Jump Boost",
+      "description": "When you are struck you gain jump boost, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Jump Boost when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Jump Boost stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Jump Boost stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "strength": {
-      "name": "Medžiotojo Galia",
-      "description": "Kai tave muša, tu įgyji jėgų, tai kainuos alkį",
-      "lore1": "Smūgio metu įgykite pasyvios jėgos",
-      "lore2": "x Jėga kaupiasi 3 sekundes po smūgio",
-      "lore3": "x Susikraunantis Alkis",
-      "lore4": "Bado didėjimo trukmė ir daugiklis.",
-      "lore5": "Jėgos krūvos daugiklis, ne trukmė."
+      "name": "Hunter's Strength",
+      "description": "When you are struck you gain strength, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Strength when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Strength stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Strength stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     }
   },
   "nether": {
-    "skulltoss": {
-      "name": "Nudžiūvusios Kaukolės Metimas",
-      "description1": "Išlaisvinkite savo vidinį vytumą naudodami",
-      "description2": "kažkieno",
-      "description3": "galvą.",
-      "lore1": "sekundės tarp kaukolės metimų.",
-      "lore2": "Viterio naudojimas: išmeskite ",
-      "lore3": "Viterio Galvą",
-      "lore4": "sprogsta nuo smūgio."
+    "skull_toss": {
+      "name": "Wither Skull Throw",
+      "description": "<gray>Unleash your inner Wither by using someone's head.</gray>",
+      "lore": [
+        "<gray>Right-click with a Wither Skull to throw it</gray>",
+        "<green>+ </green><gray>Wither skull explodes on impact</gray>",
+        "<yellow>* {0}</yellow> <gray>Cooldown between throws</gray>"
+      ]
     },
-    "witherresist": {
-      "name": "Atsparumas Vytimui",
-      "description": "Priešinasi vytimui dėl neterito galios.",
-      "lore1": "galimybė paneigti vytimą (vienam luitui).",
-      "lore2": "Pasyvus: Nederito šarvų dėvėjimas turi galimybę panaikinti ",
-      "lore3": "vytimą."
+    "wither_resist": {
+      "name": "Wither Resistance",
+      "description": "Resists withering through the power of Netherite.",
+      "lore": [
+        "<gray>Passive: Netherite Armor negates Wither effect</gray>",
+        "<green>+ {0}</green> <gray>Chance to negate withering per piece</gray>",
+        "<yellow>* </yellow><gray>Stacks with multiple armor pieces</gray>"
+      ]
     },
-    "fireresist": {
-      "name": "Atsparumas Ugniai",
-      "description": "Atsparus ugniai, nes sukietina odą.",
-      "lore1": "galimybė paneigti deginimo efektą!"
+    "fire_resist": {
+      "name": "Fire Resistance",
+      "description": "Resists fire by hardening your skin.",
+      "lore": [
+        "<gray>Passive: Chance to resist fire damage</gray>",
+        "<green>+ {0}</green> <gray>Chance to negate burning</gray>"
+      ]
     }
   },
   "pickaxe": {
-    "autosmelt": {
-      "name": "Automatinis Lydymas",
-      "description": "Leidžia lydyti iškastas rūdas.",
-      "lore1": "Rūdos, kurias galima lydyti, išlydomos automatiškai",
-      "lore2": "% galimybė gauti papildomą"
+    "auto_smelt": {
+      "name": "Autosmelt",
+      "description": "Allows you to smelt mined Vanilla ores",
+      "lore": [
+        "<gray>Passive: Ores are automatically smelted when mined</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra drop</gray>"
+      ]
     },
     "chisel": {
-      "name": "Rūdos Kaltas",
-      "description": "Dešiniuoju pelės mygtuku spauskite ant Rūdos, kad iš jų išgautumėte daugiau rūdos už didelę ilgaamžiškumo kainą.",
-      "lore1": "Galimybė numesti",
-      "lore2": "Įrankių susidėvėjimas"
+      "name": "Ore Chisel",
+      "description": "Right Click Ores to Chisel more ore out of them, at a severe durability cost.",
+      "lore": [
+        "<gray>Right-click ores to chisel extra resources</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra ore drop</gray>",
+        "<red>- {1}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Kirtiklio Trauka",
-      "description": "Kai nugriausite bloką, daiktas atsiras jūsų inventoriuje",
-      "lore1": "Vietoj to, kad daiktas iškrenta iš bloko, daiktas pateks į jūsų inventorių, jei įmanoma."
+    "drop_to_inventory": {
+      "name": "Pickaxe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Mined items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "silkspawner": {
-      "name": "Kirtiklis Šilko-Narvas",
-      "description": "Priverčia Narvus nukristi, kai būna sugriauti",
-      "lore1": "Padaro narvus sugriaunamais šilko prisilietimu.",
-      "lore2": "Padaro narvus sugriaunamais sėlinant."
+    "silk_spawner": {
+      "name": "Pickaxe Silk-Spawner",
+      "description": "Makes Spawners drop when broken",
+      "lore": {
+        "level_1": "<green>Makes Spawners breakable with silk touch.</green>",
+        "level_2": "<green>Makes Spawners breakable while sneaking.</green>"
+      }
     },
-    "veinminer": {
-      "name": "Veinkasėjas",
-      "description": "Leidžia sugriauti rūdų blokus gysloje/klasteryje",
-      "lore1": "Sėlink, ir kask RŪDAS",
-      "lore2": "vein kasybos diapazonas",
-      "lore3": "Šis įgūdis negrupuoja visų dropų kartu!"
+    "vein_miner": {
+      "name": "Veinminer",
+      "description": "Allows you to break blocks in a Vein/Cluster of Vanilla ores",
+      "lore": [
+        "<gray>Sneak + Mine to vein-mine connected ores</gray>",
+        "<green>+ {0}</green> <gray>Block range</gray>",
+        "<yellow>* </yellow><gray>Drops are not grouped together</gray>"
+      ]
     }
   },
   "ranged": {
-    "arrowrecovery": {
-      "name": "Strėlės Susigrąžinimas",
-      "description": "Atgaukite strėles po to, kai nužudėte priešą.",
-      "lore1": "Galimybė susigrąžinti strėles ant smūgio/nužudymo",
-      "lore2": "Šansas:"
+    "arrow_recovery": {
+      "name": "Arrow Recovery",
+      "description": "Recover Arrows after you have killed an enemy.",
+      "lore": [
+        "<gray>Chance to recover arrows on hit</gray>",
+        "<green>+ {0}</green> <gray>Recovery chance</gray>"
+      ]
     },
-    "webshot": {
-      "name": "Voratinklių Spąstai",
-      "description": "Apjuočiate voratinkliais aplink savo taikinį, kai į juos pataikote!",
-      "lore1": "8 Voratinkliai aplink Sniego gniūžtę ir galite mesti!",
-      "lore2": "narvo sekundžių, apytiksliai."
+    "web_shot": {
+      "name": "Web Snare",
+      "description": "Surround cobwebs around your target when you hit them!",
+      "lore": [
+        "<gray>Craft: 8 Cobwebs around a Snowball</gray>",
+        "<green>+ {0}</green> <gray>Web cage duration</gray>",
+        "<yellow>* </yellow><gray>Throw the crafted snowball to create a web trap</gray>"
+      ]
     },
-    "forceshot": {
-      "name": "Stiprus Šūvis",
-      "description": "Šaudykite kulkas toliau, greičiau!",
-      "advancementname": "Tolimas Šūvis",
-      "advancementlore": "Nušaukite iš daugiau nei 30 blokų!",
-      "lore1": "Kulkos Greitis"
+    "force_shot": {
+      "name": "Force Shot",
+      "description": "Shoot projectiles further, faster!",
+      "advancement_name": "Long Shot",
+      "advancement_lore": "Land a shot from over 30 blocks away!",
+      "lore": [
+        "<green>+ {0}</green> <gray>Projectile Speed</gray>"
+      ]
     },
-    "lungeshot": {
-      "name": "Įtūpstas",
-      "description": "Krintant jūsų strėlės sviedžia jus atsitiktine kryptimi",
-      "lore1": "Atsitiktinis Sprogimo Greitis"
+    "lunge_shot": {
+      "name": "Lunge Shot",
+      "description": "While falling your arrows toss you in a random direction",
+      "lore": [
+        "<green>+ {0}</green> <gray>Random Burst Speed</gray>"
+      ]
     },
-    "arrowpiercing": {
-      "name": "Pradūrinčios Strėlės",
-      "description": "Prideda pradūrima prie strėlių! Šaudykite kiaurai per dalykus!",
-      "lore1": "Taikinių Pradūrimas"
+    "arrow_piercing": {
+      "name": "Arrow Piercing",
+      "description": "Adds Piercing to projectiles! Shoot through things!",
+      "lore": [
+        "<green>+ {0}</green> <gray>Pierce Targets</gray>"
+      ]
     }
   },
   "rift": {
-    "remoteaccess": {
-      "name": "Nuotolinis Prisijungimas",
-      "description": "Ištraukite iš tuštumos ir supilkite į pažymėtą talpyklą.",
-      "lore1": "Enderio Perlas + Komposas = Relikvijoriaus prievado raktas",
-      "lore2": "Šis daiktas leidžia nuotoliniu būdu pasiekti konteinerius",
-      "lore3": "Pagaminę daiktą pažiūrėkite į jį, kad pamatytumėte vartosena",
-      "notcontainer": "Tai ne konteineris"
+    "remote_access": {
+      "name": "Remote Access",
+      "description": "Pull from the void, and get into a marked container.",
+      "not_container": "<red>That's not a container</red>",
+      "lore": [
+        "<gray>Craft: Enderpearl + Compass = Reliquary Portkey</gray>",
+        "<green>+ </green><gray>Access containers remotely</gray>",
+        "<yellow>* </yellow><gray>Shift + Left-click to bind, Right-click to access</gray>"
+      ]
     },
     "blink": {
-      "name": "Slėnio Teleportacija",
-      "description": "Momentinė teleportacija trumpu nuotoliu, vos akimirksniu!",
-      "lore1": "Blokai teleportacijai (2x Vertikaliai)",
-      "lore2": "Sprinto metu: Dukart pašokite, kad ",
-      "lore3": "Teleportuotumėtes"
+      "name": "Rift Blink",
+      "description": "Short ranged instant teleportation, Just a blink away!",
+      "lore": [
+        "<gray>While Sprinting: Double-tap Jump to Blink</gray>",
+        "<green>+ {0}</green> <gray>Horizontal blink distance</gray>",
+        "<green>+ {1}</green> <gray>Vertical blink distance</gray>"
+      ]
     },
     "chest": {
-      "name": "Lengva Enderio skrynia",
-      "description": "Atidarykite enderio skrynią kairiuoju pelės mygtuku, laikydami jį rankoje.",
-      "lore1": "Spauskite ant Enderio Skrynios rankoje, kad atidarytumėte (dėti nereikia)"
+      "name": "Easy Enderchest",
+      "description": "Open an enderchest by Left-clicking it in your hand.",
+      "lore": [
+        "<gray>Left-click with Enderchest in hand to open</gray>",
+        "<green>+ </green><gray>Portable Enderchest access</gray>",
+        "<yellow>* </yellow><gray>Don't place it, just click!</gray>"
+      ]
     },
     "descent": {
-      "name": "Anti-Levitacija",
-      "description": "Ar pavargote būti įstrigę ore? Šis įgūdis kaip tik jums!",
-      "lore1": "Tiesiog sneak'inkite, kad nusileistumėte, ir krisite mažesniu nei įprasta greičiu!",
-      "lore2": "Užšaldymas:"
+      "name": "Anti-Levitation",
+      "description": "Are you tired of being stuck in the air? This is the skill for you!",
+      "lore": [
+        "<gray>Sneak while levitating to descend slowly</gray>",
+        "<green>+ </green><gray>Controlled descent speed</gray>",
+        "<yellow>* {0}</yellow> <gray>Cooldown</gray>"
+      ]
     },
     "gate": {
-      "name": "Slėnio Vartai",
-      "description": "Teleportuokites į pažymėtą vietą.",
-      "lore1": "GAMYBA: Smaragdas + Ametisto šukė + Enderio Perlas",
-      "lore2": "Perskaitykite prieš naudodami!",
-      "lore3": "5s uždelsimas, ",
-      "lore4": "galite mirti, kol esate šioje animacijoje"
+      "name": "Rift Gate",
+      "description": "Teleport to a marked location.",
+      "lore": [
+        "<gray>Craft: Emerald + Amethyst Shard + Ender Pearl</gray>",
+        "<green>+ </green><gray>Teleport to marked location</gray>",
+        "<yellow>* {0}</yellow> <gray>Channeling delay</gray>",
+        "<red>- </red><gray>You can die during the animation</gray>"
+      ]
     },
     "resist": {
-      "name": "Slėnio Atsparumas",
-      "description": "Įgykite apsaugą naudodami Enderio daiktus & galimybes",
-      "lore1": "+ Pasyvus: Suteikia apsaugą, kai naudojate Slėnio sugebėjimus arba Enderio daiktus.",
-      "lore2": "Neįeina nešiojamoji Enderio Skrynia, įeina tik tai, ką galite vartoti"
+      "name": "Rift Resistance",
+      "description": "Gain Resistance when using Ender Items & Abilities",
+      "lore": [
+        "<gray>Passive: Gain Resistance when using Rift abilities or Ender items</gray>",
+        "<green>+ </green><gray>Resistance effect on Ender item use</gray>",
+        "<red>- </red><gray>Does not work with Portable Enderchest</gray>"
+      ]
     },
     "visage": {
-      "name": "Rifto Vizažas",
-      "description": "Neleidžia Endermenams tapti agresyviems, jei jūsų inventoriuje yra Ender perlų.",
-      "lore1": "Endermenai netaps agresyvūs, jei jūsų inventoriuje yra Ender perlų."
+      "name": "Rift Visage",
+      "description": "Prevents Endermen from becoming aggressive if you have Enderpearls in your inventory.",
+      "lore": [
+        "<gray>Passive: Endermen ignore you when you carry Enderpearls</gray>",
+        "<green>+ </green><gray>Endermen will not become aggressive</gray>",
+        "<yellow>* </yellow><gray>Requires Enderpearls in inventory</gray>"
+      ]
     }
   },
   "seaborn": {
     "oxygen": {
-      "name": "Organinis Deguonies Bakas",
-      "description": "Sulaikykite daugiau deguonies savo mažuose plaučiuose!",
-      "lore1": "Deguonies Talpos Padidėjimas"
+      "name": "Organic Oxygen Tank",
+      "description": "Hold more oxygen in your tiny lungs!",
+      "lore": [
+        "<gray>Passive: Extended breath underwater</gray>",
+        "<green>+ {0}</green> <gray>Extra oxygen capacity</gray>"
+      ]
     },
-    "fishersfantasy": {
-      "name": "Fišerio Fantazija",
-      "description": "Uždirbkite daugiau XP iš žvejybos ir gaukite daugiau žuvies!",
-      "lore1": "Kiekviename lygyje yra galimybė gauti daugiau XP ir žuvies!"
+    "fishers_fantasy": {
+      "name": "Fisher's Fantasy",
+      "description": "Earn more XP from fishing, and get more fish!",
+      "lore": [
+        "<gray>Passive: Bonus rewards while fishing</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra XP</gray>",
+        "<green>+ {1}</green> <gray>Chance for extra fish</gray>"
+      ]
     },
     "haste": {
-      "name": "Vėžlys Šachtininkas",
-      "description": "Kasdami po vandeniu jūs gaunate greitą kasimą!",
-      "lore1": "Greitas Kasimas 3 įgijamas po vandeniu kasant (prisideda kartu ir Naras burtas), kai išnyksta vandens kvėpavimo efektas!"
+      "name": "Turtle Miner",
+      "description": "While mining underwater you gain haste!",
+      "lore": [
+        "<gray>Passive: Gain Haste while mining underwater</gray>",
+        "<green>+ {0}</green> <gray>Haste level while mining</gray>",
+        "<yellow>* </yellow><gray>Stacks with Aqua Affinity</gray>",
+        "<yellow>* </yellow><gray>Activates after Water Breathing wears off</gray>"
+      ]
     },
-    "nightvision": {
-      "name": "Vėžlio Regėjimas",
-      "description": "Būdami po vandeniu, įgyjate naktinį matymą",
-      "lore1": "Tiesiog gaukite naktinį matymą būdami po vandeniu, kai išnyksta vandens kvėpavimo efektas!"
+    "night_vision": {
+      "name": "Turtle's Vision",
+      "description": "While underwater, you gain Night Vision",
+      "lore": [
+        "<gray>Passive: Gain Night Vision while underwater</gray>",
+        "<green>+ </green><gray>Night Vision effect</gray>",
+        "<yellow>* </yellow><gray>Activates after Water Breathing wears off</gray>"
+      ]
     },
-    "dolphingrace": {
-      "name": "Delfinų Malonė",
-      "description": "Plauk kaip delfinas, be delfinų",
-      "lore1": "+ Pasyvus: gauk ",
-      "lore2": "x greitį (delfinų mlonė)",
-      "lore3": "tiksli vokiečių inžinerija– palaukite, tai negerai... Nesuderinama su Gilumų plaukimu"
+    "dolphin_grace": {
+      "name": "Dolphin's Grace",
+      "description": "Swim like a dolphin, without the dolphins",
+      "lore": [
+        "<gray>Passive: Gain Dolphin's Grace while underwater</gray>",
+        "<green>+ {0}</green> <gray>Swimming speed</gray>",
+        "<red>- </red><gray>Not compatible with Depth Strider</gray>"
+      ]
     }
   },
   "stealth": {
-    "ghostarmor": {
-      "name": "Vaiduoklio Šarvai",
-      "description": "Lėtai generuojami šarvai, kai negaunama žalos, veikia tik 1 smūgiui",
-      "lore1": "Max Šarvai",
-      "lore2": "Greitis"
+    "ghost_armor": {
+      "name": "Ghost's Armor",
+      "description": "Slow building armor when not taking damage, Lasts for 1 hit",
+      "lore": [
+        "<gray>Passive: Build armor over time when not hit</gray>",
+        "<green>+ {0}</green> <gray>Maximum armor</gray>",
+        "<green>+ {1}</green> <gray>Armor gained per tick</gray>",
+        "<yellow>* </yellow><gray>Armor resets after taking damage</gray>"
+      ]
     },
-    "nightvision": {
-      "name": "Slaptas Regėjimas",
-      "description": "Įgykite naktinį matymą sėlinant",
-      "lore1": "Gauk ",
-      "lore2": "naktinį matymą ",
-      "lore3": "sėlinant"
+    "night_vision": {
+      "name": "Stealth Vision",
+      "description": "Gain night vision while sneaking",
+      "lore": [
+        "<gray>Sneak to activate Night Vision</gray>",
+        "<green>+ </green><gray>Night Vision while sneaking</gray>"
+      ]
     },
     "snatch": {
-      "name": "Daiktų Pačiupimas",
-      "description": "Pačiupkite numestus daiktus akimirksniu sėlinant!!",
-      "lore1": "Pačiupimo Spindulys"
+      "name": "Item Snatch",
+      "description": "Snatch Dropped items instantly while sneaking!",
+      "lore": [
+        "<gray>Sneak to pick up nearby items instantly</gray>",
+        "<green>+ {0}</green> <gray>Block pickup radius</gray>"
+      ]
     },
     "speed": {
-      "name": "Sėlinimo Greitis",
-      "description": "Įgykite greitį sėlinant",
-      "lore1": " Sėlinimo Greitis"
+      "name": "Sneak Speed",
+      "description": "Gain speed while sneaking",
+      "lore": [
+        "<gray>Passive: Move faster while sneaking</gray>",
+        "<green>+ {0}</green> <gray>Sneaking speed multiplier</gray>"
+      ]
     },
-    "enderveil": {
-      "name": "Enderveilas",
-      "description": "Daugiau jokių moliūgų, kad būtų išvengta Endermano atakų",
-      "lore1": "Išvengti endermno atakų sėlinant",
-      "lore2": "Išvengti visų endermeno atakų"
+    "ender_veil": {
+      "name": "Enderveil",
+      "description": "No more Pumpkins to prevent Enderman attacks",
+      "lore": {
+        "level_1": "<gray>Prevent enderman attacks while sneaking</gray>",
+        "level_2": "<gray>Prevent all enderman attacks</gray>"
+      }
     }
   },
   "sword": {
     "machete": {
-      "name": "Mačetė",
-      "description": "Lengvai nupjaukite lapiją!",
-      "lore1": "Smūgio Spindulys",
-      "lore2": "Pjovimo veikimo laiko tarpas",
-      "lore3": "Įrankių Susidėvėjimas"
+      "name": "Machete",
+      "description": "Cut through foliage with ease!",
+      "lore": [
+        "<gray>Swing sword to cut nearby plants</gray>",
+        "<green>+ {0}</green> <gray>Slash radius</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between slashes</gray>",
+        "<red>- {2}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "bloodyblade": {
-      "name": "Kruvini Ašmenys",
-      "description": "Smūgiuojant kardu, sukelia kraujavimą",
-      "lore1": "Smūgis į Gyvą būtybę savo kardu sukelia kraujavimą",
-      "lore2": "Kraujavimo trukmė",
-      "lore3": "Kraujavimo veikimo laiko tarpas"
+    "bloody_blade": {
+      "name": "Bloody Blade",
+      "description": "Strikes with your sword, cause Bleeding!",
+      "lore": [
+        "<gray>Sword strikes cause bleeding damage over time</gray>",
+        "<green>+ {0}</green> <gray>Bleed duration</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between bleeds</gray>"
+      ]
     },
-    "poisonedblade": {
-      "name": "Apnuodyti Ašmenys",
-      "description": "Smūgiuojant kardu, sukelia nuodus!",
-      "lore1": "Smogdamas gyvai būtybei savo kardu būtybė apnuodyjama",
-      "lore2": "Nuodų trukmė",
-      "lore3": "Nuodų veikimo laiko tarpas"
+    "poisoned_blade": {
+      "name": "Poisoned Blade",
+      "description": "Strikes with your sword, cause Poison!",
+      "lore": [
+        "<gray>Sword strikes apply poison to enemies</gray>",
+        "<green>+ {0}</green> <gray>Poison duration</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between poisons</gray>"
+      ]
     }
   },
   "taming": {
     "damage": {
-      "name": "Prijaukinimo Žala",
-      "description": "Padidinkite savo prijaukintam gyvūnui daromą žalą..",
-      "lore1": "Padidėjusi Žala"
+      "name": "Tame Damage",
+      "description": "Increase your tamed animal damage dealt.",
+      "lore": [
+        "<gray>Passive: Your tamed animals deal more damage</gray>",
+        "<green>+ {0}</green> <gray>Bonus damage for pets</gray>"
+      ]
     },
     "health": {
-      "name": "Prijaukinimo Sveikata",
-      "description": "Pagerinkite savo prijaukintų gyvūnų sveikatą.",
-      "lore1": "Padidėjęs givybių skaičius"
+      "name": "Tame Health",
+      "description": "Increase your tamed animal health.",
+      "lore": [
+        "<gray>Passive: Your tamed animals have more health</gray>",
+        "<green>+ {0}</green> <gray>Max health for pets</gray>"
+      ]
     },
     "regeneration": {
-      "name": "Prijaukinimo Regeneracija",
-      "description": "Padidinkite savo prijaukinto gyvūno regeneraciją.",
-      "lore1": "HP/s"
+      "name": "Tame Regeneration",
+      "description": "Increase your tamed animal regeneration.",
+      "lore": [
+        "<gray>Passive: Your tamed animals regenerate health</gray>",
+        "<green>+ {0}</green> <gray>HP per second for pets</gray>"
+      ]
     }
   },
   "tragoul": {
     "thorns": {
-      "name": "Spygliai",
-      "description": "Atmuškite žalą savo užpuolikui!",
-      "lore1": "Atkeršyja atgal, kai užpuola"
+      "name": "Thorns",
+      "description": "Reflect damage back to your attacker!",
+      "lore": [
+        "<gray>Passive: Reflect damage when hit</gray>",
+        "<green>+ {0}</green> <gray>Damage reflected to attacker</gray>"
+      ]
     },
     "globe": {
-      "name": "Skausmo Rutulys",
-      "description": "Padalykite padarytą žalą pagal aplink jus esančių priešų skaičių!",
-      "lore1": "Kuo daugiau priešų aplink jus, tuo mažiau žalos darote kiekvienam iš jų.",
-      "lore2": "Diapazonas:",
-      "lore3": "Pridėta žala visiems subjektams: "
+      "name": "Globe of Pain",
+      "description": "Divide the Damage you deal based on the number of enemies around you!",
+      "lore": [
+        "<gray>Damage is split among nearby enemies</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<green>+ {1}</green> <gray>Bonus damage to all entities in range</gray>"
+      ]
     },
     "healing": {
-      "name": "Skausmo Valia",
-      "description": "Atkurkite sveikatą pagal padarytą žalą!",
-      "lore1": "Žaloti dalykus dar niekada nebuvo taip gerai! Gydymas nuo padarytos žalos",
-      "lore2": "Yra 3 sekundžių žalos langas, gydymo ir 1 sekundės užšaldymas. ",
-      "lore3": "Gydymas pagal žalos procentą: "
+      "name": "Will of Pain",
+      "description": "Regain health based on the damage you deal!",
+      "lore": [
+        "<gray>Heal from the damage you deal to enemies</gray>",
+        "<green>+ {0}</green> <gray>Healing per damage dealt</gray>",
+        "<yellow>* {1}</yellow> <gray>Damage window for healing</gray>",
+        "<yellow>* {2}</yellow> <gray>Cooldown between heals</gray>"
+      ]
     },
     "lance": {
-      "name": "Lavonų Ietys",
-      "description": "Nužudžius priešą arba atlikus gebėjimą nužudyti priešą, atsiranda ietis, daranti žalą netoliese esančiam priešui!",
-      "lore1": "Iš bet ko, ką nužudysite, ir jei šis gebėjimas nužudys priešą, bus ieškoma ieties.",
-      "lore2": "Paaukokite dalį savo gyvybės, kad sukurtumėte ietis (tai gali jus nužudyti).",
-      "lore3": "Max Ietys: 1 + "
+      "name": "Corpse Lances",
+      "description": "Killing an enemy or having an ability kill an enemy, spawns a lance that deals damage to a nearby enemy!",
+      "lore": [
+        "<gray>Kills spawn lances that seek nearby enemies</gray>",
+        "<green>+ {0}</green> <gray>Maximum lances</gray>",
+        "<red>- {1}%</red> <gray>Health cost per lance (can kill you!)</gray>",
+        "<yellow>* </yellow><gray>Lances chain from ability kills too</gray>"
+      ]
     }
   },
   "unarmed": {
-    "glasscannon": {
-      "name": "Stiklo Patranka",
-      "description": "Bonusas už beginklę žalą, tuo mažesnė jūsų šarvų vertė",
-      "lore1": "x Žala prie 0 šarvų",
-      "lore2": "Pagal lygį bonus žala"
+    "glass_cannon": {
+      "name": "Glass Cannon",
+      "description": "Bonus Unarmed Damage the lower your armor value is",
+      "lore": [
+        "<gray>Less armor = More damage</gray>",
+        "<green>+ {0}</green> <gray>Damage multiplier at 0 armor</gray>",
+        "<green>+ {1}</green> <gray>Bonus damage per level</gray>"
+      ]
     },
     "power": {
-      "name": "Beginklė Galia",
-      "description": "Patobulinta beginklė žala.",
-      "lore1": "Žala"
+      "name": "Unarmed Power",
+      "description": "Improved Unarmed Damage",
+      "lore": [
+        "<gray>Passive: Increased fist damage</gray>",
+        "<green>+ {0}</green> <gray>Bonus damage</gray>"
+      ]
     },
-    "suckerpunch": {
-      "name": "Atžalos Smūgis",
-      "description": "Sprinto smūgiai, bet mirtingesni.",
-      "lore1": "Žala",
-      "lore2": "Žala didėja didėjant greičiui smūgiuojant"
+    "sucker_punch": {
+      "name": "Sucker Punch",
+      "description": "Sprint punches, but more deadly.",
+      "lore": [
+        "<gray>Sprint to deal extra punch damage</gray>",
+        "<green>+ {0}</green> <gray>Base bonus damage</gray>",
+        "<yellow>* </yellow><gray>Damage scales with movement speed</gray>"
+      ]
     }
   }
 }

@@ -21,7 +21,10 @@ package com.volmit.adapt.content.adaptation.agility;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.version.Version;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -39,16 +42,16 @@ import java.util.UUID;
 
 public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-armor-up".getBytes());
-    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:armor-up");
+    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:armor-up");
     private final Map<Player, Integer> ticksRunning;
 
 
     public AgilityArmorUp() {
         super("agility-armor-up");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("agility", "armorup", "description"));
+        setDescription(Localizer.dLocalize("agility.armor_up.description"));
         setIcon(Material.IRON_CHESTPLATE);
-        setDisplayName(Localizer.dLocalize("agility", "armorup", "name"));
+        setDisplayName(Localizer.dLocalize("agility.armor_up.name"));
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
@@ -58,8 +61,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getWindupArmor(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("agility", "armorup", "lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + " " + C.GRAY + Localizer.dLocalize("agility", "armorup", "lore2"));
+        v.addLore(Localizer.dLocalize("agility.armor_up.lore", Form.pc(getWindupArmor(getLevelPercent(level)), 0), Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1)));
     }
 
     @EventHandler

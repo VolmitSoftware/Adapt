@@ -26,6 +26,9 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UIElement implements Element {
     private final String id;
     private final KList<String> lore;
@@ -179,24 +182,24 @@ public class UIElement implements Element {
 
     @Override
     public Element addLore(String loreLine) {
-        getLore().add(wrapWordsWithFormatting(loreLine.replaceAll("\\Q\n\\E", " "), 52).split("\\Q\n\\E"));
+        if (loreLine != null) {
+            for (String line : loreLine.split("\\R")) {
+                if (line.isEmpty()) getLore().add("");
+                else wrapWordsWithFormatting(line, 55).forEach(getLore()::add);
+            }
+        }
         return this;
     }
 
-    public String wrapWordsWithFormatting(String f, int l) {
-        StringBuilder sb = new StringBuilder();
+    public List<String> wrapWordsWithFormatting(String f, int l) {
+        List<String> result = new ArrayList<>();
         String last = null;
-        for (String i : Form.wrapWords(f, l).split("\\Q\n\\E")) {
-            if (last != null) {
-                sb.append("\n").append(C.getLastColors(last)).append(i);
-            } else {
-                sb.append("\n").append(i);
-            }
-
+        for (String i : Form.wrapWords(f, l).split("\\R")) {
+            if (last != null) result.add(C.getLastColors(last) + i);
+            else result.add(i);
             last = i;
         }
-
-        return sb.substring(1);
+        return result;
     }
 
     @Override

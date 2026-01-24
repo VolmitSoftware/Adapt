@@ -19,7 +19,10 @@
 package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -35,8 +38,8 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
     public ArchitectGlass() {
         super("architect-glass");
         registerConfiguration(ArchitectGlass.Config.class);
-        setDescription(Localizer.dLocalize("architect", "glass", "description"));
-        setDisplayName(Localizer.dLocalize("architect", "glass", "name"));
+        setDescription(Localizer.dLocalize("architect.glass.description"));
+        setDisplayName(Localizer.dLocalize("architect.glass.name"));
         setIcon(Material.GLASS);
         setInterval(25000);
         setBaseCost(getConfig().baseCost);
@@ -47,7 +50,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("architect", "glass", "lore1"));
+        v.addLore(Localizer.dLocalize("architect.glass.lore"));
     }
 
 

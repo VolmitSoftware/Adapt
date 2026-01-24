@@ -21,7 +21,10 @@ package com.volmit.adapt.content.adaptation.excavation;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import fr.skytasul.glowingentities.GlowingEntities;
 import lombok.NoArgsConstructor;
@@ -48,8 +51,8 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     public ExcavationSpelunker() {
         super("excavation-spelunker");
         registerConfiguration(ExcavationSpelunker.Config.class);
-        setDisplayName(Localizer.dLocalize("excavation", "spelunker", "name"));
-        setDescription(Localizer.dLocalize("excavation", "spelunker", "description"));
+        setDisplayName(Localizer.dLocalize("excavation.spelunker.name"));
+        setDescription(Localizer.dLocalize("excavation.spelunker.description"));
         setIcon(Material.GOLDEN_HELMET);
         setInterval(20388);
         setBaseCost(getConfig().baseCost);
@@ -62,9 +65,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("excavation", "spelunker", "lore1"));
-        v.addLore(C.YELLOW + Localizer.dLocalize("excavation", "spelunker", "lore2") + getConfig().rangeMultiplier * level);
-        v.addLore(C.YELLOW + Localizer.dLocalize("excavation", "spelunker", "lore3"));
+        v.addLore(Localizer.dLocalize("excavation.spelunker.lore", getConfig().rangeMultiplier * level));
     }
 
     @EventHandler(priority = EventPriority.HIGH)

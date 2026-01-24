@@ -38,6 +38,8 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 public interface Skill<T> extends Ticked, Component {
     AdaptAdvancement buildAdvancements();
 
@@ -100,6 +102,13 @@ public interface Skill<T> extends Ticked, Component {
         String blacklistPermission = "adapt.blacklist." + s.getName().replaceAll("-", "");
         Adapt.verbose("Checking if player " + p.getName() + " has blacklist permission " + blacklistPermission);
         return p.hasPermission(blacklistPermission);
+    }
+
+    default String displayName() {
+        if (!this.isEnabled()) {
+            this.unregister();
+        }
+        return "<color:%s><b>%s %s</b></color>".formatted(getColor().hex(), getEmojiName(), Form.capitalize(getName()));
     }
 
     default String getDisplayName() {
@@ -233,7 +242,10 @@ public interface Skill<T> extends Ticked, Component {
                     .setModel(i.getModel())
                     .setName(i.getDisplayName(lvl))
                     .addLore(Form.wrapWordsPrefixed(i.getDescription(), "" + C.GRAY, 45)) // Set to the actual Description
-                    .addLore(lvl == 0 ? (C.DARK_GRAY + Localizer.dLocalize("snippets", "gui", "notlearned")) : (C.GRAY + Localizer.dLocalize("snippets", "gui", "level") + " " + C.WHITE + Form.toRoman(lvl)))
+                    .addLore("")
+                    .addLore(lvl == 0
+                            ? Localizer.dLocalize("snippets.gui.not_learned")
+                            : Localizer.dLocalize("snippets.gui.level", Form.toRoman(lvl)))
                     .setProgress(1D)
                     .onLeftClick((e) -> i.openGui(player)));
             ind++;
@@ -246,12 +258,16 @@ public interface Skill<T> extends Ticked, Component {
             w.setElement(backPos, backRow, new UIElement("back")
                     .setMaterial(new MaterialBlock(Material.RED_BED))
                     .setModel(CustomModel.get(Material.RED_BED, "snippets", "gui", "back"))
-                    .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets", "gui", "back"))
+                    .setName(Localizer.dLocalize("snippets.gui.back"))
                     .onLeftClick((e) -> onGuiClose(player, true)));
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Localizer.dLocalize("snippets", "gui", "xp") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")");
+        w.setTitle(
+                getDisplayName(a.getSkillLine(getName()).getLevel()) + " " +
+                        Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" +
+                        Localizer.dLocalize("snippets.gui.xp", Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())),
+                                        a.getSkillLine(getName()).getLevel() + 1) + ")");
         w.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
         w.open();
         Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);

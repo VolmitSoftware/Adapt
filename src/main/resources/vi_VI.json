@@ -262,941 +262,1254 @@
     }
   },
   "items": {
-    "boundenderperal": {
-      "name": "Khóa cổng thánh tích",
-      "usage1": "Shift + Nhấp chuột trái để liên kết",
-      "usage2": "Nhấp chuột phải để truy cập Khoảng không quảng cáo bị ràng buộc"
+    "bound_ender_peral": {
+      "name": "<white>Reliquary Portkey</white>",
+      "usage1": "<gray>Shift + Left Click to bind</gray>",
+      "usage2": "<gray>Right Click to access the bound Inventory</gray>"
     },
-    "boundeyeofender": {
-      "name": "Neo mắt",
-      "usage1": "Nhấp chuột phải để tiêu thụ và dịch chuyển đến vị trí bị ràng buộc",
-      "usage2": "Shift + Nhấp chuột trái để liên kết với một khối"
+    "bound_eye_of_ender": {
+      "name": "<white>Ocular Anchor</white>",
+      "usage1": "<gray>Right Click to consume and teleport to the bound location</gray>",
+      "usage2": "<gray>Shift + Left Click to bind to a block</gray>"
     },
-    "boundredstonetorch": {
-      "name": "Điều khiển từ xa bằng đá đỏ",
-      "usage1": "Nhấp chuột phải để tạo xung Redstone 1-Tick",
-      "usage2": "Shift + Nhấp chuột trái vào Khối 'Mục tiêu' để liên kết"
+    "bound_redstone_torch": {
+      "name": "<white>Redstone Remote</white>",
+      "usage1": "<gray>Right Click to create a 1-Tick Redstone pulse</gray>",
+      "usage2": "<gray>Shift + Left Click on a 'Target' Block to bind</gray>"
     },
-    "boundsnowball": {
-      "name": "Bẫy web!",
-      "usage1": "Ném để tạo bẫy web tạm thời tại vị trí"
+    "bound_snowball": {
+      "name": "<white>Web Snare!</white>",
+      "usage1": "<gray>Throw to create a temporary web trap at the location</gray>"
     },
-    "elevatorblock": {
-      "name": "Khối Thang Máy",
-      "usage1": "Nhảy để dịch chuyển lên",
-      "usage2": "Ngồi để dịch chuyển xuống",
-      "usage3": "Tối thiểu cách 2 block trống giữa các thang máy"
+    "elevator_block": {
+      "name": "Elevator Block",
+      "usage1": "Jump to teleport up",
+      "usage2": "Shift to teleport down",
+      "usage3": "Minimum of 2 air blocks between the elevators"
     }
   },
   "snippets": {
     "gui": {
-      "level": "Mức độ",
-      "knowledge": "kiến thức",
-      "powerused": "Nguồn điện sử dụng",
-      "notlearned": "Chưa học",
-      "xp": "XP tới",
-      "welcome": "Chào mừng!",
-      "welcomeback": "Chào mừng trở lại!",
-      "xpbonusfortime": "XP cho",
-      "maxabilitypower": "Sức mạnh khả năng đã đạt tối đa",
-      "unlockthisbyclicking": "Mở khóa cái này bằng cách nhấp chuột phải:",
-      "back": "Mặt sau",
-      "unlearnall": "Học tất cả",
-      "unlearnedall": "Chưa học hết"
+      "level": "<dark_gray>Level {0}</dark_gray>",
+      "knowledge": "<white>{0}</white> <gray>knowledge</gray>",
+      "power_used": "<gray>Power Used</gray> <dark_green>{0}</dark_green>",
+      "power_used_ratio": "<dark_gray>({0}/{1} Power Used)</dark_gray>",
+      "not_learned": "<dark_gray>Not Learned</dark_gray>",
+      "xp": "<dark_gray>{0}XP to {1}</dark_gray>",
+      "welcome": "<white>Welcome!</white>",
+      "welcome_back": "<white>Welcome back!</white>",
+      "xp_bonus_for_time": "+<green>{0}</green> <gray>XP for</gray> <aqua>{1}</aqua>",
+      "max_ability_power": "<gold>Maximum Ability Power</gold> <gray>+{0}</gray>",
+      "unlock_this_by_clicking": "<gray>Unlock this by Right-Clicking:</gray> <white>{0}</white>",
+      "back": "<gray>Back</gray>",
+      "unlearn_all": "<gray>Unlearn all</gray>{0}",
+      "unlearned_all": "<gray>Unlearned all</gray>"
     },
-    "adaptmenu": {
-      "maynotunlearn": "BẠN CÓ THỂ KHÔNG HỌC",
-      "mayunlearn": "BẠN CÓ THỂ HỌC/KHÔNG HỌC",
-      "knowledgecost": "Chi phí kiến ​​thức",
-      "knowledgeavailable": "Kiến thức có sẵn",
-      "alreadylearned": "Đã học",
-      "unlearnrefund": "Bấm để học và hoàn tiền",
-      "norefunds": "HARDCORE, HOÀN TIỀN BỊ TẮT",
-      "knowledge": "kiến thức",
-      "clicklearn": "Bấm để tìm hiểu",
-      "noknowledge": "(Bạn chưa có Kiến thức)",
-      "youonlyhave": "Bạn chỉ có",
-      "howtolevelup": "Tăng cấp kỹ năng để tăng sức mạnh tối đa của bạn.",
-      "notenoughpower": "Không đủ sức mạnh! Mỗi cấp độ khả năng tốn 1 sức mạnh.",
-      "power": "quyền lực",
-      "powerdrain": "Xả điện",
-      "learned": "Đã học",
-      "unlearned": "Chưa học",
-      "activatorblock": "Giá sách"
+    "adapt_menu": {
+      "may_not_unlearn": "<red><bold>YOU MAY NOT UNLEARN</bold></red>",
+      "may_unlearn": "<green>YOU MAY LEARN/UNLEARN</green>",
+      "knowledge_cost": "<white>{0}</white> <gray>Knowledge Cost</gray>",
+      "knowledge_available": "<gray>Knowledge Available</gray>",
+      "knowledge_available_title": "<dark_gray>{0} knowledge</dark_gray>",
+      "unlearn_refund": "<gray><u>Click to Unlearn & Refund <white>{0}</white> Knowledge Cost</u></gray>",
+      "no_refunds": "<dark_red><bold>HARDCORE, REFUNDS DISABLED</bold></dark_red>",
+      "knowledge": "<dark_gray>knowledge</dark_gray>",
+      "no_knowledge": "<red>(You don't have any Knowledge)</red>",
+      "you_only_have": "<red>(You only have <white>{0}</white> Knowledge Available)</red>",
+      "how_to_level_up": "<red>Level up skills to increase your max power.</red>",
+      "not_enough_power": "<red>Not enough power! Each Ability Level costs 1 power.</red>",
+      "power": "<gray>power</gray>",
+      "power_drain": "<green>{0} Power Drain</green>",
+      "learned": "<gray>Learned {0}</gray>",
+      "unlearned": "<gray>Unlearned {0}</gray>",
+      "activator_block": "<gold>Bookshelf</gold>"
     },
-    "knowledgeorb": {
-      "contains": "chứa",
-      "knowledge": "kiến thức",
-      "rightclick": "Click chuột phải",
-      "togainknowledge": "để có được kiến ​​thức này",
-      "knowledgeorb": "Quả cầu tri thức"
+    "knowledge_orb": {
+      "contains": "<white>contains</white> <white><u>{0}</u></white> <gray>{1}</gray> <gray>knowledge</gray>",
+      "knowledge": "<gray>knowledge</gray>",
+      "right_click_to_gain_knowledge": "<light_purple>Right-Click</light_purple> <gray>to gain this knowledge</gray>",
+      "knowledge_orb": "<gold>Knowledge Orb</gold>"
     },
-    "experienceorb": {
-      "contains": "chứa",
-      "xp": "Kinh nghiệm",
-      "rightclick": "Click chuột phải",
-      "togainxp": "để có được kinh nghiệm này",
-      "xporb": "Quả cầu kinh nghiệm"
+    "experience_orb": {
+      "contains": "<white>contains</white> <white><u>{0}</u></white> <gray>{1}</gray> <gray>Experience</gray>",
+      "xp": "<gray>Experience</gray>",
+      "right_click_to_gain_xp": "<light_purple>Right-Click</light_purple> <gray>to gain this experience</gray>",
+      "xp_orb": "<gold>Experience Orb</gold>"
     }
   },
   "skill": {
     "agility": {
-      "name": "Nhanh nhẹn",
+      "name": "Agility",
       "icon": "⇉",
-      "description": "Nhanh nhẹn là khả năng di chuyển nhanh chóng và trôi chảy khi đối mặt với chướng ngại vật."
+      "description": "Agility is the ability to move quick and fluidly in the face of obstacles."
     },
     "architect": {
-      "name": "Kiến trúc sư",
+      "name": "Architect",
       "icon": "⬧",
-      "description": "Các cấu trúc là những khối xây dựng của thế giới. Thực tế nằm trong tay bạn, bạn có thể kiểm soát."
+      "description": "Structures are the building blocks of the world. Reality is in your hands, yours to control."
     },
     "axes": {
-      "name": "Trục",
+      "name": "Axes",
       "icon": "🪓",
-      "description1": "Tại sao phải chặt cây khi bạn có thể chặt cây",
-      "description2": "đồ đạc",
-      "description3": "thay vào đó, kết quả cuối cùng tương tự!"
+      "description": "<gray>Why chop down trees, when you could chop</gray> <italic><gray>things</gray></italic> <gray>instead, same end result!</gray>"
     },
     "brewing": {
-      "name": "Sản xuất bia",
+      "name": "Brewing",
       "icon": "❦",
-      "description": "Bong bóng đôi, bong bóng ba, bong bóng bốn lần- Tôi vẫn không thể đặt lọ thuốc này vào vạc"
+      "description": "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
     },
     "blocking": {
-      "name": "Chặn",
+      "name": "Blocking",
       "icon": "🛡",
-      "description": "Gậy và đá Sẽ không làm gãy xương bạn, Nhưng một tấm khiên sẽ làm được."
+      "description": "Sticks and stones Won't break your bones, But a shield will."
     },
     "crafting": {
-      "name": "Chế tạo",
+      "name": "Crafting",
       "icon": "⌂",
-      "description": "Không còn mảnh nào để đặt nữa, tại sao không làm một mảnh khác?"
+      "description": "With no more pieces left to place, why not make another?"
     },
     "discovery": {
-      "name": "Khám phá",
+      "name": "Discovery",
       "icon": "⚛",
-      "description": "Khi nhận thức của bạn được mở rộng, tâm trí của bạn sẽ mở rộng hơn để khám phá ra điều mà bạn chưa từng khám phá."
+      "description": "As your perception expands, your mind unravels to discover that which you did not."
     },
     "enchanting": {
-      "name": "mê hoặc",
+      "name": "Enchanting",
       "icon": "♰",
-      "description": "Bạn đang làm gì đó? Những lời tiên tri, những khải tượng, những lời nói lắp bắp mê tín?"
+      "description": "What are you going on about? Prophecies, visions, superstitious jibber-jabber?"
     },
     "excavation": {
-      "name": "Khai Quật",
+      "name": "Excavation",
       "icon": "ᛳ",
-      "description": "Đào đào cái hố..."
+      "description": "Diggy Diggy Hole..."
     },
     "herbalism": {
-      "name": "thảo dược học",
+      "name": "Herbalism",
       "icon": "⚘",
-      "description": "Tôi không thể tìm thấy bất kỳ loại cây nào, nhưng tôi có thể tìm thấy một số hạt giống và- đó có phải là... Weed không?"
+      "description": "I can't find any plants, but I can find some seeds and- is that... Weed?"
     },
     "hunter": {
-      "name": "thợ săn",
+      "name": "Hunter",
       "icon": "☠",
-      "description": "Săn bắn là về cuộc hành trình chứ không phải là kết quả."
+      "description": "Hunting is about the journey not the outcome."
     },
     "nether": {
-      "name": "địa ngục",
+      "name": "Nether",
       "icon": "₪",
-      "description": "Từ sâu thẳm của Nether."
+      "description": "From the depths of the Nether itself."
     },
     "pickaxe": {
-      "name": "Cuốc chim",
+      "name": "Pickaxe",
       "icon": "⛏",
-      "description": "Người lùn là thợ mỏ, nhưng tôi đã học được một hoặc hai điều trong thời gian của mình. TÔI LÀ NGƯỜI THỤY ĐIỂN"
+      "description": "Dwarves are the miners, but ive learned a thing or two in my time. IM SWEDISH"
     },
     "ranged": {
-      "name": "tầm xa",
+      "name": "Ranged",
       "icon": "🏹",
-      "description": "Khoảng cách là chìa khóa của chiến thắng và là chìa khóa của sự sống còn."
+      "description": "Distance is the key to victory, and the key to survival."
     },
     "rift": {
-      "name": "Rạn nứt",
+      "name": "Rift",
       "icon": "❍",
-      "description": "Rift là một dây nịt ăn mòn, nhưng bạn đã khai thác được dây nịt đó."
+      "description": "The Rift is a caustic harness, but you have harnessed the harness."
     },
     "seaborne": {
-      "name": "Người biển",
+      "name": "Seaborne",
       "icon": "🎣",
-      "description": "Với kỹ năng này, bạn có thể khám phá được những điều kỳ diệu của nước."
+      "description": "With this skill, you may will the wonders of the water."
     },
     "stealth": {
-      "name": "tàng hình",
+      "name": "Stealth",
       "icon": "☯",
-      "description": "Nghệ thuật của cái không thể nhìn thấy. Đi trong bóng tối."
+      "description": "The art of the unseen. Walk in the shadows."
     },
     "swords": {
-      "name": "Kiếm",
+      "name": "Swords",
       "icon": "⚔",
-      "description": "Bằng sức mạnh của GreyStone!"
+      "description": "By the power of GreyStone!"
     },
     "taming": {
-      "name": "thuần hóa",
+      "name": "Taming",
       "icon": "♥",
-      "description": "Những con vẹt và những con ong... còn bạn?"
+      "description": "The parrots and the bees... and you?"
     },
     "tragoul": {
       "name": "TragOul",
       "icon": "🗡",
-      "description": "Máu chảy trong huyết quản của vũ trụ. Bị siết chặt bởi bàn tay của bạn."
+      "description": "Blood flows through the veins of the universe. Constricted by your hands."
     },
     "chronos": {
-      "name": "Thời gian",
+      "name": "Chronos",
       "icon": "⏳",
-      "description": "Vặn đồng hồ của vũ trụ, trải nghiệm dòng chảy. Đập vỡ đồng hồ, trở thành nó."
+      "description": "Wind the Clock of the universe, experience the flow. Break the clock, become it."
     },
     "unarmed": {
-      "name": "không có vũ khí",
+      "name": "Unarmed",
       "icon": "»",
-      "description": "Không có vũ khí không phải là không có sức mạnh."
+      "description": "Without a weapon is not without strength."
     }
   },
   "agility": {
-    "armorup": {
-      "name": "Tăng giáp",
-      "description": "Nhận được nhiều áo giáp hơn khi bạn chạy nước rút lâu hơn!",
-      "lore1": "Giáp tối đa",
-      "lore2": "Thời gian tăng giáp"
+    "armor_up": {
+      "name": "Armor Up",
+      "description": "Get more armor the longer you sprint!",
+      "lore": [
+        "<gray>Passive: Build armor while sprinting</gray>",
+        "<green>+ {0}</green> <gray>Maximum armor gained</gray>",
+        "<yellow>* {1}</yellow> <gray>Time to reach max armor</gray>"
+      ]
     },
-    "superjump": {
-      "name": "Nhảy cao",
-      "description": "Lợi thế chiều cao đặc biệt",
-      "lore1": "Chiều cao nhảy tối đa",
-      "lore2": "Lẻn + Nhảy để siêu nhảy!"
+    "super_jump": {
+      "name": "Super Jump",
+      "description": "Exceptional Height Advantage.",
+      "lore": [
+        "<gray>Sneak + Jump to perform a Super Jump</gray>",
+        "<green>+ {0}</green> <gray>Maximum jump height</gray>"
+      ]
     },
-    "walljump": {
-      "name": "Nhảy tường",
-      "description": "Giữ phím shift khi đang ở giữa không trung dựa vào tường để chốt tường và nhảy!",
-      "lore1": "Số lần nhảy tối đa",
-      "lore2": "Nhảy cao"
+    "wall_jump": {
+      "name": "Wall Jump",
+      "description": "Hold shift while mid-air against a wall to wall latch & jump!",
+      "lore": [
+        "<gray>Hold Sneak against wall mid-air to latch and jump</gray>",
+        "<green>+ {0}</green> <gray>Maximum wall jumps</gray>",
+        "<green>+ {1}</green> <gray>Jump height per wall jump</gray>"
+      ]
     },
-    "windup": {
-      "name": "Lên dây cót",
-      "description": "Hãy nhanh hơn khi bạn chạy nước rút lâu hơn!",
-      "lore1": "Tốc độ tối đa",
-      "lore2": "Thời gian kết thúc"
+    "wind_up": {
+      "name": "Wind Up",
+      "description": "Get faster the longer you sprint!",
+      "lore": [
+        "<gray>Passive: Build speed while sprinting</gray>",
+        "<green>+ {0}</green> <gray>Maximum speed multiplier</gray>",
+        "<yellow>* {1}</yellow> <gray>Time to reach max speed</gray>"
+      ]
     }
   },
   "architect": {
     "elevator": {
-      "name": "Thang máy",
-      "description": "Cái này cho phép bạn xây dựng một cái thang máy để dịch chuyển tức thời theo chiều dọc một cách nhanh chóng!",
-      "lore1": "Mở khóa công thức thang máy: X=WOOL, Y=ENDER PEARL",
-      "lore2": "XXX",
-      "lore3": "XYX",
-      "lore4": "XXX"
+      "name": "Elevator",
+      "description": "This allows for you to build an elevator to teleport vertically fast!",
+      "lore": [
+        "<gray>Craft: 8 Wool around 1 Ender Pearl</gray>",
+        "<green>+ </green><gray>Unlocks Elevator Block crafting</gray>",
+        "<yellow>* </yellow><gray>Jump to go up, Sneak to go down</gray>"
+      ]
     },
     "foundation": {
-      "name": "Tổ chức ma thuật",
-      "description": "Điều này cho phép bạn lẻn và đặt một nền móng tạm thời bên dưới bạn!",
-      "lore1": "Tạo một cách kỳ diệu:",
-      "lore2": "Khối bên dưới bạn!"
+      "name": "Magic Foundation",
+      "description": "This allows for you to sneak and place a temporary foundation beneath you!",
+      "lore": [
+        "<gray>Sneak in mid-air to create temporary blocks</gray>",
+        "<green>+ {0}</green> <gray>Blocks you can place beneath you</gray>",
+        "<yellow>* </yellow><gray>Blocks disappear after a short time</gray>"
+      ]
     },
     "glass": {
-      "name": "Kính cảm ứng lụa",
-      "description": "Điều này về cơ bản cho phép bạn ngăn chặn việc mất các khối thủy tinh khi bạn làm vỡ chúng bằng tay không!",
-      "lore1": "Bàn tay của bạn có được cảm giác chạm lụa cho Glass"
+      "name": "Silk-Touch Glass",
+      "description": "This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand!",
+      "lore": [
+        "<gray>Passive: Break glass with bare hands</gray>",
+        "<green>+ </green><gray>Glass drops as item instead of breaking</gray>"
+      ]
     },
-    "wirelessredstone": {
-      "name": "Điều khiển đá đỏ từ xa",
-      "description": "Cho phép bạn sử dụng đuốc đá đỏ để bật đá đỏ từ xa !",
-      "lore1": "Mục tiêu + Đuốc Redstone + Enderpearl = 1 Điều khiển từ xa bằng đá đỏ"
+    "wireless_redstone": {
+      "name": "Redstone Remote",
+      "description": "This allows for you to use a redstone torch to toggle redstone, remotely!",
+      "lore": [
+        "<gray>Craft: Target + Redstone Torch + Enderpearl</gray>",
+        "<green>+ </green><gray>Remotely toggle redstone signals</gray>",
+        "<yellow>* </yellow><gray>Shift + Left-click to bind, Right-click to pulse</gray>"
+      ]
     },
     "placement": {
-      "name": "Cây đũa phép xây dựng",
-      "description": "Cho phép bạn đặt nhiều khối cùng một lúc để kích hoạt Lén lút và giữ một khối phù hợp với khối và vị trí tìm kiếm của bạn! Hãy nhớ rằng, bạn có thể cần phải di chuyển một chút để kích hoạt giới hạn các hộp!",
-      "lore1": "Bạn cần",
-      "lore2": "khối trong tay của bạn để đặt cái này",
-      "lore3": "Cây đũa phép xây dựng vật liệu"
+      "name": "Builders Wand",
+      "description": "Allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!",
+      "need_blocks": "<red>You need <green>{0}</green> blocks in your hand to place this</red>",
+      "lore": [
+        "<gray>Sneak + Place to extend block surfaces</gray>",
+        "<green>+ </green><gray>Place multiple blocks at once</gray>",
+        "<yellow>* </yellow><gray>Hold matching blocks in hand</gray>"
+      ]
     }
   },
   "axe": {
     "chop": {
-      "name": "Chặt rìu",
-      "description": "Chặt cây bằng cách nhấp chuột phải vào khúc gỗ cơ sở!",
-      "lore1": "Khối mỗi Chop",
-      "lore2": "Thời gian hồi chiêu của Chặt",
-      "lore3": "Dụng cụ mài mòn"
+      "name": "Axe Chop",
+      "description": "Chop down trees by right clicking the base log!",
+      "lore": [
+        "<gray>Right-click base log to chop entire tree</gray>",
+        "<green>+ {0}</green> <gray>Blocks chopped per use</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between chops</gray>",
+        "<red>- {2}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "logswap": {
-      "name": "Máy hoán đổi nhật ký của Lucy",
-      "description": "Thay đổi hương vị của các khúc gỗ trong Bảng chế tạo!",
-      "lore1": "8 khúc cây bất kỳ + 1 cây non = 8 khúc cây giống"
+    "log_swap": {
+      "name": "Lucy's Log-Swapper",
+      "description": "Change the flavor of logs in a Crafting Table!",
+      "lore": [
+        "<gray>Craft: 8 Logs + 1 Sapling = 8 Logs of sapling type</gray>",
+        "<green>+ </green><gray>Convert any log type to another</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Axe thả vào kho"
+    "drop_to_inventory": {
+      "name": "Axe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Chopped items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped logs</gray>"
+      ]
     },
-    "groundsmash": {
-      "name": "Cú đập đất bằng rìu",
-      "description": "Nhảy, sau đó cúi xuống và đập tan tất cả kẻ thù ở gần.",
-      "lore1": "Hư hại",
-      "lore2": "Bán kính khối",
-      "lore3": "Lực lượng",
-      "lore4": "Đập tan thời gian hồi chiêu"
+    "ground_smash": {
+      "name": "Axe Ground Smash",
+      "description": "Jump, then crouch and smash all nearby enemies.",
+      "lore": [
+        "<gray>Jump + Sneak with axe to ground smash</gray>",
+        "<green>+ {0}-{1}</green> <gray>Damage dealt</gray>",
+        "<green>+ {2}</green> <gray>Block radius</gray>",
+        "<green>+ {3}</green> <gray>Knockback force</gray>",
+        "<yellow>* {4}</yellow> <gray>Cooldown</gray>"
+      ]
     },
-    "leafminer": {
-      "name": "thợ mỏ lá",
-      "description": "Cho phép bạn bẻ lá số lượng lớn cùng một lúc!",
-      "lore1": "Lén lút và của tôi LÁ",
-      "lore2": "phạm vi khai thác lá",
-      "lore3": "Bạn sẽ không nhận được giọt từ lá (Phòng chống khai thác)"
+    "leaf_miner": {
+      "name": "Leaf-miner",
+      "description": "Allows you to break bulk leaves at once!",
+      "lore": [
+        "<gray>Sneak + Mine leaves to break in bulk</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<red>- </red><gray>No drops from leaves (exploit prevention)</gray>"
+      ]
     },
-    "woodminer": {
-      "name": "Thợ khai thác gỗ",
-      "description": "Cho phép bạn phá vỡ gỗ số lượng lớn cùng một lúc!",
-      "lore1": "Lén lút và khai thác GỖ/Gỗ (Không phải ván)",
-      "lore2": "phạm vi khai thác gỗ",
-      "lore3": "Hoạt động với Thả vào kho"
+    "wood_miner": {
+      "name": "Wood-miner",
+      "description": "Allows you to break bulk wood at once!",
+      "lore": [
+        "<gray>Sneak + Mine logs to break in bulk</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<yellow>* </yellow><gray>Works with Drop-to-Inventory</gray>",
+        "<yellow>* </yellow><gray>Does not work on planks</gray>"
+      ]
     }
   },
   "brewing": {
     "lingering": {
-      "name": "bia còn sót lại",
-      "description": "Thuốc ủ có tác dụng lâu hơn!",
-      "lore1": "Khoảng thời gian",
-      "lore2": "Khoảng thời gian"
+      "name": "Lingering Brew",
+      "description": "Brewed potions last longer!",
+      "lore": [
+        "<gray>Passive: Potion effects last longer</gray>",
+        "<green>+ {0}</green> <gray>Bonus duration for regular potions</gray>",
+        "<green>+ {1}</green> <gray>Bonus duration for splash potions</gray>"
+      ]
     },
-    "superheated": {
-      "name": "Bia siêu nóng",
-      "description": "Quầy sản xuất bia hoạt động nhanh hơn khi chúng nóng hơn.",
-      "lore1": "Mỗi lần chạm vào khối lửa",
-      "lore2": "Mỗi lần chạm vào khối dung nham"
+    "super_heated": {
+      "name": "Super Heated Brew",
+      "description": "Brewing stands work faster the hotter they are.",
+      "lore": [
+        "<gray>Passive: Heat sources speed up brewing</gray>",
+        "<green>+ {0}</green> <gray>Speed per adjacent fire block</gray>",
+        "<green>+ {1}</green> <gray>Speed per adjacent lava block</gray>"
+      ]
     },
     "darkness": {
-      "name": "bóng tối đóng chai",
-      "description": "Không chắc chắn tại sao bạn cần điều này, nhưng bạn bắt đầu nhé!",
-      "lore1": "Thuốc nhìn đêm + Bê tông đen = Thuốc bóng tối (30 giây)",
-      "lore2": "Cần lưu ý rằng Điều này ngăn cản người dùng chạy nước rút!"
+      "name": "Bottled Darkness",
+      "description": "Not sure why you need this, but here you go!",
+      "lore": [
+        "<gray>Craft: Night Vision Potion + Black Concrete</gray>",
+        "<green>+ {0}</green> <gray>Darkness effect</gray>",
+        "<red>- </red><gray>Prevents sprinting while active</gray>"
+      ]
     },
     "haste": {
-      "name": "Sự vội vàng đóng chai",
-      "description": "Khi hiệu quả là không đủ",
-      "lore1": "Thuốc tăng tốc + Mảnh thạch anh tím = Thuốc tăng tốc (60 giây)",
-      "lore2": "Thuốc tăng tốc + Khối thạch anh tím = Thuốc tăng tốc-2 (30 giây)"
+      "name": "Bottled Haste",
+      "description": "When Efficiency is not enough",
+      "lore": [
+        "<gray>Craft: Speed Potion + Amethyst Shard = Haste I (60s)</gray>",
+        "<gray>Craft: Speed Potion + Amethyst Block = Haste II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Haste potion brewing</gray>"
+      ]
     },
     "absorption": {
-      "name": "Hấp thụ đóng chai",
-      "description": "Làm cứng cơ thể!",
-      "lore1": "Hồi máu tức thì + Thạch anh = Thuốc hấp thụ (60 giây)",
-      "lore2": "Hồi máu tức thì + Khối thạch anh = Thuốc hấp thụ-2 (30 giây)"
+      "name": "Bottled Absorption",
+      "description": "Harden the body!",
+      "lore": [
+        "<gray>Craft: Instant Heal + Quartz = Absorption I (60s)</gray>",
+        "<gray>Craft: Instant Heal + Quartz Block = Absorption II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Absorption potion brewing</gray>"
+      ]
     },
     "fatigue": {
-      "name": "Mệt mỏi đóng chai",
-      "description": "Làm cơ thể suy yếu!",
-      "lore1": "Thuốc Điểm yếu + Bóng Slime = Thuốc Mệt mỏi (30 giây)",
-      "lore2": "Thuốc Điểm yếu + Khối Chất nhờn = Thuốc Mệt mỏi-2 (15 giây)"
+      "name": "Bottled Fatigue",
+      "description": "Weaken the body!",
+      "lore": [
+        "<gray>Craft: Weakness Potion + Slime Ball = Fatigue I (30s)</gray>",
+        "<gray>Craft: Weakness Potion + Slime Block = Fatigue II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Mining Fatigue potion brewing</gray>"
+      ]
     },
     "hunger": {
-      "name": "Đói đóng chai",
-      "description": "Thức ăn vô độ!",
-      "lore1": "Thuốc vụng về + Thịt thối = Thuốc đói (30 giây)",
-      "lore2": "Thuốc Điểm Yếu + Thịt Thối = Thuốc Đói-3 (15 giây)"
+      "name": "Bottled Hunger",
+      "description": "Feed the Insatiable!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Rotten Flesh = Hunger I (30s)</gray>",
+        "<gray>Craft: Weakness Potion + Rotten Flesh = Hunger II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Hunger potion brewing</gray>"
+      ]
     },
     "nausea": {
-      "name": "Buồn nôn đóng chai",
-      "description": "Bạn làm tôi phát ốm!",
-      "lore1": "Thuốc vụng về + Nấm nâu = Thuốc buồn nôn (16 giây)",
-      "lore2": "Thuốc vụng về + Nấm đỏ = Thuốc buồn nôn-2 (8 giây)"
+      "name": "Bottled Nausea",
+      "description": "You make me sick!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Brown Mushroom = Nausea I (16s)</gray>",
+        "<gray>Craft: Awkward Potion + Crimson Fungus = Nausea II (8s)</gray>",
+        "<green>+ </green><gray>Unlocks Nausea potion brewing</gray>"
+      ]
     },
     "blindness": {
-      "name": "Mù đóng chai",
-      "description": "Bạn là một người khủng khiếp...",
-      "lore1": "Thuốc vụng về + Bao mực = Thuốc mù (30 giây)",
-      "lore2": "Thuốc vụng về + Bao mực phát sáng = Thuốc mù-2 (15 giây)"
+      "name": "Bottled Blindness",
+      "description": "You're a horrible person...",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Ink Sac = Blindness I (30s)</gray>",
+        "<gray>Craft: Awkward Potion + Glow Ink Sac = Blindness II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Blindness potion brewing</gray>"
+      ]
     },
     "resistance": {
-      "name": "Kháng đóng chai",
-      "description": "Sự củng cố tốt nhất của nó!",
-      "lore1": "Thuốc vụng về + Thỏi sắt = Thuốc kháng thuốc (60 giây)",
-      "lore2": "Thuốc vụng về + Khối sắt = Thuốc kháng chiến-2 (30 giây)"
+      "name": "Bottled Resistance",
+      "description": "Fortification at its finest!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Iron Ingot = Resistance I (60s)</gray>",
+        "<gray>Craft: Awkward Potion + Iron Block = Resistance II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Resistance potion brewing</gray>"
+      ]
     },
-    "healthboost": {
-      "name": "Cuộc sống đóng chai",
-      "description": "Khi sức khỏe tối đa là không đủ...",
-      "lore1": "Thuốc chữa bệnh tức thì + Táo vàng = Thuốc tăng cường sức khỏe (120 giây)",
-      "lore2": "Thuốc chữa bệnh tức thì + Táo vàng mê hoặc = Thuốc tăng cường sức khỏe-2 (120 giây)"
+    "health_boost": {
+      "name": "Bottled Life",
+      "description": "When Maximum health is not enough...",
+      "lore": [
+        "<gray>Craft: Instant Heal + Golden Apple = Health Boost I (120s)</gray>",
+        "<gray>Craft: Instant Heal + Enchanted Apple = Health Boost II (120s)</gray>",
+        "<green>+ </green><gray>Unlocks Health Boost potion brewing</gray>"
+      ]
     },
     "decay": {
-      "name": "Phân rã đóng chai",
-      "description": "Ai biết Detritus sẽ hữu ích như vậy?",
-      "lore1": "Thuốc yếu đuối + Khoai tây độc = Thuốc héo (16 giây)",
-      "lore2": "Thuốc yếu đuối + Rễ cây đỏ thẫm = Thuốc khô héo-2 (8 giây)"
+      "name": "Bottled Decay",
+      "description": "Who knew Detritus would be so useful?",
+      "lore": [
+        "<gray>Craft: Weakness Potion + Poisonous Potato = Wither I (16s)</gray>",
+        "<gray>Craft: Weakness Potion + Crimson Roots = Wither II (8s)</gray>",
+        "<green>+ </green><gray>Unlocks Wither potion brewing</gray>"
+      ]
     },
     "saturation": {
-      "name": "Độ bão hòa đóng chai",
-      "description": "Bạn biết đấy... Tôi thậm chí còn không đói...",
-      "lore1": "Thuốc Regen + Khoai tây nướng = Thuốc bão hòa",
-      "lore2": "Thuốc Regen + Hay Bale = Thuốc bão hòa-2"
+      "name": "Bottled Saturation",
+      "description": "Ya know... Im not even Hungry...",
+      "lore": [
+        "<gray>Craft: Regen Potion + Baked Potato = Saturation I</gray>",
+        "<gray>Craft: Regen Potion + Hay Bale = Saturation II</gray>",
+        "<green>+ </green><gray>Unlocks Saturation potion brewing</gray>"
+      ]
     }
   },
   "blocking": {
-    "chainarmorer": {
-      "name": "Chuỗi Mephistopheles",
-      "description": "Cho phép bạn chế tạo Áo giáp Chainmail",
-      "lore1": "Công thức Chế tạo cũng giống như các công thức khác nhưng thay vào đó là cốm sắt"
+    "chain_armorer": {
+      "name": "Chains of Mephistopheles",
+      "description": "Allows you to craft Chainmail Armor",
+      "lore": [
+        "<gray>Craft: Use Iron Nuggets in armor patterns</gray>",
+        "<green>+ </green><gray>Unlocks Chainmail Armor crafting</gray>"
+      ]
     },
-    "horsearmorer": {
-      "name": "Áo giáp ngựa có thể chế tạo",
-      "description": "Cho phép bạn chế tạo Giáp Ngựa",
-      "lore1": "Bao quanh yên ngựa bằng vật liệu bạn muốn sử dụng để chế tạo áo giáp"
+    "horse_armorer": {
+      "name": "Craftable Horse Armor",
+      "description": "Allows you to craft Horse Armor",
+      "lore": [
+        "<gray>Craft: Surround Saddle with armor material</gray>",
+        "<green>+ </green><gray>Unlocks Horse Armor crafting</gray>",
+        "<yellow>* </yellow><gray>Use Iron/Gold/Diamond for different tiers</gray>"
+      ]
     },
-    "saddlecrafter": {
-      "name": "Yên xe có thể chế tạo được",
-      "description": "Chế tạo yên xe bằng da",
-      "lore1": "Công thức: 5 Da:"
+    "saddle_crafter": {
+      "name": "Craftable Saddle",
+      "description": "Craft a Saddle with Leather",
+      "lore": [
+        "<gray>Craft: 5 Leather in saddle pattern</gray>",
+        "<green>+ </green><gray>Unlocks Saddle crafting</gray>"
+      ]
     },
-    "multiarmor": {
-      "name": "Đa giáp",
-      "description": "Trói Elytra vào áo giáp",
-      "lore1": "Đây là một kỹ năng tuyệt vời để đi lại.",
-      "lore2": "Tự động kết hợp và thay thế Armor/Elytra khi cần sử dụng!",
-      "lore3": "Để kết hợp, hãy bấm shift + click  vào vật phẩm vào slot khác trong túi đồ của bạn.",
-      "lore4": "Để tháo Giáp, hãy ngồi và bấm vào vật phẩm rồi nó sẽ tự động tháo rời.",
-      "lore5": "Nếu MultiArmor của bạn bị phá hủy, bạn sẽ mất tất cả vật phẩm trong đó.",
-      "lore6": "Tôi không cần áo giáp, Nó làm tôi thất vọng..."
+    "multi_armor": {
+      "name": "Multi-Armor",
+      "description": "Bind Elytras to Armor",
+      "lore": [
+        "<gray>Merge Elytra with Chestplate for dual functionality</gray>",
+        "<green>+ </green><gray>Shift-click to merge items in inventory</gray>",
+        "<yellow>* </yellow><gray>Sneak-Drop to disassemble</gray>",
+        "<red>- </red><gray>Destroying MultiArmor loses all merged items</gray>"
+      ]
     }
   },
   "crafting": {
     "deconstruction": {
-      "name": "Giải thể.",
-      "description": "Giải thể các khối và vật phẩm thành các thành phần cơ bản !",
-      "lore1": "Thả bất kỳ vật phẩm nào xuống đất.",
-      "lore2": "Sau đó bấm ngồi và chuột phải khi đang cầm Kéo."
+      "name": "Deconstruction",
+      "description": "Deconstruct blocks & items into salvageable base components!",
+      "lore": [
+        "<gray>Drop item + Sneak + Right-click with Shears</gray>",
+        "<green>+ </green><gray>Break items into base components</gray>"
+      ]
     },
     "xp": {
-      "name": "Chế tạo XP",
-      "description": "Nhận XP thụ động khi chế tạo",
-      "lore1": "Nhận XP khi chế tạo"
+      "name": "Crafting XP",
+      "description": "Gain passive XP when crafting",
+      "lore": [
+        "<gray>Passive: Earn XP from crafting items</gray>",
+        "<green>+ </green><gray>XP gained per craft</gray>"
+      ]
     },
     "reconstruction": {
-      "name": "Tái thiết quặng",
-      "description": "Chế tạo lại quặng từ các thành phần cơ bản của chúng!",
-      "lore1": "8 Giọt và 1 Vật chủ = 1 Quặng (không có hình dạng)",
-      "lore2": "Giọt phải được nấu chảy (nếu có)",
-      "lore3": "Không bao gồm: Phế liệu, Quart, và Ngọc lục bảo, v.v...",
-      "lore4": "Máy chủ = Bao bọc. tức là: Đá, Netherack, Deepslate"
+      "name": "Ore Reconstruction",
+      "description": "Recraft ores from their base components!",
+      "lore": [
+        "<gray>Craft: 8 Smelted drops + 1 Host block = 1 Ore</gray>",
+        "<green>+ </green><gray>Reconstruct ore blocks from materials</gray>",
+        "<yellow>* </yellow><gray>Host = Stone, Netherrack, or Deepslate</gray>",
+        "<red>- </red><gray>Excludes Scraps, Quartz, Emeralds, etc.</gray>"
+      ]
     },
     "leather": {
-      "name": "Da thủ công",
-      "description": "Da thủ công từ thịt thối",
-      "lore1": "Chỉ cần ném nó (thịt thối) vào lửa trại!"
+      "name": "Craftable Leather",
+      "description": "Craft Leather from Rotten Flesh",
+      "lore": [
+        "<gray>Cook Rotten Flesh on a Campfire</gray>",
+        "<green>+ </green><gray>Converts Rotten Flesh to Leather</gray>"
+      ]
     },
     "backpacks": {
-      "name": "Ba lô của Boutilier!",
-      "description": "Điều này chỉ mang Gói Mojang vào trò chơi!",
-      "lore1": "Bạn cần phải ở chế độ Survival để sử dụng tính năng này",
-      "lore2": "XLX : Da, Chì, Da",
-      "lore3": "XSX : Da, Hộp thùng, Da",
-      "lore4": "XCX : Da, Ngực, Da"
+      "name": "A Boutilier's Backpacks!",
+      "description": "This just Brings the Mojang Bundle into the game!",
+      "lore": [
+        "<gray>Craft bundles with various recipes</gray>",
+        "<green>+ </green><gray>Unlocks Bundle crafting</gray>",
+        "<yellow>* </yellow><gray>Leather + Lead + Leather (row)</gray>",
+        "<yellow>* </yellow><gray>Survival mode only</gray>"
+      ]
     },
     "stations": {
-      "name": "Bàn di động!",
-      "description": "Sử dụng một bảng trong lòng bàn tay của bạn!",
-      "lore2": "MỌI MÓN MÀ BẠN BỎ TRONG BẢNG KHI ĐÓNG ĐÓNG LÀ MẤT MÃI MÃI!",
-      "lore3": "Các bảng hợp lệ: Đe, Chế tạo, Đá mài, Bản đồ, Máy cắt đá, Máy dệt"
+      "name": "Portable Tables!",
+      "description": "Use a table in the palm of your hand!",
+      "lore": [
+        "<gray>Right-click workstation in hand to use</gray>",
+        "<green>+ </green><gray>Portable Anvil, Crafting, Grindstone, etc.</gray>",
+        "<red>- </red><gray>Items left inside are LOST when closed!</gray>"
+      ]
     },
     "skulls": {
-      "name": "Hộp sọ có thể chế tạo được!",
-      "description": "Sử dụng Vật liệu bạn có thể Chế tạo Đầu lâu Mob!",
-      "lore1": "Bao quanh Khối xương bằng những thứ sau để có được hộp sọ:",
-      "lore2": "Zombie: Thịt thối rữa",
-      "lore3": "Bộ xương: Xương",
-      "lore4": "Cây leo: Thuốc súng",
-      "lore5": "Héo: Gạch Nether",
-      "lore6": "Rồng: Hơi thở của rồng"
+      "name": "Craftable skulls!",
+      "description": "Using Materials you can Craft Mob Skulls!",
+      "lore": [
+        "<gray>Craft: Surround Bone Block with mob materials</gray>",
+        "<green>+ </green><gray>Unlocks mob skull crafting</gray>",
+        "<yellow>* </yellow><gray>Zombie=Flesh, Skeleton=Bone, Creeper=Gunpowder</gray>",
+        "<yellow>* </yellow><gray>Wither=Nether Brick, Dragon=Dragon's Breath</gray>"
+      ]
     }
   },
   "discovery": {
     "armor": {
-      "name": "Giáp thế giới",
-      "description": "Áo giáp thụ động tùy thuộc vào độ cứng của khối gần đó.",
-      "lore1": "Giáp thụ động",
-      "lore2": "Dựa trên độ cứng khối gần đó",
-      "lore3": "Sức mạnh giáp:"
+      "name": "World Armor",
+      "description": "Passive armor depending on nearby block hardness.",
+      "lore": [
+        "<gray>Passive: Gain armor from nearby hard blocks</gray>",
+        "<green>+ {0}</green> <gray>Armor strength multiplier</gray>",
+        "<yellow>* </yellow><gray>Harder blocks = More armor</gray>"
+      ]
     },
     "unity": {
-      "name": "Đoàn kết thực nghiệm",
-      "description": "Thu thập Quả cầu Kinh nghiệm sẽ thêm XP vào các kỹ năng ngẫu nhiên.",
-      "lore1": "XP",
-      "lore2": "mỗi quả cầu"
+      "name": "Experimental Unity",
+      "description": "Collecting Experience Orbs adds XP to random skills.",
+      "lore": [
+        "<gray>Passive: XP orbs boost random Adapt skills</gray>",
+        "<green>+ {0}</green> <gray>Skill XP per orb collected</gray>"
+      ]
     },
     "resist": {
-      "name": "Sức đề kháng thực nghiệm",
-      "description": "Tiêu thụ kinh nghiệm để giảm thiểu thiệt hại bạn nhận từ mọi nguồn",
-      "lore0": "Điều này chỉ có thể xảy ra một lần trong 15 giây",
-      "lore1": " Giảm sát thương",
-      "lore2": "kinh nghiệm cạn kiệt"
+      "name": "Experimental Resistance",
+      "description": "Consume experience to mitigate the damage you take from all sources",
+      "lore": [
+        "<gray>Passive: Spend XP to reduce incoming damage</gray>",
+        "<green>+ {0}</green> <gray>Damage reduction</gray>",
+        "<red>- {1}</red> <gray>XP drained per activation</gray>",
+        "<yellow>* {2}</yellow> <gray>Cooldown between activations</gray>"
+      ]
     },
     "villager": {
-      "name": "Thu hút dân làng",
-      "description": "Cho phép bạn giao dịch tốt hơn với dân làng!",
-      "lore1": "Điều này tiêu tốn XP cho mỗi lần tương tác với Dân làng",
-      "lore2": "Cơ hội cho mỗi lần tương tác để tiêu thụ XP và nâng cao giao dịch",
-      "lore3": "yêu cầu tiêu hao XP cho mỗi Tương tác"
+      "name": "Villager Attraction",
+      "description": "Allows for you to get Better trades with villagers!",
+      "lore": [
+        "<gray>Passive: Better trades with villagers</gray>",
+        "<green>+ {0}</green> <gray>Chance for enhanced trades</gray>",
+        "<red>- {1}</red> <gray>XP cost per interaction</gray>"
+      ]
     }
   },
   "enchanting": {
-    "lapisreturn": {
-      "name": "Lapis trở lại",
-      "description": "Với chi phí là tăng thêm 1 cấp XP và đổi lại bạn có cơ hội nhận được lapis miễn phí",
-      "lore1": "Đối với mọi cấp độ, nó tăng chi phí mê hoặc thêm 1, nhưng có thể trả lại tối đa 3 Lapis"
+    "lapis_return": {
+      "name": "Lapis Return",
+      "description": "At the cost of 1 more level of XP, and has a chance to give you free lapis in return",
+      "lore": [
+        "<gray>Trade extra XP for lapis refund</gray>",
+        "<green>+ {0}</green> <gray>Lapis returned per enchant</gray>",
+        "<red>- 1</red> <gray>Extra XP level cost per enchant</gray>"
+      ]
     },
-    "quickenchant": {
-      "name": "Bùa mê nhấp chuột nhanh",
-      "description": "Bùa mê các vật phẩm bằng cách nhấp vào sách bùa mê trực tiếp trên chúng.",
-      "lore1": "Cấp độ kết hợp tối đa",
-      "lore2": "Không thể phù phép một vật phẩm có nhiều hơn",
-      "lore3": "quyền lực"
+    "quick_enchant": {
+      "name": "Quick-Click Enchant",
+      "description": "Enchant items by clicking enchant books directly on them.",
+      "max_power": "<red>Cannot enchant items above {0} power</red>",
+      "lore": [
+        "<gray>Click enchant books directly on items to apply</gray>",
+        "<green>+ {0}</green> <gray>Maximum combined enchant levels</gray>"
+      ]
     },
     "return": {
-      "name": "Trả lại XP",
-      "description": "XP mê hoặc được trả lại cho bạn khi bạn mê hoặc một vật phẩm.",
-      "lore1": "Kinh nghiệm đã sử dụng có cơ hội được hoàn lại khi bạn phù phép một vật phẩm",
-      "lore2": "Kinh nghiệm mỗi Enchant"
+      "name": "XP Return",
+      "description": "Enchanting XP is returned to you when you enchant an item.",
+      "lore": [
+        "<gray>Passive: Chance to refund XP when enchanting</gray>",
+        "<green>+ {0}</green> <gray>XP returned per enchant</gray>"
+      ]
     }
   },
   "excavation": {
     "haste": {
-      "name": "Máy xúc vội vàng",
-      "description": "Điều này sẽ đẩy nhanh quá trình khai quật, với HASTE!",
-      "lore1": "Đạt được sự vội vàng trong khi khai quật",
-      "lore2": "x Mức độ vội vàng khi bạn bắt đầu khai thác BẤT KỲ khối nào."
+      "name": "Hasty Excavator",
+      "description": "This will speed up the excavation process, with HASTE!",
+      "lore": [
+        "<gray>Passive: Gain Haste while digging</gray>",
+        "<green>+ {0}</green> <gray>Haste levels when mining</gray>"
+      ]
     },
     "spelunker": {
-      "name": "Người chơi trò chơi siêu nhìn thấy!",
-      "description": "Nhìn thấy quặng bằng mắt nhưng qua mặt đất!",
-      "lore1": "Quặng trong tay trái của bạn, Glowberry trong tay chính của bạn và Sneak!",
-      "lore2": "Phạm vi khối:",
-      "lore3": "Tiêu thụ Glowberry khi sử dụng"
+      "name": "Super-Seeing Spelunker!",
+      "description": "See Ores with your eyes, but through the ground!",
+      "lore": [
+        "<gray>Hold Ore in offhand + Glowberries in main hand + Sneak</gray>",
+        "<green>+ {0}</green> <gray>Block detection range</gray>",
+        "<yellow>* </yellow><gray>Consumes 1 Glowberry per use</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Xẻng thả vào kho"
+    "drop_to_inventory": {
+      "name": "Shovel Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Dug items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "omnitool": {
-      "name": "D.Ụ.N.G C.Ụ TOÀN NĂNG",
-      "description": "Dụng cụ toàn năng mà Tackle đã thiết kế quá tay",
-      "lore1": "Có lẽ là mạnh nhất sẽ cho phép bạn",
-      "lore2": "tự động hợp nhất và thay đổi các công cụ một cách nhanh chóng, dựa trên nhu cầu của bạn.",
-      "lore3": "Để kết hợp, hãy nhấp chuột vào vật phẩm trong túi đồ của bạn.",
-      "lore4": "Để tháo công cụ, hãy bấm ngồi và quăng vật phẩm rồi nó sẽ tự động tháo rời.",
-      "lore5": "Bạn không thể phá vỡ các công cụ trong dụng cụ toàn năng cũng như bạn không thể sử dụng các công cụ bị hỏng",
-      "lore6": "Tất cả những vật phẩm có thể kết hợp lại.",
-      "lore7": "Bạn có thể sử dụng năm hoặc sáu công cụ hoặc chỉ một công cụ!"
+    "omni_tool": {
+      "name": "OMNI - T.O.O.L.",
+      "description": "Tackle's overdesigned opulent Leatherman",
+      "lore": [
+        "<gray>Merge multiple tools into one super-tool</gray>",
+        "<green>+ {0}</green> <gray>Maximum tools that can be merged</gray>",
+        "<yellow>* </yellow><gray>Shift-click to merge tools in inventory</gray>",
+        "<yellow>* </yellow><gray>Sneak-Drop to disassemble</gray>",
+        "<red>- </red><gray>Broken tools in the merge cannot be used</gray>"
+      ]
     }
   },
   "herbalism": {
-    "growthaura": {
-      "name": "Hào quang tăng trưởng",
-      "description": "Phát triển thiên nhiên xung quanh bạn trong hào quang",
-      "lore1": "Bán kính khối",
-      "lore2": "Sức mạnh hào quang tăng trưởng",
-      "lore3": "Chi phí thực phẩm"
+    "growth_aura": {
+      "name": "Growth Aura",
+      "description": "Grow nature around you in an aura",
+      "lore": [
+        "<gray>Passive: Crops grow faster around you</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<green>+ {1}</green> <gray>Growth speed multiplier</gray>",
+        "<red>- {2}</red> <gray>Hunger cost per tick</gray>"
+      ]
     },
     "hippo": {
-      "name": "Hà mã thảo mộc",
-      "description": "Tiêu thụ thực phẩm, mang lại cho bạn nhiều cảm giác no hơn",
-      "lore1": "Thực phẩm) điểm bão hòa bổ sung khi tiêu thụ"
+      "name": "Herbalist's Hippo",
+      "description": "Consuming food, gives you more saturation",
+      "lore": [
+        "<gray>Passive: Food gives bonus saturation</gray>",
+        "<green>+ {0}</green> <gray>Extra saturation per food consumed</gray>"
+      ]
     },
     "myconid": {
-      "name": "Myconid của nhà thảo dược",
-      "description": "Cung cấp cho bạn khả năng chế tạo Mycelium",
-      "lore1": "Bất kỳ Bụi bẩn nào và Nấm Nâu & Đỏ đều sẽ tạo ra Sợi nấm."
+      "name": "Herbalist's Myconid",
+      "description": "Gives you the ability to craft Mycelium",
+      "lore": [
+        "<gray>Craft: Any Dirt + Brown Mushroom + Red Mushroom</gray>",
+        "<green>+ </green><gray>Unlocks Mycelium crafting recipe</gray>"
+      ]
     },
     "terralid": {
-      "name": "Terralid của nhà thảo dược",
-      "description": "Cung cấp cho bạn khả năng chế tạo Khối cỏ",
-      "lore1": "Ba Hạt giống, trên 3 Đất sẽ tạo ra 3 Khối Cỏ."
+      "name": "Herbalist's Terralid",
+      "description": "Gives you the ability to craft Grass Blocks",
+      "lore": [
+        "<gray>Craft: 3 Seeds over 3 Dirt</gray>",
+        "<green>+ </green><gray>Unlocks Grass Block crafting recipe</gray>",
+        "<yellow>* </yellow><gray>Produces 3 Grass Blocks per craft</gray>"
+      ]
     },
     "cobweb": {
-      "name": "Người tạo Webby",
-      "description": "Cung cấp cho bạn khả năng tạo Mạng nhện trong Bàn chế tạo",
-      "lore1": "Nine String, sẽ tạo ra Mạng nhện."
+      "name": "Webby Creator",
+      "description": "Gives you the ability to craft Cobwebs in a Crafting Table",
+      "lore": [
+        "<gray>Craft: 9 String in a 3x3 grid</gray>",
+        "<green>+ </green><gray>Unlocks Cobweb crafting recipe</gray>"
+      ]
     },
-    "mushroomblocks": {
-      "name": "Máy làm nấm",
-      "description": "Cung cấp cho bạn khả năng chế tạo Khối Nấm trong Bàn chế tạo",
-      "lore1": "Bốn Nấm để tạo khối, hoặc một khối để làm thân cây."
+    "mushroom_blocks": {
+      "name": "Mushroom Maker",
+      "description": "Gives you the ability to craft Mushroom Blocks in a Crafting Table",
+      "lore": [
+        "<gray>Craft: 4 Mushrooms = 1 Mushroom Block</gray>",
+        "<gray>Craft: 1 Mushroom Block = 1 Mushroom Stem</gray>",
+        "<green>+ </green><gray>Unlocks Mushroom Block crafting recipes</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Hoe thả vào kho"
+    "drop_to_inventory": {
+      "name": "Hoe Drop-To-Inventory",
+      "description": "When you break a crop it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Harvested crops go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "hungryshield": {
-      "name": "Khiên đói",
-      "description": "Hãy gây sát thương cho cơn đói trước sức khỏe của bạn.",
-      "lore1": "Chống chọi với cơn đói"
+    "hungry_shield": {
+      "name": "Hungry Shield",
+      "description": "Take damage to your hunger before your health.",
+      "lore": [
+        "<gray>Passive: Damage is absorbed by hunger first</gray>",
+        "<green>+ {0}</green> <gray>Damage converted to hunger</gray>",
+        "<yellow>* </yellow><gray>Requires food in hunger bar to activate</gray>"
+      ]
     },
     "luck": {
-      "name": "May mắn của nhà thảo dược",
-      "description": "Khi phá Cỏ/Hoa, bạn có cơ hội nhận được vật phẩm ngẫu nhiên",
-      "lore0": "Hoa = Thức ăn và Cỏ = Hạt giống",
-      "lore1": "Cơ hội nhận được vật phẩm từ việc phá Hoa",
-      "lore2": "Cơ hội nhận được vật phẩm khi phá Cỏ"
+      "name": "Herbalist's Luck",
+      "description": "When you break Grass/Flowers, you have a chance to get a random item",
+      "lore": [
+        "<gray>Flowers = Food, and Grass = Seeds</gray>",
+        "<green>+ {0}</green> <gray>Chance to get an item from breaking flowers</gray>",
+        "<green>+ {1}</green> <gray>Chance to get an item from breaking grass</gray>"
+      ]
     },
     "replant": {
-      "name": "Thu hoạch & trồng lại",
-      "description": "Nhấp chuột phải vào cây trồng bằng cuốc để thu hoạch và trồng lại.",
-      "lore1": "Chặn bán kính trồng lại"
+      "name": "Harvest & Replant",
+      "description": "Right click a crop with a hoe to harvest & replant it.",
+      "lore": [
+        "<gray>Right-click crops with hoe to harvest and replant</gray>",
+        "<green>+ {0}</green> <gray>Block radius for mass harvesting</gray>"
+      ]
     }
   },
   "hunter": {
     "adrenaline": {
-      "name": "Adrenalin",
-      "description": "Gây nhiều sát thương hơn khi máu của bạn thấp hơn (Cận chiến)",
-      "lore1": "Sát thương tối đa"
+      "name": "Adrenaline",
+      "description": "Deal more damage the lower health you are (Melee)",
+      "lore": [
+        "<gray>Passive: Lower health = Higher damage</gray>",
+        "<green>+ {0}</green> <gray>Maximum bonus damage at low HP</gray>"
+      ]
     },
     "penalty": {
-      "lore1": "Bạn sẽ nhận được điểm độc nếu hết đói"
+      "name": "",
+      "description": "",
+      "lore": [
+        "<red>-{0}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Các mặt hàng thả vào kho",
-      "description": "Khi bạn giết thứ gì đó/Phá vỡ một khối Bằng một thanh kiếm, nó sẽ dịch chuyển những thứ rơi vào kho của bạn",
-      "lore1": "Bất cứ khi nào một vật phẩm bị rơi khỏi mob/khối mà bạn phá vỡ, nó sẽ được đưa vào kho của bạn nếu có thể."
+    "drop_to_inventory": {
+      "name": "Items Drop-To-Inventory",
+      "description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
+      "lore": [
+        "<gray>Passive: Mob drops go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped loot</gray>"
+      ]
     },
     "invisibility": {
-      "name": "Bước biến mất",
-      "description": "Khi bị tấn công, bạn sẽ có được khả năng tàng hình nhưng phải trả giá bằng sự đói khát",
-      "lore1": "Có được khả năng tàng hình thụ động khi bị tấn công",
-      "lore2": "x Cộng dồn tàng hình trong 3 giây khi đánh",
-      "lore3": "x Xếp chồng cơn đói",
-      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
-      "lore5": "Thời gian tàng hình"
+      "name": "Vanishing Step",
+      "description": "When you are struck you gain invisibility, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Invisibility when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Invisibility stacks for 3 seconds on hit</gray>",
+        "<green>+ {2}</green> <gray>Invisibility duration</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<red>- {4}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
-    "jumpboost": {
-      "name": "Đỉnh cao của thợ săn",
-      "description": "Khi bị tấn công, bạn sẽ có được khả năng tăng tốc, nhưng phải trả giá bằng sự đói khát",
-      "lore1": "Nhận được khả năng tăng tốc thụ động khi bị tấn công",
-      "lore2": "x Cộng dồn Jump-Boost trong 3 giây khi trúng đòn",
-      "lore3": "x Xếp chồng cơn đói",
-      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
-      "lore5": "Hệ số cộng dồn Jump-Boost chứ không phải thời lượng."
+    "jump_boost": {
+      "name": "Hunter's Heights",
+      "description": "When you are struck you gain jump-boost, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Jump-Boost when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Jump-Boost stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Jump-Boost stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "luck": {
-      "name": "Thợ săn may mắn",
-      "description": "Khi bạn bị tấn công, bạn sẽ gặp may mắn nhưng phải trả giá bằng sự đói khát",
-      "lore1": "Đạt được may mắn thụ động khi bị tấn công",
-      "lore2": "x Cộng dồn may mắn trong 3 giây khi trúng đòn",
-      "lore3": "x Xếp chồng cơn đói",
-      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
-      "lore5": "May mắn được nhân lên theo cấp số nhân chứ không phải thời gian."
+      "name": "Hunter's Luck",
+      "description": "When you are struck you gain luck, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Luck when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Luck stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Luck stacks multiplier, not duration</gray>",
+        "<red>- {4}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "regen": {
-      "name": "Thợ săn Regen",
-      "description": "Khi bị tấn công, bạn sẽ được hồi phục nhưng phải trả giá bằng sự đói khát",
-      "lore1": "Nhận được khả năng hồi phục thụ động khi bị tấn công",
-      "lore2": "x Cộng dồn hồi phục trong 3 giây khi trúng đòn",
-      "lore3": "x Xếp chồng cơn đói",
-      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
-      "lore5": "Số lần hồi phục tăng lên, không phải thời gian."
+      "name": "Hunter's Regen",
+      "description": "When you are struck you gain regeneration, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Regeneration when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Regeneration stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Regeneration stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "resistance": {
-      "name": "Sự phản kháng của thợ săn",
-      "description": "Khi bị tấn công, bạn sẽ có được sức đề kháng nhưng phải trả giá bằng sự đói khát",
-      "lore1": "Có được sức đề kháng thụ động khi bị tấn công",
-      "lore2": "x Cộng dồn kháng cự trong 3 giây khi trúng đòn",
-      "lore3": "x Xếp chồng cơn đói",
-      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
-      "lore5": "Hệ số cộng dồn kháng cự chứ không phải thời lượng."
+      "name": "Hunter's Resistance",
+      "description": "When you are struck you gain resistance, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Resistance when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Resistance stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Resistance stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "speed": {
-      "name": "Tốc độ của thợ săn",
-      "description": "Khi bị tấn công, bạn sẽ tăng tốc độ nhưng phải trả giá bằng sự đói khát",
-      "lore1": "Tăng tốc độ thụ động khi bị tấn công",
-      "lore2": "x Cộng dồn tốc độ trong 3 giây khi đánh",
-      "lore3": "x Xếp chồng cơn đói",
-      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
-      "lore5": "Hệ số cộng dồn tốc độ chứ không phải thời lượng."
+      "name": "Hunter's Speed",
+      "description": "When you are struck you gain speed, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Speed when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Speed stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Speed stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
+    },
+    "jumpboost": {
+      "name": "Hunter's Jump Boost",
+      "description": "When you are struck you gain jump boost, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Jump Boost when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Jump Boost stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Jump Boost stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "strength": {
-      "name": "Sức mạnh của thợ săn",
-      "description": "Khi bị đánh, bạn có được sức mạnh nhưng phải trả giá bằng cơn đói",
-      "lore1": "Có được sức mạnh thụ động khi bị tấn công",
-      "lore2": "x Cộng dồn sức mạnh trong 3 giây khi đánh",
-      "lore3": "x Xếp chồng cơn đói",
-      "lore4": "Thời gian cộng dồn cơn đói và hệ số nhân.",
-      "lore5": "Hệ số cộng dồn sức mạnh chứ không phải thời lượng."
+      "name": "Hunter's Strength",
+      "description": "When you are struck you gain strength, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Strength when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Strength stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Strength stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     }
   },
   "nether": {
-    "skulltoss": {
-      "name": "Ném hộp sọ khô héo",
-      "description1": "Giải phóng Wither bên trong của bạn bằng cách sử dụng",
-      "description2": "ai đó",
-      "description3": "cái đầu.",
-      "lore1": "Giây hồi chiêu giữa các lần ném đầu lâu.",
-      "lore2": "Sử dụng Wither Skull: Ném một",
-      "lore3": "hộp sọ khô héo",
-      "lore4": "nổ khi va chạm."
+    "skull_toss": {
+      "name": "Wither Skull Throw",
+      "description": "<gray>Unleash your inner Wither by using someone's head.</gray>",
+      "lore": [
+        "<gray>Right-click with a Wither Skull to throw it</gray>",
+        "<green>+ </green><gray>Wither skull explodes on impact</gray>",
+        "<yellow>* {0}</yellow> <gray>Cooldown between throws</gray>"
+      ]
     },
-    "witherresist": {
-      "name": "Kháng héo",
-      "description": "Chống héo nhờ sức mạnh của Netherite.",
-      "lore1": "cơ hội phủ nhận sự héo (mỗi mảnh).",
-      "lore2": "Bị động: Mặc áo giáp Netherite có cơ hội vô hiệu hóa",
-      "lore3": "héo úa."
+    "wither_resist": {
+      "name": "Wither Resistance",
+      "description": "Resists withering through the power of Netherite.",
+      "lore": [
+        "<gray>Passive: Netherite Armor negates Wither effect</gray>",
+        "<green>+ {0}</green> <gray>Chance to negate withering per piece</gray>",
+        "<yellow>* </yellow><gray>Stacks with multiple armor pieces</gray>"
+      ]
     },
-    "fireresist": {
-      "name": "Chống cháy",
-      "description": "Chống cháy bằng cách làm cứng da của bạn.",
-      "lore1": "cơ hội để vô hiệu hóa hiệu ứng đốt cháy!"
+    "fire_resist": {
+      "name": "Fire Resistance",
+      "description": "Resists fire by hardening your skin.",
+      "lore": [
+        "<gray>Passive: Chance to resist fire damage</gray>",
+        "<green>+ {0}</green> <gray>Chance to negate burning</gray>"
+      ]
     }
   },
   "pickaxe": {
-    "autosmelt": {
-      "name": "nấu chảy tự động",
-      "description": "Cho phép bạn nấu chảy quặng Vanilla đã khai thác",
-      "lore1": "Quặng có thể được nấu chảy sẽ được nấu chảy tự động",
-      "lore2": "% cơ hội nhận thêm"
+    "auto_smelt": {
+      "name": "Autosmelt",
+      "description": "Allows you to smelt mined Vanilla ores",
+      "lore": [
+        "<gray>Passive: Ores are automatically smelted when mined</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra drop</gray>"
+      ]
     },
     "chisel": {
-      "name": "đục quặng",
-      "description": "Nhấp chuột phải vào Quặng để Đục nhiều quặng hơn với chi phí độ bền cao.",
-      "lore1": "Cơ hội để thả",
-      "lore2": "Dụng cụ mài mòn"
+      "name": "Ore Chisel",
+      "description": "Right Click Ores to Chisel more ore out of them, at a severe durability cost.",
+      "lore": [
+        "<gray>Right-click ores to chisel extra resources</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra ore drop</gray>",
+        "<red>- {1}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Cuốc thả vào kho",
-      "description": "Khi bạn phá vỡ một khối, nó sẽ dịch chuyển vật phẩm đó vào kho của bạn",
-      "lore1": "Bất cứ khi nào một vật phẩm bị rơi khỏi một khối mà bạn phá vỡ, nó sẽ được đưa vào kho của bạn nếu có thể."
+    "drop_to_inventory": {
+      "name": "Pickaxe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Mined items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "silkspawner": {
+    "silk_spawner": {
       "name": "Pickaxe Silk-Spawner",
-      "description": "Khiến Spawners rơi ra khi đào",
-      "lore1": "Khiến Spawners dễ rơi ra khi đào bằng phù phép mềm mại.",
-      "lore2": "Khiến Spawners có thể rơi ra khi đang trạng thái ngồi."
+      "description": "Makes Spawners drop when broken",
+      "lore": {
+        "level_1": "<green>Makes Spawners breakable with silk touch.</green>",
+        "level_2": "<green>Makes Spawners breakable while sneaking.</green>"
+      }
     },
-    "veinminer": {
-      "name": "máy lấy máu",
-      "description": "Cho phép bạn phá vỡ các khối trong Mạch/Cụm quặng Vanilla",
-      "lore1": "Lén lút và khai thác ORES",
-      "lore2": "phạm vi khai thác tĩnh mạch",
-      "lore3": "Kỹ năng này KHÔNG nhóm tất cả các giọt lại với nhau!"
+    "vein_miner": {
+      "name": "Veinminer",
+      "description": "Allows you to break blocks in a Vein/Cluster of Vanilla ores",
+      "lore": [
+        "<gray>Sneak + Mine to vein-mine connected ores</gray>",
+        "<green>+ {0}</green> <gray>Block range</gray>",
+        "<yellow>* </yellow><gray>Drops are not grouped together</gray>"
+      ]
     }
   },
   "ranged": {
-    "arrowrecovery": {
-      "name": "Phục hồi mũi tên",
-      "description": "Thu hồi Mũi tên sau khi bạn đã tiêu diệt kẻ thù.",
-      "lore1": "Cơ hội phục hồi mũi tên khi đánh/tiêu diệt",
-      "lore2": "Cơ hội:"
+    "arrow_recovery": {
+      "name": "Arrow Recovery",
+      "description": "Recover Arrows after you have killed an enemy.",
+      "lore": [
+        "<gray>Chance to recover arrows on hit</gray>",
+        "<green>+ {0}</green> <gray>Recovery chance</gray>"
+      ]
     },
-    "webshot": {
-      "name": "Bẫy web",
-      "description": "Bao quanh mạng nhện xung quanh mục tiêu của bạn khi bạn bắn trúng chúng!",
-      "lore1": "8 mạng nhện xung quanh quả cầu tuyết và ném đi!",
-      "lore2": "đại khái là vài giây của một cái lồng."
+    "web_shot": {
+      "name": "Web Snare",
+      "description": "Surround cobwebs around your target when you hit them!",
+      "lore": [
+        "<gray>Craft: 8 Cobwebs around a Snowball</gray>",
+        "<green>+ {0}</green> <gray>Web cage duration</gray>",
+        "<yellow>* </yellow><gray>Throw the crafted snowball to create a web trap</gray>"
+      ]
     },
-    "forceshot": {
-      "name": "Lực bắn",
-      "description": "Bắn đạn xa hơn, nhanh hơn!",
-      "advancementname": "Cú sút xa",
-      "advancementlore": "Hãy bắn một phát từ khoảng cách hơn 30 khối nhà!",
-      "lore1": "Tốc độ đạn"
+    "force_shot": {
+      "name": "Force Shot",
+      "description": "Shoot projectiles further, faster!",
+      "advancement_name": "Long Shot",
+      "advancement_lore": "Land a shot from over 30 blocks away!",
+      "lore": [
+        "<green>+ {0}</green> <gray>Projectile Speed</gray>"
+      ]
     },
-    "lungeshot": {
-      "name": "Cú sút lunge",
-      "description": "Trong khi rơi mũi tên của bạn ném bạn theo một hướng ngẫu nhiên",
-      "lore1": "Tốc độ bùng nổ ngẫu nhiên"
+    "lunge_shot": {
+      "name": "Lunge Shot",
+      "description": "While falling your arrows toss you in a random direction",
+      "lore": [
+        "<green>+ {0}</green> <gray>Random Burst Speed</gray>"
+      ]
     },
-    "arrowpiercing": {
-      "name": "Mũi tên xuyên qua",
-      "description": "Thêm xuyên vào đạn! Bắn xuyên qua mọi thứ!",
-      "lore1": "Đâm mục tiêu"
+    "arrow_piercing": {
+      "name": "Arrow Piercing",
+      "description": "Adds Piercing to projectiles! Shoot through things!",
+      "lore": [
+        "<green>+ {0}</green> <gray>Pierce Targets</gray>"
+      ]
     }
   },
   "rift": {
-    "remoteaccess": {
-      "name": "Truy cập từ xa",
-      "description": "Kéo từ khoảng trống và vào thùng chứa được đánh dấu.",
-      "lore1": "Enderpearl + La bàn = Khóa cổng thánh tích",
-      "lore2": "Mục này cho phép bạn truy cập container từ xa",
-      "lore3": "Sau khi chế tạo, hãy nhìn vào vật phẩm để xem cách sử dụng",
-      "notcontainer": "Đó không phải là một thùng chứa"
+    "remote_access": {
+      "name": "Remote Access",
+      "description": "Pull from the void, and get into a marked container.",
+      "not_container": "<red>That's not a container</red>",
+      "lore": [
+        "<gray>Craft: Enderpearl + Compass = Reliquary Portkey</gray>",
+        "<green>+ </green><gray>Access containers remotely</gray>",
+        "<yellow>* </yellow><gray>Shift + Left-click to bind, Right-click to access</gray>"
+      ]
     },
     "blink": {
-      "name": "Rạn nứt chớp mắt",
-      "description": "Dịch chuyển tức thời trong phạm vi ngắn, Chỉ trong nháy mắt!",
-      "lore1": "Khối khi nhấp nháy (2x dọc)",
-      "lore2": "Trong khi chạy nước rút: Nhấn đúp Nhảy tới",
-      "lore3": "chớp mắt"
+      "name": "Rift Blink",
+      "description": "Short ranged instant teleportation, Just a blink away!",
+      "lore": [
+        "<gray>While Sprinting: Double-tap Jump to Blink</gray>",
+        "<green>+ {0}</green> <gray>Horizontal blink distance</gray>",
+        "<green>+ {1}</green> <gray>Vertical blink distance</gray>"
+      ]
     },
     "chest": {
-      "name": "Enderchest dễ dàng",
-      "description": "Mở enderchest bằng cách nhấp chuột trái vào nó trên tay bạn.",
-      "lore1": "Bấm vào Enderchest trên tay bạn để mở (Chỉ cần không đặt nó)"
+      "name": "Easy Enderchest",
+      "description": "Open an enderchest by Left-clicking it in your hand.",
+      "lore": [
+        "<gray>Left-click with Enderchest in hand to open</gray>",
+        "<green>+ </green><gray>Portable Enderchest access</gray>",
+        "<yellow>* </yellow><gray>Don't place it, just click!</gray>"
+      ]
     },
     "descent": {
-      "name": "Chống Bay Lên",
-      "description": "Bạn có mệt mỏi vì bị mắc kẹt trong không khí? Đây chính là kỹ năng dành cho bạn!",
-      "lore1": "Chỉ cần Lẻn đi xuống, bạn sẽ rơi với tốc độ thấp hơn bình thường!",
-      "lore2": "Nguội đi:"
+      "name": "Anti-Levitation",
+      "description": "Are you tired of being stuck in the air? This is the skill for you!",
+      "lore": [
+        "<gray>Sneak while levitating to descend slowly</gray>",
+        "<green>+ </green><gray>Controlled descent speed</gray>",
+        "<yellow>* {0}</yellow> <gray>Cooldown</gray>"
+      ]
     },
     "gate": {
-      "name": "Cổng rạn nứt",
-      "description": "Dịch chuyển đến một địa điểm được đánh dấu.",
-      "lore1": "CHẾ TẠO: Ngọc lục bảo + Mảnh thạch anh tím + Ngọc trai Ender",
-      "lore2": "Đọc trước khi sử dụng!",
-      "lore3": "độ trễ 5 giây,",
-      "lore4": "bạn có thể chết khi ở trong phim hoạt hình này"
+      "name": "Rift Gate",
+      "description": "Teleport to a marked location.",
+      "lore": [
+        "<gray>Craft: Emerald + Amethyst Shard + Ender Pearl</gray>",
+        "<green>+ </green><gray>Teleport to marked location</gray>",
+        "<yellow>* {0}</yellow> <gray>Channeling delay</gray>",
+        "<red>- </red><gray>You can die during the animation</gray>"
+      ]
     },
     "resist": {
-      "name": "Khả năng chống rạn nứt",
-      "description": "Đạt được sức đề kháng khi sử dụng Vật phẩm & Khả năng của Ender",
-      "lore1": "+ Bị động: Cung cấp khả năng kháng cự khi bạn sử dụng khả năng rạn nứt hoặc Vật phẩm Ender",
-      "lore2": "KHÔNG bao gồm Enderchest di động, chỉ những thứ bạn có thể tiêu thụ"
+      "name": "Rift Resistance",
+      "description": "Gain Resistance when using Ender Items & Abilities",
+      "lore": [
+        "<gray>Passive: Gain Resistance when using Rift abilities or Ender items</gray>",
+        "<green>+ </green><gray>Resistance effect on Ender item use</gray>",
+        "<red>- </red><gray>Does not work with Portable Enderchest</gray>"
+      ]
     },
     "visage": {
-      "name": "Mặt Nạ Khe Nứt\n",
-      "description": "Ngăn chặn Endermen trở nên tức giận nếu bạn có Enderpearls trong kho của mình.",
-      "lore1": "Endermen sẽ không trở nên tức giận nếu bạn có Enderpearls trong    túi đồ của mình."
+      "name": "Rift Visage",
+      "description": "Prevents Endermen from becoming aggressive if you have Enderpearls in your inventory.",
+      "lore": [
+        "<gray>Passive: Endermen ignore you when you carry Enderpearls</gray>",
+        "<green>+ </green><gray>Endermen will not become aggressive</gray>",
+        "<yellow>* </yellow><gray>Requires Enderpearls in inventory</gray>"
+      ]
     }
   },
   "seaborn": {
     "oxygen": {
-      "name": "Bình oxy hữu cơ",
-      "description": "Giữ nhiều oxy hơn trong lá phổi nhỏ bé của bạn!",
-      "lore1": "Tăng công suất oxy"
+      "name": "Organic Oxygen Tank",
+      "description": "Hold more oxygen in your tiny lungs!",
+      "lore": [
+        "<gray>Passive: Extended breath underwater</gray>",
+        "<green>+ {0}</green> <gray>Extra oxygen capacity</gray>"
+      ]
     },
-    "fishersfantasy": {
-      "name": "Ảo tưởng của Fisher",
-      "description": "Kiếm thêm XP từ câu cá và nhận được nhiều cá hơn!",
-      "lore1": "Đối với mỗi cấp độ, bạn có cơ hội nhận được nhiều XP và Cá hơn!"
+    "fishers_fantasy": {
+      "name": "Fisher's Fantasy",
+      "description": "Earn more XP from fishing, and get more fish!",
+      "lore": [
+        "<gray>Passive: Bonus rewards while fishing</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra XP</gray>",
+        "<green>+ {1}</green> <gray>Chance for extra fish</gray>"
+      ]
     },
     "haste": {
-      "name": "Thợ mỏ rùa",
-      "description": "Trong khi khai thác dưới nước, bạn sẽ nhanh chóng hơn!",
-      "lore1": "Haste 3 được áp dụng dưới nước trong khi khai thác (cộng dồn AquaAffinity) sau khi hiệu ứng thở dưới nước của bạn hết tác dụng!"
+      "name": "Turtle Miner",
+      "description": "While mining underwater you gain haste!",
+      "lore": [
+        "<gray>Passive: Gain Haste while mining underwater</gray>",
+        "<green>+ {0}</green> <gray>Haste level while mining</gray>",
+        "<yellow>* </yellow><gray>Stacks with Aqua Affinity</gray>",
+        "<yellow>* </yellow><gray>Activates after Water Breathing wears off</gray>"
+      ]
     },
-    "nightvision": {
-      "name": "Tầm nhìn của Rùa",
-      "description": "Khi ở dưới nước, bạn có được Tầm nhìn ban đêm",
-      "lore1": "Chỉ cần có được Tầm nhìn ban đêm khi ở dưới nước sau khi hiệu ứng thở dưới nước của bạn hết tác dụng!"
+    "night_vision": {
+      "name": "Turtle's Vision",
+      "description": "While underwater, you gain Night Vision",
+      "lore": [
+        "<gray>Passive: Gain Night Vision while underwater</gray>",
+        "<green>+ </green><gray>Night Vision effect</gray>",
+        "<yellow>* </yellow><gray>Activates after Water Breathing wears off</gray>"
+      ]
     },
-    "dolphingrace": {
-      "name": "Ân điển của cá heo",
-      "description": "Bơi như cá heo mà không có cá heo",
-      "lore1": "+ Bị động: đạt được",
-      "lore2": "x tốc độ (ân sủng cá heo)",
-      "lore3": "kỹ sư chính xác của Đức- chờ đã không đúng... Không tương thích với Depth Strider"
+    "dolphin_grace": {
+      "name": "Dolphin's Grace",
+      "description": "Swim like a dolphin, without the dolphins",
+      "lore": [
+        "<gray>Passive: Gain Dolphin's Grace while underwater</gray>",
+        "<green>+ {0}</green> <gray>Swimming speed</gray>",
+        "<red>- </red><gray>Not compatible with Depth Strider</gray>"
+      ]
     }
   },
   "stealth": {
-    "ghostarmor": {
-      "name": "Giáp ma",
-      "description": "Tăng giáp chậm khi không nhận sát thương, Kéo dài trong 1 đòn",
-      "lore1": "Giáp tối đa",
-      "lore2": "Tốc độ"
+    "ghost_armor": {
+      "name": "Ghost's Armor",
+      "description": "Slow building armor when not taking damage, Lasts for 1 hit",
+      "lore": [
+        "<gray>Passive: Build armor over time when not hit</gray>",
+        "<green>+ {0}</green> <gray>Maximum armor</gray>",
+        "<green>+ {1}</green> <gray>Armor gained per tick</gray>",
+        "<yellow>* </yellow><gray>Armor resets after taking damage</gray>"
+      ]
     },
-    "nightvision": {
-      "name": "Tầm nhìn tàng hình",
-      "description": "Có được tầm nhìn ban đêm khi lén lút",
-      "lore1": "Đạt được một loạt",
-      "lore2": "tầm nhìn ban đêm",
-      "lore3": "trong khi lén lút"
+    "night_vision": {
+      "name": "Stealth Vision",
+      "description": "Gain night vision while sneaking",
+      "lore": [
+        "<gray>Sneak to activate Night Vision</gray>",
+        "<green>+ </green><gray>Night Vision while sneaking</gray>"
+      ]
     },
     "snatch": {
-      "name": "Cướp vật phẩm",
-      "description": "Snatch Drops vật phẩm ngay lập tức trong khi lén lút!",
-      "lore1": "Bán kính cướp"
+      "name": "Item Snatch",
+      "description": "Snatch Dropped items instantly while sneaking!",
+      "lore": [
+        "<gray>Sneak to pick up nearby items instantly</gray>",
+        "<green>+ {0}</green> <gray>Block pickup radius</gray>"
+      ]
     },
     "speed": {
-      "name": "Tốc độ lén lút",
-      "description": "Tăng tốc độ trong khi lén lút",
-      "lore1": "Tốc độ lén lút"
+      "name": "Sneak Speed",
+      "description": "Gain speed while sneaking",
+      "lore": [
+        "<gray>Passive: Move faster while sneaking</gray>",
+        "<green>+ {0}</green> <gray>Sneaking speed multiplier</gray>"
+      ]
     },
-    "enderveil": {
-      "name": "Tấm Khiên Tàng Hình Ender",
-      "description": "Không cần dùng bí ngô để tránh con enderman tấn công bạn khi nhìn vào mắt nó nữa!",
-      "lore1": "Ngăn chặn Enderman tấn công khi đang ngồi",
-      "lore2": "Ngăn chặn Enderman tấn công bạn"
+    "ender_veil": {
+      "name": "Enderveil",
+      "description": "No more Pumpkins to prevent Enderman attacks",
+      "lore": {
+        "level_1": "<gray>Prevent enderman attacks while sneaking</gray>",
+        "level_2": "<gray>Prevent all enderman attacks</gray>"
+      }
     }
   },
   "sword": {
     "machete": {
-      "name": "dao rựa",
-      "description": "Cắt qua tán lá một cách dễ dàng!",
-      "lore1": "Bán kính chém",
-      "lore2": "Thời gian hồi chiêu của Chặt",
-      "lore3": "Dụng cụ mài mòn"
+      "name": "Machete",
+      "description": "Cut through foliage with ease!",
+      "lore": [
+        "<gray>Swing sword to cut nearby plants</gray>",
+        "<green>+ {0}</green> <gray>Slash radius</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between slashes</gray>",
+        "<red>- {2}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "bloodyblade": {
-      "name": "Lưỡi dao đẫm máu",
-      "description": "Tấn công bằng kiếm của bạn, gây chảy máu!",
-      "lore1": "Tấn công một thực thể sống bằng Kiếm của bạn sẽ gây Chảy máu",
-      "lore2": "Thời gian chảy máu",
-      "lore3": "Thời gian hồi máu"
+    "bloody_blade": {
+      "name": "Bloody Blade",
+      "description": "Strikes with your sword, cause Bleeding!",
+      "lore": [
+        "<gray>Sword strikes cause bleeding damage over time</gray>",
+        "<green>+ {0}</green> <gray>Bleed duration</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between bleeds</gray>"
+      ]
     },
-    "poisonedblade": {
-      "name": "Lưỡi độc",
-      "description": "Tấn công bằng thanh kiếm của bạn, gây ra Ngộ độc!",
-      "lore1": "Tấn công một thực thể sống bằng Kiếm của bạn sẽ gây ra Ngộ độc",
-      "lore2": "Thời gian độc",
-      "lore3": "Thời gian hồi chiêu của chất độc"
+    "poisoned_blade": {
+      "name": "Poisoned Blade",
+      "description": "Strikes with your sword, cause Poison!",
+      "lore": [
+        "<gray>Sword strikes apply poison to enemies</gray>",
+        "<green>+ {0}</green> <gray>Poison duration</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between poisons</gray>"
+      ]
     }
   },
   "taming": {
     "damage": {
-      "name": "Thuần hóa sát thương",
-      "description": "Tăng sát thương gây ra cho động vật đã được thuần hóa của bạn.",
-      "lore1": "Gia tăng thiệt hại"
+      "name": "Tame Damage",
+      "description": "Increase your tamed animal damage dealt.",
+      "lore": [
+        "<gray>Passive: Your tamed animals deal more damage</gray>",
+        "<green>+ {0}</green> <gray>Bonus damage for pets</gray>"
+      ]
     },
     "health": {
-      "name": "Thuần hóa sức khỏe",
-      "description": "Tăng sức khỏe động vật được thuần hóa của bạn.",
-      "lore1": "Tăng cường sức khỏe"
+      "name": "Tame Health",
+      "description": "Increase your tamed animal health.",
+      "lore": [
+        "<gray>Passive: Your tamed animals have more health</gray>",
+        "<green>+ {0}</green> <gray>Max health for pets</gray>"
+      ]
     },
     "regeneration": {
-      "name": "Thuần hóa tái sinh",
-      "description": "Tăng khả năng tái sinh động vật đã được thuần hóa của bạn.",
-      "lore1": "HP/giây"
+      "name": "Tame Regeneration",
+      "description": "Increase your tamed animal regeneration.",
+      "lore": [
+        "<gray>Passive: Your tamed animals regenerate health</gray>",
+        "<green>+ {0}</green> <gray>HP per second for pets</gray>"
+      ]
     }
   },
   "tragoul": {
     "thorns": {
-      "name": "gai",
-      "description": "Phản ánh thiệt hại trở lại kẻ tấn công của bạn!",
-      "lore1": "Thiệt hại trả đũa khi bị tấn công"
+      "name": "Thorns",
+      "description": "Reflect damage back to your attacker!",
+      "lore": [
+        "<gray>Passive: Reflect damage when hit</gray>",
+        "<green>+ {0}</green> <gray>Damage reflected to attacker</gray>"
+      ]
     },
     "globe": {
-      "name": "Quả cầu đau đớn",
-      "description": "Chia sát thương bạn gây ra dựa trên số lượng kẻ thù xung quanh bạn!",
-      "lore1": "Càng có nhiều kẻ thù xung quanh bạn, bạn càng gây ra ít sát thương cho chúng hơn",
-      "lore2": "Phạm vi:",
-      "lore3": "Đã thêm sát thương cho tất cả các thực thể:"
+      "name": "Globe of Pain",
+      "description": "Divide the Damage you deal based on the number of enemies around you!",
+      "lore": [
+        "<gray>Damage is split among nearby enemies</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<green>+ {1}</green> <gray>Bonus damage to all entities in range</gray>"
+      ]
     },
     "healing": {
-      "name": "Ý chí đau đớn",
-      "description": "Lấy lại sức khỏe dựa trên sát thương bạn gây ra!",
-      "lore1": "Làm hại mọi thứ chưa bao giờ cảm thấy tốt như vậy! Hồi máu từ sát thương gây ra",
-      "lore2": "Có khoảng thời gian sát thương 3 giây, để hồi máu và thời gian hồi chiêu 1 giây",
-      "lore3": "Phần trăm hồi máu trên mỗi sát thương:"
+      "name": "Will of Pain",
+      "description": "Regain health based on the damage you deal!",
+      "lore": [
+        "<gray>Heal from the damage you deal to enemies</gray>",
+        "<green>+ {0}</green> <gray>Healing per damage dealt</gray>",
+        "<yellow>* {1}</yellow> <gray>Damage window for healing</gray>",
+        "<yellow>* {2}</yellow> <gray>Cooldown between heals</gray>"
+      ]
     },
     "lance": {
-      "name": "Thương xác",
-      "description": "Giết kẻ thù hoặc có khả năng tiêu diệt kẻ thù, tạo ra một cây thương gây sát thương cho kẻ thù ở gần!",
-      "lore1": "Lances sẽ Tìm kiếm từ bất cứ thứ gì bạn giết VÀ nếu Khả năng này giết chết kẻ thù.",
-      "lore2": "Hy sinh một phần cuộc đời để tạo ra những ngọn thương (điều này có thể giết chết bạn)",
-      "lore3": "Số thương tối đa: 1 +"
+      "name": "Corpse Lances",
+      "description": "Killing an enemy or having an ability kill an enemy, spawns a lance that deals damage to a nearby enemy!",
+      "lore": [
+        "<gray>Kills spawn lances that seek nearby enemies</gray>",
+        "<green>+ {0}</green> <gray>Maximum lances</gray>",
+        "<red>- {1}%</red> <gray>Health cost per lance (can kill you!)</gray>",
+        "<yellow>* </yellow><gray>Lances chain from ability kills too</gray>"
+      ]
     }
   },
   "unarmed": {
-    "glasscannon": {
-      "name": "Pháo thủy tinh",
-      "description": "Sát thương không vũ trang cộng thêm giá trị giáp của bạn càng thấp",
-      "lore1": "x Sát thương ở mức 0 giáp",
-      "lore2": "Thiệt hại thưởng theo cấp độ"
+    "glass_cannon": {
+      "name": "Glass Cannon",
+      "description": "Bonus Unarmed Damage the lower your armor value is",
+      "lore": [
+        "<gray>Less armor = More damage</gray>",
+        "<green>+ {0}</green> <gray>Damage multiplier at 0 armor</gray>",
+        "<green>+ {1}</green> <gray>Bonus damage per level</gray>"
+      ]
     },
     "power": {
-      "name": "Quyền lực không vũ trang",
-      "description": "Cải thiện sát thương không vũ trang",
-      "lore1": "Hư hại"
+      "name": "Unarmed Power",
+      "description": "Improved Unarmed Damage",
+      "lore": [
+        "<gray>Passive: Increased fist damage</gray>",
+        "<green>+ {0}</green> <gray>Bonus damage</gray>"
+      ]
     },
-    "suckerpunch": {
-      "name": "Cú đấm",
-      "description": "Những cú đấm nước rút, nhưng nguy hiểm hơn.",
-      "lore1": "Hư hại",
-      "lore2": "Sát thương tăng theo tốc độ của bạn trong khi đấm"
+    "sucker_punch": {
+      "name": "Sucker Punch",
+      "description": "Sprint punches, but more deadly.",
+      "lore": [
+        "<gray>Sprint to deal extra punch damage</gray>",
+        "<green>+ {0}</green> <gray>Base bonus damage</gray>",
+        "<yellow>* </yellow><gray>Damage scales with movement speed</gray>"
+      ]
     }
   }
 }

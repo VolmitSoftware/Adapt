@@ -21,11 +21,14 @@ package com.volmit.adapt.content.adaptation.agility;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.version.Version;
-import com.volmit.adapt.util.*;
-import com.volmit.adapt.util.reflect.registries.Attributes;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.reflect.events.api.ReflectiveHandler;
 import com.volmit.adapt.util.reflect.events.api.entity.EntityDismountEvent;
 import com.volmit.adapt.util.reflect.events.api.entity.EntityMountEvent;
+import com.volmit.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -43,15 +46,15 @@ import java.util.UUID;
 
 public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-wind-up".getBytes());
-    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:wind-up");
+    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:wind-up");
 
     private final Map<Player, Integer> ticksRunning;
 
     public AgilityWindUp() {
         super("agility-wind-up");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("agility", "windup", "description"));
-        setDisplayName(Localizer.dLocalize("agility", "windup", "name"));
+        setDescription(Localizer.dLocalize("agility.wind_up.description"));
+        setDisplayName(Localizer.dLocalize("agility.wind_up.name"));
         setIcon(Material.POWERED_RAIL);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -62,8 +65,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getWindupSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("agility", "windup", "lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("agility", "windup", "lore2"));
+        v.addLore(Localizer.dLocalize("agility.wind_up.lore", Form.pc(getWindupSpeed(getLevelPercent(level)), 0), Form.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1)));
     }
 
     @EventHandler

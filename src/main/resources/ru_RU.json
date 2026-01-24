@@ -231,912 +231,1285 @@
     "challenge_pickaxe_5m": {
       "title": "Легендарный шахтер",
       "description": "Сломайте 5 000 000 блоков"
+    },
+    "challenge_eat_100": {
+      "title": "So much to eat!",
+      "description": "Eat over 100 Items!"
+    },
+    "challenge_eat_1000": {
+      "title": "Unquenchable Hunger!",
+      "description": "Eat over 1,000 Items!"
+    },
+    "challenge_eat_10000": {
+      "title": "EVERLASTING HUNGER!",
+      "description": "Eat over 10,000 Items!"
+    },
+    "challenge_harvest_100": {
+      "title": "Full Harvest",
+      "description": "Harvest over 100 crops!"
+    },
+    "challenge_harvest_1000": {
+      "title": "Grand Harvest",
+      "description": "Harvest over 1,000 crops!"
+    },
+    "challenge_swim_1nm": {
+      "title": "Human Submarine!",
+      "description": "Swim 1 Nautical Mile (1,852 blocks)"
+    },
+    "challenge_sneak_1k": {
+      "title": "Knee Pain",
+      "description": "Sneak over a kilometer (1,000 blocks)"
     }
   },
   "items": {
-    "boundenderperal": {
-      "name": "Портключ Реликвария",
-      "usage1": "Shift + ЛКМ, чтобы забиндить",
-      "usage2": "ПКМ, чтобы получить доступ к привязанному инвентарю"
+    "bound_ender_peral": {
+      "name": "<white>Reliquary Portkey</white>",
+      "usage1": "<gray>Shift + Left Click to bind</gray>",
+      "usage2": "<gray>Right Click to access the bound Inventory</gray>"
     },
-    "boundeyeofender": {
-      "name": "Зрительный Якорь",
-      "usage1": "Нажмите ПКМ, чтобы расходовать и and телепортироваться на привязанную локацию.",
-      "usage2": "Shift + ЛКМ, чтобы привязать блок"
+    "bound_eye_of_ender": {
+      "name": "<white>Ocular Anchor</white>",
+      "usage1": "<gray>Right Click to consume and teleport to the bound location</gray>",
+      "usage2": "<gray>Shift + Left Click to bind to a block</gray>"
     },
-    "boundredstonetorch": {
-      "name": "Дистанционный Редстоун",
-      "usage1": "ПКМ, чтобы создать 1-тиковый сигнал редстоуна",
-      "usage2": "Shift + ЛКМ по целевому блоку для привязки"
+    "bound_redstone_torch": {
+      "name": "<white>Redstone Remote</white>",
+      "usage1": "<gray>Right Click to create a 1-Tick Redstone pulse</gray>",
+      "usage2": "<gray>Shift + Left Click on a 'Target' Block to bind</gray>"
     },
-    "boundsnowball": {
-      "name": "Паутинная Ловушка!",
-      "usage1": "Бросьте для создания временной паутинной ловушки"
+    "bound_snowball": {
+      "name": "<white>Web Snare!</white>",
+      "usage1": "<gray>Throw to create a temporary web trap at the location</gray>"
+    },
+    "elevator_block": {
+      "name": "Elevator Block",
+      "usage1": "Jump to teleport up",
+      "usage2": "Shift to teleport down",
+      "usage3": "Minimum of 2 air blocks between the elevators"
     }
   },
   "snippets": {
     "gui": {
-      "level": "Уровень",
-      "knowledge": "Знание(й)",
-      "powerused": "энергии задействовано",
-      "notlearned": "Не изучено",
-      "xp": "XP для",
-      "welcome": "Добро пожаловать!",
-      "welcomeback": "С возвращением!",
-      "xpbonusfortime": "XP для",
-      "unlockthisbyclicking": "Разблокируйте с помощью ПКМ: ",
-      "back": "Назад",
-      "unlearnall": "Разучиться всему",
-      "unlearnedall": "Разучился всему"
+      "level": "<dark_gray>Level {0}</dark_gray>",
+      "knowledge": "<white>{0}</white> <gray>knowledge</gray>",
+      "power_used": "<gray>Power Used</gray> <dark_green>{0}</dark_green>",
+      "power_used_ratio": "<dark_gray>({0}/{1} Power Used)</dark_gray>",
+      "not_learned": "<dark_gray>Not Learned</dark_gray>",
+      "xp": "<dark_gray>{0}XP to {1}</dark_gray>",
+      "welcome": "<white>Welcome!</white>",
+      "welcome_back": "<white>Welcome back!</white>",
+      "xp_bonus_for_time": "+<green>{0}</green> <gray>XP for</gray> <aqua>{1}</aqua>",
+      "max_ability_power": "<gold>Maximum Ability Power</gold> <gray>+{0}</gray>",
+      "unlock_this_by_clicking": "<gray>Unlock this by Right-Clicking:</gray> <white>{0}</white>",
+      "back": "<gray>Back</gray>",
+      "unlearn_all": "<gray>Unlearn all</gray>{0}",
+      "unlearned_all": "<gray>Unlearned all</gray>"
     },
-    "adaptmenu": {
-      "maynotunlearn": "ВЫ НЕ СМОЖЕТЕ ЗАБЫТЬ",
-      "mayunlearn": "ВЫ МОЖЕТЕ НАУЧИТЬСЯ/РАЗУЧИТЬСЯ",
-      "knowledgecost": "Знаний требуется",
-      "knowledgeavailable": "Знаний доступно",
-      "alreadylearned": "Уже изучено",
-      "unlearnrefund": "Нажмите, чтобы отменить изучение и вернуть",
-      "norefunds": "ХАРДКОР, ВОЗВРАТ ОТКЛЮЧЕН",
-      "knowledge": "Знания",
-      "clicklearn": "Нажмите, чтобы изучить",
-      "noknowledge": "(У вас нет знаний)",
-      "youonlyhave": "У вас есть только",
-      "howtolevelup": "Повышайте уровень навыков, чтобы увеличить свою максимальную энергию.",
-      "notenoughpower": "Недостаточно энергии! Каждый уровень способности стоит 1 энергию.",
-      "power": "Энергия",
-      "powerdrain": "энергии требуется",
-      "learned": "Изучено ",
-      "unlearned": "Не изучено ",
-      "activatorblock": "Книжная полка"
+    "adapt_menu": {
+      "may_not_unlearn": "<red><bold>YOU MAY NOT UNLEARN</bold></red>",
+      "may_unlearn": "<green>YOU MAY LEARN/UNLEARN</green>",
+      "knowledge_cost": "<white>{0}</white> <gray>Knowledge Cost</gray>",
+      "knowledge_available": "<gray>Knowledge Available</gray>",
+      "knowledge_available_title": "<dark_gray>{0} knowledge</dark_gray>",
+      "unlearn_refund": "<gray><u>Click to Unlearn & Refund <white>{0}</white> Knowledge Cost</u></gray>",
+      "no_refunds": "<dark_red><bold>HARDCORE, REFUNDS DISABLED</bold></dark_red>",
+      "knowledge": "<dark_gray>knowledge</dark_gray>",
+      "no_knowledge": "<red>(You don't have any Knowledge)</red>",
+      "you_only_have": "<red>(You only have <white>{0}</white> Knowledge Available)</red>",
+      "how_to_level_up": "<red>Level up skills to increase your max power.</red>",
+      "not_enough_power": "<red>Not enough power! Each Ability Level costs 1 power.</red>",
+      "power": "<gray>power</gray>",
+      "power_drain": "<green>{0} Power Drain</green>",
+      "learned": "<gray>Learned {0}</gray>",
+      "unlearned": "<gray>Unlearned {0}</gray>",
+      "activator_block": "<gold>Bookshelf</gold>"
     },
-    "knowledgeorb": {
-      "contains": "Содержит",
-      "knowledge": "знаний",
-      "rightclick": "Нажмите ПКМ",
-      "togainknowledge": "чтобы получить знания",
-      "knowledgeorb": "Сфера знаний"
+    "knowledge_orb": {
+      "contains": "<white>contains</white> <white><u>{0}</u></white> <gray>{1}</gray> <gray>knowledge</gray>",
+      "knowledge": "<gray>knowledge</gray>",
+      "right_click_to_gain_knowledge": "<light_purple>Right-Click</light_purple> <gray>to gain this knowledge</gray>",
+      "knowledge_orb": "<gold>Knowledge Orb</gold>"
     },
-    "experienceorb": {
-      "contains": "Содержит",
-      "xp": "XP",
-      "rightclick": "Правый клик",
-      "togainxp": "чтобы получить опыт",
-      "xporb": "Сфера опыта"
+    "experience_orb": {
+      "contains": "<white>contains</white> <white><u>{0}</u></white> <gray>{1}</gray> <gray>Experience</gray>",
+      "xp": "<gray>Experience</gray>",
+      "right_click_to_gain_xp": "<light_purple>Right-Click</light_purple> <gray>to gain this experience</gray>",
+      "xp_orb": "<gold>Experience Orb</gold>"
     }
   },
   "skill": {
     "agility": {
-      "name": "Ловкость",
+      "name": "Agility",
       "icon": "⇉",
-      "description": "Ловкость - это способность быстро передвигаться и легко избегать препятствий."
+      "description": "Agility is the ability to move quick and fluidly in the face of obstacles."
     },
     "architect": {
-      "name": "Архитектура",
+      "name": "Architect",
       "icon": "⬧",
-      "description": "Структуры - это строительные блоки мира. Мир в твоих руках, делай с ним, что хочешь."
+      "description": "Structures are the building blocks of the world. Reality is in your hands, yours to control."
     },
     "axes": {
-      "name": "Топоры",
-      "icon": "❖",
-      "description1": "Зачем рубить деревья, если вместо них можно рубить ",
-      "description2": "вещи, ведь получится",
-      "description3": "то же самое!"
+      "name": "Axes",
+      "icon": "🪓",
+      "description": "<gray>Why chop down trees, when you could chop</gray> <italic><gray>things</gray></italic> <gray>instead, same end result!</gray>"
     },
     "brewing": {
-      "name": "Зельеварение",
+      "name": "Brewing",
       "icon": "❦",
-      "description": "Двойной пузырь, тройной пузырь, четверной пузырь — я все еще не могу положить это зелье в котел."
+      "description": "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
     },
     "blocking": {
-      "name": "Блокировка",
-      "icon": "▒",
-      "description": "Палки и камни костей не сломают, А щит сломает."
+      "name": "Blocking",
+      "icon": "🛡",
+      "description": "Sticks and stones Won't break your bones, But a shield will."
     },
     "crafting": {
-      "name": "Ремесло",
+      "name": "Crafting",
       "icon": "⌂",
-      "description": "Когда больше не осталось ни одной детали, почему бы не сделать еще одну?"
+      "description": "With no more pieces left to place, why not make another?"
     },
     "discovery": {
-      "name": "Исследование",
+      "name": "Discovery",
       "icon": "⚛",
-      "description": "По мере того, как расширяется ваше восприятие, ваш разум раскрывается, чтобы обнаружить то, чего вы не знали."
+      "description": "As your perception expands, your mind unravels to discover that which you did not."
     },
     "enchanting": {
-      "name": "Зачарование",
+      "name": "Enchanting",
       "icon": "♰",
-      "description": "О чем ты говоришь? Пророчества, видения, суеверная болтовня?"
+      "description": "What are you going on about? Prophecies, visions, superstitious jibber-jabber?"
     },
     "excavation": {
-      "name": "Раскопки",
-      "icon": "✥",
-      "description": "Копай, копай яму..."
+      "name": "Excavation",
+      "icon": "ᛳ",
+      "description": "Diggy Diggy Hole..."
     },
     "herbalism": {
-      "name": "Травничество",
+      "name": "Herbalism",
       "icon": "⚘",
-      "description": "Я не могу найти никаких растений, но я могу найти несколько семян и... это... Травка?"
+      "description": "I can't find any plants, but I can find some seeds and- is that... Weed?"
     },
     "hunter": {
-      "name": "Охота",
+      "name": "Hunter",
       "icon": "☠",
-      "description": "Охота - это путешествие, а не результат."
+      "description": "Hunting is about the journey not the outcome."
     },
     "nether": {
-      "name": "Нижний мир",
+      "name": "Nether",
       "icon": "₪",
-      "description": "Из глубин самих Недр."
+      "description": "From the depths of the Nether itself."
     },
     "pickaxe": {
-      "name": "Кирки",
+      "name": "Pickaxe",
       "icon": "⛏",
-      "description": "Гномы - шахтеры, но я кое-чему научился в свое время. Я ШВЕД"
+      "description": "Dwarves are the miners, but ive learned a thing or two in my time. IM SWEDISH"
     },
     "ranged": {
-      "name": "Дальний бой",
+      "name": "Ranged",
       "icon": "🏹",
-      "description": "Дистанция - это ключ к победе и ключ к выживанию."
+      "description": "Distance is the key to victory, and the key to survival."
     },
     "rift": {
-      "name": "Разломы",
+      "name": "Rift",
       "icon": "❍",
-      "description": "Вы обуздали пространство"
+      "description": "The Rift is a caustic harness, but you have harnessed the harness."
     },
     "seaborne": {
-      "name": "Дитя моря",
-      "icon": "🌊",
-      "description": "С помощью этого навыка вы можете творить чудеса с водой"
+      "name": "Seaborne",
+      "icon": "🎣",
+      "description": "With this skill, you may will the wonders of the water."
     },
     "stealth": {
-      "name": "Скрытность",
-      "icon": "✠",
-      "description": "Искусство невидимого. Прогулка в тени."
+      "name": "Stealth",
+      "icon": "☯",
+      "description": "The art of the unseen. Walk in the shadows."
     },
     "swords": {
-      "name": "Мечи",
+      "name": "Swords",
       "icon": "⚔",
-      "description": "Силой ГрейСтоуна!"
+      "description": "By the power of GreyStone!"
     },
     "taming": {
-      "name": "Приручение",
+      "name": "Taming",
       "icon": "♥",
-      "description": "Попугаи и пчелы... и вы?"
+      "description": "The parrots and the bees... and you?"
     },
     "tragoul": {
-      "name": "Трагичность",
-      "icon": "▼",
-      "description": "Все в твоих руках..."
+      "name": "TragOul",
+      "icon": "🗡",
+      "description": "Blood flows through the veins of the universe. Constricted by your hands."
     },
     "chronos": {
-      "name": "Хронография",
-      "icon": "۞",
-      "description": "Заведите часы вселенной, ощутите поток. Разбейте часы, Станьте ими."
+      "name": "Chronos",
+      "icon": "⏳",
+      "description": "Wind the Clock of the universe, experience the flow. Break the clock, become it."
     },
     "unarmed": {
-      "name": "Без оружия",
-      "icon": "⚜",
-      "description": "Без оружия не значит без силы"
+      "name": "Unarmed",
+      "icon": "»",
+      "description": "Without a weapon is not without strength."
     }
   },
   "agility": {
-    "armorup": {
-      "name": "Улучшение брони",
-      "description": "Чем дольше бежите, тем больше броня!",
-      "lore1": "к броне",
-      "lore2": "действие эффекта"
+    "armor_up": {
+      "name": "Armor Up",
+      "description": "Get more armor the longer you sprint!",
+      "lore": [
+        "<gray>Passive: Build armor while sprinting</gray>",
+        "<green>+ {0}</green> <gray>Maximum armor gained</gray>",
+        "<yellow>* {1}</yellow> <gray>Time to reach max armor</gray>"
+      ]
     },
-    "superjump": {
-      "name": "Супер прыжок",
-      "description": "Исключительное преимущество в высоте",
-      "lore1": "максимальная высота прыжка",
-      "lore2": "Shift + Пробел для супер прыжка!"
+    "super_jump": {
+      "name": "Super Jump",
+      "description": "Exceptional Height Advantage.",
+      "lore": [
+        "<gray>Sneak + Jump to perform a Super Jump</gray>",
+        "<green>+ {0}</green> <gray>Maximum jump height</gray>"
+      ]
     },
-    "walljump": {
-      "name": "Прыжок от стены",
-      "description": "Удерживайте Shift, находясь в воздухе у стены, чтобы зацепиться за стену и прыгнуть!",
-      "lore1": "дополнительный прыжок",
-      "lore2": "к максимальной высоте прыжка"
+    "wall_jump": {
+      "name": "Wall Jump",
+      "description": "Hold shift while mid-air against a wall to wall latch & jump!",
+      "lore": [
+        "<gray>Hold Sneak against wall mid-air to latch and jump</gray>",
+        "<green>+ {0}</green> <gray>Maximum wall jumps</gray>",
+        "<green>+ {1}</green> <gray>Jump height per wall jump</gray>"
+      ]
     },
-    "windup": {
-      "name": "Сила ветра",
-      "description": "Чем дольше вы бежите, тем быстрее становитесь!",
-      "lore1": " к максимальной скорости",
-      "lore2": " действие эффекта"
+    "wind_up": {
+      "name": "Wind Up",
+      "description": "Get faster the longer you sprint!",
+      "lore": [
+        "<gray>Passive: Build speed while sprinting</gray>",
+        "<green>+ {0}</green> <gray>Maximum speed multiplier</gray>",
+        "<yellow>* {1}</yellow> <gray>Time to reach max speed</gray>"
+      ]
     }
   },
   "architect": {
+    "elevator": {
+      "name": "Elevator",
+      "description": "This allows for you to build an elevator to teleport vertically fast!",
+      "lore": [
+        "<gray>Craft: 8 Wool around 1 Ender Pearl</gray>",
+        "<green>+ </green><gray>Unlocks Elevator Block crafting</gray>",
+        "<yellow>* </yellow><gray>Jump to go up, Sneak to go down</gray>"
+      ]
+    },
     "foundation": {
-      "name": "Основы магии",
-      "description": "Это позволяет вам создать под собой временную платформу, когда вы крадетесь!",
-      "lore1": "Вы можете создать до ",
-      "lore2": "блоков под собой"
+      "name": "Magic Foundation",
+      "description": "This allows for you to sneak and place a temporary foundation beneath you!",
+      "lore": [
+        "<gray>Sneak in mid-air to create temporary blocks</gray>",
+        "<green>+ {0}</green> <gray>Blocks you can place beneath you</gray>",
+        "<yellow>* </yellow><gray>Blocks disappear after a short time</gray>"
+      ]
     },
     "glass": {
-      "name": "Шёлковое стекло",
-      "description": "Позволяет вам существенно предотвратить потерю стеклянных блоков, когда вы ломаете их рукой!",
-      "lore1": "Ваши руки становятся шёлковыми"
+      "name": "Silk-Touch Glass",
+      "description": "This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand!",
+      "lore": [
+        "<gray>Passive: Break glass with bare hands</gray>",
+        "<green>+ </green><gray>Glass drops as item instead of breaking</gray>"
+      ]
     },
-    "wirelessredstone": {
-      "name": "Дистанционный Редстоун",
-      "description": "Это позволит вам переключать редстоун сигнал, дистанционно!",
-      "lore1": "Мишень + Редстоуновый факел + Эндер-жемчуг = 1 Дистанционный редстоун"
+    "wireless_redstone": {
+      "name": "Redstone Remote",
+      "description": "This allows for you to use a redstone torch to toggle redstone, remotely!",
+      "lore": [
+        "<gray>Craft: Target + Redstone Torch + Enderpearl</gray>",
+        "<green>+ </green><gray>Remotely toggle redstone signals</gray>",
+        "<yellow>* </yellow><gray>Shift + Left-click to bind, Right-click to pulse</gray>"
+      ]
     },
     "placement": {
-      "name": "Жезл строителя",
-      "description": "Позволяет вам размещать несколько блоков одновременно. Чтобы активировать начните красться, и держите в руках тот же блок на который вы смотрите! Имейте в виду, что вам может понадобиться немного сдвинуться, чтобы все вместилось!",
-      "lore1": "Вам нужно",
-      "lore2": "блоков в руке, чтобы поставить",
-      "lore3": "Волшебная палочка для строителей"
+      "name": "Builders Wand",
+      "description": "Allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!",
+      "need_blocks": "<red>You need <green>{0}</green> blocks in your hand to place this</red>",
+      "lore": [
+        "<gray>Sneak + Place to extend block surfaces</gray>",
+        "<green>+ </green><gray>Place multiple blocks at once</gray>",
+        "<yellow>* </yellow><gray>Hold matching blocks in hand</gray>"
+      ]
     }
   },
   "axe": {
     "chop": {
-      "name": "Рубка топором",
-      "description": "Cрубайте моментально деревья, зажав ПКМ по бревну!",
-      "lore1": "блоков на один сруб",
-      "lore2": "время перезарядки",
-      "lore3": "износ инструмента"
+      "name": "Axe Chop",
+      "description": "Chop down trees by right clicking the base log!",
+      "lore": [
+        "<gray>Right-click base log to chop entire tree</gray>",
+        "<green>+ {0}</green> <gray>Blocks chopped per use</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between chops</gray>",
+        "<red>- {2}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "logswap": {
-      "name": "Журнал-обменник Люси",
-      "description": "Измените вкус бревен на верстаке!",
-      "lore1": "8 бревен любого вида + 1 саженец = 8 бревен того же типа, что и саженец"
+    "log_swap": {
+      "name": "Lucy's Log-Swapper",
+      "description": "Change the flavor of logs in a Crafting Table!",
+      "lore": [
+        "<gray>Craft: 8 Logs + 1 Sapling = 8 Logs of sapling type</gray>",
+        "<green>+ </green><gray>Convert any log type to another</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Автосбор"
+    "drop_to_inventory": {
+      "name": "Axe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Chopped items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped logs</gray>"
+      ]
     },
-    "groundsmash": {
-      "name": "Удар топором",
-      "description": "Прыгните, присядьте в полете и ударьте, чтобы нанести урон по области",
-      "lore1": "урон",
-      "lore2": "радиус",
-      "lore3": "сила",
-      "lore4": "время перезарядки"
+    "ground_smash": {
+      "name": "Axe Ground Smash",
+      "description": "Jump, then crouch and smash all nearby enemies.",
+      "lore": [
+        "<gray>Jump + Sneak with axe to ground smash</gray>",
+        "<green>+ {0}-{1}</green> <gray>Damage dealt</gray>",
+        "<green>+ {2}</green> <gray>Block radius</gray>",
+        "<green>+ {3}</green> <gray>Knockback force</gray>",
+        "<yellow>* {4}</yellow> <gray>Cooldown</gray>"
+      ]
     },
-    "leafminer": {
-      "name": "Сборщик Листвы",
-      "description": "Позволяет ломать объемные листья сразу!",
-      "lore1": "Зажмите Shift и срубайте ЛИСТВУ (только с топором)",
-      "lore2": "диапазон добыча листьев",
-      "lore3": "Вы не получите капли с листьев (Предотвращение эксплойтов)"
+    "leaf_miner": {
+      "name": "Leaf-miner",
+      "description": "Allows you to break bulk leaves at once!",
+      "lore": [
+        "<gray>Sneak + Mine leaves to break in bulk</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<red>- </red><gray>No drops from leaves (exploit prevention)</gray>"
+      ]
     },
-    "woodminer": {
-      "name": "Копатель Древесины",
-      "description": "Позволяет ломать сразу много древесины!",
-      "lore1": "Крадясь, добывайте обтесанные и обычные бревна, но не доски",
-      "lore2": "диапазон добычи дерева",
-      "lore3": "Работает с автосбором"
+    "wood_miner": {
+      "name": "Wood-miner",
+      "description": "Allows you to break bulk wood at once!",
+      "lore": [
+        "<gray>Sneak + Mine logs to break in bulk</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<yellow>* </yellow><gray>Works with Drop-to-Inventory</gray>",
+        "<yellow>* </yellow><gray>Does not work on planks</gray>"
+      ]
     }
   },
   "brewing": {
     "lingering": {
-      "name": "Стойкий запах",
-      "description": "Увеличивается время действия зелий",
-      "lore1": "продолжительность",
-      "lore2": "продолжительность"
+      "name": "Lingering Brew",
+      "description": "Brewed potions last longer!",
+      "lore": [
+        "<gray>Passive: Potion effects last longer</gray>",
+        "<green>+ {0}</green> <gray>Bonus duration for regular potions</gray>",
+        "<green>+ {1}</green> <gray>Bonus duration for splash potions</gray>"
+      ]
     },
-    "superheated": {
-      "name": "Кипящее зелье",
-      "description": "Чем горячее варочная стойка, тем быстрее они работают",
-      "lore1": "рядом с огнем",
-      "lore2": "рядом с лавой"
+    "super_heated": {
+      "name": "Super Heated Brew",
+      "description": "Brewing stands work faster the hotter they are.",
+      "lore": [
+        "<gray>Passive: Heat sources speed up brewing</gray>",
+        "<green>+ {0}</green> <gray>Speed per adjacent fire block</gray>",
+        "<green>+ {1}</green> <gray>Speed per adjacent lava block</gray>"
+      ]
     },
     "darkness": {
-      "name": "Тьма в бутылке",
-      "description": "Не знаю, зачем вам это нужно, но держите!",
-      "lore1": "Зелье ночного видения + Черный бетон = Зелье тьмы (30 секунд)",
-      "lore2": "Следует отметить, что это не позволяет игроку бегать!"
+      "name": "Bottled Darkness",
+      "description": "Not sure why you need this, but here you go!",
+      "lore": [
+        "<gray>Craft: Night Vision Potion + Black Concrete</gray>",
+        "<green>+ {0}</green> <gray>Darkness effect</gray>",
+        "<red>- </red><gray>Prevents sprinting while active</gray>"
+      ]
     },
     "haste": {
-      "name": "Спешка в бутылке",
-      "description": "Когда эффективности недостаточно",
-      "lore1": "Зелье скорости + Осколок аметиста = Зелье спешки (60 секунд)",
-      "lore2": "Зелье скорости + Осколок аметиста = Зелье спешки (60 секунд)"
+      "name": "Bottled Haste",
+      "description": "When Efficiency is not enough",
+      "lore": [
+        "<gray>Craft: Speed Potion + Amethyst Shard = Haste I (60s)</gray>",
+        "<gray>Craft: Speed Potion + Amethyst Block = Haste II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Haste potion brewing</gray>"
+      ]
     },
     "absorption": {
-      "name": "Поглощение в бутылке",
-      "description": "Закаляй тело!",
-      "lore1": "Зелье исцеления + Кварц = Зелье поглощения (60 секунд)",
-      "lore2": "Зелье исцеления + Кварцевый блок = Зелье поглощения II (30 секунд)"
+      "name": "Bottled Absorption",
+      "description": "Harden the body!",
+      "lore": [
+        "<gray>Craft: Instant Heal + Quartz = Absorption I (60s)</gray>",
+        "<gray>Craft: Instant Heal + Quartz Block = Absorption II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Absorption potion brewing</gray>"
+      ]
     },
     "fatigue": {
-      "name": "Усталость в бутылке",
-      "description": "Ослабь тело!",
-      "lore1": "Зелье слабости + Сгусток слизи = Зелье утомления (30 секунд)",
-      "lore2": "Зелье слабости + Блок слизи = Зелье утомления II (15 секунд)"
+      "name": "Bottled Fatigue",
+      "description": "Weaken the body!",
+      "lore": [
+        "<gray>Craft: Weakness Potion + Slime Ball = Fatigue I (30s)</gray>",
+        "<gray>Craft: Weakness Potion + Slime Block = Fatigue II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Mining Fatigue potion brewing</gray>"
+      ]
     },
     "hunger": {
-      "name": "Голод в бутылке",
-      "description": "Накорми ненасытных!",
-      "lore1": "Мутное зелье + Гнилая плоть = Зелье голода (30 секунд)",
-      "lore2": "Зелье слабости + Гнилая плоть = Зелье голода III (15 секунд)"
+      "name": "Bottled Hunger",
+      "description": "Feed the Insatiable!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Rotten Flesh = Hunger I (30s)</gray>",
+        "<gray>Craft: Weakness Potion + Rotten Flesh = Hunger II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Hunger potion brewing</gray>"
+      ]
     },
     "nausea": {
-      "name": "Тошнота в бутылке",
-      "description": "Меня от тебя тошнит!",
-      "lore1": "Мутное зелье + Коричневый гриб = Зелье тошноты (16 секунд)",
-      "lore2": "Мутное зелье + Багровый гриб = Зелье тошноты II (8 секунд)"
+      "name": "Bottled Nausea",
+      "description": "You make me sick!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Brown Mushroom = Nausea I (16s)</gray>",
+        "<gray>Craft: Awkward Potion + Crimson Fungus = Nausea II (8s)</gray>",
+        "<green>+ </green><gray>Unlocks Nausea potion brewing</gray>"
+      ]
     },
     "blindness": {
-      "name": "Слепота в бутылке",
-      "description": "Ты ужасный человек...",
-      "lore1": "Мутное зелье + Чернильный мешок = Зелье слепоты (30 секунд)",
-      "lore2": "Мутное зелье + Светящийся чернильный мешок = Зелье слепоты II (15 секунд)"
+      "name": "Bottled Blindness",
+      "description": "You're a horrible person...",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Ink Sac = Blindness I (30s)</gray>",
+        "<gray>Craft: Awkward Potion + Glow Ink Sac = Blindness II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Blindness potion brewing</gray>"
+      ]
     },
     "resistance": {
-      "name": "Сопротивление в бутылке",
-      "description": "Укрепление во всей красе!",
-      "lore1": "Мутное зелье + Железный слиток = Зелье сопротивления (60 секунд)",
-      "lore2": "Мутное зелье + Железный блок = Зелье сопротивления II (30 секунд)"
+      "name": "Bottled Resistance",
+      "description": "Fortification at its finest!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Iron Ingot = Resistance I (60s)</gray>",
+        "<gray>Craft: Awkward Potion + Iron Block = Resistance II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Resistance potion brewing</gray>"
+      ]
     },
-    "healthboost": {
-      "name": "Жизнь в бутылке",
-      "description": "Когда максимального здоровья недостаточно...",
-      "lore1": "Зелье исцеления + Золотое яблоко = Зелье здоровья (120 секунд)",
-      "lore2": "Зелье исцеления + Зачарованное золотое яблоко = Зелье здоровья II (120 секунд)"
+    "health_boost": {
+      "name": "Bottled Life",
+      "description": "When Maximum health is not enough...",
+      "lore": [
+        "<gray>Craft: Instant Heal + Golden Apple = Health Boost I (120s)</gray>",
+        "<gray>Craft: Instant Heal + Enchanted Apple = Health Boost II (120s)</gray>",
+        "<green>+ </green><gray>Unlocks Health Boost potion brewing</gray>"
+      ]
     },
     "decay": {
-      "name": "Распад в бутылке",
-      "description": "Кто бы мог подумать, что Детрит окажется таким полезным?",
-      "lore1": "Зелье слабости + Ядовитый картофель = Зелье увядания (16 секунд)",
-      "lore2": "Зелье слабости + Багровые корни = Зелье увядания-2 (8 секунд)"
+      "name": "Bottled Decay",
+      "description": "Who knew Detritus would be so useful?",
+      "lore": [
+        "<gray>Craft: Weakness Potion + Poisonous Potato = Wither I (16s)</gray>",
+        "<gray>Craft: Weakness Potion + Crimson Roots = Wither II (8s)</gray>",
+        "<green>+ </green><gray>Unlocks Wither potion brewing</gray>"
+      ]
     },
     "saturation": {
-      "name": "Насыщенность в бутылке",
-      "description": "Знаешь... Я даже не голоден...",
-      "lore1": "Зелье регенерации + Печеный картофель = Зелье насыщения (120 секунд)",
-      "lore2": "Зелье регенерации + Сноп сена = Зелье насыщения II (120 секунд)"
+      "name": "Bottled Saturation",
+      "description": "Ya know... Im not even Hungry...",
+      "lore": [
+        "<gray>Craft: Regen Potion + Baked Potato = Saturation I</gray>",
+        "<gray>Craft: Regen Potion + Hay Bale = Saturation II</gray>",
+        "<green>+ </green><gray>Unlocks Saturation potion brewing</gray>"
+      ]
     }
   },
   "blocking": {
-    "chainarmorer": {
-      "name": "Цепи Мефистофеля",
-      "description": "Позволяет создавать кольчужную броню.",
-      "lore1": "Рецепт крафта такой же, как и любой другой, но вместо него используются железные самородки."
+    "chain_armorer": {
+      "name": "Chains of Mephistopheles",
+      "description": "Allows you to craft Chainmail Armor",
+      "lore": [
+        "<gray>Craft: Use Iron Nuggets in armor patterns</gray>",
+        "<green>+ </green><gray>Unlocks Chainmail Armor crafting</gray>"
+      ]
     },
-    "horsearmorer": {
-      "name": "Создаваемая конская броня",
-      "description": "Позволяет создавать доспехи для лошадей.",
-      "lore1": "Окружите седло материалом, который вы хотите использовать для изготовления доспехов."
+    "horse_armorer": {
+      "name": "Craftable Horse Armor",
+      "description": "Allows you to craft Horse Armor",
+      "lore": [
+        "<gray>Craft: Surround Saddle with armor material</gray>",
+        "<green>+ </green><gray>Unlocks Horse Armor crafting</gray>",
+        "<yellow>* </yellow><gray>Use Iron/Gold/Diamond for different tiers</gray>"
+      ]
     },
-    "saddlecrafter": {
-      "name": "Создаваемое седло",
-      "description": "Сделать седло из кожи",
-      "lore1": "Рецепт: 5 Кожи:"
+    "saddle_crafter": {
+      "name": "Craftable Saddle",
+      "description": "Craft a Saddle with Leather",
+      "lore": [
+        "<gray>Craft: 5 Leather in saddle pattern</gray>",
+        "<green>+ </green><gray>Unlocks Saddle crafting</gray>"
+      ]
     },
-    "multiarmor": {
-      "name": "Мультиброня",
-      "description": "Привязать элитры к доспехам",
-      "lore1": "Это удивительный навык для путешествий.",
-      "lore2": "динамически объединяйте и меняйте броню/элитры на лету!",
-      "lore3": "чтобы объединить, нажмите Shift и кликните на предмет над другим в вашем инвентаре.",
-      "lore4": "Чтобы отвязать броню, бросьте предмет с использованием клавиши Shift, и он будет разобран.",
-      "lore5": "Если ваша Мультиброня будет уничтожена, вы потеряете все находящиеся в ней предметы.",
-      "lore6": "Мне не нужна броня, она меня разочаровывает..."
+    "multi_armor": {
+      "name": "Multi-Armor",
+      "description": "Bind Elytras to Armor",
+      "lore": [
+        "<gray>Merge Elytra with Chestplate for dual functionality</gray>",
+        "<green>+ </green><gray>Shift-click to merge items in inventory</gray>",
+        "<yellow>* </yellow><gray>Sneak-Drop to disassemble</gray>",
+        "<red>- </red><gray>Destroying MultiArmor loses all merged items</gray>"
+      ]
     }
   },
   "crafting": {
     "deconstruction": {
-      "name": "Деконструкция",
-      "description": "Разбирайте блоки и предметы на базовые компоненты!",
-      "lore1": "Поместите любой предмет + ножницы",
-      "lore2": "на Стол кузнеца, чтобы разобрать его"
+      "name": "Deconstruction",
+      "description": "Deconstruct blocks & items into salvageable base components!",
+      "lore": [
+        "<gray>Drop item + Sneak + Right-click with Shears</gray>",
+        "<green>+ </green><gray>Break items into base components</gray>"
+      ]
     },
     "xp": {
-      "name": "Опыт за создание",
-      "description": "Получайте опыт при крафте",
-      "lore1": "Вы получайте опыт при крафте любого предмета"
+      "name": "Crafting XP",
+      "description": "Gain passive XP when crafting",
+      "lore": [
+        "<gray>Passive: Earn XP from crafting items</gray>",
+        "<green>+ </green><gray>XP gained per craft</gray>"
+      ]
     },
     "reconstruction": {
-      "name": "Реконструкция руды",
-      "description": "Создавайте руды из их базовых компонентов!",
-      "lore1": "8 дропа руды и 1 источник = 1 руда (бесформенная)",
-      "lore2": "Дроп должен быть расплавлен (если возможно)",
-      "lore3": "Не включает: Лом, Кварц, Изумруд и т.д.",
-      "lore4": "Источник = Оболочка, тоесть: Камень, Адский камень, Глубинный сланец"
+      "name": "Ore Reconstruction",
+      "description": "Recraft ores from their base components!",
+      "lore": [
+        "<gray>Craft: 8 Smelted drops + 1 Host block = 1 Ore</gray>",
+        "<green>+ </green><gray>Reconstruct ore blocks from materials</gray>",
+        "<yellow>* </yellow><gray>Host = Stone, Netherrack, or Deepslate</gray>",
+        "<red>- </red><gray>Excludes Scraps, Quartz, Emeralds, etc.</gray>"
+      ]
     },
     "leather": {
-      "name": "Кожа",
-      "description": "Изготовление кожи из гнилой плоти",
-      "lore1": "Просто положите Гнилую плоть на костер!"
+      "name": "Craftable Leather",
+      "description": "Craft Leather from Rotten Flesh",
+      "lore": [
+        "<gray>Cook Rotten Flesh on a Campfire</gray>",
+        "<green>+ </green><gray>Converts Rotten Flesh to Leather</gray>"
+      ]
     },
     "backpacks": {
-      "name": "Рюкзаки бутильера!",
-      "description": "Настоящие мешочки Mojang снова в игре!",
-      "lore1": "Вы должны быть в режиме выживания, чтобы скрафтить их",
-      "lore2": "XLX: Кожа, Поводок, Кожа",
-      "lore3": "XSX: Кожа, Бочка, Кожа",
-      "lore4": "XCX: Кожа, Сундук, Кожа"
+      "name": "A Boutilier's Backpacks!",
+      "description": "This just Brings the Mojang Bundle into the game!",
+      "lore": [
+        "<gray>Craft bundles with various recipes</gray>",
+        "<green>+ </green><gray>Unlocks Bundle crafting</gray>",
+        "<yellow>* </yellow><gray>Leather + Lead + Leather (row)</gray>",
+        "<yellow>* </yellow><gray>Survival mode only</gray>"
+      ]
     },
     "stations": {
-      "name": "Портативные столы!",
-      "description": "Портативный стол прямо под рукой!",
-      "lore2": "ЛЮБЫЕ ПРЕДМЕТЫ КОТОРЫЕ ВЫ ЗАБУДЕТЕ В СТОЛЕ ПРИ ЕГО ЗАКРЫТИИ, БУДУТ УТЕРЯНЫ НАВСЕГДА!",
-      "lore3": "Доступные столы: Наковальня, Верстак, Точило, Стол картографа, Камнерез, Ткацкий станок"
+      "name": "Portable Tables!",
+      "description": "Use a table in the palm of your hand!",
+      "lore": [
+        "<gray>Right-click workstation in hand to use</gray>",
+        "<green>+ </green><gray>Portable Anvil, Crafting, Grindstone, etc.</gray>",
+        "<red>- </red><gray>Items left inside are LOST when closed!</gray>"
+      ]
     },
     "skulls": {
-      "name": "Изготовление черепов!",
-      "description": "Используя материалы, вы можете создавать черепа мобов!",
-      "lore1": "Окружите костяной блок следующими предметами, чтобы получить череп:",
-      "lore2": "Зомби: Гниющая плоть",
-      "lore3": "Скелет: Кость",
-      "lore4": "Крипер: Порох",
-      "lore5": "Иссушитель: Незерский кирпич",
-      "lore6": "Дракон: Дыхание дракона"
+      "name": "Craftable skulls!",
+      "description": "Using Materials you can Craft Mob Skulls!",
+      "lore": [
+        "<gray>Craft: Surround Bone Block with mob materials</gray>",
+        "<green>+ </green><gray>Unlocks mob skull crafting</gray>",
+        "<yellow>* </yellow><gray>Zombie=Flesh, Skeleton=Bone, Creeper=Gunpowder</gray>",
+        "<yellow>* </yellow><gray>Wither=Nether Brick, Dragon=Dragon's Breath</gray>"
+      ]
     }
   },
   "discovery": {
     "armor": {
-      "name": "Бронник",
-      "description": "Пассивная броня в зависимости от твердости ближайшего блока",
-      "lore1": "Пассивная броня",
-      "lore2": "в зависимости от твердости ближайшего блока",
-      "lore3": "Броня"
+      "name": "World Armor",
+      "description": "Passive armor depending on nearby block hardness.",
+      "lore": [
+        "<gray>Passive: Gain armor from nearby hard blocks</gray>",
+        "<green>+ {0}</green> <gray>Armor strength multiplier</gray>",
+        "<yellow>* </yellow><gray>Harder blocks = More armor</gray>"
+      ]
     },
     "unity": {
-      "name": "Единение",
-      "description": "При сборе обычного опыта, появляется шанс получить опыт к случайным навыкам",
-      "lore1": "Опыта",
-      "lore2": "за сферу"
+      "name": "Experimental Unity",
+      "description": "Collecting Experience Orbs adds XP to random skills.",
+      "lore": [
+        "<gray>Passive: XP orbs boost random Adapt skills</gray>",
+        "<green>+ {0}</green> <gray>Skill XP per orb collected</gray>"
+      ]
     },
     "resist": {
-      "name": "Экспериментальное сопротивление",
-      "description": "Используйте опыт, чтобы уменьшить урон, получаемый от всех источников\n",
-      "lore0": "Работает раз в 15 секунд",
-      "lore1": "% Уменьшения урона",
-      "lore2": "истощения опыта"
+      "name": "Experimental Resistance",
+      "description": "Consume experience to mitigate the damage you take from all sources",
+      "lore": [
+        "<gray>Passive: Spend XP to reduce incoming damage</gray>",
+        "<green>+ {0}</green> <gray>Damage reduction</gray>",
+        "<red>- {1}</red> <gray>XP drained per activation</gray>",
+        "<yellow>* {2}</yellow> <gray>Cooldown between activations</gray>"
+      ]
     },
     "villager": {
-      "name": "Деревенская прелесть",
-      "description": "Позволяет вам более выгодно торговать с жителями!",
-      "lore1": "Расходуется опыт при торге с жителями",
-      "lore2": "шанс за каждую торговлю потратить опыт и улучшить торговлю",
-      "lore3": "требуемый опыт за торговлю"
+      "name": "Villager Attraction",
+      "description": "Allows for you to get Better trades with villagers!",
+      "lore": [
+        "<gray>Passive: Better trades with villagers</gray>",
+        "<green>+ {0}</green> <gray>Chance for enhanced trades</gray>",
+        "<red>- {1}</red> <gray>XP cost per interaction</gray>"
+      ]
     }
   },
   "enchanting": {
-    "lapisreturn": {
-      "name": "Кешбэк",
-      "description": "За 1 дополнительный XP, появляется шанс на 1 бесплатный лазурит",
-      "lore1": "За каждый уровень увеличивается стоимость зачарования на 1, но может вернуться до 3-х лазурита"
+    "lapis_return": {
+      "name": "Lapis Return",
+      "description": "At the cost of 1 more level of XP, and has a chance to give you free lapis in return",
+      "lore": [
+        "<gray>Trade extra XP for lapis refund</gray>",
+        "<green>+ {0}</green> <gray>Lapis returned per enchant</gray>",
+        "<red>- 1</red> <gray>Extra XP level cost per enchant</gray>"
+      ]
     },
-    "quickenchant": {
-      "name": "Быстрые чары",
-      "description": "Зачаровывайте предметы, используя книги зачарования",
-      "lore1": "максимальный комбинированный уровень",
-      "lore2": "Невозможно зачаровать предмет с более чем ",
-      "lore3": "силы"
+    "quick_enchant": {
+      "name": "Quick-Click Enchant",
+      "description": "Enchant items by clicking enchant books directly on them.",
+      "max_power": "<red>Cannot enchant items above {0} power</red>",
+      "lore": [
+        "<gray>Click enchant books directly on items to apply</gray>",
+        "<green>+ {0}</green> <gray>Maximum combined enchant levels</gray>"
+      ]
     },
     "return": {
-      "name": "Ценный опыт",
-      "description": "Опыт зачарования возвращается вам, когда вы зачаровываете предмет",
-      "lore1": "Потраченный опыт имеет шанс быть возвращенным, когда вы зачаровываете предмет",
-      "lore2": "Опыт за зачарование"
+      "name": "XP Return",
+      "description": "Enchanting XP is returned to you when you enchant an item.",
+      "lore": [
+        "<gray>Passive: Chance to refund XP when enchanting</gray>",
+        "<green>+ {0}</green> <gray>XP returned per enchant</gray>"
+      ]
     }
   },
   "excavation": {
     "haste": {
-      "name": "Экскаватор",
-      "description": "Ускоряет добычу блоков, с помощью СПЕШКИ!",
-      "lore1": "Увеличение скорость копания",
-      "lore2": "x накладывает Спешку при копании любого блока"
+      "name": "Hasty Excavator",
+      "description": "This will speed up the excavation process, with HASTE!",
+      "lore": [
+        "<gray>Passive: Gain Haste while digging</gray>",
+        "<green>+ {0}</green> <gray>Haste levels when mining</gray>"
+      ]
     },
     "spelunker": {
-      "name": "Спелеолог с суперзрением!",
-      "description": "Смотри на руды своими глазами, но сквозь землю!",
-      "lore1": "Ore in your offhand, Glowberries in your main hand, and Sneak!\nРуда во второй руке, светящиеся ягоды в основной и клавиша SHIFT!",
-      "lore2": "Дистанция в блоках: ",
-      "lore3": "Потребляет светящиеся ягоды при использовании"
+      "name": "Super-Seeing Spelunker!",
+      "description": "See Ores with your eyes, but through the ground!",
+      "lore": [
+        "<gray>Hold Ore in offhand + Glowberries in main hand + Sneak</gray>",
+        "<green>+ {0}</green> <gray>Block detection range</gray>",
+        "<yellow>* </yellow><gray>Consumes 1 Glowberry per use</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Автосбор"
+    "drop_to_inventory": {
+      "name": "Shovel Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Dug items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "omnitool": {
-      "name": "МУЛЬТИ - О.Р.У.Д.И.Е",
-      "description": "Снасть чрезмерно продуманного роскошного кожевенника",
-      "lore1": "Пожалуй, самый мощный из всех навыков, который позволяет",
-      "lore2": " раз(а) объединять и менять инструменты прямо на лету, исходя из ваших потребностей.",
-      "lore3": "Чтобы создать мультитул, зажмите Shift и объедините инструменты друг с другом (работает только в инвентаре).",
-      "lore4": "Чтобы разобрать мультитул, зажмите Shift, выбросите мультитул и он будет разобран.",
-      "lore5": "В этом состоянии нельзя сломать инструменты, также нельзя использовать сломанные инструменты",
-      "lore6": "общее количество объединяемых элементов",
-      "lore7": "вы можете использовать пять или шесть инструментов или только один!"
+    "omni_tool": {
+      "name": "OMNI - T.O.O.L.",
+      "description": "Tackle's overdesigned opulent Leatherman",
+      "lore": [
+        "<gray>Merge multiple tools into one super-tool</gray>",
+        "<green>+ {0}</green> <gray>Maximum tools that can be merged</gray>",
+        "<yellow>* </yellow><gray>Shift-click to merge tools in inventory</gray>",
+        "<yellow>* </yellow><gray>Sneak-Drop to disassemble</gray>",
+        "<red>- </red><gray>Broken tools in the merge cannot be used</gray>"
+      ]
     }
   },
   "herbalism": {
-    "growthaura": {
-      "name": "Аура роста",
-      "description": "Выращивайте культуры, используя свою ауру",
-      "lore1": "радиус",
-      "lore2": "сила ауры",
-      "lore3": "потребление сытости"
+    "growth_aura": {
+      "name": "Growth Aura",
+      "description": "Grow nature around you in an aura",
+      "lore": [
+        "<gray>Passive: Crops grow faster around you</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<green>+ {1}</green> <gray>Growth speed multiplier</gray>",
+        "<red>- {2}</red> <gray>Hunger cost per tick</gray>"
+      ]
     },
     "hippo": {
-      "name": "Гиппопотам травника",
-      "description": "Потребление пищи дает вам больше насыщения",
-      "lore1": "Еда) дополнительные очки насыщения при потреблении"
+      "name": "Herbalist's Hippo",
+      "description": "Consuming food, gives you more saturation",
+      "lore": [
+        "<gray>Passive: Food gives bonus saturation</gray>",
+        "<green>+ {0}</green> <gray>Extra saturation per food consumed</gray>"
+      ]
     },
     "myconid": {
-      "name": "Миконид травника",
-      "description": "Дает вам возможность создавать мицелий",
-      "lore1": "Из любой Земли и коричнево/красного гриба можно получить мицелий"
+      "name": "Herbalist's Myconid",
+      "description": "Gives you the ability to craft Mycelium",
+      "lore": [
+        "<gray>Craft: Any Dirt + Brown Mushroom + Red Mushroom</gray>",
+        "<green>+ </green><gray>Unlocks Mycelium crafting recipe</gray>"
+      ]
     },
     "terralid": {
-      "name": "Терралид травника",
-      "description": "Дает вам возможность создавать блоки травы",
-      "lore1": "3 Семечка + 3 Земли = 3 Дерна"
+      "name": "Herbalist's Terralid",
+      "description": "Gives you the ability to craft Grass Blocks",
+      "lore": [
+        "<gray>Craft: 3 Seeds over 3 Dirt</gray>",
+        "<green>+ </green><gray>Unlocks Grass Block crafting recipe</gray>",
+        "<yellow>* </yellow><gray>Produces 3 Grass Blocks per craft</gray>"
+      ]
     },
     "cobweb": {
-      "name": "Вебби Создатель",
-      "description": "Дает вам возможность создавать паутину на верстаке",
-      "lore1": "Девять нити создадут Паутину."
+      "name": "Webby Creator",
+      "description": "Gives you the ability to craft Cobwebs in a Crafting Table",
+      "lore": [
+        "<gray>Craft: 9 String in a 3x3 grid</gray>",
+        "<green>+ </green><gray>Unlocks Cobweb crafting recipe</gray>"
+      ]
     },
-    "mushroomblocks": {
-      "name": "Грибник",
-      "description": "Дает вам возможность создавать блоки грибов на верстаке",
-      "lore1": "Из 4 гриба можно скрафтить блок гриба этого вида, а из блока гриба - стебель"
+    "mushroom_blocks": {
+      "name": "Mushroom Maker",
+      "description": "Gives you the ability to craft Mushroom Blocks in a Crafting Table",
+      "lore": [
+        "<gray>Craft: 4 Mushrooms = 1 Mushroom Block</gray>",
+        "<gray>Craft: 1 Mushroom Block = 1 Mushroom Stem</gray>",
+        "<green>+ </green><gray>Unlocks Mushroom Block crafting recipes</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Автосбор"
+    "drop_to_inventory": {
+      "name": "Hoe Drop-To-Inventory",
+      "description": "When you break a crop it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Harvested crops go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "hungryshield": {
-      "name": "Голодный щит",
-      "description": "Конвертируйте входящий урон в голод",
-      "lore1": "сопротивление голоду"
+    "hungry_shield": {
+      "name": "Hungry Shield",
+      "description": "Take damage to your hunger before your health.",
+      "lore": [
+        "<gray>Passive: Damage is absorbed by hunger first</gray>",
+        "<green>+ {0}</green> <gray>Damage converted to hunger</gray>",
+        "<yellow>* </yellow><gray>Requires food in hunger bar to activate</gray>"
+      ]
     },
     "luck": {
-      "name": "Удача травника",
-      "description": "Когда вы ломаете траву/цветы, у вас есть шанс получить случайный предмет",
-      "lore0": "Из цветов выпадает еда, а из травы - семена",
-      "lore1": "Шанс получить предмет из цветов",
-      "lore2": "Шанс получить предмет из травы"
+      "name": "Herbalist's Luck",
+      "description": "When you break Grass/Flowers, you have a chance to get a random item",
+      "lore": [
+        "<gray>Flowers = Food, and Grass = Seeds</gray>",
+        "<green>+ {0}</green> <gray>Chance to get an item from breaking flowers</gray>",
+        "<green>+ {1}</green> <gray>Chance to get an item from breaking grass</gray>"
+      ]
     },
     "replant": {
-      "name": "Культиватор",
-      "description": "Нажмите ПКМ по культуре мотыгой, чтобы собрать урожай и пересадить его",
-      "lore1": " радиус пересадки"
+      "name": "Harvest & Replant",
+      "description": "Right click a crop with a hoe to harvest & replant it.",
+      "lore": [
+        "<gray>Right-click crops with hoe to harvest and replant</gray>",
+        "<green>+ {0}</green> <gray>Block radius for mass harvesting</gray>"
+      ]
     }
   },
   "hunter": {
     "adrenaline": {
-      "name": "Адреналин",
-      "description": "Чем меньше у вас здоровья, тем выше урон (Ближний бой)",
-      "lore1": "максимальный урон"
+      "name": "Adrenaline",
+      "description": "Deal more damage the lower health you are (Melee)",
+      "lore": [
+        "<gray>Passive: Lower health = Higher damage</gray>",
+        "<green>+ {0}</green> <gray>Maximum bonus damage at low HP</gray>"
+      ]
     },
     "penalty": {
-      "lore1": "Вы получите отравление, если у вас закончится голод"
+      "name": "",
+      "description": "",
+      "lore": [
+        "<red>-{0}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Автосбор",
-      "description": "Когда вы убиваете кого-то или ломаете блок мечом, весь лут переносится в ваш инвентарь.",
-      "lore1": "Когда предмет выпадает из моба/блока, он попадает в ваш инвентарь, по возможности"
+    "drop_to_inventory": {
+      "name": "Items Drop-To-Inventory",
+      "description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
+      "lore": [
+        "<gray>Passive: Mob drops go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped loot</gray>"
+      ]
     },
     "invisibility": {
-      "name": "Исчезающий шаг",
-      "description": "При ранении вы получаете невидимость ценой голода",
-      "lore1": "Пассивная невидимость при получении урона",
-      "lore2": "x невидимость увеличивается на 3 секунды при получении урона",
-      "lore3": "x множитель голода",
-      "lore4": "длительность множителя голода",
-      "lore5": "длительность невидимости"
+      "name": "Vanishing Step",
+      "description": "When you are struck you gain invisibility, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Invisibility when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Invisibility stacks for 3 seconds on hit</gray>",
+        "<green>+ {2}</green> <gray>Invisibility duration</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<red>- {4}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
-    "jumpboost": {
-      "name": "Гибкость",
-      "description": "При ранении вы получаете прыгучесть ценой голода",
-      "lore1": "Пассивная прыгучесть при получении урона",
-      "lore2": "x прыгучесть увеличивается на 3 секунды при получении урона",
-      "lore3": "x множитель голода",
-      "lore4": "длительность множителя голода",
-      "lore5": "Прыгучесть увеличивается с множителем, а не продолжительности"
+    "jump_boost": {
+      "name": "Hunter's Heights",
+      "description": "When you are struck you gain jump-boost, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Jump-Boost when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Jump-Boost stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Jump-Boost stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "luck": {
-      "name": "Удача",
-      "description": "При ранении вы получаете удачу ценой голода",
-      "lore1": "Пассивная удача при получении урона",
-      "lore2": "x удача увеличивается на 3 секунды при получении урона",
-      "lore3": "x множитель голода",
-      "lore4": "длительность множителя голода",
-      "lore5": "Удача увеличивается с множителем, а не с продолжительностью"
+      "name": "Hunter's Luck",
+      "description": "When you are struck you gain luck, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Luck when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Luck stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Luck stacks multiplier, not duration</gray>",
+        "<red>- {4}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "regen": {
-      "name": "Регенерация",
-      "description": "При ранении вы получаете регенерацию ценой голода",
-      "lore1": "Пассивная регенерация при получении урона",
-      "lore2": "x регенерация увеличивается на 3 секунды при получении урона",
-      "lore3": "x множитель голода",
-      "lore4": "длительность множителя голода",
-      "lore5": "Регенерация увеличивается с множителем, а не с продолжительностью"
+      "name": "Hunter's Regen",
+      "description": "When you are struck you gain regeneration, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Regeneration when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Regeneration stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Regeneration stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "resistance": {
-      "name": "Сопротивление",
-      "description": "При ранении вы получаете сопротивление ценой голода",
-      "lore1": "Пассивное сопротивление при получении урона",
-      "lore2": "x сопротивление увеличивается на 3 секунды при получении урона",
-      "lore3": "x множитель голода",
-      "lore4": "длительность множителя голода",
-      "lore5": "Сопротивление увеличивается с множителем, а не с продолжительностью"
+      "name": "Hunter's Resistance",
+      "description": "When you are struck you gain resistance, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Resistance when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Resistance stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Resistance stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "speed": {
-      "name": "Скорость",
-      "description": "При ранении вы получаете скорость ценой голода",
-      "lore1": "Пассивная скорость при получении урона",
-      "lore2": "x скорость увеличивается на 3 секунды при получении урона",
-      "lore3": "x множитель голода",
-      "lore4": "длительность множителя голода",
-      "lore5": "Скорость увеличивается с множителем, а не с продолжительностью"
+      "name": "Hunter's Speed",
+      "description": "When you are struck you gain speed, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Speed when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Speed stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Speed stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
+    },
+    "jumpboost": {
+      "name": "Hunter's Jump Boost",
+      "description": "When you are struck you gain jump boost, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Jump Boost when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Jump Boost stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Jump Boost stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "strength": {
-      "name": "Сила",
-      "description": "При  ранении вы получаете силу ценой голода",
-      "lore1": "Пассивная сила при получении урона",
-      "lore2": "x сила увеличивается на 3 секунды при получении урона",
-      "lore3": "x накопление голода",
-      "lore4": "Продолжительность и множитель голода",
-      "lore5": "Сила увеличивается с множителем, а не с продолжительностью"
+      "name": "Hunter's Strength",
+      "description": "When you are struck you gain strength, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Strength when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Strength stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Strength stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     }
   },
   "nether": {
-    "skulltoss": {
-      "name": "Бросок черепа",
-      "description1": "Дайте волю своему внутреннему увяданию, используя",
-      "description2": "чью-то",
-      "description3": "голову.",
-      "lore1": "секунд перезарядка между каждым броском черепа",
-      "lore2": "Чтобы использовать, бросьте",
-      "lore3": "череп-иссушителя",
-      "lore4": "Череп взрывается при столкновении."
+    "skull_toss": {
+      "name": "Wither Skull Throw",
+      "description": "<gray>Unleash your inner Wither by using someone's head.</gray>",
+      "lore": [
+        "<gray>Right-click with a Wither Skull to throw it</gray>",
+        "<green>+ </green><gray>Wither skull explodes on impact</gray>",
+        "<yellow>* {0}</yellow> <gray>Cooldown between throws</gray>"
+      ]
     },
-    "witherresist": {
-      "name": "Сопротивление иссушению",
-      "description": "Незерит защищает от иссушения",
-      "lore1": " шанс развеять иссушение броней (за 1 незерит)",
-      "lore2": "Пассивный навык: Незеритовая броня дает шанс развеять",
-      "lore3": "эффект иссушения."
+    "wither_resist": {
+      "name": "Wither Resistance",
+      "description": "Resists withering through the power of Netherite.",
+      "lore": [
+        "<gray>Passive: Netherite Armor negates Wither effect</gray>",
+        "<green>+ {0}</green> <gray>Chance to negate withering per piece</gray>",
+        "<yellow>* </yellow><gray>Stacks with multiple armor pieces</gray>"
+      ]
     },
-    "fireresist": {
-      "name": "Огнестойкость",
-      "description": "Противостоит огню, укрепляя кожу.",
-      "lore1": "шанс свести на нет эффект горения!"
+    "fire_resist": {
+      "name": "Fire Resistance",
+      "description": "Resists fire by hardening your skin.",
+      "lore": [
+        "<gray>Passive: Chance to resist fire damage</gray>",
+        "<green>+ {0}</green> <gray>Chance to negate burning</gray>"
+      ]
     }
   },
   "pickaxe": {
-    "autosmelt": {
-      "name": "Автоплавка",
-      "description": "Позволяет автоматически плавить стандартные руды",
-      "lore1": "Руды, которые могут быть выплавлены, выплавляются автоматически",
-      "lore2": "% шанс на выплавку"
+    "auto_smelt": {
+      "name": "Autosmelt",
+      "description": "Allows you to smelt mined Vanilla ores",
+      "lore": [
+        "<gray>Passive: Ores are automatically smelted when mined</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra drop</gray>"
+      ]
     },
     "chisel": {
-      "name": "Резец",
-      "description": "Зажмите ПКМ по руде, чтобы добыть из неё больше кусочков руды, но это скажется на прочности инструмента",
-      "lore1": "шанс на выпадение",
-      "lore2": "износ инструмента"
+      "name": "Ore Chisel",
+      "description": "Right Click Ores to Chisel more ore out of them, at a severe durability cost.",
+      "lore": [
+        "<gray>Right-click ores to chisel extra resources</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra ore drop</gray>",
+        "<red>- {1}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Автосбор",
-      "description": "Когда вы ломаете блок, он перемещается в ваш инвентарь",
-      "lore1": "Когда предмет падает со сломанного вами блока, он перемещается в ваш инвентарь, по возможности"
+    "drop_to_inventory": {
+      "name": "Pickaxe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Mined items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "veinminer": {
-      "name": "Шахтер",
-      "description": "Позволяет разом добыть ВСЮ жилу из стандартных руд",
-      "lore1": "Присядьте, чтобы добыть руду",
-      "lore2": "диапазон добычи жилы",
-      "lore3": "Этот навык НЕ собирает весь дроп вместе!"
+    "silk_spawner": {
+      "name": "Pickaxe Silk-Spawner",
+      "description": "Makes Spawners drop when broken",
+      "lore": {
+        "level_1": "<green>Makes Spawners breakable with silk touch.</green>",
+        "level_2": "<green>Makes Spawners breakable while sneaking.</green>"
+      }
+    },
+    "vein_miner": {
+      "name": "Veinminer",
+      "description": "Allows you to break blocks in a Vein/Cluster of Vanilla ores",
+      "lore": [
+        "<gray>Sneak + Mine to vein-mine connected ores</gray>",
+        "<green>+ {0}</green> <gray>Block range</gray>",
+        "<yellow>* </yellow><gray>Drops are not grouped together</gray>"
+      ]
     }
   },
   "ranged": {
-    "arrowrecovery": {
-      "name": "Бумеранг",
-      "description": "Возвращает стрелы после убийства врага",
-      "lore1": "При попадании/убийстве стрела может вернуться",
-      "lore2": "Шанс: "
+    "arrow_recovery": {
+      "name": "Arrow Recovery",
+      "description": "Recover Arrows after you have killed an enemy.",
+      "lore": [
+        "<gray>Chance to recover arrows on hit</gray>",
+        "<green>+ {0}</green> <gray>Recovery chance</gray>"
+      ]
     },
-    "webshot": {
-      "name": "Паутинная Ловушка",
-      "description": "Окружите паутиной свою цель, когда вы попадете в нее!",
-      "lore1": "8 Паутины возле Снежка, а затем бросайте!",
-      "lore2": "секунд в клетке, приблизительно."
+    "web_shot": {
+      "name": "Web Snare",
+      "description": "Surround cobwebs around your target when you hit them!",
+      "lore": [
+        "<gray>Craft: 8 Cobwebs around a Snowball</gray>",
+        "<green>+ {0}</green> <gray>Web cage duration</gray>",
+        "<yellow>* </yellow><gray>Throw the crafted snowball to create a web trap</gray>"
+      ]
     },
-    "forceshot": {
-      "name": "Усиленный выстрел",
-      "description": "Стреляйте стрелами дальше и быстрее!",
-      "advancementname": "Длинный выстрел",
-      "advancementlore": "Выстрелите с расстояния более 30 блоков!",
-      "lore1": "cкорость стрелы"
+    "force_shot": {
+      "name": "Force Shot",
+      "description": "Shoot projectiles further, faster!",
+      "advancement_name": "Long Shot",
+      "advancement_lore": "Land a shot from over 30 blocks away!",
+      "lore": [
+        "<green>+ {0}</green> <gray>Projectile Speed</gray>"
+      ]
     },
-    "lungeshot": {
-      "name": "Выстрел с выпадом",
-      "description": "Во время падения ваши стрелы отбрасывают вас в случайном направлении",
-      "lore1": "скорость отбрасывания"
+    "lunge_shot": {
+      "name": "Lunge Shot",
+      "description": "While falling your arrows toss you in a random direction",
+      "lore": [
+        "<green>+ {0}</green> <gray>Random Burst Speed</gray>"
+      ]
     },
-    "arrowpiercing": {
-      "name": "Сквозной выстрел",
-      "description": "Стрела теперь может пробить мобов, насквозь!",
-      "lore1": "количество мишеней"
+    "arrow_piercing": {
+      "name": "Arrow Piercing",
+      "description": "Adds Piercing to projectiles! Shoot through things!",
+      "lore": [
+        "<green>+ {0}</green> <gray>Pierce Targets</gray>"
+      ]
     }
   },
   "rift": {
-    "remoteaccess": {
-      "name": "Удаленный доступ",
-      "description": "Вытащите из пустоты и заберите в помеченный контейнер.",
-      "lore1": "Эндер-жемчуг + Компас = Портативная Реликвария",
-      "lore2": "Этот предмет позволяет получить удаленный доступ к сундуку",
-      "lore3": "После крафта посмотрите на предмет, чтобы увидеть его использование",
-      "notcontainer": "Это не сундук"
+    "remote_access": {
+      "name": "Remote Access",
+      "description": "Pull from the void, and get into a marked container.",
+      "not_container": "<red>That's not a container</red>",
+      "lore": [
+        "<gray>Craft: Enderpearl + Compass = Reliquary Portkey</gray>",
+        "<green>+ </green><gray>Access containers remotely</gray>",
+        "<yellow>* </yellow><gray>Shift + Left-click to bind, Right-click to access</gray>"
+      ]
     },
     "blink": {
-      "name": "Пространственный рывок",
-      "description": "Мгновенная телепортация на короткое расстояние!",
-      "lore1": "блоков за рывок (2x вертикально)",
-      "lore2": "Во время бега: прыгните два раза подряд, чтобы сделать ",
-      "lore3": "рывок"
+      "name": "Rift Blink",
+      "description": "Short ranged instant teleportation, Just a blink away!",
+      "lore": [
+        "<gray>While Sprinting: Double-tap Jump to Blink</gray>",
+        "<green>+ {0}</green> <gray>Horizontal blink distance</gray>",
+        "<green>+ {1}</green> <gray>Vertical blink distance</gray>"
+      ]
     },
     "chest": {
-      "name": "Портативный Эндер-сундук",
-      "description": "Откройте эндер-сундук, щелкнув ЛКМ по нему в руке",
-      "lore1": "Нажмите на эндер-сундук в вашей руке, чтобы открыть его (только не ставьте его)"
+      "name": "Easy Enderchest",
+      "description": "Open an enderchest by Left-clicking it in your hand.",
+      "lore": [
+        "<gray>Left-click with Enderchest in hand to open</gray>",
+        "<green>+ </green><gray>Portable Enderchest access</gray>",
+        "<yellow>* </yellow><gray>Don't place it, just click!</gray>"
+      ]
     },
     "descent": {
-      "name": "Антилевитация",
-      "description": "Вам надоело зависать в воздухе? Этот навык для вас!",
-      "lore1": "Нажмите SHFT, чтобы медленно спуститься!",
-      "lore2": "Перезарядка:"
+      "name": "Anti-Levitation",
+      "description": "Are you tired of being stuck in the air? This is the skill for you!",
+      "lore": [
+        "<gray>Sneak while levitating to descend slowly</gray>",
+        "<green>+ </green><gray>Controlled descent speed</gray>",
+        "<yellow>* {0}</yellow> <gray>Cooldown</gray>"
+      ]
     },
     "gate": {
-      "name": "Пространственные врата",
-      "description": "Телепортируйтесь в отмеченное место",
-      "lore1": "Изумруд + Осколок аметиста + Эндер-жемчуг",
-      "lore2": "Внимание!",
-      "lore3": "В течение 5 секунд, ",
-      "lore4": "вы можете умереть, находясь в анимации!"
+      "name": "Rift Gate",
+      "description": "Teleport to a marked location.",
+      "lore": [
+        "<gray>Craft: Emerald + Amethyst Shard + Ender Pearl</gray>",
+        "<green>+ </green><gray>Teleport to marked location</gray>",
+        "<yellow>* {0}</yellow> <gray>Channeling delay</gray>",
+        "<red>- </red><gray>You can die during the animation</gray>"
+      ]
     },
     "resist": {
-      "name": "Межпространственный щит",
-      "description": "Дает Сопротивление при использовании предметов и способностей Края",
-      "lore1": "Пассивный навык: дает сопротивление при использовании способностей или предметов Края",
-      "lore2": "(кроме эндер-сундука)."
+      "name": "Rift Resistance",
+      "description": "Gain Resistance when using Ender Items & Abilities",
+      "lore": [
+        "<gray>Passive: Gain Resistance when using Rift abilities or Ender items</gray>",
+        "<green>+ </green><gray>Resistance effect on Ender item use</gray>",
+        "<red>- </red><gray>Does not work with Portable Enderchest</gray>"
+      ]
+    },
+    "visage": {
+      "name": "Rift Visage",
+      "description": "Prevents Endermen from becoming aggressive if you have Enderpearls in your inventory.",
+      "lore": [
+        "<gray>Passive: Endermen ignore you when you carry Enderpearls</gray>",
+        "<green>+ </green><gray>Endermen will not become aggressive</gray>",
+        "<yellow>* </yellow><gray>Requires Enderpearls in inventory</gray>"
+      ]
     }
   },
   "seaborn": {
     "oxygen": {
-      "name": "Жабры",
-      "description": "Удерживайте больше кислорода в своих маленьких легких!",
-      "lore1": "Увеличение вместимости кислорода"
+      "name": "Organic Oxygen Tank",
+      "description": "Hold more oxygen in your tiny lungs!",
+      "lore": [
+        "<gray>Passive: Extended breath underwater</gray>",
+        "<green>+ {0}</green> <gray>Extra oxygen capacity</gray>"
+      ]
     },
-    "fishersfantasy": {
-      "name": "Мечта рыбака",
-      "description": "Зарабатывайте больше XP от рыбалки и ловите больше рыбы!",
-      "lore1": "С каждым уровнем увеличивается шанс получить больше опыта и рыбы"
+    "fishers_fantasy": {
+      "name": "Fisher's Fantasy",
+      "description": "Earn more XP from fishing, and get more fish!",
+      "lore": [
+        "<gray>Passive: Bonus rewards while fishing</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra XP</gray>",
+        "<green>+ {1}</green> <gray>Chance for extra fish</gray>"
+      ]
     },
     "haste": {
-      "name": "Шахтер-водолаз",
-      "description": "При добыче под водой вы получаете спешку!",
-      "lore1": "Спешка III применяется под водой во время добычи (суммируется с Подводником) после того, как у вас закончится кислород"
+      "name": "Turtle Miner",
+      "description": "While mining underwater you gain haste!",
+      "lore": [
+        "<gray>Passive: Gain Haste while mining underwater</gray>",
+        "<green>+ {0}</green> <gray>Haste level while mining</gray>",
+        "<yellow>* </yellow><gray>Stacks with Aqua Affinity</gray>",
+        "<yellow>* </yellow><gray>Activates after Water Breathing wears off</gray>"
+      ]
     },
-    "nightvision": {
-      "name": "Зрение водолаза",
-      "description": "Под водой вы получаете ночное видение",
-      "lore1": "Вы получаете ночное видение под водой после того, как у вас закончится кислород"
+    "night_vision": {
+      "name": "Turtle's Vision",
+      "description": "While underwater, you gain Night Vision",
+      "lore": [
+        "<gray>Passive: Gain Night Vision while underwater</gray>",
+        "<green>+ </green><gray>Night Vision effect</gray>",
+        "<yellow>* </yellow><gray>Activates after Water Breathing wears off</gray>"
+      ]
     },
-    "dolphingrace": {
-      "name": "Грация дельфина",
-      "description": "Плавайте как дельфин, но без дельфинов",
-      "lore1": "Пассивный навык: прирост ",
-      "lore2": "x скорости",
-      "lore3": "(грация дельфина)"
+    "dolphin_grace": {
+      "name": "Dolphin's Grace",
+      "description": "Swim like a dolphin, without the dolphins",
+      "lore": [
+        "<gray>Passive: Gain Dolphin's Grace while underwater</gray>",
+        "<green>+ {0}</green> <gray>Swimming speed</gray>",
+        "<red>- </red><gray>Not compatible with Depth Strider</gray>"
+      ]
     }
   },
   "stealth": {
-    "ghostarmor": {
-      "name": "Призрачная броня",
-      "description": "Пасивное увеличение брони, когда вы не получаете урон, работает после первого удара",
-      "lore1": "к максимальной броне",
-      "lore2": "скорость"
+    "ghost_armor": {
+      "name": "Ghost's Armor",
+      "description": "Slow building armor when not taking damage, Lasts for 1 hit",
+      "lore": [
+        "<gray>Passive: Build armor over time when not hit</gray>",
+        "<green>+ {0}</green> <gray>Maximum armor</gray>",
+        "<green>+ {1}</green> <gray>Armor gained per tick</gray>",
+        "<yellow>* </yellow><gray>Armor resets after taking damage</gray>"
+      ]
     },
-    "nightvision": {
-      "name": "Скрытое зрение",
-      "description": "Вы получаете ночное зрение в приседе",
-      "lore1": "Получите ",
-      "lore2": "ночное зрение",
-      "lore3": "во время подкрадывания"
+    "night_vision": {
+      "name": "Stealth Vision",
+      "description": "Gain night vision while sneaking",
+      "lore": [
+        "<gray>Sneak to activate Night Vision</gray>",
+        "<green>+ </green><gray>Night Vision while sneaking</gray>"
+      ]
     },
     "snatch": {
-      "name": "Воровство",
-      "description": "Мгновенно собирайте выброшенные предметы, крадясь!",
-      "lore1": "радиус кражи"
+      "name": "Item Snatch",
+      "description": "Snatch Dropped items instantly while sneaking!",
+      "lore": [
+        "<gray>Sneak to pick up nearby items instantly</gray>",
+        "<green>+ {0}</green> <gray>Block pickup radius</gray>"
+      ]
     },
     "speed": {
-      "name": "Походка ниндзя",
-      "description": "Ваша скорость увеличивается в приседе",
-      "lore1": " скорость подкрадывания"
+      "name": "Sneak Speed",
+      "description": "Gain speed while sneaking",
+      "lore": [
+        "<gray>Passive: Move faster while sneaking</gray>",
+        "<green>+ {0}</green> <gray>Sneaking speed multiplier</gray>"
+      ]
+    },
+    "ender_veil": {
+      "name": "Enderveil",
+      "description": "No more Pumpkins to prevent Enderman attacks",
+      "lore": {
+        "level_1": "<gray>Prevent enderman attacks while sneaking</gray>",
+        "level_2": "<gray>Prevent all enderman attacks</gray>"
+      }
     }
   },
   "sword": {
     "machete": {
-      "name": "Мачете",
-      "description": "С легкостью срезайте листву!",
-      "lore1": "радиус",
-      "lore2": "перезарядка",
-      "lore3": "износ инструмента"
+      "name": "Machete",
+      "description": "Cut through foliage with ease!",
+      "lore": [
+        "<gray>Swing sword to cut nearby plants</gray>",
+        "<green>+ {0}</green> <gray>Slash radius</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between slashes</gray>",
+        "<red>- {2}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "bloodyblade": {
-      "name": "Кровавый клинок",
-      "description": "Удары мечом вызывают кровотечение!",
-      "lore1": "Удары мечом по сущности вызывают кровотечение",
-      "lore2": "длительность кровотечения",
-      "lore3": "перезарядка способности"
+    "bloody_blade": {
+      "name": "Bloody Blade",
+      "description": "Strikes with your sword, cause Bleeding!",
+      "lore": [
+        "<gray>Sword strikes cause bleeding damage over time</gray>",
+        "<green>+ {0}</green> <gray>Bleed duration</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between bleeds</gray>"
+      ]
     },
-    "poisonedblade": {
-      "name": "Отравленный клинок",
-      "description": "Удары мечом вызывают отравление!",
-      "lore1": "Удары мечом по сущности - отравляют её",
-      "lore2": "длительность отравления",
-      "lore3": "перезарядка способности"
+    "poisoned_blade": {
+      "name": "Poisoned Blade",
+      "description": "Strikes with your sword, cause Poison!",
+      "lore": [
+        "<gray>Sword strikes apply poison to enemies</gray>",
+        "<green>+ {0}</green> <gray>Poison duration</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between poisons</gray>"
+      ]
     }
   },
   "taming": {
     "damage": {
-      "name": "Когти",
-      "description": "Увеличивает урон у питомцев",
-      "lore1": "повышение урона"
+      "name": "Tame Damage",
+      "description": "Increase your tamed animal damage dealt.",
+      "lore": [
+        "<gray>Passive: Your tamed animals deal more damage</gray>",
+        "<green>+ {0}</green> <gray>Bonus damage for pets</gray>"
+      ]
     },
     "health": {
-      "name": "Бонус к здоровью",
-      "description": "Увеличивает здоровье у питомцев",
-      "lore1": "увеличение здоровья"
+      "name": "Tame Health",
+      "description": "Increase your tamed animal health.",
+      "lore": [
+        "<gray>Passive: Your tamed animals have more health</gray>",
+        "<green>+ {0}</green> <gray>Max health for pets</gray>"
+      ]
     },
     "regeneration": {
-      "name": "Регенерация питомца",
-      "description": "Увеличивает регенерацию у питомцев",
-      "lore1": "здоровье в сек"
+      "name": "Tame Regeneration",
+      "description": "Increase your tamed animal regeneration.",
+      "lore": [
+        "<gray>Passive: Your tamed animals regenerate health</gray>",
+        "<green>+ {0}</green> <gray>HP per second for pets</gray>"
+      ]
     }
   },
   "tragoul": {
     "thorns": {
-      "name": "Шипы",
-      "description": "Отражайте урон обратно нападающему!",
-      "lore1": "урон, наносимый при отражении"
+      "name": "Thorns",
+      "description": "Reflect damage back to your attacker!",
+      "lore": [
+        "<gray>Passive: Reflect damage when hit</gray>",
+        "<green>+ {0}</green> <gray>Damage reflected to attacker</gray>"
+      ]
     },
     "globe": {
-      "name": "Сфера боли",
-      "description": "Разделите наносимый вами урон в зависимости от количества врагов вокруг вас!",
-      "lore1": "Чем больше врагов вокруг вас, тем меньше урона вы наносите каждому из них",
-      "lore2": "Дальность: ",
-      "lore3": "Добавлен урон всем существам: "
+      "name": "Globe of Pain",
+      "description": "Divide the Damage you deal based on the number of enemies around you!",
+      "lore": [
+        "<gray>Damage is split among nearby enemies</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<green>+ {1}</green> <gray>Bonus damage to all entities in range</gray>"
+      ]
     },
     "healing": {
-      "name": "Желание боли",
-      "description": "Восстанавливайте здоровье в зависимости от нанесенного вами урона!",
-      "lore1": "Причинять вред вещам еще никогда не было так приятно! Исцеление от нанесенного урона",
-      "lore2": "Существует 3-секундное окно получения урона для исцеления и 1-секундная перезарядка ",
-      "lore3": "Исцеление от урона в процентах: "
+      "name": "Will of Pain",
+      "description": "Regain health based on the damage you deal!",
+      "lore": [
+        "<gray>Heal from the damage you deal to enemies</gray>",
+        "<green>+ {0}</green> <gray>Healing per damage dealt</gray>",
+        "<yellow>* {1}</yellow> <gray>Damage window for healing</gray>",
+        "<yellow>* {2}</yellow> <gray>Cooldown between heals</gray>"
+      ]
     },
     "lance": {
-      "name": "Копья для трупов",
-      "description": "Убийство врага или способностью его убить создаёт копье, наносящее урон ближайшему врагу!",
-      "lore1": "Копья будут выискиваться из всего, что вы убьете, И если эта способность убьет врага.",
-      "lore2": "Пожертвуйте частью своего здоровья, чтобы создать копья (вы можете умереть)",
-      "lore3": "Максимум копий: 1 + "
+      "name": "Corpse Lances",
+      "description": "Killing an enemy or having an ability kill an enemy, spawns a lance that deals damage to a nearby enemy!",
+      "lore": [
+        "<gray>Kills spawn lances that seek nearby enemies</gray>",
+        "<green>+ {0}</green> <gray>Maximum lances</gray>",
+        "<red>- {1}%</red> <gray>Health cost per lance (can kill you!)</gray>",
+        "<yellow>* </yellow><gray>Lances chain from ability kills too</gray>"
+      ]
     }
   },
   "unarmed": {
-    "glasscannon": {
-      "name": "Стеклянная пушка",
-      "description": "Увеличивает урон в зависимости от прочности брони",
-      "lore1": "урон при 0 прочности брони",
-      "lore2": "увеличенный урон за каждый уровень"
+    "glass_cannon": {
+      "name": "Glass Cannon",
+      "description": "Bonus Unarmed Damage the lower your armor value is",
+      "lore": [
+        "<gray>Less armor = More damage</gray>",
+        "<green>+ {0}</green> <gray>Damage multiplier at 0 armor</gray>",
+        "<green>+ {1}</green> <gray>Bonus damage per level</gray>"
+      ]
     },
     "power": {
-      "name": "Сила безоружного",
-      "description": "Увеличивает урон, наносимый без оружия",
-      "lore1": " урон"
+      "name": "Unarmed Power",
+      "description": "Improved Unarmed Damage",
+      "lore": [
+        "<gray>Passive: Increased fist damage</gray>",
+        "<green>+ {0}</green> <gray>Bonus damage</gray>"
+      ]
     },
-    "suckerpunch": {
-      "name": "Удар исподтишка",
-      "description": "Скоростные удары, но более смертоносные",
-      "lore1": "урона",
-      "lore2": "Урон увеличивается с ростом вашей скорости атаки"
+    "sucker_punch": {
+      "name": "Sucker Punch",
+      "description": "Sprint punches, but more deadly.",
+      "lore": [
+        "<gray>Sprint to deal extra punch damage</gray>",
+        "<green>+ {0}</green> <gray>Base bonus damage</gray>",
+        "<yellow>* </yellow><gray>Damage scales with movement speed</gray>"
+      ]
     }
   }
 }

@@ -20,7 +20,10 @@ package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -38,8 +41,8 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     public AxeChop() {
         super("axe-chop");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("axe", "chop", "description"));
-        setDisplayName(Localizer.dLocalize("axe", "chop", "name"));
+        setDescription(Localizer.dLocalize("axe.chop.description"));
+        setDisplayName(Localizer.dLocalize("axe.chop.name"));
         setIcon(Material.IRON_AXE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -50,9 +53,12 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + " " + Localizer.dLocalize("axe", "chop", "lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("axe", "chop", "lore2"));
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Localizer.dLocalize("axe", "chop", "lore3"));
+        double levelPercent = getLevelPercent(level);
+        v.addLore(Localizer.dLocalize(
+                "axe.chop.lore",
+                level,
+                Form.duration(getCooldownTime(levelPercent) * 50D, 1),
+                getDamagePerBlock(levelPercent)));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

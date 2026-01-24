@@ -231,912 +231,1285 @@
     "challenge_pickaxe_5m": {
       "title": "Legendarny Górnik",
       "description": "Złam 5 000 000 bloków"
+    },
+    "challenge_eat_100": {
+      "title": "So much to eat!",
+      "description": "Eat over 100 Items!"
+    },
+    "challenge_eat_1000": {
+      "title": "Unquenchable Hunger!",
+      "description": "Eat over 1,000 Items!"
+    },
+    "challenge_eat_10000": {
+      "title": "EVERLASTING HUNGER!",
+      "description": "Eat over 10,000 Items!"
+    },
+    "challenge_harvest_100": {
+      "title": "Full Harvest",
+      "description": "Harvest over 100 crops!"
+    },
+    "challenge_harvest_1000": {
+      "title": "Grand Harvest",
+      "description": "Harvest over 1,000 crops!"
+    },
+    "challenge_swim_1nm": {
+      "title": "Human Submarine!",
+      "description": "Swim 1 Nautical Mile (1,852 blocks)"
+    },
+    "challenge_sneak_1k": {
+      "title": "Knee Pain",
+      "description": "Sneak over a kilometer (1,000 blocks)"
     }
   },
   "items": {
-    "boundenderperal": {
-      "name": "Relikwiarz świstoklik",
-      "usage1": "Shift + lewy przycisk myszy, aby powiązać",
-      "usage2": "Kliknij prawym przyciskiem myszy, aby uzyskać dostęp do powiązanego ekwipunku"
+    "bound_ender_peral": {
+      "name": "<white>Reliquary Portkey</white>",
+      "usage1": "<gray>Shift + Left Click to bind</gray>",
+      "usage2": "<gray>Right Click to access the bound Inventory</gray>"
     },
-    "boundeyeofender": {
-      "name": "Kotwica oka",
-      "usage1": "Kliknij prawym przyciskiem myszy, aby skonsumować i teleportować się do powiązanej lokalizacji",
-      "usage2": "Shift + lewy przycisk myszy, aby powiązać z blokiem"
+    "bound_eye_of_ender": {
+      "name": "<white>Ocular Anchor</white>",
+      "usage1": "<gray>Right Click to consume and teleport to the bound location</gray>",
+      "usage2": "<gray>Shift + Left Click to bind to a block</gray>"
     },
-    "boundredstonetorch": {
-      "name": "Pilot Redstone",
-      "usage1": "Kliknij prawym przyciskiem myszy, aby utworzyć impuls Redstone 1-Tick",
-      "usage2": "Shift + lewy przycisk myszy na bloku „celu”, aby powiązać"
+    "bound_redstone_torch": {
+      "name": "<white>Redstone Remote</white>",
+      "usage1": "<gray>Right Click to create a 1-Tick Redstone pulse</gray>",
+      "usage2": "<gray>Shift + Left Click on a 'Target' Block to bind</gray>"
     },
-    "boundsnowball": {
-      "name": "Sieciowy pułapka!",
-      "usage1": "Rzuć, aby utworzyć tymczasową pułapkę sieciową w tym miejscu"
+    "bound_snowball": {
+      "name": "<white>Web Snare!</white>",
+      "usage1": "<gray>Throw to create a temporary web trap at the location</gray>"
+    },
+    "elevator_block": {
+      "name": "Elevator Block",
+      "usage1": "Jump to teleport up",
+      "usage2": "Shift to teleport down",
+      "usage3": "Minimum of 2 air blocks between the elevators"
     }
   },
   "snippets": {
     "gui": {
-      "level": "Poziom",
-      "knowledge": "Wiedza",
-      "powerused": "Użyta moc",
-      "notlearned": "Nie Nauczono",
-      "xp": "XP do",
-      "welcome": "Witamy!",
-      "welcomeback": "Witamy spowrotem!",
-      "xpbonusfortime": "XP za",
-      "unlockthisbyclicking": "Odblokuj to, klikając prawym przyciskiem myszy:",
-      "back": "Z powrotem",
-      "unlearnall": "Oducz się wszystkich",
-      "unlearnedall": "Wszystko oduczone"
+      "level": "<dark_gray>Level {0}</dark_gray>",
+      "knowledge": "<white>{0}</white> <gray>knowledge</gray>",
+      "power_used": "<gray>Power Used</gray> <dark_green>{0}</dark_green>",
+      "power_used_ratio": "<dark_gray>({0}/{1} Power Used)</dark_gray>",
+      "not_learned": "<dark_gray>Not Learned</dark_gray>",
+      "xp": "<dark_gray>{0}XP to {1}</dark_gray>",
+      "welcome": "<white>Welcome!</white>",
+      "welcome_back": "<white>Welcome back!</white>",
+      "xp_bonus_for_time": "+<green>{0}</green> <gray>XP for</gray> <aqua>{1}</aqua>",
+      "max_ability_power": "<gold>Maximum Ability Power</gold> <gray>+{0}</gray>",
+      "unlock_this_by_clicking": "<gray>Unlock this by Right-Clicking:</gray> <white>{0}</white>",
+      "back": "<gray>Back</gray>",
+      "unlearn_all": "<gray>Unlearn all</gray>{0}",
+      "unlearned_all": "<gray>Unlearned all</gray>"
     },
-    "adaptmenu": {
-      "maynotunlearn": "NIE MOŻESZ SIĘ ODUCZYĆ",
-      "mayunlearn": "MOŻESZ SIĘ UCZYĆ/ODUCZYĆ",
-      "knowledgecost": "Koszt Wiedzy",
-      "knowledgeavailable": "Dostępna wiedza",
-      "alreadylearned": "Już Nauczono",
-      "unlearnrefund": "Kliknij, aby się oduczyć i otrzymać zwrot XP",
-      "norefunds": "HARDCORE, ZWROTY ZWROTÓW WYŁĄCZONE",
-      "knowledge": "Wiedza",
-      "clicklearn": "Kliknij, aby dowiedzieć się",
-      "noknowledge": "(Nie masz żadnej wiedzy)",
-      "youonlyhave": "Posiadasz tylko",
-      "howtolevelup": "Zwiększaj umiejętności, aby zwiększyć swoją maksymalną moc.",
-      "notenoughpower": "Za mało mocy! Każdy poziom umiejętności kosztuje 1 moc.",
-      "power": "Moc",
-      "powerdrain": "Pobór mocy",
-      "learned": "Nauczono",
-      "unlearned": "Nieuczony",
-      "activatorblock": "Półka na książki"
+    "adapt_menu": {
+      "may_not_unlearn": "<red><bold>YOU MAY NOT UNLEARN</bold></red>",
+      "may_unlearn": "<green>YOU MAY LEARN/UNLEARN</green>",
+      "knowledge_cost": "<white>{0}</white> <gray>Knowledge Cost</gray>",
+      "knowledge_available": "<gray>Knowledge Available</gray>",
+      "knowledge_available_title": "<dark_gray>{0} knowledge</dark_gray>",
+      "unlearn_refund": "<gray><u>Click to Unlearn & Refund <white>{0}</white> Knowledge Cost</u></gray>",
+      "no_refunds": "<dark_red><bold>HARDCORE, REFUNDS DISABLED</bold></dark_red>",
+      "knowledge": "<dark_gray>knowledge</dark_gray>",
+      "no_knowledge": "<red>(You don't have any Knowledge)</red>",
+      "you_only_have": "<red>(You only have <white>{0}</white> Knowledge Available)</red>",
+      "how_to_level_up": "<red>Level up skills to increase your max power.</red>",
+      "not_enough_power": "<red>Not enough power! Each Ability Level costs 1 power.</red>",
+      "power": "<gray>power</gray>",
+      "power_drain": "<green>{0} Power Drain</green>",
+      "learned": "<gray>Learned {0}</gray>",
+      "unlearned": "<gray>Unlearned {0}</gray>",
+      "activator_block": "<gold>Bookshelf</gold>"
     },
-    "knowledgeorb": {
-      "contains": "Zawiera",
-      "knowledge": "Wiedza",
-      "rightclick": "Kliknij Prawym Przyciskiem Myszy",
-      "togainknowledge": "do zdobycia tej wiedzy",
-      "knowledgeorb": "Kula Wiedzy"
+    "knowledge_orb": {
+      "contains": "<white>contains</white> <white><u>{0}</u></white> <gray>{1}</gray> <gray>knowledge</gray>",
+      "knowledge": "<gray>knowledge</gray>",
+      "right_click_to_gain_knowledge": "<light_purple>Right-Click</light_purple> <gray>to gain this knowledge</gray>",
+      "knowledge_orb": "<gold>Knowledge Orb</gold>"
     },
-    "experienceorb": {
-      "contains": "Zawiera",
-      "xp": "Doświadczenie",
-      "rightclick": "Prawy Przycisk",
-      "togainxp": "do zdobycia tego doświadczenia",
-      "xporb": "Kula Doświadczenia"
+    "experience_orb": {
+      "contains": "<white>contains</white> <white><u>{0}</u></white> <gray>{1}</gray> <gray>Experience</gray>",
+      "xp": "<gray>Experience</gray>",
+      "right_click_to_gain_xp": "<light_purple>Right-Click</light_purple> <gray>to gain this experience</gray>",
+      "xp_orb": "<gold>Experience Orb</gold>"
     }
   },
   "skill": {
     "agility": {
-      "name": "Zręczność",
+      "name": "Agility",
       "icon": "⇉",
-      "description": "Zwinność to umiejętność szybkiego i płynnego poruszania się w obliczu przeszkód."
+      "description": "Agility is the ability to move quick and fluidly in the face of obstacles."
     },
     "architect": {
-      "name": "Architekt",
+      "name": "Architect",
       "icon": "⬧",
-      "description": "Struktury są budulcem świata. Rzeczywistość jest w Twoich rękach i pod Twoją kontrolą."
+      "description": "Structures are the building blocks of the world. Reality is in your hands, yours to control."
     },
     "axes": {
-      "name": "Siekiery",
-      "icon": "❖",
-      "description1": "Po co ścinać drzewa, skoro można rąbać",
-      "description2": "rzeczy",
-      "description3": "zamiast tego ten sam efekt końcowy!"
+      "name": "Axes",
+      "icon": "🪓",
+      "description": "<gray>Why chop down trees, when you could chop</gray> <italic><gray>things</gray></italic> <gray>instead, same end result!</gray>"
     },
     "brewing": {
-      "name": "Browarnictwo",
+      "name": "Brewing",
       "icon": "❦",
-      "description": "Double Bubble, Triple Bubble, Quadruple Bubble- Nadal nie mogę wlać tej mikstury do kociołka"
+      "description": "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
     },
     "blocking": {
-      "name": "Bloking",
-      "icon": "▒",
-      "description": "Kije i kamienie nie złamią twoich kości, ale tarcza złamie."
+      "name": "Blocking",
+      "icon": "🛡",
+      "description": "Sticks and stones Won't break your bones, But a shield will."
     },
     "crafting": {
-      "name": "Rzemiosło",
+      "name": "Crafting",
       "icon": "⌂",
-      "description": "Skoro nie ma już kawałków do umieszczenia, dlaczego nie zrobić kolejnego?"
+      "description": "With no more pieces left to place, why not make another?"
     },
     "discovery": {
-      "name": "Odkrycie",
+      "name": "Discovery",
       "icon": "⚛",
-      "description": "Gdy twoja Percepcja się rozszerza, twój umysł rozplątuje się, by odkryć to, czego nie odkryłeś"
+      "description": "As your perception expands, your mind unravels to discover that which you did not."
     },
     "enchanting": {
-      "name": "Uroczy",
+      "name": "Enchanting",
       "icon": "♰",
-      "description": "O czym ty mówisz? Proroctwa, wizje, przesądny bełkot?"
+      "description": "What are you going on about? Prophecies, visions, superstitious jibber-jabber?"
     },
     "excavation": {
-      "name": "Wykop",
-      "icon": "✥",
-      "description": "Diggey Diggey otwór..."
+      "name": "Excavation",
+      "icon": "ᛳ",
+      "description": "Diggy Diggy Hole..."
     },
     "herbalism": {
-      "name": "Zielarstwo",
+      "name": "Herbalism",
       "icon": "⚘",
-      "description": "Nie mogę znaleźć żadnych roślin, ale mogę znaleźć nasiona i- czy to... Ziele?"
+      "description": "I can't find any plants, but I can find some seeds and- is that... Weed?"
     },
     "hunter": {
-      "name": "Łowca",
+      "name": "Hunter",
       "icon": "☠",
-      "description": "Polowanie dotyczy podróży, a nie wyniku."
+      "description": "Hunting is about the journey not the outcome."
     },
     "nether": {
-      "name": "nether",
+      "name": "Nether",
       "icon": "₪",
-      "description": "Z głębi samego Netheru."
+      "description": "From the depths of the Nether itself."
     },
     "pickaxe": {
-      "name": "Kilof",
+      "name": "Pickaxe",
       "icon": "⛏",
-      "description": "Krasnoludy to górnicy, ale w swoim czasie nauczyłem się kilku rzeczy. JESTEM SZWEDEM"
+      "description": "Dwarves are the miners, but ive learned a thing or two in my time. IM SWEDISH"
     },
     "ranged": {
-      "name": "Dystansowy",
+      "name": "Ranged",
       "icon": "🏹",
-      "description": "Trzymanie wroga na dystans jest kluczem do zwycięstwa i kluczem do przetrwania."
+      "description": "Distance is the key to victory, and the key to survival."
     },
     "rift": {
-      "name": "Szczelina",
+      "name": "Rift",
       "icon": "❍",
-      "description": "Rift to uprząż żrąca, ale ty ją wykorzystałeś."
+      "description": "The Rift is a caustic harness, but you have harnessed the harness."
     },
     "seaborne": {
-      "name": "Morski",
-      "icon": "🌊",
-      "description": "Dzięki tej umiejętności możesz poznać morskie cuda"
+      "name": "Seaborne",
+      "icon": "🎣",
+      "description": "With this skill, you may will the wonders of the water."
     },
     "stealth": {
-      "name": "Skradanie",
-      "icon": "✠",
-      "description": "Sztuka niewidzialnego. Ukryj się w cieniu."
+      "name": "Stealth",
+      "icon": "☯",
+      "description": "The art of the unseen. Walk in the shadows."
     },
     "swords": {
-      "name": "Miecze",
+      "name": "Swords",
       "icon": "⚔",
-      "description": "Dzięki mocy GreyStone!"
+      "description": "By the power of GreyStone!"
     },
     "taming": {
-      "name": "Oswajanie",
+      "name": "Taming",
       "icon": "♥",
-      "description": "Papugi, pszczoły... i ty?"
+      "description": "The parrots and the bees... and you?"
     },
     "tragoul": {
       "name": "TragOul",
-      "icon": "▼",
-      "description": "Krew płynie żyłami wszechświata. Zaciśnięte przez twoje ręce."
+      "icon": "🗡",
+      "description": "Blood flows through the veins of the universe. Constricted by your hands."
     },
     "chronos": {
-      "name": "chronos",
-      "icon": "۞",
-      "description": "Nakręć Zegar wszechświata, poczuj przepływ. Złam zegar, zostań tym."
+      "name": "Chronos",
+      "icon": "⏳",
+      "description": "Wind the Clock of the universe, experience the flow. Break the clock, become it."
     },
     "unarmed": {
-      "name": "Nieuzbrojony",
-      "icon": "⚜",
-      "description": "Bez broni nie jest bez siły"
+      "name": "Unarmed",
+      "icon": "»",
+      "description": "Without a weapon is not without strength."
     }
   },
   "agility": {
-    "armorup": {
-      "name": "Zbroja-Up",
-      "description": "Zdobądź więcej pancerza, im dłużej sprintujesz!",
-      "lore1": "Maksymalny Pancerz",
-      "lore2": "Czas Do Uzbrojenia"
+    "armor_up": {
+      "name": "Armor Up",
+      "description": "Get more armor the longer you sprint!",
+      "lore": [
+        "<gray>Passive: Build armor while sprinting</gray>",
+        "<green>+ {0}</green> <gray>Maximum armor gained</gray>",
+        "<yellow>* {1}</yellow> <gray>Time to reach max armor</gray>"
+      ]
     },
-    "superjump": {
-      "name": "Super Skok",
-      "description": "Nadzwyczajna Przewaga Wysokości",
-      "lore1": "Maksymalna Wysokość Skoku",
-      "lore2": "Skradanie się + skok do superskoku!"
+    "super_jump": {
+      "name": "Super Jump",
+      "description": "Exceptional Height Advantage.",
+      "lore": [
+        "<gray>Sneak + Jump to perform a Super Jump</gray>",
+        "<green>+ {0}</green> <gray>Maximum jump height</gray>"
+      ]
     },
-    "walljump": {
-      "name": "Skok Po Ścianie",
-      "description": "Przytrzymaj shift, gdy jesteś w powietrzu przy ścianie do ściany, zatrzaskuj się i skacz!",
-      "lore1": "Maksymalna Ilość Skoków",
-      "lore2": "Wysokość Skoku"
+    "wall_jump": {
+      "name": "Wall Jump",
+      "description": "Hold shift while mid-air against a wall to wall latch & jump!",
+      "lore": [
+        "<gray>Hold Sneak against wall mid-air to latch and jump</gray>",
+        "<green>+ {0}</green> <gray>Maximum wall jumps</gray>",
+        "<green>+ {1}</green> <gray>Jump height per wall jump</gray>"
+      ]
     },
-    "windup": {
-      "name": "Zakończyć",
-      "description": "Nabierz prędkości im dłużej biegniesz!",
-      "lore1": "Maksymalna Prędkość",
-      "lore2": "Czas zakończenia"
+    "wind_up": {
+      "name": "Wind Up",
+      "description": "Get faster the longer you sprint!",
+      "lore": [
+        "<gray>Passive: Build speed while sprinting</gray>",
+        "<green>+ {0}</green> <gray>Maximum speed multiplier</gray>",
+        "<yellow>* {1}</yellow> <gray>Time to reach max speed</gray>"
+      ]
     }
   },
   "architect": {
+    "elevator": {
+      "name": "Elevator",
+      "description": "This allows for you to build an elevator to teleport vertically fast!",
+      "lore": [
+        "<gray>Craft: 8 Wool around 1 Ender Pearl</gray>",
+        "<green>+ </green><gray>Unlocks Elevator Block crafting</gray>",
+        "<yellow>* </yellow><gray>Jump to go up, Sneak to go down</gray>"
+      ]
+    },
     "foundation": {
-      "name": "Magiczna Fundacja",
-      "description": "To pozwala ci się zakraść i umieścić pod sobą tymczasowy podkład!",
-      "lore1": "Stwórz magicznie:",
-      "lore2": "Bloki pod tobą!"
+      "name": "Magic Foundation",
+      "description": "This allows for you to sneak and place a temporary foundation beneath you!",
+      "lore": [
+        "<gray>Sneak in mid-air to create temporary blocks</gray>",
+        "<green>+ {0}</green> <gray>Blocks you can place beneath you</gray>",
+        "<yellow>* </yellow><gray>Blocks disappear after a short time</gray>"
+      ]
     },
     "glass": {
-      "name": "Jedwabny Dotyk Szkła",
-      "description": "Pozwala to zasadniczo zapobiec utracie pustaków szklanych, gdy rozbijesz je pustą ręką!",
-      "lore1": "Twoje dłonie zyskują jedwabisty dotyk do szkła"
+      "name": "Silk-Touch Glass",
+      "description": "This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand!",
+      "lore": [
+        "<gray>Passive: Break glass with bare hands</gray>",
+        "<green>+ </green><gray>Glass drops as item instead of breaking</gray>"
+      ]
     },
-    "wirelessredstone": {
-      "name": "Pilot Redstone",
-      "description": "Dzięki temu możesz używać latarki z czerwonego kamienia do zdalnego przełączania czerwonego kamienia!",
-      "lore1": "Cel + Redstone Torch + Enderperal = 1 Redstone Remote"
+    "wireless_redstone": {
+      "name": "Redstone Remote",
+      "description": "This allows for you to use a redstone torch to toggle redstone, remotely!",
+      "lore": [
+        "<gray>Craft: Target + Redstone Torch + Enderpearl</gray>",
+        "<green>+ </green><gray>Remotely toggle redstone signals</gray>",
+        "<yellow>* </yellow><gray>Shift + Left-click to bind, Right-click to pulse</gray>"
+      ]
     },
     "placement": {
-      "name": "Różdzka Konstruktora",
-      "description": "Pozwala na umieszczenie wielu bloków naraz, aby aktywować Skradanie się i przytrzymanie bloku, który pasuje do Twojego wyglądającego bloku i miejsca! Pamiętaj, że być może będziesz musiał przesunąć odrobinę, aby wywołać ograniczanie pudełek!",
-      "lore1": "Potrzebujesz",
-      "lore2": "bloki w dłoni, aby to umieścić",
-      "lore3": "Różdżka Budowniczych Materiałów"
+      "name": "Builders Wand",
+      "description": "Allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!",
+      "need_blocks": "<red>You need <green>{0}</green> blocks in your hand to place this</red>",
+      "lore": [
+        "<gray>Sneak + Place to extend block surfaces</gray>",
+        "<green>+ </green><gray>Place multiple blocks at once</gray>",
+        "<yellow>* </yellow><gray>Hold matching blocks in hand</gray>"
+      ]
     }
   },
   "axe": {
     "chop": {
-      "name": "Uderzenie Siekiery",
-      "description": "Ścinaj drzewa, klikając prawym przyciskiem myszy dziennik podstawowy!",
-      "lore1": "Bloki na kotlet",
-      "lore2": "Czas odnowienia siekania",
-      "lore3": "Zużycie Narzędzi"
+      "name": "Axe Chop",
+      "description": "Chop down trees by right clicking the base log!",
+      "lore": [
+        "<gray>Right-click base log to chop entire tree</gray>",
+        "<green>+ {0}</green> <gray>Blocks chopped per use</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between chops</gray>",
+        "<red>- {2}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "logswap": {
-      "name": "Wymieniacz dzienników Lucy",
-      "description": "Zmień smak dzienników na stole rzemieślniczym!",
-      "lore1": "1 kłoda dowolnego rodzaju + 1 drzewko = 1 kłoda typu drzewka"
+    "log_swap": {
+      "name": "Lucy's Log-Swapper",
+      "description": "Change the flavor of logs in a Crafting Table!",
+      "lore": [
+        "<gray>Craft: 8 Logs + 1 Sapling = 8 Logs of sapling type</gray>",
+        "<green>+ </green><gray>Convert any log type to another</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Topór wrzuć do ekwipunku"
+    "drop_to_inventory": {
+      "name": "Axe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Chopped items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped logs</gray>"
+      ]
     },
-    "groundsmash": {
-      "name": "Uderzenie toporem",
-      "description": "Podskocz, a następnie przykucnij i zmiażdż wszystkich pobliskich wrogów.",
-      "lore1": "Obrażenia",
-      "lore2": "Zasięg Bloku",
-      "lore3": "Moc",
-      "lore4": "Czas odnowienia Uderzenia"
+    "ground_smash": {
+      "name": "Axe Ground Smash",
+      "description": "Jump, then crouch and smash all nearby enemies.",
+      "lore": [
+        "<gray>Jump + Sneak with axe to ground smash</gray>",
+        "<green>+ {0}-{1}</green> <gray>Damage dealt</gray>",
+        "<green>+ {2}</green> <gray>Block radius</gray>",
+        "<green>+ {3}</green> <gray>Knockback force</gray>",
+        "<yellow>* {4}</yellow> <gray>Cooldown</gray>"
+      ]
     },
-    "leafminer": {
-      "name": "LiśćMiner",
-      "description": "Pozwala na natychmiastowe rozbicie dużych liści!",
-      "lore1": "Skradaj się i moje LIŚCIE",
-      "lore2": "zakres wydobycia liści",
-      "lore3": "Nie otrzymasz dropów z liści (Aby zapobiec nadużyciu)"
+    "leaf_miner": {
+      "name": "Leaf-miner",
+      "description": "Allows you to break bulk leaves at once!",
+      "lore": [
+        "<gray>Sneak + Mine leaves to break in bulk</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<red>- </red><gray>No drops from leaves (exploit prevention)</gray>"
+      ]
     },
-    "woodminer": {
-      "name": "Górnik",
-      "description": "Umożliwia natychmiastowe rozbicie drewna luzem!",
-      "lore1": "Skradaj się i wykop DREWNO/LOGI (nie deski)",
-      "lore2": "zakres wydobycia drewna",
-      "lore3": "Współpracuje z Drop to Inventory"
+    "wood_miner": {
+      "name": "Wood-miner",
+      "description": "Allows you to break bulk wood at once!",
+      "lore": [
+        "<gray>Sneak + Mine logs to break in bulk</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<yellow>* </yellow><gray>Works with Drop-to-Inventory</gray>",
+        "<yellow>* </yellow><gray>Does not work on planks</gray>"
+      ]
     }
   },
   "brewing": {
     "lingering": {
-      "name": "Długotrwały napar",
-      "description": "Warzone mikstury trwają dłużej!",
-      "lore1": "Czas Trwania",
-      "lore2": "Czas Trwania"
+      "name": "Lingering Brew",
+      "description": "Brewed potions last longer!",
+      "lore": [
+        "<gray>Passive: Potion effects last longer</gray>",
+        "<green>+ {0}</green> <gray>Bonus duration for regular potions</gray>",
+        "<green>+ {1}</green> <gray>Bonus duration for splash potions</gray>"
+      ]
     },
-    "superheated": {
-      "name": "Super podgrzewany napar",
-      "description": "Stojaki piwowarskie działają szybciej, im są cieplejsze.",
-      "lore1": "Za dotknięcie bloku ognia",
-      "lore2": "Za dotknięcie bloku lawy"
+    "super_heated": {
+      "name": "Super Heated Brew",
+      "description": "Brewing stands work faster the hotter they are.",
+      "lore": [
+        "<gray>Passive: Heat sources speed up brewing</gray>",
+        "<green>+ {0}</green> <gray>Speed per adjacent fire block</gray>",
+        "<green>+ {1}</green> <gray>Speed per adjacent lava block</gray>"
+      ]
     },
     "darkness": {
-      "name": "Butelkowa Ciemność",
-      "description": "Nie wiem, dlaczego tego potrzebujesz, ale proszę bardzo!",
-      "lore1": "Mikstura Noktowizora + Czarny Beton = Mikstura Ciemności (30 sekund)",
-      "lore2": "Należy zauważyć, że uniemożliwia to użytkownikowi Sprint!"
+      "name": "Bottled Darkness",
+      "description": "Not sure why you need this, but here you go!",
+      "lore": [
+        "<gray>Craft: Night Vision Potion + Black Concrete</gray>",
+        "<green>+ {0}</green> <gray>Darkness effect</gray>",
+        "<red>- </red><gray>Prevents sprinting while active</gray>"
+      ]
     },
     "haste": {
-      "name": "Butelkowy Pośpiech",
-      "description": "Kiedy Wydajność to za mało",
-      "lore1": "Mikstura Szybkości + Odłamek Ametystu = Mikstura Pośpiechu (60 sekund)",
-      "lore2": "Mikstura Szybkości + Blok Ametystu = Mikstura Pośpiechu-2 (30 sekund)"
+      "name": "Bottled Haste",
+      "description": "When Efficiency is not enough",
+      "lore": [
+        "<gray>Craft: Speed Potion + Amethyst Shard = Haste I (60s)</gray>",
+        "<gray>Craft: Speed Potion + Amethyst Block = Haste II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Haste potion brewing</gray>"
+      ]
     },
     "absorption": {
-      "name": "Absorpcja butelkowa",
-      "description": "Utwardź ciało!",
-      "lore1": "Natychmiastowe Leczenie + Kwarc = Mikstura Absorpcji (60 sekund)",
-      "lore2": "Natychmiastowe Uzdrowienie + Kwarcowy Blok = Mikstura Absorpcji-2 (30 sekund)"
+      "name": "Bottled Absorption",
+      "description": "Harden the body!",
+      "lore": [
+        "<gray>Craft: Instant Heal + Quartz = Absorption I (60s)</gray>",
+        "<gray>Craft: Instant Heal + Quartz Block = Absorption II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Absorption potion brewing</gray>"
+      ]
     },
     "fatigue": {
-      "name": "Zmęczenie butelkowe",
-      "description": "Osłab ciało!",
-      "lore1": "Mikstura Słabości + Śluzowa Kula = Mikstura Zmęczenia (30 sekund)",
-      "lore2": "Mikstura Słabości + Blok Śluzu = Mikstura Zmęczenia-2 (15 sekund)"
+      "name": "Bottled Fatigue",
+      "description": "Weaken the body!",
+      "lore": [
+        "<gray>Craft: Weakness Potion + Slime Ball = Fatigue I (30s)</gray>",
+        "<gray>Craft: Weakness Potion + Slime Block = Fatigue II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Mining Fatigue potion brewing</gray>"
+      ]
     },
     "hunger": {
-      "name": "Butelkowy Głód",
-      "description": "Nakarm Nienasyconego!",
-      "lore1": "Niezręczna Mikstura + Zgniłe Ciało = Mikstura Głodu (30 sekund)",
-      "lore2": "Mikstura Słabości + Zgniłe Ciało = Mikstura Głodu-3 (15 sekund)"
+      "name": "Bottled Hunger",
+      "description": "Feed the Insatiable!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Rotten Flesh = Hunger I (30s)</gray>",
+        "<gray>Craft: Weakness Potion + Rotten Flesh = Hunger II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Hunger potion brewing</gray>"
+      ]
     },
     "nausea": {
-      "name": "Butelkowe nudności",
-      "description": "Jesteś okropną osobą...",
-      "lore1": "Niezręczna Mikstura + Brązowy Grzyb = Mikstura Mdłości (16 sekund)",
-      "lore2": "Niezręczna Mikstura + Karmazynowy Grzyb = Mikstura Mdłości-2 (8 sekund)"
+      "name": "Bottled Nausea",
+      "description": "You make me sick!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Brown Mushroom = Nausea I (16s)</gray>",
+        "<gray>Craft: Awkward Potion + Crimson Fungus = Nausea II (8s)</gray>",
+        "<green>+ </green><gray>Unlocks Nausea potion brewing</gray>"
+      ]
     },
     "blindness": {
-      "name": "Butelkowa ślepota",
-      "description": "Jesteś okropną osobą...",
-      "lore1": "Niezręczna Mikstura + Worek Atramentu = Mikstura Oślepienia (30 sekund)",
-      "lore2": "Niezręczna Mikstura + Świecący Worek Atramentu = Mikstura Oślepienia-2 (15 sekund)"
+      "name": "Bottled Blindness",
+      "description": "You're a horrible person...",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Ink Sac = Blindness I (30s)</gray>",
+        "<gray>Craft: Awkward Potion + Glow Ink Sac = Blindness II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Blindness potion brewing</gray>"
+      ]
     },
     "resistance": {
-      "name": "Odporność na butelkowanie",
-      "description": "Fortyfikacja w najlepszym wydaniu!",
-      "lore1": "Niezręczna Mikstura + Sztabka Żelaza = Mikstura Odporności (60 sekund)",
-      "lore2": "Niezręczna Mikstura + Żelazny Blok = Mikstura Odporności-2 (30 sekund)"
+      "name": "Bottled Resistance",
+      "description": "Fortification at its finest!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Iron Ingot = Resistance I (60s)</gray>",
+        "<gray>Craft: Awkward Potion + Iron Block = Resistance II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Resistance potion brewing</gray>"
+      ]
     },
-    "healthboost": {
-      "name": "Życie w butelkach",
-      "description": "Kiedy Maksymalne zdrowie to za mało...",
-      "lore1": "Mikstura natychmiastowego leczenia + Złote Jabłko = Mikstura Wzmocnienia Zdrowia (120 sekund)",
-      "lore2": "Mikstura natychmiastowego leczenia + Zaczarowane Złote Jabłko = Mikstura Zdrowia Wzmocnienie-2 (120 sekund)"
+    "health_boost": {
+      "name": "Bottled Life",
+      "description": "When Maximum health is not enough...",
+      "lore": [
+        "<gray>Craft: Instant Heal + Golden Apple = Health Boost I (120s)</gray>",
+        "<gray>Craft: Instant Heal + Enchanted Apple = Health Boost II (120s)</gray>",
+        "<green>+ </green><gray>Unlocks Health Boost potion brewing</gray>"
+      ]
     },
     "decay": {
-      "name": "Butelkowy próchnica",
-      "description": "Kto by pomyślał, że Detrytus będzie tak przydatny?",
-      "lore1": "Mikstura Słabości + Trujący Ziemniak = Mikstura Zamętu (16 sekund)",
-      "lore2": "Mikstura Słabości + Karmazynowe Korzenie = Mikstura Zwiędłości-2 (8 sekund)"
+      "name": "Bottled Decay",
+      "description": "Who knew Detritus would be so useful?",
+      "lore": [
+        "<gray>Craft: Weakness Potion + Poisonous Potato = Wither I (16s)</gray>",
+        "<gray>Craft: Weakness Potion + Crimson Roots = Wither II (8s)</gray>",
+        "<green>+ </green><gray>Unlocks Wither potion brewing</gray>"
+      ]
     },
     "saturation": {
-      "name": "Nasycenie w butelkach",
-      "description": "Wiesz... nawet nie jestem głodny...",
-      "lore1": "Mikstura Regeneracji + Pieczony Ziemniak = Mikstura Nasycenia (120 sekund)",
-      "lore2": "Mikstura Regeneracji + Bale Siana = Mikstura Nasycenia (120 sekund)"
+      "name": "Bottled Saturation",
+      "description": "Ya know... Im not even Hungry...",
+      "lore": [
+        "<gray>Craft: Regen Potion + Baked Potato = Saturation I</gray>",
+        "<gray>Craft: Regen Potion + Hay Bale = Saturation II</gray>",
+        "<green>+ </green><gray>Unlocks Saturation potion brewing</gray>"
+      ]
     }
   },
   "blocking": {
-    "chainarmorer": {
-      "name": "Łańcuchy Mefistofelesa",
-      "description": "Umożliwia tworzenie zbroi kolczugi",
-      "lore1": "Przepis rzemieślniczy jest taki sam jak każdy inny, ale zawiera bryłki żelaza"
+    "chain_armorer": {
+      "name": "Chains of Mephistopheles",
+      "description": "Allows you to craft Chainmail Armor",
+      "lore": [
+        "<gray>Craft: Use Iron Nuggets in armor patterns</gray>",
+        "<green>+ </green><gray>Unlocks Chainmail Armor crafting</gray>"
+      ]
     },
-    "horsearmorer": {
-      "name": "Zbroja konia do wykonania",
-      "description": "Umożliwia tworzenie zbroi konia",
-      "lore1": "Otocz siodło materiałem, którego chcesz użyć do stworzenia zbroi"
+    "horse_armorer": {
+      "name": "Craftable Horse Armor",
+      "description": "Allows you to craft Horse Armor",
+      "lore": [
+        "<gray>Craft: Surround Saddle with armor material</gray>",
+        "<green>+ </green><gray>Unlocks Horse Armor crafting</gray>",
+        "<yellow>* </yellow><gray>Use Iron/Gold/Diamond for different tiers</gray>"
+      ]
     },
-    "saddlecrafter": {
-      "name": "Siodło do wytworzenia",
-      "description": "Stwórz siodło ze skóry",
-      "lore1": "Przepis: 5 Skóra:"
+    "saddle_crafter": {
+      "name": "Craftable Saddle",
+      "description": "Craft a Saddle with Leather",
+      "lore": [
+        "<gray>Craft: 5 Leather in saddle pattern</gray>",
+        "<green>+ </green><gray>Unlocks Saddle crafting</gray>"
+      ]
     },
-    "multiarmor": {
-      "name": "Wielopancerz",
-      "description": "Powiąż Elytry ze zbroją",
-      "lore1": "To niesamowita umiejętność podróżowania.",
-      "lore2": "dynamicznie łącz i zmieniaj Pancerz/Elytrę w locie!",
-      "lore3": "aby scalić, kliknij z wciśniętym klawiszem Shift element nad innym w ekwipunku.",
-      "lore4": "aby rozpiąć zbroję, upuść przedmiot z ukrycia, a rozłoży się.",
-      "lore5": "Jeśli twój MultiArmor zostanie zniszczony, stracisz wszystkie znajdujące się w nim przedmioty.",
-      "lore6": "Nie potrzebuję zbroi, to mnie rozczarowuje..."
+    "multi_armor": {
+      "name": "Multi-Armor",
+      "description": "Bind Elytras to Armor",
+      "lore": [
+        "<gray>Merge Elytra with Chestplate for dual functionality</gray>",
+        "<green>+ </green><gray>Shift-click to merge items in inventory</gray>",
+        "<yellow>* </yellow><gray>Sneak-Drop to disassemble</gray>",
+        "<red>- </red><gray>Destroying MultiArmor loses all merged items</gray>"
+      ]
     }
   },
   "crafting": {
     "deconstruction": {
-      "name": "Dekonstrukcja",
-      "description": "Rozłóż bloki i przedmioty na odzyskiwalne elementy bazowe!",
-      "lore1": "Umieść dowolny przedmiot + użyj nożyce",
-      "lore2": "w stole kowalskim do rozebrania."
+      "name": "Deconstruction",
+      "description": "Deconstruct blocks & items into salvageable base components!",
+      "lore": [
+        "<gray>Drop item + Sneak + Right-click with Shears</gray>",
+        "<green>+ </green><gray>Break items into base components</gray>"
+      ]
     },
     "xp": {
-      "name": "PD rzemieślnicze",
-      "description": "Zdobywaj pasywne PD podczas tworzenia",
-      "lore1": "Zdobywaj PD podczas tworzenia"
+      "name": "Crafting XP",
+      "description": "Gain passive XP when crafting",
+      "lore": [
+        "<gray>Passive: Earn XP from crafting items</gray>",
+        "<green>+ </green><gray>XP gained per craft</gray>"
+      ]
     },
     "reconstruction": {
-      "name": "Rekonstrukcja rudy",
-      "description": "Przerabiaj rudy z ich podstawowych komponentów!",
-      "lore1": "8 kropli i 1 host = 1 ruda (bezkształtna)",
-      "lore2": "Krople muszą być wytapiane (jeśli dotyczy)",
-      "lore3": "Nie obejmuje: skrawków, ćwiartek i szmaragdów itp.",
-      "lore4": "Gospodarz = obudowa. tj.: Stone, Netherack, Deepslate"
+      "name": "Ore Reconstruction",
+      "description": "Recraft ores from their base components!",
+      "lore": [
+        "<gray>Craft: 8 Smelted drops + 1 Host block = 1 Ore</gray>",
+        "<green>+ </green><gray>Reconstruct ore blocks from materials</gray>",
+        "<yellow>* </yellow><gray>Host = Stone, Netherrack, or Deepslate</gray>",
+        "<red>- </red><gray>Excludes Scraps, Quartz, Emeralds, etc.</gray>"
+      ]
     },
     "leather": {
-      "name": "Skóra do wytworzenia",
-      "description": "Skóra rzemieślnicza z Rotten Flesh",
-      "lore1": "Po prostu wrzuć to (zgniłe mięso) na ognisko!"
+      "name": "Craftable Leather",
+      "description": "Craft Leather from Rotten Flesh",
+      "lore": [
+        "<gray>Cook Rotten Flesh on a Campfire</gray>",
+        "<green>+ </green><gray>Converts Rotten Flesh to Leather</gray>"
+      ]
     },
     "backpacks": {
-      "name": "Plecaki Butiliera!",
-      "description": "To właśnie wprowadza do gry pakiet Mojang!",
-      "lore1": "Aby z tego skorzystać, musisz być w trybie Survival",
-      "lore2": "XLX: Skóra, Ołów, Skóra",
-      "lore3": "XSX: Skóra, Pudełko Shulkera, Skóra",
-      "lore4": "XCX: skóra, klatka piersiowa, skóra"
+      "name": "A Boutilier's Backpacks!",
+      "description": "This just Brings the Mojang Bundle into the game!",
+      "lore": [
+        "<gray>Craft bundles with various recipes</gray>",
+        "<green>+ </green><gray>Unlocks Bundle crafting</gray>",
+        "<yellow>* </yellow><gray>Leather + Lead + Leather (row)</gray>",
+        "<yellow>* </yellow><gray>Survival mode only</gray>"
+      ]
     },
     "stations": {
-      "name": "Stoły przenośne!",
-      "description": "Użyj stołu w dłoni!",
-      "lore2": "WSZELKIE POZYCJE, KTÓRE ZAPOMNISZ W TABELI PO ZAMKNIĘCIU SĄ NA ZAWSZE UTRACONE!",
-      "lore3": "Prawidłowe tabele: Kowadło, Rzemiosło, Kamień szlifierski, Kartografia, Kamieniarz, Krosno"
+      "name": "Portable Tables!",
+      "description": "Use a table in the palm of your hand!",
+      "lore": [
+        "<gray>Right-click workstation in hand to use</gray>",
+        "<green>+ </green><gray>Portable Anvil, Crafting, Grindstone, etc.</gray>",
+        "<red>- </red><gray>Items left inside are LOST when closed!</gray>"
+      ]
     },
     "skulls": {
-      "name": "Czaszki do wytworzenia!",
-      "description": "Używając materiałów możesz tworzyć czaszki mobów!",
-      "lore1": "Otocz blok kości następującymi elementami, aby uzyskać czaszkę:",
-      "lore2": "Zombie: Gnijące Ciało",
-      "lore3": "Szkielet: kość",
-      "lore4": "Pnącze: proch strzelniczy",
-      "lore5": "Więdnięcie: Netherowa cegła",
-      "lore6": "Smok: Oddech Smoka"
+      "name": "Craftable skulls!",
+      "description": "Using Materials you can Craft Mob Skulls!",
+      "lore": [
+        "<gray>Craft: Surround Bone Block with mob materials</gray>",
+        "<green>+ </green><gray>Unlocks mob skull crafting</gray>",
+        "<yellow>* </yellow><gray>Zombie=Flesh, Skeleton=Bone, Creeper=Gunpowder</gray>",
+        "<yellow>* </yellow><gray>Wither=Nether Brick, Dragon=Dragon's Breath</gray>"
+      ]
     }
   },
   "discovery": {
     "armor": {
-      "name": "Zbroja świata",
-      "description": "Pancerz pasywny w zależności od twardości pobliskiego bloku.",
-      "lore1": "Zbroja Pasywna",
-      "lore2": "Na podstawie twardości pobliskiego bloku",
-      "lore3": "Siła Pancerza: +"
+      "name": "World Armor",
+      "description": "Passive armor depending on nearby block hardness.",
+      "lore": [
+        "<gray>Passive: Gain armor from nearby hard blocks</gray>",
+        "<green>+ {0}</green> <gray>Armor strength multiplier</gray>",
+        "<yellow>* </yellow><gray>Harder blocks = More armor</gray>"
+      ]
     },
     "unity": {
-      "name": "Eksperymentalna Jedność",
-      "description": "Zbieranie kul doświadczenia dodaje PD do losowych umiejętności.",
-      "lore1": "XP ",
-      "lore2": "Za kulę"
+      "name": "Experimental Unity",
+      "description": "Collecting Experience Orbs adds XP to random skills.",
+      "lore": [
+        "<gray>Passive: XP orbs boost random Adapt skills</gray>",
+        "<green>+ {0}</green> <gray>Skill XP per orb collected</gray>"
+      ]
     },
     "resist": {
-      "name": "Eksperymentalny opór",
-      "description": "Zużywaj doświadczenie, aby złagodzić obrażenia, które otrzymujesz ze wszystkich źródeł\n",
-      "lore0": "Może się to zdarzyć tylko raz na 15 sekund",
-      "lore1": "% Zmniejszone Obrażenia",
-      "lore2": "doświadczenie wyczerpane"
+      "name": "Experimental Resistance",
+      "description": "Consume experience to mitigate the damage you take from all sources",
+      "lore": [
+        "<gray>Passive: Spend XP to reduce incoming damage</gray>",
+        "<green>+ {0}</green> <gray>Damage reduction</gray>",
+        "<red>- {1}</red> <gray>XP drained per activation</gray>",
+        "<yellow>* {2}</yellow> <gray>Cooldown between activations</gray>"
+      ]
     },
     "villager": {
-      "name": "Atrakcja wieśniaka",
-      "description": "Pozwala na uzyskanie lepszych transakcji z mieszkańcami wioski!",
-      "lore1": "Zużywa to PD za interakcję z wieśniakami",
-      "lore2": "Szansa na zużycie PD i ulepszenie wymian na interakcję",
-      "lore3": "wymagany drenaż XP na interakcję"
+      "name": "Villager Attraction",
+      "description": "Allows for you to get Better trades with villagers!",
+      "lore": [
+        "<gray>Passive: Better trades with villagers</gray>",
+        "<green>+ {0}</green> <gray>Chance for enhanced trades</gray>",
+        "<red>- {1}</red> <gray>XP cost per interaction</gray>"
+      ]
     }
   },
   "enchanting": {
-    "lapisreturn": {
-      "name": "Powrót Lapisu",
-      "description": "Kosztem 1 dodatkowego poziomu XP, a w zamian ma szansę na darmowe lapis",
-      "lore1": "Na każdy poziom zwiększa koszt zaklęcia o 1, ale może powrócić w górę o 3 Lapis"
+    "lapis_return": {
+      "name": "Lapis Return",
+      "description": "At the cost of 1 more level of XP, and has a chance to give you free lapis in return",
+      "lore": [
+        "<gray>Trade extra XP for lapis refund</gray>",
+        "<green>+ {0}</green> <gray>Lapis returned per enchant</gray>",
+        "<red>- 1</red> <gray>Extra XP level cost per enchant</gray>"
+      ]
     },
-    "quickenchant": {
-      "name": "Zaklęcie szybkiego kliknięcia",
-      "description": "Zaczaruj przedmioty, klikając zaczaruj książki bezpośrednio na nich.",
-      "lore1": "Maks. połączone poziomy",
-      "lore2": "Nie można zaczarować przedmiotu z więcej niż",
-      "lore3": "moc"
+    "quick_enchant": {
+      "name": "Quick-Click Enchant",
+      "description": "Enchant items by clicking enchant books directly on them.",
+      "max_power": "<red>Cannot enchant items above {0} power</red>",
+      "lore": [
+        "<gray>Click enchant books directly on items to apply</gray>",
+        "<green>+ {0}</green> <gray>Maximum combined enchant levels</gray>"
+      ]
     },
     "return": {
-      "name": "Zwrot XP",
-      "description": "Zaczarowane PD są zwracane po zaczarowaniu przedmiotu.",
-      "lore1": "Wydane doświadczenie ma szansę zostać zwrócone, gdy zaczarujesz przedmiot",
-      "lore2": "Doświadczenie za zaklęcie"
+      "name": "XP Return",
+      "description": "Enchanting XP is returned to you when you enchant an item.",
+      "lore": [
+        "<gray>Passive: Chance to refund XP when enchanting</gray>",
+        "<green>+ {0}</green> <gray>XP returned per enchant</gray>"
+      ]
     }
   },
   "excavation": {
     "haste": {
-      "name": "Pośpieszna koparka",
-      "description": "Przyspieszy to wykopaliska dzięki HASTE!",
-      "lore1": "Zyskaj pośpiech podczas kopania",
-      "lore2": "x Poziomy pośpiechu, gdy zaczniesz wydobywać DOWOLNY blok."
+      "name": "Hasty Excavator",
+      "description": "This will speed up the excavation process, with HASTE!",
+      "lore": [
+        "<gray>Passive: Gain Haste while digging</gray>",
+        "<green>+ {0}</green> <gray>Haste levels when mining</gray>"
+      ]
     },
     "spelunker": {
-      "name": "Superwidzący grotołaz!",
-      "description": "Zobacz rudy na własne oczy, ale przez ziemię!",
-      "lore1": "Ruda w twojej drugiej ręce, Jagody w twojej głównej ręce i Skradanie się!",
-      "lore2": "Zakres bloków:",
-      "lore3": "Zużywa Glowberry podczas użycia"
+      "name": "Super-Seeing Spelunker!",
+      "description": "See Ores with your eyes, but through the ground!",
+      "lore": [
+        "<gray>Hold Ore in offhand + Glowberries in main hand + Sneak</gray>",
+        "<green>+ {0}</green> <gray>Block detection range</gray>",
+        "<yellow>* </yellow><gray>Consumes 1 Glowberry per use</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Łopata zrzutu do magazynu"
+    "drop_to_inventory": {
+      "name": "Shovel Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Dug items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "omnitool": {
+    "omni_tool": {
       "name": "OMNI - T.O.O.L.",
-      "description": "Przesadnie zaprojektowany, bogaty Leatherman firmy Tackle",
-      "lore1": "Prawdopodobnie najpotężniejszy z wielu pozwala",
-      "lore2": "dynamicznie łącz i zmieniaj narzędzia w locie, zgodnie z Twoimi potrzebami.",
-      "lore3": "aby scalić, kliknij z wciśniętym klawiszem Shift element nad innym w ekwipunku.",
-      "lore4": "aby odpiąć narzędzia, Sneak-Upuść przedmiot, a zostanie on zdemontowany.",
-      "lore5": "nie możesz złamać narzędzi w tym skórzanym, ale nie możesz używać zepsutych narzędzi",
-      "lore6": "całkowita liczba elementów, które można scalić",
-      "lore7": "możesz użyć pięciu lub sześciu narzędzi lub tylko jednego!"
+      "description": "Tackle's overdesigned opulent Leatherman",
+      "lore": [
+        "<gray>Merge multiple tools into one super-tool</gray>",
+        "<green>+ {0}</green> <gray>Maximum tools that can be merged</gray>",
+        "<yellow>* </yellow><gray>Shift-click to merge tools in inventory</gray>",
+        "<yellow>* </yellow><gray>Sneak-Drop to disassemble</gray>",
+        "<red>- </red><gray>Broken tools in the merge cannot be used</gray>"
+      ]
     }
   },
   "herbalism": {
-    "growthaura": {
-      "name": "Aura wzrostu",
-      "description": "Rozwijaj przyrodę wokół siebie w aurze",
-      "lore1": "Promień bloku",
-      "lore2": "Siła aury wzrostu",
-      "lore3": "Koszt jedzenia"
+    "growth_aura": {
+      "name": "Growth Aura",
+      "description": "Grow nature around you in an aura",
+      "lore": [
+        "<gray>Passive: Crops grow faster around you</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<green>+ {1}</green> <gray>Growth speed multiplier</gray>",
+        "<red>- {2}</red> <gray>Hunger cost per tick</gray>"
+      ]
     },
     "hippo": {
-      "name": "Hipopotam zielarza",
-      "description": "Spożywanie jedzenia daje większe nasycenie",
-      "lore1": "Jedzenie) dodatkowe punkty nasycenia po spożyciu"
+      "name": "Herbalist's Hippo",
+      "description": "Consuming food, gives you more saturation",
+      "lore": [
+        "<gray>Passive: Food gives bonus saturation</gray>",
+        "<green>+ {0}</green> <gray>Extra saturation per food consumed</gray>"
+      ]
     },
     "myconid": {
-      "name": "Mykonid zielarza",
-      "description": "Daje możliwość tworzenia grzybni",
-      "lore1": "Dowolny brud i brązowy i czerwony grzyb stworzy grzybnię."
+      "name": "Herbalist's Myconid",
+      "description": "Gives you the ability to craft Mycelium",
+      "lore": [
+        "<gray>Craft: Any Dirt + Brown Mushroom + Red Mushroom</gray>",
+        "<green>+ </green><gray>Unlocks Mycelium crafting recipe</gray>"
+      ]
     },
     "terralid": {
-      "name": "Terralid Zielarza",
-      "description": "Daje możliwość tworzenia bloków trawy",
-      "lore1": "Trzy nasiona, ponad 3 brud, stworzą 3 bloki trawy."
+      "name": "Herbalist's Terralid",
+      "description": "Gives you the ability to craft Grass Blocks",
+      "lore": [
+        "<gray>Craft: 3 Seeds over 3 Dirt</gray>",
+        "<green>+ </green><gray>Unlocks Grass Block crafting recipe</gray>",
+        "<yellow>* </yellow><gray>Produces 3 Grass Blocks per craft</gray>"
+      ]
     },
     "cobweb": {
       "name": "Webby Creator",
-      "description": "Daje możliwość tworzenia pajęczyn na stole rzemieślniczym",
-      "lore1": "Nine String, stworzy Pajęczynę."
+      "description": "Gives you the ability to craft Cobwebs in a Crafting Table",
+      "lore": [
+        "<gray>Craft: 9 String in a 3x3 grid</gray>",
+        "<green>+ </green><gray>Unlocks Cobweb crafting recipe</gray>"
+      ]
     },
-    "mushroomblocks": {
-      "name": "Pieczarka",
-      "description": "Daje możliwość tworzenia bloków grzybów na stole rzemieślniczym",
-      "lore1": "Cztery grzyby do zrobienia bloku lub blok do zrobienia łodygi."
+    "mushroom_blocks": {
+      "name": "Mushroom Maker",
+      "description": "Gives you the ability to craft Mushroom Blocks in a Crafting Table",
+      "lore": [
+        "<gray>Craft: 4 Mushrooms = 1 Mushroom Block</gray>",
+        "<gray>Craft: 1 Mushroom Block = 1 Mushroom Stem</gray>",
+        "<green>+ </green><gray>Unlocks Mushroom Block crafting recipes</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Hoe Drop-to-Inwentarz"
+    "drop_to_inventory": {
+      "name": "Hoe Drop-To-Inventory",
+      "description": "When you break a crop it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Harvested crops go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "hungryshield": {
-      "name": "Głodna Tarcza",
-      "description": "Zniszcz głód przed zdrowiem.",
-      "lore1": "Odparty przez Głód"
+    "hungry_shield": {
+      "name": "Hungry Shield",
+      "description": "Take damage to your hunger before your health.",
+      "lore": [
+        "<gray>Passive: Damage is absorbed by hunger first</gray>",
+        "<green>+ {0}</green> <gray>Damage converted to hunger</gray>",
+        "<yellow>* </yellow><gray>Requires food in hunger bar to activate</gray>"
+      ]
     },
     "luck": {
-      "name": "Szczęście Zielarza",
-      "description": "Kiedy rozbijesz Trawę/Kwiaty, masz szansę na losowy przedmiot",
-      "lore0": "Kwiaty = jedzenie, a trawa = nasiona",
-      "lore1": "Szansa na zdobycie przedmiotu niszcząc kwiaty",
-      "lore2": "Szansa na zdobycie przedmiotu z rozbicia Trawy"
+      "name": "Herbalist's Luck",
+      "description": "When you break Grass/Flowers, you have a chance to get a random item",
+      "lore": [
+        "<gray>Flowers = Food, and Grass = Seeds</gray>",
+        "<green>+ {0}</green> <gray>Chance to get an item from breaking flowers</gray>",
+        "<green>+ {1}</green> <gray>Chance to get an item from breaking grass</gray>"
+      ]
     },
     "replant": {
-      "name": "Zbiór i Przesadzanie",
-      "description": "Kliknij prawym przyciskiem myszy na uprawę z motyką, aby ją zebrać i przesadzić.",
-      "lore1": "Promień przesadzania bloków"
+      "name": "Harvest & Replant",
+      "description": "Right click a crop with a hoe to harvest & replant it.",
+      "lore": [
+        "<gray>Right-click crops with hoe to harvest and replant</gray>",
+        "<green>+ {0}</green> <gray>Block radius for mass harvesting</gray>"
+      ]
     }
   },
   "hunter": {
     "adrenaline": {
-      "name": "Adrenalina",
-      "description": "Zadaj więcej obrażeń, mając mniej zdrowia (walka wręcz)",
-      "lore1": "Maksymalne Obrażenia"
+      "name": "Adrenaline",
+      "description": "Deal more damage the lower health you are (Melee)",
+      "lore": [
+        "<gray>Passive: Lower health = Higher damage</gray>",
+        "<green>+ {0}</green> <gray>Maximum bonus damage at low HP</gray>"
+      ]
     },
     "penalty": {
-      "lore1": "Zdobędziesz stosy Trucizny, jeśli zabraknie Ci głodu"
+      "name": "",
+      "description": "",
+      "lore": [
+        "<red>-{0}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Przedmioty zrzucane do ekwipunku",
-      "description": "Kiedy coś zabijesz / złamiesz blok Mieczem teleportuje krople do twojego ekwipunku",
-      "lore1": "Za każdym razem, gdy przedmiot zostanie upuszczony z moba/bloku, który złamiesz, trafia on do twojego ekwipunku, jeśli może."
+    "drop_to_inventory": {
+      "name": "Items Drop-To-Inventory",
+      "description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
+      "lore": [
+        "<gray>Passive: Mob drops go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped loot</gray>"
+      ]
     },
     "invisibility": {
-      "name": "Znikający krok",
-      "description": "Kiedy zostaniesz uderzony, zyskujesz niewidzialność kosztem głodu",
-      "lore1": "Zyskaj pasywną niewidzialność po uderzeniu",
-      "lore2": "x Niewidzialność kumuluje się przez 3 sekundy przy trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Czas trwania niewidzialności"
+      "name": "Vanishing Step",
+      "description": "When you are struck you gain invisibility, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Invisibility when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Invisibility stacks for 3 seconds on hit</gray>",
+        "<green>+ {2}</green> <gray>Invisibility duration</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<red>- {4}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
-    "jumpboost": {
-      "name": "Wzgórza Myśliwego",
-      "description": "Kiedy zostaniesz uderzony, zyskujesz premię do skoku, kosztem głodu",
-      "lore1": "Po uderzeniu otrzymujesz pasywne wzmocnienie do skoku",
-      "lore2": "x ładunki Jump-Boost przez 3 sekundy przy trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Mnożnik ładunków Jump-Boost, a nie czas trwania."
+    "jump_boost": {
+      "name": "Hunter's Heights",
+      "description": "When you are struck you gain jump-boost, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Jump-Boost when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Jump-Boost stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Jump-Boost stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "luck": {
-      "name": "Szczęście łowcy",
-      "description": "Kiedy jesteś uderzony, zyskujesz szczęście, kosztem głodu",
-      "lore1": "Zyskaj pasywne szczęście po uderzeniu",
-      "lore2": "x Szczęście kumuluje się przez 3 sekundy przy trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Mnożnik kumulacji szczęścia, a nie czas trwania."
+      "name": "Hunter's Luck",
+      "description": "When you are struck you gain luck, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Luck when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Luck stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Luck stacks multiplier, not duration</gray>",
+        "<red>- {4}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "regen": {
-      "name": "Regeneracja Łowcy",
-      "description": "Kiedy jesteś uderzony, zyskujesz regenerację kosztem głodu",
-      "lore1": "Zyskaj pasywną regenerację po uderzeniu",
-      "lore2": "x Regeneracja kumuluje się przez 3 sekundy przy trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Mnożnik kumulacji regeneracji, a nie czas trwania."
+      "name": "Hunter's Regen",
+      "description": "When you are struck you gain regeneration, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Regeneration when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Regeneration stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Regeneration stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "resistance": {
-      "name": "Opór Łowcy",
-      "description": "Kiedy jesteś uderzony, zyskujesz opór kosztem głodu",
-      "lore1": "Zyskaj pasywną odporność po uderzeniu",
-      "lore2": "x Odporność kumuluje się przez 3 sekundy po trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Mnożnik kumulacji ruchu oporu, a nie czas trwania."
+      "name": "Hunter's Resistance",
+      "description": "When you are struck you gain resistance, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Resistance when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Resistance stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Resistance stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "speed": {
-      "name": "Szybkość Łowcy",
-      "description": "Kiedy jesteś uderzony, nabierasz prędkości, kosztem głodu",
-      "lore1": "Zyskaj pasywną prędkość po uderzeniu",
-      "lore2": "x Szybkość kumuluje się przez 3 sekundy po trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Mnożnik kumulacji prędkości, a nie czas trwania."
+      "name": "Hunter's Speed",
+      "description": "When you are struck you gain speed, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Speed when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Speed stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Speed stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
+    },
+    "jumpboost": {
+      "name": "Hunter's Jump Boost",
+      "description": "When you are struck you gain jump boost, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Jump Boost when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Jump Boost stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Jump Boost stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "strength": {
-      "name": "Siła Łowcy",
-      "description": "Kiedy jesteś uderzony, zyskujesz siłę, kosztem głodu",
-      "lore1": "Zyskaj pasywną siłę po uderzeniu",
-      "lore2": "x Siła kumuluje się przez 3 sekundy po trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Mnożnik kumulacji siły, a nie czas trwania."
+      "name": "Hunter's Strength",
+      "description": "When you are struck you gain strength, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Strength when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Strength stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Strength stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     }
   },
   "nether": {
-    "skulltoss": {
-      "name": "Rzut Zwiędłej Czaszki",
-      "description1": "Uwolnij swój wewnętrzny kłąb, używając",
-      "description2": "kogoś",
-      "description3": "głowa.",
-      "lore1": "Sekundy czasu odnowienia między rzutami czaszką.",
-      "lore2": "Korzystanie z Wither Skull: Rzuć a",
-      "lore3": "Czaszka Witherowego Szkieleta",
-      "lore4": "eksploduje przy uderzeniu."
+    "skull_toss": {
+      "name": "Wither Skull Throw",
+      "description": "<gray>Unleash your inner Wither by using someone's head.</gray>",
+      "lore": [
+        "<gray>Right-click with a Wither Skull to throw it</gray>",
+        "<green>+ </green><gray>Wither skull explodes on impact</gray>",
+        "<yellow>* {0}</yellow> <gray>Cooldown between throws</gray>"
+      ]
     },
-    "witherresist": {
-      "name": "Opór więdnięcia",
-      "description": "Opiera się miażdżeniu dzięki mocy Netherite.",
-      "lore1": "szansa na zanegowanie więdnięcia (za sztukę).",
-      "lore2": "Pasywna: Noszenie Netherite Armor ma szansę na zanegowanie",
-      "lore3": "miażdżący."
+    "wither_resist": {
+      "name": "Wither Resistance",
+      "description": "Resists withering through the power of Netherite.",
+      "lore": [
+        "<gray>Passive: Netherite Armor negates Wither effect</gray>",
+        "<green>+ {0}</green> <gray>Chance to negate withering per piece</gray>",
+        "<yellow>* </yellow><gray>Stacks with multiple armor pieces</gray>"
+      ]
     },
-    "fireresist": {
-      "name": "Odporność na ogień",
-      "description": "Odpiera ogień, utwardzając skórę.",
-      "lore1": "szansa na zanegowanie efektu palenia!"
+    "fire_resist": {
+      "name": "Fire Resistance",
+      "description": "Resists fire by hardening your skin.",
+      "lore": [
+        "<gray>Passive: Chance to resist fire damage</gray>",
+        "<green>+ {0}</green> <gray>Chance to negate burning</gray>"
+      ]
     }
   },
   "pickaxe": {
-    "autosmelt": {
-      "name": "Autotopienie",
-      "description": "Pozwala wytapiać wydobywane rudy wanilii",
-      "lore1": "Rudy, które można przetopić, są przetapiane automatycznie",
-      "lore2": "% szansy na dodatkowe"
+    "auto_smelt": {
+      "name": "Autosmelt",
+      "description": "Allows you to smelt mined Vanilla ores",
+      "lore": [
+        "<gray>Passive: Ores are automatically smelted when mined</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra drop</gray>"
+      ]
     },
     "chisel": {
-      "name": "Dłuto Rudy",
-      "description": "Kliknij prawym przyciskiem myszy na rudy, aby wydobyć z nich więcej rudy, przy dużym koszcie wytrzymałości.",
-      "lore1": "Szansa na Drop",
-      "lore2": "Zużycie narzędzi"
+      "name": "Ore Chisel",
+      "description": "Right Click Ores to Chisel more ore out of them, at a severe durability cost.",
+      "lore": [
+        "<gray>Right-click ores to chisel extra resources</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra ore drop</gray>",
+        "<red>- {1}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "Kilof zrzutu do ekwipunku",
-      "description": "Kiedy złamiesz blok, teleportuje przedmiot do twojego ekwipunku",
-      "lore1": "Za każdym razem, gdy przedmiot zostanie upuszczony z bloku, który rozbijesz, trafia on do twojego ekwipunku, jeśli może."
+    "drop_to_inventory": {
+      "name": "Pickaxe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Mined items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "veinminer": {
-      "name": "Żniwiarz",
-      "description": "Umożliwia łamanie bloków w żyle/klastrze rud wanilii",
-      "lore1": "Skradaj się i mój ORES",
-      "lore2": "zakres górnictwa żył",
-      "lore3": "Ta umiejętność NIE grupuje wszystkich zrzutów razem!"
+    "silk_spawner": {
+      "name": "Pickaxe Silk-Spawner",
+      "description": "Makes Spawners drop when broken",
+      "lore": {
+        "level_1": "<green>Makes Spawners breakable with silk touch.</green>",
+        "level_2": "<green>Makes Spawners breakable while sneaking.</green>"
+      }
+    },
+    "vein_miner": {
+      "name": "Veinminer",
+      "description": "Allows you to break blocks in a Vein/Cluster of Vanilla ores",
+      "lore": [
+        "<gray>Sneak + Mine to vein-mine connected ores</gray>",
+        "<green>+ {0}</green> <gray>Block range</gray>",
+        "<yellow>* </yellow><gray>Drops are not grouped together</gray>"
+      ]
     }
   },
   "ranged": {
-    "arrowrecovery": {
-      "name": "Odzyskiwanie Strzał",
-      "description": "Odzyskaj strzały po zabiciu wroga.",
-      "lore1": "Szansa na odzyskanie strzał po trafieniu/zabiciu",
-      "lore2": "Szansa:"
+    "arrow_recovery": {
+      "name": "Arrow Recovery",
+      "description": "Recover Arrows after you have killed an enemy.",
+      "lore": [
+        "<gray>Chance to recover arrows on hit</gray>",
+        "<green>+ {0}</green> <gray>Recovery chance</gray>"
+      ]
     },
-    "webshot": {
-      "name": "Sieciowy pułapka",
-      "description": "Otocz pajęczyny wokół celu, gdy go trafisz!",
-      "lore1": "8 pajęczyn wokół śnieżki i rzuć!",
-      "lore2": "sekundy klatki, mniej więcej."
+    "web_shot": {
+      "name": "Web Snare",
+      "description": "Surround cobwebs around your target when you hit them!",
+      "lore": [
+        "<gray>Craft: 8 Cobwebs around a Snowball</gray>",
+        "<green>+ {0}</green> <gray>Web cage duration</gray>",
+        "<yellow>* </yellow><gray>Throw the crafted snowball to create a web trap</gray>"
+      ]
     },
-    "forceshot": {
-      "name": "Siła Strzału",
-      "description": "Strzelaj pociskami dalej i szybciej!",
-      "advancementname": "Długi Strzał",
-      "advancementlore": "Traf strzałem z odległości ponad 30 bloków!",
-      "lore1": "Prędkość Pocisku"
+    "force_shot": {
+      "name": "Force Shot",
+      "description": "Shoot projectiles further, faster!",
+      "advancement_name": "Long Shot",
+      "advancement_lore": "Land a shot from over 30 blocks away!",
+      "lore": [
+        "<green>+ {0}</green> <gray>Projectile Speed</gray>"
+      ]
     },
-    "lungeshot": {
-      "name": "Strzał z wyskoku",
-      "description": "Podczas spadania twoje strzały rzucają cię w losowym kierunku",
-      "lore1": "Losowa szybkość serii"
+    "lunge_shot": {
+      "name": "Lunge Shot",
+      "description": "While falling your arrows toss you in a random direction",
+      "lore": [
+        "<green>+ {0}</green> <gray>Random Burst Speed</gray>"
+      ]
     },
-    "arrowpiercing": {
-      "name": "Przebicie Strzały",
-      "description": "Dodaje przebijanie pocisków! Strzelaj przez rzeczy!",
-      "lore1": "Przebijanie celów"
+    "arrow_piercing": {
+      "name": "Arrow Piercing",
+      "description": "Adds Piercing to projectiles! Shoot through things!",
+      "lore": [
+        "<green>+ {0}</green> <gray>Pierce Targets</gray>"
+      ]
     }
   },
   "rift": {
-    "remoteaccess": {
-      "name": "Dostęp zdalny",
-      "description": "Wyciągnij się z pustki i wejdź do oznaczonego pojemnika.",
-      "lore1": "Enderpearl + Kompas = Relikwiarz świstoklik",
-      "lore2": "Ta pozycja umożliwia zdalny dostęp do kontenerów",
-      "lore3": "Po wykonaniu spójrz na przedmiot, aby zobaczyć zastosowanie",
-      "notcontainer": "To nie jest pojemnik"
+    "remote_access": {
+      "name": "Remote Access",
+      "description": "Pull from the void, and get into a marked container.",
+      "not_container": "<red>That's not a container</red>",
+      "lore": [
+        "<gray>Craft: Enderpearl + Compass = Reliquary Portkey</gray>",
+        "<green>+ </green><gray>Access containers remotely</gray>",
+        "<yellow>* </yellow><gray>Shift + Left-click to bind, Right-click to access</gray>"
+      ]
     },
     "blink": {
-      "name": "Mignięcie szczeliny",
-      "description": "Natychmiastowa teleportacja na krótki dystans, tylko mignięcie!",
-      "lore1": "Migające bloki (2 w pionie)",
-      "lore2": "Podczas sprintu: kliknij dwukrotnie Przejdź do",
-      "lore3": "Miganie"
+      "name": "Rift Blink",
+      "description": "Short ranged instant teleportation, Just a blink away!",
+      "lore": [
+        "<gray>While Sprinting: Double-tap Jump to Blink</gray>",
+        "<green>+ {0}</green> <gray>Horizontal blink distance</gray>",
+        "<green>+ {1}</green> <gray>Vertical blink distance</gray>"
+      ]
     },
     "chest": {
-      "name": "Łatwy Enderklatka",
-      "description": "Otwórz skrzynię, klikając ją lewym przyciskiem w dłoni.",
-      "lore1": "Kliknij Enderchest w dłoni, aby go otworzyć (Tylko go nie umieszczaj)"
+      "name": "Easy Enderchest",
+      "description": "Open an enderchest by Left-clicking it in your hand.",
+      "lore": [
+        "<gray>Left-click with Enderchest in hand to open</gray>",
+        "<green>+ </green><gray>Portable Enderchest access</gray>",
+        "<yellow>* </yellow><gray>Don't place it, just click!</gray>"
+      ]
     },
     "descent": {
-      "name": "Antylewitacja",
-      "description": "Czy jesteś zmęczony utknięciem w powietrzu? To umiejętność dla Ciebie!",
-      "lore1": "Po prostu zakradnij się, aby zejść, a spadniesz w tempie mniejszym niż zwykle!",
-      "lore2": "Ochłonąć:"
+      "name": "Anti-Levitation",
+      "description": "Are you tired of being stuck in the air? This is the skill for you!",
+      "lore": [
+        "<gray>Sneak while levitating to descend slowly</gray>",
+        "<green>+ </green><gray>Controlled descent speed</gray>",
+        "<yellow>* {0}</yellow> <gray>Cooldown</gray>"
+      ]
     },
     "gate": {
-      "name": "Brama Szczeliny",
-      "description": "Teleportuj się we wskazane miejsce.",
-      "lore1": "WYTWARZANIE: Szmaragd + Okruch ametystu + Perła Endera",
-      "lore2": "Przeczytaj przed użyciem!",
-      "lore3": "opóźnienie 5 sek.,",
-      "lore4": "możesz umrzeć, gdy używasz tą animację"
+      "name": "Rift Gate",
+      "description": "Teleport to a marked location.",
+      "lore": [
+        "<gray>Craft: Emerald + Amethyst Shard + Ender Pearl</gray>",
+        "<green>+ </green><gray>Teleport to marked location</gray>",
+        "<yellow>* {0}</yellow> <gray>Channeling delay</gray>",
+        "<red>- </red><gray>You can die during the animation</gray>"
+      ]
     },
     "resist": {
-      "name": "Odporność Na Szczelinę",
-      "description": "Zyskaj odporność, korzystając z przedmiotów i zdolności Endera",
-      "lore1": "+ Pasywny: zapewnia odporność, gdy używasz umiejętności szczeliny lub przedmiotów Ender",
-      "lore2": "NIE wliczając przenośnej klatki piersiowej, tylko rzeczy, które możesz spożyć"
+      "name": "Rift Resistance",
+      "description": "Gain Resistance when using Ender Items & Abilities",
+      "lore": [
+        "<gray>Passive: Gain Resistance when using Rift abilities or Ender items</gray>",
+        "<green>+ </green><gray>Resistance effect on Ender item use</gray>",
+        "<red>- </red><gray>Does not work with Portable Enderchest</gray>"
+      ]
+    },
+    "visage": {
+      "name": "Rift Visage",
+      "description": "Prevents Endermen from becoming aggressive if you have Enderpearls in your inventory.",
+      "lore": [
+        "<gray>Passive: Endermen ignore you when you carry Enderpearls</gray>",
+        "<green>+ </green><gray>Endermen will not become aggressive</gray>",
+        "<yellow>* </yellow><gray>Requires Enderpearls in inventory</gray>"
+      ]
     }
   },
   "seaborn": {
     "oxygen": {
-      "name": "Zbiornik na tlen organiczny",
-      "description": "Trzymaj więcej tlenu w swoich maleńkich płucach!",
-      "lore1": "Zwiększenie pojemności tlenu"
+      "name": "Organic Oxygen Tank",
+      "description": "Hold more oxygen in your tiny lungs!",
+      "lore": [
+        "<gray>Passive: Extended breath underwater</gray>",
+        "<green>+ {0}</green> <gray>Extra oxygen capacity</gray>"
+      ]
     },
-    "fishersfantasy": {
-      "name": "Fantazja Rybaka",
-      "description": "zdobądź więcej PD z łowienia ryb i zdobądź więcej ryb!",
-      "lore1": "Na każdym poziomie jest szansa na zdobycie większej ilości XP i Łowienia Więcej Ryb!"
+    "fishers_fantasy": {
+      "name": "Fisher's Fantasy",
+      "description": "Earn more XP from fishing, and get more fish!",
+      "lore": [
+        "<gray>Passive: Bonus rewards while fishing</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra XP</gray>",
+        "<green>+ {1}</green> <gray>Chance for extra fish</gray>"
+      ]
     },
     "haste": {
-      "name": "Żółw górnik",
-      "description": "Podczas kopania pod wodą nabierasz pośpiechu!",
-      "lore1": "Haste 3 jest nakładany pod wodą podczas wydobywania (stosuje się z AquaAffinity) po tym, jak twój efekt oddychania wodą przestanie działać!"
+      "name": "Turtle Miner",
+      "description": "While mining underwater you gain haste!",
+      "lore": [
+        "<gray>Passive: Gain Haste while mining underwater</gray>",
+        "<green>+ {0}</green> <gray>Haste level while mining</gray>",
+        "<yellow>* </yellow><gray>Stacks with Aqua Affinity</gray>",
+        "<yellow>* </yellow><gray>Activates after Water Breathing wears off</gray>"
+      ]
     },
-    "nightvision": {
-      "name": "Wizja żółwia",
-      "description": "Pod wodą zyskujesz noktowizor",
-      "lore1": "Po prostu zyskaj noktowizor pod wodą, gdy efekt oddychania pod wodą przestanie działać!"
+    "night_vision": {
+      "name": "Turtle's Vision",
+      "description": "While underwater, you gain Night Vision",
+      "lore": [
+        "<gray>Passive: Gain Night Vision while underwater</gray>",
+        "<green>+ </green><gray>Night Vision effect</gray>",
+        "<yellow>* </yellow><gray>Activates after Water Breathing wears off</gray>"
+      ]
     },
-    "dolphingrace": {
-      "name": "Łaska Delfina",
-      "description": "Pływaj jak delfin, bez delfinów",
-      "lore1": "+ Pasywny: zysk",
-      "lore2": "x prędkość (łaska delfinów)",
-      "lore3": "precyzyjny niemiecki inżynier - czekaj, to nie jest w porządku..."
+    "dolphin_grace": {
+      "name": "Dolphin's Grace",
+      "description": "Swim like a dolphin, without the dolphins",
+      "lore": [
+        "<gray>Passive: Gain Dolphin's Grace while underwater</gray>",
+        "<green>+ {0}</green> <gray>Swimming speed</gray>",
+        "<red>- </red><gray>Not compatible with Depth Strider</gray>"
+      ]
     }
   },
   "stealth": {
-    "ghostarmor": {
-      "name": "Zbroja Ducha",
-      "description": "Powolne budowanie pancerza, gdy nie otrzymujesz obrażeń, utrzymuje się przez 1 trafienie",
-      "lore1": "Maksymalna zbroja",
-      "lore2": "Prędkość"
+    "ghost_armor": {
+      "name": "Ghost's Armor",
+      "description": "Slow building armor when not taking damage, Lasts for 1 hit",
+      "lore": [
+        "<gray>Passive: Build armor over time when not hit</gray>",
+        "<green>+ {0}</green> <gray>Maximum armor</gray>",
+        "<green>+ {1}</green> <gray>Armor gained per tick</gray>",
+        "<yellow>* </yellow><gray>Armor resets after taking damage</gray>"
+      ]
     },
-    "nightvision": {
-      "name": "Ukryta wizja",
-      "description": "Zyskaj widzenie w nocy podczas skradania się",
-      "lore1": "Zyskaj serię",
-      "lore2": "Noktowizja",
-      "lore3": "podczas skradania się"
+    "night_vision": {
+      "name": "Stealth Vision",
+      "description": "Gain night vision while sneaking",
+      "lore": [
+        "<gray>Sneak to activate Night Vision</gray>",
+        "<green>+ </green><gray>Night Vision while sneaking</gray>"
+      ]
     },
     "snatch": {
-      "name": "Wyrwanie przedmiotu",
-      "description": "Chwyć Upuszczone przedmioty natychmiast podczas skradania się!",
-      "lore1": "Zasięg Chwytu"
+      "name": "Item Snatch",
+      "description": "Snatch Dropped items instantly while sneaking!",
+      "lore": [
+        "<gray>Sneak to pick up nearby items instantly</gray>",
+        "<green>+ {0}</green> <gray>Block pickup radius</gray>"
+      ]
     },
     "speed": {
-      "name": "Prędkość Skradania Się",
-      "description": "Zyskaj prędkość podczas skradania się",
-      "lore1": "Prędkość skradania się"
+      "name": "Sneak Speed",
+      "description": "Gain speed while sneaking",
+      "lore": [
+        "<gray>Passive: Move faster while sneaking</gray>",
+        "<green>+ {0}</green> <gray>Sneaking speed multiplier</gray>"
+      ]
+    },
+    "ender_veil": {
+      "name": "Enderveil",
+      "description": "No more Pumpkins to prevent Enderman attacks",
+      "lore": {
+        "level_1": "<gray>Prevent enderman attacks while sneaking</gray>",
+        "level_2": "<gray>Prevent all enderman attacks</gray>"
+      }
     }
   },
   "sword": {
     "machete": {
-      "name": "Maczeta",
-      "description": "Z łatwością przecinaj liście!",
-      "lore1": "Promień ukośnika",
-      "lore2": "Czas odnowienia siekania",
-      "lore3": "Zużycie narzędzi"
+      "name": "Machete",
+      "description": "Cut through foliage with ease!",
+      "lore": [
+        "<gray>Swing sword to cut nearby plants</gray>",
+        "<green>+ {0}</green> <gray>Slash radius</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between slashes</gray>",
+        "<red>- {2}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "bloodyblade": {
-      "name": "Krwawe Ostrze",
-      "description": "Uderza mieczem, powodując krwawienie!",
-      "lore1": "Uderzenie żywej istoty mieczem powoduje krwawienie",
-      "lore2": "Czas trwania krwawienia",
-      "lore3": "Czas odnowienia krwawienia"
+    "bloody_blade": {
+      "name": "Bloody Blade",
+      "description": "Strikes with your sword, cause Bleeding!",
+      "lore": [
+        "<gray>Sword strikes cause bleeding damage over time</gray>",
+        "<green>+ {0}</green> <gray>Bleed duration</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between bleeds</gray>"
+      ]
     },
-    "poisonedblade": {
-      "name": "Zatrute Ostrze",
-      "description": "Uderza mieczem, powodując truciznę!",
-      "lore1": "Uderzenie żywej istoty mieczem powoduje truciznę",
-      "lore2": "Czas trwania trucizny",
-      "lore3": "Czas odnowienia trucizny"
+    "poisoned_blade": {
+      "name": "Poisoned Blade",
+      "description": "Strikes with your sword, cause Poison!",
+      "lore": [
+        "<gray>Sword strikes apply poison to enemies</gray>",
+        "<green>+ {0}</green> <gray>Poison duration</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between poisons</gray>"
+      ]
     }
   },
   "taming": {
     "damage": {
-      "name": "Oswojone obrażenia",
-      "description": "Zwiększ obrażenia zadawane przez oswojone zwierzęta.",
-      "lore1": "Zwiększone obrażenia"
+      "name": "Tame Damage",
+      "description": "Increase your tamed animal damage dealt.",
+      "lore": [
+        "<gray>Passive: Your tamed animals deal more damage</gray>",
+        "<green>+ {0}</green> <gray>Bonus damage for pets</gray>"
+      ]
     },
     "health": {
-      "name": "Oswojone zdrowie",
-      "description": "Zwiększ swoje oswojone zdrowie zwierząt.",
-      "lore1": "Zwiększone Zdrowie"
+      "name": "Tame Health",
+      "description": "Increase your tamed animal health.",
+      "lore": [
+        "<gray>Passive: Your tamed animals have more health</gray>",
+        "<green>+ {0}</green> <gray>Max health for pets</gray>"
+      ]
     },
     "regeneration": {
-      "name": "Oswojona regeneracja",
-      "description": "Zwiększ regenerację oswojonych zwierząt.",
-      "lore1": "HP"
+      "name": "Tame Regeneration",
+      "description": "Increase your tamed animal regeneration.",
+      "lore": [
+        "<gray>Passive: Your tamed animals regenerate health</gray>",
+        "<green>+ {0}</green> <gray>HP per second for pets</gray>"
+      ]
     }
   },
   "tragoul": {
     "thorns": {
-      "name": "Ciernie",
-      "description": "Odbij obrażenia z powrotem swojemu napastnikowi!",
-      "lore1": "Odwet po uderzeniu"
+      "name": "Thorns",
+      "description": "Reflect damage back to your attacker!",
+      "lore": [
+        "<gray>Passive: Reflect damage when hit</gray>",
+        "<green>+ {0}</green> <gray>Damage reflected to attacker</gray>"
+      ]
     },
     "globe": {
-      "name": "Kula bólu",
-      "description": "Podziel zadawane obrażenia na podstawie liczby wrogów wokół ciebie!",
-      "lore1": "Im więcej wrogów wokół ciebie, tym mniejsze obrażenia zadasz każdemu z nich",
-      "lore2": "Zakres:",
-      "lore3": "Dodano obrażenia dla wszystkich bytów:"
+      "name": "Globe of Pain",
+      "description": "Divide the Damage you deal based on the number of enemies around you!",
+      "lore": [
+        "<gray>Damage is split among nearby enemies</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<green>+ {1}</green> <gray>Bonus damage to all entities in range</gray>"
+      ]
     },
     "healing": {
-      "name": "Wola bólu",
-      "description": "Odzyskuj zdrowie na podstawie zadawanych obrażeń!",
-      "lore1": "Niszczenie rzeczy nigdy nie było tak przyjemne! Uzdrowienie z zadanych obrażeń",
-      "lore2": "Istnieje 3-sekundowe okno obrażeń na leczenie i 1-sekundowy czas odnowienia",
-      "lore3": "Procent leczenia za obrażenia:"
+      "name": "Will of Pain",
+      "description": "Regain health based on the damage you deal!",
+      "lore": [
+        "<gray>Heal from the damage you deal to enemies</gray>",
+        "<green>+ {0}</green> <gray>Healing per damage dealt</gray>",
+        "<yellow>* {1}</yellow> <gray>Damage window for healing</gray>",
+        "<yellow>* {2}</yellow> <gray>Cooldown between heals</gray>"
+      ]
     },
     "lance": {
-      "name": "Trupie Lance",
-      "description": "Zabicie wroga lub posiadanie umiejętności zabicia wroga powoduje pojawienie się lancy, która zadaje obrażenia pobliskiemu wrogowi!",
-      "lore1": "Lance będą szukać wszystkiego, co zabijesz, ORAZ jeśli ta umiejętność zabije wroga.",
-      "lore2": "Poświęć część swojego życia, aby stworzyć lance (to może cię zabić)",
-      "lore3": "Maksymalna liczba lanc: 1 +"
+      "name": "Corpse Lances",
+      "description": "Killing an enemy or having an ability kill an enemy, spawns a lance that deals damage to a nearby enemy!",
+      "lore": [
+        "<gray>Kills spawn lances that seek nearby enemies</gray>",
+        "<green>+ {0}</green> <gray>Maximum lances</gray>",
+        "<red>- {1}%</red> <gray>Health cost per lance (can kill you!)</gray>",
+        "<yellow>* </yellow><gray>Lances chain from ability kills too</gray>"
+      ]
     }
   },
   "unarmed": {
-    "glasscannon": {
-      "name": "Szklana Armata",
-      "description": "Dodatkowe obrażenia w walce wręcz, im niższa jest wartość twojego pancerza",
-      "lore1": "x Obrażenia przy 0 zbroi",
-      "lore2": "Dodatkowe obrażenia na każdym poziomie"
+    "glass_cannon": {
+      "name": "Glass Cannon",
+      "description": "Bonus Unarmed Damage the lower your armor value is",
+      "lore": [
+        "<gray>Less armor = More damage</gray>",
+        "<green>+ {0}</green> <gray>Damage multiplier at 0 armor</gray>",
+        "<green>+ {1}</green> <gray>Bonus damage per level</gray>"
+      ]
     },
     "power": {
-      "name": "Nieuzbrojona moc",
-      "description": "Ulepszone obrażenia bez broni",
-      "lore1": "Obrażenia"
+      "name": "Unarmed Power",
+      "description": "Improved Unarmed Damage",
+      "lore": [
+        "<gray>Passive: Increased fist damage</gray>",
+        "<green>+ {0}</green> <gray>Bonus damage</gray>"
+      ]
     },
-    "suckerpunch": {
-      "name": "Cios Partyzanta",
-      "description": "Uderzenia sprinterskie, ale bardziej zabójcze.",
-      "lore1": "Obrażenia",
-      "lore2": "Obrażenia wzrastają wraz z szybkością podczas ciosów"
+    "sucker_punch": {
+      "name": "Sucker Punch",
+      "description": "Sprint punches, but more deadly.",
+      "lore": [
+        "<gray>Sprint to deal extra punch damage</gray>",
+        "<green>+ {0}</green> <gray>Base bonus damage</gray>",
+        "<yellow>* </yellow><gray>Damage scales with movement speed</gray>"
+      ]
     }
   }
 }

@@ -21,7 +21,6 @@ package com.volmit.adapt.content.adaptation.herbalism;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
@@ -35,8 +34,8 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
     public HerbalismCraftableCobweb() {
         super("herbalism-cobweb");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("herbalism", "cobweb", "description"));
-        setDisplayName(Localizer.dLocalize("herbalism", "cobweb", "name"));
+        setDescription(Localizer.dLocalize("herbalism.cobweb.description"));
+        setDisplayName(Localizer.dLocalize("herbalism.cobweb.name"));
         setIcon(Material.COBWEB);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -57,7 +56,7 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism", "cobweb", "lore1"));
+        v.addLore(Localizer.dLocalize("herbalism.cobweb.lore"));
     }
 
 

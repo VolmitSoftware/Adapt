@@ -51,11 +51,11 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillTragOul() {
-        super("tragoul", Localizer.dLocalize("skill", "tragoul", "icon"));
+        super("tragoul", Localizer.dLocalize("skill.tragoul.icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setDescription(Localizer.dLocalize("skill", "tragoul", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "tragoul", "name"));
+        setDescription(Localizer.dLocalize("skill.tragoul.description"));
+        setDisplayName(Localizer.dLocalize("skill.tragoul.name"));
         setInterval(2755);
         setIcon(Material.CRIMSON_ROOTS);
         cooldowns = new HashMap<>();

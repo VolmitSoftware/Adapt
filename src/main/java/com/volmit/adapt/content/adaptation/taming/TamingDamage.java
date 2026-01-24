@@ -20,7 +20,10 @@ package com.volmit.adapt.content.adaptation.taming;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.version.Version;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -36,13 +39,13 @@ import java.util.UUID;
 
 public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-tame-damage-boost".getBytes());
-    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:tame-damage-boost");
+    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:tame-damage-boost");
 
     public TamingDamage() {
         super("tame-damage");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("taming", "damage", "description"));
-        setDisplayName(Localizer.dLocalize("taming", "damage", "name"));
+        setDescription(Localizer.dLocalize("taming.damage.description"));
+        setDisplayName(Localizer.dLocalize("taming.damage.name"));
         setIcon(Material.FLINT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -53,7 +56,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDamageBoost(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming", "damage", "lore1"));
+        v.addLore(Localizer.dLocalize("taming.damage.lore", Form.pc(getDamageBoost(level), 0)));
     }
 
     private double getDamageBoost(int level) {

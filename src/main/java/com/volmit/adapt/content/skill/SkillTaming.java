@@ -41,10 +41,10 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillTaming() {
-        super("taming", Localizer.dLocalize("skill", "taming", "icon"));
+        super("taming", Localizer.dLocalize("skill.taming.icon"));
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("skill", "taming", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "taming", "name"));
+        setDescription(Localizer.dLocalize("skill.taming.description"));
+        setDisplayName(Localizer.dLocalize("skill.taming.name"));
         setColor(C.GOLD);
         setInterval(3480);
         setIcon(Material.LEAD);

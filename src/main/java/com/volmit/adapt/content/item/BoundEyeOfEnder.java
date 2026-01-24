@@ -57,7 +57,7 @@ public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
     public static boolean isBindableItem(ItemStack t) {
         if (t.getType().equals(Material.ENDER_EYE)) {
             if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
-                if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items", "boundeyeofender", "name"))) {
+                if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items.bound_eye_of_ender.name"))) {
                     Adapt.verbose("Eye of ender is bindable: " + t.getType().name());
                     return true;
                 }
@@ -78,16 +78,16 @@ public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Localizer.dLocalize("items", "boundeyeofender", "name"));
-        lore.add(C.GRAY + Localizer.dLocalize("items", "boundeyeofender", "usage1"));
-        lore.add(C.GRAY + Localizer.dLocalize("items", "boundeyeofender", "usage2"));
+        lore.add(Localizer.dLocalize("items.bound_eye_of_ender.name"));
+        lore.add(Localizer.dLocalize("items.bound_eye_of_ender.usage1"));
+        lore.add(Localizer.dLocalize("items.bound_eye_of_ender.usage2"));
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE);
-        meta.setDisplayName(Localizer.dLocalize("items", "boundeyeofender", "name"));
+        meta.setDisplayName(Localizer.dLocalize("items.bound_eye_of_ender.name"));
     }
 
     @AllArgsConstructor

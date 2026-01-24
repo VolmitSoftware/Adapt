@@ -18,8 +18,8 @@ package com.volmit.adapt.content.adaptation.tragoul;/*--------------------------
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -42,8 +42,8 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     public TragoulLance() {
         super("tragoul-lance");
         registerConfiguration(TragoulLance.Config.class);
-        setDescription(Localizer.dLocalize("tragoul", "lance", "description"));
-        setDisplayName(Localizer.dLocalize("tragoul", "lance", "name"));
+        setDescription(Localizer.dLocalize("tragoul.lance.description"));
+        setDisplayName(Localizer.dLocalize("tragoul.lance.name"));
         setIcon(Material.TRIDENT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -53,7 +53,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     }
 
 
-    @EventHandler (priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onEntityDeath(EntityDeathEvent event) {
         if (event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent e) {
             if (e.getDamager() instanceof Player p && hasAdaptation(p)) {
@@ -110,7 +110,6 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     }
 
 
-
     @Override
     public boolean isEnabled() {
         return getConfig().enabled;
@@ -127,9 +126,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("tragoul", "lance", "lore1"));
-        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "lance", "lore2") );
-        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "lance", "lore3") + level);
+        v.addLore(Localizer.dLocalize("tragoul.lance.lore", 1 + level, Form.pc(getConfig().selfDamageMultiplier, 0)));
     }
 
     @NoArgsConstructor

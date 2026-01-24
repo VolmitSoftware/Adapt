@@ -57,7 +57,7 @@ public class BoundSnowBall implements DataItem<BoundSnowBall.Data> {
     public static boolean isBindableItem(ItemStack t) {
         if (t.getType().equals(Material.SNOWBALL)) {
             if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
-                if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items", "boundsnowball", "name"))) {
+                if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items.bound_snowball.name"))) {
                     Adapt.verbose("Snowball is bindable: " + t.getType().name());
                     return true;
                 }
@@ -79,15 +79,15 @@ public class BoundSnowBall implements DataItem<BoundSnowBall.Data> {
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Localizer.dLocalize("items", "boundsnowball", "name"));
-        lore.add(C.GRAY + Localizer.dLocalize("items", "boundsnowball", "usage1"));
+        lore.add(Localizer.dLocalize("items.bound_snowball.name"));
+        lore.add(Localizer.dLocalize("items.bound_snowball.usage1"));
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE);
-        meta.setDisplayName(Localizer.dLocalize("items", "boundsnowball", "name"));
+        meta.setDisplayName(Localizer.dLocalize("items.bound_snowball.name"));
     }
 
     @AllArgsConstructor

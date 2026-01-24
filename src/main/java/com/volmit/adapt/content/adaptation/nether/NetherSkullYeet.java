@@ -19,7 +19,10 @@
 package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
@@ -46,8 +49,8 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     public NetherSkullYeet() {
         super("nether-skull-toss");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("nether", "skulltoss", "description1") + C.ITALIC + " " + Localizer.dLocalize("nether", "skulltoss", "description2") + " " + C.GRAY + Localizer.dLocalize("nether", "skulltoss", "description3"));
-        setDisplayName(Localizer.dLocalize("nether", "skulltoss", "name"));
+        setDescription(Localizer.dLocalize("nether.skull_toss.description"));
+        setDisplayName(Localizer.dLocalize("nether.skull_toss.name"));
         setIcon(Material.WITHER_SKELETON_SKULL);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -59,8 +62,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     @Override
     public void addStats(int level, Element v) {
         int chance = getConfig().getBaseCooldown() - getConfig().getLevelCooldown() * level;
-        v.addLore(C.GREEN + String.valueOf(chance) + C.GRAY + " " + Localizer.dLocalize("nether", "skulltoss", "lore1"));
-        v.addLore(C.GRAY + Localizer.dLocalize("nether", "skulltoss", "lore2") + C.DARK_GRAY + Localizer.dLocalize("nether", "skulltoss", "lore3") + C.GRAY + ", " + Localizer.dLocalize("nether", "skulltoss", "lore4"));
+        v.addLore(Localizer.dLocalize("nether.skull_toss.lore", chance));
     }
 
     private int getCooldownDuration(Player p) {

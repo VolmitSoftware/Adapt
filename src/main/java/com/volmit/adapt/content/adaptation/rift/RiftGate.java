@@ -23,7 +23,11 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.event.AdaptAdaptationTeleportEvent;
 import com.volmit.adapt.content.item.BoundEyeOfEnder;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -41,8 +45,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     public RiftGate() {
         super("rift-gate");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("rift", "gate", "description"));
-        setDisplayName(Localizer.dLocalize("rift", "gate", "name"));
+        setDescription(Localizer.dLocalize("rift.gate.description"));
+        setDisplayName(Localizer.dLocalize("rift.gate.name"));
         setIcon(Material.END_PORTAL_FRAME);
         setBaseCost(0);
         setCostFactor(0);
@@ -60,9 +64,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.YELLOW + Localizer.dLocalize("rift", "gate", "lore1"));
-        v.addLore(C.RED + Localizer.dLocalize("rift", "gate", "lore2"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "gate", "lore3") + C.UNDERLINE + C.RED + Localizer.dLocalize("rift", "gate", "lore4"));
+        v.addLore(Localizer.dLocalize("rift.gate.lore", Form.duration(85 * 50, 1)));
     }
 
 

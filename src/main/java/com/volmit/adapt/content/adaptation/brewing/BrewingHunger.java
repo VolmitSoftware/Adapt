@@ -21,7 +21,6 @@ package com.volmit.adapt.content.adaptation.brewing;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.potion.PotionBuilder;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
@@ -35,8 +34,8 @@ public class BrewingHunger extends SimpleAdaptation<BrewingHunger.Config> {
     public BrewingHunger() {
         super("brewing-hunger");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "hunger", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "hunger", "name"));
+        setDescription(Localizer.dLocalize("brewing.hunger.description"));
+        setDisplayName(Localizer.dLocalize("brewing.hunger.name"));
         setIcon(Material.ROTTEN_FLESH);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -71,8 +70,7 @@ public class BrewingHunger extends SimpleAdaptation<BrewingHunger.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "hunger", "lore1"));
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "hunger", "lore2"));
+        v.addLore(Localizer.dLocalize("brewing.hunger.lore"));
     }
 
 

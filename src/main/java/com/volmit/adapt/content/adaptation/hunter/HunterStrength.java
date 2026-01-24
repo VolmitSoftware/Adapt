@@ -20,7 +20,6 @@ package com.volmit.adapt.content.adaptation.hunter;
 
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.reflect.registries.PotionEffectTypes;
@@ -35,8 +34,8 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
     public HunterStrength() {
         super("hunter-strength");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("hunter", "strength", "description"));
-        setDisplayName(Localizer.dLocalize("hunter", "strength", "name"));
+        setDescription(Localizer.dLocalize("hunter.strength.description"));
+        setDisplayName(Localizer.dLocalize("hunter.strength.name"));
         setIcon(Material.COD_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -47,13 +46,7 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("hunter", "strength", "lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter", "strength", "lore2"));
-        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter", "strength", "lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "strength", "lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "strength", "lore5"));
-        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter", "penalty", "lore1"));
-
+        v.addLore(Localizer.dLocalize("hunter.strength.lore", level, 5 + level, getConfig().basePoisonFromLevel - level));
     }
 
 

@@ -20,7 +20,6 @@ package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
@@ -41,8 +40,8 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
     public HerbalismDropToInventory() {
         super("herbalism-drop-to-inventory");
         registerConfiguration(HerbalismDropToInventory.Config.class);
-        setDescription(Localizer.dLocalize("pickaxe", "droptoinventory", "description"));
-        setDisplayName(Localizer.dLocalize("herbalism", "droptoinventory", "name"));
+        setDescription(Localizer.dLocalize("herbalism.drop_to_inventory.description"));
+        setDisplayName(Localizer.dLocalize("herbalism.drop_to_inventory.name"));
         setIcon(Material.DIRT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -57,8 +56,9 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
         return getConfig().enabled;
     }
 
+    @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("pickaxe", "droptoinventory", "lore1"));
+        v.addLore(Localizer.dLocalize("herbalism.drop_to_inventory.lore"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

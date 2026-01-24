@@ -20,7 +20,6 @@ package com.volmit.adapt.content.adaptation.excavation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
@@ -41,8 +40,8 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
     public ExcavationDropToInventory() {
         super("excavation-drop-to-inventory");
         registerConfiguration(ExcavationDropToInventory.Config.class);
-        setDescription(Localizer.dLocalize("pickaxe", "droptoinventory", "description"));
-        setDisplayName(Localizer.dLocalize("excavation", "droptoinventory", "name"));
+        setDescription(Localizer.dLocalize("excavation.drop_to_inventory.description"));
+        setDisplayName(Localizer.dLocalize("excavation.drop_to_inventory.name"));
         setIcon(Material.DIRT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -57,8 +56,9 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
         return getConfig().enabled;
     }
 
+    @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("pickaxe", "droptoinventory", "lore1"));
+        v.addLore(Localizer.dLocalize("excavation.drop_to_inventory.lore"));
     }
 
 

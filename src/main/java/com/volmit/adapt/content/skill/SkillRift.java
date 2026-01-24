@@ -42,10 +42,10 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     private final KMap<Player, Long> lasttp;
 
     public SkillRift() {
-        super("rift", Localizer.dLocalize("skill", "rift", "icon"));
+        super("rift", Localizer.dLocalize("skill.rift.icon"));
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("skill", "rift", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "rift", "name"));
+        setDescription(Localizer.dLocalize("skill.rift.description"));
+        setDisplayName(Localizer.dLocalize("skill.rift.name"));
         setColor(C.DARK_PURPLE);
         setInterval(1154);
         setIcon(Material.ENDER_EYE);

@@ -20,7 +20,6 @@ package com.volmit.adapt.content.adaptation.pickaxe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
@@ -41,8 +40,8 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
     public PickaxeDropToInventory() {
         super("pickaxe-drop-to-inventory");
         registerConfiguration(PickaxeDropToInventory.Config.class);
-        setDescription(Localizer.dLocalize("pickaxe", "droptoinventory", "description"));
-        setDisplayName(Localizer.dLocalize("pickaxe", "droptoinventory", "name"));
+        setDescription(Localizer.dLocalize("pickaxe.drop_to_inventory.description"));
+        setDisplayName(Localizer.dLocalize("pickaxe.drop_to_inventory.name"));
         setIcon(Material.DIRT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -56,8 +55,9 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
         return getConfig().enabled;
     }
 
+    @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("pickaxe", "droptoinventory", "lore1"));
+        v.addLore(Localizer.dLocalize("pickaxe.drop_to_inventory.lore"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

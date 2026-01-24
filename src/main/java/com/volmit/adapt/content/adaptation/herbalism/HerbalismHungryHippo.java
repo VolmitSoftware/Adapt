@@ -20,7 +20,6 @@ package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
@@ -38,8 +37,8 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
     public HerbalismHungryHippo() {
         super("herbalism-hippo");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("herbalism", "hippo", "description"));
-        setDisplayName(Localizer.dLocalize("herbalism", "hippo", "name"));
+        setDescription(Localizer.dLocalize("herbalism.hippo.description"));
+        setDisplayName(Localizer.dLocalize("herbalism.hippo.name"));
         setIcon(Material.POTATO);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -50,7 +49,7 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ (" + (2 + level) + C.GRAY + " + " + Localizer.dLocalize("herbalism", "hippo", "lore1"));
+        v.addLore(Localizer.dLocalize("herbalism.hippo.lore", 2 + level));
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

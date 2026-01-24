@@ -341,11 +341,29 @@ public interface Adaptation<T> extends Ticked, Component {
         return c;
     }
 
+    default String displayName() {
+        if (!this.getSkill().isEnabled()) {
+            this.unregister();
+        }
+        return "<color:%s><b>%s</b></color>".formatted(getSkill().getColor().hex(), Form.capitalizeWords(getName().replaceAll("\\Q" + getSkill().getName() + "-\\E", "").replaceAll("\\Q-\\E", " ")));
+    }
+
     default String getDisplayName() {
         if (!this.getSkill().isEnabled()) {
             this.unregister();
         }
         return C.RESET + "" + C.BOLD + getSkill().getColor().toString() + Form.capitalizeWords(getName().replaceAll("\\Q" + getSkill().getName() + "-\\E", "").replaceAll("\\Q-\\E", " "));
+    }
+
+    default String displayName(int level) {
+        if (!this.getSkill().isEnabled()) {
+            this.unregister();
+        }
+        if (level >= 1) {
+            return "%s <white><u>%s</u></white>".formatted(displayName(), Form.toRoman(level));
+        }
+
+        return displayName();
     }
 
     default String getDisplayName(int level) {
@@ -449,51 +467,80 @@ public interface Adaptation<T> extends Ticked, Component {
                     .setEnchanted(mylevel >= lvl)
                     .setProgress(1D)
                     .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
-                    .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledgecost") + " " + (AdaptConfig.get().isHardcoreNoRefunds() ? C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "norefunds") : "")))
-                    .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Localizer.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "norefunds")) : (isPermanent() ? "" : (C.GREEN + Localizer.dLocalize("snippets", "adaptmenu", "alreadylearned") + " " + C.GRAY + Localizer.dLocalize("snippets", "adaptmenu", "unlearnrefund") + " " + C.GREEN + rc + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledgecost"))) : (k >= c ? (C.BLUE + Localizer.dLocalize("snippets", "adaptmenu", "clicklearn") + " " + getDisplayName(i)) : (k == 0 ? (C.RED + Localizer.dLocalize("snippets", "adaptmenu", "noknowledge")) : (C.RED + "(" + Localizer.dLocalize("snippets", "adaptmenu", "youonlyhave") + " " + C.WHITE + k + C.RED + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledgeavailable") + ")"))))
-                    .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets", "adaptmenu", "powerdrain") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets", "adaptmenu", "powerdrain") : C.RED + Localizer.dLocalize("snippets", "adaptmenu", "notenoughpower") + "\n" + C.RED + Localizer.dLocalize("snippets", "adaptmenu", "howtolevelup"))
-                    .addLore((isPermanent() ? C.RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "maynotunlearn") : ""))
-                    .onLeftClick((e) -> {
-                        if (mylevel >= lvl) {
-                            unlearn(player, lvl, false);
-                            spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
-                            spw.play(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
-                            w.close();
-                            if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
-                                if (isPermanent()) {
-                                    spw.play(player.getLocation(), Sound.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
-                                    player.sendTitle(" ", C.RED + "" + C.BOLD + Localizer.dLocalize("snippets", "adaptmenu", "maynotunlearn") + " " + getDisplayName(mylevel), 1, 10, 11);
-                                } else {
-                                    player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets", "adaptmenu", "unlearned") + " " + getDisplayName(mylevel), 1, 10, 11);
-                                }
-                            }
-                            J.s(() -> openGui(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
-                            return;
-                        }
+                    .addLore("");
 
-                        if (k >= c && getPlayer(player).getData().hasPowerAvailable(pc)) {
-                            if (getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c)) {
-                                getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
-                                spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
-                                spw.play(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
-                                spw.play(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
-                                spw.play(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
-                                if (isPermanent()) {
-                                    spw.play(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.355f);
-                                    spw.play(player.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
-                                }
-                                w.close();
-                                if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
-                                    player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets", "adaptmenu", "learned") + " " + getDisplayName(lvl), 1, 5, 11);
-                                }
-                                J.s(() -> openGui(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
-                            } else {
-                                spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
-                            }
+            if (mylevel < lvl) {
+                if (isPermanent()) {
+                    de.addLore(Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn"));
+                    de.addLore("");
+                }
+                if (AdaptConfig.get().isHardcoreNoRefunds()) {
+                    de.addLore(Localizer.dLocalize("snippets.adapt_menu.no_refunds"));
+                    de.addLore("");
+                }
+                de.addLore(Localizer.dLocalize("snippets.adapt_menu.knowledge_cost", c));
+                if (k == 0) {
+                    de.addLore(Localizer.dLocalize("snippets.adapt_menu.no_knowledge"));
+                } else if (k < c) {
+                    de.addLore(Localizer.dLocalize("snippets.adapt_menu.you_only_have", k));
+                }
+                de.addLore("");
+                if (getPlayer(player).getData().hasPowerAvailable(pc)) {
+                    de.addLore(Localizer.dLocalize("snippets.adapt_menu.power_drain", lvl));
+                } else {
+                    de.addLore(Localizer.dLocalize("snippets.adapt_menu.not_enough_power"));
+                    de.addLore(Localizer.dLocalize("snippets.adapt_menu.how_to_level_up"));
+                }
+            } else {
+                if (AdaptConfig.get().isHardcoreNoRefunds()) {
+                    de.addLore(Localizer.dLocalize("snippets.adapt_menu.no_refunds"));
+                } else if (!isPermanent()) {
+                    de.addLore( Localizer.dLocalize("snippets.adapt_menu.unlearn_refund", rc));
+                }
+                de.addLore("");
+                de.addLore(Localizer.dLocalize("snippets.adapt_menu.power_drain", lvl));
+            }
+            de.onLeftClick((e) -> {
+                if (mylevel >= lvl) {
+                    unlearn(player, lvl, false);
+                    spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
+                    spw.play(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
+                    w.close();
+                    if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
+                        if (isPermanent()) {
+                            spw.play(player.getLocation(), Sound.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
+                            player.sendTitle(" ", Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn"), 1, 10, 11);
                         } else {
-                            spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+                            player.sendTitle(" ", Localizer.dLocalize("snippets.adapt_menu.unlearned", displayName(mylevel)), 1, 10, 11);
                         }
-                    });
+                    }
+                    J.s(() -> openGui(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
+                    return;
+                }
+
+                if (k >= c && getPlayer(player).getData().hasPowerAvailable(pc)) {
+                    if (getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c)) {
+                        getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
+                        spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
+                        spw.play(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
+                        spw.play(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
+                        spw.play(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
+                        if (isPermanent()) {
+                            spw.play(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.355f);
+                            spw.play(player.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
+                        }
+                        w.close();
+                        if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
+                            player.sendTitle(" ", Localizer.dLocalize("snippets.adapt_menu.learned", displayName(lvl)), 1, 5, 11);
+                        }
+                        J.s(() -> openGui(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
+                    } else {
+                        spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+                    }
+                } else {
+                    spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+                }
+            });
             de.addLore(" ");
             addStats(lvl, de);
             w.setElement(pos, row, de);
@@ -505,12 +552,12 @@ public interface Adaptation<T> extends Ticked, Component {
             w.setElement(backPos, backRow, new UIElement("back")
                     .setMaterial(new MaterialBlock(Material.RED_BED))
                     .setModel(CustomModel.get(Material.RED_BED, "snippets", "gui", "back"))
-                    .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets", "gui", "back"))
+                    .setName(Localizer.dLocalize("snippets.gui.back"))
                     .onLeftClick((e) -> onGuiClose(player, true)));
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle(getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " " + Localizer.dLocalize("snippets", "adaptmenu", "knowledge"));
+        w.setTitle(getDisplayName() + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_available_title", Form.f(a.getSkillLine(getSkill().getName()).getKnowledge())));
         w.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
         w.open();
         Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);

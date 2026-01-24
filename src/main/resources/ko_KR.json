@@ -262,941 +262,1254 @@
     }
   },
   "items": {
-    "boundenderperal": {
-      "name": "원격 상자",
-      "usage1": "원하는 상자에 웅크리기 + 좌클릭을 해서 연결하세요",
-      "usage2": "우클릭으로 열수있습니다"
+    "bound_ender_peral": {
+      "name": "<white>Reliquary Portkey</white>",
+      "usage1": "<gray>Shift + Left Click to bind</gray>",
+      "usage2": "<gray>Right Click to access the bound Inventory</gray>"
     },
-    "boundeyeofender": {
-      "name": "랑데부",
-      "usage1": "우클릭시 아이템을 소모하여 '연결'한 위치로 순간이동합니다",
-      "usage2": "해당 블럭에 웅크리기 + 좌클릭으로 '연결'"
+    "bound_eye_of_ender": {
+      "name": "<white>Ocular Anchor</white>",
+      "usage1": "<gray>Right Click to consume and teleport to the bound location</gray>",
+      "usage2": "<gray>Shift + Left Click to bind to a block</gray>"
     },
-    "boundredstonetorch": {
-      "name": "리모콘",
-      "usage1": "우클릭: 1틱의 레드스톤 신호를 발생시킵니다",
-      "usage2": "신호를 줄 블럭에 웅크리기 + 좌클릭"
+    "bound_redstone_torch": {
+      "name": "<white>Redstone Remote</white>",
+      "usage1": "<gray>Right Click to create a 1-Tick Redstone pulse</gray>",
+      "usage2": "<gray>Shift + Left Click on a 'Target' Block to bind</gray>"
     },
-    "boundsnowball": {
-      "name": "인스네어!",
-      "usage1": "던져서 해당 구역에 임시 거미줄 함정을 만듭니다"
+    "bound_snowball": {
+      "name": "<white>Web Snare!</white>",
+      "usage1": "<gray>Throw to create a temporary web trap at the location</gray>"
     },
-    "elevatorblock": {
-      "name": "엘리베이터 블록",
-      "usage1": "순간이동으로 점프",
-      "usage2": "아래로 순간이동하려면 Shift를 누르세요",
-      "usage3": "엘리베이터 사이에 최소 2개의 공기 블록이 있어야 합니다."
+    "elevator_block": {
+      "name": "Elevator Block",
+      "usage1": "Jump to teleport up",
+      "usage2": "Shift to teleport down",
+      "usage3": "Minimum of 2 air blocks between the elevators"
     }
   },
   "snippets": {
     "gui": {
-      "level": "레벨",
-      "knowledge": "스킬 포인트",
-      "powerused": "사용중인 마력",
-      "notlearned": "배우지않음",
-      "xp": "XP 다음레벨",
-      "welcome": "반갑습니다!",
-      "welcomeback": "다시 오신 것을 환영합니다!",
-      "xpbonusfortime": "XP",
-      "maxabilitypower": "최대 능력치",
-      "unlockthisbyclicking": "우클릭하여 잠금해제:",
-      "back": "뒤로 가기",
-      "unlearnall": "모두 배우지않음",
-      "unlearnedall": "모두 배우지 않았음"
+      "level": "<dark_gray>Level {0}</dark_gray>",
+      "knowledge": "<white>{0}</white> <gray>knowledge</gray>",
+      "power_used": "<gray>Power Used</gray> <dark_green>{0}</dark_green>",
+      "power_used_ratio": "<dark_gray>({0}/{1} Power Used)</dark_gray>",
+      "not_learned": "<dark_gray>Not Learned</dark_gray>",
+      "xp": "<dark_gray>{0}XP to {1}</dark_gray>",
+      "welcome": "<white>Welcome!</white>",
+      "welcome_back": "<white>Welcome back!</white>",
+      "xp_bonus_for_time": "+<green>{0}</green> <gray>XP for</gray> <aqua>{1}</aqua>",
+      "max_ability_power": "<gold>Maximum Ability Power</gold> <gray>+{0}</gray>",
+      "unlock_this_by_clicking": "<gray>Unlock this by Right-Clicking:</gray> <white>{0}</white>",
+      "back": "<gray>Back</gray>",
+      "unlearn_all": "<gray>Unlearn all</gray>{0}",
+      "unlearned_all": "<gray>Unlearned all</gray>"
     },
-    "adaptmenu": {
-      "maynotunlearn": "배울 수 없습니다",
-      "mayunlearn": "배우거나 배우지 않을 수 있습니다",
-      "knowledgecost": "필요한 스킬포인트",
-      "knowledgeavailable": "사용 가능한 스킬포인트",
-      "alreadylearned": "이미 배움",
-      "unlearnrefund": "클릭하여 습득 포기 및 환불을 받습니다",
-      "norefunds": "하드코어, 환불 불가",
-      "knowledge": "스킬포인트",
-      "clicklearn": "클릭하여 배웁니다 : ",
-      "noknowledge": "(스킬포인트를 갖고 있지 않습니다)",
-      "youonlyhave": "현재 보유중인 스킬포인트: ",
-      "howtolevelup": "레벨업을 하여 최대 마력을 높이세요",
-      "notenoughpower": "마력이 부족합니다!",
-      "power": "마력",
-      "powerdrain": "의 마력 사용",
-      "learned": "배움:",
-      "unlearned": "배우지않음: ",
-      "activatorblock": "책장"
+    "adapt_menu": {
+      "may_not_unlearn": "<red><bold>YOU MAY NOT UNLEARN</bold></red>",
+      "may_unlearn": "<green>YOU MAY LEARN/UNLEARN</green>",
+      "knowledge_cost": "<white>{0}</white> <gray>Knowledge Cost</gray>",
+      "knowledge_available": "<gray>Knowledge Available</gray>",
+      "knowledge_available_title": "<dark_gray>{0} knowledge</dark_gray>",
+      "unlearn_refund": "<gray><u>Click to Unlearn & Refund <white>{0}</white> Knowledge Cost</u></gray>",
+      "no_refunds": "<dark_red><bold>HARDCORE, REFUNDS DISABLED</bold></dark_red>",
+      "knowledge": "<dark_gray>knowledge</dark_gray>",
+      "no_knowledge": "<red>(You don't have any Knowledge)</red>",
+      "you_only_have": "<red>(You only have <white>{0}</white> Knowledge Available)</red>",
+      "how_to_level_up": "<red>Level up skills to increase your max power.</red>",
+      "not_enough_power": "<red>Not enough power! Each Ability Level costs 1 power.</red>",
+      "power": "<gray>power</gray>",
+      "power_drain": "<green>{0} Power Drain</green>",
+      "learned": "<gray>Learned {0}</gray>",
+      "unlearned": "<gray>Unlearned {0}</gray>",
+      "activator_block": "<gold>Bookshelf</gold>"
     },
-    "knowledgeorb": {
-      "contains": "포함",
-      "knowledge": "스킬포인트",
-      "rightclick": "우클릭",
-      "togainknowledge": "이 스킬을 얻기 위해",
-      "knowledgeorb": "지식의 구체"
+    "knowledge_orb": {
+      "contains": "<white>contains</white> <white><u>{0}</u></white> <gray>{1}</gray> <gray>knowledge</gray>",
+      "knowledge": "<gray>knowledge</gray>",
+      "right_click_to_gain_knowledge": "<light_purple>Right-Click</light_purple> <gray>to gain this knowledge</gray>",
+      "knowledge_orb": "<gold>Knowledge Orb</gold>"
     },
-    "experienceorb": {
-      "contains": "포함",
-      "xp": "경험",
-      "rightclick": "우클릭",
-      "togainxp": "이 경험을 얻기 위해",
-      "xporb": "경험의 구체"
+    "experience_orb": {
+      "contains": "<white>contains</white> <white><u>{0}</u></white> <gray>{1}</gray> <gray>Experience</gray>",
+      "xp": "<gray>Experience</gray>",
+      "right_click_to_gain_xp": "<light_purple>Right-Click</light_purple> <gray>to gain this experience</gray>",
+      "xp_orb": "<gold>Experience Orb</gold>"
     }
   },
   "skill": {
     "agility": {
-      "name": "민첩성",
+      "name": "Agility",
       "icon": "⇉",
-      "description": "빠르게 움직이고 대처하는 능력"
+      "description": "Agility is the ability to move quick and fluidly in the face of obstacles."
     },
     "architect": {
-      "name": "건축",
+      "name": "Architect",
       "icon": "⬧",
-      "description": "당신이 꿈꾸는 세상은 당신의 손에 달려 있습니다."
+      "description": "Structures are the building blocks of the world. Reality is in your hands, yours to control."
     },
     "axes": {
-      "name": "도끼",
+      "name": "Axes",
       "icon": "🪓",
-      "description1": "나무를 베어 넘길 수 있다",
-      "description2": "것들",
-      "description3": "그 대신, 똑같은 결과가 나왔습니다!"
+      "description": "<gray>Why chop down trees, when you could chop</gray> <italic><gray>things</gray></italic> <gray>instead, same end result!</gray>"
     },
     "brewing": {
-      "name": "양조술",
+      "name": "Brewing",
       "icon": "❦",
-      "description": "양조가 될지 연금술이 될지..\n무한한 가능성이 열려있습니다"
+      "description": "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
     },
     "blocking": {
-      "name": "방패",
+      "name": "Blocking",
       "icon": "🛡",
-      "description": "강력한 방어를 제공하는 능력"
+      "description": "Sticks and stones Won't break your bones, But a shield will."
     },
     "crafting": {
-      "name": "제작",
+      "name": "Crafting",
       "icon": "⌂",
-      "description": "우리 함께 새로운 가능성을 열어보자구요!"
+      "description": "With no more pieces left to place, why not make another?"
     },
     "discovery": {
-      "name": "탐험",
+      "name": "Discovery",
       "icon": "⚛",
-      "description": "당신의 인식이 확장됨에 따라, 당신의 마음은 당신이 알지 못했던 것을 발견하기 위해 풀립니다."
+      "description": "As your perception expands, your mind unravels to discover that which you did not."
     },
     "enchanting": {
-      "name": "인챈트",
+      "name": "Enchanting",
       "icon": "♰",
-      "description": "마법부여의 길"
+      "description": "What are you going on about? Prophecies, visions, superstitious jibber-jabber?"
     },
     "excavation": {
-      "name": "발굴",
+      "name": "Excavation",
       "icon": "ᛳ",
-      "description": "디기 디기 홀..."
+      "description": "Diggy Diggy Hole..."
     },
     "herbalism": {
-      "name": "생명공학",
+      "name": "Herbalism",
       "icon": "⚘",
-      "description": "생명에 대해 자세히 알아가는 능력"
+      "description": "I can't find any plants, but I can find some seeds and- is that... Weed?"
     },
     "hunter": {
-      "name": "사냥꾼",
+      "name": "Hunter",
       "icon": "☠",
-      "description": "생존하기 위해 사냥하는 것이 아닌 사냥하기 위해 생존하는 것이다"
+      "description": "Hunting is about the journey not the outcome."
     },
     "nether": {
-      "name": "네더",
+      "name": "Nether",
       "icon": "₪",
-      "description": "또 다른 세계의 깊은 곳에서 나오는 능력."
+      "description": "From the depths of the Nether itself."
     },
     "pickaxe": {
-      "name": "곡괭이",
+      "name": "Pickaxe",
       "icon": "⛏",
-      "description": "지하 탐험에 가장 큰 영향을 주는 능력"
+      "description": "Dwarves are the miners, but ive learned a thing or two in my time. IM SWEDISH"
     },
     "ranged": {
-      "name": "사격",
+      "name": "Ranged",
       "icon": "🏹",
-      "description": "가장 안전한 승리와 생존의 방법입니다"
+      "description": "Distance is the key to victory, and the key to survival."
     },
     "rift": {
-      "name": "균열",
+      "name": "Rift",
       "icon": "❍",
-      "description": "세계와 세계 사이의 충돌로 발생한 불가사의한 균열의 힘"
+      "description": "The Rift is a caustic harness, but you have harnessed the harness."
     },
     "seaborne": {
-      "name": "해상",
+      "name": "Seaborne",
       "icon": "🎣",
-      "description": "이 기술을 사용하면 물의 경이로움을 느낄 수 있습니다."
+      "description": "With this skill, you may will the wonders of the water."
     },
     "stealth": {
-      "name": "잡입",
+      "name": "Stealth",
       "icon": "☯",
-      "description": "보이지 않는 것의 예술, 어둠 속을 걷다"
+      "description": "The art of the unseen. Walk in the shadows."
     },
     "swords": {
-      "name": "검술",
+      "name": "Swords",
       "icon": "⚔",
-      "description": "모든 것을 베어버리는 능력"
+      "description": "By the power of GreyStone!"
     },
     "taming": {
-      "name": "조련",
+      "name": "Taming",
       "icon": "♥",
-      "description": "동물을 길들이는 능력"
+      "description": "The parrots and the bees... and you?"
     },
     "tragoul": {
-      "name": "사령술",
+      "name": "TragOul",
       "icon": "🗡",
-      "description": "나는 군단이다."
+      "description": "Blood flows through the veins of the universe. Constricted by your hands."
     },
     "chronos": {
-      "name": "크로노스",
+      "name": "Chronos",
       "icon": "⏳",
-      "description": "우주의 시계를 감고, 그 흐름을 경험하세요. 시계를 깨고, 그 흐름이 되어 보세요."
+      "description": "Wind the Clock of the universe, experience the flow. Break the clock, become it."
     },
     "unarmed": {
-      "name": "비무장",
+      "name": "Unarmed",
       "icon": "»",
-      "description": "무기가 없으면 힘도 없다."
+      "description": "Without a weapon is not without strength."
     }
   },
   "agility": {
-    "armorup": {
-      "name": "방어구 강화",
-      "description": "오래 달릴수록 더 많은 방어력을 얻을 수 있습니다!",
-      "lore1": "최대 방어구 적용",
-      "lore2": "방어력 상승 시간"
+    "armor_up": {
+      "name": "Armor Up",
+      "description": "Get more armor the longer you sprint!",
+      "lore": [
+        "<gray>Passive: Build armor while sprinting</gray>",
+        "<green>+ {0}</green> <gray>Maximum armor gained</gray>",
+        "<yellow>* {1}</yellow> <gray>Time to reach max armor</gray>"
+      ]
     },
-    "superjump": {
-      "name": "슈퍼 점프",
-      "description": "뛰어난 높이의 이점.",
-      "lore1": "최대 점프 높이",
-      "lore2": "웅크리기 + 점프"
+    "super_jump": {
+      "name": "Super Jump",
+      "description": "Exceptional Height Advantage.",
+      "lore": [
+        "<gray>Sneak + Jump to perform a Super Jump</gray>",
+        "<green>+ {0}</green> <gray>Maximum jump height</gray>"
+      ]
     },
-    "walljump": {
-      "name": "벽타기",
-      "description": "벽을 기댄상태로 웅크리면 한번더 점프할수 있습니다!",
-      "lore1": "최대 점프",
-      "lore2": "점프 높이"
+    "wall_jump": {
+      "name": "Wall Jump",
+      "description": "Hold shift while mid-air against a wall to wall latch & jump!",
+      "lore": [
+        "<gray>Hold Sneak against wall mid-air to latch and jump</gray>",
+        "<green>+ {0}</green> <gray>Maximum wall jumps</gray>",
+        "<green>+ {1}</green> <gray>Jump height per wall jump</gray>"
+      ]
     },
-    "windup": {
-      "name": "가속 강화",
-      "description": "더 빠르게 가속하세요!",
-      "lore1": "최대 속도",
-      "lore2": "가속 시간"
+    "wind_up": {
+      "name": "Wind Up",
+      "description": "Get faster the longer you sprint!",
+      "lore": [
+        "<gray>Passive: Build speed while sprinting</gray>",
+        "<green>+ {0}</green> <gray>Maximum speed multiplier</gray>",
+        "<yellow>* {1}</yellow> <gray>Time to reach max speed</gray>"
+      ]
     }
   },
   "architect": {
     "elevator": {
-      "name": "엘리베이터",
-      "description": "이를 통해 수직으로 빠르게 순간이동하는 엘리베이터를 건설할 수 있습니다!",
-      "lore1": "엘리베이터 레시피 잠금 해제: X=WOOL, Y=ENDER PEARL",
-      "lore2": "XXX",
-      "lore3": "XYX",
-      "lore4": "XXX"
+      "name": "Elevator",
+      "description": "This allows for you to build an elevator to teleport vertically fast!",
+      "lore": [
+        "<gray>Craft: 8 Wool around 1 Ender Pearl</gray>",
+        "<green>+ </green><gray>Unlocks Elevator Block crafting</gray>",
+        "<yellow>* </yellow><gray>Jump to go up, Sneak to go down</gray>"
+      ]
     },
     "foundation": {
-      "name": "마법 발판",
-      "description": "웅크려서 발 밑에 임시 발판 블럭을 생성합니다",
-      "lore1": "한번에 생성할수있는 발판:",
-      "lore2": "당신 아래에 블록이 있어요!"
+      "name": "Magic Foundation",
+      "description": "This allows for you to sneak and place a temporary foundation beneath you!",
+      "lore": [
+        "<gray>Sneak in mid-air to create temporary blocks</gray>",
+        "<green>+ {0}</green> <gray>Blocks you can place beneath you</gray>",
+        "<yellow>* </yellow><gray>Blocks disappear after a short time</gray>"
+      ]
     },
     "glass": {
-      "name": "유리전용 섬세한 손길",
-      "description": "유리 블럭을 캐도 돌려받을수 있습니다.",
-      "lore1": "자신에게 유리에 대한 섬세한 손길 효과를 부여합니다"
+      "name": "Silk-Touch Glass",
+      "description": "This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand!",
+      "lore": [
+        "<gray>Passive: Break glass with bare hands</gray>",
+        "<green>+ </green><gray>Glass drops as item instead of breaking</gray>"
+      ]
     },
-    "wirelessredstone": {
-      "name": "원격 레드스톤",
-      "description": "원격으로 제어할수있는 레드스톤 리모콘을 만들수 있습니다!",
-      "lore1": "타겟 + 레드스톤 토치 + 엔더펄 = 레드스톤 리모컨 1개"
+    "wireless_redstone": {
+      "name": "Redstone Remote",
+      "description": "This allows for you to use a redstone torch to toggle redstone, remotely!",
+      "lore": [
+        "<gray>Craft: Target + Redstone Torch + Enderpearl</gray>",
+        "<green>+ </green><gray>Remotely toggle redstone signals</gray>",
+        "<yellow>* </yellow><gray>Shift + Left-click to bind, Right-click to pulse</gray>"
+      ]
     },
     "placement": {
-      "name": "건축도구",
-      "description": "웅크려 범위를 지정해 한번에 여러 블럭을 설치할 수 있습니다.",
-      "lore1": "필요한 블럭 수: ",
-      "lore2": " 이걸 놓기 위해 블록을 손에 넣으세요",
-      "lore3": "건축도구 재료"
+      "name": "Builders Wand",
+      "description": "Allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!",
+      "need_blocks": "<red>You need <green>{0}</green> blocks in your hand to place this</red>",
+      "lore": [
+        "<gray>Sneak + Place to extend block surfaces</gray>",
+        "<green>+ </green><gray>Place multiple blocks at once</gray>",
+        "<yellow>* </yellow><gray>Hold matching blocks in hand</gray>"
+      ]
     }
   },
   "axe": {
     "chop": {
-      "name": "찹트리",
-      "description": "나무를 우클릭하여 한번에 베어버리세요",
-      "lore1": "블럭 갯수",
-      "lore2": "쿨타임",
-      "lore3": "내구도 감소"
+      "name": "Axe Chop",
+      "description": "Chop down trees by right clicking the base log!",
+      "lore": [
+        "<gray>Right-click base log to chop entire tree</gray>",
+        "<green>+ {0}</green> <gray>Blocks chopped per use</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between chops</gray>",
+        "<red>- {2}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "logswap": {
-      "name": "나무 교환",
-      "description": "제작대에서 나무의 종류를 변경하세요!",
-      "lore1": "아무 종류의 원목 1개 + 묘목 1개 = 묘목과 같은 종류의 원목 1개"
+    "log_swap": {
+      "name": "Lucy's Log-Swapper",
+      "description": "Change the flavor of logs in a Crafting Table!",
+      "lore": [
+        "<gray>Craft: 8 Logs + 1 Sapling = 8 Logs of sapling type</gray>",
+        "<green>+ </green><gray>Convert any log type to another</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "자석 도끼"
+    "drop_to_inventory": {
+      "name": "Axe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Chopped items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped logs</gray>"
+      ]
     },
-    "groundsmash": {
-      "name": "도끼 나가신다!",
-      "description": "점프하고 웅크려서 공격하여 주변 몹에게 광역 피해를 가합니다",
-      "lore1": "대미지",
-      "lore2": "대미지 범위",
-      "lore3": "힘",
-      "lore4": "쿨타임"
+    "ground_smash": {
+      "name": "Axe Ground Smash",
+      "description": "Jump, then crouch and smash all nearby enemies.",
+      "lore": [
+        "<gray>Jump + Sneak with axe to ground smash</gray>",
+        "<green>+ {0}-{1}</green> <gray>Damage dealt</gray>",
+        "<green>+ {2}</green> <gray>Block radius</gray>",
+        "<green>+ {3}</green> <gray>Knockback force</gray>",
+        "<yellow>* {4}</yellow> <gray>Cooldown</gray>"
+      ]
     },
-    "leafminer": {
-      "name": "나뭇잎 제거",
-      "description": "한번에 많은 나뭇잎을 제거할 수 있습니다!",
-      "lore1": "웅크리고 나뭇잎을 부수세요",
-      "lore2": "나뭇잎 제거 범위",
-      "lore3": "부서진 나뭇잎은 아이템을 떨구지 않습니다"
+    "leaf_miner": {
+      "name": "Leaf-miner",
+      "description": "Allows you to break bulk leaves at once!",
+      "lore": [
+        "<gray>Sneak + Mine leaves to break in bulk</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<red>- </red><gray>No drops from leaves (exploit prevention)</gray>"
+      ]
     },
-    "woodminer": {
-      "name": "나무 제거",
-      "description": "큰 나무 뭉치를 한 번에 깰 수 있습니다!",
-      "lore1": "웅크려 나무/통나무를 캐십시오( 판자 적용안됨)",
-      "lore2": "목재 채굴의 범위",
-      "lore3": "자석도끼와 함께 작동"
+    "wood_miner": {
+      "name": "Wood-miner",
+      "description": "Allows you to break bulk wood at once!",
+      "lore": [
+        "<gray>Sneak + Mine logs to break in bulk</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<yellow>* </yellow><gray>Works with Drop-to-Inventory</gray>",
+        "<yellow>* </yellow><gray>Does not work on planks</gray>"
+      ]
     }
   },
   "brewing": {
     "lingering": {
-      "name": "잔잔한 양조주",
-      "description": "양조 물약이 더 오래 지속됩니다!",
-      "lore1": "지속",
-      "lore2": "지속"
+      "name": "Lingering Brew",
+      "description": "Brewed potions last longer!",
+      "lore": [
+        "<gray>Passive: Potion effects last longer</gray>",
+        "<green>+ {0}</green> <gray>Bonus duration for regular potions</gray>",
+        "<green>+ {1}</green> <gray>Bonus duration for splash potions</gray>"
+      ]
     },
-    "superheated": {
-      "name": "초 고열 양조",
-      "description": "양조기가 뜨거울수록 더 빨리 작동합니다.",
-      "lore1": "닿은 불 블록당",
-      "lore2": "닿는 용암 블록당"
+    "super_heated": {
+      "name": "Super Heated Brew",
+      "description": "Brewing stands work faster the hotter they are.",
+      "lore": [
+        "<gray>Passive: Heat sources speed up brewing</gray>",
+        "<green>+ {0}</green> <gray>Speed per adjacent fire block</gray>",
+        "<green>+ {1}</green> <gray>Speed per adjacent lava block</gray>"
+      ]
     },
     "darkness": {
-      "name": "어둠의 물약",
-      "description": "이것이 왜 필요한지 잘 모르겠지만 여기 있습니다!",
-      "lore1": "야간 투시 물약 + 검은색 콘크리트 = 어둠의 물약 (30초)",
-      "lore2": "목표가 뛰는 것을 방지합니다"
+      "name": "Bottled Darkness",
+      "description": "Not sure why you need this, but here you go!",
+      "lore": [
+        "<gray>Craft: Night Vision Potion + Black Concrete</gray>",
+        "<green>+ {0}</green> <gray>Darkness effect</gray>",
+        "<red>- </red><gray>Prevents sprinting while active</gray>"
+      ]
     },
     "haste": {
-      "name": "성급함의 물약",
-      "description": "효율성이 충분하지 않을 때",
-      "lore1": "신속 물약 + 자수정 조각 = Potion of Haste (60 seconds)",
-      "lore2": "신속 물약 + 자수정 블럭 = Potion of Haste-2 (30 seconds)"
+      "name": "Bottled Haste",
+      "description": "When Efficiency is not enough",
+      "lore": [
+        "<gray>Craft: Speed Potion + Amethyst Shard = Haste I (60s)</gray>",
+        "<gray>Craft: Speed Potion + Amethyst Block = Haste II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Haste potion brewing</gray>"
+      ]
     },
     "absorption": {
-      "name": "흡수의 물약",
-      "description": "몸을 단단하게 합니다!",
-      "lore1": "즉시 치유 + 석영 = 흡수의 물약(60초)",
-      "lore2": "즉시 치유 + 석영 블록 = 흡수의 물약-2(30초)"
+      "name": "Bottled Absorption",
+      "description": "Harden the body!",
+      "lore": [
+        "<gray>Craft: Instant Heal + Quartz = Absorption I (60s)</gray>",
+        "<gray>Craft: Instant Heal + Quartz Block = Absorption II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Absorption potion brewing</gray>"
+      ]
     },
     "fatigue": {
-      "name": "피로의 물약",
-      "description": "허약하게 만들어 채굴하는속도를 줄입니다...",
-      "lore1": "약점포션 + 슬라임볼 = 피로의 포션 (30초)",
-      "lore2": "약점 물약 + 슬라임 블록 = 피로의 물약-2 (15초)"
+      "name": "Bottled Fatigue",
+      "description": "Weaken the body!",
+      "lore": [
+        "<gray>Craft: Weakness Potion + Slime Ball = Fatigue I (30s)</gray>",
+        "<gray>Craft: Weakness Potion + Slime Block = Fatigue II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Mining Fatigue potion brewing</gray>"
+      ]
     },
     "hunger": {
-      "name": "굶주림의 물약",
-      "description": "끝없는 공복감!",
-      "lore1": "어색한 물약 + 썩은 살점 = 굶주림의 물약(30초)",
-      "lore2": "약점 물약 + 썩은 살 = 굶주림의 물약-3 (15초)"
+      "name": "Bottled Hunger",
+      "description": "Feed the Insatiable!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Rotten Flesh = Hunger I (30s)</gray>",
+        "<gray>Craft: Weakness Potion + Rotten Flesh = Hunger II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Hunger potion brewing</gray>"
+      ]
     },
     "nausea": {
-      "name": "멀미의 물약",
-      "description": "구와아아악!",
-      "lore1": "어색한 물약 + 갈색 버섯 = 메스꺼움의 물약(16초)",
-      "lore2": "어색한 물약 + 진홍색 곰팡이 = 메스꺼움의 물약-2 (8초)"
+      "name": "Bottled Nausea",
+      "description": "You make me sick!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Brown Mushroom = Nausea I (16s)</gray>",
+        "<gray>Craft: Awkward Potion + Crimson Fungus = Nausea II (8s)</gray>",
+        "<green>+ </green><gray>Unlocks Nausea potion brewing</gray>"
+      ]
     },
     "blindness": {
-      "name": "실명의 물약",
-      "description": "티모가 화살에 바르고는 했죠..",
-      "lore1": "어색한 물약 + 잉크 자루 = 실명의 물약(30초)",
-      "lore2": "어색한 물약 + 빛나는 잉크 자루 = 실명의 물약-2 (15초)"
+      "name": "Bottled Blindness",
+      "description": "You're a horrible person...",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Ink Sac = Blindness I (30s)</gray>",
+        "<gray>Craft: Awkward Potion + Glow Ink Sac = Blindness II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Blindness potion brewing</gray>"
+      ]
     },
     "resistance": {
-      "name": "저항의 물약",
-      "description": "최강의 강화!",
-      "lore1": "어색한 물약 + 철 주괴 = 저항의 물약(60초)",
-      "lore2": "어색한 물약 + 철 블록 = 저항의 물약-2 (30초)"
+      "name": "Bottled Resistance",
+      "description": "Fortification at its finest!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Iron Ingot = Resistance I (60s)</gray>",
+        "<gray>Craft: Awkward Potion + Iron Block = Resistance II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Resistance potion brewing</gray>"
+      ]
     },
-    "healthboost": {
-      "name": "생명의 물약",
-      "description": "최대 체력이 부족할 때...",
-      "lore1": "즉시 치유 물약 + 황금 사과 = 건강 증진 물약(120초)",
-      "lore2": "즉시 치유 물약 + 마법에 걸린 황금 사과 = 건강 증진 물약-2 (120초)"
+    "health_boost": {
+      "name": "Bottled Life",
+      "description": "When Maximum health is not enough...",
+      "lore": [
+        "<gray>Craft: Instant Heal + Golden Apple = Health Boost I (120s)</gray>",
+        "<gray>Craft: Instant Heal + Enchanted Apple = Health Boost II (120s)</gray>",
+        "<green>+ </green><gray>Unlocks Health Boost potion brewing</gray>"
+      ]
     },
     "decay": {
-      "name": "부패 물약",
-      "description": "개똥을 약에쓰면 병난다..",
-      "lore1": "약점 물약 + 독 감자 = 시들기의 물약 (16초)",
-      "lore2": "약점 물약 + 크림슨 뿌리 = 위더-2의 물약(8초)"
+      "name": "Bottled Decay",
+      "description": "Who knew Detritus would be so useful?",
+      "lore": [
+        "<gray>Craft: Weakness Potion + Poisonous Potato = Wither I (16s)</gray>",
+        "<gray>Craft: Weakness Potion + Crimson Roots = Wither II (8s)</gray>",
+        "<green>+ </green><gray>Unlocks Wither potion brewing</gray>"
+      ]
     },
     "saturation": {
-      "name": "포만감의 물약",
-      "description": "음식을 갈아넣은것일까요?",
-      "lore1": "재생 물약 + 구운 감자 = 포화 물약",
-      "lore2": "재생 물약 + 건초 더미 = 포화 물약-2"
+      "name": "Bottled Saturation",
+      "description": "Ya know... Im not even Hungry...",
+      "lore": [
+        "<gray>Craft: Regen Potion + Baked Potato = Saturation I</gray>",
+        "<gray>Craft: Regen Potion + Hay Bale = Saturation II</gray>",
+        "<green>+ </green><gray>Unlocks Saturation potion brewing</gray>"
+      ]
     }
   },
   "blocking": {
-    "chainarmorer": {
-      "name": "메피스토펠레스의 사슬",
-      "description": "사슬 갑옷을 제작할 수 있습니다.",
-      "lore1": "제작 레시피는 기존 레시피와 동일하지만 대신 철 조각이 필요합니다."
+    "chain_armorer": {
+      "name": "Chains of Mephistopheles",
+      "description": "Allows you to craft Chainmail Armor",
+      "lore": [
+        "<gray>Craft: Use Iron Nuggets in armor patterns</gray>",
+        "<green>+ </green><gray>Unlocks Chainmail Armor crafting</gray>"
+      ]
     },
-    "horsearmorer": {
-      "name": "제작 가능한 말 갑옷",
-      "description": "말 갑옷을 만들 수 있습니다.",
-      "lore1": "갑옷 제작에 사용할 재료로 안장을 둘러싸세요. 예시)다이아몬드"
+    "horse_armorer": {
+      "name": "Craftable Horse Armor",
+      "description": "Allows you to craft Horse Armor",
+      "lore": [
+        "<gray>Craft: Surround Saddle with armor material</gray>",
+        "<green>+ </green><gray>Unlocks Horse Armor crafting</gray>",
+        "<yellow>* </yellow><gray>Use Iron/Gold/Diamond for different tiers</gray>"
+      ]
     },
-    "saddlecrafter": {
-      "name": "제작 가능한 안장",
-      "description": "가죽으로 안장 만들기",
-      "lore1": "레시피: 5 가죽:"
+    "saddle_crafter": {
+      "name": "Craftable Saddle",
+      "description": "Craft a Saddle with Leather",
+      "lore": [
+        "<gray>Craft: 5 Leather in saddle pattern</gray>",
+        "<green>+ </green><gray>Unlocks Saddle crafting</gray>"
+      ]
     },
-    "multiarmor": {
-      "name": "다중 갑옷",
-      "description": "겉날개를 갑옷에 묶기",
-      "lore1": "이것은 여행에 대한 놀라운 기술입니다.",
-      "lore2": "갑옷/엘리트라를 즉석에서 동적으로 병합하고 변경하세요!",
-      "lore3": "병합하려면 인벤토리에서 한 아이템을 다른 아이템 위에 올려놓고 Shift 키를 누른 채로 클릭하세요.",
-      "lore4": "방어구를 풀려면 해당 아이템을 몰래 떨어뜨리면 분해됩니다.",
-      "lore5": "합친 장비가 파괴되면 그 안의 모든 아이템을 잃게 됩니다.",
-      "lore6": "평범한 갑옷은 필요없어요. 실망스럽네요..."
+    "multi_armor": {
+      "name": "Multi-Armor",
+      "description": "Bind Elytras to Armor",
+      "lore": [
+        "<gray>Merge Elytra with Chestplate for dual functionality</gray>",
+        "<green>+ </green><gray>Shift-click to merge items in inventory</gray>",
+        "<yellow>* </yellow><gray>Sneak-Drop to disassemble</gray>",
+        "<red>- </red><gray>Destroying MultiArmor loses all merged items</gray>"
+      ]
     }
   },
   "crafting": {
     "deconstruction": {
-      "name": "해체",
-      "description": "블록과 아이템을 재료로 분해하십시오!",
-      "lore1": "물건을 땅에 떨어뜨리세요.",
-      "lore2": "그런 다음 가위로 몰래 움직이고 마우스 오른쪽 버튼을 클릭하세요."
+      "name": "Deconstruction",
+      "description": "Deconstruct blocks & items into salvageable base components!",
+      "lore": [
+        "<gray>Drop item + Sneak + Right-click with Shears</gray>",
+        "<green>+ </green><gray>Break items into base components</gray>"
+      ]
     },
     "xp": {
-      "name": "경험치 제작",
-      "description": "제작 시 패시브 XP 획득",
-      "lore1": "제작 시 XP 획득"
+      "name": "Crafting XP",
+      "description": "Gain passive XP when crafting",
+      "lore": [
+        "<gray>Passive: Earn XP from crafting items</gray>",
+        "<green>+ </green><gray>XP gained per craft</gray>"
+      ]
     },
     "reconstruction": {
-      "name": "광석 복원",
-      "description": "광물 원석을 만들 수 있습니다",
-      "lore1": "광물8개와 돌 1개 = 광석 1개",
-      "lore2": "방울을 제련해야 합니다(해당되는 경우).",
-      "lore3": "제외: 파편, 석영, 에메랄드 등...",
-      "lore4": "예시 : 돌, 네더랙, 심층암"
+      "name": "Ore Reconstruction",
+      "description": "Recraft ores from their base components!",
+      "lore": [
+        "<gray>Craft: 8 Smelted drops + 1 Host block = 1 Ore</gray>",
+        "<green>+ </green><gray>Reconstruct ore blocks from materials</gray>",
+        "<yellow>* </yellow><gray>Host = Stone, Netherrack, or Deepslate</gray>",
+        "<red>- </red><gray>Excludes Scraps, Quartz, Emeralds, etc.</gray>"
+      ]
     },
     "leather": {
-      "name": "제작 가능한 가죽",
-      "description": "썩은 살로 가죽 만들기",
-      "lore1": "모닥불에 (썩은 살코기) 던지기만 하면 끝!"
+      "name": "Craftable Leather",
+      "description": "Craft Leather from Rotten Flesh",
+      "lore": [
+        "<gray>Cook Rotten Flesh on a Campfire</gray>",
+        "<green>+ </green><gray>Converts Rotten Flesh to Leather</gray>"
+      ]
     },
     "backpacks": {
-      "name": "보조 주머니",
-      "description": "이것은 Mojang 번들을 게임으로 가져옵니다!",
-      "lore1": "이것을 사용하려면 서바이벌에 있어야 합니다.",
-      "lore2": "XLX : 가죽, 끈, 가죽",
-      "lore3": "XSX : 가죽, 통, 가죽",
-      "lore4": "XCX : 가죽, 상자, 가죽"
+      "name": "A Boutilier's Backpacks!",
+      "description": "This just Brings the Mojang Bundle into the game!",
+      "lore": [
+        "<gray>Craft bundles with various recipes</gray>",
+        "<green>+ </green><gray>Unlocks Bundle crafting</gray>",
+        "<yellow>* </yellow><gray>Leather + Lead + Leather (row)</gray>",
+        "<yellow>* </yellow><gray>Survival mode only</gray>"
+      ]
     },
     "stations": {
-      "name": "휴대용 테이블",
-      "description": "제작대를 사용하세요!",
-      "lore2": "테이블을 닫을 때 놔둔 항목은 영원히 사라집니다!",
-      "lore3": "유효한 테이블: 모루, 제작대, 숫돌, 지도제작대, 석재절단기, 베틀"
+      "name": "Portable Tables!",
+      "description": "Use a table in the palm of your hand!",
+      "lore": [
+        "<gray>Right-click workstation in hand to use</gray>",
+        "<green>+ </green><gray>Portable Anvil, Crafting, Grindstone, etc.</gray>",
+        "<red>- </red><gray>Items left inside are LOST when closed!</gray>"
+      ]
     },
     "skulls": {
-      "name": "제작 가능한 머리!",
-      "description": "재료를 사용하여 해골을 만들 수 있습니다! 와샌즈!",
-      "lore1": "해골을 얻으려면 뼈 블록을 다음과 같이 둘러싸십시오.",
-      "lore2": "좀비: 썩어가는 살",
-      "lore3": "해골: 뼈",
-      "lore4": "크리퍼: 화약",
-      "lore5": "위더: 네더 벽돌",
-      "lore6": "드래곤: 드래곤 브레스"
+      "name": "Craftable skulls!",
+      "description": "Using Materials you can Craft Mob Skulls!",
+      "lore": [
+        "<gray>Craft: Surround Bone Block with mob materials</gray>",
+        "<green>+ </green><gray>Unlocks mob skull crafting</gray>",
+        "<yellow>* </yellow><gray>Zombie=Flesh, Skeleton=Bone, Creeper=Gunpowder</gray>",
+        "<yellow>* </yellow><gray>Wither=Nether Brick, Dragon=Dragon's Breath</gray>"
+      ]
     }
   },
   "discovery": {
     "armor": {
-      "name": "월드 아머",
-      "description": "주변 블록 경도에 따른 패시브 아머.",
-      "lore1": "패시브 아머",
-      "lore2": "주변 블록 경도 기준",
-      "lore3": "방어력:"
+      "name": "World Armor",
+      "description": "Passive armor depending on nearby block hardness.",
+      "lore": [
+        "<gray>Passive: Gain armor from nearby hard blocks</gray>",
+        "<green>+ {0}</green> <gray>Armor strength multiplier</gray>",
+        "<yellow>* </yellow><gray>Harder blocks = More armor</gray>"
+      ]
     },
     "unity": {
-      "name": "경험치 결합",
-      "description": "경험치 구체를 모으면 랜덤 스킬에 XP가 추가됩니다.",
-      "lore1": "XP",
-      "lore2": "오브 당"
+      "name": "Experimental Unity",
+      "description": "Collecting Experience Orbs adds XP to random skills.",
+      "lore": [
+        "<gray>Passive: XP orbs boost random Adapt skills</gray>",
+        "<green>+ {0}</green> <gray>Skill XP per orb collected</gray>"
+      ]
     },
     "resist": {
-      "name": "실험적 저항",
-      "description": "경험치를 소모하여 모든 출처에서 받는 피해를 완화합니다.",
-      "lore0": "15초에 한 번만 발생할 수 있습니다.",
-      "lore1": " 피해 감소",
-      "lore2": "경험치 소모량"
+      "name": "Experimental Resistance",
+      "description": "Consume experience to mitigate the damage you take from all sources",
+      "lore": [
+        "<gray>Passive: Spend XP to reduce incoming damage</gray>",
+        "<green>+ {0}</green> <gray>Damage reduction</gray>",
+        "<red>- {1}</red> <gray>XP drained per activation</gray>",
+        "<yellow>* {2}</yellow> <gray>Cooldown between activations</gray>"
+      ]
     },
     "villager": {
-      "name": "주민 교류",
-      "description": "마을 사람들과 더 나은 거래를 할 수 있습니다!",
-      "lore1": "이것은 주민과의 상호작용당 XP를 소모합니다.",
-      "lore2": "상호작용당 XP를 소비하고 거래를 강화할 기회",
-      "lore3": "상호작용당 필요한 XP 소모"
+      "name": "Villager Attraction",
+      "description": "Allows for you to get Better trades with villagers!",
+      "lore": [
+        "<gray>Passive: Better trades with villagers</gray>",
+        "<green>+ {0}</green> <gray>Chance for enhanced trades</gray>",
+        "<red>- {1}</red> <gray>XP cost per interaction</gray>"
+      ]
     }
   },
   "enchanting": {
-    "lapisreturn": {
-      "name": "청금석 반환",
-      "description": "XP 1레벨 추가 비용으로 무료 청금석을 대가로 받을 수 있습니다.",
-      "lore1": "레벨마다 마법부여 비용이 1씩 증가하지만 최대 3라피스까지 반환할 수 있습니다."
+    "lapis_return": {
+      "name": "Lapis Return",
+      "description": "At the cost of 1 more level of XP, and has a chance to give you free lapis in return",
+      "lore": [
+        "<gray>Trade extra XP for lapis refund</gray>",
+        "<green>+ {0}</green> <gray>Lapis returned per enchant</gray>",
+        "<red>- 1</red> <gray>Extra XP level cost per enchant</gray>"
+      ]
     },
-    "quickenchant": {
-      "name": "퀵 인챈트",
-      "description": "책에 직접 마법 부여를 클릭하여 아이템에 마법을 부여하십시오.",
-      "lore1": "최대 결합 레벨",
-      "lore2": "이상으로 아이템을 인챈트할 수 없습니다.",
-      "lore3": "마력"
+    "quick_enchant": {
+      "name": "Quick-Click Enchant",
+      "description": "Enchant items by clicking enchant books directly on them.",
+      "max_power": "<red>Cannot enchant items above {0} power</red>",
+      "lore": [
+        "<gray>Click enchant books directly on items to apply</gray>",
+        "<green>+ {0}</green> <gray>Maximum combined enchant levels</gray>"
+      ]
     },
     "return": {
-      "name": "XP 반환",
-      "description": "아이템에 마법을 부여하면 마법 부여 XP가 반환됩니다.",
-      "lore1": "아이템을 인챈트하면 소모한 경험치가 일정 확률로 환불됩니다.",
-      "lore2": "인챈트당 경험치"
+      "name": "XP Return",
+      "description": "Enchanting XP is returned to you when you enchant an item.",
+      "lore": [
+        "<gray>Passive: Chance to refund XP when enchanting</gray>",
+        "<green>+ {0}</green> <gray>XP returned per enchant</gray>"
+      ]
     }
   },
   "excavation": {
     "haste": {
-      "name": "성급한 굴착기",
-      "description": "이렇게 하면 HASTE와 함께 굴착 프로세스의 속도가 빨라집니다!",
-      "lore1": "발굴하는 동안 가속 획득",
-      "lore2": "x 블록 채굴을 시작할 때의 성급함 수준."
+      "name": "Hasty Excavator",
+      "description": "This will speed up the excavation process, with HASTE!",
+      "lore": [
+        "<gray>Passive: Gain Haste while digging</gray>",
+        "<green>+ {0}</green> <gray>Haste levels when mining</gray>"
+      ]
     },
     "spelunker": {
-      "name": "발광 엑스레이!",
-      "description": "원하는 광물을 골라 볼 수 있습니다!",
-      "lore1": "왼손에 광석 오른손엔 발광열매를 들고 웅크리세요!",
-      "lore2": "블록 범위:",
-      "lore3": "사용시 발광열매 소모"
+      "name": "Super-Seeing Spelunker!",
+      "description": "See Ores with your eyes, but through the ground!",
+      "lore": [
+        "<gray>Hold Ore in offhand + Glowberries in main hand + Sneak</gray>",
+        "<green>+ {0}</green> <gray>Block detection range</gray>",
+        "<yellow>* </yellow><gray>Consumes 1 Glowberry per use</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "자석 삽"
+    "drop_to_inventory": {
+      "name": "Shovel Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Dug items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "omnitool": {
-      "name": "도적의 7가지 도구",
-      "description": "맥가이버칼이라고도 부르죠.",
-      "lore1": "아마도 가장 강력한 것은 당신이 할 수 있는 것입니다",
-      "lore2": "필요에 따라 즉시 도구를 동적으로 병합하고 변경할 수 있습니다.",
-      "lore3": "병합하려면 인벤토리에서 한 아이템을 다른 아이템 위에 올려놓고 Shift 키를 누른 채로 클릭하세요.",
-      "lore4": "도구의 연결을 해제하려면 해당 도구를 몰래 떨어뜨리면 분해됩니다.",
-      "lore5": "이 레더맨에서는 도구를 부술 수 없지만 깨진 도구를 사용할 수는 없습니다.",
-      "lore6": "병합 가능한 항목의 총 개수.",
-      "lore7": "도구를 5~6개 사용할 수도 있고, 1개만 사용할 수도 있습니다!"
+    "omni_tool": {
+      "name": "OMNI - T.O.O.L.",
+      "description": "Tackle's overdesigned opulent Leatherman",
+      "lore": [
+        "<gray>Merge multiple tools into one super-tool</gray>",
+        "<green>+ {0}</green> <gray>Maximum tools that can be merged</gray>",
+        "<yellow>* </yellow><gray>Shift-click to merge tools in inventory</gray>",
+        "<yellow>* </yellow><gray>Sneak-Drop to disassemble</gray>",
+        "<red>- </red><gray>Broken tools in the merge cannot be used</gray>"
+      ]
     }
   },
   "herbalism": {
-    "growthaura": {
-      "name": "성장의 오라",
-      "description": "주변의 자연을 아우라로 성장시키세요",
-      "lore1": "블록 반경",
-      "lore2": "성장 오라 힘",
-      "lore3": "배고픔 비용"
+    "growth_aura": {
+      "name": "Growth Aura",
+      "description": "Grow nature around you in an aura",
+      "lore": [
+        "<gray>Passive: Crops grow faster around you</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<green>+ {1}</green> <gray>Growth speed multiplier</gray>",
+        "<red>- {2}</red> <gray>Hunger cost per tick</gray>"
+      ]
     },
     "hippo": {
-      "name": "풀먹는 하마",
-      "description": "음식을 섭취하면 더 많은 포만감을 줍니다. 풀 먹는 하마가 끝내줍니다~",
-      "lore1": "음식) 섭취시 포만감"
+      "name": "Herbalist's Hippo",
+      "description": "Consuming food, gives you more saturation",
+      "lore": [
+        "<gray>Passive: Food gives bonus saturation</gray>",
+        "<green>+ {0}</green> <gray>Extra saturation per food consumed</gray>"
+      ]
     },
     "myconid": {
-      "name": "약초학자의 균류",
-      "description": "균사체를 만드는 능력을 줍니다.",
-      "lore1": "모든 흙, 그리고 갈색과 붉은 버섯은 균사체를 만들 것입니다."
+      "name": "Herbalist's Myconid",
+      "description": "Gives you the ability to craft Mycelium",
+      "lore": [
+        "<gray>Craft: Any Dirt + Brown Mushroom + Red Mushroom</gray>",
+        "<green>+ </green><gray>Unlocks Mycelium crafting recipe</gray>"
+      ]
     },
     "terralid": {
-      "name": "잔디 심기",
-      "description": "잔디 블록을 만들 수 있는 능력 제공",
-      "lore1": "3개의 씨앗, 3개 이상의 흙으로 3개의 잔디 블록을 만들 수 있습니다."
+      "name": "Herbalist's Terralid",
+      "description": "Gives you the ability to craft Grass Blocks",
+      "lore": [
+        "<gray>Craft: 3 Seeds over 3 Dirt</gray>",
+        "<green>+ </green><gray>Unlocks Grass Block crafting recipe</gray>",
+        "<yellow>* </yellow><gray>Produces 3 Grass Blocks per craft</gray>"
+      ]
     },
     "cobweb": {
-      "name": "거미줄 제작자",
-      "description": "제작대에서 거미줄을 만드는 기능을 제공합니다.",
-      "lore1": "9개의 실로 거미줄을 만들수있습니다."
+      "name": "Webby Creator",
+      "description": "Gives you the ability to craft Cobwebs in a Crafting Table",
+      "lore": [
+        "<gray>Craft: 9 String in a 3x3 grid</gray>",
+        "<green>+ </green><gray>Unlocks Cobweb crafting recipe</gray>"
+      ]
     },
-    "mushroomblocks": {
-      "name": "버섯 제조기",
-      "description": "제작대에서 버섯 블록을 제작할 수 있습니다.",
-      "lore1": "4개의 버섯으로 블록을 만들거나 블록으로 줄기를 만듭니다."
+    "mushroom_blocks": {
+      "name": "Mushroom Maker",
+      "description": "Gives you the ability to craft Mushroom Blocks in a Crafting Table",
+      "lore": [
+        "<gray>Craft: 4 Mushrooms = 1 Mushroom Block</gray>",
+        "<gray>Craft: 1 Mushroom Block = 1 Mushroom Stem</gray>",
+        "<green>+ </green><gray>Unlocks Mushroom Block crafting recipes</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "자석 괭이"
+    "drop_to_inventory": {
+      "name": "Hoe Drop-To-Inventory",
+      "description": "When you break a crop it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Harvested crops go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "hungryshield": {
-      "name": "배고픔 방패",
-      "description": "배고플때 대미지를 받지않습니다",
-      "lore1": "배고픔에 저항"
+    "hungry_shield": {
+      "name": "Hungry Shield",
+      "description": "Take damage to your hunger before your health.",
+      "lore": [
+        "<gray>Passive: Damage is absorbed by hunger first</gray>",
+        "<green>+ {0}</green> <gray>Damage converted to hunger</gray>",
+        "<yellow>* </yellow><gray>Requires food in hunger bar to activate</gray>"
+      ]
     },
     "luck": {
-      "name": "약초꾼의 행운",
-      "description": "풀/꽃을 부수면 일정 확률로 랜덤 아이템 획득",
-      "lore0": "꽃 = 음식, 풀 = 씨앗",
-      "lore1": "꽃을 부수면 아이템 획득 확률",
-      "lore2": "풀을 부수면 아이템 획득 확률"
+      "name": "Herbalist's Luck",
+      "description": "When you break Grass/Flowers, you have a chance to get a random item",
+      "lore": [
+        "<gray>Flowers = Food, and Grass = Seeds</gray>",
+        "<green>+ {0}</green> <gray>Chance to get an item from breaking flowers</gray>",
+        "<green>+ {1}</green> <gray>Chance to get an item from breaking grass</gray>"
+      ]
     },
     "replant": {
-      "name": "수확 및 이식",
-      "description": "괭이로 작물을 마우스 우클릭하여 수확하고 다시 심습니다.",
-      "lore1": "블록 이식 반경"
+      "name": "Harvest & Replant",
+      "description": "Right click a crop with a hoe to harvest & replant it.",
+      "lore": [
+        "<gray>Right-click crops with hoe to harvest and replant</gray>",
+        "<green>+ {0}</green> <gray>Block radius for mass harvesting</gray>"
+      ]
     }
   },
   "hunter": {
     "adrenaline": {
-      "name": "아드레날린",
-      "description": "체력이 낮을수록 더 많은 피해를 줍니다(근접)",
-      "lore1": "최대 피해"
+      "name": "Adrenaline",
+      "description": "Deal more damage the lower health you are (Melee)",
+      "lore": [
+        "<gray>Passive: Lower health = Higher damage</gray>",
+        "<green>+ {0}</green> <gray>Maximum bonus damage at low HP</gray>"
+      ]
     },
     "penalty": {
-      "lore1": "배고픔이 떨어지면 독 스택을 얻습니다."
+      "name": "",
+      "description": "",
+      "lore": [
+        "<red>-{0}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "자석 아이템",
-      "description": "당신이 무언가를 죽일 때 / 블록을 부술 때 그것을 당신의 인벤토리로 아이템을 순간 이동시킵니다.",
-      "lore1": "몹/블록에서 아이템을 드랍할 때마다 가능한 한 인벤토리로 들어갑니다."
+    "drop_to_inventory": {
+      "name": "Items Drop-To-Inventory",
+      "description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
+      "lore": [
+        "<gray>Passive: Mob drops go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped loot</gray>"
+      ]
     },
     "invisibility": {
-      "name": "배니싱 스텝",
-      "description": "공격을 받으면 굶주림을 대가로 투명화를 얻습니다.",
-      "lore1": "피격 시 임시 투명화 획득",
-      "lore2": "x 적중 시 3초 동안 투명화 중첩",
-      "lore3": "x 쌓인 배고픔",
-      "lore4": "굶주림은 지속 시간과 승수를 중첩합니다.",
-      "lore5": "투명화 지속시간"
+      "name": "Vanishing Step",
+      "description": "When you are struck you gain invisibility, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Invisibility when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Invisibility stacks for 3 seconds on hit</gray>",
+        "<green>+ {2}</green> <gray>Invisibility duration</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<red>- {4}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
-    "jumpboost": {
-      "name": "헌터스 하이츠",
-      "description": "공격을 받으면 굶주림을 희생하여 점프 부스트를 얻습니다.",
-      "lore1": "타격 시 패시브 점프 부스트 획득",
-      "lore2": "x 적중 시 3초 동안 점프 부스트 중첩",
-      "lore3": "x 쌓인 배고픔",
-      "lore4": "배고픔은 지속 시간과 스택을 중첩합니다.",
-      "lore5": "점프 부스트 스택 배수가 아니라 지속 시간입니다."
+    "jump_boost": {
+      "name": "Hunter's Heights",
+      "description": "When you are struck you gain jump-boost, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Jump-Boost when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Jump-Boost stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Jump-Boost stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "luck": {
-      "name": "사냥꾼의 행운",
-      "description": "공격당하면 배고픔을 대가로 행운을 얻습니다",
-      "lore1": "공격을 받으면 패시브 운을 얻습니다.",
-      "lore2": "x 행운은 적중 시 3초 동안 중첩됩니다.",
-      "lore3": "x 쌓인 배고픔",
-      "lore4": "배고픔은 지속 시간과 스택을 중첩합니다.",
-      "lore5": "행운은 지속 시간이 아니라 배율을 중첩합니다."
+      "name": "Hunter's Luck",
+      "description": "When you are struck you gain luck, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Luck when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Luck stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Luck stacks multiplier, not duration</gray>",
+        "<red>- {4}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "regen": {
-      "name": "사냥꾼의 재생",
-      "description": "공격을 받으면 굶주림을 희생하여 재생력을 얻습니다.",
-      "lore1": "공격을 받으면 패시브 재생을 얻습니다.",
-      "lore2": "x 적중 시 3초 동안 재생 중첩",
-      "lore3": "x 쌓인 배고픔",
-      "lore4": "배고픔은 지속 시간과 스택을 중첩합니다.",
-      "lore5": "지속 시간이 아니라 재생 스택 배수입니다."
+      "name": "Hunter's Regen",
+      "description": "When you are struck you gain regeneration, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Regeneration when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Regeneration stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Regeneration stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "resistance": {
-      "name": "사냥꾼의 저항",
-      "description": "공격을 받으면 배고픔을 대가로 저항력을 얻습니다.",
-      "lore1": "패시브 - 공격을 받으면 저항을 얻습니다.",
-      "lore2": "x 적중 시 3초 동안 저항 중첩",
-      "lore3": "x 쌓인 배고픔",
-      "lore4": "배고픔은 지속 시간과 스택을 중첩합니다.",
-      "lore5": "지속 시간이 아니라 저항 스택 배수입니다."
+      "name": "Hunter's Resistance",
+      "description": "When you are struck you gain resistance, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Resistance when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Resistance stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Resistance stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "speed": {
-      "name": "사냥꾼의 속도",
-      "description": "공격을 받으면 배고픔을 희생하여 속도를 얻습니다.",
-      "lore1": "패시브 - 공격을 받으면 속도를 얻습니다.",
-      "lore2": "x 속도는 적중 시 3초 동안 중첩됩니다.",
-      "lore3": "x 쌓인 배고픔",
-      "lore4": "배고픔은 지속 시간과 스택을 중첩합니다.",
-      "lore5": "지속 시간이 아니라 속도 스택 배수입니다."
+      "name": "Hunter's Speed",
+      "description": "When you are struck you gain speed, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Speed when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Speed stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Speed stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
+    },
+    "jumpboost": {
+      "name": "Hunter's Jump Boost",
+      "description": "When you are struck you gain jump boost, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Jump Boost when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Jump Boost stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Jump Boost stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "strength": {
-      "name": "사냥꾼의 힘",
-      "description": "공격을 받으면 힘을 얻고 굶주림을 대가로",
-      "lore1": "패시브 - 공격을 받으면 힘을 얻습니다.",
-      "lore2": "x 힘은 적중 시 3초 동안 중첩됩니다.",
-      "lore3": "x 쌓인 배고픔",
-      "lore4": "굶주림은 지속 시간과 승수를 중첩합니다.",
-      "lore5": "지속 시간이 아니라 강도 스택 배수입니다."
+      "name": "Hunter's Strength",
+      "description": "When you are struck you gain strength, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Strength when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Strength stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Strength stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     }
   },
   "nether": {
-    "skulltoss": {
-      "name": "위더 해골 던지기",
-      "description1": "사용하여 내면의 위더를 해방하십시오.",
-      "description2": "누군가",
-      "description3": "머리.",
-      "lore1": "해골 던지기 사이에 몇 초의 쿨다운이 있습니다.",
-      "lore2": "위더 해골 사용: 던지기",
-      "lore3": "위더 해골",
-      "lore4": "충격에 폭발."
+    "skull_toss": {
+      "name": "Wither Skull Throw",
+      "description": "<gray>Unleash your inner Wither by using someone's head.</gray>",
+      "lore": [
+        "<gray>Right-click with a Wither Skull to throw it</gray>",
+        "<green>+ </green><gray>Wither skull explodes on impact</gray>",
+        "<yellow>* {0}</yellow> <gray>Cooldown between throws</gray>"
+      ]
     },
-    "witherresist": {
-      "name": "위더 저항",
-      "description": "네더라이트의 힘으로 시들기를 저항합니다.",
-      "lore1": "시들음을 무효화할 기회(부위당).",
-      "lore2": "패시브: 네더라이트 갑옷을 입으면 일정 확률로 무효화됩니다.",
-      "lore3": "시들게 하는."
+    "wither_resist": {
+      "name": "Wither Resistance",
+      "description": "Resists withering through the power of Netherite.",
+      "lore": [
+        "<gray>Passive: Netherite Armor negates Wither effect</gray>",
+        "<green>+ {0}</green> <gray>Chance to negate withering per piece</gray>",
+        "<yellow>* </yellow><gray>Stacks with multiple armor pieces</gray>"
+      ]
     },
-    "fireresist": {
-      "name": "화염 저항",
-      "description": "피부를 단단하게 하여 불에 저항합니다.",
-      "lore1": "불탐 효과 무효화 기회!"
+    "fire_resist": {
+      "name": "Fire Resistance",
+      "description": "Resists fire by hardening your skin.",
+      "lore": [
+        "<gray>Passive: Chance to resist fire damage</gray>",
+        "<green>+ {0}</green> <gray>Chance to negate burning</gray>"
+      ]
     }
   },
   "pickaxe": {
-    "autosmelt": {
-      "name": "자동 제련",
-      "description": "채굴된 바닐라 광석을 제련할 수 있습니다.",
-      "lore1": "제련 가능한 광석은 자동으로 제련됩니다.",
-      "lore2": "추가 확률 %"
+    "auto_smelt": {
+      "name": "Autosmelt",
+      "description": "Allows you to smelt mined Vanilla ores",
+      "lore": [
+        "<gray>Passive: Ores are automatically smelted when mined</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra drop</gray>"
+      ]
     },
     "chisel": {
-      "name": "광석 끌",
-      "description": "광석을 마우스 우클릭하면 많은 내구도 소모로 더 많은 광석을 얻을 수 있습니다.",
-      "lore1": "드롭 기회",
-      "lore2": "도구 마모"
+      "name": "Ore Chisel",
+      "description": "Right Click Ores to Chisel more ore out of them, at a severe durability cost.",
+      "lore": [
+        "<gray>Right-click ores to chisel extra resources</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra ore drop</gray>",
+        "<red>- {1}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "자석 곡괭이",
-      "description": "블록을 깨면 아이템을 인벤토리로 텔레포트합니다.",
-      "lore1": "아이템이 블록에서 떨어질 때마다 가능한 경우 인벤토리로 들어갑니다."
+    "drop_to_inventory": {
+      "name": "Pickaxe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Mined items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "silkspawner": {
-      "name": "곡괭이 섬세한 스포너",
-      "description": "파괴 시 스포너가 떨어집니다.",
-      "lore1": "스포너를 섬세한 손길로 부술 수 있게 만듭니다.",
-      "lore2": "은신 중에 스포너를 부술 수 있게 됩니다."
+    "silk_spawner": {
+      "name": "Pickaxe Silk-Spawner",
+      "description": "Makes Spawners drop when broken",
+      "lore": {
+        "level_1": "<green>Makes Spawners breakable with silk touch.</green>",
+        "level_2": "<green>Makes Spawners breakable while sneaking.</green>"
+      }
     },
-    "veinminer": {
-      "name": "광맥 채굴가",
-      "description": "자연상태의 광물을 광맥상태로 채굴할 수 있습니다.",
-      "lore1": "웅크린채, 광물을 채굴해보세요",
-      "lore2": "광맥 채광 범위",
-      "lore3": "이 기술은 모든 아이템을 함께 그룹화하지 않습니다!"
+    "vein_miner": {
+      "name": "Veinminer",
+      "description": "Allows you to break blocks in a Vein/Cluster of Vanilla ores",
+      "lore": [
+        "<gray>Sneak + Mine to vein-mine connected ores</gray>",
+        "<green>+ {0}</green> <gray>Block range</gray>",
+        "<yellow>* </yellow><gray>Drops are not grouped together</gray>"
+      ]
     }
   },
   "ranged": {
-    "arrowrecovery": {
-      "name": "화살 회수",
-      "description": "적을 죽인 후 화살을 회복하십시오.",
-      "lore1": "적중/사살 시 화살 회수 확률",
-      "lore2": "확률: "
+    "arrow_recovery": {
+      "name": "Arrow Recovery",
+      "description": "Recover Arrows after you have killed an enemy.",
+      "lore": [
+        "<gray>Chance to recover arrows on hit</gray>",
+        "<green>+ {0}</green> <gray>Recovery chance</gray>"
+      ]
     },
-    "webshot": {
-      "name": "웹 스네어",
-      "description": "목표물을 맞힐 때 목표물 주위에 거미줄을 둘러싸세요!",
-      "lore1": "눈덩이 주위에 8개의 거미줄을 던지고 던지세요!",
-      "lore2": "우리에 가두었군. (쑻)"
+    "web_shot": {
+      "name": "Web Snare",
+      "description": "Surround cobwebs around your target when you hit them!",
+      "lore": [
+        "<gray>Craft: 8 Cobwebs around a Snowball</gray>",
+        "<green>+ {0}</green> <gray>Web cage duration</gray>",
+        "<yellow>* </yellow><gray>Throw the crafted snowball to create a web trap</gray>"
+      ]
     },
-    "forceshot": {
-      "name": "포스 샷",
-      "description": "더 멀리, 더 빠르게 화살을 쏴라!",
-      "advancementname": "장거리 슛",
-      "advancementlore": "30블록 이상 떨어진 곳에서 사격하세요!",
-      "lore1": "발사체 속도"
+    "force_shot": {
+      "name": "Force Shot",
+      "description": "Shoot projectiles further, faster!",
+      "advancement_name": "Long Shot",
+      "advancement_lore": "Land a shot from over 30 blocks away!",
+      "lore": [
+        "<green>+ {0}</green> <gray>Projectile Speed</gray>"
+      ]
     },
-    "lungeshot": {
-      "name": "런지 샷",
-      "description": "화살을 발사할 때, 사용자가 무작위 방향으로 뜁니다",
-      "lore1": "랜덤 뜀 속도"
+    "lunge_shot": {
+      "name": "Lunge Shot",
+      "description": "While falling your arrows toss you in a random direction",
+      "lore": [
+        "<green>+ {0}</green> <gray>Random Burst Speed</gray>"
+      ]
     },
-    "arrowpiercing": {
-      "name": "화살 피어싱",
-      "description": "발사체에 피어싱을 추가합니다! 꿰뚫어 보세요!",
-      "lore1": "꿰뚫을 타겟"
+    "arrow_piercing": {
+      "name": "Arrow Piercing",
+      "description": "Adds Piercing to projectiles! Shoot through things!",
+      "lore": [
+        "<green>+ {0}</green> <gray>Pierce Targets</gray>"
+      ]
     }
   },
   "rift": {
-    "remoteaccess": {
-      "name": "원격 연결",
-      "description": "공허에서 당겨서 표시된 용기에 넣으십시오.",
-      "lore1": "엔더진주 + 나침반 = 유물포트키",
-      "lore2": "이 항목을 사용하면 원격으로 상자에 액세스할 수 있습니다.",
-      "lore3": "일단 제작된 아이템을 보고 사용법을 확인하세요.",
-      "notcontainer": "저건 보관함이 아닌거같다.."
+    "remote_access": {
+      "name": "Remote Access",
+      "description": "Pull from the void, and get into a marked container.",
+      "not_container": "<red>That's not a container</red>",
+      "lore": [
+        "<gray>Craft: Enderpearl + Compass = Reliquary Portkey</gray>",
+        "<green>+ </green><gray>Access containers remotely</gray>",
+        "<yellow>* </yellow><gray>Shift + Left-click to bind, Right-click to access</gray>"
+      ]
     },
     "blink": {
-      "name": "균열 점멸",
-      "description": "근거리 순간이동, 눈 깜짝할 사이!",
-      "lore1": "블록 순간이동(2x 수직)",
-      "lore2": "질주 중: 두 번 탭하여 점프",
-      "lore3": "순간이동"
+      "name": "Rift Blink",
+      "description": "Short ranged instant teleportation, Just a blink away!",
+      "lore": [
+        "<gray>While Sprinting: Double-tap Jump to Blink</gray>",
+        "<green>+ {0}</green> <gray>Horizontal blink distance</gray>",
+        "<green>+ {1}</green> <gray>Vertical blink distance</gray>"
+      ]
     },
     "chest": {
-      "name": "엔더상자 개선",
-      "description": "엔더상자를 손에서 마우스 왼쪽 버튼으로 클릭하여 엽니다.",
-      "lore1": "손에 있는 엔더상자를 클릭하여 엽니다(두지 마세요)."
+      "name": "Easy Enderchest",
+      "description": "Open an enderchest by Left-clicking it in your hand.",
+      "lore": [
+        "<gray>Left-click with Enderchest in hand to open</gray>",
+        "<green>+ </green><gray>Portable Enderchest access</gray>",
+        "<yellow>* </yellow><gray>Don't place it, just click!</gray>"
+      ]
     },
     "descent": {
-      "name": "공중 부양 방지",
-      "description": "셜커가 지겹습니까? 이것은 당신을 위한 기술입니다!",
-      "lore1": "웅크리면 천천히 하강합니다",
-      "lore2": "쿨타임:"
+      "name": "Anti-Levitation",
+      "description": "Are you tired of being stuck in the air? This is the skill for you!",
+      "lore": [
+        "<gray>Sneak while levitating to descend slowly</gray>",
+        "<green>+ </green><gray>Controlled descent speed</gray>",
+        "<yellow>* {0}</yellow> <gray>Cooldown</gray>"
+      ]
     },
     "gate": {
-      "name": "균열 게이트",
-      "description": "표시된 위치로 순간이동합니다.",
-      "lore1": "제작: 에메랄드 + 자수정 조각 + 엔더 진주",
-      "lore2": "사용하기 전에 읽어보세요!",
-      "lore3": "5초 지연,",
-      "lore4": "사용중엔 무방비 상태라 죽을 수 있습니다."
+      "name": "Rift Gate",
+      "description": "Teleport to a marked location.",
+      "lore": [
+        "<gray>Craft: Emerald + Amethyst Shard + Ender Pearl</gray>",
+        "<green>+ </green><gray>Teleport to marked location</gray>",
+        "<yellow>* {0}</yellow> <gray>Channeling delay</gray>",
+        "<red>- </red><gray>You can die during the animation</gray>"
+      ]
     },
     "resist": {
-      "name": "균열 저항",
-      "description": "엔더 아이템 및 능력 사용 시 저항력 획득",
-      "lore1": "+ 패시브: 균열 능력 또는 엔더 아이템을 사용할 때 저항을 제공합니다.",
-      "lore2": "소비 아이템만 해당."
+      "name": "Rift Resistance",
+      "description": "Gain Resistance when using Ender Items & Abilities",
+      "lore": [
+        "<gray>Passive: Gain Resistance when using Rift abilities or Ender items</gray>",
+        "<green>+ </green><gray>Resistance effect on Ender item use</gray>",
+        "<red>- </red><gray>Does not work with Portable Enderchest</gray>"
+      ]
     },
     "visage": {
-      "name": "균열 비지지",
-      "description": "인벤토리에 엔더펄이 있을 경우 엔더맨이 공격적으로 변하는 것을 방지합니다.",
-      "lore1": "인벤토리에 엔더펄이 있으면 엔더맨은 공격적으로 변하지 않습니다."
+      "name": "Rift Visage",
+      "description": "Prevents Endermen from becoming aggressive if you have Enderpearls in your inventory.",
+      "lore": [
+        "<gray>Passive: Endermen ignore you when you carry Enderpearls</gray>",
+        "<green>+ </green><gray>Endermen will not become aggressive</gray>",
+        "<yellow>* </yellow><gray>Requires Enderpearls in inventory</gray>"
+      ]
     }
   },
   "seaborn": {
     "oxygen": {
-      "name": "유기 산소 탱크",
-      "description": "작은 폐에 더 많은 산소를 담으십시오!",
-      "lore1": "산소 용량 증가"
+      "name": "Organic Oxygen Tank",
+      "description": "Hold more oxygen in your tiny lungs!",
+      "lore": [
+        "<gray>Passive: Extended breath underwater</gray>",
+        "<green>+ {0}</green> <gray>Extra oxygen capacity</gray>"
+      ]
     },
-    "fishersfantasy": {
-      "name": "낚시꾼의 판타지",
-      "description": "낚시에서 더 많은 XP를 얻고 더 많은 물고기를 얻으십시오!",
-      "lore1": "각 레벨마다 더 많은 XP와 물고기를 얻을 수 있는 기회가 있습니다!"
+    "fishers_fantasy": {
+      "name": "Fisher's Fantasy",
+      "description": "Earn more XP from fishing, and get more fish!",
+      "lore": [
+        "<gray>Passive: Bonus rewards while fishing</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra XP</gray>",
+        "<green>+ {1}</green> <gray>Chance for extra fish</gray>"
+      ]
     },
     "haste": {
-      "name": "거북이 광부",
-      "description": "수중에서 채굴하는 동안 가속을 얻습니다!",
-      "lore1": "성급함 3은 수중 호흡 효과가 사라진 후 채광하는 동안 수중에서 적용됩니다!"
+      "name": "Turtle Miner",
+      "description": "While mining underwater you gain haste!",
+      "lore": [
+        "<gray>Passive: Gain Haste while mining underwater</gray>",
+        "<green>+ {0}</green> <gray>Haste level while mining</gray>",
+        "<yellow>* </yellow><gray>Stacks with Aqua Affinity</gray>",
+        "<yellow>* </yellow><gray>Activates after Water Breathing wears off</gray>"
+      ]
     },
-    "nightvision": {
-      "name": "거북이의 시야",
-      "description": "수중에서 야간 투시를 얻습니다.",
-      "lore1": "수중 호흡 효과가 사라진 후에 수중에서 간단하게 야간 시력을 얻을 수 있습니다!"
+    "night_vision": {
+      "name": "Turtle's Vision",
+      "description": "While underwater, you gain Night Vision",
+      "lore": [
+        "<gray>Passive: Gain Night Vision while underwater</gray>",
+        "<green>+ </green><gray>Night Vision effect</gray>",
+        "<yellow>* </yellow><gray>Activates after Water Breathing wears off</gray>"
+      ]
     },
-    "dolphingrace": {
-      "name": "돌고래의 은혜",
-      "description": "돌고래 없이 돌고래처럼 헤엄쳐라",
-      "lore1": "+ 패시브: 이득",
-      "lore2": "x 속도(돌핀스 그레이스)",
-      "lore3": "정밀 독일 엔지니어 - 잠깐, 그게 맞지 않아요... Depth Strider와 호환되지 않습니다."
+    "dolphin_grace": {
+      "name": "Dolphin's Grace",
+      "description": "Swim like a dolphin, without the dolphins",
+      "lore": [
+        "<gray>Passive: Gain Dolphin's Grace while underwater</gray>",
+        "<green>+ {0}</green> <gray>Swimming speed</gray>",
+        "<red>- </red><gray>Not compatible with Depth Strider</gray>"
+      ]
     }
   },
   "stealth": {
-    "ghostarmor": {
-      "name": "망자의 갑옷",
-      "description": "피해를 입지 않을 때 느리게 방어력 추가, 피해를 입기 전까지 지속",
-      "lore1": "최대 갑옷",
-      "lore2": "속도"
+    "ghost_armor": {
+      "name": "Ghost's Armor",
+      "description": "Slow building armor when not taking damage, Lasts for 1 hit",
+      "lore": [
+        "<gray>Passive: Build armor over time when not hit</gray>",
+        "<green>+ {0}</green> <gray>Maximum armor</gray>",
+        "<green>+ {1}</green> <gray>Armor gained per tick</gray>",
+        "<yellow>* </yellow><gray>Armor resets after taking damage</gray>"
+      ]
     },
-    "nightvision": {
-      "name": "잠행 투시",
-      "description": "웅크리는 동안 야간 투시 적용",
-      "lore1": "버스트 획득",
-      "lore2": "야간 투시경",
-      "lore3": "웅크리고 있는 동안"
+    "night_vision": {
+      "name": "Stealth Vision",
+      "description": "Gain night vision while sneaking",
+      "lore": [
+        "<gray>Sneak to activate Night Vision</gray>",
+        "<green>+ </green><gray>Night Vision while sneaking</gray>"
+      ]
     },
     "snatch": {
-      "name": "아이템 스내치",
-      "description": "은신 중 드랍된 아이템을 즉시 낚아채세요!",
-      "lore1": "스내치 반경"
+      "name": "Item Snatch",
+      "description": "Snatch Dropped items instantly while sneaking!",
+      "lore": [
+        "<gray>Sneak to pick up nearby items instantly</gray>",
+        "<green>+ {0}</green> <gray>Block pickup radius</gray>"
+      ]
     },
     "speed": {
-      "name": "잠행",
-      "description": "은신하는 동안 속도를 얻습니다.",
-      "lore1": "웅크린채 움직이는 속도"
+      "name": "Sneak Speed",
+      "description": "Gain speed while sneaking",
+      "lore": [
+        "<gray>Passive: Move faster while sneaking</gray>",
+        "<green>+ {0}</green> <gray>Sneaking speed multiplier</gray>"
+      ]
     },
-    "enderveil": {
-      "name": "엔더베일",
-      "description": "엔더맨의 공격을 방지하기 위한 호박이 더 이상 필요하지 않습니다.",
-      "lore1": "웅크리는 동안 엔더맨의 공격을 방지합니다.",
-      "lore2": "엔더맨의 모든 공격을 방지합니다."
+    "ender_veil": {
+      "name": "Enderveil",
+      "description": "No more Pumpkins to prevent Enderman attacks",
+      "lore": {
+        "level_1": "<gray>Prevent enderman attacks while sneaking</gray>",
+        "level_2": "<gray>Prevent all enderman attacks</gray>"
+      }
     }
   },
   "sword": {
     "machete": {
-      "name": "마체테",
-      "description": "쉽게 나뭇잎을 자르세요",
-      "lore1": "슬래시 반경",
-      "lore2": "쿨타임",
-      "lore3": "도구 마모"
+      "name": "Machete",
+      "description": "Cut through foliage with ease!",
+      "lore": [
+        "<gray>Swing sword to cut nearby plants</gray>",
+        "<green>+ {0}</green> <gray>Slash radius</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between slashes</gray>",
+        "<red>- {2}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "bloodyblade": {
-      "name": "블러디 블레이드",
-      "description": "검을 휘둘러 출혈을 일으켜라!",
-      "lore1": "검으로 살아있는 개체를 공격하면 출혈이 발생합니다.",
-      "lore2": "출혈 지속 시간",
-      "lore3": "출혈 재사용 대기시간"
+    "bloody_blade": {
+      "name": "Bloody Blade",
+      "description": "Strikes with your sword, cause Bleeding!",
+      "lore": [
+        "<gray>Sword strikes cause bleeding damage over time</gray>",
+        "<green>+ {0}</green> <gray>Bleed duration</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between bleeds</gray>"
+      ]
     },
-    "poisonedblade": {
-      "name": "독검",
-      "description": "검을 휘둘러 독을 일으켜라!",
-      "lore1": "검으로 살아있는 개체를 공격하면 독이 발생합니다.",
-      "lore2": "독 지속시간",
-      "lore3": "독 쿨다운"
+    "poisoned_blade": {
+      "name": "Poisoned Blade",
+      "description": "Strikes with your sword, cause Poison!",
+      "lore": [
+        "<gray>Sword strikes apply poison to enemies</gray>",
+        "<green>+ {0}</green> <gray>Poison duration</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between poisons</gray>"
+      ]
     }
   },
   "taming": {
     "damage": {
-      "name": "펫 대미지",
-      "description": "길들인 동물이 입히는 피해를 늘립니다.",
-      "lore1": "데미지 증가"
+      "name": "Tame Damage",
+      "description": "Increase your tamed animal damage dealt.",
+      "lore": [
+        "<gray>Passive: Your tamed animals deal more damage</gray>",
+        "<green>+ {0}</green> <gray>Bonus damage for pets</gray>"
+      ]
     },
     "health": {
-      "name": "건강한 펫",
-      "description": "길들인 동물의 체력을 높이십시오.",
-      "lore1": "체력 증가"
+      "name": "Tame Health",
+      "description": "Increase your tamed animal health.",
+      "lore": [
+        "<gray>Passive: Your tamed animals have more health</gray>",
+        "<green>+ {0}</green> <gray>Max health for pets</gray>"
+      ]
     },
     "regeneration": {
-      "name": "펫 재생",
-      "description": "펫의 재생력을 높이세요.",
-      "lore1": "HP/초"
+      "name": "Tame Regeneration",
+      "description": "Increase your tamed animal regeneration.",
+      "lore": [
+        "<gray>Passive: Your tamed animals regenerate health</gray>",
+        "<green>+ {0}</green> <gray>HP per second for pets</gray>"
+      ]
     }
   },
   "tragoul": {
     "thorns": {
-      "name": "가시",
-      "description": "공격자에게 피해를 되돌려 주세요!",
-      "lore1": "피격시 반사"
+      "name": "Thorns",
+      "description": "Reflect damage back to your attacker!",
+      "lore": [
+        "<gray>Passive: Reflect damage when hit</gray>",
+        "<green>+ {0}</green> <gray>Damage reflected to attacker</gray>"
+      ]
     },
     "globe": {
-      "name": "고통의 구체",
-      "description": "주변 적의 수에 따라 피해를 나누세요!",
-      "lore1": "주변에 적이 많을수록 적에게 주는 피해가 줄어듭니다.",
-      "lore2": "범위:",
-      "lore3": "모든 엔티티에 추가 피해:"
+      "name": "Globe of Pain",
+      "description": "Divide the Damage you deal based on the number of enemies around you!",
+      "lore": [
+        "<gray>Damage is split among nearby enemies</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<green>+ {1}</green> <gray>Bonus damage to all entities in range</gray>"
+      ]
     },
     "healing": {
-      "name": "고통의 의지",
-      "description": "입힌 피해에 따라 체력을 회복하십시오!",
-      "lore1": "입힌 피해로부터 일정 체력 회복",
-      "lore2": "치유를 위한 3초의 피해와 1초의 재사용 대기시간이 있습니다.",
-      "lore3": "대미지 퍼센트당 치유:"
+      "name": "Will of Pain",
+      "description": "Regain health based on the damage you deal!",
+      "lore": [
+        "<gray>Heal from the damage you deal to enemies</gray>",
+        "<green>+ {0}</green> <gray>Healing per damage dealt</gray>",
+        "<yellow>* {1}</yellow> <gray>Damage window for healing</gray>",
+        "<yellow>* {2}</yellow> <gray>Cooldown between heals</gray>"
+      ]
     },
     "lance": {
-      "name": "시체 창",
-      "description": "적을 죽이거나 적을 죽이는 능력이 있으면 근처의 적에게 피해를 주는 창이 생성됩니다!",
-      "lore1": "창은 당신이 죽이는 모든 것에서 발현될 것입니다. 그리고 이 능력이 적을 죽일 수 있습니다.",
-      "lore2": "창을 만들기 위해 삶의 일부를 희생하십시오(이것은 당신을 죽일 수 있습니다)",
-      "lore3": "최대 창: 1 +"
+      "name": "Corpse Lances",
+      "description": "Killing an enemy or having an ability kill an enemy, spawns a lance that deals damage to a nearby enemy!",
+      "lore": [
+        "<gray>Kills spawn lances that seek nearby enemies</gray>",
+        "<green>+ {0}</green> <gray>Maximum lances</gray>",
+        "<red>- {1}%</red> <gray>Health cost per lance (can kill you!)</gray>",
+        "<yellow>* </yellow><gray>Lances chain from ability kills too</gray>"
+      ]
     }
   },
   "unarmed": {
-    "glasscannon": {
-      "name": "유리 대포",
-      "description": "비무장 피해는 방어력 값이 낮을수록 보너스",
-      "lore1": "x 방어력이 0일 때의 피해",
-      "lore2": "레벨당 보너스 데미지"
+    "glass_cannon": {
+      "name": "Glass Cannon",
+      "description": "Bonus Unarmed Damage the lower your armor value is",
+      "lore": [
+        "<gray>Less armor = More damage</gray>",
+        "<green>+ {0}</green> <gray>Damage multiplier at 0 armor</gray>",
+        "<green>+ {1}</green> <gray>Bonus damage per level</gray>"
+      ]
     },
     "power": {
-      "name": "비무장 파워",
-      "description": "비무장 피해 개선",
-      "lore1": "손상"
+      "name": "Unarmed Power",
+      "description": "Improved Unarmed Damage",
+      "lore": [
+        "<gray>Passive: Increased fist damage</gray>",
+        "<green>+ {0}</green> <gray>Bonus damage</gray>"
+      ]
     },
-    "suckerpunch": {
-      "name": "기습",
-      "description": "나비처럼 날아서 벌처럼 쏘세요.",
-      "lore1": "대미지",
-      "lore2": "달리는 동안 속도에 따라 대미지가 증가합니다."
+    "sucker_punch": {
+      "name": "Sucker Punch",
+      "description": "Sprint punches, but more deadly.",
+      "lore": [
+        "<gray>Sprint to deal extra punch damage</gray>",
+        "<green>+ {0}</green> <gray>Base bonus damage</gray>",
+        "<yellow>* </yellow><gray>Damage scales with movement speed</gray>"
+      ]
     }
   }
 }

@@ -21,7 +21,10 @@ package com.volmit.adapt.content.adaptation.blocking;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.content.item.multiItems.MultiArmor;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -51,8 +54,8 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
     public BlockingMultiArmor() {
         super("blocking-multiarmor");
         registerConfiguration(BlockingMultiArmor.Config.class);
-        setDisplayName(Localizer.dLocalize("blocking", "multiarmor", "name"));
-        setDescription(Localizer.dLocalize("blocking", "multiarmor", "description"));
+        setDisplayName(Localizer.dLocalize("blocking.multi_armor.name"));
+        setDescription(Localizer.dLocalize("blocking.multi_armor.description"));
         setIcon(Material.ELYTRA);
         setInterval(20202);
         setBaseCost(getConfig().baseCost);
@@ -64,12 +67,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("blocking", "multiarmor", "lore1"));
-        v.addLore(C.GRAY + "" + C.GRAY + Localizer.dLocalize("blocking", "multiarmor", "lore2"));
-        v.addLore(C.GREEN + Localizer.dLocalize("blocking", "multiarmor", "lore3"));
-        v.addLore(C.RED + Localizer.dLocalize("blocking", "multiarmor", "lore4"));
-        v.addLore(C.GRAY + Localizer.dLocalize("blocking", "multiarmor", "lore5"));
-        v.addLore(C.UNDERLINE + Localizer.dLocalize("blocking", "multiarmor", "lore6"));
+        v.addLore(Localizer.dLocalize("blocking.multi_armor.lore"));
     }
 
     @Override

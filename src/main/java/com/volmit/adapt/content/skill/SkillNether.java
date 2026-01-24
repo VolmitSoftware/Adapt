@@ -41,10 +41,10 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     private int witherRoseCooldown;
 
     public SkillNether() {
-        super("nether", Localizer.dLocalize("skill", "nether", "icon"));
+        super("nether", Localizer.dLocalize("skill.nether.icon"));
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("skill", "nether", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "nether", "name"));
+        setDescription(Localizer.dLocalize("skill.nether.description"));
+        setDisplayName(Localizer.dLocalize("skill.nether.name"));
         setInterval(7425);
         setColor(C.DARK_GRAY);
         setIcon(Material.NETHER_STAR);

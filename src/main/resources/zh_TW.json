@@ -231,912 +231,1285 @@
     "challenge_pickaxe_5m": {
       "title": "傳奇礦工",
       "description": "打破 5,000,000 個區塊"
+    },
+    "challenge_eat_100": {
+      "title": "So much to eat!",
+      "description": "Eat over 100 Items!"
+    },
+    "challenge_eat_1000": {
+      "title": "Unquenchable Hunger!",
+      "description": "Eat over 1,000 Items!"
+    },
+    "challenge_eat_10000": {
+      "title": "EVERLASTING HUNGER!",
+      "description": "Eat over 10,000 Items!"
+    },
+    "challenge_harvest_100": {
+      "title": "Full Harvest",
+      "description": "Harvest over 100 crops!"
+    },
+    "challenge_harvest_1000": {
+      "title": "Grand Harvest",
+      "description": "Harvest over 1,000 crops!"
+    },
+    "challenge_swim_1nm": {
+      "title": "Human Submarine!",
+      "description": "Swim 1 Nautical Mile (1,852 blocks)"
+    },
+    "challenge_sneak_1k": {
+      "title": "Knee Pain",
+      "description": "Sneak over a kilometer (1,000 blocks)"
     }
   },
   "items": {
-    "boundenderperal": {
-      "name": "亞空間之鑰",
-      "usage1": "Shift + 左鍵 | 綁定",
-      "usage2": "右鍵 | 查看已綁定的容器"
+    "bound_ender_peral": {
+      "name": "<white>Reliquary Portkey</white>",
+      "usage1": "<gray>Shift + Left Click to bind</gray>",
+      "usage2": "<gray>Right Click to access the bound Inventory</gray>"
     },
-    "boundeyeofender": {
-      "name": "視界錨點",
-      "usage1": "右鍵 | 消耗物品並傳送到綁定的地點",
-      "usage2": "Shift + 左鍵 | 綁定方塊"
+    "bound_eye_of_ender": {
+      "name": "<white>Ocular Anchor</white>",
+      "usage1": "<gray>Right Click to consume and teleport to the bound location</gray>",
+      "usage2": "<gray>Shift + Left Click to bind to a block</gray>"
     },
-    "boundredstonetorch": {
-      "name": "紅石遙控器",
-      "usage1": "右鍵 | 發送 1 tick 的紅石脈衝",
-      "usage2": "對 '標靶' Shift + 左鍵 | 進行綁定"
+    "bound_redstone_torch": {
+      "name": "<white>Redstone Remote</white>",
+      "usage1": "<gray>Right Click to create a 1-Tick Redstone pulse</gray>",
+      "usage2": "<gray>Shift + Left Click on a 'Target' Block to bind</gray>"
     },
-    "boundsnowball": {
-      "name": "網絡陷阱！",
-      "usage1": "拋出以在該位置創建臨時網絡陷阱"
+    "bound_snowball": {
+      "name": "<white>Web Snare!</white>",
+      "usage1": "<gray>Throw to create a temporary web trap at the location</gray>"
+    },
+    "elevator_block": {
+      "name": "Elevator Block",
+      "usage1": "Jump to teleport up",
+      "usage2": "Shift to teleport down",
+      "usage3": "Minimum of 2 air blocks between the elevators"
     }
   },
   "snippets": {
     "gui": {
-      "level": "等級",
-      "knowledge": "知識",
-      "powerused": "能力",
-      "notlearned": "尚未學習",
-      "xp": "至下一級經驗",
-      "welcome": "歡迎！",
-      "welcomeback": "歡迎回來！",
-      "xpbonusfortime": "經驗增益，持續",
-      "unlockthisbyclicking": "右鍵單擊解鎖：",
-      "back": "返回",
-      "unlearnall": "遺忘全部技能",
-      "unlearnedall": "已全部遺忘"
+      "level": "<dark_gray>Level {0}</dark_gray>",
+      "knowledge": "<white>{0}</white> <gray>knowledge</gray>",
+      "power_used": "<gray>Power Used</gray> <dark_green>{0}</dark_green>",
+      "power_used_ratio": "<dark_gray>({0}/{1} Power Used)</dark_gray>",
+      "not_learned": "<dark_gray>Not Learned</dark_gray>",
+      "xp": "<dark_gray>{0}XP to {1}</dark_gray>",
+      "welcome": "<white>Welcome!</white>",
+      "welcome_back": "<white>Welcome back!</white>",
+      "xp_bonus_for_time": "+<green>{0}</green> <gray>XP for</gray> <aqua>{1}</aqua>",
+      "max_ability_power": "<gold>Maximum Ability Power</gold> <gray>+{0}</gray>",
+      "unlock_this_by_clicking": "<gray>Unlock this by Right-Clicking:</gray> <white>{0}</white>",
+      "back": "<gray>Back</gray>",
+      "unlearn_all": "<gray>Unlearn all</gray>{0}",
+      "unlearned_all": "<gray>Unlearned all</gray>"
     },
-    "adaptmenu": {
-      "maynotunlearn": "你無法遺忘此技能",
-      "mayunlearn": "可學習/遺忘",
-      "knowledgecost": "知識可用",
-      "knowledgeavailable": "可用知識",
-      "alreadylearned": "已學習",
-      "unlearnrefund": "點擊遺忘此技能",
-      "norefunds": "極限模式將禁用點數返還",
-      "knowledge": "知識",
-      "clicklearn": "點擊以學習",
-      "noknowledge": "（你沒有任何知識可用）",
-      "youonlyhave": "你只有",
-      "howtolevelup": "升級技能來擴大能力上限",
-      "notenoughpower": "能力不足！每級需要花費 1 能力。",
-      "power": "能力",
-      "powerdrain": "耗費能力",
-      "learned": "已學習 ",
-      "unlearned": "未學習 ",
-      "activatorblock": "書架"
+    "adapt_menu": {
+      "may_not_unlearn": "<red><bold>YOU MAY NOT UNLEARN</bold></red>",
+      "may_unlearn": "<green>YOU MAY LEARN/UNLEARN</green>",
+      "knowledge_cost": "<white>{0}</white> <gray>Knowledge Cost</gray>",
+      "knowledge_available": "<gray>Knowledge Available</gray>",
+      "knowledge_available_title": "<dark_gray>{0} knowledge</dark_gray>",
+      "unlearn_refund": "<gray><u>Click to Unlearn & Refund <white>{0}</white> Knowledge Cost</u></gray>",
+      "no_refunds": "<dark_red><bold>HARDCORE, REFUNDS DISABLED</bold></dark_red>",
+      "knowledge": "<dark_gray>knowledge</dark_gray>",
+      "no_knowledge": "<red>(You don't have any Knowledge)</red>",
+      "you_only_have": "<red>(You only have <white>{0}</white> Knowledge Available)</red>",
+      "how_to_level_up": "<red>Level up skills to increase your max power.</red>",
+      "not_enough_power": "<red>Not enough power! Each Ability Level costs 1 power.</red>",
+      "power": "<gray>power</gray>",
+      "power_drain": "<green>{0} Power Drain</green>",
+      "learned": "<gray>Learned {0}</gray>",
+      "unlearned": "<gray>Unlearned {0}</gray>",
+      "activator_block": "<gold>Bookshelf</gold>"
     },
-    "knowledgeorb": {
-      "contains": "包含",
-      "knowledge": "知識",
-      "rightclick": "右鍵",
-      "togainknowledge": "獲得此知識",
-      "knowledgeorb": "知識之珠"
+    "knowledge_orb": {
+      "contains": "<white>contains</white> <white><u>{0}</u></white> <gray>{1}</gray> <gray>knowledge</gray>",
+      "knowledge": "<gray>knowledge</gray>",
+      "right_click_to_gain_knowledge": "<light_purple>Right-Click</light_purple> <gray>to gain this knowledge</gray>",
+      "knowledge_orb": "<gold>Knowledge Orb</gold>"
     },
-    "experienceorb": {
-      "contains": "包含",
-      "xp": "經驗",
-      "rightclick": "右鍵",
-      "togainxp": "獲得此經驗",
-      "xporb": "經驗球"
+    "experience_orb": {
+      "contains": "<white>contains</white> <white><u>{0}</u></white> <gray>{1}</gray> <gray>Experience</gray>",
+      "xp": "<gray>Experience</gray>",
+      "right_click_to_gain_xp": "<light_purple>Right-Click</light_purple> <gray>to gain this experience</gray>",
+      "xp_orb": "<gold>Experience Orb</gold>"
     }
   },
   "skill": {
     "agility": {
-      "name": "敏捷",
+      "name": "Agility",
       "icon": "⇉",
-      "description": "敏捷可以在遇到障礙時幫助你快速、靈活的移動。"
+      "description": "Agility is the ability to move quick and fluidly in the face of obstacles."
     },
     "architect": {
-      "name": "建築師",
+      "name": "Architect",
       "icon": "⬧",
-      "description": "結構是萬物之本。現實在你手中，由你掌握。"
+      "description": "Structures are the building blocks of the world. Reality is in your hands, yours to control."
     },
     "axes": {
-      "name": "斧技",
-      "icon": "❖",
-      "description1": "如果說你可以砍掉什麽東西",
-      "description2": "來取代掉砍樹",
-      "description3": "有什麽不一樣的嗎？"
+      "name": "Axes",
+      "icon": "🪓",
+      "description": "<gray>Why chop down trees, when you could chop</gray> <italic><gray>things</gray></italic> <gray>instead, same end result!</gray>"
     },
     "brewing": {
-      "name": "釀造",
+      "name": "Brewing",
       "icon": "❦",
-      "description": "咕嘟，咕嘟，咕嘟- 我最終還是不敢將這瓶藥水丟進煉藥鍋中。"
+      "description": "Double Bubble, Triple Bubble, Quadruple Bubble- I still cant put this potion into a cauldron"
     },
     "blocking": {
-      "name": "格擋",
-      "icon": "▒",
-      "description": "棍棒與石頭不會折斷你的骨頭，但是盾牌會。"
+      "name": "Blocking",
+      "icon": "🛡",
+      "description": "Sticks and stones Won't break your bones, But a shield will."
     },
     "crafting": {
-      "name": "合成",
+      "name": "Crafting",
       "icon": "⌂",
-      "description": "若沒有剩下什麽東西可以合成，為什麽不再做一個呢？"
+      "description": "With no more pieces left to place, why not make another?"
     },
     "discovery": {
-      "name": "探索",
+      "name": "Discovery",
       "icon": "⚛",
-      "description": "當洞察力提升時，你的思維便會愈發澄澈，探索更多的奧秘。"
+      "description": "As your perception expands, your mind unravels to discover that which you did not."
     },
     "enchanting": {
-      "name": "附魔",
+      "name": "Enchanting",
       "icon": "♰",
-      "description": "你在嘀咕些什麽？預言，幻象，還是在胡言亂語？"
+      "description": "What are you going on about? Prophecies, visions, superstitious jibber-jabber?"
     },
     "excavation": {
-      "name": "挖掘",
-      "icon": "✥",
-      "description": "挖大洞......"
+      "name": "Excavation",
+      "icon": "ᛳ",
+      "description": "Diggy Diggy Hole..."
     },
     "herbalism": {
-      "name": "草藥學",
+      "name": "Herbalism",
       "icon": "⚘",
-      "description": "我見不到植物，不過我能找到一些種子還有—— 呃，雜草？"
+      "description": "I can't find any plants, but I can find some seeds and- is that... Weed?"
     },
     "hunter": {
-      "name": "狩獵",
+      "name": "Hunter",
       "icon": "☠",
-      "description": "狩獵是一段旅程，而不是結果。"
+      "description": "Hunting is about the journey not the outcome."
     },
     "nether": {
-      "name": "地獄",
+      "name": "Nether",
       "icon": "₪",
-      "description": "它自深處而來。"
+      "description": "From the depths of the Nether itself."
     },
     "pickaxe": {
-      "name": "採礦",
+      "name": "Pickaxe",
       "icon": "⛏",
-      "description": "矮人是礦工，而我在這段時間裡明白了一件事。我是瑞典人！"
+      "description": "Dwarves are the miners, but ive learned a thing or two in my time. IM SWEDISH"
     },
     "ranged": {
-      "name": "箭術",
+      "name": "Ranged",
       "icon": "🏹",
-      "description": "你與目標的距離是勝利的關鍵所在，也是生存的關鍵所在。"
+      "description": "Distance is the key to victory, and the key to survival."
     },
     "rift": {
-      "name": "裂痕",
+      "name": "Rift",
       "icon": "❍",
-      "description": "裂痕如同一道尖銳的線束，但是現在你控制了它。"
+      "description": "The Rift is a caustic harness, but you have harnessed the harness."
     },
     "seaborne": {
-      "name": "波濤",
-      "icon": "🌊",
-      "description": "別忘了帶著這個技能，也許有一天你能見到由水組成的奇觀。"
+      "name": "Seaborne",
+      "icon": "🎣",
+      "description": "With this skill, you may will the wonders of the water."
     },
     "stealth": {
-      "name": "隱形",
-      "icon": "✠",
-      "description": "當行走於陰影裡，這是看不見的藝術。"
+      "name": "Stealth",
+      "icon": "☯",
+      "description": "The art of the unseen. Walk in the shadows."
     },
     "swords": {
-      "name": "劍術",
+      "name": "Swords",
       "icon": "⚔",
-      "description": "一份來自玄武石的力量！"
+      "description": "By the power of GreyStone!"
     },
     "taming": {
-      "name": "馴獸",
+      "name": "Taming",
       "icon": "♥",
-      "description": "鸚鵡、蜜蜂，以及......你？"
+      "description": "The parrots and the bees... and you?"
     },
     "tragoul": {
-      "name": "剎鉤",
-      "icon": "▼",
-      "description": "血液在宇宙的血管中遊動，束縛於你的手中。"
+      "name": "TragOul",
+      "icon": "🗡",
+      "description": "Blood flows through the veins of the universe. Constricted by your hands."
     },
     "chronos": {
-      "name": "時空",
-      "icon": "۞",
-      "description": "嘗試著宇宙的鐘上個發條，便可以感受到流動。若能把時鐘弄壞，或許就能成為它。"
+      "name": "Chronos",
+      "icon": "⏳",
+      "description": "Wind the Clock of the universe, experience the flow. Break the clock, become it."
     },
     "unarmed": {
-      "name": "搏擊",
-      "icon": "⚜",
-      "description": "赤手空拳並不曾意味著失去力量。"
+      "name": "Unarmed",
+      "icon": "»",
+      "description": "Without a weapon is not without strength."
     }
   },
   "agility": {
-    "armorup": {
-      "name": "裝甲加速",
-      "description": "衝刺的越快，給予的護甲值就越多！",
-      "lore1": "最大護甲值",
-      "lore2": "所需的加速時間"
+    "armor_up": {
+      "name": "Armor Up",
+      "description": "Get more armor the longer you sprint!",
+      "lore": [
+        "<gray>Passive: Build armor while sprinting</gray>",
+        "<green>+ {0}</green> <gray>Maximum armor gained</gray>",
+        "<yellow>* {1}</yellow> <gray>Time to reach max armor</gray>"
+      ]
     },
-    "superjump": {
-      "name": "高跳",
-      "description": "一覽眾山小。",
-      "lore1": "最大跳躍高度",
-      "lore2": "同時按下 潛行 + 跳躍 按鍵進行高跳！"
+    "super_jump": {
+      "name": "Super Jump",
+      "description": "Exceptional Height Advantage.",
+      "lore": [
+        "<gray>Sneak + Jump to perform a Super Jump</gray>",
+        "<green>+ {0}</green> <gray>Maximum jump height</gray>"
+      ]
     },
-    "walljump": {
-      "name": "攀跳",
-      "description": "在半空中緊貼墻壁，按住潛行鍵並跳躍。",
-      "lore1": "最大跳躍數量",
-      "lore2": "跳躍高度"
+    "wall_jump": {
+      "name": "Wall Jump",
+      "description": "Hold shift while mid-air against a wall to wall latch & jump!",
+      "lore": [
+        "<gray>Hold Sneak against wall mid-air to latch and jump</gray>",
+        "<green>+ {0}</green> <gray>Maximum wall jumps</gray>",
+        "<green>+ {1}</green> <gray>Jump height per wall jump</gray>"
+      ]
     },
-    "windup": {
-      "name": "上弦",
-      "description": "衝刺時間越長，速度越快！",
-      "lore1": " 最大速度",
-      "lore2": " 所需衝刺時間"
+    "wind_up": {
+      "name": "Wind Up",
+      "description": "Get faster the longer you sprint!",
+      "lore": [
+        "<gray>Passive: Build speed while sprinting</gray>",
+        "<green>+ {0}</green> <gray>Maximum speed multiplier</gray>",
+        "<yellow>* {1}</yellow> <gray>Time to reach max speed</gray>"
+      ]
     }
   },
   "architect": {
+    "elevator": {
+      "name": "Elevator",
+      "description": "This allows for you to build an elevator to teleport vertically fast!",
+      "lore": [
+        "<gray>Craft: 8 Wool around 1 Ender Pearl</gray>",
+        "<green>+ </green><gray>Unlocks Elevator Block crafting</gray>",
+        "<yellow>* </yellow><gray>Jump to go up, Sneak to go down</gray>"
+      ]
+    },
     "foundation": {
-      "name": "魔法基建",
-      "description": "當你潛行時，可以臨時在腳下放置方塊。",
-      "lore1": "最多可在腳下生成：",
-      "lore2": "塊臨時方塊"
+      "name": "Magic Foundation",
+      "description": "This allows for you to sneak and place a temporary foundation beneath you!",
+      "lore": [
+        "<gray>Sneak in mid-air to create temporary blocks</gray>",
+        "<green>+ {0}</green> <gray>Blocks you can place beneath you</gray>",
+        "<yellow>* </yellow><gray>Blocks disappear after a short time</gray>"
+      ]
     },
     "glass": {
-      "name": "絲質手套",
-      "description": "徒手打破玻璃後將會掉落玻璃方塊！",
-      "lore1": "當手觸摸到玻璃時有絲綢般的觸感"
+      "name": "Silk-Touch Glass",
+      "description": "This allows for you to essentially prevent the loss of glass blocks when you break them with an empty hand!",
+      "lore": [
+        "<gray>Passive: Break glass with bare hands</gray>",
+        "<green>+ </green><gray>Glass drops as item instead of breaking</gray>"
+      ]
     },
-    "wirelessredstone": {
-      "name": "紅石遙控器",
-      "description": "此功能可使你使用紅石火把遠程遙控紅石機關!",
-      "lore1": "標靶*1 + 紅石火把*1 + 終界珍珠*1 = 紅石遙控器*1"
+    "wireless_redstone": {
+      "name": "Redstone Remote",
+      "description": "This allows for you to use a redstone torch to toggle redstone, remotely!",
+      "lore": [
+        "<gray>Craft: Target + Redstone Torch + Enderpearl</gray>",
+        "<green>+ </green><gray>Remotely toggle redstone signals</gray>",
+        "<yellow>* </yellow><gray>Shift + Left-click to bind, Right-click to pulse</gray>"
+      ]
     },
     "placement": {
-      "name": "建築師之杖",
-      "description": "手持多格方塊，按住潛行鍵瞄準目標方塊。根據預覽擺放方塊，持續調整以達到最好效果！請注意：可能需要移動來調整邊界。",
-      "lore1": "手中必須持有多於",
-      "lore2": "格方塊才能使用",
-      "lore3": "建築師之杖。"
+      "name": "Builders Wand",
+      "description": "Allows for you to place multiple blocks at once to activate Sneak, and hold a block that matches your looking block and place! Keep in mind, you may need to move a tad to trigger bounding the boxes!",
+      "need_blocks": "<red>You need <green>{0}</green> blocks in your hand to place this</red>",
+      "lore": [
+        "<gray>Sneak + Place to extend block surfaces</gray>",
+        "<green>+ </green><gray>Place multiple blocks at once</gray>",
+        "<yellow>* </yellow><gray>Hold matching blocks in hand</gray>"
+      ]
     }
   },
   "axe": {
     "chop": {
-      "name": "伐木斧",
-      "description": "手持斧頭，右鍵木頭砍伐多塊樹木。",
-      "lore1": "每次砍伐的數量",
-      "lore2": "冷卻",
-      "lore3": "耐久消耗"
+      "name": "Axe Chop",
+      "description": "Chop down trees by right clicking the base log!",
+      "lore": [
+        "<gray>Right-click base log to chop entire tree</gray>",
+        "<green>+ {0}</green> <gray>Blocks chopped per use</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between chops</gray>",
+        "<red>- {2}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "logswap": {
-      "name": "露西的原木轉換器",
-      "description": "在工作台中轉換原木的種類吧！",
-      "lore1": "1塊任意種類的原木 + 1株樹苗 = 1塊樹苗對應種類的原木"
+    "log_swap": {
+      "name": "Lucy's Log-Swapper",
+      "description": "Change the flavor of logs in a Crafting Table!",
+      "lore": [
+        "<gray>Craft: 8 Logs + 1 Sapling = 8 Logs of sapling type</gray>",
+        "<green>+ </green><gray>Convert any log type to another</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "快速進入背包"
+    "drop_to_inventory": {
+      "name": "Axe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Chopped items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped logs</gray>"
+      ]
     },
-    "groundsmash": {
-      "name": "山崩地裂",
-      "description": "跳躍，然後迅速蹲下。斬擊所有附近的敵人。",
-      "lore1": "傷害",
-      "lore2": "方塊半徑",
-      "lore3": "力量",
-      "lore4": "冷卻"
+    "ground_smash": {
+      "name": "Axe Ground Smash",
+      "description": "Jump, then crouch and smash all nearby enemies.",
+      "lore": [
+        "<gray>Jump + Sneak with axe to ground smash</gray>",
+        "<green>+ {0}-{1}</green> <gray>Damage dealt</gray>",
+        "<green>+ {2}</green> <gray>Block radius</gray>",
+        "<green>+ {3}</green> <gray>Knockback force</gray>",
+        "<yellow>* {4}</yellow> <gray>Cooldown</gray>"
+      ]
     },
-    "leafminer": {
-      "name": "花匠",
-      "description": "同時剪斷大量樹葉。",
-      "lore1": "潛行，然後挖掘樹葉。",
-      "lore2": "樹葉挖掘範圍",
-      "lore3": "由於防止漏洞濫用，挖掘樹葉將不會獲得掉落物。"
+    "leaf_miner": {
+      "name": "Leaf-miner",
+      "description": "Allows you to break bulk leaves at once!",
+      "lore": [
+        "<gray>Sneak + Mine leaves to break in bulk</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<red>- </red><gray>No drops from leaves (exploit prevention)</gray>"
+      ]
     },
-    "woodminer": {
-      "name": "原木礦工",
-      "description": "允許你一次砍伐大量樹木！",
-      "lore1": "潛行，然後砍伐 木頭/原木（木板無效）",
-      "lore2": "有效距離",
-      "lore3": "與直接進入背包兼容。"
+    "wood_miner": {
+      "name": "Wood-miner",
+      "description": "Allows you to break bulk wood at once!",
+      "lore": [
+        "<gray>Sneak + Mine logs to break in bulk</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<yellow>* </yellow><gray>Works with Drop-to-Inventory</gray>",
+        "<yellow>* </yellow><gray>Does not work on planks</gray>"
+      ]
     }
   },
   "brewing": {
     "lingering": {
-      "name": "纏綿",
-      "description": "加長藥水效果持續時間。",
-      "lore1": "持續時間",
-      "lore2": "持續時間"
+      "name": "Lingering Brew",
+      "description": "Brewed potions last longer!",
+      "lore": [
+        "<gray>Passive: Potion effects last longer</gray>",
+        "<green>+ {0}</green> <gray>Bonus duration for regular potions</gray>",
+        "<green>+ {1}</green> <gray>Bonus duration for splash potions</gray>"
+      ]
     },
-    "superheated": {
-      "name": "過載",
-      "description": "釀造台越熱，它的工作效率就越高！",
-      "lore1": "釀造台每貼近火焰",
-      "lore2": "釀造台每貼近岩漿"
+    "super_heated": {
+      "name": "Super Heated Brew",
+      "description": "Brewing stands work faster the hotter they are.",
+      "lore": [
+        "<gray>Passive: Heat sources speed up brewing</gray>",
+        "<green>+ {0}</green> <gray>Speed per adjacent fire block</gray>",
+        "<green>+ {1}</green> <gray>Speed per adjacent lava block</gray>"
+      ]
     },
     "darkness": {
-      "name": "瓶裝黑暗",
-      "description": "不知道你為什麽要這個，反正給你就是了！",
-      "lore1": "夜視藥水 + 混凝土方塊 = 黑暗藥水（30秒）",
-      "lore2": "不過得先說好，藥水效果生效期間不能衝刺。"
+      "name": "Bottled Darkness",
+      "description": "Not sure why you need this, but here you go!",
+      "lore": [
+        "<gray>Craft: Night Vision Potion + Black Concrete</gray>",
+        "<green>+ {0}</green> <gray>Darkness effect</gray>",
+        "<red>- </red><gray>Prevents sprinting while active</gray>"
+      ]
     },
     "haste": {
-      "name": "瓶裝緊急",
-      "description": "效率附魔難道不夠用嗎？！",
-      "lore1": "速度藥水+紫水晶碎片=急速藥水（60秒）",
-      "lore2": "速度藥水 + 紫水晶塊 = 急速藥水-2（30 秒）"
+      "name": "Bottled Haste",
+      "description": "When Efficiency is not enough",
+      "lore": [
+        "<gray>Craft: Speed Potion + Amethyst Shard = Haste I (60s)</gray>",
+        "<gray>Craft: Speed Potion + Amethyst Block = Haste II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Haste potion brewing</gray>"
+      ]
     },
     "absorption": {
-      "name": "瓶裝抗性提升",
-      "description": "來硬的！",
-      "lore1": "即時治療+石英=吸收藥水（60秒）",
-      "lore2": "即時治療+石英塊=吸收藥水-2（30秒）"
+      "name": "Bottled Absorption",
+      "description": "Harden the body!",
+      "lore": [
+        "<gray>Craft: Instant Heal + Quartz = Absorption I (60s)</gray>",
+        "<gray>Craft: Instant Heal + Quartz Block = Absorption II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Absorption potion brewing</gray>"
+      ]
     },
     "fatigue": {
-      "name": "瓶裝疲勞",
-      "description": "來軟的！",
-      "lore1": "虛弱藥水 + 史萊姆球 = 挖掘疲勞藥水（30秒）",
-      "lore2": "虛弱藥水 + 史萊姆塊 = 挖掘疲勞 II 藥水（15秒）"
+      "name": "Bottled Fatigue",
+      "description": "Weaken the body!",
+      "lore": [
+        "<gray>Craft: Weakness Potion + Slime Ball = Fatigue I (30s)</gray>",
+        "<gray>Craft: Weakness Potion + Slime Block = Fatigue II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Mining Fatigue potion brewing</gray>"
+      ]
     },
     "hunger": {
-      "name": "反胃飢餓",
-      "description": "喂飽貪心的人吧！",
-      "lore1": "基礎藥水 + 腐肉 = 飢餓藥水（30秒）",
-      "lore2": "虛弱藥水 + 腐肉 = 飢餓 III 藥水（15秒）"
+      "name": "Bottled Hunger",
+      "description": "Feed the Insatiable!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Rotten Flesh = Hunger I (30s)</gray>",
+        "<gray>Craft: Weakness Potion + Rotten Flesh = Hunger II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Hunger potion brewing</gray>"
+      ]
     },
     "nausea": {
-      "name": "瓶裝反胃",
-      "description": "真令我噁心。",
-      "lore1": "基礎藥水 + 棕色蘑菇 = 反胃藥水（16秒） ",
-      "lore2": "基礎藥水 + 緋紅蕈菇 = 反胃藥水 II（8秒）"
+      "name": "Bottled Nausea",
+      "description": "You make me sick!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Brown Mushroom = Nausea I (16s)</gray>",
+        "<gray>Craft: Awkward Potion + Crimson Fungus = Nausea II (8s)</gray>",
+        "<green>+ </green><gray>Unlocks Nausea potion brewing</gray>"
+      ]
     },
     "blindness": {
-      "name": "瓶裝失明",
-      "description": "你真是可怕的人...",
-      "lore1": "基礎藥水 + 墨囊 = 失明藥水（30秒）",
-      "lore2": "基礎藥水 + 螢光墨囊 = 失明 II 藥水（15秒）"
+      "name": "Bottled Blindness",
+      "description": "You're a horrible person...",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Ink Sac = Blindness I (30s)</gray>",
+        "<gray>Craft: Awkward Potion + Glow Ink Sac = Blindness II (15s)</gray>",
+        "<green>+ </green><gray>Unlocks Blindness potion brewing</gray>"
+      ]
     },
     "resistance": {
-      "name": "瓶裝抗性",
-      "description": "最佳防禦！",
-      "lore1": "基礎藥水 + 鐵錠  = 抗性提升藥水（60秒）",
-      "lore2": "基礎藥水 + 鐵方塊  = 抗性提升 II 藥水（60秒）"
+      "name": "Bottled Resistance",
+      "description": "Fortification at its finest!",
+      "lore": [
+        "<gray>Craft: Awkward Potion + Iron Ingot = Resistance I (60s)</gray>",
+        "<gray>Craft: Awkward Potion + Iron Block = Resistance II (30s)</gray>",
+        "<green>+ </green><gray>Unlocks Resistance potion brewing</gray>"
+      ]
     },
-    "healthboost": {
-      "name": "瓶裝生命",
-      "description": "有的時候感覺最大生命值不夠用...",
-      "lore1": "瞬間治療藥水 = 金蘋果 = 生命提升藥水（120秒）",
-      "lore2": "瞬間治療藥水 + 附魔金蘋果 = 生命提升 II 藥水（120秒）"
+    "health_boost": {
+      "name": "Bottled Life",
+      "description": "When Maximum health is not enough...",
+      "lore": [
+        "<gray>Craft: Instant Heal + Golden Apple = Health Boost I (120s)</gray>",
+        "<gray>Craft: Instant Heal + Enchanted Apple = Health Boost II (120s)</gray>",
+        "<green>+ </green><gray>Unlocks Health Boost potion brewing</gray>"
+      ]
     },
     "decay": {
-      "name": "瓶裝腐朽",
-      "description": "誰知道Detritus為什麽這麽有用？",
-      "lore1": "虛弱藥水 + 毒馬鈴薯 = 凋零藥水（16秒）",
-      "lore2": "虛弱藥水 + 緋紅蕈根 = 凋零藥水（8秒）"
+      "name": "Bottled Decay",
+      "description": "Who knew Detritus would be so useful?",
+      "lore": [
+        "<gray>Craft: Weakness Potion + Poisonous Potato = Wither I (16s)</gray>",
+        "<gray>Craft: Weakness Potion + Crimson Roots = Wither II (8s)</gray>",
+        "<green>+ </green><gray>Unlocks Wither potion brewing</gray>"
+      ]
     },
     "saturation": {
-      "name": "瓶裝飽和",
-      "description": "哦，我知道... 我其實還沒那麽餓...",
-      "lore1": "生命恢復藥水 + 烤馬鈴薯 = 飽和藥水（120秒）",
-      "lore2": "生命恢復藥水 + 幹草塊= 飽和藥水（120秒）"
+      "name": "Bottled Saturation",
+      "description": "Ya know... Im not even Hungry...",
+      "lore": [
+        "<gray>Craft: Regen Potion + Baked Potato = Saturation I</gray>",
+        "<gray>Craft: Regen Potion + Hay Bale = Saturation II</gray>",
+        "<green>+ </green><gray>Unlocks Saturation potion brewing</gray>"
+      ]
     }
   },
   "blocking": {
-    "chainarmorer": {
-      "name": "梅菲斯特的鎖鏈",
-      "description": "允許你合成鎖鏈盔甲",
-      "lore1": "配方和其它盔甲一致，不過需要使用鐵粒作為材料。"
+    "chain_armorer": {
+      "name": "Chains of Mephistopheles",
+      "description": "Allows you to craft Chainmail Armor",
+      "lore": [
+        "<gray>Craft: Use Iron Nuggets in armor patterns</gray>",
+        "<green>+ </green><gray>Unlocks Chainmail Armor crafting</gray>"
+      ]
     },
-    "horsearmorer": {
-      "name": "可合成馬鎧",
-      "description": "允許你合成不同種類的馬鎧。",
-      "lore1": "在工作台中，使用材料圍著馬鞍一圈合成目標材質的馬鎧。"
+    "horse_armorer": {
+      "name": "Craftable Horse Armor",
+      "description": "Allows you to craft Horse Armor",
+      "lore": [
+        "<gray>Craft: Surround Saddle with armor material</gray>",
+        "<green>+ </green><gray>Unlocks Horse Armor crafting</gray>",
+        "<yellow>* </yellow><gray>Use Iron/Gold/Diamond for different tiers</gray>"
+      ]
     },
-    "saddlecrafter": {
-      "name": "可合成馬鞍",
-      "description": "用羽毛合成馬鞍",
-      "lore1": "配方：5皮革："
+    "saddle_crafter": {
+      "name": "Craftable Saddle",
+      "description": "Craft a Saddle with Leather",
+      "lore": [
+        "<gray>Craft: 5 Leather in saddle pattern</gray>",
+        "<green>+ </green><gray>Unlocks Saddle crafting</gray>"
+      ]
     },
-    "multiarmor": {
-      "name": "盔甲套組",
-      "description": "在盔甲上綁定鞘翅",
-      "lore1": "旅行必備品。",
-      "lore2": "飛行時動態合併或切換盔甲與鞘翅！",
-      "lore3": "要合併，在物品欄按住Shift拖曳合併物品到被合併物品上。",
-      "lore4": "要解綁盔甲上的物品，按住潛行並丟棄物品以拆解。",
-      "lore5": "當盔甲耐久值至零時，合併到該盔甲上的所有物品都將丟失",
-      "lore6": "我不再需要盔甲了，它讓我太失望了..."
+    "multi_armor": {
+      "name": "Multi-Armor",
+      "description": "Bind Elytras to Armor",
+      "lore": [
+        "<gray>Merge Elytra with Chestplate for dual functionality</gray>",
+        "<green>+ </green><gray>Shift-click to merge items in inventory</gray>",
+        "<yellow>* </yellow><gray>Sneak-Drop to disassemble</gray>",
+        "<red>- </red><gray>Destroying MultiArmor loses all merged items</gray>"
+      ]
     }
   },
   "crafting": {
     "deconstruction": {
-      "name": "分解器",
-      "description": "分解方塊或物品，回收部分合成時的材料。",
-      "lore1": "將 被分解物品 + 剪刀",
-      "lore2": "放入鍛造台進行回收。"
+      "name": "Deconstruction",
+      "description": "Deconstruct blocks & items into salvageable base components!",
+      "lore": [
+        "<gray>Drop item + Sneak + Right-click with Shears</gray>",
+        "<green>+ </green><gray>Break items into base components</gray>"
+      ]
     },
     "xp": {
-      "name": "熟能生巧",
-      "description": "合成物品時給予原版經驗。",
-      "lore1": "當合成完畢後自動給予"
+      "name": "Crafting XP",
+      "description": "Gain passive XP when crafting",
+      "lore": [
+        "<gray>Passive: Earn XP from crafting items</gray>",
+        "<green>+ </green><gray>XP gained per craft</gray>"
+      ]
     },
     "reconstruction": {
-      "name": "礦石重建",
-      "description": "用基礎成分重新合成礦石！",
-      "lore1": "8 個掉落物和 1 個宿主 = 1 個礦石（無形）",
-      "lore2": "掉落物必須被熔煉（如果適用）",
-      "lore3": "不包括：廢料、石英、祖母綠等...",
-      "lore4": "主機 = 封裝。即：石頭、下界岩、深石板"
+      "name": "Ore Reconstruction",
+      "description": "Recraft ores from their base components!",
+      "lore": [
+        "<gray>Craft: 8 Smelted drops + 1 Host block = 1 Ore</gray>",
+        "<green>+ </green><gray>Reconstruct ore blocks from materials</gray>",
+        "<yellow>* </yellow><gray>Host = Stone, Netherrack, or Deepslate</gray>",
+        "<red>- </red><gray>Excludes Scraps, Quartz, Emeralds, etc.</gray>"
+      ]
     },
     "leather": {
-      "name": "可合成皮革",
-      "description": "將腐肉制成皮革",
-      "lore1": "只需要把腐肉丟到篝火上！"
+      "name": "Craftable Leather",
+      "description": "Craft Leather from Rotten Flesh",
+      "lore": [
+        "<gray>Cook Rotten Flesh on a Campfire</gray>",
+        "<green>+ </green><gray>Converts Rotten Flesh to Leather</gray>"
+      ]
     },
     "backpacks": {
-      "name": "布蒂利埃的背包",
-      "description": "將Mojang計劃添加的收納袋加入到遊戲中！",
-      "lore1": "你需要在生存模式下才能使用它",
-      "lore2": "XLX : 皮革，拴繩，皮革",
-      "lore3": "XSX : 皮革，木桶，皮革",
-      "lore4": "XCX : 皮革，箱子，皮革"
+      "name": "A Boutilier's Backpacks!",
+      "description": "This just Brings the Mojang Bundle into the game!",
+      "lore": [
+        "<gray>Craft bundles with various recipes</gray>",
+        "<green>+ </green><gray>Unlocks Bundle crafting</gray>",
+        "<yellow>* </yellow><gray>Leather + Lead + Leather (row)</gray>",
+        "<yellow>* </yellow><gray>Survival mode only</gray>"
+      ]
     },
     "stations": {
-      "name": "便攜式桌子！",
-      "description": "使用手掌中的表格！",
-      "lore2": "關閉時遺忘在桌子上的任何物品都將永遠丟失！",
-      "lore3": "有效桌子：鐵砧、手工、磨石、製圖、切石機、織布機"
+      "name": "Portable Tables!",
+      "description": "Use a table in the palm of your hand!",
+      "lore": [
+        "<gray>Right-click workstation in hand to use</gray>",
+        "<green>+ </green><gray>Portable Anvil, Crafting, Grindstone, etc.</gray>",
+        "<red>- </red><gray>Items left inside are LOST when closed!</gray>"
+      ]
     },
     "skulls": {
-      "name": "可合成頭顱！",
-      "description": "用材料可以合成生物頭顱！",
-      "lore1": "使用以下物品在工作台中圍繞骨塊一圈合成頭顱：",
-      "lore2": "殭屍：腐肉",
-      "lore3": "骷髏：骨頭",
-      "lore4": "苦力怕：火藥",
-      "lore5": "凋零骷髏：地獄磚",
-      "lore6": "龍首：龍息"
+      "name": "Craftable skulls!",
+      "description": "Using Materials you can Craft Mob Skulls!",
+      "lore": [
+        "<gray>Craft: Surround Bone Block with mob materials</gray>",
+        "<green>+ </green><gray>Unlocks mob skull crafting</gray>",
+        "<yellow>* </yellow><gray>Zombie=Flesh, Skeleton=Bone, Creeper=Gunpowder</gray>",
+        "<yellow>* </yellow><gray>Wither=Nether Brick, Dragon=Dragon's Breath</gray>"
+      ]
     }
   },
   "discovery": {
     "armor": {
-      "name": "世界之甲",
-      "description": "根據附近方塊硬度給予被動防禦。",
-      "lore1": "被動防禦",
-      "lore2": "由附近方塊硬度決定",
-      "lore3": "防禦： +"
+      "name": "World Armor",
+      "description": "Passive armor depending on nearby block hardness.",
+      "lore": [
+        "<gray>Passive: Gain armor from nearby hard blocks</gray>",
+        "<green>+ {0}</green> <gray>Armor strength multiplier</gray>",
+        "<yellow>* </yellow><gray>Harder blocks = More armor</gray>"
+      ]
     },
     "unity": {
-      "name": "實驗性統合",
-      "description": "收集經驗球，隨機為其它技能增長經驗。",
-      "lore1": "點經驗 ",
-      "lore2": "每個經驗球"
+      "name": "Experimental Unity",
+      "description": "Collecting Experience Orbs adds XP to random skills.",
+      "lore": [
+        "<gray>Passive: XP orbs boost random Adapt skills</gray>",
+        "<green>+ {0}</green> <gray>Skill XP per orb collected</gray>"
+      ]
     },
     "resist": {
-      "name": "實驗性電阻",
-      "description": "減少來自任何方面的傷害\n",
-      "lore0": "每 15秒 發生一次",
-      "lore1": " 減少傷害",
-      "lore2": "經驗消耗"
+      "name": "Experimental Resistance",
+      "description": "Consume experience to mitigate the damage you take from all sources",
+      "lore": [
+        "<gray>Passive: Spend XP to reduce incoming damage</gray>",
+        "<green>+ {0}</green> <gray>Damage reduction</gray>",
+        "<red>- {1}</red> <gray>XP drained per activation</gray>",
+        "<yellow>* {2}</yellow> <gray>Cooldown between activations</gray>"
+      ]
     },
     "villager": {
-      "name": "村莊聚光燈",
-      "description": "與村民交易時將提升交易質量！",
-      "lore1": "每次與村民互動時都會減少獲得的經驗",
-      "lore2": "以減少和村民互動時獲得的經驗為代價，提高交易質量",
-      "lore3": "交互經驗削減"
+      "name": "Villager Attraction",
+      "description": "Allows for you to get Better trades with villagers!",
+      "lore": [
+        "<gray>Passive: Better trades with villagers</gray>",
+        "<green>+ {0}</green> <gray>Chance for enhanced trades</gray>",
+        "<red>- {1}</red> <gray>XP cost per interaction</gray>"
+      ]
     }
   },
   "enchanting": {
-    "lapisreturn": {
-      "name": "青金石的回報",
-      "description": "每級都將多消耗1經驗。但是越高等級返還青金石越多。",
-      "lore1": "每升一級都會額外消耗1經驗，最高可以返還3青金石。"
+    "lapis_return": {
+      "name": "Lapis Return",
+      "description": "At the cost of 1 more level of XP, and has a chance to give you free lapis in return",
+      "lore": [
+        "<gray>Trade extra XP for lapis refund</gray>",
+        "<green>+ {0}</green> <gray>Lapis returned per enchant</gray>",
+        "<red>- 1</red> <gray>Extra XP level cost per enchant</gray>"
+      ]
     },
-    "quickenchant": {
-      "name": "快速附魔",
-      "description": "在物品欄用附魔書點擊被附魔的物品以快速附魔。",
-      "lore1": "累計最大等級",
-      "lore2": "此物品應用的附魔總等級不能超過 ",
-      "lore3": "級"
+    "quick_enchant": {
+      "name": "Quick-Click Enchant",
+      "description": "Enchant items by clicking enchant books directly on them.",
+      "max_power": "<red>Cannot enchant items above {0} power</red>",
+      "lore": [
+        "<gray>Click enchant books directly on items to apply</gray>",
+        "<green>+ {0}</green> <gray>Maximum combined enchant levels</gray>"
+      ]
     },
     "return": {
-      "name": "經驗返還",
-      "description": "當你附魔一個物品時，消耗的經驗會被返還一部分。",
-      "lore1": "當你附魔物品後，有機會返還一部分經驗。",
-      "lore2": "經驗返還"
+      "name": "XP Return",
+      "description": "Enchanting XP is returned to you when you enchant an item.",
+      "lore": [
+        "<gray>Passive: Chance to refund XP when enchanting</gray>",
+        "<green>+ {0}</green> <gray>XP returned per enchant</gray>"
+      ]
     }
   },
   "excavation": {
     "haste": {
-      "name": "極速挖掘機",
-      "description": "給予緊急效果，提高挖掘速度！",
-      "lore1": "當挖掘時給予緊急效果",
-      "lore2": "x 挖掘時緊急效果等級"
+      "name": "Hasty Excavator",
+      "description": "This will speed up the excavation process, with HASTE!",
+      "lore": [
+        "<gray>Passive: Gain Haste while digging</gray>",
+        "<green>+ {0}</green> <gray>Haste levels when mining</gray>"
+      ]
     },
     "spelunker": {
-      "name": "超級視野洞穴探險者！",
-      "description": "用眼睛觀察礦石，但要透過地面！",
-      "lore1": "副手礦石，主手螢火蟲，潛行！",
-      "lore2": "區塊範圍：",
-      "lore3": "使用時消耗Glowberry"
+      "name": "Super-Seeing Spelunker!",
+      "description": "See Ores with your eyes, but through the ground!",
+      "lore": [
+        "<gray>Hold Ore in offhand + Glowberries in main hand + Sneak</gray>",
+        "<green>+ {0}</green> <gray>Block detection range</gray>",
+        "<yellow>* </yellow><gray>Consumes 1 Glowberry per use</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "快速進入背包"
+    "drop_to_inventory": {
+      "name": "Shovel Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Dug items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "omnitool": {
+    "omni_tool": {
       "name": "OMNI - T.O.O.L.",
-      "description": "Tackle設計的豪華多功能工具鉗。",
-      "lore1": "這也許是最強大的設計。",
-      "lore2": "可以根據實際需要合併或拆解工具。",
-      "lore3": "合併：按住潛行鍵，在物品欄中用預合併的物品點擊被合併的物品。",
-      "lore4": "拆解：手持預拆解的物品，按住潛行鍵丟棄以拆解。",
-      "lore5": "注意：如果此工具鉗套件中任何一個物品耐久度至零，該工具鉗將報廢！",
-      "lore6": "個可合併物品。",
-      "lore7": "有時候你需要五、六種物品在同一個工具鉗裡，或許僅僅需要一個。"
+      "description": "Tackle's overdesigned opulent Leatherman",
+      "lore": [
+        "<gray>Merge multiple tools into one super-tool</gray>",
+        "<green>+ {0}</green> <gray>Maximum tools that can be merged</gray>",
+        "<yellow>* </yellow><gray>Shift-click to merge tools in inventory</gray>",
+        "<yellow>* </yellow><gray>Sneak-Drop to disassemble</gray>",
+        "<red>- </red><gray>Broken tools in the merge cannot be used</gray>"
+      ]
     }
   },
   "herbalism": {
-    "growthaura": {
-      "name": "生長光環",
-      "description": "加速農作物生長時間",
-      "lore1": "光環半徑",
-      "lore2": "生長速度",
-      "lore3": "消耗飽食度"
+    "growth_aura": {
+      "name": "Growth Aura",
+      "description": "Grow nature around you in an aura",
+      "lore": [
+        "<gray>Passive: Crops grow faster around you</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<green>+ {1}</green> <gray>Growth speed multiplier</gray>",
+        "<red>- {2}</red> <gray>Hunger cost per tick</gray>"
+      ]
     },
     "hippo": {
-      "name": "草藥師的河馬",
-      "description": "吃點食物，感覺能更飽點。",
-      "lore1": "飽食度) 額外飽食度"
+      "name": "Herbalist's Hippo",
+      "description": "Consuming food, gives you more saturation",
+      "lore": [
+        "<gray>Passive: Food gives bonus saturation</gray>",
+        "<green>+ {0}</green> <gray>Extra saturation per food consumed</gray>"
+      ]
     },
     "myconid": {
-      "name": "草藥師的菌絲",
-      "description": "給予你制作菌絲的能力。",
-      "lore1": "所有泥土，和棕、紅色蘑菇將會制作出菌絲。"
+      "name": "Herbalist's Myconid",
+      "description": "Gives you the ability to craft Mycelium",
+      "lore": [
+        "<gray>Craft: Any Dirt + Brown Mushroom + Red Mushroom</gray>",
+        "<green>+ </green><gray>Unlocks Mycelium crafting recipe</gray>"
+      ]
     },
     "terralid": {
-      "name": "草藥師的地衣\n",
-      "description": "給予你合成草方塊的能力。",
-      "lore1": "3個種子，加上3塊泥土，可合成3塊草方塊。"
+      "name": "Herbalist's Terralid",
+      "description": "Gives you the ability to craft Grass Blocks",
+      "lore": [
+        "<gray>Craft: 3 Seeds over 3 Dirt</gray>",
+        "<green>+ </green><gray>Unlocks Grass Block crafting recipe</gray>",
+        "<yellow>* </yellow><gray>Produces 3 Grass Blocks per craft</gray>"
+      ]
     },
     "cobweb": {
-      "name": "蛛網合成師",
-      "description": "你將獲得在工作台中合成蛛網的能力",
-      "lore1": "九弦，將製作蜘蛛網。"
+      "name": "Webby Creator",
+      "description": "Gives you the ability to craft Cobwebs in a Crafting Table",
+      "lore": [
+        "<gray>Craft: 9 String in a 3x3 grid</gray>",
+        "<green>+ </green><gray>Unlocks Cobweb crafting recipe</gray>"
+      ]
     },
-    "mushroomblocks": {
-      "name": "蘑菇包裝廠",
-      "description": "你將獲得在工作台中合成蘑菇方塊的能力。",
-      "lore1": "四個蘑菇合成一個蘑菇塊，或者使用一個蘑菇塊進行分解。"
+    "mushroom_blocks": {
+      "name": "Mushroom Maker",
+      "description": "Gives you the ability to craft Mushroom Blocks in a Crafting Table",
+      "lore": [
+        "<gray>Craft: 4 Mushrooms = 1 Mushroom Block</gray>",
+        "<gray>Craft: 1 Mushroom Block = 1 Mushroom Stem</gray>",
+        "<green>+ </green><gray>Unlocks Mushroom Block crafting recipes</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "快速進入背包"
+    "drop_to_inventory": {
+      "name": "Hoe Drop-To-Inventory",
+      "description": "When you break a crop it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Harvested crops go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "hungryshield": {
-      "name": "飢餓護盾",
-      "description": "在飢餓席卷而來前保護生命值。",
-      "lore1": "飢餓抵抗"
+    "hungry_shield": {
+      "name": "Hungry Shield",
+      "description": "Take damage to your hunger before your health.",
+      "lore": [
+        "<gray>Passive: Damage is absorbed by hunger first</gray>",
+        "<green>+ {0}</green> <gray>Damage converted to hunger</gray>",
+        "<yellow>* </yellow><gray>Requires food in hunger bar to activate</gray>"
+      ]
     },
     "luck": {
-      "name": "草藥師的祝福",
-      "description": "當你破壞花或草時，你將有機率獲得隨機物品。",
-      "lore0": "花將收獲食物，草將收獲種子",
-      "lore1": "破壞花獲得隨機物品的機率",
-      "lore2": "破壞草獲得隨機物品的機率"
+      "name": "Herbalist's Luck",
+      "description": "When you break Grass/Flowers, you have a chance to get a random item",
+      "lore": [
+        "<gray>Flowers = Food, and Grass = Seeds</gray>",
+        "<green>+ {0}</green> <gray>Chance to get an item from breaking flowers</gray>",
+        "<green>+ {1}</green> <gray>Chance to get an item from breaking grass</gray>"
+      ]
     },
     "replant": {
-      "name": "收割者",
-      "description": "手持鋤頭，右鍵莊稼進行自動收割和重新種植。",
-      "lore1": " 有效範圍半徑"
+      "name": "Harvest & Replant",
+      "description": "Right click a crop with a hoe to harvest & replant it.",
+      "lore": [
+        "<gray>Right-click crops with hoe to harvest and replant</gray>",
+        "<green>+ {0}</green> <gray>Block radius for mass harvesting</gray>"
+      ]
     }
   },
   "hunter": {
     "adrenaline": {
-      "name": "腎上腺素",
-      "description": "生命越少，近戰造成的傷害越大。",
-      "lore1": "最大傷害"
+      "name": "Adrenaline",
+      "description": "Deal more damage the lower health you are (Melee)",
+      "lore": [
+        "<gray>Passive: Lower health = Higher damage</gray>",
+        "<green>+ {0}</green> <gray>Maximum bonus damage at low HP</gray>"
+      ]
     },
     "penalty": {
-      "lore1": "如果飢餓度歸零，將給予劇毒效果！"
+      "name": "",
+      "description": "",
+      "lore": [
+        "<red>-{0}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "快速進入背包",
-      "description": "當你擊殺生物/破壞某方塊，它的掉落物將會自動進入背包。",
-      "lore1": "如果允許，擊殺生物/破壞某方塊的掉落物將會自動進入背包。"
+    "drop_to_inventory": {
+      "name": "Items Drop-To-Inventory",
+      "description": "When you Kill something / Break a block With a sword it teleports the drops into your inventory",
+      "lore": [
+        "<gray>Passive: Mob drops go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped loot</gray>"
+      ]
     },
     "invisibility": {
-      "name": "隱形之步",
-      "description": "以飢餓為代價，當你受傷時給予隱身效果。",
-      "lore1": "受傷時自動給予隱身效果。",
-      "lore2": "x 隱身效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "隱身效果持續時間"
+      "name": "Vanishing Step",
+      "description": "When you are struck you gain invisibility, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Invisibility when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Invisibility stacks for 3 seconds on hit</gray>",
+        "<green>+ {2}</green> <gray>Invisibility duration</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<red>- {4}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
-    "jumpboost": {
-      "name": "狩獵者之巔",
-      "description": "以飢餓為代價，當受傷時給予跳躍提升效果。",
-      "lore1": "受傷時自動給予跳躍提升效果。",
-      "lore2": "x 跳躍提升效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "跳躍提升疊加倍數"
+    "jump_boost": {
+      "name": "Hunter's Heights",
+      "description": "When you are struck you gain jump-boost, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Jump-Boost when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Jump-Boost stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Jump-Boost stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "luck": {
-      "name": "狩獵者的祝福",
-      "description": "以飢餓為代價，當你受傷時給予幸運效果。",
-      "lore1": "受傷時自動給予幸運效果。",
-      "lore2": "x 幸運效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "幸運疊加倍數"
+      "name": "Hunter's Luck",
+      "description": "When you are struck you gain luck, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Luck when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Luck stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Luck stacks multiplier, not duration</gray>",
+        "<red>- {4}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "regen": {
-      "name": "狩獵者的再生",
-      "description": "以飢餓為代價，當你受傷時給予再生效果。",
-      "lore1": "受傷時自動給予再生效果。",
-      "lore2": "x 再生效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "再生疊加倍數"
+      "name": "Hunter's Regen",
+      "description": "When you are struck you gain regeneration, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Regeneration when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Regeneration stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Regeneration stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "resistance": {
-      "name": "狩獵者之盾",
-      "description": "以飢餓為代價，當你受傷時給予抗性提升效果。",
-      "lore1": "受傷時自動給予抗性提升效果。",
-      "lore2": "x3 抗性提升效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "抗性提升疊加倍數"
+      "name": "Hunter's Resistance",
+      "description": "When you are struck you gain resistance, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Resistance when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Resistance stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Resistance stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "speed": {
-      "name": "狩獵者之速",
-      "description": "以飢餓為代價，當你受傷時給予速度效果。",
-      "lore1": "受傷時自動給予速度效果。",
-      "lore2": "x 速度效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "抗性提升疊加倍數"
+      "name": "Hunter's Speed",
+      "description": "When you are struck you gain speed, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Speed when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Speed stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Speed stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
+    },
+    "jumpboost": {
+      "name": "Hunter's Jump Boost",
+      "description": "When you are struck you gain jump boost, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Jump Boost when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Jump Boost stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Jump Boost stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     },
     "strength": {
-      "name": "狩獵者之力",
-      "description": "以飢餓為代價，當你受傷時給予力量效果。",
-      "lore1": "受傷時自動給予力量效果。",
-      "lore2": "x 力量效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "力量疊加倍數"
+      "name": "Hunter's Strength",
+      "description": "When you are struck you gain strength, at the cost of hunger",
+      "lore": [
+        "<gray>Gain Strength when struck by enemies</gray>",
+        "<green>+ {0}</green> <gray>Strength stacks for 3 seconds on hit</gray>",
+        "<red>- {1}</red> <gray>Hunger cost per activation</gray>",
+        "<yellow>* </yellow><gray>Strength stacks multiplier, not duration</gray>",
+        "<red>- {2}</red> <gray>Poison stacks if you run out of hunger</gray>"
+      ]
     }
   },
   "nether": {
-    "skulltoss": {
-      "name": "凋零發射器",
-      "description1": "發射凋零的頭",
-      "description2": "展現內心中的",
-      "description3": "枯竭。",
-      "lore1": "秒發射冷卻時間。",
-      "lore2": "使用凋零頭顱發射器：",
-      "lore3": "手持凋零骷髏頭顱，並左鍵",
-      "lore4": "發射一顆凋零頭顱。遇到方塊或生物時自動爆炸。"
+    "skull_toss": {
+      "name": "Wither Skull Throw",
+      "description": "<gray>Unleash your inner Wither by using someone's head.</gray>",
+      "lore": [
+        "<gray>Right-click with a Wither Skull to throw it</gray>",
+        "<green>+ </green><gray>Wither skull explodes on impact</gray>",
+        "<yellow>* {0}</yellow> <gray>Cooldown between throws</gray>"
+      ]
     },
-    "witherresist": {
-      "name": "凋零抑制器",
-      "description": "通過下界合金的力量抑制凋零",
-      "lore1": "的機率避免凋零效果",
-      "lore2": "被動效果：穿著下界套裝有機率避免",
-      "lore3": "凋零效果。"
+    "wither_resist": {
+      "name": "Wither Resistance",
+      "description": "Resists withering through the power of Netherite.",
+      "lore": [
+        "<gray>Passive: Netherite Armor negates Wither effect</gray>",
+        "<green>+ {0}</green> <gray>Chance to negate withering per piece</gray>",
+        "<yellow>* </yellow><gray>Stacks with multiple armor pieces</gray>"
+      ]
     },
-    "fireresist": {
-      "name": "防火性能",
-      "description": "通過硬化皮膚來防火。",
-      "lore1": "有機會抵消燃燒效果！"
+    "fire_resist": {
+      "name": "Fire Resistance",
+      "description": "Resists fire by hardening your skin.",
+      "lore": [
+        "<gray>Passive: Chance to resist fire damage</gray>",
+        "<green>+ {0}</green> <gray>Chance to negate burning</gray>"
+      ]
     }
   },
   "pickaxe": {
-    "autosmelt": {
-      "name": "自動熔煉",
-      "description": "當你挖掘（曾經）需要冶煉的礦物",
-      "lore1": "時將自動熔煉成熔煉後的產物。",
-      "lore2": " 的機率獲得額外產物。"
+    "auto_smelt": {
+      "name": "Autosmelt",
+      "description": "Allows you to smelt mined Vanilla ores",
+      "lore": [
+        "<gray>Passive: Ores are automatically smelted when mined</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra drop</gray>"
+      ]
     },
     "chisel": {
-      "name": "破碎錘",
-      "description": "右鍵目標礦石，將有機率獲得額外產物。這可能會嚴重消耗耐久度。",
-      "lore1": "機率掉落額外產物",
-      "lore2": "耐久消耗"
+      "name": "Ore Chisel",
+      "description": "Right Click Ores to Chisel more ore out of them, at a severe durability cost.",
+      "lore": [
+        "<gray>Right-click ores to chisel extra resources</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra ore drop</gray>",
+        "<red>- {1}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "droptoinventory": {
-      "name": "快速進入背包",
-      "description": "當你擊殺生物/破壞某方塊，它的掉落物將會自動進入背包。",
-      "lore1": "如果允許，擊殺生物/破壞某方塊的掉落物將會自動進入背包。"
+    "drop_to_inventory": {
+      "name": "Pickaxe Drop-To-Inventory",
+      "description": "When you break a block it teleports the item into your inventory",
+      "lore": [
+        "<gray>Passive: Mined items go directly to inventory</gray>",
+        "<green>+ </green><gray>No more chasing dropped items</gray>"
+      ]
     },
-    "veinminer": {
-      "name": "連鎖挖礦",
-      "description": "允許你遇到原版礦物的礦脈時候連鎖挖礦。",
-      "lore1": "按住潛行鍵，並挖掘礦物",
-      "lore2": "來使用連鎖挖礦。",
-      "lore3": "此技能不會將掉落物合併在一起。"
+    "silk_spawner": {
+      "name": "Pickaxe Silk-Spawner",
+      "description": "Makes Spawners drop when broken",
+      "lore": {
+        "level_1": "<green>Makes Spawners breakable with silk touch.</green>",
+        "level_2": "<green>Makes Spawners breakable while sneaking.</green>"
+      }
+    },
+    "vein_miner": {
+      "name": "Veinminer",
+      "description": "Allows you to break blocks in a Vein/Cluster of Vanilla ores",
+      "lore": [
+        "<gray>Sneak + Mine to vein-mine connected ores</gray>",
+        "<green>+ {0}</green> <gray>Block range</gray>",
+        "<yellow>* </yellow><gray>Drops are not grouped together</gray>"
+      ]
     }
   },
   "ranged": {
-    "arrowrecovery": {
-      "name": "箭矢回收站",
-      "description": "當你擊殺目標後有機率回收箭矢。",
-      "lore1": "機率在擊殺生物時回收箭矢",
-      "lore2": "機會："
+    "arrow_recovery": {
+      "name": "Arrow Recovery",
+      "description": "Recover Arrows after you have killed an enemy.",
+      "lore": [
+        "<gray>Chance to recover arrows on hit</gray>",
+        "<green>+ {0}</green> <gray>Recovery chance</gray>"
+      ]
     },
-    "webshot": {
-      "name": "網絡圈套",
-      "description": "當你擊中目標時，將蜘蛛網包圍在你的目標周圍！",
-      "lore1": "雪球周圍有 8 個蜘蛛網，然後扔！",
-      "lore2": "籠子裡的秒數，大約。"
+    "web_shot": {
+      "name": "Web Snare",
+      "description": "Surround cobwebs around your target when you hit them!",
+      "lore": [
+        "<gray>Craft: 8 Cobwebs around a Snowball</gray>",
+        "<green>+ {0}</green> <gray>Web cage duration</gray>",
+        "<yellow>* </yellow><gray>Throw the crafted snowball to create a web trap</gray>"
+      ]
     },
-    "forceshot": {
-      "name": "暴力投擲",
-      "description": "射出的投擲物又快又遠！",
-      "advancementname": "遠距離射擊",
-      "advancementlore": "投擲物可以在超過30格方塊外著陸",
-      "lore1": "射擊速度"
+    "force_shot": {
+      "name": "Force Shot",
+      "description": "Shoot projectiles further, faster!",
+      "advancement_name": "Long Shot",
+      "advancement_lore": "Land a shot from over 30 blocks away!",
+      "lore": [
+        "<green>+ {0}</green> <gray>Projectile Speed</gray>"
+      ]
     },
-    "lungeshot": {
-      "name": "弓步射擊",
-      "description": "當你射出的箭矢落下後將你隨機擲出一個方向",
-      "lore1": "隨機爆發速度"
+    "lunge_shot": {
+      "name": "Lunge Shot",
+      "description": "While falling your arrows toss you in a random direction",
+      "lore": [
+        "<green>+ {0}</green> <gray>Random Burst Speed</gray>"
+      ]
     },
-    "arrowpiercing": {
-      "name": "精準穿透",
-      "description": "提升投擲物或箭矢的穿透力，甚至可以穿透物體。",
-      "lore1": "可穿透目標"
+    "arrow_piercing": {
+      "name": "Arrow Piercing",
+      "description": "Adds Piercing to projectiles! Shoot through things!",
+      "lore": [
+        "<green>+ {0}</green> <gray>Pierce Targets</gray>"
+      ]
     }
   },
   "rift": {
-    "remoteaccess": {
-      "name": "遠程訪問權限",
-      "description": "來自虛空之中，可以訪問被標記的容器。",
-      "lore1": "終界珍珠 + 指南針 = 亞空間之鑰",
-      "lore2": "這個物品允許你遠程訪問被標記的容器。",
-      "lore3": "製作完成後，查看物品來使用該技能",
-      "notcontainer": "這個物品不是可用的容器"
+    "remote_access": {
+      "name": "Remote Access",
+      "description": "Pull from the void, and get into a marked container.",
+      "not_container": "<red>That's not a container</red>",
+      "lore": [
+        "<gray>Craft: Enderpearl + Compass = Reliquary Portkey</gray>",
+        "<green>+ </green><gray>Access containers remotely</gray>",
+        "<yellow>* </yellow><gray>Shift + Left-click to bind, Right-click to access</gray>"
+      ]
     },
     "blink": {
-      "name": "裂痕閃爍",
-      "description": "眨個眼的功夫，短距離即可瞬間傳送",
-      "lore1": "格方塊（傳送距離）",
-      "lore2": "當疾跑時：跳躍兩次以",
-      "lore3": "傳送"
+      "name": "Rift Blink",
+      "description": "Short ranged instant teleportation, Just a blink away!",
+      "lore": [
+        "<gray>While Sprinting: Double-tap Jump to Blink</gray>",
+        "<green>+ {0}</green> <gray>Horizontal blink distance</gray>",
+        "<green>+ {1}</green> <gray>Vertical blink distance</gray>"
+      ]
     },
     "chest": {
-      "name": "攜帶式終界箱",
-      "description": "手持終界箱",
-      "lore1": "左鍵點擊以快速打開終界箱（無需放置）"
+      "name": "Easy Enderchest",
+      "description": "Open an enderchest by Left-clicking it in your hand.",
+      "lore": [
+        "<gray>Left-click with Enderchest in hand to open</gray>",
+        "<green>+ </green><gray>Portable Enderchest access</gray>",
+        "<yellow>* </yellow><gray>Don't place it, just click!</gray>"
+      ]
     },
     "descent": {
-      "name": "反懸浮",
-      "description": "你厭倦了被困在空中嗎？這就是適合你的技能！",
-      "lore1": "只要潛行下降，你就會以低於正常的速度下降！",
-      "lore2": "冷卻："
+      "name": "Anti-Levitation",
+      "description": "Are you tired of being stuck in the air? This is the skill for you!",
+      "lore": [
+        "<gray>Sneak while levitating to descend slowly</gray>",
+        "<green>+ </green><gray>Controlled descent speed</gray>",
+        "<yellow>* {0}</yellow> <gray>Cooldown</gray>"
+      ]
     },
     "gate": {
-      "name": "裂痕之門",
-      "description": "傳送到標記位置",
-      "lore1": "製作：終界珍珠 + 紫水晶碎片 + 綠寶石",
-      "lore2": "請注意：",
-      "lore3": "有五秒延遲，",
-      "lore4": "在進行五秒延遲等待時，你可以在動畫中死亡。"
+      "name": "Rift Gate",
+      "description": "Teleport to a marked location.",
+      "lore": [
+        "<gray>Craft: Emerald + Amethyst Shard + Ender Pearl</gray>",
+        "<green>+ </green><gray>Teleport to marked location</gray>",
+        "<yellow>* {0}</yellow> <gray>Channeling delay</gray>",
+        "<red>- </red><gray>You can die during the animation</gray>"
+      ]
     },
     "resist": {
-      "name": "裂痕抗性",
-      "description": "當使用終界物品或技能時，給予抗性提升",
-      "lore1": "+ 被動效果：當你使用終界物品或技能時，給予抗性提升效果。",
-      "lore2": "不包含攜帶式終界箱。只對實際消耗的物品有效。"
+      "name": "Rift Resistance",
+      "description": "Gain Resistance when using Ender Items & Abilities",
+      "lore": [
+        "<gray>Passive: Gain Resistance when using Rift abilities or Ender items</gray>",
+        "<green>+ </green><gray>Resistance effect on Ender item use</gray>",
+        "<red>- </red><gray>Does not work with Portable Enderchest</gray>"
+      ]
+    },
+    "visage": {
+      "name": "Rift Visage",
+      "description": "Prevents Endermen from becoming aggressive if you have Enderpearls in your inventory.",
+      "lore": [
+        "<gray>Passive: Endermen ignore you when you carry Enderpearls</gray>",
+        "<green>+ </green><gray>Endermen will not become aggressive</gray>",
+        "<yellow>* </yellow><gray>Requires Enderpearls in inventory</gray>"
+      ]
     }
   },
   "seaborn": {
     "oxygen": {
-      "name": "有機氧氣罐",
-      "description": "小肺終於能容納更多的氧氣了。",
-      "lore1": "氧氣容量增加"
+      "name": "Organic Oxygen Tank",
+      "description": "Hold more oxygen in your tiny lungs!",
+      "lore": [
+        "<gray>Passive: Extended breath underwater</gray>",
+        "<green>+ {0}</green> <gray>Extra oxygen capacity</gray>"
+      ]
     },
-    "fishersfantasy": {
-      "name": "與魚同樂",
-      "description": "從釣魚中獲得更多經驗，以及更多的魚！",
-      "lore1": "每級都有機率獲得更多的經驗和魚"
+    "fishers_fantasy": {
+      "name": "Fisher's Fantasy",
+      "description": "Earn more XP from fishing, and get more fish!",
+      "lore": [
+        "<gray>Passive: Bonus rewards while fishing</gray>",
+        "<green>+ {0}</green> <gray>Chance for extra XP</gray>",
+        "<green>+ {1}</green> <gray>Chance for extra fish</gray>"
+      ]
     },
     "haste": {
-      "name": "海龜礦工",
-      "description": "在水下挖掘時獲得挖掘加速效果！",
-      "lore1": "當水下呼吸效果消失時，在水下挖掘時將獲得挖掘加速效果（可與水下挖掘效果疊加）。"
+      "name": "Turtle Miner",
+      "description": "While mining underwater you gain haste!",
+      "lore": [
+        "<gray>Passive: Gain Haste while mining underwater</gray>",
+        "<green>+ {0}</green> <gray>Haste level while mining</gray>",
+        "<yellow>* </yellow><gray>Stacks with Aqua Affinity</gray>",
+        "<yellow>* </yellow><gray>Activates after Water Breathing wears off</gray>"
+      ]
     },
-    "nightvision": {
-      "name": "海龜夜視\n",
-      "description": "當你在水下時給予夜視效果！",
-      "lore1": "當水下呼吸效果消失時，在水下時將給予夜視效果！"
+    "night_vision": {
+      "name": "Turtle's Vision",
+      "description": "While underwater, you gain Night Vision",
+      "lore": [
+        "<gray>Passive: Gain Night Vision while underwater</gray>",
+        "<green>+ </green><gray>Night Vision effect</gray>",
+        "<yellow>* </yellow><gray>Activates after Water Breathing wears off</gray>"
+      ]
     },
-    "dolphingrace": {
-      "name": "海豚的祝福",
-      "description": "無需海豚相伴也能快速遊動了。",
-      "lore1": "+ 被動技能：給予 ",
-      "lore2": "x 在水中速度 (海豚的恩惠效果)",
-      "lore3": "精準的德國工程師- 等等，這好像不對..."
+    "dolphin_grace": {
+      "name": "Dolphin's Grace",
+      "description": "Swim like a dolphin, without the dolphins",
+      "lore": [
+        "<gray>Passive: Gain Dolphin's Grace while underwater</gray>",
+        "<green>+ {0}</green> <gray>Swimming speed</gray>",
+        "<red>- </red><gray>Not compatible with Depth Strider</gray>"
+      ]
     }
   },
   "stealth": {
-    "ghostarmor": {
-      "name": "幽靈戰甲",
-      "description": "潛行時緩慢的構建幽靈戰甲- 受傷後清空",
-      "lore1": "最大護甲值",
-      "lore2": "構建時間"
+    "ghost_armor": {
+      "name": "Ghost's Armor",
+      "description": "Slow building armor when not taking damage, Lasts for 1 hit",
+      "lore": [
+        "<gray>Passive: Build armor over time when not hit</gray>",
+        "<green>+ {0}</green> <gray>Maximum armor</gray>",
+        "<green>+ {1}</green> <gray>Armor gained per tick</gray>",
+        "<yellow>* </yellow><gray>Armor resets after taking damage</gray>"
+      ]
     },
-    "nightvision": {
-      "name": "鷹眼",
-      "description": "當潛行時給予夜視效果",
-      "lore1": "當保持潛行狀態時",
-      "lore2": "給予",
-      "lore3": "夜視效果"
+    "night_vision": {
+      "name": "Stealth Vision",
+      "description": "Gain night vision while sneaking",
+      "lore": [
+        "<gray>Sneak to activate Night Vision</gray>",
+        "<green>+ </green><gray>Night Vision while sneaking</gray>"
+      ]
     },
     "snatch": {
-      "name": "物品奪取",
-      "description": "潛行時立即奪取半徑內的掉落物",
-      "lore1": "奪取半徑"
+      "name": "Item Snatch",
+      "description": "Snatch Dropped items instantly while sneaking!",
+      "lore": [
+        "<gray>Sneak to pick up nearby items instantly</gray>",
+        "<green>+ {0}</green> <gray>Block pickup radius</gray>"
+      ]
     },
     "speed": {
-      "name": "潛行加速",
-      "description": "當潛行時給予速度效果",
-      "lore1": "潛行速度"
+      "name": "Sneak Speed",
+      "description": "Gain speed while sneaking",
+      "lore": [
+        "<gray>Passive: Move faster while sneaking</gray>",
+        "<green>+ {0}</green> <gray>Sneaking speed multiplier</gray>"
+      ]
+    },
+    "ender_veil": {
+      "name": "Enderveil",
+      "description": "No more Pumpkins to prevent Enderman attacks",
+      "lore": {
+        "level_1": "<gray>Prevent enderman attacks while sneaking</gray>",
+        "level_2": "<gray>Prevent all enderman attacks</gray>"
+      }
     }
   },
   "sword": {
     "machete": {
-      "name": "彎刀",
-      "description": "讓劍斬開樹葉。",
-      "lore1": "有效範圍半徑",
-      "lore2": "斬擊冷卻",
-      "lore3": "耐久消耗"
+      "name": "Machete",
+      "description": "Cut through foliage with ease!",
+      "lore": [
+        "<gray>Swing sword to cut nearby plants</gray>",
+        "<green>+ {0}</green> <gray>Slash radius</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between slashes</gray>",
+        "<red>- {2}</red> <gray>Tool durability per use</gray>"
+      ]
     },
-    "bloodyblade": {
-      "name": "血液之刃",
-      "description": "用劍斬擊，持續流血！",
-      "lore1": "使用劍斬擊生物時使其流失生命值",
-      "lore2": "流失持續時間",
-      "lore3": "冷卻"
+    "bloody_blade": {
+      "name": "Bloody Blade",
+      "description": "Strikes with your sword, cause Bleeding!",
+      "lore": [
+        "<gray>Sword strikes cause bleeding damage over time</gray>",
+        "<green>+ {0}</green> <gray>Bleed duration</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between bleeds</gray>"
+      ]
     },
-    "poisonedblade": {
-      "name": "淬毒匕首",
-      "description": "用劍斬擊，給予劇毒效果！",
-      "lore1": "使用劍斬擊生物時給予劇毒效果",
-      "lore2": "效果持續時間",
-      "lore3": "冷卻"
+    "poisoned_blade": {
+      "name": "Poisoned Blade",
+      "description": "Strikes with your sword, cause Poison!",
+      "lore": [
+        "<gray>Sword strikes apply poison to enemies</gray>",
+        "<green>+ {0}</green> <gray>Poison duration</gray>",
+        "<yellow>* {1}</yellow> <gray>Cooldown between poisons</gray>"
+      ]
     }
   },
   "taming": {
     "damage": {
-      "name": "馴化傷害",
-      "description": "提高你馴養的生物的傷害",
-      "lore1": "傷害增長"
+      "name": "Tame Damage",
+      "description": "Increase your tamed animal damage dealt.",
+      "lore": [
+        "<gray>Passive: Your tamed animals deal more damage</gray>",
+        "<green>+ {0}</green> <gray>Bonus damage for pets</gray>"
+      ]
     },
     "health": {
-      "name": "馴化生命",
-      "description": "提高你馴養的生物的生命值",
-      "lore1": "生命增長"
+      "name": "Tame Health",
+      "description": "Increase your tamed animal health.",
+      "lore": [
+        "<gray>Passive: Your tamed animals have more health</gray>",
+        "<green>+ {0}</green> <gray>Max health for pets</gray>"
+      ]
     },
     "regeneration": {
-      "name": "馴化再生",
-      "description": "提高你馴養的生物的再生效果",
-      "lore1": "生命/秒"
+      "name": "Tame Regeneration",
+      "description": "Increase your tamed animal regeneration.",
+      "lore": [
+        "<gray>Passive: Your tamed animals regenerate health</gray>",
+        "<green>+ {0}</green> <gray>HP per second for pets</gray>"
+      ]
     }
   },
   "tragoul": {
     "thorns": {
-      "name": "荊棘",
-      "description": "受傷時將傷害返回給攻擊者！",
-      "lore1": "傷害返回倍數"
+      "name": "Thorns",
+      "description": "Reflect damage back to your attacker!",
+      "lore": [
+        "<gray>Passive: Reflect damage when hit</gray>",
+        "<green>+ {0}</green> <gray>Damage reflected to attacker</gray>"
+      ]
     },
     "globe": {
-      "name": "痛苦之球",
-      "description": "根據周圍敵人的數量劃分你造成的傷害！",
-      "lore1": "你周圍的敵人越多，你對他們造成的傷害就越少",
-      "lore2": "範圍：",
-      "lore3": "對所有實體增加傷害："
+      "name": "Globe of Pain",
+      "description": "Divide the Damage you deal based on the number of enemies around you!",
+      "lore": [
+        "<gray>Damage is split among nearby enemies</gray>",
+        "<green>+ {0}</green> <gray>Block radius</gray>",
+        "<green>+ {1}</green> <gray>Bonus damage to all entities in range</gray>"
+      ]
     },
     "healing": {
-      "name": "痛苦意志",
-      "description": "根據你造成的傷害恢復健康！",
-      "lore1": "傷害事物的感覺從未如此美好！治愈所造成的傷害",
-      "lore2": "有 3 秒的傷害窗口用於治療和 1 秒的冷卻時間",
-      "lore3": "每傷害百分比治療："
+      "name": "Will of Pain",
+      "description": "Regain health based on the damage you deal!",
+      "lore": [
+        "<gray>Heal from the damage you deal to enemies</gray>",
+        "<green>+ {0}</green> <gray>Healing per damage dealt</gray>",
+        "<yellow>* {1}</yellow> <gray>Damage window for healing</gray>",
+        "<yellow>* {2}</yellow> <gray>Cooldown between heals</gray>"
+      ]
     },
     "lance": {
-      "name": "屍矛",
-      "description": "殺死敵人或擁有殺死敵人的能力，會產生一把長矛，對附近的敵人造成傷害！",
-      "lore1": "長矛會從你殺死的任何東西中尋找，並且如果該能力殺死了敵人。",
-      "lore2": "犧牲你生命的一部分來製造長矛（這會殺死你）",
-      "lore3": "最大槍數：1 +"
+      "name": "Corpse Lances",
+      "description": "Killing an enemy or having an ability kill an enemy, spawns a lance that deals damage to a nearby enemy!",
+      "lore": [
+        "<gray>Kills spawn lances that seek nearby enemies</gray>",
+        "<green>+ {0}</green> <gray>Maximum lances</gray>",
+        "<red>- {1}%</red> <gray>Health cost per lance (can kill you!)</gray>",
+        "<yellow>* </yellow><gray>Lances chain from ability kills too</gray>"
+      ]
     }
   },
   "unarmed": {
-    "glasscannon": {
-      "name": "玻璃大炮",
-      "description": "你的護甲值越低，空手造成的傷害越高",
-      "lore1": "x 傷害（至0護甲值）",
-      "lore2": "每級造成的額外傷害"
+    "glass_cannon": {
+      "name": "Glass Cannon",
+      "description": "Bonus Unarmed Damage the lower your armor value is",
+      "lore": [
+        "<gray>Less armor = More damage</gray>",
+        "<green>+ {0}</green> <gray>Damage multiplier at 0 armor</gray>",
+        "<green>+ {1}</green> <gray>Bonus damage per level</gray>"
+      ]
     },
     "power": {
-      "name": "鋼鐵之力",
-      "description": "提升空手造成的傷害",
-      "lore1": "傷害"
+      "name": "Unarmed Power",
+      "description": "Improved Unarmed Damage",
+      "lore": [
+        "<gray>Passive: Increased fist damage</gray>",
+        "<green>+ {0}</green> <gray>Bonus damage</gray>"
+      ]
     },
-    "suckerpunch": {
-      "name": "殺客同萌",
-      "description": "疾跑時可以攻擊，將更加致命",
-      "lore1": "傷害",
-      "lore2": "攻擊時傷害隨移動速度增加"
+    "sucker_punch": {
+      "name": "Sucker Punch",
+      "description": "Sprint punches, but more deadly.",
+      "lore": [
+        "<gray>Sprint to deal extra punch damage</gray>",
+        "<green>+ {0}</green> <gray>Base bonus damage</gray>",
+        "<yellow>* </yellow><gray>Damage scales with movement speed</gray>"
+      ]
     }
   }
 }

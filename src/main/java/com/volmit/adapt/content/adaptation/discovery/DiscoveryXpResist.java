@@ -37,8 +37,8 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     public DiscoveryXpResist() {
         super("discovery-xp-resist");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("discovery", "resist", "description"));
-        setDisplayName(Localizer.dLocalize("discovery", "resist", "name"));
+        setDescription(Localizer.dLocalize("discovery.resist.description"));
+        setDisplayName(Localizer.dLocalize("discovery.resist.name"));
         setIcon(Material.EMERALD);
         setInterval(5215);
         setBaseCost(getConfig().baseCost);
@@ -51,9 +51,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("discovery", "resist", "lore0"));
-        v.addLore(C.GREEN + "+ " + Form.pc(getEffectiveness(getLevelPercent(level)), 0) + C.GRAY + Localizer.dLocalize("discovery", "resist", "lore1"));
-        v.addLore(C.GREEN + "+ " + getXpTaken(level) + " " + C.GRAY + Localizer.dLocalize("discovery", "resist", "lore2"));
+        v.addLore(Localizer.dLocalize("discovery.resist.lore", Form.pc(getEffectiveness(getLevelPercent(level)), 0), getXpTaken(level), Form.duration(15000, 0)));
     }
 
     private double getEffectiveness(double factor) {

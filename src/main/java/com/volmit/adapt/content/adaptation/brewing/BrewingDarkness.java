@@ -21,8 +21,8 @@ package com.volmit.adapt.content.adaptation.brewing;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.potion.PotionBuilder;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
@@ -35,8 +35,8 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
     public BrewingDarkness() {
         super("brewing-darkness");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "darkness", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "darkness", "name"));
+        setDescription(Localizer.dLocalize("brewing.darkness.description"));
+        setDisplayName(Localizer.dLocalize("brewing.darkness.name"));
         setIcon(Material.BLACK_CONCRETE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -59,8 +59,7 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "darkness", "lore1"));
-        v.addLore(C.GRAY + "- " + Localizer.dLocalize("brewing", "darkness", "lore2"));
+        v.addLore(Localizer.dLocalize("brewing.darkness.lore", Form.duration(600 * 50, 0)));
     }
 
 

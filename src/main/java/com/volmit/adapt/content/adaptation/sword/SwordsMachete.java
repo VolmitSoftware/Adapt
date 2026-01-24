@@ -44,8 +44,8 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     public SwordsMachete() {
         super("sword-machete");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("sword", "machete", "description"));
-        setDisplayName(Localizer.dLocalize("sword", "machete", "name"));
+        setDescription(Localizer.dLocalize("sword.machete.description"));
+        setDisplayName(Localizer.dLocalize("sword.machete.name"));
         setIcon(Material.IRON_SWORD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -56,9 +56,10 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getRadius(level) + C.GRAY + " " + Localizer.dLocalize("sword", "machete", "lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1) + C.GRAY + " " + Localizer.dLocalize("sword", "machete", "lore2"));
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Localizer.dLocalize("sword", "machete", "lore3"));
+        v.addLore(Localizer.dLocalize("sword.machete.lore",
+                getRadius(level),
+                Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1),
+                getDamagePerBlock(getLevelPercent(level))));
     }
 
     public double getRadius(int level) {

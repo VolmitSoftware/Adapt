@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
@@ -36,8 +35,8 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     public SeaborneSpeed() {
         super("seaborne-speed");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("seaborn", "dolphingrace", "description"));
-        setDisplayName(Localizer.dLocalize("seaborn", "dolphingrace", "name"));
+        setDescription(Localizer.dLocalize("seaborn.dolphin_grace.description"));
+        setDisplayName(Localizer.dLocalize("seaborn.dolphin_grace.name"));
         setIcon(Material.TRIDENT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -48,8 +47,7 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("seaborn", "dolphingrace", "lore1") + C.GREEN + (level) + C.GRAY + Localizer.dLocalize("seaborn", "dolphingrace", "lore2"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("seaborn", "dolphingrace", "lore3"));
+        v.addLore(Localizer.dLocalize("seaborn.dolphin_grace.lore", level));
     }
 
     @Override

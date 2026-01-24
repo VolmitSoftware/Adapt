@@ -22,7 +22,6 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.adaptation.sword.effects.DamagingBleedEffect;
 import com.volmit.adapt.content.item.ItemListings;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
@@ -45,8 +44,8 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
     public SwordsBloodyBlade() {
         super("sword-bloody-blade");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("sword", "bloodyblade", "description"));
-        setDisplayName(Localizer.dLocalize("sword", "bloodyblade", "name"));
+        setDescription(Localizer.dLocalize("sword.bloody_blade.description"));
+        setDisplayName(Localizer.dLocalize("sword.bloody_blade.name"));
         setIcon(Material.RED_DYE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -58,9 +57,9 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + " " + Localizer.dLocalize("sword", "bloodyblade", "lore1"));
-        v.addLore(C.YELLOW + "* " + Form.duration(getDurationOfEffect(level), 1) + C.GRAY + " " + Localizer.dLocalize("sword", "bloodyblade", "lore2"));
-        v.addLore(C.RED + "* " + Form.duration(getCooldown(level), 1) + C.GRAY + " " + Localizer.dLocalize("sword", "bloodyblade", "lore3"));
+        v.addLore(Localizer.dLocalize("sword.bloody_blade.lore",
+                Form.duration(getDurationOfEffect(level), 1),
+                Form.duration(getCooldown(level), 1)));
     }
 
     public long getCooldown(int level) {

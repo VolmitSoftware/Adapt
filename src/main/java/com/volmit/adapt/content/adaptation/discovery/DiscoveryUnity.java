@@ -22,7 +22,10 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerSkillLine;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -39,8 +42,8 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     public DiscoveryUnity() {
         super("discovery-unity");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("discovery", "unity", "description"));
-        setDisplayName(Localizer.dLocalize("discovery", "unity", "name"));
+        setDescription(Localizer.dLocalize("discovery.unity.description"));
+        setDisplayName(Localizer.dLocalize("discovery.unity.name"));
         setIcon(Material.REDSTONE);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
@@ -51,7 +54,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getXPGained(getLevelPercent(level), 1), 0) + " " + Localizer.dLocalize("discovery", "unity", "lore1") + C.GRAY + " " + Localizer.dLocalize("discovery", "unity", "lore2"));
+        v.addLore(Localizer.dLocalize("discovery.unity.lore", Form.f(getXPGained(getLevelPercent(level), 1), 0)));
     }
 
     //Give random XP to the player when they gain XP!

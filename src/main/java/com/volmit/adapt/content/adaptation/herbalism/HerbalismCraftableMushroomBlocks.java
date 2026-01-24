@@ -21,7 +21,6 @@ package com.volmit.adapt.content.adaptation.herbalism;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
@@ -35,8 +34,8 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
     public HerbalismCraftableMushroomBlocks() {
         super("herbalism-mushroom-blocks");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("herbalism", "mushroomblocks", "description"));
-        setDisplayName(Localizer.dLocalize("herbalism", "mushroomblocks", "name"));
+        setDescription(Localizer.dLocalize("herbalism.mushroom_blocks.description"));
+        setDisplayName(Localizer.dLocalize("herbalism.mushroom_blocks.name"));
         setIcon(Material.CRIMSON_FUNGUS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -74,7 +73,7 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism", "mushroomblocks", "lore1"));
+        v.addLore(Localizer.dLocalize("herbalism.mushroom_blocks.lore"));
     }
 
 

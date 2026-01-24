@@ -40,11 +40,11 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillSwords() {
-        super("swords", Localizer.dLocalize("skill", "swords", "icon"));
+        super("swords", Localizer.dLocalize("skill.swords.icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription(Localizer.dLocalize("skill", "swords", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "swords", "name"));
+        setDescription(Localizer.dLocalize("skill.swords.description"));
+        setDisplayName(Localizer.dLocalize("skill.swords.name"));
         setInterval(2150);
         setIcon(Material.DIAMOND_SWORD);
         cooldowns = new HashMap<>();

@@ -26,6 +26,8 @@ import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Painting;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -42,9 +44,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.bukkit.entity.ItemFrame;
-import org.bukkit.entity.Painting;
-
 public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Config> {
     private static final BlockData AIR = Material.AIR.createBlockData();
     private static final BlockData BLOCK = Material.TINTED_GLASS.createBlockData();
@@ -56,8 +55,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     public ArchitectFoundation() {
         super("architect-foundation");
         registerConfiguration(ArchitectFoundation.Config.class);
-        setDescription(Localizer.dLocalize("architect", "foundation", "description"));
-        setDisplayName(Localizer.dLocalize("architect", "foundation", "name"));
+        setDescription(Localizer.dLocalize("architect.foundation.description"));
+        setDisplayName(Localizer.dLocalize("architect.foundation.name"));
         setIcon(Material.TINTED_GLASS);
         setInterval(988);
         setBaseCost(getConfig().baseCost);
@@ -72,9 +71,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("architect", "foundation", "lore1")
-                + (getBlockPower(getLevelPercent(level))) + C.GRAY + " "
-                + Localizer.dLocalize("architect", "foundation", "lore2"));
+        v.addLore(Localizer.dLocalize("architect.foundation.lore", Form.f(getBlockPower(getLevelPercent(level)), 0)));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -214,7 +211,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             return false;
         }
 
-        if(!block.getWorld()
+        if (!block.getWorld()
                 .getNearbyEntities(block.getLocation()
                         .add(.5, .5, .5), .5, .5, .5, entity ->
                         entity instanceof ItemFrame || entity instanceof Painting).isEmpty())

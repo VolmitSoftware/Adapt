@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
@@ -35,8 +34,8 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
     public SeaborneTurtlesVision() {
         super("seaborne-turtles-vision");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("seaborn", "nightvision", "description"));
-        setDisplayName(Localizer.dLocalize("seaborn", "nightvision", "name"));
+        setDescription(Localizer.dLocalize("seaborn.night_vision.description"));
+        setDisplayName(Localizer.dLocalize("seaborn.night_vision.name"));
         setIcon(Material.DIAMOND_HORSE_ARMOR);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -47,7 +46,7 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("seaborn", "nightvision", "lore1"));
+        v.addLore(Localizer.dLocalize("seaborn.night_vision.lore"));
     }
 
 

@@ -21,7 +21,6 @@ package com.volmit.adapt.content.adaptation.brewing;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.potion.PotionBuilder;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.reflect.registries.PotionTypes;
@@ -35,8 +34,8 @@ public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Conf
     public BrewingHealthBoost() {
         super("brewing-healthboost");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "healthboost", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "healthboost", "name"));
+        setDescription(Localizer.dLocalize("brewing.health_boost.description"));
+        setDisplayName(Localizer.dLocalize("brewing.health_boost.name"));
         setIcon(Material.ENCHANTED_GOLDEN_APPLE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -71,8 +70,7 @@ public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "healthboost", "lore1"));
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "healthboost", "lore2"));
+        v.addLore(Localizer.dLocalize("brewing.health_boost.lore"));
     }
 
 

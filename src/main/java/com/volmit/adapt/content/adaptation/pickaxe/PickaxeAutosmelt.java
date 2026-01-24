@@ -22,8 +22,8 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.item.ItemListings;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
 import com.volmit.adapt.util.reflect.registries.Enchantments;
@@ -47,8 +47,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     public PickaxeAutosmelt() {
         super("pickaxe-autosmelt");
         registerConfiguration(PickaxeAutosmelt.Config.class);
-        setDescription(Localizer.dLocalize("pickaxe", "autosmelt", "description"));
-        setDisplayName(Localizer.dLocalize("pickaxe", "autosmelt", "name"));
+        setDescription(Localizer.dLocalize("pickaxe.auto_smelt.description"));
+        setDisplayName(Localizer.dLocalize("pickaxe.auto_smelt.name"));
         setIcon(Material.RAW_GOLD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -141,13 +141,13 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     private static int getFortuneOreMultiplier(Integer fortuneLevel) {
         if (fortuneLevel == null || fortuneLevel < 1) return 1;
 
-        double averageBonusMultiplier = (1.0/(fortuneLevel+2) + (fortuneLevel+1)/2.0) - 1;
-        int sumOfBonusMultipliers = (fortuneLevel*(fortuneLevel+1))/2;
-        double chancePerMultiplier = averageBonusMultiplier/sumOfBonusMultipliers;
+        double averageBonusMultiplier = (1.0 / (fortuneLevel + 2) + (fortuneLevel + 1) / 2.0) - 1;
+        int sumOfBonusMultipliers = (fortuneLevel * (fortuneLevel + 1)) / 2;
+        double chancePerMultiplier = averageBonusMultiplier / sumOfBonusMultipliers;
 
-        int bonusMultiplier = ((int) (RANDOM.nextDouble()/chancePerMultiplier)) + 1;
+        int bonusMultiplier = ((int) (RANDOM.nextDouble() / chancePerMultiplier)) + 1;
 
-        return bonusMultiplier <= fortuneLevel ? bonusMultiplier+1 : 1;
+        return bonusMultiplier <= fortuneLevel ? bonusMultiplier + 1 : 1;
     }
 
     @Override
@@ -156,8 +156,7 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("pickaxe", "autosmelt", "lore1"));
-        v.addLore(C.GREEN + "" + (level * 1.25) + C.GRAY + Localizer.dLocalize("pickaxe", "autosmelt", "lore2"));
+        v.addLore(Localizer.dLocalize("pickaxe.auto_smelt.lore", Form.pc(level * 1.25, 0)));
     }
 
     @EventHandler(priority = EventPriority.HIGH)

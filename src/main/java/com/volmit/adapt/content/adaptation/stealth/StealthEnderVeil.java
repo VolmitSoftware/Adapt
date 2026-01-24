@@ -1,7 +1,6 @@
 package com.volmit.adapt.content.adaptation.stealth;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.reflect.events.api.ReflectiveHandler;
@@ -19,8 +18,8 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
     public StealthEnderVeil() {
         super("stealth-enderveil");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("stealth", "enderveil", "description"));
-        setDisplayName(Localizer.dLocalize("stealth", "enderveil", "name"));
+        setDescription(Localizer.dLocalize("stealth.ender_veil.description"));
+        setDisplayName(Localizer.dLocalize("stealth.ender_veil.name"));
         setIcon(Material.CARVED_PUMPKIN);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
@@ -41,7 +40,7 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("stealth", "enderveil",  "lore" + (level < 2 ? 1 : 2)));
+        v.addLore(Localizer.dLocalize("stealth.ender_veil.lore.level_" + (level < 2 ? 1 : 2)));
     }
 
     @Override

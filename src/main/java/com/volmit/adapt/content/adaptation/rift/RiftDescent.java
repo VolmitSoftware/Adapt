@@ -19,7 +19,10 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -39,8 +42,8 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
     public RiftDescent() {
         super("rift-descent");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("rift", "descent", "description"));
-        setDisplayName(Localizer.dLocalize("rift", "descent", "name"));
+        setDescription(Localizer.dLocalize("rift.descent.description"));
+        setDisplayName(Localizer.dLocalize("rift.descent.name"));
         setMaxLevel(1);
         setIcon(Material.SHULKER_BOX);
         setBaseCost(getConfig().baseCost);
@@ -51,8 +54,7 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.YELLOW + Localizer.dLocalize("rift", "descent", "lore1"));
-        v.addLore(C.GREEN + Localizer.dLocalize("rift", "descent", "lore2") + " " + C.WHITE + getConfig().cooldown + "s");
+        v.addLore(Localizer.dLocalize("rift.descent.lore", getConfig().cooldown));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

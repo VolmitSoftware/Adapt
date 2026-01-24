@@ -41,10 +41,10 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillRanged() {
-        super("ranged", Localizer.dLocalize("skill", "ranged", "icon"));
+        super("ranged", Localizer.dLocalize("skill.ranged.icon"));
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("skill", "ranged", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "ranged", "name"));
+        setDescription(Localizer.dLocalize("skill.ranged.description"));
+        setDisplayName(Localizer.dLocalize("skill.ranged.name"));
         setColor(C.DARK_GREEN);
         setInterval(3044);
         registerAdaptation(new RangedForce());

@@ -1,264 +1,264 @@
 {
   "advancement": {
     "challenge_move_1k": {
-      "title": "חייב לזוז!",
-      "description": "ללכת יותר מקילומטר אחד (1,000 בלוקים)"
+      "title": "動かなきゃ！",
+      "description": "1キロメートル（1,000ブロック）以上歩く"
     },
     "challenge_sprint_5k": {
-      "title": "ספרינט 5K!",
-      "description": "ללכת יותר מ-5 קילומטרים (5,000 בלוקים)"
+      "title": "5Kを全力疾走！",
+      "description": "5キロメートル（5,000ブロック）以上歩く"
     },
     "challenge_sprint_50k": {
-      "title": "זום ב-50K!",
-      "description": "ללכת יותר מ-50 קילומטרים (50,000 בלוקים)"
+      "title": "50Kをズーム！",
+      "description": "50キロメートル（50,000ブロック）以上歩く"
     },
     "challenge_sprint_500k": {
-      "title": "לחצות את היקום!!",
-      "description": "ללכת יותר מ-500 קילומטרים (500,000 בלוקים)"
+      "title": "宇宙を横断せよ!!",
+      "description": "500キロメートル（50万ブロック）以上歩く"
     },
     "challenge_sprint_marathon": {
-      "title": "ספרינט מרתון (תרתי משמע)!",
-      "description": "ספרינט מעל 42,195 בלוקים!"
+      "title": "文字通りのマラソンを全力疾走しましょう!",
+      "description": "42,195 ブロックを全力疾走!"
     },
     "challenge_place_1k": {
-      "title": "בונה מתחיל!",
-      "description": "מקום 1,000 בלוקים"
+      "title": "初心者ビルダー！",
+      "description": "ブロックを1,000個配置する"
     },
     "challenge_place_5k": {
-      "title": "בונה בינוני!",
-      "description": "מקום 5,000 בלוקים"
+      "title": "中級ビルダー！",
+      "description": "5,000個のブロックを配置する"
     },
     "challenge_place_50k": {
-      "title": "בונה מתקדם!",
-      "description": "מקום 50,000 בלוקים"
+      "title": "上級ビルダー！",
+      "description": "50,000個のブロックを配置する"
     },
     "challenge_place_500k": {
-      "title": "מאסטר בונה!",
-      "description": "מקום 500,000 בלוקים"
+      "title": "マスタービルダー！",
+      "description": "500,000個のブロックを配置する"
     },
     "challenge_place_5m": {
-      "title": "האקוליט של סימטריה!",
-      "description": "המציאות היא מגרש המשחקים שלך! (5 מיליון בלוקים)"
+      "title": "シンメトリーの侍者！",
+      "description": "現実はあなたの遊び場です! (500 万ブロック)"
     },
     "challenge_chop_1k": {
-      "title": "חוטב עצים מתחיל!",
-      "description": "מקום 1,000 בלוקים"
+      "title": "木こりの新米！",
+      "description": "1,000ブロックを切り刻む"
     },
     "challenge_chop_5k": {
-      "title": "חוטב עצים בינוני!",
-      "description": "מקום 5,000 בלוקים"
+      "title": "木こり中級者！",
+      "description": "5,000ブロックを切り刻む"
     },
     "challenge_chop_50k": {
-      "title": "חוטב עצים מתקדם!",
-      "description": "מקום 50,000 בלוקים"
+      "title": "木こり上級者！",
+      "description": "50,000ブロックを切り刻む"
     },
     "challenge_chop_500k": {
-      "title": "אדון חוטב עצים!",
-      "description": "מקום 500,000 בלוקים"
+      "title": "木こりの達人！",
+      "description": "500,000ブロックを切り刻む"
     },
     "challenge_chop_5m": {
-      "title": "ג'קסון הכלב",
-      "description": "הילד הטוב ביותר! (5 מיליון בלוקים)"
+      "title": "犬のジャクソン",
+      "description": "最高のいい子！（500万ブロック）"
     },
     "challenge_block_1k": {
-      "title": "בליל חוסם!",
-      "description": "Block 1000 Hits"
+      "title": "かろうじて防御！",
+      "description": "1000回の攻撃をブロック"
     },
     "challenge_block_5k": {
-      "title": "חסימה זה כיף!",
-      "description": "חסום 5000 כניסות"
+      "title": "防御は楽しい！",
+      "description": "5000回の攻撃を防御"
     },
     "challenge_block_50k": {
-      "title": "חסימה היא החיים שלי!",
-      "description": "חסום 50,000 כניסות"
+      "title": "防御こそ私の人生！",
+      "description": "50,000回の攻撃を防御"
     },
     "challenge_block_500k": {
-      "title": "חסימה היא המטרה שלי!",
-      "description": "חסום 500,000 צפיות"
+      "title": "防御こそ私の使命！",
+      "description": "500,000回の攻撃を防御"
     },
     "challenge_block_5m": {
-      "title": "היד הכואבת",
-      "description": "חסום 5,000,000 כניסות"
+      "title": "防御こそ私だ！",
+      "description": "5,000,000回の攻撃を防御"
     },
     "challenge_brew_1k": {
-      "title": "אלכימאי מתחיל!",
-      "description": "לצרוך 1000 שיקויים"
+      "title": "新米錬金術師！",
+      "description": "ポーションを1000個消費する"
     },
     "challenge_brew_5k": {
-      "title": "אלכימאי בינוני!",
-      "description": "לצרוך 5000 שיקויים"
+      "title": "中級錬金術師！",
+      "description": "ポーションを5000個消費する"
     },
     "challenge_brew_50k": {
-      "title": "אלכימאי מתקדם!",
-      "description": "לצרוך 50,000 שיקויים"
+      "title": "上級錬金術師！",
+      "description": "ポーションを50,000個消費する"
     },
     "challenge_brew_500k": {
-      "title": "אלכימאי מאסטר!",
-      "description": "לצרוך 500,000 שיקויים"
+      "title": "錬金術の達人！",
+      "description": "ポーションを500,000個消費する"
     },
     "challenge_brew_5m": {
-      "title": "האלכימאי",
-      "description": "לצרוך 5,000,000 שיקויים"
+      "title": "錬金術師",
+      "description": "ポーションを5,000,000個消費する"
     },
     "challenge_brewsplash_1k": {
-      "title": "שיקוי-מתיז מתחיל!",
-      "description": "השתמשו ב 1000 שיקויים"
+      "title": "初心者ポーション投げ師！",
+      "description": "1000スプラッシュポーションを投げる"
     },
     "challenge_brewsplash_5k": {
-      "title": "שיקוי-מתז ביניים!",
-      "description": "השתמשו ב 5000 שיקויים"
+      "title": "中級ポーション投げ師！",
+      "description": "5000スプラッシュポーションを投げる"
     },
     "challenge_brewsplash_50k": {
-      "title": "מתיז שיקויים מתקדם!",
-      "description": "השתמשו ב50,000 שיקויים"
+      "title": "上級ポーション投げ師！",
+      "description": "50,000スプラッシュポーションを投げる"
     },
     "challenge_brewsplash_500k": {
-      "title": "מאסטר ספלשר של שיקויים",
-      "description": "השתמשו ב500,000 שיקויים"
+      "title": "マスターポーション投げ師！",
+      "description": "500,000スプラッシュポーションを投げる"
     },
     "challenge_brewsplash_5m": {
-      "title": "הספלאש מייסטר",
-      "description": "השתמשו ב5,000,000 שיקויים"
+      "title": "スプラッシュマイスター",
+      "description": "5,000,000スプラッシュポーションを投げる"
     },
     "challenge_craft_1k": {
-      "title": "היוצר המלאכתי!",
-      "description": "יצירה של 1000 פריטים"
+      "title": "クラフトマン！",
+      "description": "1000個のアイテムを作成する"
     },
     "challenge_craft_5k": {
-      "title": "מלאכת נפש חצופה!",
-      "description": "יצירה של 5000 פריטים"
+      "title": "意地悪な職人！",
+      "description": "5000個のアイテムを作成する"
     },
     "challenge_craft_50k": {
-      "title": "קראפטר חכם",
-      "description": "יצירה של 50,000 פריטים"
+      "title": "卑屈な職人！",
+      "description": "50,000個のアイテムを作成"
     },
     "challenge_craft_500k": {
-      "title": "קראפטר מומחה",
-      "description": "יצירה של 500,000 פריטים"
+      "title": "カオス級の職人！",
+      "description": "500,000個のアイテムを作成"
     },
     "challenge_craft_5m": {
-      "title": "מיסטר קראפטר",
-      "description": "יצירה של 5,000,000 פריטים"
+      "title": "災難級の職人",
+      "description": "5,000,000個のアイテムを作成"
     },
     "challenge_enchant_1k": {
-      "title": "קוסם מתחיל!",
-      "description": "להקסים 1000 פריטים"
+      "title": "初心者エンチャンター！",
+      "description": "1000個のアイテムをエンチャントする"
     },
     "challenge_enchant_5k": {
-      "title": "קוסם בינוני!",
-      "description": "קסום 5000 פריטים"
+      "title": "中級エンチャンター！",
+      "description": "5000個のアイテムをエンチャントする"
     },
     "challenge_enchant_50k": {
-      "title": "קוסם מתקדם!",
-      "description": "להקסים 50,000 פריטים"
+      "title": "上級エンチャンター！",
+      "description": "50,000個のアイテムをエンチャントする"
     },
     "challenge_enchant_500k": {
-      "title": "מאסטר קוסם!",
-      "description": "לכשף 500,000 פריטים"
+      "title": "マスターエンチャンター！",
+      "description": "500,000個のアイテムをエンチャントする"
     },
     "challenge_enchant_5m": {
-      "title": "קוסם אניגמטי",
-      "description": "להקסים 5,000,000 פריטים"
+      "title": "謎のエンチャンター",
+      "description": "5,000,000個のアイテムをエンチャントする"
     },
     "challenge_excavate_1k": {
-      "title": "חופר מפתה!",
-      "description": "חפור 1000 בלוקים"
+      "title": "誘惑された掘削機！",
+      "description": "1000ブロックを発掘する"
     },
     "challenge_excavate_5k": {
-      "title": "חופר ביניים!",
-      "description": "חפור 5000 בלוקים"
+      "title": "中級掘削機！",
+      "description": "5000個のブロックを発掘する"
     },
     "challenge_excavate_50k": {
-      "title": "מחפר מתקדם!",
-      "description": "חפור 50,000 בלוקים"
+      "title": "先進的な掘削機！",
+      "description": "50,000個のブロックを発掘する"
     },
     "challenge_excavate_500k": {
-      "title": "מאסטר חופר!",
-      "description": "חפור 500,000 בלוקים"
+      "title": "マスター掘削機！",
+      "description": "500,000個のブロックを発掘する"
     },
     "challenge_excavate_5m": {
-      "title": "חופר אניגמטי",
-      "description": "חפרו 5,000,000 בלוקים"
+      "title": "謎の掘削機",
+      "description": "5,000,000個のブロックを発掘する"
     },
     "horrible_person": {
-      "title": "You're a Horrible Person",
-      "description": "Unfathomable, really"
+      "title": "あなたはひどい人だ",
+      "description": "本当に計り知れない"
     },
     "challenge_turtle_egg_smasher": {
-      "title": "Turtle Egg Smasher!",
-      "description": "Break 100 turtle eggs"
+      "title": "亀の卵を潰す！",
+      "description": "カメの卵を100個割る"
     },
     "challenge_turtle_egg_annihilator": {
-      "title": "Turtle Egg Annihilator!",
-      "description": "Break 500 turtle eggs"
+      "title": "タートルエッグアナイアレイター！",
+      "description": "カメの卵を500個割る"
     },
     "challenge_novice_hunter": {
-      "title": "Novice Hunter!",
-      "description": "Kill 100 entities"
+      "title": "初心者ハンター！",
+      "description": "100体のエンティティを倒す"
     },
     "challenge_intermediate_hunter": {
-      "title": "Intermediate Hunter!",
-      "description": "Kill 500 entities"
+      "title": "中級ハンター！",
+      "description": "500体のエンティティを倒す"
     },
     "challenge_advanced_hunter": {
-      "title": "Advanced Hunter!",
-      "description": "Kill 5000 entities"
+      "title": "上級ハンター！",
+      "description": "5000体のエンティティを倒す"
     },
     "challenge_creeper_conqueror": {
-      "title": "Creeper Conqueror!",
-      "description": "Kill 50 creepers"
+      "title": "クリーパー征服者！",
+      "description": "クリーパーを50体倒す"
     },
     "challenge_creeper_annihilator": {
-      "title": "Creeper Annihilator!",
-      "description": "Kill 200 creepers"
+      "title": "クリーパー全滅者！",
+      "description": "クリーパーを200体倒す"
     },
     "challenge_pickaxe_1k": {
-      "title": "Novice Miner",
-      "description": "Break 1000 Blocks"
+      "title": "初心者の鉱山掘り",
+      "description": "1000個のブロックを壊す"
     },
     "challenge_pickaxe_5k": {
-      "title": "Skilled Miner",
-      "description": "Break 5000 Blocks"
+      "title": "熟練の鉱山掘り",
+      "description": "5000ブロックを壊す"
     },
     "challenge_pickaxe_50k": {
-      "title": "Expert Miner",
-      "description": "Break 50,000 Blocks"
+      "title": "専門の鉱山掘り",
+      "description": "50,000ブロックを破壊"
     },
     "challenge_pickaxe_500k": {
-      "title": "Master Miner",
-      "description": "Break 500,000 Blocks"
+      "title": "マスター鉱山掘り",
+      "description": "500,000 ブロックを破壊"
     },
     "challenge_pickaxe_5m": {
-      "title": "Legendary Miner",
-      "description": "Break 5,000,000 Blocks"
+      "title": "伝説級鉱山掘り",
+      "description": "5,000,000 ブロックを破壊"
     },
     "challenge_eat_100": {
-      "title": "So much to eat!",
-      "description": "Eat over 100 Items!"
+      "title": "食べるものがたくさんあります！",
+      "description": "100品目以上を食べよう！"
     },
     "challenge_eat_1000": {
-      "title": "Unquenchable Hunger!",
-      "description": "Eat over 1,000 Items!"
+      "title": "抑えきれない空腹！",
+      "description": "1,000品目以上を食べ尽くせ！"
     },
     "challenge_eat_10000": {
-      "title": "EVERLASTING HUNGER!",
-      "description": "Eat over 10,000 Items!"
+      "title": "永遠の飢餓！",
+      "description": "10,000品目以上を食べよう！"
     },
     "challenge_harvest_100": {
-      "title": "Full Harvest",
-      "description": "Harvest over 100 crops!"
+      "title": "フルハーベスト",
+      "description": "100種類以上の作物を収穫しよう！"
     },
     "challenge_harvest_1000": {
-      "title": "Grand Harvest",
-      "description": "Harvest over 1,000 crops!"
+      "title": "グランドハーベスト",
+      "description": "1,000以上の作物を収穫しましょう！"
     },
     "challenge_swim_1nm": {
-      "title": "Human Submarine!",
-      "description": "Swim 1 Nautical Mile (1,852 blocks)"
+      "title": "人間潜水艦！",
+      "description": "1海里（1,852ブロック）泳ぐ"
     },
     "challenge_sneak_1k": {
-      "title": "Knee Pain",
-      "description": "Sneak over a kilometer (1,000 blocks)"
+      "title": "膝の痛み",
+      "description": "1キロメートル（1,000ブロック）をこっそり進む"
     }
   },
   "items": {

@@ -34,6 +34,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.io.File;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -309,9 +310,9 @@ public class AdaptPlayer extends TickedObject {
             if (!AdaptConfig.get().isWelcomeMessage())
                 return;
             getNot().queue(AdvancementNotification.builder()
-                    .title(first ? Localizer.dLocalize("snippets", "gui", "welcome") : Localizer.dLocalize("snippets", "gui", "welcomeback"))
-                    .description("+" + C.GREEN + Form.pc(boostAmount, 0) + C.GRAY + " " + Localizer.dLocalize("snippets", "gui", "xpbonusfortime") + " " + C.AQUA + Form.duration(boostTime, 0))
-                    .model(CustomModel.get(Material.DIAMOND, "snippets", "gui", first ? "welcome" : "welcomeback"))
+                    .title(first ? Localizer.dLocalize("snippets.gui.welcome") : Localizer.dLocalize("snippets.gui.welcome_back"))
+                    .description(Localizer.dLocalize("snippets.gui.xp_bonus_for_time", Form.pc(boostAmount, 0), Form.duration(boostTime, 0)))
+                    .model(CustomModel.get(Material.DIAMOND, "snippets", "gui", first ? "welcome" : "welcome_back"))
                     .build());
         }
     }

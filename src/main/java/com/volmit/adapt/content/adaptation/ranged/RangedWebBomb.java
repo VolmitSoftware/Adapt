@@ -23,7 +23,10 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
 import com.volmit.adapt.content.item.BoundSnowBall;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -56,8 +59,8 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     public RangedWebBomb() {
         super("ranged-webshot");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("ranged", "webshot", "description"));
-        setDisplayName(Localizer.dLocalize("ranged", "webshot", "name"));
+        setDescription(Localizer.dLocalize("ranged.web_shot.description"));
+        setDisplayName(Localizer.dLocalize("ranged.web_shot.name"));
         setIcon(Material.COBWEB);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -80,8 +83,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("ranged", "webshot", "lore1"));
-        v.addLore(C.YELLOW + "+ " + level + C.GRAY + " " + Localizer.dLocalize("ranged", "webshot", "lore2"));
+        v.addLore(Localizer.dLocalize("ranged.web_shot.lore", level));
     }
 
 

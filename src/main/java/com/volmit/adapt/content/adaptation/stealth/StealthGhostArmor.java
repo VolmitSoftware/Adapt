@@ -37,13 +37,13 @@ import java.util.UUID;
 
 public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-ghost-armor".getBytes());
-    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:ghost-armor");
+    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:ghost-armor");
 
     public StealthGhostArmor() {
         super("stealth-ghost-armor");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("stealth", "ghostarmor", "description"));
-        setDisplayName(Localizer.dLocalize("stealth", "ghostarmor", "name"));
+        setDescription(Localizer.dLocalize("stealth.ghost_armor.description"));
+        setDisplayName(Localizer.dLocalize("stealth.ghost_armor.name"));
         setIcon(Material.NETHERITE_CHESTPLATE);
         setInterval(5353);
         setBaseCost(getConfig().baseCost);
@@ -54,8 +54,9 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("stealth", "ghostarmor", "lore1"));
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + " " + Localizer.dLocalize("stealth", "ghostarmor", "lore2"));
+        v.addLore(Localizer.dLocalize("stealth.ghost_armor.lore",
+                Form.f(getMaxArmorPoints(getLevelPercent(level)), 0),
+                Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1)));
     }
 
     public double getMaxArmorPoints(double factor) {
@@ -76,11 +77,12 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
                 continue;
             }
             double oldArmor = attribute.getModifier(MODIFIER, MODIFIER_KEY)
-                            .stream()
-                            .mapToDouble(IAttribute.Modifier::getAmount)
-                            .filter(d -> !Double.isNaN(d))
-                            .max()
-                            .orElse(0);;
+                    .stream()
+                    .mapToDouble(IAttribute.Modifier::getAmount)
+                    .filter(d -> !Double.isNaN(d))
+                    .max()
+                    .orElse(0);
+            ;
             double armor = getMaxArmorPoints(getLevelPercent(p));
             armor = Double.isNaN(armor) ? 0 : armor;
 
@@ -100,7 +102,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
         if (e.getEntity() instanceof Player p && hasAdaptation(p) && !e.isCancelled() && e.getDamage() > 0) {
             // Check if 2.5 * e.getDamage() is greater than 10 if so just set it to 10 otherwise use the value of 2.5 * e.getDamage()
             int damageXP = (int) Math.min(10, 2.5 * e.getDamage());
-            xp(p,damageXP );
+            xp(p, damageXP);
             J.s(() -> {
                 var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
                 if (attribute == null) return;

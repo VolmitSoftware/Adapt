@@ -20,7 +20,10 @@ package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.SoundPlayer;
 import com.volmit.adapt.util.collection.KMap;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -47,8 +50,8 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     public ArchitectPlacement() {
         super("architect-placement");
         registerConfiguration(ArchitectPlacement.Config.class);
-        setDescription(Localizer.dLocalize("architect", "placement", "description"));
-        setDisplayName(Localizer.dLocalize("architect", "placement", "name"));
+        setDescription(Localizer.dLocalize("architect.placement.description"));
+        setDisplayName(Localizer.dLocalize("architect.placement.name"));
         setIcon(Material.SCAFFOLDING);
         setInterval(360);
         setBaseCost(getConfig().baseCost);
@@ -59,7 +62,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("architect", "placement", "lore3"));
+        v.addLore(Localizer.dLocalize("architect.placement.lore"));
     }
 
     private BlockFace getBlockFace(Player player) {
@@ -93,13 +96,13 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
         double v = getValue(e.getBlock());
         Block ignored = blocks.keySet()
-                        .stream()
-                        .filter(b -> b.getRelative(blocks.get(b)).equals(e.getBlock()))
-                        .findFirst()
-                        .orElse(null);
+                .stream()
+                .filter(b -> b.getRelative(blocks.get(b)).equals(e.getBlock()))
+                .findFirst()
+                .orElse(null);
 
         if (hand.getAmount() < blocks.size()) {
-            Adapt.messagePlayer(p, C.RED + Localizer.dLocalize("architect", "placement", "lore1") + " " + C.GREEN + blocks.size() + C.RED + " " + Localizer.dLocalize("architect", "placement", "lore2"));
+            Adapt.messagePlayer(p, Localizer.dLocalize("architect.placement.need_blocks", blocks.size()));
             return;
         }
 

@@ -20,7 +20,6 @@ package com.volmit.adapt.content.adaptation.hunter;
 
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
@@ -34,8 +33,8 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
     public HunterInvis() {
         super("hunter-invis");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("hunter", "invisibility", "description"));
-        setDisplayName(Localizer.dLocalize("hunter", "invisibility", "name"));
+        setDescription(Localizer.dLocalize("hunter.invisibility.description"));
+        setDisplayName(Localizer.dLocalize("hunter.invisibility.name"));
         setIcon(Material.TROPICAL_FISH_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -47,14 +46,7 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("hunter", "invisibility", "lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter", "invisibility", "lore2"));
-        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter", "invisibility", "lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "invisibility", "lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "invisibility", "lore5"));
-        v.addLore(C.RED + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "penalty", "lore1"));
-        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter", "penalty", "lore1"));
-
+        v.addLore(Localizer.dLocalize("hunter.invisibility.lore", level, 5 + level, level, level, getConfig().basePoisonFromLevel - level));
     }
 
 

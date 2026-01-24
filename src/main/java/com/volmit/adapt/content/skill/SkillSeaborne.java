@@ -47,11 +47,11 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillSeaborne() {
-        super("seaborne", Localizer.dLocalize("skill", "seaborne", "icon"));
+        super("seaborne", Localizer.dLocalize("skill.seaborne.icon"));
         registerConfiguration(Config.class);
         setColor(C.BLUE);
-        setDescription(Localizer.dLocalize("skill", "seaborne", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "seaborne", "name"));
+        setDescription(Localizer.dLocalize("skill.seaborne.description"));
+        setDisplayName(Localizer.dLocalize("skill.seaborne.name"));
         setInterval(2120);
         setIcon(Material.TRIDENT);
         registerAdaptation(new SeaborneOxygen());
@@ -62,8 +62,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.TURTLE_HELMET)
                 .key("challenge_swim_1nm")
-                .title(Localizer.dLocalize("advancement", "challenge_swim_1nm", "title"))
-                .description(Localizer.dLocalize("advancement", "challenge_swim_1nm", "description"))
+                .title(Localizer.dLocalize("advancement.challenge_swim_1nm.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swim_1nm.description"))
                 .model(CustomModel.get(Material.TURTLE_HELMET, "advancement", "seaborne", "challenge_swim_1nm"))
                 .frame(AdvancementFrameType.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)

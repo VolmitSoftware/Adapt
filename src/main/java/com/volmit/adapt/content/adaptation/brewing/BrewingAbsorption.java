@@ -21,7 +21,6 @@ package com.volmit.adapt.content.adaptation.brewing;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.potion.PotionBuilder;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.reflect.registries.PotionTypes;
@@ -35,8 +34,8 @@ public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config
     public BrewingAbsorption() {
         super("brewing-absorption");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "absorption", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "absorption", "name"));
+        setDescription(Localizer.dLocalize("brewing.absorption.description"));
+        setDisplayName(Localizer.dLocalize("brewing.absorption.name"));
         setIcon(Material.QUARTZ);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -72,8 +71,7 @@ public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "absorption", "lore1"));
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "absorption", "lore2"));
+        v.addLore(Localizer.dLocalize("brewing.absorption.lore"));
     }
 
 

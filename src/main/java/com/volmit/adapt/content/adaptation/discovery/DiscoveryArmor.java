@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     private static final UUID MODIFIER = UUID.nameUUIDFromBytes("adapt-discovery-armor".getBytes());
-    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString( "adapt:discovery-armor");
+    private static final NamespacedKey MODIFIER_KEY = NamespacedKey.fromString("adapt:discovery-armor");
     private static final long UPDATE_COOLDOWN = TimeUnit.SECONDS.toMillis(3);
     private static final Sphere SPHERE = new Sphere(5);
 
@@ -51,8 +51,8 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     public DiscoveryArmor() {
         super("discovery-world-armor");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("discovery", "armor", "description"));
-        setDisplayName(Localizer.dLocalize("discovery", "armor", "name"));
+        setDescription(Localizer.dLocalize("discovery.armor.description"));
+        setDisplayName(Localizer.dLocalize("discovery.armor.name"));
         setIcon(Material.TURTLE_HELMET);
         setInterval(305);
         setBaseCost(getConfig().baseCost);
@@ -63,8 +63,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("discovery", "armor", "lore1") + C.GRAY + ", " + Localizer.dLocalize("discovery", "armor", "lore2"));
-        v.addLore(C.YELLOW + "~ " + Localizer.dLocalize("discovery", "armor", "lore3") + C.BLUE + " +" + level * 0.25);
+        v.addLore(Localizer.dLocalize("discovery.armor.lore", Form.f(level * 0.25, 2)));
     }
 
     public double getArmorPoints(Material m) {

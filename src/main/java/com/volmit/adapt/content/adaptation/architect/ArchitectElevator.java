@@ -70,8 +70,8 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     public ArchitectElevator() {
         super("architect-elevator");
         registerConfiguration(ArchitectElevator.Config.class);
-        setDescription(Localizer.dLocalize("architect", "elevator", "description"));
-        setDisplayName(Localizer.dLocalize("architect", "elevator", "name"));
+        setDescription(Localizer.dLocalize("architect.elevator.description"));
+        setDisplayName(Localizer.dLocalize("architect.elevator.name"));
         setIcon(Material.HEAVY_WEIGHTED_PRESSURE_PLATE);
         setInterval(988);
         setBaseCost(getConfig().baseCost);
@@ -92,19 +92,19 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
 
     @Override
     public void addStats(int level, Element v) {
-
+        v.addLore(Localizer.dLocalize("architect.elevator.lore"));
     }
 
     public ItemStack getElevatorItem() {
         ItemStack elevatorItem = CustomModel.get(Material.NOTE_BLOCK, "architect", "elevator", "item")
-                        .toItemStack();
+                .toItemStack();
         ItemMeta meta = elevatorItem.getItemMeta();
         if (meta != null) {
             meta.getPersistentDataContainer().set(ELEVATOR_KEY, PersistentDataType.BYTE, (byte) 0);
-            meta.setDisplayName(Localizer.dLocalize("items", "elevatorblock", "name"));
-            meta.setLore(List.of(Localizer.dLocalize("items", "elevatorblock", "usage1"),
-                    Localizer.dLocalize("items", "elevatorblock", "usage2"),
-                    Localizer.dLocalize("items", "elevatorblock", "usage3")));
+            meta.setDisplayName(Localizer.dLocalize("items.elevator_block.name"));
+            meta.setLore(List.of(Localizer.dLocalize("items.elevator_block.usage1"),
+                    Localizer.dLocalize("items.elevator_block.usage2"),
+                    Localizer.dLocalize("items.elevator_block.usage3")));
             elevatorItem.setItemMeta(meta);
         }
         return elevatorItem;

@@ -20,8 +20,8 @@ package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.content.item.ItemListings;
-import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.reflect.registries.Materials;
 import lombok.NoArgsConstructor;
@@ -38,8 +38,8 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
     public HerbalismLuck() {
         super("herbalism-luck");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("herbalism", "luck", "description"));
-        setDisplayName(Localizer.dLocalize("herbalism", "luck", "name"));
+        setDescription(Localizer.dLocalize("herbalism.luck.description"));
+        setDisplayName(Localizer.dLocalize("herbalism.luck.name"));
         setIcon(Material.EMERALD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -50,9 +50,8 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism", "luck", "lore0"));
-        v.addLore(C.GREEN + "+ (" + (getEffectiveness(level)) + C.GRAY + "%) + " + Localizer.dLocalize("herbalism", "luck", "lore1"));
-        v.addLore(C.GREEN + "+ (" + (getEffectiveness(level)) + C.GRAY + "%) + " + Localizer.dLocalize("herbalism", "luck", "lore2"));
+        double chance = getEffectiveness(level);
+        v.addLore(Localizer.dLocalize("herbalism.luck.lore", Form.f(chance, 1), Form.f(chance, 1)));
     }
 
     private double getEffectiveness(double factor) {
