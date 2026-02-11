@@ -224,14 +224,59 @@ public interface Adaptation<T> extends Ticked, Component {
         return getProtectors().stream().allMatch(protector -> protector.checkRegion(player, player.getLocation(), this));
     }
 
+    default boolean hasUsageConflict(Player p) {
+        Map<String, List<String>> conflicts = AdaptConfig.get().getAdaptationUsageConflicts();
+        if (conflicts == null || conflicts.isEmpty()) {
+            return false;
+        }
+
+        String me = getName().toLowerCase(Locale.ROOT);
+        Set<String> denied = new HashSet<>();
+        for (Map.Entry<String, List<String>> entry : conflicts.entrySet()) {
+            if (entry.getKey() != null && entry.getValue() != null && entry.getKey().equalsIgnoreCase(me)) {
+                entry.getValue().stream()
+                        .filter(Objects::nonNull)
+                        .map(i -> i.toLowerCase(Locale.ROOT))
+                        .forEach(denied::add);
+            }
+        }
+
+        for (Map.Entry<String, List<String>> entry : conflicts.entrySet()) {
+            if (entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+
+            boolean containsThisAdaptation = entry.getValue().stream()
+                    .filter(Objects::nonNull)
+                    .map(i -> i.toLowerCase(Locale.ROOT))
+                    .anyMatch(me::equals);
+            if (containsThisAdaptation) {
+                denied.add(entry.getKey().toLowerCase(Locale.ROOT));
+            }
+        }
+
+        denied.remove(me);
+        for (String conflict : denied) {
+            if (getPlayer(p).hasAdaptation(conflict)) {
+                Adapt.verbose("Player " + p.getName() + " has conflicting adaptation " + conflict + " and cannot use " + getName());
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     default boolean hasAdaptation(Player p) {
         try {
             if (p == null || p.isDead()) { // Check if player is not invalid
                 return false;
             }
+            if (!this.isEnabled()) {
+                return false;
+            }
             if (!this.getSkill().isEnabled()) {
                 Adapt.verbose("Skill " + this.getSkill().getName() + " is disabled. Skipping adaptation " + this.getName());
-                this.unregister();
+                return false;
             }
             if (getLevel(p) > 0) {
                 if (AdaptConfig.get().blacklistedWorlds.contains(p.getWorld().getName())) {
@@ -249,6 +294,9 @@ public interface Adaptation<T> extends Ticked, Component {
 
                 if (hasBlacklistPermission(p, this)) {
                     Adapt.verbose("Player " + p.getName() + " has blacklist permission for adaptation " + this.getName());
+                    return false;
+                }
+                if (hasUsageConflict(p)) {
                     return false;
                 }
                 if (!canUse(p)) {
@@ -279,8 +327,10 @@ public interface Adaptation<T> extends Ticked, Component {
             Adapt.verbose("Simple name: " + p.getClass().getSimpleName());
             return 0;
         }
+        if (!this.isEnabled()) {
+            return 0;
+        }
         if (!this.getSkill().isEnabled()) {
-            this.unregister();
             return 0;
         } else {
             PlayerSkillLine line = getPlayer(p).getData().getSkillLine(getSkill().getName());
@@ -291,8 +341,11 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default double getLevelPercent(Player p) {
+        if (!this.isEnabled()) {
+            return 0;
+        }
         if (!this.getSkill().isEnabled()) {
-            this.unregister();
+            return 0;
         }
         if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
             return 0.0;
@@ -342,15 +395,21 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default String getDisplayName() {
+        if (!this.isEnabled()) {
+            return C.DARK_GRAY + Form.capitalizeWords(getName().replaceAll("\\Q" + getSkill().getName() + "-\\E", "").replaceAll("\\Q-\\E", " "));
+        }
         if (!this.getSkill().isEnabled()) {
-            this.unregister();
+            return C.DARK_GRAY + Form.capitalizeWords(getName().replaceAll("\\Q" + getSkill().getName() + "-\\E", "").replaceAll("\\Q-\\E", " "));
         }
         return C.RESET + "" + C.BOLD + getSkill().getColor().toString() + Form.capitalizeWords(getName().replaceAll("\\Q" + getSkill().getName() + "-\\E", "").replaceAll("\\Q-\\E", " "));
     }
 
     default String getDisplayName(int level) {
+        if (!this.isEnabled()) {
+            return getDisplayName();
+        }
         if (!this.getSkill().isEnabled()) {
-            this.unregister();
+            return getDisplayName();
         }
         if (level >= 1) {
             return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + Form.toRoman(level) + C.RESET;
@@ -398,6 +457,12 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default void openGui(Player player) {
+        if (!isEnabled()) {
+            return;
+        }
+        if (!getSkill().isEnabled()) {
+            return;
+        }
         if (!Bukkit.isPrimaryThread()) {
             J.s(() -> openGui(player));
             return;
@@ -551,8 +616,11 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default boolean isAdaptationRecipe(Recipe recipe) {
+        if (!this.isEnabled()) {
+            return false;
+        }
         if (!this.getSkill().isEnabled()) {
-            this.unregister();
+            return false;
         }
         for (AdaptRecipe i : getRecipes()) {
             if (i.is(recipe)) {

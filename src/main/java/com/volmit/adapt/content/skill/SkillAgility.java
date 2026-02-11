@@ -25,6 +25,7 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.agility.AgilityArmorUp;
+import com.volmit.adapt.content.adaptation.agility.AgilityLadderSlide;
 import com.volmit.adapt.content.adaptation.agility.AgilitySuperJump;
 import com.volmit.adapt.content.adaptation.agility.AgilityWallJump;
 import com.volmit.adapt.content.adaptation.agility.AgilityWindUp;
@@ -59,6 +60,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         registerAdaptation(new AgilityWallJump());
         registerAdaptation(new AgilitySuperJump());
         registerAdaptation(new AgilityArmorUp());
+        registerAdaptation(new AgilityLadderSlide());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LEATHER_BOOTS)
                 .key("challenge_move_1k")

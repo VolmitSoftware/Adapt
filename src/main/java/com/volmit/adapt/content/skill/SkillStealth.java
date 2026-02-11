@@ -61,8 +61,28 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
                 .model(CustomModel.get(Material.LEATHER_LEGGINGS, "advancement", "stealth", "challenge_sneak_1k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.CHAINMAIL_LEGGINGS)
+                        .key("challenge_sneak_5k")
+                        .title(Localizer.dLocalize("advancement", "challenge_sneak_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_sneak_5k", "description"))
+                        .model(CustomModel.get(Material.CHAINMAIL_LEGGINGS, "advancement", "stealth", "challenge_sneak_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.NETHERITE_LEGGINGS)
+                                .key("challenge_sneak_20k")
+                                .title(Localizer.dLocalize("advancement", "challenge_sneak_20k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_sneak_20k", "description"))
+                                .model(CustomModel.get(Material.NETHERITE_LEGGINGS, "advancement", "stealth", "challenge_sneak_20k"))
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .build())
+                        .build())
                 .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sneak_1k").goal(1000).stat("move.sneak").reward(getConfig().challengeSneak1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sneak_5k").goal(5000).stat("move.sneak").reward(getConfig().challengeSneak5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sneak_20k").goal(20000).stat("move.sneak").reward(getConfig().challengeSneak20kReward).build());
     }
 
     @Override
@@ -72,6 +92,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         }
         for (Player i : Bukkit.getOnlinePlayers()) {
             shouldReturnForPlayer(i, () -> {
+                checkStatTrackers(getPlayer(i));
                 if (i.isSneaking() && !i.isSwimming() && !i.isSprinting() && !i.isFlying() && !i.isGliding() && (i.getGameMode().equals(GameMode.SURVIVAL) || i.getGameMode().equals(GameMode.ADVENTURE))) {
                     xpSilent(i, getConfig().sneakXP);
                 }
@@ -89,6 +110,8 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     protected static class Config {
         boolean enabled = true;
         double challengeSneak1kReward = 1750;
+        double challengeSneak5kReward = 3500;
+        double challengeSneak20kReward = 8750;
         double sneakXP = 10.5;
     }
 }

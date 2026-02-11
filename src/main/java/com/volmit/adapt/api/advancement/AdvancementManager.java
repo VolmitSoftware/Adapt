@@ -52,22 +52,54 @@ public class AdvancementManager {
         Player p = player.getPlayer();
         if (!AdaptConfig.get().isAdvancements() || !enabled.get() || p == null || !p.isOnline()) return;
         Advancement advancement = advancements.get(key);
-        try {
-            J.s(() -> {
-                if (!p.isOnline()) return;
-                advancement.grant(player.getPlayer(), true);
-            }, 5);
-        } catch (Exception e) {
-            Adapt.error("Failed to grant advancement " + key);
+        if (advancement == null) {
+            Adapt.verbose("Advancement key '" + key + "' is not registered; skipping grant.");
+            return;
         }
+
+        J.s(() -> {
+            Player target = player.getPlayer();
+            if (target == null || !target.isOnline()) {
+                return;
+            }
+
+            try {
+                advancement.grant(target, true);
+            } catch (Throwable t) {
+                if (isUserNotLoadedError(t)) {
+                    Adapt.verbose("Skipped advancement grant '" + key + "' because user data is not loaded yet for " + target.getName() + ".");
+                    return;
+                }
+
+                Adapt.warn("Failed to grant advancement '" + key + "' for " + target.getName() + ": " + t.getMessage());
+            }
+        }, 5);
 
         if (toast) {
             try {
                 advancement.displayToastToPlayer(p);
-            } catch (Exception e) {
-                Adapt.error("Failed to grant advancement " + key + " Reattaching!");
+            } catch (Throwable t) {
+                if (isUserNotLoadedError(t)) {
+                    Adapt.verbose("Skipped advancement toast '" + key + "' because user data is not loaded yet for " + p.getName() + ".");
+                    return;
+                }
+
+                Adapt.warn("Failed to display advancement toast '" + key + "' for " + p.getName() + ": " + t.getMessage());
             }
         }
+    }
+
+    private boolean isUserNotLoadedError(Throwable throwable) {
+        Throwable current = throwable;
+        while (current != null) {
+            if ("UserNotLoadedException".equals(current.getClass().getSimpleName())) {
+                return true;
+            }
+
+            current = current.getCause();
+        }
+
+        return false;
     }
 
     public void unlockExisting(AdaptPlayer player) {

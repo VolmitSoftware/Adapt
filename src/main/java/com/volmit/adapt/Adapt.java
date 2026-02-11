@@ -18,7 +18,6 @@
 
 package com.volmit.adapt;
 
-import art.arcane.amulet.io.FolderWatcher;
 import com.jeff_media.customblockdata.CustomBlockData;
 import com.volmit.adapt.api.advancement.AdvancementManager;
 import com.volmit.adapt.api.data.WorldData;
@@ -70,8 +69,6 @@ public class Adapt extends VolmitPlugin {
     private Ticker ticker;
     @Getter
     private AdaptServer adaptServer;
-    @Getter
-    private FolderWatcher configWatcher;
     @Getter
     private SQLManager sqlManager;
     @Getter
@@ -377,45 +374,4 @@ public class Adapt extends VolmitPlugin {
         }
     }
 
-    public static void hotloaded() {
-        J.s(() -> {
-            instance.guiLeftovers.values().forEach(window -> {
-                HandlerList.unregisterAll((Listener) window);
-                window.close();
-            });
-            instance.stop();
-            instance.start();
-
-            instance.getGuiLeftovers().forEach((s, window) -> {
-
-                if (window.getTag() != null) {
-                    if (window.getTag().equals("/")) {
-                        SkillsGui.open(Bukkit.getPlayer(UUID.fromString(s)));
-                    } else {
-                        String[] split = window.getTag().split("\\Q/\\E");
-                        if (split.length == 2) {
-                            if (split[0].equals("skill")) {
-                                instance.getAdaptServer().getSkillRegistry().getSkill(split[1]).openGui(Bukkit.getPlayer(UUID.fromString(s)));
-                            }
-                        } else if (split.length == 3) {
-                            if (split[0].equals("skill")) {
-                                try {
-                                    instance.getAdaptServer().getSkillRegistry().getSkill(split[1]).getAdaptations()
-                                            .stream()
-                                            .filter(a -> a.getId().equals(split[2]))
-                                            .findFirst()
-                                            .orElseThrow()
-                                            .openGui(Bukkit.getPlayer(UUID.fromString(s)));
-                                } catch (Throwable e) {
-                                    instance.getAdaptServer().getSkillRegistry().getSkill(split[1]).openGui(Bukkit.getPlayer(UUID.fromString(s)));
-                                }
-                            }
-                        }
-                    }
-
-                }
-            });
-
-        }, 20);
-    }
 }

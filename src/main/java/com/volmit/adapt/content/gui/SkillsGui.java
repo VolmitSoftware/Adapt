@@ -54,7 +54,11 @@ public class SkillsGui {
 
         if (!adaptPlayer.getData().getSkillLines().isEmpty()) {
             for (PlayerSkillLine i : adaptPlayer.getData().getSkillLines().sortV()) {
-                if (i.getRawSkill(adaptPlayer).hasBlacklistPermission(adaptPlayer.getPlayer(), i.getRawSkill(adaptPlayer)) || i.getLevel() < 0) {
+                Skill<?> sk = i.getRawSkill(adaptPlayer);
+                if (sk == null) {
+                    continue;
+                }
+                if (sk.hasBlacklistPermission(adaptPlayer.getPlayer(), sk) || i.getLevel() < 0) {
                     continue;
                 }
                 int pos = w.getPosition(ind);
@@ -63,7 +67,9 @@ public class SkillsGui {
                 for (PlayerAdaptation adaptation : i.getAdaptations().sortV()) {
                     adaptationLevel = adaptation.getLevel();
                 }
-                Skill<?> sk = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(i.getLine());
+                if (sk == null || !sk.isEnabled()) {
+                    continue;
+                }
                 w.setElement(pos, row, new UIElement("skill-" + sk.getName())
                         .setMaterial(new MaterialBlock(sk.getIcon()))
                         .setModel(sk.getModel())

@@ -146,6 +146,12 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     }
 
     @Override
+    protected void onConfigReload(Config previousConfig, Config newConfig) {
+        super.onConfigReload(previousConfig, newConfig);
+        setInterval(newConfig.snatchRate);
+    }
+
+    @Override
     public boolean isPermanent() {
         return getConfig().permanent;
     }

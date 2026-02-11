@@ -114,6 +114,9 @@ public class CommandAdapt implements DecreeExecutor {
         if (guiTarget.startsWith("[Adaptation]-")) {
             for (Skill<?> skill : SkillRegistry.skills.sortV()) {
                 for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                    if (!adaptation.isEnabled()) {
+                        continue;
+                    }
                     if (guiTarget.equals("[Adaptation]-" + adaptation.getName())) {
                         if (force || adaptation.openGui(targetPlayer, true)) {
                             FConst.success("Opened GUI for " + adaptation.getName() + " for " + targetPlayer.getName()).send(sender());
@@ -169,7 +172,7 @@ public class CommandAdapt implements DecreeExecutor {
             return;
         }
 
-        Skill<?> skill = SkillRegistry.skills.get(skillName.name());
+        Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skillName.name());
         if (skill != null) {
             targetPlayer.getInventory().addItem(ExperienceOrb.with(skill.getName(), amount));
             FConst.success("Giving " + skill.getName() + " orb").send(sender());
@@ -216,7 +219,7 @@ public class CommandAdapt implements DecreeExecutor {
             return;
         }
 
-        Skill<?> skill = SkillRegistry.skills.get(skillName.toString());
+        Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skillName.name());
         if(skill != null){
             targetPlayer.getInventory().addItem(KnowledgeOrb.with(skill.getName(), amount));
             FConst.success("Giving " + skill.getName() + " orb").send(sender());

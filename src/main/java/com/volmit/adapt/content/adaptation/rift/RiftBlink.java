@@ -18,14 +18,23 @@
 
 package com.volmit.adapt.content.adaptation.rift;
 
-import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.event.AdaptAdaptationTeleportEvent;
-import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.Element;
+import com.volmit.adapt.util.J;
+import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.SoundPlayer;
 import lombok.NoArgsConstructor;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -38,14 +47,14 @@ import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.volmit.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 
 public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
-    private final Map<Player, Long> lastJump = new HashMap<>();
-    private final Map<Player, Boolean> canBlink = new HashMap<>();
-
+    private final Map<UUID, Long> lastBlink = new HashMap<>();
+    private final Map<UUID, Boolean> canBlink = new HashMap<>();
     private final double jumpVelocity = -0.0784000015258789;
 
     public RiftBlink() {
@@ -121,81 +130,99 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     @EventHandler
     public void on(PlayerQuitEvent e) {
-        Player p = e.getPlayer();
-        lastJump.remove(p);
-        canBlink.remove(p);
+        UUID id = e.getPlayer().getUniqueId();
+        lastBlink.remove(id);
+        canBlink.remove(id);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerToggleFlightEvent e) {
         Player p = e.getPlayer();
-        if (hasAdaptation(p) && p.getGameMode().equals(GameMode.SURVIVAL)) {
-            e.setCancelled(true);
-            p.setAllowFlight(false);
-            if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration()) {
+        UUID id = p.getUniqueId();
+
+        if (!hasAdaptation(p) || !p.getGameMode().equals(GameMode.SURVIVAL)) {
+            return;
+        }
+
+        e.setCancelled(true);
+        p.setAllowFlight(false);
+
+        if (M.ms() - lastBlink.getOrDefault(id, 0L) <= getCooldownDuration()) {
+            return;
+        }
+
+        if (!p.isSprinting()) {
+            return;
+        }
+
+        Location locOG = p.getLocation().clone();
+        SoundPlayer spw = SoundPlayer.of(p);
+        Location destinationGround = findBlinkGround(p);
+        if (destinationGround == null) {
+            spw.play(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
+            lastBlink.put(id, M.ms());
+            return;
+        }
+
+        PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("rift");
+        PlayerAdaptation adaptation = line != null ? line.getAdaptation("rift-resist") : null;
+        if (adaptation != null && adaptation.getLevel() > 0) {
+            RiftResist.riftResistStackAdd(p, 10, 5);
+        }
+
+        if (getConfig().showParticles) {
+            vfxParticleLine(locOG, destinationGround, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
+        }
+
+        Vector v = p.getVelocity().clone();
+        loadChunkAsync(destinationGround, chunk -> J.s(() -> {
+            Location toLoc = destinationGround.clone().add(0, 1, 0);
+
+            AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(false, getPlayer(p), this, locOG, destinationGround.clone());
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled()) {
                 return;
             }
-            if (p.isSprinting()) {
-                Location locOG = p.getLocation().clone();
-                SoundPlayer spw = SoundPlayer.of(p);
-                Location destinationGround = findBlinkGround(p);
-                if (destinationGround == null) {
-                    spw.play(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
-                    lastJump.put(p, M.ms());
-                    return;
-                }
-                PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("rift");
-                PlayerAdaptation adaptation = line != null ? line.getAdaptation("rift-resist") : null;
-                if (adaptation != null && adaptation.getLevel() > 0) {
-                    RiftResist.riftResistStackAdd(p, 10, 5);
-                }
-                if (getConfig().showParticles) {
 
-                    vfxParticleLine(locOG, destinationGround, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
-                }
-                Vector v = p.getVelocity().clone();
-                loadChunkAsync(destinationGround, chunk -> {
-                    J.s(() -> {
-                        Location toLoc = destinationGround.clone().add(0, 1, 0);
+            p.teleport(toLoc, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            p.setVelocity(v.multiply(3));
+        }));
 
-                        AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(false, getPlayer(p), this, locOG, destinationGround.clone());
-                        Bukkit.getPluginManager().callEvent(event);
-                        if (event.isCancelled()) return;
-
-                        p.teleport(toLoc, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                        p.setVelocity(v.multiply(3));
-                    });
-                });
-                lastJump.put(p, M.ms());
-                spw.play(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.50f, 1.0f);
-                vfxLevelUp(p);
-            }
-        }
+        getPlayer(p).getData().addStat("rift.teleports", 1);
+        lastBlink.put(id, M.ms());
+        spw.play(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.50f, 1.0f);
+        vfxLevelUp(p);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
+        UUID id = p.getUniqueId();
         boolean isJumping = p.getVelocity().getY() > jumpVelocity;
-        if (isJumping && !canBlink.containsKey(p) && hasAdaptation(p) && p.getGameMode().equals(GameMode.SURVIVAL) && p.isSprinting()) {
-            if (lastJump.get(p) != null && M.ms() - lastJump.get(p) <= getCooldownDuration()) {
+
+        if (!hasAdaptation(p) || !p.getGameMode().equals(GameMode.SURVIVAL) || !p.isSprinting()) {
+            canBlink.remove(id);
+            return;
+        }
+
+        if (isJumping && !canBlink.containsKey(id)) {
+            if (M.ms() - lastBlink.getOrDefault(id, 0L) <= getCooldownDuration()) {
                 p.setAllowFlight(false);
                 return;
             }
+
             Location destinationGround = findBlinkGround(p);
             if (destinationGround != null) {
-                canBlink.put(p, true);
+                canBlink.put(id, true);
                 p.setAllowFlight(true);
-                Adapt.verbose("Allowing flight for " + p.getName() + "");
                 J.a(() -> {
                     p.setAllowFlight(false);
                     p.setFlying(false);
-                    Adapt.verbose("Disabling flight for " + p.getName() + "");
-                    canBlink.remove(p);
+                    canBlink.remove(id);
                 }, 25);
             }
-        } else {
-            canBlink.remove(p);
+        } else if (!isJumping) {
+            canBlink.remove(id);
         }
     }
 

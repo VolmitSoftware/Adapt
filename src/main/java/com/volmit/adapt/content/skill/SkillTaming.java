@@ -18,11 +18,16 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.taming.TamingDamage;
 import com.volmit.adapt.content.adaptation.taming.TamingHealthBoost;
 import com.volmit.adapt.content.adaptation.taming.TamingHealthRegeneration;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -52,6 +57,36 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         registerAdaptation(new TamingHealthBoost());
         registerAdaptation(new TamingDamage());
         registerAdaptation(new TamingHealthRegeneration());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LEAD)
+                .key("challenge_taming_10")
+                .title(Localizer.dLocalize("advancement", "challenge_taming_10", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_taming_10", "description"))
+                .model(CustomModel.get(Material.LEAD, "advancement", "taming", "challenge_taming_10"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NAME_TAG)
+                        .key("challenge_taming_50")
+                        .title(Localizer.dLocalize("advancement", "challenge_taming_50", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_taming_50", "description"))
+                        .model(CustomModel.get(Material.NAME_TAG, "advancement", "taming", "challenge_taming_50"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.GOLDEN_APPLE)
+                                .key("challenge_taming_500")
+                                .title(Localizer.dLocalize("advancement", "challenge_taming_500", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_taming_500", "description"))
+                                .model(CustomModel.get(Material.GOLDEN_APPLE, "advancement", "taming", "challenge_taming_500"))
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .build())
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_10").goal(10).stat("taming.bred").reward(getConfig().challengeTamingReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_50").goal(50).stat("taming.bred").reward(getConfig().challengeTamingReward * 2).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_500").goal(500).stat("taming.bred").reward(getConfig().challengeTamingReward * 5).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -62,6 +97,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         for (Player p : Bukkit.getOnlinePlayers()) {
             shouldReturnForPlayer(p, e, () -> {
                 if (p.getWorld() == e.getEntity().getWorld() && p.getLocation().distance(e.getEntity().getLocation()) <= 15) {
+                    getPlayer(p).getData().addStat("taming.bred", 1);
                     if (!isOnCooldown(p)) {
                         setCooldown(p);
                         xp(p, getConfig().tameXpBase);
@@ -98,6 +134,12 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     @Override
     public void onTick() {
+        if (!this.isEnabled()) {
+            return;
+        }
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
+        }
     }
 
     @Override
@@ -111,5 +153,6 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         double tameXpBase = 30;
         long cooldownDelay = 2250;
         double tameDamageXPMultiplier = 7.85;
+        double challengeTamingReward = 500;
     }
 }

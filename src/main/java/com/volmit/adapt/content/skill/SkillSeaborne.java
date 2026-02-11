@@ -67,8 +67,28 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                 .model(CustomModel.get(Material.TURTLE_HELMET, "advancement", "seaborne", "challenge_swim_1nm"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.HEART_OF_THE_SEA)
+                        .key("challenge_swim_5k")
+                        .title(Localizer.dLocalize("advancement", "challenge_swim_5k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_swim_5k", "description"))
+                        .model(CustomModel.get(Material.HEART_OF_THE_SEA, "advancement", "seaborne", "challenge_swim_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.TRIDENT)
+                                .key("challenge_swim_20k")
+                                .title(Localizer.dLocalize("advancement", "challenge_swim_20k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_swim_20k", "description"))
+                                .model(CustomModel.get(Material.TRIDENT, "advancement", "seaborne", "challenge_swim_20k"))
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .build())
+                        .build())
                 .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_1nm").goal(1852).stat("move.swim").reward(getConfig().challengeSwim1nmReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_5k").goal(5000).stat("move.swim").reward(getConfig().challengeSwim5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_20k").goal(20000).stat("move.swim").reward(getConfig().challengeSwim20kReward).build());
         cooldowns = new HashMap<>();
     }
 
@@ -174,6 +194,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         double damagedrownxpmultiplier = 3;
         boolean enabled = true;
         double challengeSwim1nmReward = 750;
+        double challengeSwim5kReward = 1500;
+        double challengeSwim20kReward = 3750;
         double swimXP = 28.7;
     }
 }

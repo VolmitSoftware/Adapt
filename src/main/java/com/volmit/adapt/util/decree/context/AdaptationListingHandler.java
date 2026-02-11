@@ -32,10 +32,16 @@ public class AdaptationListingHandler {
         adaptationLists.add(main);
 
         for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+            if (!skill.isEnabled()) {
+                continue;
+            }
             AdaptationList skillList = new AdaptationList("[Skill]-" + skill.getName());
             adaptationLists.add(skillList);
 
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                if (!adaptation.isEnabled()) {
+                    continue;
+                }
                 AdaptationList adaptationList = new AdaptationList("[Adaptation]-" + adaptation.getName());
                 adaptationLists.add(adaptationList);
             }
@@ -51,6 +57,9 @@ public class AdaptationListingHandler {
         AdaptationSkillList t2 = new AdaptationSkillList("[random]");
         adaptationSkillLists.add(t2);
         for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+            if (!skill.isEnabled()) {
+                continue;
+            }
             AdaptationSkillList t3 = new AdaptationSkillList(skill.getName());
             adaptationSkillLists.add(t3);
         }
@@ -61,7 +70,13 @@ public class AdaptationListingHandler {
         if (adaptationProviders.isNotEmpty()) return adaptationProviders;
 
         for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+            if (!skill.isEnabled()) {
+                continue;
+            }
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                if (!adaptation.isEnabled()) {
+                    continue;
+                }
                 AdaptationProvider suggestion = new AdaptationProvider(skill.getName() + ":" +adaptation.getName());
                 adaptationProviders.add(suggestion);
             }
@@ -73,6 +88,9 @@ public class AdaptationListingHandler {
         if (skillProviders.isNotEmpty()) return skillProviders;
 
         for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+            if (!skill.isEnabled()) {
+                continue;
+            }
             SkillProvider t1 = new SkillProvider(skill.getName());
             skillProviders.add(t1);
         }

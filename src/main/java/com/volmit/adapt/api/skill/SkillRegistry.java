@@ -50,10 +50,12 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public class SkillRegistry extends TickedObject {
     public static final KMap<String, Skill<?>> skills = new KMap<>();
+    private final KMap<String, Class<? extends Skill<?>>> skillTypes = new KMap<>();
 
     public SkillRegistry() {
         super("registry", UUID.randomUUID() + "-sk", 1250);
@@ -149,6 +151,9 @@ public class SkillRegistry extends TickedObject {
 
                 for (PlayerSkillLine i : a.getData().getSkillLines().v()) {
                     Skill<?> s = i.getRawSkill(a);
+                    if (s == null) {
+                        continue;
+                    }
                     String v = i.getMultiplier() - a.getData().getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier() - a.getData().getMultiplier()) : Form.pc(i.getMultiplier() - a.getData().getMultiplier());
                     Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getDisplayName() + C.GRAY + ": " + s.getColor() + v);
                     for (XPMultiplier j : i.getMultipliers()) {
@@ -170,26 +175,121 @@ public class SkillRegistry extends TickedObject {
     }
 
     public Skill<?> getSkill(String i) {
-        return skills.get(i);
+        if (i == null) {
+            return null;
+        }
+
+        Skill<?> direct = skills.get(i);
+        if (direct != null) {
+            return direct;
+        }
+
+        return skills.get(normalizeSkillName(i));
     }
 
     public List<Skill<?>> getSkills() {
         return skills.v();
     }
 
-    public void registerSkill(Class<? extends Skill<?>> skill) {
-        try {
-            Skill<?> sk = skill.getConstructor().newInstance();
+    public synchronized void registerSkill(Class<? extends Skill<?>> skillType) {
+        Skill<?> skill = instantiateSkill(skillType);
+        if (skill == null) {
+            return;
+        }
 
-            if (!sk.isEnabled()) {
-                return;
+        String skillName = normalizeSkillName(skill.getName());
+        skillTypes.put(skillName, skillType);
+        Skill<?> previous = skills.get(skillName);
+        if (previous != null && previous != skill) {
+            unregisterRecipes(previous);
+            previous.unregister();
+        }
+
+        if (!skill.isEnabled()) {
+            skill.unregister();
+            skills.remove(skillName);
+            return;
+        }
+
+        skills.put(skillName, skill);
+        unregisterRecipes(skill);
+        registerRecipes(skill);
+    }
+
+    public synchronized boolean hotReloadSkillConfig(String skillName) {
+        String normalized = normalizeSkillName(skillName);
+        Skill<?> loaded = skills.get(normalized);
+        if (loaded instanceof SimpleSkill<?> simpleSkill) {
+            boolean ok = simpleSkill.reloadConfigFromDisk(false);
+            if (!ok) {
+                return false;
             }
 
-            skills.put(sk.getName(), sk);
-            registerRecipes(sk);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                 NoSuchMethodException e) {
+            if (!loaded.isEnabled()) {
+                unregisterRecipes(loaded);
+                loaded.unregister();
+                skills.remove(normalized);
+                return true;
+            }
+
+            unregisterRecipes(loaded);
+            registerRecipes(loaded);
+            return true;
+        }
+
+        Class<? extends Skill<?>> skillType = skillTypes.get(normalized);
+        if (skillType == null) {
+            Adapt.verbose("No known skill type for config hotload: " + skillName);
+            return false;
+        }
+
+        Skill<?> replacement = instantiateSkill(skillType);
+        if (replacement == null) {
+            return false;
+        }
+
+        if (!replacement.isEnabled()) {
+            replacement.unregister();
+            skills.remove(normalized);
+            return true;
+        }
+
+        Skill<?> previous = skills.put(normalized, replacement);
+        if (previous != null && previous != replacement) {
+            unregisterRecipes(previous);
+            previous.unregister();
+        }
+
+        unregisterRecipes(replacement);
+        registerRecipes(replacement);
+        return true;
+    }
+
+    public synchronized void refreshRecipes(Skill<?> skill) {
+        if (skill == null) {
+            return;
+        }
+
+        unregisterRecipes(skill);
+        if (skill.isEnabled()) {
+            registerRecipes(skill);
+        }
+    }
+
+    public boolean isKnownSkill(String skillName) {
+        if (skillName == null) {
+            return false;
+        }
+
+        return skillTypes.containsKey(normalizeSkillName(skillName));
+    }
+
+    private Skill<?> instantiateSkill(Class<? extends Skill<?>> skillType) {
+        try {
+            return skillType.getConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -201,8 +301,14 @@ public class SkillRegistry extends TickedObject {
     }
 
     private void registerRecipes(Skill<?> s) {
+        if (!s.isEnabled()) {
+            return;
+        }
         s.getRecipes().forEach(AdaptRecipe::register);
         s.getAdaptations().forEach(i -> {
+            if (!i.isEnabled()) {
+                return;
+            }
             i.getRecipes().forEach(AdaptRecipe::register);
             i.getBrewingRecipes().forEach(r -> BrewingManager.registerRecipe(i.getName(), r));
         });
@@ -214,10 +320,25 @@ public class SkillRegistry extends TickedObject {
             i.unregister();
             unregisterRecipes(i);
         }
+        skills.clear();
+        skillTypes.clear();
     }
 
     @Override
     public void onTick() {
 
+    }
+
+    private String normalizeSkillName(String raw) {
+        String normalized = raw.trim().toLowerCase(Locale.ROOT);
+        if (normalized.startsWith("[skill]-")) {
+            normalized = normalized.substring("[skill]-".length());
+        }
+
+        if (normalized.equals("chrono")) {
+            normalized = "chronos";
+        }
+
+        return normalized;
     }
 }

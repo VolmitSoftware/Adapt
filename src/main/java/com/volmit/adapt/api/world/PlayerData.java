@@ -23,6 +23,7 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.notification.ActionBarNotification;
 import com.volmit.adapt.api.notification.SoundNotification;
 import com.volmit.adapt.api.notification.TitleNotification;
+import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.api.xp.XPMultiplier;
 import com.volmit.adapt.util.C;
@@ -127,7 +128,11 @@ public class PlayerData {
         multiplier = m;
 
         for (String i : skillLines.k()) {
-            if (getSkillLine(i) == null) {
+            Skill<?> loadedSkill = Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(i);
+            if (loadedSkill == null) {
+                if (Adapt.instance.getAdaptServer().getSkillRegistry().isKnownSkill(i)) {
+                    continue;
+                }
                 synchronized (skillLines) {
                     skillLines.remove(i);
                 }
@@ -135,14 +140,19 @@ public class PlayerData {
                 continue;
             }
 
-            if (getSkillLine(i).getXp() == 0 && getSkillLine(i).getKnowledge() == 0) {
+            PlayerSkillLine lineData = skillLines.get(i);
+            if (lineData == null) {
+                continue;
+            }
+
+            if (lineData.getXp() == 0 && lineData.getKnowledge() == 0) {
                 synchronized (skillLines) {
                     skillLines.remove(i);
                 }
                 continue;
             }
 
-            getSkillLine(i).update(p, i, this);
+            lineData.update(p, i, this);
         }
 
         int oldLevel = (int) XP.getLevelForXp(getLastMasterXp());

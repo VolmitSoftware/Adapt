@@ -18,14 +18,20 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.sword.SwordsBloodyBlade;
 import com.volmit.adapt.content.adaptation.sword.SwordsMachete;
 import com.volmit.adapt.content.adaptation.sword.SwordsPoisonedBlade;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -51,6 +57,36 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         registerAdaptation(new SwordsMachete());
         registerAdaptation(new SwordsPoisonedBlade());
         registerAdaptation(new SwordsBloodyBlade());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WOODEN_SWORD)
+                .key("challenge_sword_100")
+                .title(Localizer.dLocalize("advancement", "challenge_sword_100", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_sword_100", "description"))
+                .model(CustomModel.get(Material.WOODEN_SWORD, "advancement", "swords", "challenge_sword_100"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.IRON_SWORD)
+                        .key("challenge_sword_1k")
+                        .title(Localizer.dLocalize("advancement", "challenge_sword_1k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_sword_1k", "description"))
+                        .model(CustomModel.get(Material.IRON_SWORD, "advancement", "swords", "challenge_sword_1k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.DIAMOND_SWORD)
+                                .key("challenge_sword_10k")
+                                .title(Localizer.dLocalize("advancement", "challenge_sword_10k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_sword_10k", "description"))
+                                .model(CustomModel.get(Material.DIAMOND_SWORD, "advancement", "swords", "challenge_sword_10k"))
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .build())
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_100").goal(100).stat("sword.hits").reward(getConfig().challengeSwordReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_1k").goal(1000).stat("sword.hits").reward(getConfig().challengeSwordReward * 2).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_10k").goal(10000).stat("sword.hits").reward(getConfig().challengeSwordReward * 5).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -86,7 +122,12 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
 
     @Override
     public void onTick() {
-
+        if (!this.isEnabled()) {
+            return;
+        }
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
+        }
     }
 
     @Override
@@ -99,5 +140,6 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         boolean enabled = true;
         long cooldownDelay = 1250;
         double damageXPMultiplier = 7.26;
+        double challengeSwordReward = 500;
     }
 }

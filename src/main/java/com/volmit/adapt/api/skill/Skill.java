@@ -67,7 +67,7 @@ public interface Skill<T> extends Ticked, Component {
 
     default void checkStatTrackers(AdaptPlayer player) {
         if (!this.isEnabled()) {
-            this.unregister();
+            return;
         }
         if (!player.getPlayer().getClass().getSimpleName().equals("CraftPlayer")) {
             return;
@@ -104,21 +104,21 @@ public interface Skill<T> extends Ticked, Component {
 
     default String getDisplayName() {
         if (!this.isEnabled()) {
-            this.unregister();
+            return C.DARK_GRAY + Form.capitalize(getName());
         }
         return C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName() + " " + Form.capitalize(getName());
     }
 
     default String getShortName() {
         if (!this.isEnabled()) {
-            this.unregister();
+            return C.DARK_GRAY + Form.capitalize(getName());
         }
         return C.RESET + "" + C.BOLD + getColor().toString() + getEmojiName();
     }
 
     default String getDisplayName(int level) {
         if (!this.isEnabled()) {
-            this.unregister();
+            return C.DARK_GRAY + Form.capitalize(getName());
         }
         return getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + level + C.RESET;
     }
@@ -128,6 +128,9 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xp(Player p, double xp) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
             return;
         }
@@ -136,6 +139,9 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xp(Player p, Location at, double xp) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
             return;
         }
@@ -151,6 +157,9 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xpS(Player p, Location at, double xp) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
             return;
         }
@@ -166,6 +175,9 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void xpSilent(Player p, double xp) {
+        if (!this.isEnabled()) {
+            return;
+        }
         if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
             return;
         }
@@ -184,6 +196,9 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void knowledge(Player p, long k) {
+        if (!this.isEnabled()) {
+            return;
+        }
         XP.knowledge(p, this, k);
     }
 
@@ -198,7 +213,7 @@ public interface Skill<T> extends Ticked, Component {
 
     default void openGui(Player player) {
         if (!this.isEnabled()) {
-            this.unregister();
+            return;
         }
         if (!player.getClass().getSimpleName().equals("CraftPlayer")) {
             return;
@@ -222,6 +237,12 @@ public interface Skill<T> extends Ticked, Component {
         int ind = 0;
 
         for (Adaptation<?> i : getAdaptations()) {
+            if (!i.isEnabled()) {
+                continue;
+            }
+            if (!i.getSkill().isEnabled()) {
+                continue;
+            }
             if (i.hasBlacklistPermission(player, i)) {
                 continue;
             }

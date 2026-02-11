@@ -208,6 +208,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
                 return;
             }
 
+            getPlayer(p).getData().addStat("rift.teleports", 1);
             p.teleport(l, PlayerTeleportEvent.TeleportCause.PLUGIN);
             vfxLevelUp(p);
             sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);

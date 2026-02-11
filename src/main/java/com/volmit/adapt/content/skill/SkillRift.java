@@ -18,16 +18,22 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.version.Version;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.rift.*;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.M;
 import com.volmit.adapt.util.collection.KMap;
 import com.volmit.adapt.util.reflect.registries.Attributes;
 import com.volmit.adapt.util.reflect.registries.EntityTypes;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -57,6 +63,36 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         registerAdaptation(new RiftDescent());
         registerAdaptation(new RiftVisage());
         lasttp = new KMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_PEARL)
+                .key("challenge_rift_50")
+                .title(Localizer.dLocalize("advancement", "challenge_rift_50", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_rift_50", "description"))
+                .model(CustomModel.get(Material.ENDER_PEARL, "advancement", "rift", "challenge_rift_50"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENDER_EYE)
+                        .key("challenge_rift_500")
+                        .title(Localizer.dLocalize("advancement", "challenge_rift_500", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_rift_500", "description"))
+                        .model(CustomModel.get(Material.ENDER_EYE, "advancement", "rift", "challenge_rift_500"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.END_CRYSTAL)
+                                .key("challenge_rift_5k")
+                                .title(Localizer.dLocalize("advancement", "challenge_rift_5k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_rift_5k", "description"))
+                                .model(CustomModel.get(Material.END_CRYSTAL, "advancement", "rift", "challenge_rift_5k"))
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .build())
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_50").goal(50).stat("rift.teleports").reward(getConfig().challengeRiftReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_500").goal(500).stat("rift.teleports").reward(getConfig().challengeRiftReward * 2).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_5k").goal(5000).stat("rift.teleports").reward(getConfig().challengeRiftReward * 5).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -66,6 +102,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         }
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
+            getPlayer(p).getData().addStat("rift.teleports", 1);
             if (!lasttp.containsKey(p)) {
                 xpSilent(p, getConfig().teleportXP);
                 lasttp.put(p, M.ms());
@@ -145,6 +182,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
                 }
             });
         }
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
+        }
     }
 
     @Override
@@ -164,5 +204,6 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         double throwEnderEyeXP = 45;
         double teleportXP = 15;
         double teleportXPCooldown = 60000;
+        double challengeRiftReward = 500;
     }
 }

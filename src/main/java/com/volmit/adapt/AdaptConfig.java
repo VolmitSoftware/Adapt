@@ -19,6 +19,7 @@
 package com.volmit.adapt;
 
 import com.volmit.adapt.api.xp.Curves;
+import com.volmit.adapt.util.ConfigRewriteReporter;
 import com.volmit.adapt.util.IO;
 import com.volmit.adapt.util.Json;
 import com.volmit.adapt.util.redis.RedisConfig;
@@ -36,7 +37,7 @@ import java.util.Map;
 @Getter
 public class AdaptConfig {
     private static AdaptConfig config = null;
-    private boolean hotReload = false;
+    private static final Object CONFIG_LOCK = new Object();
     public boolean debug = false;
     public boolean autoUpdateCheck = true;
     public boolean autoUpdateLanguage = true;
@@ -77,6 +78,7 @@ public class AdaptConfig {
     private RedisConfig redis = new RedisConfig();
     private SqlSettings sql = new SqlSettings();
     private Protector protectorSupport = new Protector();
+    private Map<String, List<String>> adaptationUsageConflicts = defaultAdaptationUsageConflicts();
     private Map<String, Map<String, Boolean>> protectionOverrides = Map.of(
             "adaptation-name", Map.of(
                     "WorldGuard", true
@@ -87,31 +89,66 @@ public class AdaptConfig {
     private boolean verbose = false;
 
     public static AdaptConfig get() {
-        if (config == null) {
-            AdaptConfig dummy = new AdaptConfig();
-            File l = Adapt.instance.getDataFile("adapt", "adapt.json");
-
-
-            if (!l.exists()) {
-                try {
-                    IO.writeAll(l, Json.toJson(dummy, true));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    config = dummy;
-                    return dummy;
-                }
-            }
-
+        synchronized (CONFIG_LOCK) {
             try {
-                config = Json.fromJson(IO.readAll(l), AdaptConfig.class);
-                IO.writeAll(l, Json.toJson(config, true));
-            } catch (IOException e) {
+                if (config == null) {
+                    config = loadConfig(new AdaptConfig(), true);
+                }
+            } catch (Throwable e) {
                 e.printStackTrace();
                 config = new AdaptConfig();
             }
+
+            return config;
+        }
+    }
+
+    public static boolean reload() {
+        synchronized (CONFIG_LOCK) {
+            try {
+                config = loadConfig(config == null ? new AdaptConfig() : config, false);
+                return true;
+            } catch (Throwable e) {
+                return false;
+            }
+        }
+    }
+
+    private static AdaptConfig loadConfig(AdaptConfig fallback, boolean overwriteOnFailure) throws IOException {
+        File file = Adapt.instance.getDataFile("adapt", "adapt.json");
+        if (!file.exists()) {
+            IO.writeAll(file, Json.toJson(fallback, true));
+            Adapt.info("Created missing config [adapt/adapt.json] from defaults.");
+            return fallback;
         }
 
-        return config;
+        try {
+            String raw = IO.readAll(file);
+            AdaptConfig loaded = Json.fromJson(raw, AdaptConfig.class);
+            if (loaded == null) {
+                throw new IOException("Config parser returned null.");
+            }
+
+            String canonical = Json.toJson(loaded, true);
+            if (!normalizeJson(canonical).equals(normalizeJson(raw))) {
+                ConfigRewriteReporter.reportRewrite(file, "core-config", raw, canonical);
+                IO.writeAll(file, canonical);
+            }
+
+            return loaded;
+        } catch (Throwable e) {
+            if (overwriteOnFailure) {
+                ConfigRewriteReporter.reportFallbackRewrite(file, "core-config", "invalid json");
+                IO.writeAll(file, Json.toJson(fallback, true));
+                return fallback;
+            }
+
+            throw new IOException("Invalid json", e);
+        }
+    }
+
+    private static String normalizeJson(String json) {
+        return json.replace("\r\n", "\n").stripTrailing();
     }
 
     @Getter
@@ -168,4 +205,9 @@ public class AdaptConfig {
             return f;
         }
     }
+
+    private static Map<String, List<String>> defaultAdaptationUsageConflicts() {
+        return new HashMap<>();
+    }
+
 }

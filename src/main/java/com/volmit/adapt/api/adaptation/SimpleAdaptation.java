@@ -18,7 +18,6 @@
 
 package com.volmit.adapt.api.adaptation;
 
-import art.arcane.amulet.io.FileWatcher;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
@@ -26,6 +25,7 @@ import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.skill.Skill;
+import com.volmit.adapt.util.ConfigRewriteReporter;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.util.*;
 import lombok.Data;
@@ -34,6 +34,7 @@ import org.bukkit.Material;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -68,12 +69,6 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         setInitialCost(1);
         setDescription("No Description Provided");
         this.name = name;
-
-        J.a(() -> {
-            if (!isEnabled()) {
-                unregister();
-            }
-        }, 1);
     }
 
     @Override
@@ -84,63 +79,147 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     @Override
     public void registerConfiguration(Class<T> type) {
         this.configType = type;
-        File file = Adapt.instance.getDataFile("adapt", "adaptations", getName() + ".json");
-        FileWatcher fw = new FileWatcher(file);
-        fw.checkModified();
-        J.a(() -> {
-            fw.checkModified();
-            Adapt.instance.getTicker().register(new TickedObject("config", "config-adaptation-" + getName(), 1000) {
-                @Override
-                public void onTick() {
-                    try {
-                        if (!AdaptConfig.get().isHotReload()) {
-                            return;
-                        }
-                        if (fw.checkModified() && file.exists()) {
-                            config = null;
-                            getConfig();
-                            Adapt.info("Hotloaded " + file.getPath());
-                            Adapt.hotloaded();
-                            fw.checkModified();
-                        }
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }, 20);
+    }
+
+    protected File getConfigFile() {
+        return Adapt.instance.getDataFile("adapt", "adaptations", getName() + ".json");
+    }
+
+    protected T createDefaultConfig() {
+        try {
+            return getConfigurationClass().getConstructor().newInstance();
+        } catch (Throwable e) {
+            throw new IllegalStateException("Failed to create default config for adaptation " + getName(), e);
+        }
+    }
+
+    public synchronized boolean reloadConfigFromDisk(boolean announce) {
+        if (getConfigurationClass() == null) {
+            return false;
+        }
+
+        T previous = config;
+        File file = getConfigFile();
+        try {
+            T loaded = loadConfig(file, previous == null ? createDefaultConfig() : previous, previous == null);
+            config = loaded;
+            applySharedConfigValues(loaded);
+            onConfigReload(previous, loaded);
+            if (announce) {
+                Adapt.info("Hotloaded " + file.getPath());
+            }
+            return true;
+        } catch (Throwable e) {
+            Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private T loadConfig(File file, T fallback, boolean overwriteOnReadFailure) throws IOException {
+        if (!file.exists()) {
+            IO.writeAll(file, Json.toJson(fallback, true));
+            Adapt.info("Created missing adaptation config [adapt/adaptations/" + getName() + ".json] from defaults.");
+            return fallback;
+        }
+
+        try {
+            String raw = IO.readAll(file);
+            T loaded = Json.fromJson(raw, getConfigurationClass());
+            if (loaded == null) {
+                throw new IOException("Config parser returned null.");
+            }
+
+            String canonical = Json.toJson(loaded, true);
+            if (!normalizeJson(canonical).equals(normalizeJson(raw))) {
+                ConfigRewriteReporter.reportRewrite(file, "adaptation:" + getName(), raw, canonical);
+                IO.writeAll(file, canonical);
+            }
+
+            return loaded;
+        } catch (Throwable e) {
+            if (overwriteOnReadFailure) {
+                ConfigRewriteReporter.reportFallbackRewrite(file, "adaptation:" + getName(), "invalid json");
+                IO.writeAll(file, Json.toJson(fallback, true));
+                return fallback;
+            }
+
+            throw new IOException("Invalid json", e);
+        }
+    }
+
+    private String normalizeJson(String json) {
+        return json.replace("\r\n", "\n").stripTrailing();
+    }
+
+    private void applySharedConfigValues(T currentConfig) {
+        applyIntField(currentConfig, "baseCost", this::setBaseCost);
+        applyIntField(currentConfig, "initialCost", this::setInitialCost);
+        applyIntField(currentConfig, "maxLevel", this::setMaxLevel);
+        applyLongField(currentConfig, "setInterval", this::setInterval);
+    }
+
+    protected void onConfigReload(T previousConfig, T newConfig) {
+        applyDoubleField(newConfig, "costFactor", this::setCostFactor);
+    }
+
+    private void applyIntField(T source, String fieldName, java.util.function.IntConsumer consumer) {
+        Number number = getNumericField(source, fieldName);
+        if (number != null) {
+            consumer.accept(number.intValue());
+        }
+    }
+
+    private void applyLongField(T source, String fieldName, java.util.function.LongConsumer consumer) {
+        Number number = getNumericField(source, fieldName);
+        if (number != null) {
+            consumer.accept(number.longValue());
+        }
+    }
+
+    private void applyDoubleField(T source, String fieldName, java.util.function.DoubleConsumer consumer) {
+        Number number = getNumericField(source, fieldName);
+        if (number != null) {
+            consumer.accept(number.doubleValue());
+        }
+    }
+
+    private Number getNumericField(T source, String fieldName) {
+        Field f = getField(source.getClass(), fieldName);
+        if (f == null) {
+            return null;
+        }
+
+        try {
+            f.setAccessible(true);
+            Object value = f.get(source);
+            if (value instanceof Number number) {
+                return number;
+            }
+        } catch (Throwable ignored) {
+            Adapt.verbose("Failed reading config field '" + fieldName + "' for adaptation " + getName());
+        }
+
+        return null;
+    }
+
+    private Field getField(Class<?> type, String name) {
+        Class<?> current = type;
+        while (current != null) {
+            try {
+                return current.getDeclaredField(name);
+            } catch (NoSuchFieldException ignored) {
+                current = current.getSuperclass();
+            }
+        }
+
+        return null;
     }
 
     @Override
-    public T getConfig() {
-        try {
-            if (config == null) {
-                T dummy = getConfigurationClass().getConstructor().newInstance();
-                File l = Adapt.instance.getDataFile("adapt", "adaptations", getName() + ".json");
-
-                if (!l.exists()) {
-                    try {
-                        IO.writeAll(l, Json.toJson(dummy, true));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        config = dummy;
-                        return config;
-                    }
-                }
-
-                try {
-                    config = Json.fromJson(IO.readAll(l), getConfigurationClass());
-                    IO.writeAll(l, Json.toJson(config, true));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    config = dummy;
-                    return config;
-                }
-            }
-        } catch (Throwable e) {
-            Adapt.verbose("Failed to load config for " + getName());
+    public synchronized T getConfig() {
+        if (config == null) {
+            reloadConfigFromDisk(false);
         }
-
         return config;
     }
 

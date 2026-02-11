@@ -30,9 +30,11 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config> {
-    private final Map<Player, Long> cooldowns;
+    private static final long COOLDOWN_MILLIS = 15000L;
+    private final Map<UUID, Long> cooldowns;
 
     public DiscoveryXpResist() {
         super("discovery-xp-resist");
@@ -71,6 +73,10 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
             return;
         }
         if (e.getEntity() instanceof Player p && hasAdaptation(p) && p.getLevel() > 1) {
+            if (!isCriticalHealthDamage(p, e)) {
+                return;
+            }
+
             SoundPlayer sp = SoundPlayer.of(p);
             int xpCost = getXpTaken(getLevel(p));
             if (p.getLevel() < xpCost) {
@@ -78,11 +84,12 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
                 sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
                 return;
             }
-            Long cooldown = cooldowns.get(p);
-            if (cooldown == null || M.ms() - cooldown > 15000) {
+            UUID id = p.getUniqueId();
+            Long cooldown = cooldowns.get(id);
+            if (cooldown == null || M.ms() - cooldown > COOLDOWN_MILLIS) {
                 e.setDamage(e.getDamage() - (e.getDamage() * (getEffectiveness(getLevelPercent(getLevel(p))))));
                 xp(p, 5);
-                cooldowns.put(p, M.ms());
+                cooldowns.put(id, M.ms());
                 p.setLevel(p.getLevel() - xpCost);
                 vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.LIME);
                 sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 3, 0.01f);
@@ -92,6 +99,11 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
                 sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
             }
         }
+    }
+
+    private boolean isCriticalHealthDamage(Player p, EntityDamageEvent e) {
+        double predictedHealth = p.getHealth() - e.getFinalDamage();
+        return predictedHealth <= 0 || predictedHealth <= getConfig().triggerHealthThreshold;
     }
 
     @Override
@@ -122,5 +134,6 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
         int levelDrain = 2;
         int levelCostAdd = 12;
         double amplifier = 1.0;
+        double triggerHealthThreshold = 10.0;
     }
 }

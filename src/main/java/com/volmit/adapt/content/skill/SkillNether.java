@@ -18,14 +18,20 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.nether.NetherFireResist;
 import com.volmit.adapt.content.adaptation.nether.NetherSkullYeet;
 import com.volmit.adapt.content.adaptation.nether.NetherWitherResist;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -51,6 +57,36 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         registerAdaptation(new NetherWitherResist());
         registerAdaptation(new NetherSkullYeet());
         registerAdaptation(new NetherFireResist());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WITHER_SKELETON_SKULL)
+                .key("challenge_nether_50")
+                .title(Localizer.dLocalize("advancement", "challenge_nether_50", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_nether_50", "description"))
+                .model(CustomModel.get(Material.WITHER_SKELETON_SKULL, "advancement", "nether", "challenge_nether_50"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHER_STAR)
+                        .key("challenge_nether_500")
+                        .title(Localizer.dLocalize("advancement", "challenge_nether_500", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_nether_500", "description"))
+                        .model(CustomModel.get(Material.NETHER_STAR, "advancement", "nether", "challenge_nether_500"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.BEACON)
+                                .key("challenge_nether_5k")
+                                .title(Localizer.dLocalize("advancement", "challenge_nether_5k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_nether_5k", "description"))
+                                .model(CustomModel.get(Material.BEACON, "advancement", "nether", "challenge_nether_5k"))
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .build())
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_50").goal(50).stat("nether.kills").reward(getConfig().getChallengeNetherReward()).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_500").goal(500).stat("nether.kills").reward(getConfig().getChallengeNetherReward() * 2).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_5k").goal(5000).stat("nether.kills").reward(getConfig().getChallengeNetherReward() * 5).build());
     }
 
     private boolean shouldReturnForEventWithCause(Player p, EntityDamageEvent.DamageCause cause) {
@@ -90,8 +126,10 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             return;
         }
         if (e.getEntityType() == EntityType.WITHER_SKELETON) {
+            getPlayer(p).getData().addStat("nether.kills", 1);
             xp(p, getConfig().getWitherSkeletonKillXp());
         } else if (e.getEntityType() == EntityType.WITHER) {
+            getPlayer(p).getData().addStat("nether.kills", 1);
             xp(p, getConfig().getWitherKillXp());
         }
     }
@@ -115,6 +153,11 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         if (witherRoseCooldown > 0) {
             witherRoseCooldown--;
         }
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            if (!shouldReturnForPlayer(i)) {
+                checkStatTrackers(getPlayer(i));
+            }
+        }
     }
 
     @Override
@@ -132,5 +175,6 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         private double witherKillXp = 1250;
         private double witherRoseBreakXp = 125;
         private int witherRoseBreakCooldown = 60 * 20;
+        private double challengeNetherReward = 500;
     }
 }

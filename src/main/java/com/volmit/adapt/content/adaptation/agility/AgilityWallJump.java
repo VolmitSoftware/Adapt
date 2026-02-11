@@ -38,6 +38,8 @@ import java.util.Map;
 
 public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     private final Map<Player, Double> airjumps;
+    private final Map<Player, Vector> horizontalIntent;
+    private final Map<Player, Long> horizontalIntentTime;
 
     public AgilityWallJump() {
         super("agility-wall-jump");
@@ -51,6 +53,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
         setInitialCost(getConfig().initialCost);
         setInterval(50);
         airjumps = new HashMap<>();
+        horizontalIntent = new HashMap<>();
+        horizontalIntentTime = new HashMap<>();
     }
 
     @Override
@@ -63,6 +67,8 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     public void on(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         airjumps.remove(p);
+        horizontalIntent.remove(p);
+        horizontalIntentTime.remove(p);
     }
 
     private int getMaxJumps(int level) {
@@ -86,6 +92,18 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
             if (p.isOnGround() && !p.getLocation().getBlock().getRelative(BlockFace.DOWN).getBlockData().getMaterial().isAir()) {
                 airjumps.remove(p);
             }
+        }
+
+        if (e.getTo() == null || e.getFrom().getWorld() == null || e.getTo().getWorld() == null || !e.getFrom().getWorld().equals(e.getTo().getWorld())) {
+            return;
+        }
+
+        Vector delta = e.getTo().toVector().subtract(e.getFrom().toVector());
+        delta.setY(0);
+        double movementThresholdSq = getConfig().inputMovementThreshold * getConfig().inputMovementThreshold;
+        if (delta.lengthSquared() >= movementThresholdSq) {
+            horizontalIntent.put(p, delta.normalize());
+            horizontalIntentTime.put(p, M.ms());
         }
     }
 
@@ -116,19 +134,28 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                 continue;
             }
 
+            Block stickBlock = stickToWall(p);
             if (p.isFlying() || !p.isSneaking() || p.getFallDistance() < 0.3) {
                 boolean jumped = false;
 
-                if (!p.hasGravity() && p.getFallDistance() > 0.45 && canStick(p)) {
+                if (!p.hasGravity() && p.getFallDistance() > 0.45 && stickBlock != null) {
                     j = j == null ? 0 : j;
                     j++;
 
-                    if (j - 0.25 <= getMaxJumps(level) && getStick(p) != null) {
+                    if (j - 0.25 <= getMaxJumps(level)) {
                         jumped = true;
-                        p.setVelocity(p.getVelocity().setY(getJumpHeight(level)));
+                        Vector launch = p.getVelocity().clone().setY(getJumpHeight(level));
+                        if (isBackwardLaunch(p)) {
+                            Vector direction = p.getLocation().getDirection().clone().setY(0);
+                            if (direction.lengthSquared() > 0.000001) {
+                                direction.normalize().multiply(-getConfig().backwardPushSpeed);
+                                launch.setX(direction.getX());
+                                launch.setZ(direction.getZ());
+                            }
+                        }
+                        p.setVelocity(launch);
                         if (getConfig().showParticles) {
-
-                            p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, getStick(p).getBlockData());
+                            p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, stickBlock.getBlockData());
                         }
                     }
                     airjumps.put(p, j);
@@ -142,16 +169,17 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                 continue;
             }
 
-            if (canStick(p)) {
+            if (stickBlock != null) {
                 if (p.hasGravity()) {
                     SoundPlayer spw = SoundPlayer.of(p.getWorld());
                     spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1f, 0.89f);
                     spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_CHAIN, 1f, 1.39f);
-                    if (getConfig().showParticles && getStick(p) != null) {
-                        p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.2, 0.1, 0.1, getStick(p).getBlockData());
+                    if (getConfig().showParticles) {
+                        p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.2, 0.1, 0.1, stickBlock.getBlockData());
                     }
                 }
 
+                applyWallStickForce(p, stickBlock);
                 p.setGravity(false);
                 Vector c = p.getVelocity();
                 p.setVelocity(p.getVelocity().setY((c.getY() * 0.35) - 0.0025));
@@ -161,59 +189,65 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                 airjumps.put(p, vv);
             }
 
-            if (!canStick(p) && !p.hasGravity()) {
+            if (stickBlock == null && !p.hasGravity()) {
                 p.setGravity(true);
             }
         }
     }
 
-    private boolean canStick(Player p) {
-
-        for (Block i : getBlocks(p)) {
-            if (i.getBlockData().getMaterial().isSolid()) {
-                Vector velocity = p.getVelocity();
-                Vector shift = p.getLocation().subtract(i.getLocation().clone().add(0.5, 0.5, 0.5)).toVector();
-                velocity.setX(velocity.getX() - (shift.getX() / 16));
-                velocity.setZ(velocity.getZ() - (shift.getZ() / 16));
-                p.setVelocity(velocity);
-
-                return true;
-            }
+    private boolean isBackwardLaunch(Player p) {
+        Long at = horizontalIntentTime.get(p);
+        Vector intent = horizontalIntent.get(p);
+        if (at == null || intent == null || M.ms() - at > getConfig().inputWindowMs) {
+            return false;
         }
 
-        return false;
+        Vector facing = p.getLocation().getDirection().clone().setY(0);
+        if (facing.lengthSquared() <= 0.000001) {
+            return false;
+        }
+
+        facing.normalize();
+        return intent.dot(facing) <= -Math.abs(getConfig().backwardIntentDotThreshold);
     }
 
-    private Block getStick(Player p) {
-        getBlocks(p);
-
-        for (Block i : getBlocks(p)) {
-            if (i.getBlockData().getMaterial().isSolid()) {
-                return i;
+    private Block stickToWall(Player p) {
+        for (Block wall : getBlocks(p)) {
+            if (wall.getBlockData().getMaterial().isSolid()) {
+                return wall;
             }
         }
 
         return null;
     }
 
+    private void applyWallStickForce(Player p, Block wall) {
+        Vector velocity = p.getVelocity();
+        Vector shift = p.getLocation().toVector().subtract(wall.getLocation().clone().add(0.5, 0.5, 0.5).toVector());
+        velocity.setX(velocity.getX() - (shift.getX() / 16));
+        velocity.setZ(velocity.getZ() - (shift.getZ() / 16));
+        p.setVelocity(velocity);
+    }
+
     private Block[] getBlocks(Player p) {
+        Block base = p.getLocation().getBlock();
         return new Block[]{
-                p.getLocation().getBlock().getRelative(BlockFace.NORTH),
-                p.getLocation().getBlock().getRelative(BlockFace.SOUTH),
-                p.getLocation().getBlock().getRelative(BlockFace.EAST),
-                p.getLocation().getBlock().getRelative(BlockFace.WEST),
-                p.getLocation().getBlock().getRelative(BlockFace.NORTH_EAST),
-                p.getLocation().getBlock().getRelative(BlockFace.SOUTH_EAST),
-                p.getLocation().getBlock().getRelative(BlockFace.NORTH_WEST),
-                p.getLocation().getBlock().getRelative(BlockFace.SOUTH_WEST),
-                p.getLocation().getBlock().getRelative(BlockFace.NORTH_EAST).getRelative(BlockFace.UP),
-                p.getLocation().getBlock().getRelative(BlockFace.SOUTH_EAST).getRelative(BlockFace.UP),
-                p.getLocation().getBlock().getRelative(BlockFace.NORTH_WEST).getRelative(BlockFace.UP),
-                p.getLocation().getBlock().getRelative(BlockFace.SOUTH_WEST).getRelative(BlockFace.UP),
-                p.getLocation().getBlock().getRelative(BlockFace.NORTH).getRelative(BlockFace.UP),
-                p.getLocation().getBlock().getRelative(BlockFace.SOUTH).getRelative(BlockFace.UP),
-                p.getLocation().getBlock().getRelative(BlockFace.EAST).getRelative(BlockFace.UP),
-                p.getLocation().getBlock().getRelative(BlockFace.WEST).getRelative(BlockFace.UP),
+                base.getRelative(BlockFace.NORTH),
+                base.getRelative(BlockFace.SOUTH),
+                base.getRelative(BlockFace.EAST),
+                base.getRelative(BlockFace.WEST),
+                base.getRelative(BlockFace.NORTH_EAST),
+                base.getRelative(BlockFace.SOUTH_EAST),
+                base.getRelative(BlockFace.NORTH_WEST),
+                base.getRelative(BlockFace.SOUTH_WEST),
+                base.getRelative(BlockFace.NORTH_EAST).getRelative(BlockFace.UP),
+                base.getRelative(BlockFace.SOUTH_EAST).getRelative(BlockFace.UP),
+                base.getRelative(BlockFace.NORTH_WEST).getRelative(BlockFace.UP),
+                base.getRelative(BlockFace.SOUTH_WEST).getRelative(BlockFace.UP),
+                base.getRelative(BlockFace.NORTH).getRelative(BlockFace.UP),
+                base.getRelative(BlockFace.SOUTH).getRelative(BlockFace.UP),
+                base.getRelative(BlockFace.EAST).getRelative(BlockFace.UP),
+                base.getRelative(BlockFace.WEST).getRelative(BlockFace.UP),
         };
     }
 
@@ -239,5 +273,9 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
         double maxJumpsLevelBonusDivisor = 2;
         double jumpHeightBase = 0.625;
         double jumpHeightBonusLevelMultiplier = 0.225;
+        double backwardPushSpeed = 0.22;
+        double backwardIntentDotThreshold = 0.35;
+        double inputMovementThreshold = 0.0025;
+        long inputWindowMs = 450;
     }
 }

@@ -20,8 +20,12 @@ package com.volmit.adapt.content.skill;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulGlobe;
@@ -29,6 +33,7 @@ import com.volmit.adapt.content.adaptation.tragoul.TragoulHealing;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulLance;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulThorns;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
 import com.volmit.adapt.util.reflect.registries.Particles;
@@ -63,7 +68,36 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         registerAdaptation(new TragoulGlobe());
         registerAdaptation(new TragoulHealing());
         registerAdaptation(new TragoulLance());
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CRIMSON_ROOTS)
+                .key("challenge_trag_1k")
+                .title(Localizer.dLocalize("advancement", "challenge_trag_1k", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_trag_1k", "description"))
+                .model(CustomModel.get(Material.CRIMSON_ROOTS, "advancement", "tragoul", "challenge_trag_1k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.CRIMSON_STEM)
+                        .key("challenge_trag_10k")
+                        .title(Localizer.dLocalize("advancement", "challenge_trag_10k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_trag_10k", "description"))
+                        .model(CustomModel.get(Material.CRIMSON_STEM, "advancement", "tragoul", "challenge_trag_10k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.NETHER_STAR)
+                                .key("challenge_trag_100k")
+                                .title(Localizer.dLocalize("advancement", "challenge_trag_100k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_trag_100k", "description"))
+                                .model(CustomModel.get(Material.NETHER_STAR, "advancement", "tragoul", "challenge_trag_100k"))
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .build())
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_1k").goal(1000).stat("trag.damage").reward(getConfig().challengeTragReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_10k").goal(10000).stat("trag.damage").reward(getConfig().challengeTragReward * 2).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_100k").goal(100000).stat("trag.damage").reward(getConfig().challengeTragReward * 5).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -168,5 +202,6 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         boolean showParticles = true;
         long cooldownDelay = 1000;
         double damageReceivedXpMultiplier = 2.26;
+        double challengeTragReward = 500;
     }
 }

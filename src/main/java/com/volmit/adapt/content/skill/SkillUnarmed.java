@@ -18,14 +18,20 @@
 
 package com.volmit.adapt.content.skill;
 
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.unarmed.UnarmedGlassCannon;
 import com.volmit.adapt.content.adaptation.unarmed.UnarmedPower;
 import com.volmit.adapt.content.adaptation.unarmed.UnarmedSuckerPunch;
 import com.volmit.adapt.util.C;
+import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -45,6 +51,36 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         registerAdaptation(new UnarmedPower());
         registerAdaptation(new UnarmedGlassCannon());
         setIcon(Material.FIRE_CHARGE);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.FIRE_CHARGE)
+                .key("challenge_unarmed_100")
+                .title(Localizer.dLocalize("advancement", "challenge_unarmed_100", "title"))
+                .description(Localizer.dLocalize("advancement", "challenge_unarmed_100", "description"))
+                .model(CustomModel.get(Material.FIRE_CHARGE, "advancement", "unarmed", "challenge_unarmed_100"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BLAZE_POWDER)
+                        .key("challenge_unarmed_1k")
+                        .title(Localizer.dLocalize("advancement", "challenge_unarmed_1k", "title"))
+                        .description(Localizer.dLocalize("advancement", "challenge_unarmed_1k", "description"))
+                        .model(CustomModel.get(Material.BLAZE_POWDER, "advancement", "unarmed", "challenge_unarmed_1k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.NETHER_STAR)
+                                .key("challenge_unarmed_10k")
+                                .title(Localizer.dLocalize("advancement", "challenge_unarmed_10k", "title"))
+                                .description(Localizer.dLocalize("advancement", "challenge_unarmed_10k", "description"))
+                                .model(CustomModel.get(Material.NETHER_STAR, "advancement", "unarmed", "challenge_unarmed_10k"))
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .build())
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_100").goal(100).stat("unarmed.hits").reward(getConfig().challengeUnarmedReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_1k").goal(1000).stat("unarmed.hits").reward(getConfig().challengeUnarmedReward * 2).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_10k").goal(10000).stat("unarmed.hits").reward(getConfig().challengeUnarmedReward * 5).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -81,7 +117,12 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
 
     @Override
     public void onTick() {
-
+        if (!this.isEnabled()) {
+            return;
+        }
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
+        }
     }
 
     @Override
@@ -93,5 +134,6 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     protected static class Config {
         boolean enabled = true;
         double damageXPMultiplier = 8.44;
+        double challengeUnarmedReward = 500;
     }
 }
