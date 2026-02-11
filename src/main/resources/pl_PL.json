@@ -1,119 +1,119 @@
 {
   "advancement": {
     "challenge_move_1k": {
-      "title": "Muszę się ruszać!",
-      "description": "Przejdź przez 1 kilometr (1000 bloków)"
+      "title": "Ruszaj sie!",
+      "description": "Przejdz ponad 1 kilometr (1000 blokow)"
     },
     "challenge_sprint_5k": {
-      "title": "Sprint 5K!",
-      "description": "Przejdź przez 5 kilometrów (5000 bloków)"
+      "title": "Przebieg 5K!",
+      "description": "Przejdz ponad 5 kilometrow (5000 blokow)"
     },
     "challenge_sprint_50k": {
-      "title": "Powiększ 50K!",
-      "description": "Przejdź przez 50 kilometrów (50 000 bloków)"
+      "title": "Przesmiglaj 50K!",
+      "description": "Przejdz ponad 50 kilometrow (50 000 blokow)"
     },
     "challenge_sprint_500k": {
-      "title": "Przemierzaj Wszechświat !!",
-      "description": "Przejdź przez 500 kilometrów (500 000 bloków)"
+      "title": "Przemierz Wszechswiat!!",
+      "description": "Przejdz ponad 500 kilometrow (500 000 blokow)"
     },
     "challenge_sprint_marathon": {
-      "title": "Sprint (dosłowny) maraton!",
-      "description": "Sprint ponad 42 195 bloków!"
+      "title": "Przebieg (doslownego) Maratonu!",
+      "description": "Przebiegnij ponad 42 195 blokow!"
     },
     "challenge_place_1k": {
-      "title": "Początkujący budowlaniec!",
-      "description": "Umieść 1000 bloków"
+      "title": "Poczatkujacy Budowniczy!",
+      "description": "Umiesc 1000 blokow"
     },
     "challenge_place_5k": {
-      "title": "Pośredni Konstruktor!",
-      "description": "Umieść 5000 bloków"
+      "title": "Sredniozaawansowany Budowniczy!",
+      "description": "Umiesc 5000 blokow"
     },
     "challenge_place_50k": {
-      "title": "Zaawansowany Konstruktor!",
-      "description": "Umieść 50 000 bloków"
+      "title": "Zaawansowany Budowniczy!",
+      "description": "Umiesc 50 000 blokow"
     },
     "challenge_place_500k": {
-      "title": "Mistrz budownictwa!",
-      "description": "Umieść 500 000 bloków"
+      "title": "Mistrz Budowniczy!",
+      "description": "Umiesc 500 000 blokow"
     },
     "challenge_place_5m": {
       "title": "Akolita Symetrii!",
-      "description": "RZECZYWISTOŚĆ TO TWÓJ PLAC ZABAW! (5 milionów bloków)"
+      "description": "RZECZYWISTOSC TO TWOJ PLAC ZABAW! (5 milionow blokow)"
     },
     "challenge_chop_1k": {
-      "title": "Nowicjusz drwal!",
-      "description": "Umieść 1000 bloków"
+      "title": "Poczatkujacy Drwal!",
+      "description": "Wytnij 1000 blokow"
     },
     "challenge_chop_5k": {
-      "title": "Drwal średni!",
-      "description": "Umieść 5000 bloków"
+      "title": "Sredniozaawansowany Drwal!",
+      "description": "Wytnij 5000 blokow"
     },
     "challenge_chop_50k": {
-      "title": "Zaawansowany drwal!",
-      "description": "Umieść 50 000 bloków"
+      "title": "Zaawansowany Drwal!",
+      "description": "Wytnij 50 000 blokow"
     },
     "challenge_chop_500k": {
-      "title": "Mistrzu drwala!",
-      "description": "Umieść 500 000 bloków"
+      "title": "Mistrz Drwal!",
+      "description": "Wytnij 500 000 blokow"
     },
     "challenge_chop_5m": {
-      "title": "Pies Jackson",
-      "description": "Najlepszy dobry chłopak! (5 milionów bloków)"
+      "title": "Jackson Piesek",
+      "description": "Najlepszy dobry chlopak! (5 milionow blokow)"
     },
     "challenge_block_1k": {
-      "title": "Ledwo blokuje!",
-      "description": "Zablokuj 1000 trafień"
+      "title": "Ledwo Blokujesz!",
+      "description": "Zablokuj 1000 trafien"
     },
     "challenge_block_5k": {
-      "title": "Blokowanie jest fajne!",
-      "description": "Zablokuj 5000 trafień"
+      "title": "Blokowanie jest Fajne!",
+      "description": "Zablokuj 5000 trafien"
     },
     "challenge_block_50k": {
-      "title": "Blokowanie to moje życie!",
-      "description": "Zablokuj 50 000 trafień"
+      "title": "Blokowanie to moje zycie!",
+      "description": "Zablokuj 50 000 trafien"
     },
     "challenge_block_500k": {
-      "title": "Blokowanie jest moim celem!",
-      "description": "Zablokuj 500 000 trafień"
+      "title": "Blokowanie to moje Powolanie!",
+      "description": "Zablokuj 500 000 trafien"
     },
     "challenge_block_5m": {
       "title": "Die Hand Die Verletzt",
-      "description": "Zablokuj 5 000 000 trafień"
+      "description": "Zablokuj 5 000 000 trafien"
     },
     "challenge_brew_1k": {
-      "title": "Początkujący Alchemik!",
-      "description": "Spożyj 1000 mikstur"
+      "title": "Poczatkujacy Alchemik!",
+      "description": "Wypij 1000 mikstur"
     },
     "challenge_brew_5k": {
-      "title": "Średni Alchemik!",
-      "description": "Spożyj 5000 mikstur"
+      "title": "Sredniozaawansowany Alchemik!",
+      "description": "Wypij 5000 mikstur"
     },
     "challenge_brew_50k": {
       "title": "Zaawansowany Alchemik!",
-      "description": "Spożyj 50 000 mikstur"
+      "description": "Wypij 50 000 mikstur"
     },
     "challenge_brew_500k": {
-      "title": "Mistrzu Alchemiku!",
-      "description": "Spożyj 500 000 mikstur"
+      "title": "Mistrz Alchemik!",
+      "description": "Wypij 500 000 mikstur"
     },
     "challenge_brew_5m": {
       "title": "Alchemik",
-      "description": "Spożyj 5 000 000 mikstur"
+      "description": "Wypij 5 000 000 mikstur"
     },
     "challenge_brewsplash_1k": {
-      "title": "Początkujący Rozpryskujący Eliksiry!",
-      "description": "Spryskaj 1000 mikstur"
+      "title": "Poczatkujacy Rozpryskiwacz Mikstur!",
+      "description": "Rozpryskaj 1000 mikstur"
     },
     "challenge_brewsplash_5k": {
-      "title": "Średnio zaawansowany rozpryskujący mikstury!",
-      "description": "Splash 5000 mikstur"
+      "title": "Sredniozaawansowany Rozpryskiwacz Mikstur!",
+      "description": "Rozpryskaj 5000 mikstur"
     },
     "challenge_brewsplash_50k": {
-      "title": "Zaawansowany rozpryskujący mikstury!",
-      "description": "Spryskaj 50 000 mikstur"
+      "title": "Zaawansowany Rozpryskiwacz Mikstur!",
+      "description": "Rozpryskaj 50 000 mikstur"
     },
     "challenge_brewsplash_500k": {
-      "title": "Mistrz rozpryskiwania eliksirów!",
+      "title": "Mistrz Rozpryskiwania Mikstur!",
       "description": "Rozpryskaj 500 000 mikstur"
     },
     "challenge_brewsplash_5m": {
@@ -121,1022 +121,1131 @@
       "description": "Rozpryskaj 5 000 000 mikstur"
     },
     "challenge_craft_1k": {
-      "title": "Sprytny Rzemieślnik!",
-      "description": "Stwórz 1000 przedmiotów"
+      "title": "Sprytny Rzemieslnik!",
+      "description": "Wytworz 1000 przedmiotow"
     },
     "challenge_craft_5k": {
-      "title": "Kłótliwy Rzemieślnik!",
-      "description": "Stwórz 5000 przedmiotów"
+      "title": "Zrzedliwy Rzemieslnik!",
+      "description": "Wytworz 5000 przedmiotow"
     },
     "challenge_craft_50k": {
-      "title": "Rzemieślnik szyjki macicy!",
-      "description": "Stwórz 50 000 przedmiotów"
+      "title": "Pokorny Rzemieslnik!",
+      "description": "Wytworz 50 000 przedmiotow"
     },
     "challenge_craft_500k": {
-      "title": "Kakofoniczny rzemieślnik!",
-      "description": "Stwórz 500 000 przedmiotów"
+      "title": "Kakofoniczny Rzemieslnik!",
+      "description": "Wytworz 500 000 przedmiotow"
     },
     "challenge_craft_5m": {
-      "title": "Nieszczęsny McCraftface",
-      "description": "Stwórz 5 000 000 przedmiotów"
+      "title": "Kleskowy McCraftface",
+      "description": "Wytworz 5 000 000 przedmiotow"
     },
     "challenge_enchant_1k": {
-      "title": "Nowicjusz Zaklinacz!",
-      "description": "Zaczaruj 1000 przedmiotów"
+      "title": "Poczatkujacy Zaklinacz!",
+      "description": "Zaczaruj 1000 przedmiotow"
     },
     "challenge_enchant_5k": {
-      "title": "Pośredni Zaklinacz!",
-      "description": "Zaczaruj 5000 przedmiotów"
+      "title": "Sredniozaawansowany Zaklinacz!",
+      "description": "Zaczaruj 5000 przedmiotow"
     },
     "challenge_enchant_50k": {
       "title": "Zaawansowany Zaklinacz!",
-      "description": "Zaczaruj 50 000 przedmiotów"
+      "description": "Zaczaruj 50 000 przedmiotow"
     },
     "challenge_enchant_500k": {
-      "title": "Mistrzu Czarodzieju!",
-      "description": "Zaczaruj 500 000 przedmiotów"
+      "title": "Mistrz Zaklinacz!",
+      "description": "Zaczaruj 500 000 przedmiotow"
     },
     "challenge_enchant_5m": {
       "title": "Enigmatyczny Zaklinacz",
-      "description": "Zaczaruj 5 000 000 przedmiotów"
+      "description": "Zaczaruj 5 000 000 przedmiotow"
     },
     "challenge_excavate_1k": {
-      "title": "Zwabiony koparka!",
-      "description": "Wydobądź 1000 bloków"
+      "title": "Poczatkujacy Kopacz!",
+      "description": "Wykop 1000 blokow"
     },
     "challenge_excavate_5k": {
-      "title": "Koparka średniozaawansowana!",
-      "description": "Wydobądź 5000 bloków"
+      "title": "Sredniozaawansowany Kopacz!",
+      "description": "Wykop 5000 blokow"
     },
     "challenge_excavate_50k": {
-      "title": "Zaawansowana koparka!",
-      "description": "Wydobądź 50 000 bloków"
+      "title": "Zaawansowany Kopacz!",
+      "description": "Wykop 50 000 blokow"
     },
     "challenge_excavate_500k": {
-      "title": "Mistrz koparki!",
-      "description": "Wydobądź 500 000 bloków"
+      "title": "Mistrz Kopacz!",
+      "description": "Wykop 500 000 blokow"
     },
     "challenge_excavate_5m": {
-      "title": "Enigmatyczna koparka",
-      "description": "Wydobądź 5 000 000 bloków"
+      "title": "Enigmatyczny Kopacz",
+      "description": "Wykop 5 000 000 blokow"
     },
     "horrible_person": {
-      "title": "Jesteś okropną osobą",
-      "description": "Niepojęte, naprawdę"
+      "title": "Jestes okropna osoba",
+      "description": "Niepojete, naprawde"
     },
     "challenge_turtle_egg_smasher": {
-      "title": "Rozbijacz jaj żółwi!",
-      "description": "Rozbij 100 żółwich jaj"
+      "title": "Rozbijacz Jaj Zolwi!",
+      "description": "Zniszcz 100 jaj zolwia"
     },
     "challenge_turtle_egg_annihilator": {
-      "title": "Niszczyciel żółwich jaj!",
-      "description": "Rozbij 500 żółwich jaj"
+      "title": "Anihilator Jaj Zolwi!",
+      "description": "Zniszcz 500 jaj zolwia"
     },
     "challenge_novice_hunter": {
-      "title": "Nowicjusz Łowca!",
+      "title": "Poczatkujacy Lowca!",
       "description": "Zabij 100 istot"
     },
     "challenge_intermediate_hunter": {
-      "title": "Średni myśliwy!",
+      "title": "Sredniozaawansowany Lowca!",
       "description": "Zabij 500 istot"
     },
     "challenge_advanced_hunter": {
-      "title": "Zaawansowany Łowca!",
+      "title": "Zaawansowany Lowca!",
       "description": "Zabij 5000 istot"
     },
     "challenge_creeper_conqueror": {
-      "title": "Zdobywca Creeperów!",
-      "description": "Zabij 50 creeperów"
+      "title": "Pogromca Creeperow!",
+      "description": "Zabij 50 creeperow"
     },
     "challenge_creeper_annihilator": {
-      "title": "Niszczyciel Creeperów!",
-      "description": "Zabij 200 creeperów"
+      "title": "Anihilator Creeperow!",
+      "description": "Zabij 200 creeperow"
     },
     "challenge_pickaxe_1k": {
-      "title": "Początkujący górnik",
-      "description": "Rozbij 1000 bloków"
+      "title": "Poczatkujacy Gornik",
+      "description": "Zniszcz 1000 blokow"
     },
     "challenge_pickaxe_5k": {
-      "title": "Wykwalifikowany Górnik",
-      "description": "Rozbij 5000 bloków"
+      "title": "Wykwalifikowany Gornik",
+      "description": "Zniszcz 5000 blokow"
     },
     "challenge_pickaxe_50k": {
-      "title": "Ekspert Górnik",
-      "description": "Zniszcz 50 000 bloków"
+      "title": "Ekspert Gornik",
+      "description": "Zniszcz 50 000 blokow"
     },
     "challenge_pickaxe_500k": {
-      "title": "Mistrz górnictwa",
-      "description": "Zniszcz 500 000 bloków"
+      "title": "Mistrz Gornik",
+      "description": "Zniszcz 500 000 blokow"
     },
     "challenge_pickaxe_5m": {
-      "title": "Legendarny Górnik",
-      "description": "Złam 5 000 000 bloków"
+      "title": "Legendarny Gornik",
+      "description": "Zniszcz 5 000 000 blokow"
+    },
+    "challenge_eat_100": {
+      "title": "Tyle do jedzenia!",
+      "description": "Zjedz ponad 100 przedmiotow!"
+    },
+    "challenge_eat_1000": {
+      "title": "Nienasycony Glod!",
+      "description": "Zjedz ponad 1000 przedmiotow!"
+    },
+    "challenge_eat_10000": {
+      "title": "WIECZNY GLOD!",
+      "description": "Zjedz ponad 10 000 przedmiotow!"
+    },
+    "challenge_harvest_100": {
+      "title": "Pelne Zniwa",
+      "description": "Zbierz ponad 100 upraw!"
+    },
+    "challenge_harvest_1000": {
+      "title": "Wielkie Zniwa",
+      "description": "Zbierz ponad 1000 upraw!"
+    },
+    "challenge_swim_1nm": {
+      "title": "Ludzki Okret Podwodny!",
+      "description": "Preplyn 1 Mile Morska (1852 bloki)"
+    },
+    "challenge_sneak_1k": {
+      "title": "Bol Kolan",
+      "description": "Skradaj sie ponad kilometr (1000 blokow)"
     }
   },
   "items": {
     "boundenderperal": {
-      "name": "Relikwiarz świstoklik",
-      "usage1": "Shift + lewy przycisk myszy, aby powiązać",
-      "usage2": "Kliknij prawym przyciskiem myszy, aby uzyskać dostęp do powiązanego ekwipunku"
+      "name": "Relikwiarzowy Switoklin",
+      "usage1": "Shift + Lewy Przycisk Myszy aby przywiazac",
+      "usage2": "Prawy Przycisk Myszy aby uzyskac dostep do przywiazanego ekwipunku"
     },
     "boundeyeofender": {
-      "name": "Kotwica oka",
-      "usage1": "Kliknij prawym przyciskiem myszy, aby skonsumować i teleportować się do powiązanej lokalizacji",
-      "usage2": "Shift + lewy przycisk myszy, aby powiązać z blokiem"
+      "name": "Kotwica Okularowa",
+      "usage1": "Prawy Przycisk Myszy aby zuzyc i teleportowac sie do przywiazanej lokalizacji",
+      "usage2": "Shift + Lewy Przycisk Myszy aby przywiazac do bloku"
     },
     "boundredstonetorch": {
       "name": "Pilot Redstone",
-      "usage1": "Kliknij prawym przyciskiem myszy, aby utworzyć impuls Redstone 1-Tick",
-      "usage2": "Shift + lewy przycisk myszy na bloku „celu”, aby powiązać"
+      "usage1": "Prawy Przycisk Myszy aby wytworzyc impuls Redstone 1-Tick",
+      "usage2": "Shift + Lewy Przycisk Myszy na bloku 'Cel' aby przywiazac"
     },
     "boundsnowball": {
-      "name": "Sieciowy pułapka!",
-      "usage1": "Rzuć, aby utworzyć tymczasową pułapkę sieciową w tym miejscu"
+      "name": "Pajeczyna Pulapka!",
+      "usage1": "Rzuc aby stworzyc tymczasowa pulapke z pajeczyn w danym miejscu"
+    },
+    "chronotimebottle": {
+      "name": "Czas w Butelce",
+      "usage1": "Pasywnie gromadzi czas bedac w ekwipunku",
+      "usage2": "Kliknij prawym przyciskiem myszy na bloki czasowe lub mlode zwierzeta aby wydac zgromadzony czas",
+      "stored": "Zgromadzony Czas"
+    },
+    "chronotimebomb": {
+      "name": "Bomba Czasowa",
+      "usage1": "Kliknij prawym przyciskiem myszy aby wystrzelec bolid chrono tworzacy pole temporalne"
+    },
+    "elevatorblock": {
+      "name": "Blok Windy",
+      "usage1": "Skocz aby teleportowac sie w gore",
+      "usage2": "Kucnij aby teleportowac sie w dol",
+      "usage3": "Minimum 2 bloki powietrza miedzy windami"
     }
   },
   "snippets": {
     "gui": {
       "level": "Poziom",
-      "knowledge": "Wiedza",
-      "powerused": "Użyta moc",
-      "notlearned": "Nie Nauczono",
-      "xp": "XP do",
-      "welcome": "Witamy!",
-      "welcomeback": "Witamy spowrotem!",
-      "xpbonusfortime": "XP za",
-      "unlockthisbyclicking": "Odblokuj to, klikając prawym przyciskiem myszy:",
-      "back": "Z powrotem",
-      "unlearnall": "Oducz się wszystkich",
+      "knowledge": "wiedza",
+      "powerused": "Uzyta Moc",
+      "notlearned": "Nie Nauczone",
+      "xp": "PD do",
+      "welcome": "Witaj!",
+      "welcomeback": "Witaj ponownie!",
+      "xpbonusfortime": "PD za",
+      "maxabilitypower": "Maksymalna Moc Umiejetnosci",
+      "unlockthisbyclicking": "Odblokuj to klikajac Prawym Przyciskiem Myszy: ",
+      "back": "Wstecz",
+      "unlearnall": "Oducz sie wszystkiego",
       "unlearnedall": "Wszystko oduczone"
     },
     "adaptmenu": {
-      "maynotunlearn": "NIE MOŻESZ SIĘ ODUCZYĆ",
-      "mayunlearn": "MOŻESZ SIĘ UCZYĆ/ODUCZYĆ",
+      "maynotunlearn": "NIE MOZESZ SIE ODUCZYC",
+      "mayunlearn": "MOZESZ SIE UCZYC/ODUCZYC",
       "knowledgecost": "Koszt Wiedzy",
-      "knowledgeavailable": "Dostępna wiedza",
-      "alreadylearned": "Już Nauczono",
-      "unlearnrefund": "Kliknij, aby się oduczyć i otrzymać zwrot XP",
-      "norefunds": "HARDCORE, ZWROTY ZWROTÓW WYŁĄCZONE",
-      "knowledge": "Wiedza",
-      "clicklearn": "Kliknij, aby dowiedzieć się",
-      "noknowledge": "(Nie masz żadnej wiedzy)",
-      "youonlyhave": "Posiadasz tylko",
-      "howtolevelup": "Zwiększaj umiejętności, aby zwiększyć swoją maksymalną moc.",
-      "notenoughpower": "Za mało mocy! Każdy poziom umiejętności kosztuje 1 moc.",
-      "power": "Moc",
-      "powerdrain": "Pobór mocy",
-      "learned": "Nauczono",
-      "unlearned": "Nieuczony",
-      "activatorblock": "Półka na książki"
+      "knowledgeavailable": "Dostepna Wiedza",
+      "alreadylearned": "Juz Nauczone",
+      "unlearnrefund": "Kliknij aby Oduczyc sie i Odzyskac",
+      "norefunds": "HARDCORE, ZWROTY WYLACZONE",
+      "knowledge": "wiedza",
+      "clicklearn": "Kliknij aby sie Nauczyc",
+      "noknowledge": "(Nie masz zadnej Wiedzy)",
+      "youonlyhave": "Masz tylko",
+      "howtolevelup": "Rozwijaj umiejetnosci, aby zwiekszyc maksymalna moc.",
+      "notenoughpower": "Za malo mocy! Kazdy Poziom Umiejetnosci kosztuje 1 moc.",
+      "power": "moc",
+      "powerdrain": "Zuzycie Mocy",
+      "learned": "Nauczone ",
+      "unlearned": "Oduczone ",
+      "activatorblock": "Polka na ksiazki"
     },
     "knowledgeorb": {
-      "contains": "Zawiera",
-      "knowledge": "Wiedza",
-      "rightclick": "Kliknij Prawym Przyciskiem Myszy",
-      "togainknowledge": "do zdobycia tej wiedzy",
+      "contains": "zawiera",
+      "knowledge": "wiedzy",
+      "rightclick": "Kliknij Prawym Przyciskiem",
+      "togainknowledge": "aby zdobyc te wiedze",
       "knowledgeorb": "Kula Wiedzy"
     },
     "experienceorb": {
-      "contains": "Zawiera",
-      "xp": "Doświadczenie",
-      "rightclick": "Prawy Przycisk",
-      "togainxp": "do zdobycia tego doświadczenia",
-      "xporb": "Kula Doświadczenia"
+      "contains": "zawiera",
+      "xp": "Doswiadczenia",
+      "rightclick": "Kliknij Prawym Przyciskiem",
+      "togainxp": "aby zdobyc to doswiadczenie",
+      "xporb": "Kula Doswiadczenia"
     }
   },
   "skill": {
     "agility": {
-      "name": "Zręczność",
-      "icon": "⇉",
-      "description": "Zwinność to umiejętność szybkiego i płynnego poruszania się w obliczu przeszkód."
+      "name": "Zwinnosc",
+      "icon": "\u21c9",
+      "description": "Zwinnosc to umiejetnosc szybkiego i plynnego poruszania sie w obliczu przeszkod."
     },
     "architect": {
       "name": "Architekt",
-      "icon": "⬧",
-      "description": "Struktury są budulcem świata. Rzeczywistość jest w Twoich rękach i pod Twoją kontrolą."
+      "icon": "\u2b27",
+      "description": "Struktury sa budulcem swiata. Rzeczywistosc jest w Twoich rekach i pod Twoja kontrola."
     },
     "axes": {
       "name": "Siekiery",
-      "icon": "❖",
-      "description1": "Po co ścinać drzewa, skoro można rąbać",
+      "icon": "\ud83e\ude93",
+      "description1": "Po co scinac drzewa, skoro mozna rabac ",
       "description2": "rzeczy",
-      "description3": "zamiast tego ten sam efekt końcowy!"
+      "description3": "zamiast tego, ten sam efekt koncowy!"
     },
     "brewing": {
       "name": "Browarnictwo",
-      "icon": "❦",
-      "description": "Double Bubble, Triple Bubble, Quadruple Bubble- Nadal nie mogę wlać tej mikstury do kociołka"
+      "icon": "\u2766",
+      "description": "Podwojny Babelek, Potrojny Babelek, Poczworny Babelek- Nadal nie moge wlac tej mikstury do kotla"
     },
     "blocking": {
-      "name": "Bloking",
-      "icon": "▒",
-      "description": "Kije i kamienie nie złamią twoich kości, ale tarcza złamie."
+      "name": "Blokowanie",
+      "icon": "\ud83d\udee1",
+      "description": "Kije i kamienie nie zlamia Ci kosci, ale tarcza owszem."
     },
     "crafting": {
-      "name": "Rzemiosło",
-      "icon": "⌂",
-      "description": "Skoro nie ma już kawałków do umieszczenia, dlaczego nie zrobić kolejnego?"
+      "name": "Rzemioslo",
+      "icon": "\u2302",
+      "description": "Skoro nie ma juz czesci do ulozenia, czemu nie zrobic kolejnej?"
     },
     "discovery": {
       "name": "Odkrycie",
-      "icon": "⚛",
-      "description": "Gdy twoja Percepcja się rozszerza, twój umysł rozplątuje się, by odkryć to, czego nie odkryłeś"
+      "icon": "\u269b",
+      "description": "Gdy twoja percepcja sie rozszerza, twoj umysl rozplatuje sie, by odkryc to, czego nie odkryles."
     },
     "enchanting": {
-      "name": "Uroczy",
-      "icon": "♰",
-      "description": "O czym ty mówisz? Proroctwa, wizje, przesądny bełkot?"
+      "name": "Zaklecia",
+      "icon": "\u2720",
+      "description": "O czym ty mowisz? Proroctwa, wizje, przesadny belkot?"
     },
     "excavation": {
-      "name": "Wykop",
-      "icon": "✥",
-      "description": "Diggey Diggey otwór..."
+      "name": "Wykopywanie",
+      "icon": "\u16f3",
+      "description": "Kopie kopie doleczek..."
     },
     "herbalism": {
       "name": "Zielarstwo",
-      "icon": "⚘",
-      "description": "Nie mogę znaleźć żadnych roślin, ale mogę znaleźć nasiona i- czy to... Ziele?"
+      "icon": "\u2698",
+      "description": "Nie moge znalezc zadnych roslin, ale moge znalezc nasiona i- czy to... Ziele?"
     },
     "hunter": {
-      "name": "Łowca",
-      "icon": "☠",
-      "description": "Polowanie dotyczy podróży, a nie wyniku."
+      "name": "Lowca",
+      "icon": "\u2620",
+      "description": "W polowaniu liczy sie podroz, nie wynik."
     },
     "nether": {
-      "name": "nether",
-      "icon": "₪",
-      "description": "Z głębi samego Netheru."
+      "name": "Nether",
+      "icon": "\u20aa",
+      "description": "Z glebin samego Netheru."
     },
     "pickaxe": {
       "name": "Kilof",
-      "icon": "⛏",
-      "description": "Krasnoludy to górnicy, ale w swoim czasie nauczyłem się kilku rzeczy. JESTEM SZWEDEM"
+      "icon": "\u26cf",
+      "description": "Krasnoludy sa gornikami, ale ja tez sie czegos nauczylem. JESTEM SZWEDEM"
     },
     "ranged": {
       "name": "Dystansowy",
-      "icon": "🏹",
-      "description": "Trzymanie wroga na dystans jest kluczem do zwycięstwa i kluczem do przetrwania."
+      "icon": "\ud83c\udff9",
+      "description": "Dystans to klucz do zwyciestwa i klucz do przetrwania."
     },
     "rift": {
       "name": "Szczelina",
-      "icon": "❍",
-      "description": "Rift to uprząż żrąca, ale ty ją wykorzystałeś."
+      "icon": "\u274d",
+      "description": "Szczelina to zraca uprza, ale ty ja opanowalec."
     },
     "seaborne": {
       "name": "Morski",
-      "icon": "🌊",
-      "description": "Dzięki tej umiejętności możesz poznać morskie cuda"
+      "icon": "\ud83c\udfa3",
+      "description": "Dzieki tej umiejetnosci mozesz obudzic cuda wody."
     },
     "stealth": {
       "name": "Skradanie",
-      "icon": "✠",
-      "description": "Sztuka niewidzialnego. Ukryj się w cieniu."
+      "icon": "\u262f",
+      "description": "Sztuka niewidzialnosci. Krocz w cieniach."
     },
     "swords": {
       "name": "Miecze",
-      "icon": "⚔",
-      "description": "Dzięki mocy GreyStone!"
+      "icon": "\u2694",
+      "description": "Moca Szarego Kamienia!"
     },
     "taming": {
       "name": "Oswajanie",
-      "icon": "♥",
-      "description": "Papugi, pszczoły... i ty?"
+      "icon": "\u2665",
+      "description": "Papugi i pszczoly... a ty?"
     },
     "tragoul": {
       "name": "TragOul",
-      "icon": "▼",
-      "description": "Krew płynie żyłami wszechświata. Zaciśnięte przez twoje ręce."
+      "icon": "\ud83d\udde1",
+      "description": "Krew plynie zylami wszechswiata. Scisnieta przez twoje dlonie."
     },
     "chronos": {
-      "name": "chronos",
-      "icon": "۞",
-      "description": "Nakręć Zegar wszechświata, poczuj przepływ. Złam zegar, zostań tym."
+      "name": "Chronos",
+      "icon": "\ud83d\udd52",
+      "description": "Nakrec Zegar wszechswiata, poczuj przeplyw. Zlam zegar, stac sie nim."
     },
     "unarmed": {
-      "name": "Nieuzbrojony",
-      "icon": "⚜",
-      "description": "Bez broni nie jest bez siły"
+      "name": "Walka Wreczna",
+      "icon": "\u00bb",
+      "description": "Bez broni nie znaczy bez sily."
     }
   },
   "agility": {
     "armorup": {
-      "name": "Zbroja-Up",
-      "description": "Zdobądź więcej pancerza, im dłużej sprintujesz!",
+      "name": "Pancerz-Up",
+      "description": "Zdobywaj wiecej pancerza im dluzej sprintujesz!",
       "lore1": "Maksymalny Pancerz",
-      "lore2": "Czas Do Uzbrojenia"
+      "lore2": "Czas Narastania Pancerza"
+    },
+    "ladderslide": {
+      "name": "Zjazd po Drabinie",
+      "description": "Wspinaj sie i zesliguj po drabinach znacznie szybciej w obu kierunkach.",
+      "lore1": "Mnoznik predkosci na drabinie",
+      "lore2": "Predkosc szybkiego zjazdu"
     },
     "superjump": {
       "name": "Super Skok",
-      "description": "Nadzwyczajna Przewaga Wysokości",
-      "lore1": "Maksymalna Wysokość Skoku",
-      "lore2": "Skradanie się + skok do superskoku!"
+      "description": "Wyjatkowa Przewaga Wysokosci.",
+      "lore1": "Maksymalna Wysokosc Skoku",
+      "lore2": "Kucnij + Skok aby wykonac Super Skok!"
     },
     "walljump": {
-      "name": "Skok Po Ścianie",
-      "description": "Przytrzymaj shift, gdy jesteś w powietrzu przy ścianie do ściany, zatrzaskuj się i skacz!",
-      "lore1": "Maksymalna Ilość Skoków",
-      "lore2": "Wysokość Skoku"
+      "name": "Skok od Sciany",
+      "description": "Przytrzymaj Shift w powietrzu przy scianie aby sie przyczepic i odskoczycz!",
+      "lore1": "Maksymalna Ilosc Skokow",
+      "lore2": "Wysokosc Skoku"
     },
     "windup": {
-      "name": "Zakończyć",
-      "description": "Nabierz prędkości im dłużej biegniesz!",
-      "lore1": "Maksymalna Prędkość",
-      "lore2": "Czas zakończenia"
+      "name": "Rozkrecanie",
+      "description": "Nabieraj predkosci im dluzej biegniesz!",
+      "lore1": "Maksymalna Predkosc",
+      "lore2": "Czas Rozkrecania"
     }
   },
   "architect": {
+    "elevator": {
+      "name": "Winda",
+      "description": "Pozwala zbudowac winde do szybkiego teleportowania sie w pionie!",
+      "lore1": "Odblokowuje przepis na winde: X=WELNA, Y=PERLA ENDERA",
+      "lore2": "XXX",
+      "lore3": "XYX",
+      "lore4": "XXX"
+    },
     "foundation": {
-      "name": "Magiczna Fundacja",
-      "description": "To pozwala ci się zakraść i umieścić pod sobą tymczasowy podkład!",
-      "lore1": "Stwórz magicznie:",
-      "lore2": "Bloki pod tobą!"
+      "name": "Magiczny Fundament",
+      "description": "Pozwala na kucniecie i umieszczenie tymczasowego fundamentu pod soba!",
+      "lore1": "Magicznie stworz: ",
+      "lore2": "Blokow pod soba!"
     },
     "glass": {
-      "name": "Jedwabny Dotyk Szkła",
-      "description": "Pozwala to zasadniczo zapobiec utracie pustaków szklanych, gdy rozbijesz je pustą ręką!",
-      "lore1": "Twoje dłonie zyskują jedwabisty dotyk do szkła"
+      "name": "Jedwabny Dotyk Szkla",
+      "description": "Zapobiega utracie blokow szklanych kiedy rozbijasz je gola reka!",
+      "lore1": "Twoje rece zyskuja Jedwabny Dotyk dla Szkla"
     },
     "wirelessredstone": {
       "name": "Pilot Redstone",
-      "description": "Dzięki temu możesz używać latarki z czerwonego kamienia do zdalnego przełączania czerwonego kamienia!",
-      "lore1": "Cel + Redstone Torch + Enderperal = 1 Redstone Remote"
+      "description": "Pozwala uzyc pochodni z redstone do zdalnego przelaczania redstone!",
+      "lore1": "Cel + Pochodnia Redstone + Perla Endera = 1 Pilot Redstone"
     },
     "placement": {
-      "name": "Różdzka Konstruktora",
-      "description": "Pozwala na umieszczenie wielu bloków naraz, aby aktywować Skradanie się i przytrzymanie bloku, który pasuje do Twojego wyglądającego bloku i miejsca! Pamiętaj, że być może będziesz musiał przesunąć odrobinę, aby wywołać ograniczanie pudełek!",
+      "name": "Rozdzka Budowniczego",
+      "description": "Pozwala umieszczac wiele blokow naraz. Aby aktywowac: kucnij i trzymaj blok pasujacy do bloku na ktory patrzysz, nastepnie postaw! Pamietaj, moze byc konieczne lekkie przesuniecie sie!",
       "lore1": "Potrzebujesz",
-      "lore2": "bloki w dłoni, aby to umieścić",
-      "lore3": "Różdżka Budowniczych Materiałów"
+      "lore2": "blokow w rece aby to postawic",
+      "lore3": "Materialowa Rozdzka Budowniczego"
     }
   },
   "axe": {
     "chop": {
-      "name": "Uderzenie Siekiery",
-      "description": "Ścinaj drzewa, klikając prawym przyciskiem myszy dziennik podstawowy!",
-      "lore1": "Bloki na kotlet",
-      "lore2": "Czas odnowienia siekania",
-      "lore3": "Zużycie Narzędzi"
+      "name": "Ciecie Siekiera",
+      "description": "Scinaj drzewa klikajac prawym przyciskiem myszy na dolny klode!",
+      "lore1": "Blokow na Ciecie",
+      "lore2": "Czas Odnowienia Ciecia",
+      "lore3": "Zuzycie Narzedzia"
     },
     "logswap": {
-      "name": "Wymieniacz dzienników Lucy",
-      "description": "Zmień smak dzienników na stole rzemieślniczym!",
-      "lore1": "1 kłoda dowolnego rodzaju + 1 drzewko = 1 kłoda typu drzewka"
+      "name": "Wymiennik Klod Lucy",
+      "description": "Zmien rodzaj klod na Stole Rzemicslniczym!",
+      "lore1": "8 Klod dowolnego rodzaju + 1 sadzonka = 8 klod typu sadzonki"
     },
     "droptoinventory": {
-      "name": "Topór wrzuć do ekwipunku"
+      "name": "Siekiera Zrzut-Do-Ekwipunku"
     },
     "groundsmash": {
-      "name": "Uderzenie toporem",
-      "description": "Podskocz, a następnie przykucnij i zmiażdż wszystkich pobliskich wrogów.",
-      "lore1": "Obrażenia",
-      "lore2": "Zasięg Bloku",
-      "lore3": "Moc",
-      "lore4": "Czas odnowienia Uderzenia"
+      "name": "Uderzenie w Ziemie Siekiera",
+      "description": "Skocz, a potem kucnij i zmiazdzh wszystkich poblizskich wrogow.",
+      "lore1": "Obrazenia",
+      "lore2": "Zasieg Blokow",
+      "lore3": "Sila",
+      "lore4": "Czas Odnowienia Uderzenia"
     },
     "leafminer": {
-      "name": "LiśćMiner",
-      "description": "Pozwala na natychmiastowe rozbicie dużych liści!",
-      "lore1": "Skradaj się i moje LIŚCIE",
-      "lore2": "zakres wydobycia liści",
-      "lore3": "Nie otrzymasz dropów z liści (Aby zapobiec nadużyciu)"
+      "name": "Gornik Lisci",
+      "description": "Pozwala niszczyc duze ilosci lisci naraz!",
+      "lore1": "Kucnij i niszcz LISCIE",
+      "lore2": "zasieg niszczenia lisci",
+      "lore3": "Nie otrzymasz dropu z lisci (Zapobieganie Naduzywaniu)"
     },
     "woodminer": {
-      "name": "Górnik",
-      "description": "Umożliwia natychmiastowe rozbicie drewna luzem!",
-      "lore1": "Skradaj się i wykop DREWNO/LOGI (nie deski)",
-      "lore2": "zakres wydobycia drewna",
-      "lore3": "Współpracuje z Drop to Inventory"
+      "name": "Gornik Drewna",
+      "description": "Pozwala niszczyc duze ilosci drewna naraz!",
+      "lore1": "Kucnij i niszcz DREWNO/KLODY (Nie Deski)",
+      "lore2": "zasieg niszczenia drewna",
+      "lore3": "Dziala ze Zrzutem do Ekwipunku"
     }
   },
   "brewing": {
     "lingering": {
-      "name": "Długotrwały napar",
-      "description": "Warzone mikstury trwają dłużej!",
+      "name": "Dlugotrwaly Napar",
+      "description": "Uwarzone mikstury trwaja dluzej!",
       "lore1": "Czas Trwania",
       "lore2": "Czas Trwania"
     },
     "superheated": {
-      "name": "Super podgrzewany napar",
-      "description": "Stojaki piwowarskie działają szybciej, im są cieplejsze.",
-      "lore1": "Za dotknięcie bloku ognia",
-      "lore2": "Za dotknięcie bloku lawy"
+      "name": "Super Podgrzany Napar",
+      "description": "Stojaki alchemiczne dzialaja szybciej im sa goretsze.",
+      "lore1": "Za Dotykajacy Blok Ognia",
+      "lore2": "Za Dotykajacy Blok Lawy"
     },
     "darkness": {
-      "name": "Butelkowa Ciemność",
-      "description": "Nie wiem, dlaczego tego potrzebujesz, ale proszę bardzo!",
-      "lore1": "Mikstura Noktowizora + Czarny Beton = Mikstura Ciemności (30 sekund)",
-      "lore2": "Należy zauważyć, że uniemożliwia to użytkownikowi Sprint!"
+      "name": "Ciemnosc w Butelce",
+      "description": "Nie wiem po co ci to, ale prosze bardzo!",
+      "lore1": "Mikstura Noktowizji + Czarny Beton = Mikstura Ciemnosci (30 sekund)",
+      "lore2": "Nalezy zauwazyc, ze uniemozliwia to sprintowanie!"
     },
     "haste": {
-      "name": "Butelkowy Pośpiech",
-      "description": "Kiedy Wydajność to za mało",
-      "lore1": "Mikstura Szybkości + Odłamek Ametystu = Mikstura Pośpiechu (60 sekund)",
-      "lore2": "Mikstura Szybkości + Blok Ametystu = Mikstura Pośpiechu-2 (30 sekund)"
+      "name": "Pospiech w Butelce",
+      "description": "Kiedy Wydajnosc to za malo",
+      "lore1": "Mikstura Szybkosci + Odlamek Ametystu = Mikstura Pospiechu (60 sekund)",
+      "lore2": "Mikstura Szybkosci + Blok Ametystu = Mikstura Pospiechu-2 (30 sekund)"
     },
     "absorption": {
-      "name": "Absorpcja butelkowa",
-      "description": "Utwardź ciało!",
+      "name": "Absorpcja w Butelce",
+      "description": "Wzmocnij cialo!",
       "lore1": "Natychmiastowe Leczenie + Kwarc = Mikstura Absorpcji (60 sekund)",
-      "lore2": "Natychmiastowe Uzdrowienie + Kwarcowy Blok = Mikstura Absorpcji-2 (30 sekund)"
+      "lore2": "Natychmiastowe Leczenie + Blok Kwarcu = Mikstura Absorpcji-2 (30 sekund)"
     },
     "fatigue": {
-      "name": "Zmęczenie butelkowe",
-      "description": "Osłab ciało!",
-      "lore1": "Mikstura Słabości + Śluzowa Kula = Mikstura Zmęczenia (30 sekund)",
-      "lore2": "Mikstura Słabości + Blok Śluzu = Mikstura Zmęczenia-2 (15 sekund)"
+      "name": "Zmeczenie w Butelce",
+      "description": "Oslab cialo!",
+      "lore1": "Mikstura Slabosci + Kula Sluzu = Mikstura Zmeczenia (30 sekund)",
+      "lore2": "Mikstura Slabosci + Blok Sluzu = Mikstura Zmeczenia-2 (15 sekund)"
     },
     "hunger": {
-      "name": "Butelkowy Głód",
+      "name": "Glod w Butelce",
       "description": "Nakarm Nienasyconego!",
-      "lore1": "Niezręczna Mikstura + Zgniłe Ciało = Mikstura Głodu (30 sekund)",
-      "lore2": "Mikstura Słabości + Zgniłe Ciało = Mikstura Głodu-3 (15 sekund)"
+      "lore1": "Niezreczna Mikstura + Zgnile Mieso = Mikstura Glodu (30 sekund)",
+      "lore2": "Mikstura Slabosci + Zgnile Mieso = Mikstura Glodu-3 (15 sekund)"
     },
     "nausea": {
-      "name": "Butelkowe nudności",
-      "description": "Jesteś okropną osobą...",
-      "lore1": "Niezręczna Mikstura + Brązowy Grzyb = Mikstura Mdłości (16 sekund)",
-      "lore2": "Niezręczna Mikstura + Karmazynowy Grzyb = Mikstura Mdłości-2 (8 sekund)"
+      "name": "Mdlosci w Butelce",
+      "description": "Robi mi sie od ciebie niedobrze!",
+      "lore1": "Niezreczna Mikstura + Brazowy Grzyb = Mikstura Mdlosci (16 sekund)",
+      "lore2": "Niezreczna Mikstura + Szkarlatny Grzyb = Mikstura Mdlosci-2 (8 sekund)"
     },
     "blindness": {
-      "name": "Butelkowa ślepota",
-      "description": "Jesteś okropną osobą...",
-      "lore1": "Niezręczna Mikstura + Worek Atramentu = Mikstura Oślepienia (30 sekund)",
-      "lore2": "Niezręczna Mikstura + Świecący Worek Atramentu = Mikstura Oślepienia-2 (15 sekund)"
+      "name": "Slepota w Butelce",
+      "description": "Jestes okropna osoba...",
+      "lore1": "Niezreczna Mikstura + Worek z Atramentem = Mikstura Slepoty (30 sekund)",
+      "lore2": "Niezreczna Mikstura + Swiecacy Worek z Atramentem = Mikstura Slepoty-2 (15 sekund)"
     },
     "resistance": {
-      "name": "Odporność na butelkowanie",
+      "name": "Odpornosc w Butelce",
       "description": "Fortyfikacja w najlepszym wydaniu!",
-      "lore1": "Niezręczna Mikstura + Sztabka Żelaza = Mikstura Odporności (60 sekund)",
-      "lore2": "Niezręczna Mikstura + Żelazny Blok = Mikstura Odporności-2 (30 sekund)"
+      "lore1": "Niezreczna Mikstura + Sztabka Zelaza = Mikstura Odpornosci (60 sekund)",
+      "lore2": "Niezreczna Mikstura + Blok Zelaza = Mikstura Odpornosci-2 (30 sekund)"
     },
     "healthboost": {
-      "name": "Życie w butelkach",
-      "description": "Kiedy Maksymalne zdrowie to za mało...",
-      "lore1": "Mikstura natychmiastowego leczenia + Złote Jabłko = Mikstura Wzmocnienia Zdrowia (120 sekund)",
-      "lore2": "Mikstura natychmiastowego leczenia + Zaczarowane Złote Jabłko = Mikstura Zdrowia Wzmocnienie-2 (120 sekund)"
+      "name": "Zycie w Butelce",
+      "description": "Kiedy maksymalne zdrowie to za malo...",
+      "lore1": "Mikstura Natychmiastowego Leczenia + Zlote Jablko = Mikstura Wzmocnienia Zdrowia (120 sekund)",
+      "lore2": "Mikstura Natychmiastowego Leczenia + Zaczarowane Zlote Jablko = Mikstura Wzmocnienia Zdrowia-2 (120 sekund)"
     },
     "decay": {
-      "name": "Butelkowy próchnica",
-      "description": "Kto by pomyślał, że Detrytus będzie tak przydatny?",
-      "lore1": "Mikstura Słabości + Trujący Ziemniak = Mikstura Zamętu (16 sekund)",
-      "lore2": "Mikstura Słabości + Karmazynowe Korzenie = Mikstura Zwiędłości-2 (8 sekund)"
+      "name": "Rozklad w Butelce",
+      "description": "Kto by pomyslal, ze Detrytus bedzie tak przydatny?",
+      "lore1": "Mikstura Slabosci + Trujacy Ziemniak = Mikstura Wiecenia (16 sekund)",
+      "lore2": "Mikstura Slabosci + Szkarlatne Korzenie = Mikstura Wiecenia-2 (8 sekund)"
     },
     "saturation": {
-      "name": "Nasycenie w butelkach",
-      "description": "Wiesz... nawet nie jestem głodny...",
-      "lore1": "Mikstura Regeneracji + Pieczony Ziemniak = Mikstura Nasycenia (120 sekund)",
-      "lore2": "Mikstura Regeneracji + Bale Siana = Mikstura Nasycenia (120 sekund)"
+      "name": "Nasycenie w Butelce",
+      "description": "Wiesz co... nawet nie jestem glodny...",
+      "lore1": "Mikstura Regeneracji + Pieczony Ziemniak = Mikstura Nasycenia",
+      "lore2": "Mikstura Regeneracji + Bela Siana = Mikstura Nasycenia-2"
     }
   },
   "blocking": {
     "chainarmorer": {
-      "name": "Łańcuchy Mefistofelesa",
-      "description": "Umożliwia tworzenie zbroi kolczugi",
-      "lore1": "Przepis rzemieślniczy jest taki sam jak każdy inny, ale zawiera bryłki żelaza"
+      "name": "Lancuchy Mefistofelesa",
+      "description": "Pozwala tworzyc zbroje kolczuga",
+      "lore1": "Przepis jest taki sam jak na kazda inna zbroje, ale z brylek zelaza"
     },
     "horsearmorer": {
-      "name": "Zbroja konia do wykonania",
-      "description": "Umożliwia tworzenie zbroi konia",
-      "lore1": "Otocz siodło materiałem, którego chcesz użyć do stworzenia zbroi"
+      "name": "Wytwarzalna Zbroja Konia",
+      "description": "Pozwala tworzyc zbroje konia",
+      "lore1": "Otocz siodlo materialem, ktorego chcesz uzyc do wytworzenia zbroi"
     },
     "saddlecrafter": {
-      "name": "Siodło do wytworzenia",
-      "description": "Stwórz siodło ze skóry",
-      "lore1": "Przepis: 5 Skóra:"
+      "name": "Wytwarzalne Siodlo",
+      "description": "Wytworz siodlo ze skory",
+      "lore1": "Przepis: 5 Skora:"
     },
     "multiarmor": {
-      "name": "Wielopancerz",
-      "description": "Powiąż Elytry ze zbroją",
-      "lore1": "To niesamowita umiejętność podróżowania.",
-      "lore2": "dynamicznie łącz i zmieniaj Pancerz/Elytrę w locie!",
-      "lore3": "aby scalić, kliknij z wciśniętym klawiszem Shift element nad innym w ekwipunku.",
-      "lore4": "aby rozpiąć zbroję, upuść przedmiot z ukrycia, a rozłoży się.",
-      "lore5": "Jeśli twój MultiArmor zostanie zniszczony, stracisz wszystkie znajdujące się w nim przedmioty.",
-      "lore6": "Nie potrzebuję zbroi, to mnie rozczarowuje..."
+      "name": "Multi-Pancerz",
+      "description": "Wiaz Elytry ze zbroja",
+      "lore1": "To niesamowita umiejetnosc do podrozowania.",
+      "lore2": "Dynamicznie lacz i zmieniaj Zbroje/Elytry w locie!",
+      "lore3": "Aby polaczyc, kliknij z Shiftem na przedmiot nad innym w ekwipunku.",
+      "lore4": "Aby rozdzielic zbroje, upusc przedmiot z Shiftem, a rozlozy sie.",
+      "lore5": "Jesli twoj Multi-Pancerz zostanie zniszczony, stracisz wszystkie przedmioty w nim.",
+      "lore6": "Nie potrzebuje zbroi, to mnie rozczarowuje..."
     }
   },
   "crafting": {
     "deconstruction": {
       "name": "Dekonstrukcja",
-      "description": "Rozłóż bloki i przedmioty na odzyskiwalne elementy bazowe!",
-      "lore1": "Umieść dowolny przedmiot + użyj nożyce",
-      "lore2": "w stole kowalskim do rozebrania."
+      "description": "Rozloz bloki i przedmioty na odzyskiwalne elementy bazowe!",
+      "lore1": "Upusc dowolny przedmiot na ziemie.",
+      "lore2": "Nastepnie kucnij i kliknij prawym przyciskiem nozycami"
     },
     "xp": {
-      "name": "PD rzemieślnicze",
-      "description": "Zdobywaj pasywne PD podczas tworzenia",
-      "lore1": "Zdobywaj PD podczas tworzenia"
+      "name": "PD z Rzemiosla",
+      "description": "Zdobywaj pasywne PD podczas wytwarzania",
+      "lore1": "Zdobywaj PD podczas wytwarzania"
     },
     "reconstruction": {
-      "name": "Rekonstrukcja rudy",
-      "description": "Przerabiaj rudy z ich podstawowych komponentów!",
-      "lore1": "8 kropli i 1 host = 1 ruda (bezkształtna)",
-      "lore2": "Krople muszą być wytapiane (jeśli dotyczy)",
-      "lore3": "Nie obejmuje: skrawków, ćwiartek i szmaragdów itp.",
-      "lore4": "Gospodarz = obudowa. tj.: Stone, Netherack, Deepslate"
+      "name": "Rekonstrukcja Rud",
+      "description": "Przerabiaj rudy z ich podstawowych skladnikow!",
+      "lore1": "8 Dropu i 1 Nosnik = 1 Ruda (bezformowe)",
+      "lore2": "Dropy musza byc przetopione (jesli dotyczy)",
+      "lore3": "Nie obejmuje: Zlomu, Kwarcu, Szmaragdow itp...",
+      "lore4": "Nosnik = Otoczenie. np.: Kamien, Netherrack, Lupek"
     },
     "leather": {
-      "name": "Skóra do wytworzenia",
-      "description": "Skóra rzemieślnicza z Rotten Flesh",
-      "lore1": "Po prostu wrzuć to (zgniłe mięso) na ognisko!"
+      "name": "Wytwarzalna Skora",
+      "description": "Wytworz Skore ze Zgnilego Miesa",
+      "lore1": "Po prostu wrzuc to (zgnile mieso) na ognisko!"
     },
     "backpacks": {
-      "name": "Plecaki Butiliera!",
-      "description": "To właśnie wprowadza do gry pakiet Mojang!",
-      "lore1": "Aby z tego skorzystać, musisz być w trybie Survival",
-      "lore2": "XLX: Skóra, Ołów, Skóra",
-      "lore3": "XSX: Skóra, Pudełko Shulkera, Skóra",
-      "lore4": "XCX: skóra, klatka piersiowa, skóra"
+      "name": "Plecaki Boutiliera!",
+      "description": "Wprowadza do gry pakiet Mojang!",
+      "lore1": "Musisz byc w trybie Przetrwania aby tego uzywac",
+      "lore2": "XLX : Skora, Smycz, Skora",
+      "lore3": "XSX : Skora, Skrzynka Barrelowa, Skora",
+      "lore4": "XCX : Skora, Skrzynia, Skora"
     },
     "stations": {
-      "name": "Stoły przenośne!",
-      "description": "Użyj stołu w dłoni!",
-      "lore2": "WSZELKIE POZYCJE, KTÓRE ZAPOMNISZ W TABELI PO ZAMKNIĘCIU SĄ NA ZAWSZE UTRACONE!",
-      "lore3": "Prawidłowe tabele: Kowadło, Rzemiosło, Kamień szlifierski, Kartografia, Kamieniarz, Krosno"
+      "name": "Przenosne Stoly!",
+      "description": "Uzyj stolu prosto z dloni!",
+      "lore2": "WSZELKIE PRZEDMIOTY ZAPOMNIANE W STOLE PO ZAMKNIECIU SA STRACONE NA ZAWSZE!",
+      "lore3": "Prawidlowe stoly: Kowadlo, Stol Rzemicslniczy, Szlifierka, Kartografia, Kamieniarka, Krosno"
     },
     "skulls": {
-      "name": "Czaszki do wytworzenia!",
-      "description": "Używając materiałów możesz tworzyć czaszki mobów!",
-      "lore1": "Otocz blok kości następującymi elementami, aby uzyskać czaszkę:",
-      "lore2": "Zombie: Gnijące Ciało",
-      "lore3": "Szkielet: kość",
-      "lore4": "Pnącze: proch strzelniczy",
-      "lore5": "Więdnięcie: Netherowa cegła",
+      "name": "Wytwarzalne Czaszki!",
+      "description": "Uzywajac materialow mozesz tworzyc czaszki mobow!",
+      "lore1": "Otocz Blok Kosci nastepujacymi aby uzyskac czaszke:",
+      "lore2": "Zombie: Zgnile Mieso",
+      "lore3": "Szkielet: Kosc",
+      "lore4": "Creeper: Proch",
+      "lore5": "Wither: Cegla Netheru",
       "lore6": "Smok: Oddech Smoka"
+    }
+  },
+  "chronos": {
+    "timeinabottle": {
+      "name": "Czas w Butelce",
+      "description": "Nos butelke temporalna, ktora gromadzi czas i wydawaj go na przyspieszanie blokow czasowych, upraw i dorastajaych istot, takich jak mlode zwierzeta. Przepis (Bezformowy): Mikstura Szybkosci + Zegar + Szklana Butelka.",
+      "lore1": "Zgromadzone sekundy ladowane co tick",
+      "lore2": "Przyspieszenie czasu na zgromadzona sekunde",
+      "lore3": "Przepis (Bezformowy): Mikstura Szybkosci + Zegar + Szklana Butelka"
+    },
+    "aberranttouch": {
+      "name": "Aberracyjny Dotyk",
+      "description": "Ataki w zwarciu nakladaja kumulujace spowolnienie kosztem glodu, z ograniczeniami PvP, i unieruchamiaja cele przy 5 kumulacjach.",
+      "lore1": "Ataki w zwarciu nakladaja kumulujace spowolnienie",
+      "lore2": "Limit czasu trwania spowolnienia PvE",
+      "lore3": "Limit poziomu spowolnienia PvP"
+    },
+    "instantrecall": {
+      "name": "Natychmiastowe Przywolanie",
+      "description": "Kliknij lewym lub prawym przyciskiem z zegarem w rece aby cofnac sie do niedawnego stanu ze przywroconym zdrowiem i glodem.",
+      "lore1": "Czas cofniecia",
+      "lore2": "Czas odnowienia",
+      "lore3": "Brak cofania ekwipunku"
+    },
+    "timebomb": {
+      "name": "Bomba Czasowa",
+      "description": "Rzuc wytworzona bombe chrono, ktora tworzy pole temporalne, spowalnia istoty i zamraza pociski.",
+      "lore1": "Zasieg pola temporalnego",
+      "lore2": "Czas trwania pola temporalnego",
+      "lore3": "Czas odnowienia bomby",
+      "lore4": "Przepis (Bezformowy): Zegar + Sniezka + Diament + Piasek"
     }
   },
   "discovery": {
     "armor": {
-      "name": "Zbroja świata",
-      "description": "Pancerz pasywny w zależności od twardości pobliskiego bloku.",
-      "lore1": "Zbroja Pasywna",
-      "lore2": "Na podstawie twardości pobliskiego bloku",
-      "lore3": "Siła Pancerza: +"
+      "name": "Pancerz Swiata",
+      "description": "Pasywny pancerz zalezny od twardosci poblizskich blokow.",
+      "lore1": "Pasywny Pancerz",
+      "lore2": "Na podstawie twardosci poblizskich blokow",
+      "lore3": "Sila Pancerza:"
     },
     "unity": {
-      "name": "Eksperymentalna Jedność",
-      "description": "Zbieranie kul doświadczenia dodaje PD do losowych umiejętności.",
-      "lore1": "XP ",
-      "lore2": "Za kulę"
+      "name": "Eksperymentalna Jednosc",
+      "description": "Zbieranie Kul Doswiadczenia dodaje PD do losowych umiejetnosci.",
+      "lore1": "PD ",
+      "lore2": "Za Kule"
     },
     "resist": {
-      "name": "Eksperymentalny opór",
-      "description": "Zużywaj doświadczenie, aby złagodzić obrażenia, które otrzymujesz ze wszystkich źródeł\n",
-      "lore0": "Może się to zdarzyć tylko raz na 15 sekund",
-      "lore1": "% Zmniejszone Obrażenia",
-      "lore2": "doświadczenie wyczerpane"
+      "name": "Eksperymentalna Odpornosc",
+      "description": "Zuzyj doswiadczenie aby zlagodzic obrazenia, ale tylko gdy trafienie zrzuciloby cie ponizej 5 serc lub by cie zabilo.",
+      "lore0": "Aktywuje sie tylko przy krytycznym zdrowiu (<= 5 serc) raz na 15 sekund",
+      "lore1": " Zmniejszone Obrazenia",
+      "lore2": "wyczerpane doswiadczenie"
     },
     "villager": {
-      "name": "Atrakcja wieśniaka",
-      "description": "Pozwala na uzyskanie lepszych transakcji z mieszkańcami wioski!",
-      "lore1": "Zużywa to PD za interakcję z wieśniakami",
-      "lore2": "Szansa na zużycie PD i ulepszenie wymian na interakcję",
-      "lore3": "wymagany drenaż XP na interakcję"
+      "name": "Atrakcja Osadnikow",
+      "description": "Pozwala na uzyskanie lepszych transakcji z mieszkancami wioski!",
+      "lore1": "Zuzywa PD za kazda interakcje z osadnikami",
+      "lore2": "Szansa na zuzycie PD i ulepszenie handlu za interakcje",
+      "lore3": "wymagane zuzycie PD za interakcje"
     }
   },
   "enchanting": {
     "lapisreturn": {
-      "name": "Powrót Lapisu",
-      "description": "Kosztem 1 dodatkowego poziomu XP, a w zamian ma szansę na darmowe lapis",
-      "lore1": "Na każdy poziom zwiększa koszt zaklęcia o 1, ale może powrócić w górę o 3 Lapis"
+      "name": "Zwrot Lazurytu",
+      "description": "Kosztem 1 dodatkowego poziomu PD, masz szanse na darmowy lazuryt w zamian",
+      "lore1": "Za kazdy poziom zwieksza koszt zaklecia o 1, ale moze zwrocic do 3 Lazurytu"
     },
     "quickenchant": {
-      "name": "Zaklęcie szybkiego kliknięcia",
-      "description": "Zaczaruj przedmioty, klikając zaczaruj książki bezpośrednio na nich.",
-      "lore1": "Maks. połączone poziomy",
-      "lore2": "Nie można zaczarować przedmiotu z więcej niż",
-      "lore3": "moc"
+      "name": "Szybkie Zaklecie Kliknieciem",
+      "description": "Zaklinaj przedmioty klikajac ksiazkami zaklec bezposrednio na nich.",
+      "lore1": "Maks. Polaczone Poziomy",
+      "lore2": "Nie mozna zaklinac przedmiotu z wiecej niz ",
+      "lore3": "mocy"
     },
     "return": {
-      "name": "Zwrot XP",
-      "description": "Zaczarowane PD są zwracane po zaczarowaniu przedmiotu.",
-      "lore1": "Wydane doświadczenie ma szansę zostać zwrócone, gdy zaczarujesz przedmiot",
-      "lore2": "Doświadczenie za zaklęcie"
+      "name": "Zwrot PD",
+      "description": "PD z zaklec jest ci zwracane gdy zaklinasz przedmiot.",
+      "lore1": "Wydane doswiadczenie ma szanse zostac zwrocone gdy zaklinasz przedmiot",
+      "lore2": "Doswiadczenie za Zaklecie"
     }
   },
   "excavation": {
     "haste": {
-      "name": "Pośpieszna koparka",
-      "description": "Przyspieszy to wykopaliska dzięki HASTE!",
-      "lore1": "Zyskaj pośpiech podczas kopania",
-      "lore2": "x Poziomy pośpiechu, gdy zaczniesz wydobywać DOWOLNY blok."
+      "name": "Pospieszny Kopacz",
+      "description": "Przyspiesza kopanie dzieki POSPIECOWI!",
+      "lore1": "Zyskaj pospiech podczas kopania",
+      "lore2": "x Poziomow pospiechu gdy zaczniesz niszczyc DOWOLNY blok."
     },
     "spelunker": {
-      "name": "Superwidzący grotołaz!",
-      "description": "Zobacz rudy na własne oczy, ale przez ziemię!",
-      "lore1": "Ruda w twojej drugiej ręce, Jagody w twojej głównej ręce i Skradanie się!",
-      "lore2": "Zakres bloków:",
-      "lore3": "Zużywa Glowberry podczas użycia"
+      "name": "Super-Widzacy Grotolaz!",
+      "description": "Zobacz rudy na wlasne oczy, ale przez ziemie!",
+      "lore1": "Ruda w drugiej rece, Swiecace Jagody w glownej rece i Kucnij!",
+      "lore2": "Zasieg Blokow: ",
+      "lore3": "Zuzywa Swiecace Jagody przy uzyciu"
     },
     "droptoinventory": {
-      "name": "Łopata zrzutu do magazynu"
+      "name": "Lopata Zrzut-Do-Ekwipunku"
     },
     "omnitool": {
-      "name": "OMNI - T.O.O.L.",
-      "description": "Przesadnie zaprojektowany, bogaty Leatherman firmy Tackle",
-      "lore1": "Prawdopodobnie najpotężniejszy z wielu pozwala",
-      "lore2": "dynamicznie łącz i zmieniaj narzędzia w locie, zgodnie z Twoimi potrzebami.",
-      "lore3": "aby scalić, kliknij z wciśniętym klawiszem Shift element nad innym w ekwipunku.",
-      "lore4": "aby odpiąć narzędzia, Sneak-Upuść przedmiot, a zostanie on zdemontowany.",
-      "lore5": "nie możesz złamać narzędzi w tym skórzanym, ale nie możesz używać zepsutych narzędzi",
-      "lore6": "całkowita liczba elementów, które można scalić",
-      "lore7": "możesz użyć pięciu lub sześciu narzędzi lub tylko jednego!"
+      "name": "OMNI - N.A.R.Z.",
+      "description": "Przesadnie zaprojektowany bogaty Multitool Tackle'a",
+      "lore1": "Prawdopodobnie najpotezniejszy z wielu, pozwala ci",
+      "lore2": "dynamicznie laczyc i zmieniac narzedzia w locie, wedlug potrzeb.",
+      "lore3": "Aby polaczyc, kliknij z Shiftem na przedmiot nad innym w ekwipunku.",
+      "lore4": "Aby rozdzielic narzedzia, upusc przedmiot z Shiftem, a zostanie zdemontowany.",
+      "lore5": "Nie mozesz zniszczyc narzedzi w tym multitoolu ale nie mozesz uzywac zepsutych narzedzi",
+      "lore6": "laczna ilosc przedmiotow do polaczenia.",
+      "lore7": "Mozesz uzyc pieciu albo szesciu narzedzi, albo tylko jednego!"
     }
   },
   "herbalism": {
     "growthaura": {
-      "name": "Aura wzrostu",
-      "description": "Rozwijaj przyrodę wokół siebie w aurze",
-      "lore1": "Promień bloku",
-      "lore2": "Siła aury wzrostu",
-      "lore3": "Koszt jedzenia"
+      "name": "Aura Wzrostu",
+      "description": "Rozwijaj nature wokol siebie w aurze",
+      "lore1": "Zasieg Blokow",
+      "lore2": "Sila Aury Wzrostu",
+      "lore3": "Koszt Jedzenia"
     },
     "hippo": {
-      "name": "Hipopotam zielarza",
-      "description": "Spożywanie jedzenia daje większe nasycenie",
-      "lore1": "Jedzenie) dodatkowe punkty nasycenia po spożyciu"
+      "name": "Hipopotam Zielarza",
+      "description": "Spozywanie jedzenia daje wiecej nasycenia",
+      "lore1": "Jedzenie) dodatkowe punkty nasycenia przy spozyciu"
     },
     "myconid": {
-      "name": "Mykonid zielarza",
-      "description": "Daje możliwość tworzenia grzybni",
-      "lore1": "Dowolny brud i brązowy i czerwony grzyb stworzy grzybnię."
+      "name": "Mykonid Zielarza",
+      "description": "Daje mozliwosc wytwarzania Grzybni",
+      "lore1": "Dowolna Ziemia + Brazowy i Czerwony Grzyb wytworzya Grzybnie."
     },
     "terralid": {
       "name": "Terralid Zielarza",
-      "description": "Daje możliwość tworzenia bloków trawy",
-      "lore1": "Trzy nasiona, ponad 3 brud, stworzą 3 bloki trawy."
+      "description": "Daje mozliwosc wytwarzania Blokow Trawy",
+      "lore1": "Trzy Nasiona nad 3 Ziemia wytworzya 3 Bloki Trawy."
     },
     "cobweb": {
-      "name": "Webby Creator",
-      "description": "Daje możliwość tworzenia pajęczyn na stole rzemieślniczym",
-      "lore1": "Nine String, stworzy Pajęczynę."
+      "name": "Tworca Pajeczyn",
+      "description": "Daje mozliwosc wytwarzania Pajeczyn na Stole Rzemicslniczym",
+      "lore1": "Dziewiec Nitek wytworzy Pajeczyne."
     },
     "mushroomblocks": {
-      "name": "Pieczarka",
-      "description": "Daje możliwość tworzenia bloków grzybów na stole rzemieślniczym",
-      "lore1": "Cztery grzyby do zrobienia bloku lub blok do zrobienia łodygi."
+      "name": "Grzybiarz",
+      "description": "Daje mozliwosc wytwarzania Blokow Grzybowych na Stole Rzemicslniczym",
+      "lore1": "Cztery Grzyby zrobia blok, albo blok zrobi lodyge."
     },
     "droptoinventory": {
-      "name": "Hoe Drop-to-Inwentarz"
+      "name": "Motyka Zrzut-Do-Ekwipunku"
     },
     "hungryshield": {
-      "name": "Głodna Tarcza",
-      "description": "Zniszcz głód przed zdrowiem.",
-      "lore1": "Odparty przez Głód"
+      "name": "Glodna Tarcza",
+      "description": "Obrazenia odejmuja sie od glodu zanim od zdrowia.",
+      "lore1": "Odparte przez Glod"
     },
     "luck": {
-      "name": "Szczęście Zielarza",
-      "description": "Kiedy rozbijesz Trawę/Kwiaty, masz szansę na losowy przedmiot",
-      "lore0": "Kwiaty = jedzenie, a trawa = nasiona",
-      "lore1": "Szansa na zdobycie przedmiotu niszcząc kwiaty",
-      "lore2": "Szansa na zdobycie przedmiotu z rozbicia Trawy"
+      "name": "Szczescie Zielarza",
+      "description": "Gdy niszczysz Trawe/Kwiaty, masz szanse na losowy przedmiot",
+      "lore0": "Kwiaty = Jedzenie, a Trawa = Nasiona",
+      "lore1": "Szansa na zdobycie przedmiotu z niszczenia Kwiatow",
+      "lore2": "Szansa na zdobycie przedmiotu z niszczenia Trawy"
     },
     "replant": {
-      "name": "Zbiór i Przesadzanie",
-      "description": "Kliknij prawym przyciskiem myszy na uprawę z motyką, aby ją zebrać i przesadzić.",
-      "lore1": "Promień przesadzania bloków"
+      "name": "Zbior i Przesadzanie",
+      "description": "Kliknij prawym przyciskiem na uprawe z motyka aby zebrac i przesadzic.",
+      "lore1": "Zasieg Przesadzania Blokow"
     }
   },
   "hunter": {
     "adrenaline": {
       "name": "Adrenalina",
-      "description": "Zadaj więcej obrażeń, mając mniej zdrowia (walka wręcz)",
-      "lore1": "Maksymalne Obrażenia"
+      "description": "Zadawaj wiecej obrazen im mniej masz zdrowia (Walka Wreczna)",
+      "lore1": "Maksymalne Obrazenia"
     },
     "penalty": {
-      "lore1": "Zdobędziesz stosy Trucizny, jeśli zabraknie Ci głodu"
+      "name": "",
+      "description": "",
+      "lore1": "Otrzymasz kumulacje Trucizny jesli zabraknie ci glodu"
     },
     "droptoinventory": {
-      "name": "Przedmioty zrzucane do ekwipunku",
-      "description": "Kiedy coś zabijesz / złamiesz blok Mieczem teleportuje krople do twojego ekwipunku",
-      "lore1": "Za każdym razem, gdy przedmiot zostanie upuszczony z moba/bloku, który złamiesz, trafia on do twojego ekwipunku, jeśli może."
+      "name": "Przedmioty Zrzut-Do-Ekwipunku",
+      "description": "Gdy cos zabijesz / zniszczysz blok mieczem, drop teleportuje sie do twojego ekwipunku",
+      "lore1": "Za kazdym razem gdy przedmiot wypada z moba/bloku ktory niszczysz, trafia do twojego ekwipunku jesli to mozliwe."
     },
     "invisibility": {
-      "name": "Znikający krok",
-      "description": "Kiedy zostaniesz uderzony, zyskujesz niewidzialność kosztem głodu",
-      "lore1": "Zyskaj pasywną niewidzialność po uderzeniu",
-      "lore2": "x Niewidzialność kumuluje się przez 3 sekundy przy trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Czas trwania niewidzialności"
+      "name": "Znikajacy Krok",
+      "description": "Gdy zostaniesz trafiony zyskujesz niewidzialnosc, kosztem glodu",
+      "lore1": "Zyskaj pasywna niewidzialnosc po trafieniu",
+      "lore2": "x Kumulacje Niewidzialnosci na 3 sekundy po trafieniu",
+      "lore3": "x Kumulowany glod",
+      "lore4": "Czas trwania i mnoznik kumulacji glodu.",
+      "lore5": "Czas trwania niewidzialnosci"
     },
     "jumpboost": {
-      "name": "Wzgórza Myśliwego",
-      "description": "Kiedy zostaniesz uderzony, zyskujesz premię do skoku, kosztem głodu",
-      "lore1": "Po uderzeniu otrzymujesz pasywne wzmocnienie do skoku",
-      "lore2": "x ładunki Jump-Boost przez 3 sekundy przy trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Mnożnik ładunków Jump-Boost, a nie czas trwania."
+      "name": "Wyskoki Lowcy",
+      "description": "Gdy zostaniesz trafiony zyskujesz wzmocnienie skoku, kosztem glodu",
+      "lore1": "Zyskaj pasywne wzmocnienie skoku po trafieniu",
+      "lore2": "x Kumulacje Wzmocnienia Skoku na 3 sekundy po trafieniu",
+      "lore3": "x Kumulowany glod",
+      "lore4": "Czas trwania i mnoznik kumulacji glodu.",
+      "lore5": "Mnoznik kumulacji Wzmocnienia Skoku, nie czas trwania."
     },
     "luck": {
-      "name": "Szczęście łowcy",
-      "description": "Kiedy jesteś uderzony, zyskujesz szczęście, kosztem głodu",
-      "lore1": "Zyskaj pasywne szczęście po uderzeniu",
-      "lore2": "x Szczęście kumuluje się przez 3 sekundy przy trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Mnożnik kumulacji szczęścia, a nie czas trwania."
+      "name": "Szczescie Lowcy",
+      "description": "Gdy zostaniesz trafiony zyskujesz szczescie, kosztem glodu",
+      "lore1": "Zyskaj pasywne szczescie po trafieniu",
+      "lore2": "x Kumulacje Szczescia na 3 sekundy po trafieniu",
+      "lore3": "x Kumulowany glod",
+      "lore4": "Czas trwania i mnoznik kumulacji glodu.",
+      "lore5": "Mnoznik kumulacji szczescia, nie czas trwania."
     },
     "regen": {
-      "name": "Regeneracja Łowcy",
-      "description": "Kiedy jesteś uderzony, zyskujesz regenerację kosztem głodu",
-      "lore1": "Zyskaj pasywną regenerację po uderzeniu",
-      "lore2": "x Regeneracja kumuluje się przez 3 sekundy przy trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Mnożnik kumulacji regeneracji, a nie czas trwania."
+      "name": "Regeneracja Lowcy",
+      "description": "Gdy zostaniesz trafiony zyskujesz regeneracje, kosztem glodu",
+      "lore1": "Zyskaj pasywna regeneracje po trafieniu",
+      "lore2": "x Kumulacje Regeneracji na 3 sekundy po trafieniu",
+      "lore3": "x Kumulowany glod",
+      "lore4": "Czas trwania i mnoznik kumulacji glodu.",
+      "lore5": "Mnoznik kumulacji regeneracji, nie czas trwania."
     },
     "resistance": {
-      "name": "Opór Łowcy",
-      "description": "Kiedy jesteś uderzony, zyskujesz opór kosztem głodu",
-      "lore1": "Zyskaj pasywną odporność po uderzeniu",
-      "lore2": "x Odporność kumuluje się przez 3 sekundy po trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Mnożnik kumulacji ruchu oporu, a nie czas trwania."
+      "name": "Odpornosc Lowcy",
+      "description": "Gdy zostaniesz trafiony zyskujesz odpornosc, kosztem glodu",
+      "lore1": "Zyskaj pasywna odpornosc po trafieniu",
+      "lore2": "x Kumulacje Odpornosci na 3 sekundy po trafieniu",
+      "lore3": "x Kumulowany glod",
+      "lore4": "Czas trwania i mnoznik kumulacji glodu.",
+      "lore5": "Mnoznik kumulacji odpornosci, nie czas trwania."
     },
     "speed": {
-      "name": "Szybkość Łowcy",
-      "description": "Kiedy jesteś uderzony, nabierasz prędkości, kosztem głodu",
-      "lore1": "Zyskaj pasywną prędkość po uderzeniu",
-      "lore2": "x Szybkość kumuluje się przez 3 sekundy po trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Mnożnik kumulacji prędkości, a nie czas trwania."
+      "name": "Szybkosc Lowcy",
+      "description": "Gdy zostaniesz trafiony zyskujesz szybkosc, kosztem glodu",
+      "lore1": "Zyskaj pasywna szybkosc po trafieniu",
+      "lore2": "x Kumulacje Szybkosci na 3 sekundy po trafieniu",
+      "lore3": "x Kumulowany glod",
+      "lore4": "Czas trwania i mnoznik kumulacji glodu.",
+      "lore5": "Mnoznik kumulacji szybkosci, nie czas trwania."
     },
     "strength": {
-      "name": "Siła Łowcy",
-      "description": "Kiedy jesteś uderzony, zyskujesz siłę, kosztem głodu",
-      "lore1": "Zyskaj pasywną siłę po uderzeniu",
-      "lore2": "x Siła kumuluje się przez 3 sekundy po trafieniu",
-      "lore3": "x Głód układania",
-      "lore4": "Czas trwania i mnożnik kumulacji głodu.",
-      "lore5": "Mnożnik kumulacji siły, a nie czas trwania."
+      "name": "Sila Lowcy",
+      "description": "Gdy zostaniesz trafiony zyskujesz sile, kosztem glodu",
+      "lore1": "Zyskaj pasywna sile po trafieniu",
+      "lore2": "x Kumulacje Sily na 3 sekundy po trafieniu",
+      "lore3": "x Kumulowany glod",
+      "lore4": "Czas trwania i mnoznik kumulacji glodu.",
+      "lore5": "Mnoznik kumulacji sily, nie czas trwania."
     }
   },
   "nether": {
     "skulltoss": {
-      "name": "Rzut Zwiędłej Czaszki",
-      "description1": "Uwolnij swój wewnętrzny kłąb, używając",
-      "description2": "kogoś",
-      "description3": "głowa.",
-      "lore1": "Sekundy czasu odnowienia między rzutami czaszką.",
-      "lore2": "Korzystanie z Wither Skull: Rzuć a",
-      "lore3": "Czaszka Witherowego Szkieleta",
-      "lore4": "eksploduje przy uderzeniu."
+      "name": "Rzut Czaszka Withera",
+      "description1": "Uwolnij swego wewnetrznego Withera uzywajac",
+      "description2": "czyjejs",
+      "description3": "glowy.",
+      "lore1": "Sekundy odnowienia miedzy rzutami czaszka.",
+      "lore2": "Uzywajac Czaszki Withera: Rzuc ",
+      "lore3": "Czaszke Withera",
+      "lore4": "eksplodujaca przy uderzeniu."
     },
     "witherresist": {
-      "name": "Opór więdnięcia",
-      "description": "Opiera się miażdżeniu dzięki mocy Netherite.",
-      "lore1": "szansa na zanegowanie więdnięcia (za sztukę).",
-      "lore2": "Pasywna: Noszenie Netherite Armor ma szansę na zanegowanie",
-      "lore3": "miażdżący."
+      "name": "Odpornosc na Wiecenie",
+      "description": "Odpiera wiecenie dzieki mocy Netheritu.",
+      "lore1": "szansa na zanegowanie wiecenia (za czesc).",
+      "lore2": "Pasywne: Noszenie Zbroi z Netheritu ma szanse zanegowac ",
+      "lore3": "wiecenie."
     },
     "fireresist": {
-      "name": "Odporność na ogień",
-      "description": "Odpiera ogień, utwardzając skórę.",
+      "name": "Odpornosc na Ogien",
+      "description": "Odpiera ogien utwardzajac twoja skore.",
       "lore1": "szansa na zanegowanie efektu palenia!"
     }
   },
   "pickaxe": {
     "autosmelt": {
       "name": "Autotopienie",
-      "description": "Pozwala wytapiać wydobywane rudy wanilii",
-      "lore1": "Rudy, które można przetopić, są przetapiane automatycznie",
-      "lore2": "% szansy na dodatkowe"
+      "description": "Pozwala automatycznie wytapiac wydobywane standardowe rudy",
+      "lore1": "Rudy ktore mozna przetopic sa przetapiane automatycznie",
+      "lore2": "% szansy na dodatkowy"
     },
     "chisel": {
-      "name": "Dłuto Rudy",
-      "description": "Kliknij prawym przyciskiem myszy na rudy, aby wydobyć z nich więcej rudy, przy dużym koszcie wytrzymałości.",
+      "name": "Dluto do Rud",
+      "description": "Kliknij prawym przyciskiem na rudy aby wydlutac z nich wiecej, kosztem duzej wytrzymalosci.",
       "lore1": "Szansa na Drop",
-      "lore2": "Zużycie narzędzi"
+      "lore2": "Zuzycie Narzedzia"
     },
     "droptoinventory": {
-      "name": "Kilof zrzutu do ekwipunku",
-      "description": "Kiedy złamiesz blok, teleportuje przedmiot do twojego ekwipunku",
-      "lore1": "Za każdym razem, gdy przedmiot zostanie upuszczony z bloku, który rozbijesz, trafia on do twojego ekwipunku, jeśli może."
+      "name": "Kilof Zrzut-Do-Ekwipunku",
+      "description": "Gdy zniszczysz blok, przedmiot teleportuje sie do twojego ekwipunku",
+      "lore1": "Za kazdym razem gdy przedmiot wypada z bloku ktory niszczysz, trafia do twojego ekwipunku jesli to mozliwe."
+    },
+    "silkspawner": {
+      "name": "Kilof Jedwabny-Spawner",
+      "description": "Spawnery wypadaja gdy sa niszczone",
+      "lore1": "Spawnery mozna niszczyc z Jedwabnym Dotykiem.",
+      "lore2": "Spawnery mozna niszczyc podczas kucania."
     },
     "veinminer": {
-      "name": "Żniwiarz",
-      "description": "Umożliwia łamanie bloków w żyle/klastrze rud wanilii",
-      "lore1": "Skradaj się i mój ORES",
-      "lore2": "zakres górnictwa żył",
-      "lore3": "Ta umiejętność NIE grupuje wszystkich zrzutów razem!"
+      "name": "Gornik Zyl",
+      "description": "Pozwala niszczyc bloki w Zyle/Skupisku standardowych rud",
+      "lore1": "Kucnij i niszcz RUDY",
+      "lore2": "zasieg wydobycia zylowego",
+      "lore3": "Ta umiejetnosc NIE grupuje wszystkich dropow razem!"
     }
   },
   "ranged": {
     "arrowrecovery": {
-      "name": "Odzyskiwanie Strzał",
-      "description": "Odzyskaj strzały po zabiciu wroga.",
-      "lore1": "Szansa na odzyskanie strzał po trafieniu/zabiciu",
-      "lore2": "Szansa:"
+      "name": "Odzyskiwanie Strzal",
+      "description": "Odzyskuj strzaly po zabiciu wroga.",
+      "lore1": "Szansa na odzyskanie strzal po trafieniu/zabiciu",
+      "lore2": "Szansa: "
     },
     "webshot": {
-      "name": "Sieciowy pułapka",
-      "description": "Otocz pajęczyny wokół celu, gdy go trafisz!",
-      "lore1": "8 pajęczyn wokół śnieżki i rzuć!",
-      "lore2": "sekundy klatki, mniej więcej."
+      "name": "Pajeczyna Pulapka",
+      "description": "Otocz cel pajeczyna gdy go trafisz!",
+      "lore1": "8 Pajeczyn wokol Sniezki i rzuc!",
+      "lore2": "sekundy klatki, mniej wiecej."
     },
     "forceshot": {
-      "name": "Siła Strzału",
+      "name": "Silowy Strzal",
       "description": "Strzelaj pociskami dalej i szybciej!",
-      "advancementname": "Długi Strzał",
-      "advancementlore": "Traf strzałem z odległości ponad 30 bloków!",
-      "lore1": "Prędkość Pocisku"
+      "advancementname": "Dlugi Strzal",
+      "advancementlore": "Traf strzalem z ponad 30 blokow!",
+      "lore1": "Predkosc Pocisku"
     },
     "lungeshot": {
-      "name": "Strzał z wyskoku",
-      "description": "Podczas spadania twoje strzały rzucają cię w losowym kierunku",
-      "lore1": "Losowa szybkość serii"
+      "name": "Strzal z Wyskoku",
+      "description": "Podczas spadania strzaly rzucaja cie w losowym kierunku",
+      "lore1": "Losowa Predkosc Zrywu"
     },
     "arrowpiercing": {
-      "name": "Przebicie Strzały",
-      "description": "Dodaje przebijanie pocisków! Strzelaj przez rzeczy!",
-      "lore1": "Przebijanie celów"
+      "name": "Przeszywanie Strzalami",
+      "description": "Dodaje przeszywanie do pociskow! Strzelaj przez przeszkody!",
+      "lore1": "Przeszyte Cele"
     }
   },
   "rift": {
     "remoteaccess": {
-      "name": "Dostęp zdalny",
-      "description": "Wyciągnij się z pustki i wejdź do oznaczonego pojemnika.",
-      "lore1": "Enderpearl + Kompas = Relikwiarz świstoklik",
-      "lore2": "Ta pozycja umożliwia zdalny dostęp do kontenerów",
-      "lore3": "Po wykonaniu spójrz na przedmiot, aby zobaczyć zastosowanie",
+      "name": "Zdalny Dostep",
+      "description": "Siegnij przez pustke i dostac sie do oznaczonego pojemnika.",
+      "lore1": "Perla Endera + Kompas = Relikwiarzowy Switoklin",
+      "lore2": "Ten przedmiot pozwala na zdalny dostep do pojemnikow",
+      "lore3": "Po wytworzeniu spjorz na przedmiot aby zobaczyc uzycie",
       "notcontainer": "To nie jest pojemnik"
     },
     "blink": {
-      "name": "Mignięcie szczeliny",
-      "description": "Natychmiastowa teleportacja na krótki dystans, tylko mignięcie!",
-      "lore1": "Migające bloki (2 w pionie)",
-      "lore2": "Podczas sprintu: kliknij dwukrotnie Przejdź do",
-      "lore3": "Miganie"
+      "name": "Mrgniecie Szczeliny",
+      "description": "Natychmiastowa teleportacja krotkiego zasiegu, jedno mrgniecie!",
+      "lore1": "Blokow na mrgniecie (2x w pionie)",
+      "lore2": "Podczas Sprintowania: Podwojnie wcisnij Skok aby ",
+      "lore3": "Mrgnac"
     },
     "chest": {
-      "name": "Łatwy Enderklatka",
-      "description": "Otwórz skrzynię, klikając ją lewym przyciskiem w dłoni.",
-      "lore1": "Kliknij Enderchest w dłoni, aby go otworzyć (Tylko go nie umieszczaj)"
+      "name": "Latwa Enderchest",
+      "description": "Otworz enderchest klikajac na nia lewym przyciskiem w rece.",
+      "lore1": "Kliknij Enderchest w rece aby otworzyc (Tylko jej nie stawiaj)"
     },
     "descent": {
-      "name": "Antylewitacja",
-      "description": "Czy jesteś zmęczony utknięciem w powietrzu? To umiejętność dla Ciebie!",
-      "lore1": "Po prostu zakradnij się, aby zejść, a spadniesz w tempie mniejszym niż zwykle!",
-      "lore2": "Ochłonąć:"
+      "name": "Anty-Lewitacja",
+      "description": "Masz dosc utknieccia w powietrzu? Ta umiejetnosc jest dla ciebie!",
+      "lore1": "Po prostu kucnij aby opadac, a bedziesz spadac wolniej niz normalnie!",
+      "lore2": "Czas odnowienia:"
     },
     "gate": {
       "name": "Brama Szczeliny",
-      "description": "Teleportuj się we wskazane miejsce.",
-      "lore1": "WYTWARZANIE: Szmaragd + Okruch ametystu + Perła Endera",
-      "lore2": "Przeczytaj przed użyciem!",
-      "lore3": "opóźnienie 5 sek.,",
-      "lore4": "możesz umrzeć, gdy używasz tą animację"
+      "description": "Teleportuj sie do oznaczonej lokalizacji.",
+      "lore1": "WYTWARZANIE: Szmaragd + Odlamek Ametystu + Perla Endera",
+      "lore2": "Przeczytaj przed uzyciem!",
+      "lore3": "5 sek. opoznienia, ",
+      "lore4": "mozesz umrzec podczas tej animacji"
     },
     "resist": {
-      "name": "Odporność Na Szczelinę",
-      "description": "Zyskaj odporność, korzystając z przedmiotów i zdolności Endera",
-      "lore1": "+ Pasywny: zapewnia odporność, gdy używasz umiejętności szczeliny lub przedmiotów Ender",
-      "lore2": "NIE wliczając przenośnej klatki piersiowej, tylko rzeczy, które możesz spożyć"
+      "name": "Odpornosc Szczeliny",
+      "description": "Zyskaj Odpornosc gdy uzywasz przedmiotow i zdolnosci Endera",
+      "lore1": "+ Pasywne: Zapewnia odpornosc gdy uzywasz zdolnosci Szczeliny lub Przedmiotow Endera",
+      "lore2": "NIE wliczajac przenosnej Enderchest, tylko rzeczy ktore mozesz zuzyc"
+    },
+    "visage": {
+      "name": "Oblicze Szczeliny",
+      "description": "Zapobiega agresji Endermanow jesli masz Perly Endera w ekwipunku.",
+      "lore1": "Endermany nie stana sie agresywne jesli masz Perly Endera w ekwipunku."
     }
   },
   "seaborn": {
     "oxygen": {
-      "name": "Zbiornik na tlen organiczny",
-      "description": "Trzymaj więcej tlenu w swoich maleńkich płucach!",
-      "lore1": "Zwiększenie pojemności tlenu"
+      "name": "Organiczny Zbiornik Tlenu",
+      "description": "Przechowuj wiecej tlenu w swoich malych plucach!",
+      "lore1": "Zwiekszenie Pojemnosci Tlenowej"
     },
     "fishersfantasy": {
       "name": "Fantazja Rybaka",
-      "description": "zdobądź więcej PD z łowienia ryb i zdobądź więcej ryb!",
-      "lore1": "Na każdym poziomie jest szansa na zdobycie większej ilości XP i Łowienia Więcej Ryb!"
+      "description": "Zdobywaj wiecej PD z lowienia i lapaj wiecej ryb!",
+      "lore1": "Za kazdy poziom jest szansa na wiecej PD i wiecej Ryb!"
     },
     "haste": {
-      "name": "Żółw górnik",
-      "description": "Podczas kopania pod wodą nabierasz pośpiechu!",
-      "lore1": "Haste 3 jest nakładany pod wodą podczas wydobywania (stosuje się z AquaAffinity) po tym, jak twój efekt oddychania wodą przestanie działać!"
+      "name": "Zolwi Gornik",
+      "description": "Podczas kopania pod woda zyskujesz pospiech!",
+      "lore1": "Pospiech 3 jest nakladany pod woda podczas kopania (kumuluje sie z AquaAffinity) po zakonczeniu efektu oddychania pod woda!"
     },
     "nightvision": {
-      "name": "Wizja żółwia",
-      "description": "Pod wodą zyskujesz noktowizor",
-      "lore1": "Po prostu zyskaj noktowizor pod wodą, gdy efekt oddychania pod wodą przestanie działać!"
+      "name": "Wizja Zolwia",
+      "description": "Pod woda zyskujesz Noktowizje",
+      "lore1": "Po prostu zyskaj Noktowizje pod woda po zakonczeniu efektu oddychania pod woda!"
     },
     "dolphingrace": {
-      "name": "Łaska Delfina",
-      "description": "Pływaj jak delfin, bez delfinów",
-      "lore1": "+ Pasywny: zysk",
-      "lore2": "x prędkość (łaska delfinów)",
-      "lore3": "precyzyjny niemiecki inżynier - czekaj, to nie jest w porządku..."
+      "name": "Laska Delfina",
+      "description": "Plywaj jak delfin, bez delfinow",
+      "lore1": "+ Pasywne: zyskaj ",
+      "lore2": "x predkosc (laska delfina)",
+      "lore3": "precyzyjna niemiecka inzynier- czekaj, to nie tak... Nie kompatybilne z Glebinowym Krokiem"
     }
   },
   "stealth": {
     "ghostarmor": {
       "name": "Zbroja Ducha",
-      "description": "Powolne budowanie pancerza, gdy nie otrzymujesz obrażeń, utrzymuje się przez 1 trafienie",
-      "lore1": "Maksymalna zbroja",
-      "lore2": "Prędkość"
+      "description": "Wolno narastajacy pancerz gdy nie otrzymujesz obrazen, wytrzymuje 1 trafienie",
+      "lore1": "Maksymalny Pancerz",
+      "lore2": "Szybkosc"
     },
     "nightvision": {
-      "name": "Ukryta wizja",
-      "description": "Zyskaj widzenie w nocy podczas skradania się",
-      "lore1": "Zyskaj serię",
-      "lore2": "Noktowizja",
-      "lore3": "podczas skradania się"
+      "name": "Wizja Skradania",
+      "description": "Zyskaj noktowizje podczas kucania",
+      "lore1": "Zyskaj porcje ",
+      "lore2": "noktowizji",
+      "lore3": "podczas kucania"
     },
     "snatch": {
-      "name": "Wyrwanie przedmiotu",
-      "description": "Chwyć Upuszczone przedmioty natychmiast podczas skradania się!",
-      "lore1": "Zasięg Chwytu"
+      "name": "Chwytanie Przedmiotow",
+      "description": "Chwytaj Upuszczone Przedmioty natychmiast podczas kucania!",
+      "lore1": "Zasieg Chwytania"
     },
     "speed": {
-      "name": "Prędkość Skradania Się",
-      "description": "Zyskaj prędkość podczas skradania się",
-      "lore1": "Prędkość skradania się"
+      "name": "Szybkosc Skradania",
+      "description": "Zyskaj szybkosc podczas kucania",
+      "lore1": "Szybkosc Kucania"
+    },
+    "enderveil": {
+      "name": "Zaslona Endera",
+      "description": "Koniec z dyniami aby zapobiec atakom Endermanow",
+      "lore1": "Zapobiega atakom Endermanow podczas kucania",
+      "lore2": "Zapobiega wszystkim atakom Endermanow"
     }
   },
   "sword": {
     "machete": {
       "name": "Maczeta",
-      "description": "Z łatwością przecinaj liście!",
-      "lore1": "Promień ukośnika",
-      "lore2": "Czas odnowienia siekania",
-      "lore3": "Zużycie narzędzi"
+      "description": "Przedzieraj sie przez roslinnosc z latwoscia!",
+      "lore1": "Zasieg Ciecia",
+      "lore2": "Czas Odnowienia Ciecia",
+      "lore3": "Zuzycie Narzedzia"
     },
     "bloodyblade": {
       "name": "Krwawe Ostrze",
-      "description": "Uderza mieczem, powodując krwawienie!",
-      "lore1": "Uderzenie żywej istoty mieczem powoduje krwawienie",
-      "lore2": "Czas trwania krwawienia",
-      "lore3": "Czas odnowienia krwawienia"
+      "description": "Uderzenia mieczem powoduja Krwawienie!",
+      "lore1": "Trafienie zywej istoty mieczem powoduje Krwawienie",
+      "lore2": "Czas Trwania Krwawienia",
+      "lore3": "Czas Odnowienia Krwawienia"
     },
     "poisonedblade": {
       "name": "Zatrute Ostrze",
-      "description": "Uderza mieczem, powodując truciznę!",
-      "lore1": "Uderzenie żywej istoty mieczem powoduje truciznę",
-      "lore2": "Czas trwania trucizny",
-      "lore3": "Czas odnowienia trucizny"
+      "description": "Uderzenia mieczem powoduja Truizne!",
+      "lore1": "Trafienie zywej istoty mieczem powoduje Truizne",
+      "lore2": "Czas Trwania Trucizny",
+      "lore3": "Czas Odnowienia Trucizny"
     }
   },
   "taming": {
     "damage": {
-      "name": "Oswojone obrażenia",
-      "description": "Zwiększ obrażenia zadawane przez oswojone zwierzęta.",
-      "lore1": "Zwiększone obrażenia"
+      "name": "Obrazenia Oswojonych",
+      "description": "Zwieksz obrazenia zadawane przez oswojone zwierzeta.",
+      "lore1": "Zwiekszone Obrazenia"
     },
     "health": {
-      "name": "Oswojone zdrowie",
-      "description": "Zwiększ swoje oswojone zdrowie zwierząt.",
-      "lore1": "Zwiększone Zdrowie"
+      "name": "Zdrowie Oswojonych",
+      "description": "Zwieksz zdrowie swoich oswojonych zwierzat.",
+      "lore1": "Zwiekszone Zdrowie"
     },
     "regeneration": {
-      "name": "Oswojona regeneracja",
-      "description": "Zwiększ regenerację oswojonych zwierząt.",
-      "lore1": "HP"
+      "name": "Regeneracja Oswojonych",
+      "description": "Zwieksz regeneracje swoich oswojonych zwierzat.",
+      "lore1": "PZ/s"
     }
   },
   "tragoul": {
     "thorns": {
       "name": "Ciernie",
-      "description": "Odbij obrażenia z powrotem swojemu napastnikowi!",
-      "lore1": "Odwet po uderzeniu"
+      "description": "Odbij obrazenia z powrotem na atakujacego!",
+      "lore1": "Obrazenia odwetowe po trafieniu"
     },
     "globe": {
-      "name": "Kula bólu",
-      "description": "Podziel zadawane obrażenia na podstawie liczby wrogów wokół ciebie!",
-      "lore1": "Im więcej wrogów wokół ciebie, tym mniejsze obrażenia zadasz każdemu z nich",
-      "lore2": "Zakres:",
-      "lore3": "Dodano obrażenia dla wszystkich bytów:"
+      "name": "Kula Bolu",
+      "description": "Podziel zadawane obrazenia na podstawie liczby wrogow wokol ciebie!",
+      "lore1": "Im wiecej wrogow wokol ciebie, tym mniej obrazen zadasz kazdemu",
+      "lore2": "Zasieg: ",
+      "lore3": "Dodane Obrazenia dla wszystkich Istot: "
     },
     "healing": {
-      "name": "Wola bólu",
-      "description": "Odzyskuj zdrowie na podstawie zadawanych obrażeń!",
-      "lore1": "Niszczenie rzeczy nigdy nie było tak przyjemne! Uzdrowienie z zadanych obrażeń",
-      "lore2": "Istnieje 3-sekundowe okno obrażeń na leczenie i 1-sekundowy czas odnowienia",
-      "lore3": "Procent leczenia za obrażenia:"
+      "name": "Wola Bolu",
+      "description": "Odzyskaj zdrowie na podstawie zadawanych obrazen!",
+      "lore1": "Krzywdzenie jeszcze nigdy nie bylo tak przyjemne! Lecz sie z Zadanych Obrazen",
+      "lore2": "Jest 3-sekundowe okno obrazen na leczenie i 1-sekundowy czas odnowienia ",
+      "lore3": "Procent Leczenia za Obrazenia: "
     },
     "lance": {
-      "name": "Trupie Lance",
-      "description": "Zabicie wroga lub posiadanie umiejętności zabicia wroga powoduje pojawienie się lancy, która zadaje obrażenia pobliskiemu wrogowi!",
-      "lore1": "Lance będą szukać wszystkiego, co zabijesz, ORAZ jeśli ta umiejętność zabije wroga.",
-      "lore2": "Poświęć część swojego życia, aby stworzyć lance (to może cię zabić)",
-      "lore3": "Maksymalna liczba lanc: 1 +"
+      "name": "Lance Trupow",
+      "description": "Zabicie wroga lub zabojstwo przez umiejetnosc tworzy lance zadajaca obrazenia pobliskiemu wrogowi!",
+      "lore1": "Lance beda szukac ze wszystkiego co zabijesz ORAZ jesli ta umiejetnosc zabije wroga.",
+      "lore2": "Poswiec czesc swojego zycia aby stworzyc lance (to moze cie zabic)",
+      "lore3": "Maks. Lanc: 1 + "
     }
   },
   "unarmed": {
     "glasscannon": {
-      "name": "Szklana Armata",
-      "description": "Dodatkowe obrażenia w walce wręcz, im niższa jest wartość twojego pancerza",
-      "lore1": "x Obrażenia przy 0 zbroi",
-      "lore2": "Dodatkowe obrażenia na każdym poziomie"
+      "name": "Szklane Dzialo",
+      "description": "Dodatkowe obrazenia wreczna im nizsza wartosc twojego pancerza",
+      "lore1": "x Obrazenia przy 0 pancerza",
+      "lore2": "Dodatkowe Obrazenia za Poziom"
     },
     "power": {
-      "name": "Nieuzbrojona moc",
-      "description": "Ulepszone obrażenia bez broni",
-      "lore1": "Obrażenia"
+      "name": "Moc Walki Wreczna",
+      "description": "Ulepszone obrazenia wreczna",
+      "lore1": "Obrazenia"
     },
     "suckerpunch": {
-      "name": "Cios Partyzanta",
-      "description": "Uderzenia sprinterskie, ale bardziej zabójcze.",
-      "lore1": "Obrażenia",
-      "lore2": "Obrażenia wzrastają wraz z szybkością podczas ciosów"
+      "name": "Cios z Zaskoczenia",
+      "description": "Sprintowe ciosy, ale bardziej smiercionosne.",
+      "lore1": "Obrazenia",
+      "lore2": "Obrazenia rosna wraz z szybkoscia podczas ciosow"
     }
   }
 }

@@ -173,6 +173,22 @@ permissions:
       adapt.blacklist.craftingxp:
         description: Blacklist the adaptation CraftingXP
         default: false
+  adapt.blacklist.chronos:
+    description: Blacklist the skill Chronos
+    default: false
+    children:
+      adapt.blacklist.chronostimebottle:
+        description: Blacklist the adaptation ChronosTimeInABottle
+        default: false
+      adapt.blacklist.chronosaberranttouch:
+        description: Blacklist the adaptation ChronosAberrantTouch
+        default: false
+      adapt.blacklist.chronosinstantrecall:
+        description: Blacklist the adaptation ChronosInstantRecall
+        default: false
+      adapt.blacklist.chronostimebomb:
+        description: Blacklist the adaptation ChronosTimeBomb
+        default: false
   adapt.blacklist.discovery:
     description: Blacklist the skill Discovery
     default: false

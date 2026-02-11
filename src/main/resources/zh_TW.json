@@ -2,23 +2,23 @@
   "advancement": {
     "challenge_move_1k": {
       "title": "上路啦！",
-      "description": "總計走過1千米的距離。（1,000 方塊）"
+      "description": "總計走過1公里的距離（1,000 格方塊）"
     },
     "challenge_sprint_5k": {
-      "title": "長跑運動員",
-      "description": "總計走過 5 公裡（5,000 方塊）"
+      "title": "長跑5公里！",
+      "description": "總計走過5公里（5,000 格方塊）"
     },
     "challenge_sprint_50k": {
-      "title": "五萬變焦",
-      "description": "總計走過5萬千米（50,000 方塊）"
+      "title": "飛速衝刺50公里！",
+      "description": "總計走過50公里（50,000 格方塊）"
     },
     "challenge_sprint_500k": {
-      "title": "穿越宇宙！",
-      "description": "總計走過500千米（500,000方塊）"
+      "title": "穿越宇宙！！",
+      "description": "總計走過500公里（500,000 格方塊）"
     },
     "challenge_sprint_marathon": {
-      "title": "衝刺（字面意思）馬拉松！",
-      "description": "以疾跑的方式跑過 42,195 格方塊。"
+      "title": "衝刺一場（真正的）馬拉松！",
+      "description": "以疾跑的方式跑過 42,195 格方塊！"
     },
     "challenge_place_1k": {
       "title": "初學建築師！",
@@ -29,19 +29,19 @@
       "description": "放置 5,000 格方塊"
     },
     "challenge_place_50k": {
-      "title": "職業建築師！",
-      "description": "總計放置 50,000 格方塊"
+      "title": "高級建築師！",
+      "description": "放置 50,000 格方塊"
     },
     "challenge_place_500k": {
       "title": "建築大師！",
       "description": "放置 500,000 格方塊"
     },
     "challenge_place_5m": {
-      "title": "對稱主義",
-      "description": "世界是你的天地！ （放置5百萬格方塊）"
+      "title": "對稱之信徒！",
+      "description": "現實是你的遊樂場！（500萬格方塊）"
     },
     "challenge_chop_1k": {
-      "title": "初學伐木工",
+      "title": "初學伐木工！",
       "description": "砍伐 1,000 格方塊"
     },
     "challenge_chop_5k": {
@@ -49,7 +49,7 @@
       "description": "砍伐 5,000 格方塊"
     },
     "challenge_chop_50k": {
-      "title": "職業伐木工！",
+      "title": "高級伐木工！",
       "description": "砍伐 50,000 格方塊"
     },
     "challenge_chop_500k": {
@@ -57,128 +57,128 @@
       "description": "砍伐 500,000 格方塊"
     },
     "challenge_chop_5m": {
-      "title": "吳剛傳人",
-      "description": "最棒的好孩子！ （500 萬格）"
+      "title": "傑克森小狗",
+      "description": "最棒的好孩子！（500萬格方塊）"
     },
     "challenge_block_1k": {
-      "title": "初學格擋!",
-      "description": "格擋1000次傷害"
+      "title": "初學格擋！",
+      "description": "格擋 1000 次攻擊"
     },
     "challenge_block_5k": {
-      "title": "格擋真有趣!",
-      "description": "格擋5000次傷害"
+      "title": "格擋真有趣！",
+      "description": "格擋 5000 次攻擊"
     },
     "challenge_block_50k": {
-      "title": "為格擋而生!",
-      "description": "格擋50,000次傷害"
+      "title": "為格擋而生！",
+      "description": "格擋 50,000 次攻擊"
     },
     "challenge_block_500k": {
-      "title": "意志即為格擋!",
-      "description": "格擋500,000次傷害"
+      "title": "格擋即使命！",
+      "description": "格擋 500,000 次攻擊"
     },
     "challenge_block_5m": {
-      "title": "巨盾勇士",
-      "description": "格擋5,000,000次傷害"
+      "title": "傷害之手",
+      "description": "格擋 5,000,000 次攻擊"
     },
     "challenge_brew_1k": {
-      "title": "煉金實習生!",
-      "description": "飲用1000瓶藥水"
+      "title": "初學煉金術士！",
+      "description": "飲用 1000 瓶藥水"
     },
     "challenge_brew_5k": {
-      "title": "業餘-煉金術士!",
-      "description": "飲用5000瓶藥水"
+      "title": "中級煉金術士！",
+      "description": "飲用 5000 瓶藥水"
     },
     "challenge_brew_50k": {
-      "title": "專業級-煉金術士!",
-      "description": "飲用50,000瓶藥水"
+      "title": "高級煉金術士！",
+      "description": "飲用 50,000 瓶藥水"
     },
     "challenge_brew_500k": {
-      "title": "家傳級煉金術士!",
-      "description": "飲用500,000瓶藥水"
+      "title": "煉金大師！",
+      "description": "飲用 500,000 瓶藥水"
     },
     "challenge_brew_5m": {
       "title": "大煉金術師",
-      "description": "飲用5,000,000瓶藥水"
+      "description": "飲用 5,000,000 瓶藥水"
     },
     "challenge_brewsplash_1k": {
-      "title": "初學-藥水投擲手!",
-      "description": "投擲1000瓶藥水"
+      "title": "初學藥水投擲手！",
+      "description": "投擲 1000 瓶藥水"
     },
     "challenge_brewsplash_5k": {
-      "title": "業餘-藥水投擲手!",
-      "description": "投擲5000瓶藥水"
+      "title": "中級藥水投擲手！",
+      "description": "投擲 5000 瓶藥水"
     },
     "challenge_brewsplash_50k": {
-      "title": "專業級-藥水投擲手!",
-      "description": "投擲50,000瓶藥水"
+      "title": "高級藥水投擲手！",
+      "description": "投擲 50,000 瓶藥水"
     },
     "challenge_brewsplash_500k": {
-      "title": "家傳級-藥水投擲手!",
-      "description": "投擲500,000瓶藥水"
+      "title": "藥水投擲大師！",
+      "description": "投擲 500,000 瓶藥水"
     },
     "challenge_brewsplash_5m": {
-      "title": "藥水投擲大師",
-      "description": "投擲5,000,000瓶藥水"
+      "title": "潑灑宗師",
+      "description": "投擲 5,000,000 瓶藥水"
     },
     "challenge_craft_1k": {
-      "title": "初入-製造匠!",
-      "description": "製作1000件物品"
+      "title": "巧手製造匠！",
+      "description": "製作 1000 件物品"
     },
     "challenge_craft_5k": {
-      "title": "逐漸成熟-製造匠!",
-      "description": "製作5000件物品"
+      "title": "暴躁製造匠！",
+      "description": "製作 5000 件物品"
     },
     "challenge_craft_50k": {
-      "title": "鑽研精熟-製造匠!",
-      "description": "製作50,000件物品"
+      "title": "勤勉製造匠！",
+      "description": "製作 50,000 件物品"
     },
     "challenge_craft_500k": {
-      "title": "巧奪天工-製造匠!",
-      "description": "製作500,000件物品"
+      "title": "喧鬧製造匠！",
+      "description": "製作 500,000 件物品"
     },
     "challenge_craft_5m": {
-      "title": "好似魯班再世",
-      "description": "製作5,000,000件物品"
+      "title": "災難級工匠大人",
+      "description": "製作 5,000,000 件物品"
     },
     "challenge_enchant_1k": {
-      "title": "初入-附魔師!",
-      "description": "附魔1000件物品"
+      "title": "初學附魔師！",
+      "description": "附魔 1000 件物品"
     },
     "challenge_enchant_5k": {
-      "title": "業餘-附魔師!",
-      "description": "附魔5000件物品"
+      "title": "中級附魔師！",
+      "description": "附魔 5000 件物品"
     },
     "challenge_enchant_50k": {
-      "title": "專業級-附魔師!",
-      "description": "附魔50,000件物品"
+      "title": "高級附魔師！",
+      "description": "附魔 50,000 件物品"
     },
     "challenge_enchant_500k": {
-      "title": "附魔大師!",
-      "description": "附魔500,000件物品"
+      "title": "附魔大師！",
+      "description": "附魔 500,000 件物品"
     },
     "challenge_enchant_5m": {
-      "title": "神秘的大附魔家",
-      "description": "附魔5,000,000件物品"
+      "title": "神秘附魔家",
+      "description": "附魔 5,000,000 件物品"
     },
     "challenge_excavate_1k": {
-      "title": "初入-挖掘者!",
-      "description": "挖掘1000格方塊"
+      "title": "初學挖掘者！",
+      "description": "挖掘 1000 格方塊"
     },
     "challenge_excavate_5k": {
-      "title": "業餘-挖掘者!",
-      "description": "挖掘5000格方塊"
+      "title": "中級挖掘者！",
+      "description": "挖掘 5000 格方塊"
     },
     "challenge_excavate_50k": {
-      "title": "專業級-挖掘者!",
-      "description": "挖掘50,000格方塊"
+      "title": "高級挖掘者！",
+      "description": "挖掘 50,000 格方塊"
     },
     "challenge_excavate_500k": {
-      "title": "盜墓者!",
-      "description": "挖掘500,000格方塊"
+      "title": "挖掘大師！",
+      "description": "挖掘 500,000 格方塊"
     },
     "challenge_excavate_5m": {
-      "title": "挖掘機專業",
-      "description": "挖掘5,000,000格方塊"
+      "title": "神秘挖掘者",
+      "description": "挖掘 5,000,000 格方塊"
     },
     "horrible_person": {
       "title": "你是一個可怕的人",
@@ -186,10 +186,10 @@
     },
     "challenge_turtle_egg_smasher": {
       "title": "海龜蛋粉碎機！",
-      "description": "打破 100 個海龜蛋"
+      "description": "打碎 100 個海龜蛋"
     },
     "challenge_turtle_egg_annihilator": {
-      "title": "龜蛋殲滅者！",
+      "title": "海龜蛋殲滅者！",
       "description": "打碎 500 個海龜蛋"
     },
     "challenge_novice_hunter": {
@@ -205,66 +205,111 @@
       "description": "殺死 5000 個實體"
     },
     "challenge_creeper_conqueror": {
-      "title": "爬行者征服者！",
-      "description": "殺死 50 個苦力怕"
+      "title": "苦力怕征服者！",
+      "description": "殺死 50 隻苦力怕"
     },
     "challenge_creeper_annihilator": {
-      "title": "爬行者殲滅者！",
-      "description": "殺死 200 個苦力怕"
+      "title": "苦力怕殲滅者！",
+      "description": "殺死 200 隻苦力怕"
     },
     "challenge_pickaxe_1k": {
       "title": "新手礦工",
-      "description": "打破 1000 個方塊"
+      "description": "挖碎 1000 格方塊"
     },
     "challenge_pickaxe_5k": {
-      "title": "熟練的礦工",
-      "description": "打破 5000 個區塊"
+      "title": "熟練礦工",
+      "description": "挖碎 5000 格方塊"
     },
     "challenge_pickaxe_50k": {
       "title": "專家礦工",
-      "description": "打破 50,000 個區塊"
+      "description": "挖碎 50,000 格方塊"
     },
     "challenge_pickaxe_500k": {
       "title": "礦工大師",
-      "description": "打破 500,000 個區塊"
+      "description": "挖碎 500,000 格方塊"
     },
     "challenge_pickaxe_5m": {
       "title": "傳奇礦工",
-      "description": "打破 5,000,000 個區塊"
+      "description": "挖碎 5,000,000 格方塊"
+    },
+    "challenge_eat_100": {
+      "title": "好多東西吃！",
+      "description": "吃下超過 100 個食物！"
+    },
+    "challenge_eat_1000": {
+      "title": "永無止境的飢餓！",
+      "description": "吃下超過 1,000 個食物！"
+    },
+    "challenge_eat_10000": {
+      "title": "永恆的飢渴！",
+      "description": "吃下超過 10,000 個食物！"
+    },
+    "challenge_harvest_100": {
+      "title": "滿載收穫",
+      "description": "收割超過 100 株作物！"
+    },
+    "challenge_harvest_1000": {
+      "title": "豐收慶典",
+      "description": "收割超過 1,000 株作物！"
+    },
+    "challenge_swim_1nm": {
+      "title": "人體潛水艇！",
+      "description": "游泳 1 海里（1,852 格方塊）"
+    },
+    "challenge_sneak_1k": {
+      "title": "膝蓋好痛",
+      "description": "潛行超過 1 公里（1,000 格方塊）"
     }
   },
   "items": {
     "boundenderperal": {
       "name": "亞空間之鑰",
-      "usage1": "Shift + 左鍵 | 綁定",
-      "usage2": "右鍵 | 查看已綁定的容器"
+      "usage1": "Shift + 左鍵點擊以綁定",
+      "usage2": "右鍵點擊以存取已綁定的容器"
     },
     "boundeyeofender": {
       "name": "視界錨點",
-      "usage1": "右鍵 | 消耗物品並傳送到綁定的地點",
-      "usage2": "Shift + 左鍵 | 綁定方塊"
+      "usage1": "右鍵點擊以消耗並傳送到綁定的位置",
+      "usage2": "Shift + 左鍵點擊以綁定方塊"
     },
     "boundredstonetorch": {
       "name": "紅石遙控器",
-      "usage1": "右鍵 | 發送 1 tick 的紅石脈衝",
-      "usage2": "對 '標靶' Shift + 左鍵 | 進行綁定"
+      "usage1": "右鍵點擊以發送 1 刻紅石脈衝",
+      "usage2": "對「標靶」方塊 Shift + 左鍵點擊以綁定"
     },
     "boundsnowball": {
-      "name": "網絡陷阱！",
-      "usage1": "拋出以在該位置創建臨時網絡陷阱"
+      "name": "蛛網陷阱！",
+      "usage1": "拋出以在該位置創建臨時蛛網陷阱"
+    },
+    "chronotimebottle": {
+      "name": "時光之瓶",
+      "usage1": "放在物品欄中時會被動儲存時間",
+      "usage2": "右鍵點擊計時方塊或幼年動物以消耗儲存的時間",
+      "stored": "已儲存時間"
+    },
+    "chronotimebomb": {
+      "name": "時間炸彈",
+      "usage1": "右鍵點擊以發射時空彈，產生時間力場"
+    },
+    "elevatorblock": {
+      "name": "電梯方塊",
+      "usage1": "跳躍以向上傳送",
+      "usage2": "潛行以向下傳送",
+      "usage3": "電梯之間至少需要 2 格空氣方塊"
     }
   },
   "snippets": {
     "gui": {
       "level": "等級",
       "knowledge": "知識",
-      "powerused": "能力",
+      "powerused": "已使用能力",
       "notlearned": "尚未學習",
-      "xp": "至下一級經驗",
+      "xp": "經驗至",
       "welcome": "歡迎！",
       "welcomeback": "歡迎回來！",
       "xpbonusfortime": "經驗增益，持續",
-      "unlockthisbyclicking": "右鍵單擊解鎖：",
+      "maxabilitypower": "最大技能能力",
+      "unlockthisbyclicking": "右鍵點擊以解鎖：",
       "back": "返回",
       "unlearnall": "遺忘全部技能",
       "unlearnedall": "已全部遺忘"
@@ -272,35 +317,35 @@
     "adaptmenu": {
       "maynotunlearn": "你無法遺忘此技能",
       "mayunlearn": "可學習/遺忘",
-      "knowledgecost": "知識可用",
+      "knowledgecost": "知識花費",
       "knowledgeavailable": "可用知識",
       "alreadylearned": "已學習",
-      "unlearnrefund": "點擊遺忘此技能",
-      "norefunds": "極限模式將禁用點數返還",
+      "unlearnrefund": "點擊以遺忘並退還",
+      "norefunds": "極限模式，已禁用退還",
       "knowledge": "知識",
       "clicklearn": "點擊以學習",
-      "noknowledge": "（你沒有任何知識可用）",
+      "noknowledge": "（你沒有任何知識）",
       "youonlyhave": "你只有",
-      "howtolevelup": "升級技能來擴大能力上限",
-      "notenoughpower": "能力不足！每級需要花費 1 能力。",
+      "howtolevelup": "升級技能以提升你的最大能力。",
+      "notenoughpower": "能力不足！每級技能需要花費 1 點能力。",
       "power": "能力",
-      "powerdrain": "耗費能力",
+      "powerdrain": "能力消耗",
       "learned": "已學習 ",
-      "unlearned": "未學習 ",
+      "unlearned": "已遺忘 ",
       "activatorblock": "書架"
     },
     "knowledgeorb": {
       "contains": "包含",
       "knowledge": "知識",
-      "rightclick": "右鍵",
-      "togainknowledge": "獲得此知識",
+      "rightclick": "右鍵點擊",
+      "togainknowledge": "以獲得此知識",
       "knowledgeorb": "知識之珠"
     },
     "experienceorb": {
       "contains": "包含",
       "xp": "經驗",
-      "rightclick": "右鍵",
-      "togainxp": "獲得此經驗",
+      "rightclick": "右鍵點擊",
+      "togainxp": "以獲得此經驗",
       "xporb": "經驗球"
     }
   },
@@ -308,356 +353,370 @@
     "agility": {
       "name": "敏捷",
       "icon": "⇉",
-      "description": "敏捷可以在遇到障礙時幫助你快速、靈活的移動。"
+      "description": "敏捷是面對障礙時快速且流暢移動的能力。"
     },
     "architect": {
       "name": "建築師",
       "icon": "⬧",
-      "description": "結構是萬物之本。現實在你手中，由你掌握。"
+      "description": "結構是世界的基石。現實掌握在你手中，由你掌控。"
     },
     "axes": {
       "name": "斧技",
-      "icon": "❖",
-      "description1": "如果說你可以砍掉什麽東西",
-      "description2": "來取代掉砍樹",
-      "description3": "有什麽不一樣的嗎？"
+      "icon": "🪓",
+      "description1": "與其砍樹，不如砍",
+      "description2": "東西",
+      "description3": "，結果都一樣嘛！"
     },
     "brewing": {
       "name": "釀造",
       "icon": "❦",
-      "description": "咕嘟，咕嘟，咕嘟- 我最終還是不敢將這瓶藥水丟進煉藥鍋中。"
+      "description": "咕嘟咕嘟，再咕嘟——我還是沒辦法把這瓶藥水倒進煉藥鍋裡"
     },
     "blocking": {
       "name": "格擋",
-      "icon": "▒",
-      "description": "棍棒與石頭不會折斷你的骨頭，但是盾牌會。"
+      "icon": "🛡",
+      "description": "棍棒和石頭不會折斷你的骨頭，但是盾牌會。"
     },
     "crafting": {
       "name": "合成",
       "icon": "⌂",
-      "description": "若沒有剩下什麽東西可以合成，為什麽不再做一個呢？"
+      "description": "當沒有東西可以放了，何不再做一個呢？"
     },
     "discovery": {
       "name": "探索",
       "icon": "⚛",
-      "description": "當洞察力提升時，你的思維便會愈發澄澈，探索更多的奧秘。"
+      "description": "隨著感知力的擴展，你的心智逐漸解開，發現那些你未曾察覺的事物。"
     },
     "enchanting": {
       "name": "附魔",
       "icon": "♰",
-      "description": "你在嘀咕些什麽？預言，幻象，還是在胡言亂語？"
+      "description": "你在說什麼呢？預言、幻象，還是迷信的胡言亂語？"
     },
     "excavation": {
       "name": "挖掘",
-      "icon": "✥",
-      "description": "挖大洞......"
+      "icon": "ᛳ",
+      "description": "挖呀挖呀挖......"
     },
     "herbalism": {
       "name": "草藥學",
       "icon": "⚘",
-      "description": "我見不到植物，不過我能找到一些種子還有—— 呃，雜草？"
+      "description": "我找不到任何植物，但我能找到一些種子還有——那是……雜草？"
     },
     "hunter": {
       "name": "狩獵",
       "icon": "☠",
-      "description": "狩獵是一段旅程，而不是結果。"
+      "description": "狩獵重在過程，而非結果。"
     },
     "nether": {
       "name": "地獄",
       "icon": "₪",
-      "description": "它自深處而來。"
+      "description": "來自地獄的最深處。"
     },
     "pickaxe": {
-      "name": "採礦",
+      "name": "鎬技",
       "icon": "⛏",
-      "description": "矮人是礦工，而我在這段時間裡明白了一件事。我是瑞典人！"
+      "description": "矮人才是礦工，但我也學到了一些東西。我是瑞典人！"
     },
     "ranged": {
       "name": "箭術",
       "icon": "🏹",
-      "description": "你與目標的距離是勝利的關鍵所在，也是生存的關鍵所在。"
+      "description": "距離是勝利的關鍵，也是生存的關鍵。"
     },
     "rift": {
       "name": "裂痕",
       "icon": "❍",
-      "description": "裂痕如同一道尖銳的線束，但是現在你控制了它。"
+      "description": "裂痕是一道灼熱的束縛，但你已駕馭了它。"
     },
     "seaborne": {
-      "name": "波濤",
-      "icon": "🌊",
-      "description": "別忘了帶著這個技能，也許有一天你能見到由水組成的奇觀。"
+      "name": "航海",
+      "icon": "🎣",
+      "description": "擁有此技能，你將能駕馭水中的奇跡。"
     },
     "stealth": {
-      "name": "隱形",
-      "icon": "✠",
-      "description": "當行走於陰影裡，這是看不見的藝術。"
+      "name": "隱匿",
+      "icon": "☯",
+      "description": "隱於無形的藝術。行走於陰影之中。"
     },
     "swords": {
       "name": "劍術",
       "icon": "⚔",
-      "description": "一份來自玄武石的力量！"
+      "description": "以灰岩石之力！"
     },
     "taming": {
       "name": "馴獸",
       "icon": "♥",
-      "description": "鸚鵡、蜜蜂，以及......你？"
+      "description": "鸚鵡和蜜蜂……還有你？"
     },
     "tragoul": {
-      "name": "剎鉤",
-      "icon": "▼",
-      "description": "血液在宇宙的血管中遊動，束縛於你的手中。"
+      "name": "血咒",
+      "icon": "🗡",
+      "description": "血液在宇宙的血管中流淌，受你雙手所束縛。"
     },
     "chronos": {
       "name": "時空",
-      "icon": "۞",
-      "description": "嘗試著宇宙的鐘上個發條，便可以感受到流動。若能把時鐘弄壞，或許就能成為它。"
+      "icon": "🕒",
+      "description": "為宇宙之鐘上發條，感受時間的流動。打破時鐘，化身其中。"
     },
     "unarmed": {
       "name": "搏擊",
-      "icon": "⚜",
-      "description": "赤手空拳並不曾意味著失去力量。"
+      "icon": "»",
+      "description": "沒有武器並不意味著沒有力量。"
     }
   },
   "agility": {
     "armorup": {
-      "name": "裝甲加速",
-      "description": "衝刺的越快，給予的護甲值就越多！",
+      "name": "裝甲強化",
+      "description": "衝刺時間越長，獲得的護甲值越多！",
       "lore1": "最大護甲值",
-      "lore2": "所需的加速時間"
+      "lore2": "護甲強化所需時間"
+    },
+    "ladderslide": {
+      "name": "梯子滑行",
+      "description": "大幅提升攀爬和滑下梯子的速度。",
+      "lore1": "梯子速度倍率",
+      "lore2": "快速下滑速度"
     },
     "superjump": {
-      "name": "高跳",
-      "description": "一覽眾山小。",
+      "name": "超級跳躍",
+      "description": "卓越的高度優勢。",
       "lore1": "最大跳躍高度",
-      "lore2": "同時按下 潛行 + 跳躍 按鍵進行高跳！"
+      "lore2": "潛行 + 跳躍以超級跳躍！"
     },
     "walljump": {
-      "name": "攀跳",
-      "description": "在半空中緊貼墻壁，按住潛行鍵並跳躍。",
-      "lore1": "最大跳躍數量",
+      "name": "蹬牆跳",
+      "description": "在半空中緊貼牆壁時按住潛行鍵以攀附並跳躍！",
+      "lore1": "最大跳躍次數",
       "lore2": "跳躍高度"
     },
     "windup": {
-      "name": "上弦",
+      "name": "蓄力加速",
       "description": "衝刺時間越長，速度越快！",
-      "lore1": " 最大速度",
-      "lore2": " 所需衝刺時間"
+      "lore1": "最大速度",
+      "lore2": "蓄力時間"
     }
   },
   "architect": {
+    "elevator": {
+      "name": "電梯",
+      "description": "允許你建造電梯以快速垂直傳送！",
+      "lore1": "解鎖電梯配方：X=羊毛，Y=乖珍珠",
+      "lore2": "XXX",
+      "lore3": "XYX",
+      "lore4": "XXX"
+    },
     "foundation": {
-      "name": "魔法基建",
-      "description": "當你潛行時，可以臨時在腳下放置方塊。",
-      "lore1": "最多可在腳下生成：",
-      "lore2": "塊臨時方塊"
+      "name": "魔法地基",
+      "description": "潛行時可以在腳下臨時放置方塊！",
+      "lore1": "魔法生成：",
+      "lore2": "格方塊在你腳下！"
     },
     "glass": {
-      "name": "絲質手套",
-      "description": "徒手打破玻璃後將會掉落玻璃方塊！",
-      "lore1": "當手觸摸到玻璃時有絲綢般的觸感"
+      "name": "絲綢觸感玻璃",
+      "description": "空手打破玻璃方塊時不會損失玻璃！",
+      "lore1": "你的雙手對玻璃擁有絲綢觸感"
     },
     "wirelessredstone": {
       "name": "紅石遙控器",
-      "description": "此功能可使你使用紅石火把遠程遙控紅石機關!",
-      "lore1": "標靶*1 + 紅石火把*1 + 終界珍珠*1 = 紅石遙控器*1"
+      "description": "使用紅石火把遠程遙控紅石！",
+      "lore1": "標靶方塊 + 紅石火把 + 乖珍珠 = 1 個紅石遙控器"
     },
     "placement": {
       "name": "建築師之杖",
-      "description": "手持多格方塊，按住潛行鍵瞄準目標方塊。根據預覽擺放方塊，持續調整以達到最好效果！請注意：可能需要移動來調整邊界。",
-      "lore1": "手中必須持有多於",
-      "lore2": "格方塊才能使用",
-      "lore3": "建築師之杖。"
+      "description": "允許你一次放置多格方塊！啟動方式為潛行，手持與你注視的方塊相同的方塊並放置！請注意，你可能需要稍微移動以觸發邊界框！",
+      "lore1": "你需要",
+      "lore2": "格手中方塊才能放置",
+      "lore3": "材料建築師之杖"
     }
   },
   "axe": {
     "chop": {
-      "name": "伐木斧",
-      "description": "手持斧頭，右鍵木頭砍伐多塊樹木。",
-      "lore1": "每次砍伐的數量",
-      "lore2": "冷卻",
-      "lore3": "耐久消耗"
+      "name": "斧頭砍伐",
+      "description": "右鍵點擊原木底部以砍倒整棵樹！",
+      "lore1": "每次砍伐數量",
+      "lore2": "砍伐冷卻",
+      "lore3": "工具磨損"
     },
     "logswap": {
       "name": "露西的原木轉換器",
-      "description": "在工作台中轉換原木的種類吧！",
-      "lore1": "1塊任意種類的原木 + 1株樹苗 = 1塊樹苗對應種類的原木"
+      "description": "在工作台中更換原木種類！",
+      "lore1": "8 根任意種類原木 + 1 株樹苗 = 8 根樹苗對應種類的原木"
     },
     "droptoinventory": {
-      "name": "快速進入背包"
+      "name": "斧頭掉落物自動入包"
     },
     "groundsmash": {
       "name": "山崩地裂",
-      "description": "跳躍，然後迅速蹲下。斬擊所有附近的敵人。",
+      "description": "跳起後蹲下以猛擊附近所有敵人。",
       "lore1": "傷害",
       "lore2": "方塊半徑",
       "lore3": "力量",
-      "lore4": "冷卻"
+      "lore4": "猛擊冷卻"
     },
     "leafminer": {
-      "name": "花匠",
-      "description": "同時剪斷大量樹葉。",
-      "lore1": "潛行，然後挖掘樹葉。",
+      "name": "樹葉粉碎機",
+      "description": "允許你一次破壞大量樹葉！",
+      "lore1": "潛行並挖掘樹葉",
       "lore2": "樹葉挖掘範圍",
-      "lore3": "由於防止漏洞濫用，挖掘樹葉將不會獲得掉落物。"
+      "lore3": "你不會獲得樹葉的掉落物（防止濫用）"
     },
     "woodminer": {
-      "name": "原木礦工",
-      "description": "允許你一次砍伐大量樹木！",
-      "lore1": "潛行，然後砍伐 木頭/原木（木板無效）",
-      "lore2": "有效距離",
-      "lore3": "與直接進入背包兼容。"
+      "name": "木材礦工",
+      "description": "允許你一次砍伐大量木材！",
+      "lore1": "潛行並砍伐木頭/原木（木板無效）",
+      "lore2": "木材挖掘範圍",
+      "lore3": "與掉落物自動入包相容"
     }
   },
   "brewing": {
     "lingering": {
-      "name": "纏綿",
-      "description": "加長藥水效果持續時間。",
+      "name": "持久藥效",
+      "description": "釀造的藥水效果持續更久！",
       "lore1": "持續時間",
       "lore2": "持續時間"
     },
     "superheated": {
-      "name": "過載",
-      "description": "釀造台越熱，它的工作效率就越高！",
-      "lore1": "釀造台每貼近火焰",
-      "lore2": "釀造台每貼近岩漿"
+      "name": "超級加熱釀造",
+      "description": "釀造台越熱，工作速度越快。",
+      "lore1": "每接觸火焰方塊",
+      "lore2": "每接觸岩漿方塊"
     },
     "darkness": {
       "name": "瓶裝黑暗",
-      "description": "不知道你為什麽要這個，反正給你就是了！",
-      "lore1": "夜視藥水 + 混凝土方塊 = 黑暗藥水（30秒）",
-      "lore2": "不過得先說好，藥水效果生效期間不能衝刺。"
+      "description": "不知道你為什麼需要這個，但給你吧！",
+      "lore1": "夜視藥水 + 黑色混凝土 = 黑暗藥水（30 秒）",
+      "lore2": "注意：效果期間無法疾跑！"
     },
     "haste": {
-      "name": "瓶裝緊急",
-      "description": "效率附魔難道不夠用嗎？！",
-      "lore1": "速度藥水+紫水晶碎片=急速藥水（60秒）",
-      "lore2": "速度藥水 + 紫水晶塊 = 急速藥水-2（30 秒）"
+      "name": "瓶裝急迫",
+      "description": "當效率附魔不夠用的時候",
+      "lore1": "速度藥水 + 紫水晶碎片 = 急迫藥水（60 秒）",
+      "lore2": "速度藥水 + 紫水晶塊 = 急迫 II 藥水（30 秒）"
     },
     "absorption": {
-      "name": "瓶裝抗性提升",
-      "description": "來硬的！",
-      "lore1": "即時治療+石英=吸收藥水（60秒）",
-      "lore2": "即時治療+石英塊=吸收藥水-2（30秒）"
+      "name": "瓶裝吸收",
+      "description": "強化身軀！",
+      "lore1": "瞬間治療 + 石英 = 吸收藥水（60 秒）",
+      "lore2": "瞬間治療 + 石英塊 = 吸收 II 藥水（30 秒）"
     },
     "fatigue": {
       "name": "瓶裝疲勞",
-      "description": "來軟的！",
-      "lore1": "虛弱藥水 + 史萊姆球 = 挖掘疲勞藥水（30秒）",
-      "lore2": "虛弱藥水 + 史萊姆塊 = 挖掘疲勞 II 藥水（15秒）"
+      "description": "削弱身軀！",
+      "lore1": "虛弱藥水 + 史萊姆球 = 挖掘疲勞藥水（30 秒）",
+      "lore2": "虛弱藥水 + 史萊姆塊 = 挖掘疲勞 II 藥水（15 秒）"
     },
     "hunger": {
-      "name": "反胃飢餓",
-      "description": "喂飽貪心的人吧！",
-      "lore1": "基礎藥水 + 腐肉 = 飢餓藥水（30秒）",
-      "lore2": "虛弱藥水 + 腐肉 = 飢餓 III 藥水（15秒）"
+      "name": "瓶裝飢餓",
+      "description": "餵飽那些永不滿足的人！",
+      "lore1": "粗製藥水 + 腐肉 = 飢餓藥水（30 秒）",
+      "lore2": "虛弱藥水 + 腐肉 = 飢餓 III 藥水（15 秒）"
     },
     "nausea": {
-      "name": "瓶裝反胃",
-      "description": "真令我噁心。",
-      "lore1": "基礎藥水 + 棕色蘑菇 = 反胃藥水（16秒） ",
-      "lore2": "基礎藥水 + 緋紅蕈菇 = 反胃藥水 II（8秒）"
+      "name": "瓶裝噁心",
+      "description": "你真令我作嘔！",
+      "lore1": "粗製藥水 + 棕色蘑菇 = 噁心藥水（16 秒）",
+      "lore2": "粗製藥水 + 緋紅蕈菇 = 噁心 II 藥水（8 秒）"
     },
     "blindness": {
       "name": "瓶裝失明",
-      "description": "你真是可怕的人...",
-      "lore1": "基礎藥水 + 墨囊 = 失明藥水（30秒）",
-      "lore2": "基礎藥水 + 螢光墨囊 = 失明 II 藥水（15秒）"
+      "description": "你真是個可怕的人……",
+      "lore1": "粗製藥水 + 墨囊 = 失明藥水（30 秒）",
+      "lore2": "粗製藥水 + 螢光墨囊 = 失明 II 藥水（15 秒）"
     },
     "resistance": {
       "name": "瓶裝抗性",
-      "description": "最佳防禦！",
-      "lore1": "基礎藥水 + 鐵錠  = 抗性提升藥水（60秒）",
-      "lore2": "基礎藥水 + 鐵方塊  = 抗性提升 II 藥水（60秒）"
+      "description": "最強防禦！",
+      "lore1": "粗製藥水 + 鐵錠 = 抗性提升藥水（60 秒）",
+      "lore2": "粗製藥水 + 鐵方塊 = 抗性提升 II 藥水（30 秒）"
     },
     "healthboost": {
       "name": "瓶裝生命",
-      "description": "有的時候感覺最大生命值不夠用...",
-      "lore1": "瞬間治療藥水 = 金蘋果 = 生命提升藥水（120秒）",
-      "lore2": "瞬間治療藥水 + 附魔金蘋果 = 生命提升 II 藥水（120秒）"
+      "description": "當最大生命值不夠用的時候……",
+      "lore1": "瞬間治療藥水 + 金蘋果 = 生命提升藥水（120 秒）",
+      "lore2": "瞬間治療藥水 + 附魔金蘋果 = 生命提升 II 藥水（120 秒）"
     },
     "decay": {
-      "name": "瓶裝腐朽",
-      "description": "誰知道Detritus為什麽這麽有用？",
-      "lore1": "虛弱藥水 + 毒馬鈴薯 = 凋零藥水（16秒）",
-      "lore2": "虛弱藥水 + 緋紅蕈根 = 凋零藥水（8秒）"
+      "name": "瓶裝衰敗",
+      "description": "誰知道腐質竟然這麼有用？",
+      "lore1": "虛弱藥水 + 毒馬鈴薯 = 凋零藥水（16 秒）",
+      "lore2": "虛弱藥水 + 緋紅蕈根 = 凋零 II 藥水（8 秒）"
     },
     "saturation": {
       "name": "瓶裝飽和",
-      "description": "哦，我知道... 我其實還沒那麽餓...",
-      "lore1": "生命恢復藥水 + 烤馬鈴薯 = 飽和藥水（120秒）",
-      "lore2": "生命恢復藥水 + 幹草塊= 飽和藥水（120秒）"
+      "description": "你知道嗎……其實我還不太餓……",
+      "lore1": "再生藥水 + 烤馬鈴薯 = 飽和藥水",
+      "lore2": "再生藥水 + 乾草塊 = 飽和 II 藥水"
     }
   },
   "blocking": {
     "chainarmorer": {
       "name": "梅菲斯特的鎖鏈",
-      "description": "允許你合成鎖鏈盔甲",
-      "lore1": "配方和其它盔甲一致，不過需要使用鐵粒作為材料。"
+      "description": "允許你合成鎖鏈甲",
+      "lore1": "合成配方與其他盔甲相同，但使用鐵粒替代"
     },
     "horsearmorer": {
       "name": "可合成馬鎧",
-      "description": "允許你合成不同種類的馬鎧。",
-      "lore1": "在工作台中，使用材料圍著馬鞍一圈合成目標材質的馬鎧。"
+      "description": "允許你合成馬鎧",
+      "lore1": "在工作台中用所需材料圍繞馬鞍以合成該材質的馬鎧"
     },
     "saddlecrafter": {
       "name": "可合成馬鞍",
-      "description": "用羽毛合成馬鞍",
-      "lore1": "配方：5皮革："
+      "description": "用皮革合成馬鞍",
+      "lore1": "配方：5 塊皮革："
     },
     "multiarmor": {
-      "name": "盔甲套組",
-      "description": "在盔甲上綁定鞘翅",
-      "lore1": "旅行必備品。",
-      "lore2": "飛行時動態合併或切換盔甲與鞘翅！",
-      "lore3": "要合併，在物品欄按住Shift拖曳合併物品到被合併物品上。",
-      "lore4": "要解綁盔甲上的物品，按住潛行並丟棄物品以拆解。",
-      "lore5": "當盔甲耐久值至零時，合併到該盔甲上的所有物品都將丟失",
-      "lore6": "我不再需要盔甲了，它讓我太失望了..."
+      "name": "複合盔甲",
+      "description": "將鞘翅綁定到盔甲上",
+      "lore1": "這是旅行的絕佳技能。",
+      "lore2": "飛行中動態合併及切換盔甲/鞘翅！",
+      "lore3": "要合併，在物品欄中按住 Shift 點擊一個物品到另一個物品上。",
+      "lore4": "要拆解盔甲，潛行時丟棄物品即可拆解。",
+      "lore5": "如果你的複合盔甲被摧毀，裡面所有物品都會丟失。",
+      "lore6": "我不需要盔甲，它令我失望……"
     }
   },
   "crafting": {
     "deconstruction": {
-      "name": "分解器",
-      "description": "分解方塊或物品，回收部分合成時的材料。",
-      "lore1": "將 被分解物品 + 剪刀",
-      "lore2": "放入鍛造台進行回收。"
+      "name": "拆解",
+      "description": "將方塊和物品拆解為可回收的基礎材料！",
+      "lore1": "將任何物品丟在地上。",
+      "lore2": "然後，潛行並用剪刀右鍵點擊"
     },
     "xp": {
-      "name": "熟能生巧",
-      "description": "合成物品時給予原版經驗。",
-      "lore1": "當合成完畢後自動給予"
+      "name": "合成經驗",
+      "description": "合成時獲得被動經驗",
+      "lore1": "合成時獲得經驗"
     },
     "reconstruction": {
       "name": "礦石重建",
-      "description": "用基礎成分重新合成礦石！",
-      "lore1": "8 個掉落物和 1 個宿主 = 1 個礦石（無形）",
-      "lore2": "掉落物必須被熔煉（如果適用）",
-      "lore3": "不包括：廢料、石英、祖母綠等...",
-      "lore4": "主機 = 封裝。即：石頭、下界岩、深石板"
+      "description": "用基礎材料重新合成礦石！",
+      "lore1": "8 個掉落物 + 1 個載體 = 1 個礦石（無序合成）",
+      "lore2": "掉落物必須先熔煉（如果適用）",
+      "lore3": "不包括：殘骸、石英、綠寶石等……",
+      "lore4": "載體 = 外殼方塊。例如：石頭、地獄石、深板岩"
     },
     "leather": {
       "name": "可合成皮革",
-      "description": "將腐肉制成皮革",
-      "lore1": "只需要把腐肉丟到篝火上！"
+      "description": "用腐肉製作皮革",
+      "lore1": "只需要把腐肉丟到營火上！"
     },
     "backpacks": {
-      "name": "布蒂利埃的背包",
-      "description": "將Mojang計劃添加的收納袋加入到遊戲中！",
-      "lore1": "你需要在生存模式下才能使用它",
-      "lore2": "XLX : 皮革，拴繩，皮革",
-      "lore3": "XSX : 皮革，木桶，皮革",
-      "lore4": "XCX : 皮革，箱子，皮革"
+      "name": "布蒂利埃的背包！",
+      "description": "將 Mojang 的收納袋功能加入遊戲！",
+      "lore1": "你需要在生存模式下才能使用",
+      "lore2": "XLX：皮革、拴繩、皮革",
+      "lore3": "XSX：皮革、木桶、皮革",
+      "lore4": "XCX：皮革、箱子、皮革"
     },
     "stations": {
-      "name": "便攜式桌子！",
-      "description": "使用手掌中的表格！",
-      "lore2": "關閉時遺忘在桌子上的任何物品都將永遠丟失！",
-      "lore3": "有效桌子：鐵砧、手工、磨石、製圖、切石機、織布機"
+      "name": "便攜工作台！",
+      "description": "在手掌中使用工作台！",
+      "lore2": "關閉時遺忘在工作台裡的任何物品都會永遠丟失！",
+      "lore3": "有效工作台：鐵砧、工作台、砂輪、製圖台、切石機、織布機"
     },
     "skulls": {
       "name": "可合成頭顱！",
       "description": "用材料可以合成生物頭顱！",
-      "lore1": "使用以下物品在工作台中圍繞骨塊一圈合成頭顱：",
+      "lore1": "用以下物品圍繞骨塊以獲得對應頭顱：",
       "lore2": "殭屍：腐肉",
       "lore3": "骷髏：骨頭",
       "lore4": "苦力怕：火藥",
@@ -665,478 +724,528 @@
       "lore6": "龍首：龍息"
     }
   },
+  "chronos": {
+    "timeinabottle": {
+      "name": "時光之瓶",
+      "description": "隨身攜帶的時間之瓶會儲存時間，消耗儲存的時間以加速計時方塊、可生長物和幼年動物等可成長實體。配方（無序）：迅捷藥水 + 時鐘 + 玻璃瓶。",
+      "lore1": "每刻充能的儲存秒數",
+      "lore2": "每儲存秒數的時間加速",
+      "lore3": "配方（無序）：迅捷藥水 + 時鐘 + 玻璃瓶"
+    },
+    "aberranttouch": {
+      "name": "異常觸碰",
+      "description": "近戰攻擊以飢餓為代價施加疊加緩速效果，PvP 有嚴格上限，5 層時定身目標。",
+      "lore1": "近戰攻擊施加疊加緩速",
+      "lore2": "PvE 緩速持續時間上限",
+      "lore3": "PvP 緩速強度上限"
+    },
+    "instantrecall": {
+      "name": "瞬間回溯",
+      "description": "手持時鐘左鍵或右鍵點擊以回溯到最近的快照，恢復生命值和飢餓值。",
+      "lore1": "回溯時長",
+      "lore2": "冷卻時間",
+      "lore3": "不回溯物品欄"
+    },
+    "timebomb": {
+      "name": "時間炸彈",
+      "description": "投擲合成的時空炸彈，產生時間力場，減速實體並凍結投射物。",
+      "lore1": "時間力場半徑",
+      "lore2": "時間力場持續時間",
+      "lore3": "炸彈冷卻時間",
+      "lore4": "配方（無序）：時鐘 + 雪球 + 鑽石 + 沙子"
+    }
+  },
   "discovery": {
     "armor": {
       "name": "世界之甲",
-      "description": "根據附近方塊硬度給予被動防禦。",
-      "lore1": "被動防禦",
-      "lore2": "由附近方塊硬度決定",
-      "lore3": "防禦： +"
+      "description": "根據附近方塊硬度獲得被動護甲。",
+      "lore1": "被動護甲",
+      "lore2": "取決於附近方塊硬度",
+      "lore3": "護甲強度："
     },
     "unity": {
       "name": "實驗性統合",
-      "description": "收集經驗球，隨機為其它技能增長經驗。",
-      "lore1": "點經驗 ",
+      "description": "拾取經驗球時為隨機技能增加經驗。",
+      "lore1": "經驗 ",
       "lore2": "每個經驗球"
     },
     "resist": {
-      "name": "實驗性電阻",
-      "description": "減少來自任何方面的傷害\n",
-      "lore0": "每 15秒 發生一次",
-      "lore1": " 減少傷害",
+      "name": "實驗性抗性",
+      "description": "消耗經驗來減免傷害，僅在攻擊會讓你降至 5 顆心以下或致死時觸發。",
+      "lore0": "僅在危急生命值（<= 5 顆心）時觸發，每 15 秒一次",
+      "lore1": " 減免傷害",
       "lore2": "經驗消耗"
     },
     "villager": {
-      "name": "村莊聚光燈",
-      "description": "與村民交易時將提升交易質量！",
-      "lore1": "每次與村民互動時都會減少獲得的經驗",
-      "lore2": "以減少和村民互動時獲得的經驗為代價，提高交易質量",
-      "lore3": "交互經驗削減"
+      "name": "村民吸引力",
+      "description": "與村民交易時獲得更好的交易！",
+      "lore1": "每次與村民互動時消耗經驗",
+      "lore2": "每次互動有機率消耗經驗以增強交易",
+      "lore3": "每次互動所需經驗消耗"
     }
   },
   "enchanting": {
     "lapisreturn": {
-      "name": "青金石的回報",
-      "description": "每級都將多消耗1經驗。但是越高等級返還青金石越多。",
-      "lore1": "每升一級都會額外消耗1經驗，最高可以返還3青金石。"
+      "name": "青金石回饋",
+      "description": "多消耗 1 級經驗，但有機率免費返還青金石",
+      "lore1": "每升一級，附魔花費增加 1 級，但最多可返還 3 個青金石"
     },
     "quickenchant": {
       "name": "快速附魔",
-      "description": "在物品欄用附魔書點擊被附魔的物品以快速附魔。",
-      "lore1": "累計最大等級",
-      "lore2": "此物品應用的附魔總等級不能超過 ",
-      "lore3": "級"
+      "description": "直接用附魔書點擊物品來附魔。",
+      "lore1": "最大合併等級",
+      "lore2": "無法對超過 ",
+      "lore3": "能力的物品附魔"
     },
     "return": {
       "name": "經驗返還",
-      "description": "當你附魔一個物品時，消耗的經驗會被返還一部分。",
-      "lore1": "當你附魔物品後，有機會返還一部分經驗。",
-      "lore2": "經驗返還"
+      "description": "附魔物品時返還部分經驗。",
+      "lore1": "附魔消耗的經驗有機率被退還",
+      "lore2": "每次附魔返還經驗"
     }
   },
   "excavation": {
     "haste": {
-      "name": "極速挖掘機",
-      "description": "給予緊急效果，提高挖掘速度！",
-      "lore1": "當挖掘時給予緊急效果",
-      "lore2": "x 挖掘時緊急效果等級"
+      "name": "急迫挖掘者",
+      "description": "挖掘時獲得急迫效果，加速挖掘過程！",
+      "lore1": "挖掘時獲得急迫效果",
+      "lore2": "x 級急迫效果（開始挖掘任何方塊時觸發）"
     },
     "spelunker": {
-      "name": "超級視野洞穴探險者！",
-      "description": "用眼睛觀察礦石，但要透過地面！",
-      "lore1": "副手礦石，主手螢火蟲，潛行！",
-      "lore2": "區塊範圍：",
-      "lore3": "使用時消耗Glowberry"
+      "name": "超級透視洞穴探險家！",
+      "description": "透過地面看見礦石！",
+      "lore1": "副手持礦石，主手持螢光漿果，然後潛行！",
+      "lore2": "方塊範圍：",
+      "lore3": "使用時消耗螢光漿果"
     },
     "droptoinventory": {
-      "name": "快速進入背包"
+      "name": "鏟子掉落物自動入包"
     },
     "omnitool": {
       "name": "OMNI - T.O.O.L.",
-      "description": "Tackle設計的豪華多功能工具鉗。",
-      "lore1": "這也許是最強大的設計。",
-      "lore2": "可以根據實際需要合併或拆解工具。",
-      "lore3": "合併：按住潛行鍵，在物品欄中用預合併的物品點擊被合併的物品。",
-      "lore4": "拆解：手持預拆解的物品，按住潛行鍵丟棄以拆解。",
-      "lore5": "注意：如果此工具鉗套件中任何一個物品耐久度至零，該工具鉗將報廢！",
+      "description": "Tackle 精心設計的豪華萬能工具",
+      "lore1": "可能是最強大的功能之一，允許你",
+      "lore2": "根據需求動態合併及切換工具。",
+      "lore3": "要合併，在物品欄中按住 Shift 點擊一個物品到另一個物品上。",
+      "lore4": "要拆解工具，潛行時丟棄物品即可拆解。",
+      "lore5": "萬能工具中的工具不會損壞，但壞掉的工具無法使用",
       "lore6": "個可合併物品。",
-      "lore7": "有時候你需要五、六種物品在同一個工具鉗裡，或許僅僅需要一個。"
+      "lore7": "你可以帶五六個工具，或者只帶這一個！"
     }
   },
   "herbalism": {
     "growthaura": {
       "name": "生長光環",
-      "description": "加速農作物生長時間",
-      "lore1": "光環半徑",
-      "lore2": "生長速度",
-      "lore3": "消耗飽食度"
+      "description": "在你周圍的光環中加速自然生長",
+      "lore1": "方塊半徑",
+      "lore2": "生長光環強度",
+      "lore3": "食物消耗"
     },
     "hippo": {
       "name": "草藥師的河馬",
-      "description": "吃點食物，感覺能更飽點。",
-      "lore1": "飽食度) 額外飽食度"
+      "description": "食用食物時獲得更多飽和度",
+      "lore1": "食物）食用時額外飽和度"
     },
     "myconid": {
-      "name": "草藥師的菌絲",
-      "description": "給予你制作菌絲的能力。",
-      "lore1": "所有泥土，和棕、紅色蘑菇將會制作出菌絲。"
+      "name": "草藥師的菌絲體",
+      "description": "賦予你合成菌絲的能力",
+      "lore1": "任意泥土 + 棕色蘑菇 + 紅色蘑菇即可合成菌絲。"
     },
     "terralid": {
-      "name": "草藥師的地衣\n",
-      "description": "給予你合成草方塊的能力。",
-      "lore1": "3個種子，加上3塊泥土，可合成3塊草方塊。"
+      "name": "草藥師的地衣",
+      "description": "賦予你合成草地方塊的能力",
+      "lore1": "3 個種子放在 3 塊泥土上方，即可合成 3 塊草地方塊。"
     },
     "cobweb": {
-      "name": "蛛網合成師",
-      "description": "你將獲得在工作台中合成蛛網的能力",
-      "lore1": "九弦，將製作蜘蛛網。"
+      "name": "蛛網織者",
+      "description": "賦予你在工作台中合成蛛網的能力",
+      "lore1": "9 根線即可合成一個蛛網。"
     },
     "mushroomblocks": {
-      "name": "蘑菇包裝廠",
-      "description": "你將獲得在工作台中合成蘑菇方塊的能力。",
-      "lore1": "四個蘑菇合成一個蘑菇塊，或者使用一個蘑菇塊進行分解。"
+      "name": "蘑菇製造者",
+      "description": "賦予你在工作台中合成蘑菇方塊的能力",
+      "lore1": "4 個蘑菇合成一個蘑菇塊，或一個蘑菇塊合成蘑菇柄。"
     },
     "droptoinventory": {
-      "name": "快速進入背包"
+      "name": "鋤頭掉落物自動入包"
     },
     "hungryshield": {
       "name": "飢餓護盾",
-      "description": "在飢餓席卷而來前保護生命值。",
-      "lore1": "飢餓抵抗"
+      "description": "受到傷害時先消耗飢餓值而非生命值。",
+      "lore1": "飢餓抵抗傷害"
     },
     "luck": {
-      "name": "草藥師的祝福",
-      "description": "當你破壞花或草時，你將有機率獲得隨機物品。",
-      "lore0": "花將收獲食物，草將收獲種子",
-      "lore1": "破壞花獲得隨機物品的機率",
-      "lore2": "破壞草獲得隨機物品的機率"
+      "name": "草藥師的幸運",
+      "description": "破壞草/花時有機率獲得隨機物品",
+      "lore0": "花 = 食物，草 = 種子",
+      "lore1": "破壞花時獲得物品的機率",
+      "lore2": "破壞草時獲得物品的機率"
     },
     "replant": {
-      "name": "收割者",
-      "description": "手持鋤頭，右鍵莊稼進行自動收割和重新種植。",
-      "lore1": " 有效範圍半徑"
+      "name": "收割與重種",
+      "description": "手持鋤頭右鍵點擊作物以收割並重新種植。",
+      "lore1": "重種範圍半徑"
     }
   },
   "hunter": {
     "adrenaline": {
       "name": "腎上腺素",
-      "description": "生命越少，近戰造成的傷害越大。",
+      "description": "生命值越低，近戰傷害越高",
       "lore1": "最大傷害"
     },
     "penalty": {
-      "lore1": "如果飢餓度歸零，將給予劇毒效果！"
+      "name": "",
+      "description": "",
+      "lore1": "飢餓值耗盡時會獲得中毒效果"
     },
     "droptoinventory": {
-      "name": "快速進入背包",
-      "description": "當你擊殺生物/破壞某方塊，它的掉落物將會自動進入背包。",
-      "lore1": "如果允許，擊殺生物/破壞某方塊的掉落物將會自動進入背包。"
+      "name": "物品自動入包",
+      "description": "擊殺生物或用劍破壞方塊時，掉落物傳送到你的物品欄",
+      "lore1": "生物/方塊掉落的物品會自動進入你的物品欄（如果有空間）。"
     },
     "invisibility": {
       "name": "隱形之步",
-      "description": "以飢餓為代價，當你受傷時給予隱身效果。",
-      "lore1": "受傷時自動給予隱身效果。",
-      "lore2": "x 隱身效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "隱身效果持續時間"
+      "description": "受到攻擊時獲得隱身效果，以飢餓為代價",
+      "lore1": "受擊時獲得被動隱身效果",
+      "lore2": "x 隱身效果疊加，受擊後持續 3 秒",
+      "lore3": "x 疊加飢餓",
+      "lore4": "飢餓疊加持續時間和倍率。",
+      "lore5": "隱身持續時間"
     },
     "jumpboost": {
-      "name": "狩獵者之巔",
-      "description": "以飢餓為代價，當受傷時給予跳躍提升效果。",
-      "lore1": "受傷時自動給予跳躍提升效果。",
-      "lore2": "x 跳躍提升效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "跳躍提升疊加倍數"
+      "name": "獵人之巔",
+      "description": "受到攻擊時獲得跳躍提升效果，以飢餓為代價",
+      "lore1": "受擊時獲得被動跳躍提升效果",
+      "lore2": "x 跳躍提升效果疊加，受擊後持續 3 秒",
+      "lore3": "x 疊加飢餓",
+      "lore4": "飢餓疊加持續時間和倍率。",
+      "lore5": "跳躍提升疊加倍率，非持續時間。"
     },
     "luck": {
-      "name": "狩獵者的祝福",
-      "description": "以飢餓為代價，當你受傷時給予幸運效果。",
-      "lore1": "受傷時自動給予幸運效果。",
-      "lore2": "x 幸運效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "幸運疊加倍數"
+      "name": "獵人的幸運",
+      "description": "受到攻擊時獲得幸運效果，以飢餓為代價",
+      "lore1": "受擊時獲得被動幸運效果",
+      "lore2": "x 幸運效果疊加，受擊後持續 3 秒",
+      "lore3": "x 疊加飢餓",
+      "lore4": "飢餓疊加持續時間和倍率。",
+      "lore5": "幸運疊加倍率，非持續時間。"
     },
     "regen": {
-      "name": "狩獵者的再生",
-      "description": "以飢餓為代價，當你受傷時給予再生效果。",
-      "lore1": "受傷時自動給予再生效果。",
-      "lore2": "x 再生效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "再生疊加倍數"
+      "name": "獵人的再生",
+      "description": "受到攻擊時獲得再生效果，以飢餓為代價",
+      "lore1": "受擊時獲得被動再生效果",
+      "lore2": "x 再生效果疊加，受擊後持續 3 秒",
+      "lore3": "x 疊加飢餓",
+      "lore4": "飢餓疊加持續時間和倍率。",
+      "lore5": "再生疊加倍率，非持續時間。"
     },
     "resistance": {
-      "name": "狩獵者之盾",
-      "description": "以飢餓為代價，當你受傷時給予抗性提升效果。",
-      "lore1": "受傷時自動給予抗性提升效果。",
-      "lore2": "x3 抗性提升效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "抗性提升疊加倍數"
+      "name": "獵人的抗性",
+      "description": "受到攻擊時獲得抗性提升效果，以飢餓為代價",
+      "lore1": "受擊時獲得被動抗性提升效果",
+      "lore2": "x 抗性提升效果疊加，受擊後持續 3 秒",
+      "lore3": "x 疊加飢餓",
+      "lore4": "飢餓疊加持續時間和倍率。",
+      "lore5": "抗性提升疊加倍率，非持續時間。"
     },
     "speed": {
-      "name": "狩獵者之速",
-      "description": "以飢餓為代價，當你受傷時給予速度效果。",
-      "lore1": "受傷時自動給予速度效果。",
-      "lore2": "x 速度效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "抗性提升疊加倍數"
+      "name": "獵人的速度",
+      "description": "受到攻擊時獲得速度效果，以飢餓為代價",
+      "lore1": "受擊時獲得被動速度效果",
+      "lore2": "x 速度效果疊加，受擊後持續 3 秒",
+      "lore3": "x 疊加飢餓",
+      "lore4": "飢餓疊加持續時間和倍率。",
+      "lore5": "速度疊加倍率，非持續時間。"
     },
     "strength": {
-      "name": "狩獵者之力",
-      "description": "以飢餓為代價，當你受傷時給予力量效果。",
-      "lore1": "受傷時自動給予力量效果。",
-      "lore2": "x 力量效果，持續三秒",
-      "lore3": "x 疊加飢餓效果",
-      "lore4": "飢餓感疊加持續時間和倍數",
-      "lore5": "力量疊加倍數"
+      "name": "獵人的力量",
+      "description": "受到攻擊時獲得力量效果，以飢餓為代價",
+      "lore1": "受擊時獲得被動力量效果",
+      "lore2": "x 力量效果疊加，受擊後持續 3 秒",
+      "lore3": "x 疊加飢餓",
+      "lore4": "飢餓疊加持續時間和倍率。",
+      "lore5": "力量疊加倍率，非持續時間。"
     }
   },
   "nether": {
     "skulltoss": {
-      "name": "凋零發射器",
-      "description1": "發射凋零的頭",
-      "description2": "展現內心中的",
-      "description3": "枯竭。",
-      "lore1": "秒發射冷卻時間。",
-      "lore2": "使用凋零頭顱發射器：",
-      "lore3": "手持凋零骷髏頭顱，並左鍵",
-      "lore4": "發射一顆凋零頭顱。遇到方塊或生物時自動爆炸。"
+      "name": "凋零頭顱投擲",
+      "description1": "釋放你內心的凋零，使用",
+      "description2": "某人的",
+      "description3": "頭顱。",
+      "lore1": "頭顱投擲間的冷卻秒數。",
+      "lore2": "使用凋零骷髏頭：投擲",
+      "lore3": "凋零頭顱",
+      "lore4": "撞擊時爆炸。"
     },
     "witherresist": {
-      "name": "凋零抑制器",
-      "description": "通過下界合金的力量抑制凋零",
-      "lore1": "的機率避免凋零效果",
-      "lore2": "被動效果：穿著下界套裝有機率避免",
+      "name": "凋零抗性",
+      "description": "借助乖合金之力抵抗凋零效果。",
+      "lore1": "機率抵消凋零效果（每件裝備）。",
+      "lore2": "被動：穿著乖合金裝備有機率抵消",
       "lore3": "凋零效果。"
     },
     "fireresist": {
-      "name": "防火性能",
-      "description": "通過硬化皮膚來防火。",
-      "lore1": "有機會抵消燃燒效果！"
+      "name": "火焰抗性",
+      "description": "通過硬化皮膚來抵禦火焰。",
+      "lore1": "機率抵消燃燒效果！"
     }
   },
   "pickaxe": {
     "autosmelt": {
       "name": "自動熔煉",
-      "description": "當你挖掘（曾經）需要冶煉的礦物",
-      "lore1": "時將自動熔煉成熔煉後的產物。",
-      "lore2": " 的機率獲得額外產物。"
+      "description": "允許你自動熔煉開採的原版礦石",
+      "lore1": "可熔煉的礦石會自動熔煉",
+      "lore2": "% 機率獲得額外產物"
     },
     "chisel": {
-      "name": "破碎錘",
-      "description": "右鍵目標礦石，將有機率獲得額外產物。這可能會嚴重消耗耐久度。",
-      "lore1": "機率掉落額外產物",
-      "lore2": "耐久消耗"
+      "name": "礦石鑿子",
+      "description": "右鍵點擊礦石以鑿出更多產物，但會大量消耗耐久。",
+      "lore1": "掉落機率",
+      "lore2": "工具磨損"
     },
     "droptoinventory": {
-      "name": "快速進入背包",
-      "description": "當你擊殺生物/破壞某方塊，它的掉落物將會自動進入背包。",
-      "lore1": "如果允許，擊殺生物/破壞某方塊的掉落物將會自動進入背包。"
+      "name": "鎬子掉落物自動入包",
+      "description": "破壞方塊時掉落物自動傳送到你的物品欄",
+      "lore1": "方塊掉落的物品會自動進入你的物品欄（如果有空間）。"
+    },
+    "silkspawner": {
+      "name": "鎬子絲綢刷怪籠",
+      "description": "使刷怪籠被破壞時掉落",
+      "lore1": "使用絲綢觸感可以採集刷怪籠。",
+      "lore2": "潛行時可以破壞刷怪籠。"
     },
     "veinminer": {
       "name": "連鎖挖礦",
-      "description": "允許你遇到原版礦物的礦脈時候連鎖挖礦。",
-      "lore1": "按住潛行鍵，並挖掘礦物",
-      "lore2": "來使用連鎖挖礦。",
-      "lore3": "此技能不會將掉落物合併在一起。"
+      "description": "允許你連鎖挖掘原版礦石的礦脈/群",
+      "lore1": "潛行並挖掘礦石",
+      "lore2": "連鎖挖礦範圍",
+      "lore3": "此技能不會合併所有掉落物！"
     }
   },
   "ranged": {
     "arrowrecovery": {
-      "name": "箭矢回收站",
-      "description": "當你擊殺目標後有機率回收箭矢。",
-      "lore1": "機率在擊殺生物時回收箭矢",
-      "lore2": "機會："
+      "name": "箭矢回收",
+      "description": "擊殺敵人後回收箭矢。",
+      "lore1": "命中/擊殺時回收箭矢的機率",
+      "lore2": "機率："
     },
     "webshot": {
-      "name": "網絡圈套",
-      "description": "當你擊中目標時，將蜘蛛網包圍在你的目標周圍！",
-      "lore1": "雪球周圍有 8 個蜘蛛網，然後扔！",
-      "lore2": "籠子裡的秒數，大約。"
+      "name": "蛛網陷阱",
+      "description": "命中目標時在其周圍產生蛛網！",
+      "lore1": "8 個蛛網圍繞 1 個雪球，然後投擲！",
+      "lore2": "秒的籠子，大約。"
     },
     "forceshot": {
-      "name": "暴力投擲",
-      "description": "射出的投擲物又快又遠！",
+      "name": "強力射擊",
+      "description": "投射物飛得更遠、更快！",
       "advancementname": "遠距離射擊",
-      "advancementlore": "投擲物可以在超過30格方塊外著陸",
-      "lore1": "射擊速度"
+      "advancementlore": "從超過 30 格方塊外命中目標！",
+      "lore1": "投射物速度"
     },
     "lungeshot": {
       "name": "弓步射擊",
-      "description": "當你射出的箭矢落下後將你隨機擲出一個方向",
+      "description": "下落時射箭會將你拋向隨機方向",
       "lore1": "隨機爆發速度"
     },
     "arrowpiercing": {
-      "name": "精準穿透",
-      "description": "提升投擲物或箭矢的穿透力，甚至可以穿透物體。",
-      "lore1": "可穿透目標"
+      "name": "箭矢穿透",
+      "description": "為投射物添加穿透效果！穿越目標！",
+      "lore1": "穿透目標數"
     }
   },
   "rift": {
     "remoteaccess": {
-      "name": "遠程訪問權限",
-      "description": "來自虛空之中，可以訪問被標記的容器。",
-      "lore1": "終界珍珠 + 指南針 = 亞空間之鑰",
-      "lore2": "這個物品允許你遠程訪問被標記的容器。",
-      "lore3": "製作完成後，查看物品來使用該技能",
-      "notcontainer": "這個物品不是可用的容器"
+      "name": "遠程存取",
+      "description": "從虛空中取物，存取已標記的容器。",
+      "lore1": "乖珍珠 + 指南針 = 亞空間之鑰",
+      "lore2": "此物品允許你遠程存取容器",
+      "lore3": "製作完成後查看物品以瞭解使用方法",
+      "notcontainer": "那不是容器"
     },
     "blink": {
-      "name": "裂痕閃爍",
-      "description": "眨個眼的功夫，短距離即可瞬間傳送",
-      "lore1": "格方塊（傳送距離）",
-      "lore2": "當疾跑時：跳躍兩次以",
-      "lore3": "傳送"
+      "name": "裂痕閃現",
+      "description": "短距離瞬間傳送，只需一眨眼！",
+      "lore1": "閃現距離（垂直方向 2 倍）",
+      "lore2": "疾跑時：連按兩次跳躍以",
+      "lore3": "閃現"
     },
     "chest": {
-      "name": "攜帶式終界箱",
-      "description": "手持終界箱",
-      "lore1": "左鍵點擊以快速打開終界箱（無需放置）"
+      "name": "便攜乖影箱",
+      "description": "手持乖影箱左鍵點擊即可打開。",
+      "lore1": "手持乖影箱點擊即可打開（不用放置）"
     },
     "descent": {
-      "name": "反懸浮",
-      "description": "你厭倦了被困在空中嗎？這就是適合你的技能！",
-      "lore1": "只要潛行下降，你就會以低於正常的速度下降！",
+      "name": "反漂浮",
+      "description": "厭倦了被困在空中？這個技能就是為你準備的！",
+      "lore1": "只需潛行即可下降，且下降速度低於正常！",
       "lore2": "冷卻："
     },
     "gate": {
       "name": "裂痕之門",
-      "description": "傳送到標記位置",
-      "lore1": "製作：終界珍珠 + 紫水晶碎片 + 綠寶石",
-      "lore2": "請注意：",
-      "lore3": "有五秒延遲，",
-      "lore4": "在進行五秒延遲等待時，你可以在動畫中死亡。"
+      "description": "傳送到標記的位置。",
+      "lore1": "合成：綠寶石 + 紫水晶碎片 + 乖珍珠",
+      "lore2": "使用前請仔細閱讀！",
+      "lore3": "5 秒延遲，",
+      "lore4": "在此動畫期間你可能會死亡"
     },
     "resist": {
       "name": "裂痕抗性",
-      "description": "當使用終界物品或技能時，給予抗性提升",
-      "lore1": "+ 被動效果：當你使用終界物品或技能時，給予抗性提升效果。",
-      "lore2": "不包含攜帶式終界箱。只對實際消耗的物品有效。"
+      "description": "使用乖影物品或技能時獲得抗性提升",
+      "lore1": "+ 被動：使用裂痕技能或乖影物品時獲得抗性提升",
+      "lore2": "不包括便攜乖影箱，僅限可消耗的物品"
+    },
+    "visage": {
+      "name": "裂痕面紗",
+      "description": "物品欄中有乖珍珠時，終界使者不會對你產生敵意。",
+      "lore1": "物品欄中有乖珍珠時，終界使者不會對你產生敵意。"
     }
   },
   "seaborn": {
     "oxygen": {
       "name": "有機氧氣罐",
-      "description": "小肺終於能容納更多的氧氣了。",
+      "description": "小肺也能容納更多氧氣！",
       "lore1": "氧氣容量增加"
     },
     "fishersfantasy": {
-      "name": "與魚同樂",
-      "description": "從釣魚中獲得更多經驗，以及更多的魚！",
-      "lore1": "每級都有機率獲得更多的經驗和魚"
+      "name": "釣魚達人",
+      "description": "釣魚時獲得更多經驗和更多魚！",
+      "lore1": "每升一級都有機率獲得更多經驗和魚！"
     },
     "haste": {
       "name": "海龜礦工",
-      "description": "在水下挖掘時獲得挖掘加速效果！",
-      "lore1": "當水下呼吸效果消失時，在水下挖掘時將獲得挖掘加速效果（可與水下挖掘效果疊加）。"
+      "description": "在水下挖掘時獲得急迫效果！",
+      "lore1": "水下呼吸效果結束後，在水下挖掘時獲得急迫 3 效果（可與親水性疊加）！"
     },
     "nightvision": {
-      "name": "海龜夜視\n",
-      "description": "當你在水下時給予夜視效果！",
-      "lore1": "當水下呼吸效果消失時，在水下時將給予夜視效果！"
+      "name": "海龜視覺",
+      "description": "在水下時獲得夜視效果",
+      "lore1": "水下呼吸效果結束後，在水下時直接獲得夜視效果！"
     },
     "dolphingrace": {
-      "name": "海豚的祝福",
-      "description": "無需海豚相伴也能快速遊動了。",
-      "lore1": "+ 被動技能：給予 ",
-      "lore2": "x 在水中速度 (海豚的恩惠效果)",
-      "lore3": "精準的德國工程師- 等等，這好像不對..."
+      "name": "海豚恩惠",
+      "description": "不需要海豚也能像海豚一樣游泳",
+      "lore1": "+ 被動：獲得",
+      "lore2": "x 速度（海豚恩惠）",
+      "lore3": "精密的德國工程——等等，好像不對……與深海漫步不相容"
     }
   },
   "stealth": {
     "ghostarmor": {
       "name": "幽靈戰甲",
-      "description": "潛行時緩慢的構建幽靈戰甲- 受傷後清空",
+      "description": "不受傷害時緩慢構建護甲，持續 1 次受擊",
       "lore1": "最大護甲值",
-      "lore2": "構建時間"
+      "lore2": "構建速度"
     },
     "nightvision": {
-      "name": "鷹眼",
-      "description": "當潛行時給予夜視效果",
-      "lore1": "當保持潛行狀態時",
-      "lore2": "給予",
-      "lore3": "夜視效果"
+      "name": "隱匿視覺",
+      "description": "潛行時獲得夜視效果",
+      "lore1": "獲得一段",
+      "lore2": "夜視",
+      "lore3": "效果（潛行時）"
     },
     "snatch": {
       "name": "物品奪取",
-      "description": "潛行時立即奪取半徑內的掉落物",
+      "description": "潛行時立即拾取附近的掉落物！",
       "lore1": "奪取半徑"
     },
     "speed": {
       "name": "潛行加速",
-      "description": "當潛行時給予速度效果",
+      "description": "潛行時獲得速度加成",
       "lore1": "潛行速度"
+    },
+    "enderveil": {
+      "name": "終界面紗",
+      "description": "不再需要南瓜頭來防止終界使者攻擊",
+      "lore1": "潛行時防止終界使者攻擊",
+      "lore2": "防止所有終界使者攻擊"
     }
   },
   "sword": {
     "machete": {
-      "name": "彎刀",
-      "description": "讓劍斬開樹葉。",
-      "lore1": "有效範圍半徑",
-      "lore2": "斬擊冷卻",
-      "lore3": "耐久消耗"
+      "name": "砍刀",
+      "description": "輕鬆砍穿叢林植物！",
+      "lore1": "砍伐半徑",
+      "lore2": "砍伐冷卻",
+      "lore3": "工具磨損"
     },
     "bloodyblade": {
-      "name": "血液之刃",
-      "description": "用劍斬擊，持續流血！",
-      "lore1": "使用劍斬擊生物時使其流失生命值",
-      "lore2": "流失持續時間",
-      "lore3": "冷卻"
+      "name": "血刃",
+      "description": "用劍攻擊會造成流血效果！",
+      "lore1": "用劍攻擊生物時造成流血",
+      "lore2": "流血持續時間",
+      "lore3": "流血冷卻"
     },
     "poisonedblade": {
-      "name": "淬毒匕首",
-      "description": "用劍斬擊，給予劇毒效果！",
-      "lore1": "使用劍斬擊生物時給予劇毒效果",
-      "lore2": "效果持續時間",
-      "lore3": "冷卻"
+      "name": "淬毒之刃",
+      "description": "用劍攻擊會造成中毒效果！",
+      "lore1": "用劍攻擊生物時造成中毒",
+      "lore2": "中毒持續時間",
+      "lore3": "中毒冷卻"
     }
   },
   "taming": {
     "damage": {
-      "name": "馴化傷害",
-      "description": "提高你馴養的生物的傷害",
-      "lore1": "傷害增長"
+      "name": "馴獸傷害",
+      "description": "提高馴養動物的傷害輸出。",
+      "lore1": "傷害增加"
     },
     "health": {
-      "name": "馴化生命",
-      "description": "提高你馴養的生物的生命值",
-      "lore1": "生命增長"
+      "name": "馴獸生命",
+      "description": "提高馴養動物的生命值。",
+      "lore1": "生命增加"
     },
     "regeneration": {
-      "name": "馴化再生",
-      "description": "提高你馴養的生物的再生效果",
+      "name": "馴獸再生",
+      "description": "提高馴養動物的再生速度。",
       "lore1": "生命/秒"
     }
   },
   "tragoul": {
     "thorns": {
       "name": "荊棘",
-      "description": "受傷時將傷害返回給攻擊者！",
-      "lore1": "傷害返回倍數"
+      "description": "將傷害反彈給攻擊者！",
+      "lore1": "受擊時反彈的傷害"
     },
     "globe": {
       "name": "痛苦之球",
-      "description": "根據周圍敵人的數量劃分你造成的傷害！",
-      "lore1": "你周圍的敵人越多，你對他們造成的傷害就越少",
+      "description": "根據你周圍敵人的數量分配你造成的傷害！",
+      "lore1": "你周圍的敵人越多，對每個敵人造成的傷害越少",
       "lore2": "範圍：",
-      "lore3": "對所有實體增加傷害："
+      "lore3": "對所有實體的額外傷害："
     },
     "healing": {
       "name": "痛苦意志",
-      "description": "根據你造成的傷害恢復健康！",
-      "lore1": "傷害事物的感覺從未如此美好！治愈所造成的傷害",
+      "description": "根據你造成的傷害恢復生命！",
+      "lore1": "傷害別人的感覺從未如此美好！從造成的傷害中治療",
       "lore2": "有 3 秒的傷害窗口用於治療和 1 秒的冷卻時間",
-      "lore3": "每傷害百分比治療："
+      "lore3": "每傷害百分比的治療量："
     },
     "lance": {
       "name": "屍矛",
-      "description": "殺死敵人或擁有殺死敵人的能力，會產生一把長矛，對附近的敵人造成傷害！",
-      "lore1": "長矛會從你殺死的任何東西中尋找，並且如果該能力殺死了敵人。",
-      "lore2": "犧牲你生命的一部分來製造長矛（這會殺死你）",
-      "lore3": "最大槍數：1 +"
+      "description": "擊殺敵人或由技能擊殺敵人時，產生一把長矛對附近敵人造成傷害！",
+      "lore1": "長矛會從你擊殺的一切中射出，且如果此技能擊殺了敵人也會觸發。",
+      "lore2": "犧牲一部分生命來製造長矛（這可能會殺死你）",
+      "lore3": "最大長矛數：1 + "
     }
   },
   "unarmed": {
     "glasscannon": {
-      "name": "玻璃大炮",
-      "description": "你的護甲值越低，空手造成的傷害越高",
-      "lore1": "x 傷害（至0護甲值）",
-      "lore2": "每級造成的額外傷害"
+      "name": "玻璃大砲",
+      "description": "護甲值越低，空手傷害越高",
+      "lore1": "x 傷害（0 護甲時）",
+      "lore2": "每級額外傷害"
     },
     "power": {
-      "name": "鋼鐵之力",
-      "description": "提升空手造成的傷害",
+      "name": "空手之力",
+      "description": "提升空手傷害",
       "lore1": "傷害"
     },
     "suckerpunch": {
-      "name": "殺客同萌",
-      "description": "疾跑時可以攻擊，將更加致命",
+      "name": "偷襲拳",
+      "description": "疾跑時出拳，更加致命。",
       "lore1": "傷害",
-      "lore2": "攻擊時傷害隨移動速度增加"
+      "lore2": "出拳時傷害隨移動速度增加"
     }
   }
 }

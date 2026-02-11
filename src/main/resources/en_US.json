@@ -281,6 +281,16 @@
       "name": "Web Snare!",
       "usage1": "Throw to create a temporary web trap at the location"
     },
+    "chronotimebottle": {
+      "name": "Time In A Bottle",
+      "usage1": "Passively stores time while in your inventory",
+      "usage2": "Right-click timed blocks or baby animals to spend stored time",
+      "stored": "Stored Time"
+    },
+    "chronotimebomb": {
+      "name": "Time Bomb",
+      "usage1": "Right-click to launch a chrono bolt that creates a temporal field"
+    },
     "elevatorblock": {
       "name": "Elevator Block",
       "usage1": "Jump to teleport up",
@@ -352,7 +362,7 @@
     },
     "axes": {
       "name": "Axes",
-      "icon": "\uD83E\uDE93",
+      "icon": "🪓",
       "description1": "Why chop down trees, when you could chop ",
       "description2": "things",
       "description3": "instead, same end result!"
@@ -364,7 +374,7 @@
     },
     "blocking": {
       "name": "Blocking",
-      "icon": "\uD83D\uDEE1",
+      "icon": "🛡",
       "description": "Sticks and stones Won't break your bones, But a shield will."
     },
     "crafting": {
@@ -419,7 +429,7 @@
     },
     "seaborne": {
       "name": "Seaborne",
-      "icon": "\uD83C\uDFA3",
+      "icon": "🎣",
       "description": "With this skill, you may will the wonders of the water."
     },
     "stealth": {
@@ -439,12 +449,12 @@
     },
     "tragoul": {
       "name": "TragOul",
-      "icon": "\uD83D\uDDE1",
+      "icon": "🗡",
       "description": "Blood flows through the veins of the universe. Constricted by your hands."
     },
     "chronos": {
       "name": "Chronos",
-      "icon": "⏳",
+      "icon": "🕒",
       "description": "Wind the Clock of the universe, experience the flow. Break the clock, become it."
     },
     "unarmed": {
@@ -459,6 +469,12 @@
       "description": "Get more armor the longer you sprint!",
       "lore1": "Max Armor",
       "lore2": "Armor-Up Time"
+    },
+    "ladderslide": {
+      "name": "Ladder Slide",
+      "description": "Climb and slide ladders much faster in both directions.",
+      "lore1": "Ladder speed multiplier",
+      "lore2": "Fast descent speed"
     },
     "superjump": {
       "name": "Super Jump",
@@ -708,6 +724,37 @@
       "lore6": "Dragon: Dragons Breath"
     }
   },
+  "chronos": {
+    "timeinabottle": {
+      "name": "Time In A Bottle",
+      "description": "Carry a temporal bottle that stores time and spend it to accelerate timed blocks, growables, and Ageable entities such as baby animals. Recipe (Shapeless): Swiftness Potion + Clock + Glass Bottle.",
+      "lore1": "Stored seconds charged each tick",
+      "lore2": "Time acceleration per stored second",
+      "lore3": "Recipe (Shapeless): Swiftness Potion + Clock + Glass Bottle"
+    },
+    "aberranttouch": {
+      "name": "Aberrant Touch",
+      "description": "Melee attacks apply stacking slowness at the cost of hunger, with strict PvP caps, and root targets at 5 stacks.",
+      "lore1": "Melee attacks apply stacking slowness",
+      "lore2": "PvE slowness duration cap",
+      "lore3": "PvP slowness amplifier cap"
+    },
+    "instantrecall": {
+      "name": "Instant Recall",
+      "description": "Left or right click with a clock in hand to rewind to a recent snapshot with health and hunger restored.",
+      "lore1": "Rewind duration",
+      "lore2": "Cooldown",
+      "lore3": "No inventory rollback"
+    },
+    "timebomb": {
+      "name": "Time Bomb",
+      "description": "Throw a crafted chrono bomb that creates a temporal field, slows entities, and freezes projectiles.",
+      "lore1": "Temporal field radius",
+      "lore2": "Temporal field duration",
+      "lore3": "Bomb cooldown",
+      "lore4": "Recipe (Shapeless): Clock + Snowball + Diamond + Sand"
+    }
+  },
   "discovery": {
     "armor": {
       "name": "World Armor",
@@ -724,8 +771,8 @@
     },
     "resist": {
       "name": "Experimental Resistance",
-      "description": "Consume experience to mitigate the damage you take from all sources",
-      "lore0": "This may only occur once per 15 seconds",
+      "description": "Consume experience to mitigate damage only when a hit would drop you below 5 hearts or kill you.",
+      "lore0": "Triggers only at critical health (<= 5 hearts) once per 15 seconds",
       "lore1": " Reduced Damage",
       "lore2": "experience drained"
     },

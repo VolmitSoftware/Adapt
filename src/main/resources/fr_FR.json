@@ -2,138 +2,138 @@
   "advancement": {
     "challenge_move_1k": {
       "title": "Faut bouger !",
-      "description": "Marchez 1 kilomètre (1000 blocs)"
+      "description": "Marchez plus d'1 kilometre (1 000 blocs)"
     },
     "challenge_sprint_5k": {
-      "title": "Sprintez un 5K !",
-      "description": "Marchez sur 5 kilomètres (5 000 blocs)"
+      "title": "Sprintez un 5K !",
+      "description": "Marchez plus de 5 kilometres (5 000 blocs)"
     },
     "challenge_sprint_50k": {
-      "title": "Zoomez un 50K !",
-      "description": "Marchez sur 50 kilomètres (50 000 blocs)"
+      "title": "Foncez un 50K !",
+      "description": "Marchez plus de 50 kilometres (50 000 blocs)"
     },
     "challenge_sprint_500k": {
-      "title": "Traversez l'univers !!",
-      "description": "Parcourez plus de 500 kilomètres (500 000 blocs)"
+      "title": "Traversez l'Univers !!",
+      "description": "Marchez plus de 500 kilometres (500 000 blocs)"
     },
     "challenge_sprint_marathon": {
-      "title": "Sprintez un marathon (littéral) !",
-      "description": "Sprintez sur 42 195 blocs !"
+      "title": "Sprintez un marathon (au sens propre) !",
+      "description": "Sprintez plus de 42 195 blocs !"
     },
     "challenge_place_1k": {
-      "title": "Constructeur novice!",
-      "description": "Placer 1 000 blocs"
+      "title": "Constructeur novice !",
+      "description": "Placez 1 000 blocs"
     },
     "challenge_place_5k": {
-      "title": "Constructeur intermédiaire !",
+      "title": "Constructeur intermediaire !",
       "description": "Placez 5 000 blocs"
     },
     "challenge_place_50k": {
-      "title": "Constructeur avancé !",
+      "title": "Constructeur avance !",
       "description": "Placez 50 000 blocs"
     },
     "challenge_place_500k": {
-      "title": "Maître Bâtisseur !",
+      "title": "Maitre batisseur !",
       "description": "Placez 500 000 blocs"
     },
     "challenge_place_5m": {
-      "title": "L'acolyte de Symétrie !",
-      "description": "LA RÉALITÉ EST VOTRE TERRAIN DE JEU ! (5 millions de blocs)"
+      "title": "Acolyte de la Symetrie !",
+      "description": "LA REALITE EST VOTRE TERRAIN DE JEU ! (5 millions de blocs)"
     },
     "challenge_chop_1k": {
-      "title": "Bûcheron débutant !",
-      "description": "Hacher 1 000 blocs"
+      "title": "Bucheron novice !",
+      "description": "Coupez 1 000 blocs"
     },
     "challenge_chop_5k": {
-      "title": "Bûcheron intermédiaire !",
-      "description": "Hachez 5 000 blocs"
+      "title": "Bucheron intermediaire !",
+      "description": "Coupez 5 000 blocs"
     },
     "challenge_chop_50k": {
-      "title": "Bûcheron avancé !",
-      "description": "Hacher 50 000 blocs"
+      "title": "Bucheron avance !",
+      "description": "Coupez 50 000 blocs"
     },
     "challenge_chop_500k": {
-      "title": "Maître bûcheron !",
-      "description": "Hacher 500 000 blocs"
+      "title": "Maitre bucheron !",
+      "description": "Coupez 500 000 blocs"
     },
     "challenge_chop_5m": {
       "title": "Jackson le chien",
-      "description": "Le meilleur bon garçon ! (5 millions de blocs)"
+      "description": "Le meilleur toutou ! (5 millions de blocs)"
     },
     "challenge_block_1k": {
-      "title": "Bloquer complètement !",
-      "description": "Bloquer 1000 visites"
+      "title": "A peine un blocage !",
+      "description": "Bloquez 1 000 coups"
     },
     "challenge_block_5k": {
-      "title": "Le blocage est amusant !",
-      "description": "Bloquer 5000 visites"
+      "title": "Bloquer c'est amusant !",
+      "description": "Bloquez 5 000 coups"
     },
     "challenge_block_50k": {
       "title": "Bloquer c'est ma vie !",
-      "description": "Bloquer 50 000 visites"
+      "description": "Bloquez 50 000 coups"
     },
     "challenge_block_500k": {
-      "title": "Le blocage est mon objectif !",
-      "description": "Bloquer 500 000 visites"
+      "title": "Bloquer c'est ma raison d'etre !",
+      "description": "Bloquez 500 000 coups"
     },
     "challenge_block_5m": {
       "title": "Die Hand Die Verletzt",
-      "description": "Bloquer 5 000 000 visites"
+      "description": "Bloquez 5 000 000 de coups"
     },
     "challenge_brew_1k": {
-      "title": "Alchimiste débutant !",
-      "description": "Buvez 1000 potions"
+      "title": "Alchimiste novice !",
+      "description": "Consommez 1 000 potions"
     },
     "challenge_brew_5k": {
-      "title": "Alchimiste intermédiaire !",
-      "description": "Consommez 5000 potions"
+      "title": "Alchimiste intermediaire !",
+      "description": "Consommez 5 000 potions"
     },
     "challenge_brew_50k": {
-      "title": "Alchimiste avancé !",
+      "title": "Alchimiste avance !",
       "description": "Consommez 50 000 potions"
     },
     "challenge_brew_500k": {
-      "title": "Maître Alchimiste !",
+      "title": "Maitre alchimiste !",
       "description": "Consommez 500 000 potions"
     },
     "challenge_brew_5m": {
-      "title": "L'alchimiste",
-      "description": "Consommez 5 000 000 de potions"
+      "title": "L'Alchimiste",
+      "description": "Consommez 5 000 000 de potions"
     },
     "challenge_brewsplash_1k": {
-      "title": "Éclabousseur de potions novice !",
-      "description": "Éclabousser 1000 potions"
+      "title": "Lanceur de potions novice !",
+      "description": "Lancez 1 000 potions a eclaboussures"
     },
     "challenge_brewsplash_5k": {
-      "title": "Potion-Splasher intermédiaire !",
-      "description": "Éclabousser 5 000 potions"
+      "title": "Lanceur de potions intermediaire !",
+      "description": "Lancez 5 000 potions a eclaboussures"
     },
     "challenge_brewsplash_50k": {
-      "title": "Éclabousseur de potions avancé !",
-      "description": "Éclaboussez 50 000 potions"
+      "title": "Lanceur de potions avance !",
+      "description": "Lancez 50 000 potions a eclaboussures"
     },
     "challenge_brewsplash_500k": {
-      "title": "Maître Potion-Splasher !",
-      "description": "Éclaboussez 500 000 potions"
+      "title": "Maitre lanceur de potions !",
+      "description": "Lancez 500 000 potions a eclaboussures"
     },
     "challenge_brewsplash_5m": {
-      "title": "Le maître des éclaboussures",
-      "description": "Éclaboussez 5 000 000 de potions"
+      "title": "Le Maitre des eclaboussures",
+      "description": "Lancez 5 000 000 de potions a eclaboussures"
     },
     "challenge_craft_1k": {
-      "title": "Artisan astucieux !",
-      "description": "Fabriquez 1000 objets"
+      "title": "Artisan astucieux !",
+      "description": "Fabriquez 1 000 objets"
     },
     "challenge_craft_5k": {
-      "title": "Artisan acariâtre !",
-      "description": "Fabriquez 5000 objets"
+      "title": "Artisan acariatre !",
+      "description": "Fabriquez 5 000 objets"
     },
     "challenge_craft_50k": {
-      "title": "Cervile Artisan !",
+      "title": "Artisan servile !",
       "description": "Fabriquez 50 000 objets"
     },
     "challenge_craft_500k": {
-      "title": "Artisan cacophonique !",
+      "title": "Artisan cacophonique !",
       "description": "Fabriquez 500 000 objets"
     },
     "challenge_craft_5m": {
@@ -141,261 +141,306 @@
       "description": "Fabriquez 5 000 000 d'objets"
     },
     "challenge_enchant_1k": {
-      "title": "Enchanteur débutant !",
-      "description": "Enchanter 1000 objets"
+      "title": "Enchanteur novice !",
+      "description": "Enchantez 1 000 objets"
     },
     "challenge_enchant_5k": {
-      "title": "Enchanteur intermédiaire !",
-      "description": "Enchanter 5 000 objets"
+      "title": "Enchanteur intermediaire !",
+      "description": "Enchantez 5 000 objets"
     },
     "challenge_enchant_50k": {
-      "title": "Enchanteur avancé !",
-      "description": "Enchanter 50 000 objets"
+      "title": "Enchanteur avance !",
+      "description": "Enchantez 50 000 objets"
     },
     "challenge_enchant_500k": {
-      "title": "Maître Enchanteur !",
-      "description": "Enchanter 500 000 objets"
+      "title": "Maitre enchanteur !",
+      "description": "Enchantez 500 000 objets"
     },
     "challenge_enchant_5m": {
-      "title": "Enchanteur énigmatique",
-      "description": "Enchanter 5 000 000 d'objets"
+      "title": "Enchanteur enigmatique",
+      "description": "Enchantez 5 000 000 d'objets"
     },
     "challenge_excavate_1k": {
-      "title": "Excavatrice séduite !",
-      "description": "Creusez 1000 blocs"
+      "title": "Excavateur enthousiaste !",
+      "description": "Excavez 1 000 blocs"
     },
     "challenge_excavate_5k": {
-      "title": "Excavatrice intermédiaire !",
-      "description": "Creusez 5000 blocs"
+      "title": "Excavateur intermediaire !",
+      "description": "Excavez 5 000 blocs"
     },
     "challenge_excavate_50k": {
-      "title": "Excavatrice avancée !",
-      "description": "Creusez 50 000 blocs"
+      "title": "Excavateur avance !",
+      "description": "Excavez 50 000 blocs"
     },
     "challenge_excavate_500k": {
-      "title": "Maître excavateur !",
-      "description": "Creusez 500 000 blocs"
+      "title": "Maitre excavateur !",
+      "description": "Excavez 500 000 blocs"
     },
     "challenge_excavate_5m": {
-      "title": "Excavatrice énigmatique",
-      "description": "Creusez 5 000 000 de blocs"
+      "title": "Excavateur enigmatique",
+      "description": "Excavez 5 000 000 de blocs"
     },
     "horrible_person": {
-      "title": "Vous êtes une personne horrible",
+      "title": "Vous etes une personne horrible",
       "description": "Insondable, vraiment"
     },
     "challenge_turtle_egg_smasher": {
-      "title": "Briseur d'œufs de tortue !",
-      "description": "Casser 100 œufs de tortue"
+      "title": "Briseur d'oeufs de tortue !",
+      "description": "Cassez 100 oeufs de tortue"
     },
     "challenge_turtle_egg_annihilator": {
-      "title": "Annihilateur d'œufs de tortue !",
-      "description": "Casser 500 œufs de tortue"
+      "title": "Annihilateur d'oeufs de tortue !",
+      "description": "Cassez 500 oeufs de tortue"
     },
     "challenge_novice_hunter": {
-      "title": "Chasseur débutant !",
-      "description": "Tuez 100 entités"
+      "title": "Chasseur novice !",
+      "description": "Tuez 100 entites"
     },
     "challenge_intermediate_hunter": {
-      "title": "Chasseur intermédiaire !",
-      "description": "Tuez 500 entités"
+      "title": "Chasseur intermediaire !",
+      "description": "Tuez 500 entites"
     },
     "challenge_advanced_hunter": {
-      "title": "Chasseur avancé !",
-      "description": "Tuez 5000 entités"
+      "title": "Chasseur avance !",
+      "description": "Tuez 5 000 entites"
     },
     "challenge_creeper_conqueror": {
-      "title": "Conquérant Creeper !",
-      "description": "Tuez 50 lianes"
+      "title": "Conquerant de Creepers !",
+      "description": "Tuez 50 Creepers"
     },
     "challenge_creeper_annihilator": {
-      "title": "Annihilateur Creeper !",
-      "description": "Tuez 200 lianes"
+      "title": "Annihilateur de Creepers !",
+      "description": "Tuez 200 Creepers"
     },
     "challenge_pickaxe_1k": {
-      "title": "Mineur débutant",
-      "description": "Casser 1000 blocs"
+      "title": "Mineur novice",
+      "description": "Cassez 1 000 blocs"
     },
     "challenge_pickaxe_5k": {
-      "title": "Mineur qualifié",
-      "description": "Cassez 5000 blocs"
+      "title": "Mineur qualifie",
+      "description": "Cassez 5 000 blocs"
     },
     "challenge_pickaxe_50k": {
       "title": "Mineur expert",
       "description": "Cassez 50 000 blocs"
     },
     "challenge_pickaxe_500k": {
-      "title": "Maître mineur",
+      "title": "Maitre mineur",
       "description": "Cassez 500 000 blocs"
     },
     "challenge_pickaxe_5m": {
-      "title": "Mineur légendaire",
+      "title": "Mineur legendaire",
       "description": "Cassez 5 000 000 de blocs"
+    },
+    "challenge_eat_100": {
+      "title": "Tant a manger !",
+      "description": "Mangez plus de 100 objets !"
+    },
+    "challenge_eat_1000": {
+      "title": "Faim insatiable !",
+      "description": "Mangez plus de 1 000 objets !"
+    },
+    "challenge_eat_10000": {
+      "title": "FAIM ETERNELLE !",
+      "description": "Mangez plus de 10 000 objets !"
+    },
+    "challenge_harvest_100": {
+      "title": "Pleine recolte",
+      "description": "Recoltez plus de 100 cultures !"
+    },
+    "challenge_harvest_1000": {
+      "title": "Grande recolte",
+      "description": "Recoltez plus de 1 000 cultures !"
+    },
+    "challenge_swim_1nm": {
+      "title": "Sous-marin humain !",
+      "description": "Nagez 1 mille nautique (1 852 blocs)"
+    },
+    "challenge_sneak_1k": {
+      "title": "Mal aux genoux",
+      "description": "Accroupissez-vous sur plus d'un kilometre (1 000 blocs)"
     }
   },
   "items": {
     "boundenderperal": {
       "name": "Portoloin reliquaire",
-      "usage1": "Maj + clic gauche pour lier",
-      "usage2": "Clic droit pour accéder à l'inventaire lié"
+      "usage1": "Maj + Clic gauche pour lier",
+      "usage2": "Clic droit pour acceder a l'inventaire lie"
     },
     "boundeyeofender": {
       "name": "Ancre oculaire",
-      "usage1": "Clic droit pour consommer et se téléporter à l'emplacement lié",
-      "usage2": "Maj + clic gauche pour lier à un bloc"
+      "usage1": "Clic droit pour consommer et se teleporter a l'emplacement lie",
+      "usage2": "Maj + Clic gauche pour lier a un bloc"
     },
     "boundredstonetorch": {
-      "name": "Télécommande Redstone",
-      "usage1": "Clic droit pour créer une impulsion Redstone 1-Tick",
-      "usage2": "Maj + clic gauche sur un bloc 'cible' à lier"
+      "name": "Telecommande Redstone",
+      "usage1": "Clic droit pour creer une impulsion Redstone d'1 tick",
+      "usage2": "Maj + Clic gauche sur un bloc 'Cible' pour lier"
     },
     "boundsnowball": {
-      "name": "Piège Web !",
-      "usage1": "Lancer pour créer un piège Web temporaire à l'emplacement"
+      "name": "Piege de toile !",
+      "usage1": "Lancez pour creer un piege de toile temporaire a cet emplacement"
+    },
+    "chronotimebottle": {
+      "name": "Temps en bouteille",
+      "usage1": "Stocke passivement du temps dans votre inventaire",
+      "usage2": "Clic droit sur des blocs temporises ou des bebes animaux pour depenser le temps stocke",
+      "stored": "Temps stocke"
+    },
+    "chronotimebomb": {
+      "name": "Bombe temporelle",
+      "usage1": "Clic droit pour lancer un projectile chrono qui cree un champ temporel"
+    },
+    "elevatorblock": {
+      "name": "Bloc d'ascenseur",
+      "usage1": "Sautez pour vous teleporter vers le haut",
+      "usage2": "Accroupissez-vous pour vous teleporter vers le bas",
+      "usage3": "Minimum de 2 blocs d'air entre les ascenseurs"
     }
   },
   "snippets": {
     "gui": {
       "level": "Niveau",
-      "knowledge": "connaissances",
-      "powerused": "Puissance utilisée",
+      "knowledge": "connaissance",
+      "powerused": "Puissance utilisee",
       "notlearned": "Non appris",
-      "xp": "XP à",
-      "welcome": "Accueillir!",
-      "welcomeback": "Content de te revoir!",
+      "xp": "XP pour",
+      "welcome": "Bienvenue !",
+      "welcomeback": "Content de vous revoir !",
       "xpbonusfortime": "XP pour",
-      "unlockthisbyclicking": "Déverrouillez ceci en faisant un clic droit :",
+      "maxabilitypower": "Puissance de capacite maximale",
+      "unlockthisbyclicking": "Debloquez ceci par Clic droit : ",
       "back": "Retour",
-      "unlearnall": "Tout désapprendre",
-      "unlearnedall": "Tout désappris"
+      "unlearnall": "Tout desapprendre",
+      "unlearnedall": "Tout desappris"
     },
     "adaptmenu": {
-      "maynotunlearn": "VOUS NE POURREZ PAS DÉSAPPRENDRE",
-      "mayunlearn": "VOUS POUVEZ APPRENDRE/DÉSAPPRENDRE",
-      "knowledgecost": "Coût des connaissances",
-      "knowledgeavailable": "Connaissances disponibles",
-      "alreadylearned": "Déjà appris",
-      "unlearnrefund": "Cliquez pour désapprendre et rembourser",
-      "norefunds": "HARDCORE, REMBOURSEMENTS DÉSACTIVÉS",
-      "knowledge": "connaissances",
+      "maynotunlearn": "VOUS NE POUVEZ PAS DESAPPRENDRE",
+      "mayunlearn": "VOUS POUVEZ APPRENDRE/DESAPPRENDRE",
+      "knowledgecost": "Cout en connaissance",
+      "knowledgeavailable": "Connaissance disponible",
+      "alreadylearned": "Deja appris",
+      "unlearnrefund": "Cliquez pour desapprendre et rembourser",
+      "norefunds": "HARDCORE, REMBOURSEMENTS DESACTIVES",
+      "knowledge": "connaissance",
       "clicklearn": "Cliquez pour apprendre",
       "noknowledge": "(Vous n'avez aucune connaissance)",
       "youonlyhave": "Vous n'avez que",
-      "howtolevelup": "Améliorez les compétences pour augmenter votre puissance maximale.",
-      "notenoughpower": "Pas assez de puissance ! Chaque niveau de capacité coûte 1 pouvoir.",
-      "power": "Puissance",
-      "powerdrain": "Puissance drainée",
-      "learned": "Appris",
-      "unlearned": "Désappris",
-      "activatorblock": "Étagère à livres"
+      "howtolevelup": "Montez vos competences en niveau pour augmenter votre puissance maximale.",
+      "notenoughpower": "Pas assez de puissance ! Chaque niveau de capacite coute 1 puissance.",
+      "power": "puissance",
+      "powerdrain": "Drain de puissance",
+      "learned": "Appris ",
+      "unlearned": "Desappris ",
+      "activatorblock": "Bibliotheque"
     },
     "knowledgeorb": {
       "contains": "contient",
-      "knowledge": "connaissances",
-      "rightclick": "Clic-droit",
-      "togainknowledge": "pour acquérir cette connaissance",
+      "knowledge": "connaissance",
+      "rightclick": "Clic droit",
+      "togainknowledge": "pour obtenir cette connaissance",
       "knowledgeorb": "Orbe de connaissance"
     },
     "experienceorb": {
       "contains": "contient",
-      "xp": "Vivre",
-      "rightclick": "Clic-droit",
-      "togainxp": "pour acquérir cette expérience",
-      "xporb": "Orbe d'expérience"
+      "xp": "Experience",
+      "rightclick": "Clic droit",
+      "togainxp": "pour obtenir cette experience",
+      "xporb": "Orbe d'experience"
     }
   },
   "skill": {
     "agility": {
-      "name": "Agilité",
+      "name": "Agilite",
       "icon": "⇉",
-      "description": "L'agilité est la capacité à se déplacer rapidement et avec fluidité face aux obstacles."
+      "description": "L'agilite est la capacite a se deplacer rapidement et avec fluidite face aux obstacles."
     },
     "architect": {
       "name": "Architecte",
       "icon": "⬧",
-      "description": "Les structures sont les éléments constitutifs du monde. La réalité est entre vos mains, vous pouvez la contrôler."
+      "description": "Les structures sont les fondations du monde. La realite est entre vos mains, a vous de la controler."
     },
     "axes": {
       "name": "Haches",
-      "icon": "❖",
-      "description1": "Pourquoi abattre des arbres, quand on pouvait abattre",
-      "description2": "des choses",
-      "description3": "au lieu de cela, même résultat final!"
+      "icon": "🪓",
+      "description1": "Pourquoi abattre des arbres, quand on peut abattre des ",
+      "description2": "choses",
+      "description3": "a la place, meme resultat !"
     },
     "brewing": {
-      "name": "Brassage",
+      "name": "Alchimie",
       "icon": "❦",
-      "description": "Double Bulle, Triple Bulle, Quadruple Bulle - Je ne peux toujours pas mettre cette potion dans un chaudron"
+      "description": "Double bulle, triple bulle, quadruple bulle - je n'arrive toujours pas a mettre cette potion dans un chaudron"
     },
     "blocking": {
       "name": "Blocage",
-      "icon": "▒",
-      "description": "Les bâtons et les pierres ne briseront pas vos os, mais un bouclier le fera."
+      "icon": "🛡",
+      "description": "Les batons et les cailloux ne casseront pas vos os, mais un bouclier, si."
     },
     "crafting": {
       "name": "Artisanat",
       "icon": "⌂",
-      "description": "N'ayant plus de pièces à placer, pourquoi ne pas en créer une autre ?"
+      "description": "Plus de pieces a placer ? Pourquoi ne pas en fabriquer d'autres ?"
     },
     "discovery": {
-      "name": "Découverte",
+      "name": "Decouverte",
       "icon": "⚛",
-      "description": "Au fur et à mesure que votre perception s'élargit, votre esprit s'effiloche pour découvrir ce que vous n'aviez pas"
+      "description": "A mesure que votre perception s'elargit, votre esprit se devoile pour decouvrir ce que vous ignoriez."
     },
     "enchanting": {
-      "name": "Enchanteur",
+      "name": "Enchantement",
       "icon": "♰",
-      "description": "De quoi parles-tu ? Prophéties, visions, jabber superstitieux ?"
+      "description": "De quoi parlez-vous ? Propheties, visions, superstitions en tout genre ?"
     },
     "excavation": {
-      "name": "Les fouilles",
-      "icon": "✥",
-      "description": "Diggey Diggey trou..."
+      "name": "Excavation",
+      "icon": "ᛳ",
+      "description": "On creuse, on creuse un trou..."
     },
     "herbalism": {
       "name": "Herboristerie",
       "icon": "⚘",
-      "description": "Je ne trouve aucune plante, mais je peux trouver des graines et- est-ce que... de l'herbe ?"
+      "description": "Je ne trouve aucune plante, mais je trouve des graines et... c'est de la mauvaise herbe ?"
     },
     "hunter": {
       "name": "Chasseur",
       "icon": "☠",
-      "description": "La chasse concerne le voyage et non le résultat."
+      "description": "La chasse, c'est le voyage, pas le resultat."
     },
     "nether": {
-      "name": "Bas",
+      "name": "Nether",
       "icon": "₪",
-      "description": "Des profondeurs du Nether lui-même."
+      "description": "Des profondeurs du Nether lui-meme."
     },
     "pickaxe": {
       "name": "Pioche",
       "icon": "⛏",
-      "description": "Les nains sont les mineurs, mais j'ai appris une chose ou deux de mon temps. JE SUIS SUÉDOIS"
+      "description": "Les nains sont les mineurs, mais j'ai appris un truc ou deux avec le temps. JE SUIS SUEDOIS"
     },
     "ranged": {
-      "name": "À distance",
+      "name": "A distance",
       "icon": "🏹",
-      "description": "La distance est la clé de la victoire et la clé de la survie."
+      "description": "La distance est la cle de la victoire, et la cle de la survie."
     },
     "rift": {
-      "name": "Crevasse",
+      "name": "Faille",
       "icon": "❍",
-      "description": "Le Rift est un harnais caustique, mais vous avez harnaché le harnais."
+      "description": "La Faille est un harnais caustique, mais vous avez dompte le harnais."
     },
     "seaborne": {
       "name": "Maritime",
-      "icon": "🌊",
-      "description": "Avec cette compétence, vous pourrez découvrir les merveilles de l'eau"
+      "icon": "🎣",
+      "description": "Avec cette competence, vous pourrez dompter les merveilles de l'eau."
     },
     "stealth": {
-      "name": "Furtivité",
-      "icon": "✠",
-      "description": "L'art de l'invisible. Marchez dans l'ombre."
+      "name": "Furtivite",
+      "icon": "☯",
+      "description": "L'art de l'invisible. Marchez dans les ombres."
     },
     "swords": {
-      "name": "Épées",
+      "name": "Epees",
       "icon": "⚔",
-      "description": "Par la puissance de GreyStone !"
+      "description": "Par le pouvoir de GreyStone !"
     },
     "taming": {
       "name": "Apprivoisement",
@@ -404,739 +449,803 @@
     },
     "tragoul": {
       "name": "TragOul",
-      "icon": "▼",
-      "description": "Le sang coule dans les veines de l'univers. Resserré par vos mains."
+      "icon": "🗡",
+      "description": "Le sang coule dans les veines de l'univers. Contraint par vos mains."
     },
     "chronos": {
       "name": "Chronos",
-      "icon": "۞",
-      "description": "Remontez l'horloge de l'univers, faites l'expérience du flux. Cassez l'horloge, devenez-le."
+      "icon": "🕒",
+      "description": "Remontez l'horloge de l'univers, vivez le flux. Brisez l'horloge, devenez-la."
     },
     "unarmed": {
-      "name": "Sans armes",
-      "icon": "⚜",
-      "description": "Sans arme n'est pas sans force"
+      "name": "Mains nues",
+      "icon": "»",
+      "description": "Sans arme ne veut pas dire sans force."
     }
   },
   "agility": {
     "armorup": {
-      "name": "Armure renforcée",
-      "description": "Obtenez plus d'armure plus vous sprintez!",
+      "name": "Armure renforcee",
+      "description": "Gagnez plus d'armure plus vous sprintez longtemps !",
       "lore1": "Armure maximale",
-      "lore2": "Temps d'armure"
+      "lore2": "Temps de montee en armure"
+    },
+    "ladderslide": {
+      "name": "Glissade sur echelle",
+      "description": "Grimpez et glissez sur les echelles beaucoup plus vite dans les deux directions.",
+      "lore1": "Multiplicateur de vitesse sur echelle",
+      "lore2": "Vitesse de descente rapide"
     },
     "superjump": {
       "name": "Super saut",
-      "description": "Avantage de hauteur exceptionnel",
+      "description": "Avantage de hauteur exceptionnel.",
       "lore1": "Hauteur de saut maximale",
-      "lore2": "Faufilez-vous + sautez jusqu'au super saut !"
+      "lore2": "Accroupi + Saut pour faire un Super Saut !"
     },
     "walljump": {
-      "name": "Saut de mur",
-      "description": "Maintenez la touche Maj en l'air contre un loquet mur à mur et sautez !",
+      "name": "Saut mural",
+      "description": "Maintenez Maj en l'air contre un mur pour vous y accrocher et sauter !",
       "lore1": "Sauts maximum",
       "lore2": "Hauteur du saut"
     },
     "windup": {
-      "name": "Liquider",
-      "description": "Obtenez plus vite plus vous sprintez!",
+      "name": "Montee en puissance",
+      "description": "Accelerez plus vous sprintez longtemps !",
       "lore1": "Vitesse maximale",
-      "lore2": "Temps de liquidation"
+      "lore2": "Temps de montee en puissance"
     }
   },
   "architect": {
+    "elevator": {
+      "name": "Ascenseur",
+      "description": "Cela vous permet de construire un ascenseur pour vous teleporter verticalement rapidement !",
+      "lore1": "Debloque la recette d'ascenseur : X=LAINE, Y=PERLE DE L'ENDER",
+      "lore2": "XXX",
+      "lore3": "XYX",
+      "lore4": "XXX"
+    },
     "foundation": {
       "name": "Fondation magique",
-      "description": "Cela vous permet de vous faufiler et de placer une fondation temporaire sous vous !",
-      "lore1": "Créez magiquement :",
-      "lore2": "Blocs sous vous !"
+      "description": "Cela vous permet de vous accroupir et de placer une fondation temporaire sous vous !",
+      "lore1": "Creez magiquement : ",
+      "lore2": "Blocs sous vous !"
     },
     "glass": {
-      "name": "Verre au toucher soyeux",
-      "description": "Cela vous permet essentiellement d'éviter la perte de blocs de verre lorsque vous les cassez avec une main vide !",
-      "lore1": "Vos mains gagnent un toucher de soie pour le verre"
+      "name": "Verre toucher de soie",
+      "description": "Cela vous permet d'eviter la perte de blocs de verre lorsque vous les cassez a main nue !",
+      "lore1": "Vos mains obtiennent Toucher de soie pour le verre"
     },
     "wirelessredstone": {
-      "name": "Télécommande Redstone",
-      "description": "Cela vous permet d'utiliser une torche de redstone pour activer la redstone à distance !",
-      "lore1": "Cible + Torche Redstone + Enderperal = 1 Télécommande Redstone"
+      "name": "Telecommande Redstone",
+      "description": "Cela vous permet d'utiliser une torche de redstone pour activer la redstone a distance !",
+      "lore1": "Cible + Torche de Redstone + Perle de l'Ender = 1 Telecommande Redstone"
     },
     "placement": {
-      "name": "Baguette des constructeurs",
-      "description": "Vous permet de placer plusieurs blocs à la fois pour activer Sneak et de tenir un bloc qui correspond à votre bloc et à votre emplacement ! Gardez à l'esprit que vous devrez peut-être vous déplacer un peu pour déclencher la délimitation des cases !",
-      "lore1": "Vous avez besoin",
+      "name": "Baguette du batisseur",
+      "description": "Vous permet de placer plusieurs blocs a la fois ! Accroupissez-vous, tenez un bloc identique a celui que vous visez et placez ! Vous devrez peut-etre bouger un peu pour declencher la delimitation des zones !",
+      "lore1": "Vous avez besoin de",
       "lore2": "blocs dans votre main pour placer ceci",
-      "lore3": "Une baguette de constructeurs de matériaux"
+      "lore3": "Une baguette de batisseur en materiaux"
     }
   },
   "axe": {
     "chop": {
       "name": "Coup de hache",
-      "description": "Abattez des arbres en faisant un clic droit sur le journal de base !",
-      "lore1": "Blocs par côtelette",
-      "lore2": "Temps de recharge pour hacher",
-      "lore3": "Usure des outils"
+      "description": "Abattez des arbres en faisant un clic droit sur la buche de base !",
+      "lore1": "Blocs par coup",
+      "lore2": "Temps de recharge du coup",
+      "lore3": "Usure de l'outil"
     },
     "logswap": {
-      "name": "Échangeur de bûches de Lucy",
-      "description": "Changez la saveur des bûches dans une table d'artisanat !",
-      "lore1": "8 bûche de n'importe quel type + 1 jeune arbre = 8 bûche du type du jeune arbre"
+      "name": "Echangeur de buches de Lucy",
+      "description": "Changez le type de buches dans une table d'artisanat !",
+      "lore1": "8 buches de n'importe quel type + 1 pousse = 8 buches du type de la pousse"
     },
     "droptoinventory": {
-      "name": "Hache Drop-To-Inventory"
+      "name": "Hache : depot direct en inventaire"
     },
     "groundsmash": {
-      "name": "Frappe au sol à la hache",
-      "description": "Saute, puis accroupis-toi et écrase tous les ennemis proches.",
-      "lore1": "Dégâts",
-      "lore2": "Rayon de bloc",
+      "name": "Frappe au sol a la hache",
+      "description": "Sautez, puis accroupissez-vous et ecrasez tous les ennemis proches.",
+      "lore1": "Degats",
+      "lore2": "Rayon en blocs",
       "lore3": "Force",
-      "lore4": "Temps de recharge d'écrasement"
+      "lore4": "Temps de recharge de la frappe"
     },
     "leafminer": {
-      "name": "Mineuse des feuilles",
-      "description": "Vous permet de casser les feuilles en vrac à la fois !",
-      "lore1": "Sneak, et le mien FEUILLES",
-      "lore2": "gamme de Leaf-mining",
-      "lore3": "Vous n'obtiendrez pas les gouttes des feuilles (Exploit Prevention)"
+      "name": "Mineur de feuilles",
+      "description": "Vous permet de casser des feuilles en masse !",
+      "lore1": "Accroupissez-vous et minez les FEUILLES",
+      "lore2": "portee du minage de feuilles",
+      "lore3": "Vous n'obtiendrez pas les drops des feuilles (prevention d'exploit)"
     },
     "woodminer": {
       "name": "Mineur de bois",
-      "description": "Vous permet de casser du bois en vrac à la fois !",
-      "lore1": "Se faufiler et extraire du BOIS/BOIS (pas des planches)",
-      "lore2": "gamme de Mines de bois",
-      "lore3": "Fonctionne avec Déposer dans l'inventaire"
+      "description": "Vous permet de casser du bois en masse !",
+      "lore1": "Accroupissez-vous et minez le BOIS/BUCHES (pas les planches)",
+      "lore2": "portee du minage de bois",
+      "lore3": "Fonctionne avec le depot direct en inventaire"
     }
   },
   "brewing": {
     "lingering": {
       "name": "Infusion persistante",
-      "description": "Les potions que vous fabriquez durent plus longtemps",
-      "lore1": "Durée",
-      "lore2": "Durée"
+      "description": "Les potions que vous preparez durent plus longtemps !",
+      "lore1": "Duree",
+      "lore2": "Duree"
     },
     "superheated": {
-      "name": "Infusion super chauffée",
-      "description": "Les stands de brassage fonctionnent plus vite plus ils sont chauds.",
-      "lore1": "Par bloc de feu touchant",
-      "lore2": "Par bloc de lave touchant"
+      "name": "Infusion surchauffee",
+      "description": "Les alambics fonctionnent plus vite plus ils sont chauds.",
+      "lore1": "Par bloc de feu adjacent",
+      "lore2": "Par bloc de lave adjacent"
     },
     "darkness": {
-      "name": "Ténèbres en bouteille",
-      "description": "Je ne sais pas pourquoi vous en avez besoin, mais c'est parti !",
-      "lore1": "Potion de vision nocturne + Béton noir = Potion des ténèbres (30 secondes)",
-      "lore2": "Il convient de noter que cela empêche l'utilisateur de sprinter !"
+      "name": "Tenebres en bouteille",
+      "description": "On ne sait pas pourquoi vous en avez besoin, mais voila !",
+      "lore1": "Potion de vision nocturne + Beton noir = Potion de tenebres (30 secondes)",
+      "lore2": "A noter que cela empeche l'utilisateur de sprinter !"
     },
     "haste": {
-      "name": "Hâte en bouteille",
-      "description": "Quand l'efficacité ne suffit pas",
-      "lore1": "Potion de vitesse + Éclat d'améthyste = Potion de hâte (60 secondes)",
-      "lore2": "Potion de vitesse + Bloc d'améthyste = Potion de hâte-2 (30 secondes)"
+      "name": "Hate en bouteille",
+      "description": "Quand l'efficacite ne suffit pas",
+      "lore1": "Potion de vitesse + Eclat d'amethyste = Potion de hate (60 secondes)",
+      "lore2": "Potion de vitesse + Bloc d'amethyste = Potion de hate-2 (30 secondes)"
     },
     "absorption": {
       "name": "Absorption en bouteille",
-      "description": "Durcissez le corps !",
-      "lore1": "Soins instantanés + Quartz = Potion d'absorption (60 secondes)",
-      "lore2": "Soins instantanés + Bloc de quartz = Potion d'absorption-2 (30 secondes)"
+      "description": "Renforcez le corps !",
+      "lore1": "Soin instantane + Quartz = Potion d'absorption (60 secondes)",
+      "lore2": "Soin instantane + Bloc de quartz = Potion d'absorption-2 (30 secondes)"
     },
     "fatigue": {
       "name": "Fatigue en bouteille",
-      "description": "Affaiblir le corps !",
-      "lore1": "Potion de faiblesse + Boule de Slime = Potion de fatigue (30 secondes)",
-      "lore2": "Potion de faiblesse + Bloc de Slime = Potion de fatigue-2 (15 secondes)"
+      "description": "Affaiblissez le corps !",
+      "lore1": "Potion de faiblesse + Boule de slime = Potion de fatigue (30 secondes)",
+      "lore2": "Potion de faiblesse + Bloc de slime = Potion de fatigue-2 (15 secondes)"
     },
     "hunger": {
       "name": "Faim en bouteille",
-      "description": "Nourrissez les Insatiables !",
-      "lore1": "Potion maladroite + Chair pourrie = Potion de faim (30 secondes)",
-      "lore2": "Potion de faiblesse + Chair pourrie = Potion de faim-3 (15 secondes)"
+      "description": "Nourrissez l'insatiable !",
+      "lore1": "Potion bizarre + Chair putrefiee = Potion de faim (30 secondes)",
+      "lore2": "Potion de faiblesse + Chair putrefiee = Potion de faim-3 (15 secondes)"
     },
     "nausea": {
-      "name": "Nausée en bouteille",
-      "description": "Vous me dégoûtez!",
-      "lore1": "Potion maladroite + Champignon brun = Potion de nausée (16 secondes)",
-      "lore2": "Potion maladroite + Champignon cramoisi = Potion de nausée-2 (8 secondes)"
+      "name": "Nausee en bouteille",
+      "description": "Vous me rendez malade !",
+      "lore1": "Potion bizarre + Champignon brun = Potion de nausee (16 secondes)",
+      "lore2": "Potion bizarre + Champignon cramoisi = Potion de nausee-2 (8 secondes)"
     },
     "blindness": {
-      "name": "Cécité en bouteille",
-      "description": "Tu es une personne horrible...",
-      "lore1": "Potion maladroite + Sac d'encre = Potion d'aveuglement (30 secondes)",
-      "lore2": "Potion maladroite + Sac d'encre incandescent = Potion d'aveuglement-2 (15 secondes)"
+      "name": "Cecite en bouteille",
+      "description": "Vous etes une personne horrible...",
+      "lore1": "Potion bizarre + Poche d'encre = Potion de cecite (30 secondes)",
+      "lore2": "Potion bizarre + Poche d'encre lumineuse = Potion de cecite-2 (15 secondes)"
     },
     "resistance": {
-      "name": "Résistance en bouteille",
-      "description": "La fortification à son meilleur!",
-      "lore1": "Potion maladroite + Lingot de fer = Potion de résistance (60 secondes)",
-      "lore2": "Potion maladroite + Bloc de fer = Potion de résistance-2 (30 secondes)"
+      "name": "Resistance en bouteille",
+      "description": "La fortification a son summum !",
+      "lore1": "Potion bizarre + Lingot de fer = Potion de resistance (60 secondes)",
+      "lore2": "Potion bizarre + Bloc de fer = Potion de resistance-2 (30 secondes)"
     },
     "healthboost": {
-      "name": "La vie en bouteille",
-      "description": "Quand la santé maximale ne suffit pas...",
-      "lore1": "Potion de guérison instantanée + Pomme dorée = Potion de boost de santé (120 secondes)",
-      "lore2": "Potion de guérison instantanée + Pomme dorée enchantée = Potion de boost de santé-2 (120 secondes)"
+      "name": "Vie en bouteille",
+      "description": "Quand la sante maximale ne suffit pas...",
+      "lore1": "Potion de soin instantane + Pomme doree = Potion de boost de sante (120 secondes)",
+      "lore2": "Potion de soin instantane + Pomme doree enchantee = Potion de boost de sante-2 (120 secondes)"
     },
     "decay": {
-      "name": "Décomposition en bouteille",
-      "description": "Qui aurait cru que Détritus serait si utile ?",
-      "lore1": "Potion de faiblesse + Pomme de terre vénéneuse = Potion de Wither (16 secondes)",
+      "name": "Decomposition en bouteille",
+      "description": "Qui aurait cru que les detritus seraient si utiles ?",
+      "lore1": "Potion de faiblesse + Pomme de terre empoisonnee = Potion de Wither (16 secondes)",
       "lore2": "Potion de faiblesse + Racines cramoisies = Potion de Wither-2 (8 secondes)"
     },
     "saturation": {
       "name": "Saturation en bouteille",
-      "description": "Tu sais... je n'ai même pas faim...",
-      "lore1": "Potion de régénération + Pomme de terre au four = Potion de saturation",
-      "lore2": "Potion de régénération + botte de foin = potion de saturation-2"
+      "description": "Tu sais quoi... j'ai meme pas faim...",
+      "lore1": "Potion de regeneration + Pomme de terre cuite = Potion de saturation",
+      "lore2": "Potion de regeneration + Botte de foin = Potion de saturation-2"
     }
   },
   "blocking": {
     "chainarmorer": {
-      "name": "Chaînes de Méphistophélès",
-      "description": "Vous permet de fabriquer une armure de cotte de mailles",
-      "lore1": "La recette d'artisanat est la même que n'importe quelle autre, mais avec des pépites de fer à la place"
+      "name": "Chaines de Mephistopheles",
+      "description": "Vous permet de fabriquer une armure en cotte de mailles",
+      "lore1": "La recette de fabrication est la meme que les autres, mais avec des pepites de fer a la place"
     },
     "horsearmorer": {
-      "name": "Armure de cheval à fabriquer",
-      "description": "Permet de fabriquer une armure de cheval",
-      "lore1": "Entourez une selle avec le matériau que vous souhaitez utiliser pour fabriquer l'armure"
+      "name": "Armure de cheval fabricable",
+      "description": "Vous permet de fabriquer une armure de cheval",
+      "lore1": "Entourez une selle avec le materiau que vous souhaitez utiliser pour fabriquer l'armure"
     },
     "saddlecrafter": {
-      "name": "Selle à fabriquer",
-      "description": "Fabriquer une selle avec du cuir",
+      "name": "Selle fabricable",
+      "description": "Fabriquez une selle avec du cuir",
       "lore1": "Recette : 5 Cuir :"
     },
     "multiarmor": {
       "name": "Multi-armure",
-      "description": "Lier Elytras à Armor",
-      "lore1": "C'est une compétence incroyable pour voyager.",
-      "lore2": "fusionner et changer dynamiquement Armor/Elytra à la volée !",
-      "lore3": "pour fusionner, déplacez le clic d'un élément sur un autre dans votre inventaire.",
-      "lore4": "pour dissocier l'armure, déposez l'objet en douce et il se désassemblera.",
-      "lore5": "Si votre MultiArmor est détruit, vous perdrez tous les objets qu'il contient.",
-      "lore6": "Je n'ai pas besoin d'armure, ça me déçoit..."
+      "description": "Liez des Elytres a une armure",
+      "lore1": "C'est une competence incroyable pour voyager.",
+      "lore2": "Fusionnez et changez dynamiquement Armure/Elytre a la volee !",
+      "lore3": "Pour fusionner, Maj-cliquez un objet sur un autre dans votre inventaire.",
+      "lore4": "Pour delier l'armure, lacher l'objet en etant accroupi, et il se desassemblera.",
+      "lore5": "Si votre Multi-Armure est detruite, vous perdrez tous les objets qu'elle contient.",
+      "lore6": "Je n'ai pas besoin d'armure, ca me decoit..."
     }
   },
   "crafting": {
     "deconstruction": {
-      "name": "Déconstruction",
-      "description": "Déconstruisez des blocs et des objets en composants de base récupérables !",
-      "lore1": "Placez un article quelconque + cisailles",
-      "lore2": "dans une table de forge à déconstruire."
+      "name": "Deconstruction",
+      "description": "Deconstruisez des blocs et objets en composants de base recuperables !",
+      "lore1": "Lachez n'importe quel objet au sol.",
+      "lore2": "Puis, accroupissez-vous et faites un clic droit avec des cisailles"
     },
     "xp": {
       "name": "XP d'artisanat",
-      "description": "Gagnez de l'XP passif lors de la fabrication",
-      "lore1": "Gagnez de l'XP lors de la fabrication"
+      "description": "Gagnez de l'XP passive en fabriquant",
+      "lore1": "Gagnez de l'XP en fabriquant"
     },
     "reconstruction": {
-      "name": "Reconstruction du minerai",
-      "description": "Recréez des minerais à partir de leurs composants de base !",
-      "lore1": "8 des gouttes et 1 hôte = 1 minerai (sans forme)",
-      "lore2": "Les gouttes doivent être fondues (le cas échéant)",
-      "lore3": "N'inclut pas : chutes, quarts et émeraudes, etc.",
-      "lore4": "Hôte = Enveloppe. c'est-à-dire: Pierre, Netherack, Deepslate"
+      "name": "Reconstruction de minerai",
+      "description": "Refabriquez des minerais a partir de leurs composants de base !",
+      "lore1": "8 des drops et 1 hote = 1 minerai (sans forme)",
+      "lore2": "Les drops doivent etre fondus (le cas echeant)",
+      "lore3": "Non inclus : debris, quartz, emeraudes, etc.",
+      "lore4": "Hote = enveloppe. Ex : Pierre, Netherrack, Ardoise des abimes"
     },
     "leather": {
-      "name": "Cuir artisanal",
-      "description": "Fabriquer du cuir à partir de chair pourrie",
-      "lore1": "Il suffit de le jeter (chair pourrie) sur le feu de camp !"
+      "name": "Cuir fabricable",
+      "description": "Fabriquez du cuir a partir de chair putrefiee",
+      "lore1": "Jetez-la (la chair putrefiee) sur le feu de camp !"
     },
     "backpacks": {
-      "name": "Les sacs à dos d'un Boutilier !",
-      "description": "Cela apporte juste le Mojang Bundle dans le jeu !",
-      "lore1": "Vous devez être en survie pour l'utiliser",
-      "lore2": "XLX : Cuir, Plomb, Cuir",
-      "lore3": "XSX : Cuir, Barrel Box, Cuir",
-      "lore4": "XCX : Cuir, Poitrine, Cuir"
+      "name": "Sacs a dos du Boutilier !",
+      "description": "Cela ajoute simplement le Baluchon de Mojang au jeu !",
+      "lore1": "Vous devez etre en mode Survie pour l'utiliser",
+      "lore2": "XLX : Cuir, Laisse, Cuir",
+      "lore3": "XSX : Cuir, Tonneau, Cuir",
+      "lore4": "XCX : Cuir, Coffre, Cuir"
     },
     "stations": {
-      "name": "Tableaux portables !",
+      "name": "Tables portables !",
       "description": "Utilisez une table dans la paume de votre main !",
-      "lore2": "TOUS LES ÉLÉMENTS QUE VOUS OUBLIEZ DANS LE TABLEAU LORSQU'ILS SONT FERMÉS SONT PERDUS POUR TOUJOURS !",
-      "lore3": "Tables valides : enclume, artisanat, meule, cartographie, tailleur de pierre, métier à tisser"
+      "lore2": "TOUS LES OBJETS OUBLIES DANS LA TABLE A SA FERMETURE SONT PERDUS A JAMAIS !",
+      "lore3": "Tables valides : Enclume, Etabli, Meule, Table de cartographie, Tailleur de pierre, Metier a tisser"
     },
     "skulls": {
-      "name": "Crânes à fabriquer !",
-      "description": "En utilisant des matériaux, vous pouvez fabriquer des crânes de foule !",
-      "lore1": "Entourez un bloc d'os avec ce qui suit pour obtenir un crâne :",
-      "lore2": "Zombie : Chair pourrissante",
+      "name": "Cranes fabricables !",
+      "description": "En utilisant des materiaux, vous pouvez fabriquer des cranes de monstres !",
+      "lore1": "Entourez un bloc d'os avec les elements suivants pour obtenir un crane :",
+      "lore2": "Zombie : Chair putrefiee",
       "lore3": "Squelette : Os",
-      "lore4": "Plante grimpante : poudre à canon",
+      "lore4": "Creeper : Poudre a canon",
       "lore5": "Wither : Brique du Nether",
-      "lore6": "Dragon : souffle du dragon"
+      "lore6": "Dragon : Souffle du dragon"
+    }
+  },
+  "chronos": {
+    "timeinabottle": {
+      "name": "Temps en bouteille",
+      "description": "Transportez une bouteille temporelle qui stocke du temps et depensez-le pour accelerer les blocs temporises, les cultures et les entites vieillissantes comme les bebes animaux. Recette (sans forme) : Potion de rapidite + Horloge + Fiole en verre.",
+      "lore1": "Secondes stockees chargees a chaque tick",
+      "lore2": "Acceleration temporelle par seconde stockee",
+      "lore3": "Recette (sans forme) : Potion de rapidite + Horloge + Fiole en verre"
+    },
+    "aberranttouch": {
+      "name": "Toucher aberrant",
+      "description": "Les attaques en melee appliquent une lenteur cumulative au cout de la faim, avec des plafonds stricts en JcJ, et immobilisent les cibles a 5 charges.",
+      "lore1": "Les attaques en melee appliquent une lenteur cumulative",
+      "lore2": "Plafond de duree de lenteur en JcE",
+      "lore3": "Plafond d'amplificateur de lenteur en JcJ"
+    },
+    "instantrecall": {
+      "name": "Rappel instantane",
+      "description": "Clic gauche ou droit avec une horloge en main pour revenir a un instantane recent avec sante et faim restaurees.",
+      "lore1": "Duree du retour en arriere",
+      "lore2": "Temps de recharge",
+      "lore3": "Pas de retour d'inventaire"
+    },
+    "timebomb": {
+      "name": "Bombe temporelle",
+      "description": "Lancez une bombe chrono fabriquee qui cree un champ temporel, ralentit les entites et gele les projectiles.",
+      "lore1": "Rayon du champ temporel",
+      "lore2": "Duree du champ temporel",
+      "lore3": "Temps de recharge de la bombe",
+      "lore4": "Recette (sans forme) : Horloge + Boule de neige + Diamant + Sable"
     }
   },
   "discovery": {
     "armor": {
       "name": "Armure du monde",
-      "description": "Armure passive en fonction de la dureté des blocs à proximité.",
+      "description": "Armure passive selon la durete des blocs environnants.",
       "lore1": "Armure passive",
-      "lore2": "Basé sur la dureté du bloc à proximité",
-      "lore3": "Force d'armure :"
+      "lore2": "Basee sur la durete des blocs a proximite",
+      "lore3": "Force de l'armure :"
     },
     "unity": {
-      "name": "Unité expérimentale",
-      "description": "Collecter des orbes d'expérience ajoute de l'XP aux compétences aléatoires.",
-      "lore1": "XP",
+      "name": "Unite experimentale",
+      "description": "Ramasser des orbes d'experience ajoute de l'XP a des competences aleatoires.",
+      "lore1": "XP ",
       "lore2": "Par orbe"
     },
     "resist": {
-      "name": "Résistance expérimentale",
-      "description": "Consommez de l'expérience pour atténuer les dégâts que vous subissez de toutes les sources",
-      "lore0": "Cela ne peut se produire qu'une fois toutes les 15 secondes",
-      "lore1": " Dégâts réduits",
-      "lore2": "expérience épuisée"
+      "name": "Resistance experimentale",
+      "description": "Consommez de l'experience pour attenuer les degats uniquement quand un coup vous ferait tomber en dessous de 5 coeurs ou vous tuerait.",
+      "lore0": "Se declenche uniquement a sante critique (<= 5 coeurs) une fois toutes les 15 secondes",
+      "lore1": " Degats reduits",
+      "lore2": "experience drainnee"
     },
     "villager": {
       "name": "Attraction villageoise",
-      "description": "Vous permet d'obtenir de meilleurs échanges avec les villageois !",
+      "description": "Vous permet d'obtenir de meilleurs echanges avec les villageois !",
       "lore1": "Cela consomme de l'XP par interaction avec les villageois",
-      "lore2": "Chance par interaction de consommer de l'XP et d'améliorer les échanges",
-      "lore3": "drain XP requis par interaction"
+      "lore2": "Chance par interaction de consommer de l'XP et d'ameliorer les echanges",
+      "lore3": "XP requise drainee par interaction"
     }
   },
   "enchanting": {
     "lapisreturn": {
-      "name": "Retour Lapis",
-      "description": "Au prix d'un niveau supplémentaire d'XP, et a une chance de vous donner des lapis gratuits en retour",
-      "lore1": "Pour chaque niveau, il augmente le coût de l'enchantement de 1, mais peut revenir jusqu'à 3 Lapis"
+      "name": "Retour de lapis",
+      "description": "Au cout d'1 niveau d'XP supplementaire, avec une chance de vous donner du lapis gratuit en retour",
+      "lore1": "Pour chaque niveau, le cout d'enchantement augmente de 1, mais peut rendre jusqu'a 3 lapis"
     },
     "quickenchant": {
-      "name": "Enchantement par clic rapide",
-      "description": "Enchantez des objets en cliquant directement sur les livres d'enchantement.",
-      "lore1": "Niveaux combinés maximum",
-      "lore2": "Impossible d'enchanter un objet avec plus de",
-      "lore3": "Puissance"
+      "name": "Enchantement rapide au clic",
+      "description": "Enchantez des objets en cliquant directement sur eux avec des livres d'enchantement.",
+      "lore1": "Niveaux combines maximum",
+      "lore2": "Impossible d'enchanter un objet avec plus de ",
+      "lore3": "puissance"
     },
     "return": {
       "name": "Retour d'XP",
-      "description": "Enchanting XP vous est rendu lorsque vous enchantez un objet.",
-      "lore1": "L'expérience dépensée a une chance d'être remboursée lorsque vous enchantez un objet",
-      "lore2": "Expérience par enchantement"
+      "description": "L'XP d'enchantement vous est rendue lorsque vous enchantez un objet.",
+      "lore1": "L'experience depensee a une chance d'etre remboursee lorsque vous enchantez un objet",
+      "lore2": "Experience par enchantement"
     }
   },
   "excavation": {
     "haste": {
-      "name": "Excavatrice hâtive",
-      "description": "Cela accélérera le processus d'excavation, avec HASTE !",
-      "lore1": "Gagner de la hâte lors de l'excavation",
-      "lore2": "x Niveaux de hâte lorsque vous commencez à miner N'IMPORTE QUEL bloc."
+      "name": "Excavateur presse",
+      "description": "Cela accelerera le processus d'excavation, avec de la HATE !",
+      "lore1": "Gagnez la hate en excavant",
+      "lore2": "x niveaux de hate quand vous commencez a miner N'IMPORTE QUEL bloc."
     },
     "spelunker": {
-      "name": "Spéléologue super-voyant !",
-      "description": "Voyez Ores avec vos yeux, mais à travers le sol !",
-      "lore1": "Ore dans votre main désinvolte, Glowberries dans votre main principale et Sneak !",
-      "lore2": "Plage de blocs :",
-      "lore3": "Consomme Glowberry lors de son utilisation"
+      "name": "Speleonologue super-voyant !",
+      "description": "Voyez les minerais avec vos yeux, mais a travers le sol !",
+      "lore1": "Minerai dans votre main secondaire, baies lumineuses dans votre main principale, et accroupissez-vous !",
+      "lore2": "Portee en blocs : ",
+      "lore3": "Consomme une baie lumineuse a l'utilisation"
     },
     "droptoinventory": {
-      "name": "Pelle Drop-To-Inventory"
+      "name": "Pelle : depot direct en inventaire"
     },
     "omnitool": {
       "name": "OMNI - T.O.O.L.",
-      "description": "L'opulent Leatherman surconçu de Tackle",
-      "lore1": "Probablement le plus puissant de beaucoup vous permet de",
-      "lore2": "fusionnez dynamiquement et modifiez les outils à la volée, en fonction de vos besoins.",
-      "lore3": "pour fusionner, déplacez le clic d'un élément sur un autre dans votre inventaire.",
-      "lore4": "pour délier les outils, Sneak-Drop l'article, et il se démontera.",
-      "lore5": "vous ne pouvez pas casser d'outils dans ce leatherman mais vous ne pouvez pas utiliser d'outils cassés",
-      "lore6": "nombre total d'éléments fusionnables",
-      "lore7": "vous pouvez utiliser cinq ou six outils, ou un seul !"
+      "description": "Le Leatherman luxueux et surconcu de Tackle",
+      "lore1": "Probablement le plus puissant, il vous permet de",
+      "lore2": "fusionner et changer dynamiquement vos outils a la volee, selon vos besoins.",
+      "lore3": "Pour fusionner, Maj-cliquez un objet sur un autre dans votre inventaire.",
+      "lore4": "Pour delier les outils, lachez l'objet en etant accroupi, et il se desassemblera.",
+      "lore5": "Vous ne pouvez pas casser les outils dans ce Leatherman mais vous ne pouvez pas utiliser des outils casses",
+      "lore6": "objets fusionnables au total.",
+      "lore7": "Vous pourriez utiliser cinq ou six outils, ou juste un seul !"
     }
   },
   "herbalism": {
     "growthaura": {
       "name": "Aura de croissance",
-      "description": "Cultivez la nature autour de vous dans une aura",
-      "lore1": "Rayon de bloc",
-      "lore2": "Force de l'Aura de Croissance",
-      "lore3": "Le prix de la nourriture"
+      "description": "Faites pousser la nature autour de vous dans une aura",
+      "lore1": "Rayon en blocs",
+      "lore2": "Force de l'aura de croissance",
+      "lore3": "Cout en nourriture"
     },
     "hippo": {
       "name": "Hippopotame de l'herboriste",
-      "description": "Consommer de la nourriture, vous donne plus de saturation",
-      "lore1": "Alimentation) points de saturation supplémentaires sur la consommation"
+      "description": "Consommer de la nourriture vous donne plus de saturation",
+      "lore1": "Nourriture) points de saturation supplementaires a la consommation"
     },
     "myconid": {
-      "name": "Myconide de l'herboristerie",
-      "description": "Vous donne la possibilité de fabriquer du mycélium",
-      "lore1": "N'importe quelle saleté et un champignon brun et rouge fabriqueront du mycélium."
+      "name": "Myconide de l'herboriste",
+      "description": "Vous donne la capacite de fabriquer du mycelium",
+      "lore1": "N'importe quelle terre, plus un champignon brun et un rouge, fabriqueront du mycelium."
     },
     "terralid": {
-      "name": "Terralide d'herboriste",
-      "description": "Vous donne la possibilité de fabriquer des blocs d'herbe",
-      "lore1": "Trois graines, plus de 3 saletés, fabriqueront 3 blocs d'herbe."
+      "name": "Terralide de l'herboriste",
+      "description": "Vous donne la capacite de fabriquer des blocs d'herbe",
+      "lore1": "Trois graines, au-dessus de 3 terres, fabriqueront 3 blocs d'herbe."
     },
     "cobweb": {
-      "name": "Créateur Webby",
-      "description": "Vous donne la possibilité de fabriquer des toiles d'araignée dans une table d'artisanat",
-      "lore1": "Nine String, fabriquera une toile d'araignée."
+      "name": "Createur de toiles",
+      "description": "Vous donne la capacite de fabriquer des toiles d'araignee dans une table d'artisanat",
+      "lore1": "Neuf ficelles fabriqueront une toile d'araignee."
     },
     "mushroomblocks": {
       "name": "Fabricant de champignons",
-      "description": "Vous donne la possibilité de fabriquer des blocs de champignons dans une table de fabrication",
-      "lore1": "Quatre Champignons pour faire un bloc, ou un bloc pour faire une tige."
+      "description": "Vous donne la capacite de fabriquer des blocs de champignon dans une table d'artisanat",
+      "lore1": "Quatre champignons pour faire un bloc, ou un bloc pour faire une tige."
     },
     "droptoinventory": {
-      "name": "Hoe Drop-To-Inventory"
+      "name": "Houe : depot direct en inventaire"
     },
     "hungryshield": {
-      "name": "Bouclier affamé",
-      "description": "Prenez des dommages à votre faim avant votre santé.",
-      "lore1": "Résiste à la faim"
+      "name": "Bouclier affame",
+      "description": "Subissez des degats a votre faim avant votre sante.",
+      "lore1": "Resiste par la faim"
     },
     "luck": {
-      "name": "La chance de l'herboriste",
-      "description": "Lorsque vous cassez de l'herbe/des fleurs, vous avez une chance d'obtenir un objet aléatoire",
-      "lore0": "Fleurs = Nourriture et Herbe = Graines",
+      "name": "Chance de l'herboriste",
+      "description": "Quand vous cassez de l'herbe/des fleurs, vous avez une chance d'obtenir un objet aleatoire",
+      "lore0": "Fleurs = Nourriture, et Herbe = Graines",
       "lore1": "Chance d'obtenir un objet en cassant des fleurs",
       "lore2": "Chance d'obtenir un objet en cassant de l'herbe"
     },
     "replant": {
-      "name": "Récolter et replanter",
-      "description": "Faites un clic droit sur une culture avec une houe pour la récolter et la replanter.",
-      "lore1": "Rayon de replantation des blocs"
+      "name": "Recolte et replantation",
+      "description": "Clic droit sur une culture avec une houe pour la recolter et la replanter.",
+      "lore1": "Rayon de replantation en blocs"
     }
   },
   "hunter": {
     "adrenaline": {
-      "name": "Adrénaline",
-      "description": "Infligez plus de dégâts plus votre santé est faible (Mêlée)",
-      "lore1": "Dégâts maximum"
+      "name": "Adrenaline",
+      "description": "Infligez plus de degats plus votre sante est basse (melee)",
+      "lore1": "Degats maximum"
     },
     "penalty": {
-      "lore1": "Vous gagnerez des piles de poison si vous n'avez plus faim"
+      "name": "",
+      "description": "",
+      "lore1": "Vous gagnerez des charges de poison si vous n'avez plus de faim"
     },
     "droptoinventory": {
-      "name": "Articles déposés dans l'inventaire",
-      "description": "Lorsque vous tuez quelque chose / cassez un bloc avec une épée, il téléporte les gouttes dans votre inventaire",
-      "lore1": "Chaque fois qu'un objet tombe d'un mob/bloc que vous cassez, il va dans votre inventaire s'il le peut."
+      "name": "Objets : depot direct en inventaire",
+      "description": "Quand vous tuez quelque chose / cassez un bloc avec une epee, les drops sont teleportes dans votre inventaire",
+      "lore1": "Chaque fois qu'un objet tombe d'un mob/bloc que vous cassez, il va dans votre inventaire si possible."
     },
     "invisibility": {
-      "name": "Pas de fuite",
-      "description": "Lorsque vous êtes frappé, vous gagnez en invisibilité, au prix de la faim",
-      "lore1": "Gagnez en invisibilité passive lorsque vous êtes touché",
-      "lore2": "x L'invisibilité se cumule pendant 3 secondes en cas d'attaque",
-      "lore3": "x Empiler la faim",
-      "lore4": "La faim cumule la durée et le multiplicateur.",
-      "lore5": "Durée d'invisibilité"
+      "name": "Pas evanescent",
+      "description": "Quand vous etes frappe, vous gagnez l'invisibilite, au cout de la faim",
+      "lore1": "Gagnez l'invisibilite passive quand vous etes frappe",
+      "lore2": "x charges d'invisibilite pendant 3 secondes quand vous etes touche",
+      "lore3": "x faim cumulative",
+      "lore4": "La faim cumule duree et multiplicateur.",
+      "lore5": "Duree d'invisibilite"
     },
     "jumpboost": {
       "name": "Hauteurs du chasseur",
-      "description": "Lorsque vous êtes frappé, vous obtenez un boost de saut, au prix de la faim",
-      "lore1": "Gagne un boost de saut passif lorsqu'il est frappé",
-      "lore2": "x Jump-Boost se cumule pendant 3 secondes en cas de coup",
-      "lore3": "x Empiler la faim",
-      "lore4": "La faim cumule la durée et le multiplicateur.",
-      "lore5": "Jump-Boost cumule le multiplicateur, pas la durée."
+      "description": "Quand vous etes frappe, vous gagnez un boost de saut, au cout de la faim",
+      "lore1": "Gagnez un boost de saut passif quand vous etes frappe",
+      "lore2": "x charges de boost de saut pendant 3 secondes quand vous etes touche",
+      "lore3": "x faim cumulative",
+      "lore4": "La faim cumule duree et multiplicateur.",
+      "lore5": "Le boost de saut cumule le multiplicateur, pas la duree."
     },
     "luck": {
-      "name": "La chance du chasseur",
-      "description": "Quand tu es frappé, tu gagnes de la chance, au prix de la faim",
-      "lore1": "Gagnez de la chance passive lorsque vous êtes frappé",
-      "lore2": "x La chance se cumule pendant 3 secondes en cas de coup",
-      "lore3": "x Empiler la faim",
-      "lore4": "La faim cumule la durée et le multiplicateur.",
-      "lore5": "La chance cumule le multiplicateur, pas la durée."
+      "name": "Chance du chasseur",
+      "description": "Quand vous etes frappe, vous gagnez de la chance, au cout de la faim",
+      "lore1": "Gagnez de la chance passive quand vous etes frappe",
+      "lore2": "x charges de chance pendant 3 secondes quand vous etes touche",
+      "lore3": "x faim cumulative",
+      "lore4": "La faim cumule duree et multiplicateur.",
+      "lore5": "La chance cumule le multiplicateur, pas la duree."
     },
     "regen": {
-      "name": "Régénération du chasseur",
-      "description": "Lorsque vous êtes frappé, vous gagnez en régénération, au prix de la faim",
-      "lore1": "Gagne une régénération passive lorsqu'il est touché",
-      "lore2": "x La régénération se cumule pendant 3 secondes en cas d'attaque",
-      "lore3": "x Empiler la faim",
-      "lore4": "La faim cumule la durée et le multiplicateur.",
-      "lore5": "La régénération cumule le multiplicateur, pas la durée."
+      "name": "Regeneration du chasseur",
+      "description": "Quand vous etes frappe, vous gagnez de la regeneration, au cout de la faim",
+      "lore1": "Gagnez de la regeneration passive quand vous etes frappe",
+      "lore2": "x charges de regeneration pendant 3 secondes quand vous etes touche",
+      "lore3": "x faim cumulative",
+      "lore4": "La faim cumule duree et multiplicateur.",
+      "lore5": "La regeneration cumule le multiplicateur, pas la duree."
     },
     "resistance": {
-      "name": "Résistance du chasseur",
-      "description": "Lorsque vous êtes frappé, vous gagnez en résistance, au prix de la faim",
-      "lore1": "Gagne une résistance passive lorsqu'il est touché",
-      "lore2": "x La résistance se cumule pendant 3 secondes en cas de coup",
-      "lore3": "x Empiler la faim",
-      "lore4": "La faim cumule la durée et le multiplicateur.",
-      "lore5": "La résistance cumule le multiplicateur, pas la durée."
+      "name": "Resistance du chasseur",
+      "description": "Quand vous etes frappe, vous gagnez de la resistance, au cout de la faim",
+      "lore1": "Gagnez de la resistance passive quand vous etes frappe",
+      "lore2": "x charges de resistance pendant 3 secondes quand vous etes touche",
+      "lore3": "x faim cumulative",
+      "lore4": "La faim cumule duree et multiplicateur.",
+      "lore5": "La resistance cumule le multiplicateur, pas la duree."
     },
     "speed": {
       "name": "Vitesse du chasseur",
-      "description": "Lorsque vous êtes frappé, vous gagnez en vitesse, au prix de la faim",
-      "lore1": "Gagne de la vitesse passive lorsqu'il est frappé",
-      "lore2": "x La vitesse se cumule pendant 3 secondes en cas de coup",
-      "lore3": "x Empiler la faim",
-      "lore4": "La faim cumule la durée et le multiplicateur.",
-      "lore5": "Multiplicateur de piles de vitesse, pas de durée."
+      "description": "Quand vous etes frappe, vous gagnez de la vitesse, au cout de la faim",
+      "lore1": "Gagnez de la vitesse passive quand vous etes frappe",
+      "lore2": "x charges de vitesse pendant 3 secondes quand vous etes touche",
+      "lore3": "x faim cumulative",
+      "lore4": "La faim cumule duree et multiplicateur.",
+      "lore5": "La vitesse cumule le multiplicateur, pas la duree."
     },
     "strength": {
       "name": "Force du chasseur",
-      "description": "Quand tu es frappé, tu gagnes en force, au prix de la faim",
-      "lore1": "Gagne de la force passive lorsqu'il est frappé",
-      "lore2": "x La force se cumule pendant 3 secondes en cas de coup",
-      "lore3": "x Empiler la faim",
-      "lore4": "La faim cumule la durée et le multiplicateur.",
-      "lore5": "La force cumule le multiplicateur, pas la durée."
+      "description": "Quand vous etes frappe, vous gagnez de la force, au cout de la faim",
+      "lore1": "Gagnez de la force passive quand vous etes frappe",
+      "lore2": "x charges de force pendant 3 secondes quand vous etes touche",
+      "lore3": "x faim cumulative",
+      "lore4": "La faim cumule duree et multiplicateur.",
+      "lore5": "La force cumule le multiplicateur, pas la duree."
     }
   },
   "nether": {
     "skulltoss": {
-      "name": "Lancer du crâne Wither",
-      "description1": "Libérez votre Wither intérieur en utilisant",
-      "description2": "quelques uns",
-      "description3": "tête.",
-      "lore1": "Secondes de temps de recharge entre les lancers de crâne.",
-      "lore2": "Utilisation de Wither Skull : lancez un",
-      "lore3": "Crâne de Wither",
-      "lore4": "exploser à l'impact."
+      "name": "Lancer de crane de Wither",
+      "description1": "Liberez votre Wither interieur en utilisant",
+      "description2": "la tete de",
+      "description3": "quelqu'un.",
+      "lore1": "Secondes de temps de recharge entre les lancers de crane.",
+      "lore2": "Avec un crane de Wither : Lancez un ",
+      "lore3": "Crane de Wither",
+      "lore4": "qui explose a l'impact."
     },
     "witherresist": {
-      "name": "Résistance au flétrissement",
-      "description": "Résiste au flétrissement grâce au pouvoir de Netherite.",
-      "lore1": "chance d'annuler le flétrissement (par pièce).",
-      "lore2": "Passif : Porter une armure de Netherite a une chance d'annuler",
-      "lore3": "dépérissement."
+      "name": "Resistance au Wither",
+      "description": "Resiste au fletrissement grace au pouvoir de la Netherite.",
+      "lore1": "chance d'annuler le fletrissement (par piece).",
+      "lore2": "Passif : Porter une armure en Netherite a une chance d'annuler ",
+      "lore3": "le fletrissement."
     },
     "fireresist": {
-      "name": "Résistance au feu",
-      "description": "Résiste au feu en durcissant votre peau.",
-      "lore1": "chance d'annuler l'effet de brûlure !"
+      "name": "Resistance au feu",
+      "description": "Resiste au feu en durcissant votre peau.",
+      "lore1": "chance d'annuler l'effet de brulure !"
     }
   },
   "pickaxe": {
     "autosmelt": {
-      "name": "Fusion automatique",
-      "description": "Vous permet de fondre les minerais de vanille extraits",
-      "lore1": "Les minerais qui peuvent être fondus sont fondus automatiquement",
-      "lore2": "% de chance pour un extra"
+      "name": "Fonte automatique",
+      "description": "Vous permet de fondre les minerais standards mines",
+      "lore1": "Les minerais pouvant etre fondus le sont automatiquement",
+      "lore2": "% de chance d'en obtenir un supplementaire"
     },
     "chisel": {
-      "name": "Ciseau à minerai",
-      "description": "Faites un clic droit sur les minerais pour en extraire plus de minerai, à un coût de durabilité élevé.",
-      "lore1": "Chance de laisser tomber",
-      "lore2": "Usure des outils"
+      "name": "Ciseau a minerai",
+      "description": "Clic droit sur les minerais pour en extraire davantage, au prix d'une forte usure de durabilite.",
+      "lore1": "Chance de drop",
+      "lore2": "Usure de l'outil"
     },
     "droptoinventory": {
-      "name": "Pioche Drop-To-Inventory",
-      "description": "Lorsque vous cassez un bloc, il téléporte l'objet dans votre inventaire",
-      "lore1": "Chaque fois qu'un objet tombe d'un bloc que vous cassez, il va dans votre inventaire s'il le peut."
+      "name": "Pioche : depot direct en inventaire",
+      "description": "Quand vous cassez un bloc, l'objet est teleporte dans votre inventaire",
+      "lore1": "Chaque fois qu'un objet tombe d'un bloc que vous cassez, il va dans votre inventaire si possible."
+    },
+    "silkspawner": {
+      "name": "Pioche toucher de soie sur les generateurs",
+      "description": "Les generateurs de monstres tombent quand ils sont casses",
+      "lore1": "Rend les generateurs cassables avec Toucher de soie.",
+      "lore2": "Rend les generateurs cassables en etant accroupi."
     },
     "veinminer": {
-      "name": "Mineur de veine",
-      "description": "Vous permet de casser des blocs dans une veine/un cluster de minerais de vanille",
-      "lore1": "Sneak, et mine ORES",
-      "lore2": "gamme d'extraction de veines",
-      "lore3": "Cette compétence ne regroupe PAS toutes les gouttes ensemble !"
+      "name": "Mineur de filon",
+      "description": "Vous permet de casser des blocs dans un filon/groupe de minerais standards",
+      "lore1": "Accroupissez-vous et minez les MINERAIS",
+      "lore2": "portee du minage de filon",
+      "lore3": "Cette competence ne regroupe PAS tous les drops ensemble !"
     }
   },
   "ranged": {
     "arrowrecovery": {
-      "name": "Récupération de flèche",
-      "description": "Récupérez des Flèches après avoir tué un ennemi.",
-      "lore1": "Chance de récupérer des flèches en touchant/tuant",
-      "lore2": "Chance:"
+      "name": "Recuperation de fleches",
+      "description": "Recuperez des fleches apres avoir tue un ennemi.",
+      "lore1": "Chance de recuperer des fleches en touchant/tuant",
+      "lore2": "Chance : "
     },
     "webshot": {
-      "name": "Piège Web",
-      "description": "Entourez les toiles d'araignée autour de votre cible lorsque vous la touchez !",
-      "lore1": "8 Toiles d'Araignée autour d'une Boule de Neige, et lancez !",
-      "lore2": "secondes d'une cage, à peu près."
+      "name": "Piege de toile",
+      "description": "Entourez votre cible de toiles d'araignee quand vous la touchez !",
+      "lore1": "8 toiles d'araignee autour d'une boule de neige, et lancez !",
+      "lore2": "secondes de cage, environ."
     },
     "forceshot": {
-      "name": "Tir forcé",
+      "name": "Tir puissant",
       "description": "Tirez des projectiles plus loin, plus vite !",
-      "advancementname": "Tir long",
-      "advancementlore": "Décrochez un tir à plus de 30 pâtés de maisons !",
-      "lore1": "Vitesse des projectiles"
+      "advancementname": "Tir longue distance",
+      "advancementlore": "Touchez une cible a plus de 30 blocs de distance !",
+      "lore1": "Vitesse du projectile"
     },
     "lungeshot": {
-      "name": "Coup de fente",
-      "description": "En tombant vos flèches vous lancent dans une direction aléatoire",
-      "lore1": "Vitesse de rafale aléatoire"
+      "name": "Tir en fente",
+      "description": "En chute, vos fleches vous propulsent dans une direction aleatoire",
+      "lore1": "Vitesse de propulsion aleatoire"
     },
     "arrowpiercing": {
-      "name": "Piercing Flèche",
-      "description": "Ajoute le perçage aux projectiles ! Tirez à travers les choses !",
-      "lore1": "Percer les cibles"
+      "name": "Fleche percante",
+      "description": "Ajoute le percage aux projectiles ! Tirez a travers les choses !",
+      "lore1": "Cibles percees"
     }
   },
   "rift": {
     "remoteaccess": {
-      "name": "Accès à distance",
-      "description": "Tirez du vide et entrez dans un récipient marqué.",
-      "lore1": "Enderpearl + Boussole = Portoloin Reliquaire",
-      "lore2": "Cet article vous permet d'accéder à distance aux conteneurs",
-      "lore3": "Une fois fabriqué, regardez l'article pour voir son utilisation",
+      "name": "Acces a distance",
+      "description": "Puisez dans le vide et accedez a un conteneur marque.",
+      "lore1": "Perle de l'Ender + Boussole = Portoloin reliquaire",
+      "lore2": "Cet objet vous permet d'acceder aux conteneurs a distance",
+      "lore3": "Une fois fabrique, regardez l'objet pour voir son utilisation",
       "notcontainer": "Ce n'est pas un conteneur"
     },
     "blink": {
-      "name": "Clignotement de faille",
-      "description": "Téléportation instantanée à courte portée, en un clin d'œil !",
-      "lore1": "Bloque le clignotement (2x vertical)",
-      "lore2": "Pendant le sprint : appuyez deux fois sur Aller à",
-      "lore3": "Cligner"
+      "name": "Eclair de Faille",
+      "description": "Teleportation instantanee a courte portee, en un clin d'oeil !",
+      "lore1": "Blocs par eclair (2x vertical)",
+      "lore2": "En sprintant : Appuyez deux fois sur Saut pour ",
+      "lore3": "Eclairs"
     },
     "chest": {
-      "name": "Enderchest facile",
-      "description": "Ouvrez un Enderchest en cliquant dessus avec le bouton gauche de votre main.",
-      "lore1": "Cliquez sur un Enderchest dans votre main pour l'ouvrir (mais ne le placez pas)"
+      "name": "Coffre de l'Ender facile",
+      "description": "Ouvrez un coffre de l'Ender en faisant un clic gauche avec en main.",
+      "lore1": "Cliquez sur un coffre de l'Ender dans votre main pour l'ouvrir (ne le placez pas)"
     },
     "descent": {
-      "name": "Anti-lévitation",
-      "description": "Êtes-vous fatigué d'être coincé dans les airs? C'est la compétence pour vous!",
-      "lore1": "Faufilez-vous simplement pour descendre et vous tomberez à un rythme inférieur à la normale !",
-      "lore2": "Refroidir:"
+      "name": "Anti-levitation",
+      "description": "Vous en avez assez d'etre coince en l'air ? Cette competence est faite pour vous !",
+      "lore1": "Accroupissez-vous simplement pour descendre, et vous tomberez a une vitesse inferieure a la normale !",
+      "lore2": "Temps de recharge :"
     },
     "gate": {
-      "name": "Porte de la Faille",
-      "description": "Téléportez-vous à un endroit marqué.",
-      "lore1": "ARTISANAT : Émeraude + Éclat d'améthyste + Perle de l'Ender",
-      "lore2": "A lire avant utilisation !",
-      "lore3": "5s de retard,",
-      "lore4": "vous pouvez mourir pendant que vous êtes dans cette animation"
+      "name": "Portail de Faille",
+      "description": "Teleportez-vous a un emplacement marque.",
+      "lore1": "FABRICATION : Emeraude + Eclat d'amethyste + Perle de l'Ender",
+      "lore2": "Lisez avant d'utiliser !",
+      "lore3": "5s de delai, ",
+      "lore4": "vous pouvez mourir pendant cette animation"
     },
     "resist": {
-      "name": "Résistance à la faille",
-      "description": "Gagnez de la résistance lorsque vous utilisez des objets et des capacités Ender",
-      "lore1": "+ Passif : Fournit une résistance lorsque vous utilisez des capacités de faille ou des objets Ender",
-      "lore2": "N'incluant pas l'Enderchest portable, seules les choses que vous pouvez consommer"
+      "name": "Resistance de Faille",
+      "description": "Gagnez de la resistance en utilisant des objets et capacites de l'Ender",
+      "lore1": "+ Passif : Fournit de la resistance quand vous utilisez des capacites de Faille ou des objets de l'Ender",
+      "lore2": "N'inclut PAS le coffre de l'Ender portable, seulement les objets consommables"
+    },
+    "visage": {
+      "name": "Visage de Faille",
+      "description": "Empeche les Endermen de devenir agressifs si vous avez des perles de l'Ender dans votre inventaire.",
+      "lore1": "Les Endermen ne deviendront pas agressifs si vous avez des perles de l'Ender dans votre inventaire."
     }
   },
   "seaborn": {
     "oxygen": {
-      "name": "Réservoir d'oxygène organique",
-      "description": "Maintenez plus d'oxygène dans vos petits poumons !",
-      "lore1": "Augmentation de la capacité en oxygène"
+      "name": "Reservoir d'oxygene organique",
+      "description": "Retenez plus d'oxygene dans vos petits poumons !",
+      "lore1": "Augmentation de la capacite en oxygene"
     },
     "fishersfantasy": {
-      "name": "Fantaisie de Fisher",
-      "description": "Gagnez plus d'XP en pêchant et obtenez plus de poissons !",
-      "lore1": "Pour chaque niveau, il y a une chance d'obtenir plus d'XP et de poisson !"
+      "name": "Fantaisie du pecheur",
+      "description": "Gagnez plus d'XP en pechant et obtenez plus de poisson !",
+      "lore1": "Pour chaque niveau, il y a une chance d'obtenir plus d'XP et de poisson !"
     },
     "haste": {
-      "name": "Mineur de tortue",
-      "description": "En minant sous l'eau, vous gagnez en hâte !",
-      "lore1": "Haste 3 est appliqué sous l'eau pendant l'exploitation minière (se cumule avec AquaAffinity) après que votre effet de respiration aquatique se soit dissipé !"
+      "name": "Mineur tortue",
+      "description": "En minant sous l'eau, vous gagnez la hate !",
+      "lore1": "Hate 3 est appliquee sous l'eau pendant le minage (se cumule avec Affinite aquatique) apres que votre effet de respiration aquatique se dissipe !"
     },
     "nightvision": {
       "name": "Vision de tortue",
       "description": "Sous l'eau, vous gagnez la vision nocturne",
-      "lore1": "Gagnez simplement la vision nocturne sous l'eau une fois que votre effet de respiration aquatique s'est dissipé !"
+      "lore1": "Gagnez simplement la vision nocturne sous l'eau apres que votre effet de respiration aquatique se dissipe !"
     },
     "dolphingrace": {
-      "name": "La grâce du dauphin",
-      "description": "Nager comme un dauphin, sans les dauphins",
-      "lore1": "+ Passif : gain",
-      "lore2": "x vitesse (grâce des dauphins)",
-      "lore3": "Ingénieur allemand de précision - attendez ce n'est pas bien... Non compatible avec Depth Strider"
+      "name": "Grace du dauphin",
+      "description": "Nagez comme un dauphin, sans les dauphins",
+      "lore1": "+ Passif : gagnez ",
+      "lore2": "x vitesse (grace du dauphin)",
+      "lore3": "Precision allemande de l'ingeni... attendez c'est pas ca... Non compatible avec Pas de profondeur"
     }
   },
   "stealth": {
     "ghostarmor": {
-      "name": "Armure de fantôme",
-      "description": "Construction lente de l'armure lorsqu'elle ne subit pas de dégâts, dure 1 coup",
+      "name": "Armure fantome",
+      "description": "Armure qui se construit lentement quand vous ne subissez pas de degats, dure 1 coup",
       "lore1": "Armure maximale",
-      "lore2": "La rapidité"
+      "lore2": "Vitesse"
     },
     "nightvision": {
       "name": "Vision furtive",
-      "description": "Gagnez en vision nocturne en vous faufilant",
-      "lore1": "Gagnez une rafale de",
+      "description": "Gagnez la vision nocturne en etant accroupi",
+      "lore1": "Gagnez une salve de ",
       "lore2": "vision nocturne",
-      "lore3": "en se faufilant"
+      "lore3": "en etant accroupi"
     },
     "snatch": {
-      "name": "Article extrait",
-      "description": "Arrachez les objets abandonnés instantanément tout en vous faufilant !",
-      "lore1": "Rayon d'arrachement"
+      "name": "Chapardage d'objet",
+      "description": "Ramassez les objets au sol instantanement en etant accroupi !",
+      "lore1": "Rayon de chapardage"
     },
     "speed": {
       "name": "Vitesse furtive",
-      "description": "Gagnez de la vitesse en vous faufilant",
-      "lore1": "Vitesse furtive"
+      "description": "Gagnez de la vitesse en etant accroupi",
+      "lore1": "Vitesse en mode accroupi"
+    },
+    "enderveil": {
+      "name": "Voile de l'Ender",
+      "description": "Plus besoin de citrouilles pour empecher les attaques d'Endermen",
+      "lore1": "Empeche les attaques d'Endermen en etant accroupi",
+      "lore2": "Empeche toutes les attaques d'Endermen"
     }
   },
   "sword": {
     "machete": {
       "name": "Machette",
-      "description": "Coupez facilement le feuillage !",
-      "lore1": "Rayon de barre oblique",
-      "lore2": "Temps de recharge pour hacher",
-      "lore3": "Usure des outils"
+      "description": "Tranchez le feuillage avec facilite !",
+      "lore1": "Rayon de tranche",
+      "lore2": "Temps de recharge de coupe",
+      "lore3": "Usure de l'outil"
     },
     "bloodyblade": {
       "name": "Lame sanglante",
-      "description": "Frappe avec votre épée, cause le saignement !",
-      "lore1": "Frapper une entité vivante avec votre épée provoque un saignement",
-      "lore2": "Durée de saignement",
-      "lore3": "Temps de recharge de saignement"
+      "description": "Les coups d'epee provoquent le saignement !",
+      "lore1": "Frapper une entite vivante avec votre epee provoque le saignement",
+      "lore2": "Duree du saignement",
+      "lore3": "Temps de recharge du saignement"
     },
     "poisonedblade": {
-      "name": "Lame empoisonnée",
-      "description": "Frappe avec votre épée, cause Poison !",
-      "lore1": "Frapper une entité vivante avec votre épée cause du poison",
-      "lore2": "Durée du poison",
+      "name": "Lame empoisonnee",
+      "description": "Les coups d'epee provoquent l'empoisonnement !",
+      "lore1": "Frapper une entite vivante avec votre epee provoque l'empoisonnement",
+      "lore2": "Duree du poison",
       "lore3": "Temps de recharge du poison"
     }
   },
   "taming": {
     "damage": {
-      "name": "Apprivoiser les dégâts",
-      "description": "Augmentez les dégâts que vous infligez aux animaux apprivoisés.",
-      "lore1": "Dégâts accrus"
+      "name": "Degats d'apprivoisement",
+      "description": "Augmentez les degats infliges par vos animaux apprivoises.",
+      "lore1": "Degats augmentes"
     },
     "health": {
-      "name": "Apprivoiser la santé",
-      "description": "Augmentez la santé de votre animal apprivoisé.",
-      "lore1": "La santé amélioré"
+      "name": "Sante d'apprivoisement",
+      "description": "Augmentez la sante de vos animaux apprivoises.",
+      "lore1": "Sante augmentee"
     },
     "regeneration": {
-      "name": "Apprivoiser la régénération",
-      "description": "Augmentez votre régénération animale apprivoisée.",
-      "lore1": "CV/s"
+      "name": "Regeneration d'apprivoisement",
+      "description": "Augmentez la regeneration de vos animaux apprivoises.",
+      "lore1": "PV/s"
     }
   },
   "tragoul": {
     "thorns": {
-      "name": "Les épines",
-      "description": "Renvoyez les dégâts à votre attaquant !",
-      "lore1": "Dégâts subis en cas de coup"
+      "name": "Epines",
+      "description": "Renvoyez les degats a votre attaquant !",
+      "lore1": "Degats renvoyes quand vous etes frappe"
     },
     "globe": {
       "name": "Globe de douleur",
-      "description": "Divisez les dégâts que vous infligez en fonction du nombre d'ennemis autour de vous !",
-      "lore1": "Plus il y a d'ennemis autour de vous, moins vous infligez de dégâts à chacun d'eux",
-      "lore2": "Gamme:",
-      "lore3": "Dégâts ajoutés à toutes les entités :"
+      "description": "Repartissez les degats que vous infligez selon le nombre d'ennemis autour de vous !",
+      "lore1": "Plus il y a d'ennemis autour de vous, moins vous infligez de degats a chacun",
+      "lore2": "Portee : ",
+      "lore3": "Degats supplementaires a toutes les entites : "
     },
     "healing": {
-      "name": "Volonté de douleur",
-      "description": "Retrouver la santé en fonction des dégâts que vous infligez !",
-      "lore1": "Faire du mal aux choses n'a jamais été aussi agréable ! Guérir des dégâts infligés",
-      "lore2": "Il y a une fenêtre de dégâts de 3 secondes, pour la guérison et un temps de recharge de 1 seconde",
-      "lore3": "Soins par pourcentage de dégâts :"
+      "name": "Volonte de souffrance",
+      "description": "Regagnez de la sante en fonction des degats que vous infligez !",
+      "lore1": "Faire du mal n'a jamais fait autant de bien ! Soignez-vous grace aux degats infliges",
+      "lore2": "Il y a une fenetre de degats de 3 secondes, pour le soin et 1 seconde de temps de recharge ",
+      "lore3": "Soin par pourcentage de degats : "
     },
     "lance": {
       "name": "Lances de cadavre",
-      "description": "Tuer un ennemi ou avoir une capacité tuer un ennemi, engendre une lance qui inflige des dégâts à un ennemi proche !",
-      "lore1": "Les lances rechercheront tout ce que vous tuez, ET si cette capacité tue un ennemi.",
-      "lore2": "Sacrifiez une partie de votre vie afin de créer les lances (cela peut vous tuer)",
-      "lore3": "Max Lances : 1 +"
+      "description": "Tuer un ennemi ou qu'une capacite tue un ennemi fait apparaitre une lance qui inflige des degats a un ennemi proche !",
+      "lore1": "Les lances jaillissent de tout ce que vous tuez, ET si cette capacite tue un ennemi.",
+      "lore2": "Sacrifiez une partie de votre vie pour creer les lances (cela peut vous tuer)",
+      "lore3": "Lances max : 1 + "
     }
   },
   "unarmed": {
     "glasscannon": {
       "name": "Canon de verre",
-      "description": "Bonus de dégâts à mains nues plus votre valeur d'armure est basse",
-      "lore1": "x Dégâts à 0 armure",
-      "lore2": "Dégâts bonus par niveau"
+      "description": "Bonus de degats a mains nues plus votre valeur d'armure est basse",
+      "lore1": "x degats a 0 armure",
+      "lore2": "Degats bonus par niveau"
     },
     "power": {
-      "name": "Puissance non armée",
-      "description": "Dégâts à mains nues améliorés",
-      "lore1": "Dégâts"
+      "name": "Puissance a mains nues",
+      "description": "Degats a mains nues ameliores",
+      "lore1": "Degats"
     },
     "suckerpunch": {
-      "name": "Sucker Punch",
-      "description": "Coups de poing Sprint, mais plus mortels.",
-      "lore1": "Dégâts",
-      "lore2": "Les dégâts augmentent avec votre vitesse de frappe"
+      "name": "Coup en traitre",
+      "description": "Coups de poing en sprint, mais plus mortels.",
+      "lore1": "Degats",
+      "lore2": "Les degats augmentent avec votre vitesse lors de la frappe"
     }
   }
 }
