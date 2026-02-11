@@ -18,7 +18,7 @@
 
 package com.volmit.adapt.content.adaptation.ranged;
 
-import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
@@ -52,7 +52,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
                 .key("challenge_force_30")
                 .title(Localizer.dLocalize("ranged", "forceshot", "advancementname"))
                 .description(Localizer.dLocalize("ranged", "forceshot", "advancementlore"))
-                .frame(AdvancementFrameType.CHALLENGE)
+                .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
     }

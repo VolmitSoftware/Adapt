@@ -18,7 +18,7 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -66,7 +66,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                 .title(Localizer.dLocalize("advancement", "challenge_pickaxe_1k", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_pickaxe_1k", "description"))
                 .model(CustomModel.get(Material.WOODEN_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_1k"))
-                .frame(AdvancementFrameType.CHALLENGE)
+                .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.STONE_PICKAXE)
@@ -74,7 +74,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                         .title(Localizer.dLocalize("advancement", "challenge_pickaxe_5k", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_pickaxe_5k", "description"))
                         .model(CustomModel.get(Material.STONE_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_5k"))
-                        .frame(AdvancementFrameType.CHALLENGE)
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.IRON_PICKAXE)
@@ -82,7 +82,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                                 .title(Localizer.dLocalize("advancement", "challenge_pickaxe_50k", "title"))
                                 .description(Localizer.dLocalize("advancement", "challenge_pickaxe_50k", "description"))
                                 .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_50k"))
-                                .frame(AdvancementFrameType.CHALLENGE)
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                 .child(AdaptAdvancement.builder()
                                         .icon(Material.DIAMOND_PICKAXE)
@@ -90,7 +90,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                                         .title(Localizer.dLocalize("advancement", "challenge_pickaxe_500k", "title"))
                                         .description(Localizer.dLocalize("advancement", "challenge_pickaxe_500k", "description"))
                                         .model(CustomModel.get(Material.DIAMOND_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_500k"))
-                                        .frame(AdvancementFrameType.CHALLENGE)
+                                        .frame(AdaptAdvancementFrame.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                                         .child(AdaptAdvancement.builder()
                                                 .icon(Material.NETHERITE_PICKAXE)
@@ -98,7 +98,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                                                 .title(Localizer.dLocalize("advancement", "challenge_pickaxe_5m", "title"))
                                                 .description(Localizer.dLocalize("advancement", "challenge_pickaxe_5m", "description"))
                                                 .model(CustomModel.get(Material.NETHERITE_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_5m"))
-                                                .frame(AdvancementFrameType.CHALLENGE)
+                                                .frame(AdaptAdvancementFrame.CHALLENGE)
                                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                                 .build())
                                         .build())

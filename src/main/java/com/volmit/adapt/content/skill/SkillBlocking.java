@@ -18,7 +18,7 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -64,35 +64,35 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
                 .title(Localizer.dLocalize("advancement", "challenge_block_1k", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_block_1k", "description"))
                 .model(CustomModel.get(Material.LEATHER_CHESTPLATE, "advancement", "blocking", "challenge_block_1k"))
-                .frame(AdvancementFrameType.CHALLENGE)
+                .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.CHAINMAIL_CHESTPLATE)
                         .key("challenge_block_5k")
                         .title(Localizer.dLocalize("advancement", "challenge_block_5k", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_block_5k", "description"))
                         .model(CustomModel.get(Material.CHAINMAIL_CHESTPLATE, "advancement", "blocking", "challenge_block_5k"))
-                        .frame(AdvancementFrameType.CHALLENGE)
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.IRON_CHESTPLATE)
                                 .key("challenge_block_50k")
                                 .title(Localizer.dLocalize("advancement", "challenge_block_50k", "title"))
                                 .description(Localizer.dLocalize("advancement", "challenge_block_50k", "description"))
                                 .model(CustomModel.get(Material.IRON_CHESTPLATE, "advancement", "blocking", "challenge_block_50k"))
-                                .frame(AdvancementFrameType.CHALLENGE)
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                         .icon(Material.GOLDEN_CHESTPLATE)
                                         .key("challenge_block_500k")
                                         .title(Localizer.dLocalize("advancement", "challenge_block_500k", "title"))
                                         .description(Localizer.dLocalize("advancement", "challenge_block_500k", "description"))
                                         .model(CustomModel.get(Material.GOLDEN_CHESTPLATE, "advancement", "blocking", "challenge_block_500k"))
-                                        .frame(AdvancementFrameType.CHALLENGE)
+                                        .frame(AdaptAdvancementFrame.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                                 .icon(Material.DIAMOND_CHESTPLATE)
                                                 .key("challenge_block_5m")
                                                 .title(Localizer.dLocalize("advancement", "challenge_block_5m", "title"))
                                                 .description(Localizer.dLocalize("advancement", "challenge_block_5m", "description"))
                                                 .model(CustomModel.get(Material.DIAMOND_CHESTPLATE, "advancement", "blocking", "challenge_block_5m"))
-                                                .frame(AdvancementFrameType.CHALLENGE)
+                                                .frame(AdaptAdvancementFrame.CHALLENGE)
                                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                                 .build())
                                         .build())

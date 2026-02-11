@@ -178,10 +178,16 @@ public class Adapt extends VolmitPlugin {
     }
 
     public void stopSim() {
-        ticker.clear();
+        if (ticker != null) {
+            ticker.clear();
+        }
         postShutdown.forEach(Runnable::run);
-        adaptServer.unregister();
-        manager.disable();
+        if (adaptServer != null) {
+            adaptServer.unregister();
+        }
+        if (manager != null) {
+            manager.disable();
+        }
         MaterialValue.save();
         WorldData.stop();
         CustomModel.clear();
@@ -190,12 +196,22 @@ public class Adapt extends VolmitPlugin {
 
     @Override
     public void stop() {
-        services.values().forEach(AdaptService::onDisable);
-        sqlManager.closeConnection();
+        if (services != null) {
+            services.values().forEach(AdaptService::onDisable);
+        }
+        if (sqlManager != null) {
+            sqlManager.closeConnection();
+        }
         stopSim();
-        glowingEntities.disable();
-        protectorRegistry.unregisterAll();
-        services.clear();
+        if (glowingEntities != null) {
+            glowingEntities.disable();
+        }
+        if (protectorRegistry != null) {
+            protectorRegistry.unregisterAll();
+        }
+        if (services != null) {
+            services.clear();
+        }
     }
 
     private void startupPrint() {

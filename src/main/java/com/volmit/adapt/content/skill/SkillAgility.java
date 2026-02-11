@@ -18,7 +18,7 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -65,7 +65,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                 .title(Localizer.dLocalize("advancement", "challenge_move_1k", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_move_1k", "description"))
                 .model(CustomModel.get(Material.LEATHER_BOOTS, "advancement", "agility", "challenge_move_1k"))
-                .frame(AdvancementFrameType.CHALLENGE)
+                .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.IRON_BOOTS)
@@ -73,21 +73,21 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                         .title(Localizer.dLocalize("advancement", "challenge_sprint_5k", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_sprint_5k", "description"))
                         .model(CustomModel.get(Material.IRON_BOOTS, "advancement", "agility", "challenge_sprint_5k"))
-                        .frame(AdvancementFrameType.CHALLENGE)
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.DIAMOND_BOOTS)
                                 .key("challenge_sprint_50k")
                                 .title(Localizer.dLocalize("advancement", "challenge_sprint_50k", "title"))
                                 .description(Localizer.dLocalize("advancement", "challenge_sprint_50k", "description"))
                                 .model(CustomModel.get(Material.DIAMOND_BOOTS, "advancement", "agility", "challenge_sprint_50k"))
-                                .frame(AdvancementFrameType.CHALLENGE)
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                         .icon(Material.NETHERITE_BOOTS)
                                         .key("challenge_sprint_500k")
                                         .title(Localizer.dLocalize("advancement", "challenge_sprint_500k", "title"))
                                         .description(Localizer.dLocalize("advancement", "challenge_sprint_500k", "description"))
                                         .model(CustomModel.get(Material.NETHERITE_BOOTS, "advancement", "agility", "challenge_sprint_500k"))
-                                        .frame(AdvancementFrameType.CHALLENGE)
+                                        .frame(AdaptAdvancementFrame.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                                         .build())
                                 .build())
@@ -98,7 +98,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
                         .title(Localizer.dLocalize("advancement", "challenge_sprint_marathon", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_sprint_marathon", "description"))
                         .model(CustomModel.get(Material.GOLDEN_BOOTS, "advancement", "agility", "challenge_sprint_marathon"))
-                        .frame(AdvancementFrameType.CHALLENGE)
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .build())
                 .build());

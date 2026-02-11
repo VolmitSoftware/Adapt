@@ -31,6 +31,7 @@ public class AdvancementManager {
             loadedMain.load();
             loaded.set(true);
         } catch (Throwable e) {
+            loadedMain = null;
             Adapt.warn("UltimateAdvancementAPI is unavailable: " + e.getMessage() + ". Advancements will be disabled.");
         }
 

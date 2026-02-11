@@ -18,7 +18,7 @@
 
 package com.volmit.adapt.content.skill;
 
-import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
@@ -60,35 +60,35 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
                 .title(Localizer.dLocalize("advancement", "challenge_enchant_1k", "title"))
                 .description(Localizer.dLocalize("advancement", "challenge_enchant_1k", "description"))
                 .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "enchanting", "challenge_enchant_1k"))
-                .frame(AdvancementFrameType.CHALLENGE)
+                .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                         .icon(Material.KNOWLEDGE_BOOK)
                         .key("challenge_enchant_5k")
                         .title(Localizer.dLocalize("advancement", "challenge_enchant_5k", "title"))
                         .description(Localizer.dLocalize("advancement", "challenge_enchant_5k", "description"))
                         .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_5k"))
-                        .frame(AdvancementFrameType.CHALLENGE)
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                 .icon(Material.KNOWLEDGE_BOOK)
                                 .key("challenge_enchant_50k")
                                 .title(Localizer.dLocalize("advancement", "challenge_enchant_50k", "title"))
                                 .description(Localizer.dLocalize("advancement", "challenge_enchant_50k", "description"))
                                 .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_50k"))
-                                .frame(AdvancementFrameType.CHALLENGE)
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                         .icon(Material.KNOWLEDGE_BOOK)
                                         .key("challenge_enchant_500k")
                                         .title(Localizer.dLocalize("advancement", "challenge_enchant_500k", "title"))
                                         .description(Localizer.dLocalize("advancement", "challenge_enchant_500k", "description"))
                                         .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_500k"))
-                                        .frame(AdvancementFrameType.CHALLENGE)
+                                        .frame(AdaptAdvancementFrame.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
                                                 .icon(Material.KNOWLEDGE_BOOK)
                                                 .key("challenge_enchant_5m")
                                                 .title(Localizer.dLocalize("advancement", "challenge_enchant_5m", "title"))
                                                 .description(Localizer.dLocalize("advancement", "challenge_enchant_5m", "description"))
                                                 .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_5m"))
-                                                .frame(AdvancementFrameType.CHALLENGE)
+                                                .frame(AdaptAdvancementFrame.CHALLENGE)
                                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                                 .build())
                                         .build())

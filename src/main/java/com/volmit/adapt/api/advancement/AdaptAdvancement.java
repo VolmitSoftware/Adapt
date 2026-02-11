@@ -24,7 +24,6 @@ import com.fren_gor.ultimateAdvancementAPI.advancement.Advancement;
 import com.fren_gor.ultimateAdvancementAPI.advancement.BaseAdvancement;
 import com.fren_gor.ultimateAdvancementAPI.advancement.RootAdvancement;
 import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementDisplay;
-import com.fren_gor.ultimateAdvancementAPI.advancement.display.AdvancementFrameType;
 import com.fren_gor.ultimateAdvancementAPI.database.TeamProgression;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.util.CustomModel;
@@ -53,7 +52,7 @@ public class AdaptAdvancement {
     @Builder.Default
     private String description = "MISSING DESCRIPTION";
     @Builder.Default
-    private AdvancementFrameType frame = AdvancementFrameType.TASK;
+    private AdaptAdvancementFrame frame = AdaptAdvancementFrame.TASK;
     @Builder.Default
     private boolean toast = false;
     @Builder.Default
@@ -75,7 +74,7 @@ public class AdaptAdvancement {
                 new ItemStack(getIcon());
         AdvancementDisplay d = new AdvancementDisplay.Builder(icon, getTitle())
                 .description(getDescription())
-                .frame(getFrame())
+                .frame(getFrame().toUaaFrame())
                 .showToast(toast)
                 .x(1f + depth)
                 .y(1f + index)
