@@ -259,6 +259,118 @@
     "challenge_sneak_1k": {
       "title": "膝蓋好痛",
       "description": "潛行超過 1 公里（1,000 格方塊）"
+    },
+    "challenge_sneak_5k": {
+      "title": "暗影行者",
+      "description": "潛行超過 5,000 格方塊"
+    },
+    "challenge_sneak_20k": {
+      "title": "幽靈",
+      "description": "潛行超過 20,000 格方塊"
+    },
+    "challenge_swim_5k": {
+      "title": "深海潛水員",
+      "description": "游泳超過 5,000 格方塊"
+    },
+    "challenge_swim_20k": {
+      "title": "海神之選",
+      "description": "游泳超過 20,000 格方塊"
+    },
+    "challenge_sword_100": {
+      "title": "初見血光",
+      "description": "用劍命中 100 次"
+    },
+    "challenge_sword_1k": {
+      "title": "劍舞者",
+      "description": "用劍命中 1,000 次"
+    },
+    "challenge_sword_10k": {
+      "title": "千刀萬剮",
+      "description": "用劍命中 10,000 次"
+    },
+    "challenge_unarmed_100": {
+      "title": "酒吧打手",
+      "description": "徒手命中 100 次"
+    },
+    "challenge_unarmed_1k": {
+      "title": "鐵拳",
+      "description": "徒手命中 1,000 次"
+    },
+    "challenge_unarmed_10k": {
+      "title": "一拳超人",
+      "description": "徒手命中 10,000 次"
+    },
+    "challenge_trag_1k": {
+      "title": "血的代價",
+      "description": "承受 1,000 點傷害"
+    },
+    "challenge_trag_10k": {
+      "title": "赤潮",
+      "description": "承受 10,000 點傷害"
+    },
+    "challenge_trag_100k": {
+      "title": "苦難化身",
+      "description": "承受 100,000 點傷害"
+    },
+    "challenge_ranged_100": {
+      "title": "靶場練習",
+      "description": "發射 100 枚彈射物"
+    },
+    "challenge_ranged_1k": {
+      "title": "鷹眼",
+      "description": "發射 1,000 枚彈射物"
+    },
+    "challenge_ranged_10k": {
+      "title": "箭雨風暴",
+      "description": "發射 10,000 枚彈射物"
+    },
+    "challenge_chronos_1h": {
+      "title": "滴答滴答",
+      "description": "在線 1 小時"
+    },
+    "challenge_chronos_24h": {
+      "title": "時間之沙",
+      "description": "在線 24 小時"
+    },
+    "challenge_chronos_168h": {
+      "title": "永恆不朽",
+      "description": "在線 168 小時（1 週）"
+    },
+    "challenge_nether_50": {
+      "title": "地獄守門人",
+      "description": "擊殺 50 隻地獄生物"
+    },
+    "challenge_nether_500": {
+      "title": "深淵守望者",
+      "description": "擊殺 500 隻地獄生物"
+    },
+    "challenge_nether_5k": {
+      "title": "地獄之主",
+      "description": "擊殺 5,000 隻地獄生物"
+    },
+    "challenge_rift_50": {
+      "title": "空間異常",
+      "description": "傳送 50 次"
+    },
+    "challenge_rift_500": {
+      "title": "虛空行者",
+      "description": "傳送 500 次"
+    },
+    "challenge_rift_5k": {
+      "title": "穿梭世界",
+      "description": "傳送 5,000 次"
+    },
+    "challenge_taming_10": {
+      "title": "動物低語者",
+      "description": "繁殖 10 隻動物"
+    },
+    "challenge_taming_50": {
+      "title": "獸群首領",
+      "description": "繁殖 50 隻動物"
+    },
+    "challenge_taming_500": {
+      "title": "馴獸大師",
+      "description": "繁殖 500 隻動物"
     }
   },
   "items": {

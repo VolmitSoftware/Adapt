@@ -21,104 +21,104 @@
       "description": "Sprint over 42,195 Blocks!"
     },
     "challenge_place_1k": {
-      "title": "Novice Builder!",
-      "description": "Place 1,000 Blocks"
+      "title": "Foundation Layer",
+      "description": "Place 1,000 blocks"
     },
     "challenge_place_5k": {
-      "title": "Intermediate Builder!",
-      "description": "Place 5,000 Blocks"
+      "title": "Rising Walls",
+      "description": "Place 5,000 blocks"
     },
     "challenge_place_50k": {
-      "title": "Advanced Builder!",
-      "description": "Place 50,000 Blocks"
+      "title": "City Planner",
+      "description": "Place 50,000 blocks"
     },
     "challenge_place_500k": {
-      "title": "Master Builder!",
-      "description": "Place 500,000 Blocks"
+      "title": "World Shaper",
+      "description": "Place 500,000 blocks"
     },
     "challenge_place_5m": {
-      "title": "Symmetry's Acolyte!",
-      "description": "REALITY IS YOUR PLAYGROUND! (5 Million Blocks)"
+      "title": "Symmetry's Acolyte",
+      "description": "Place 5,000,000 blocks"
     },
     "challenge_chop_1k": {
-      "title": "Novice Lumberjack!",
-      "description": "Chop 1,000 Blocks"
+      "title": "Splinter Collector",
+      "description": "Chop 1,000 blocks"
     },
     "challenge_chop_5k": {
-      "title": "Intermediate Lumberjack!",
-      "description": "Chop 5,000 Blocks"
+      "title": "Timber!",
+      "description": "Chop 5,000 blocks"
     },
     "challenge_chop_50k": {
-      "title": "Advanced Lumberjack!",
-      "description": "Chop 50,000 Blocks"
+      "title": "Deforester",
+      "description": "Chop 50,000 blocks"
     },
     "challenge_chop_500k": {
-      "title": "Master Lumberjack!",
-      "description": "Chop 500,000 Blocks"
+      "title": "Paul Bunyan",
+      "description": "Chop 500,000 blocks"
     },
     "challenge_chop_5m": {
       "title": "Jackson the Dog",
-      "description": "The bestest good Boy! (5 Million Blocks)"
+      "description": "The bestest good Boy! (5 Million blocks)"
     },
     "challenge_block_1k": {
-      "title": "Barely Blocking!",
-      "description": "Block 1000 Hits"
+      "title": "Shield Bearer",
+      "description": "Block 1,000 hits"
     },
     "challenge_block_5k": {
-      "title": "Blocking is Fun!",
-      "description": "Block 5000 Hits"
+      "title": "Iron Wall",
+      "description": "Block 5,000 hits"
     },
     "challenge_block_50k": {
-      "title": "Blocking is my life!",
-      "description": "Block 50,000 Hits"
+      "title": "Immovable Object",
+      "description": "Block 50,000 hits"
     },
     "challenge_block_500k": {
-      "title": "Blocking is my Purpose!",
-      "description": "Block 500,000 Hits"
+      "title": "Living Fortress",
+      "description": "Block 500,000 hits"
     },
     "challenge_block_5m": {
       "title": "Die Hand Die Verletzt",
-      "description": "Block 5,000,000 Hits"
+      "description": "Block 5,000,000 hits"
     },
     "challenge_brew_1k": {
-      "title": "Novice Alchemist!",
-      "description": "Consume 1000 Potions"
+      "title": "Bottoms Up",
+      "description": "Consume 1,000 potions"
     },
     "challenge_brew_5k": {
-      "title": "Intermediate Alchemist!",
-      "description": "Consume 5000 Potions"
+      "title": "Potion Addict",
+      "description": "Consume 5,000 potions"
     },
     "challenge_brew_50k": {
-      "title": "Advanced Alchemist!",
-      "description": "Consume 50,000 Potions"
+      "title": "Elixir Connoisseur",
+      "description": "Consume 50,000 potions"
     },
     "challenge_brew_500k": {
-      "title": "Master Alchemist!",
-      "description": "Consume 500,000 Potions"
+      "title": "Liquid Courage",
+      "description": "Consume 500,000 potions"
     },
     "challenge_brew_5m": {
       "title": "The Alchemist",
-      "description": "Consume 5,000,000 Potions"
+      "description": "Consume 5,000,000 potions"
     },
     "challenge_brewsplash_1k": {
-      "title": "Novice Potion-Splasher!",
-      "description": "Splash 1000 Potions"
+      "title": "Glass Cannon",
+      "description": "Splash 1,000 potions"
     },
     "challenge_brewsplash_5k": {
-      "title": "Intermediate Potion-Splasher!",
-      "description": "Splash 5000 Potions"
+      "title": "Area Denial",
+      "description": "Splash 5,000 potions"
     },
     "challenge_brewsplash_50k": {
-      "title": "Advanced Potion-Splasher!",
-      "description": "Splash 50,000 Potions"
+      "title": "Chemical Warfare",
+      "description": "Splash 50,000 potions"
     },
     "challenge_brewsplash_500k": {
-      "title": "Master Potion-Splasher!",
-      "description": "Splash 500,000 Potions"
+      "title": "Rain of Reagents",
+      "description": "Splash 500,000 potions"
     },
     "challenge_brewsplash_5m": {
       "title": "The Splash Meister",
-      "description": "Splash 5,000,000 Potions"
+      "description": "Splash 5,000,000 potions"
     },
     "challenge_craft_1k": {
       "title": "Crafty Crafter!",
@@ -141,44 +141,44 @@
       "description": "Craft 5,000,000 Items"
     },
     "challenge_enchant_1k": {
-      "title": "Novice Enchanter!",
-      "description": "Enchant 1000 Items"
+      "title": "Arcane Dabbler",
+      "description": "Enchant 1,000 items"
     },
     "challenge_enchant_5k": {
-      "title": "Intermediate Enchanter!",
-      "description": "Enchant 5000 Items"
+      "title": "Runeweaver",
+      "description": "Enchant 5,000 items"
     },
     "challenge_enchant_50k": {
-      "title": "Advanced Enchanter!",
-      "description": "Enchant 50,000 Items"
+      "title": "Mystic Artisan",
+      "description": "Enchant 50,000 items"
     },
     "challenge_enchant_500k": {
-      "title": "Master Enchanter!",
-      "description": "Enchant 500,000 Items"
+      "title": "Archmage",
+      "description": "Enchant 500,000 items"
     },
     "challenge_enchant_5m": {
       "title": "Enigmatic Enchanter",
-      "description": "Enchant 5,000,000 Items"
+      "description": "Enchant 5,000,000 items"
     },
     "challenge_excavate_1k": {
-      "title": "Enticed Excavator!",
-      "description": "Excavate 1000 Blocks"
+      "title": "Dirt Mover",
+      "description": "Excavate 1,000 blocks"
     },
     "challenge_excavate_5k": {
-      "title": "Intermediate Excavator!",
-      "description": "Excavate 5000 Blocks"
+      "title": "Trench Digger",
+      "description": "Excavate 5,000 blocks"
     },
     "challenge_excavate_50k": {
-      "title": "Advanced Excavator!",
-      "description": "Excavate 50,000 Blocks"
+      "title": "Canyon Carver",
+      "description": "Excavate 50,000 blocks"
     },
     "challenge_excavate_500k": {
-      "title": "Master Excavator!",
-      "description": "Excavate 500,000 Blocks"
+      "title": "Terrain Sculptor",
+      "description": "Excavate 500,000 blocks"
     },
     "challenge_excavate_5m": {
-      "title": "Enigmatic Excavator",
-      "description": "Excavate 5,000,000 Blocks"
+      "title": "Geological Anomaly",
+      "description": "Excavate 5,000,000 blocks"
     },
     "horrible_person": {
       "title": "You're a Horrible Person",
@@ -193,16 +193,16 @@
       "description": "Break 500 turtle eggs"
     },
     "challenge_novice_hunter": {
-      "title": "Novice Hunter!",
+      "title": "Predator's Instinct",
       "description": "Kill 100 entities"
     },
     "challenge_intermediate_hunter": {
-      "title": "Intermediate Hunter!",
+      "title": "Apex Predator",
       "description": "Kill 500 entities"
     },
     "challenge_advanced_hunter": {
-      "title": "Advanced Hunter!",
-      "description": "Kill 5000 entities"
+      "title": "Extinction Event",
+      "description": "Kill 5,000 entities"
     },
     "challenge_creeper_conqueror": {
       "title": "Creeper Conqueror!",
@@ -213,24 +213,24 @@
       "description": "Kill 200 creepers"
     },
     "challenge_pickaxe_1k": {
-      "title": "Novice Miner",
-      "description": "Break 1000 Blocks"
+      "title": "Rock Breaker",
+      "description": "Break 1,000 blocks with a pickaxe"
     },
     "challenge_pickaxe_5k": {
-      "title": "Skilled Miner",
-      "description": "Break 5000 Blocks"
+      "title": "Tunnel Rat",
+      "description": "Break 5,000 blocks with a pickaxe"
     },
     "challenge_pickaxe_50k": {
-      "title": "Expert Miner",
-      "description": "Break 50,000 Blocks"
+      "title": "Dwarven Heritage",
+      "description": "Break 50,000 blocks with a pickaxe"
     },
     "challenge_pickaxe_500k": {
-      "title": "Master Miner",
-      "description": "Break 500,000 Blocks"
+      "title": "Core Breacher",
+      "description": "Break 500,000 blocks with a pickaxe"
     },
     "challenge_pickaxe_5m": {
-      "title": "Legendary Miner",
-      "description": "Break 5,000,000 Blocks"
+      "title": "World Eater",
+      "description": "Break 5,000,000 blocks with a pickaxe"
     },
     "challenge_eat_100": {
       "title": "So much to eat!",
@@ -253,12 +253,124 @@
       "description": "Harvest over 1,000 crops!"
     },
     "challenge_swim_1nm": {
-      "title": "Human Submarine!",
+      "title": "Human Submarine",
       "description": "Swim 1 Nautical Mile (1,852 blocks)"
+    },
+    "challenge_swim_5k": {
+      "title": "Deep Diver",
+      "description": "Swim over 5,000 blocks"
+    },
+    "challenge_swim_20k": {
+      "title": "Poseidon's Chosen",
+      "description": "Swim over 20,000 blocks"
     },
     "challenge_sneak_1k": {
       "title": "Knee Pain",
       "description": "Sneak over a kilometer (1,000 blocks)"
+    },
+    "challenge_sneak_5k": {
+      "title": "Shadow Walker",
+      "description": "Sneak over 5,000 blocks"
+    },
+    "challenge_sneak_20k": {
+      "title": "Ghost",
+      "description": "Sneak over 20,000 blocks"
+    },
+    "challenge_sword_100": {
+      "title": "First Blood",
+      "description": "Land 100 hits with a sword"
+    },
+    "challenge_sword_1k": {
+      "title": "Blade Dancer",
+      "description": "Land 1,000 hits with a sword"
+    },
+    "challenge_sword_10k": {
+      "title": "Thousand Cuts",
+      "description": "Land 10,000 hits with a sword"
+    },
+    "challenge_unarmed_100": {
+      "title": "Bar Brawler",
+      "description": "Land 100 unarmed hits"
+    },
+    "challenge_unarmed_1k": {
+      "title": "Iron Fists",
+      "description": "Land 1,000 unarmed hits"
+    },
+    "challenge_unarmed_10k": {
+      "title": "One Punch",
+      "description": "Land 10,000 unarmed hits"
+    },
+    "challenge_trag_1k": {
+      "title": "Blood Price",
+      "description": "Receive 1,000 damage"
+    },
+    "challenge_trag_10k": {
+      "title": "Crimson Tide",
+      "description": "Receive 10,000 damage"
+    },
+    "challenge_trag_100k": {
+      "title": "Avatar of Suffering",
+      "description": "Receive 100,000 damage"
+    },
+    "challenge_ranged_100": {
+      "title": "Target Practice",
+      "description": "Fire 100 projectiles"
+    },
+    "challenge_ranged_1k": {
+      "title": "Hawkeye",
+      "description": "Fire 1,000 projectiles"
+    },
+    "challenge_ranged_10k": {
+      "title": "Storm of Arrows",
+      "description": "Fire 10,000 projectiles"
+    },
+    "challenge_chronos_1h": {
+      "title": "Tick Tock",
+      "description": "Spend 1 hour online"
+    },
+    "challenge_chronos_24h": {
+      "title": "Sands of Time",
+      "description": "Spend 24 hours online"
+    },
+    "challenge_chronos_168h": {
+      "title": "Timeless",
+      "description": "Spend 168 hours (1 week) online"
+    },
+    "challenge_nether_50": {
+      "title": "Hell's Gatekeeper",
+      "description": "Slay 50 nether creatures"
+    },
+    "challenge_nether_500": {
+      "title": "Abyssal Warden",
+      "description": "Slay 500 nether creatures"
+    },
+    "challenge_nether_5k": {
+      "title": "Lord of the Nether",
+      "description": "Slay 5,000 nether creatures"
+    },
+    "challenge_rift_50": {
+      "title": "Spatial Anomaly",
+      "description": "Teleport 50 times"
+    },
+    "challenge_rift_500": {
+      "title": "Void Walker",
+      "description": "Teleport 500 times"
+    },
+    "challenge_rift_5k": {
+      "title": "Between Worlds",
+      "description": "Teleport 5,000 times"
+    },
+    "challenge_taming_10": {
+      "title": "Animal Whisperer",
+      "description": "Breed 10 animals"
+    },
+    "challenge_taming_50": {
+      "title": "Pack Leader",
+      "description": "Breed 50 animals"
+    },
+    "challenge_taming_500": {
+      "title": "Beastmaster",
+      "description": "Breed 500 animals"
     }
   },
   "items": {

@@ -259,6 +259,118 @@
     "challenge_sneak_1k": {
       "title": "Dor nos Joelhos",
       "description": "Agache-se por mais de um quilometro (1.000 blocos)"
+    },
+    "challenge_sneak_5k": {
+      "title": "Caminhante das Sombras",
+      "description": "Agache-se por mais de 5.000 blocos"
+    },
+    "challenge_sneak_20k": {
+      "title": "Fantasma",
+      "description": "Agache-se por mais de 20.000 blocos"
+    },
+    "challenge_swim_5k": {
+      "title": "Mergulhador Profundo",
+      "description": "Nade mais de 5.000 blocos"
+    },
+    "challenge_swim_20k": {
+      "title": "Escolhido de Poseidon",
+      "description": "Nade mais de 20.000 blocos"
+    },
+    "challenge_sword_100": {
+      "title": "Primeiro Sangue",
+      "description": "Acerte 100 golpes com uma espada"
+    },
+    "challenge_sword_1k": {
+      "title": "Dancarina das Laminas",
+      "description": "Acerte 1.000 golpes com uma espada"
+    },
+    "challenge_sword_10k": {
+      "title": "Mil Cortes",
+      "description": "Acerte 10.000 golpes com uma espada"
+    },
+    "challenge_unarmed_100": {
+      "title": "Brigao de Bar",
+      "description": "Acerte 100 golpes desarmado"
+    },
+    "challenge_unarmed_1k": {
+      "title": "Punhos de Ferro",
+      "description": "Acerte 1.000 golpes desarmado"
+    },
+    "challenge_unarmed_10k": {
+      "title": "Um Soco",
+      "description": "Acerte 10.000 golpes desarmado"
+    },
+    "challenge_trag_1k": {
+      "title": "Preco de Sangue",
+      "description": "Receba 1.000 de dano"
+    },
+    "challenge_trag_10k": {
+      "title": "Mare Vermelha",
+      "description": "Receba 10.000 de dano"
+    },
+    "challenge_trag_100k": {
+      "title": "Avatar do Sofrimento",
+      "description": "Receba 100.000 de dano"
+    },
+    "challenge_ranged_100": {
+      "title": "Pratica de Tiro",
+      "description": "Dispare 100 projeteis"
+    },
+    "challenge_ranged_1k": {
+      "title": "Olho de Falcao",
+      "description": "Dispare 1.000 projeteis"
+    },
+    "challenge_ranged_10k": {
+      "title": "Tempestade de Flechas",
+      "description": "Dispare 10.000 projeteis"
+    },
+    "challenge_chronos_1h": {
+      "title": "Tic-Tac",
+      "description": "Passe 1 hora online"
+    },
+    "challenge_chronos_24h": {
+      "title": "Areias do Tempo",
+      "description": "Passe 24 horas online"
+    },
+    "challenge_chronos_168h": {
+      "title": "Eterno",
+      "description": "Passe 168 horas (1 semana) online"
+    },
+    "challenge_nether_50": {
+      "title": "Guardiao do Inferno",
+      "description": "Mate 50 criaturas do Nether"
+    },
+    "challenge_nether_500": {
+      "title": "Sentinela Abissal",
+      "description": "Mate 500 criaturas do Nether"
+    },
+    "challenge_nether_5k": {
+      "title": "Senhor do Nether",
+      "description": "Mate 5.000 criaturas do Nether"
+    },
+    "challenge_rift_50": {
+      "title": "Anomalia Espacial",
+      "description": "Teleporte-se 50 vezes"
+    },
+    "challenge_rift_500": {
+      "title": "Caminhante do Vazio",
+      "description": "Teleporte-se 500 vezes"
+    },
+    "challenge_rift_5k": {
+      "title": "Entre Mundos",
+      "description": "Teleporte-se 5.000 vezes"
+    },
+    "challenge_taming_10": {
+      "title": "Encantador de Animais",
+      "description": "Crie 10 animais"
+    },
+    "challenge_taming_50": {
+      "title": "Lider da Matilha",
+      "description": "Crie 50 animais"
+    },
+    "challenge_taming_500": {
+      "title": "Mestre das Feras",
+      "description": "Crie 500 animais"
     }
   },
   "items": {

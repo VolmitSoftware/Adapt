@@ -259,6 +259,118 @@
     "challenge_sneak_1k": {
       "title": "Dolor de rodillas",
       "description": "Agachate mas de un kilometro (1,000 bloques)"
+    },
+    "challenge_sneak_5k": {
+      "title": "Caminante de Sombras",
+      "description": "Agachate mas de 5,000 bloques"
+    },
+    "challenge_sneak_20k": {
+      "title": "Fantasma",
+      "description": "Agachate mas de 20,000 bloques"
+    },
+    "challenge_swim_5k": {
+      "title": "Buceador Profundo",
+      "description": "Nada mas de 5,000 bloques"
+    },
+    "challenge_swim_20k": {
+      "title": "Elegido de Poseidon",
+      "description": "Nada mas de 20,000 bloques"
+    },
+    "challenge_sword_100": {
+      "title": "Primera Sangre",
+      "description": "Golpea 100 veces con una espada"
+    },
+    "challenge_sword_1k": {
+      "title": "Danzante de Espadas",
+      "description": "Golpea 1,000 veces con una espada"
+    },
+    "challenge_sword_10k": {
+      "title": "Mil Cortes",
+      "description": "Golpea 10,000 veces con una espada"
+    },
+    "challenge_unarmed_100": {
+      "title": "Peleador Callejero",
+      "description": "Golpea 100 veces sin armas"
+    },
+    "challenge_unarmed_1k": {
+      "title": "Punos de Hierro",
+      "description": "Golpea 1,000 veces sin armas"
+    },
+    "challenge_unarmed_10k": {
+      "title": "One Punch",
+      "description": "Golpea 10,000 veces sin armas"
+    },
+    "challenge_trag_1k": {
+      "title": "Precio de Sangre",
+      "description": "Recibe 1,000 de dano"
+    },
+    "challenge_trag_10k": {
+      "title": "Marea Carmesi",
+      "description": "Recibe 10,000 de dano"
+    },
+    "challenge_trag_100k": {
+      "title": "Avatar del Sufrimiento",
+      "description": "Recibe 100,000 de dano"
+    },
+    "challenge_ranged_100": {
+      "title": "Practica de Tiro",
+      "description": "Dispara 100 proyectiles"
+    },
+    "challenge_ranged_1k": {
+      "title": "Ojo de Halcon",
+      "description": "Dispara 1,000 proyectiles"
+    },
+    "challenge_ranged_10k": {
+      "title": "Tormenta de Flechas",
+      "description": "Dispara 10,000 proyectiles"
+    },
+    "challenge_chronos_1h": {
+      "title": "Tic Tac",
+      "description": "Pasa 1 hora en linea"
+    },
+    "challenge_chronos_24h": {
+      "title": "Arenas del Tiempo",
+      "description": "Pasa 24 horas en linea"
+    },
+    "challenge_chronos_168h": {
+      "title": "Eterno",
+      "description": "Pasa 168 horas (1 semana) en linea"
+    },
+    "challenge_nether_50": {
+      "title": "Portero del Infierno",
+      "description": "Mata 50 criaturas del Nether"
+    },
+    "challenge_nether_500": {
+      "title": "Guardian del Abismo",
+      "description": "Mata 500 criaturas del Nether"
+    },
+    "challenge_nether_5k": {
+      "title": "Senor del Nether",
+      "description": "Mata 5,000 criaturas del Nether"
+    },
+    "challenge_rift_50": {
+      "title": "Anomalia Espacial",
+      "description": "Teletransportate 50 veces"
+    },
+    "challenge_rift_500": {
+      "title": "Caminante del Vacio",
+      "description": "Teletransportate 500 veces"
+    },
+    "challenge_rift_5k": {
+      "title": "Entre Mundos",
+      "description": "Teletransportate 5,000 veces"
+    },
+    "challenge_taming_10": {
+      "title": "Susurrador de Animales",
+      "description": "Cria 10 animales"
+    },
+    "challenge_taming_50": {
+      "title": "Lider de la Manada",
+      "description": "Cria 50 animales"
+    },
+    "challenge_taming_500": {
+      "title": "Maestro de Bestias",
+      "description": "Cria 500 animales"
     }
   },
   "items": {

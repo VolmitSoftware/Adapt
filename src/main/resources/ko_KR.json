@@ -259,6 +259,118 @@
     "challenge_sneak_1k": {
       "title": "무릎 통증",
       "description": "1킬로미터 이상 숨어 이동하기 (1,000 블록)"
+    },
+    "challenge_sneak_5k": {
+      "title": "그림자 보행자",
+      "description": "5,000블록 이상 웅크려 이동하기"
+    },
+    "challenge_sneak_20k": {
+      "title": "유령",
+      "description": "20,000블록 이상 웅크려 이동하기"
+    },
+    "challenge_swim_5k": {
+      "title": "심해 잠수부",
+      "description": "5,000블록 이상 수영하기"
+    },
+    "challenge_swim_20k": {
+      "title": "포세이돈의 선택",
+      "description": "20,000블록 이상 수영하기"
+    },
+    "challenge_sword_100": {
+      "title": "첫 번째 피",
+      "description": "검으로 100번 공격하기"
+    },
+    "challenge_sword_1k": {
+      "title": "검무",
+      "description": "검으로 1,000번 공격하기"
+    },
+    "challenge_sword_10k": {
+      "title": "천 개의 베기",
+      "description": "검으로 10,000번 공격하기"
+    },
+    "challenge_unarmed_100": {
+      "title": "술집 싸움꾼",
+      "description": "맨손으로 100번 공격하기"
+    },
+    "challenge_unarmed_1k": {
+      "title": "강철 주먹",
+      "description": "맨손으로 1,000번 공격하기"
+    },
+    "challenge_unarmed_10k": {
+      "title": "원펀치",
+      "description": "맨손으로 10,000번 공격하기"
+    },
+    "challenge_trag_1k": {
+      "title": "피의 대가",
+      "description": "1,000 데미지 받기"
+    },
+    "challenge_trag_10k": {
+      "title": "핏빛 파도",
+      "description": "10,000 데미지 받기"
+    },
+    "challenge_trag_100k": {
+      "title": "고통의 화신",
+      "description": "100,000 데미지 받기"
+    },
+    "challenge_ranged_100": {
+      "title": "사격 연습",
+      "description": "투사체 100발 발사하기"
+    },
+    "challenge_ranged_1k": {
+      "title": "호크아이",
+      "description": "투사체 1,000발 발사하기"
+    },
+    "challenge_ranged_10k": {
+      "title": "화살의 폭풍",
+      "description": "투사체 10,000발 발사하기"
+    },
+    "challenge_chronos_1h": {
+      "title": "째깍째깍",
+      "description": "1시간 동안 온라인 상태 유지하기"
+    },
+    "challenge_chronos_24h": {
+      "title": "시간의 모래",
+      "description": "24시간 동안 온라인 상태 유지하기"
+    },
+    "challenge_chronos_168h": {
+      "title": "영원한 자",
+      "description": "168시간(1주일) 동안 온라인 상태 유지하기"
+    },
+    "challenge_nether_50": {
+      "title": "지옥의 문지기",
+      "description": "네더 생물 50마리 처치하기"
+    },
+    "challenge_nether_500": {
+      "title": "심연의 수호자",
+      "description": "네더 생물 500마리 처치하기"
+    },
+    "challenge_nether_5k": {
+      "title": "네더의 군주",
+      "description": "네더 생물 5,000마리 처치하기"
+    },
+    "challenge_rift_50": {
+      "title": "공간 이상",
+      "description": "50번 텔레포트하기"
+    },
+    "challenge_rift_500": {
+      "title": "공허의 보행자",
+      "description": "500번 텔레포트하기"
+    },
+    "challenge_rift_5k": {
+      "title": "세계의 틈새",
+      "description": "5,000번 텔레포트하기"
+    },
+    "challenge_taming_10": {
+      "title": "동물의 속삭임",
+      "description": "동물 10마리 번식시키기"
+    },
+    "challenge_taming_50": {
+      "title": "무리의 리더",
+      "description": "동물 50마리 번식시키기"
+    },
+    "challenge_taming_500": {
+      "title": "야수의 지배자",
+      "description": "동물 500마리 번식시키기"
     }
   },
   "items": {

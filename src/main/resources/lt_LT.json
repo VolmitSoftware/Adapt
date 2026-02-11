@@ -259,6 +259,118 @@
     "challenge_sneak_1k": {
       "title": "Kelio Skausmas",
       "description": "Nusliauzti daugiau nei kilometra (1,000 bloku)"
+    },
+    "challenge_sneak_5k": {
+      "title": "Seseliu Klajunas",
+      "description": "Nuslinkti daugiau nei 5 000 bloku"
+    },
+    "challenge_sneak_20k": {
+      "title": "Vaiduoklis",
+      "description": "Nuslinkti daugiau nei 20 000 bloku"
+    },
+    "challenge_swim_5k": {
+      "title": "Gilus Naras",
+      "description": "Nuplaukti daugiau nei 5 000 bloku"
+    },
+    "challenge_swim_20k": {
+      "title": "Poseidono Isrinktasis",
+      "description": "Nuplaukti daugiau nei 20 000 bloku"
+    },
+    "challenge_sword_100": {
+      "title": "Pirmas Kraujas",
+      "description": "Smogti 100 kartu kardu"
+    },
+    "challenge_sword_1k": {
+      "title": "Asmenio Sokejas",
+      "description": "Smogti 1 000 kartu kardu"
+    },
+    "challenge_sword_10k": {
+      "title": "Tukstantis Ipjovimu",
+      "description": "Smogti 10 000 kartu kardu"
+    },
+    "challenge_unarmed_100": {
+      "title": "Baro Mustainis",
+      "description": "Smogti 100 kartu be ginklo"
+    },
+    "challenge_unarmed_1k": {
+      "title": "Geleziniai Kumsciai",
+      "description": "Smogti 1 000 kartu be ginklo"
+    },
+    "challenge_unarmed_10k": {
+      "title": "Vienas Smugis",
+      "description": "Smogti 10 000 kartu be ginklo"
+    },
+    "challenge_trag_1k": {
+      "title": "Kraujo Kaina",
+      "description": "Gauti 1 000 zalos"
+    },
+    "challenge_trag_10k": {
+      "title": "Raudonas Potvynis",
+      "description": "Gauti 10 000 zalos"
+    },
+    "challenge_trag_100k": {
+      "title": "Kancios Avataras",
+      "description": "Gauti 100 000 zalos"
+    },
+    "challenge_ranged_100": {
+      "title": "Taikinio Pratybos",
+      "description": "Isouti 100 sviediniai"
+    },
+    "challenge_ranged_1k": {
+      "title": "Vanago Akis",
+      "description": "Isouti 1 000 sviediniai"
+    },
+    "challenge_ranged_10k": {
+      "title": "Strelu Audra",
+      "description": "Isouti 10 000 sviediniai"
+    },
+    "challenge_chronos_1h": {
+      "title": "Tik Tak",
+      "description": "Praleisti 1 valanda prisijungus"
+    },
+    "challenge_chronos_24h": {
+      "title": "Laiko Smeliai",
+      "description": "Praleisti 24 valandas prisijungus"
+    },
+    "challenge_chronos_168h": {
+      "title": "Belaikiksnis",
+      "description": "Praleisti 168 valandas (1 savaite) prisijungus"
+    },
+    "challenge_nether_50": {
+      "title": "Pragaro Vartininkas",
+      "description": "Nudobti 50 nethero butyniu"
+    },
+    "challenge_nether_500": {
+      "title": "Bedugnio Sargas",
+      "description": "Nudobti 500 nethero butyniu"
+    },
+    "challenge_nether_5k": {
+      "title": "Nethero Valdovas",
+      "description": "Nudobti 5 000 nethero butyniu"
+    },
+    "challenge_rift_50": {
+      "title": "Erdves Anomalija",
+      "description": "Teleportuotis 50 kartu"
+    },
+    "challenge_rift_500": {
+      "title": "Tustumos Klajunas",
+      "description": "Teleportuotis 500 kartu"
+    },
+    "challenge_rift_5k": {
+      "title": "Tarp Pasauliu",
+      "description": "Teleportuotis 5 000 kartu"
+    },
+    "challenge_taming_10": {
+      "title": "Gyvunu Sunebejas",
+      "description": "Dauginti 10 gyvunu"
+    },
+    "challenge_taming_50": {
+      "title": "Bures Lyderis",
+      "description": "Dauginti 50 gyvunu"
+    },
+    "challenge_taming_500": {
+      "title": "Zveriu Valdovas",
+      "description": "Dauginti 500 gyvunu"
     }
   },
   "items": {

@@ -259,6 +259,118 @@
     "challenge_sneak_1k": {
       "title": "Bol Kolan",
       "description": "Skradaj sie ponad kilometr (1000 blokow)"
+    },
+    "challenge_sneak_5k": {
+      "title": "Wedrowiec Cieni",
+      "description": "Skradaj sie ponad 5000 blokow"
+    },
+    "challenge_sneak_20k": {
+      "title": "Duch",
+      "description": "Skradaj sie ponad 20 000 blokow"
+    },
+    "challenge_swim_5k": {
+      "title": "Gleboki Nurek",
+      "description": "Preplyn ponad 5000 blokow"
+    },
+    "challenge_swim_20k": {
+      "title": "Wybranik Posejdona",
+      "description": "Preplyn ponad 20 000 blokow"
+    },
+    "challenge_sword_100": {
+      "title": "Pierwsza Krew",
+      "description": "Zadaj 100 ciosow mieczem"
+    },
+    "challenge_sword_1k": {
+      "title": "Taniec Ostrzy",
+      "description": "Zadaj 1000 ciosow mieczem"
+    },
+    "challenge_sword_10k": {
+      "title": "Tysiac Ciec",
+      "description": "Zadaj 10 000 ciosow mieczem"
+    },
+    "challenge_unarmed_100": {
+      "title": "Barowy Zawadiaka",
+      "description": "Zadaj 100 ciosow golymi rekami"
+    },
+    "challenge_unarmed_1k": {
+      "title": "Zelazne Piesci",
+      "description": "Zadaj 1000 ciosow golymi rekami"
+    },
+    "challenge_unarmed_10k": {
+      "title": "Jeden Cios",
+      "description": "Zadaj 10 000 ciosow golymi rekami"
+    },
+    "challenge_trag_1k": {
+      "title": "Cena Krwi",
+      "description": "Otrzymaj 1000 obrazen"
+    },
+    "challenge_trag_10k": {
+      "title": "Szkarlatna Fala",
+      "description": "Otrzymaj 10 000 obrazen"
+    },
+    "challenge_trag_100k": {
+      "title": "Awatar Cierpienia",
+      "description": "Otrzymaj 100 000 obrazen"
+    },
+    "challenge_ranged_100": {
+      "title": "Strzelnica",
+      "description": "Wystrzel 100 pociskow"
+    },
+    "challenge_ranged_1k": {
+      "title": "Sokole Oko",
+      "description": "Wystrzel 1000 pociskow"
+    },
+    "challenge_ranged_10k": {
+      "title": "Burza Strzal",
+      "description": "Wystrzel 10 000 pociskow"
+    },
+    "challenge_chronos_1h": {
+      "title": "Tik Tak",
+      "description": "Spedz 1 godzine online"
+    },
+    "challenge_chronos_24h": {
+      "title": "Piaski Czasu",
+      "description": "Spedz 24 godziny online"
+    },
+    "challenge_chronos_168h": {
+      "title": "Ponadczasowy",
+      "description": "Spedz 168 godzin (1 tydzien) online"
+    },
+    "challenge_nether_50": {
+      "title": "Straznik Piekiel",
+      "description": "Zabij 50 stworzen z Netheru"
+    },
+    "challenge_nether_500": {
+      "title": "Straznik Otchlani",
+      "description": "Zabij 500 stworzen z Netheru"
+    },
+    "challenge_nether_5k": {
+      "title": "Wladca Netheru",
+      "description": "Zabij 5000 stworzen z Netheru"
+    },
+    "challenge_rift_50": {
+      "title": "Anomalia Przestrzenna",
+      "description": "Teleportuj sie 50 razy"
+    },
+    "challenge_rift_500": {
+      "title": "Wedrowiec Pustki",
+      "description": "Teleportuj sie 500 razy"
+    },
+    "challenge_rift_5k": {
+      "title": "Miedzy Swiatami",
+      "description": "Teleportuj sie 5000 razy"
+    },
+    "challenge_taming_10": {
+      "title": "Zaklinacz Zwierzat",
+      "description": "Rozmnoz 10 zwierzat"
+    },
+    "challenge_taming_50": {
+      "title": "Przywodca Stada",
+      "description": "Rozmnoz 50 zwierzat"
+    },
+    "challenge_taming_500": {
+      "title": "Wladca Bestii",
+      "description": "Rozmnoz 500 zwierzat"
     }
   },
   "items": {

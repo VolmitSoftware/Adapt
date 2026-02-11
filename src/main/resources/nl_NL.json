@@ -259,6 +259,118 @@
     "challenge_sneak_1k": {
       "title": "Kniepijn",
       "description": "Sluip meer dan een kilometer (1.000 blokken)"
+    },
+    "challenge_sneak_5k": {
+      "title": "Schaduwloper",
+      "description": "Sluip meer dan 5.000 blokken"
+    },
+    "challenge_sneak_20k": {
+      "title": "Geest",
+      "description": "Sluip meer dan 20.000 blokken"
+    },
+    "challenge_swim_5k": {
+      "title": "Diepzeeduiker",
+      "description": "Zwem meer dan 5.000 blokken"
+    },
+    "challenge_swim_20k": {
+      "title": "Poseidons Uitverkorene",
+      "description": "Zwem meer dan 20.000 blokken"
+    },
+    "challenge_sword_100": {
+      "title": "Eerste Bloed",
+      "description": "Land 100 slagen met een zwaard"
+    },
+    "challenge_sword_1k": {
+      "title": "Zwaardendanser",
+      "description": "Land 1.000 slagen met een zwaard"
+    },
+    "challenge_sword_10k": {
+      "title": "Duizend Sneden",
+      "description": "Land 10.000 slagen met een zwaard"
+    },
+    "challenge_unarmed_100": {
+      "title": "Kroegvechter",
+      "description": "Land 100 ongewapende slagen"
+    },
+    "challenge_unarmed_1k": {
+      "title": "IJzeren Vuisten",
+      "description": "Land 1.000 ongewapende slagen"
+    },
+    "challenge_unarmed_10k": {
+      "title": "Een Klap",
+      "description": "Land 10.000 ongewapende slagen"
+    },
+    "challenge_trag_1k": {
+      "title": "Bloedprijs",
+      "description": "Ontvang 1.000 schade"
+    },
+    "challenge_trag_10k": {
+      "title": "Rode Vloed",
+      "description": "Ontvang 10.000 schade"
+    },
+    "challenge_trag_100k": {
+      "title": "Avatar van Lijden",
+      "description": "Ontvang 100.000 schade"
+    },
+    "challenge_ranged_100": {
+      "title": "Schietoefening",
+      "description": "Vuur 100 projectielen af"
+    },
+    "challenge_ranged_1k": {
+      "title": "Havikoog",
+      "description": "Vuur 1.000 projectielen af"
+    },
+    "challenge_ranged_10k": {
+      "title": "Pijlenstorm",
+      "description": "Vuur 10.000 projectielen af"
+    },
+    "challenge_chronos_1h": {
+      "title": "Tik Tak",
+      "description": "Breng 1 uur online door"
+    },
+    "challenge_chronos_24h": {
+      "title": "Zand der Tijd",
+      "description": "Breng 24 uur online door"
+    },
+    "challenge_chronos_168h": {
+      "title": "Tijdloos",
+      "description": "Breng 168 uur (1 week) online door"
+    },
+    "challenge_nether_50": {
+      "title": "Poortwachter van de Hel",
+      "description": "Versla 50 netherwezens"
+    },
+    "challenge_nether_500": {
+      "title": "Wachter van de Afgrond",
+      "description": "Versla 500 netherwezens"
+    },
+    "challenge_nether_5k": {
+      "title": "Heer van de Nether",
+      "description": "Versla 5.000 netherwezens"
+    },
+    "challenge_rift_50": {
+      "title": "Ruimtelijke Afwijking",
+      "description": "Teleporteer 50 keer"
+    },
+    "challenge_rift_500": {
+      "title": "Leegtewandelaar",
+      "description": "Teleporteer 500 keer"
+    },
+    "challenge_rift_5k": {
+      "title": "Tussen Werelden",
+      "description": "Teleporteer 5.000 keer"
+    },
+    "challenge_taming_10": {
+      "title": "Dierenfluisteraar",
+      "description": "Fok 10 dieren"
+    },
+    "challenge_taming_50": {
+      "title": "Roedelleider",
+      "description": "Fok 50 dieren"
+    },
+    "challenge_taming_500": {
+      "title": "Beestenmeester",
+      "description": "Fok 500 dieren"
     }
   },
   "items": {

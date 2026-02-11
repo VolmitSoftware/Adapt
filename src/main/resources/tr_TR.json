@@ -259,6 +259,118 @@
     "challenge_sneak_1k": {
       "title": "Diz Agrisi",
       "description": "Bir kilometreden fazla gizlen (1.000 blok)"
+    },
+    "challenge_sneak_5k": {
+      "title": "Golge Yolcusu",
+      "description": "5.000 bloktan fazla gizlen"
+    },
+    "challenge_sneak_20k": {
+      "title": "Hayalet",
+      "description": "20.000 bloktan fazla gizlen"
+    },
+    "challenge_swim_5k": {
+      "title": "Derin Dalgic",
+      "description": "5.000 bloktan fazla yuz"
+    },
+    "challenge_swim_20k": {
+      "title": "Poseidon'un Secilmisi",
+      "description": "20.000 bloktan fazla yuz"
+    },
+    "challenge_sword_100": {
+      "title": "Ilk Kan",
+      "description": "Kilicla 100 vurus yap"
+    },
+    "challenge_sword_1k": {
+      "title": "Kilic Dansisi",
+      "description": "Kilicla 1.000 vurus yap"
+    },
+    "challenge_sword_10k": {
+      "title": "Bin Kesik",
+      "description": "Kilicla 10.000 vurus yap"
+    },
+    "challenge_unarmed_100": {
+      "title": "Bar Kavgacisi",
+      "description": "Silahsiz 100 vurus yap"
+    },
+    "challenge_unarmed_1k": {
+      "title": "Demir Yumruklar",
+      "description": "Silahsiz 1.000 vurus yap"
+    },
+    "challenge_unarmed_10k": {
+      "title": "Tek Yumruk",
+      "description": "Silahsiz 10.000 vurus yap"
+    },
+    "challenge_trag_1k": {
+      "title": "Kan Bedeli",
+      "description": "1.000 hasar al"
+    },
+    "challenge_trag_10k": {
+      "title": "Kizil Dalga",
+      "description": "10.000 hasar al"
+    },
+    "challenge_trag_100k": {
+      "title": "Acinin Avatari",
+      "description": "100.000 hasar al"
+    },
+    "challenge_ranged_100": {
+      "title": "Hedef Talimi",
+      "description": "100 mermi firla"
+    },
+    "challenge_ranged_1k": {
+      "title": "Sahin Gozu",
+      "description": "1.000 mermi firla"
+    },
+    "challenge_ranged_10k": {
+      "title": "Ok Firtinasi",
+      "description": "10.000 mermi firla"
+    },
+    "challenge_chronos_1h": {
+      "title": "Tik Tak",
+      "description": "1 saat cevrimici ol"
+    },
+    "challenge_chronos_24h": {
+      "title": "Zamanin Kumlari",
+      "description": "24 saat cevrimici ol"
+    },
+    "challenge_chronos_168h": {
+      "title": "Zamansiz",
+      "description": "168 saat (1 hafta) cevrimici ol"
+    },
+    "challenge_nether_50": {
+      "title": "Cehennem Kapicisi",
+      "description": "50 nether yaratigi oldur"
+    },
+    "challenge_nether_500": {
+      "title": "Ucurum Muhafizi",
+      "description": "500 nether yaratigi oldur"
+    },
+    "challenge_nether_5k": {
+      "title": "Nether'in Efendisi",
+      "description": "5.000 nether yaratigi oldur"
+    },
+    "challenge_rift_50": {
+      "title": "Uzaysal Anomali",
+      "description": "50 kez isinlan"
+    },
+    "challenge_rift_500": {
+      "title": "Bosluk Gezgini",
+      "description": "500 kez isinlan"
+    },
+    "challenge_rift_5k": {
+      "title": "Dusler Arasi",
+      "description": "5.000 kez isinlan"
+    },
+    "challenge_taming_10": {
+      "title": "Hayvan Fisildacisi",
+      "description": "10 hayvan cogalt"
+    },
+    "challenge_taming_50": {
+      "title": "Suru Lideri",
+      "description": "50 hayvan cogalt"
+    },
+    "challenge_taming_500": {
+      "title": "Canavar Ustasi",
+      "description": "500 hayvan cogalt"
     }
   },
   "items": {

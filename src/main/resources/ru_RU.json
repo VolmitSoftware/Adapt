@@ -259,6 +259,118 @@
     "challenge_sneak_1k": {
       "title": "Больные колени",
       "description": "Прокрадитесь более километра (1 000 блоков)"
+    },
+    "challenge_sneak_5k": {
+      "title": "Ходок Теней",
+      "description": "Прокрадитесь более 5 000 блоков"
+    },
+    "challenge_sneak_20k": {
+      "title": "Призрак",
+      "description": "Прокрадитесь более 20 000 блоков"
+    },
+    "challenge_swim_5k": {
+      "title": "Глубоководный Ныряльщик",
+      "description": "Проплывите более 5 000 блоков"
+    },
+    "challenge_swim_20k": {
+      "title": "Избранник Посейдона",
+      "description": "Проплывите более 20 000 блоков"
+    },
+    "challenge_sword_100": {
+      "title": "Первая Кровь",
+      "description": "Нанесите 100 ударов мечом"
+    },
+    "challenge_sword_1k": {
+      "title": "Танцор Клинка",
+      "description": "Нанесите 1 000 ударов мечом"
+    },
+    "challenge_sword_10k": {
+      "title": "Тысяча Порезов",
+      "description": "Нанесите 10 000 ударов мечом"
+    },
+    "challenge_unarmed_100": {
+      "title": "Барный Драчун",
+      "description": "Нанесите 100 ударов голыми руками"
+    },
+    "challenge_unarmed_1k": {
+      "title": "Железные Кулаки",
+      "description": "Нанесите 1 000 ударов голыми руками"
+    },
+    "challenge_unarmed_10k": {
+      "title": "Один Удар",
+      "description": "Нанесите 10 000 ударов голыми руками"
+    },
+    "challenge_trag_1k": {
+      "title": "Кровавая Цена",
+      "description": "Получите 1 000 урона"
+    },
+    "challenge_trag_10k": {
+      "title": "Багровый Прилив",
+      "description": "Получите 10 000 урона"
+    },
+    "challenge_trag_100k": {
+      "title": "Аватар Страдания",
+      "description": "Получите 100 000 урона"
+    },
+    "challenge_ranged_100": {
+      "title": "Учебная Стрельба",
+      "description": "Выпустите 100 снарядов"
+    },
+    "challenge_ranged_1k": {
+      "title": "Соколиный Глаз",
+      "description": "Выпустите 1 000 снарядов"
+    },
+    "challenge_ranged_10k": {
+      "title": "Буря Стрел",
+      "description": "Выпустите 10 000 снарядов"
+    },
+    "challenge_chronos_1h": {
+      "title": "Тик-Так",
+      "description": "Проведите 1 час в сети"
+    },
+    "challenge_chronos_24h": {
+      "title": "Пески Времени",
+      "description": "Проведите 24 часа в сети"
+    },
+    "challenge_chronos_168h": {
+      "title": "Вне Времени",
+      "description": "Проведите 168 часов (1 неделю) в сети"
+    },
+    "challenge_nether_50": {
+      "title": "Привратник Ада",
+      "description": "Убейте 50 существ Нижнего мира"
+    },
+    "challenge_nether_500": {
+      "title": "Страж Бездны",
+      "description": "Убейте 500 существ Нижнего мира"
+    },
+    "challenge_nether_5k": {
+      "title": "Повелитель Нижнего Мира",
+      "description": "Убейте 5 000 существ Нижнего мира"
+    },
+    "challenge_rift_50": {
+      "title": "Пространственная Аномалия",
+      "description": "Телепортируйтесь 50 раз"
+    },
+    "challenge_rift_500": {
+      "title": "Ходок Пустоты",
+      "description": "Телепортируйтесь 500 раз"
+    },
+    "challenge_rift_5k": {
+      "title": "Между Мирами",
+      "description": "Телепортируйтесь 5 000 раз"
+    },
+    "challenge_taming_10": {
+      "title": "Шептун Зверей",
+      "description": "Разведите 10 животных"
+    },
+    "challenge_taming_50": {
+      "title": "Вожак Стаи",
+      "description": "Разведите 50 животных"
+    },
+    "challenge_taming_500": {
+      "title": "Повелитель Зверей",
+      "description": "Разведите 500 животных"
     }
   },
   "items": {

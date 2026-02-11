@@ -259,6 +259,118 @@
     "challenge_sneak_1k": {
       "title": "膝の痛み",
       "description": "1キロメートル（1,000ブロック）以上こっそり進む"
+    },
+    "challenge_sneak_5k": {
+      "title": "影の歩行者",
+      "description": "5,000ブロック以上こっそり進む"
+    },
+    "challenge_sneak_20k": {
+      "title": "幽霊",
+      "description": "20,000ブロック以上こっそり進む"
+    },
+    "challenge_swim_5k": {
+      "title": "深海ダイバー",
+      "description": "5,000ブロック以上泳ぐ"
+    },
+    "challenge_swim_20k": {
+      "title": "ポセイドンの選ばれし者",
+      "description": "20,000ブロック以上泳ぐ"
+    },
+    "challenge_sword_100": {
+      "title": "初めての血",
+      "description": "剣で100回攻撃する"
+    },
+    "challenge_sword_1k": {
+      "title": "剣舞",
+      "description": "剣で1,000回攻撃する"
+    },
+    "challenge_sword_10k": {
+      "title": "千の斬撃",
+      "description": "剣で10,000回攻撃する"
+    },
+    "challenge_unarmed_100": {
+      "title": "酒場の喧嘩屋",
+      "description": "素手で100回攻撃する"
+    },
+    "challenge_unarmed_1k": {
+      "title": "鉄の拳",
+      "description": "素手で1,000回攻撃する"
+    },
+    "challenge_unarmed_10k": {
+      "title": "ワンパンチ",
+      "description": "素手で10,000回攻撃する"
+    },
+    "challenge_trag_1k": {
+      "title": "血の代償",
+      "description": "1,000ダメージを受ける"
+    },
+    "challenge_trag_10k": {
+      "title": "紅の潮流",
+      "description": "10,000ダメージを受ける"
+    },
+    "challenge_trag_100k": {
+      "title": "苦痛の化身",
+      "description": "100,000ダメージを受ける"
+    },
+    "challenge_ranged_100": {
+      "title": "射撃練習",
+      "description": "100発の飛び道具を発射する"
+    },
+    "challenge_ranged_1k": {
+      "title": "ホークアイ",
+      "description": "1,000発の飛び道具を発射する"
+    },
+    "challenge_ranged_10k": {
+      "title": "矢の嵐",
+      "description": "10,000発の飛び道具を発射する"
+    },
+    "challenge_chronos_1h": {
+      "title": "チクタク",
+      "description": "1時間オンラインで過ごす"
+    },
+    "challenge_chronos_24h": {
+      "title": "時の砂",
+      "description": "24時間オンラインで過ごす"
+    },
+    "challenge_chronos_168h": {
+      "title": "時を超えし者",
+      "description": "168時間（1週間）オンラインで過ごす"
+    },
+    "challenge_nether_50": {
+      "title": "地獄の門番",
+      "description": "ネザーの生物を50体倒す"
+    },
+    "challenge_nether_500": {
+      "title": "深淵の番人",
+      "description": "ネザーの生物を500体倒す"
+    },
+    "challenge_nether_5k": {
+      "title": "ネザーの支配者",
+      "description": "ネザーの生物を5,000体倒す"
+    },
+    "challenge_rift_50": {
+      "title": "空間の歪み",
+      "description": "50回テレポートする"
+    },
+    "challenge_rift_500": {
+      "title": "虚空の歩行者",
+      "description": "500回テレポートする"
+    },
+    "challenge_rift_5k": {
+      "title": "世界の狭間",
+      "description": "5,000回テレポートする"
+    },
+    "challenge_taming_10": {
+      "title": "動物のささやき手",
+      "description": "10匹の動物を繁殖させる"
+    },
+    "challenge_taming_50": {
+      "title": "群れのリーダー",
+      "description": "50匹の動物を繁殖させる"
+    },
+    "challenge_taming_500": {
+      "title": "猛獣使い",
+      "description": "500匹の動物を繁殖させる"
     }
   },
   "items": {

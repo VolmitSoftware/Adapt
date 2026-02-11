@@ -259,6 +259,118 @@
     "challenge_sneak_1k": {
       "title": "Đau Đầu Gối",
       "description": "Rón rén hơn một km (1.000 khối)"
+    },
+    "challenge_sneak_5k": {
+      "title": "Kẻ Đi Trong Bóng Tối",
+      "description": "Rón rén hơn 5.000 khối"
+    },
+    "challenge_sneak_20k": {
+      "title": "Bóng Ma",
+      "description": "Rón rén hơn 20.000 khối"
+    },
+    "challenge_swim_5k": {
+      "title": "Thợ Lặn Sâu",
+      "description": "Bơi hơn 5.000 khối"
+    },
+    "challenge_swim_20k": {
+      "title": "Người Được Poseidon Chọn",
+      "description": "Bơi hơn 20.000 khối"
+    },
+    "challenge_sword_100": {
+      "title": "Giọt Máu Đầu Tiên",
+      "description": "Chém 100 nhát bằng kiếm"
+    },
+    "challenge_sword_1k": {
+      "title": "Vũ Công Lưỡi Kiếm",
+      "description": "Chém 1.000 nhát bằng kiếm"
+    },
+    "challenge_sword_10k": {
+      "title": "Ngàn Nhát Chém",
+      "description": "Chém 10.000 nhát bằng kiếm"
+    },
+    "challenge_unarmed_100": {
+      "title": "Tay Đấm Quán Rượu",
+      "description": "Đấm 100 cú tay không"
+    },
+    "challenge_unarmed_1k": {
+      "title": "Nắm Đấm Thép",
+      "description": "Đấm 1.000 cú tay không"
+    },
+    "challenge_unarmed_10k": {
+      "title": "Một Cú Đấm",
+      "description": "Đấm 10.000 cú tay không"
+    },
+    "challenge_trag_1k": {
+      "title": "Giá Máu",
+      "description": "Nhận 1.000 sát thương"
+    },
+    "challenge_trag_10k": {
+      "title": "Thủy Triều Đỏ",
+      "description": "Nhận 10.000 sát thương"
+    },
+    "challenge_trag_100k": {
+      "title": "Hóa Thân Của Đau Khổ",
+      "description": "Nhận 100.000 sát thương"
+    },
+    "challenge_ranged_100": {
+      "title": "Tập Bắn",
+      "description": "Bắn 100 đạn"
+    },
+    "challenge_ranged_1k": {
+      "title": "Mắt Đại Bàng",
+      "description": "Bắn 1.000 đạn"
+    },
+    "challenge_ranged_10k": {
+      "title": "Bão Tên",
+      "description": "Bắn 10.000 đạn"
+    },
+    "challenge_chronos_1h": {
+      "title": "Tích Tắc",
+      "description": "Chơi trực tuyến 1 giờ"
+    },
+    "challenge_chronos_24h": {
+      "title": "Cát Thời Gian",
+      "description": "Chơi trực tuyến 24 giờ"
+    },
+    "challenge_chronos_168h": {
+      "title": "Vượt Thời Gian",
+      "description": "Chơi trực tuyến 168 giờ (1 tuần)"
+    },
+    "challenge_nether_50": {
+      "title": "Người Gác Cổng Địa Ngục",
+      "description": "Giết 50 sinh vật Nether"
+    },
+    "challenge_nether_500": {
+      "title": "Lính Canh Vực Thẳm",
+      "description": "Giết 500 sinh vật Nether"
+    },
+    "challenge_nether_5k": {
+      "title": "Chúa Tể Nether",
+      "description": "Giết 5.000 sinh vật Nether"
+    },
+    "challenge_rift_50": {
+      "title": "Dị Thường Không Gian",
+      "description": "Dịch chuyển 50 lần"
+    },
+    "challenge_rift_500": {
+      "title": "Kẻ Đi Trong Hư Không",
+      "description": "Dịch chuyển 500 lần"
+    },
+    "challenge_rift_5k": {
+      "title": "Giữa Các Thế Giới",
+      "description": "Dịch chuyển 5.000 lần"
+    },
+    "challenge_taming_10": {
+      "title": "Người Thì Thầm Với Thú",
+      "description": "Nhân giống 10 động vật"
+    },
+    "challenge_taming_50": {
+      "title": "Thủ Lĩnh Bầy",
+      "description": "Nhân giống 50 động vật"
+    },
+    "challenge_taming_500": {
+      "title": "Chúa Tể Muông Thú",
+      "description": "Nhân giống 500 động vật"
     }
   },
   "items": {
