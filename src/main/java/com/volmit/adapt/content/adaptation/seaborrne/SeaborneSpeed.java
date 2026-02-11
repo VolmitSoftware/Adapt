@@ -58,7 +58,7 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
             if (player.isInWater() && hasAdaptation(player)) {
                 if (player.getLocation().getBlock().isLiquid()) {
                     if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.DEPTH_STRIDER)) {
-                        return;
+                        continue;
                     } else {
                         J.s(() -> player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 62, getLevel(player))));
                     }

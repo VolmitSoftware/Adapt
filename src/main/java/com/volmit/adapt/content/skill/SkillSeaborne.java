@@ -137,8 +137,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         if (e.isCancelled() || !(e.getEntity() instanceof LivingEntity entity))
             return;
 
-        if (e.getEntity().getType() == EntityType.DROWNED && e.getDamager().getType() == EntityType.PLAYER) {
-            var p = (Player) e.getDamager();
+        if (e.getEntity().getType() == EntityType.DROWNED && e.getDamager() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> {
                 if (isOnCooldown(p, getConfig().seaPickleCooldown)) {
                     return;
@@ -151,8 +150,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
             if (shooter instanceof Player p) {
                 shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity))));
             }
-        } else if (e.getDamager().getType() == EntityType.PLAYER) {
-            var p = (Player) e.getDamager();
+        } else if (e.getDamager() instanceof Player p) {
             if (p.getInventory().getItemInMainHand().getType().equals(Material.TRIDENT)) {
                 shouldReturnForPlayer(p, e, () -> xp(p, getConfig().tridentxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity))));
             }

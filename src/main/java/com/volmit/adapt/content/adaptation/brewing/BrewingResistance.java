@@ -52,7 +52,7 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Resistance")
                         .setColor(Color.WHITE)
-                        .addEffect(PotionEffectType.ABSORPTION, 1200, 1, true, true, true)
+                        .addEffect(PotionEffectType.RESISTANCE, 1200, 1, true, true, true)
                         .build())
                 .build());
         registerBrewingRecipe(BrewingRecipe.builder()
@@ -64,7 +64,7 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
                 .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
                         .setName("Bottled Resistance 2")
                         .setColor(Color.WHITE)
-                        .addEffect(PotionEffectType.ABSORPTION, 600, 2, true, true, true)
+                        .addEffect(PotionEffectType.RESISTANCE, 600, 2, true, true, true)
                         .build())
                 .build());
     }

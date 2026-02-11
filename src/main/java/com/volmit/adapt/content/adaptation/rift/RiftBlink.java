@@ -69,6 +69,50 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         return 2000;
     }
 
+    private Location findBlinkGround(Player player) {
+        Location start = player.getLocation().clone();
+        Vector direction = start.getDirection().clone().setY(0);
+        if (direction.lengthSquared() <= 0.0001) {
+            double yawRadians = Math.toRadians(start.getYaw());
+            direction = new Vector(-Math.sin(yawRadians), 0, Math.cos(yawRadians));
+        }
+        direction.normalize();
+
+        int maxVerticalAdjustment = Math.max(0, getConfig().maxVerticalAdjustment);
+        double step = Math.max(0.25, getConfig().distanceSearchStep);
+        double maxDistance = getBlinkDistance(getLevel(player));
+
+        for (double distance = maxDistance; distance >= 1; distance -= step) {
+            Location horizontalTarget = start.clone().add(direction.clone().multiply(distance));
+            Location safe = findSafeGroundNear(horizontalTarget, maxVerticalAdjustment);
+            if (safe != null) {
+                return safe;
+            }
+        }
+
+        return null;
+    }
+
+    private Location findSafeGroundNear(Location base, int maxVerticalAdjustment) {
+        if (isSafe(base)) {
+            return base;
+        }
+
+        for (int y = 1; y <= maxVerticalAdjustment; y++) {
+            Location down = base.clone().subtract(0, y, 0);
+            if (isSafe(down)) {
+                return down;
+            }
+
+            Location up = base.clone().add(0, y, 0);
+            if (isSafe(up)) {
+                return up;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public void addStats(int level, Element v) {
         v.addLore(C.GREEN + "+ " + (getBlinkDistance(level)) + C.GRAY + " " + Localizer.dLocalize("rift", "blink", "lore1"));
@@ -92,19 +136,10 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                 return;
             }
             if (p.isSprinting()) {
-                Location loc = p.getLocation().clone();
                 Location locOG = p.getLocation().clone();
-                Vector dir = loc.getDirection();
-                double dist = getBlinkDistance(getLevel(p));
-                dir.multiply(dist);
-                loc.add(dir);
-                double cd = dist * 2;
-                loc.subtract(0, dist, 0);
-                while (!isSafe(loc) && cd-- > 0) {
-                    loc.add(0, 1, 0);
-                }
-                SoundPlayer spw = SoundPlayer.of(p.getWorld());
-                if (!isSafe(loc)) {
+                SoundPlayer spw = SoundPlayer.of(p);
+                Location destinationGround = findBlinkGround(p);
+                if (destinationGround == null) {
                     spw.play(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
                     lastJump.put(p, M.ms());
                     return;
@@ -116,14 +151,14 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                 }
                 if (getConfig().showParticles) {
 
-                    vfxParticleLine(locOG, loc, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
+                    vfxParticleLine(locOG, destinationGround, Particle.REVERSE_PORTAL, 50, 8, 0.1D, 1D, 0.1D, 0D, null, false, l -> l.getBlock().isPassable());
                 }
                 Vector v = p.getVelocity().clone();
-                loadChunkAsync(loc, chunk -> {
+                loadChunkAsync(destinationGround, chunk -> {
                     J.s(() -> {
-                        Location toLoc = loc.clone().add(0, 1, 0);
+                        Location toLoc = destinationGround.clone().add(0, 1, 0);
 
-                        AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(false, getPlayer(p), this, locOG, loc.clone());
+                        AdaptAdaptationTeleportEvent event = new AdaptAdaptationTeleportEvent(false, getPlayer(p), this, locOG, destinationGround.clone());
                         Bukkit.getPluginManager().callEvent(event);
                         if (event.isCancelled()) return;
 
@@ -147,19 +182,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
                 p.setAllowFlight(false);
                 return;
             }
-            Location loc = p.getLocation().clone();
-            Vector dir = loc.getDirection();
-            double dist = getBlinkDistance(getLevel(p));
-            dir.multiply(dist);
-            loc.add(dir);
-            double cd = dist * 2;
-            loc.subtract(0, dist, 0);
-
-            while (!isSafe(loc) && cd-- > 0) {
-                loc.add(0, 1, 0);
-            }
-
-            if (isSafe(loc)) {
+            Location destinationGround = findBlinkGround(p);
+            if (destinationGround != null) {
                 canBlink.put(p, true);
                 p.setAllowFlight(true);
                 Adapt.verbose("Allowing flight for " + p.getName() + "");
@@ -208,5 +232,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         int initialCost = 1;
         double baseDistance = 6;
         double distanceFactor = 5;
+        int maxVerticalAdjustment = 4;
+        double distanceSearchStep = 0.5;
     }
 }

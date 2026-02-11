@@ -104,8 +104,16 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                 continue;
             }
 
+            if (p.isOnGround()) {
+                airjumps.remove(p);
+                if (!p.hasGravity()) {
+                    p.setGravity(true);
+                }
+                continue;
+            }
+
             if (!canInteract(p, p.getLocation())) {
-                return;
+                continue;
             }
 
             if (p.isFlying() || !p.isSneaking() || p.getFallDistance() < 0.3) {
