@@ -18,6 +18,7 @@
 import io.freefair.gradle.plugins.lombok.LombokPlugin
 import io.github.slimjar.func.slimjarHelper
 import io.github.slimjar.resolver.data.Mirror
+import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.gradle.ext.settings
 import org.jetbrains.gradle.ext.taskTriggers
 import xyz.jpenilla.runpaper.task.RunServer
@@ -33,7 +34,7 @@ plugins {
     alias(libs.plugins.slimjar)
 }
 
-version = "1.18.0-1.20.2-1.21.10"
+version = "1.18.0-1.20.2-1.21.11"
 val apiVersion = "1.20"
 val main = "com.volmit.adapt.Adapt"
 
@@ -48,34 +49,17 @@ registerCustomOutputTask("CrazyDev22", "C://Users/Julian/Desktop/server/plugins"
 registerCustomOutputTask("Pixel", "D://Iris Dimension Engine//1.20.4 - Development//plugins")
 // ========================== UNIX ==============================
 registerCustomOutputTaskUnix("CyberpwnLT", "/Users/danielmills/development/server/plugins")
-registerCustomOutputTaskUnix("PsychoLT", "/Users/brianfopiano/Developer/RemoteGit/Server/plugins")
+registerCustomOutputTaskUnix("PsychoLT", "/Users/brianfopiano/Developer/RemoteGit/[Minecraft Server]/plugins")
 registerCustomOutputTaskUnix("the456gamer", "/home/the456gamer/projects/minecraft/adapt-testserver/plugins/update/", false)
 // ==============================================================
 
-val versions = mapOf(
-    "v1_21_2" to "1.21.2-R0.1-SNAPSHOT", 
-    "v1_21" to "1.21-R0.1-SNAPSHOT", 
-    "v1_20_5" to "1.20.5-R0.1-SNAPSHOT", 
-    "v1_20_2" to "1.20.2-R0.1-SNAPSHOT",
-)
-val supported = listOf("1.20.2", "1.20.4", "1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5", "1.21.8", "1.21.10")
+val supported = listOf("1.20.2", "1.20.4", "1.20.6", "1.21.1", "1.21.3", "1.21.4", "1.21.5", "1.21.8", "1.21.10", "1.21.11")
 val jdk = listOf("1.20.2", "1.20.4")
 
 val MIN_HEAP_SIZE = "2G"
 val MAX_HEAP_SIZE = "8G"
 //Valid values are: none, truecolor, indexed256, indexed16, indexed8
 val COLOR = "truecolor"
-
-versions.forEach { (key, value) ->
-    project(":version:${key}") {
-        apply<JavaPlugin>()
-
-        dependencies {
-            compileOnly(rootProject)
-            compileOnly("org.spigotmc:spigot-api:${value}")
-        }
-    }
-}
 
 supported.forEach { version ->
     tasks.register<RunServer>("runServer-$version") {
@@ -121,8 +105,13 @@ allprojects {
     apply<JavaPlugin>()
     apply<LombokPlugin>()
 
+    extensions.configure<JavaPluginExtension> {
+        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    }
+
     repositories {
         mavenCentral()
+        maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
         maven("https://repo.papermc.io/repository/maven-public/")
         maven("https://repo.codemc.org/repository/maven-public")
         maven("https://mvn.lumine.io/repository/maven-public/")
@@ -141,6 +130,7 @@ allprojects {
     tasks.compileJava {
         options.compilerArgs.add("-parameters")
         options.encoding = "UTF-8"
+        options.release.set(21)
     }
 }
 
@@ -211,10 +201,6 @@ slimJar {
 tasks.shadowJar {
 //    minimize()
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    versions.forEach { (key, _) ->
-        dependsOn(":version:$key:build")
-        from(project(":version:$key").tasks.jar.flatMap { it.archiveFile }.map { zipTree(it) })
-    }
 }
 
 configurations.configureEach {
@@ -222,18 +208,18 @@ configurations.configureEach {
     resolutionStrategy.cacheDynamicVersionsFor(60, "minutes")
 }
 
-if (JavaVersion.current().toString() != "17") {
+if (!JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21)) {
     System.err.println()
     System.err.println("=========================================================================================================")
-    System.err.println("You must run gradle on Java 17. You are using " + JavaVersion.current())
+    System.err.println("You must run gradle on Java 21 or newer. You are using " + JavaVersion.current())
     System.err.println()
     System.err.println("=== For IDEs ===")
-    System.err.println("1. Configure the project for Java 17")
-    System.err.println("2. Configure the bundled gradle to use Java 17 in settings")
+    System.err.println("1. Configure the project for Java 21")
+    System.err.println("2. Configure the bundled gradle to use Java 21 in settings")
     System.err.println()
     System.err.println("=== For Command Line (gradlew) ===")
-    System.err.println("1. Install JDK 17 from https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html")
-    System.err.println("2. Set JAVA_HOME environment variable to the new jdk installation folder such as C:/Program Files/Java/jdk-17.0.1")
+    System.err.println("1. Install JDK 21 from https://www.oracle.com/java/technologies/downloads/#java21")
+    System.err.println("2. Set JAVA_HOME environment variable to the new jdk installation folder such as C:/Program Files/Java/jdk-21")
     System.err.println("3. Open a new command prompt window to get the new environment variables if need be.")
     System.err.println("=========================================================================================================")
     System.err.println()
@@ -242,7 +228,7 @@ if (JavaVersion.current().toString() != "17") {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -275,8 +261,9 @@ fun createOutputTask(name: String, path: String, doRename: Boolean = true) {
     tasks.register<Copy>("build$name") {
         group = "development"
         outputs.upToDateWhen { false }
-        dependsOn("adapt")
-        from(tasks.named<Copy>("adapt").map { outputs.files.singleFile })
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        dependsOn(tasks.shadowJar)
+        from(tasks.shadowJar.flatMap { it.archiveFile })
         into(file(path))
         if (doRename) rename { "Adapt.jar" }
     }

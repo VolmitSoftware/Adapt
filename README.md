@@ -47,17 +47,17 @@ plugin [Manifold](https://plugins.jetbrains.com/plugin/10057-manifold)
 
 ## Preface: if you need help compiling and you are a developer / intend to help out in the community or with development we would love to help you regardless in the discord! however do not come to the discord asking for free copies, or a tutorial on how to compile.
 
-1. Install [Java JDK 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
+1. Install [Java JDK 21](https://www.oracle.com/java/technologies/downloads/#java21)
 2. Set the JDK installation path to `JAVA_HOME` as an environment variable.
     * Windows
         1. Start > Type `env` and press Enter
         2. Advanced > Environment Variables
         3. Under System Variables, click `New...`
         4. Variable Name: `JAVA_HOME`
-        5. Variable Value: `C:\Program Files\Java\jdk-17.0.1` (verify this exists after installing java don't just copy
+        5. Variable Value: `C:\Program Files\Java\jdk-21` (verify this exists after installing java don't just copy
            the example text)
     * MacOS
-        1. Run `/usr/libexec/java_home -V` and look for Java 17
+        1. Run `/usr/libexec/java_home -V` and look for Java 21
         2. Run `sudo nano ~/.zshenv`
         3. Add `export JAVA_HOME=$(/usr/libexec/java_home)` as a new line
         4. Use `CTRL + X`, then Press `Y`, Then `ENTER`
@@ -69,7 +69,7 @@ plugin [Manifold](https://plugins.jetbrains.com/plugin/10057-manifold)
 <summary> Gradle Setup </summary>
 
 * Run `gradlew setup` any time you get dependency issues with craftbukkit
-* Configure ITJ Gradle to use JDK 17 (in settings, search for gradle)
+* Configure ITJ Gradle to use JDK 21 (in settings, search for gradle)
 * Resync the project & run your newly created task (under the development folder in gradle tasks!)
 
 </details>
@@ -83,186 +83,6 @@ plugin [Manifold](https://plugins.jetbrains.com/plugin/10057-manifold)
 </details>
 
 
-<details>
-<summary> SKILLS </summary>
-
-_The skills listed below are the fundamentals that we want to implement. However, please feel free to make an issue request for any ideas or additional abilities that you would like to see in Adapt. Keep in mind that simpler ideas are preferred, but complex ones are welcome too!_
-
-## Agility:
-
-- [ ] Slide?
-- [X] Super jump (Allows a Crouch jump to launch yourself up to 5 blocks High)
-- [X] Wall jump (Jump on walls)
-- [X] Wind-Up (Sprint and go faster)
-- [X] Armor-Up (Sprint and get more armor)(you need to have it equipped)
-- [ ] Running start, Sprint = Jump boost
-- [ ] Climb WOod
-
-## Architect:
-
-- [X] Temporary blocks (Crouch off a ledge)
-- [X] BuildersWand (Small) (You can place up to 16 blocks at once)
-- [ ] TypeReplace Blocks
-- [X] DontBreakGlass (Passive Silk-Touch for Glass only)
-- [ ] Forced Leaf Decay
-
-## Axe:
-
-- [ ] Tomahawk Throw
-- [X] Drop to inventory
-- [X] Axe Ground-Smash
-- [X] Axe TreeFeller
-- [ ] StripLogger (Sticks got from stripping)
-- [ ] Speedy/Hasty Axe
-- [ ] Wood Dupe?
-
-## Brewing:
-
-- [ ] Chance not to consume potion
-- [ ] Chance to refund ingredients
-- [X] Lingering Potions (Crafted potions last longer)
-- [X] Splash Range Increase (Chance to increase Range)
-
-## Crafting:
-
-- [X] Xp for crafting
-- [ ] Chance for Extras
-- [ ] offhand autocrafting
-- [X] Deconstruction Table (De-craft to basics)
-
-## Discovery:
-
-- [ ] Tiny Potato
-- [ ] Armored Elytras
-- [X] Worldly Armor
-- [X] Passive XP
-- [ ] Villager Attitude
-- [X] Xp Damage Mitigation
-
-## Enchanting:
-
-- [X] XP Refund
-- [X] Lapis Refund (Chance per enchant to give Lapis)
-- [X] In-Inventory Enchanting (Books to Items)
-- [ ] Xp for making Bookshelf/Book/Table
-- [ ] Better Enchant Levels
-
-## Excavation**:
-
-- [ ] Dirt/Grass does not consume Durability
-- [X] Haste while digging
-- [X] Drop to inventory
-- [X] MultiTool (Merge multiple tools into one)
-
-## Herbalism:
-
-- [X] Hunger Shield (up to 50% less hunger consumption)
-- [X] Drop to inventory
-- [X] Replanted (replant items by right-clicking)
-- [ ] Harvest Dupes
-- [X] Food feeds more
-- [X] Herbalist Luck (breaking things can give you things)
-- [X] Herbalist's Myconid (craftable Mycelia)
-- [ ] Instant Food Consumption (Cooldown)
-- [ ] Xp Gain
-- [X] Faster Grow Aura
-
-## Hunter:
-
-- [X] Adrenaline (more damage lower the health)
-- [X] Drop to inventory
-- [X] Regen while in combat -> massive loss in hunger
-- [X] Resistance in combat -> massive loss in hunger
-- [X] Speed while in combat -> massive loss in hunger
-- [X] JumpBoost while in combat -> massive loss in hunger
-- [X] Luck while in combat -> massive loss in hunger
-- [X] Invisibility while in combat -> massive loss in hunger
-- [ ] Prevent the first damage proc
-
-## Nether:
-
-- [X] Wither Resist (Resistance to wither)
-- [X] Wither Skull Throw (Pvsshhh)
-- [ ] Soul Speed
-- [ ] Nether Tools Apply Wither
-- [ ] Nearby Withering applies regen
-
-## Pickaxe:
-
-- [X] Chisel ores (more ore, less durability)
-- [X] Vein-miner (Vein-miner)
-- [ ] Locate Nearest Ore:
-- [ ] HammerMiner -> more duration cost
-- [X] Auto-smelt % chance
-- [X] Drop to inventory
-- [ ] Chance not to eat Durability
-
-## Ranged**:
-
-- [X] Ranged Arrow Recovery (On hit, chance to refund)
-- [X] Ranged Force (More dps at range)
-- [X] Lunge SHot (Lunging will do damage)
-- [X] Piercing Shot (Pierce through enemies)
-
-## Rift:
-
-- [X] Remote Container Access (Remote Container Access)
-- [X] Short-Ranged "blink" (teleport)
-- [X] No-Place Enderchest (like /ec )
-- [X] Rift Recall (Teleport to a location)
-- [X] Resilience based on Ender Artifact Used (blink = 10% Enderperal = 25% etc)
-
-## Seaborn:
-
-- [X] WaterBreathing
-- [X] Passive Speed bonus while swimming
-- [ ] Night vision underwater
-- [ ] Passive Fish?
-- [ ] Water Refiles Hunger/regen
-
-## Stealth:
-
-- [X] Snatching (close-range item Vacuum)
-- [X] Sneak-Speed (Destroy FOV in a single button press)
-- [X] Ghost Armor (Armor passively that grown on you, but only works for 1 hit)
-- [X] StealthSight
-- [ ] Sneak Attack
-
-## Swords:
-
-- [X] Machete (chopping blocks down)
-- [ ] Throwing Knife
-- [ ] Bleed Damage
-- [ ] More damage to Non-Armored Enemies
-- [ ] Turrets, Deploy Swords, that fling to a target
-
-## Taming:
-
-- [X] Tame Health Boost (Tames have more health)
-- [X] Tame Damage Boost (Tames do more DPS)
-- [X] Tame Health Regen (Tames have passive regen)
-- [ ] Tamed Vampirism  (Familiar)
-
-## Unarmed:
-
-- [X] Unarmed Power (Make unarmed Viable)
-- [X] Sucker Punch (One PunCh!)
-- [ ] One-Punch man?
-- [X] Glass Cannon (Less Armor = More damage to / from you)
-- [ ] Remote Grab?
-- [ ] Increased Boss Damage
-- [ ] Passive Strength while unarmed
-
-## Chronos: _(Unimplemented)_
-
-- [ ] Chronos Slowdown (Passive Slowdown for entities in the world near you)
-- [ ] Chronos Speed (Passive Speed for entities in the world near you)
-
-## TragOul: _(Unimplemented)_
-
-- [ ] Blood Mechanich and hurt yourself to get X
-
-</details>
 
 ## Credits
 
@@ -280,5 +100,233 @@ Helping out in any way you can is appreciated, and you will be listed here for y
 * [Vatuu](https://github.com/Vatuu)
 * [Cyberpwn](https://github.com/cyberpwnn)
 * [NextdoorPsycho](https://github.com/NextdoorPsycho)
+
+</details>
+
+<details>
+<summary> Skill/Adaptation List (110 Adaptations) </summary> 
+
+### Agility (4 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| AgilityArmorUp | Progressive armor boost while sprinting with wind-up ramp | Working |
+| AgilitySuperJump | Enhanced vertical jump when sneaking | Working |
+| AgilityWallJump | Mid-air jumps by sticking to walls | Working |
+| AgilityWindUp | Progressive movement speed boost while sprinting | Working |
+
+### Architect (5 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| ArchitectElevator | Teleports players between vertically-linked note block elevator markers | Working |
+| ArchitectFoundation | Creates temporary tinted glass blocks beneath sneaking players | Working |
+| ArchitectGlass | Silk-touch glass when breaking bare-handed | Working |
+| ArchitectPlacement | 3x3 block placement preview and batch place while sneaking | Working |
+| ArchitectWirelessRedstone | Bind redstone torches to target blocks for remote pulses | Working |
+
+### Axes (6 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| AxeChop | Right-click logs with an axe to mine vertical columns of connected wood | Working |
+| AxeCraftLogSwap | Crafting recipes to convert log types using saplings as catalysts | Working |
+| AxeDropToInventory | Redirects axe block drops into player inventory | Working |
+| AxeGroundSmash | AoE ground slam when sneaking and hitting mobs with an axe | Working |
+| AxeLeafVeinminer | Vein-mines connected leaves when sneaking with an axe | Working |
+| AxeWoodVeinminer | Vein-mines connected logs when sneaking with an axe | Working |
+
+### Blocking (2 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| BlockingChainArmorer | Crafting recipe for chainmail armor from iron nuggets | Working (recipe-only) |
+| BlockingMultiArmor | Combine chestplate and elytra into auto-switching MultiArmor item | Working |
+
+### Brewing (13 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| BrewingAbsorption | Brewing recipe for Absorption potions | Working |
+| BrewingBlindness | Brewing recipe for Blindness potions | Working |
+| BrewingDarkness | Brewing recipe for Darkness potions | Working |
+| BrewingDecay | Brewing recipe for Wither/Decay potions | Working |
+| BrewingFatigue | Brewing recipe for Mining Fatigue potions | Working |
+| BrewingHaste | Brewing recipe for Haste potions | Working |
+| BrewingHealthBoost | Brewing recipe for Health Boost potions | Working |
+| BrewingHunger | Brewing recipe for Hunger potions | Working |
+| BrewingLingering | Extends potion durations and adds lore via BrewEvent | Working |
+| BrewingNausea | Brewing recipe for Nausea potions | Working |
+| BrewingResistance | Brewing recipe named "Resistance" but applies ABSORPTION effect | Bug (effect type mismatch) |
+| BrewingSaturation | Brewing recipe for instant Saturation potions | Working |
+| BrewingSuperHeated | Accelerates brewing speed based on adjacent lava/fire blocks | Working |
+
+### Crafting (7 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| CraftingBackpacks | Crafting recipe for bundles from leather, lead, chest, and barrel | Working |
+| CraftingDeconstruction | Right-click floating items with shears while sneaking to deconstruct | Working |
+| CraftingLeather | Campfire recipe to cook rotten flesh into leather | Working |
+| CraftingReconstruction | 16 recipes to reconstruct ore blocks from stone and ingots | Working |
+| CraftingSkulls | Crafting recipes for mob skulls from bone blocks and materials | Working |
+| CraftingStations | Right-click portable crafting station items to open their UIs | Working |
+| CraftingXP | Grants XP orbs when crafting items | Working |
+
+### Discovery (4 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| DiscoveryArmor | Grants armor points based on hardness of nearby blocks | Working |
+| DiscoveryUnity | Grants random XP to a random unlocked skill when gaining vanilla XP | Working |
+| DiscoveryVillagerAtt | Steal XP and get Hero of the Village when right-clicking villagers | Working |
+| DiscoveryXpResist | Converts XP levels into damage reduction | Broken (always-false condition) |
+
+### Enchanting (3 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| EnchantingLapisReturn | Chance to return lapis lazuli when enchanting | Working |
+| EnchantingQuickEnchant | Apply enchanted books to items by swapping cursor in inventory | Working |
+| EnchantingXPReturn | Returns XP orbs when enchanting items | Working |
+
+### Excavation (4 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| ExcavationDropToInventory | Shovel drops go directly to inventory | Working |
+| ExcavationHaste | Grants Haste when starting to mine | Working |
+| ExcavationOmniTool | Multi-tool that auto-switches between tool types based on block | Working |
+| ExcavationSpelunker | Sneak with glowberries to highlight nearby ores with glowing markers | Working |
+
+### Herbalism (10 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| HerbalismCraftableCobweb | Crafting recipe for cobweb from string | Working (recipe-only) |
+| HerbalismCraftableMushroomBlocks | Crafting recipes for mushroom blocks from mushrooms | Working (recipe-only) |
+| HerbalismDropToInventory | Hoe crop drops go directly to inventory | Working |
+| HerbalismGrowthAura | Aura that accelerates nearby crop growth at hunger cost | Working (TODO notes XP is busted) |
+| HerbalismHungryHippo | Bonus food saturation when eating | Working |
+| HerbalismHungryShield | Converts incoming damage to hunger consumption | Working |
+| HerbalismLuck | Chance to drop seeds and food when breaking grass and flowers | Working |
+| HerbalismMyconid | Crafting recipe for mycelium from dirt and mushrooms | Working (recipe-only) |
+| HerbalismReplant | Right-click mature crops with hoe to harvest and auto-replant in radius | Working |
+| HerbalismTerralid | Crafting recipe for grass block from seeds and dirt | Working (recipe-only) |
+
+### Hunter (9 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| HunterAdrenaline | Increased damage output when at low health | Working |
+| HunterDropToInventory | Sword kill drops go directly to inventory | Working |
+| HunterInvis | Grants invisibility when taking damage with optional hunger penalty | Working |
+| HunterJumpBoost | Grants jump boost when taking damage | Working |
+| HunterLuck | Grants luck when taking damage | Working |
+| HunterRegen | Grants regeneration when taking damage | Working |
+| HunterResistance | Grants damage resistance when taking damage | Working |
+| HunterSpeed | Grants speed when taking damage | Working |
+| HunterStrength | Grants strength when taking damage | Working |
+
+### Nether (3 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| NetherFireResist | Chance to negate fire damage scaling with level | Working |
+| NetherSkullYeet | Left-click with wither skull to launch a wither skull projectile | Working |
+| NetherWitherResist | Chance to negate wither damage scaling with netherite armor count | Working |
+
+### Pickaxe (5 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| PickaxeAutosmelt | Auto-smelts ores into ingots when mined, respects fortune | Working |
+| PickaxeChisel | Right-click ores to extract raw drops with tool damage | Working |
+| PickaxeDropToInventory | Pickaxe drops go directly to inventory | Working |
+| PickaxeSilkSpawner | Silk-touch or sneak to pick up spawners preserving properties | Working |
+| PickaxeVeinminer | Sneak-mine to break all connected ores and obsidian in radius | Working |
+
+### Ranged (5 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| RangedArrowRecovery | Chance to recover arrows on hit scaling 10% to 80% | Working |
+| RangedForce | Increases projectile velocity on launch | Working |
+| RangedLungeShot | Launches player backward when shooting arrows mid-air | Working |
+| RangedPiercing | Increases arrow pierce level based on adaptation level | Working |
+| RangedWebBomb | Throwable snowballs that create temporary cobwebs on impact | Working |
+
+### Rift (7 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| RiftAccess | Bind ender pearl to a container for remote inventory access | Working |
+| RiftBlink | Short-range teleport in look direction while sprinting mid-air | Working |
+| RiftDescent | Removes levitation and grants slow falling when un-sneaking | Working |
+| RiftEnderchest | Right-click while holding ender chest to open it anywhere | Working |
+| RiftGate | Bind eye of ender to locations for teleportation recall | Working |
+| RiftResist | Grants damage resistance when interacting with ender pearls or eyes | Working |
+| RiftVisage | Prevents endermen from targeting players carrying ender pearls | Working |
+
+### Seaborne (5 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| SeaborneFishersFantasy | Bonus drops and XP when catching fish | Working |
+| SeaborneOxygen | Grants water breathing when in water | Working |
+| SeaborneSpeed | Grants Dolphin's Grace when swimming without Depth Strider | Bug (early return exits loop for all players) |
+| SeaborneTurtlesMiningSpeed | Grants Haste when underwater | Working |
+| SeaborneTurtlesVision | Grants Night Vision when underwater | Working |
+
+### Stealth (5 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| StealthEnderVeil | Prevents Endermen from targeting or attacking the player | Working |
+| StealthGhostArmor | Regenerating armor points that reset on damage | Working |
+| StealthSight | Grants night vision while sneaking | Working |
+| StealthSnatch | Auto-collects nearby dropped items while sneaking | Working |
+| StealthSpeed | Grants speed while sneaking | Working |
+
+### Swords (3 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| SwordsBloodyBlade | Applies bleeding DoT effect to sword-hit targets | Working |
+| SwordsMachete | Left-click with sword to harvest vegetation in an area | Working |
+| SwordsPoisonedBlade | Applies poison and bleed to sword-hit targets | Working |
+
+### Taming (3 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| TamingDamage | Increases attack damage of tamed entities | Working |
+| TamingHealthBoost | Increases max health of tamed entities | Working |
+| TamingHealthRegeneration | Grants regen to tamed entities when they take damage | Working (minor concurrency concern) |
+
+### Tragoul (4 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| TragoulGlobe | Distributes damage dealt to all nearby entities as AoE | Working |
+| TragoulHealing | Heals player on melee hit as percentage of damage dealt | Working |
+| TragoulLance | Spawns seeking projectiles that chain between enemies on kill | Working |
+| TragoulThorns | Reflects damage back to attackers including melee and projectile | Working |
+
+### Unarmed (3 adaptations)
+
+| Adaptation | Description | Status |
+|---|---|---|
+| UnarmedGlassCannon | Amplifies unarmed damage inversely proportional to armor | Working |
+| UnarmedPower | Passive unarmed damage increase scaling with level | Working |
+| UnarmedSuckerPunch | Amplified unarmed damage while sprinting | Working |
+
+### Known Bugs
+
+| Adaptation | Issue |
+|---|---|
+| DiscoveryXpResist | Condition `p.getLevel() < p.getLevel() - getXpTaken(...)` is always false; damage reduction never triggers |
+| SeaborneSpeed | `return;` inside player loop exits entire `onTick()` when any player has Depth Strider, skipping all remaining players |
+| BrewingResistance | Named "Bottled Resistance" but applies ABSORPTION effect instead of RESISTANCE |
 
 </details>

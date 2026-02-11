@@ -77,12 +77,11 @@ public class KList<T> extends ArrayList<T> implements List<T> {
     }
 
     /**
-     * Remove the last element
+     * Remove and return the last element.
      */
-    public KList<T> removeLast() {
-        remove(last());
-
-        return this;
+    @Override
+    public T removeLast() {
+        return super.removeLast();
     }
 
     public void addMultiple(T t, int c) {

@@ -13,7 +13,7 @@ chrono = "22.9.10"
 spatial = "22.11.2"
 
 velocity = "3.4.0-SNAPSHOT"
-spigot = "1.20.2-R0.1-SNAPSHOT"
+spigot = "1.21.11-R0.2-SNAPSHOT"
 platformUtils = "e17ac2c698"
 
 # Dynamically Loaded
@@ -22,7 +22,7 @@ adventure-platform = "4.4.1" # https://github.com/KyoriPowered/adventure-platfor
 
 lettuce = "6.5.1.RELEASE"
 particle = "1.8.4"
-ultimateAdvancementApi = "2.7.1"
+ultimateAdvancementApi = "2.7.2"
 customBlockData = "2.2.3"
 lur = "1.4.2"
 lang3 = "3.12.0"

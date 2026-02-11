@@ -26,6 +26,7 @@ import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KList;
+import com.volmit.adapt.util.reflect.registries.ItemFlags;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -38,7 +39,6 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.BrewEvent;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
@@ -151,7 +151,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
             ), true);
         }
 
-        p.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+        p.addItemFlags(ItemFlags.HIDE_POTION_EFFECTS);
         is.setItemMeta(p);
 
         if (getConfig().useCustomLore) {

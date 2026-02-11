@@ -21,16 +21,28 @@ import static com.volmit.adapt.Adapt.instance;
 public class AdvancementManager {
     private final AdvancementMain main;
     private final Map<String, Advancement> advancements;
-    private final AtomicBoolean loaded = new AtomicBoolean(true);
+    private final AtomicBoolean loaded = new AtomicBoolean(false);
     private final AtomicBoolean enabled = new AtomicBoolean(false);
 
     public AdvancementManager() {
-        main = new AdvancementMain(instance);
-        main.load();
+        AdvancementMain loadedMain = null;
+        try {
+            loadedMain = new AdvancementMain(instance);
+            loadedMain.load();
+            loaded.set(true);
+        } catch (Throwable e) {
+            Adapt.warn("UltimateAdvancementAPI is unavailable: " + e.getMessage() + ". Advancements will be disabled.");
+        }
+
+        main = loadedMain;
         advancements = new HashMap<>();
     }
 
     AdvancementTab createAdvancementTab(String namespace) {
+        if (main == null) {
+            throw new IllegalStateException("UltimateAdvancementAPI is unavailable");
+        }
+
         return main.createAdvancementTab(instance, "adapt_" + namespace);
     }
 
@@ -84,6 +96,10 @@ public class AdvancementManager {
     }
 
     public void enable() {
+        if (main == null) {
+            return;
+        }
+
         if (loaded.compareAndSet(false, true))
             main.load();
 
@@ -116,6 +132,12 @@ public class AdvancementManager {
     }
 
     public void disable() {
+        if (main == null) {
+            enabled.set(false);
+            loaded.set(false);
+            return;
+        }
+
         main.disable();
         enabled.set(false);
         loaded.set(false);
