@@ -373,6 +373,716 @@
     title = "Beestenmeester"
     description = "Fok 500 dieren"
 
+# Agility - New Achievement Chains
+[advancement.challenge_sprint_dist_5k]
+    title = "Snelheidsdemon"
+    description = "Sprint meer dan 5 Kilometer (5,000 blokken)"
+
+[advancement.challenge_sprint_dist_50k]
+    title = "Bliksembenen"
+    description = "Sprint meer dan 50 Kilometer (50,000 blokken)"
+
+[advancement.challenge_agility_swim_1k]
+    title = "Waterloper"
+    description = "Zwem meer dan 1 Kilometer (1,000 blokken)"
+
+[advancement.challenge_agility_swim_10k]
+    title = "Aquatische Reiziger"
+    description = "Zwem meer dan 10 Kilometer (10,000 blokken)"
+
+[advancement.challenge_fly_1k]
+    title = "Hemeldanser"
+    description = "Vlieg meer dan 1 Kilometer (1,000 blokken)"
+
+[advancement.challenge_fly_10k]
+    title = "Windrijder"
+    description = "Vlieg meer dan 10 Kilometer (10,000 blokken)"
+
+[advancement.challenge_agility_sneak_500]
+    title = "Stille Stappen"
+    description = "Sluip meer dan 500 blokken"
+
+[advancement.challenge_agility_sneak_5k]
+    title = "Spookstappen"
+    description = "Sluip meer dan 5 Kilometer (5,000 blokken)"
+
+# Architect - New Achievement Chains
+[advancement.challenge_demolish_500]
+    title = "Sloopploeg"
+    description = "Vernietig 500 blokken"
+
+[advancement.challenge_demolish_5k]
+    title = "Sloopkogel"
+    description = "Vernietig 5,000 blokken"
+
+[advancement.challenge_value_placed_10k]
+    title = "Waardevolle Bouwer"
+    description = "Plaats blokken ter waarde van 10,000"
+
+[advancement.challenge_value_placed_100k]
+    title = "Meester Architect"
+    description = "Plaats blokken ter waarde van 100,000"
+
+[advancement.challenge_demolish_val_5k]
+    title = "Bergingsexpert"
+    description = "Berg 5,000 blokwaarde uit sloop"
+
+[advancement.challenge_demolish_val_50k]
+    title = "Totale Afbraak"
+    description = "Berg 50,000 blokwaarde uit sloop"
+
+[advancement.challenge_high_build_100]
+    title = "Hemelbouwer"
+    description = "Plaats 100 blokken boven Y=128"
+
+[advancement.challenge_high_build_1k]
+    title = "Wolkenarchitect"
+    description = "Plaats 1,000 blokken boven Y=128"
+
+# Axes - New Achievement Chains
+[advancement.challenge_axe_swing_500]
+    title = "Bijlzwaaier"
+    description = "Zwaai je bijl 500 keer"
+
+[advancement.challenge_axe_swing_5k]
+    title = "Berserker"
+    description = "Zwaai je bijl 5,000 keer"
+
+[advancement.challenge_axe_damage_1k]
+    title = "Kliever"
+    description = "Deel 1,000 schade uit met bijlen"
+
+[advancement.challenge_axe_damage_10k]
+    title = "Beulsbijl"
+    description = "Deel 10,000 schade uit met bijlen"
+
+[advancement.challenge_axe_value_5k]
+    title = "Houthandelaar"
+    description = "Oogst 5,000 waarde aan hout"
+
+[advancement.challenge_axe_value_50k]
+    title = "Houtbaron"
+    description = "Oogst 50,000 waarde aan hout"
+
+[advancement.challenge_leaves_500]
+    title = "Bladblazer"
+    description = "Verwijder 500 bladblokken met een bijl"
+
+[advancement.challenge_leaves_5k]
+    title = "Ontbladeraar"
+    description = "Verwijder 5,000 bladblokken met een bijl"
+
+# Blocking - New Achievement Chains
+[advancement.challenge_block_dmg_1k]
+    title = "Schadedemper"
+    description = "Blokkeer 1,000 schade met een schild"
+
+[advancement.challenge_block_dmg_10k]
+    title = "Menselijk Schild"
+    description = "Blokkeer 10,000 schade met een schild"
+
+[advancement.challenge_block_proj_100]
+    title = "Pijlafweerder"
+    description = "Blokkeer 100 projectielen met een schild"
+
+[advancement.challenge_block_proj_1k]
+    title = "Projectielschild"
+    description = "Blokkeer 1,000 projectielen met een schild"
+
+[advancement.challenge_block_melee_500]
+    title = "Pareermeester"
+    description = "Blokkeer 500 melee-aanvallen met een schild"
+
+[advancement.challenge_block_melee_5k]
+    title = "IJzeren Vesting"
+    description = "Blokkeer 5,000 melee-aanvallen met een schild"
+
+[advancement.challenge_block_heavy_50]
+    title = "Tank"
+    description = "Blokkeer 50 zware aanvallen (meer dan 5 schade)"
+
+[advancement.challenge_block_heavy_500]
+    title = "Onbeweegbaar Object"
+    description = "Blokkeer 500 zware aanvallen (meer dan 5 schade)"
+
+# Brewing - New Achievement Chains
+[advancement.challenge_brew_stands_10]
+    title = "Brouwerij Opzet"
+    description = "Plaats 10 brouwerstandaarden"
+
+[advancement.challenge_brew_stands_50]
+    title = "Drankjesfabriek"
+    description = "Plaats 50 brouwerstandaarden"
+
+[advancement.challenge_brew_strong_25]
+    title = "Sterk Brouwsel"
+    description = "Verbruik 25 verbeterde drankjes"
+
+[advancement.challenge_brew_strong_250]
+    title = "Maximale Kracht"
+    description = "Verbruik 250 verbeterde drankjes"
+
+[advancement.challenge_brew_splash_hits_50]
+    title = "Spatzone"
+    description = "Raak 50 entiteiten met spatdrankjes"
+
+[advancement.challenge_brew_splash_hits_500]
+    title = "Pestdokter"
+    description = "Raak 500 entiteiten met spatdrankjes"
+
+# Chronos - New Achievement Chains
+[advancement.challenge_active_dist_1k]
+    title = "Rusteloze Ziel"
+    description = "Reis 1 Kilometer terwijl je actief bent"
+
+[advancement.challenge_active_dist_10k]
+    title = "Padvinder"
+    description = "Reis 10 Kilometer terwijl je actief bent"
+
+[advancement.challenge_active_dist_100k]
+    title = "Eeuwige Beweging"
+    description = "Reis 100 Kilometer terwijl je actief bent"
+
+[advancement.challenge_beds_10]
+    title = "Vroege Vogel"
+    description = "Slaap 10 keer in een bed"
+
+[advancement.challenge_beds_100]
+    title = "Tijdspringer"
+    description = "Slaap 100 keer in een bed"
+
+[advancement.challenge_chronos_tp_50]
+    title = "Tijdverschuiving"
+    description = "Teleporteer 50 keer"
+
+[advancement.challenge_chronos_tp_500]
+    title = "Tijdkronkel"
+    description = "Teleporteer 500 keer"
+
+[advancement.challenge_chronos_deaths_10]
+    title = "Sterfelijk"
+    description = "Sterf 10 keer"
+
+[advancement.challenge_chronos_deaths_100]
+    title = "Doodstarter"
+    description = "Sterf 100 keer"
+
+# Crafting - New Achievement Chains
+[advancement.challenge_craft_value_10k]
+    title = "Ambachtelijke Waarde"
+    description = "Maak items ter waarde van 10,000 totaal"
+
+[advancement.challenge_craft_value_100k]
+    title = "Ambachtsman"
+    description = "Maak items ter waarde van 100,000 totaal"
+
+[advancement.challenge_craft_tools_25]
+    title = "Gereedschapmaker"
+    description = "Maak 25 gereedschappen"
+
+[advancement.challenge_craft_tools_250]
+    title = "Meestersmid"
+    description = "Maak 250 gereedschappen"
+
+[advancement.challenge_craft_armor_25]
+    title = "Wapensmid"
+    description = "Maak 25 stukken wapenrusting"
+
+[advancement.challenge_craft_armor_250]
+    title = "Meester Wapensmid"
+    description = "Maak 250 stukken wapenrusting"
+
+[advancement.challenge_craft_mass_25k]
+    title = "Massaproductie"
+    description = "Maak 25,000 items"
+
+[advancement.challenge_craft_mass_250k]
+    title = "Industriele Revolutie"
+    description = "Maak 250,000 items"
+
+# Discovery - New Achievement Chains
+[advancement.challenge_discover_items_50]
+    title = "Verzamelaar"
+    description = "Ontdek 50 unieke items"
+
+[advancement.challenge_discover_items_250]
+    title = "Catalogiseerder"
+    description = "Ontdek 250 unieke items"
+
+[advancement.challenge_discover_blocks_50]
+    title = "Landmeter"
+    description = "Ontdek 50 unieke blokken"
+
+[advancement.challenge_discover_blocks_250]
+    title = "Geoloog"
+    description = "Ontdek 250 unieke blokken"
+
+[advancement.challenge_discover_mobs_25]
+    title = "Waarnemer"
+    description = "Ontdek 25 unieke mobs"
+
+[advancement.challenge_discover_mobs_75]
+    title = "Naturalist"
+    description = "Ontdek 75 unieke mobs"
+
+[advancement.challenge_discover_biomes_10]
+    title = "Zwerver"
+    description = "Ontdek 10 unieke biomen"
+
+[advancement.challenge_discover_biomes_40]
+    title = "Wereldreiziger"
+    description = "Ontdek 40 unieke biomen"
+
+[advancement.challenge_discover_foods_10]
+    title = "Fijnproever"
+    description = "Ontdek 10 unieke voedselsoorten"
+
+[advancement.challenge_discover_foods_30]
+    title = "Culinair Meester"
+    description = "Ontdek 30 unieke voedselsoorten"
+
+# Enchanting - New Achievement Chains
+[advancement.challenge_enchant_power_100]
+    title = "Krachtwever"
+    description = "Verzamel 100 betoveringskracht"
+
+[advancement.challenge_enchant_power_1k]
+    title = "Arcane Meester"
+    description = "Verzamel 1,000 betoveringskracht"
+
+[advancement.challenge_enchant_levels_1k]
+    title = "Levelverbruiker"
+    description = "Besteed 1,000 ervaringsniveaus aan betoveringen"
+
+[advancement.challenge_enchant_levels_10k]
+    title = "Ervaringsput"
+    description = "Besteed 10,000 ervaringsniveaus aan betoveringen"
+
+[advancement.challenge_enchant_high_25]
+    title = "Hoge Inzet"
+    description = "Voer 25 betoveringen op maximaal niveau uit"
+
+[advancement.challenge_enchant_high_250]
+    title = "Legendarische Betoveraar"
+    description = "Voer 250 betoveringen op maximaal niveau uit"
+
+[advancement.challenge_enchant_total_500]
+    title = "Levelverbrander"
+    description = "Besteed 500 totale niveaus aan alle betoveringen"
+
+[advancement.challenge_enchant_total_5k]
+    title = "Arcane Investering"
+    description = "Besteed 5,000 totale niveaus aan alle betoveringen"
+
+# Excavation - New Achievement Chains
+[advancement.challenge_dig_swing_500]
+    title = "Graver"
+    description = "Zwaai je schop 500 keer"
+
+[advancement.challenge_dig_swing_5k]
+    title = "Graafmachine"
+    description = "Zwaai je schop 5,000 keer"
+
+[advancement.challenge_dig_damage_1k]
+    title = "Schopridder"
+    description = "Deel 1,000 schade uit met een schop"
+
+[advancement.challenge_dig_damage_10k]
+    title = "Schopmeester"
+    description = "Deel 10,000 schade uit met een schop"
+
+[advancement.challenge_dig_value_5k]
+    title = "Aardhandelaar"
+    description = "Graaf 5,000 waarde aan blokken op"
+
+[advancement.challenge_dig_value_50k]
+    title = "Aardbaron"
+    description = "Graaf 50,000 waarde aan blokken op"
+
+[advancement.challenge_dig_gravel_500]
+    title = "Grindmaler"
+    description = "Graaf 500 grind-, zand- of kleiblekken"
+
+[advancement.challenge_dig_gravel_5k]
+    title = "Zandzifter"
+    description = "Graaf 5,000 grind-, zand- of kleiblekken"
+
+# Herbalism - New Achievement Chains
+[advancement.challenge_plant_100]
+    title = "Zaadzaaier"
+    description = "Plant 100 gewassen"
+
+[advancement.challenge_plant_1k]
+    title = "Groene Vingers"
+    description = "Plant 1,000 gewassen"
+
+[advancement.challenge_plant_5k]
+    title = "Landbouwbaron"
+    description = "Plant 5,000 gewassen"
+
+[advancement.challenge_compost_50]
+    title = "Recycler"
+    description = "Composteer 50 items"
+
+[advancement.challenge_compost_500]
+    title = "Bodemverrijker"
+    description = "Composteer 500 items"
+
+[advancement.challenge_shear_50]
+    title = "Schaapscheerder"
+    description = "Scheer 50 entiteiten"
+
+[advancement.challenge_shear_250]
+    title = "Kudde Meester"
+    description = "Scheer 250 entiteiten"
+
+# Hunter - New Achievement Chains
+[advancement.challenge_kills_500]
+    title = "Jager"
+    description = "Versla 500 wezens"
+
+[advancement.challenge_kills_5k]
+    title = "Beul"
+    description = "Versla 5,000 wezens"
+
+[advancement.challenge_boss_1]
+    title = "Baasuitdager"
+    description = "Versla een baasmob"
+
+[advancement.challenge_boss_10]
+    title = "Legendedoder"
+    description = "Versla 10 baasmobs"
+
+# Nether - New Achievement Chains
+[advancement.challenge_wither_dmg_500]
+    title = "Verwelkt"
+    description = "Doorsta 500 witherschade"
+
+[advancement.challenge_wither_dmg_5k]
+    title = "Plaagoverlevende"
+    description = "Doorsta 5,000 witherschade"
+
+[advancement.challenge_wither_skel_25]
+    title = "Bottenverzamelaar"
+    description = "Versla 25 witherskeletten"
+
+[advancement.challenge_wither_skel_250]
+    title = "Skeletvloek"
+    description = "Versla 250 witherskeletten"
+
+[advancement.challenge_wither_boss_1]
+    title = "Withervernietiger"
+    description = "Versla de Wither"
+
+[advancement.challenge_wither_boss_10]
+    title = "Netherheerser"
+    description = "Versla de Wither 10 keer"
+
+[advancement.challenge_roses_10]
+    title = "Dodentuinier"
+    description = "Breek 10 witherrosen"
+
+[advancement.challenge_roses_100]
+    title = "Plaagverzamelaar"
+    description = "Breek 100 witherrosen"
+
+# Pickaxes - New Achievement Chains
+[advancement.challenge_pick_swing_500]
+    title = "Mijnwerkersarm"
+    description = "Zwaai je houweel 500 keer"
+
+[advancement.challenge_pick_swing_5k]
+    title = "Tunnelgraver"
+    description = "Zwaai je houweel 5,000 keer"
+
+[advancement.challenge_pick_damage_1k]
+    title = "Houweelvechter"
+    description = "Deel 1,000 schade uit met een houweel"
+
+[advancement.challenge_pick_damage_10k]
+    title = "Oorlogshouweel"
+    description = "Deel 10,000 schade uit met een houweel"
+
+[advancement.challenge_pick_value_5k]
+    title = "Edelsteenvinder"
+    description = "Mijn 5,000 waarde aan blokken"
+
+[advancement.challenge_pick_value_50k]
+    title = "Ertsbaron"
+    description = "Mijn 50,000 waarde aan blokken"
+
+[advancement.challenge_pick_ores_500]
+    title = "Goudzoeker"
+    description = "Mijn 500 ertsblokken"
+
+[advancement.challenge_pick_ores_5k]
+    title = "Meestermijnwerker"
+    description = "Mijn 5,000 ertsblokken"
+
+# Ranged - New Achievement Chains
+[advancement.challenge_ranged_dmg_1k]
+    title = "Scherpschutter"
+    description = "Deel 1,000 afstandsschade uit"
+
+[advancement.challenge_ranged_dmg_10k]
+    title = "Dodelijke Boogschutter"
+    description = "Deel 10,000 afstandsschade uit"
+
+[advancement.challenge_ranged_dist_5k]
+    title = "Lange Afstand"
+    description = "Schiet projectielen over een totale afstand van 5,000 blokken"
+
+[advancement.challenge_ranged_dist_50k]
+    title = "Kilometerschutter"
+    description = "Schiet projectielen over een totale afstand van 50,000 blokken"
+
+[advancement.challenge_ranged_kills_50]
+    title = "Boogschutter"
+    description = "Dood 50 mobs met afstandswapens"
+
+[advancement.challenge_ranged_kills_500]
+    title = "Meesterboogschutter"
+    description = "Dood 500 mobs met afstandswapens"
+
+[advancement.challenge_longshot_25]
+    title = "Sluipschutter"
+    description = "Land 25 langeafstandsschoten (meer dan 30 blokken)"
+
+[advancement.challenge_longshot_250]
+    title = "Arendsoog"
+    description = "Land 250 langeafstandsschoten (meer dan 30 blokken)"
+
+# Rift - New Achievement Chains
+[advancement.challenge_rift_pearls_50]
+    title = "Parelgooier"
+    description = "Gooi 50 enderparels"
+
+[advancement.challenge_rift_pearls_500]
+    title = "Teleportverslaafde"
+    description = "Gooi 500 enderparels"
+
+[advancement.challenge_rift_enderman_50]
+    title = "Endermanjager"
+    description = "Versla 50 endermannen"
+
+[advancement.challenge_rift_enderman_500]
+    title = "Leegtesluiper"
+    description = "Versla 500 endermannen"
+
+[advancement.challenge_rift_dragon_500]
+    title = "Drakenvechter"
+    description = "Deel 500 schade toe aan de Ender Draak"
+
+[advancement.challenge_rift_dragon_5k]
+    title = "Drakenvloek"
+    description = "Deel 5,000 schade toe aan de Ender Draak"
+
+[advancement.challenge_rift_crystal_10]
+    title = "Kristalbreker"
+    description = "Vernietig 10 endkristallen"
+
+[advancement.challenge_rift_crystal_100]
+    title = "Endvernietiger"
+    description = "Vernietig 100 endkristallen"
+
+# Seaborne - New Achievement Chains
+[advancement.challenge_fish_25]
+    title = "Hengelaar"
+    description = "Vang 25 vissen"
+
+[advancement.challenge_fish_250]
+    title = "Meestervisser"
+    description = "Vang 250 vissen"
+
+[advancement.challenge_drowned_25]
+    title = "Verdronkenjager"
+    description = "Versla 25 verdronkenen"
+
+[advancement.challenge_drowned_250]
+    title = "Oceaanreiniger"
+    description = "Versla 250 verdronkenen"
+
+[advancement.challenge_guardian_10]
+    title = "Bewakerdoder"
+    description = "Versla 10 bewakers"
+
+[advancement.challenge_guardian_100]
+    title = "Tempelplunderaar"
+    description = "Versla 100 bewakers"
+
+[advancement.challenge_underwater_blocks_100]
+    title = "Onderwatermijnwerker"
+    description = "Breek 100 blokken onder water"
+
+[advancement.challenge_underwater_blocks_1k]
+    title = "Aquatisch Ingenieur"
+    description = "Breek 1,000 blokken onder water"
+
+# Stealth - New Achievement Chains
+[advancement.challenge_stealth_dmg_500]
+    title = "Rugsteker"
+    description = "Deel 500 schade uit terwijl je sluipt"
+
+[advancement.challenge_stealth_dmg_5k]
+    title = "Stille Moordenaar"
+    description = "Deel 5,000 schade uit terwijl je sluipt"
+
+[advancement.challenge_stealth_kills_10]
+    title = "Sluipmoordenaar"
+    description = "Dood 10 mobs terwijl je sluipt"
+
+[advancement.challenge_stealth_kills_100]
+    title = "Schaduwmaaier"
+    description = "Dood 100 mobs terwijl je sluipt"
+
+[advancement.challenge_stealth_time_1h]
+    title = "Geduldig"
+    description = "Breng 1 uur sluipend door (3,600 seconden)"
+
+[advancement.challenge_stealth_time_10h]
+    title = "Meester der Schaduwen"
+    description = "Breng 10 uur sluipend door (36,000 seconden)"
+
+[advancement.challenge_stealth_arrows_50]
+    title = "Stille Boogschutter"
+    description = "Schiet 50 pijlen terwijl je sluipt"
+
+[advancement.challenge_stealth_arrows_500]
+    title = "Spookboogschutter"
+    description = "Schiet 500 pijlen terwijl je sluipt"
+
+# Swords - New Achievement Chains
+[advancement.challenge_sword_dmg_1k]
+    title = "Zwaardleerling"
+    description = "Deel 1,000 schade uit met zwaarden"
+
+[advancement.challenge_sword_dmg_10k]
+    title = "Zwaardvechter"
+    description = "Deel 10,000 schade uit met zwaarden"
+
+[advancement.challenge_sword_kills_50]
+    title = "Duelleur"
+    description = "Dood 50 mobs met zwaarden"
+
+[advancement.challenge_sword_kills_500]
+    title = "Gladiator"
+    description = "Dood 500 mobs met zwaarden"
+
+[advancement.challenge_sword_crit_50]
+    title = "Kritieke Klap"
+    description = "Land 50 kritieke treffers met zwaarden"
+
+[advancement.challenge_sword_crit_500]
+    title = "Precisiemeester"
+    description = "Land 500 kritieke treffers met zwaarden"
+
+[advancement.challenge_sword_heavy_25]
+    title = "Zware Klap"
+    description = "Land 25 zware treffers met zwaarden (meer dan 8 schade)"
+
+[advancement.challenge_sword_heavy_250]
+    title = "Verwoestende Slag"
+    description = "Land 250 zware treffers met zwaarden (meer dan 8 schade)"
+
+# Taming - New Achievement Chains
+[advancement.challenge_pet_dmg_500]
+    title = "Beestentrainer"
+    description = "Je huisdieren delen 500 totale schade uit"
+
+[advancement.challenge_pet_dmg_5k]
+    title = "Oorlogsmeester"
+    description = "Je huisdieren delen 5,000 totale schade uit"
+
+[advancement.challenge_tamed_10]
+    title = "Dierenvriend"
+    description = "Tem 10 dieren"
+
+[advancement.challenge_tamed_100]
+    title = "Dierentuinverzorger"
+    description = "Tem 100 dieren"
+
+[advancement.challenge_pet_kills_25]
+    title = "Roedeltactiek"
+    description = "Je huisdieren verslaan 25 wezens"
+
+[advancement.challenge_pet_kills_250]
+    title = "Alfacommandant"
+    description = "Je huisdieren verslaan 250 wezens"
+
+[advancement.challenge_taming_2500]
+    title = "Fokexpert"
+    description = "Fok 2,500 dieren"
+
+[advancement.challenge_taming_25k]
+    title = "Geneticameester"
+    description = "Fok 25,000 dieren"
+
+# TragOul - New Achievement Chains
+[advancement.challenge_trag_hits_500]
+    title = "Bokszak"
+    description = "Ontvang 500 treffers"
+
+[advancement.challenge_trag_hits_5k]
+    title = "Gulzig voor Straf"
+    description = "Ontvang 5,000 treffers"
+
+[advancement.challenge_trag_deaths_10]
+    title = "Negen Levens"
+    description = "Sterf 10 keer"
+
+[advancement.challenge_trag_deaths_100]
+    title = "Terugkerende Nachtmerrie"
+    description = "Sterf 100 keer"
+
+[advancement.challenge_trag_fire_500]
+    title = "Brandslachtoffer"
+    description = "Doorsta 500 vuurschade"
+
+[advancement.challenge_trag_fire_5k]
+    title = "Feniks"
+    description = "Doorsta 5,000 vuurschade"
+
+[advancement.challenge_trag_fall_500]
+    title = "Zwaartekrachttest"
+    description = "Doorsta 500 valschade"
+
+[advancement.challenge_trag_fall_5k]
+    title = "Eindsnelheid"
+    description = "Doorsta 5,000 valschade"
+
+# Unarmed - New Achievement Chains
+[advancement.challenge_unarmed_dmg_1k]
+    title = "Vechtersbaas"
+    description = "Deel 1,000 schade uit met blote vuisten"
+
+[advancement.challenge_unarmed_dmg_10k]
+    title = "Vechtsportmeester"
+    description = "Deel 10,000 schade uit met blote vuisten"
+
+[advancement.challenge_unarmed_kills_25]
+    title = "Blote Knokkel"
+    description = "Dood 25 mobs met blote vuisten"
+
+[advancement.challenge_unarmed_kills_250]
+    title = "Vuist der Legende"
+    description = "Dood 250 mobs met blote vuisten"
+
+[advancement.challenge_unarmed_crit_25]
+    title = "Kritieke Stomp"
+    description = "Land 25 kritieke treffers met blote vuisten"
+
+[advancement.challenge_unarmed_crit_250]
+    title = "Precisiepunch"
+    description = "Land 250 kritieke treffers met blote vuisten"
+
+[advancement.challenge_unarmed_heavy_25]
+    title = "Krachtstomp"
+    description = "Land 25 zware treffers met blote vuisten (meer dan 6 schade)"
+
+[advancement.challenge_unarmed_heavy_250]
+    title = "Knockoutkoning"
+    description = "Land 250 zware treffers met blote vuisten (meer dan 6 schade)"
+
 # items
 [items]
 

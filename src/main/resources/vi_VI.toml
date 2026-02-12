@@ -373,6 +373,716 @@
     title = "Chúa Tể Muông Thú"
     description = "Nhân giống 500 động vật"
 
+# Agility - New Achievement Chains
+[advancement.challenge_sprint_dist_5k]
+    title = "Ác Quỷ Tốc Độ"
+    description = "Chạy nước rút hơn 5 Kilômét (5,000 khối)"
+
+[advancement.challenge_sprint_dist_50k]
+    title = "Chân Sấm Sét"
+    description = "Chạy nước rút hơn 50 Kilômét (50,000 khối)"
+
+[advancement.challenge_agility_swim_1k]
+    title = "Người Lướt Nước"
+    description = "Bơi hơn 1 Kilômét (1,000 khối)"
+
+[advancement.challenge_agility_swim_10k]
+    title = "Nhà Hàng Hải"
+    description = "Bơi hơn 10 Kilômét (10,000 khối)"
+
+[advancement.challenge_fly_1k]
+    title = "Vũ Công Bầu Trời"
+    description = "Bay hơn 1 Kilômét (1,000 khối)"
+
+[advancement.challenge_fly_10k]
+    title = "Kỵ Sĩ Gió"
+    description = "Bay hơn 10 Kilômét (10,000 khối)"
+
+[advancement.challenge_agility_sneak_500]
+    title = "Bước Chân Nhẹ"
+    description = "Lén lút hơn 500 khối"
+
+[advancement.challenge_agility_sneak_5k]
+    title = "Bước Chân Ma"
+    description = "Lén lút hơn 5 Kilômét (5,000 khối)"
+
+# Architect - New Achievement Chains
+[advancement.challenge_demolish_500]
+    title = "Đội Phá Hủy"
+    description = "Phá 500 khối"
+
+[advancement.challenge_demolish_5k]
+    title = "Quả Cầu Phá Hủy"
+    description = "Phá 5,000 khối"
+
+[advancement.challenge_value_placed_10k]
+    title = "Thợ Xây Giá Trị"
+    description = "Đặt khối có giá trị 10,000"
+
+[advancement.challenge_value_placed_100k]
+    title = "Bậc Thầy Kiến Trúc"
+    description = "Đặt khối có giá trị 100,000"
+
+[advancement.challenge_demolish_val_5k]
+    title = "Chuyên Gia Thu Hồi"
+    description = "Thu hồi 5,000 giá trị khối từ phá hủy"
+
+[advancement.challenge_demolish_val_50k]
+    title = "Tháo Dỡ Hoàn Toàn"
+    description = "Thu hồi 50,000 giá trị khối từ phá hủy"
+
+[advancement.challenge_high_build_100]
+    title = "Thợ Xây Trên Cao"
+    description = "Đặt 100 khối trên Y=128"
+
+[advancement.challenge_high_build_1k]
+    title = "Kiến Trúc Sư Mây"
+    description = "Đặt 1,000 khối trên Y=128"
+
+# Axes - New Achievement Chains
+[advancement.challenge_axe_swing_500]
+    title = "Người Vung Rìu"
+    description = "Vung rìu 500 lần"
+
+[advancement.challenge_axe_swing_5k]
+    title = "Cuồng Chiến Binh"
+    description = "Vung rìu 5,000 lần"
+
+[advancement.challenge_axe_damage_1k]
+    title = "Người Chẻ"
+    description = "Gây 1,000 sát thương bằng rìu"
+
+[advancement.challenge_axe_damage_10k]
+    title = "Rìu Đao Phủ"
+    description = "Gây 10,000 sát thương bằng rìu"
+
+[advancement.challenge_axe_value_5k]
+    title = "Thương Nhân Gỗ"
+    description = "Thu hoạch gỗ trị giá 5,000"
+
+[advancement.challenge_axe_value_50k]
+    title = "Trùm Khai Thác Gỗ"
+    description = "Thu hoạch gỗ trị giá 50,000"
+
+[advancement.challenge_leaves_500]
+    title = "Máy Thổi Lá"
+    description = "Dọn 500 khối lá bằng rìu"
+
+[advancement.challenge_leaves_5k]
+    title = "Người Rụng Lá"
+    description = "Dọn 5,000 khối lá bằng rìu"
+
+# Blocking - New Achievement Chains
+[advancement.challenge_block_dmg_1k]
+    title = "Người Hấp Thụ Sát Thương"
+    description = "Chặn 1,000 sát thương bằng khiên"
+
+[advancement.challenge_block_dmg_10k]
+    title = "Khiên Sống"
+    description = "Chặn 10,000 sát thương bằng khiên"
+
+[advancement.challenge_block_proj_100]
+    title = "Người Đỡ Tên"
+    description = "Chặn 100 đạn bằng khiên"
+
+[advancement.challenge_block_proj_1k]
+    title = "Khiên Chống Đạn"
+    description = "Chặn 1,000 đạn bằng khiên"
+
+[advancement.challenge_block_melee_500]
+    title = "Bậc Thầy Đỡ Đòn"
+    description = "Chặn 500 đòn cận chiến bằng khiên"
+
+[advancement.challenge_block_melee_5k]
+    title = "Pháo Đài Sắt"
+    description = "Chặn 5,000 đòn cận chiến bằng khiên"
+
+[advancement.challenge_block_heavy_50]
+    title = "Xe Tăng"
+    description = "Chặn 50 đòn nặng (trên 5 sát thương)"
+
+[advancement.challenge_block_heavy_500]
+    title = "Vật Bất Di"
+    description = "Chặn 500 đòn nặng (trên 5 sát thương)"
+
+# Brewing - New Achievement Chains
+[advancement.challenge_brew_stands_10]
+    title = "Xưởng Pha Chế"
+    description = "Đặt 10 giá pha chế"
+
+[advancement.challenge_brew_stands_50]
+    title = "Nhà Máy Thuốc"
+    description = "Đặt 50 giá pha chế"
+
+[advancement.challenge_brew_strong_25]
+    title = "Thuốc Mạnh"
+    description = "Uống 25 thuốc nâng cấp"
+
+[advancement.challenge_brew_strong_250]
+    title = "Công Lực Tối Đa"
+    description = "Uống 250 thuốc nâng cấp"
+
+[advancement.challenge_brew_splash_hits_50]
+    title = "Vùng Bắn Tung Tóe"
+    description = "Trúng 50 thực thể bằng thuốc bắn tung tóe"
+
+[advancement.challenge_brew_splash_hits_500]
+    title = "Thầy Thuốc Dịch Bệnh"
+    description = "Trúng 500 thực thể bằng thuốc bắn tung tóe"
+
+# Chronos - New Achievement Chains
+[advancement.challenge_active_dist_1k]
+    title = "Không Yên"
+    description = "Di chuyển 1 Kilômét khi đang hoạt động"
+
+[advancement.challenge_active_dist_10k]
+    title = "Người Dẫn Đường"
+    description = "Di chuyển 10 Kilômét khi đang hoạt động"
+
+[advancement.challenge_active_dist_100k]
+    title = "Chuyển Động Vĩnh Cửu"
+    description = "Di chuyển 100 Kilômét khi đang hoạt động"
+
+[advancement.challenge_beds_10]
+    title = "Người Dậy Sớm"
+    description = "Ngủ trên giường 10 lần"
+
+[advancement.challenge_beds_100]
+    title = "Người Bỏ Qua Thời Gian"
+    description = "Ngủ trên giường 100 lần"
+
+[advancement.challenge_chronos_tp_50]
+    title = "Dịch Chuyển Thời Gian"
+    description = "Dịch chuyển tức thời 50 lần"
+
+[advancement.challenge_chronos_tp_500]
+    title = "Xoắn Thời Gian"
+    description = "Dịch chuyển tức thời 500 lần"
+
+[advancement.challenge_chronos_deaths_10]
+    title = "Phàm Nhân"
+    description = "Chết 10 lần"
+
+[advancement.challenge_chronos_deaths_100]
+    title = "Người Thách Thức Tử Thần"
+    description = "Chết 100 lần"
+
+# Crafting - New Achievement Chains
+[advancement.challenge_craft_value_10k]
+    title = "Giá Trị Chế Tạo"
+    description = "Chế tạo vật phẩm có tổng giá trị 10,000"
+
+[advancement.challenge_craft_value_100k]
+    title = "Nghệ Nhân"
+    description = "Chế tạo vật phẩm có tổng giá trị 100,000"
+
+[advancement.challenge_craft_tools_25]
+    title = "Thợ Rèn Dụng Cụ"
+    description = "Chế tạo 25 dụng cụ"
+
+[advancement.challenge_craft_tools_250]
+    title = "Bậc Thầy Lò Rèn"
+    description = "Chế tạo 250 dụng cụ"
+
+[advancement.challenge_craft_armor_25]
+    title = "Thợ Rèn Giáp"
+    description = "Chế tạo 25 mảnh giáp"
+
+[advancement.challenge_craft_armor_250]
+    title = "Bậc Thầy Giáp"
+    description = "Chế tạo 250 mảnh giáp"
+
+[advancement.challenge_craft_mass_25k]
+    title = "Sản Xuất Hàng Loạt"
+    description = "Chế tạo 25,000 vật phẩm"
+
+[advancement.challenge_craft_mass_250k]
+    title = "Cách Mạng Công Nghiệp"
+    description = "Chế tạo 250,000 vật phẩm"
+
+# Discovery - New Achievement Chains
+[advancement.challenge_discover_items_50]
+    title = "Nhà Sưu Tập"
+    description = "Khám phá 50 vật phẩm độc nhất"
+
+[advancement.challenge_discover_items_250]
+    title = "Người Lập Danh Mục"
+    description = "Khám phá 250 vật phẩm độc nhất"
+
+[advancement.challenge_discover_blocks_50]
+    title = "Nhà Khảo Sát"
+    description = "Khám phá 50 khối độc nhất"
+
+[advancement.challenge_discover_blocks_250]
+    title = "Nhà Địa Chất"
+    description = "Khám phá 250 khối độc nhất"
+
+[advancement.challenge_discover_mobs_25]
+    title = "Người Quan Sát"
+    description = "Khám phá 25 sinh vật độc nhất"
+
+[advancement.challenge_discover_mobs_75]
+    title = "Nhà Tự Nhiên Học"
+    description = "Khám phá 75 sinh vật độc nhất"
+
+[advancement.challenge_discover_biomes_10]
+    title = "Kẻ Lang Thang"
+    description = "Khám phá 10 quần xã sinh vật độc nhất"
+
+[advancement.challenge_discover_biomes_40]
+    title = "Nhà Du Hành Thế Giới"
+    description = "Khám phá 40 quần xã sinh vật độc nhất"
+
+[advancement.challenge_discover_foods_10]
+    title = "Người Sành Ăn"
+    description = "Khám phá 10 thực phẩm độc nhất"
+
+[advancement.challenge_discover_foods_30]
+    title = "Bậc Thầy Ẩm Thực"
+    description = "Khám phá 30 thực phẩm độc nhất"
+
+# Enchanting - New Achievement Chains
+[advancement.challenge_enchant_power_100]
+    title = "Người Dệt Sức Mạnh"
+    description = "Tích lũy 100 sức mạnh phù phép"
+
+[advancement.challenge_enchant_power_1k]
+    title = "Bậc Thầy Huyền Thuật"
+    description = "Tích lũy 1,000 sức mạnh phù phép"
+
+[advancement.challenge_enchant_levels_1k]
+    title = "Người Tiêu Cấp"
+    description = "Chi 1,000 cấp kinh nghiệm cho phù phép"
+
+[advancement.challenge_enchant_levels_10k]
+    title = "Hố Đen XP"
+    description = "Chi 10,000 cấp kinh nghiệm cho phù phép"
+
+[advancement.challenge_enchant_high_25]
+    title = "Tay Chơi Lớn"
+    description = "Thực hiện 25 phù phép cấp tối đa"
+
+[advancement.challenge_enchant_high_250]
+    title = "Phù Thủy Huyền Thoại"
+    description = "Thực hiện 250 phù phép cấp tối đa"
+
+[advancement.challenge_enchant_total_500]
+    title = "Người Đốt Cấp"
+    description = "Chi tổng cộng 500 cấp cho tất cả phù phép"
+
+[advancement.challenge_enchant_total_5k]
+    title = "Đầu Tư Huyền Bí"
+    description = "Chi tổng cộng 5,000 cấp cho tất cả phù phép"
+
+# Excavation - New Achievement Chains
+[advancement.challenge_dig_swing_500]
+    title = "Người Đào"
+    description = "Vung xẻng 500 lần"
+
+[advancement.challenge_dig_swing_5k]
+    title = "Máy Xúc"
+    description = "Vung xẻng 5,000 lần"
+
+[advancement.challenge_dig_damage_1k]
+    title = "Hiệp Sĩ Xẻng"
+    description = "Gây 1,000 sát thương bằng xẻng"
+
+[advancement.challenge_dig_damage_10k]
+    title = "Bậc Thầy Xẻng"
+    description = "Gây 10,000 sát thương bằng xẻng"
+
+[advancement.challenge_dig_value_5k]
+    title = "Thương Nhân Đất"
+    description = "Đào khối trị giá 5,000"
+
+[advancement.challenge_dig_value_50k]
+    title = "Trùm Đất Đai"
+    description = "Đào khối trị giá 50,000"
+
+[advancement.challenge_dig_gravel_500]
+    title = "Người Nghiền Sỏi"
+    description = "Đào 500 khối sỏi, cát hoặc đất sét"
+
+[advancement.challenge_dig_gravel_5k]
+    title = "Người Sàng Cát"
+    description = "Đào 5,000 khối sỏi, cát hoặc đất sét"
+
+# Herbalism - New Achievement Chains
+[advancement.challenge_plant_100]
+    title = "Người Gieo Hạt"
+    description = "Trồng 100 cây trồng"
+
+[advancement.challenge_plant_1k]
+    title = "Ngón Tay Xanh"
+    description = "Trồng 1,000 cây trồng"
+
+[advancement.challenge_plant_5k]
+    title = "Trùm Nông Nghiệp"
+    description = "Trồng 5,000 cây trồng"
+
+[advancement.challenge_compost_50]
+    title = "Người Tái Chế"
+    description = "Ủ phân 50 vật phẩm"
+
+[advancement.challenge_compost_500]
+    title = "Người Bồi Dưỡng Đất"
+    description = "Ủ phân 500 vật phẩm"
+
+[advancement.challenge_shear_50]
+    title = "Người Xén Lông"
+    description = "Xén 50 thực thể"
+
+[advancement.challenge_shear_250]
+    title = "Chủ Đàn"
+    description = "Xén 250 thực thể"
+
+# Hunter - New Achievement Chains
+[advancement.challenge_kills_500]
+    title = "Sát Thủ"
+    description = "Tiêu diệt 500 sinh vật"
+
+[advancement.challenge_kills_5k]
+    title = "Đao Phủ"
+    description = "Tiêu diệt 5,000 sinh vật"
+
+[advancement.challenge_boss_1]
+    title = "Người Thách Đấu Boss"
+    description = "Tiêu diệt một boss"
+
+[advancement.challenge_boss_10]
+    title = "Sát Thủ Huyền Thoại"
+    description = "Tiêu diệt 10 boss"
+
+# Nether - New Achievement Chains
+[advancement.challenge_wither_dmg_500]
+    title = "Héo Tàn"
+    description = "Chịu đựng 500 sát thương héo tàn"
+
+[advancement.challenge_wither_dmg_5k]
+    title = "Người Sống Sót Dịch Bệnh"
+    description = "Chịu đựng 5,000 sát thương héo tàn"
+
+[advancement.challenge_wither_skel_25]
+    title = "Người Thu Xương"
+    description = "Tiêu diệt 25 bộ xương wither"
+
+[advancement.challenge_wither_skel_250]
+    title = "Tai Ương Bộ Xương"
+    description = "Tiêu diệt 250 bộ xương wither"
+
+[advancement.challenge_wither_boss_1]
+    title = "Diệt Wither"
+    description = "Đánh bại Wither"
+
+[advancement.challenge_wither_boss_10]
+    title = "Bá Chủ Nether"
+    description = "Đánh bại Wither 10 lần"
+
+[advancement.challenge_roses_10]
+    title = "Người Làm Vườn Tử Thần"
+    description = "Phá 10 hoa wither"
+
+[advancement.challenge_roses_100]
+    title = "Người Thu Hoạch Dịch Bệnh"
+    description = "Phá 100 hoa wither"
+
+# Pickaxes - New Achievement Chains
+[advancement.challenge_pick_swing_500]
+    title = "Cánh Tay Thợ Mỏ"
+    description = "Vung cuốc 500 lần"
+
+[advancement.challenge_pick_swing_5k]
+    title = "Người Đào Hầm"
+    description = "Vung cuốc 5,000 lần"
+
+[advancement.challenge_pick_damage_1k]
+    title = "Chiến Binh Cuốc"
+    description = "Gây 1,000 sát thương bằng cuốc"
+
+[advancement.challenge_pick_damage_10k]
+    title = "Cuốc Chiến Tranh"
+    description = "Gây 10,000 sát thương bằng cuốc"
+
+[advancement.challenge_pick_value_5k]
+    title = "Người Tìm Đá Quý"
+    description = "Đào khối trị giá 5,000"
+
+[advancement.challenge_pick_value_50k]
+    title = "Trùm Quặng"
+    description = "Đào khối trị giá 50,000"
+
+[advancement.challenge_pick_ores_500]
+    title = "Người Thăm Dò"
+    description = "Đào 500 khối quặng"
+
+[advancement.challenge_pick_ores_5k]
+    title = "Thợ Mỏ Bậc Thầy"
+    description = "Đào 5,000 khối quặng"
+
+# Ranged - New Achievement Chains
+[advancement.challenge_ranged_dmg_1k]
+    title = "Xạ Thủ Thiện Xạ"
+    description = "Gây 1,000 sát thương tầm xa"
+
+[advancement.challenge_ranged_dmg_10k]
+    title = "Cung Thủ Chết Chóc"
+    description = "Gây 10,000 sát thương tầm xa"
+
+[advancement.challenge_ranged_dist_5k]
+    title = "Tầm Xa"
+    description = "Bắn đạn với tổng khoảng cách 5,000 khối"
+
+[advancement.challenge_ranged_dist_50k]
+    title = "Bắn Xa Cả Dặm"
+    description = "Bắn đạn với tổng khoảng cách 50,000 khối"
+
+[advancement.challenge_ranged_kills_50]
+    title = "Cung Thủ"
+    description = "Giết 50 sinh vật bằng vũ khí tầm xa"
+
+[advancement.challenge_ranged_kills_500]
+    title = "Cung Thủ Bậc Thầy"
+    description = "Giết 500 sinh vật bằng vũ khí tầm xa"
+
+[advancement.challenge_longshot_25]
+    title = "Xạ Thủ Bắn Tỉa"
+    description = "Bắn trúng 25 phát tầm xa (hơn 30 khối)"
+
+[advancement.challenge_longshot_250]
+    title = "Mắt Đại Bàng"
+    description = "Bắn trúng 250 phát tầm xa (hơn 30 khối)"
+
+# Rift - New Achievement Chains
+[advancement.challenge_rift_pearls_50]
+    title = "Người Ném Ngọc"
+    description = "Ném 50 ngọc ender"
+
+[advancement.challenge_rift_pearls_500]
+    title = "Nghiện Dịch Chuyển"
+    description = "Ném 500 ngọc ender"
+
+[advancement.challenge_rift_enderman_50]
+    title = "Thợ Săn Enderman"
+    description = "Tiêu diệt 50 enderman"
+
+[advancement.challenge_rift_enderman_500]
+    title = "Kẻ Rình Rập Hư Không"
+    description = "Tiêu diệt 500 enderman"
+
+[advancement.challenge_rift_dragon_500]
+    title = "Chiến Binh Rồng"
+    description = "Gây 500 sát thương cho Rồng Ender"
+
+[advancement.challenge_rift_dragon_5k]
+    title = "Tai Ương Rồng"
+    description = "Gây 5,000 sát thương cho Rồng Ender"
+
+[advancement.challenge_rift_crystal_10]
+    title = "Người Phá Pha Lê"
+    description = "Phá hủy 10 pha lê ender"
+
+[advancement.challenge_rift_crystal_100]
+    title = "Phá Hủy Cõi Cuối"
+    description = "Phá hủy 100 pha lê ender"
+
+# Seaborne - New Achievement Chains
+[advancement.challenge_fish_25]
+    title = "Người Câu Cá"
+    description = "Câu 25 con cá"
+
+[advancement.challenge_fish_250]
+    title = "Ngư Dân Bậc Thầy"
+    description = "Câu 250 con cá"
+
+[advancement.challenge_drowned_25]
+    title = "Thợ Săn Thây Ma Nước"
+    description = "Tiêu diệt 25 thây ma nước"
+
+[advancement.challenge_drowned_250]
+    title = "Người Dọn Đại Dương"
+    description = "Tiêu diệt 250 thây ma nước"
+
+[advancement.challenge_guardian_10]
+    title = "Diệt Vệ Binh"
+    description = "Tiêu diệt 10 vệ binh"
+
+[advancement.challenge_guardian_100]
+    title = "Kẻ Cướp Đền"
+    description = "Tiêu diệt 100 vệ binh"
+
+[advancement.challenge_underwater_blocks_100]
+    title = "Thợ Mỏ Dưới Nước"
+    description = "Phá 100 khối dưới nước"
+
+[advancement.challenge_underwater_blocks_1k]
+    title = "Kỹ Sư Biển"
+    description = "Phá 1,000 khối dưới nước"
+
+# Stealth - New Achievement Chains
+[advancement.challenge_stealth_dmg_500]
+    title = "Kẻ Đâm Sau Lưng"
+    description = "Gây 500 sát thương khi lén lút"
+
+[advancement.challenge_stealth_dmg_5k]
+    title = "Sát Thủ Thầm Lặng"
+    description = "Gây 5,000 sát thương khi lén lút"
+
+[advancement.challenge_stealth_kills_10]
+    title = "Thích Khách"
+    description = "Giết 10 sinh vật khi lén lút"
+
+[advancement.challenge_stealth_kills_100]
+    title = "Thần Chết Bóng Tối"
+    description = "Giết 100 sinh vật khi lén lút"
+
+[advancement.challenge_stealth_time_1h]
+    title = "Kiên Nhẫn"
+    description = "Dành 1 giờ lén lút (3,600 giây)"
+
+[advancement.challenge_stealth_time_10h]
+    title = "Bậc Thầy Bóng Tối"
+    description = "Dành 10 giờ lén lút (36,000 giây)"
+
+[advancement.challenge_stealth_arrows_50]
+    title = "Cung Thủ Thầm Lặng"
+    description = "Bắn 50 mũi tên khi lén lút"
+
+[advancement.challenge_stealth_arrows_500]
+    title = "Cung Thủ Ma"
+    description = "Bắn 500 mũi tên khi lén lút"
+
+# Swords - New Achievement Chains
+[advancement.challenge_sword_dmg_1k]
+    title = "Học Viên Kiếm"
+    description = "Gây 1,000 sát thương bằng kiếm"
+
+[advancement.challenge_sword_dmg_10k]
+    title = "Kiếm Sĩ"
+    description = "Gây 10,000 sát thương bằng kiếm"
+
+[advancement.challenge_sword_kills_50]
+    title = "Đấu Sĩ"
+    description = "Giết 50 sinh vật bằng kiếm"
+
+[advancement.challenge_sword_kills_500]
+    title = "Võ Sĩ Giác Đấu"
+    description = "Giết 500 sinh vật bằng kiếm"
+
+[advancement.challenge_sword_crit_50]
+    title = "Đòn Chí Mạng"
+    description = "Đánh trúng 50 đòn chí mạng bằng kiếm"
+
+[advancement.challenge_sword_crit_500]
+    title = "Bậc Thầy Chính Xác"
+    description = "Đánh trúng 500 đòn chí mạng bằng kiếm"
+
+[advancement.challenge_sword_heavy_25]
+    title = "Đòn Nặng"
+    description = "Đánh trúng 25 đòn nặng bằng kiếm (trên 8 sát thương)"
+
+[advancement.challenge_sword_heavy_250]
+    title = "Đòn Hủy Diệt"
+    description = "Đánh trúng 250 đòn nặng bằng kiếm (trên 8 sát thương)"
+
+# Taming - New Achievement Chains
+[advancement.challenge_pet_dmg_500]
+    title = "Huấn Luyện Thú"
+    description = "Thú cưng gây tổng cộng 500 sát thương"
+
+[advancement.challenge_pet_dmg_5k]
+    title = "Chủ Tướng Chiến Tranh"
+    description = "Thú cưng gây tổng cộng 5,000 sát thương"
+
+[advancement.challenge_tamed_10]
+    title = "Bạn Của Động Vật"
+    description = "Thuần hóa 10 động vật"
+
+[advancement.challenge_tamed_100]
+    title = "Người Giữ Sở Thú"
+    description = "Thuần hóa 100 động vật"
+
+[advancement.challenge_pet_kills_25]
+    title = "Chiến Thuật Bầy Đàn"
+    description = "Thú cưng tiêu diệt 25 sinh vật"
+
+[advancement.challenge_pet_kills_250]
+    title = "Chỉ Huy Alpha"
+    description = "Thú cưng tiêu diệt 250 sinh vật"
+
+[advancement.challenge_taming_2500]
+    title = "Chuyên Gia Nhân Giống"
+    description = "Nhân giống 2,500 động vật"
+
+[advancement.challenge_taming_25k]
+    title = "Bậc Thầy Di Truyền"
+    description = "Nhân giống 25,000 động vật"
+
+# TragOul - New Achievement Chains
+[advancement.challenge_trag_hits_500]
+    title = "Bao Cát"
+    description = "Nhận 500 đòn đánh"
+
+[advancement.challenge_trag_hits_5k]
+    title = "Kẻ Ham Trừng Phạt"
+    description = "Nhận 5,000 đòn đánh"
+
+[advancement.challenge_trag_deaths_10]
+    title = "Chín Mạng Sống"
+    description = "Chết 10 lần"
+
+[advancement.challenge_trag_deaths_100]
+    title = "Ác Mộng Tái Diễn"
+    description = "Chết 100 lần"
+
+[advancement.challenge_trag_fire_500]
+    title = "Nạn Nhân Lửa"
+    description = "Chịu đựng 500 sát thương lửa"
+
+[advancement.challenge_trag_fire_5k]
+    title = "Phượng Hoàng"
+    description = "Chịu đựng 5,000 sát thương lửa"
+
+[advancement.challenge_trag_fall_500]
+    title = "Thử Trọng Lực"
+    description = "Chịu đựng 500 sát thương rơi"
+
+[advancement.challenge_trag_fall_5k]
+    title = "Vận Tốc Giới Hạn"
+    description = "Chịu đựng 5,000 sát thương rơi"
+
+# Unarmed - New Achievement Chains
+[advancement.challenge_unarmed_dmg_1k]
+    title = "Tay Đấm"
+    description = "Gây 1,000 sát thương bằng tay trần"
+
+[advancement.challenge_unarmed_dmg_10k]
+    title = "Võ Sư"
+    description = "Gây 10,000 sát thương bằng tay trần"
+
+[advancement.challenge_unarmed_kills_25]
+    title = "Nắm Đấm Trần"
+    description = "Giết 25 sinh vật bằng tay trần"
+
+[advancement.challenge_unarmed_kills_250]
+    title = "Nắm Đấm Huyền Thoại"
+    description = "Giết 250 sinh vật bằng tay trần"
+
+[advancement.challenge_unarmed_crit_25]
+    title = "Cú Đấm Chí Mạng"
+    description = "Đánh trúng 25 đòn chí mạng bằng tay trần"
+
+[advancement.challenge_unarmed_crit_250]
+    title = "Nắm Đấm Chính Xác"
+    description = "Đánh trúng 250 đòn chí mạng bằng tay trần"
+
+[advancement.challenge_unarmed_heavy_25]
+    title = "Cú Đấm Mạnh"
+    description = "Đánh trúng 25 đòn nặng bằng tay trần (trên 6 sát thương)"
+
+[advancement.challenge_unarmed_heavy_250]
+    title = "Vua Hạ Gục"
+    description = "Đánh trúng 250 đòn nặng bằng tay trần (trên 6 sát thương)"
+
 # items
 [items]
 

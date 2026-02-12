@@ -38,6 +38,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityTameEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -84,9 +86,89 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
                                 .build())
                         .build())
                 .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BONE)
+                .key("challenge_pet_dmg_500")
+                .title(Localizer.dLocalize("advancement.challenge_pet_dmg_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pet_dmg_500.description"))
+                .model(CustomModel.get(Material.BONE, "advancement", "taming", "challenge_pet_dmg_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_SWORD)
+                        .key("challenge_pet_dmg_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_pet_dmg_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_pet_dmg_5k.description"))
+                        .model(CustomModel.get(Material.DIAMOND_SWORD, "advancement", "taming", "challenge_pet_dmg_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LEAD)
+                .key("challenge_tamed_10")
+                .title(Localizer.dLocalize("advancement.challenge_tamed_10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_tamed_10.description"))
+                .model(CustomModel.get(Material.LEAD, "advancement", "taming", "challenge_tamed_10"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NAME_TAG)
+                        .key("challenge_tamed_100")
+                        .title(Localizer.dLocalize("advancement.challenge_tamed_100.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_tamed_100.description"))
+                        .model(CustomModel.get(Material.NAME_TAG, "advancement", "taming", "challenge_tamed_100"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BONE)
+                .key("challenge_pet_kills_25")
+                .title(Localizer.dLocalize("advancement.challenge_pet_kills_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pet_kills_25.description"))
+                .model(CustomModel.get(Material.BONE, "advancement", "taming", "challenge_pet_kills_25"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.GOLDEN_APPLE)
+                        .key("challenge_pet_kills_250")
+                        .title(Localizer.dLocalize("advancement.challenge_pet_kills_250.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_pet_kills_250.description"))
+                        .model(CustomModel.get(Material.GOLDEN_APPLE, "advancement", "taming", "challenge_pet_kills_250"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GOLDEN_CARROT)
+                .key("challenge_taming_2500")
+                .title(Localizer.dLocalize("advancement.challenge_taming_2500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_taming_2500.description"))
+                .model(CustomModel.get(Material.GOLDEN_CARROT, "advancement", "taming", "challenge_taming_2500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENCHANTED_GOLDEN_APPLE)
+                        .key("challenge_taming_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_taming_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_taming_25k.description"))
+                        .model(CustomModel.get(Material.ENCHANTED_GOLDEN_APPLE, "advancement", "taming", "challenge_taming_25k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_10").goal(10).stat("taming.bred").reward(getConfig().challengeTamingReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_50").goal(50).stat("taming.bred").reward(getConfig().challengeTamingReward * 2).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_500").goal(500).stat("taming.bred").reward(getConfig().challengeTamingReward * 5).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pet_dmg_500").goal(500).stat("taming.pet.damage").reward(getConfig().challengePetDmgReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pet_dmg_5k").goal(5000).stat("taming.pet.damage").reward(getConfig().challengePetDmgReward * 5).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tamed_10").goal(10).stat("taming.tamed").reward(getConfig().challengeTamedReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tamed_100").goal(100).stat("taming.tamed").reward(getConfig().challengeTamedReward * 5).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pet_kills_25").goal(25).stat("taming.pet.kills").reward(getConfig().challengePetKillsReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pet_kills_250").goal(250).stat("taming.pet.kills").reward(getConfig().challengePetKillsReward * 5).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_2500").goal(2500).stat("taming.bred").reward(getConfig().challengeTamingReward * 10).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_25k").goal(25000).stat("taming.bred").reward(getConfig().challengeTamingReward * 25).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -114,11 +196,38 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         }
         if (e.getDamager() instanceof Tameable tameable && tameable.isTamed() && tameable.getOwner() instanceof Player p) {
             shouldReturnForPlayer(p, e, () -> {
+                getPlayer(p).getData().addStat("taming.pet.damage", e.getDamage());
                 if (!isOnCooldown(p)) {
                     setCooldown(p);
                     xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
                 }
             });
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(EntityTameEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (e.getOwner() instanceof Player p) {
+            shouldReturnForPlayer(p, e, () -> {
+                getPlayer(p).getData().addStat("taming.tamed", 1);
+            });
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(EntityDeathEvent e) {
+        if (e.getEntity().getKiller() != null) {
+            return;
+        }
+        if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent damageEvent) {
+            if (damageEvent.getDamager() instanceof Tameable tameable && tameable.isTamed() && tameable.getOwner() instanceof Player p) {
+                shouldReturnForPlayer(p, () -> {
+                    getPlayer(p).getData().addStat("taming.pet.kills", 1);
+                });
+            }
         }
     }
 
@@ -159,5 +268,11 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         double tameDamageXPMultiplier = 7.85;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Taming Reward for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeTamingReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Pet Damage Reward for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double challengePetDmgReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Tamed Reward for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double challengeTamedReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Pet Kills Reward for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double challengePetKillsReward = 500;
     }
 }

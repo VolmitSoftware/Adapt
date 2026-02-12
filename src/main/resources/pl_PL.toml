@@ -373,6 +373,716 @@
     title = "Wladca Bestii"
     description = "Rozmnoz 500 zwierzat"
 
+# Agility - New Achievement Chains
+[advancement.challenge_sprint_dist_5k]
+    title = "Demon Predkosci"
+    description = "Przebiegaj ponad 5 Kilometrow (5,000 blokow)"
+
+[advancement.challenge_sprint_dist_50k]
+    title = "Blyskawiczne Nogi"
+    description = "Przebiegaj ponad 50 Kilometrow (50,000 blokow)"
+
+[advancement.challenge_agility_swim_1k]
+    title = "Biegacz po Wodzie"
+    description = "Przeplyn ponad 1 Kilometr (1,000 blokow)"
+
+[advancement.challenge_agility_swim_10k]
+    title = "Wodny Podroznik"
+    description = "Przeplyn ponad 10 Kilometrow (10,000 blokow)"
+
+[advancement.challenge_fly_1k]
+    title = "Tancerz Nieba"
+    description = "Przeleć ponad 1 Kilometr (1,000 blokow)"
+
+[advancement.challenge_fly_10k]
+    title = "Jezdiec Wiatru"
+    description = "Przeleć ponad 10 Kilometrow (10,000 blokow)"
+
+[advancement.challenge_agility_sneak_500]
+    title = "Ciche Kroki"
+    description = "Przekradnij sie ponad 500 blokow"
+
+[advancement.challenge_agility_sneak_5k]
+    title = "Widmowe Kroki"
+    description = "Przekradnij sie ponad 5 Kilometrow (5,000 blokow)"
+
+# Architect - New Achievement Chains
+[advancement.challenge_demolish_500]
+    title = "Ekipa Rozborkowa"
+    description = "Zniszcz 500 blokow"
+
+[advancement.challenge_demolish_5k]
+    title = "Kula Burzaca"
+    description = "Zniszcz 5,000 blokow"
+
+[advancement.challenge_value_placed_10k]
+    title = "Wartosciowy Budowniczy"
+    description = "Ustaw bloki o wartosci 10,000"
+
+[advancement.challenge_value_placed_100k]
+    title = "Mistrz Architektury"
+    description = "Ustaw bloki o wartosci 100,000"
+
+[advancement.challenge_demolish_val_5k]
+    title = "Ekspert Odzysku"
+    description = "Odzyskaj 5,000 wartosci blokow z rozbiórki"
+
+[advancement.challenge_demolish_val_50k]
+    title = "Calkowita Dekonstrukcja"
+    description = "Odzyskaj 50,000 wartosci blokow z rozbiórki"
+
+[advancement.challenge_high_build_100]
+    title = "Budowniczy Nieba"
+    description = "Ustaw 100 blokow powyzej Y=128"
+
+[advancement.challenge_high_build_1k]
+    title = "Architekt Chmur"
+    description = "Ustaw 1,000 blokow powyzej Y=128"
+
+# Axes - New Achievement Chains
+[advancement.challenge_axe_swing_500]
+    title = "Drwal"
+    description = "Zamachnij sie toporem 500 razy"
+
+[advancement.challenge_axe_swing_5k]
+    title = "Berserker"
+    description = "Zamachnij sie toporem 5,000 razy"
+
+[advancement.challenge_axe_damage_1k]
+    title = "Tasak"
+    description = "Zadaj 1,000 obrazen toporem"
+
+[advancement.challenge_axe_damage_10k]
+    title = "Topor Kata"
+    description = "Zadaj 10,000 obrazen toporem"
+
+[advancement.challenge_axe_value_5k]
+    title = "Handlarz Drewnem"
+    description = "Zbierz drewno o wartosci 5,000"
+
+[advancement.challenge_axe_value_50k]
+    title = "Baron Tartaku"
+    description = "Zbierz drewno o wartosci 50,000"
+
+[advancement.challenge_leaves_500]
+    title = "Dmuchawa do Lisci"
+    description = "Usun 500 blokow lisci toporem"
+
+[advancement.challenge_leaves_5k]
+    title = "Defoliator"
+    description = "Usun 5,000 blokow lisci toporem"
+
+# Blocking - New Achievement Chains
+[advancement.challenge_block_dmg_1k]
+    title = "Absorber Obrazen"
+    description = "Zablokuj 1,000 obrazen tarcza"
+
+[advancement.challenge_block_dmg_10k]
+    title = "Zywa Tarcza"
+    description = "Zablokuj 10,000 obrazen tarcza"
+
+[advancement.challenge_block_proj_100]
+    title = "Odbijacz Strzal"
+    description = "Zablokuj 100 pociskow tarcza"
+
+[advancement.challenge_block_proj_1k]
+    title = "Tarcza Przeciwpociskowa"
+    description = "Zablokuj 1,000 pociskow tarcza"
+
+[advancement.challenge_block_melee_500]
+    title = "Mistrz Parowania"
+    description = "Zablokuj 500 atakow wrecz tarcza"
+
+[advancement.challenge_block_melee_5k]
+    title = "Zelazna Twierdza"
+    description = "Zablokuj 5,000 atakow wrecz tarcza"
+
+[advancement.challenge_block_heavy_50]
+    title = "Czolg"
+    description = "Zablokuj 50 ciezkich atakow (powyzej 5 obrazen)"
+
+[advancement.challenge_block_heavy_500]
+    title = "Nieruchomy Obiekt"
+    description = "Zablokuj 500 ciezkich atakow (powyzej 5 obrazen)"
+
+# Brewing - New Achievement Chains
+[advancement.challenge_brew_stands_10]
+    title = "Warsztat Piwowara"
+    description = "Postaw 10 stojakow do warzenia"
+
+[advancement.challenge_brew_stands_50]
+    title = "Fabryka Mikstur"
+    description = "Postaw 50 stojakow do warzenia"
+
+[advancement.challenge_brew_strong_25]
+    title = "Mocny Napar"
+    description = "Wypij 25 ulepszonych mikstur"
+
+[advancement.challenge_brew_strong_250]
+    title = "Maksymalna Moc"
+    description = "Wypij 250 ulepszonych mikstur"
+
+[advancement.challenge_brew_splash_hits_50]
+    title = "Strefa Rozbryzgu"
+    description = "Traf 50 istot miksturami rozbryzgowymi"
+
+[advancement.challenge_brew_splash_hits_500]
+    title = "Doktor Zarazy"
+    description = "Traf 500 istot miksturami rozbryzgowymi"
+
+# Chronos - New Achievement Chains
+[advancement.challenge_active_dist_1k]
+    title = "Niespokojny"
+    description = "Przebadz 1 Kilometr bedac aktywnym"
+
+[advancement.challenge_active_dist_10k]
+    title = "Tropiciel"
+    description = "Przebadz 10 Kilometrow bedac aktywnym"
+
+[advancement.challenge_active_dist_100k]
+    title = "Wieczny Ruch"
+    description = "Przebadz 100 Kilometrow bedac aktywnym"
+
+[advancement.challenge_beds_10]
+    title = "Ranny Ptaszek"
+    description = "Przespij sie w lozku 10 razy"
+
+[advancement.challenge_beds_100]
+    title = "Pomijacz Czasu"
+    description = "Przespij sie w lozku 100 razy"
+
+[advancement.challenge_chronos_tp_50]
+    title = "Przesuniecie Czasowe"
+    description = "Teleportuj sie 50 razy"
+
+[advancement.challenge_chronos_tp_500]
+    title = "Zakrzywienie Czasu"
+    description = "Teleportuj sie 500 razy"
+
+[advancement.challenge_chronos_deaths_10]
+    title = "Smiertelnik"
+    description = "Zgin 10 razy"
+
+[advancement.challenge_chronos_deaths_100]
+    title = "Pogromca Smierci"
+    description = "Zgin 100 razy"
+
+# Crafting - New Achievement Chains
+[advancement.challenge_craft_value_10k]
+    title = "Wartosc Rzemiosla"
+    description = "Wytwórz przedmioty o lacznej wartosci 10,000"
+
+[advancement.challenge_craft_value_100k]
+    title = "Rzemielnik"
+    description = "Wytwórz przedmioty o lacznej wartosci 100,000"
+
+[advancement.challenge_craft_tools_25]
+    title = "Kowal Narzedzi"
+    description = "Wytwórz 25 narzedzi"
+
+[advancement.challenge_craft_tools_250]
+    title = "Mistrz Kuznicy"
+    description = "Wytwórz 250 narzedzi"
+
+[advancement.challenge_craft_armor_25]
+    title = "Platnerz"
+    description = "Wytwórz 25 czesci zbroi"
+
+[advancement.challenge_craft_armor_250]
+    title = "Mistrz Zbrojmistrz"
+    description = "Wytwórz 250 czesci zbroi"
+
+[advancement.challenge_craft_mass_25k]
+    title = "Masowa Produkcja"
+    description = "Wytwórz 25,000 przedmiotow"
+
+[advancement.challenge_craft_mass_250k]
+    title = "Rewolucja Przemyslowa"
+    description = "Wytwórz 250,000 przedmiotow"
+
+# Discovery - New Achievement Chains
+[advancement.challenge_discover_items_50]
+    title = "Kolekcjoner"
+    description = "Odkryj 50 unikalnych przedmiotow"
+
+[advancement.challenge_discover_items_250]
+    title = "Katalogista"
+    description = "Odkryj 250 unikalnych przedmiotow"
+
+[advancement.challenge_discover_blocks_50]
+    title = "Geodeta"
+    description = "Odkryj 50 unikalnych blokow"
+
+[advancement.challenge_discover_blocks_250]
+    title = "Geolog"
+    description = "Odkryj 250 unikalnych blokow"
+
+[advancement.challenge_discover_mobs_25]
+    title = "Obserwator"
+    description = "Odkryj 25 unikalnych mobow"
+
+[advancement.challenge_discover_mobs_75]
+    title = "Przyrodnik"
+    description = "Odkryj 75 unikalnych mobow"
+
+[advancement.challenge_discover_biomes_10]
+    title = "Wedrowiec"
+    description = "Odkryj 10 unikalnych biomow"
+
+[advancement.challenge_discover_biomes_40]
+    title = "Obiezyswiat"
+    description = "Odkryj 40 unikalnych biomow"
+
+[advancement.challenge_discover_foods_10]
+    title = "Smakosz"
+    description = "Odkryj 10 unikalnych potraw"
+
+[advancement.challenge_discover_foods_30]
+    title = "Mistrz Kuchni"
+    description = "Odkryj 30 unikalnych potraw"
+
+# Enchanting - New Achievement Chains
+[advancement.challenge_enchant_power_100]
+    title = "Tkacz Mocy"
+    description = "Zgromadz 100 mocy zaklinania"
+
+[advancement.challenge_enchant_power_1k]
+    title = "Mistrz Magii"
+    description = "Zgromadz 1,000 mocy zaklinania"
+
+[advancement.challenge_enchant_levels_1k]
+    title = "Wydawca Poziomow"
+    description = "Wydaj 1,000 poziomow doswiadczenia na zaklinanie"
+
+[advancement.challenge_enchant_levels_10k]
+    title = "Pochłaniacz XP"
+    description = "Wydaj 10,000 poziomow doswiadczenia na zaklinanie"
+
+[advancement.challenge_enchant_high_25]
+    title = "Wysokie Stawki"
+    description = "Wykonaj 25 zaklinań maksymalnego poziomu"
+
+[advancement.challenge_enchant_high_250]
+    title = "Legendarny Zaklinacz"
+    description = "Wykonaj 250 zaklinań maksymalnego poziomu"
+
+[advancement.challenge_enchant_total_500]
+    title = "Palacz Poziomow"
+    description = "Wydaj 500 łącznych poziomow na wszystkie zaklecia"
+
+[advancement.challenge_enchant_total_5k]
+    title = "Magiczna Inwestycja"
+    description = "Wydaj 5,000 łącznych poziomow na wszystkie zaklecia"
+
+# Excavation - New Achievement Chains
+[advancement.challenge_dig_swing_500]
+    title = "Kopacz"
+    description = "Zamachnij sie łopata 500 razy"
+
+[advancement.challenge_dig_swing_5k]
+    title = "Koparka"
+    description = "Zamachnij sie łopata 5,000 razy"
+
+[advancement.challenge_dig_damage_1k]
+    title = "Rycerz Łopaty"
+    description = "Zadaj 1,000 obrazen łopata"
+
+[advancement.challenge_dig_damage_10k]
+    title = "Mistrz Łopaty"
+    description = "Zadaj 10,000 obrazen łopata"
+
+[advancement.challenge_dig_value_5k]
+    title = "Handlarz Ziemia"
+    description = "Wykop bloki o wartosci 5,000"
+
+[advancement.challenge_dig_value_50k]
+    title = "Baron Ziemi"
+    description = "Wykop bloki o wartosci 50,000"
+
+[advancement.challenge_dig_gravel_500]
+    title = "Młynarz Zwiru"
+    description = "Wykop 500 blokow zwiru, piasku lub gliny"
+
+[advancement.challenge_dig_gravel_5k]
+    title = "Przesiewacz Piasku"
+    description = "Wykop 5,000 blokow zwiru, piasku lub gliny"
+
+# Herbalism - New Achievement Chains
+[advancement.challenge_plant_100]
+    title = "Siewca"
+    description = "Posadz 100 roslin"
+
+[advancement.challenge_plant_1k]
+    title = "Zielony Kciuk"
+    description = "Posadz 1,000 roslin"
+
+[advancement.challenge_plant_5k]
+    title = "Baron Rolnictwa"
+    description = "Posadz 5,000 roslin"
+
+[advancement.challenge_compost_50]
+    title = "Recykler"
+    description = "Kompostuj 50 przedmiotow"
+
+[advancement.challenge_compost_500]
+    title = "Wzbogacacz Gleby"
+    description = "Kompostuj 500 przedmiotow"
+
+[advancement.challenge_shear_50]
+    title = "Strzygacz"
+    description = "Ostrzyż 50 istot"
+
+[advancement.challenge_shear_250]
+    title = "Mistrz Stada"
+    description = "Ostrzyż 250 istot"
+
+# Hunter - New Achievement Chains
+[advancement.challenge_kills_500]
+    title = "Zabójca"
+    description = "Zabij 500 stworzen"
+
+[advancement.challenge_kills_5k]
+    title = "Kat"
+    description = "Zabij 5,000 stworzen"
+
+[advancement.challenge_boss_1]
+    title = "Pogromca Bossow"
+    description = "Zabij bossa"
+
+[advancement.challenge_boss_10]
+    title = "Pogromca Legend"
+    description = "Zabij 10 bossow"
+
+# Nether - New Achievement Chains
+[advancement.challenge_wither_dmg_500]
+    title = "Zwiedły"
+    description = "Przetrwaj 500 obrazen od witheringu"
+
+[advancement.challenge_wither_dmg_5k]
+    title = "Ocalały z Zarazy"
+    description = "Przetrwaj 5,000 obrazen od witheringu"
+
+[advancement.challenge_wither_skel_25]
+    title = "Zbieracz Kosci"
+    description = "Zabij 25 witherowych szkieletow"
+
+[advancement.challenge_wither_skel_250]
+    title = "Plaga Szkieletow"
+    description = "Zabij 250 witherowych szkieletow"
+
+[advancement.challenge_wither_boss_1]
+    title = "Zabójca Withera"
+    description = "Pokonaj Withera"
+
+[advancement.challenge_wither_boss_10]
+    title = "Władca Netheru"
+    description = "Pokonaj Withera 10 razy"
+
+[advancement.challenge_roses_10]
+    title = "Ogrodnik Smierci"
+    description = "Zniszcz 10 witherowych roz"
+
+[advancement.challenge_roses_100]
+    title = "Zbieracz Zarazy"
+    description = "Zniszcz 100 witherowych roz"
+
+# Pickaxes - New Achievement Chains
+[advancement.challenge_pick_swing_500]
+    title = "Ramie Gornika"
+    description = "Zamachnij sie kilofem 500 razy"
+
+[advancement.challenge_pick_swing_5k]
+    title = "Budowniczy Tuneli"
+    description = "Zamachnij sie kilofem 5,000 razy"
+
+[advancement.challenge_pick_damage_1k]
+    title = "Wojownik Kilofa"
+    description = "Zadaj 1,000 obrazen kilofem"
+
+[advancement.challenge_pick_damage_10k]
+    title = "Bojowy Kilof"
+    description = "Zadaj 10,000 obrazen kilofem"
+
+[advancement.challenge_pick_value_5k]
+    title = "Poszukiwacz Klejnotow"
+    description = "Wydobadz bloki o wartosci 5,000"
+
+[advancement.challenge_pick_value_50k]
+    title = "Baron Rud"
+    description = "Wydobadz bloki o wartosci 50,000"
+
+[advancement.challenge_pick_ores_500]
+    title = "Poszukiwacz"
+    description = "Wydobadz 500 blokow rudy"
+
+[advancement.challenge_pick_ores_5k]
+    title = "Mistrz Gornik"
+    description = "Wydobadz 5,000 blokow rudy"
+
+# Ranged - New Achievement Chains
+[advancement.challenge_ranged_dmg_1k]
+    title = "Celny Strzelec"
+    description = "Zadaj 1,000 obrazen dystansowych"
+
+[advancement.challenge_ranged_dmg_10k]
+    title = "Smiercionosny Łucznik"
+    description = "Zadaj 10,000 obrazen dystansowych"
+
+[advancement.challenge_ranged_dist_5k]
+    title = "Daleki Zasieg"
+    description = "Wystrzel pociski na łaczny dystans 5,000 blokow"
+
+[advancement.challenge_ranged_dist_50k]
+    title = "Strzelec na Mile"
+    description = "Wystrzel pociski na łaczny dystans 50,000 blokow"
+
+[advancement.challenge_ranged_kills_50]
+    title = "Łucznik"
+    description = "Zabij 50 mobow bronia dystansowa"
+
+[advancement.challenge_ranged_kills_500]
+    title = "Mistrz Łucznik"
+    description = "Zabij 500 mobow bronia dystansowa"
+
+[advancement.challenge_longshot_25]
+    title = "Snajper"
+    description = "Traf 25 strzałow dalekiego zasiegu (ponad 30 blokow)"
+
+[advancement.challenge_longshot_250]
+    title = "Orle Oko"
+    description = "Traf 250 strzałow dalekiego zasiegu (ponad 30 blokow)"
+
+# Rift - New Achievement Chains
+[advancement.challenge_rift_pearls_50]
+    title = "Rzucacz Pereł"
+    description = "Rzuc 50 pereł Endu"
+
+[advancement.challenge_rift_pearls_500]
+    title = "Maniak Teleportacji"
+    description = "Rzuc 500 pereł Endu"
+
+[advancement.challenge_rift_enderman_50]
+    title = "Łowca Endermanow"
+    description = "Zabij 50 endermanow"
+
+[advancement.challenge_rift_enderman_500]
+    title = "Tropiciel Pustki"
+    description = "Zabij 500 endermanow"
+
+[advancement.challenge_rift_dragon_500]
+    title = "Pogromca Smoka"
+    description = "Zadaj 500 obrazen Smokowi Endu"
+
+[advancement.challenge_rift_dragon_5k]
+    title = "Smocza Zmora"
+    description = "Zadaj 5,000 obrazen Smokowi Endu"
+
+[advancement.challenge_rift_crystal_10]
+    title = "Łamacz Kryształow"
+    description = "Zniszcz 10 kryształow Endu"
+
+[advancement.challenge_rift_crystal_100]
+    title = "Burzyciel Endu"
+    description = "Zniszcz 100 kryształow Endu"
+
+# Seaborne - New Achievement Chains
+[advancement.challenge_fish_25]
+    title = "Wedkarz"
+    description = "Złow 25 ryb"
+
+[advancement.challenge_fish_250]
+    title = "Mistrz Rybak"
+    description = "Złow 250 ryb"
+
+[advancement.challenge_drowned_25]
+    title = "Łowca Utopcow"
+    description = "Zabij 25 utopcow"
+
+[advancement.challenge_drowned_250]
+    title = "Oczyszczacz Oceanu"
+    description = "Zabij 250 utopcow"
+
+[advancement.challenge_guardian_10]
+    title = "Zabójca Straznikow"
+    description = "Zabij 10 straznikow"
+
+[advancement.challenge_guardian_100]
+    title = "Łupiezca Swiatyn"
+    description = "Zabij 100 straznikow"
+
+[advancement.challenge_underwater_blocks_100]
+    title = "Podwodny Gornik"
+    description = "Zniszcz 100 blokow pod woda"
+
+[advancement.challenge_underwater_blocks_1k]
+    title = "Inzynier Wodny"
+    description = "Zniszcz 1,000 blokow pod woda"
+
+# Stealth - New Achievement Chains
+[advancement.challenge_stealth_dmg_500]
+    title = "Nozownik"
+    description = "Zadaj 500 obrazen podczas skradania"
+
+[advancement.challenge_stealth_dmg_5k]
+    title = "Cichy Zabójca"
+    description = "Zadaj 5,000 obrazen podczas skradania"
+
+[advancement.challenge_stealth_kills_10]
+    title = "Skrytobójca"
+    description = "Zabij 10 mobow podczas skradania"
+
+[advancement.challenge_stealth_kills_100]
+    title = "Zniwiarz Cieni"
+    description = "Zabij 100 mobow podczas skradania"
+
+[advancement.challenge_stealth_time_1h]
+    title = "Cierpliwy"
+    description = "Spedz 1 godzine skradajac sie (3,600 sekund)"
+
+[advancement.challenge_stealth_time_10h]
+    title = "Mistrz Cieni"
+    description = "Spedz 10 godzin skradajac sie (36,000 sekund)"
+
+[advancement.challenge_stealth_arrows_50]
+    title = "Cichy Łucznik"
+    description = "Wystrzel 50 strzal podczas skradania"
+
+[advancement.challenge_stealth_arrows_500]
+    title = "Widmowy Łucznik"
+    description = "Wystrzel 500 strzal podczas skradania"
+
+# Swords - New Achievement Chains
+[advancement.challenge_sword_dmg_1k]
+    title = "Uczen Ostrza"
+    description = "Zadaj 1,000 obrazen mieczem"
+
+[advancement.challenge_sword_dmg_10k]
+    title = "Szermierz"
+    description = "Zadaj 10,000 obrazen mieczem"
+
+[advancement.challenge_sword_kills_50]
+    title = "Pojedynkowicz"
+    description = "Zabij 50 mobow mieczem"
+
+[advancement.challenge_sword_kills_500]
+    title = "Gladiator"
+    description = "Zabij 500 mobow mieczem"
+
+[advancement.challenge_sword_crit_50]
+    title = "Krytyczny Cios"
+    description = "Wyląduj 50 trafien krytycznych mieczem"
+
+[advancement.challenge_sword_crit_500]
+    title = "Mistrz Precyzji"
+    description = "Wyląduj 500 trafien krytycznych mieczem"
+
+[advancement.challenge_sword_heavy_25]
+    title = "Ciezki Cios"
+    description = "Wyląduj 25 ciezkich ciosow mieczem (powyzej 8 obrazen)"
+
+[advancement.challenge_sword_heavy_250]
+    title = "Niszczycielski Cios"
+    description = "Wyląduj 250 ciezkich ciosow mieczem (powyzej 8 obrazen)"
+
+# Taming - New Achievement Chains
+[advancement.challenge_pet_dmg_500]
+    title = "Trener Bestii"
+    description = "Twoje zwierzeta zadaja łacznie 500 obrazen"
+
+[advancement.challenge_pet_dmg_5k]
+    title = "Mistrz Wojny"
+    description = "Twoje zwierzeta zadaja łacznie 5,000 obrazen"
+
+[advancement.challenge_tamed_10]
+    title = "Przyjaciel Zwierzat"
+    description = "Oswój 10 zwierzat"
+
+[advancement.challenge_tamed_100]
+    title = "Opiekun Zoo"
+    description = "Oswój 100 zwierzat"
+
+[advancement.challenge_pet_kills_25]
+    title = "Taktyka Stada"
+    description = "Twoje zwierzeta zabijaja 25 stworzen"
+
+[advancement.challenge_pet_kills_250]
+    title = "Alfa Dowódca"
+    description = "Twoje zwierzeta zabijaja 250 stworzen"
+
+[advancement.challenge_taming_2500]
+    title = "Ekspert Hodowli"
+    description = "Rozmnóz 2,500 zwierzat"
+
+[advancement.challenge_taming_25k]
+    title = "Mistrz Genetyki"
+    description = "Rozmnóz 25,000 zwierzat"
+
+# TragOul - New Achievement Chains
+[advancement.challenge_trag_hits_500]
+    title = "Worek Treningowy"
+    description = "Otrzymaj 500 trafien"
+
+[advancement.challenge_trag_hits_5k]
+    title = "Żarłok Kar"
+    description = "Otrzymaj 5,000 trafien"
+
+[advancement.challenge_trag_deaths_10]
+    title = "Dziewiec Życ"
+    description = "Zgin 10 razy"
+
+[advancement.challenge_trag_deaths_100]
+    title = "Powracajacy Koszmar"
+    description = "Zgin 100 razy"
+
+[advancement.challenge_trag_fire_500]
+    title = "Ofiara Ognia"
+    description = "Przetrwaj 500 obrazen od ognia"
+
+[advancement.challenge_trag_fire_5k]
+    title = "Feniks"
+    description = "Przetrwaj 5,000 obrazen od ognia"
+
+[advancement.challenge_trag_fall_500]
+    title = "Test Grawitacji"
+    description = "Przetrwaj 500 obrazen od upadku"
+
+[advancement.challenge_trag_fall_5k]
+    title = "Predkosc Graniczna"
+    description = "Przetrwaj 5,000 obrazen od upadku"
+
+# Unarmed - New Achievement Chains
+[advancement.challenge_unarmed_dmg_1k]
+    title = "Osiłek"
+    description = "Zadaj 1,000 obrazen gołymi piesciami"
+
+[advancement.challenge_unarmed_dmg_10k]
+    title = "Mistrz Sztuk Walki"
+    description = "Zadaj 10,000 obrazen gołymi piesciami"
+
+[advancement.challenge_unarmed_kills_25]
+    title = "Goła Pięsc"
+    description = "Zabij 25 mobow gołymi piesciami"
+
+[advancement.challenge_unarmed_kills_250]
+    title = "Piesc Legendy"
+    description = "Zabij 250 mobow gołymi piesciami"
+
+[advancement.challenge_unarmed_crit_25]
+    title = "Krytyczny Cios Pięscia"
+    description = "Wyląduj 25 trafien krytycznych gołymi piesciami"
+
+[advancement.challenge_unarmed_crit_250]
+    title = "Precyzyjna Piesc"
+    description = "Wyląduj 250 trafien krytycznych gołymi piesciami"
+
+[advancement.challenge_unarmed_heavy_25]
+    title = "Mocny Cios"
+    description = "Wyląduj 25 ciezkich ciosow gołymi piesciami (powyzej 6 obrazen)"
+
+[advancement.challenge_unarmed_heavy_250]
+    title = "Krol Nokautow"
+    description = "Wyląduj 250 ciezkich ciosow gołymi piesciami (powyzej 6 obrazen)"
+
 # items
 [items]
 

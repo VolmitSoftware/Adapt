@@ -30,6 +30,7 @@ import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -141,6 +142,43 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
                         .build())
                 .build());
 
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BONE)
+                .key("challenge_kills_500")
+                .title(Localizer.dLocalize("advancement.challenge_kills_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_kills_500.description"))
+                .model(CustomModel.get(Material.BONE, "advancement", "hunter", "challenge_kills_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.WITHER_SKELETON_SKULL)
+                        .key("challenge_kills_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_kills_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_kills_5k.description"))
+                        .model(CustomModel.get(Material.WITHER_SKELETON_SKULL, "advancement", "hunter", "challenge_kills_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DRAGON_HEAD)
+                .key("challenge_boss_1")
+                .title(Localizer.dLocalize("advancement.challenge_boss_1.title"))
+                .description(Localizer.dLocalize("advancement.challenge_boss_1.description"))
+                .model(CustomModel.get(Material.DRAGON_HEAD, "advancement", "hunter", "challenge_boss_1"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHER_STAR)
+                        .key("challenge_boss_10")
+                        .title(Localizer.dLocalize("advancement.challenge_boss_10.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_boss_10.description"))
+                        .model(CustomModel.get(Material.NETHER_STAR, "advancement", "hunter", "challenge_boss_10"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+
         registerStatTracker(AdaptStatTracker.builder().advancement("horrible_person").goal(1).stat("killed.turtleeggs").reward(getConfig().turtleEggKillXP).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_turtle_egg_smasher").goal(100).stat("killed.turtleeggs").reward(getConfig().turtleEggKillXP*10).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_turtle_egg_annihilator").goal(1000).stat("killed.turtleeggs").reward(getConfig().turtleEggKillXP*10).build());
@@ -149,6 +187,10 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_advanced_hunter").goal(10000).stat("killed.monsters").reward(getConfig().turtleEggKillXP*3).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_creeper_conqueror").goal(100).stat("killed.creepers").reward(getConfig().turtleEggKillXP*3).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_creeper_annihilator").goal(1000).stat("killed.creepers").reward(getConfig().turtleEggKillXP*3).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_kills_500").goal(500).stat("killed.kills").reward(getConfig().killsChallengeReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_kills_5k").goal(5000).stat("killed.kills").reward(getConfig().killsChallengeReward * 5).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_boss_1").goal(1).stat("hunter.boss.kills").reward(getConfig().bossKillReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_boss_10").goal(10).stat("hunter.boss.kills").reward(getConfig().bossKillReward * 5).build());
     }
 
     private void handleCooldownAndXp(Player p, double xpAmount) {
@@ -211,6 +253,10 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
             } else {
                 handleEntityKill(p, e.getEntity());
             }
+            EntityType type = e.getEntity().getType();
+            if (type == EntityType.ENDER_DRAGON || type == EntityType.WITHER || type == EntityType.ELDER_GUARDIAN || type == EntityType.WARDEN) {
+                getPlayer(p).getData().addStat("hunter.boss.kills", 1);
+            }
         });
     }
 
@@ -241,7 +287,12 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @Override
     public void onTick() {
-
+        if (!this.isEnabled()) {
+            return;
+        }
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
+        }
     }
 
     @Override
@@ -265,5 +316,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         long cooldownDelay = 1000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Spawner Mob Reduction Xp Multiplier for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double spawnerMobReductionXpMultiplier = 0.5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Kills Challenge Reward for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double killsChallengeReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Boss Kill Reward for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double bossKillReward = 1000;
     }
 }

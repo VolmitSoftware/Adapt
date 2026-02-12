@@ -87,6 +87,86 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_50").goal(50).stat("nether.kills").reward(getConfig().getChallengeNetherReward()).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_500").goal(500).stat("nether.kills").reward(getConfig().getChallengeNetherReward() * 2).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_5k").goal(5000).stat("nether.kills").reward(getConfig().getChallengeNetherReward() * 5).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WITHER_ROSE)
+                .key("challenge_wither_dmg_500")
+                .title(Localizer.dLocalize("advancement.challenge_wither_dmg_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_wither_dmg_500.description"))
+                .model(CustomModel.get(Material.WITHER_ROSE, "advancement", "nether", "challenge_wither_dmg_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.SOUL_LANTERN)
+                        .key("challenge_wither_dmg_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_wither_dmg_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_wither_dmg_5k.description"))
+                        .model(CustomModel.get(Material.SOUL_LANTERN, "advancement", "nether", "challenge_wither_dmg_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_dmg_500").goal(500).stat("nether.wither.damage").reward(getConfig().getChallengeWitherDmgReward()).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_dmg_5k").goal(5000).stat("nether.wither.damage").reward(getConfig().getChallengeWitherDmgReward() * 2).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BONE)
+                .key("challenge_wither_skel_25")
+                .title(Localizer.dLocalize("advancement.challenge_wither_skel_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_wither_skel_25.description"))
+                .model(CustomModel.get(Material.BONE, "advancement", "nether", "challenge_wither_skel_25"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.WITHER_SKELETON_SKULL)
+                        .key("challenge_wither_skel_250")
+                        .title(Localizer.dLocalize("advancement.challenge_wither_skel_250.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_wither_skel_250.description"))
+                        .model(CustomModel.get(Material.WITHER_SKELETON_SKULL, "advancement", "nether", "challenge_wither_skel_250"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_skel_25").goal(25).stat("nether.skeleton.kills").reward(getConfig().getChallengeWitherSkelReward()).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_skel_250").goal(250).stat("nether.skeleton.kills").reward(getConfig().getChallengeWitherSkelReward() * 2).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.NETHER_STAR)
+                .key("challenge_wither_boss_1")
+                .title(Localizer.dLocalize("advancement.challenge_wither_boss_1.title"))
+                .description(Localizer.dLocalize("advancement.challenge_wither_boss_1.description"))
+                .model(CustomModel.get(Material.NETHER_STAR, "advancement", "nether", "challenge_wither_boss_1"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BEACON)
+                        .key("challenge_wither_boss_10")
+                        .title(Localizer.dLocalize("advancement.challenge_wither_boss_10.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_wither_boss_10.description"))
+                        .model(CustomModel.get(Material.BEACON, "advancement", "nether", "challenge_wither_boss_10"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_boss_1").goal(1).stat("nether.boss.kills").reward(getConfig().getChallengeWitherBossReward()).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_wither_boss_10").goal(10).stat("nether.boss.kills").reward(getConfig().getChallengeWitherBossReward() * 2).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WITHER_ROSE)
+                .key("challenge_roses_10")
+                .title(Localizer.dLocalize("advancement.challenge_roses_10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_roses_10.description"))
+                .model(CustomModel.get(Material.WITHER_ROSE, "advancement", "nether", "challenge_roses_10"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.FLOWER_POT)
+                        .key("challenge_roses_100")
+                        .title(Localizer.dLocalize("advancement.challenge_roses_100.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_roses_100.description"))
+                        .model(CustomModel.get(Material.FLOWER_POT, "advancement", "nether", "challenge_roses_100"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_roses_10").goal(10).stat("nether.roses.broken").reward(getConfig().getChallengeRosesReward()).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_roses_100").goal(100).stat("nether.roses.broken").reward(getConfig().getChallengeRosesReward() * 2).build());
     }
 
     private boolean shouldReturnForEventWithCause(Player p, EntityDamageEvent.DamageCause cause) {
@@ -101,6 +181,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         if (!this.isEnabled() || e.isCancelled() || !(e.getEntity() instanceof Player p) || shouldReturnForEventWithCause(p, e.getCause()) || e instanceof EntityDamageByBlockEvent) {
             return;
         }
+        getPlayer(p).getData().addStat("nether.wither.damage", e.getDamage());
         xp(p, getConfig().getWitherDamageXp());
     }
 
@@ -113,6 +194,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getBlock().getType() == Material.WITHER_ROSE && witherRoseCooldown == 0) {
                 witherRoseCooldown = getConfig().getWitherRoseBreakCooldown();
+                getPlayer(p).getData().addStat("nether.roses.broken", 1);
                 xp(p, e.getBlock().getLocation().add(.5D, .5D, .5D), getConfig().getWitherRoseBreakXp());
             }
         });
@@ -127,9 +209,11 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         }
         if (e.getEntityType() == EntityType.WITHER_SKELETON) {
             getPlayer(p).getData().addStat("nether.kills", 1);
+            getPlayer(p).getData().addStat("nether.skeleton.kills", 1);
             xp(p, getConfig().getWitherSkeletonKillXp());
         } else if (e.getEntityType() == EntityType.WITHER) {
             getPlayer(p).getData().addStat("nether.kills", 1);
+            getPlayer(p).getData().addStat("nether.boss.kills", 1);
             xp(p, getConfig().getWitherKillXp());
         }
     }
@@ -184,5 +268,13 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         private int witherRoseBreakCooldown = 60 * 20;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Nether Reward for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private double challengeNetherReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Wither Damage Reward for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        private double challengeWitherDmgReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Wither Skeleton Kill Reward for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        private double challengeWitherSkelReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Wither Boss Kill Reward for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        private double challengeWitherBossReward = 1000;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Roses Broken Reward for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        private double challengeRosesReward = 500;
     }
 }

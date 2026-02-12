@@ -373,6 +373,716 @@
     title = "야수의 지배자"
     description = "동물 500마리 번식시키기"
 
+# Agility - New Achievement Chains
+[advancement.challenge_sprint_dist_5k]
+    title = "질주의 악마"
+    description = "5킬로미터(5,000블록) 이상 질주하기"
+
+[advancement.challenge_sprint_dist_50k]
+    title = "번개 다리"
+    description = "50킬로미터(50,000블록) 이상 질주하기"
+
+[advancement.challenge_agility_swim_1k]
+    title = "소금쟁이"
+    description = "1킬로미터(1,000블록) 이상 수영하기"
+
+[advancement.challenge_agility_swim_10k]
+    title = "수중 항해사"
+    description = "10킬로미터(10,000블록) 이상 수영하기"
+
+[advancement.challenge_fly_1k]
+    title = "하늘의 춤"
+    description = "1킬로미터(1,000블록) 이상 비행하기"
+
+[advancement.challenge_fly_10k]
+    title = "바람 타는 자"
+    description = "10킬로미터(10,000블록) 이상 비행하기"
+
+[advancement.challenge_agility_sneak_500]
+    title = "조용한 발걸음"
+    description = "500블록 이상 웅크리기"
+
+[advancement.challenge_agility_sneak_5k]
+    title = "유령 걸음"
+    description = "5킬로미터(5,000블록) 이상 웅크리기"
+
+# Architect - New Achievement Chains
+[advancement.challenge_demolish_500]
+    title = "철거 부대"
+    description = "500블록 파괴하기"
+
+[advancement.challenge_demolish_5k]
+    title = "파괴의 공"
+    description = "5,000블록 파괴하기"
+
+[advancement.challenge_value_placed_10k]
+    title = "가치 있는 건축가"
+    description = "10,000 가치의 블록 설치하기"
+
+[advancement.challenge_value_placed_100k]
+    title = "건축의 대가"
+    description = "100,000 가치의 블록 설치하기"
+
+[advancement.challenge_demolish_val_5k]
+    title = "회수 전문가"
+    description = "철거에서 5,000 가치를 회수하기"
+
+[advancement.challenge_demolish_val_50k]
+    title = "완전 해체"
+    description = "철거에서 50,000 가치를 회수하기"
+
+[advancement.challenge_high_build_100]
+    title = "하늘 건축가"
+    description = "Y=128 위에 100블록 설치하기"
+
+[advancement.challenge_high_build_1k]
+    title = "구름 위의 건축사"
+    description = "Y=128 위에 1,000블록 설치하기"
+
+# Axes - New Achievement Chains
+[advancement.challenge_axe_swing_500]
+    title = "도끼 휘두르기"
+    description = "도끼를 500번 휘두르기"
+
+[advancement.challenge_axe_swing_5k]
+    title = "광전사"
+    description = "도끼를 5,000번 휘두르기"
+
+[advancement.challenge_axe_damage_1k]
+    title = "절단자"
+    description = "도끼로 1,000 데미지 입히기"
+
+[advancement.challenge_axe_damage_10k]
+    title = "처형인의 도끼"
+    description = "도끼로 10,000 데미지 입히기"
+
+[advancement.challenge_axe_value_5k]
+    title = "목재 상인"
+    description = "5,000 가치의 목재를 수확하기"
+
+[advancement.challenge_axe_value_50k]
+    title = "벌목 재벌"
+    description = "50,000 가치의 목재를 수확하기"
+
+[advancement.challenge_leaves_500]
+    title = "낙엽 청소기"
+    description = "도끼로 잎 블록 500개 제거하기"
+
+[advancement.challenge_leaves_5k]
+    title = "낙엽 분쇄기"
+    description = "도끼로 잎 블록 5,000개 제거하기"
+
+# Blocking - New Achievement Chains
+[advancement.challenge_block_dmg_1k]
+    title = "데미지 흡수"
+    description = "방패로 1,000 데미지 막기"
+
+[advancement.challenge_block_dmg_10k]
+    title = "인간 방패"
+    description = "방패로 10,000 데미지 막기"
+
+[advancement.challenge_block_proj_100]
+    title = "화살 튕기기"
+    description = "방패로 투사체 100개 막기"
+
+[advancement.challenge_block_proj_1k]
+    title = "투사체 방패"
+    description = "방패로 투사체 1,000개 막기"
+
+[advancement.challenge_block_melee_500]
+    title = "패리의 달인"
+    description = "방패로 근접 공격 500회 막기"
+
+[advancement.challenge_block_melee_5k]
+    title = "철의 요새"
+    description = "방패로 근접 공격 5,000회 막기"
+
+[advancement.challenge_block_heavy_50]
+    title = "탱커"
+    description = "강력한 공격(5 데미지 초과) 50회 막기"
+
+[advancement.challenge_block_heavy_500]
+    title = "움직이지 않는 벽"
+    description = "강력한 공격(5 데미지 초과) 500회 막기"
+
+# Brewing - New Achievement Chains
+[advancement.challenge_brew_stands_10]
+    title = "양조 준비"
+    description = "양조기 10개 설치하기"
+
+[advancement.challenge_brew_stands_50]
+    title = "포션 공장"
+    description = "양조기 50개 설치하기"
+
+[advancement.challenge_brew_strong_25]
+    title = "강력한 양조"
+    description = "강화된 포션 25개 마시기"
+
+[advancement.challenge_brew_strong_250]
+    title = "최대 효능"
+    description = "강화된 포션 250개 마시기"
+
+[advancement.challenge_brew_splash_hits_50]
+    title = "투척 범위"
+    description = "투척 포션으로 엔티티 50마리 맞추기"
+
+[advancement.challenge_brew_splash_hits_500]
+    title = "역병 의사"
+    description = "투척 포션으로 엔티티 500마리 맞추기"
+
+# Chronos - New Achievement Chains
+[advancement.challenge_active_dist_1k]
+    title = "쉬지 않는 자"
+    description = "활동 중 1킬로미터 이동하기"
+
+[advancement.challenge_active_dist_10k]
+    title = "길 개척자"
+    description = "활동 중 10킬로미터 이동하기"
+
+[advancement.challenge_active_dist_100k]
+    title = "영원한 움직임"
+    description = "활동 중 100킬로미터 이동하기"
+
+[advancement.challenge_beds_10]
+    title = "이른 기상"
+    description = "침대에서 10번 자기"
+
+[advancement.challenge_beds_100]
+    title = "시간 건너뛰기"
+    description = "침대에서 100번 자기"
+
+[advancement.challenge_chronos_tp_50]
+    title = "시공간 이동"
+    description = "50번 텔레포트하기"
+
+[advancement.challenge_chronos_tp_500]
+    title = "시간의 왜곡"
+    description = "500번 텔레포트하기"
+
+[advancement.challenge_chronos_deaths_10]
+    title = "필멸자"
+    description = "10번 죽기"
+
+[advancement.challenge_chronos_deaths_100]
+    title = "죽음을 이기는 자"
+    description = "100번 죽기"
+
+# Crafting - New Achievement Chains
+[advancement.challenge_craft_value_10k]
+    title = "제작의 가치"
+    description = "총 10,000 가치의 아이템 제작하기"
+
+[advancement.challenge_craft_value_100k]
+    title = "장인"
+    description = "총 100,000 가치의 아이템 제작하기"
+
+[advancement.challenge_craft_tools_25]
+    title = "도구 대장장이"
+    description = "도구 25개 제작하기"
+
+[advancement.challenge_craft_tools_250]
+    title = "단조의 대가"
+    description = "도구 250개 제작하기"
+
+[advancement.challenge_craft_armor_25]
+    title = "갑옷 대장장이"
+    description = "갑옷 25개 제작하기"
+
+[advancement.challenge_craft_armor_250]
+    title = "갑옷의 대가"
+    description = "갑옷 250개 제작하기"
+
+[advancement.challenge_craft_mass_25k]
+    title = "대량 생산"
+    description = "아이템 25,000개 제작하기"
+
+[advancement.challenge_craft_mass_250k]
+    title = "산업 혁명"
+    description = "아이템 250,000개 제작하기"
+
+# Discovery - New Achievement Chains
+[advancement.challenge_discover_items_50]
+    title = "수집가"
+    description = "고유 아이템 50종 발견하기"
+
+[advancement.challenge_discover_items_250]
+    title = "목록 작성자"
+    description = "고유 아이템 250종 발견하기"
+
+[advancement.challenge_discover_blocks_50]
+    title = "측량사"
+    description = "고유 블록 50종 발견하기"
+
+[advancement.challenge_discover_blocks_250]
+    title = "지질학자"
+    description = "고유 블록 250종 발견하기"
+
+[advancement.challenge_discover_mobs_25]
+    title = "관찰자"
+    description = "고유 몹 25종 발견하기"
+
+[advancement.challenge_discover_mobs_75]
+    title = "박물학자"
+    description = "고유 몹 75종 발견하기"
+
+[advancement.challenge_discover_biomes_10]
+    title = "방랑자"
+    description = "고유 바이옴 10종 발견하기"
+
+[advancement.challenge_discover_biomes_40]
+    title = "세계 여행자"
+    description = "고유 바이옴 40종 발견하기"
+
+[advancement.challenge_discover_foods_10]
+    title = "미식가"
+    description = "고유 음식 10종 발견하기"
+
+[advancement.challenge_discover_foods_30]
+    title = "요리의 달인"
+    description = "고유 음식 30종 발견하기"
+
+# Enchanting - New Achievement Chains
+[advancement.challenge_enchant_power_100]
+    title = "힘의 직공"
+    description = "인챈트 파워 100 축적하기"
+
+[advancement.challenge_enchant_power_1k]
+    title = "비술의 대가"
+    description = "인챈트 파워 1,000 축적하기"
+
+[advancement.challenge_enchant_levels_1k]
+    title = "레벨 소모자"
+    description = "인챈트에 경험 레벨 1,000 사용하기"
+
+[advancement.challenge_enchant_levels_10k]
+    title = "경험치의 무덤"
+    description = "인챈트에 경험 레벨 10,000 사용하기"
+
+[advancement.challenge_enchant_high_25]
+    title = "도박사"
+    description = "최대 레벨 인챈트 25회 수행하기"
+
+[advancement.challenge_enchant_high_250]
+    title = "전설의 인챈터"
+    description = "최대 레벨 인챈트 250회 수행하기"
+
+[advancement.challenge_enchant_total_500]
+    title = "레벨 연소"
+    description = "모든 인챈트에 총 500레벨 사용하기"
+
+[advancement.challenge_enchant_total_5k]
+    title = "비술의 투자"
+    description = "모든 인챈트에 총 5,000레벨 사용하기"
+
+# Excavation - New Achievement Chains
+[advancement.challenge_dig_swing_500]
+    title = "삽질꾼"
+    description = "삽을 500번 휘두르기"
+
+[advancement.challenge_dig_swing_5k]
+    title = "굴착기"
+    description = "삽을 5,000번 휘두르기"
+
+[advancement.challenge_dig_damage_1k]
+    title = "삽의 기사"
+    description = "삽으로 1,000 데미지 입히기"
+
+[advancement.challenge_dig_damage_10k]
+    title = "삽의 대가"
+    description = "삽으로 10,000 데미지 입히기"
+
+[advancement.challenge_dig_value_5k]
+    title = "흙 상인"
+    description = "5,000 가치의 블록 굴착하기"
+
+[advancement.challenge_dig_value_50k]
+    title = "대지의 지배자"
+    description = "50,000 가치의 블록 굴착하기"
+
+[advancement.challenge_dig_gravel_500]
+    title = "자갈 분쇄기"
+    description = "자갈, 모래, 점토 블록 500개 파기"
+
+[advancement.challenge_dig_gravel_5k]
+    title = "모래 체질"
+    description = "자갈, 모래, 점토 블록 5,000개 파기"
+
+# Herbalism - New Achievement Chains
+[advancement.challenge_plant_100]
+    title = "씨 뿌리는 자"
+    description = "작물 100개 심기"
+
+[advancement.challenge_plant_1k]
+    title = "녹색 손가락"
+    description = "작물 1,000개 심기"
+
+[advancement.challenge_plant_5k]
+    title = "농업 재벌"
+    description = "작물 5,000개 심기"
+
+[advancement.challenge_compost_50]
+    title = "재활용가"
+    description = "아이템 50개 퇴비로 만들기"
+
+[advancement.challenge_compost_500]
+    title = "토양 개량가"
+    description = "아이템 500개 퇴비로 만들기"
+
+[advancement.challenge_shear_50]
+    title = "양털 깎는 자"
+    description = "엔티티 50마리 양털 깎기"
+
+[advancement.challenge_shear_250]
+    title = "무리의 주인"
+    description = "엔티티 250마리 양털 깎기"
+
+# Hunter - New Achievement Chains
+[advancement.challenge_kills_500]
+    title = "사냥꾼"
+    description = "생물 500마리 처치하기"
+
+[advancement.challenge_kills_5k]
+    title = "처형인"
+    description = "생물 5,000마리 처치하기"
+
+[advancement.challenge_boss_1]
+    title = "보스 도전자"
+    description = "보스 몹 1마리 처치하기"
+
+[advancement.challenge_boss_10]
+    title = "전설 사냥꾼"
+    description = "보스 몹 10마리 처치하기"
+
+# Nether - New Achievement Chains
+[advancement.challenge_wither_dmg_500]
+    title = "시듦"
+    description = "위더 데미지 500 견디기"
+
+[advancement.challenge_wither_dmg_5k]
+    title = "역병의 생존자"
+    description = "위더 데미지 5,000 견디기"
+
+[advancement.challenge_wither_skel_25]
+    title = "뼈 수집가"
+    description = "위더 스켈레톤 25마리 처치하기"
+
+[advancement.challenge_wither_skel_250]
+    title = "해골의 천적"
+    description = "위더 스켈레톤 250마리 처치하기"
+
+[advancement.challenge_wither_boss_1]
+    title = "위더 처치자"
+    description = "위더 처치하기"
+
+[advancement.challenge_wither_boss_10]
+    title = "네더의 지배자"
+    description = "위더 10번 처치하기"
+
+[advancement.challenge_roses_10]
+    title = "죽음의 정원사"
+    description = "위더 장미 10송이 부수기"
+
+[advancement.challenge_roses_100]
+    title = "역병 수집가"
+    description = "위더 장미 100송이 부수기"
+
+# Pickaxes - New Achievement Chains
+[advancement.challenge_pick_swing_500]
+    title = "광부의 팔"
+    description = "곡괭이를 500번 휘두르기"
+
+[advancement.challenge_pick_swing_5k]
+    title = "터널 굴착자"
+    description = "곡괭이를 5,000번 휘두르기"
+
+[advancement.challenge_pick_damage_1k]
+    title = "곡괭이 전사"
+    description = "곡괭이로 1,000 데미지 입히기"
+
+[advancement.challenge_pick_damage_10k]
+    title = "전쟁의 곡괭이"
+    description = "곡괭이로 10,000 데미지 입히기"
+
+[advancement.challenge_pick_value_5k]
+    title = "보석 탐색자"
+    description = "5,000 가치의 블록 채굴하기"
+
+[advancement.challenge_pick_value_50k]
+    title = "광석 재벌"
+    description = "50,000 가치의 블록 채굴하기"
+
+[advancement.challenge_pick_ores_500]
+    title = "탐광자"
+    description = "광석 블록 500개 채굴하기"
+
+[advancement.challenge_pick_ores_5k]
+    title = "채굴의 대가"
+    description = "광석 블록 5,000개 채굴하기"
+
+# Ranged - New Achievement Chains
+[advancement.challenge_ranged_dmg_1k]
+    title = "명사수"
+    description = "원거리 데미지 1,000 입히기"
+
+[advancement.challenge_ranged_dmg_10k]
+    title = "치명적 궁수"
+    description = "원거리 데미지 10,000 입히기"
+
+[advancement.challenge_ranged_dist_5k]
+    title = "장거리 사격"
+    description = "투사체 총 비행 거리 5,000블록 달성하기"
+
+[advancement.challenge_ranged_dist_50k]
+    title = "초장거리 사수"
+    description = "투사체 총 비행 거리 50,000블록 달성하기"
+
+[advancement.challenge_ranged_kills_50]
+    title = "궁수"
+    description = "원거리 무기로 몹 50마리 처치하기"
+
+[advancement.challenge_ranged_kills_500]
+    title = "궁술의 대가"
+    description = "원거리 무기로 몹 500마리 처치하기"
+
+[advancement.challenge_longshot_25]
+    title = "저격수"
+    description = "장거리 사격(30블록 초과) 25회 명중하기"
+
+[advancement.challenge_longshot_250]
+    title = "매의 눈"
+    description = "장거리 사격(30블록 초과) 250회 명중하기"
+
+# Rift - New Achievement Chains
+[advancement.challenge_rift_pearls_50]
+    title = "진주 던지기"
+    description = "엔더 진주 50개 던지기"
+
+[advancement.challenge_rift_pearls_500]
+    title = "텔레포트 중독"
+    description = "엔더 진주 500개 던지기"
+
+[advancement.challenge_rift_enderman_50]
+    title = "엔더맨 사냥꾼"
+    description = "엔더맨 50마리 처치하기"
+
+[advancement.challenge_rift_enderman_500]
+    title = "공허의 추적자"
+    description = "엔더맨 500마리 처치하기"
+
+[advancement.challenge_rift_dragon_500]
+    title = "용과 싸우는 자"
+    description = "엔더 드래곤에게 500 데미지 입히기"
+
+[advancement.challenge_rift_dragon_5k]
+    title = "용살자"
+    description = "엔더 드래곤에게 5,000 데미지 입히기"
+
+[advancement.challenge_rift_crystal_10]
+    title = "수정 파괴자"
+    description = "엔드 수정 10개 파괴하기"
+
+[advancement.challenge_rift_crystal_100]
+    title = "엔드 파괴자"
+    description = "엔드 수정 100개 파괴하기"
+
+# Seaborne - New Achievement Chains
+[advancement.challenge_fish_25]
+    title = "낚시꾼"
+    description = "물고기 25마리 잡기"
+
+[advancement.challenge_fish_250]
+    title = "낚시의 달인"
+    description = "물고기 250마리 잡기"
+
+[advancement.challenge_drowned_25]
+    title = "드라운드 사냥꾼"
+    description = "드라운드 25마리 처치하기"
+
+[advancement.challenge_drowned_250]
+    title = "바다 정화자"
+    description = "드라운드 250마리 처치하기"
+
+[advancement.challenge_guardian_10]
+    title = "가디언 처치자"
+    description = "가디언 10마리 처치하기"
+
+[advancement.challenge_guardian_100]
+    title = "신전 침략자"
+    description = "가디언 100마리 처치하기"
+
+[advancement.challenge_underwater_blocks_100]
+    title = "수중 채굴자"
+    description = "수중에서 블록 100개 파괴하기"
+
+[advancement.challenge_underwater_blocks_1k]
+    title = "수중 기술자"
+    description = "수중에서 블록 1,000개 파괴하기"
+
+# Stealth - New Achievement Chains
+[advancement.challenge_stealth_dmg_500]
+    title = "등 뒤의 칼"
+    description = "웅크리기 중 500 데미지 입히기"
+
+[advancement.challenge_stealth_dmg_5k]
+    title = "침묵의 살인자"
+    description = "웅크리기 중 5,000 데미지 입히기"
+
+[advancement.challenge_stealth_kills_10]
+    title = "암살자"
+    description = "웅크리기 중 몹 10마리 처치하기"
+
+[advancement.challenge_stealth_kills_100]
+    title = "그림자 사신"
+    description = "웅크리기 중 몹 100마리 처치하기"
+
+[advancement.challenge_stealth_time_1h]
+    title = "인내"
+    description = "1시간(3,600초) 웅크리기"
+
+[advancement.challenge_stealth_time_10h]
+    title = "그림자의 지배자"
+    description = "10시간(36,000초) 웅크리기"
+
+[advancement.challenge_stealth_arrows_50]
+    title = "조용한 궁수"
+    description = "웅크리기 중 화살 50발 발사하기"
+
+[advancement.challenge_stealth_arrows_500]
+    title = "유령 궁수"
+    description = "웅크리기 중 화살 500발 발사하기"
+
+# Swords - New Achievement Chains
+[advancement.challenge_sword_dmg_1k]
+    title = "검의 견습생"
+    description = "검으로 1,000 데미지 입히기"
+
+[advancement.challenge_sword_dmg_10k]
+    title = "검사"
+    description = "검으로 10,000 데미지 입히기"
+
+[advancement.challenge_sword_kills_50]
+    title = "결투사"
+    description = "검으로 몹 50마리 처치하기"
+
+[advancement.challenge_sword_kills_500]
+    title = "검투사"
+    description = "검으로 몹 500마리 처치하기"
+
+[advancement.challenge_sword_crit_50]
+    title = "치명타"
+    description = "검으로 치명타 50회 달성하기"
+
+[advancement.challenge_sword_crit_500]
+    title = "정밀의 달인"
+    description = "검으로 치명타 500회 달성하기"
+
+[advancement.challenge_sword_heavy_25]
+    title = "강타"
+    description = "검으로 강력한 일격(8 데미지 초과) 25회 달성하기"
+
+[advancement.challenge_sword_heavy_250]
+    title = "파멸의 일격"
+    description = "검으로 강력한 일격(8 데미지 초과) 250회 달성하기"
+
+# Taming - New Achievement Chains
+[advancement.challenge_pet_dmg_500]
+    title = "야수 조련사"
+    description = "펫이 총 500 데미지 입히기"
+
+[advancement.challenge_pet_dmg_5k]
+    title = "전쟁의 주인"
+    description = "펫이 총 5,000 데미지 입히기"
+
+[advancement.challenge_tamed_10]
+    title = "동물의 친구"
+    description = "동물 10마리 길들이기"
+
+[advancement.challenge_tamed_100]
+    title = "동물원 관리인"
+    description = "동물 100마리 길들이기"
+
+[advancement.challenge_pet_kills_25]
+    title = "무리의 전술"
+    description = "펫이 생물 25마리 처치하기"
+
+[advancement.challenge_pet_kills_250]
+    title = "우두머리 지휘관"
+    description = "펫이 생물 250마리 처치하기"
+
+[advancement.challenge_taming_2500]
+    title = "번식 전문가"
+    description = "동물 2,500마리 번식시키기"
+
+[advancement.challenge_taming_25k]
+    title = "유전학의 대가"
+    description = "동물 25,000마리 번식시키기"
+
+# TragOul - New Achievement Chains
+[advancement.challenge_trag_hits_500]
+    title = "샌드백"
+    description = "500번 맞기"
+
+[advancement.challenge_trag_hits_5k]
+    title = "고통의 미식가"
+    description = "5,000번 맞기"
+
+[advancement.challenge_trag_deaths_10]
+    title = "아홉 개의 생명"
+    description = "10번 죽기"
+
+[advancement.challenge_trag_deaths_100]
+    title = "반복되는 악몽"
+    description = "100번 죽기"
+
+[advancement.challenge_trag_fire_500]
+    title = "화상 피해자"
+    description = "화염 데미지 500 견디기"
+
+[advancement.challenge_trag_fire_5k]
+    title = "불사조"
+    description = "화염 데미지 5,000 견디기"
+
+[advancement.challenge_trag_fall_500]
+    title = "중력 확인"
+    description = "낙하 데미지 500 견디기"
+
+[advancement.challenge_trag_fall_5k]
+    title = "종단 속도"
+    description = "낙하 데미지 5,000 견디기"
+
+# Unarmed - New Achievement Chains
+[advancement.challenge_unarmed_dmg_1k]
+    title = "싸움꾼"
+    description = "맨주먹으로 1,000 데미지 입히기"
+
+[advancement.challenge_unarmed_dmg_10k]
+    title = "무술가"
+    description = "맨주먹으로 10,000 데미지 입히기"
+
+[advancement.challenge_unarmed_kills_25]
+    title = "맨주먹 싸움"
+    description = "맨주먹으로 몹 25마리 처치하기"
+
+[advancement.challenge_unarmed_kills_250]
+    title = "주먹의 전설"
+    description = "맨주먹으로 몹 250마리 처치하기"
+
+[advancement.challenge_unarmed_crit_25]
+    title = "치명적 주먹"
+    description = "맨주먹으로 치명타 25회 달성하기"
+
+[advancement.challenge_unarmed_crit_250]
+    title = "정밀한 주먹"
+    description = "맨주먹으로 치명타 250회 달성하기"
+
+[advancement.challenge_unarmed_heavy_25]
+    title = "강력한 주먹"
+    description = "맨주먹으로 강력한 일격(6 데미지 초과) 25회 달성하기"
+
+[advancement.challenge_unarmed_heavy_250]
+    title = "일격필살"
+    description = "맨주먹으로 강력한 일격(6 데미지 초과) 250회 달성하기"
+
 # items
 [items]
 

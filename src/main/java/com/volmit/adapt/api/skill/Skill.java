@@ -38,6 +38,9 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public interface Skill<T> extends Ticked, Component {
     AdaptAdvancement buildAdvancements();
 
@@ -212,6 +215,10 @@ public interface Skill<T> extends Ticked, Component {
     }
 
     default void openGui(Player player) {
+        openGui(player, 0);
+    }
+
+    default void openGui(Player player, int page) {
         if (!this.isEnabled()) {
             return;
         }
@@ -219,7 +226,8 @@ public interface Skill<T> extends Ticked, Component {
             return;
         }
         if (!Bukkit.isPrimaryThread()) {
-            J.s(() -> openGui(player));
+            int targetPage = page;
+            J.s(() -> openGui(player, targetPage));
             return;
         }
 
@@ -227,52 +235,87 @@ public interface Skill<T> extends Ticked, Component {
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
-        Window w = new UIWindow(player);
-        w.setTag("skill/" + getName());
-        w.setDecorator((window, position, row) -> new UIElement("bg")
-                .setName(" ")
-                .setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE))
-                .setModel(CustomModel.get(Material.BLACK_STAINED_GLASS_PANE, "snippets", "gui", "background")));
 
-        int ind = 0;
-
-        for (Adaptation<?> i : getAdaptations()) {
-            if (!i.isEnabled()) {
+        List<Adaptation<?>> visibleAdaptations = new ArrayList<>();
+        for (Adaptation<?> adaptation : getAdaptations()) {
+            if (!adaptation.isEnabled()) {
                 continue;
             }
-            if (!i.getSkill().isEnabled()) {
+            if (!adaptation.getSkill().isEnabled()) {
                 continue;
             }
-            if (i.hasBlacklistPermission(player, i)) {
+            if (adaptation.hasBlacklistPermission(player, adaptation)) {
                 continue;
             }
-            int pos = w.getPosition(ind);
-            int row = w.getRow(ind);
-            int lvl = getPlayer(player).getData().getSkillLine(getName()).getAdaptationLevel(i.getName());
-            w.setElement(pos, row, new UIElement("ada-" + i.getName())
-                    .setMaterial(new MaterialBlock(i.getIcon()))
-                    .setModel(i.getModel())
-                    .setName(i.getDisplayName(lvl))
-                    .addLore(Form.wrapWordsPrefixed(i.getDescription(), "" + C.GRAY, 45)) // Set to the actual Description
-                    .addLore(lvl == 0 ? (C.DARK_GRAY + Localizer.dLocalize("snippets.gui.not_learned")) : (C.GRAY + Localizer.dLocalize("snippets.gui.level") + " " + C.WHITE + Form.toRoman(lvl)))
-                    .setProgress(1D)
-                    .onLeftClick((e) -> i.openGui(player)));
-            ind++;
+            visibleAdaptations.add(adaptation);
         }
 
-        if (AdaptConfig.get().isGuiBackButton()) {
-            int backPos = w.getResolution().getWidth() - 1;
-            int backRow = w.getViewportHeight() - 1;
-            if (w.getElement(backPos, backRow) != null) backRow++;
-            w.setElement(backPos, backRow, new UIElement("back")
-                    .setMaterial(new MaterialBlock(Material.RED_BED))
-                    .setModel(CustomModel.get(Material.RED_BED, "snippets", "gui", "back"))
-                    .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
-                    .onLeftClick((e) -> onGuiClose(player, true)));
+        boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
+        GuiLayout.PagePlan plan = GuiLayout.plan(visibleAdaptations.size(), reserveNavigation);
+        int currentPage = GuiLayout.clampPage(page, plan.pageCount());
+        int start = currentPage * plan.itemsPerPage();
+        int end = Math.min(visibleAdaptations.size(), start + plan.itemsPerPage());
+
+        Window w = new UIWindow(player);
+        GuiTheme.apply(w, "skill/" + getName());
+        w.setViewportHeight(plan.rows());
+
+        if (visibleAdaptations.isEmpty()) {
+            w.setElement(0, 0, new UIElement("ada-empty")
+                    .setMaterial(new MaterialBlock(Material.PAPER))
+                    .setName(C.GRAY + "No adaptations available"));
+        } else {
+            List<GuiEffects.Placement> reveal = new ArrayList<>();
+            for (int row = 0; row < plan.contentRows(); row++) {
+                int rowStart = start + (row * GuiLayout.WIDTH);
+                if (rowStart >= end) {
+                    break;
+                }
+
+                int rowCount = Math.min(GuiLayout.WIDTH, end - rowStart);
+                for (int i = 0; i < rowCount; i++) {
+                    Adaptation<?> adaptation = visibleAdaptations.get(rowStart + i);
+                    int lvl = getPlayer(player).getData().getSkillLine(getName()).getAdaptationLevel(adaptation.getName());
+                    int pos = GuiLayout.centeredPosition(i, rowCount);
+                    Element element = new UIElement("ada-" + adaptation.getName())
+                            .setMaterial(new MaterialBlock(adaptation.getIcon()))
+                            .setModel(adaptation.getModel())
+                            .setName(adaptation.getDisplayName(lvl))
+                            .addLore(Form.wrapWordsPrefixed(adaptation.getDescription(), "" + C.GRAY, 45))
+                            .addLore(lvl == 0 ? (C.DARK_GRAY + Localizer.dLocalize("snippets.gui.not_learned")) : (C.GRAY + Localizer.dLocalize("snippets.gui.level") + " " + C.WHITE + Form.toRoman(lvl)))
+                            .setProgress(1D)
+                            .onLeftClick((e) -> adaptation.openGui(player));
+                    reveal.add(new GuiEffects.Placement(pos, row, element));
+                }
+            }
+            GuiEffects.applyReveal(w, reveal);
+        }
+
+        if (plan.hasNavigationRow()) {
+            int navRow = plan.rows() - 1;
+            if (currentPage > 0) {
+                w.setElement(-4, navRow, new UIElement("skill-prev")
+                        .setMaterial(new MaterialBlock(Material.ARROW))
+                        .setName(C.WHITE + "Previous")
+                        .onLeftClick((e) -> openGui(player, currentPage - 1)));
+            }
+            if (currentPage < plan.pageCount() - 1) {
+                w.setElement(4, navRow, new UIElement("skill-next")
+                        .setMaterial(new MaterialBlock(Material.ARROW))
+                        .setName(C.WHITE + "Next")
+                        .onLeftClick((e) -> openGui(player, currentPage + 1)));
+            }
+            if (AdaptConfig.get().isGuiBackButton()) {
+                w.setElement(0, navRow, new UIElement("back")
+                        .setMaterial(new MaterialBlock(Material.ARROW))
+                        .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
+                        .onLeftClick((e) -> onGuiClose(player, true)));
+            }
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Localizer.dLocalize("snippets.gui.xp") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")");
+        String pageSuffix = plan.pageCount() > 1 ? " [" + (currentPage + 1) + "/" + plan.pageCount() + "]" : "";
+        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Localizer.dLocalize("snippets.gui.xp") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")" + pageSuffix);
         w.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
         w.open();
         Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);

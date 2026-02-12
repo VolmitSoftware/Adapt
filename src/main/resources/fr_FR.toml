@@ -373,6 +373,566 @@
     title = "Maitre des Betes"
     description = "Elevez 500 animaux"
 
+# Agility
+[advancement.challenge_sprint_dist_5k]
+    title = "Demon de la Vitesse"
+    description = "Sprintez sur plus de 5 Kilometres (5.000 blocs)"
+[advancement.challenge_sprint_dist_50k]
+    title = "Jambes de Foudre"
+    description = "Sprintez sur plus de 50 Kilometres (50.000 blocs)"
+[advancement.challenge_agility_swim_1k]
+    title = "Marcheur des Eaux"
+    description = "Nagez sur plus de 1 Kilometre (1.000 blocs)"
+[advancement.challenge_agility_swim_10k]
+    title = "Voyageur Aquatique"
+    description = "Nagez sur plus de 10 Kilometres (10.000 blocs)"
+[advancement.challenge_fly_1k]
+    title = "Danseur du Ciel"
+    description = "Volez sur plus de 1 Kilometre (1.000 blocs)"
+[advancement.challenge_fly_10k]
+    title = "Cavalier du Vent"
+    description = "Volez sur plus de 10 Kilometres (10.000 blocs)"
+[advancement.challenge_agility_sneak_500]
+    title = "Pas Discrets"
+    description = "Deplacez-vous furtivement sur plus de 500 blocs"
+[advancement.challenge_agility_sneak_5k]
+    title = "Pas Fantomes"
+    description = "Deplacez-vous furtivement sur plus de 5 Kilometres (5.000 blocs)"
+
+# Architect
+[advancement.challenge_demolish_500]
+    title = "Equipe de Demolition"
+    description = "Cassez 500 blocs"
+[advancement.challenge_demolish_5k]
+    title = "Boule de Demolition"
+    description = "Cassez 5.000 blocs"
+[advancement.challenge_value_placed_10k]
+    title = "Batisseur de Valeur"
+    description = "Placez des blocs d'une valeur de 10.000"
+[advancement.challenge_value_placed_100k]
+    title = "Maitre Architecte"
+    description = "Placez des blocs d'une valeur de 100.000"
+[advancement.challenge_demolish_val_5k]
+    title = "Expert en Recuperation"
+    description = "Recuperez 5.000 de valeur de blocs par demolition"
+[advancement.challenge_demolish_val_50k]
+    title = "Deconstruction Totale"
+    description = "Recuperez 50.000 de valeur de blocs par demolition"
+[advancement.challenge_high_build_100]
+    title = "Batisseur Celeste"
+    description = "Placez 100 blocs au-dessus de Y=128"
+[advancement.challenge_high_build_1k]
+    title = "Architecte des Nuages"
+    description = "Placez 1.000 blocs au-dessus de Y=128"
+
+# Axes
+[advancement.challenge_axe_swing_500]
+    title = "Bucheron"
+    description = "Balancez votre hache 500 fois"
+[advancement.challenge_axe_swing_5k]
+    title = "Berserker"
+    description = "Balancez votre hache 5.000 fois"
+[advancement.challenge_axe_damage_1k]
+    title = "Fendeur"
+    description = "Infligez 1.000 degats avec des haches"
+[advancement.challenge_axe_damage_10k]
+    title = "Hache du Bourreau"
+    description = "Infligez 10.000 degats avec des haches"
+[advancement.challenge_axe_value_5k]
+    title = "Marchand de Bois"
+    description = "Recoltez du bois d'une valeur de 5.000"
+[advancement.challenge_axe_value_50k]
+    title = "Baron du Bois"
+    description = "Recoltez du bois d'une valeur de 50.000"
+[advancement.challenge_leaves_500]
+    title = "Souffleur de Feuilles"
+    description = "Eliminez 500 blocs de feuilles avec une hache"
+[advancement.challenge_leaves_5k]
+    title = "Defoliateur"
+    description = "Eliminez 5.000 blocs de feuilles avec une hache"
+
+# Blocking
+[advancement.challenge_block_dmg_1k]
+    title = "Absorbeur de Degats"
+    description = "Bloquez 1.000 degats avec un bouclier"
+[advancement.challenge_block_dmg_10k]
+    title = "Bouclier Humain"
+    description = "Bloquez 10.000 degats avec un bouclier"
+[advancement.challenge_block_proj_100]
+    title = "Deflecteur de Fleches"
+    description = "Bloquez 100 projectiles avec un bouclier"
+[advancement.challenge_block_proj_1k]
+    title = "Bouclier Anti-Projectiles"
+    description = "Bloquez 1.000 projectiles avec un bouclier"
+[advancement.challenge_block_melee_500]
+    title = "Maitre de la Parade"
+    description = "Bloquez 500 attaques de melee avec un bouclier"
+[advancement.challenge_block_melee_5k]
+    title = "Forteresse de Fer"
+    description = "Bloquez 5.000 attaques de melee avec un bouclier"
+[advancement.challenge_block_heavy_50]
+    title = "Tank"
+    description = "Bloquez 50 attaques lourdes (plus de 5 degats)"
+[advancement.challenge_block_heavy_500]
+    title = "Objet Immuable"
+    description = "Bloquez 500 attaques lourdes (plus de 5 degats)"
+
+# Brewing
+[advancement.challenge_brew_stands_10]
+    title = "Installation du Brasseur"
+    description = "Placez 10 alambics"
+[advancement.challenge_brew_stands_50]
+    title = "Fabrique de Potions"
+    description = "Placez 50 alambics"
+[advancement.challenge_brew_strong_25]
+    title = "Breuvage Puissant"
+    description = "Consommez 25 potions ameliorees"
+[advancement.challenge_brew_strong_250]
+    title = "Puissance Maximale"
+    description = "Consommez 250 potions ameliorees"
+[advancement.challenge_brew_splash_hits_50]
+    title = "Zone d'Eclaboussure"
+    description = "Touchez 50 entites avec des potions jetables"
+[advancement.challenge_brew_splash_hits_500]
+    title = "Medecin de Peste"
+    description = "Touchez 500 entites avec des potions jetables"
+
+# Chronos
+[advancement.challenge_active_dist_1k]
+    title = "Agite"
+    description = "Parcourez 1 Kilometre en etant actif"
+[advancement.challenge_active_dist_10k]
+    title = "Eclaireur"
+    description = "Parcourez 10 Kilometres en etant actif"
+[advancement.challenge_active_dist_100k]
+    title = "Mouvement Perpetuel"
+    description = "Parcourez 100 Kilometres en etant actif"
+[advancement.challenge_beds_10]
+    title = "Leve-tot"
+    description = "Dormez dans un lit 10 fois"
+[advancement.challenge_beds_100]
+    title = "Sauteur de Temps"
+    description = "Dormez dans un lit 100 fois"
+[advancement.challenge_chronos_tp_50]
+    title = "Decalage Temporel"
+    description = "Teleportez-vous 50 fois"
+[advancement.challenge_chronos_tp_500]
+    title = "Distorsion Temporelle"
+    description = "Teleportez-vous 500 fois"
+[advancement.challenge_chronos_deaths_10]
+    title = "Mortel"
+    description = "Mourez 10 fois"
+[advancement.challenge_chronos_deaths_100]
+    title = "Defieur de la Mort"
+    description = "Mourez 100 fois"
+
+# Crafting
+[advancement.challenge_craft_value_10k]
+    title = "Valeur Artisanale"
+    description = "Fabriquez des objets d'une valeur totale de 10.000"
+[advancement.challenge_craft_value_100k]
+    title = "Artisan"
+    description = "Fabriquez des objets d'une valeur totale de 100.000"
+[advancement.challenge_craft_tools_25]
+    title = "Forgeur d'Outils"
+    description = "Fabriquez 25 outils"
+[advancement.challenge_craft_tools_250]
+    title = "Maitre Forgeron"
+    description = "Fabriquez 250 outils"
+[advancement.challenge_craft_armor_25]
+    title = "Forgeur d'Armures"
+    description = "Fabriquez 25 pieces d'armure"
+[advancement.challenge_craft_armor_250]
+    title = "Maitre Armurier"
+    description = "Fabriquez 250 pieces d'armure"
+[advancement.challenge_craft_mass_25k]
+    title = "Producteur en Masse"
+    description = "Fabriquez 25.000 objets"
+[advancement.challenge_craft_mass_250k]
+    title = "Revolution Industrielle"
+    description = "Fabriquez 250.000 objets"
+
+# Discovery
+[advancement.challenge_discover_items_50]
+    title = "Collectionneur"
+    description = "Decouvrez 50 objets uniques"
+[advancement.challenge_discover_items_250]
+    title = "Catalogueur"
+    description = "Decouvrez 250 objets uniques"
+[advancement.challenge_discover_blocks_50]
+    title = "Arpenteur"
+    description = "Decouvrez 50 blocs uniques"
+[advancement.challenge_discover_blocks_250]
+    title = "Geologue"
+    description = "Decouvrez 250 blocs uniques"
+[advancement.challenge_discover_mobs_25]
+    title = "Observateur"
+    description = "Decouvrez 25 creatures uniques"
+[advancement.challenge_discover_mobs_75]
+    title = "Naturaliste"
+    description = "Decouvrez 75 creatures uniques"
+[advancement.challenge_discover_biomes_10]
+    title = "Vagabond"
+    description = "Decouvrez 10 biomes uniques"
+[advancement.challenge_discover_biomes_40]
+    title = "Globe-Trotteur"
+    description = "Decouvrez 40 biomes uniques"
+[advancement.challenge_discover_foods_10]
+    title = "Gourmet"
+    description = "Decouvrez 10 aliments uniques"
+[advancement.challenge_discover_foods_30]
+    title = "Maitre Culinaire"
+    description = "Decouvrez 30 aliments uniques"
+
+# Enchanting
+[advancement.challenge_enchant_power_100]
+    title = "Tisseur de Pouvoir"
+    description = "Accumulez 100 de puissance d'enchantement"
+[advancement.challenge_enchant_power_1k]
+    title = "Maitre des Arcanes"
+    description = "Accumulez 1.000 de puissance d'enchantement"
+[advancement.challenge_enchant_levels_1k]
+    title = "Depensier de Niveaux"
+    description = "Depensez 1.000 niveaux d'experience en enchantements"
+[advancement.challenge_enchant_levels_10k]
+    title = "Gouffre a XP"
+    description = "Depensez 10.000 niveaux d'experience en enchantements"
+[advancement.challenge_enchant_high_25]
+    title = "Flambeur"
+    description = "Effectuez 25 enchantements de niveau maximum"
+[advancement.challenge_enchant_high_250]
+    title = "Enchanteur Legendaire"
+    description = "Effectuez 250 enchantements de niveau maximum"
+[advancement.challenge_enchant_total_500]
+    title = "Bruleur de Niveaux"
+    description = "Depensez 500 niveaux au total en enchantements"
+[advancement.challenge_enchant_total_5k]
+    title = "Investissement Arcanique"
+    description = "Depensez 5.000 niveaux au total en enchantements"
+
+# Excavation
+[advancement.challenge_dig_swing_500]
+    title = "Pelleteur"
+    description = "Balancez votre pelle 500 fois"
+[advancement.challenge_dig_swing_5k]
+    title = "Excavateur"
+    description = "Balancez votre pelle 5.000 fois"
+[advancement.challenge_dig_damage_1k]
+    title = "Chevalier a la Pelle"
+    description = "Infligez 1.000 degats avec une pelle"
+[advancement.challenge_dig_damage_10k]
+    title = "Maitre de la Pelle"
+    description = "Infligez 10.000 degats avec une pelle"
+[advancement.challenge_dig_value_5k]
+    title = "Marchand de Terre"
+    description = "Excavez des blocs d'une valeur de 5.000"
+[advancement.challenge_dig_value_50k]
+    title = "Baron de la Terre"
+    description = "Excavez des blocs d'une valeur de 50.000"
+[advancement.challenge_dig_gravel_500]
+    title = "Broyeur de Gravier"
+    description = "Creusez 500 blocs de gravier, sable ou argile"
+[advancement.challenge_dig_gravel_5k]
+    title = "Tamiseur de Sable"
+    description = "Creusez 5.000 blocs de gravier, sable ou argile"
+
+# Herbalism
+[advancement.challenge_plant_100]
+    title = "Semeur"
+    description = "Plantez 100 cultures"
+[advancement.challenge_plant_1k]
+    title = "Main Verte"
+    description = "Plantez 1.000 cultures"
+[advancement.challenge_plant_5k]
+    title = "Baron Agricole"
+    description = "Plantez 5.000 cultures"
+[advancement.challenge_compost_50]
+    title = "Recycleur"
+    description = "Compostez 50 objets"
+[advancement.challenge_compost_500]
+    title = "Enrichisseur de Sol"
+    description = "Compostez 500 objets"
+[advancement.challenge_shear_50]
+    title = "Tondeur"
+    description = "Tondez 50 entites"
+[advancement.challenge_shear_250]
+    title = "Maitre du Troupeau"
+    description = "Tondez 250 entites"
+
+# Hunter
+[advancement.challenge_kills_500]
+    title = "Tueur"
+    description = "Abattez 500 creatures"
+[advancement.challenge_kills_5k]
+    title = "Bourreau"
+    description = "Abattez 5.000 creatures"
+[advancement.challenge_boss_1]
+    title = "Defieur de Boss"
+    description = "Terrassez un boss"
+[advancement.challenge_boss_10]
+    title = "Tueur de Legendes"
+    description = "Terrassez 10 boss"
+
+# Nether
+[advancement.challenge_wither_dmg_500]
+    title = "Fletri"
+    description = "Endurez 500 degats de Wither"
+[advancement.challenge_wither_dmg_5k]
+    title = "Survivant du Fleau"
+    description = "Endurez 5.000 degats de Wither"
+[advancement.challenge_wither_skel_25]
+    title = "Collectionneur d'Os"
+    description = "Abattez 25 squelettes Wither"
+[advancement.challenge_wither_skel_250]
+    title = "Fleau des Squelettes"
+    description = "Abattez 250 squelettes Wither"
+[advancement.challenge_wither_boss_1]
+    title = "Pourfendeur du Wither"
+    description = "Vainquez le Wither"
+[advancement.challenge_wither_boss_10]
+    title = "Dominateur du Nether"
+    description = "Vainquez le Wither 10 fois"
+[advancement.challenge_roses_10]
+    title = "Jardinier de la Mort"
+    description = "Cassez 10 roses de Wither"
+[advancement.challenge_roses_100]
+    title = "Collectionneur de Fleau"
+    description = "Cassez 100 roses de Wither"
+
+# Pickaxes
+[advancement.challenge_pick_swing_500]
+    title = "Bras de Mineur"
+    description = "Balancez votre pioche 500 fois"
+[advancement.challenge_pick_swing_5k]
+    title = "Creuseur de Tunnels"
+    description = "Balancez votre pioche 5.000 fois"
+[advancement.challenge_pick_damage_1k]
+    title = "Combattant a la Pioche"
+    description = "Infligez 1.000 degats avec une pioche"
+[advancement.challenge_pick_damage_10k]
+    title = "Pioche de Guerre"
+    description = "Infligez 10.000 degats avec une pioche"
+[advancement.challenge_pick_value_5k]
+    title = "Chercheur de Gemmes"
+    description = "Minez des blocs d'une valeur de 5.000"
+[advancement.challenge_pick_value_50k]
+    title = "Baron du Minerai"
+    description = "Minez des blocs d'une valeur de 50.000"
+[advancement.challenge_pick_ores_500]
+    title = "Prospecteur"
+    description = "Minez 500 blocs de minerai"
+[advancement.challenge_pick_ores_5k]
+    title = "Maitre Mineur"
+    description = "Minez 5.000 blocs de minerai"
+
+# Ranged
+[advancement.challenge_ranged_dmg_1k]
+    title = "Tireur d'Elite"
+    description = "Infligez 1.000 degats a distance"
+[advancement.challenge_ranged_dmg_10k]
+    title = "Archer Mortel"
+    description = "Infligez 10.000 degats a distance"
+[advancement.challenge_ranged_dist_5k]
+    title = "Longue Portee"
+    description = "Tirez des projectiles couvrant 5.000 blocs de distance totale"
+[advancement.challenge_ranged_dist_50k]
+    title = "Tireur au Kilometre"
+    description = "Tirez des projectiles couvrant 50.000 blocs de distance totale"
+[advancement.challenge_ranged_kills_50]
+    title = "Archer"
+    description = "Tuez 50 creatures avec des armes a distance"
+[advancement.challenge_ranged_kills_500]
+    title = "Maitre Archer"
+    description = "Tuez 500 creatures avec des armes a distance"
+[advancement.challenge_longshot_25]
+    title = "Tireur Embusque"
+    description = "Reussissez 25 tirs a longue portee (plus de 30 blocs)"
+[advancement.challenge_longshot_250]
+    title = "Oeil d'Aigle"
+    description = "Reussissez 250 tirs a longue portee (plus de 30 blocs)"
+
+# Rift
+[advancement.challenge_rift_pearls_50]
+    title = "Lanceur de Perles"
+    description = "Lancez 50 perles de l'Ender"
+[advancement.challenge_rift_pearls_500]
+    title = "Accro a la Teleportation"
+    description = "Lancez 500 perles de l'Ender"
+[advancement.challenge_rift_enderman_50]
+    title = "Chasseur d'Endermen"
+    description = "Abattez 50 endermen"
+[advancement.challenge_rift_enderman_500]
+    title = "Rodeur du Vide"
+    description = "Abattez 500 endermen"
+[advancement.challenge_rift_dragon_500]
+    title = "Combattant de Dragon"
+    description = "Infligez 500 degats au Dragon de l'Ender"
+[advancement.challenge_rift_dragon_5k]
+    title = "Fleau du Dragon"
+    description = "Infligez 5.000 degats au Dragon de l'Ender"
+[advancement.challenge_rift_crystal_10]
+    title = "Briseur de Cristaux"
+    description = "Detruisez 10 cristaux de l'End"
+[advancement.challenge_rift_crystal_100]
+    title = "Demolisseur de l'End"
+    description = "Detruisez 100 cristaux de l'End"
+
+# Seaborne
+[advancement.challenge_fish_25]
+    title = "Pecheur"
+    description = "Attrapez 25 poissons"
+[advancement.challenge_fish_250]
+    title = "Maitre Pecheur"
+    description = "Attrapez 250 poissons"
+[advancement.challenge_drowned_25]
+    title = "Chasseur de Noyes"
+    description = "Abattez 25 noyes"
+[advancement.challenge_drowned_250]
+    title = "Nettoyeur de l'Ocean"
+    description = "Abattez 250 noyes"
+[advancement.challenge_guardian_10]
+    title = "Tueur de Gardiens"
+    description = "Abattez 10 gardiens"
+[advancement.challenge_guardian_100]
+    title = "Pilleur de Temple"
+    description = "Abattez 100 gardiens"
+[advancement.challenge_underwater_blocks_100]
+    title = "Mineur Sous-Marin"
+    description = "Cassez 100 blocs sous l'eau"
+[advancement.challenge_underwater_blocks_1k]
+    title = "Ingenieur Aquatique"
+    description = "Cassez 1.000 blocs sous l'eau"
+
+# Stealth
+[advancement.challenge_stealth_dmg_500]
+    title = "Poignardeur"
+    description = "Infligez 500 degats en etant accroupi"
+[advancement.challenge_stealth_dmg_5k]
+    title = "Tueur Silencieux"
+    description = "Infligez 5.000 degats en etant accroupi"
+[advancement.challenge_stealth_kills_10]
+    title = "Assassin"
+    description = "Tuez 10 creatures en etant accroupi"
+[advancement.challenge_stealth_kills_100]
+    title = "Faucheur des Ombres"
+    description = "Tuez 100 creatures en etant accroupi"
+[advancement.challenge_stealth_time_1h]
+    title = "Patient"
+    description = "Passez 1 heure accroupi (3.600 secondes)"
+[advancement.challenge_stealth_time_10h]
+    title = "Maitre des Ombres"
+    description = "Passez 10 heures accroupi (36.000 secondes)"
+[advancement.challenge_stealth_arrows_50]
+    title = "Archer Silencieux"
+    description = "Tirez 50 fleches en etant accroupi"
+[advancement.challenge_stealth_arrows_500]
+    title = "Archer Fantome"
+    description = "Tirez 500 fleches en etant accroupi"
+
+# Swords
+[advancement.challenge_sword_dmg_1k]
+    title = "Apprenti de la Lame"
+    description = "Infligez 1.000 degats avec des epees"
+[advancement.challenge_sword_dmg_10k]
+    title = "Epeeiste"
+    description = "Infligez 10.000 degats avec des epees"
+[advancement.challenge_sword_kills_50]
+    title = "Duelliste"
+    description = "Tuez 50 creatures avec des epees"
+[advancement.challenge_sword_kills_500]
+    title = "Gladiateur"
+    description = "Tuez 500 creatures avec des epees"
+[advancement.challenge_sword_crit_50]
+    title = "Frappeur Critique"
+    description = "Placez 50 coups critiques avec des epees"
+[advancement.challenge_sword_crit_500]
+    title = "Maitre de la Precision"
+    description = "Placez 500 coups critiques avec des epees"
+[advancement.challenge_sword_heavy_25]
+    title = "Frappeur Lourd"
+    description = "Placez 25 coups lourds avec des epees (plus de 8 degats)"
+[advancement.challenge_sword_heavy_250]
+    title = "Coup Devastateur"
+    description = "Placez 250 coups lourds avec des epees (plus de 8 degats)"
+
+# Taming
+[advancement.challenge_pet_dmg_500]
+    title = "Dresseur de Betes"
+    description = "Vos animaux infligent 500 degats au total"
+[advancement.challenge_pet_dmg_5k]
+    title = "Maitre de Guerre"
+    description = "Vos animaux infligent 5.000 degats au total"
+[advancement.challenge_tamed_10]
+    title = "Ami des Animaux"
+    description = "Apprivoisez 10 animaux"
+[advancement.challenge_tamed_100]
+    title = "Gardien de Zoo"
+    description = "Apprivoisez 100 animaux"
+[advancement.challenge_pet_kills_25]
+    title = "Tactique de Meute"
+    description = "Vos animaux abattent 25 creatures"
+[advancement.challenge_pet_kills_250]
+    title = "Commandant Alpha"
+    description = "Vos animaux abattent 250 creatures"
+[advancement.challenge_taming_2500]
+    title = "Expert en Elevage"
+    description = "Elevez 2.500 animaux"
+[advancement.challenge_taming_25k]
+    title = "Maitre Geneticien"
+    description = "Elevez 25.000 animaux"
+
+# TragOul
+[advancement.challenge_trag_hits_500]
+    title = "Sac de Frappe"
+    description = "Recevez 500 coups"
+[advancement.challenge_trag_hits_5k]
+    title = "Masochiste"
+    description = "Recevez 5.000 coups"
+[advancement.challenge_trag_deaths_10]
+    title = "Neuf Vies"
+    description = "Mourez 10 fois"
+[advancement.challenge_trag_deaths_100]
+    title = "Cauchemar Recurrent"
+    description = "Mourez 100 fois"
+[advancement.challenge_trag_fire_500]
+    title = "Victime du Feu"
+    description = "Endurez 500 degats de feu"
+[advancement.challenge_trag_fire_5k]
+    title = "Phenix"
+    description = "Endurez 5.000 degats de feu"
+[advancement.challenge_trag_fall_500]
+    title = "Test de Gravite"
+    description = "Endurez 500 degats de chute"
+[advancement.challenge_trag_fall_5k]
+    title = "Vitesse Terminale"
+    description = "Endurez 5.000 degats de chute"
+
+# Unarmed
+[advancement.challenge_unarmed_dmg_1k]
+    title = "Bagarreur"
+    description = "Infligez 1.000 degats a mains nues"
+[advancement.challenge_unarmed_dmg_10k]
+    title = "Artiste Martial"
+    description = "Infligez 10.000 degats a mains nues"
+[advancement.challenge_unarmed_kills_25]
+    title = "Poings Nus"
+    description = "Tuez 25 creatures a mains nues"
+[advancement.challenge_unarmed_kills_250]
+    title = "Poing de Legende"
+    description = "Tuez 250 creatures a mains nues"
+[advancement.challenge_unarmed_crit_25]
+    title = "Coup de Poing Critique"
+    description = "Placez 25 coups critiques a mains nues"
+[advancement.challenge_unarmed_crit_250]
+    title = "Poing de Precision"
+    description = "Placez 250 coups critiques a mains nues"
+[advancement.challenge_unarmed_heavy_25]
+    title = "Coup de Poing Puissant"
+    description = "Placez 25 coups lourds a mains nues (plus de 6 degats)"
+[advancement.challenge_unarmed_heavy_250]
+    title = "Roi du Knockout"
+    description = "Placez 250 coups lourds a mains nues (plus de 6 degats)"
+
 # items
 [items]
 

@@ -125,6 +125,96 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_1h").goal(60).stat("minutes.online").reward(getConfig().challengeChronosReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_24h").goal(1440).stat("minutes.online").reward(getConfig().challengeChronosReward * 2).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_168h").goal(10080).stat("minutes.online").reward(getConfig().challengeChronosReward * 5).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.COMPASS).key("challenge_active_dist_1k")
+                .title(Localizer.dLocalize("advancement.challenge_active_dist_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_active_dist_1k.description"))
+                .model(CustomModel.get(Material.COMPASS, "advancement", "chronos", "challenge_active_dist_1k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.RECOVERY_COMPASS)
+                        .key("challenge_active_dist_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_active_dist_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_active_dist_10k.description"))
+                        .model(CustomModel.get(Material.RECOVERY_COMPASS, "advancement", "chronos", "challenge_active_dist_10k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .child(AdaptAdvancement.builder()
+                                .icon(Material.LODESTONE)
+                                .key("challenge_active_dist_100k")
+                                .title(Localizer.dLocalize("advancement.challenge_active_dist_100k.title"))
+                                .description(Localizer.dLocalize("advancement.challenge_active_dist_100k.description"))
+                                .model(CustomModel.get(Material.LODESTONE, "advancement", "chronos", "challenge_active_dist_100k"))
+                                .frame(AdaptAdvancementFrame.CHALLENGE)
+                                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                                .build())
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_active_dist_1k").goal(1000).stat("chronos.active.distance").reward(getConfig().challengeChronosReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_active_dist_10k").goal(10000).stat("chronos.active.distance").reward(getConfig().challengeChronosReward * 2).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_active_dist_100k").goal(100000).stat("chronos.active.distance").reward(getConfig().challengeChronosReward * 5).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WHITE_BED).key("challenge_beds_10")
+                .title(Localizer.dLocalize("advancement.challenge_beds_10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_beds_10.description"))
+                .model(CustomModel.get(Material.WHITE_BED, "advancement", "chronos", "challenge_beds_10"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.RED_BED)
+                        .key("challenge_beds_100")
+                        .title(Localizer.dLocalize("advancement.challenge_beds_100.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_beds_100.description"))
+                        .model(CustomModel.get(Material.RED_BED, "advancement", "chronos", "challenge_beds_100"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_beds_10").goal(10).stat("chronos.beds.used").reward(getConfig().challengeChronosReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_beds_100").goal(100).stat("chronos.beds.used").reward(getConfig().challengeChronosReward * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_PEARL).key("challenge_chronos_tp_50")
+                .title(Localizer.dLocalize("advancement.challenge_chronos_tp_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_chronos_tp_50.description"))
+                .model(CustomModel.get(Material.ENDER_PEARL, "advancement", "chronos", "challenge_chronos_tp_50"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.CHORUS_FRUIT)
+                        .key("challenge_chronos_tp_500")
+                        .title(Localizer.dLocalize("advancement.challenge_chronos_tp_500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_chronos_tp_500.description"))
+                        .model(CustomModel.get(Material.CHORUS_FRUIT, "advancement", "chronos", "challenge_chronos_tp_500"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_tp_50").goal(50).stat("chronos.teleports").reward(getConfig().challengeChronosReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_tp_500").goal(500).stat("chronos.teleports").reward(getConfig().challengeChronosReward * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SKELETON_SKULL).key("challenge_chronos_deaths_10")
+                .title(Localizer.dLocalize("advancement.challenge_chronos_deaths_10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_chronos_deaths_10.description"))
+                .model(CustomModel.get(Material.SKELETON_SKULL, "advancement", "chronos", "challenge_chronos_deaths_10"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.WITHER_SKELETON_SKULL)
+                        .key("challenge_chronos_deaths_100")
+                        .title(Localizer.dLocalize("advancement.challenge_chronos_deaths_100.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_chronos_deaths_100.description"))
+                        .model(CustomModel.get(Material.WITHER_SKELETON_SKULL, "advancement", "chronos", "challenge_chronos_deaths_100"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_deaths_10").goal(10).stat("chronos.deaths").reward(getConfig().challengeChronosReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_chronos_deaths_100").goal(100).stat("chronos.deaths").reward(getConfig().challengeChronosReward * 2).build());
     }
 
     private void trackAction(UUID uuid, String actionType) {
@@ -278,6 +368,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
             long worldTime = p.getWorld().getTime();
             sleepEntryWorldTime.put(uuid, worldTime);
             sleepCooldowns.put(uuid, now);
+            getPlayer(p).getData().addStat("chronos.beds.used", 1);
 
             Bukkit.getScheduler().runTaskLater(Adapt.instance, () -> {
                 if (!p.isOnline()) {
@@ -399,6 +490,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         Player p = e.getPlayer();
         shouldReturnForPlayer(p, () -> {
             trackAction(p.getUniqueId(), "teleport");
+            getPlayer(p).getData().addStat("chronos.teleports", 1);
             xp(p, e.getTo(), getConfig().enderPearlTeleportXP);
         });
     }
@@ -412,6 +504,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         survivalStreakStart.put(uuid, System.currentTimeMillis());
         lastSurvivalCheck.remove(uuid);
         trackAction(uuid, "combat");
+        shouldReturnForPlayer(p, () -> getPlayer(p).getData().addStat("chronos.deaths", 1));
     }
 
     // --- Player Quit Cleanup ---

@@ -109,6 +109,82 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_50k").goal(50000).stat("move").reward(getConfig().challengeSprint5kReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_500k").goal(500000).stat("move").reward(getConfig().challengeSprint5kReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_marathon").goal(42195).stat("move").reward(getConfig().challengeSprintMarathonReward).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GOLDEN_BOOTS).key("challenge_sprint_dist_5k")
+                .title(Localizer.dLocalize("advancement.challenge_sprint_dist_5k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_sprint_dist_5k.description"))
+                .model(CustomModel.get(Material.GOLDEN_BOOTS, "advancement", "agility", "challenge_sprint_dist_5k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_BOOTS)
+                        .key("challenge_sprint_dist_50k")
+                        .title(Localizer.dLocalize("advancement.challenge_sprint_dist_50k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_sprint_dist_50k.description"))
+                        .model(CustomModel.get(Material.DIAMOND_BOOTS, "advancement", "agility", "challenge_sprint_dist_50k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_dist_5k").goal(5000).stat("move.sprint").reward(getConfig().challengeSprint5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sprint_dist_50k").goal(50000).stat("move.sprint").reward(getConfig().challengeSprint5kReward * 2).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LILY_PAD).key("challenge_agility_swim_1k")
+                .title(Localizer.dLocalize("advancement.challenge_agility_swim_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_agility_swim_1k.description"))
+                .model(CustomModel.get(Material.LILY_PAD, "advancement", "agility", "challenge_agility_swim_1k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.HEART_OF_THE_SEA)
+                        .key("challenge_agility_swim_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_agility_swim_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_agility_swim_10k.description"))
+                        .model(CustomModel.get(Material.HEART_OF_THE_SEA, "advancement", "agility", "challenge_agility_swim_10k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_agility_swim_1k").goal(1000).stat("move.swim").reward(getConfig().challengeSprint5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_agility_swim_10k").goal(10000).stat("move.swim").reward(getConfig().challengeSprint5kReward * 2).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.FEATHER).key("challenge_fly_1k")
+                .title(Localizer.dLocalize("advancement.challenge_fly_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_fly_1k.description"))
+                .model(CustomModel.get(Material.FEATHER, "advancement", "agility", "challenge_fly_1k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ELYTRA)
+                        .key("challenge_fly_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_fly_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_fly_10k.description"))
+                        .model(CustomModel.get(Material.ELYTRA, "advancement", "agility", "challenge_fly_10k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_fly_1k").goal(1000).stat("move.fly").reward(getConfig().challengeSprint5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_fly_10k").goal(10000).stat("move.fly").reward(getConfig().challengeSprint5kReward * 2).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LEATHER_LEGGINGS).key("challenge_agility_sneak_500")
+                .title(Localizer.dLocalize("advancement.challenge_agility_sneak_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_agility_sneak_500.description"))
+                .model(CustomModel.get(Material.LEATHER_LEGGINGS, "advancement", "agility", "challenge_agility_sneak_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.IRON_LEGGINGS)
+                        .key("challenge_agility_sneak_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_agility_sneak_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_agility_sneak_5k.description"))
+                        .model(CustomModel.get(Material.IRON_LEGGINGS, "advancement", "agility", "challenge_agility_sneak_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_agility_sneak_500").goal(500).stat("move.sneak").reward(getConfig().challengeSprint5kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_agility_sneak_5k").goal(5000).stat("move.sneak").reward(getConfig().challengeSprint5kReward * 2).build());
         lastLocations = new HashMap<>();
     }
 

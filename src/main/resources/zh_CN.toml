@@ -373,6 +373,716 @@
     title = "驯兽大师"
     description = "繁殖 500 只动物"
 
+# Agility - New Achievement Chains
+[advancement.challenge_sprint_dist_5k]
+    title = "速度恶魔"
+    description = "疾跑超过 5 公里 (5,000 格)"
+
+[advancement.challenge_sprint_dist_50k]
+    title = "闪电之足"
+    description = "疾跑超过 50 公里 (50,000 格)"
+
+[advancement.challenge_agility_swim_1k]
+    title = "水上行者"
+    description = "游泳超过 1 公里 (1,000 格)"
+
+[advancement.challenge_agility_swim_10k]
+    title = "远洋航行者"
+    description = "游泳超过 10 公里 (10,000 格)"
+
+[advancement.challenge_fly_1k]
+    title = "翱翔之舞"
+    description = "飞行超过 1 公里 (1,000 格)"
+
+[advancement.challenge_fly_10k]
+    title = "御风者"
+    description = "飞行超过 10 公里 (10,000 格)"
+
+[advancement.challenge_agility_sneak_500]
+    title = "轻步潜行"
+    description = "潜行超过 500 格"
+
+[advancement.challenge_agility_sneak_5k]
+    title = "幽灵步伐"
+    description = "潜行超过 5 公里 (5,000 格)"
+
+# Architect - New Achievement Chains
+[advancement.challenge_demolish_500]
+    title = "拆除小队"
+    description = "破坏 500 个方块"
+
+[advancement.challenge_demolish_5k]
+    title = "毁灭之球"
+    description = "破坏 5,000 个方块"
+
+[advancement.challenge_value_placed_10k]
+    title = "价值建造者"
+    description = "放置价值 10,000 的方块"
+
+[advancement.challenge_value_placed_100k]
+    title = "建筑大师"
+    description = "放置价值 100,000 的方块"
+
+[advancement.challenge_demolish_val_5k]
+    title = "回收专家"
+    description = "从拆除中回收 5,000 方块价值"
+
+[advancement.challenge_demolish_val_50k]
+    title = "彻底解构"
+    description = "从拆除中回收 50,000 方块价值"
+
+[advancement.challenge_high_build_100]
+    title = "高空建造者"
+    description = "在 Y=128 以上放置 100 个方块"
+
+[advancement.challenge_high_build_1k]
+    title = "云端建筑师"
+    description = "在 Y=128 以上放置 1,000 个方块"
+
+# Axes - New Achievement Chains
+[advancement.challenge_axe_swing_500]
+    title = "挥斧者"
+    description = "挥舞斧头 500 次"
+
+[advancement.challenge_axe_swing_5k]
+    title = "狂战士"
+    description = "挥舞斧头 5,000 次"
+
+[advancement.challenge_axe_damage_1k]
+    title = "劈裂者"
+    description = "用斧头造成 1,000 伤害"
+
+[advancement.challenge_axe_damage_10k]
+    title = "刽子手之斧"
+    description = "用斧头造成 10,000 伤害"
+
+[advancement.challenge_axe_value_5k]
+    title = "木材商人"
+    description = "采伐价值 5,000 的木材"
+
+[advancement.challenge_axe_value_50k]
+    title = "伐木大亨"
+    description = "采伐价值 50,000 的木材"
+
+[advancement.challenge_leaves_500]
+    title = "吹叶机"
+    description = "用斧头清除 500 个树叶方块"
+
+[advancement.challenge_leaves_5k]
+    title = "落叶清除者"
+    description = "用斧头清除 5,000 个树叶方块"
+
+# Blocking - New Achievement Chains
+[advancement.challenge_block_dmg_1k]
+    title = "伤害吸收者"
+    description = "用盾牌格挡 1,000 伤害"
+
+[advancement.challenge_block_dmg_10k]
+    title = "人肉盾牌"
+    description = "用盾牌格挡 10,000 伤害"
+
+[advancement.challenge_block_proj_100]
+    title = "箭矢偏转者"
+    description = "用盾牌格挡 100 个投射物"
+
+[advancement.challenge_block_proj_1k]
+    title = "投射物盾牌"
+    description = "用盾牌格挡 1,000 个投射物"
+
+[advancement.challenge_block_melee_500]
+    title = "格挡大师"
+    description = "用盾牌格挡 500 次近战攻击"
+
+[advancement.challenge_block_melee_5k]
+    title = "铁壁堡垒"
+    description = "用盾牌格挡 5,000 次近战攻击"
+
+[advancement.challenge_block_heavy_50]
+    title = "坦克"
+    description = "格挡 50 次重击 (超过 5 伤害)"
+
+[advancement.challenge_block_heavy_500]
+    title = "不动如山"
+    description = "格挡 500 次重击 (超过 5 伤害)"
+
+# Brewing - New Achievement Chains
+[advancement.challenge_brew_stands_10]
+    title = "酿造起步"
+    description = "放置 10 个酿造台"
+
+[advancement.challenge_brew_stands_50]
+    title = "药水工厂"
+    description = "放置 50 个酿造台"
+
+[advancement.challenge_brew_strong_25]
+    title = "烈性药剂"
+    description = "饮用 25 瓶强化药水"
+
+[advancement.challenge_brew_strong_250]
+    title = "极致药效"
+    description = "饮用 250 瓶强化药水"
+
+[advancement.challenge_brew_splash_hits_50]
+    title = "飞溅区域"
+    description = "用喷溅药水命中 50 个实体"
+
+[advancement.challenge_brew_splash_hits_500]
+    title = "瘟疫医生"
+    description = "用喷溅药水命中 500 个实体"
+
+# Chronos - New Achievement Chains
+[advancement.challenge_active_dist_1k]
+    title = "永不停歇"
+    description = "活跃时行进 1 公里"
+
+[advancement.challenge_active_dist_10k]
+    title = "探路先锋"
+    description = "活跃时行进 10 公里"
+
+[advancement.challenge_active_dist_100k]
+    title = "永动之力"
+    description = "活跃时行进 100 公里"
+
+[advancement.challenge_beds_10]
+    title = "早起鸟儿"
+    description = "在床上睡觉 10 次"
+
+[advancement.challenge_beds_100]
+    title = "时间跳跃者"
+    description = "在床上睡觉 100 次"
+
+[advancement.challenge_chronos_tp_50]
+    title = "时空转移"
+    description = "传送 50 次"
+
+[advancement.challenge_chronos_tp_500]
+    title = "时间扭曲"
+    description = "传送 500 次"
+
+[advancement.challenge_chronos_deaths_10]
+    title = "凡人"
+    description = "死亡 10 次"
+
+[advancement.challenge_chronos_deaths_100]
+    title = "死亡挑战者"
+    description = "死亡 100 次"
+
+# Crafting - New Achievement Chains
+[advancement.challenge_craft_value_10k]
+    title = "匠心独运"
+    description = "制作总价值 10,000 的物品"
+
+[advancement.challenge_craft_value_100k]
+    title = "工匠大师"
+    description = "制作总价值 100,000 的物品"
+
+[advancement.challenge_craft_tools_25]
+    title = "工具匠"
+    description = "制作 25 件工具"
+
+[advancement.challenge_craft_tools_250]
+    title = "锻造大师"
+    description = "制作 250 件工具"
+
+[advancement.challenge_craft_armor_25]
+    title = "铠甲匠"
+    description = "制作 25 件护甲"
+
+[advancement.challenge_craft_armor_250]
+    title = "护甲大师"
+    description = "制作 250 件护甲"
+
+[advancement.challenge_craft_mass_25k]
+    title = "批量生产"
+    description = "制作 25,000 个物品"
+
+[advancement.challenge_craft_mass_250k]
+    title = "工业革命"
+    description = "制作 250,000 个物品"
+
+# Discovery - New Achievement Chains
+[advancement.challenge_discover_items_50]
+    title = "收集者"
+    description = "发现 50 种独特物品"
+
+[advancement.challenge_discover_items_250]
+    title = "编目者"
+    description = "发现 250 种独特物品"
+
+[advancement.challenge_discover_blocks_50]
+    title = "勘测员"
+    description = "发现 50 种独特方块"
+
+[advancement.challenge_discover_blocks_250]
+    title = "地质学家"
+    description = "发现 250 种独特方块"
+
+[advancement.challenge_discover_mobs_25]
+    title = "观察者"
+    description = "发现 25 种独特生物"
+
+[advancement.challenge_discover_mobs_75]
+    title = "博物学家"
+    description = "发现 75 种独特生物"
+
+[advancement.challenge_discover_biomes_10]
+    title = "漫游者"
+    description = "发现 10 种独特生物群系"
+
+[advancement.challenge_discover_biomes_40]
+    title = "环球旅行家"
+    description = "发现 40 种独特生物群系"
+
+[advancement.challenge_discover_foods_10]
+    title = "美食家"
+    description = "发现 10 种独特食物"
+
+[advancement.challenge_discover_foods_30]
+    title = "烹饪大师"
+    description = "发现 30 种独特食物"
+
+# Enchanting - New Achievement Chains
+[advancement.challenge_enchant_power_100]
+    title = "织力者"
+    description = "积累 100 附魔之力"
+
+[advancement.challenge_enchant_power_1k]
+    title = "奥术宗师"
+    description = "积累 1,000 附魔之力"
+
+[advancement.challenge_enchant_levels_1k]
+    title = "等级消耗者"
+    description = "在附魔上花费 1,000 经验等级"
+
+[advancement.challenge_enchant_levels_10k]
+    title = "经验黑洞"
+    description = "在附魔上花费 10,000 经验等级"
+
+[advancement.challenge_enchant_high_25]
+    title = "豪赌者"
+    description = "进行 25 次最高级附魔"
+
+[advancement.challenge_enchant_high_250]
+    title = "传奇附魔师"
+    description = "进行 250 次最高级附魔"
+
+[advancement.challenge_enchant_total_500]
+    title = "等级燃烧者"
+    description = "在所有附魔上累计花费 500 等级"
+
+[advancement.challenge_enchant_total_5k]
+    title = "奥术投资"
+    description = "在所有附魔上累计花费 5,000 等级"
+
+# Excavation - New Achievement Chains
+[advancement.challenge_dig_swing_500]
+    title = "挖掘者"
+    description = "挥舞铲子 500 次"
+
+[advancement.challenge_dig_swing_5k]
+    title = "挖掘机"
+    description = "挥舞铲子 5,000 次"
+
+[advancement.challenge_dig_damage_1k]
+    title = "铲骑士"
+    description = "用铲子造成 1,000 伤害"
+
+[advancement.challenge_dig_damage_10k]
+    title = "铲王"
+    description = "用铲子造成 10,000 伤害"
+
+[advancement.challenge_dig_value_5k]
+    title = "泥土商人"
+    description = "挖掘价值 5,000 的方块"
+
+[advancement.challenge_dig_value_50k]
+    title = "大地领主"
+    description = "挖掘价值 50,000 的方块"
+
+[advancement.challenge_dig_gravel_500]
+    title = "砾石研磨者"
+    description = "挖掘 500 个砾石、沙子或粘土方块"
+
+[advancement.challenge_dig_gravel_5k]
+    title = "沙砾筛选者"
+    description = "挖掘 5,000 个砾石、沙子或粘土方块"
+
+# Herbalism - New Achievement Chains
+[advancement.challenge_plant_100]
+    title = "播种者"
+    description = "种植 100 株作物"
+
+[advancement.challenge_plant_1k]
+    title = "绿手指"
+    description = "种植 1,000 株作物"
+
+[advancement.challenge_plant_5k]
+    title = "农业大亨"
+    description = "种植 5,000 株作物"
+
+[advancement.challenge_compost_50]
+    title = "回收利用者"
+    description = "堆肥 50 个物品"
+
+[advancement.challenge_compost_500]
+    title = "土壤改良者"
+    description = "堆肥 500 个物品"
+
+[advancement.challenge_shear_50]
+    title = "剪毛者"
+    description = "剪切 50 个实体"
+
+[advancement.challenge_shear_250]
+    title = "牧群之主"
+    description = "剪切 250 个实体"
+
+# Hunter - New Achievement Chains
+[advancement.challenge_kills_500]
+    title = "屠戮者"
+    description = "击杀 500 个生物"
+
+[advancement.challenge_kills_5k]
+    title = "行刑者"
+    description = "击杀 5,000 个生物"
+
+[advancement.challenge_boss_1]
+    title = "挑战首领"
+    description = "击杀一个首领怪物"
+
+[advancement.challenge_boss_10]
+    title = "传奇杀手"
+    description = "击杀 10 个首领怪物"
+
+# Nether - New Achievement Chains
+[advancement.challenge_wither_dmg_500]
+    title = "凋零之痛"
+    description = "承受 500 凋零伤害"
+
+[advancement.challenge_wither_dmg_5k]
+    title = "枯萎幸存者"
+    description = "承受 5,000 凋零伤害"
+
+[advancement.challenge_wither_skel_25]
+    title = "骸骨收集者"
+    description = "击杀 25 个凋灵骷髅"
+
+[advancement.challenge_wither_skel_250]
+    title = "骷髅克星"
+    description = "击杀 250 个凋灵骷髅"
+
+[advancement.challenge_wither_boss_1]
+    title = "凋灵杀手"
+    description = "击败凋灵"
+
+[advancement.challenge_wither_boss_10]
+    title = "下界主宰"
+    description = "击败凋灵 10 次"
+
+[advancement.challenge_roses_10]
+    title = "死亡园丁"
+    description = "破坏 10 朵凋灵玫瑰"
+
+[advancement.challenge_roses_100]
+    title = "枯萎收集者"
+    description = "破坏 100 朵凋灵玫瑰"
+
+# Pickaxes - New Achievement Chains
+[advancement.challenge_pick_swing_500]
+    title = "矿工之臂"
+    description = "挥舞镐子 500 次"
+
+[advancement.challenge_pick_swing_5k]
+    title = "隧道挖掘者"
+    description = "挥舞镐子 5,000 次"
+
+[advancement.challenge_pick_damage_1k]
+    title = "镐战者"
+    description = "用镐子造成 1,000 伤害"
+
+[advancement.challenge_pick_damage_10k]
+    title = "战镐"
+    description = "用镐子造成 10,000 伤害"
+
+[advancement.challenge_pick_value_5k]
+    title = "宝石探索者"
+    description = "开采价值 5,000 的方块"
+
+[advancement.challenge_pick_value_50k]
+    title = "矿石大亨"
+    description = "开采价值 50,000 的方块"
+
+[advancement.challenge_pick_ores_500]
+    title = "勘探者"
+    description = "开采 500 个矿石方块"
+
+[advancement.challenge_pick_ores_5k]
+    title = "采矿大师"
+    description = "开采 5,000 个矿石方块"
+
+# Ranged - New Achievement Chains
+[advancement.challenge_ranged_dmg_1k]
+    title = "神射手"
+    description = "造成 1,000 远程伤害"
+
+[advancement.challenge_ranged_dmg_10k]
+    title = "致命弓手"
+    description = "造成 10,000 远程伤害"
+
+[advancement.challenge_ranged_dist_5k]
+    title = "远距射击"
+    description = "发射投射物总飞行距离达 5,000 格"
+
+[advancement.challenge_ranged_dist_50k]
+    title = "千里射手"
+    description = "发射投射物总飞行距离达 50,000 格"
+
+[advancement.challenge_ranged_kills_50]
+    title = "弓箭手"
+    description = "用远程武器击杀 50 个生物"
+
+[advancement.challenge_ranged_kills_500]
+    title = "射术宗师"
+    description = "用远程武器击杀 500 个生物"
+
+[advancement.challenge_longshot_25]
+    title = "狙击手"
+    description = "命中 25 次远距射击 (超过 30 格)"
+
+[advancement.challenge_longshot_250]
+    title = "鹰眼"
+    description = "命中 250 次远距射击 (超过 30 格)"
+
+# Rift - New Achievement Chains
+[advancement.challenge_rift_pearls_50]
+    title = "珍珠投掷者"
+    description = "投掷 50 颗末影珍珠"
+
+[advancement.challenge_rift_pearls_500]
+    title = "传送狂人"
+    description = "投掷 500 颗末影珍珠"
+
+[advancement.challenge_rift_enderman_50]
+    title = "末影人猎手"
+    description = "击杀 50 个末影人"
+
+[advancement.challenge_rift_enderman_500]
+    title = "虚空追猎者"
+    description = "击杀 500 个末影人"
+
+[advancement.challenge_rift_dragon_500]
+    title = "屠龙战士"
+    description = "对末影龙造成 500 伤害"
+
+[advancement.challenge_rift_dragon_5k]
+    title = "屠龙者"
+    description = "对末影龙造成 5,000 伤害"
+
+[advancement.challenge_rift_crystal_10]
+    title = "水晶破坏者"
+    description = "摧毁 10 个末地水晶"
+
+[advancement.challenge_rift_crystal_100]
+    title = "末地毁灭者"
+    description = "摧毁 100 个末地水晶"
+
+# Seaborne - New Achievement Chains
+[advancement.challenge_fish_25]
+    title = "垂钓者"
+    description = "捕获 25 条鱼"
+
+[advancement.challenge_fish_250]
+    title = "钓鱼大师"
+    description = "捕获 250 条鱼"
+
+[advancement.challenge_drowned_25]
+    title = "溺尸猎人"
+    description = "击杀 25 个溺尸"
+
+[advancement.challenge_drowned_250]
+    title = "海洋净化者"
+    description = "击杀 250 个溺尸"
+
+[advancement.challenge_guardian_10]
+    title = "守卫者猎手"
+    description = "击杀 10 个守卫者"
+
+[advancement.challenge_guardian_100]
+    title = "神殿掠夺者"
+    description = "击杀 100 个守卫者"
+
+[advancement.challenge_underwater_blocks_100]
+    title = "水下矿工"
+    description = "在水下破坏 100 个方块"
+
+[advancement.challenge_underwater_blocks_1k]
+    title = "水下工程师"
+    description = "在水下破坏 1,000 个方块"
+
+# Stealth - New Achievement Chains
+[advancement.challenge_stealth_dmg_500]
+    title = "背刺者"
+    description = "潜行时造成 500 伤害"
+
+[advancement.challenge_stealth_dmg_5k]
+    title = "无声杀手"
+    description = "潜行时造成 5,000 伤害"
+
+[advancement.challenge_stealth_kills_10]
+    title = "刺客"
+    description = "潜行时击杀 10 个生物"
+
+[advancement.challenge_stealth_kills_100]
+    title = "暗影死神"
+    description = "潜行时击杀 100 个生物"
+
+[advancement.challenge_stealth_time_1h]
+    title = "耐心者"
+    description = "潜行 1 小时 (3,600 秒)"
+
+[advancement.challenge_stealth_time_10h]
+    title = "暗影之主"
+    description = "潜行 10 小时 (36,000 秒)"
+
+[advancement.challenge_stealth_arrows_50]
+    title = "暗箭手"
+    description = "潜行时射出 50 支箭"
+
+[advancement.challenge_stealth_arrows_500]
+    title = "幽灵弓手"
+    description = "潜行时射出 500 支箭"
+
+# Swords - New Achievement Chains
+[advancement.challenge_sword_dmg_1k]
+    title = "剑术学徒"
+    description = "用剑造成 1,000 伤害"
+
+[advancement.challenge_sword_dmg_10k]
+    title = "剑客"
+    description = "用剑造成 10,000 伤害"
+
+[advancement.challenge_sword_kills_50]
+    title = "决斗者"
+    description = "用剑击杀 50 个生物"
+
+[advancement.challenge_sword_kills_500]
+    title = "角斗士"
+    description = "用剑击杀 500 个生物"
+
+[advancement.challenge_sword_crit_50]
+    title = "暴击者"
+    description = "用剑造成 50 次暴击"
+
+[advancement.challenge_sword_crit_500]
+    title = "精准大师"
+    description = "用剑造成 500 次暴击"
+
+[advancement.challenge_sword_heavy_25]
+    title = "重击者"
+    description = "用剑造成 25 次重击 (超过 8 伤害)"
+
+[advancement.challenge_sword_heavy_250]
+    title = "毁灭之击"
+    description = "用剑造成 250 次重击 (超过 8 伤害)"
+
+# Taming - New Achievement Chains
+[advancement.challenge_pet_dmg_500]
+    title = "驯兽师"
+    description = "你的宠物共造成 500 伤害"
+
+[advancement.challenge_pet_dmg_5k]
+    title = "战争统帅"
+    description = "你的宠物共造成 5,000 伤害"
+
+[advancement.challenge_tamed_10]
+    title = "动物之友"
+    description = "驯服 10 只动物"
+
+[advancement.challenge_tamed_100]
+    title = "动物园长"
+    description = "驯服 100 只动物"
+
+[advancement.challenge_pet_kills_25]
+    title = "群攻战术"
+    description = "你的宠物击杀 25 个生物"
+
+[advancement.challenge_pet_kills_250]
+    title = "首领指挥官"
+    description = "你的宠物击杀 250 个生物"
+
+[advancement.challenge_taming_2500]
+    title = "繁殖专家"
+    description = "繁殖 2,500 只动物"
+
+[advancement.challenge_taming_25k]
+    title = "基因大师"
+    description = "繁殖 25,000 只动物"
+
+# TragOul - New Achievement Chains
+[advancement.challenge_trag_hits_500]
+    title = "沙袋"
+    description = "受到 500 次攻击"
+
+[advancement.challenge_trag_hits_5k]
+    title = "受虐狂"
+    description = "受到 5,000 次攻击"
+
+[advancement.challenge_trag_deaths_10]
+    title = "九条命"
+    description = "死亡 10 次"
+
+[advancement.challenge_trag_deaths_100]
+    title = "反复噩梦"
+    description = "死亡 100 次"
+
+[advancement.challenge_trag_fire_500]
+    title = "火焰受害者"
+    description = "承受 500 火焰伤害"
+
+[advancement.challenge_trag_fire_5k]
+    title = "浴火凤凰"
+    description = "承受 5,000 火焰伤害"
+
+[advancement.challenge_trag_fall_500]
+    title = "重力测试"
+    description = "承受 500 跌落伤害"
+
+[advancement.challenge_trag_fall_5k]
+    title = "极限速度"
+    description = "承受 5,000 跌落伤害"
+
+# Unarmed - New Achievement Chains
+[advancement.challenge_unarmed_dmg_1k]
+    title = "拳击手"
+    description = "用空手造成 1,000 伤害"
+
+[advancement.challenge_unarmed_dmg_10k]
+    title = "武术家"
+    description = "用空手造成 10,000 伤害"
+
+[advancement.challenge_unarmed_kills_25]
+    title = "赤手空拳"
+    description = "用空手击杀 25 个生物"
+
+[advancement.challenge_unarmed_kills_250]
+    title = "传奇之拳"
+    description = "用空手击杀 250 个生物"
+
+[advancement.challenge_unarmed_crit_25]
+    title = "致命一拳"
+    description = "用空手造成 25 次暴击"
+
+[advancement.challenge_unarmed_crit_250]
+    title = "精准之拳"
+    description = "用空手造成 250 次暴击"
+
+[advancement.challenge_unarmed_heavy_25]
+    title = "力量之拳"
+    description = "用空手造成 25 次重击 (超过 6 伤害)"
+
+[advancement.challenge_unarmed_heavy_250]
+    title = "拳王"
+    description = "用空手造成 250 次重击 (超过 6 伤害)"
+
 # items
 [items]
 

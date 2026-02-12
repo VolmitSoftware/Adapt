@@ -32,6 +32,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -104,6 +105,86 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavate_50k").goal(50000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchant_500k").goal(500000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavate_5m").goal(5000000).stat("excavation.blocks.broken").reward(getConfig().challengeExcavationReward).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WOODEN_SHOVEL).key("challenge_dig_swing_500")
+                .title(Localizer.dLocalize("advancement.challenge_dig_swing_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_dig_swing_500.description"))
+                .model(CustomModel.get(Material.WOODEN_SHOVEL, "advancement", "excavation", "challenge_dig_swing_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.IRON_SHOVEL)
+                        .key("challenge_dig_swing_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_dig_swing_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_dig_swing_5k.description"))
+                        .model(CustomModel.get(Material.IRON_SHOVEL, "advancement", "excavation", "challenge_dig_swing_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_swing_500").goal(500).stat("excavation.swings").reward(getConfig().challengeExcavationReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_swing_5k").goal(5000).stat("excavation.swings").reward(getConfig().challengeExcavationReward * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GOLDEN_SHOVEL).key("challenge_dig_damage_1k")
+                .title(Localizer.dLocalize("advancement.challenge_dig_damage_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_dig_damage_1k.description"))
+                .model(CustomModel.get(Material.GOLDEN_SHOVEL, "advancement", "excavation", "challenge_dig_damage_1k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_SHOVEL)
+                        .key("challenge_dig_damage_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_dig_damage_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_dig_damage_10k.description"))
+                        .model(CustomModel.get(Material.DIAMOND_SHOVEL, "advancement", "excavation", "challenge_dig_damage_10k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_damage_1k").goal(1000).stat("excavation.damage").reward(getConfig().challengeExcavationReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_damage_10k").goal(10000).stat("excavation.damage").reward(getConfig().challengeExcavationReward * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CLAY_BALL).key("challenge_dig_value_5k")
+                .title(Localizer.dLocalize("advancement.challenge_dig_value_5k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_dig_value_5k.description"))
+                .model(CustomModel.get(Material.CLAY_BALL, "advancement", "excavation", "challenge_dig_value_5k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BRICK)
+                        .key("challenge_dig_value_50k")
+                        .title(Localizer.dLocalize("advancement.challenge_dig_value_50k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_dig_value_50k.description"))
+                        .model(CustomModel.get(Material.BRICK, "advancement", "excavation", "challenge_dig_value_50k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_value_5k").goal(5000).stat("excavation.blocks.value").reward(getConfig().challengeExcavationReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_value_50k").goal(50000).stat("excavation.blocks.value").reward(getConfig().challengeExcavationReward * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GRAVEL).key("challenge_dig_gravel_500")
+                .title(Localizer.dLocalize("advancement.challenge_dig_gravel_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_dig_gravel_500.description"))
+                .model(CustomModel.get(Material.GRAVEL, "advancement", "excavation", "challenge_dig_gravel_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.FLINT)
+                        .key("challenge_dig_gravel_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_dig_gravel_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_dig_gravel_5k.description"))
+                        .model(CustomModel.get(Material.FLINT, "advancement", "excavation", "challenge_dig_gravel_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_gravel_500").goal(500).stat("excavation.gravel").reward(getConfig().challengeExcavationReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_dig_gravel_5k").goal(5000).stat("excavation.gravel").reward(getConfig().challengeExcavationReward * 2).build());
     }
 
 
@@ -151,6 +232,11 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     private void handleBlockBreakWithShovel(Player p, BlockBreakEvent e) {
         getPlayer(p).getData().addStat("excavation.blocks.broken", 1);
         getPlayer(p).getData().addStat("excavation.blocks.value", getValue(e.getBlock().getBlockData()));
+        Material blockType = e.getBlock().getType();
+        if (blockType == Material.GRAVEL || blockType == Material.SAND || blockType == Material.RED_SAND
+                || blockType == Material.CLAY || blockType == Material.SOUL_SAND || blockType == Material.SOUL_SOIL) {
+            getPlayer(p).getData().addStat("excavation.gravel", 1);
+        }
         Long cooldown = cooldowns.get(p);
         if (cooldown != null && cooldown + getConfig().cooldownDelay > System.currentTimeMillis())
             return;
@@ -169,7 +255,12 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @Override
     public void onTick() {
-
+        if (!this.isEnabled()) {
+            return;
+        }
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
+        }
     }
 
     @Override

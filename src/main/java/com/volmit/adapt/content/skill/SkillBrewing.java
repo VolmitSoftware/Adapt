@@ -45,6 +45,8 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.meta.PotionMeta;
 
+import org.bukkit.Bukkit;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -166,6 +168,66 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewsplash_500k").goal(500000).stat("brewing.splashes").reward(getConfig().challengeBrewSplash1k).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewsplash_5m").goal(5000000).stat("brewing.splashes").reward(getConfig().challengeBrewSplash1k).build());
 
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BREWING_STAND).key("challenge_brew_stands_10")
+                .title(Localizer.dLocalize("advancement.challenge_brew_stands_10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_brew_stands_10.description"))
+                .model(CustomModel.get(Material.BREWING_STAND, "advancement", "brewing", "challenge_brew_stands_10"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BLAZE_ROD)
+                        .key("challenge_brew_stands_50")
+                        .title(Localizer.dLocalize("advancement.challenge_brew_stands_50.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_brew_stands_50.description"))
+                        .model(CustomModel.get(Material.BLAZE_ROD, "advancement", "brewing", "challenge_brew_stands_50"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_stands_10").goal(10).stat("brewing.stands.placed").reward(getConfig().challengeBrew1k).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_stands_50").goal(50).stat("brewing.stands.placed").reward(getConfig().challengeBrew1k * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GLOWSTONE_DUST).key("challenge_brew_strong_25")
+                .title(Localizer.dLocalize("advancement.challenge_brew_strong_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_brew_strong_25.description"))
+                .model(CustomModel.get(Material.GLOWSTONE_DUST, "advancement", "brewing", "challenge_brew_strong_25"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DRAGON_BREATH)
+                        .key("challenge_brew_strong_250")
+                        .title(Localizer.dLocalize("advancement.challenge_brew_strong_250.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_brew_strong_250.description"))
+                        .model(CustomModel.get(Material.DRAGON_BREATH, "advancement", "brewing", "challenge_brew_strong_250"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_strong_25").goal(25).stat("brewing.strong").reward(getConfig().challengeBrew1k).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_strong_250").goal(250).stat("brewing.strong").reward(getConfig().challengeBrew1k * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SPLASH_POTION).key("challenge_brew_splash_hits_50")
+                .title(Localizer.dLocalize("advancement.challenge_brew_splash_hits_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_brew_splash_hits_50.description"))
+                .model(CustomModel.get(Material.SPLASH_POTION, "advancement", "brewing", "challenge_brew_splash_hits_50"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.LINGERING_POTION)
+                        .key("challenge_brew_splash_hits_500")
+                        .title(Localizer.dLocalize("advancement.challenge_brew_splash_hits_500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_brew_splash_hits_500.description"))
+                        .model(CustomModel.get(Material.LINGERING_POTION, "advancement", "brewing", "challenge_brew_splash_hits_500"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_splash_hits_50").goal(50).stat("brewing.splash.hits").reward(getConfig().challengeBrewSplash1k).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brew_splash_hits_500").goal(500).stat("brewing.splash.hits").reward(getConfig().challengeBrewSplash1k * 2).build());
+
         SpatialMatter.registerSliceType(new BrewingStandOwnerMatter());
     }
 
@@ -190,6 +252,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
                     && !e.getItem().toString().contains("potion-type=minecraft:thick")
                     && !e.getItem().toString().contains("potion-type=minecraft:awkward")) {
                 getPlayer(p).getData().addStat("brewing.consumed", 1);
+                if (o.getBasePotionData().isUpgraded()) {
+                    getPlayer(p).getData().addStat("brewing.strong", 1);
+                }
                 handleCooldown(p, () -> xp(p, p.getLocation(),
                         getConfig().splashXP
                                 + (getConfig().splashMultiplier * o.getCustomEffects().stream().mapToDouble(i -> (i.getAmplifier() + 1) * (i.getDuration() / 20D)).sum())
@@ -207,6 +272,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
             shouldReturnForPlayer(p, e, () -> {
                 AdaptPlayer a = getPlayer(p);
                 getPlayer(p).getData().addStat("brewing.splashes", 1);
+                getPlayer(p).getData().addStat("brewing.splash.hits", e.getAffectedEntities().size());
                 xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().splashXP + (getConfig().splashMultiplier * e.getPotion().getEffects().stream().mapToDouble(i -> (i.getAmplifier() + 1) * (i.getDuration() / 20D)).sum()));
             });
         }
@@ -221,6 +287,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getBlock().getType().equals(Material.BREWING_STAND)) {
                 WorldData.of(e.getBlock().getWorld()).set(e.getBlock(), new BrewingStandOwner(e.getPlayer().getUniqueId()));
+                getPlayer(e.getPlayer()).getData().addStat("brewing.stands.placed", 1);
             }
         });
     }
@@ -261,7 +328,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
     @Override
     public void onTick() {
-
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
+        }
     }
 
     @Override

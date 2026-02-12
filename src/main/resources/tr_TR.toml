@@ -373,6 +373,716 @@
     title = "Canavar Ustasi"
     description = "500 hayvan cogalt"
 
+# Agility - New Achievement Chains
+[advancement.challenge_sprint_dist_5k]
+    title = "Hiz Iblisi"
+    description = "5 Kilometreden fazla kos (5,000 blok)"
+
+[advancement.challenge_sprint_dist_50k]
+    title = "Yildirim Bacaklar"
+    description = "50 Kilometreden fazla kos (50,000 blok)"
+
+[advancement.challenge_agility_swim_1k]
+    title = "Su Yuruyucusu"
+    description = "1 Kilometreden fazla yuz (1,000 blok)"
+
+[advancement.challenge_agility_swim_10k]
+    title = "Deniz Gezgini"
+    description = "10 Kilometreden fazla yuz (10,000 blok)"
+
+[advancement.challenge_fly_1k]
+    title = "Gok Dansci"
+    description = "1 Kilometreden fazla uc (1,000 blok)"
+
+[advancement.challenge_fly_10k]
+    title = "Ruzgar Binicisi"
+    description = "10 Kilometreden fazla uc (10,000 blok)"
+
+[advancement.challenge_agility_sneak_500]
+    title = "Sessiz Adimlar"
+    description = "500 bloktan fazla sinsi yuru"
+
+[advancement.challenge_agility_sneak_5k]
+    title = "Hayalet Adimlar"
+    description = "5 Kilometreden fazla sinsi yuru (5,000 blok)"
+
+# Architect - New Achievement Chains
+[advancement.challenge_demolish_500]
+    title = "Yikim Ekibi"
+    description = "500 blok kir"
+
+[advancement.challenge_demolish_5k]
+    title = "Yikim Topu"
+    description = "5,000 blok kir"
+
+[advancement.challenge_value_placed_10k]
+    title = "Degerli Insaatci"
+    description = "10,000 deger karsiligi blok yerlestir"
+
+[advancement.challenge_value_placed_100k]
+    title = "Usta Mimar"
+    description = "100,000 deger karsiligi blok yerlestir"
+
+[advancement.challenge_demolish_val_5k]
+    title = "Kurtarma Uzmani"
+    description = "Yikimdan 5,000 blok degeri kurtar"
+
+[advancement.challenge_demolish_val_50k]
+    title = "Tam Sokuluş"
+    description = "Yikimdan 50,000 blok degeri kurtar"
+
+[advancement.challenge_high_build_100]
+    title = "Gok Insaatcisi"
+    description = "Y=128 ustune 100 blok yerlestir"
+
+[advancement.challenge_high_build_1k]
+    title = "Bulut Mimari"
+    description = "Y=128 ustune 1,000 blok yerlestir"
+
+# Axes - New Achievement Chains
+[advancement.challenge_axe_swing_500]
+    title = "Balta Sallayici"
+    description = "Baltayi 500 kez salla"
+
+[advancement.challenge_axe_swing_5k]
+    title = "Berserker"
+    description = "Baltayi 5,000 kez salla"
+
+[advancement.challenge_axe_damage_1k]
+    title = "Kesici"
+    description = "Balta ile 1,000 hasar ver"
+
+[advancement.challenge_axe_damage_10k]
+    title = "Celladın Baltasi"
+    description = "Balta ile 10,000 hasar ver"
+
+[advancement.challenge_axe_value_5k]
+    title = "Kereste Tuccari"
+    description = "5,000 degerinde odun topla"
+
+[advancement.challenge_axe_value_50k]
+    title = "Kereste Baronu"
+    description = "50,000 degerinde odun topla"
+
+[advancement.challenge_leaves_500]
+    title = "Yaprak Ufleyici"
+    description = "Balta ile 500 yaprak bloku temizle"
+
+[advancement.challenge_leaves_5k]
+    title = "Yaprak Dorucu"
+    description = "Balta ile 5,000 yaprak bloku temizle"
+
+# Blocking - New Achievement Chains
+[advancement.challenge_block_dmg_1k]
+    title = "Hasar Emici"
+    description = "Kalkan ile 1,000 hasar engelle"
+
+[advancement.challenge_block_dmg_10k]
+    title = "Canli Kalkan"
+    description = "Kalkan ile 10,000 hasar engelle"
+
+[advancement.challenge_block_proj_100]
+    title = "Ok Deflektoru"
+    description = "Kalkan ile 100 mermi engelle"
+
+[advancement.challenge_block_proj_1k]
+    title = "Mermi Kalkani"
+    description = "Kalkan ile 1,000 mermi engelle"
+
+[advancement.challenge_block_melee_500]
+    title = "Pariş Ustasi"
+    description = "Kalkan ile 500 yakin dovus saldirisi engelle"
+
+[advancement.challenge_block_melee_5k]
+    title = "Demir Kale"
+    description = "Kalkan ile 5,000 yakin dovus saldirisi engelle"
+
+[advancement.challenge_block_heavy_50]
+    title = "Tank"
+    description = "50 agir saldiri engelle (5 hasardan fazla)"
+
+[advancement.challenge_block_heavy_500]
+    title = "Sarsilmaz Nesne"
+    description = "500 agir saldiri engelle (5 hasardan fazla)"
+
+# Brewing - New Achievement Chains
+[advancement.challenge_brew_stands_10]
+    title = "İksir Atolyesi"
+    description = "10 iksir tezgahi yerlestir"
+
+[advancement.challenge_brew_stands_50]
+    title = "İksir Fabrikasi"
+    description = "50 iksir tezgahi yerlestir"
+
+[advancement.challenge_brew_strong_25]
+    title = "Guclu Demleme"
+    description = "25 guclendirilmis iksir ic"
+
+[advancement.challenge_brew_strong_250]
+    title = "Maksimum Guc"
+    description = "250 guclendirilmis iksir ic"
+
+[advancement.challenge_brew_splash_hits_50]
+    title = "Sicrama Bolgesi"
+    description = "Sicrama iksiri ile 50 varliga vur"
+
+[advancement.challenge_brew_splash_hits_500]
+    title = "Veba Doktoru"
+    description = "Sicrama iksiri ile 500 varliga vur"
+
+# Chronos - New Achievement Chains
+[advancement.challenge_active_dist_1k]
+    title = "Huzursuz"
+    description = "Aktifken 1 Kilometre yol kat"
+
+[advancement.challenge_active_dist_10k]
+    title = "Yol Bulucu"
+    description = "Aktifken 10 Kilometre yol kat"
+
+[advancement.challenge_active_dist_100k]
+    title = "Surekli Hareket"
+    description = "Aktifken 100 Kilometre yol kat"
+
+[advancement.challenge_beds_10]
+    title = "Erken Kalkan"
+    description = "10 kez yatakta uyu"
+
+[advancement.challenge_beds_100]
+    title = "Zaman Atlayici"
+    description = "100 kez yatakta uyu"
+
+[advancement.challenge_chronos_tp_50]
+    title = "Zamansal Kayma"
+    description = "50 kez isinlan"
+
+[advancement.challenge_chronos_tp_500]
+    title = "Zaman Bukulmesi"
+    description = "500 kez isinlan"
+
+[advancement.challenge_chronos_deaths_10]
+    title = "Olumlu"
+    description = "10 kez ol"
+
+[advancement.challenge_chronos_deaths_100]
+    title = "Olume Meydan Okuyan"
+    description = "100 kez ol"
+
+# Crafting - New Achievement Chains
+[advancement.challenge_craft_value_10k]
+    title = "Zanaat Degeri"
+    description = "Toplam 10,000 degerinde esya imal et"
+
+[advancement.challenge_craft_value_100k]
+    title = "Usta Zanaatkar"
+    description = "Toplam 100,000 degerinde esya imal et"
+
+[advancement.challenge_craft_tools_25]
+    title = "Alet Ustasi"
+    description = "25 alet imal et"
+
+[advancement.challenge_craft_tools_250]
+    title = "Demirci Ustasi"
+    description = "250 alet imal et"
+
+[advancement.challenge_craft_armor_25]
+    title = "Zirhci"
+    description = "25 parca zirh imal et"
+
+[advancement.challenge_craft_armor_250]
+    title = "Usta Zirhci"
+    description = "250 parca zirh imal et"
+
+[advancement.challenge_craft_mass_25k]
+    title = "Seri Uretici"
+    description = "25,000 esya imal et"
+
+[advancement.challenge_craft_mass_250k]
+    title = "Endustri Devrimi"
+    description = "250,000 esya imal et"
+
+# Discovery - New Achievement Chains
+[advancement.challenge_discover_items_50]
+    title = "Koleksiyoncu"
+    description = "50 benzersiz esya kesfet"
+
+[advancement.challenge_discover_items_250]
+    title = "Katalogcu"
+    description = "250 benzersiz esya kesfet"
+
+[advancement.challenge_discover_blocks_50]
+    title = "Arastirmaci"
+    description = "50 benzersiz blok kesfet"
+
+[advancement.challenge_discover_blocks_250]
+    title = "Jeolog"
+    description = "250 benzersiz blok kesfet"
+
+[advancement.challenge_discover_mobs_25]
+    title = "Gozlemci"
+    description = "25 benzersiz yaratik kesfet"
+
+[advancement.challenge_discover_mobs_75]
+    title = "Doga Bilimci"
+    description = "75 benzersiz yaratik kesfet"
+
+[advancement.challenge_discover_biomes_10]
+    title = "Gezgin"
+    description = "10 benzersiz biyom kesfet"
+
+[advancement.challenge_discover_biomes_40]
+    title = "Dunya Gezgini"
+    description = "40 benzersiz biyom kesfet"
+
+[advancement.challenge_discover_foods_10]
+    title = "Gurmand"
+    description = "10 benzersiz yiyecek kesfet"
+
+[advancement.challenge_discover_foods_30]
+    title = "Mutfak Ustasi"
+    description = "30 benzersiz yiyecek kesfet"
+
+# Enchanting - New Achievement Chains
+[advancement.challenge_enchant_power_100]
+    title = "Guc Dokucu"
+    description = "100 buyuleme gucu biriktir"
+
+[advancement.challenge_enchant_power_1k]
+    title = "Buyu Ustasi"
+    description = "1,000 buyuleme gucu biriktir"
+
+[advancement.challenge_enchant_levels_1k]
+    title = "Seviye Harcayici"
+    description = "Buyulemeye 1,000 tecrube seviyesi harca"
+
+[advancement.challenge_enchant_levels_10k]
+    title = "XP Yutagi"
+    description = "Buyulemeye 10,000 tecrube seviyesi harca"
+
+[advancement.challenge_enchant_high_25]
+    title = "Yuksek Bahisci"
+    description = "25 maksimum seviye buyuleme yap"
+
+[advancement.challenge_enchant_high_250]
+    title = "Efsanevi Buyucu"
+    description = "250 maksimum seviye buyuleme yap"
+
+[advancement.challenge_enchant_total_500]
+    title = "Seviye Yakici"
+    description = "Tum buyulemelere toplam 500 seviye harca"
+
+[advancement.challenge_enchant_total_5k]
+    title = "Mistik Yatirim"
+    description = "Tum buyulemelere toplam 5,000 seviye harca"
+
+# Excavation - New Achievement Chains
+[advancement.challenge_dig_swing_500]
+    title = "Kazici"
+    description = "Kuregi 500 kez salla"
+
+[advancement.challenge_dig_swing_5k]
+    title = "Hafriyatci"
+    description = "Kuregi 5,000 kez salla"
+
+[advancement.challenge_dig_damage_1k]
+    title = "Kurek Savascisi"
+    description = "Kurekle 1,000 hasar ver"
+
+[advancement.challenge_dig_damage_10k]
+    title = "Kurek Ustasi"
+    description = "Kurekle 10,000 hasar ver"
+
+[advancement.challenge_dig_value_5k]
+    title = "Toprak Tuccari"
+    description = "5,000 degerinde blok kaz"
+
+[advancement.challenge_dig_value_50k]
+    title = "Toprak Baronu"
+    description = "50,000 degerinde blok kaz"
+
+[advancement.challenge_dig_gravel_500]
+    title = "Cakil Ogutucusu"
+    description = "500 cakil, kum veya kil bloku kaz"
+
+[advancement.challenge_dig_gravel_5k]
+    title = "Kum Elekcisi"
+    description = "5,000 cakil, kum veya kil bloku kaz"
+
+# Herbalism - New Achievement Chains
+[advancement.challenge_plant_100]
+    title = "Tohum Ekici"
+    description = "100 ekin ek"
+
+[advancement.challenge_plant_1k]
+    title = "Yesil Parmak"
+    description = "1,000 ekin ek"
+
+[advancement.challenge_plant_5k]
+    title = "Tarim Baronu"
+    description = "5,000 ekin ek"
+
+[advancement.challenge_compost_50]
+    title = "Geri Donusumcu"
+    description = "50 esya kompostla"
+
+[advancement.challenge_compost_500]
+    title = "Toprak Zenginlestirici"
+    description = "500 esya kompostla"
+
+[advancement.challenge_shear_50]
+    title = "Kirkici"
+    description = "50 varlik kirk"
+
+[advancement.challenge_shear_250]
+    title = "Suru Ustasi"
+    description = "250 varlik kirk"
+
+# Hunter - New Achievement Chains
+[advancement.challenge_kills_500]
+    title = "Katil"
+    description = "500 yaratik oldur"
+
+[advancement.challenge_kills_5k]
+    title = "Cellat"
+    description = "5,000 yaratik oldur"
+
+[advancement.challenge_boss_1]
+    title = "Patron Avcisi"
+    description = "Bir patron yaratigi oldur"
+
+[advancement.challenge_boss_10]
+    title = "Efsane Avcisi"
+    description = "10 patron yaratik oldur"
+
+# Nether - New Achievement Chains
+[advancement.challenge_wither_dmg_500]
+    title = "Soldurulmus"
+    description = "500 solma hasari al"
+
+[advancement.challenge_wither_dmg_5k]
+    title = "Bela Hayatta Kalan"
+    description = "5,000 solma hasari al"
+
+[advancement.challenge_wither_skel_25]
+    title = "Kemik Toplayici"
+    description = "25 wither iskeleti oldur"
+
+[advancement.challenge_wither_skel_250]
+    title = "İskelet Belasi"
+    description = "250 wither iskeleti oldur"
+
+[advancement.challenge_wither_boss_1]
+    title = "Wither Avcisi"
+    description = "Wither'i yen"
+
+[advancement.challenge_wither_boss_10]
+    title = "Nether Hakimi"
+    description = "Wither'i 10 kez yen"
+
+[advancement.challenge_roses_10]
+    title = "Olum Bahcivani"
+    description = "10 wither gulu kir"
+
+[advancement.challenge_roses_100]
+    title = "Bela Toplayicisi"
+    description = "100 wither gulu kir"
+
+# Pickaxes - New Achievement Chains
+[advancement.challenge_pick_swing_500]
+    title = "Madenci Kolu"
+    description = "Kazmayi 500 kez salla"
+
+[advancement.challenge_pick_swing_5k]
+    title = "Tunel Yapici"
+    description = "Kazmayi 5,000 kez salla"
+
+[advancement.challenge_pick_damage_1k]
+    title = "Kazma Dovuscusu"
+    description = "Kazma ile 1,000 hasar ver"
+
+[advancement.challenge_pick_damage_10k]
+    title = "Savas Kazmasi"
+    description = "Kazma ile 10,000 hasar ver"
+
+[advancement.challenge_pick_value_5k]
+    title = "Mucevher Bulucu"
+    description = "5,000 degerinde blok kaz"
+
+[advancement.challenge_pick_value_50k]
+    title = "Cevher Baronu"
+    description = "50,000 degerinde blok kaz"
+
+[advancement.challenge_pick_ores_500]
+    title = "Arastirmaci"
+    description = "500 cevher bloku kaz"
+
+[advancement.challenge_pick_ores_5k]
+    title = "Usta Madenci"
+    description = "5,000 cevher bloku kaz"
+
+# Ranged - New Achievement Chains
+[advancement.challenge_ranged_dmg_1k]
+    title = "Keskin Nisanci"
+    description = "1,000 uzak mesafe hasari ver"
+
+[advancement.challenge_ranged_dmg_10k]
+    title = "Olumcul Okcu"
+    description = "10,000 uzak mesafe hasari ver"
+
+[advancement.challenge_ranged_dist_5k]
+    title = "Uzun Menzil"
+    description = "Toplam 5,000 blok mesafe kapsayan mermiler at"
+
+[advancement.challenge_ranged_dist_50k]
+    title = "Mil Atıcisi"
+    description = "Toplam 50,000 blok mesafe kapsayan mermiler at"
+
+[advancement.challenge_ranged_kills_50]
+    title = "Okcu"
+    description = "Uzak mesafe silahlariyla 50 yaratik oldur"
+
+[advancement.challenge_ranged_kills_500]
+    title = "Usta Okcu"
+    description = "Uzak mesafe silahlariyla 500 yaratik oldur"
+
+[advancement.challenge_longshot_25]
+    title = "Keskin Nisanci"
+    description = "25 uzun mesafe atisi isabet ettir (30 bloktan fazla)"
+
+[advancement.challenge_longshot_250]
+    title = "Kartal Gozu"
+    description = "250 uzun mesafe atisi isabet ettir (30 bloktan fazla)"
+
+# Rift - New Achievement Chains
+[advancement.challenge_rift_pearls_50]
+    title = "İnci Atici"
+    description = "50 ender incisi at"
+
+[advancement.challenge_rift_pearls_500]
+    title = "Isinlanma Bagimlisi"
+    description = "500 ender incisi at"
+
+[advancement.challenge_rift_enderman_50]
+    title = "Enderman Avcisi"
+    description = "50 enderman oldur"
+
+[advancement.challenge_rift_enderman_500]
+    title = "Bosluk Takipcisi"
+    description = "500 enderman oldur"
+
+[advancement.challenge_rift_dragon_500]
+    title = "Ejderha Dovuscusu"
+    description = "Ender Ejderhasi'na 500 hasar ver"
+
+[advancement.challenge_rift_dragon_5k]
+    title = "Ejderha Belasi"
+    description = "Ender Ejderhasi'na 5,000 hasar ver"
+
+[advancement.challenge_rift_crystal_10]
+    title = "Kristal Kirici"
+    description = "10 ender kristali yok et"
+
+[advancement.challenge_rift_crystal_100]
+    title = "Son Yikici"
+    description = "100 ender kristali yok et"
+
+# Seaborne - New Achievement Chains
+[advancement.challenge_fish_25]
+    title = "Balikci"
+    description = "25 balik yakala"
+
+[advancement.challenge_fish_250]
+    title = "Usta Balikci"
+    description = "250 balik yakala"
+
+[advancement.challenge_drowned_25]
+    title = "Bogulmus Avcisi"
+    description = "25 bogulmus oldur"
+
+[advancement.challenge_drowned_250]
+    title = "Okyanus Temizleyici"
+    description = "250 bogulmus oldur"
+
+[advancement.challenge_guardian_10]
+    title = "Koruyucu Avcisi"
+    description = "10 koruyucu oldur"
+
+[advancement.challenge_guardian_100]
+    title = "Tapınak Yakmacisi"
+    description = "100 koruyucu oldur"
+
+[advancement.challenge_underwater_blocks_100]
+    title = "Sualti Madencisi"
+    description = "Su altinda 100 blok kir"
+
+[advancement.challenge_underwater_blocks_1k]
+    title = "Sualti Muhendisi"
+    description = "Su altinda 1,000 blok kir"
+
+# Stealth - New Achievement Chains
+[advancement.challenge_stealth_dmg_500]
+    title = "Sirt Biçaklayici"
+    description = "Sinsileyken 500 hasar ver"
+
+[advancement.challenge_stealth_dmg_5k]
+    title = "Sessiz Katil"
+    description = "Sinsileyken 5,000 hasar ver"
+
+[advancement.challenge_stealth_kills_10]
+    title = "Suikastci"
+    description = "Sinsileyken 10 yaratik oldur"
+
+[advancement.challenge_stealth_kills_100]
+    title = "Golge Bicakçisi"
+    description = "Sinsileyken 100 yaratik oldur"
+
+[advancement.challenge_stealth_time_1h]
+    title = "Sabırli"
+    description = "1 saat sinsi yuru (3,600 saniye)"
+
+[advancement.challenge_stealth_time_10h]
+    title = "Golgelerin Efendisi"
+    description = "10 saat sinsi yuru (36,000 saniye)"
+
+[advancement.challenge_stealth_arrows_50]
+    title = "Sessiz Okcu"
+    description = "Sinsileyken 50 ok at"
+
+[advancement.challenge_stealth_arrows_500]
+    title = "Hayalet Okcu"
+    description = "Sinsileyken 500 ok at"
+
+# Swords - New Achievement Chains
+[advancement.challenge_sword_dmg_1k]
+    title = "Kilic Ciragi"
+    description = "Kılıcla 1,000 hasar ver"
+
+[advancement.challenge_sword_dmg_10k]
+    title = "Kilicçi"
+    description = "Kılıcla 10,000 hasar ver"
+
+[advancement.challenge_sword_kills_50]
+    title = "Duellocu"
+    description = "Kılıcla 50 yaratik oldur"
+
+[advancement.challenge_sword_kills_500]
+    title = "Gladyator"
+    description = "Kılıcla 500 yaratik oldur"
+
+[advancement.challenge_sword_crit_50]
+    title = "Kritik Vurucu"
+    description = "Kılıcla 50 kritik vurus yap"
+
+[advancement.challenge_sword_crit_500]
+    title = "Hassasiyet Ustasi"
+    description = "Kılıcla 500 kritik vurus yap"
+
+[advancement.challenge_sword_heavy_25]
+    title = "Agir Vurucu"
+    description = "Kılıcla 25 agir vurus yap (8 hasardan fazla)"
+
+[advancement.challenge_sword_heavy_250]
+    title = "Yikici Darbe"
+    description = "Kılıcla 250 agir vurus yap (8 hasardan fazla)"
+
+# Taming - New Achievement Chains
+[advancement.challenge_pet_dmg_500]
+    title = "Canavar Egitici"
+    description = "Evcil hayvanlarin toplam 500 hasar versin"
+
+[advancement.challenge_pet_dmg_5k]
+    title = "Savas Ustasi"
+    description = "Evcil hayvanlarin toplam 5,000 hasar versin"
+
+[advancement.challenge_tamed_10]
+    title = "Hayvan Dostu"
+    description = "10 hayvan ehillestir"
+
+[advancement.challenge_tamed_100]
+    title = "Hayvanat Bahcesi Bakicisi"
+    description = "100 hayvan ehillestir"
+
+[advancement.challenge_pet_kills_25]
+    title = "Suru Taktigi"
+    description = "Evcil hayvanlarin 25 yaratik oldursun"
+
+[advancement.challenge_pet_kills_250]
+    title = "Alfa Komutan"
+    description = "Evcil hayvanlarin 250 yaratik oldursun"
+
+[advancement.challenge_taming_2500]
+    title = "Uretim Uzmani"
+    description = "2,500 hayvan cogalt"
+
+[advancement.challenge_taming_25k]
+    title = "Genetik Ustasi"
+    description = "25,000 hayvan cogalt"
+
+# TragOul - New Achievement Chains
+[advancement.challenge_trag_hits_500]
+    title = "Kum Torbasi"
+    description = "500 darbe al"
+
+[advancement.challenge_trag_hits_5k]
+    title = "Ceza Aşigi"
+    description = "5,000 darbe al"
+
+[advancement.challenge_trag_deaths_10]
+    title = "Dokuz Canli"
+    description = "10 kez ol"
+
+[advancement.challenge_trag_deaths_100]
+    title = "Tekrarlayan Kabus"
+    description = "100 kez ol"
+
+[advancement.challenge_trag_fire_500]
+    title = "Yanik Kurbani"
+    description = "500 ates hasari al"
+
+[advancement.challenge_trag_fire_5k]
+    title = "Anka Kusu"
+    description = "5,000 ates hasari al"
+
+[advancement.challenge_trag_fall_500]
+    title = "Yercekimi Testi"
+    description = "500 dusme hasari al"
+
+[advancement.challenge_trag_fall_5k]
+    title = "Son Hiz"
+    description = "5,000 dusme hasari al"
+
+# Unarmed - New Achievement Chains
+[advancement.challenge_unarmed_dmg_1k]
+    title = "Kavgaci"
+    description = "Ciplan yumruklarla 1,000 hasar ver"
+
+[advancement.challenge_unarmed_dmg_10k]
+    title = "Dovus Sanatlari Ustasi"
+    description = "Ciplan yumruklarla 10,000 hasar ver"
+
+[advancement.challenge_unarmed_kills_25]
+    title = "Ciplan Yumruk"
+    description = "Ciplan yumruklarla 25 yaratik oldur"
+
+[advancement.challenge_unarmed_kills_250]
+    title = "Efsane Yumruk"
+    description = "Ciplan yumruklarla 250 yaratik oldur"
+
+[advancement.challenge_unarmed_crit_25]
+    title = "Kritik Yumruk"
+    description = "Ciplan yumruklarla 25 kritik vurus yap"
+
+[advancement.challenge_unarmed_crit_250]
+    title = "Hassas Yumruk"
+    description = "Ciplan yumruklarla 250 kritik vurus yap"
+
+[advancement.challenge_unarmed_heavy_25]
+    title = "Guclu Yumruk"
+    description = "Ciplan yumruklarla 25 agir vurus yap (6 hasardan fazla)"
+
+[advancement.challenge_unarmed_heavy_250]
+    title = "Nakaut Krali"
+    description = "Ciplan yumruklarla 250 agir vurus yap (6 hasardan fazla)"
+
 # items
 [items]
 

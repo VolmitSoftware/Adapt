@@ -106,6 +106,86 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_500k").goal(500000).stat("crafted.items").reward(getConfig().challengeCraft1kReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_5m").goal(5000000).stat("crafted.items").reward(getConfig().challengeCraft1kReward).build());
 
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GOLD_INGOT).key("challenge_craft_value_10k")
+                .title(Localizer.dLocalize("advancement.challenge_craft_value_10k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_craft_value_10k.description"))
+                .model(CustomModel.get(Material.GOLD_INGOT, "advancement", "crafting", "challenge_craft_value_10k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND)
+                        .key("challenge_craft_value_100k")
+                        .title(Localizer.dLocalize("advancement.challenge_craft_value_100k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_craft_value_100k.description"))
+                        .model(CustomModel.get(Material.DIAMOND, "advancement", "crafting", "challenge_craft_value_100k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_value_10k").goal(10000).stat("crafted.value").reward(getConfig().challengeCraft1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_value_100k").goal(100000).stat("crafted.value").reward(getConfig().challengeCraft1kReward * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_PICKAXE).key("challenge_craft_tools_25")
+                .title(Localizer.dLocalize("advancement.challenge_craft_tools_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_craft_tools_25.description"))
+                .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "crafting", "challenge_craft_tools_25"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_PICKAXE)
+                        .key("challenge_craft_tools_250")
+                        .title(Localizer.dLocalize("advancement.challenge_craft_tools_250.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_craft_tools_250.description"))
+                        .model(CustomModel.get(Material.DIAMOND_PICKAXE, "advancement", "crafting", "challenge_craft_tools_250"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_tools_25").goal(25).stat("crafting.tools").reward(getConfig().challengeCraft1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_tools_250").goal(250).stat("crafting.tools").reward(getConfig().challengeCraft1kReward * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_CHESTPLATE).key("challenge_craft_armor_25")
+                .title(Localizer.dLocalize("advancement.challenge_craft_armor_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_craft_armor_25.description"))
+                .model(CustomModel.get(Material.IRON_CHESTPLATE, "advancement", "crafting", "challenge_craft_armor_25"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_CHESTPLATE)
+                        .key("challenge_craft_armor_250")
+                        .title(Localizer.dLocalize("advancement.challenge_craft_armor_250.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_craft_armor_250.description"))
+                        .model(CustomModel.get(Material.DIAMOND_CHESTPLATE, "advancement", "crafting", "challenge_craft_armor_250"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_armor_25").goal(25).stat("crafting.armor").reward(getConfig().challengeCraft1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_armor_250").goal(250).stat("crafting.armor").reward(getConfig().challengeCraft1kReward * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.HOPPER).key("challenge_craft_mass_25k")
+                .title(Localizer.dLocalize("advancement.challenge_craft_mass_25k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_craft_mass_25k.description"))
+                .model(CustomModel.get(Material.HOPPER, "advancement", "crafting", "challenge_craft_mass_25k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.CHEST)
+                        .key("challenge_craft_mass_250k")
+                        .title(Localizer.dLocalize("advancement.challenge_craft_mass_250k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_craft_mass_250k.description"))
+                        .model(CustomModel.get(Material.CHEST, "advancement", "crafting", "challenge_craft_mass_250k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_mass_25k").goal(25000).stat("crafted.items").reward(getConfig().challengeCraft1kReward * 2).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_craft_mass_250k").goal(250000).stat("crafted.items").reward(getConfig().challengeCraft1kReward * 5).build());
+
         cooldowns = new HashMap<>();
     }
 
@@ -125,6 +205,14 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
                 double v = recipeAmount * getValue(e.getRecipe().getResult()) * getConfig().craftingValueXPMultiplier;
                 getPlayer(p).getData().addStat("crafted.items", recipeAmount);
                 getPlayer(p).getData().addStat("crafted.value", v);
+                Material resultType = e.getRecipe().getResult().getType();
+                String typeName = resultType.name();
+                if (typeName.contains("_PICKAXE") || typeName.contains("_AXE") || typeName.contains("_SHOVEL") || typeName.contains("_HOE") || typeName.contains("_SWORD")) {
+                    getPlayer(p).getData().addStat("crafting.tools", recipeAmount);
+                }
+                if (typeName.contains("_HELMET") || typeName.contains("_CHESTPLATE") || typeName.contains("_LEGGINGS") || typeName.contains("_BOOTS")) {
+                    getPlayer(p).getData().addStat("crafting.armor", recipeAmount);
+                }
                 xp(p, v + getConfig().baseCraftingXP);
             }
         });

@@ -37,12 +37,15 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -54,8 +57,8 @@ import static com.volmit.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     private final Map<UUID, Long> lastBlink = new HashMap<>();
-    private final Map<UUID, Boolean> canBlink = new HashMap<>();
-    private final double jumpVelocity = -0.0784000015258789;
+    private final Map<UUID, Long> jumpArmUntil = new HashMap<>();
+    private final Map<UUID, Boolean> lastOnGround = new HashMap<>();
 
     public RiftBlink() {
         super("rift-blink");
@@ -74,8 +77,113 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         return getConfig().baseDistance + (getLevelPercent(level) * getConfig().distanceFactor);
     }
 
-    private int getCooldownDuration() {
-        return 2000;
+    private long getCooldownDuration() {
+        return Math.max(0L, getConfig().cooldownMillis);
+    }
+
+    private boolean isBlinkEligible(Player p) {
+        return hasAdaptation(p) && p.getGameMode() == GameMode.SURVIVAL;
+    }
+
+    private boolean isOnCooldown(UUID id) {
+        return M.ms() - lastBlink.getOrDefault(id, 0L) <= getCooldownDuration();
+    }
+
+    private void clearDoubleJumpArm(Player p, UUID id) {
+        if (jumpArmUntil.remove(id) == null) {
+            return;
+        }
+
+        if (p.getGameMode() == GameMode.SURVIVAL) {
+            p.setAllowFlight(false);
+            p.setFlying(false);
+        }
+    }
+
+    private void armDoubleJump(Player p, UUID id) {
+        int triggerWindowMillis = Math.max(150, getConfig().doubleJumpWindowMillis);
+        long expires = M.ms() + triggerWindowMillis;
+        jumpArmUntil.put(id, expires);
+        p.setAllowFlight(true);
+        J.a(() -> {
+            if (!p.isOnline()) {
+                return;
+            }
+
+            Long armUntil = jumpArmUntil.get(id);
+            if (armUntil != null && armUntil <= M.ms()) {
+                clearDoubleJumpArm(p, id);
+            }
+        }, Math.max(1, (int) Math.ceil(triggerWindowMillis / 50D)));
+    }
+
+    private boolean isClickAction(Action action) {
+        return action == Action.LEFT_CLICK_AIR
+                || action == Action.LEFT_CLICK_BLOCK
+                || action == Action.RIGHT_CLICK_AIR
+                || action == Action.RIGHT_CLICK_BLOCK;
+    }
+
+    private boolean isLeftClick(Action action) {
+        return action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK;
+    }
+
+    private boolean isRightClick(Action action) {
+        return action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK;
+    }
+
+    private boolean isBlockClick(Action action) {
+        return action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK;
+    }
+
+    private boolean isActionAllowed(Action action) {
+        if (!getConfig().allowAirClicks && !isBlockClick(action)) {
+            return false;
+        }
+
+        if (!getConfig().allowBlockClicks && isBlockClick(action)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean shouldTriggerSprintClick(PlayerInteractEvent e) {
+        if (!getConfig().enableSprintClickTrigger || !e.getPlayer().isSprinting()) {
+            return false;
+        }
+
+        if (e.getHand() != null && e.getHand() != EquipmentSlot.HAND) {
+            return false;
+        }
+
+        Action action = e.getAction();
+        if (!isClickAction(action) || !isActionAllowed(action)) {
+            return false;
+        }
+
+        if (isLeftClick(action) && !getConfig().sprintClickLeftClick) {
+            return false;
+        }
+
+        return !isRightClick(action) || getConfig().sprintClickRightClick;
+    }
+
+    private boolean shouldTriggerPearlClick(PlayerInteractEvent e) {
+        if (!getConfig().enableEnderPearlClickTrigger || e.getItem() == null || e.getItem().getType() != Material.ENDER_PEARL) {
+            return false;
+        }
+
+        Action action = e.getAction();
+        if (!isClickAction(action) || !isActionAllowed(action)) {
+            return false;
+        }
+
+        if (isLeftClick(action) && !getConfig().enderPearlClickLeftClick) {
+            return false;
+        }
+
+        return !isRightClick(action) || getConfig().enderPearlClickRightClick;
     }
 
     private Location findBlinkGround(Player player) {
@@ -132,27 +240,97 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     public void on(PlayerQuitEvent e) {
         UUID id = e.getPlayer().getUniqueId();
         lastBlink.remove(id);
-        canBlink.remove(id);
+        jumpArmUntil.remove(id);
+        lastOnGround.remove(id);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerToggleFlightEvent e) {
         Player p = e.getPlayer();
         UUID id = p.getUniqueId();
+        if (!isBlinkEligible(p) || !getConfig().enableDoubleJumpTrigger) {
+            return;
+        }
 
-        if (!hasAdaptation(p) || !p.getGameMode().equals(GameMode.SURVIVAL)) {
+        Long armUntil = jumpArmUntil.get(id);
+        if (armUntil == null) {
             return;
         }
 
         e.setCancelled(true);
-        p.setAllowFlight(false);
+        p.setFlying(false);
+        clearDoubleJumpArm(p, id);
+        if (armUntil > M.ms()) {
+            attemptBlink(p);
+        }
+    }
 
-        if (M.ms() - lastBlink.getOrDefault(id, 0L) <= getCooldownDuration()) {
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
+        if (!isBlinkEligible(p)) {
             return;
         }
 
-        if (!p.isSprinting()) {
+        if (shouldTriggerPearlClick(e)) {
+            e.setCancelled(true);
+            attemptBlink(p);
             return;
+        }
+
+        if (shouldTriggerSprintClick(e)) {
+            attemptBlink(p);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(PlayerMoveEvent e) {
+        Player p = e.getPlayer();
+        UUID id = p.getUniqueId();
+        boolean wasOnGround = lastOnGround.getOrDefault(id, true);
+        boolean onGround = p.isOnGround();
+        lastOnGround.put(id, onGround);
+
+        if (!isBlinkEligible(p) || !getConfig().enableDoubleJumpTrigger) {
+            clearDoubleJumpArm(p, id);
+            return;
+        }
+
+        if (!wasOnGround && onGround) {
+            clearDoubleJumpArm(p, id);
+            return;
+        }
+
+        if (isOnCooldown(id)) {
+            clearDoubleJumpArm(p, id);
+            return;
+        }
+
+        if (isDoubleJumpStart(wasOnGround, onGround, p)) {
+            if (getConfig().doubleJumpRequiresSprint && !p.isSprinting()) {
+                return;
+            }
+
+            armDoubleJump(p, id);
+            return;
+        }
+
+        Long armUntil = jumpArmUntil.get(id);
+        if (armUntil != null && armUntil <= M.ms()) {
+            clearDoubleJumpArm(p, id);
+        }
+    }
+
+    private boolean isDoubleJumpStart(boolean wasOnGround, boolean onGround, Player p) {
+        return wasOnGround
+                && !onGround
+                && p.getVelocity().getY() >= getConfig().doubleJumpMinVerticalVelocity;
+    }
+
+    private boolean attemptBlink(Player p) {
+        UUID id = p.getUniqueId();
+        if (isOnCooldown(id)) {
+            return false;
         }
 
         Location locOG = p.getLocation().clone();
@@ -161,7 +339,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         if (destinationGround == null) {
             spw.play(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.24f);
             lastBlink.put(id, M.ms());
-            return;
+            return false;
         }
 
         PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("rift");
@@ -192,38 +370,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         lastBlink.put(id, M.ms());
         spw.play(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.50f, 1.0f);
         vfxLevelUp(p);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void on(PlayerMoveEvent e) {
-        Player p = e.getPlayer();
-        UUID id = p.getUniqueId();
-        boolean isJumping = p.getVelocity().getY() > jumpVelocity;
-
-        if (!hasAdaptation(p) || !p.getGameMode().equals(GameMode.SURVIVAL) || !p.isSprinting()) {
-            canBlink.remove(id);
-            return;
-        }
-
-        if (isJumping && !canBlink.containsKey(id)) {
-            if (M.ms() - lastBlink.getOrDefault(id, 0L) <= getCooldownDuration()) {
-                p.setAllowFlight(false);
-                return;
-            }
-
-            Location destinationGround = findBlinkGround(p);
-            if (destinationGround != null) {
-                canBlink.put(id, true);
-                p.setAllowFlight(true);
-                J.a(() -> {
-                    p.setAllowFlight(false);
-                    p.setFlying(false);
-                    canBlink.remove(id);
-                }, 25);
-            }
-        } else if (!isJumping) {
-            canBlink.remove(id);
-        }
+        return true;
     }
 
     private boolean isSafe(Location l) {
@@ -256,6 +403,32 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         boolean enabled = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Rift Blink adaptation.", impact = "True enables this behavior and false disables it.")
         boolean showParticles = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Cooldown between successful Rift Blink triggers in milliseconds.", impact = "Higher values reduce blink frequency; lower values allow faster reuse.")
+        int cooldownMillis = 2000;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables double-tap jump detection for Rift Blink.", impact = "True allows jump-based activation; false disables jump activation.")
+        boolean enableDoubleJumpTrigger = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Require sprinting for the double-tap jump trigger.", impact = "True requires sprinting while double-tapping jump; false allows it without sprint.")
+        boolean doubleJumpRequiresSprint = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum time window between jump taps in milliseconds.", impact = "Higher values make double-tap detection easier; lower values make it stricter.")
+        int doubleJumpWindowMillis = 450;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Minimum upward velocity required to arm double-jump blink.", impact = "Higher values reduce accidental arming; lower values make detection more sensitive.")
+        double doubleJumpMinVerticalVelocity = 0.2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables sprint + click activation for Rift Blink.", impact = "True allows clicking while sprinting to blink; false disables this trigger.")
+        boolean enableSprintClickTrigger = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows left-click as a sprint-click trigger.", impact = "True allows left-click activation while sprinting; false disables left-click activation.")
+        boolean sprintClickLeftClick = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows right-click as a sprint-click trigger.", impact = "True allows right-click activation while sprinting; false disables right-click activation.")
+        boolean sprintClickRightClick = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables click-with-ender-pearl activation for Rift Blink.", impact = "True allows pearl-click activation; false disables pearl-click activation.")
+        boolean enableEnderPearlClickTrigger = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows left-click with an ender pearl to trigger Rift Blink.", impact = "True enables left-click pearl activation; false disables it.")
+        boolean enderPearlClickLeftClick = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows right-click with an ender pearl to trigger Rift Blink.", impact = "True enables right-click pearl activation; false disables it.")
+        boolean enderPearlClickRightClick = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows air-click interactions to trigger Rift Blink.", impact = "True lets air clicks trigger enabled click modes; false blocks air-click triggers.")
+        boolean allowAirClicks = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows block-click interactions to trigger Rift Blink.", impact = "True lets block clicks trigger enabled click modes; false blocks block-click triggers.")
+        boolean allowBlockClicks = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
         int baseCost = 7;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")

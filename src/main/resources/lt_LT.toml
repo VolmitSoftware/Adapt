@@ -373,6 +373,716 @@
     title = "Zveriu Valdovas"
     description = "Dauginti 500 gyvunu"
 
+# Agility - New Achievement Chains
+[advancement.challenge_sprint_dist_5k]
+    title = "Greicio Demonas"
+    description = "Nubek daugiau nei 5 Kilometrus (5,000 bloku)"
+
+[advancement.challenge_sprint_dist_50k]
+    title = "Zaibisku Kojos"
+    description = "Nubek daugiau nei 50 Kilometru (50,000 bloku)"
+
+[advancement.challenge_agility_swim_1k]
+    title = "Vandens Begiklis"
+    description = "Nuplaukite daugiau nei 1 Kilometra (1,000 bloku)"
+
+[advancement.challenge_agility_swim_10k]
+    title = "Vandeninis Keliautojas"
+    description = "Nuplaukite daugiau nei 10 Kilometru (10,000 bloku)"
+
+[advancement.challenge_fly_1k]
+    title = "Dangaus Sokejas"
+    description = "Nuskriskite daugiau nei 1 Kilometra (1,000 bloku)"
+
+[advancement.challenge_fly_10k]
+    title = "Vejo Raitelis"
+    description = "Nuskriskite daugiau nei 10 Kilometru (10,000 bloku)"
+
+[advancement.challenge_agility_sneak_500]
+    title = "Tylius Zingsniai"
+    description = "Prislinkinite daugiau nei 500 bloku"
+
+[advancement.challenge_agility_sneak_5k]
+    title = "Seseliu Zingsniai"
+    description = "Prislinkinite daugiau nei 5 Kilometrus (5,000 bloku)"
+
+# Architect - New Achievement Chains
+[advancement.challenge_demolish_500]
+    title = "Griovimo Komanda"
+    description = "Sunaikinkite 500 bloku"
+
+[advancement.challenge_demolish_5k]
+    title = "Griovimo Rutulys"
+    description = "Sunaikinkite 5,000 bloku"
+
+[advancement.challenge_value_placed_10k]
+    title = "Vertingas Statytojas"
+    description = "Pastatykite bloku uz 10,000 vertes"
+
+[advancement.challenge_value_placed_100k]
+    title = "Architekturos Meistras"
+    description = "Pastatykite bloku uz 100,000 vertes"
+
+[advancement.challenge_demolish_val_5k]
+    title = "Utilizavimo Ekspertas"
+    description = "Isgelbékit 5,000 bloku vertes is griovimo"
+
+[advancement.challenge_demolish_val_50k]
+    title = "Visiskas Isardymas"
+    description = "Isgelbékit 50,000 bloku vertes is griovimo"
+
+[advancement.challenge_high_build_100]
+    title = "Dangaus Statytojas"
+    description = "Pastatykite 100 bloku virs Y=128"
+
+[advancement.challenge_high_build_1k]
+    title = "Debesu Architektas"
+    description = "Pastatykite 1,000 bloku virs Y=128"
+
+# Axes - New Achievement Chains
+[advancement.challenge_axe_swing_500]
+    title = "Kirviasukys"
+    description = "Mostelekite kirviu 500 kartu"
+
+[advancement.challenge_axe_swing_5k]
+    title = "Berserkas"
+    description = "Mostelekite kirviu 5,000 kartu"
+
+[advancement.challenge_axe_damage_1k]
+    title = "Kapotojas"
+    description = "Padarykite 1,000 zalos kirviu"
+
+[advancement.challenge_axe_damage_10k]
+    title = "Budelio Kirvis"
+    description = "Padarykite 10,000 zalos kirviu"
+
+[advancement.challenge_axe_value_5k]
+    title = "Medienos Prekeivis"
+    description = "Surinkite medienos uz 5,000 vertes"
+
+[advancement.challenge_axe_value_50k]
+    title = "Medienos Baronas"
+    description = "Surinkite medienos uz 50,000 vertes"
+
+[advancement.challenge_leaves_500]
+    title = "Lapu Pustejas"
+    description = "Isvalkite 500 lapu bloku kirviu"
+
+[advancement.challenge_leaves_5k]
+    title = "Nulapotojas"
+    description = "Isvalkite 5,000 lapu bloku kirviu"
+
+# Blocking - New Achievement Chains
+[advancement.challenge_block_dmg_1k]
+    title = "Zalos Sugerejas"
+    description = "Uzblokuokite 1,000 zalos skydu"
+
+[advancement.challenge_block_dmg_10k]
+    title = "Gyvas Skydas"
+    description = "Uzblokuokite 10,000 zalos skydu"
+
+[advancement.challenge_block_proj_100]
+    title = "Strelu Atmustojas"
+    description = "Uzblokuokite 100 sviediniu skydu"
+
+[advancement.challenge_block_proj_1k]
+    title = "Sviediniu Skydas"
+    description = "Uzblokuokite 1,000 sviediniu skydu"
+
+[advancement.challenge_block_melee_500]
+    title = "Atremimu Meistras"
+    description = "Uzblokuokite 500 artimos kovos ataku skydu"
+
+[advancement.challenge_block_melee_5k]
+    title = "Gelezine Tvirtove"
+    description = "Uzblokuokite 5,000 artimos kovos ataku skydu"
+
+[advancement.challenge_block_heavy_50]
+    title = "Tankas"
+    description = "Uzblokuokite 50 sunkiu ataku (virs 5 zalos)"
+
+[advancement.challenge_block_heavy_500]
+    title = "Nepajudinamas Objektas"
+    description = "Uzblokuokite 500 sunkiu ataku (virs 5 zalos)"
+
+# Brewing - New Achievement Chains
+[advancement.challenge_brew_stands_10]
+    title = "Virejo Dirbtuve"
+    description = "Pastatykite 10 virimo stovu"
+
+[advancement.challenge_brew_stands_50]
+    title = "Eliksyru Fabrikas"
+    description = "Pastatykite 50 virimo stovu"
+
+[advancement.challenge_brew_strong_25]
+    title = "Stiprus Gérimas"
+    description = "Isgerkite 25 pagerintu eliksyru"
+
+[advancement.challenge_brew_strong_250]
+    title = "Maksimalus Stiprumas"
+    description = "Isgerkite 250 pagerintu eliksyru"
+
+[advancement.challenge_brew_splash_hits_50]
+    title = "Purskimo Zona"
+    description = "Pataikykite i 50 butyniu purskiamaisiais eliksyrais"
+
+[advancement.challenge_brew_splash_hits_500]
+    title = "Maro Daktaras"
+    description = "Pataikykite i 500 butyniu purskiamaisiais eliksyrais"
+
+# Chronos - New Achievement Chains
+[advancement.challenge_active_dist_1k]
+    title = "Neramus"
+    description = "Nukeliaukite 1 Kilometra budami aktyvus"
+
+[advancement.challenge_active_dist_10k]
+    title = "Keliu Zinovas"
+    description = "Nukeliaukite 10 Kilometru budami aktyvus"
+
+[advancement.challenge_active_dist_100k]
+    title = "Amzinas Judéjimas"
+    description = "Nukeliaukite 100 Kilometru budami aktyvus"
+
+[advancement.challenge_beds_10]
+    title = "Ankstyvasis Paukstis"
+    description = "Miegokite lovoje 10 kartu"
+
+[advancement.challenge_beds_100]
+    title = "Laiko Praleidinétojas"
+    description = "Miegokite lovoje 100 kartu"
+
+[advancement.challenge_chronos_tp_50]
+    title = "Laiko Poslinkis"
+    description = "Teleportuokités 50 kartu"
+
+[advancement.challenge_chronos_tp_500]
+    title = "Laiko Iskreipimas"
+    description = "Teleportuokités 500 kartu"
+
+[advancement.challenge_chronos_deaths_10]
+    title = "Mirtingasis"
+    description = "Mirkite 10 kartu"
+
+[advancement.challenge_chronos_deaths_100]
+    title = "Mirties Isskukejas"
+    description = "Mirkite 100 kartu"
+
+# Crafting - New Achievement Chains
+[advancement.challenge_craft_value_10k]
+    title = "Amatininko Verte"
+    description = "Pagaminkite daiktu uz 10,000 bendros vertes"
+
+[advancement.challenge_craft_value_100k]
+    title = "Meistras Amatininkas"
+    description = "Pagaminkite daiktu uz 100,000 bendros vertes"
+
+[advancement.challenge_craft_tools_25]
+    title = "Irankiu Kalvis"
+    description = "Pagaminkite 25 irankes"
+
+[advancement.challenge_craft_tools_250]
+    title = "Kalves Meistras"
+    description = "Pagaminkite 250 irankes"
+
+[advancement.challenge_craft_armor_25]
+    title = "Sarviu Kalvis"
+    description = "Pagaminkite 25 sarvu dalis"
+
+[advancement.challenge_craft_armor_250]
+    title = "Sarviu Meistras"
+    description = "Pagaminkite 250 sarvu dalis"
+
+[advancement.challenge_craft_mass_25k]
+    title = "Masine Gamyba"
+    description = "Pagaminkite 25,000 daiktu"
+
+[advancement.challenge_craft_mass_250k]
+    title = "Pramonine Revoliucija"
+    description = "Pagaminkite 250,000 daiktu"
+
+# Discovery - New Achievement Chains
+[advancement.challenge_discover_items_50]
+    title = "Rinkejas"
+    description = "Atraskite 50 unikalu daiktu"
+
+[advancement.challenge_discover_items_250]
+    title = "Kataloguotojas"
+    description = "Atraskite 250 unikalu daiktu"
+
+[advancement.challenge_discover_blocks_50]
+    title = "Tyrinetoja"
+    description = "Atraskite 50 unikalu bloku"
+
+[advancement.challenge_discover_blocks_250]
+    title = "Geologas"
+    description = "Atraskite 250 unikalu bloku"
+
+[advancement.challenge_discover_mobs_25]
+    title = "Stebetojas"
+    description = "Atraskite 25 unikalias butybes"
+
+[advancement.challenge_discover_mobs_75]
+    title = "Gamtininkas"
+    description = "Atraskite 75 unikalias butybes"
+
+[advancement.challenge_discover_biomes_10]
+    title = "Klajoklys"
+    description = "Atraskite 10 unikalu biomu"
+
+[advancement.challenge_discover_biomes_40]
+    title = "Pasaulio Keliautojas"
+    description = "Atraskite 40 unikalu biomu"
+
+[advancement.challenge_discover_foods_10]
+    title = "Gurmantas"
+    description = "Atraskite 10 unikaliu maisto produktu"
+
+[advancement.challenge_discover_foods_30]
+    title = "Kulinarijos Meistras"
+    description = "Atraskite 30 unikaliu maisto produktu"
+
+# Enchanting - New Achievement Chains
+[advancement.challenge_enchant_power_100]
+    title = "Galios Audéjas"
+    description = "Sukaupkite 100 uzkerejimo galios"
+
+[advancement.challenge_enchant_power_1k]
+    title = "Magijos Meistras"
+    description = "Sukaupkite 1,000 uzkerejimo galios"
+
+[advancement.challenge_enchant_levels_1k]
+    title = "Lygiu Leidejas"
+    description = "Isleiskite 1,000 patirties lygiu uzkerejimams"
+
+[advancement.challenge_enchant_levels_10k]
+    title = "XP Ryklys"
+    description = "Isleiskite 10,000 patirties lygiu uzkerejimams"
+
+[advancement.challenge_enchant_high_25]
+    title = "Aukstu Statymu Zaidejas"
+    description = "Atlikite 25 maksimalaus lygio uzkerejimus"
+
+[advancement.challenge_enchant_high_250]
+    title = "Legendinis Uzkeretoja"
+    description = "Atlikite 250 maksimalaus lygio uzkerejimus"
+
+[advancement.challenge_enchant_total_500]
+    title = "Lygiu Degintoja"
+    description = "Isleiskite 500 viso lygiu visiems uzkerejimams"
+
+[advancement.challenge_enchant_total_5k]
+    title = "Magine Investicija"
+    description = "Isleiskite 5,000 viso lygiu visiems uzkerejimams"
+
+# Excavation - New Achievement Chains
+[advancement.challenge_dig_swing_500]
+    title = "Kasejas"
+    description = "Mostelekite kastuvu 500 kartu"
+
+[advancement.challenge_dig_swing_5k]
+    title = "Ekskavatorius"
+    description = "Mostelekite kastuvu 5,000 kartu"
+
+[advancement.challenge_dig_damage_1k]
+    title = "Kastuvo Riteris"
+    description = "Padarykite 1,000 zalos kastuvu"
+
+[advancement.challenge_dig_damage_10k]
+    title = "Kastuvo Meistras"
+    description = "Padarykite 10,000 zalos kastuvu"
+
+[advancement.challenge_dig_value_5k]
+    title = "Purvo Prekeivis"
+    description = "Iskaskite bloku uz 5,000 vertes"
+
+[advancement.challenge_dig_value_50k]
+    title = "Zemes Baronas"
+    description = "Iskaskite bloku uz 50,000 vertes"
+
+[advancement.challenge_dig_gravel_500]
+    title = "Zvirgzdo Malimas"
+    description = "Iskaskite 500 zvirgzdo, smelo ar molio bloku"
+
+[advancement.challenge_dig_gravel_5k]
+    title = "Smelo Sijotuvas"
+    description = "Iskaskite 5,000 zvirgzdo, smelo ar molio bloku"
+
+# Herbalism - New Achievement Chains
+[advancement.challenge_plant_100]
+    title = "Séjéjas"
+    description = "Pasodinkite 100 paselu"
+
+[advancement.challenge_plant_1k]
+    title = "Zaliasis Pirstas"
+    description = "Pasodinkite 1,000 paselu"
+
+[advancement.challenge_plant_5k]
+    title = "Zemes Ukio Baronas"
+    description = "Pasodinkite 5,000 paselu"
+
+[advancement.challenge_compost_50]
+    title = "Perdirbéjas"
+    description = "Kompostuokite 50 daiktu"
+
+[advancement.challenge_compost_500]
+    title = "Dirvos Turtintojas"
+    description = "Kompostuokite 500 daiktu"
+
+[advancement.challenge_shear_50]
+    title = "Kirpéjas"
+    description = "Apkirpkite 50 butybes"
+
+[advancement.challenge_shear_250]
+    title = "Bandos Valdovas"
+    description = "Apkirpkite 250 butybes"
+
+# Hunter - New Achievement Chains
+[advancement.challenge_kills_500]
+    title = "Zabikas"
+    description = "Uzmuskit 500 padaru"
+
+[advancement.challenge_kills_5k]
+    title = "Egzekutorius"
+    description = "Uzmuskit 5,000 padaru"
+
+[advancement.challenge_boss_1]
+    title = "Boso Issaukejas"
+    description = "Uzmuskit bosa"
+
+[advancement.challenge_boss_10]
+    title = "Legendu Zabikas"
+    description = "Uzmuskit 10 bosu"
+
+# Nether - New Achievement Chains
+[advancement.challenge_wither_dmg_500]
+    title = "Nuvytes"
+    description = "Isgyvenkit 500 nuvytimo zalos"
+
+[advancement.challenge_wither_dmg_5k]
+    title = "Raupus Isgyvenes"
+    description = "Isgyvenkit 5,000 nuvytimo zalos"
+
+[advancement.challenge_wither_skel_25]
+    title = "Kaulu Rinkejas"
+    description = "Uzmuskit 25 viterinius skeletus"
+
+[advancement.challenge_wither_skel_250]
+    title = "Skeletu Riksté"
+    description = "Uzmuskit 250 viteriniu skeletu"
+
+[advancement.challenge_wither_boss_1]
+    title = "Viterio Zabikas"
+    description = "Nugalekit Viteri"
+
+[advancement.challenge_wither_boss_10]
+    title = "Nethero Valdovas"
+    description = "Nugalekit Viteri 10 kartu"
+
+[advancement.challenge_roses_10]
+    title = "Mirties Sodininkas"
+    description = "Sunaikinkite 10 viterio roziu"
+
+[advancement.challenge_roses_100]
+    title = "Raupus Rinkejas"
+    description = "Sunaikinkite 100 viterio roziu"
+
+# Pickaxes - New Achievement Chains
+[advancement.challenge_pick_swing_500]
+    title = "Kalnakasio Ranka"
+    description = "Mostelekite kastuvu 500 kartu"
+
+[advancement.challenge_pick_swing_5k]
+    title = "Tuneliu Kasejas"
+    description = "Mostelekite kastuvu 5,000 kartu"
+
+[advancement.challenge_pick_damage_1k]
+    title = "Kastuvo Kovotojas"
+    description = "Padarykite 1,000 zalos kastuvu"
+
+[advancement.challenge_pick_damage_10k]
+    title = "Kovinis Kastuvas"
+    description = "Padarykite 10,000 zalos kastuvu"
+
+[advancement.challenge_pick_value_5k]
+    title = "Brangakmeniu Ieškotojas"
+    description = "Iskaskite bloku uz 5,000 vertes"
+
+[advancement.challenge_pick_value_50k]
+    title = "Rudos Baronas"
+    description = "Iskaskite bloku uz 50,000 vertes"
+
+[advancement.challenge_pick_ores_500]
+    title = "Zvalgas"
+    description = "Iskaskite 500 rudos bloku"
+
+[advancement.challenge_pick_ores_5k]
+    title = "Kasyklu Meistras"
+    description = "Iskaskite 5,000 rudos bloku"
+
+# Ranged - New Achievement Chains
+[advancement.challenge_ranged_dmg_1k]
+    title = "Taiklus Saulys"
+    description = "Padarykite 1,000 nuotolines zalos"
+
+[advancement.challenge_ranged_dmg_10k]
+    title = "Mirtinas Lankininkas"
+    description = "Padarykite 10,000 nuotolines zalos"
+
+[advancement.challenge_ranged_dist_5k]
+    title = "Tolimas Nuotolis"
+    description = "Paleiskite sviedinius 5,000 bloku bendru atstumu"
+
+[advancement.challenge_ranged_dist_50k]
+    title = "Mylios Saulys"
+    description = "Paleiskite sviedinius 50,000 bloku bendru atstumu"
+
+[advancement.challenge_ranged_kills_50]
+    title = "Lankininkas"
+    description = "Uzmuskit 50 butybes nuotoliniais ginklais"
+
+[advancement.challenge_ranged_kills_500]
+    title = "Lanku Meistras"
+    description = "Uzmuskit 500 butybes nuotoliniais ginklais"
+
+[advancement.challenge_longshot_25]
+    title = "Snaiperis"
+    description = "Pataikykite 25 tolimo nuotolio suvisus (per 30 bloku)"
+
+[advancement.challenge_longshot_250]
+    title = "Erelinis Akis"
+    description = "Pataikykite 250 tolimo nuotolio suvisus (per 30 bloku)"
+
+# Rift - New Achievement Chains
+[advancement.challenge_rift_pearls_50]
+    title = "Perliu Metykas"
+    description = "Meskite 50 enderio perlu"
+
+[advancement.challenge_rift_pearls_500]
+    title = "Teleportacijos Manijakas"
+    description = "Meskite 500 enderio perlu"
+
+[advancement.challenge_rift_enderman_50]
+    title = "Endermenu Medžiotojas"
+    description = "Uzmuskit 50 endermenu"
+
+[advancement.challenge_rift_enderman_500]
+    title = "Tustumos Seklys"
+    description = "Uzmuskit 500 endermenu"
+
+[advancement.challenge_rift_dragon_500]
+    title = "Drakonu Kovotojas"
+    description = "Padarykite 500 zalos Enderio Drakonui"
+
+[advancement.challenge_rift_dragon_5k]
+    title = "Drakono Riksté"
+    description = "Padarykite 5,000 zalos Enderio Drakonui"
+
+[advancement.challenge_rift_crystal_10]
+    title = "Kristalu Lauzytoja"
+    description = "Sunaikinkite 10 enderio kristalu"
+
+[advancement.challenge_rift_crystal_100]
+    title = "Endo Griovéjas"
+    description = "Sunaikinkite 100 enderio kristalu"
+
+# Seaborne - New Achievement Chains
+[advancement.challenge_fish_25]
+    title = "Zvejys"
+    description = "Pagaukite 25 zuvis"
+
+[advancement.challenge_fish_250]
+    title = "Zvejybos Meistras"
+    description = "Pagaukite 250 zuviu"
+
+[advancement.challenge_drowned_25]
+    title = "Skandintu Mediotojas"
+    description = "Uzmuskit 25 skandintus"
+
+[advancement.challenge_drowned_250]
+    title = "Vandenyno Valytojas"
+    description = "Uzmuskit 250 skandintu"
+
+[advancement.challenge_guardian_10]
+    title = "Sargybinu Zabikas"
+    description = "Uzmuskit 10 sargybiniu"
+
+[advancement.challenge_guardian_100]
+    title = "Sventyklos Plesikas"
+    description = "Uzmuskit 100 sargybiniu"
+
+[advancement.challenge_underwater_blocks_100]
+    title = "Povandeninis Kasyklis"
+    description = "Sunaikinkite 100 bloku po vandeniu"
+
+[advancement.challenge_underwater_blocks_1k]
+    title = "Vandens Inzinierius"
+    description = "Sunaikinkite 1,000 bloku po vandeniu"
+
+# Stealth - New Achievement Chains
+[advancement.challenge_stealth_dmg_500]
+    title = "Nugaros Durtuvas"
+    description = "Padarykite 500 zalos slinkinantis"
+
+[advancement.challenge_stealth_dmg_5k]
+    title = "Tylus Zabikas"
+    description = "Padarykite 5,000 zalos slinkinantis"
+
+[advancement.challenge_stealth_kills_10]
+    title = "Zudikis"
+    description = "Uzmuskit 10 butybes slinkinantis"
+
+[advancement.challenge_stealth_kills_100]
+    title = "Seseliu Pjovéjas"
+    description = "Uzmuskit 100 butybes slinkinantis"
+
+[advancement.challenge_stealth_time_1h]
+    title = "Kantriai"
+    description = "Praleiskite 1 valanda slinkinant (3,600 sekundziu)"
+
+[advancement.challenge_stealth_time_10h]
+    title = "Seseliu Meistras"
+    description = "Praleiskite 10 valandu slinkinant (36,000 sekundziu)"
+
+[advancement.challenge_stealth_arrows_50]
+    title = "Tylus Lankininkas"
+    description = "Paleiskite 50 strelu slinkinantis"
+
+[advancement.challenge_stealth_arrows_500]
+    title = "Vaidulaklio Lankininkas"
+    description = "Paleiskite 500 strelu slinkinantis"
+
+# Swords - New Achievement Chains
+[advancement.challenge_sword_dmg_1k]
+    title = "Kalavijo Mokinys"
+    description = "Padarykite 1,000 zalos kalaviju"
+
+[advancement.challenge_sword_dmg_10k]
+    title = "Kalavijininkas"
+    description = "Padarykite 10,000 zalos kalaviju"
+
+[advancement.challenge_sword_kills_50]
+    title = "Dvikovejas"
+    description = "Uzmuskit 50 butybes kalaviju"
+
+[advancement.challenge_sword_kills_500]
+    title = "Gladiatorius"
+    description = "Uzmuskit 500 butybes kalaviju"
+
+[advancement.challenge_sword_crit_50]
+    title = "Kritinis Smugis"
+    description = "Pataikykite 50 kritiniu smugiu kalaviju"
+
+[advancement.challenge_sword_crit_500]
+    title = "Tikslumo Meistras"
+    description = "Pataikykite 500 kritiniu smugiu kalaviju"
+
+[advancement.challenge_sword_heavy_25]
+    title = "Sunkus Smugis"
+    description = "Pataikykite 25 sunkiu smugiu kalaviju (virs 8 zalos)"
+
+[advancement.challenge_sword_heavy_250]
+    title = "Niokojantis Smugis"
+    description = "Pataikykite 250 sunkiu smugiu kalaviju (virs 8 zalos)"
+
+# Taming - New Achievement Chains
+[advancement.challenge_pet_dmg_500]
+    title = "Zveriu Dresuotojas"
+    description = "Jusu augintiniu bendrai padaryta 500 zalos"
+
+[advancement.challenge_pet_dmg_5k]
+    title = "Karo Vadovas"
+    description = "Jusu augintiniu bendrai padaryta 5,000 zalos"
+
+[advancement.challenge_tamed_10]
+    title = "Gyvunu Draugas"
+    description = "Prisijaukinkite 10 gyvunu"
+
+[advancement.challenge_tamed_100]
+    title = "Zoologijos Sodo Priziuretojas"
+    description = "Prisijaukinkite 100 gyvunu"
+
+[advancement.challenge_pet_kills_25]
+    title = "Bandos Taktika"
+    description = "Jusu augintiniai uzmusé 25 padarus"
+
+[advancement.challenge_pet_kills_250]
+    title = "Alfos Vadas"
+    description = "Jusu augintiniai uzmusé 250 padaru"
+
+[advancement.challenge_taming_2500]
+    title = "Veisimo Ekspertas"
+    description = "Paveiskite 2,500 gyvunu"
+
+[advancement.challenge_taming_25k]
+    title = "Genetikos Meistras"
+    description = "Paveiskite 25,000 gyvunu"
+
+# TragOul - New Achievement Chains
+[advancement.challenge_trag_hits_500]
+    title = "Musimo Maisas"
+    description = "Gaukite 500 smugiu"
+
+[advancement.challenge_trag_hits_5k]
+    title = "Kanciniu Megejas"
+    description = "Gaukite 5,000 smugiu"
+
+[advancement.challenge_trag_deaths_10]
+    title = "Devyni Gyvenimai"
+    description = "Mirkite 10 kartu"
+
+[advancement.challenge_trag_deaths_100]
+    title = "Pasikartojantis Kosmeras"
+    description = "Mirkite 100 kartu"
+
+[advancement.challenge_trag_fire_500]
+    title = "Ugnis Auka"
+    description = "Isgyvenkit 500 ugnies zalos"
+
+[advancement.challenge_trag_fire_5k]
+    title = "Feniksas"
+    description = "Isgyvenkit 5,000 ugnies zalos"
+
+[advancement.challenge_trag_fall_500]
+    title = "Gravitacijos Patikrinimas"
+    description = "Isgyvenkit 500 kritimo zalos"
+
+[advancement.challenge_trag_fall_5k]
+    title = "Galutinis Greitis"
+    description = "Isgyvenkit 5,000 kritimo zalos"
+
+# Unarmed - New Achievement Chains
+[advancement.challenge_unarmed_dmg_1k]
+    title = "Mustynes"
+    description = "Padarykite 1,000 zalos plikemis rankomis"
+
+[advancement.challenge_unarmed_dmg_10k]
+    title = "Koviniu Menu Meistras"
+    description = "Padarykite 10,000 zalos plikemis rankomis"
+
+[advancement.challenge_unarmed_kills_25]
+    title = "Plikos Kumstys"
+    description = "Uzmuskit 25 butybes plikemis rankomis"
+
+[advancement.challenge_unarmed_kills_250]
+    title = "Legendos Kumstis"
+    description = "Uzmuskit 250 butybes plikemis rankomis"
+
+[advancement.challenge_unarmed_crit_25]
+    title = "Kritinis Smugis Kumstimi"
+    description = "Pataikykite 25 kritiniu smugiu plikemis rankomis"
+
+[advancement.challenge_unarmed_crit_250]
+    title = "Tiksli Kumstis"
+    description = "Pataikykite 250 kritiniu smugiu plikemis rankomis"
+
+[advancement.challenge_unarmed_heavy_25]
+    title = "Galingas Smugis"
+    description = "Pataikykite 25 sunkiu smugiu plikemis rankomis (virs 6 zalos)"
+
+[advancement.challenge_unarmed_heavy_250]
+    title = "Nokautu Karalius"
+    description = "Pataikykite 250 sunkiu smugiu plikemis rankomis (virs 6 zalos)"
+
 # items
 [items]
 

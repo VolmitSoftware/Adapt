@@ -37,6 +37,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -104,6 +105,87 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_50k").goal(50000).stat("blocked.hits").reward(getConfig().challengeBlock5kReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_500k").goal(500000).stat("blocked.hits").reward(getConfig().challengeBlock5kReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_5m").goal(5000000).stat("blocked.hits").reward(getConfig().challengeBlock5kReward).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_CHESTPLATE).key("challenge_block_dmg_1k")
+                .title(Localizer.dLocalize("advancement.challenge_block_dmg_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_block_dmg_1k.description"))
+                .model(CustomModel.get(Material.IRON_CHESTPLATE, "advancement", "blocking", "challenge_block_dmg_1k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHERITE_CHESTPLATE)
+                        .key("challenge_block_dmg_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_block_dmg_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_block_dmg_10k.description"))
+                        .model(CustomModel.get(Material.NETHERITE_CHESTPLATE, "advancement", "blocking", "challenge_block_dmg_10k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_dmg_1k").goal(1000).stat("blocked.damage").reward(getConfig().challengeBlock1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_dmg_10k").goal(10000).stat("blocked.damage").reward(getConfig().challengeBlock5kReward).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ARROW).key("challenge_block_proj_100")
+                .title(Localizer.dLocalize("advancement.challenge_block_proj_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_block_proj_100.description"))
+                .model(CustomModel.get(Material.ARROW, "advancement", "blocking", "challenge_block_proj_100"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.SPECTRAL_ARROW)
+                        .key("challenge_block_proj_1k")
+                        .title(Localizer.dLocalize("advancement.challenge_block_proj_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_block_proj_1k.description"))
+                        .model(CustomModel.get(Material.SPECTRAL_ARROW, "advancement", "blocking", "challenge_block_proj_1k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_proj_100").goal(100).stat("blocked.projectiles").reward(getConfig().challengeBlock1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_proj_1k").goal(1000).stat("blocked.projectiles").reward(getConfig().challengeBlock5kReward).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_SWORD).key("challenge_block_melee_500")
+                .title(Localizer.dLocalize("advancement.challenge_block_melee_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_block_melee_500.description"))
+                .model(CustomModel.get(Material.IRON_SWORD, "advancement", "blocking", "challenge_block_melee_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHERITE_SWORD)
+                        .key("challenge_block_melee_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_block_melee_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_block_melee_5k.description"))
+                        .model(CustomModel.get(Material.NETHERITE_SWORD, "advancement", "blocking", "challenge_block_melee_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_melee_500").goal(500).stat("blocked.melee").reward(getConfig().challengeBlock1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_melee_5k").goal(5000).stat("blocked.melee").reward(getConfig().challengeBlock5kReward).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DIAMOND_CHESTPLATE).key("challenge_block_heavy_50")
+                .title(Localizer.dLocalize("advancement.challenge_block_heavy_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_block_heavy_50.description"))
+                .model(CustomModel.get(Material.DIAMOND_CHESTPLATE, "advancement", "blocking", "challenge_block_heavy_50"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHERITE_CHESTPLATE)
+                        .key("challenge_block_heavy_500")
+                        .title(Localizer.dLocalize("advancement.challenge_block_heavy_500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_block_heavy_500.description"))
+                        .model(CustomModel.get(Material.NETHERITE_CHESTPLATE, "advancement", "blocking", "challenge_block_heavy_500"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_heavy_50").goal(50).stat("blocked.heavy").reward(getConfig().challengeBlock1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_block_heavy_500").goal(500).stat("blocked.heavy").reward(getConfig().challengeBlock5kReward).build());
+
         cooldowns = new HashMap<>();
     }
 
@@ -128,6 +210,14 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
                     AdaptPlayer adaptPlayer = getPlayer(p);
                     adaptPlayer.getData().addStat("blocked.hits", 1);
                     adaptPlayer.getData().addStat("blocked.damage", e.getDamage());
+                    if (e.getDamager() instanceof Projectile) {
+                        adaptPlayer.getData().addStat("blocked.projectiles", 1);
+                    } else {
+                        adaptPlayer.getData().addStat("blocked.melee", 1);
+                    }
+                    if (e.getDamage() > 5) {
+                        adaptPlayer.getData().addStat("blocked.heavy", 1);
+                    }
 
                     handleCooldown(p, () -> {
                         xp(p, getConfig().xpOnBlockedAttack);

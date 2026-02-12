@@ -50,10 +50,14 @@ public record CustomModel(Material material, int model, NamespacedKey modelKey) 
     }
 
     public static boolean reloadFromDisk() {
+        return reloadFromDisk(false);
+    }
+
+    public static boolean reloadFromDisk(boolean quiet) {
         if (updateChecker == null)
             updateChecker = new UpdateChecker();
 
-        return updateChecker.reloadFromDisk();
+        return updateChecker.reloadFromDisk(quiet);
     }
 
     private static class UpdateChecker {
@@ -75,15 +79,17 @@ public record CustomModel(Material material, int model, NamespacedKey modelKey) 
             }
         }
 
-        public boolean reloadFromDisk() {
+        public boolean reloadFromDisk(boolean quiet) {
             synchronized (lock) {
                 try {
                     readFile();
                     cache.clear();
                     return true;
                 } catch (IOException e) {
-                    Adapt.error("Failed to read models.toml");
-                    e.printStackTrace();
+                    if (!quiet) {
+                        Adapt.error("Failed to read models.toml");
+                        e.printStackTrace();
+                    }
                     return false;
                 }
             }
@@ -148,11 +154,6 @@ public record CustomModel(Material material, int model, NamespacedKey modelKey) 
                     }
 
                     json = parsed.getAsJsonObject();
-                    String canonical = ConfigFileSupport.serializeJsonElementToToml(parsed);
-                    if (!ConfigFileSupport.normalize(raw).equals(ConfigFileSupport.normalize(canonical))) {
-                        ConfigRewriteReporter.reportRewrite(modelsFile, "models-config", raw, canonical);
-                        IO.writeAll(modelsFile, canonical);
-                    }
                     ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
                     return;
                 }

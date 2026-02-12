@@ -457,6 +457,10 @@ public interface Adaptation<T> extends Ticked, Component {
     }
 
     default void openGui(Player player) {
+        openGui(player, 0);
+    }
+
+    default void openGui(Player player, int page) {
         if (!isEnabled()) {
             return;
         }
@@ -464,7 +468,8 @@ public interface Adaptation<T> extends Ticked, Component {
             return;
         }
         if (!Bukkit.isPrimaryThread()) {
-            J.s(() -> openGui(player));
+            int targetPage = page;
+            J.s(() -> openGui(player, targetPage));
             return;
         }
 
@@ -472,110 +477,119 @@ public interface Adaptation<T> extends Ticked, Component {
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
         spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
-        Window w = new UIWindow(player);
-        w.setTag("skill/" + getSkill().getName() + "/" + getName());
-        w.setDecorator((window, position, row) -> new UIElement("bg")
-                .setName(" ")
-                .setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE))
-                .setModel(CustomModel.get(Material.BLACK_STAINED_GLASS_PANE, "snippets", "gui", "background")));
-        w.setResolution(WindowResolution.W9_H6);
-        int o = 0;
 
-        if (getMaxLevel() == 1 || getMaxLevel() == 2) {
-            o = 4;
-        }
-
-        if (getMaxLevel() == 3 || getMaxLevel() == 4) {
-            o = 3;
-        }
-
-        if (getMaxLevel() == 5 || getMaxLevel() == 6) {
-            o = 2;
-        }
-
-        if (getMaxLevel() == 7 || getMaxLevel() == 8) {
-            o = 1;
-        }
+        boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
+        GuiLayout.PagePlan plan = GuiLayout.plan(getMaxLevel(), reserveNavigation);
+        int currentPage = GuiLayout.clampPage(page, plan.pageCount());
+        int start = currentPage * plan.itemsPerPage();
+        int end = Math.min(getMaxLevel(), start + plan.itemsPerPage());
 
         int mylevel = getPlayer(player).getSkillLine(getSkill().getName()).getAdaptationLevel(getName());
 
         long k = getPlayer(player).getData().getSkillLine(getSkill().getName()).getKnowledge();
-        for (int i = 1; i <= getMaxLevel(); i++) {
-            int pos = w.getPosition(i - 1 + o);
-            int row = 1;
-            int c = getCostFor(i, mylevel);
-            int rc = getRefundCostFor(i - 1, mylevel);
-            int pc = getPowerCostFor(i, mylevel);
-            int lvl = i;
-            Element de = new UIElement("lp-" + i + "g")
-                    .setMaterial(new MaterialBlock(getIcon()))
-                    .setModel(getModel(i))
-                    .setName(getDisplayName(i))
-                    .setEnchanted(mylevel >= lvl)
-                    .setProgress(1D)
-                    .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
-                    .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_cost") + " " + (AdaptConfig.get().isHardcoreNoRefunds() ? C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds") : "")))
-                    .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds")) : (isPermanent() ? "" : (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearn_refund") + " " + C.GREEN + rc + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_cost"))) : (k >= c ? (C.BLUE + Localizer.dLocalize("snippets.adapt_menu.click_learn") + " " + getDisplayName(i)) : (k == 0 ? (C.RED + Localizer.dLocalize("snippets.adapt_menu.no_knowledge")) : (C.RED + "(" + Localizer.dLocalize("snippets.adapt_menu.you_only_have") + " " + C.WHITE + k + C.RED + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_available") + ")"))))
-                    .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets.adapt_menu.power_drain") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets.adapt_menu.power_drain") : C.RED + Localizer.dLocalize("snippets.adapt_menu.not_enough_power") + "\n" + C.RED + Localizer.dLocalize("snippets.adapt_menu.how_to_level_up"))
-                    .addLore((isPermanent() ? C.RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn") : ""))
-                    .onLeftClick((e) -> {
-                        if (mylevel >= lvl) {
-                            unlearn(player, lvl, false);
-                            spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
-                            spw.play(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
-                            w.close();
-                            if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
-                                if (isPermanent()) {
-                                    spw.play(player.getLocation(), Sound.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
-                                    player.sendTitle(" ", C.RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn") + " " + getDisplayName(mylevel), 1, 10, 11);
-                                } else {
-                                    player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearned") + " " + getDisplayName(mylevel), 1, 10, 11);
-                                }
-                            }
-                            J.s(() -> openGui(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
-                            return;
-                        }
 
-                        if (k >= c && getPlayer(player).getData().hasPowerAvailable(pc)) {
-                            if (getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c)) {
-                                getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
-                                spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
-                                spw.play(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
-                                spw.play(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
-                                spw.play(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
-                                if (isPermanent()) {
-                                    spw.play(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.355f);
-                                    spw.play(player.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
-                                }
+        Window w = new UIWindow(player);
+        GuiTheme.apply(w, "skill/" + getSkill().getName() + "/" + getName());
+        w.setViewportHeight(plan.rows());
+
+        List<GuiEffects.Placement> reveal = new ArrayList<>();
+        for (int row = 0; row < plan.contentRows(); row++) {
+            int rowStart = start + (row * GuiLayout.WIDTH);
+            if (rowStart >= end) {
+                break;
+            }
+
+            int rowCount = Math.min(GuiLayout.WIDTH, end - rowStart);
+            for (int i = 0; i < rowCount; i++) {
+                int lvl = rowStart + i + 1;
+                int pos = GuiLayout.centeredPosition(i, rowCount);
+                int c = getCostFor(lvl, mylevel);
+                int rc = getRefundCostFor(lvl - 1, mylevel);
+                int pc = getPowerCostFor(lvl, mylevel);
+                Element de = new UIElement("lp-" + lvl + "g")
+                        .setMaterial(new MaterialBlock(getIcon()))
+                        .setModel(getModel(lvl))
+                        .setName(getDisplayName(lvl))
+                        .setEnchanted(mylevel >= lvl)
+                        .setProgress(1D)
+                        .addLore(Form.wrapWordsPrefixed(getDescription(), "" + C.GRAY, 40))
+                        .addLore(mylevel >= lvl ? ("") : ("" + C.WHITE + c + C.GRAY + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_cost") + " " + (AdaptConfig.get().isHardcoreNoRefunds() ? C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds") : "")))
+                        .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds")) : (isPermanent() ? "" : (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearn_refund") + " " + C.GREEN + rc + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_cost"))) : (k >= c ? (C.BLUE + Localizer.dLocalize("snippets.adapt_menu.click_learn") + " " + getDisplayName(lvl)) : (k == 0 ? (C.RED + Localizer.dLocalize("snippets.adapt_menu.no_knowledge")) : (C.RED + "(" + Localizer.dLocalize("snippets.adapt_menu.you_only_have") + " " + C.WHITE + k + C.RED + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_available") + ")"))))
+                        .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets.adapt_menu.power_drain") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets.adapt_menu.power_drain") : C.RED + Localizer.dLocalize("snippets.adapt_menu.not_enough_power") + "\n" + C.RED + Localizer.dLocalize("snippets.adapt_menu.how_to_level_up"))
+                        .addLore((isPermanent() ? C.RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn") : ""))
+                        .onLeftClick((e) -> {
+                            if (mylevel >= lvl) {
+                                unlearn(player, lvl, false);
+                                spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
+                                spw.play(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
                                 w.close();
                                 if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
-                                    player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.learned") + " " + getDisplayName(lvl), 1, 5, 11);
+                                    if (isPermanent()) {
+                                        spw.play(player.getLocation(), Sound.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
+                                        player.sendTitle(" ", C.RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn") + " " + getDisplayName(mylevel), 1, 10, 11);
+                                    } else {
+                                        player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearned") + " " + getDisplayName(mylevel), 1, 10, 11);
+                                    }
                                 }
-                                J.s(() -> openGui(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
+                                J.s(() -> openGui(player, currentPage), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
+                                return;
+                            }
+
+                            if (k >= c && getPlayer(player).getData().hasPowerAvailable(pc)) {
+                                if (getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c)) {
+                                    getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
+                                    spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
+                                    spw.play(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
+                                    spw.play(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
+                                    spw.play(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
+                                    if (isPermanent()) {
+                                        spw.play(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.355f);
+                                        spw.play(player.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
+                                    }
+                                    w.close();
+                                    if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
+                                        player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.adapt_menu.learned") + " " + getDisplayName(lvl), 1, 5, 11);
+                                    }
+                                    J.s(() -> openGui(player, currentPage), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
+                                } else {
+                                    spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+                                }
                             } else {
                                 spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
                             }
-                        } else {
-                            spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
-                        }
-                    });
-            de.addLore(" ");
-            addStats(lvl, de);
-            w.setElement(pos, row, de);
+                        });
+                de.addLore(" ");
+                addStats(lvl, de);
+                reveal.add(new GuiEffects.Placement(pos, row, de));
+            }
         }
+        GuiEffects.applyReveal(w, reveal);
 
-        if (AdaptConfig.get().isGuiBackButton()) {
-            int backPos = w.getResolution().getWidth() - 1;
-            int backRow = w.getViewportHeight() - 1;
-            w.setElement(backPos, backRow, new UIElement("back")
-                    .setMaterial(new MaterialBlock(Material.RED_BED))
-                    .setModel(CustomModel.get(Material.RED_BED, "snippets", "gui", "back"))
-                    .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
-                    .onLeftClick((e) -> onGuiClose(player, true)));
+        if (plan.hasNavigationRow()) {
+            int navRow = plan.rows() - 1;
+            if (currentPage > 0) {
+                w.setElement(-4, navRow, new UIElement("adapt-prev")
+                        .setMaterial(new MaterialBlock(Material.ARROW))
+                        .setName(C.WHITE + "Previous")
+                        .onLeftClick((e) -> openGui(player, currentPage - 1)));
+            }
+            if (currentPage < plan.pageCount() - 1) {
+                w.setElement(4, navRow, new UIElement("adapt-next")
+                        .setMaterial(new MaterialBlock(Material.ARROW))
+                        .setName(C.WHITE + "Next")
+                        .onLeftClick((e) -> openGui(player, currentPage + 1)));
+            }
+            if (AdaptConfig.get().isGuiBackButton()) {
+                w.setElement(0, navRow, new UIElement("back")
+                        .setMaterial(new MaterialBlock(Material.ARROW))
+                        .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
+                        .onLeftClick((e) -> onGuiClose(player, true)));
+            }
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle(getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge"));
+        String pageSuffix = plan.pageCount() > 1 ? " [" + (currentPage + 1) + "/" + plan.pageCount() + "]" : "";
+        w.setTitle(getDisplayName() + " " + C.DARK_GRAY + " " + Form.f(a.getSkillLine(getSkill().getName()).getKnowledge()) + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge") + pageSuffix);
         w.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
         w.open();
         Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);

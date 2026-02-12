@@ -47,6 +47,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.HashMap;
@@ -98,6 +99,94 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_1k").goal(1000).stat("trag.damage").reward(getConfig().challengeTragReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_10k").goal(10000).stat("trag.damage").reward(getConfig().challengeTragReward * 2).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_100k").goal(100000).stat("trag.damage").reward(getConfig().challengeTragReward * 5).build());
+
+        // Chain 2 - Hits Received
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ROTTEN_FLESH)
+                .key("challenge_trag_hits_500")
+                .title(Localizer.dLocalize("advancement.challenge_trag_hits_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_trag_hits_500.description"))
+                .model(CustomModel.get(Material.ROTTEN_FLESH, "advancement", "tragoul", "challenge_trag_hits_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BONE)
+                        .key("challenge_trag_hits_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_trag_hits_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_trag_hits_5k.description"))
+                        .model(CustomModel.get(Material.BONE, "advancement", "tragoul", "challenge_trag_hits_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_hits_500").goal(500).stat("trag.hitsrecieved").reward(getConfig().challengeTragReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_hits_5k").goal(5000).stat("trag.hitsrecieved").reward(getConfig().challengeTragReward).build());
+
+        // Chain 3 - Deaths
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SKELETON_SKULL)
+                .key("challenge_trag_deaths_10")
+                .title(Localizer.dLocalize("advancement.challenge_trag_deaths_10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_trag_deaths_10.description"))
+                .model(CustomModel.get(Material.SKELETON_SKULL, "advancement", "tragoul", "challenge_trag_deaths_10"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.WITHER_SKELETON_SKULL)
+                        .key("challenge_trag_deaths_100")
+                        .title(Localizer.dLocalize("advancement.challenge_trag_deaths_100.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_trag_deaths_100.description"))
+                        .model(CustomModel.get(Material.WITHER_SKELETON_SKULL, "advancement", "tragoul", "challenge_trag_deaths_100"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_deaths_10").goal(10).stat("trag.deaths").reward(getConfig().challengeTragReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_deaths_100").goal(100).stat("trag.deaths").reward(getConfig().challengeTragReward).build());
+
+        // Chain 4 - Fire Damage
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BLAZE_POWDER)
+                .key("challenge_trag_fire_500")
+                .title(Localizer.dLocalize("advancement.challenge_trag_fire_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_trag_fire_500.description"))
+                .model(CustomModel.get(Material.BLAZE_POWDER, "advancement", "tragoul", "challenge_trag_fire_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.MAGMA_CREAM)
+                        .key("challenge_trag_fire_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_trag_fire_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_trag_fire_5k.description"))
+                        .model(CustomModel.get(Material.MAGMA_CREAM, "advancement", "tragoul", "challenge_trag_fire_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_fire_500").goal(500).stat("trag.fire.damage").reward(getConfig().challengeTragReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_fire_5k").goal(5000).stat("trag.fire.damage").reward(getConfig().challengeTragReward).build());
+
+        // Chain 5 - Fall Damage
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.FEATHER)
+                .key("challenge_trag_fall_500")
+                .title(Localizer.dLocalize("advancement.challenge_trag_fall_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_trag_fall_500.description"))
+                .model(CustomModel.get(Material.FEATHER, "advancement", "tragoul", "challenge_trag_fall_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.HAY_BLOCK)
+                        .key("challenge_trag_fall_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_trag_fall_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_trag_fall_5k.description"))
+                        .model(CustomModel.get(Material.HAY_BLOCK, "advancement", "tragoul", "challenge_trag_fall_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_fall_500").goal(500).stat("trag.fall.damage").reward(getConfig().challengeTragReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_trag_fall_5k").goal(5000).stat("trag.fall.damage").reward(getConfig().challengeTragReward).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -132,6 +221,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         Player p = e.getEntity();
         shouldReturnForPlayer(p, () -> {
             AdaptPlayer a = getPlayer(p);
+            a.getData().addStat("trag.deaths", 1);
             if (AdaptConfig.get().isHardcoreResetOnPlayerDeath()) {
                 Adapt.info("Resetting " + p.getName() + "'s skills due to death");
                 a.delete(p.getUniqueId());
@@ -171,6 +261,26 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
 
                     recalcTotalExp(p);
                 }
+            }
+        });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(EntityDamageEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!(e.getEntity() instanceof Player p)) {
+            return;
+        }
+        shouldReturnForPlayer(p, e, () -> {
+            EntityDamageEvent.DamageCause cause = e.getCause();
+            if (cause == EntityDamageEvent.DamageCause.FALL) {
+                getPlayer(p).getData().addStat("trag.fall.damage", e.getDamage());
+            } else if (cause == EntityDamageEvent.DamageCause.FIRE
+                    || cause == EntityDamageEvent.DamageCause.FIRE_TICK
+                    || cause == EntityDamageEvent.DamageCause.LAVA) {
+                getPlayer(p).getData().addStat("trag.fire.damage", e.getDamage());
             }
         });
     }

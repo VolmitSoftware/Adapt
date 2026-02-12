@@ -8,12 +8,14 @@ import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.api.world.PlayerData;
+import com.volmit.adapt.content.gui.ConfigGui;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.item.ExperienceOrb;
 import com.volmit.adapt.content.item.KnowledgeOrb;
 import com.volmit.adapt.util.command.FConst;
 import com.volmit.adapt.util.config.ConfigMigrationManager;
 import com.volmit.adapt.util.decree.DecreeExecutor;
+import com.volmit.adapt.util.decree.DecreeOrigin;
 import com.volmit.adapt.util.decree.annotations.Decree;
 import com.volmit.adapt.util.decree.annotations.Param;
 import com.volmit.adapt.util.decree.context.AdaptationListingHandler;
@@ -131,6 +133,16 @@ public class CommandAdapt implements DecreeExecutor {
                 }
             }
         }
+    }
+
+    @Decree(name = "config", aliases = {"cfg"}, origin = DecreeOrigin.PLAYER, description = "Open the in-game Adapt config editor")
+    public void config() {
+        if (!sender().hasPermission("adapt.config")) {
+            FConst.error("You lack the Permission 'adapt.config'").send(sender());
+            return;
+        }
+
+        ConfigGui.open(player());
     }
 
     @Decree(description = "Give yourself an experience orb")

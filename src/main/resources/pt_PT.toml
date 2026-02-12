@@ -373,6 +373,716 @@
     title = "Mestre das Feras"
     description = "Crie 500 animais"
 
+# Agility - New Achievement Chains
+[advancement.challenge_sprint_dist_5k]
+    title = "Demonio da Velocidade"
+    description = "Correr mais de 5 Quilometros (5,000 blocos)"
+
+[advancement.challenge_sprint_dist_50k]
+    title = "Pernas Relampago"
+    description = "Correr mais de 50 Quilometros (50,000 blocos)"
+
+[advancement.challenge_agility_swim_1k]
+    title = "Caminhante das Aguas"
+    description = "Nadar mais de 1 Quilometro (1,000 blocos)"
+
+[advancement.challenge_agility_swim_10k]
+    title = "Viajante Aquatico"
+    description = "Nadar mais de 10 Quilometros (10,000 blocos)"
+
+[advancement.challenge_fly_1k]
+    title = "Dancarino Celeste"
+    description = "Voar mais de 1 Quilometro (1,000 blocos)"
+
+[advancement.challenge_fly_10k]
+    title = "Cavaleiro do Vento"
+    description = "Voar mais de 10 Quilometros (10,000 blocos)"
+
+[advancement.challenge_agility_sneak_500]
+    title = "Passos Silenciosos"
+    description = "Agachar-se por mais de 500 blocos"
+
+[advancement.challenge_agility_sneak_5k]
+    title = "Passos Fantasma"
+    description = "Agachar-se por mais de 5 Quilometros (5,000 blocos)"
+
+# Architect - New Achievement Chains
+[advancement.challenge_demolish_500]
+    title = "Equipa de Demolicao"
+    description = "Destruir 500 blocos"
+
+[advancement.challenge_demolish_5k]
+    title = "Bola de Demolicao"
+    description = "Destruir 5,000 blocos"
+
+[advancement.challenge_value_placed_10k]
+    title = "Construtor Valioso"
+    description = "Colocar blocos no valor de 10,000"
+
+[advancement.challenge_value_placed_100k]
+    title = "Mestre Arquiteto"
+    description = "Colocar blocos no valor de 100,000"
+
+[advancement.challenge_demolish_val_5k]
+    title = "Especialista em Salvamento"
+    description = "Recuperar 5,000 de valor em demolicao"
+
+[advancement.challenge_demolish_val_50k]
+    title = "Desconstrucao Total"
+    description = "Recuperar 50,000 de valor em demolicao"
+
+[advancement.challenge_high_build_100]
+    title = "Construtor Celeste"
+    description = "Colocar 100 blocos acima de Y=128"
+
+[advancement.challenge_high_build_1k]
+    title = "Arquiteto das Nuvens"
+    description = "Colocar 1,000 blocos acima de Y=128"
+
+# Axes - New Achievement Chains
+[advancement.challenge_axe_swing_500]
+    title = "Lenhador"
+    description = "Balancear o machado 500 vezes"
+
+[advancement.challenge_axe_swing_5k]
+    title = "Berserker"
+    description = "Balancear o machado 5,000 vezes"
+
+[advancement.challenge_axe_damage_1k]
+    title = "Cortador"
+    description = "Causar 1,000 de dano com machados"
+
+[advancement.challenge_axe_damage_10k]
+    title = "Machado do Carrasco"
+    description = "Causar 10,000 de dano com machados"
+
+[advancement.challenge_axe_value_5k]
+    title = "Comerciante de Madeira"
+    description = "Colher 5,000 de valor em madeira"
+
+[advancement.challenge_axe_value_50k]
+    title = "Barao da Madeira"
+    description = "Colher 50,000 de valor em madeira"
+
+[advancement.challenge_leaves_500]
+    title = "Soprador de Folhas"
+    description = "Limpar 500 blocos de folhas com um machado"
+
+[advancement.challenge_leaves_5k]
+    title = "Desfolhador"
+    description = "Limpar 5,000 blocos de folhas com um machado"
+
+# Blocking - New Achievement Chains
+[advancement.challenge_block_dmg_1k]
+    title = "Absorvedor de Dano"
+    description = "Bloquear 1,000 de dano com um escudo"
+
+[advancement.challenge_block_dmg_10k]
+    title = "Escudo Humano"
+    description = "Bloquear 10,000 de dano com um escudo"
+
+[advancement.challenge_block_proj_100]
+    title = "Deflector de Flechas"
+    description = "Bloquear 100 projeteis com um escudo"
+
+[advancement.challenge_block_proj_1k]
+    title = "Escudo Anti-Projeteis"
+    description = "Bloquear 1,000 projeteis com um escudo"
+
+[advancement.challenge_block_melee_500]
+    title = "Mestre da Defesa"
+    description = "Bloquear 500 ataques corpo a corpo com um escudo"
+
+[advancement.challenge_block_melee_5k]
+    title = "Fortaleza de Ferro"
+    description = "Bloquear 5,000 ataques corpo a corpo com um escudo"
+
+[advancement.challenge_block_heavy_50]
+    title = "Tanque"
+    description = "Bloquear 50 ataques pesados (mais de 5 de dano)"
+
+[advancement.challenge_block_heavy_500]
+    title = "Objeto Imovel"
+    description = "Bloquear 500 ataques pesados (mais de 5 de dano)"
+
+# Brewing - New Achievement Chains
+[advancement.challenge_brew_stands_10]
+    title = "Preparacao do Alquimista"
+    description = "Colocar 10 suportes de pocoes"
+
+[advancement.challenge_brew_stands_50]
+    title = "Fabrica de Pocoes"
+    description = "Colocar 50 suportes de pocoes"
+
+[advancement.challenge_brew_strong_25]
+    title = "Pocao Forte"
+    description = "Consumir 25 pocoes melhoradas"
+
+[advancement.challenge_brew_strong_250]
+    title = "Potencia Maxima"
+    description = "Consumir 250 pocoes melhoradas"
+
+[advancement.challenge_brew_splash_hits_50]
+    title = "Zona de Impacto"
+    description = "Acertar 50 entidades com pocoes de arremesso"
+
+[advancement.challenge_brew_splash_hits_500]
+    title = "Medico da Peste"
+    description = "Acertar 500 entidades com pocoes de arremesso"
+
+# Chronos - New Achievement Chains
+[advancement.challenge_active_dist_1k]
+    title = "Inquieto"
+    description = "Viajar 1 Quilometro enquanto ativo"
+
+[advancement.challenge_active_dist_10k]
+    title = "Desbravador"
+    description = "Viajar 10 Quilometros enquanto ativo"
+
+[advancement.challenge_active_dist_100k]
+    title = "Movimento Perpetuo"
+    description = "Viajar 100 Quilometros enquanto ativo"
+
+[advancement.challenge_beds_10]
+    title = "Madrugador"
+    description = "Dormir numa cama 10 vezes"
+
+[advancement.challenge_beds_100]
+    title = "Saltador do Tempo"
+    description = "Dormir numa cama 100 vezes"
+
+[advancement.challenge_chronos_tp_50]
+    title = "Mudanca Temporal"
+    description = "Teletransportar-se 50 vezes"
+
+[advancement.challenge_chronos_tp_500]
+    title = "Distorcao Temporal"
+    description = "Teletransportar-se 500 vezes"
+
+[advancement.challenge_chronos_deaths_10]
+    title = "Mortal"
+    description = "Morrer 10 vezes"
+
+[advancement.challenge_chronos_deaths_100]
+    title = "Desafiador da Morte"
+    description = "Morrer 100 vezes"
+
+# Crafting - New Achievement Chains
+[advancement.challenge_craft_value_10k]
+    title = "Valor Artesanal"
+    description = "Fabricar itens no valor total de 10,000"
+
+[advancement.challenge_craft_value_100k]
+    title = "Artesao"
+    description = "Fabricar itens no valor total de 100,000"
+
+[advancement.challenge_craft_tools_25]
+    title = "Ferreiro de Ferramentas"
+    description = "Fabricar 25 ferramentas"
+
+[advancement.challenge_craft_tools_250]
+    title = "Mestre Forjador"
+    description = "Fabricar 250 ferramentas"
+
+[advancement.challenge_craft_armor_25]
+    title = "Ferreiro de Armaduras"
+    description = "Fabricar 25 pecas de armadura"
+
+[advancement.challenge_craft_armor_250]
+    title = "Mestre Armeiro"
+    description = "Fabricar 250 pecas de armadura"
+
+[advancement.challenge_craft_mass_25k]
+    title = "Producao em Massa"
+    description = "Fabricar 25,000 itens"
+
+[advancement.challenge_craft_mass_250k]
+    title = "Revolucao Industrial"
+    description = "Fabricar 250,000 itens"
+
+# Discovery - New Achievement Chains
+[advancement.challenge_discover_items_50]
+    title = "Colecionador"
+    description = "Descobrir 50 itens unicos"
+
+[advancement.challenge_discover_items_250]
+    title = "Catalogador"
+    description = "Descobrir 250 itens unicos"
+
+[advancement.challenge_discover_blocks_50]
+    title = "Topografo"
+    description = "Descobrir 50 blocos unicos"
+
+[advancement.challenge_discover_blocks_250]
+    title = "Geologo"
+    description = "Descobrir 250 blocos unicos"
+
+[advancement.challenge_discover_mobs_25]
+    title = "Observador"
+    description = "Descobrir 25 mobs unicos"
+
+[advancement.challenge_discover_mobs_75]
+    title = "Naturalista"
+    description = "Descobrir 75 mobs unicos"
+
+[advancement.challenge_discover_biomes_10]
+    title = "Andarilho"
+    description = "Descobrir 10 biomas unicos"
+
+[advancement.challenge_discover_biomes_40]
+    title = "Viajante do Mundo"
+    description = "Descobrir 40 biomas unicos"
+
+[advancement.challenge_discover_foods_10]
+    title = "Gastronomista"
+    description = "Descobrir 10 alimentos unicos"
+
+[advancement.challenge_discover_foods_30]
+    title = "Mestre Culinario"
+    description = "Descobrir 30 alimentos unicos"
+
+# Enchanting - New Achievement Chains
+[advancement.challenge_enchant_power_100]
+    title = "Tecelao de Poder"
+    description = "Acumular 100 de poder de encantamento"
+
+[advancement.challenge_enchant_power_1k]
+    title = "Mestre Arcano"
+    description = "Acumular 1,000 de poder de encantamento"
+
+[advancement.challenge_enchant_levels_1k]
+    title = "Gastador de Niveis"
+    description = "Gastar 1,000 niveis de experiencia em encantamentos"
+
+[advancement.challenge_enchant_levels_10k]
+    title = "Poco de Experiencia"
+    description = "Gastar 10,000 niveis de experiencia em encantamentos"
+
+[advancement.challenge_enchant_high_25]
+    title = "Alto Risco"
+    description = "Realizar 25 encantamentos de nivel maximo"
+
+[advancement.challenge_enchant_high_250]
+    title = "Encantador Lendario"
+    description = "Realizar 250 encantamentos de nivel maximo"
+
+[advancement.challenge_enchant_total_500]
+    title = "Queimador de Niveis"
+    description = "Gastar 500 niveis totais em todos os encantamentos"
+
+[advancement.challenge_enchant_total_5k]
+    title = "Investimento Arcano"
+    description = "Gastar 5,000 niveis totais em todos os encantamentos"
+
+# Excavation - New Achievement Chains
+[advancement.challenge_dig_swing_500]
+    title = "Escavador"
+    description = "Balancear a pa 500 vezes"
+
+[advancement.challenge_dig_swing_5k]
+    title = "Escavadeira"
+    description = "Balancear a pa 5,000 vezes"
+
+[advancement.challenge_dig_damage_1k]
+    title = "Cavaleiro da Pa"
+    description = "Causar 1,000 de dano com uma pa"
+
+[advancement.challenge_dig_damage_10k]
+    title = "Mestre da Pa"
+    description = "Causar 10,000 de dano com uma pa"
+
+[advancement.challenge_dig_value_5k]
+    title = "Comerciante de Terra"
+    description = "Escavar 5,000 de valor em blocos"
+
+[advancement.challenge_dig_value_50k]
+    title = "Barao da Terra"
+    description = "Escavar 50,000 de valor em blocos"
+
+[advancement.challenge_dig_gravel_500]
+    title = "Triturador de Cascalho"
+    description = "Cavar 500 blocos de cascalho, areia ou argila"
+
+[advancement.challenge_dig_gravel_5k]
+    title = "Peneirador de Areia"
+    description = "Cavar 5,000 blocos de cascalho, areia ou argila"
+
+# Herbalism - New Achievement Chains
+[advancement.challenge_plant_100]
+    title = "Semeador"
+    description = "Plantar 100 cultivos"
+
+[advancement.challenge_plant_1k]
+    title = "Mao Verde"
+    description = "Plantar 1,000 cultivos"
+
+[advancement.challenge_plant_5k]
+    title = "Barao Agricola"
+    description = "Plantar 5,000 cultivos"
+
+[advancement.challenge_compost_50]
+    title = "Reciclador"
+    description = "Compostar 50 itens"
+
+[advancement.challenge_compost_500]
+    title = "Enriquecedor de Solo"
+    description = "Compostar 500 itens"
+
+[advancement.challenge_shear_50]
+    title = "Tosquiador"
+    description = "Tosquiar 50 entidades"
+
+[advancement.challenge_shear_250]
+    title = "Mestre do Rebanho"
+    description = "Tosquiar 250 entidades"
+
+# Hunter - New Achievement Chains
+[advancement.challenge_kills_500]
+    title = "Cacador"
+    description = "Abater 500 criaturas"
+
+[advancement.challenge_kills_5k]
+    title = "Carrasco"
+    description = "Abater 5,000 criaturas"
+
+[advancement.challenge_boss_1]
+    title = "Desafiador de Chefes"
+    description = "Abater um mob chefe"
+
+[advancement.challenge_boss_10]
+    title = "Matador de Lendas"
+    description = "Abater 10 mobs chefes"
+
+# Nether - New Achievement Chains
+[advancement.challenge_wither_dmg_500]
+    title = "Murcho"
+    description = "Suportar 500 de dano de wither"
+
+[advancement.challenge_wither_dmg_5k]
+    title = "Sobrevivente da Praga"
+    description = "Suportar 5,000 de dano de wither"
+
+[advancement.challenge_wither_skel_25]
+    title = "Colecionador de Ossos"
+    description = "Abater 25 wither skeletons"
+
+[advancement.challenge_wither_skel_250]
+    title = "Flagelo dos Esqueletos"
+    description = "Abater 250 wither skeletons"
+
+[advancement.challenge_wither_boss_1]
+    title = "Destruidor do Wither"
+    description = "Derrotar o Wither"
+
+[advancement.challenge_wither_boss_10]
+    title = "Dominador do Nether"
+    description = "Derrotar o Wither 10 vezes"
+
+[advancement.challenge_roses_10]
+    title = "Jardineiro da Morte"
+    description = "Partir 10 rosas do wither"
+
+[advancement.challenge_roses_100]
+    title = "Colecionador da Praga"
+    description = "Partir 100 rosas do wither"
+
+# Pickaxes - New Achievement Chains
+[advancement.challenge_pick_swing_500]
+    title = "Braco de Mineiro"
+    description = "Balancear a picareta 500 vezes"
+
+[advancement.challenge_pick_swing_5k]
+    title = "Abridor de Tuneis"
+    description = "Balancear a picareta 5,000 vezes"
+
+[advancement.challenge_pick_damage_1k]
+    title = "Lutador de Picareta"
+    description = "Causar 1,000 de dano com uma picareta"
+
+[advancement.challenge_pick_damage_10k]
+    title = "Picareta de Guerra"
+    description = "Causar 10,000 de dano com uma picareta"
+
+[advancement.challenge_pick_value_5k]
+    title = "Descobridor de Gemas"
+    description = "Minerar 5,000 de valor em blocos"
+
+[advancement.challenge_pick_value_50k]
+    title = "Barao dos Minerios"
+    description = "Minerar 50,000 de valor em blocos"
+
+[advancement.challenge_pick_ores_500]
+    title = "Garimpeiro"
+    description = "Minerar 500 blocos de minerio"
+
+[advancement.challenge_pick_ores_5k]
+    title = "Mestre Mineiro"
+    description = "Minerar 5,000 blocos de minerio"
+
+# Ranged - New Achievement Chains
+[advancement.challenge_ranged_dmg_1k]
+    title = "Atirador Certeiro"
+    description = "Causar 1,000 de dano a distancia"
+
+[advancement.challenge_ranged_dmg_10k]
+    title = "Arqueiro Letal"
+    description = "Causar 10,000 de dano a distancia"
+
+[advancement.challenge_ranged_dist_5k]
+    title = "Longo Alcance"
+    description = "Disparar projeteis cobrindo 5,000 blocos de distancia total"
+
+[advancement.challenge_ranged_dist_50k]
+    title = "Atirador Quilometrico"
+    description = "Disparar projeteis cobrindo 50,000 blocos de distancia total"
+
+[advancement.challenge_ranged_kills_50]
+    title = "Arqueiro"
+    description = "Matar 50 mobs com armas de longo alcance"
+
+[advancement.challenge_ranged_kills_500]
+    title = "Mestre Arqueiro"
+    description = "Matar 500 mobs com armas de longo alcance"
+
+[advancement.challenge_longshot_25]
+    title = "Franco-atirador"
+    description = "Acertar 25 tiros de longa distancia (mais de 30 blocos)"
+
+[advancement.challenge_longshot_250]
+    title = "Olho de Aguia"
+    description = "Acertar 250 tiros de longa distancia (mais de 30 blocos)"
+
+# Rift - New Achievement Chains
+[advancement.challenge_rift_pearls_50]
+    title = "Lancador de Perolas"
+    description = "Lancar 50 perolas do ender"
+
+[advancement.challenge_rift_pearls_500]
+    title = "Viciado em Teletransporte"
+    description = "Lancar 500 perolas do ender"
+
+[advancement.challenge_rift_enderman_50]
+    title = "Cacador de Endermen"
+    description = "Abater 50 endermen"
+
+[advancement.challenge_rift_enderman_500]
+    title = "Perseguidor do Vazio"
+    description = "Abater 500 endermen"
+
+[advancement.challenge_rift_dragon_500]
+    title = "Lutador de Dragoes"
+    description = "Causar 500 de dano ao Ender Dragon"
+
+[advancement.challenge_rift_dragon_5k]
+    title = "Flagelo dos Dragoes"
+    description = "Causar 5,000 de dano ao Ender Dragon"
+
+[advancement.challenge_rift_crystal_10]
+    title = "Quebrador de Cristais"
+    description = "Destruir 10 cristais do end"
+
+[advancement.challenge_rift_crystal_100]
+    title = "Demolidor do End"
+    description = "Destruir 100 cristais do end"
+
+# Seaborne - New Achievement Chains
+[advancement.challenge_fish_25]
+    title = "Pescador"
+    description = "Pescar 25 peixes"
+
+[advancement.challenge_fish_250]
+    title = "Mestre Pescador"
+    description = "Pescar 250 peixes"
+
+[advancement.challenge_drowned_25]
+    title = "Cacador de Afogados"
+    description = "Abater 25 afogados"
+
+[advancement.challenge_drowned_250]
+    title = "Purificador do Oceano"
+    description = "Abater 250 afogados"
+
+[advancement.challenge_guardian_10]
+    title = "Destruidor de Guardioes"
+    description = "Abater 10 guardioes"
+
+[advancement.challenge_guardian_100]
+    title = "Saqueador de Templos"
+    description = "Abater 100 guardioes"
+
+[advancement.challenge_underwater_blocks_100]
+    title = "Mineiro Submarino"
+    description = "Quebrar 100 blocos debaixo de agua"
+
+[advancement.challenge_underwater_blocks_1k]
+    title = "Engenheiro Aquatico"
+    description = "Quebrar 1,000 blocos debaixo de agua"
+
+# Stealth - New Achievement Chains
+[advancement.challenge_stealth_dmg_500]
+    title = "Punhalada nas Costas"
+    description = "Causar 500 de dano enquanto agachado"
+
+[advancement.challenge_stealth_dmg_5k]
+    title = "Assassino Silencioso"
+    description = "Causar 5,000 de dano enquanto agachado"
+
+[advancement.challenge_stealth_kills_10]
+    title = "Assassino"
+    description = "Matar 10 mobs enquanto agachado"
+
+[advancement.challenge_stealth_kills_100]
+    title = "Ceifador das Sombras"
+    description = "Matar 100 mobs enquanto agachado"
+
+[advancement.challenge_stealth_time_1h]
+    title = "Paciente"
+    description = "Passar 1 hora agachado (3,600 segundos)"
+
+[advancement.challenge_stealth_time_10h]
+    title = "Mestre das Sombras"
+    description = "Passar 10 horas agachado (36,000 segundos)"
+
+[advancement.challenge_stealth_arrows_50]
+    title = "Arqueiro Silencioso"
+    description = "Disparar 50 flechas enquanto agachado"
+
+[advancement.challenge_stealth_arrows_500]
+    title = "Arqueiro Fantasma"
+    description = "Disparar 500 flechas enquanto agachado"
+
+# Swords - New Achievement Chains
+[advancement.challenge_sword_dmg_1k]
+    title = "Aprendiz de Espada"
+    description = "Causar 1,000 de dano com espadas"
+
+[advancement.challenge_sword_dmg_10k]
+    title = "Espadachim"
+    description = "Causar 10,000 de dano com espadas"
+
+[advancement.challenge_sword_kills_50]
+    title = "Duelista"
+    description = "Matar 50 mobs com espadas"
+
+[advancement.challenge_sword_kills_500]
+    title = "Gladiador"
+    description = "Matar 500 mobs com espadas"
+
+[advancement.challenge_sword_crit_50]
+    title = "Golpe Critico"
+    description = "Acertar 50 golpes criticos com espadas"
+
+[advancement.challenge_sword_crit_500]
+    title = "Mestre da Precisao"
+    description = "Acertar 500 golpes criticos com espadas"
+
+[advancement.challenge_sword_heavy_25]
+    title = "Golpe Pesado"
+    description = "Acertar 25 golpes pesados com espadas (mais de 8 de dano)"
+
+[advancement.challenge_sword_heavy_250]
+    title = "Golpe Devastador"
+    description = "Acertar 250 golpes pesados com espadas (mais de 8 de dano)"
+
+# Taming - New Achievement Chains
+[advancement.challenge_pet_dmg_500]
+    title = "Treinador de Feras"
+    description = "Os seus animais causam 500 de dano total"
+
+[advancement.challenge_pet_dmg_5k]
+    title = "Mestre de Guerra"
+    description = "Os seus animais causam 5,000 de dano total"
+
+[advancement.challenge_tamed_10]
+    title = "Amigo dos Animais"
+    description = "Domesticar 10 animais"
+
+[advancement.challenge_tamed_100]
+    title = "Tratador do Zoo"
+    description = "Domesticar 100 animais"
+
+[advancement.challenge_pet_kills_25]
+    title = "Taticas de Matilha"
+    description = "Os seus animais abatem 25 criaturas"
+
+[advancement.challenge_pet_kills_250]
+    title = "Comandante Alfa"
+    description = "Os seus animais abatem 250 criaturas"
+
+[advancement.challenge_taming_2500]
+    title = "Especialista em Criacao"
+    description = "Criar 2,500 animais"
+
+[advancement.challenge_taming_25k]
+    title = "Mestre Geneticista"
+    description = "Criar 25,000 animais"
+
+# TragOul - New Achievement Chains
+[advancement.challenge_trag_hits_500]
+    title = "Saco de Pancadas"
+    description = "Receber 500 golpes"
+
+[advancement.challenge_trag_hits_5k]
+    title = "Glutao por Castigo"
+    description = "Receber 5,000 golpes"
+
+[advancement.challenge_trag_deaths_10]
+    title = "Sete Vidas"
+    description = "Morrer 10 vezes"
+
+[advancement.challenge_trag_deaths_100]
+    title = "Pesadelo Recorrente"
+    description = "Morrer 100 vezes"
+
+[advancement.challenge_trag_fire_500]
+    title = "Vitima das Chamas"
+    description = "Suportar 500 de dano de fogo"
+
+[advancement.challenge_trag_fire_5k]
+    title = "Fenix"
+    description = "Suportar 5,000 de dano de fogo"
+
+[advancement.challenge_trag_fall_500]
+    title = "Teste de Gravidade"
+    description = "Suportar 500 de dano de queda"
+
+[advancement.challenge_trag_fall_5k]
+    title = "Velocidade Terminal"
+    description = "Suportar 5,000 de dano de queda"
+
+# Unarmed - New Achievement Chains
+[advancement.challenge_unarmed_dmg_1k]
+    title = "Brigao"
+    description = "Causar 1,000 de dano com os punhos"
+
+[advancement.challenge_unarmed_dmg_10k]
+    title = "Artista Marcial"
+    description = "Causar 10,000 de dano com os punhos"
+
+[advancement.challenge_unarmed_kills_25]
+    title = "Punhos de Ferro"
+    description = "Matar 25 mobs com os punhos"
+
+[advancement.challenge_unarmed_kills_250]
+    title = "Punho Lendario"
+    description = "Matar 250 mobs com os punhos"
+
+[advancement.challenge_unarmed_crit_25]
+    title = "Soco Critico"
+    description = "Acertar 25 golpes criticos com os punhos"
+
+[advancement.challenge_unarmed_crit_250]
+    title = "Punho Preciso"
+    description = "Acertar 250 golpes criticos com os punhos"
+
+[advancement.challenge_unarmed_heavy_25]
+    title = "Soco Potente"
+    description = "Acertar 25 golpes pesados com os punhos (mais de 6 de dano)"
+
+[advancement.challenge_unarmed_heavy_250]
+    title = "Rei do Nocaute"
+    description = "Acertar 250 golpes pesados com os punhos (mais de 6 de dano)"
+
 # items
 [items]
 

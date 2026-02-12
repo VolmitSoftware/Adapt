@@ -373,6 +373,716 @@
     title = "Повелитель Зверей"
     description = "Разведите 500 животных"
 
+# Agility - New Achievement Chains
+[advancement.challenge_sprint_dist_5k]
+    title = "Демон Скорости"
+    description = "Пробегите более 5 километров (5,000 блоков)"
+
+[advancement.challenge_sprint_dist_50k]
+    title = "Молниеносные Ноги"
+    description = "Пробегите более 50 километров (50,000 блоков)"
+
+[advancement.challenge_agility_swim_1k]
+    title = "Водомерка"
+    description = "Проплывите более 1 километра (1,000 блоков)"
+
+[advancement.challenge_agility_swim_10k]
+    title = "Морской Странник"
+    description = "Проплывите более 10 километров (10,000 блоков)"
+
+[advancement.challenge_fly_1k]
+    title = "Танцор Небес"
+    description = "Пролетите более 1 километра (1,000 блоков)"
+
+[advancement.challenge_fly_10k]
+    title = "Наездник Ветра"
+    description = "Пролетите более 10 километров (10,000 блоков)"
+
+[advancement.challenge_agility_sneak_500]
+    title = "Тихие Шаги"
+    description = "Прокрадитесь более 500 блоков"
+
+[advancement.challenge_agility_sneak_5k]
+    title = "Призрачная Поступь"
+    description = "Прокрадитесь более 5 километров (5,000 блоков)"
+
+# Architect - New Achievement Chains
+[advancement.challenge_demolish_500]
+    title = "Бригада Сноса"
+    description = "Сломайте 500 блоков"
+
+[advancement.challenge_demolish_5k]
+    title = "Шар-Разрушитель"
+    description = "Сломайте 5,000 блоков"
+
+[advancement.challenge_value_placed_10k]
+    title = "Ценный Строитель"
+    description = "Разместите блоки стоимостью 10,000"
+
+[advancement.challenge_value_placed_100k]
+    title = "Мастер Архитектор"
+    description = "Разместите блоки стоимостью 100,000"
+
+[advancement.challenge_demolish_val_5k]
+    title = "Специалист по Утилизации"
+    description = "Утилизируйте блоки стоимостью 5,000 при сносе"
+
+[advancement.challenge_demolish_val_50k]
+    title = "Полная Деконструкция"
+    description = "Утилизируйте блоки стоимостью 50,000 при сносе"
+
+[advancement.challenge_high_build_100]
+    title = "Высотный Строитель"
+    description = "Разместите 100 блоков выше Y=128"
+
+[advancement.challenge_high_build_1k]
+    title = "Облачный Архитектор"
+    description = "Разместите 1,000 блоков выше Y=128"
+
+# Axes - New Achievement Chains
+[advancement.challenge_axe_swing_500]
+    title = "Дровосек"
+    description = "Взмахните топором 500 раз"
+
+[advancement.challenge_axe_swing_5k]
+    title = "Берсерк"
+    description = "Взмахните топором 5,000 раз"
+
+[advancement.challenge_axe_damage_1k]
+    title = "Рассекатель"
+    description = "Нанесите 1,000 урона топорами"
+
+[advancement.challenge_axe_damage_10k]
+    title = "Топор Палача"
+    description = "Нанесите 10,000 урона топорами"
+
+[advancement.challenge_axe_value_5k]
+    title = "Торговец Древесиной"
+    description = "Нарубите древесины стоимостью 5,000"
+
+[advancement.challenge_axe_value_50k]
+    title = "Лесной Барон"
+    description = "Нарубите древесины стоимостью 50,000"
+
+[advancement.challenge_leaves_500]
+    title = "Воздуходув"
+    description = "Срубите 500 блоков листвы топором"
+
+[advancement.challenge_leaves_5k]
+    title = "Листобой"
+    description = "Срубите 5,000 блоков листвы топором"
+
+# Blocking - New Achievement Chains
+[advancement.challenge_block_dmg_1k]
+    title = "Поглотитель Урона"
+    description = "Заблокируйте 1,000 урона щитом"
+
+[advancement.challenge_block_dmg_10k]
+    title = "Живой Щит"
+    description = "Заблокируйте 10,000 урона щитом"
+
+[advancement.challenge_block_proj_100]
+    title = "Отражатель Стрел"
+    description = "Заблокируйте 100 снарядов щитом"
+
+[advancement.challenge_block_proj_1k]
+    title = "Снарядный Щит"
+    description = "Заблокируйте 1,000 снарядов щитом"
+
+[advancement.challenge_block_melee_500]
+    title = "Мастер Парирования"
+    description = "Заблокируйте 500 атак ближнего боя щитом"
+
+[advancement.challenge_block_melee_5k]
+    title = "Железная Крепость"
+    description = "Заблокируйте 5,000 атак ближнего боя щитом"
+
+[advancement.challenge_block_heavy_50]
+    title = "Танк"
+    description = "Заблокируйте 50 тяжёлых атак (свыше 5 урона)"
+
+[advancement.challenge_block_heavy_500]
+    title = "Недвижимый Объект"
+    description = "Заблокируйте 500 тяжёлых атак (свыше 5 урона)"
+
+# Brewing - New Achievement Chains
+[advancement.challenge_brew_stands_10]
+    title = "Пивоварня"
+    description = "Установите 10 варочных стоек"
+
+[advancement.challenge_brew_stands_50]
+    title = "Фабрика Зелий"
+    description = "Установите 50 варочных стоек"
+
+[advancement.challenge_brew_strong_25]
+    title = "Крепкое Зелье"
+    description = "Выпейте 25 усиленных зелий"
+
+[advancement.challenge_brew_strong_250]
+    title = "Максимальная Мощь"
+    description = "Выпейте 250 усиленных зелий"
+
+[advancement.challenge_brew_splash_hits_50]
+    title = "Зона Брызг"
+    description = "Попадите в 50 существ взрывными зельями"
+
+[advancement.challenge_brew_splash_hits_500]
+    title = "Чумной Доктор"
+    description = "Попадите в 500 существ взрывными зельями"
+
+# Chronos - New Achievement Chains
+[advancement.challenge_active_dist_1k]
+    title = "Неугомонный"
+    description = "Пройдите 1 километр в активном состоянии"
+
+[advancement.challenge_active_dist_10k]
+    title = "Следопыт"
+    description = "Пройдите 10 километров в активном состоянии"
+
+[advancement.challenge_active_dist_100k]
+    title = "Вечное Движение"
+    description = "Пройдите 100 километров в активном состоянии"
+
+[advancement.challenge_beds_10]
+    title = "Ранняя Пташка"
+    description = "Поспите в кровати 10 раз"
+
+[advancement.challenge_beds_100]
+    title = "Прыгун во Времени"
+    description = "Поспите в кровати 100 раз"
+
+[advancement.challenge_chronos_tp_50]
+    title = "Временной Сдвиг"
+    description = "Телепортируйтесь 50 раз"
+
+[advancement.challenge_chronos_tp_500]
+    title = "Искривление Времени"
+    description = "Телепортируйтесь 500 раз"
+
+[advancement.challenge_chronos_deaths_10]
+    title = "Смертный"
+    description = "Умрите 10 раз"
+
+[advancement.challenge_chronos_deaths_100]
+    title = "Бросивший Вызов Смерти"
+    description = "Умрите 100 раз"
+
+# Crafting - New Achievement Chains
+[advancement.challenge_craft_value_10k]
+    title = "Ценный Крафт"
+    description = "Скрафтите предметы общей стоимостью 10,000"
+
+[advancement.challenge_craft_value_100k]
+    title = "Ремесленник"
+    description = "Скрафтите предметы общей стоимостью 100,000"
+
+[advancement.challenge_craft_tools_25]
+    title = "Инструментальщик"
+    description = "Скрафтите 25 инструментов"
+
+[advancement.challenge_craft_tools_250]
+    title = "Мастер Ковки"
+    description = "Скрафтите 250 инструментов"
+
+[advancement.challenge_craft_armor_25]
+    title = "Бронник"
+    description = "Скрафтите 25 единиц брони"
+
+[advancement.challenge_craft_armor_250]
+    title = "Мастер Бронник"
+    description = "Скрафтите 250 единиц брони"
+
+[advancement.challenge_craft_mass_25k]
+    title = "Массовое Производство"
+    description = "Скрафтите 25,000 предметов"
+
+[advancement.challenge_craft_mass_250k]
+    title = "Промышленная Революция"
+    description = "Скрафтите 250,000 предметов"
+
+# Discovery - New Achievement Chains
+[advancement.challenge_discover_items_50]
+    title = "Собиратель"
+    description = "Откройте 50 уникальных предметов"
+
+[advancement.challenge_discover_items_250]
+    title = "Каталогизатор"
+    description = "Откройте 250 уникальных предметов"
+
+[advancement.challenge_discover_blocks_50]
+    title = "Исследователь"
+    description = "Откройте 50 уникальных блоков"
+
+[advancement.challenge_discover_blocks_250]
+    title = "Геолог"
+    description = "Откройте 250 уникальных блоков"
+
+[advancement.challenge_discover_mobs_25]
+    title = "Наблюдатель"
+    description = "Откройте 25 уникальных мобов"
+
+[advancement.challenge_discover_mobs_75]
+    title = "Натуралист"
+    description = "Откройте 75 уникальных мобов"
+
+[advancement.challenge_discover_biomes_10]
+    title = "Странник"
+    description = "Откройте 10 уникальных биомов"
+
+[advancement.challenge_discover_biomes_40]
+    title = "Путешественник"
+    description = "Откройте 40 уникальных биомов"
+
+[advancement.challenge_discover_foods_10]
+    title = "Гурман"
+    description = "Откройте 10 уникальных блюд"
+
+[advancement.challenge_discover_foods_30]
+    title = "Мастер Кулинарии"
+    description = "Откройте 30 уникальных блюд"
+
+# Enchanting - New Achievement Chains
+[advancement.challenge_enchant_power_100]
+    title = "Ткач Силы"
+    description = "Накопите 100 силы зачарования"
+
+[advancement.challenge_enchant_power_1k]
+    title = "Магистр Тайных Сил"
+    description = "Накопите 1,000 силы зачарования"
+
+[advancement.challenge_enchant_levels_1k]
+    title = "Расточитель Уровней"
+    description = "Потратьте 1,000 уровней опыта на зачарование"
+
+[advancement.challenge_enchant_levels_10k]
+    title = "Поглотитель Опыта"
+    description = "Потратьте 10,000 уровней опыта на зачарование"
+
+[advancement.challenge_enchant_high_25]
+    title = "По-Крупному"
+    description = "Выполните 25 зачарований максимального уровня"
+
+[advancement.challenge_enchant_high_250]
+    title = "Легендарный Зачарователь"
+    description = "Выполните 250 зачарований максимального уровня"
+
+[advancement.challenge_enchant_total_500]
+    title = "Сжигатель Уровней"
+    description = "Потратьте 500 уровней на все зачарования"
+
+[advancement.challenge_enchant_total_5k]
+    title = "Магические Вложения"
+    description = "Потратьте 5,000 уровней на все зачарования"
+
+# Excavation - New Achievement Chains
+[advancement.challenge_dig_swing_500]
+    title = "Копатель"
+    description = "Взмахните лопатой 500 раз"
+
+[advancement.challenge_dig_swing_5k]
+    title = "Экскаватор"
+    description = "Взмахните лопатой 5,000 раз"
+
+[advancement.challenge_dig_damage_1k]
+    title = "Рыцарь Лопаты"
+    description = "Нанесите 1,000 урона лопатой"
+
+[advancement.challenge_dig_damage_10k]
+    title = "Мастер Лопаты"
+    description = "Нанесите 10,000 урона лопатой"
+
+[advancement.challenge_dig_value_5k]
+    title = "Торговец Грунтом"
+    description = "Выкопайте блоки стоимостью 5,000"
+
+[advancement.challenge_dig_value_50k]
+    title = "Земляной Барон"
+    description = "Выкопайте блоки стоимостью 50,000"
+
+[advancement.challenge_dig_gravel_500]
+    title = "Гравийный Дробильщик"
+    description = "Выкопайте 500 блоков гравия, песка или глины"
+
+[advancement.challenge_dig_gravel_5k]
+    title = "Просеиватель Песка"
+    description = "Выкопайте 5,000 блоков гравия, песка или глины"
+
+# Herbalism - New Achievement Chains
+[advancement.challenge_plant_100]
+    title = "Сеятель"
+    description = "Посадите 100 культур"
+
+[advancement.challenge_plant_1k]
+    title = "Зелёный Палец"
+    description = "Посадите 1,000 культур"
+
+[advancement.challenge_plant_5k]
+    title = "Аграрный Барон"
+    description = "Посадите 5,000 культур"
+
+[advancement.challenge_compost_50]
+    title = "Переработчик"
+    description = "Компостируйте 50 предметов"
+
+[advancement.challenge_compost_500]
+    title = "Обогатитель Почвы"
+    description = "Компостируйте 500 предметов"
+
+[advancement.challenge_shear_50]
+    title = "Стригаль"
+    description = "Остригите 50 существ"
+
+[advancement.challenge_shear_250]
+    title = "Мастер Стада"
+    description = "Остригите 250 существ"
+
+# Hunter - New Achievement Chains
+[advancement.challenge_kills_500]
+    title = "Истребитель"
+    description = "Уничтожьте 500 существ"
+
+[advancement.challenge_kills_5k]
+    title = "Палач"
+    description = "Уничтожьте 5,000 существ"
+
+[advancement.challenge_boss_1]
+    title = "Претендент на Босса"
+    description = "Убейте босс-моба"
+
+[advancement.challenge_boss_10]
+    title = "Убийца Легенд"
+    description = "Убейте 10 босс-мобов"
+
+# Nether - New Achievement Chains
+[advancement.challenge_wither_dmg_500]
+    title = "Иссушённый"
+    description = "Перенесите 500 урона от иссушения"
+
+[advancement.challenge_wither_dmg_5k]
+    title = "Выживший Среди Скверны"
+    description = "Перенесите 5,000 урона от иссушения"
+
+[advancement.challenge_wither_skel_25]
+    title = "Собиратель Костей"
+    description = "Убейте 25 скелетов-иссушителей"
+
+[advancement.challenge_wither_skel_250]
+    title = "Бич Скелетов"
+    description = "Убейте 250 скелетов-иссушителей"
+
+[advancement.challenge_wither_boss_1]
+    title = "Победитель Визера"
+    description = "Победите Визера"
+
+[advancement.challenge_wither_boss_10]
+    title = "Властелин Незера"
+    description = "Победите Визера 10 раз"
+
+[advancement.challenge_roses_10]
+    title = "Садовник Смерти"
+    description = "Сломайте 10 роз иссушения"
+
+[advancement.challenge_roses_100]
+    title = "Собиратель Скверны"
+    description = "Сломайте 100 роз иссушения"
+
+# Pickaxes - New Achievement Chains
+[advancement.challenge_pick_swing_500]
+    title = "Рука Шахтёра"
+    description = "Взмахните киркой 500 раз"
+
+[advancement.challenge_pick_swing_5k]
+    title = "Строитель Туннелей"
+    description = "Взмахните киркой 5,000 раз"
+
+[advancement.challenge_pick_damage_1k]
+    title = "Боевая Кирка"
+    description = "Нанесите 1,000 урона киркой"
+
+[advancement.challenge_pick_damage_10k]
+    title = "Военный Клевец"
+    description = "Нанесите 10,000 урона киркой"
+
+[advancement.challenge_pick_value_5k]
+    title = "Искатель Самоцветов"
+    description = "Добудьте блоки стоимостью 5,000"
+
+[advancement.challenge_pick_value_50k]
+    title = "Рудный Барон"
+    description = "Добудьте блоки стоимостью 50,000"
+
+[advancement.challenge_pick_ores_500]
+    title = "Старатель"
+    description = "Добудьте 500 рудных блоков"
+
+[advancement.challenge_pick_ores_5k]
+    title = "Мастер Шахтёр"
+    description = "Добудьте 5,000 рудных блоков"
+
+# Ranged - New Achievement Chains
+[advancement.challenge_ranged_dmg_1k]
+    title = "Меткий Стрелок"
+    description = "Нанесите 1,000 дальнего урона"
+
+[advancement.challenge_ranged_dmg_10k]
+    title = "Смертоносный Лучник"
+    description = "Нанесите 10,000 дальнего урона"
+
+[advancement.challenge_ranged_dist_5k]
+    title = "Дальнобойный"
+    description = "Выпустите снаряды на общую дистанцию 5,000 блоков"
+
+[advancement.challenge_ranged_dist_50k]
+    title = "Километровый Выстрел"
+    description = "Выпустите снаряды на общую дистанцию 50,000 блоков"
+
+[advancement.challenge_ranged_kills_50]
+    title = "Лучник"
+    description = "Убейте 50 мобов дальнобойным оружием"
+
+[advancement.challenge_ranged_kills_500]
+    title = "Мастер Лучник"
+    description = "Убейте 500 мобов дальнобойным оружием"
+
+[advancement.challenge_longshot_25]
+    title = "Снайпер"
+    description = "Совершите 25 дальних попаданий (свыше 30 блоков)"
+
+[advancement.challenge_longshot_250]
+    title = "Орлиный Глаз"
+    description = "Совершите 250 дальних попаданий (свыше 30 блоков)"
+
+# Rift - New Achievement Chains
+[advancement.challenge_rift_pearls_50]
+    title = "Метатель Жемчуга"
+    description = "Бросьте 50 жемчужин Края"
+
+[advancement.challenge_rift_pearls_500]
+    title = "Телепорт-Маньяк"
+    description = "Бросьте 500 жемчужин Края"
+
+[advancement.challenge_rift_enderman_50]
+    title = "Охотник на Эндерменов"
+    description = "Убейте 50 эндерменов"
+
+[advancement.challenge_rift_enderman_500]
+    title = "Преследователь Пустоты"
+    description = "Убейте 500 эндерменов"
+
+[advancement.challenge_rift_dragon_500]
+    title = "Боец с Драконом"
+    description = "Нанесите 500 урона Дракону Края"
+
+[advancement.challenge_rift_dragon_5k]
+    title = "Драконоборец"
+    description = "Нанесите 5,000 урона Дракону Края"
+
+[advancement.challenge_rift_crystal_10]
+    title = "Разрушитель Кристаллов"
+    description = "Уничтожьте 10 кристаллов Края"
+
+[advancement.challenge_rift_crystal_100]
+    title = "Демонтажник Края"
+    description = "Уничтожьте 100 кристаллов Края"
+
+# Seaborne - New Achievement Chains
+[advancement.challenge_fish_25]
+    title = "Рыболов"
+    description = "Поймайте 25 рыб"
+
+[advancement.challenge_fish_250]
+    title = "Мастер Рыбалки"
+    description = "Поймайте 250 рыб"
+
+[advancement.challenge_drowned_25]
+    title = "Охотник на Утопленников"
+    description = "Убейте 25 утопленников"
+
+[advancement.challenge_drowned_250]
+    title = "Чистильщик Океана"
+    description = "Убейте 250 утопленников"
+
+[advancement.challenge_guardian_10]
+    title = "Убийца Стражей"
+    description = "Убейте 10 стражей"
+
+[advancement.challenge_guardian_100]
+    title = "Расхититель Храмов"
+    description = "Убейте 100 стражей"
+
+[advancement.challenge_underwater_blocks_100]
+    title = "Подводный Шахтёр"
+    description = "Сломайте 100 блоков под водой"
+
+[advancement.challenge_underwater_blocks_1k]
+    title = "Подводный Инженер"
+    description = "Сломайте 1,000 блоков под водой"
+
+# Stealth - New Achievement Chains
+[advancement.challenge_stealth_dmg_500]
+    title = "Удар в Спину"
+    description = "Нанесите 500 урона крадучись"
+
+[advancement.challenge_stealth_dmg_5k]
+    title = "Бесшумный Убийца"
+    description = "Нанесите 5,000 урона крадучись"
+
+[advancement.challenge_stealth_kills_10]
+    title = "Ассасин"
+    description = "Убейте 10 мобов крадучись"
+
+[advancement.challenge_stealth_kills_100]
+    title = "Теневой Жнец"
+    description = "Убейте 100 мобов крадучись"
+
+[advancement.challenge_stealth_time_1h]
+    title = "Терпеливый"
+    description = "Проведите 1 час крадучись (3,600 секунд)"
+
+[advancement.challenge_stealth_time_10h]
+    title = "Повелитель Теней"
+    description = "Проведите 10 часов крадучись (36,000 секунд)"
+
+[advancement.challenge_stealth_arrows_50]
+    title = "Тихий Лучник"
+    description = "Выпустите 50 стрел крадучись"
+
+[advancement.challenge_stealth_arrows_500]
+    title = "Призрачный Стрелок"
+    description = "Выпустите 500 стрел крадучись"
+
+# Swords - New Achievement Chains
+[advancement.challenge_sword_dmg_1k]
+    title = "Ученик Меча"
+    description = "Нанесите 1,000 урона мечами"
+
+[advancement.challenge_sword_dmg_10k]
+    title = "Фехтовальщик"
+    description = "Нанесите 10,000 урона мечами"
+
+[advancement.challenge_sword_kills_50]
+    title = "Дуэлянт"
+    description = "Убейте 50 мобов мечами"
+
+[advancement.challenge_sword_kills_500]
+    title = "Гладиатор"
+    description = "Убейте 500 мобов мечами"
+
+[advancement.challenge_sword_crit_50]
+    title = "Критический Удар"
+    description = "Нанесите 50 критических ударов мечами"
+
+[advancement.challenge_sword_crit_500]
+    title = "Мастер Точности"
+    description = "Нанесите 500 критических ударов мечами"
+
+[advancement.challenge_sword_heavy_25]
+    title = "Тяжёлый Удар"
+    description = "Нанесите 25 тяжёлых ударов мечами (свыше 8 урона)"
+
+[advancement.challenge_sword_heavy_250]
+    title = "Сокрушительный Удар"
+    description = "Нанесите 250 тяжёлых ударов мечами (свыше 8 урона)"
+
+# Taming - New Achievement Chains
+[advancement.challenge_pet_dmg_500]
+    title = "Дрессировщик Зверей"
+    description = "Ваши питомцы наносят 500 общего урона"
+
+[advancement.challenge_pet_dmg_5k]
+    title = "Военачальник"
+    description = "Ваши питомцы наносят 5,000 общего урона"
+
+[advancement.challenge_tamed_10]
+    title = "Друг Животных"
+    description = "Приручите 10 животных"
+
+[advancement.challenge_tamed_100]
+    title = "Смотритель Зоопарка"
+    description = "Приручите 100 животных"
+
+[advancement.challenge_pet_kills_25]
+    title = "Стайная Тактика"
+    description = "Ваши питомцы уничтожат 25 существ"
+
+[advancement.challenge_pet_kills_250]
+    title = "Командир Стаи"
+    description = "Ваши питомцы уничтожат 250 существ"
+
+[advancement.challenge_taming_2500]
+    title = "Эксперт по Разведению"
+    description = "Разведите 2,500 животных"
+
+[advancement.challenge_taming_25k]
+    title = "Мастер Генетики"
+    description = "Разведите 25,000 животных"
+
+# TragOul - New Achievement Chains
+[advancement.challenge_trag_hits_500]
+    title = "Боксёрская Груша"
+    description = "Получите 500 ударов"
+
+[advancement.challenge_trag_hits_5k]
+    title = "Любитель Боли"
+    description = "Получите 5,000 ударов"
+
+[advancement.challenge_trag_deaths_10]
+    title = "Девять Жизней"
+    description = "Умрите 10 раз"
+
+[advancement.challenge_trag_deaths_100]
+    title = "Повторяющийся Кошмар"
+    description = "Умрите 100 раз"
+
+[advancement.challenge_trag_fire_500]
+    title = "Жертва Огня"
+    description = "Перенесите 500 урона от огня"
+
+[advancement.challenge_trag_fire_5k]
+    title = "Феникс"
+    description = "Перенесите 5,000 урона от огня"
+
+[advancement.challenge_trag_fall_500]
+    title = "Проверка Гравитации"
+    description = "Перенесите 500 урона от падения"
+
+[advancement.challenge_trag_fall_5k]
+    title = "Предельная Скорость"
+    description = "Перенесите 5,000 урона от падения"
+
+# Unarmed - New Achievement Chains
+[advancement.challenge_unarmed_dmg_1k]
+    title = "Драчун"
+    description = "Нанесите 1,000 урона голыми кулаками"
+
+[advancement.challenge_unarmed_dmg_10k]
+    title = "Мастер Боевых Искусств"
+    description = "Нанесите 10,000 урона голыми кулаками"
+
+[advancement.challenge_unarmed_kills_25]
+    title = "Голые Кулаки"
+    description = "Убейте 25 мобов голыми кулаками"
+
+[advancement.challenge_unarmed_kills_250]
+    title = "Кулак Легенды"
+    description = "Убейте 250 мобов голыми кулаками"
+
+[advancement.challenge_unarmed_crit_25]
+    title = "Критический Кулак"
+    description = "Нанесите 25 критических ударов голыми кулаками"
+
+[advancement.challenge_unarmed_crit_250]
+    title = "Точный Кулак"
+    description = "Нанесите 250 критических ударов голыми кулаками"
+
+[advancement.challenge_unarmed_heavy_25]
+    title = "Мощный Удар"
+    description = "Нанесите 25 тяжёлых ударов голыми кулаками (свыше 6 урона)"
+
+[advancement.challenge_unarmed_heavy_250]
+    title = "Король Нокаутов"
+    description = "Нанесите 250 тяжёлых ударов голыми кулаками (свыше 6 урона)"
+
 # items
 [items]
 

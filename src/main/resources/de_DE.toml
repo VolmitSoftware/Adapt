@@ -373,6 +373,566 @@
     title = "Bestienmeister"
     description = "Züchte 500 Tiere"
 
+# Agility
+[advancement.challenge_sprint_dist_5k]
+    title = "Geschwindigkeitsdaemon"
+    description = "Sprinte ueber 5 Kilometer (5.000 Bloecke)"
+[advancement.challenge_sprint_dist_50k]
+    title = "Blitzbeine"
+    description = "Sprinte ueber 50 Kilometer (50.000 Bloecke)"
+[advancement.challenge_agility_swim_1k]
+    title = "Wasserlaeufer"
+    description = "Schwimme ueber 1 Kilometer (1.000 Bloecke)"
+[advancement.challenge_agility_swim_10k]
+    title = "Ozeanreisender"
+    description = "Schwimme ueber 10 Kilometer (10.000 Bloecke)"
+[advancement.challenge_fly_1k]
+    title = "Himmelstaenzer"
+    description = "Fliege ueber 1 Kilometer (1.000 Bloecke)"
+[advancement.challenge_fly_10k]
+    title = "Windreiter"
+    description = "Fliege ueber 10 Kilometer (10.000 Bloecke)"
+[advancement.challenge_agility_sneak_500]
+    title = "Leise Schritte"
+    description = "Schleiche ueber 500 Bloecke"
+[advancement.challenge_agility_sneak_5k]
+    title = "Phantomschritte"
+    description = "Schleiche ueber 5 Kilometer (5.000 Bloecke)"
+
+# Architect
+[advancement.challenge_demolish_500]
+    title = "Abrisstruppp"
+    description = "Baue 500 Bloecke ab"
+[advancement.challenge_demolish_5k]
+    title = "Abrissbirne"
+    description = "Baue 5.000 Bloecke ab"
+[advancement.challenge_value_placed_10k]
+    title = "Wertvoller Baumeister"
+    description = "Platziere Bloecke im Wert von 10.000"
+[advancement.challenge_value_placed_100k]
+    title = "Meisterarchitekt"
+    description = "Platziere Bloecke im Wert von 100.000"
+[advancement.challenge_demolish_val_5k]
+    title = "Bergungsexperte"
+    description = "Berge 5.000 Blockwert durch Abriss"
+[advancement.challenge_demolish_val_50k]
+    title = "Totaler Rueckbau"
+    description = "Berge 50.000 Blockwert durch Abriss"
+[advancement.challenge_high_build_100]
+    title = "Himmelsbauer"
+    description = "Platziere 100 Bloecke ueber Y=128"
+[advancement.challenge_high_build_1k]
+    title = "Wolkenarchitekt"
+    description = "Platziere 1.000 Bloecke ueber Y=128"
+
+# Axes
+[advancement.challenge_axe_swing_500]
+    title = "Axtschwiniger"
+    description = "Schwinge deine Axt 500 Mal"
+[advancement.challenge_axe_swing_5k]
+    title = "Berserker"
+    description = "Schwinge deine Axt 5.000 Mal"
+[advancement.challenge_axe_damage_1k]
+    title = "Spalter"
+    description = "Verursache 1.000 Schaden mit Aexten"
+[advancement.challenge_axe_damage_10k]
+    title = "Henkersbeil"
+    description = "Verursache 10.000 Schaden mit Aexten"
+[advancement.challenge_axe_value_5k]
+    title = "Holzhaendler"
+    description = "Ernte Holz im Wert von 5.000"
+[advancement.challenge_axe_value_50k]
+    title = "Holzbaron"
+    description = "Ernte Holz im Wert von 50.000"
+[advancement.challenge_leaves_500]
+    title = "Laubblaeser"
+    description = "Entferne 500 Laubbloecke mit einer Axt"
+[advancement.challenge_leaves_5k]
+    title = "Entlauber"
+    description = "Entferne 5.000 Laubbloecke mit einer Axt"
+
+# Blocking
+[advancement.challenge_block_dmg_1k]
+    title = "Schadensabsorber"
+    description = "Blocke 1.000 Schaden mit einem Schild"
+[advancement.challenge_block_dmg_10k]
+    title = "Menschliches Schutzschild"
+    description = "Blocke 10.000 Schaden mit einem Schild"
+[advancement.challenge_block_proj_100]
+    title = "Pfeilabwehrer"
+    description = "Blocke 100 Projektile mit einem Schild"
+[advancement.challenge_block_proj_1k]
+    title = "Projektilschild"
+    description = "Blocke 1.000 Projektile mit einem Schild"
+[advancement.challenge_block_melee_500]
+    title = "Pariermeister"
+    description = "Blocke 500 Nahkampfangriffe mit einem Schild"
+[advancement.challenge_block_melee_5k]
+    title = "Eiserne Festung"
+    description = "Blocke 5.000 Nahkampfangriffe mit einem Schild"
+[advancement.challenge_block_heavy_50]
+    title = "Panzer"
+    description = "Blocke 50 schwere Angriffe (ueber 5 Schaden)"
+[advancement.challenge_block_heavy_500]
+    title = "Unbewegliches Objekt"
+    description = "Blocke 500 schwere Angriffe (ueber 5 Schaden)"
+
+# Brewing
+[advancement.challenge_brew_stands_10]
+    title = "Brauerei-Einrichtung"
+    description = "Platziere 10 Braustaende"
+[advancement.challenge_brew_stands_50]
+    title = "Trankfabrik"
+    description = "Platziere 50 Braustaende"
+[advancement.challenge_brew_strong_25]
+    title = "Starkes Gebraeu"
+    description = "Trinke 25 verstaerkte Traenke"
+[advancement.challenge_brew_strong_250]
+    title = "Maximale Wirkung"
+    description = "Trinke 250 verstaerkte Traenke"
+[advancement.challenge_brew_splash_hits_50]
+    title = "Spritzzone"
+    description = "Triff 50 Wesen mit Wurf-Traenken"
+[advancement.challenge_brew_splash_hits_500]
+    title = "Pestdoktor"
+    description = "Triff 500 Wesen mit Wurf-Traenken"
+
+# Chronos
+[advancement.challenge_active_dist_1k]
+    title = "Rastlos"
+    description = "Reise 1 Kilometer waehrend du aktiv bist"
+[advancement.challenge_active_dist_10k]
+    title = "Pfadfinder"
+    description = "Reise 10 Kilometer waehrend du aktiv bist"
+[advancement.challenge_active_dist_100k]
+    title = "Ewige Bewegung"
+    description = "Reise 100 Kilometer waehrend du aktiv bist"
+[advancement.challenge_beds_10]
+    title = "Fruehaufsteher"
+    description = "Schlafe 10 Mal in einem Bett"
+[advancement.challenge_beds_100]
+    title = "Zeitueberbruecker"
+    description = "Schlafe 100 Mal in einem Bett"
+[advancement.challenge_chronos_tp_50]
+    title = "Zeitverschiebung"
+    description = "Teleportiere dich 50 Mal"
+[advancement.challenge_chronos_tp_500]
+    title = "Zeitsprung"
+    description = "Teleportiere dich 500 Mal"
+[advancement.challenge_chronos_deaths_10]
+    title = "Sterblich"
+    description = "Stirb 10 Mal"
+[advancement.challenge_chronos_deaths_100]
+    title = "Todestrotzer"
+    description = "Stirb 100 Mal"
+
+# Crafting
+[advancement.challenge_craft_value_10k]
+    title = "Handwerkswert"
+    description = "Stelle Gegenstaende im Wert von 10.000 her"
+[advancement.challenge_craft_value_100k]
+    title = "Kunsthandwerker"
+    description = "Stelle Gegenstaende im Wert von 100.000 her"
+[advancement.challenge_craft_tools_25]
+    title = "Werkzeugschmied"
+    description = "Stelle 25 Werkzeuge her"
+[advancement.challenge_craft_tools_250]
+    title = "Meisterschmied"
+    description = "Stelle 250 Werkzeuge her"
+[advancement.challenge_craft_armor_25]
+    title = "Ruestungsschmied"
+    description = "Stelle 25 Ruestungsteile her"
+[advancement.challenge_craft_armor_250]
+    title = "Ruestungsmeister"
+    description = "Stelle 250 Ruestungsteile her"
+[advancement.challenge_craft_mass_25k]
+    title = "Massenproduzent"
+    description = "Stelle 25.000 Gegenstaende her"
+[advancement.challenge_craft_mass_250k]
+    title = "Industrielle Revolution"
+    description = "Stelle 250.000 Gegenstaende her"
+
+# Discovery
+[advancement.challenge_discover_items_50]
+    title = "Sammler"
+    description = "Entdecke 50 einzigartige Gegenstaende"
+[advancement.challenge_discover_items_250]
+    title = "Katalogisierer"
+    description = "Entdecke 250 einzigartige Gegenstaende"
+[advancement.challenge_discover_blocks_50]
+    title = "Vermesser"
+    description = "Entdecke 50 einzigartige Bloecke"
+[advancement.challenge_discover_blocks_250]
+    title = "Geologe"
+    description = "Entdecke 250 einzigartige Bloecke"
+[advancement.challenge_discover_mobs_25]
+    title = "Beobachter"
+    description = "Entdecke 25 einzigartige Kreaturen"
+[advancement.challenge_discover_mobs_75]
+    title = "Naturforscher"
+    description = "Entdecke 75 einzigartige Kreaturen"
+[advancement.challenge_discover_biomes_10]
+    title = "Wanderer"
+    description = "Entdecke 10 einzigartige Biome"
+[advancement.challenge_discover_biomes_40]
+    title = "Weltreisender"
+    description = "Entdecke 40 einzigartige Biome"
+[advancement.challenge_discover_foods_10]
+    title = "Feinschmecker"
+    description = "Entdecke 10 einzigartige Nahrungsmittel"
+[advancement.challenge_discover_foods_30]
+    title = "Kuechenmeister"
+    description = "Entdecke 30 einzigartige Nahrungsmittel"
+
+# Enchanting
+[advancement.challenge_enchant_power_100]
+    title = "Kraftweber"
+    description = "Sammle 100 Verzauberungskraft"
+[advancement.challenge_enchant_power_1k]
+    title = "Arkaner Meister"
+    description = "Sammle 1.000 Verzauberungskraft"
+[advancement.challenge_enchant_levels_1k]
+    title = "Stufenverschwender"
+    description = "Gib 1.000 Erfahrungsstufen fuer Verzauberungen aus"
+[advancement.challenge_enchant_levels_10k]
+    title = "EP-Verschlinger"
+    description = "Gib 10.000 Erfahrungsstufen fuer Verzauberungen aus"
+[advancement.challenge_enchant_high_25]
+    title = "Hochstapler"
+    description = "Fuehre 25 Verzauberungen auf hoechster Stufe durch"
+[advancement.challenge_enchant_high_250]
+    title = "Legendaerer Verzauberer"
+    description = "Fuehre 250 Verzauberungen auf hoechster Stufe durch"
+[advancement.challenge_enchant_total_500]
+    title = "Stufenbrenner"
+    description = "Gib insgesamt 500 Stufen fuer Verzauberungen aus"
+[advancement.challenge_enchant_total_5k]
+    title = "Arkane Investition"
+    description = "Gib insgesamt 5.000 Stufen fuer Verzauberungen aus"
+
+# Excavation
+[advancement.challenge_dig_swing_500]
+    title = "Graeber"
+    description = "Schwinge deine Schaufel 500 Mal"
+[advancement.challenge_dig_swing_5k]
+    title = "Baggerfahrer"
+    description = "Schwinge deine Schaufel 5.000 Mal"
+[advancement.challenge_dig_damage_1k]
+    title = "Schaufelritter"
+    description = "Verursache 1.000 Schaden mit einer Schaufel"
+[advancement.challenge_dig_damage_10k]
+    title = "Schaufelmeister"
+    description = "Verursache 10.000 Schaden mit einer Schaufel"
+[advancement.challenge_dig_value_5k]
+    title = "Erdhaendler"
+    description = "Grabe Bloecke im Wert von 5.000 aus"
+[advancement.challenge_dig_value_50k]
+    title = "Erdbaron"
+    description = "Grabe Bloecke im Wert von 50.000 aus"
+[advancement.challenge_dig_gravel_500]
+    title = "Kiesmalmer"
+    description = "Grabe 500 Kies-, Sand- oder Lehmbloecke"
+[advancement.challenge_dig_gravel_5k]
+    title = "Sandsieber"
+    description = "Grabe 5.000 Kies-, Sand- oder Lehmbloecke"
+
+# Herbalism
+[advancement.challenge_plant_100]
+    title = "Saemann"
+    description = "Pflanze 100 Feldfrueche"
+[advancement.challenge_plant_1k]
+    title = "Gruener Daumen"
+    description = "Pflanze 1.000 Feldfrueche"
+[advancement.challenge_plant_5k]
+    title = "Ackerbaron"
+    description = "Pflanze 5.000 Feldfrueche"
+[advancement.challenge_compost_50]
+    title = "Recycler"
+    description = "Kompostiere 50 Gegenstaende"
+[advancement.challenge_compost_500]
+    title = "Bodenveredler"
+    description = "Kompostiere 500 Gegenstaende"
+[advancement.challenge_shear_50]
+    title = "Scherer"
+    description = "Schere 50 Wesen"
+[advancement.challenge_shear_250]
+    title = "Herdenmeister"
+    description = "Schere 250 Wesen"
+
+# Hunter
+[advancement.challenge_kills_500]
+    title = "Toeter"
+    description = "Erschlage 500 Kreaturen"
+[advancement.challenge_kills_5k]
+    title = "Henker"
+    description = "Erschlage 5.000 Kreaturen"
+[advancement.challenge_boss_1]
+    title = "Bossherausforderer"
+    description = "Besiege einen Boss"
+[advancement.challenge_boss_10]
+    title = "Legendentoeter"
+    description = "Besiege 10 Bosse"
+
+# Nether
+[advancement.challenge_wither_dmg_500]
+    title = "Verwelkt"
+    description = "Ertrage 500 Wither-Schaden"
+[advancement.challenge_wither_dmg_5k]
+    title = "Seuchenueberlebender"
+    description = "Ertrage 5.000 Wither-Schaden"
+[advancement.challenge_wither_skel_25]
+    title = "Knochensammler"
+    description = "Erschlage 25 Witherskelette"
+[advancement.challenge_wither_skel_250]
+    title = "Skelettfluch"
+    description = "Erschlage 250 Witherskelette"
+[advancement.challenge_wither_boss_1]
+    title = "Withertoeter"
+    description = "Besiege den Wither"
+[advancement.challenge_wither_boss_10]
+    title = "Netherbeherrscher"
+    description = "Besiege den Wither 10 Mal"
+[advancement.challenge_roses_10]
+    title = "Todesqaertner"
+    description = "Zerstoere 10 Witherrosen"
+[advancement.challenge_roses_100]
+    title = "Seuchensammler"
+    description = "Zerstoere 100 Witherrosen"
+
+# Pickaxes
+[advancement.challenge_pick_swing_500]
+    title = "Bergmannsarm"
+    description = "Schwinge deine Spitzhacke 500 Mal"
+[advancement.challenge_pick_swing_5k]
+    title = "Tunnelgraber"
+    description = "Schwinge deine Spitzhacke 5.000 Mal"
+[advancement.challenge_pick_damage_1k]
+    title = "Hackenkaempfer"
+    description = "Verursache 1.000 Schaden mit einer Spitzhacke"
+[advancement.challenge_pick_damage_10k]
+    title = "Kriegshacke"
+    description = "Verursache 10.000 Schaden mit einer Spitzhacke"
+[advancement.challenge_pick_value_5k]
+    title = "Edelsteinfinder"
+    description = "Baue Bloecke im Wert von 5.000 ab"
+[advancement.challenge_pick_value_50k]
+    title = "Erzbaron"
+    description = "Baue Bloecke im Wert von 50.000 ab"
+[advancement.challenge_pick_ores_500]
+    title = "Schuerfer"
+    description = "Baue 500 Erzbloecke ab"
+[advancement.challenge_pick_ores_5k]
+    title = "Meisterbergmann"
+    description = "Baue 5.000 Erzbloecke ab"
+
+# Ranged
+[advancement.challenge_ranged_dmg_1k]
+    title = "Scharfschuetze"
+    description = "Verursache 1.000 Fernkampfschaden"
+[advancement.challenge_ranged_dmg_10k]
+    title = "Toedlicher Schuetze"
+    description = "Verursache 10.000 Fernkampfschaden"
+[advancement.challenge_ranged_dist_5k]
+    title = "Grosse Reichweite"
+    description = "Feuere Projektile ueber insgesamt 5.000 Bloecke Entfernung"
+[advancement.challenge_ranged_dist_50k]
+    title = "Meilenschuetze"
+    description = "Feuere Projektile ueber insgesamt 50.000 Bloecke Entfernung"
+[advancement.challenge_ranged_kills_50]
+    title = "Bogenschuetze"
+    description = "Toete 50 Kreaturen mit Fernkampfwaffen"
+[advancement.challenge_ranged_kills_500]
+    title = "Meisterbogenschuetze"
+    description = "Toete 500 Kreaturen mit Fernkampfwaffen"
+[advancement.challenge_longshot_25]
+    title = "Heckenschuetze"
+    description = "Lande 25 Weitschusstreffer (ueber 30 Bloecke)"
+[advancement.challenge_longshot_250]
+    title = "Adlerauge"
+    description = "Lande 250 Weitschusstreffer (ueber 30 Bloecke)"
+
+# Rift
+[advancement.challenge_rift_pearls_50]
+    title = "Perlenwerfer"
+    description = "Wirf 50 Enderperlen"
+[advancement.challenge_rift_pearls_500]
+    title = "Teleportsuechtig"
+    description = "Wirf 500 Enderperlen"
+[advancement.challenge_rift_enderman_50]
+    title = "Enderman-Jaeger"
+    description = "Erschlage 50 Endermen"
+[advancement.challenge_rift_enderman_500]
+    title = "Leerenpirscher"
+    description = "Erschlage 500 Endermen"
+[advancement.challenge_rift_dragon_500]
+    title = "Drachenkaempfer"
+    description = "Verursache 500 Schaden am Enderdrachen"
+[advancement.challenge_rift_dragon_5k]
+    title = "Drachentoeter"
+    description = "Verursache 5.000 Schaden am Enderdrachen"
+[advancement.challenge_rift_crystal_10]
+    title = "Kristallbrecher"
+    description = "Zerstoere 10 Endkristalle"
+[advancement.challenge_rift_crystal_100]
+    title = "Endzerstoerer"
+    description = "Zerstoere 100 Endkristalle"
+
+# Seaborne
+[advancement.challenge_fish_25]
+    title = "Angler"
+    description = "Fange 25 Fische"
+[advancement.challenge_fish_250]
+    title = "Meisterfischer"
+    description = "Fange 250 Fische"
+[advancement.challenge_drowned_25]
+    title = "Ertrunkenen-Jaeger"
+    description = "Erschlage 25 Ertrunkene"
+[advancement.challenge_drowned_250]
+    title = "Ozeanreiniger"
+    description = "Erschlage 250 Ertrunkene"
+[advancement.challenge_guardian_10]
+    title = "Waechtertoeter"
+    description = "Erschlage 10 Waechter"
+[advancement.challenge_guardian_100]
+    title = "Tempelraeuber"
+    description = "Erschlage 100 Waechter"
+[advancement.challenge_underwater_blocks_100]
+    title = "Unterwasserbergmann"
+    description = "Baue 100 Bloecke unter Wasser ab"
+[advancement.challenge_underwater_blocks_1k]
+    title = "Unterwasseringenieur"
+    description = "Baue 1.000 Bloecke unter Wasser ab"
+
+# Stealth
+[advancement.challenge_stealth_dmg_500]
+    title = "Meuchler"
+    description = "Verursache 500 Schaden waehrend du schleichst"
+[advancement.challenge_stealth_dmg_5k]
+    title = "Lautloser Toeter"
+    description = "Verursache 5.000 Schaden waehrend du schleichst"
+[advancement.challenge_stealth_kills_10]
+    title = "Assassine"
+    description = "Toete 10 Kreaturen waehrend du schleichst"
+[advancement.challenge_stealth_kills_100]
+    title = "Schattensensenmann"
+    description = "Toete 100 Kreaturen waehrend du schleichst"
+[advancement.challenge_stealth_time_1h]
+    title = "Geduldig"
+    description = "Verbringe 1 Stunde schleichend (3.600 Sekunden)"
+[advancement.challenge_stealth_time_10h]
+    title = "Meister der Schatten"
+    description = "Verbringe 10 Stunden schleichend (36.000 Sekunden)"
+[advancement.challenge_stealth_arrows_50]
+    title = "Stiller Bogenschuetze"
+    description = "Feuere 50 Pfeile waehrend du schleichst"
+[advancement.challenge_stealth_arrows_500]
+    title = "Phantombogenschuetze"
+    description = "Feuere 500 Pfeile waehrend du schleichst"
+
+# Swords
+[advancement.challenge_sword_dmg_1k]
+    title = "Klingenlehrling"
+    description = "Verursache 1.000 Schaden mit Schwertern"
+[advancement.challenge_sword_dmg_10k]
+    title = "Schwertkaempfer"
+    description = "Verursache 10.000 Schaden mit Schwertern"
+[advancement.challenge_sword_kills_50]
+    title = "Duellant"
+    description = "Toete 50 Kreaturen mit Schwertern"
+[advancement.challenge_sword_kills_500]
+    title = "Gladiator"
+    description = "Toete 500 Kreaturen mit Schwertern"
+[advancement.challenge_sword_crit_50]
+    title = "Kritischer Treffer"
+    description = "Lande 50 kritische Treffer mit Schwertern"
+[advancement.challenge_sword_crit_500]
+    title = "Praezisionsmeister"
+    description = "Lande 500 kritische Treffer mit Schwertern"
+[advancement.challenge_sword_heavy_25]
+    title = "Schwerer Schlag"
+    description = "Lande 25 schwere Treffer mit Schwertern (ueber 8 Schaden)"
+[advancement.challenge_sword_heavy_250]
+    title = "Verheerender Hieb"
+    description = "Lande 250 schwere Treffer mit Schwertern (ueber 8 Schaden)"
+
+# Taming
+[advancement.challenge_pet_dmg_500]
+    title = "Tiertrainer"
+    description = "Deine Haustiere verursachen insgesamt 500 Schaden"
+[advancement.challenge_pet_dmg_5k]
+    title = "Kriegsmeister"
+    description = "Deine Haustiere verursachen insgesamt 5.000 Schaden"
+[advancement.challenge_tamed_10]
+    title = "Tierfreund"
+    description = "Zaehme 10 Tiere"
+[advancement.challenge_tamed_100]
+    title = "Zoowaerter"
+    description = "Zaehme 100 Tiere"
+[advancement.challenge_pet_kills_25]
+    title = "Rudeltaktik"
+    description = "Deine Haustiere erschlagen 25 Kreaturen"
+[advancement.challenge_pet_kills_250]
+    title = "Alphakommandant"
+    description = "Deine Haustiere erschlagen 250 Kreaturen"
+[advancement.challenge_taming_2500]
+    title = "Zuchtexperte"
+    description = "Zuechte 2.500 Tiere"
+[advancement.challenge_taming_25k]
+    title = "Genetikmeister"
+    description = "Zuechte 25.000 Tiere"
+
+# TragOul
+[advancement.challenge_trag_hits_500]
+    title = "Sandsack"
+    description = "Erhalte 500 Treffer"
+[advancement.challenge_trag_hits_5k]
+    title = "Glutton fuer Strafe"
+    description = "Erhalte 5.000 Treffer"
+[advancement.challenge_trag_deaths_10]
+    title = "Neun Leben"
+    description = "Stirb 10 Mal"
+[advancement.challenge_trag_deaths_100]
+    title = "Wiederkehrender Albtraum"
+    description = "Stirb 100 Mal"
+[advancement.challenge_trag_fire_500]
+    title = "Brandopfer"
+    description = "Ertrage 500 Feuerschaden"
+[advancement.challenge_trag_fire_5k]
+    title = "Phoeinx"
+    description = "Ertrage 5.000 Feuerschaden"
+[advancement.challenge_trag_fall_500]
+    title = "Schwerkrafttest"
+    description = "Ertrage 500 Fallschaden"
+[advancement.challenge_trag_fall_5k]
+    title = "Endgeschwindigkeit"
+    description = "Ertrage 5.000 Fallschaden"
+
+# Unarmed
+[advancement.challenge_unarmed_dmg_1k]
+    title = "Raufbold"
+    description = "Verursache 1.000 Schaden mit blossen Faeusten"
+[advancement.challenge_unarmed_dmg_10k]
+    title = "Kampfkuenstler"
+    description = "Verursache 10.000 Schaden mit blossen Faeusten"
+[advancement.challenge_unarmed_kills_25]
+    title = "Faustkampf"
+    description = "Toete 25 Kreaturen mit blossen Faeusten"
+[advancement.challenge_unarmed_kills_250]
+    title = "Faust der Legende"
+    description = "Toete 250 Kreaturen mit blossen Faeusten"
+[advancement.challenge_unarmed_crit_25]
+    title = "Kritischer Schlag"
+    description = "Lande 25 kritische Treffer mit blossen Faeusten"
+[advancement.challenge_unarmed_crit_250]
+    title = "Praezisionsfaust"
+    description = "Lande 250 kritische Treffer mit blossen Faeusten"
+[advancement.challenge_unarmed_heavy_25]
+    title = "Kraftschlag"
+    description = "Lande 25 schwere Treffer mit blossen Faeusten (ueber 6 Schaden)"
+[advancement.challenge_unarmed_heavy_250]
+    title = "Knockout-Koenig"
+    description = "Lande 250 schwere Treffer mit blossen Faeusten (ueber 6 Schaden)"
+
 # items
 [items]
 

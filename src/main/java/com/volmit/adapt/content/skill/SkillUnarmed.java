@@ -37,6 +37,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
@@ -81,6 +82,94 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_100").goal(100).stat("unarmed.hits").reward(getConfig().challengeUnarmedReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_1k").goal(1000).stat("unarmed.hits").reward(getConfig().challengeUnarmedReward * 2).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_10k").goal(10000).stat("unarmed.hits").reward(getConfig().challengeUnarmedReward * 5).build());
+
+        // Chain 2 - Unarmed Damage
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.FIRE_CHARGE)
+                .key("challenge_unarmed_dmg_1k")
+                .title(Localizer.dLocalize("advancement.challenge_unarmed_dmg_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_unarmed_dmg_1k.description"))
+                .model(CustomModel.get(Material.FIRE_CHARGE, "advancement", "unarmed", "challenge_unarmed_dmg_1k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BLAZE_ROD)
+                        .key("challenge_unarmed_dmg_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_unarmed_dmg_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_unarmed_dmg_10k.description"))
+                        .model(CustomModel.get(Material.BLAZE_ROD, "advancement", "unarmed", "challenge_unarmed_dmg_10k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_dmg_1k").goal(1000).stat("unarmed.damage").reward(getConfig().challengeUnarmedDmgReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_dmg_10k").goal(10000).stat("unarmed.damage").reward(getConfig().challengeUnarmedDmgReward * 3).build());
+
+        // Chain 3 - Unarmed Kills
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ROTTEN_FLESH)
+                .key("challenge_unarmed_kills_25")
+                .title(Localizer.dLocalize("advancement.challenge_unarmed_kills_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_unarmed_kills_25.description"))
+                .model(CustomModel.get(Material.ROTTEN_FLESH, "advancement", "unarmed", "challenge_unarmed_kills_25"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ZOMBIE_HEAD)
+                        .key("challenge_unarmed_kills_250")
+                        .title(Localizer.dLocalize("advancement.challenge_unarmed_kills_250.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_unarmed_kills_250.description"))
+                        .model(CustomModel.get(Material.ZOMBIE_HEAD, "advancement", "unarmed", "challenge_unarmed_kills_250"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_kills_25").goal(25).stat("unarmed.kills").reward(getConfig().challengeUnarmedKillsReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_kills_250").goal(250).stat("unarmed.kills").reward(getConfig().challengeUnarmedKillsReward * 3).build());
+
+        // Chain 4 - Unarmed Criticals
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SUGAR)
+                .key("challenge_unarmed_crit_25")
+                .title(Localizer.dLocalize("advancement.challenge_unarmed_crit_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_unarmed_crit_25.description"))
+                .model(CustomModel.get(Material.SUGAR, "advancement", "unarmed", "challenge_unarmed_crit_25"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.FERMENTED_SPIDER_EYE)
+                        .key("challenge_unarmed_crit_250")
+                        .title(Localizer.dLocalize("advancement.challenge_unarmed_crit_250.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_unarmed_crit_250.description"))
+                        .model(CustomModel.get(Material.FERMENTED_SPIDER_EYE, "advancement", "unarmed", "challenge_unarmed_crit_250"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_crit_25").goal(25).stat("unarmed.critical").reward(getConfig().challengeUnarmedCritReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_crit_250").goal(250).stat("unarmed.critical").reward(getConfig().challengeUnarmedCritReward * 3).build());
+
+        // Chain 5 - Unarmed Heavy Hits
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.TNT)
+                .key("challenge_unarmed_heavy_25")
+                .title(Localizer.dLocalize("advancement.challenge_unarmed_heavy_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_unarmed_heavy_25.description"))
+                .model(CustomModel.get(Material.TNT, "advancement", "unarmed", "challenge_unarmed_heavy_25"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.END_CRYSTAL)
+                        .key("challenge_unarmed_heavy_250")
+                        .title(Localizer.dLocalize("advancement.challenge_unarmed_heavy_250.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_unarmed_heavy_250.description"))
+                        .model(CustomModel.get(Material.END_CRYSTAL, "advancement", "unarmed", "challenge_unarmed_heavy_250"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_heavy_25").goal(25).stat("unarmed.heavy").reward(getConfig().challengeUnarmedHeavyReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_heavy_250").goal(250).stat("unarmed.heavy").reward(getConfig().challengeUnarmedHeavyReward * 3).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -109,11 +198,33 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
             if (!isMelee(hand)) {
                 a.getData().addStat("unarmed.hits", 1);
                 a.getData().addStat("unarmed.damage", e.getDamage());
+                if (p.getFallDistance() > 0 && !p.isOnGround()) {
+                    a.getData().addStat("unarmed.critical", 1);
+                }
+                if (e.getDamage() > 6) {
+                    a.getData().addStat("unarmed.heavy", 1);
+                }
                 xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
             }
         });
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(EntityDeathEvent e) {
+        if (e.getEntity().getKiller() == null) {
+            return;
+        }
+        Player p = e.getEntity().getKiller();
+
+        shouldReturnForPlayer(p, () -> {
+            AdaptPlayer a = getPlayer(p);
+            ItemStack hand = a.getPlayer().getInventory().getItemInMainHand();
+
+            if (!isMelee(hand)) {
+                a.getData().addStat("unarmed.kills", 1);
+            }
+        });
+    }
 
     @Override
     public void onTick() {
@@ -138,5 +249,13 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         double damageXPMultiplier = 8.44;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Unarmed Reward for the Unarmed skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeUnarmedReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Unarmed Damage Reward for the Unarmed skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double challengeUnarmedDmgReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Unarmed Kills Reward for the Unarmed skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double challengeUnarmedKillsReward = 750;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Unarmed Critical Reward for the Unarmed skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double challengeUnarmedCritReward = 750;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Unarmed Heavy Reward for the Unarmed skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double challengeUnarmedHeavyReward = 750;
     }
 }

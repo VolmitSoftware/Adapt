@@ -19,7 +19,6 @@
 package com.volmit.adapt.content.gui;
 
 import com.volmit.adapt.Adapt;
-import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerAdaptation;
@@ -28,88 +27,115 @@ import com.volmit.adapt.api.xp.XP;
 import com.volmit.adapt.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SkillsGui {
     public static void open(Player player) {
+        open(player, 0);
+    }
+
+    public static void open(Player player, int page) {
         if (!Bukkit.isPrimaryThread()) {
-            J.s(() -> open(player));
+            int targetPage = page;
+            J.s(() -> open(player, targetPage));
             return;
         }
 
-        Window w = new UIWindow(player);
-        w.setTag("/");
-        w.setDecorator((window, position, row) -> new UIElement("bg")
-                .setName(" ")
-                .setMaterial(new MaterialBlock(Material.BLACK_STAINED_GLASS_PANE))
-                .setModel(CustomModel.get(Material.BLACK_STAINED_GLASS_PANE, "snippets", "gui", "background")));
-
         AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getPlayer(player);
-        int ind = 0;
         if (adaptPlayer == null) {
             Adapt.error("Failed to open skills gui for " + player.getName() + " because they are not Online, Were Kicked, Or are a fake player.");
             return;
         }
 
-        if (!adaptPlayer.getData().getSkillLines().isEmpty()) {
-            for (PlayerSkillLine i : adaptPlayer.getData().getSkillLines().sortV()) {
-                Skill<?> sk = i.getRawSkill(adaptPlayer);
-                if (sk == null) {
-                    continue;
-                }
-                if (sk.hasBlacklistPermission(adaptPlayer.getPlayer(), sk) || i.getLevel() < 0) {
-                    continue;
-                }
-                int pos = w.getPosition(ind);
-                int row = w.getRow(ind);
-                int adaptationLevel = 0;
-                for (PlayerAdaptation adaptation : i.getAdaptations().sortV()) {
-                    adaptationLevel = adaptation.getLevel();
-                }
-                if (sk == null || !sk.isEnabled()) {
-                    continue;
-                }
-                w.setElement(pos, row, new UIElement("skill-" + sk.getName())
-                        .setMaterial(new MaterialBlock(sk.getIcon()))
-                        .setModel(sk.getModel())
-                        .setName(sk.getDisplayName(i.getLevel()))
-                        .setProgress(1D)
-                        .addLore(C.ITALIC + "" + C.GRAY + sk.getDescription())
-                        .addLore(C.UNDERLINE + "" + C.WHITE + i.getKnowledge() + C.RESET + " " + C.GRAY + Localizer.dLocalize("snippets.gui.knowledge"))
-                        .addLore(C.ITALIC + "" + C.GRAY + Localizer.dLocalize("snippets.gui.power_used") + " " + C.DARK_GREEN + adaptationLevel)
-                        .onLeftClick((e) -> sk.openGui(player)));
-                ind++;
+        List<SkillPageEntry> entries = new ArrayList<>();
+        for (PlayerSkillLine line : adaptPlayer.getData().getSkillLines().sortV()) {
+            Skill<?> skill = line.getRawSkill(adaptPlayer);
+            if (skill == null) {
+                continue;
+            }
+            if (!skill.isEnabled()) {
+                continue;
+            }
+            if (skill.hasBlacklistPermission(adaptPlayer.getPlayer(), skill) || line.getLevel() < 0) {
+                continue;
             }
 
-            if (AdaptConfig.get().isUnlearnAllButton()) {
-                int unlearnAllPos = w.getResolution().getWidth() - 1;
-                int unlearnAllRow = w.getViewportHeight() - 1;
-                if (w.getElement(unlearnAllPos, unlearnAllRow) != null) unlearnAllRow++;
-                w.setElement(unlearnAllPos, unlearnAllRow, new UIElement("unlearn-all")
-                        .setMaterial(new MaterialBlock(Material.BARRIER))
-                        .setModel(CustomModel.get(Material.BARRIER, "snippets", "gui", "unlearnall"))
-                        .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.unlearn_all")
-                                + (AdaptConfig.get().isHardcoreNoRefunds()
-                                ? " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds")
-                                : ""))
-                        .onLeftClick((e) -> {
-                            Adapt.instance.getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> skill.getAdaptations().forEach(adaptation -> adaptation.unlearn(player, 1, false)));
-                            SoundPlayer spw = SoundPlayer.of(player.getWorld());
-                            spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
-                            spw.play(player.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
-                            w.close();
-                            if (AdaptConfig.get().getLearnUnlearnButtonDelayTicks() != 0) {
-                                player.sendTitle(" ", C.GRAY + Localizer.dLocalize("snippets.gui.unlearned_all"), 1, 5, 11);
-                            }
-                            J.s(() -> open(player), AdaptConfig.get().getLearnUnlearnButtonDelayTicks());
-                        }));
+            int adaptationLevel = 0;
+            for (PlayerAdaptation adaptation : line.getAdaptations().sortV()) {
+                adaptationLevel += adaptation.getLevel();
             }
 
-            w.setTitle(Localizer.dLocalize("snippets.gui.level") + " " + (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp()) + " (" + adaptPlayer.getData().getUsedPower() + "/" + adaptPlayer.getData().getMaxPower() + " " + Localizer.dLocalize("snippets.gui.power_used") + ")");
-            w.open();
-            w.onClosed((e) -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString()));
-            Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
+            entries.add(new SkillPageEntry(skill, line, adaptationLevel));
         }
+
+        boolean reserveNavigation = false;
+        GuiLayout.PagePlan plan = GuiLayout.plan(entries.size(), reserveNavigation);
+        int currentPage = GuiLayout.clampPage(page, plan.pageCount());
+        int start = currentPage * plan.itemsPerPage();
+        int end = Math.min(entries.size(), start + plan.itemsPerPage());
+
+        Window w = new UIWindow(player);
+        GuiTheme.apply(w, "/");
+        w.setViewportHeight(plan.rows());
+
+        if (entries.isEmpty()) {
+            w.setElement(0, 0, new UIElement("skills-empty")
+                    .setMaterial(new MaterialBlock(Material.PAPER))
+                    .setName(C.GRAY + "No skills available")
+                    .addLore(C.DARK_GRAY + "No eligible skills were found for this player."));
+        } else {
+            List<GuiEffects.Placement> reveal = new ArrayList<>();
+            for (int row = 0; row < plan.contentRows(); row++) {
+                int rowStart = start + (row * GuiLayout.WIDTH);
+                if (rowStart >= end) {
+                    break;
+                }
+
+                int rowCount = Math.min(GuiLayout.WIDTH, end - rowStart);
+                for (int i = 0; i < rowCount; i++) {
+                    SkillPageEntry entry = entries.get(rowStart + i);
+                    int pos = GuiLayout.centeredPosition(i, rowCount);
+                    Element element = new UIElement("skill-" + entry.skill().getName())
+                            .setMaterial(new MaterialBlock(entry.skill().getIcon()))
+                            .setModel(entry.skill().getModel())
+                            .setName(entry.skill().getDisplayName(entry.line().getLevel()))
+                            .setProgress(1D)
+                            .addLore(C.ITALIC + "" + C.GRAY + entry.skill().getDescription())
+                            .addLore(C.UNDERLINE + "" + C.WHITE + entry.line().getKnowledge() + C.RESET + " " + C.GRAY + Localizer.dLocalize("snippets.gui.knowledge"))
+                            .addLore(C.ITALIC + "" + C.GRAY + Localizer.dLocalize("snippets.gui.power_used") + " " + C.DARK_GREEN + entry.adaptationLevel())
+                            .onLeftClick((e) -> entry.skill().openGui(player));
+                    reveal.add(new GuiEffects.Placement(pos, row, element));
+                }
+            }
+            GuiEffects.applyReveal(w, reveal);
+        }
+
+        if (plan.hasNavigationRow()) {
+            int navRow = plan.rows() - 1;
+            if (currentPage > 0) {
+                w.setElement(-4, navRow, new UIElement("skills-prev")
+                        .setMaterial(new MaterialBlock(Material.ARROW))
+                        .setName(C.WHITE + "Previous")
+                        .onLeftClick((e) -> open(player, currentPage - 1)));
+            }
+            if (currentPage < plan.pageCount() - 1) {
+                w.setElement(4, navRow, new UIElement("skills-next")
+                        .setMaterial(new MaterialBlock(Material.ARROW))
+                        .setName(C.WHITE + "Next")
+                        .onLeftClick((e) -> open(player, currentPage + 1)));
+            }
+        }
+
+        String pageSuffix = plan.pageCount() > 1 ? " [" + (currentPage + 1) + "/" + plan.pageCount() + "]" : "";
+        w.setTitle(Localizer.dLocalize("snippets.gui.level") + " " + (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp()) + " (" + adaptPlayer.getData().getUsedPower() + "/" + adaptPlayer.getData().getMaxPower() + " " + Localizer.dLocalize("snippets.gui.power_used") + ")" + pageSuffix);
+        w.open();
+        w.onClosed((e) -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString()));
+        Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
+    }
+
+    private record SkillPageEntry(Skill<?> skill, PlayerSkillLine line, int adaptationLevel) {
     }
 }

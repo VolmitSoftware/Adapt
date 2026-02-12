@@ -30,6 +30,7 @@ import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -111,7 +112,87 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_50k").goal(5000).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*10).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_500k").goal(50000).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*10).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_5m").goal(500000).stat("pickaxe.blocks.broken").reward(getConfig().emeraldBonus*50).build());
-        
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WOODEN_PICKAXE).key("challenge_pick_swing_500")
+                .title(Localizer.dLocalize("advancement.challenge_pick_swing_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pick_swing_500.description"))
+                .model(CustomModel.get(Material.WOODEN_PICKAXE, "advancement", "pickaxe", "challenge_pick_swing_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.IRON_PICKAXE)
+                        .key("challenge_pick_swing_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_pick_swing_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_pick_swing_5k.description"))
+                        .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "pickaxe", "challenge_pick_swing_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_swing_500").goal(500).stat("pickaxe.swings").reward(getConfig().emeraldBonus).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_swing_5k").goal(5000).stat("pickaxe.swings").reward(getConfig().emeraldBonus * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GOLDEN_PICKAXE).key("challenge_pick_damage_1k")
+                .title(Localizer.dLocalize("advancement.challenge_pick_damage_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pick_damage_1k.description"))
+                .model(CustomModel.get(Material.GOLDEN_PICKAXE, "advancement", "pickaxe", "challenge_pick_damage_1k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_PICKAXE)
+                        .key("challenge_pick_damage_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_pick_damage_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_pick_damage_10k.description"))
+                        .model(CustomModel.get(Material.DIAMOND_PICKAXE, "advancement", "pickaxe", "challenge_pick_damage_10k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_damage_1k").goal(1000).stat("pickaxe.damage").reward(getConfig().emeraldBonus).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_damage_10k").goal(10000).stat("pickaxe.damage").reward(getConfig().emeraldBonus * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.RAW_IRON).key("challenge_pick_value_5k")
+                .title(Localizer.dLocalize("advancement.challenge_pick_value_5k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pick_value_5k.description"))
+                .model(CustomModel.get(Material.RAW_IRON, "advancement", "pickaxe", "challenge_pick_value_5k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.RAW_GOLD)
+                        .key("challenge_pick_value_50k")
+                        .title(Localizer.dLocalize("advancement.challenge_pick_value_50k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_pick_value_50k.description"))
+                        .model(CustomModel.get(Material.RAW_GOLD, "advancement", "pickaxe", "challenge_pick_value_50k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_value_5k").goal(5000).stat("pickaxe.blocks.value").reward(getConfig().emeraldBonus).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_value_50k").goal(50000).stat("pickaxe.blocks.value").reward(getConfig().emeraldBonus * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_ORE).key("challenge_pick_ores_500")
+                .title(Localizer.dLocalize("advancement.challenge_pick_ores_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pick_ores_500.description"))
+                .model(CustomModel.get(Material.IRON_ORE, "advancement", "pickaxe", "challenge_pick_ores_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_ORE)
+                        .key("challenge_pick_ores_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_pick_ores_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_pick_ores_5k.description"))
+                        .model(CustomModel.get(Material.DIAMOND_ORE, "advancement", "pickaxe", "challenge_pick_ores_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_ores_500").goal(500).stat("pickaxe.ores").reward(getConfig().emeraldBonus).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pick_ores_5k").goal(5000).stat("pickaxe.ores").reward(getConfig().emeraldBonus * 2).build());
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -153,6 +234,9 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
                 adaptPlayer.getData().addStat("pickaxe.blocks.broken", 1);
                 adaptPlayer.getData().addStat("pickaxe.blocks.value", blockValue);
+                if (blockType.name().contains("_ORE")) {
+                    adaptPlayer.getData().addStat("pickaxe.ores", 1);
+                }
 
                 handleCooldown(p, () -> {
                     if (mainHand.getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
@@ -209,7 +293,9 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
     @Override
     public void onTick() {
-
+        for (Player i : Bukkit.getOnlinePlayers()) {
+            shouldReturnForPlayer(i, () -> checkStatTrackers(getPlayer(i)));
+        }
     }
 
     @Override

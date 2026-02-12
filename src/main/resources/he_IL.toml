@@ -373,6 +373,716 @@
     title = "אדון החיות"
     description = "הרבה 500 חיות"
 
+# Agility - New Achievement Chains
+[advancement.challenge_sprint_dist_5k]
+    title = "שד המהירות"
+    description = "רוץ מעל 5 קילומטרים (5,000 בלוקים)"
+
+[advancement.challenge_sprint_dist_50k]
+    title = "רגלי ברק"
+    description = "רוץ מעל 50 קילומטרים (50,000 בלוקים)"
+
+[advancement.challenge_agility_swim_1k]
+    title = "פוסע על המים"
+    description = "שחה מעל קילומטר אחד (1,000 בלוקים)"
+
+[advancement.challenge_agility_swim_10k]
+    title = "מסע ימי"
+    description = "שחה מעל 10 קילומטרים (10,000 בלוקים)"
+
+[advancement.challenge_fly_1k]
+    title = "רקדן השמיים"
+    description = "טוס מעל קילומטר אחד (1,000 בלוקים)"
+
+[advancement.challenge_fly_10k]
+    title = "רוכב הרוח"
+    description = "טוס מעל 10 קילומטרים (10,000 בלוקים)"
+
+[advancement.challenge_agility_sneak_500]
+    title = "צעדים שקטים"
+    description = "התגנב מעל 500 בלוקים"
+
+[advancement.challenge_agility_sneak_5k]
+    title = "צעדי רפאים"
+    description = "התגנב מעל 5 קילומטרים (5,000 בלוקים)"
+
+# Architect - New Achievement Chains
+[advancement.challenge_demolish_500]
+    title = "צוות הריסה"
+    description = "שבור 500 בלוקים"
+
+[advancement.challenge_demolish_5k]
+    title = "כדור ההריסה"
+    description = "שבור 5,000 בלוקים"
+
+[advancement.challenge_value_placed_10k]
+    title = "בנאי בעל ערך"
+    description = "הנח בלוקים בשווי 10,000"
+
+[advancement.challenge_value_placed_100k]
+    title = "אדריכל ראשי"
+    description = "הנח בלוקים בשווי 100,000"
+
+[advancement.challenge_demolish_val_5k]
+    title = "מומחה מיחזור"
+    description = "מחזר 5,000 ערך בלוקים מהריסה"
+
+[advancement.challenge_demolish_val_50k]
+    title = "פירוק מוחלט"
+    description = "מחזר 50,000 ערך בלוקים מהריסה"
+
+[advancement.challenge_high_build_100]
+    title = "בנאי גבהים"
+    description = "הנח 100 בלוקים מעל Y=128"
+
+[advancement.challenge_high_build_1k]
+    title = "אדריכל העננים"
+    description = "הנח 1,000 בלוקים מעל Y=128"
+
+# Axes - New Achievement Chains
+[advancement.challenge_axe_swing_500]
+    title = "מניף הגרזן"
+    description = "הנף את הגרזן 500 פעמים"
+
+[advancement.challenge_axe_swing_5k]
+    title = "ברסרקר"
+    description = "הנף את הגרזן 5,000 פעמים"
+
+[advancement.challenge_axe_damage_1k]
+    title = "מבתר"
+    description = "גרום 1,000 נזק עם גרזנים"
+
+[advancement.challenge_axe_damage_10k]
+    title = "גרזן התליין"
+    description = "גרום 10,000 נזק עם גרזנים"
+
+[advancement.challenge_axe_value_5k]
+    title = "סוחר עצים"
+    description = "כרות עץ בשווי 5,000"
+
+[advancement.challenge_axe_value_50k]
+    title = "מלך הכריתה"
+    description = "כרות עץ בשווי 50,000"
+
+[advancement.challenge_leaves_500]
+    title = "מפוח עלים"
+    description = "נקה 500 בלוקי עלים עם גרזן"
+
+[advancement.challenge_leaves_5k]
+    title = "משיר העלים"
+    description = "נקה 5,000 בלוקי עלים עם גרזן"
+
+# Blocking - New Achievement Chains
+[advancement.challenge_block_dmg_1k]
+    title = "סופג נזק"
+    description = "חסום 1,000 נזק עם מגן"
+
+[advancement.challenge_block_dmg_10k]
+    title = "מגן אנושי"
+    description = "חסום 10,000 נזק עם מגן"
+
+[advancement.challenge_block_proj_100]
+    title = "מסיט חצים"
+    description = "חסום 100 קליעים עם מגן"
+
+[advancement.challenge_block_proj_1k]
+    title = "מגן קליעים"
+    description = "חסום 1,000 קליעים עם מגן"
+
+[advancement.challenge_block_melee_500]
+    title = "אמן הפריירה"
+    description = "חסום 500 תקיפות קרב קרוב עם מגן"
+
+[advancement.challenge_block_melee_5k]
+    title = "מבצר הברזל"
+    description = "חסום 5,000 תקיפות קרב קרוב עם מגן"
+
+[advancement.challenge_block_heavy_50]
+    title = "טנק"
+    description = "חסום 50 תקיפות כבדות (מעל 5 נזק)"
+
+[advancement.challenge_block_heavy_500]
+    title = "עצם בלתי ניתן להזזה"
+    description = "חסום 500 תקיפות כבדות (מעל 5 נזק)"
+
+# Brewing - New Achievement Chains
+[advancement.challenge_brew_stands_10]
+    title = "תחנת שיקויים"
+    description = "הנח 10 מעמדי שיקויים"
+
+[advancement.challenge_brew_stands_50]
+    title = "מפעל שיקויים"
+    description = "הנח 50 מעמדי שיקויים"
+
+[advancement.challenge_brew_strong_25]
+    title = "שיקוי חזק"
+    description = "שתה 25 שיקויים משודרגים"
+
+[advancement.challenge_brew_strong_250]
+    title = "עוצמה מרבית"
+    description = "שתה 250 שיקויים משודרגים"
+
+[advancement.challenge_brew_splash_hits_50]
+    title = "אזור התזה"
+    description = "פגע ב-50 ישויות עם שיקויי התזה"
+
+[advancement.challenge_brew_splash_hits_500]
+    title = "רופא המגיפה"
+    description = "פגע ב-500 ישויות עם שיקויי התזה"
+
+# Chronos - New Achievement Chains
+[advancement.challenge_active_dist_1k]
+    title = "חסר מנוחה"
+    description = "עבור קילומטר אחד בזמן פעיל"
+
+[advancement.challenge_active_dist_10k]
+    title = "סולל דרכים"
+    description = "עבור 10 קילומטרים בזמן פעיל"
+
+[advancement.challenge_active_dist_100k]
+    title = "תנועה מתמדת"
+    description = "עבור 100 קילומטרים בזמן פעיל"
+
+[advancement.challenge_beds_10]
+    title = "משכים קום"
+    description = "ישן במיטה 10 פעמים"
+
+[advancement.challenge_beds_100]
+    title = "מדלג על הזמן"
+    description = "ישן במיטה 100 פעמים"
+
+[advancement.challenge_chronos_tp_50]
+    title = "הסטה זמנית"
+    description = "השתגר 50 פעמים"
+
+[advancement.challenge_chronos_tp_500]
+    title = "עיוות זמן"
+    description = "השתגר 500 פעמים"
+
+[advancement.challenge_chronos_deaths_10]
+    title = "בן תמותה"
+    description = "מות 10 פעמים"
+
+[advancement.challenge_chronos_deaths_100]
+    title = "מתגרה במוות"
+    description = "מות 100 פעמים"
+
+# Crafting - New Achievement Chains
+[advancement.challenge_craft_value_10k]
+    title = "יצירה בעלת ערך"
+    description = "צור חפצים בשווי כולל של 10,000"
+
+[advancement.challenge_craft_value_100k]
+    title = "אומן"
+    description = "צור חפצים בשווי כולל של 100,000"
+
+[advancement.challenge_craft_tools_25]
+    title = "יוצר כלים"
+    description = "צור 25 כלים"
+
+[advancement.challenge_craft_tools_250]
+    title = "נפח ראשי"
+    description = "צור 250 כלים"
+
+[advancement.challenge_craft_armor_25]
+    title = "יוצר שריון"
+    description = "צור 25 חלקי שריון"
+
+[advancement.challenge_craft_armor_250]
+    title = "אמן השריון"
+    description = "צור 250 חלקי שריון"
+
+[advancement.challenge_craft_mass_25k]
+    title = "ייצור המוני"
+    description = "צור 25,000 חפצים"
+
+[advancement.challenge_craft_mass_250k]
+    title = "מהפכה תעשייתית"
+    description = "צור 250,000 חפצים"
+
+# Discovery - New Achievement Chains
+[advancement.challenge_discover_items_50]
+    title = "אספן"
+    description = "גלה 50 חפצים ייחודיים"
+
+[advancement.challenge_discover_items_250]
+    title = "מקטלג"
+    description = "גלה 250 חפצים ייחודיים"
+
+[advancement.challenge_discover_blocks_50]
+    title = "סוקר"
+    description = "גלה 50 בלוקים ייחודיים"
+
+[advancement.challenge_discover_blocks_250]
+    title = "גיאולוג"
+    description = "גלה 250 בלוקים ייחודיים"
+
+[advancement.challenge_discover_mobs_25]
+    title = "צופה"
+    description = "גלה 25 מובים ייחודיים"
+
+[advancement.challenge_discover_mobs_75]
+    title = "חוקר טבע"
+    description = "גלה 75 מובים ייחודיים"
+
+[advancement.challenge_discover_biomes_10]
+    title = "נווד"
+    description = "גלה 10 ביומים ייחודיים"
+
+[advancement.challenge_discover_biomes_40]
+    title = "מטייל העולם"
+    description = "גלה 40 ביומים ייחודיים"
+
+[advancement.challenge_discover_foods_10]
+    title = "שפית"
+    description = "גלה 10 מאכלים ייחודיים"
+
+[advancement.challenge_discover_foods_30]
+    title = "מאסטר שף"
+    description = "גלה 30 מאכלים ייחודיים"
+
+# Enchanting - New Achievement Chains
+[advancement.challenge_enchant_power_100]
+    title = "אורג כוח"
+    description = "צבור 100 כוח כישוף"
+
+[advancement.challenge_enchant_power_1k]
+    title = "אדון הקסם"
+    description = "צבור 1,000 כוח כישוף"
+
+[advancement.challenge_enchant_levels_1k]
+    title = "מבזבז רמות"
+    description = "הוצא 1,000 רמות ניסיון על כישוף"
+
+[advancement.challenge_enchant_levels_10k]
+    title = "בור ניסיון"
+    description = "הוצא 10,000 רמות ניסיון על כישוף"
+
+[advancement.challenge_enchant_high_25]
+    title = "מהמר גדול"
+    description = "בצע 25 כישופים ברמה מקסימלית"
+
+[advancement.challenge_enchant_high_250]
+    title = "מכשף אגדי"
+    description = "בצע 250 כישופים ברמה מקסימלית"
+
+[advancement.challenge_enchant_total_500]
+    title = "שורף רמות"
+    description = "הוצא 500 רמות סה\"כ על כל הכישופים"
+
+[advancement.challenge_enchant_total_5k]
+    title = "השקעה קסומה"
+    description = "הוצא 5,000 רמות סה\"כ על כל הכישופים"
+
+# Excavation - New Achievement Chains
+[advancement.challenge_dig_swing_500]
+    title = "חופר"
+    description = "הנף את האת 500 פעמים"
+
+[advancement.challenge_dig_swing_5k]
+    title = "מחפרון"
+    description = "הנף את האת 5,000 פעמים"
+
+[advancement.challenge_dig_damage_1k]
+    title = "אביר האת"
+    description = "גרום 1,000 נזק עם את"
+
+[advancement.challenge_dig_damage_10k]
+    title = "אדון האת"
+    description = "גרום 10,000 נזק עם את"
+
+[advancement.challenge_dig_value_5k]
+    title = "סוחר אדמה"
+    description = "חפור בלוקים בשווי 5,000"
+
+[advancement.challenge_dig_value_50k]
+    title = "אדון האדמות"
+    description = "חפור בלוקים בשווי 50,000"
+
+[advancement.challenge_dig_gravel_500]
+    title = "טוחן חצץ"
+    description = "חפור 500 בלוקי חצץ, חול או חרסית"
+
+[advancement.challenge_dig_gravel_5k]
+    title = "מנפה חול"
+    description = "חפור 5,000 בלוקי חצץ, חול או חרסית"
+
+# Herbalism - New Achievement Chains
+[advancement.challenge_plant_100]
+    title = "זורע"
+    description = "שתול 100 גידולים"
+
+[advancement.challenge_plant_1k]
+    title = "אגודל ירוק"
+    description = "שתול 1,000 גידולים"
+
+[advancement.challenge_plant_5k]
+    title = "מלך החקלאות"
+    description = "שתול 5,000 גידולים"
+
+[advancement.challenge_compost_50]
+    title = "ממחזר"
+    description = "הכנס 50 חפצים לקומפוסט"
+
+[advancement.challenge_compost_500]
+    title = "מעשיר אדמה"
+    description = "הכנס 500 חפצים לקומפוסט"
+
+[advancement.challenge_shear_50]
+    title = "גוזז"
+    description = "גזוז 50 ישויות"
+
+[advancement.challenge_shear_250]
+    title = "אדון העדר"
+    description = "גזוז 250 ישויות"
+
+# Hunter - New Achievement Chains
+[advancement.challenge_kills_500]
+    title = "קוטל"
+    description = "הרוג 500 יצורים"
+
+[advancement.challenge_kills_5k]
+    title = "תליין"
+    description = "הרוג 5,000 יצורים"
+
+[advancement.challenge_boss_1]
+    title = "מאתגר בוסים"
+    description = "הרוג מוב בוס"
+
+[advancement.challenge_boss_10]
+    title = "רוצח אגדות"
+    description = "הרוג 10 מובי בוס"
+
+# Nether - New Achievement Chains
+[advancement.challenge_wither_dmg_500]
+    title = "נקלע לכמישה"
+    description = "ספוג 500 נזק כמישה"
+
+[advancement.challenge_wither_dmg_5k]
+    title = "שורד המגיפה"
+    description = "ספוג 5,000 נזק כמישה"
+
+[advancement.challenge_wither_skel_25]
+    title = "אוסף עצמות"
+    description = "הרוג 25 שלדי ויתר"
+
+[advancement.challenge_wither_skel_250]
+    title = "מכת השלדים"
+    description = "הרוג 250 שלדי ויתר"
+
+[advancement.challenge_wither_boss_1]
+    title = "קוטל הויתר"
+    description = "הבס את הויתר"
+
+[advancement.challenge_wither_boss_10]
+    title = "שליט הנתר"
+    description = "הבס את הויתר 10 פעמים"
+
+[advancement.challenge_roses_10]
+    title = "גנן המוות"
+    description = "שבור 10 ורדי ויתר"
+
+[advancement.challenge_roses_100]
+    title = "אוסף הכמישה"
+    description = "שבור 100 ורדי ויתר"
+
+# Pickaxes - New Achievement Chains
+[advancement.challenge_pick_swing_500]
+    title = "זרוע הכורה"
+    description = "הנף את המכוש 500 פעמים"
+
+[advancement.challenge_pick_swing_5k]
+    title = "כורה מנהרות"
+    description = "הנף את המכוש 5,000 פעמים"
+
+[advancement.challenge_pick_damage_1k]
+    title = "לוחם מכוש"
+    description = "גרום 1,000 נזק עם מכוש"
+
+[advancement.challenge_pick_damage_10k]
+    title = "מכוש מלחמה"
+    description = "גרום 10,000 נזק עם מכוש"
+
+[advancement.challenge_pick_value_5k]
+    title = "מוצא אבני חן"
+    description = "כרה בלוקים בשווי 5,000"
+
+[advancement.challenge_pick_value_50k]
+    title = "מלך המחצבים"
+    description = "כרה בלוקים בשווי 50,000"
+
+[advancement.challenge_pick_ores_500]
+    title = "מחפש מחצבים"
+    description = "כרה 500 בלוקי עפרה"
+
+[advancement.challenge_pick_ores_5k]
+    title = "כורה ראשי"
+    description = "כרה 5,000 בלוקי עפרה"
+
+# Ranged - New Achievement Chains
+[advancement.challenge_ranged_dmg_1k]
+    title = "צלף מדויק"
+    description = "גרום 1,000 נזק מרחוק"
+
+[advancement.challenge_ranged_dmg_10k]
+    title = "קשת קטלני"
+    description = "גרום 10,000 נזק מרחוק"
+
+[advancement.challenge_ranged_dist_5k]
+    title = "טווח ארוך"
+    description = "ירה קליעים שכיסו מרחק כולל של 5,000 בלוקים"
+
+[advancement.challenge_ranged_dist_50k]
+    title = "יורה לקילומטרים"
+    description = "ירה קליעים שכיסו מרחק כולל של 50,000 בלוקים"
+
+[advancement.challenge_ranged_kills_50]
+    title = "קשת"
+    description = "הרוג 50 מובים עם נשק טווח"
+
+[advancement.challenge_ranged_kills_500]
+    title = "קשת מאסטר"
+    description = "הרוג 500 מובים עם נשק טווח"
+
+[advancement.challenge_longshot_25]
+    title = "צלף"
+    description = "פגע 25 פגיעות מרחוק (מעל 30 בלוקים)"
+
+[advancement.challenge_longshot_250]
+    title = "עין הנשר"
+    description = "פגע 250 פגיעות מרחוק (מעל 30 בלוקים)"
+
+# Rift - New Achievement Chains
+[advancement.challenge_rift_pearls_50]
+    title = "זורק פנינים"
+    description = "זרוק 50 פניני אנדר"
+
+[advancement.challenge_rift_pearls_500]
+    title = "מכור לשיגור"
+    description = "זרוק 500 פניני אנדר"
+
+[advancement.challenge_rift_enderman_50]
+    title = "צייד אנדרמנים"
+    description = "הרוג 50 אנדרמנים"
+
+[advancement.challenge_rift_enderman_500]
+    title = "רודף הריק"
+    description = "הרוג 500 אנדרמנים"
+
+[advancement.challenge_rift_dragon_500]
+    title = "לוחם הדרקון"
+    description = "גרום 500 נזק לדרקון האנדר"
+
+[advancement.challenge_rift_dragon_5k]
+    title = "מכת הדרקון"
+    description = "גרום 5,000 נזק לדרקון האנדר"
+
+[advancement.challenge_rift_crystal_10]
+    title = "שובר גבישים"
+    description = "השמד 10 גבישי קצה"
+
+[advancement.challenge_rift_crystal_100]
+    title = "הורס הקצה"
+    description = "השמד 100 גבישי קצה"
+
+# Seaborne - New Achievement Chains
+[advancement.challenge_fish_25]
+    title = "דייג"
+    description = "תפוס 25 דגים"
+
+[advancement.challenge_fish_250]
+    title = "דייג מאסטר"
+    description = "תפוס 250 דגים"
+
+[advancement.challenge_drowned_25]
+    title = "צייד טבועים"
+    description = "הרוג 25 טבועים"
+
+[advancement.challenge_drowned_250]
+    title = "מנקה האוקיינוס"
+    description = "הרוג 250 טבועים"
+
+[advancement.challenge_guardian_10]
+    title = "קוטל שומרים"
+    description = "הרוג 10 שומרים"
+
+[advancement.challenge_guardian_100]
+    title = "פורץ מקדשים"
+    description = "הרוג 100 שומרים"
+
+[advancement.challenge_underwater_blocks_100]
+    title = "כורה תת-מימי"
+    description = "שבור 100 בלוקים מתחת למים"
+
+[advancement.challenge_underwater_blocks_1k]
+    title = "מהנדס תת-מימי"
+    description = "שבור 1,000 בלוקים מתחת למים"
+
+# Stealth - New Achievement Chains
+[advancement.challenge_stealth_dmg_500]
+    title = "דוקר גב"
+    description = "גרום 500 נזק בזחילה"
+
+[advancement.challenge_stealth_dmg_5k]
+    title = "רוצח שקט"
+    description = "גרום 5,000 נזק בזחילה"
+
+[advancement.challenge_stealth_kills_10]
+    title = "מתנקש"
+    description = "הרוג 10 מובים בזחילה"
+
+[advancement.challenge_stealth_kills_100]
+    title = "קוצר הצללים"
+    description = "הרוג 100 מובים בזחילה"
+
+[advancement.challenge_stealth_time_1h]
+    title = "סבלני"
+    description = "בלה שעה אחת בזחילה (3,600 שניות)"
+
+[advancement.challenge_stealth_time_10h]
+    title = "אדון הצללים"
+    description = "בלה 10 שעות בזחילה (36,000 שניות)"
+
+[advancement.challenge_stealth_arrows_50]
+    title = "קשת שקט"
+    description = "ירה 50 חצים בזחילה"
+
+[advancement.challenge_stealth_arrows_500]
+    title = "קשת הרפאים"
+    description = "ירה 500 חצים בזחילה"
+
+# Swords - New Achievement Chains
+[advancement.challenge_sword_dmg_1k]
+    title = "חניך החרב"
+    description = "גרום 1,000 נזק עם חרבות"
+
+[advancement.challenge_sword_dmg_10k]
+    title = "סייף"
+    description = "גרום 10,000 נזק עם חרבות"
+
+[advancement.challenge_sword_kills_50]
+    title = "דו-קרבן"
+    description = "הרוג 50 מובים עם חרבות"
+
+[advancement.challenge_sword_kills_500]
+    title = "גלדיאטור"
+    description = "הרוג 500 מובים עם חרבות"
+
+[advancement.challenge_sword_crit_50]
+    title = "מכה קריטית"
+    description = "נחות 50 מכות קריטיות עם חרבות"
+
+[advancement.challenge_sword_crit_500]
+    title = "אמן הדיוק"
+    description = "נחות 500 מכות קריטיות עם חרבות"
+
+[advancement.challenge_sword_heavy_25]
+    title = "מכה כבדה"
+    description = "נחות 25 מכות כבדות עם חרבות (מעל 8 נזק)"
+
+[advancement.challenge_sword_heavy_250]
+    title = "מכה הרסנית"
+    description = "נחות 250 מכות כבדות עם חרבות (מעל 8 נזק)"
+
+# Taming - New Achievement Chains
+[advancement.challenge_pet_dmg_500]
+    title = "מאלף חיות"
+    description = "חיות המחמד שלך גורמות 500 נזק כולל"
+
+[advancement.challenge_pet_dmg_5k]
+    title = "אדון המלחמה"
+    description = "חיות המחמד שלך גורמות 5,000 נזק כולל"
+
+[advancement.challenge_tamed_10]
+    title = "ידיד בעלי חיים"
+    description = "אלף 10 חיות"
+
+[advancement.challenge_tamed_100]
+    title = "שומר גן החיות"
+    description = "אלף 100 חיות"
+
+[advancement.challenge_pet_kills_25]
+    title = "טקטיקת להקה"
+    description = "חיות המחמד שלך הורגות 25 יצורים"
+
+[advancement.challenge_pet_kills_250]
+    title = "מפקד הלהקה"
+    description = "חיות המחמד שלך הורגות 250 יצורים"
+
+[advancement.challenge_taming_2500]
+    title = "מומחה רבייה"
+    description = "הרבה 2,500 חיות"
+
+[advancement.challenge_taming_25k]
+    title = "מאסטר גנטיקה"
+    description = "הרבה 25,000 חיות"
+
+# TragOul - New Achievement Chains
+[advancement.challenge_trag_hits_500]
+    title = "שק חבטות"
+    description = "קבל 500 מכות"
+
+[advancement.challenge_trag_hits_5k]
+    title = "מכור לסבל"
+    description = "קבל 5,000 מכות"
+
+[advancement.challenge_trag_deaths_10]
+    title = "תשע נשמות"
+    description = "מות 10 פעמים"
+
+[advancement.challenge_trag_deaths_100]
+    title = "סיוט חוזר"
+    description = "מות 100 פעמים"
+
+[advancement.challenge_trag_fire_500]
+    title = "קורבן אש"
+    description = "ספוג 500 נזק אש"
+
+[advancement.challenge_trag_fire_5k]
+    title = "עוף החול"
+    description = "ספוג 5,000 נזק אש"
+
+[advancement.challenge_trag_fall_500]
+    title = "בדיקת כבידה"
+    description = "ספוג 500 נזק נפילה"
+
+[advancement.challenge_trag_fall_5k]
+    title = "מהירות סופית"
+    description = "ספוג 5,000 נזק נפילה"
+
+# Unarmed - New Achievement Chains
+[advancement.challenge_unarmed_dmg_1k]
+    title = "מתאגרף"
+    description = "גרום 1,000 נזק באגרופים חשופים"
+
+[advancement.challenge_unarmed_dmg_10k]
+    title = "אמן לחימה"
+    description = "גרום 10,000 נזק באגרופים חשופים"
+
+[advancement.challenge_unarmed_kills_25]
+    title = "אגרוף חשוף"
+    description = "הרוג 25 מובים באגרופים חשופים"
+
+[advancement.challenge_unarmed_kills_250]
+    title = "אגרוף האגדה"
+    description = "הרוג 250 מובים באגרופים חשופים"
+
+[advancement.challenge_unarmed_crit_25]
+    title = "אגרוף קריטי"
+    description = "נחות 25 מכות קריטיות באגרופים חשופים"
+
+[advancement.challenge_unarmed_crit_250]
+    title = "אגרוף מדויק"
+    description = "נחות 250 מכות קריטיות באגרופים חשופים"
+
+[advancement.challenge_unarmed_heavy_25]
+    title = "אגרוף כוח"
+    description = "נחות 25 מכות כבדות באגרופים חשופים (מעל 6 נזק)"
+
+[advancement.challenge_unarmed_heavy_250]
+    title = "מלך הנוקאאוט"
+    description = "נחות 250 מכות כבדות באגרופים חשופים (מעל 6 נזק)"
+
 # items
 [items]
 

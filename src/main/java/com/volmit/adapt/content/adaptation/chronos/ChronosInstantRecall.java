@@ -44,6 +44,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -68,6 +69,8 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
     private final Map<UUID, Long> rewindProtection;
     private final Set<UUID> rewinding;
     private final Map<UUID, RecallXPFarmStamp> recallXpStamps;
+    private final Map<UUID, Long> jumpArmUntil;
+    private final Map<UUID, Boolean> lastOnGround;
 
     public ChronosInstantRecall() {
         super("chronos-instant-recall");
@@ -87,6 +90,8 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         rewindProtection = new HashMap<>();
         rewinding = new HashSet<>();
         recallXpStamps = new HashMap<>();
+        jumpArmUntil = new HashMap<>();
+        lastOnGround = new HashMap<>();
     }
 
     @Override
@@ -305,22 +310,42 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerInteractEvent e) {
-        if (!RECALL_ACTIONS.contains(e.getAction())) {
-            return;
-        }
-
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || p.getGameMode() != GameMode.SURVIVAL) {
+        if (!isRecallEligible(p)) {
             return;
         }
 
-        EquipmentSlot recallHand = resolveRecallHand(p, e.getHand());
-        if (recallHand == null) {
+        if (shouldTriggerSprintClockClick(e)) {
+            e.setCancelled(true);
+            attemptRecall(p);
+            return;
+        }
+
+        if (shouldTriggerClockClick(e)) {
+            e.setCancelled(true);
+            attemptRecall(p);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(PlayerToggleFlightEvent e) {
+        Player p = e.getPlayer();
+        UUID id = p.getUniqueId();
+        if (!isRecallEligible(p) || !getConfig().enableDoubleJumpTrigger) {
+            return;
+        }
+
+        Long armUntil = jumpArmUntil.get(id);
+        if (armUntil == null) {
             return;
         }
 
         e.setCancelled(true);
-        attemptRecall(p);
+        p.setFlying(false);
+        clearDoubleJumpArm(p, id);
+        if (armUntil > M.ms()) {
+            attemptRecall(p);
+        }
     }
 
     private EquipmentSlot resolveRecallHand(Player p, EquipmentSlot eventHand) {
@@ -354,6 +379,130 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         return null;
     }
 
+    private boolean isRecallEligible(Player p) {
+        return hasAdaptation(p) && p.getGameMode() == GameMode.SURVIVAL;
+    }
+
+    private boolean isLeftClick(Action action) {
+        return action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK;
+    }
+
+    private boolean isRightClick(Action action) {
+        return action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK;
+    }
+
+    private boolean isBlockClick(Action action) {
+        return action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK;
+    }
+
+    private boolean isActionAllowed(Action action) {
+        if (!RECALL_ACTIONS.contains(action)) {
+            return false;
+        }
+
+        if (!getConfig().allowAirClicks && !isBlockClick(action)) {
+            return false;
+        }
+
+        if (!getConfig().allowBlockClicks && isBlockClick(action)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean shouldTriggerClockClick(PlayerInteractEvent e) {
+        if (!getConfig().enableClockClickTrigger) {
+            return false;
+        }
+
+        Action action = e.getAction();
+        if (!isActionAllowed(action)) {
+            return false;
+        }
+
+        if (isLeftClick(action) && !getConfig().clockClickLeftClick) {
+            return false;
+        }
+
+        if (isRightClick(action) && !getConfig().clockClickRightClick) {
+            return false;
+        }
+
+        return resolveRecallHand(e.getPlayer(), e.getHand()) != null;
+    }
+
+    private boolean shouldTriggerSprintClockClick(PlayerInteractEvent e) {
+        if (!getConfig().enableSprintClickTrigger || !e.getPlayer().isSprinting()) {
+            return false;
+        }
+
+        Action action = e.getAction();
+        if (!isActionAllowed(action)) {
+            return false;
+        }
+
+        if (isLeftClick(action) && !getConfig().sprintClickLeftClick) {
+            return false;
+        }
+
+        if (isRightClick(action) && !getConfig().sprintClickRightClick) {
+            return false;
+        }
+
+        return resolveRecallHand(e.getPlayer(), e.getHand()) != null;
+    }
+
+    private boolean hasRecallClockInEitherHand(Player p) {
+        return isRecallClock(p.getInventory().getItemInMainHand())
+                || isRecallClock(p.getInventory().getItemInOffHand());
+    }
+
+    private boolean canArmDoubleJump(Player p) {
+        if (rewinding.contains(p.getUniqueId())) {
+            return false;
+        }
+
+        if (getConfig().doubleJumpRequiresSprint && !p.isSprinting()) {
+            return false;
+        }
+
+        return !getConfig().doubleJumpRequiresClockInHand || hasRecallClockInEitherHand(p);
+    }
+
+    private void clearDoubleJumpArm(Player p, UUID id) {
+        if (jumpArmUntil.remove(id) == null) {
+            return;
+        }
+
+        if (p.getGameMode() == GameMode.SURVIVAL) {
+            p.setAllowFlight(false);
+            p.setFlying(false);
+        }
+    }
+
+    private void armDoubleJump(Player p, UUID id) {
+        int triggerWindowMillis = Math.max(150, getConfig().doubleJumpWindowMillis);
+        jumpArmUntil.put(id, M.ms() + triggerWindowMillis);
+        p.setAllowFlight(true);
+        J.a(() -> {
+            if (!p.isOnline()) {
+                return;
+            }
+
+            Long armUntil = jumpArmUntil.get(id);
+            if (armUntil != null && armUntil <= M.ms()) {
+                clearDoubleJumpArm(p, id);
+            }
+        }, Math.max(1, (int) Math.ceil(triggerWindowMillis / 50D)));
+    }
+
+    private boolean isDoubleJumpStart(boolean wasOnGround, boolean onGround, Player p) {
+        return wasOnGround
+                && !onGround
+                && p.getVelocity().getY() >= getConfig().doubleJumpMinVerticalVelocity;
+    }
+
     private void clearPlayerState(UUID id) {
         snapshots.remove(id);
         lastSnapshot.remove(id);
@@ -362,6 +511,8 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         rewindProtection.remove(id);
         rewinding.remove(id);
         recallXpStamps.remove(id);
+        jumpArmUntil.remove(id);
+        lastOnGround.remove(id);
     }
 
     private boolean isRecallClock(ItemStack stack) {
@@ -372,6 +523,11 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
 
     private void attemptRecall(Player p) {
         UUID id = p.getUniqueId();
+        if (!isRecallEligible(p)) {
+            return;
+        }
+
+        clearDoubleJumpArm(p, id);
         if (rewinding.contains(id)) {
             return;
         }
@@ -488,11 +644,50 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void on(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-        if (!hasAdaptation(p) || p.getGameMode() != GameMode.SURVIVAL) {
+        if (!isRecallEligible(p)) {
             return;
         }
 
         captureSnapshot(p);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onDoubleJumpMove(PlayerMoveEvent e) {
+        Player p = e.getPlayer();
+        UUID id = p.getUniqueId();
+        boolean wasOnGround = lastOnGround.getOrDefault(id, true);
+        boolean onGround = p.isOnGround();
+        lastOnGround.put(id, onGround);
+
+        if (!isRecallEligible(p) || !getConfig().enableDoubleJumpTrigger) {
+            clearDoubleJumpArm(p, id);
+            return;
+        }
+
+        if (!wasOnGround && onGround) {
+            clearDoubleJumpArm(p, id);
+            return;
+        }
+
+        if (!canArmDoubleJump(p)) {
+            clearDoubleJumpArm(p, id);
+            return;
+        }
+
+        if (cooldowns.getOrDefault(id, 0L) > M.ms()) {
+            clearDoubleJumpArm(p, id);
+            return;
+        }
+
+        if (isDoubleJumpStart(wasOnGround, onGround, p)) {
+            armDoubleJump(p, id);
+            return;
+        }
+
+        Long armUntil = jumpArmUntil.get(id);
+        if (armUntil != null && armUntil <= M.ms()) {
+            clearDoubleJumpArm(p, id);
+        }
     }
 
     @Override
@@ -545,6 +740,32 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         int rewindTracePoints = 18;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Rewind Animation Ticks for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int rewindAnimationTicks = 10;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables direct click-with-clock activation for instant recall.", impact = "True allows recall by clicking with a valid recall clock; false disables direct clock-click activation.")
+        boolean enableClockClickTrigger = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows left-click to activate recall when clock-click trigger is enabled.", impact = "True allows left-click activation; false blocks left-click activation.")
+        boolean clockClickLeftClick = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows right-click to activate recall when clock-click trigger is enabled.", impact = "True allows right-click activation; false blocks right-click activation.")
+        boolean clockClickRightClick = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables sprint + click activation for instant recall with a valid recall clock.", impact = "True allows sprint-click activation; false disables sprint-click activation.")
+        boolean enableSprintClickTrigger = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows left-click for sprint-click recall trigger.", impact = "True enables left-click sprint activation; false disables it.")
+        boolean sprintClickLeftClick = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows right-click for sprint-click recall trigger.", impact = "True enables right-click sprint activation; false disables it.")
+        boolean sprintClickRightClick = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows click-in-air interactions for recall click triggers.", impact = "True lets air-clicks activate enabled click modes; false blocks air-click activations.")
+        boolean allowAirClicks = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Allows click-on-block interactions for recall click triggers.", impact = "True lets block-clicks activate enabled click modes; false blocks block-click activations.")
+        boolean allowBlockClicks = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables double-tap jump activation for instant recall.", impact = "True allows jump-based recall trigger; false disables jump trigger.")
+        boolean enableDoubleJumpTrigger = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Require sprinting while double-jumping to trigger recall.", impact = "True requires sprint state for double-jump trigger; false allows it without sprint.")
+        boolean doubleJumpRequiresSprint = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Require holding a valid recall clock in either hand for double-jump trigger.", impact = "True requires clock-in-hand for jump trigger; false allows jump trigger without holding a clock.")
+        boolean doubleJumpRequiresClockInHand = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum milliseconds allowed between jump taps for double-jump recall.", impact = "Higher values make double-tap detection easier; lower values make it stricter.")
+        int doubleJumpWindowMillis = 450;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Minimum upward velocity required to arm double-jump recall.", impact = "Higher values reduce accidental arm events; lower values increase sensitivity.")
+        double doubleJumpMinVerticalVelocity = 0.2;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
         int baseCost = 3;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")

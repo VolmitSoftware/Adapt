@@ -373,6 +373,716 @@
     title = "猛獣使い"
     description = "500匹の動物を繁殖させる"
 
+# Agility - New Achievement Chains
+[advancement.challenge_sprint_dist_5k]
+    title = "疾風の脚"
+    description = "5キロメートル(5,000ブロック)以上をダッシュする"
+
+[advancement.challenge_sprint_dist_50k]
+    title = "稲妻の脚"
+    description = "50キロメートル(50,000ブロック)以上をダッシュする"
+
+[advancement.challenge_agility_swim_1k]
+    title = "水面走り"
+    description = "1キロメートル(1,000ブロック)以上を泳ぐ"
+
+[advancement.challenge_agility_swim_10k]
+    title = "水の旅人"
+    description = "10キロメートル(10,000ブロック)以上を泳ぐ"
+
+[advancement.challenge_fly_1k]
+    title = "空の舞"
+    description = "1キロメートル(1,000ブロック)以上を飛ぶ"
+
+[advancement.challenge_fly_10k]
+    title = "風乗り"
+    description = "10キロメートル(10,000ブロック)以上を飛ぶ"
+
+[advancement.challenge_agility_sneak_500]
+    title = "静かな足取り"
+    description = "500ブロック以上をスニークする"
+
+[advancement.challenge_agility_sneak_5k]
+    title = "幻影の歩み"
+    description = "5キロメートル(5,000ブロック)以上をスニークする"
+
+# Architect - New Achievement Chains
+[advancement.challenge_demolish_500]
+    title = "解体班"
+    description = "500ブロックを破壊する"
+
+[advancement.challenge_demolish_5k]
+    title = "破壊球"
+    description = "5,000ブロックを破壊する"
+
+[advancement.challenge_value_placed_10k]
+    title = "価値ある建築家"
+    description = "10,000の価値分のブロックを設置する"
+
+[advancement.challenge_value_placed_100k]
+    title = "建築の達人"
+    description = "100,000の価値分のブロックを設置する"
+
+[advancement.challenge_demolish_val_5k]
+    title = "回収の達人"
+    description = "解体から5,000の価値を回収する"
+
+[advancement.challenge_demolish_val_50k]
+    title = "完全解体"
+    description = "解体から50,000の価値を回収する"
+
+[advancement.challenge_high_build_100]
+    title = "天空の建築家"
+    description = "Y=128以上に100ブロックを設置する"
+
+[advancement.challenge_high_build_1k]
+    title = "雲上の建築士"
+    description = "Y=128以上に1,000ブロックを設置する"
+
+# Axes - New Achievement Chains
+[advancement.challenge_axe_swing_500]
+    title = "斧振り"
+    description = "斧を500回振る"
+
+[advancement.challenge_axe_swing_5k]
+    title = "狂戦士"
+    description = "斧を5,000回振る"
+
+[advancement.challenge_axe_damage_1k]
+    title = "断裂者"
+    description = "斧で1,000ダメージを与える"
+
+[advancement.challenge_axe_damage_10k]
+    title = "処刑人の斧"
+    description = "斧で10,000ダメージを与える"
+
+[advancement.challenge_axe_value_5k]
+    title = "木材商人"
+    description = "5,000の価値分の木材を収穫する"
+
+[advancement.challenge_axe_value_50k]
+    title = "木材王"
+    description = "50,000の価値分の木材を収穫する"
+
+[advancement.challenge_leaves_500]
+    title = "落葉掃き"
+    description = "斧で500の葉ブロックを除去する"
+
+[advancement.challenge_leaves_5k]
+    title = "落葉粉砕機"
+    description = "斧で5,000の葉ブロックを除去する"
+
+# Blocking - New Achievement Chains
+[advancement.challenge_block_dmg_1k]
+    title = "ダメージ吸収"
+    description = "盾で1,000ダメージをブロックする"
+
+[advancement.challenge_block_dmg_10k]
+    title = "人間の盾"
+    description = "盾で10,000ダメージをブロックする"
+
+[advancement.challenge_block_proj_100]
+    title = "矢弾き"
+    description = "盾で100の飛び道具をブロックする"
+
+[advancement.challenge_block_proj_1k]
+    title = "飛び道具の盾"
+    description = "盾で1,000の飛び道具をブロックする"
+
+[advancement.challenge_block_melee_500]
+    title = "受け流しの達人"
+    description = "盾で500の近接攻撃をブロックする"
+
+[advancement.challenge_block_melee_5k]
+    title = "鉄の要塞"
+    description = "盾で5,000の近接攻撃をブロックする"
+
+[advancement.challenge_block_heavy_50]
+    title = "戦車"
+    description = "50の強力な攻撃(5ダメージ超)をブロックする"
+
+[advancement.challenge_block_heavy_500]
+    title = "不動の壁"
+    description = "500の強力な攻撃(5ダメージ超)をブロックする"
+
+# Brewing - New Achievement Chains
+[advancement.challenge_brew_stands_10]
+    title = "醸造の準備"
+    description = "醸造台を10台設置する"
+
+[advancement.challenge_brew_stands_50]
+    title = "ポーション工場"
+    description = "醸造台を50台設置する"
+
+[advancement.challenge_brew_strong_25]
+    title = "強力な醸造"
+    description = "強化されたポーションを25本飲む"
+
+[advancement.challenge_brew_strong_250]
+    title = "最大効力"
+    description = "強化されたポーションを250本飲む"
+
+[advancement.challenge_brew_splash_hits_50]
+    title = "飛散範囲"
+    description = "スプラッシュポーションで50体のエンティティに命中する"
+
+[advancement.challenge_brew_splash_hits_500]
+    title = "疫病医"
+    description = "スプラッシュポーションで500体のエンティティに命中する"
+
+# Chronos - New Achievement Chains
+[advancement.challenge_active_dist_1k]
+    title = "落ち着きなし"
+    description = "活動中に1キロメートルを移動する"
+
+[advancement.challenge_active_dist_10k]
+    title = "道の開拓者"
+    description = "活動中に10キロメートルを移動する"
+
+[advancement.challenge_active_dist_100k]
+    title = "永久運動"
+    description = "活動中に100キロメートルを移動する"
+
+[advancement.challenge_beds_10]
+    title = "早起き"
+    description = "ベッドで10回眠る"
+
+[advancement.challenge_beds_100]
+    title = "時間飛ばし"
+    description = "ベッドで100回眠る"
+
+[advancement.challenge_chronos_tp_50]
+    title = "時空転移"
+    description = "50回テレポートする"
+
+[advancement.challenge_chronos_tp_500]
+    title = "時間の歪み"
+    description = "500回テレポートする"
+
+[advancement.challenge_chronos_deaths_10]
+    title = "死すべき者"
+    description = "10回死ぬ"
+
+[advancement.challenge_chronos_deaths_100]
+    title = "死を超える者"
+    description = "100回死ぬ"
+
+# Crafting - New Achievement Chains
+[advancement.challenge_craft_value_10k]
+    title = "製作の価値"
+    description = "合計10,000の価値のアイテムをクラフトする"
+
+[advancement.challenge_craft_value_100k]
+    title = "職人"
+    description = "合計100,000の価値のアイテムをクラフトする"
+
+[advancement.challenge_craft_tools_25]
+    title = "道具鍛冶"
+    description = "25個の道具をクラフトする"
+
+[advancement.challenge_craft_tools_250]
+    title = "鍛造の達人"
+    description = "250個の道具をクラフトする"
+
+[advancement.challenge_craft_armor_25]
+    title = "防具鍛冶"
+    description = "25個の防具をクラフトする"
+
+[advancement.challenge_craft_armor_250]
+    title = "防具の達人"
+    description = "250個の防具をクラフトする"
+
+[advancement.challenge_craft_mass_25k]
+    title = "大量生産"
+    description = "25,000個のアイテムをクラフトする"
+
+[advancement.challenge_craft_mass_250k]
+    title = "産業革命"
+    description = "250,000個のアイテムをクラフトする"
+
+# Discovery - New Achievement Chains
+[advancement.challenge_discover_items_50]
+    title = "収集家"
+    description = "50種類のアイテムを発見する"
+
+[advancement.challenge_discover_items_250]
+    title = "目録係"
+    description = "250種類のアイテムを発見する"
+
+[advancement.challenge_discover_blocks_50]
+    title = "測量士"
+    description = "50種類のブロックを発見する"
+
+[advancement.challenge_discover_blocks_250]
+    title = "地質学者"
+    description = "250種類のブロックを発見する"
+
+[advancement.challenge_discover_mobs_25]
+    title = "観察者"
+    description = "25種類のモブを発見する"
+
+[advancement.challenge_discover_mobs_75]
+    title = "博物学者"
+    description = "75種類のモブを発見する"
+
+[advancement.challenge_discover_biomes_10]
+    title = "放浪者"
+    description = "10種類のバイオームを発見する"
+
+[advancement.challenge_discover_biomes_40]
+    title = "世界旅行者"
+    description = "40種類のバイオームを発見する"
+
+[advancement.challenge_discover_foods_10]
+    title = "美食家"
+    description = "10種類の食べ物を発見する"
+
+[advancement.challenge_discover_foods_30]
+    title = "料理の達人"
+    description = "30種類の食べ物を発見する"
+
+# Enchanting - New Achievement Chains
+[advancement.challenge_enchant_power_100]
+    title = "力の織り手"
+    description = "エンチャントパワーを100蓄積する"
+
+[advancement.challenge_enchant_power_1k]
+    title = "秘術の達人"
+    description = "エンチャントパワーを1,000蓄積する"
+
+[advancement.challenge_enchant_levels_1k]
+    title = "レベル消費者"
+    description = "エンチャントに1,000経験レベルを使う"
+
+[advancement.challenge_enchant_levels_10k]
+    title = "経験値の泉"
+    description = "エンチャントに10,000経験レベルを使う"
+
+[advancement.challenge_enchant_high_25]
+    title = "大勝負"
+    description = "最大レベルのエンチャントを25回行う"
+
+[advancement.challenge_enchant_high_250]
+    title = "伝説のエンチャンター"
+    description = "最大レベルのエンチャントを250回行う"
+
+[advancement.challenge_enchant_total_500]
+    title = "レベル燃焼"
+    description = "全エンチャントで合計500レベルを使う"
+
+[advancement.challenge_enchant_total_5k]
+    title = "秘術の投資"
+    description = "全エンチャントで合計5,000レベルを使う"
+
+# Excavation - New Achievement Chains
+[advancement.challenge_dig_swing_500]
+    title = "掘り師"
+    description = "シャベルを500回振る"
+
+[advancement.challenge_dig_swing_5k]
+    title = "掘削者"
+    description = "シャベルを5,000回振る"
+
+[advancement.challenge_dig_damage_1k]
+    title = "シャベルの騎士"
+    description = "シャベルで1,000ダメージを与える"
+
+[advancement.challenge_dig_damage_10k]
+    title = "シャベルの達人"
+    description = "シャベルで10,000ダメージを与える"
+
+[advancement.challenge_dig_value_5k]
+    title = "土の商人"
+    description = "5,000の価値分のブロックを掘削する"
+
+[advancement.challenge_dig_value_50k]
+    title = "大地の支配者"
+    description = "50,000の価値分のブロックを掘削する"
+
+[advancement.challenge_dig_gravel_500]
+    title = "砂利砕き"
+    description = "砂利、砂、粘土を500ブロック掘る"
+
+[advancement.challenge_dig_gravel_5k]
+    title = "砂ふるい"
+    description = "砂利、砂、粘土を5,000ブロック掘る"
+
+# Herbalism - New Achievement Chains
+[advancement.challenge_plant_100]
+    title = "種まき人"
+    description = "100の作物を植える"
+
+[advancement.challenge_plant_1k]
+    title = "緑の親指"
+    description = "1,000の作物を植える"
+
+[advancement.challenge_plant_5k]
+    title = "農業王"
+    description = "5,000の作物を植える"
+
+[advancement.challenge_compost_50]
+    title = "再利用者"
+    description = "50個のアイテムを堆肥にする"
+
+[advancement.challenge_compost_500]
+    title = "土壌改良"
+    description = "500個のアイテムを堆肥にする"
+
+[advancement.challenge_shear_50]
+    title = "毛刈り師"
+    description = "50体のエンティティを毛刈りする"
+
+[advancement.challenge_shear_250]
+    title = "群れの長"
+    description = "250体のエンティティを毛刈りする"
+
+# Hunter - New Achievement Chains
+[advancement.challenge_kills_500]
+    title = "狩人"
+    description = "500体の生物を倒す"
+
+[advancement.challenge_kills_5k]
+    title = "処刑人"
+    description = "5,000体の生物を倒す"
+
+[advancement.challenge_boss_1]
+    title = "ボス挑戦者"
+    description = "ボスモブを1体倒す"
+
+[advancement.challenge_boss_10]
+    title = "伝説殺し"
+    description = "ボスモブを10体倒す"
+
+# Nether - New Achievement Chains
+[advancement.challenge_wither_dmg_500]
+    title = "衰弱"
+    description = "ウィザーダメージを500耐える"
+
+[advancement.challenge_wither_dmg_5k]
+    title = "枯死の生存者"
+    description = "ウィザーダメージを5,000耐える"
+
+[advancement.challenge_wither_skel_25]
+    title = "骨の収集者"
+    description = "ウィザースケルトンを25体倒す"
+
+[advancement.challenge_wither_skel_250]
+    title = "骸骨の天敵"
+    description = "ウィザースケルトンを250体倒す"
+
+[advancement.challenge_wither_boss_1]
+    title = "ウィザー討伐"
+    description = "ウィザーを倒す"
+
+[advancement.challenge_wither_boss_10]
+    title = "ネザーの支配者"
+    description = "ウィザーを10回倒す"
+
+[advancement.challenge_roses_10]
+    title = "死の庭師"
+    description = "ウィザーローズを10本壊す"
+
+[advancement.challenge_roses_100]
+    title = "枯死の収集者"
+    description = "ウィザーローズを100本壊す"
+
+# Pickaxes - New Achievement Chains
+[advancement.challenge_pick_swing_500]
+    title = "鉱夫の腕"
+    description = "つるはしを500回振る"
+
+[advancement.challenge_pick_swing_5k]
+    title = "坑道掘り"
+    description = "つるはしを5,000回振る"
+
+[advancement.challenge_pick_damage_1k]
+    title = "つるはし戦士"
+    description = "つるはしで1,000ダメージを与える"
+
+[advancement.challenge_pick_damage_10k]
+    title = "戦のつるはし"
+    description = "つるはしで10,000ダメージを与える"
+
+[advancement.challenge_pick_value_5k]
+    title = "宝石探し"
+    description = "5,000の価値分のブロックを採掘する"
+
+[advancement.challenge_pick_value_50k]
+    title = "鉱石王"
+    description = "50,000の価値分のブロックを採掘する"
+
+[advancement.challenge_pick_ores_500]
+    title = "探鉱者"
+    description = "500の鉱石ブロックを採掘する"
+
+[advancement.challenge_pick_ores_5k]
+    title = "採掘の達人"
+    description = "5,000の鉱石ブロックを採掘する"
+
+# Ranged - New Achievement Chains
+[advancement.challenge_ranged_dmg_1k]
+    title = "射撃の名手"
+    description = "遠距離ダメージを1,000与える"
+
+[advancement.challenge_ranged_dmg_10k]
+    title = "致命の射手"
+    description = "遠距離ダメージを10,000与える"
+
+[advancement.challenge_ranged_dist_5k]
+    title = "長距離射撃"
+    description = "飛び道具の合計飛距離5,000ブロックを達成する"
+
+[advancement.challenge_ranged_dist_50k]
+    title = "遠射の王"
+    description = "飛び道具の合計飛距離50,000ブロックを達成する"
+
+[advancement.challenge_ranged_kills_50]
+    title = "弓兵"
+    description = "遠距離武器で50体のモブを倒す"
+
+[advancement.challenge_ranged_kills_500]
+    title = "弓の達人"
+    description = "遠距離武器で500体のモブを倒す"
+
+[advancement.challenge_longshot_25]
+    title = "狙撃手"
+    description = "長距離射撃(30ブロック超)を25回命中させる"
+
+[advancement.challenge_longshot_250]
+    title = "鷹の目"
+    description = "長距離射撃(30ブロック超)を250回命中させる"
+
+# Rift - New Achievement Chains
+[advancement.challenge_rift_pearls_50]
+    title = "真珠投げ"
+    description = "エンダーパールを50個投げる"
+
+[advancement.challenge_rift_pearls_500]
+    title = "転送中毒"
+    description = "エンダーパールを500個投げる"
+
+[advancement.challenge_rift_enderman_50]
+    title = "エンダーマン狩り"
+    description = "エンダーマンを50体倒す"
+
+[advancement.challenge_rift_enderman_500]
+    title = "虚空の追跡者"
+    description = "エンダーマンを500体倒す"
+
+[advancement.challenge_rift_dragon_500]
+    title = "竜と闘う者"
+    description = "エンダードラゴンに500ダメージを与える"
+
+[advancement.challenge_rift_dragon_5k]
+    title = "竜殺し"
+    description = "エンダードラゴンに5,000ダメージを与える"
+
+[advancement.challenge_rift_crystal_10]
+    title = "水晶破壊者"
+    description = "エンドクリスタルを10個破壊する"
+
+[advancement.challenge_rift_crystal_100]
+    title = "エンドの破壊者"
+    description = "エンドクリスタルを100個破壊する"
+
+# Seaborne - New Achievement Chains
+[advancement.challenge_fish_25]
+    title = "釣り人"
+    description = "25匹の魚を釣る"
+
+[advancement.challenge_fish_250]
+    title = "釣りの達人"
+    description = "250匹の魚を釣る"
+
+[advancement.challenge_drowned_25]
+    title = "溺死体狩り"
+    description = "ドラウンドを25体倒す"
+
+[advancement.challenge_drowned_250]
+    title = "海の浄化者"
+    description = "ドラウンドを250体倒す"
+
+[advancement.challenge_guardian_10]
+    title = "ガーディアン討伐"
+    description = "ガーディアンを10体倒す"
+
+[advancement.challenge_guardian_100]
+    title = "神殿襲撃者"
+    description = "ガーディアンを100体倒す"
+
+[advancement.challenge_underwater_blocks_100]
+    title = "水中採掘者"
+    description = "水中で100ブロックを破壊する"
+
+[advancement.challenge_underwater_blocks_1k]
+    title = "水中技師"
+    description = "水中で1,000ブロックを破壊する"
+
+# Stealth - New Achievement Chains
+[advancement.challenge_stealth_dmg_500]
+    title = "背後からの一刺し"
+    description = "スニーク中に500ダメージを与える"
+
+[advancement.challenge_stealth_dmg_5k]
+    title = "沈黙の殺し屋"
+    description = "スニーク中に5,000ダメージを与える"
+
+[advancement.challenge_stealth_kills_10]
+    title = "暗殺者"
+    description = "スニーク中に10体のモブを倒す"
+
+[advancement.challenge_stealth_kills_100]
+    title = "影の死神"
+    description = "スニーク中に100体のモブを倒す"
+
+[advancement.challenge_stealth_time_1h]
+    title = "忍耐"
+    description = "1時間(3,600秒)スニークする"
+
+[advancement.challenge_stealth_time_10h]
+    title = "影の支配者"
+    description = "10時間(36,000秒)スニークする"
+
+[advancement.challenge_stealth_arrows_50]
+    title = "静かなる射手"
+    description = "スニーク中に50本の矢を放つ"
+
+[advancement.challenge_stealth_arrows_500]
+    title = "幻影の弓手"
+    description = "スニーク中に500本の矢を放つ"
+
+# Swords - New Achievement Chains
+[advancement.challenge_sword_dmg_1k]
+    title = "剣の見習い"
+    description = "剣で1,000ダメージを与える"
+
+[advancement.challenge_sword_dmg_10k]
+    title = "剣士"
+    description = "剣で10,000ダメージを与える"
+
+[advancement.challenge_sword_kills_50]
+    title = "決闘者"
+    description = "剣で50体のモブを倒す"
+
+[advancement.challenge_sword_kills_500]
+    title = "剣闘士"
+    description = "剣で500体のモブを倒す"
+
+[advancement.challenge_sword_crit_50]
+    title = "会心の一撃"
+    description = "剣でクリティカルヒットを50回決める"
+
+[advancement.challenge_sword_crit_500]
+    title = "精密の達人"
+    description = "剣でクリティカルヒットを500回決める"
+
+[advancement.challenge_sword_heavy_25]
+    title = "重い一撃"
+    description = "剣で強力な一撃(8ダメージ超)を25回決める"
+
+[advancement.challenge_sword_heavy_250]
+    title = "壊滅の一撃"
+    description = "剣で強力な一撃(8ダメージ超)を250回決める"
+
+# Taming - New Achievement Chains
+[advancement.challenge_pet_dmg_500]
+    title = "獣の調教師"
+    description = "ペットが合計500ダメージを与える"
+
+[advancement.challenge_pet_dmg_5k]
+    title = "戦の支配者"
+    description = "ペットが合計5,000ダメージを与える"
+
+[advancement.challenge_tamed_10]
+    title = "動物の友"
+    description = "10匹の動物を手懐ける"
+
+[advancement.challenge_tamed_100]
+    title = "動物園の管理人"
+    description = "100匹の動物を手懐ける"
+
+[advancement.challenge_pet_kills_25]
+    title = "群れの戦術"
+    description = "ペットが25体の生物を倒す"
+
+[advancement.challenge_pet_kills_250]
+    title = "群れの指揮官"
+    description = "ペットが250体の生物を倒す"
+
+[advancement.challenge_taming_2500]
+    title = "繁殖の専門家"
+    description = "2,500匹の動物を繁殖させる"
+
+[advancement.challenge_taming_25k]
+    title = "遺伝学の達人"
+    description = "25,000匹の動物を繁殖させる"
+
+# TragOul - New Achievement Chains
+[advancement.challenge_trag_hits_500]
+    title = "打たれ役"
+    description = "500回攻撃を受ける"
+
+[advancement.challenge_trag_hits_5k]
+    title = "痛みの虜"
+    description = "5,000回攻撃を受ける"
+
+[advancement.challenge_trag_deaths_10]
+    title = "九つの命"
+    description = "10回死ぬ"
+
+[advancement.challenge_trag_deaths_100]
+    title = "繰り返す悪夢"
+    description = "100回死ぬ"
+
+[advancement.challenge_trag_fire_500]
+    title = "炎の犠牲者"
+    description = "炎ダメージを500耐える"
+
+[advancement.challenge_trag_fire_5k]
+    title = "不死鳥"
+    description = "炎ダメージを5,000耐える"
+
+[advancement.challenge_trag_fall_500]
+    title = "重力確認"
+    description = "落下ダメージを500耐える"
+
+[advancement.challenge_trag_fall_5k]
+    title = "終端速度"
+    description = "落下ダメージを5,000耐える"
+
+# Unarmed - New Achievement Chains
+[advancement.challenge_unarmed_dmg_1k]
+    title = "喧嘩屋"
+    description = "素手で1,000ダメージを与える"
+
+[advancement.challenge_unarmed_dmg_10k]
+    title = "武術家"
+    description = "素手で10,000ダメージを与える"
+
+[advancement.challenge_unarmed_kills_25]
+    title = "素手の拳"
+    description = "素手で25体のモブを倒す"
+
+[advancement.challenge_unarmed_kills_250]
+    title = "拳の伝説"
+    description = "素手で250体のモブを倒す"
+
+[advancement.challenge_unarmed_crit_25]
+    title = "会心の拳"
+    description = "素手でクリティカルヒットを25回決める"
+
+[advancement.challenge_unarmed_crit_250]
+    title = "精密の拳"
+    description = "素手でクリティカルヒットを250回決める"
+
+[advancement.challenge_unarmed_heavy_25]
+    title = "剛拳"
+    description = "素手で強力な一撃(6ダメージ超)を25回決める"
+
+[advancement.challenge_unarmed_heavy_250]
+    title = "一撃必殺"
+    description = "素手で強力な一撃(6ダメージ超)を250回決める"
+
 # items
 [items]
 

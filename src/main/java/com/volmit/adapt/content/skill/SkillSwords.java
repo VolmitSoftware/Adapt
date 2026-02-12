@@ -37,6 +37,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -87,6 +88,94 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_100").goal(100).stat("sword.hits").reward(getConfig().challengeSwordReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_1k").goal(1000).stat("sword.hits").reward(getConfig().challengeSwordReward * 2).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_10k").goal(10000).stat("sword.hits").reward(getConfig().challengeSwordReward * 5).build());
+
+        // Chain 2 - sword.damage
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GOLDEN_SWORD)
+                .key("challenge_sword_dmg_1k")
+                .title(Localizer.dLocalize("advancement.challenge_sword_dmg_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_sword_dmg_1k.description"))
+                .model(CustomModel.get(Material.GOLDEN_SWORD, "advancement", "swords", "challenge_sword_dmg_1k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHERITE_SWORD)
+                        .key("challenge_sword_dmg_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_sword_dmg_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_sword_dmg_10k.description"))
+                        .model(CustomModel.get(Material.NETHERITE_SWORD, "advancement", "swords", "challenge_sword_dmg_10k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_dmg_1k").goal(1000).stat("sword.damage").reward(getConfig().challengeSwordDmgReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_dmg_10k").goal(10000).stat("sword.damage").reward(getConfig().challengeSwordDmgReward * 3).build());
+
+        // Chain 3 - sword.kills
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_SWORD)
+                .key("challenge_sword_kills_50")
+                .title(Localizer.dLocalize("advancement.challenge_sword_kills_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_sword_kills_50.description"))
+                .model(CustomModel.get(Material.IRON_SWORD, "advancement", "swords", "challenge_sword_kills_50"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_SWORD)
+                        .key("challenge_sword_kills_500")
+                        .title(Localizer.dLocalize("advancement.challenge_sword_kills_500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_sword_kills_500.description"))
+                        .model(CustomModel.get(Material.DIAMOND_SWORD, "advancement", "swords", "challenge_sword_kills_500"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_kills_50").goal(50).stat("sword.kills").reward(getConfig().challengeSwordKillsReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_kills_500").goal(500).stat("sword.kills").reward(getConfig().challengeSwordKillsReward * 3).build());
+
+        // Chain 4 - sword.critical
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GOLDEN_SWORD)
+                .key("challenge_sword_crit_50")
+                .title(Localizer.dLocalize("advancement.challenge_sword_crit_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_sword_crit_50.description"))
+                .model(CustomModel.get(Material.GOLDEN_SWORD, "advancement", "swords", "challenge_sword_crit_50"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHERITE_SWORD)
+                        .key("challenge_sword_crit_500")
+                        .title(Localizer.dLocalize("advancement.challenge_sword_crit_500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_sword_crit_500.description"))
+                        .model(CustomModel.get(Material.NETHERITE_SWORD, "advancement", "swords", "challenge_sword_crit_500"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_crit_50").goal(50).stat("sword.critical").reward(getConfig().challengeSwordCritReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_crit_500").goal(500).stat("sword.critical").reward(getConfig().challengeSwordCritReward * 3).build());
+
+        // Chain 5 - sword.heavy.hits
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DIAMOND_SWORD)
+                .key("challenge_sword_heavy_25")
+                .title(Localizer.dLocalize("advancement.challenge_sword_heavy_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_sword_heavy_25.description"))
+                .model(CustomModel.get(Material.DIAMOND_SWORD, "advancement", "swords", "challenge_sword_heavy_25"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHERITE_SWORD)
+                        .key("challenge_sword_heavy_250")
+                        .title(Localizer.dLocalize("advancement.challenge_sword_heavy_250.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_sword_heavy_250.description"))
+                        .model(CustomModel.get(Material.NETHERITE_SWORD, "advancement", "swords", "challenge_sword_heavy_250"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_heavy_25").goal(25).stat("sword.heavy.hits").reward(getConfig().challengeSwordHeavyReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_sword_heavy_250").goal(250).stat("sword.heavy.hits").reward(getConfig().challengeSwordHeavyReward * 3).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -101,6 +190,12 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
                 if (isSword(hand)) {
                     getPlayer(p).getData().addStat("sword.hits", 1);
                     getPlayer(p).getData().addStat("sword.damage", e.getDamage());
+                    if (p.getFallDistance() > 0 && !p.isOnGround()) {
+                        getPlayer(p).getData().addStat("sword.critical", 1);
+                    }
+                    if (e.getDamage() > 8) {
+                        getPlayer(p).getData().addStat("sword.heavy.hits", 1);
+                    }
                     if (!isOnCooldown(p)) {
                         setCooldown(p);
                         xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
@@ -108,6 +203,20 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
                 }
             });
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(EntityDeathEvent e) {
+        if (e.getEntity().getKiller() == null) {
+            return;
+        }
+        Player p = e.getEntity().getKiller();
+        shouldReturnForPlayer(p, () -> {
+            ItemStack hand = p.getInventory().getItemInMainHand();
+            if (isSword(hand)) {
+                getPlayer(p).getData().addStat("sword.kills", 1);
+            }
+        });
     }
 
     private boolean isOnCooldown(Player p) {
@@ -145,5 +254,13 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         double damageXPMultiplier = 7.26;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Sword Reward for the Swords skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeSwordReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Sword Damage Reward for the Swords skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double challengeSwordDmgReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Sword Kills Reward for the Swords skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double challengeSwordKillsReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Sword Critical Reward for the Swords skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double challengeSwordCritReward = 500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Sword Heavy Hits Reward for the Swords skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+        double challengeSwordHeavyReward = 500;
     }
 }

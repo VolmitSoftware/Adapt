@@ -26,6 +26,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.HashMap;
@@ -67,43 +68,50 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
         return Math.max(1, (int) Math.round(d));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void on(EntityDamageEvent e) {
-        if (e.isCancelled()) {
+        if (!(e.getEntity() instanceof Player p) || !hasAdaptation(p)) {
             return;
         }
-        if (e.getEntity() instanceof Player p && hasAdaptation(p) && p.getLevel() > 1) {
-            if (!isCriticalHealthDamage(p, e)) {
-                return;
-            }
 
-            SoundPlayer sp = SoundPlayer.of(p);
-            int xpCost = getXpTaken(getLevel(p));
-            if (p.getLevel() < xpCost) {
-                vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);
-                sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
-                return;
-            }
-            UUID id = p.getUniqueId();
-            Long cooldown = cooldowns.get(id);
-            if (cooldown == null || M.ms() - cooldown > COOLDOWN_MILLIS) {
-                e.setDamage(e.getDamage() - (e.getDamage() * (getEffectiveness(getLevelPercent(getLevel(p))))));
-                xp(p, 5);
-                cooldowns.put(id, M.ms());
-                p.setLevel(p.getLevel() - xpCost);
-                vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.LIME);
-                sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 3, 0.01f);
-                sp.play(p.getLocation(), Sound.BLOCK_SHROOMLIGHT_HIT, 15, 0.01f);
-            } else {
-                vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);
-                sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
-            }
+        if (!isCriticalHealthDamage(p, e)) {
+            return;
+        }
+
+        SoundPlayer sp = SoundPlayer.of(p);
+        int level = getLevel(p);
+        int xpCost = getXpTaken(level);
+        if (p.getLevel() < xpCost) {
+            vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);
+            sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
+            return;
+        }
+        UUID id = p.getUniqueId();
+        Long cooldown = cooldowns.get(id);
+        if (cooldown == null || M.ms() - cooldown > COOLDOWN_MILLIS) {
+            double effectiveness = getEffectiveness(getLevelPercent(level));
+            e.setDamage(Math.max(0D, e.getDamage() * (1D - effectiveness)));
+            xp(p, 5);
+            cooldowns.put(id, M.ms());
+            p.setLevel(p.getLevel() - xpCost);
+            vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.LIME);
+            sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 3, 0.01f);
+            sp.play(p.getLocation(), Sound.BLOCK_SHROOMLIGHT_HIT, 15, 0.01f);
+        } else {
+            vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);
+            sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);
         }
     }
 
     private boolean isCriticalHealthDamage(Player p, EntityDamageEvent e) {
-        double predictedHealth = p.getHealth() - e.getFinalDamage();
-        return predictedHealth <= 0 || predictedHealth <= getConfig().triggerHealthThreshold;
+        double threshold = Math.max(0D, getConfig().triggerHealthThreshold);
+        double absorption = Math.max(0D, p.getAbsorptionAmount());
+        double rawDamage = Math.max(0D, e.getDamage());
+        double finalDamage = Math.max(0D, e.getFinalDamage());
+        double healthAfterRaw = p.getHealth() - Math.max(0D, rawDamage - absorption);
+        double healthAfterFinal = p.getHealth() - Math.max(0D, finalDamage - absorption);
+        double predictedHealth = Math.min(healthAfterRaw, healthAfterFinal);
+        return predictedHealth <= 0D || predictedHealth <= threshold || p.getHealth() <= threshold;
     }
 
     @Override

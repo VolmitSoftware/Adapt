@@ -38,6 +38,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 
 import java.util.HashMap;
@@ -89,6 +90,86 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_1nm").goal(1852).stat("move.swim").reward(getConfig().challengeSwim1nmReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_5k").goal(5000).stat("move.swim").reward(getConfig().challengeSwim5kReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swim_20k").goal(20000).stat("move.swim").reward(getConfig().challengeSwim20kReward).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.FISHING_ROD)
+                .key("challenge_fish_25")
+                .title(Localizer.dLocalize("advancement.challenge_fish_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_fish_25.description"))
+                .model(CustomModel.get(Material.FISHING_ROD, "advancement", "seaborne", "challenge_fish_25"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.TROPICAL_FISH)
+                        .key("challenge_fish_250")
+                        .title(Localizer.dLocalize("advancement.challenge_fish_250.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_fish_250.description"))
+                        .model(CustomModel.get(Material.TROPICAL_FISH, "advancement", "seaborne", "challenge_fish_250"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_fish_25").goal(25).stat("seaborne.fish.caught").reward(getConfig().challengeSwim1nmReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_fish_250").goal(250).stat("seaborne.fish.caught").reward(getConfig().challengeSwim1nmReward).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ROTTEN_FLESH)
+                .key("challenge_drowned_25")
+                .title(Localizer.dLocalize("advancement.challenge_drowned_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_drowned_25.description"))
+                .model(CustomModel.get(Material.ROTTEN_FLESH, "advancement", "seaborne", "challenge_drowned_25"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.TRIDENT)
+                        .key("challenge_drowned_250")
+                        .title(Localizer.dLocalize("advancement.challenge_drowned_250.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_drowned_250.description"))
+                        .model(CustomModel.get(Material.TRIDENT, "advancement", "seaborne", "challenge_drowned_250"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_drowned_25").goal(25).stat("seaborne.drowned.kills").reward(getConfig().challengeSwim1nmReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_drowned_250").goal(250).stat("seaborne.drowned.kills").reward(getConfig().challengeSwim1nmReward).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.PRISMARINE_SHARD)
+                .key("challenge_guardian_10")
+                .title(Localizer.dLocalize("advancement.challenge_guardian_10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_guardian_10.description"))
+                .model(CustomModel.get(Material.PRISMARINE_SHARD, "advancement", "seaborne", "challenge_guardian_10"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.SEA_LANTERN)
+                        .key("challenge_guardian_100")
+                        .title(Localizer.dLocalize("advancement.challenge_guardian_100.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_guardian_100.description"))
+                        .model(CustomModel.get(Material.SEA_LANTERN, "advancement", "seaborne", "challenge_guardian_100"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_guardian_10").goal(10).stat("seaborne.guardian.kills").reward(getConfig().challengeSwim1nmReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_guardian_100").goal(100).stat("seaborne.guardian.kills").reward(getConfig().challengeSwim1nmReward).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.PRISMARINE)
+                .key("challenge_underwater_blocks_100")
+                .title(Localizer.dLocalize("advancement.challenge_underwater_blocks_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_underwater_blocks_100.description"))
+                .model(CustomModel.get(Material.PRISMARINE, "advancement", "seaborne", "challenge_underwater_blocks_100"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.CONDUIT)
+                        .key("challenge_underwater_blocks_1k")
+                        .title(Localizer.dLocalize("advancement.challenge_underwater_blocks_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_underwater_blocks_1k.description"))
+                        .model(CustomModel.get(Material.CONDUIT, "advancement", "seaborne", "challenge_underwater_blocks_1k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_underwater_blocks_100").goal(100).stat("seaborne.underwater.blocks").reward(getConfig().challengeSwim1nmReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_underwater_blocks_1k").goal(1000).stat("seaborne.underwater.blocks").reward(getConfig().challengeSwim1nmReward).build());
         cooldowns = new HashMap<>();
     }
 
@@ -126,6 +207,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         Player p = e.getPlayer();
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
+                getPlayer(p).getData().addStat("seaborne.fish.caught", 1);
                 xp(p, 300);
             } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
                 xp(p, 10);
@@ -144,12 +226,28 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
                 return;
             }
             setCooldown(p);
+            if (p.isSwimming() || p.isInWater()) {
+                getPlayer(p).getData().addStat("seaborne.underwater.blocks", 1);
+            }
             if (e.getBlock().getType().equals(Material.SEA_PICKLE) && p.isSwimming() && p.getRemainingAir() < p.getMaximumAir()) { // BECAUSE I LIKE PICKLES
                 xpSilent(p, 10);
             } else {
                 xpSilent(p, 3);
             }
         });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(EntityDeathEvent e) {
+        Player p = e.getEntity().getKiller();
+        if (p == null || !p.getClass().getSimpleName().equals("CraftPlayer") || shouldReturnForPlayer(p)) {
+            return;
+        }
+        if (e.getEntityType() == EntityType.DROWNED) {
+            getPlayer(p).getData().addStat("seaborne.drowned.kills", 1);
+        } else if (e.getEntityType() == EntityType.GUARDIAN || e.getEntityType() == EntityType.ELDER_GUARDIAN) {
+            getPlayer(p).getData().addStat("seaborne.guardian.kills", 1);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

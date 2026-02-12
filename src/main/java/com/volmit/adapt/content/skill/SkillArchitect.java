@@ -99,6 +99,87 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_50k").goal(50000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_500k").goal(500000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
         registerStatTracker(AdaptStatTracker.builder().advancement("challenge_place_5m").goal(5000000).stat("blocks.placed").reward(getConfig().challengePlace1kReward).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_PICKAXE).key("challenge_demolish_500")
+                .title(Localizer.dLocalize("advancement.challenge_demolish_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_demolish_500.description"))
+                .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "architect", "challenge_demolish_500"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.TNT)
+                        .key("challenge_demolish_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_demolish_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_demolish_5k.description"))
+                        .model(CustomModel.get(Material.TNT, "advancement", "architect", "challenge_demolish_5k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_demolish_500").goal(500).stat("blocks.broken").reward(getConfig().challengePlace1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_demolish_5k").goal(5000).stat("blocks.broken").reward(getConfig().challengePlace1kReward * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GOLD_INGOT).key("challenge_value_placed_10k")
+                .title(Localizer.dLocalize("advancement.challenge_value_placed_10k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_value_placed_10k.description"))
+                .model(CustomModel.get(Material.GOLD_INGOT, "advancement", "architect", "challenge_value_placed_10k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND)
+                        .key("challenge_value_placed_100k")
+                        .title(Localizer.dLocalize("advancement.challenge_value_placed_100k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_value_placed_100k.description"))
+                        .model(CustomModel.get(Material.DIAMOND, "advancement", "architect", "challenge_value_placed_100k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_value_placed_10k").goal(10000).stat("blocks.placed.value").reward(getConfig().challengePlace1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_value_placed_100k").goal(100000).stat("blocks.placed.value").reward(getConfig().challengePlace1kReward * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.TNT_MINECART).key("challenge_demolish_val_5k")
+                .title(Localizer.dLocalize("advancement.challenge_demolish_val_5k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_demolish_val_5k.description"))
+                .model(CustomModel.get(Material.TNT_MINECART, "advancement", "architect", "challenge_demolish_val_5k"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.END_CRYSTAL)
+                        .key("challenge_demolish_val_50k")
+                        .title(Localizer.dLocalize("advancement.challenge_demolish_val_50k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_demolish_val_50k.description"))
+                        .model(CustomModel.get(Material.END_CRYSTAL, "advancement", "architect", "challenge_demolish_val_50k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_demolish_val_5k").goal(5000).stat("architect.demolish.value").reward(getConfig().challengePlace1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_demolish_val_50k").goal(50000).stat("architect.demolish.value").reward(getConfig().challengePlace1kReward * 2).build());
+
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SCAFFOLDING).key("challenge_high_build_100")
+                .title(Localizer.dLocalize("advancement.challenge_high_build_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_high_build_100.description"))
+                .model(CustomModel.get(Material.SCAFFOLDING, "advancement", "architect", "challenge_high_build_100"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.LIGHTNING_ROD)
+                        .key("challenge_high_build_1k")
+                        .title(Localizer.dLocalize("advancement.challenge_high_build_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_high_build_1k.description"))
+                        .model(CustomModel.get(Material.LIGHTNING_ROD, "advancement", "architect", "challenge_high_build_1k"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_high_build_100").goal(100).stat("architect.builds.high").reward(getConfig().challengePlace1kReward).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_high_build_1k").goal(1000).stat("architect.builds.high").reward(getConfig().challengePlace1kReward * 2).build());
+
         setIcon(Material.SMITHING_TABLE);
         registerAdaptation(new ArchitectGlass());
         registerAdaptation(new ArchitectFoundation());
@@ -119,6 +200,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
                 AdaptPlayer adaptPlayer = getPlayer(p);
                 adaptPlayer.getData().addStat("blocks.placed", 1);
                 adaptPlayer.getData().addStat("blocks.placed.value", v);
+                if (e.getBlock().getY() > 128) {
+                    adaptPlayer.getData().addStat("architect.builds.high", 1);
+                }
 
                 handleBlockCooldown(p, () -> {
                     try {
@@ -137,7 +221,11 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         if (e.isCancelled()) {
             return;
         }
-        shouldReturnForPlayer(p, e, () -> getPlayer(p).getData().addStat("blocks.broken", 1));
+        shouldReturnForPlayer(p, e, () -> {
+            AdaptPlayer adaptPlayer = getPlayer(p);
+            adaptPlayer.getData().addStat("blocks.broken", 1);
+            adaptPlayer.getData().addStat("architect.demolish.value", getValue(e.getBlock()));
+        });
     }
 
     @Override

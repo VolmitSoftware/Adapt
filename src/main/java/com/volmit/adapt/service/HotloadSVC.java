@@ -10,6 +10,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.skill.SkillRegistry;
 import com.volmit.adapt.api.tick.TickedObject;
+import com.volmit.adapt.content.gui.ConfigGui;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.util.AdaptService;
 import com.volmit.adapt.util.C;
@@ -139,6 +140,10 @@ public class HotloadSVC implements AdaptService {
             return false;
         }
 
+        if (isModelsConfigFile(file)) {
+            return true;
+        }
+
         notifyOps(file, before, after);
         return true;
     }
@@ -146,7 +151,9 @@ public class HotloadSVC implements AdaptService {
     private boolean applyConfigChange(File file) {
         try {
             if (isShadowedLegacyJson(file)) {
-                Adapt.verbose("Ignoring legacy json hotload because canonical toml exists: " + file.getPath());
+                if (!isModelsConfigFile(file)) {
+                    Adapt.verbose("Ignoring legacy json hotload because canonical toml exists: " + file.getPath());
+                }
                 return false;
             }
 
@@ -226,13 +233,7 @@ public class HotloadSVC implements AdaptService {
     }
 
     private boolean reloadModelsConfig(File file) {
-        boolean ok = CustomModel.reloadFromDisk();
-        if (!ok) {
-            Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid models config.");
-            return false;
-        }
-
-        return validateAndCanonicalizeConfig(file);
+        return CustomModel.reloadFromDisk(true);
     }
 
     private void refreshGlobalRuntimeSettings() {
@@ -242,7 +243,7 @@ public class HotloadSVC implements AdaptService {
         }
 
         if (AdaptConfig.get().isCustomModels()) {
-            CustomModel.reloadFromDisk();
+            CustomModel.reloadFromDisk(true);
         } else {
             CustomModel.clear();
         }
@@ -625,6 +626,11 @@ public class HotloadSVC implements AdaptService {
     private void reopenFromTag(Player player, String tag) {
         if (tag == null || tag.isBlank() || "/".equals(tag)) {
             SkillsGui.open(player);
+            return;
+        }
+
+        if (tag.startsWith("config/")) {
+            ConfigGui.reopenFromTag(player, tag);
             return;
         }
 
