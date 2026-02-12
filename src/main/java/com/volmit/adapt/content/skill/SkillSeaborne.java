@@ -60,6 +60,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         registerAdaptation(new SeaborneFishersFantasy());
         registerAdaptation(new SeaborneTurtlesVision());
         registerAdaptation(new SeaborneTurtlesMiningSpeed());
+        registerAdaptation(new SeaborneTidecaller());
+        registerAdaptation(new SeabornePressureDiver());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.TURTLE_HELMET)
                 .key("challenge_swim_1nm")

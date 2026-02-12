@@ -35,9 +35,14 @@ permissions:
   adapt.main:
     description: Allows for you to use the main command
     default: op
-  adapt.config:
-    description: Allows opening the in-game Adapt config editor
+  adapt.configurator:
+    description: Allows opening and using the in-game Adapt config editor
     default: op
+  adapt.config:
+    description: Legacy alias for adapt.configurator
+    default: false
+    children:
+      adapt.configurator: true
   adapt.blacklist.agility:
     description: Blacklist the skill Agility
     default: false

@@ -157,23 +157,21 @@ public interface DecreeSystem extends CommandExecutor, TabCompleter {
             return true;
         }
 
-        J.a(() -> {
-            if (!call(new VolmitSender(sender), args)) {
-                if (sender instanceof Player p) {
-                    SoundPlayer sp = SoundPlayer.of(p);
-                    sp.play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.77f, 0.25f);
-                    sp.play(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.2f, 0.45f);
-                }
-
-                sender.sendMessage(C.RED + "Unknown Adapt Command");
-            } else {
-                if (sender instanceof Player p) {
-                    SoundPlayer sp = SoundPlayer.of(p);
-                    sp.play(p.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 0.77f, 1.65f);
-                    sp.play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.125f, 2.99f);
-                }
+        if (!call(new VolmitSender(sender), args)) {
+            if (sender instanceof Player p) {
+                SoundPlayer sp = SoundPlayer.of(p);
+                sp.play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.77f, 0.25f);
+                sp.play(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.2f, 0.45f);
             }
-        });
+
+            sender.sendMessage(C.RED + "Unknown Adapt Command");
+        } else {
+            if (sender instanceof Player p) {
+                SoundPlayer sp = SoundPlayer.of(p);
+                sp.play(p.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 0.77f, 1.65f);
+                sp.play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.125f, 2.99f);
+            }
+        }
         return true;
     }
 }

@@ -23,6 +23,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -110,6 +111,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Reflect damage back to your attacker.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

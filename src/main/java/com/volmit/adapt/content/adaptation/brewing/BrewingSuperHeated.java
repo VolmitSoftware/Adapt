@@ -25,6 +25,7 @@ import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -209,6 +210,7 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Brewing stands work faster when surrounded by fire or lava.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

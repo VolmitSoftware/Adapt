@@ -27,6 +27,7 @@ import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationDropToInventory;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationHaste;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationOmniTool;
+import com.volmit.adapt.content.adaptation.excavation.ExcavationSeismicPing;
 import com.volmit.adapt.content.adaptation.excavation.ExcavationSpelunker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
@@ -58,6 +59,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         cooldowns = new HashMap<>();
         registerAdaptation(new ExcavationHaste());
         registerAdaptation(new ExcavationSpelunker());
+        registerAdaptation(new ExcavationSeismicPing());
         registerAdaptation(new ExcavationOmniTool());
         registerAdaptation(new ExcavationDropToInventory());
         registerAdvancement(AdaptAdvancement.builder()

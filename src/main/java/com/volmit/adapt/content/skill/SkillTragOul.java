@@ -29,6 +29,8 @@ import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulGlobe;
+import com.volmit.adapt.content.adaptation.tragoul.TragoulBloodPact;
+import com.volmit.adapt.content.adaptation.tragoul.TragoulBoneHarvest;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulHealing;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulLance;
 import com.volmit.adapt.content.adaptation.tragoul.TragoulThorns;
@@ -69,6 +71,8 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         registerAdaptation(new TragoulGlobe());
         registerAdaptation(new TragoulHealing());
         registerAdaptation(new TragoulLance());
+        registerAdaptation(new TragoulBloodPact());
+        registerAdaptation(new TragoulBoneHarvest());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.CRIMSON_ROOTS)
                 .key("challenge_trag_1k")

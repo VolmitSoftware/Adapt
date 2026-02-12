@@ -29,6 +29,7 @@ import com.volmit.adapt.util.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -266,6 +267,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Use a crafted redstone remote to toggle redstone at a distance.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Architect Wireless Redstone adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public int cooldown = 125;

@@ -19,6 +19,7 @@ package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -95,6 +96,7 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
 
     @Data
     @NoArgsConstructor
+    @ConfigDescription("Chance to negate the burning effect.")
     public static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

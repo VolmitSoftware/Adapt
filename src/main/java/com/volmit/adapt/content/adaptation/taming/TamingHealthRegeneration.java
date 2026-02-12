@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import com.volmit.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -80,15 +81,6 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
                 if (level > 0) {
                     Adapt.verbose("[PRE] Current Health: " + tam.getHealth() + " Max Health: " + mh);
                     tam.addPotionEffect(PotionEffectType.REGENERATION.createEffect(25 * getLevel(p), 3));
-                    J.a(() -> {
-                        try {
-                            Thread.sleep(getLevel(p) * 2000L);
-                        } catch (InterruptedException ex) {
-                            throw new RuntimeException(ex);
-                        }
-//                        Adapt.verbose("[POST] Current Health: " + tam.getHealth() + " Max Health: " + mh);
-
-                    });
 
                     if (getConfig().showParticles) {
                         Adapt.verbose("Healing tamed entity " + tam.getUniqueId() + " with particles");
@@ -114,11 +106,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
     @Override
     public void onTick() {
-        for (UUID i : lastDamage.keySet()) {
-            if (M.ms() - lastDamage.get(i) > 8000) {
-                lastDamage.remove(i);
-            }
-        }
+        lastDamage.entrySet().removeIf(i -> M.ms() - i.getValue() > 8000);
     }
 
     @Override
@@ -132,6 +120,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Increase your tamed animal regeneration rate.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

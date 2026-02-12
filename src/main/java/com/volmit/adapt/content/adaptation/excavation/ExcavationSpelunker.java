@@ -24,6 +24,7 @@ import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import fr.skytasul.glowingentities.GlowingEntities;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -107,64 +108,58 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
         Material targetOre = p.getInventory().getItemInOffHand().getType();
         ChatColor c = ItemListings.oreColorsChatColor.get(targetOre);
         Particle.DustOptions dustOptions = new Particle.DustOptions(Color.WHITE, 1);
-        J.a(() -> {
-            for (int x = -radius; x <= radius; x++) {
-                for (int y = -radius; y <= radius; y++) {
-                    for (int z = -radius; z <= radius; z++) {
-                        if (x * x + y * y + z * z <= radius * radius) {
-                            Location blockLocation = playerLocation.clone().add(x, y, z);
-                            Block block = world.getBlockAt(blockLocation);
-                            GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                for (int z = -radius; z <= radius; z++) {
+                    if (x * x + y * y + z * z <= radius * radius) {
+                        Location blockLocation = playerLocation.clone().add(x, y, z);
+                        Block block = world.getBlockAt(blockLocation);
+                        GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
 
+                        if (block.getType() == targetOre) {
+                            // Raytrace particles from player to the found ore
+                            Vector vector = blockLocation.clone().subtract(playerLocation).toVector().normalize().multiply(0.5);
+                            Location particleLocation = playerLocation.clone();
 
-                            if (block.getType() == targetOre) {
-                                // Raytrace particles from player to the found ore
-                                Vector vector = blockLocation.clone().subtract(playerLocation).toVector().normalize().multiply(0.5);
-                                Location particleLocation = playerLocation.clone();
+                            while (particleLocation.distance(blockLocation) > 0.5) {
+                                particleLocation.add(vector);
+                                p.spawnParticle(Particles.REDSTONE, particleLocation, 1, dustOptions);
+                            }
 
-                                while (particleLocation.distance(blockLocation) > 0.5) {
-                                    particleLocation.add(vector);
-                                    J.s(() -> p.spawnParticle(Particles.REDSTONE, particleLocation, 1, dustOptions));
+                            SoundPlayer spw = SoundPlayer.of(world);
+                            spw.play(block.getLocation().add(0.5, 0, 0.5), Sound.BLOCK_BEACON_ACTIVATE, 1, 1);
+                            Slime slime = block.getWorld().spawn(block.getLocation().add(0.5, 0, 0.5), Slime.class, (s) -> {
+                                s.setRotation(0, 0);
+                                s.setInvulnerable(true);
+                                s.setCollidable(false);
+                                s.setGravity(false);
+                                s.setSilent(true);
+                                s.setAI(false);
+                                s.setSize(2);
+                                s.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
+                                s.setMetadata("preventSuffocation", new FixedMetadataValue(Adapt.instance, true));
+                            });
+
+                            try {
+                                glowingEntities.setGlowing(slime, p, c);
+                            } catch (ReflectiveOperationException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            J.s(() -> {
+                                try {
+                                    glowingEntities.unsetGlowing(slime, p);
+                                } catch (ReflectiveOperationException e) {
+                                    throw new RuntimeException(e);
                                 }
 
-                                J.s(() -> {
-                                    SoundPlayer spw = SoundPlayer.of(world);
-                                    spw.play(block.getLocation().add(0.5, 0, 0.5), Sound.BLOCK_BEACON_ACTIVATE, 1, 1);
-                                    Slime slime = block.getWorld().spawn(block.getLocation().add(0.5, 0, 0.5), Slime.class, (s) -> {
-                                        s.setRotation(0, 0);
-                                        s.setInvulnerable(true);
-                                        s.setCollidable(false);
-                                        s.setGravity(false);
-                                        s.setSilent(true);
-                                        s.setAI(false);
-                                        s.setSize(2);
-                                        s.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
-                                        s.setMetadata("preventSuffocation", new FixedMetadataValue(Adapt.instance, true));
-                                    });
-
-                                    try {
-                                        glowingEntities.setGlowing(slime, p, c);
-                                    } catch (ReflectiveOperationException e) {
-                                        throw new RuntimeException(e);
-                                    }
-
-                                    J.s(() -> {
-                                        try {
-                                            glowingEntities.unsetGlowing(slime, p);
-                                        } catch (ReflectiveOperationException e) {
-                                            throw new RuntimeException(e);
-                                        }
-
-                                        slime.remove();
-                                    }, 5 * 20);
-                                });
-
-                            }
+                                slime.remove();
+                            }, 5 * 20);
                         }
                     }
                 }
             }
-        });
+        }
     }
 
 
@@ -198,6 +193,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     }
 
     @NoArgsConstructor
+    @ConfigDescription("See ores through the ground using Glowberries in your main hand.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

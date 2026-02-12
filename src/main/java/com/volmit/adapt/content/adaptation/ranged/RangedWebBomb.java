@@ -24,6 +24,7 @@ import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
 import com.volmit.adapt.content.item.BoundSnowBall;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -156,7 +157,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
             vfxCuboidOutline(block, Particle.CLOUD);
             vfxCuboidOutline(block, Particle.WHITE_ASH);
         }
-        J.a(() -> removeFoundation(block), seconds * 16);
+        J.s(() -> removeFoundation(block), seconds * 16);
     }
 
     public void removeFoundation(Block block) {
@@ -250,6 +251,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Throw a crafted web snare to trap targets in cobwebs.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -232,7 +233,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
             vfxCuboidOutline(block, Particle.REVERSE_PORTAL);
             vfxCuboidOutline(block, Particle.ASH);
         }
-        J.a(() -> removeFoundation(block), 3 * 20);
+        J.s(() -> removeFoundation(block), 3 * 20);
         return true;
     }
 
@@ -305,6 +306,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Sneak to place a temporary foundation beneath you.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Duration for the Architect Foundation adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public long duration = 3000;

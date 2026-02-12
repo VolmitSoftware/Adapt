@@ -24,6 +24,10 @@ import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.nether.NetherFireResist;
+import com.volmit.adapt.content.adaptation.nether.NetherBlazeLeech;
+import com.volmit.adapt.content.adaptation.nether.NetherGhastWard;
+import com.volmit.adapt.content.adaptation.nether.NetherLavaWalker;
+import com.volmit.adapt.content.adaptation.nether.NetherPiglinBroker;
 import com.volmit.adapt.content.adaptation.nether.NetherSkullYeet;
 import com.volmit.adapt.content.adaptation.nether.NetherWitherResist;
 import com.volmit.adapt.util.C;
@@ -57,6 +61,10 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         registerAdaptation(new NetherWitherResist());
         registerAdaptation(new NetherSkullYeet());
         registerAdaptation(new NetherFireResist());
+        registerAdaptation(new NetherLavaWalker());
+        registerAdaptation(new NetherGhastWard());
+        registerAdaptation(new NetherBlazeLeech());
+        registerAdaptation(new NetherPiglinBroker());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WITHER_SKELETON_SKULL)
                 .key("challenge_nether_50")

@@ -23,6 +23,7 @@ import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -172,6 +173,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Break bulk leaves at once while sneaking.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.discovery;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -130,6 +131,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Consume experience to mitigate damage when a hit would drop you below 5 hearts.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

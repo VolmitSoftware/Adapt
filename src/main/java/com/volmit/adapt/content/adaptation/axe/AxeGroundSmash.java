@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -122,6 +123,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Jump then crouch to smash all nearby enemies with your axe.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

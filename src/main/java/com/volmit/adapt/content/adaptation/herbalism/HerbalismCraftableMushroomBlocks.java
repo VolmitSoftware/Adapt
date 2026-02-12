@@ -24,6 +24,7 @@ import com.volmit.adapt.api.recipe.MaterialChar;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -93,6 +94,7 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Craft Mushroom Blocks from Mushrooms in a Crafting Table.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = true;

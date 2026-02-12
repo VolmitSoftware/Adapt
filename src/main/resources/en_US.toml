@@ -1326,6 +1326,22 @@
     lore2 = "Windup Time"
     lore = ["Max Speed", "Windup Time"]
 
+[agility.parkour_momentum]
+    name = "Parkour Momentum"
+    description = "Chain sprint-jumps and land on ledges to build momentum for mobility boosts."
+    lore1 = "Max Momentum Stacks"
+    lore2 = "Max Speed Amplifier"
+    lore3 = "Max Jump Amplifier"
+    lore = ["Max Momentum Stacks", "Max Speed Amplifier", "Max Jump Amplifier"]
+
+[agility.roll_landing]
+    name = "Roll Landing"
+    description = "Timed crouch before landing converts part of fall damage into hunger cost."
+    lore1 = "Fall Damage Conversion"
+    lore2 = "Input Timing Window"
+    lore3 = "Roll Cooldown"
+    lore = ["Fall Damage Conversion", "Input Timing Window", "Roll Cooldown"]
+
 # architect
 [architect]
 
@@ -1364,6 +1380,13 @@
     lore2 = "blocks in your hand to place this"
     lore3 = "A Material Builders Wand"
     lore = ["You need", "blocks in your hand to place this", "A Material Builders Wand"]
+
+[architect.smart_shape]
+    name = "Smart Shape"
+    description = "Sneak-punch blocks with an empty hand to rotate orientation."
+    lore1 = "Rotates directional and axis block states"
+    lore2 = "Requires empty main hand"
+    lore = ["Rotates directional and axis block states", "Requires empty main hand"]
 
 # axe
 [axe]
@@ -1409,6 +1432,13 @@
     lore2 = "range of Wood-mining"
     lore3 = "Works with Drop to inventory"
     lore = ["Sneak, and mine WOOD/LOGS ( Not Planks )", "range of Wood-mining", "Works with Drop to inventory"]
+
+[axe.timber_mark]
+    name = "Timber Mark"
+    description = "Sneak-right-click a log with an axe to mark it, then break that log to fell connected wood."
+    lore1 = "Max Logs Broken"
+    lore2 = "Mark Duration"
+    lore = ["Max Logs Broken", "Mark Duration"]
 
 # brewing
 [brewing]
@@ -1536,6 +1566,38 @@
     lore6 = "I Don't need armor, It disappoints me..."
     lore = ["This Is an amazing skill for traveling.", "Dynamically merge and change Armor/Elytra on the Fly!", "To merge, shift click an item over another in your inventory.", "To unbind Armor, Sneak-Drop the item, and it will disassemble.", "If your MultiArmor is destroyed, you will lose all items in it.", "I Don't need armor, It disappoints me..."]
 
+[blocking.counter_guard]
+    name = "Counter Guard"
+    description = "Each blocked hit builds shield stacks. Your next proc consumes stacks to reflect damage to the attacker."
+    lore1 = "Max Stored Counter Stacks"
+    lore2 = "Reflect Proc Chance"
+    lore3 = "Base Reflect Damage"
+    lore = ["Max Stored Counter Stacks", "Reflect Proc Chance", "Base Reflect Damage"]
+
+[blocking.bastion_stance]
+    name = "Bastion Stance"
+    description = "While sneaking and actively blocking with a shield, reduce knockback and incoming projectile pressure."
+    lore1 = "Knockback Resistance"
+    lore2 = "Projectile Damage Reduction"
+    lore3 = "Projectile Full-Block Chance"
+    lore = ["Knockback Resistance", "Projectile Damage Reduction", "Projectile Full-Block Chance"]
+
+[blocking.mirror_block]
+    name = "Mirror Block"
+    description = "Blocking with a shield can reflect incoming projectiles with reduced follow-up force."
+    lore1 = "Projectile Reflect Chance"
+    lore2 = "Reflected Damage Factor"
+    lore3 = "Reflect Cooldown"
+    lore = ["Projectile Reflect Chance", "Reflected Damage Factor", "Reflect Cooldown"]
+
+[blocking.bulwark_bash]
+    name = "Bulwark Bash"
+    description = "Sprint-jump and land a shielded crit to trigger a bash shockwave."
+    lore1 = "Bash Range"
+    lore2 = "Bash Damage"
+    lore3 = "Bash Cooldown"
+    lore = ["Bash Range", "Bash Damage", "Bash Cooldown"]
+
 # crafting
 [crafting]
 
@@ -1630,6 +1692,14 @@
     lore4 = "Recipe (Shapeless): Clock + Snowball + Diamond + Sand"
     lore = ["Temporal field radius", "Temporal field duration", "Bomb cooldown", "Recipe (Shapeless): Clock + Snowball + Diamond + Sand"]
 
+[chronos.temporal_echo]
+    name = "Temporal Echo"
+    description = "Projectile actions can replay once after a short delay at reduced strength."
+    lore1 = "Echo Delay"
+    lore2 = "Echo Velocity Factor"
+    lore3 = "Echo Cooldown"
+    lore = ["Echo Delay", "Echo Velocity Factor", "Echo Cooldown"]
+
 # discovery
 [discovery]
 
@@ -1664,6 +1734,29 @@
     lore3 = "required XP drain per Interaction"
     lore = ["This consumes XP per interaction with Villagers", "Chance Per interaction to consume XP, and enhance trades", "required XP drain per Interaction"]
 
+[discovery.better_mending]
+    name = "Better Mending"
+    description = "Sneak-left-click to spend your stored XP and directly mend the Mending item in your hand."
+    lore1 = "Durability Repaired per XP"
+    lore2 = "Max XP Spend per Click"
+    lore3 = "Mending Cooldown"
+    lore = ["Durability Repaired per XP", "Max XP Spend per Click", "Mending Cooldown"]
+
+[discovery.archaeologist]
+    name = "Archaeologist"
+    description = "Brushing suspicious blocks can yield bonus archaeology rewards."
+    lore1 = "Bonus Reward Chance"
+    lore2 = "Rare Reward Chance"
+    lore3 = "Reward Cooldown"
+    lore = ["Bonus Reward Chance", "Rare Reward Chance", "Reward Cooldown"]
+
+[discovery.cartographer_pulse]
+    name = "Cartographer Pulse"
+    description = "Sneak-right-click with a compass to lock your compass toward a nearby structure."
+    lore1 = "Structure Search Range"
+    lore2 = "Pulse Cooldown"
+    lore = ["Structure Search Range", "Pulse Cooldown"]
+
 # enchanting
 [enchanting]
 
@@ -1688,6 +1781,33 @@
     lore2 = "Experience per Enchant"
     lore = ["Experience spent has a chance to be refunded when you enchant an item", "Experience per Enchant"]
 
+[enchanting.anvil_savant]
+    name = "Anvil Savant"
+    description = "Reduce anvil XP cost when combining, repairing, and renaming."
+    lore1 = "Anvil Cost Reduction"
+    lore = ["Anvil Cost Reduction"]
+
+[enchanting.offer_reroll]
+    name = "Offer Reroll"
+    description = "Sneak-right-click an enchanting table to reroll offers for lapis and XP."
+    lore1 = "Reroll Cooldown"
+    lore2 = "Lapis Cost"
+    lore = ["Reroll Cooldown", "Lapis Cost"]
+
+[enchanting.bookshelf_attunement]
+    name = "Bookshelf Attunement"
+    description = "Gain virtual bookshelf power to improve enchanting table offer quality."
+    lore1 = "Virtual Bookshelf Power"
+    lore = ["Virtual Bookshelf Power"]
+
+[enchanting.grindstone_recovery]
+    name = "Grindstone Recovery"
+    description = "Disenchanting can recover one removed enchantment onto a book with bonus XP."
+    lore1 = "Recovery Chance"
+    lore2 = "Bonus XP"
+    lore3 = "Recovery Cooldown"
+    lore = ["Recovery Chance", "Bonus XP", "Recovery Cooldown"]
+
 # excavation
 [excavation]
 
@@ -1705,6 +1825,14 @@
     lore2 = "Block Range: "
     lore3 = "Consumes Glowberry on use"
     lore = ["Ore in your offhand, Glowberries in your main hand, and Sneak!", "Block Range: ", "Consumes Glowberry on use"]
+
+[excavation.seismic_ping]
+    name = "Seismic Ping"
+    description = "Mining can emit directional pings that point toward nearby ore."
+    lore1 = "Scan Range"
+    lore2 = "Ping Chance"
+    lore3 = "Ping Cooldown"
+    lore = ["Scan Range", "Ping Chance", "Ping Cooldown"]
 
 [excavation.drop_to_inventory]
     name = "Shovel Drop-To-Inventory"
@@ -1785,6 +1913,47 @@
     lore1 = "Blocks Replant Radius"
     lore = ["Blocks Replant Radius"]
 
+[herbalism.seed_sower]
+    name = "Seed Sower"
+    description = "Sneak-right-click with seeds to plant nearby farmland and soul-sand plots."
+    lore1 = "Plant Radius"
+    lore2 = "Max Crops Per Use"
+    lore3 = "Sowing Cooldown"
+    lore = ["Plant Radius", "Max Crops Per Use", "Sowing Cooldown"]
+
+[herbalism.compost_cascade]
+    name = "Compost Cascade"
+    description = "Sneak-right-click a composter to consume nearby drops, mature crop harvests, leaves, and your inventory compostables."
+    lore1 = "Cascade Radius"
+    lore2 = "Max Items Processed"
+    lore3 = "Compost Fill Chance"
+    lore4 = "Cascade Cooldown"
+    lore = ["Cascade Radius", "Max Items Processed", "Compost Fill Chance", "Cascade Cooldown"]
+
+[herbalism.rooted_footing]
+    name = "Rooted Footing"
+    description = "Permanent passive: protect farmland and convert part of fall damage into hunger while on natural ground."
+    lore1 = "Fall Damage Converted"
+    lore2 = "Food Per Damage"
+    lore3 = "Prevents Farmland Trample"
+    lore = ["Fall Damage Converted", "Food Per Damage", "Prevents Farmland Trample"]
+
+[herbalism.bee_shepherd]
+    name = "Bee Shepherd"
+    description = "Hold flowers near crops to pulse growth and draw nearby bees toward you."
+    lore1 = "Pulse Radius"
+    lore2 = "Growth Attempts"
+    lore3 = "Pulse Cooldown"
+    lore = ["Pulse Radius", "Growth Attempts", "Pulse Cooldown"]
+
+[herbalism.spore_bloom]
+    name = "Spore Bloom"
+    description = "Sneak-right-click mycelium with mushrooms to spread controlled bloom patches."
+    lore1 = "Bloom Attempts"
+    lore2 = "Bloom Radius"
+    lore3 = "Bloom Cooldown"
+    lore = ["Bloom Attempts", "Bloom Radius", "Bloom Cooldown"]
+
 # hunter
 [hunter]
 
@@ -1805,6 +1974,14 @@
     description = "When you Kill something / Break a block With a sword it teleports the drops into your inventory"
     lore1 = "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."
     lore = ["Whenever an item is dropped from a mob/block you break it goes into your inventory if it can."]
+
+[hunter.trophy_skinner]
+    name = "Trophy Skinner"
+    description = "Precision kills can yield bonus trophy drops and occasional mob heads."
+    lore1 = "Bonus Trophy Chance"
+    lore2 = "Head Drop Chance"
+    lore3 = "Minimum Ranged Precision Distance"
+    lore = ["Bonus Trophy Chance", "Head Drop Chance", "Minimum Ranged Precision Distance"]
 
 [hunter.invisibility]
     name = "Vanishing Step"
@@ -1904,6 +2081,36 @@
     lore1 = "chance to negate the burning effect!"
     lore = ["chance to negate the burning effect!"]
 
+[nether.lava_walker]
+    name = "Lava Walker"
+    description = "Stride over lava in the Nether at the cost of hunger."
+    lore1 = "Lava Stride Speed"
+    lore2 = "Hunger Cost"
+    lore = ["Lava Stride Speed", "Hunger Cost"]
+
+[nether.ghast_ward]
+    name = "Ghast Ward"
+    description = "Harden against ghast blasts and wither-skeleton ranged pressure in the Nether."
+    lore1 = "Ghast Projectile Reduction"
+    lore2 = "Explosion Reduction"
+    lore3 = "Wither Skeleton Projectile Reduction"
+    lore = ["Ghast Projectile Reduction", "Explosion Reduction", "Wither Skeleton Projectile Reduction"]
+
+[nether.blaze_leech]
+    name = "Blaze Leech"
+    description = "Fire interactions can trigger brief hunger and regeneration gains."
+    lore1 = "Leech Trigger Chance"
+    lore2 = "Regen Burst Duration"
+    lore3 = "Food Restored per Proc"
+    lore = ["Leech Trigger Chance", "Regen Burst Duration", "Food Restored per Proc"]
+
+[nether.piglin_broker]
+    name = "Piglin Broker"
+    description = "Nearby barters can grant extra rolls and occasional premium bonus items."
+    lore1 = "Extra Roll Chance"
+    lore2 = "Rare Bonus Chance"
+    lore = ["Extra Roll Chance", "Rare Bonus Chance"]
+
 # pickaxe
 [pickaxe]
 
@@ -1942,6 +2149,14 @@
     lore3 = "This skill does NOT group all drops together!"
     lore = ["Sneak, and mine ORES", "range of vein-mining", "This skill does NOT group all drops together!"]
 
+[pickaxe.quarry_sense]
+    name = "Quarry Sense"
+    description = "Sneak-right-click a block with an iron+ pickaxe to reveal nearby ores using temporary glowing markers."
+    lore1 = "Ore Scan Radius"
+    lore2 = "Durability Cost (% of Max Durability)"
+    lore3 = "Sense Cooldown"
+    lore = ["Ore Scan Radius", "Durability Cost (% of Max Durability)", "Sense Cooldown"]
+
 # ranged
 [ranged]
 
@@ -1967,6 +2182,13 @@
     lore1 = "Projectile Speed"
     lore = ["Projectile Speed"]
 
+[ranged.trajectory_sight]
+    name = "Trajectory Sight"
+    description = "Sneak or draw a ranged weapon to preview projectile flight."
+    lore1 = "Prediction Range"
+    lore2 = "Prediction Detail"
+    lore = ["Prediction Range", "Prediction Detail"]
+
 [ranged.lunge_shot]
     name = "Lunge Shot"
     description = "While falling your arrows toss you in a random direction"
@@ -1978,6 +2200,30 @@
     description = "Adds Piercing to projectiles! Shoot through things!"
     lore1 = "Pierce Targets"
     lore = ["Pierce Targets"]
+
+[ranged.floaters]
+    name = "Floaters"
+    description = "Projectiles have a chance to apply levitation and hold targets in the air."
+    lore1 = "Levitation Chance"
+    lore2 = "Levitation Duration"
+    lore3 = "Levitation Strength"
+    lore = ["Levitation Chance", "Levitation Duration", "Levitation Strength"]
+
+[ranged.pinning_shot]
+    name = "Pinning Shot"
+    description = "Any player-fired projectile can pin targets with heavy slowness."
+    lore1 = "Pin Chance"
+    lore2 = "Pin Duration"
+    lore3 = "Reapply Cooldown"
+    lore = ["Pin Chance", "Pin Duration", "Reapply Cooldown"]
+
+[ranged.ricochet_bolt]
+    name = "Ricochet Bolt"
+    description = "Arrows ricochet off solid blocks with chained bounces."
+    lore1 = "Max Ricochets"
+    lore2 = "Speed Bonus Per Ricochet"
+    lore3 = "Bonus Damage Per Ricochet"
+    lore = ["Max Ricochets", "Speed Bonus Per Ricochet", "Bonus Damage Per Ricochet"]
 
 # rift
 [rift]
@@ -2034,6 +2280,31 @@
     lore1 = "Endermen will not become aggressive if you have Enderpearls in your inventory."
     lore = ["Endermen will not become aggressive if you have Enderpearls in your inventory."]
 
+[rift.void_magnet]
+    name = "Void Magnet"
+    description = "Sneak to pull nearby item drops into your ender chest first, then inventory overflow."
+    lore1 = "Magnet Radius"
+    lore2 = "Max Items Per Pulse"
+    lore3 = "Pulse Delay"
+    lore = ["Magnet Radius", "Max Items Per Pulse", "Pulse Delay"]
+
+[rift.inflated_pocket_dimension]
+    name = "Inflated Pocket Dimension"
+    description = "Empty-hand right-click a block to pull matching stacks from your ender chest; sneak-drop to store items into it."
+    lore1 = "Right-click block to pull stack"
+    lore2 = "Building auto-refill from ender chest"
+    lore3 = "Sneak-drop stores item in ender chest"
+    lore = ["Right-click block to pull stack", "Building auto-refill from ender chest", "Sneak-drop stores item in ender chest"]
+
+[rift.ender_taglock]
+    name = "Ender Taglock"
+    description = "Sneak-left-click entities with an ender pearl to bind them, then throw the tagged pearl to relocate only that target. The thrower is never teleported."
+    lore1 = "Level 1: Passive and hostile mobs"
+    lore2 = "Level 2: Villagers and large targets"
+    lore3 = "Level 3: Any target, including players"
+    lore4 = "Tagged Pearl Throw Cooldown"
+    lore = ["Level 1: Passive and hostile mobs", "Level 2: Villagers and large targets", "Level 3: Any target, including players", "Tagged Pearl Throw Cooldown"]
+
 # seaborn
 [seaborn]
 
@@ -2068,6 +2339,21 @@
     lore2 = "x speed (dolphins grace)"
     lore3 = "precision german engineeeri- wait that's not right... Not Compatible with Depth Strider"
     lore = ["+ Passive: gain ", "x speed (dolphins grace)", "precision german engineeeri- wait that's not right... Not Compatible with Depth Strider"]
+
+[seaborn.tidecaller]
+    name = "Tidecaller"
+    description = "Sneak while it is raining on you to surge forward in a water-themed blink."
+    lore1 = "Rain Blink Distance"
+    lore2 = "Rain Blink Cooldown"
+    lore = ["Rain Blink Distance", "Rain Blink Cooldown"]
+
+[seaborn.pressure_diver]
+    name = "Pressure Diver"
+    description = "Gain depth-based protection underwater and partially suppress mining fatigue pressure."
+    lore1 = "Minimum Depth Requirement"
+    lore2 = "Depth Damage Reduction"
+    lore3 = "Mining Fatigue Reduction Chance"
+    lore = ["Minimum Depth Requirement", "Depth Damage Reduction", "Mining Fatigue Reduction Chance"]
 
 # stealth
 [stealth]
@@ -2106,6 +2392,22 @@
     lore2 = "Prevent all enderman attacks"
     lore = ["Prevent enderman attacks while sneaking", "Prevent all enderman attacks"]
 
+[stealth.silent_step]
+    name = "Silent Step"
+    description = "Sneaking suppresses detection, dims your vision while hidden, and grants backstab damage on unseen hits."
+    lore1 = "Mob Detection Suppression Radius"
+    lore2 = "Mob Backstab Damage Bonus"
+    lore3 = "Player Backstab Damage Bonus"
+    lore = ["Mob Detection Suppression Radius", "Mob Backstab Damage Bonus", "Player Backstab Damage Bonus"]
+
+[stealth.shadow_decoy]
+    name = "Shadow Decoy"
+    description = "Stop sneaking to spawn a decoy that pulls nearby mob aggression."
+    lore1 = "Decoy Duration"
+    lore2 = "Decoy Attraction Radius"
+    lore3 = "Decoy Cooldown"
+    lore = ["Decoy Duration", "Decoy Attraction Radius", "Decoy Cooldown"]
+
 # sword
 [sword]
 
@@ -2133,6 +2435,35 @@
     lore3 = "Poison Cooldown"
     lore = ["Striking a Living entity with your Sword causes Poison", "Poison Duration", "Poison Cooldown"]
 
+[sword.dual_wield]
+    name = "Dual Wield Stance"
+    description = "Holding items in both hands grants bonus melee damage. Matching items grant the higher bonus."
+    lore1 = "Matching Item Bonus"
+    lore2 = "Mixed Item Bonus"
+    lore = ["Matching Item Bonus", "Mixed Item Bonus"]
+
+[sword.executioners_edge]
+    name = "Executioner's Edge"
+    description = "Sword strikes deal extra damage to low-health targets."
+    lore1 = "Bonus Damage"
+    lore2 = "Health Threshold"
+    lore = ["Bonus Damage", "Health Threshold"]
+
+[sword.riposte_window]
+    name = "Riposte Window"
+    description = "Blocking with a shield arms a short riposte for your next strike."
+    lore1 = "Riposte Window"
+    lore2 = "Riposte Damage Bonus"
+    lore = ["Riposte Window", "Riposte Damage Bonus"]
+
+[sword.crimson_cyclone]
+    name = "Crimson Cyclone"
+    description = "Land a sword crit to unleash a bleeding area slash around your target."
+    lore1 = "Cyclone Radius"
+    lore2 = "Cyclone Damage"
+    lore3 = "Cyclone Cooldown"
+    lore = ["Cyclone Radius", "Cyclone Damage", "Cyclone Cooldown"]
+
 # taming
 [taming]
 
@@ -2153,6 +2484,34 @@
     description = "Increase your tamed animal regeneration."
     lore1 = "HP/s"
     lore = ["HP/s"]
+
+[taming.pack_leader_aura]
+    name = "Pack Leader Aura"
+    description = "Nearby tamed companions gain speed and regeneration near their owner."
+    lore1 = "Aura Radius"
+    lore2 = "Aura Strength"
+    lore = ["Aura Radius", "Aura Strength"]
+
+[taming.beast_recall]
+    name = "Beast Recall"
+    description = "Sneak-right-click with a lead to recall your nearest tamed companion to a safe nearby spot."
+    lore1 = "Recall Radius"
+    lore2 = "Recall Cooldown"
+    lore = ["Recall Radius", "Recall Cooldown"]
+
+[taming.shared_pain]
+    name = "Shared Pain"
+    description = "Redirect a portion of your tamed companion's damage to yourself."
+    lore1 = "Redirected Damage"
+    lore2 = "Owner Health Floor"
+    lore = ["Redirected Damage", "Owner Health Floor"]
+
+[taming.mounted_tactics]
+    name = "Mounted Tactics"
+    description = "Gain mount-specific combat and handling bonuses while riding."
+    lore1 = "Mounted Damage Bonus"
+    lore2 = "Mounted Damage Reduction"
+    lore = ["Mounted Damage Bonus", "Mounted Damage Reduction"]
 
 # tragoul
 [tragoul]
@@ -2187,6 +2546,21 @@
     lore3 = "Max Lances: 1 + "
     lore = ["Lances will Seek out from anything you kill, AND if This ability kills an enemy.", "Sacrifice a portion of your life in order to create the lances (this can kill you)", "Max Lances: 1 + "]
 
+[tragoul.blood_pact]
+    name = "Blood Pact"
+    description = "Taking at least 5 hearts of damage can trigger random beneficial effects."
+    lore1 = "Proc Chance"
+    lore2 = "Buff Duration"
+    lore3 = "Proc Cooldown"
+    lore = ["Proc Chance", "Buff Duration", "Proc Cooldown"]
+
+[tragoul.bone_harvest]
+    name = "Bone Harvest"
+    description = "Kills can spawn blood globes or bone snowball globes that grant buffs when picked up."
+    lore1 = "Globe Spawn Chance"
+    lore2 = "Globe Lifetime"
+    lore = ["Globe Spawn Chance", "Globe Lifetime"]
+
 # unarmed
 [unarmed]
 
@@ -2209,3 +2583,19 @@
     lore1 = "Damage"
     lore2 = "Damage increases by with your speed while punching"
     lore = ["Damage", "Damage increases by with your speed while punching"]
+
+[unarmed.battering_charge]
+    name = "Battering Charge"
+    description = "Sprint into enemies with fists or a shield to deal impact damage."
+    lore1 = "Impact Damage Bonus"
+    lore2 = "Impact Knockback"
+    lore3 = "Charge Cooldown"
+    lore = ["Impact Damage Bonus", "Impact Knockback", "Charge Cooldown"]
+
+[unarmed.combo_chain]
+    name = "Combo Chain"
+    description = "Consecutive unarmed hits build combo stacks that increase punch damage."
+    lore1 = "Max Combo Stacks"
+    lore2 = "Damage Per Stack"
+    lore3 = "Combo Window"
+    lore = ["Max Combo Stacks", "Damage Per Stack", "Combo Window"]

@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.ranged;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -102,6 +103,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("While falling, firing arrows launches you in a random direction.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

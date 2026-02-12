@@ -26,6 +26,7 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.chronos.ChronosAberrantTouch;
 import com.volmit.adapt.content.adaptation.chronos.ChronosInstantRecall;
+import com.volmit.adapt.content.adaptation.chronos.ChronosTemporalEcho;
 import com.volmit.adapt.content.adaptation.chronos.ChronosTimeBomb;
 import com.volmit.adapt.content.adaptation.chronos.ChronosTimeInABottle;
 import com.volmit.adapt.util.C;
@@ -84,6 +85,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         registerAdaptation(new ChronosAberrantTouch());
         registerAdaptation(new ChronosInstantRecall());
         registerAdaptation(new ChronosTimeBomb());
+        registerAdaptation(new ChronosTemporalEcho());
         lastPositions = new HashMap<>();
         positionHistory = new HashMap<>();
         recentActionTypes = new HashMap<>();

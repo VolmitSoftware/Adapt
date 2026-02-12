@@ -35,7 +35,7 @@ public class ConfigInputSVC implements AdaptService {
         sessions.clear();
     }
 
-    public void beginSession(Player player, String valuePath, String returnSectionPath, Class<?> targetType, String label) {
+    public void beginSession(Player player, String valuePath, String returnSectionPath, int returnPage, Class<?> targetType, String label) {
         if (player == null) {
             return;
         }
@@ -44,12 +44,14 @@ public class ConfigInputSVC implements AdaptService {
                 player.getUniqueId(),
                 valuePath,
                 returnSectionPath == null ? "" : returnSectionPath,
+                Math.max(0, returnPage),
                 targetType,
                 label == null ? valuePath : label,
                 System.currentTimeMillis() + SESSION_TIMEOUT_MS
         );
         sessions.put(player.getUniqueId(), pending);
 
+        ConfigGui.suppressClose(player);
         player.closeInventory();
         Adapt.messagePlayer(player, C.AQUA + "Enter value for " + C.WHITE + pending.label());
         Adapt.messagePlayer(player, C.AQUA + "Path: " + C.WHITE + pending.valuePath());
@@ -71,7 +73,7 @@ public class ConfigInputSVC implements AdaptService {
             sessions.remove(player.getUniqueId());
             J.s(() -> {
                 Adapt.messagePlayer(player, C.RED + "Config input timed out.");
-                ConfigGui.open(player, pending.returnSectionPath());
+                ConfigGui.open(player, pending.returnSectionPath(), pending.returnPage());
             });
             return;
         }
@@ -81,7 +83,7 @@ public class ConfigInputSVC implements AdaptService {
             sessions.remove(player.getUniqueId());
             J.s(() -> {
                 Adapt.messagePlayer(player, C.YELLOW + "Config edit cancelled.");
-                ConfigGui.open(player, pending.returnSectionPath());
+                ConfigGui.open(player, pending.returnSectionPath(), pending.returnPage());
             });
             return;
         }
@@ -98,7 +100,7 @@ public class ConfigInputSVC implements AdaptService {
         sessions.remove(player.getUniqueId());
         Object value = parsed.value();
         J.s(() -> {
-            ConfigGui.confirmAndApply(player, pending.returnSectionPath(), pending.valuePath(), value);
+            ConfigGui.confirmAndApply(player, pending.returnSectionPath(), pending.returnPage(), pending.valuePath(), value);
         });
     }
 
@@ -116,6 +118,7 @@ public class ConfigInputSVC implements AdaptService {
             UUID playerId,
             String valuePath,
             String returnSectionPath,
+            int returnPage,
             Class<?> targetType,
             String label,
             long expiresAt

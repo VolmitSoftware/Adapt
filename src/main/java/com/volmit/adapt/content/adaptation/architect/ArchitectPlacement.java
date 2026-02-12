@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KMap;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -250,30 +251,28 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     @Override
     public void onTick() {
         if (!totalMap.isEmpty()) {
-            J.a(() -> {
-                for (Player p : totalMap.keySet()) { // Get every player that has a map
-                    if (!hasAdaptation(p) || !p.isSneaking()) {
-                        totalMap.clear();
+            for (Player p : totalMap.keySet()) { // Get every player that has a map
+                if (!hasAdaptation(p) || !p.isSneaking()) {
+                    totalMap.clear();
+                    return;
+                }
+                Map<Block, BlockFace> blockRender = totalMap.get(p);
+                for (Block b : blockRender.keySet()) { // Get the blocks in that map that bind with a BlockFace
+                    if (b instanceof Container) { // return if block is a container
                         return;
                     }
-                    Map<Block, BlockFace> blockRender = totalMap.get(p);
-                    for (Block b : blockRender.keySet()) { // Get the blocks in that map that bind with a BlockFace
-                        if (b instanceof Container) { // return if block is a container
-                            return;
-                        }
-                        BlockFace bf = blockRender.get(b); // Get that blockface
-                        Block transposedBlock = b.getRelative(bf);
-                        if (getConfig().showParticles) {
-
-                            vfxCuboidOutline(transposedBlock, Particle.REVERSE_PORTAL);
-                        }
+                    BlockFace bf = blockRender.get(b); // Get that blockface
+                    Block transposedBlock = b.getRelative(bf);
+                    if (getConfig().showParticles) {
+                        vfxCuboidOutline(transposedBlock, Particle.REVERSE_PORTAL);
                     }
                 }
-            });
+            }
         }
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Place multiple blocks at once while sneaking with a matching block.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Blocks for the Architect Placement adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public int maxBlocks = 20;

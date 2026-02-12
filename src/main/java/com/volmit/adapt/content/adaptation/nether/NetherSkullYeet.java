@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
@@ -146,6 +147,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
     @Data
     @NoArgsConstructor
+    @ConfigDescription("Throw Wither Skulls that explode on impact.")
     public static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         public boolean permanent = false;

@@ -201,17 +201,10 @@ public interface Component {
             }
         }
         // if we didn't find an existing effect, add a new one
-        J.a(() -> {
-            try {
-                Thread.sleep(5);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            J.s(() -> {
-                p.addPotionEffect(new PotionEffect(potionEffect, duration, amplifier));
-                sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
-            });
-        });
+        J.s(() -> {
+            p.addPotionEffect(new PotionEffect(potionEffect, duration, amplifier));
+            sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
+        }, 1);
 
     }
 

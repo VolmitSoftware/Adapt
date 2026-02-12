@@ -22,6 +22,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -100,6 +101,7 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
 
     @Data
     @NoArgsConstructor
+    @ConfigDescription("Wearing Netherite Armor has a chance to negate the wither effect.")
     public static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         public boolean permanent = false;

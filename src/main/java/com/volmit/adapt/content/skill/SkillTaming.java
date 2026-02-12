@@ -24,8 +24,12 @@ import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.taming.TamingDamage;
+import com.volmit.adapt.content.adaptation.taming.TamingBeastRecall;
 import com.volmit.adapt.content.adaptation.taming.TamingHealthBoost;
 import com.volmit.adapt.content.adaptation.taming.TamingHealthRegeneration;
+import com.volmit.adapt.content.adaptation.taming.TamingMountedTactics;
+import com.volmit.adapt.content.adaptation.taming.TamingPackLeaderAura;
+import com.volmit.adapt.content.adaptation.taming.TamingSharedPain;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
@@ -59,6 +63,10 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         registerAdaptation(new TamingHealthBoost());
         registerAdaptation(new TamingDamage());
         registerAdaptation(new TamingHealthRegeneration());
+        registerAdaptation(new TamingPackLeaderAura());
+        registerAdaptation(new TamingBeastRecall());
+        registerAdaptation(new TamingSharedPain());
+        registerAdaptation(new TamingMountedTactics());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LEAD)
                 .key("challenge_taming_10")

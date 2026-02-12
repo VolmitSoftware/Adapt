@@ -26,6 +26,7 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.reflect.registries.PotionEffectTypes;
 import com.volmit.adapt.util.reflect.registries.PotionTypes;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -92,6 +93,7 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Brew a Potion of Haste from Speed Potion and Amethyst.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = true;

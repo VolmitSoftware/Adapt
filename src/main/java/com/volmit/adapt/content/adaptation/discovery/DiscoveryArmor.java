@@ -25,6 +25,7 @@ import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KMap;
 import com.volmit.adapt.util.reflect.registries.Attributes;
 import com.volmit.adapt.util.reflect.registries.Particles;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -115,39 +116,34 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     @Override
     public void onTick() {
         var players = Bukkit.getOnlinePlayers();
-        var executor = MultiBurst.burst.burst(players.size());
-
         for (Player p : players) {
-            executor.queue(() -> {
-                if (p == null || !p.isOnline()) return;
+            if (p == null || !p.isOnline()) continue;
 
-                long now = M.ms();
-                var nextUpdate = playerData.getOrDefault(p.getUniqueId(), now);
-                if (nextUpdate > now) return;
-                playerData.put(p.getUniqueId(), now + UPDATE_COOLDOWN);
+            long now = M.ms();
+            var nextUpdate = playerData.getOrDefault(p.getUniqueId(), now);
+            if (nextUpdate > now) continue;
+            playerData.put(p.getUniqueId(), now + UPDATE_COOLDOWN);
 
-                var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
-                if (attribute == null) return;
+            var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
+            if (attribute == null) continue;
 
-                if (!hasAdaptation(p)) {
-                    attribute.removeModifier(MODIFIER, MODIFIER_KEY);
-                } else {
-                    double oldArmor = attribute.getModifier(MODIFIER, MODIFIER_KEY)
-                            .stream()
-                            .mapToDouble(IAttribute.Modifier::getAmount)
-                            .max()
-                            .orElse(0);
+            if (!hasAdaptation(p)) {
+                attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+            } else {
+                double oldArmor = attribute.getModifier(MODIFIER, MODIFIER_KEY)
+                        .stream()
+                        .mapToDouble(IAttribute.Modifier::getAmount)
+                        .max()
+                        .orElse(0);
 
-                    double armor = getArmor(p.getLocation(), getLevel(p));
-                    armor = Double.isNaN(armor) ? 0 : armor;
+                double armor = getArmor(p.getLocation(), getLevel(p));
+                armor = Double.isNaN(armor) ? 0 : armor;
 
-                    double lArmor = M.lerp(oldArmor, armor, 0.3);
-                    lArmor = Double.isNaN(lArmor) ? 0 : lArmor;
-                    attribute.setModifier(MODIFIER, MODIFIER_KEY, lArmor, AttributeModifier.Operation.ADD_NUMBER);
-                }
-            });
+                double lArmor = M.lerp(oldArmor, armor, 0.3);
+                lArmor = Double.isNaN(lArmor) ? 0 : lArmor;
+                attribute.setModifier(MODIFIER, MODIFIER_KEY, lArmor, AttributeModifier.Operation.ADD_NUMBER);
+            }
         }
-        executor.complete();
     }
 
     @EventHandler
@@ -166,6 +162,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Gain passive armor based on nearby block hardness.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Discovery Armor adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public int radiusFactor = 3;

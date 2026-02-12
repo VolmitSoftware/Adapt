@@ -26,6 +26,7 @@ import com.volmit.adapt.util.reflect.registries.Attributes;
 import com.volmit.adapt.util.reflect.events.api.ReflectiveHandler;
 import com.volmit.adapt.util.reflect.events.api.entity.EntityDismountEvent;
 import com.volmit.adapt.util.reflect.events.api.entity.EntityMountEvent;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -154,6 +155,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
 
 
     @NoArgsConstructor
+    @ConfigDescription("Get faster the longer you sprint.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

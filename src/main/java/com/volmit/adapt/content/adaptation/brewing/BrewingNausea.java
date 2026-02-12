@@ -25,6 +25,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.reflect.registries.PotionEffectTypes;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -92,6 +93,7 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Brew a Potion of Nausea from Awkward Potion and Mushroom.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = true;

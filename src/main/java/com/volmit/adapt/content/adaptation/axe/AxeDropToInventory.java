@@ -25,6 +25,7 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
 import com.volmit.adapt.util.collection.KList;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -100,6 +101,7 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Chopped wood drops directly into your inventory.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

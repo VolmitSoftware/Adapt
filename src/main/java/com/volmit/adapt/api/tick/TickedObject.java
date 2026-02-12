@@ -19,7 +19,9 @@
 package com.volmit.adapt.api.tick;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.M;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
 import java.util.UUID;
@@ -35,6 +37,7 @@ public abstract class TickedObject implements Ticked, Listener {
     private final AtomicLong ticks;
     private final AtomicInteger dieIn;
     private final AtomicBoolean die;
+    private final AtomicBoolean pendingSyncTick;
     private final long start;
     private final String group;
     private final String id;
@@ -65,6 +68,7 @@ public abstract class TickedObject implements Ticked, Listener {
         this.burst = new AtomicInteger(0);
         this.skip = new AtomicInteger(0);
         this.ticks = new AtomicLong(0);
+        this.pendingSyncTick = new AtomicBoolean(false);
         this.start = M.ms();
         Adapt.instance.getTicker().register(this);
         Adapt.instance.registerListener(this);
@@ -102,6 +106,19 @@ public abstract class TickedObject implements Ticked, Listener {
 
     @Override
     public void tick() {
+        if (!Bukkit.isPrimaryThread()) {
+            if (pendingSyncTick.compareAndSet(false, true)) {
+                J.s(() -> {
+                    try {
+                        tick();
+                    } finally {
+                        pendingSyncTick.set(false);
+                    }
+                });
+            }
+            return;
+        }
+
         if (skip.getAndDecrement() > 0) {
             return;
         }

@@ -26,6 +26,7 @@ import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -535,6 +536,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Throw a crafted chrono bomb that creates a temporal field, slowing entities and freezing projectiles.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

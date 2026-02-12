@@ -22,6 +22,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.version.IAttribute;
 import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import com.volmit.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -120,6 +121,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Slowly build armor when not taking damage, consumed on the next hit.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

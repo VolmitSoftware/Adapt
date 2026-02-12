@@ -21,8 +21,8 @@ package com.volmit.adapt.content.adaptation.seaborrne;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -60,7 +60,7 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
                     if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.DEPTH_STRIDER)) {
                         continue;
                     } else {
-                        J.s(() -> player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 62, getLevel(player))));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 62, getLevel(player)));
                     }
                 }
             }
@@ -78,6 +78,7 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Swim faster with dolphin-like grace.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

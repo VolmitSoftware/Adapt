@@ -135,10 +135,10 @@ public class CommandAdapt implements DecreeExecutor {
         }
     }
 
-    @Decree(name = "config", aliases = {"cfg"}, origin = DecreeOrigin.PLAYER, description = "Open the in-game Adapt config editor")
-    public void config() {
-        if (!sender().hasPermission("adapt.config")) {
-            FConst.error("You lack the Permission 'adapt.config'").send(sender());
+    @Decree(name = "configure", aliases = {"config", "cfg"}, origin = DecreeOrigin.PLAYER, description = "Open the in-game Adapt config editor")
+    public void configure() {
+        if (!ConfigGui.canConfigure(player())) {
+            FConst.error("You need operator status or the permission 'adapt.configurator'").send(sender());
             return;
         }
 

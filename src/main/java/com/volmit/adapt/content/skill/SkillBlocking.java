@@ -25,7 +25,11 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.blocking.BlockingChainArmorer;
+import com.volmit.adapt.content.adaptation.blocking.BlockingBastionStance;
+import com.volmit.adapt.content.adaptation.blocking.BlockingBulwarkBash;
+import com.volmit.adapt.content.adaptation.blocking.BlockingCounterGuard;
 import com.volmit.adapt.content.adaptation.blocking.BlockingHorseArmorer;
+import com.volmit.adapt.content.adaptation.blocking.BlockingMirrorBlock;
 import com.volmit.adapt.content.adaptation.blocking.BlockingMultiArmor;
 import com.volmit.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
 import com.volmit.adapt.util.C;
@@ -60,6 +64,10 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
         registerAdaptation(new BlockingChainArmorer());
         registerAdaptation(new BlockingSaddlecrafter());
         registerAdaptation(new BlockingHorseArmorer());
+        registerAdaptation(new BlockingCounterGuard());
+        registerAdaptation(new BlockingBastionStance());
+        registerAdaptation(new BlockingMirrorBlock());
+        registerAdaptation(new BlockingBulwarkBash());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LEATHER_CHESTPLATE).key("challenge_block_1k")
                 .title(Localizer.dLocalize("advancement.challenge_block_1k.title"))

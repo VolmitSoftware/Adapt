@@ -27,7 +27,6 @@ import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.pickaxe.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
-import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -61,6 +60,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         registerAdaptation(new PickaxeAutosmelt());
         registerAdaptation(new PickaxeDropToInventory());
         registerAdaptation(new PickaxeSilkSpawner());
+        registerAdaptation(new PickaxeQuarrySense());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WOODEN_PICKAXE)
                 .key("challenge_pickaxe_1k")
@@ -243,7 +243,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
                         xp(p, 5);
                     } else {
                         Location blockLocation = e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5);
-                        J.a(() -> xp(p, blockLocation, blockXP(e.getBlock(), blockValue)));
+                        xp(p, blockLocation, blockXP(e.getBlock(), blockValue));
                     }
                 });
             }

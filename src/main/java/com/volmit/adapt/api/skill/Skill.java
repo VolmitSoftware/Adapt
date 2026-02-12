@@ -39,7 +39,9 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 public interface Skill<T> extends Ticked, Component {
     AdaptAdvancement buildAdvancements();
@@ -249,6 +251,7 @@ public interface Skill<T> extends Ticked, Component {
             }
             visibleAdaptations.add(adaptation);
         }
+        visibleAdaptations.sort(Comparator.comparing(adaptation -> normalizeSortKey(adaptation.getDisplayName())));
 
         boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
         GuiLayout.PagePlan plan = GuiLayout.plan(visibleAdaptations.size(), reserveNavigation);
@@ -293,24 +296,49 @@ public interface Skill<T> extends Ticked, Component {
 
         if (plan.hasNavigationRow()) {
             int navRow = plan.rows() - 1;
+            int jumpPages = 5;
+            int jumpBack = Math.max(0, currentPage - jumpPages);
+            int jumpForward = Math.min(plan.pageCount() - 1, currentPage + jumpPages);
             if (currentPage > 0) {
                 w.setElement(-4, navRow, new UIElement("skill-prev")
                         .setMaterial(new MaterialBlock(Material.ARROW))
                         .setName(C.WHITE + "Previous")
-                        .onLeftClick((e) -> openGui(player, currentPage - 1)));
+                        .addLore(C.GRAY + "Right click: jump -" + jumpPages + " pages")
+                        .onLeftClick((e) -> openGui(player, currentPage - 1))
+                        .onRightClick((e) -> openGui(player, jumpBack)));
+                w.setElement(-3, navRow, new UIElement("skill-first")
+                        .setMaterial(new MaterialBlock(Material.LECTERN))
+                        .setName(C.GRAY + "First")
+                        .onLeftClick((e) -> openGui(player, 0)));
             }
             if (currentPage < plan.pageCount() - 1) {
                 w.setElement(4, navRow, new UIElement("skill-next")
                         .setMaterial(new MaterialBlock(Material.ARROW))
                         .setName(C.WHITE + "Next")
-                        .onLeftClick((e) -> openGui(player, currentPage + 1)));
+                        .addLore(C.GRAY + "Right click: jump +" + jumpPages + " pages")
+                        .onLeftClick((e) -> openGui(player, currentPage + 1))
+                        .onRightClick((e) -> openGui(player, jumpForward)));
+                w.setElement(3, navRow, new UIElement("skill-last")
+                        .setMaterial(new MaterialBlock(Material.LECTERN))
+                        .setName(C.GRAY + "Last")
+                        .onLeftClick((e) -> openGui(player, plan.pageCount() - 1)));
             }
+
+            int from = visibleAdaptations.isEmpty() ? 0 : (start + 1);
+            int to = visibleAdaptations.isEmpty() ? 0 : end;
+            w.setElement(-1, navRow, new UIElement("skill-page-info")
+                    .setMaterial(new MaterialBlock(Material.PAPER))
+                    .setName(C.AQUA + "Page " + (currentPage + 1) + "/" + plan.pageCount())
+                    .addLore(C.GRAY + "Showing " + from + "-" + to + " of " + visibleAdaptations.size())
+                    .setProgress(1D));
+
             if (AdaptConfig.get().isGuiBackButton()) {
                 w.setElement(0, navRow, new UIElement("back")
                         .setMaterial(new MaterialBlock(Material.ARROW))
                         .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
                         .onLeftClick((e) -> onGuiClose(player, true)));
             }
+
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
@@ -331,5 +359,14 @@ public interface Skill<T> extends Ticked, Component {
         } else {
             Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
         }
+    }
+
+    private static String normalizeSortKey(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        String normalized = C.stripColor(value).toLowerCase(Locale.ROOT).trim();
+        return normalized.replaceFirst("^[^\\p{L}\\p{N}]+", "");
     }
 }

@@ -27,6 +27,7 @@ import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.reflect.registries.ItemFlags;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -240,6 +241,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Brewed potions last longer.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

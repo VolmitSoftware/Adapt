@@ -71,6 +71,11 @@ public final class TomlCodec {
 
             out.append("# Adapt configuration - ").append(sourceTag).append('\n');
             out.append("# This file is canonicalized on load; comments and new keys may update automatically.\n");
+            ConfigDescription desc = root.getClass().getAnnotation(ConfigDescription.class);
+            if (desc != null && !desc.value().isBlank()) {
+                out.append("#\n");
+                out.append("# ").append(desc.value().strip()).append('\n');
+            }
             out.append('\n');
             writePojoSection("", root);
             return normalize(out.toString());

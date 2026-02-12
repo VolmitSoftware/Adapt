@@ -21,6 +21,7 @@ package com.volmit.adapt.content.adaptation.agility;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -262,6 +263,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Hold shift while mid-air against a wall to latch and jump.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

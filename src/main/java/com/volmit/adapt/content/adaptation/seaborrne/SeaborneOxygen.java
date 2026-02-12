@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -55,7 +56,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
             if (i.getLocation().getBlock().getType() == Material.WATER && hasAdaptation(i)) {
-                J.s(() -> i.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, getLevel(i) * getConfig().airPerLevelTics, getLevel(i))));
+                i.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, getLevel(i) * getConfig().airPerLevelTics, getLevel(i)));
             }
         }
     }
@@ -71,6 +72,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Hold more oxygen underwater.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

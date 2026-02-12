@@ -24,6 +24,7 @@ import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import com.volmit.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -117,6 +118,7 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Regain health based on the damage you deal.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

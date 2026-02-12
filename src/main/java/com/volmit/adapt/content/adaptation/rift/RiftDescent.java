@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -73,17 +74,11 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
 
         if (!e.isSneaking() && (levi != null)) {
             p.removePotionEffect(PotionEffectType.LEVITATION);
-            J.a(() -> {
-                cooldown.add(p);
-                try {
-                    Thread.sleep((long) (getConfig().cooldown * 1000));
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
+            cooldown.add(p);
+            J.s(() -> {
                 sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
                 cooldown.remove(p);
-
-            });
+            }, Math.max(1, (int) Math.round(getConfig().cooldown * 20D)));
 
             J.s(() -> {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, (int) (20 * getConfig().cooldown), 0));
@@ -108,6 +103,7 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Sneak to descend and negate levitation effects.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = true;

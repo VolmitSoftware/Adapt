@@ -21,8 +21,8 @@ package com.volmit.adapt.content.adaptation.seaborrne;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
-import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -56,7 +56,7 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.isInWater() && hasAdaptation(player)) {
                 if (player.getLocation().getBlock().isLiquid()) {
-                    J.s(() -> player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 62, 0, false, false)));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 62, 0, false, false));
                 }
             }
         }
@@ -73,6 +73,7 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Gain night vision while underwater.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

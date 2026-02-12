@@ -26,6 +26,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import de.slikey.effectlib.effect.BleedEffect;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -126,6 +127,7 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Sword strikes apply poison.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Swords Poisoned Blade adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public long cooldown = 5000;

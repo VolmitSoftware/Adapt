@@ -59,6 +59,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         registerAdaptation(new AxeLeafVeinminer());
         registerAdaptation(new AxeWoodVeinminer());
         registerAdaptation(new AxeCraftLogSwap());
+        registerAdaptation(new AxeTimberMark());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WOODEN_AXE).key("challenge_chop_1k")
                 .title(Localizer.dLocalize("advancement.challenge_chop_1k.title"))

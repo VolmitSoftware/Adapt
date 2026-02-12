@@ -24,6 +24,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import manifold.rt.api.util.Pair;
@@ -181,7 +182,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @Override
     public void onTick() {
-        J.s(this::checkActiveViews);
+        checkActiveViews();
     }
 
     private void checkActiveViews() {
@@ -278,6 +279,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Craft a Reliquary Portkey to access marked containers remotely.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

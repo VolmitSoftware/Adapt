@@ -62,6 +62,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         registerAdaptation(new RiftBlink());
         registerAdaptation(new RiftDescent());
         registerAdaptation(new RiftVisage());
+        registerAdaptation(new RiftEnderTaglock());
+        registerAdaptation(new RiftInflatedPocketDimension());
+        registerAdaptation(new RiftVoidMagnet());
         lasttp = new KMap<>();
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.ENDER_PEARL)

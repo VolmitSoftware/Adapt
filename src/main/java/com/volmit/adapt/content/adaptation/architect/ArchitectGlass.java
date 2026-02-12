@@ -20,6 +20,7 @@ package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -68,7 +69,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
                 if (getConfig().showParticles) {
 
                     e.getBlock().getWorld().spawnParticle(Particle.SCRAPE, e.getBlock().getLocation(), 1);
-                    J.a(() -> vfxCuboidOutline(e.getBlock(), Particle.REVERSE_PORTAL));
+                    vfxCuboidOutline(e.getBlock(), Particle.REVERSE_PORTAL);
                 }
                 e.getBlock().breakNaturally();
             }
@@ -91,6 +92,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Silk-touch glass blocks when breaking them with an empty hand.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = true;

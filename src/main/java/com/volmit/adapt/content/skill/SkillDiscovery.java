@@ -26,6 +26,9 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.Discovery;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryArmor;
+import com.volmit.adapt.content.adaptation.discovery.DiscoveryArchaeologist;
+import com.volmit.adapt.content.adaptation.discovery.DiscoveryBetterMending;
+import com.volmit.adapt.content.adaptation.discovery.DiscoveryCartographerPulse;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryUnity;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryVillagerAtt;
 import com.volmit.adapt.content.adaptation.discovery.DiscoveryXpResist;
@@ -69,6 +72,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
         registerAdaptation(new DiscoveryArmor());
         registerAdaptation(new DiscoveryXpResist());
         registerAdaptation(new DiscoveryVillagerAtt());
+        registerAdaptation(new DiscoveryBetterMending());
+        registerAdaptation(new DiscoveryArchaeologist());
+        registerAdaptation(new DiscoveryCartographerPulse());
 
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.ITEM_FRAME).key("challenge_discover_items_50")
@@ -242,7 +248,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     private void scheduleSeeWorld(Player p) {
         try {
-            J.a(() -> seeWorld(p, p.getWorld()), 15);
+            J.s(() -> seeWorld(p, p.getWorld()), 15);
         } catch (Exception e) {
             Adapt.error("Failed to discover world " + p.getWorld().getName());
         }

@@ -22,6 +22,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -99,6 +100,7 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Enchanting XP is partially refunded when you enchant an item.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Return for the Enchanting XPReturn adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public int xpReturn = 2;

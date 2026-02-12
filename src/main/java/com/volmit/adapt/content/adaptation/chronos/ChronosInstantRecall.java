@@ -27,6 +27,7 @@ import com.volmit.adapt.util.Form;
 import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.M;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -485,7 +486,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         int triggerWindowMillis = Math.max(150, getConfig().doubleJumpWindowMillis);
         jumpArmUntil.put(id, M.ms() + triggerWindowMillis);
         p.setAllowFlight(true);
-        J.a(() -> {
+        J.s(() -> {
             if (!p.isOnline()) {
                 return;
             }
@@ -727,6 +728,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Click with a clock to rewind to a recent snapshot with health and hunger restored.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

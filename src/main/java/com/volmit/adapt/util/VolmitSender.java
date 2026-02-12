@@ -51,7 +51,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Represents a volume sender. A command sender with extra crap in its
@@ -319,19 +318,18 @@ public class VolmitSender implements CommandSender {
 
     public <T> void showWaiting(String passive, CompletableFuture<T> f) {
         AtomicInteger v = new AtomicInteger();
-        AtomicReference<T> g = new AtomicReference<>();
-        v.set(J.ar(() -> {
-            if (f.isDone() && g.get() != null) {
-                J.car(v.get());
+        v.set(J.sr(() -> {
+            if (f.isDone()) {
+                J.csr(v.get());
                 sendAction(" ");
                 return;
             }
 
             sendProgress(-1, passive);
-        }, 0));
+        }, 1));
         J.a(() -> {
             try {
-                g.set(f.get());
+                f.get();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {

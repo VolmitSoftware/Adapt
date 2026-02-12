@@ -29,6 +29,7 @@ import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -382,6 +383,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Build wool elevators to teleport vertically.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

@@ -23,6 +23,7 @@ import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.SoundPlayer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -135,6 +136,7 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Use crafting tables, anvils, and other stations in the palm of your hand.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Crafting Stations adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public int cooldown = 125;

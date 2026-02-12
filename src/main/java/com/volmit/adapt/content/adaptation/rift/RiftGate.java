@@ -24,6 +24,7 @@ import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.content.event.AdaptAdaptationTeleportEvent;
 import com.volmit.adapt.content.item.BoundEyeOfEnder;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -35,6 +36,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 
 public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
@@ -43,7 +45,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         registerConfiguration(Config.class);
         setDescription(Localizer.dLocalize("rift.gate.description"));
         setDisplayName(Localizer.dLocalize("rift.gate.name"));
-        setIcon(Material.END_PORTAL_FRAME);
+        setIcon(Material.RESPAWN_ANCHOR);
         setBaseCost(0);
         setCostFactor(0);
         setMaxLevel(1);
@@ -185,20 +187,36 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         sp.play(l, Sound.BLOCK_LODESTONE_PLACE, 1f, 0.1f);
         sp.play(l, Sound.BLOCK_BELL_RESONATE, 1f, 0.1f);
 
-        J.a(() -> {
-            long dur = 4000; // time in miliseconds
-            double radius = 2.0;
-            double adder = 0.0;
-            Color color = Color.fromBGR(0, 0, 0);
-            vfxFastRing(p.getLocation(), radius, color);
-            while (dur > 0) {
+        new BukkitRunnable() {
+            private long dur = 4000;
+            private double radius = 2.0;
+            private double adder = 0.0;
+            private final Color color = Color.fromBGR(0, 0, 0);
+            private boolean initialRingShown = false;
+
+            @Override
+            public void run() {
+                if (!p.isOnline()) {
+                    cancel();
+                    return;
+                }
+
+                if (!initialRingShown) {
+                    vfxFastRing(p.getLocation(), radius, color);
+                    initialRingShown = true;
+                }
+
                 dur -= 50;
+                if (dur <= 0) {
+                    cancel();
+                    return;
+                }
+
                 adder += 0.02;
-                radius *= 0.9; // reduce the radius by 20%
+                radius *= 0.9;
                 vfxFastRing(p.getLocation().add(0, adder, 0), radius, color);
-                J.sleep(50);
             }
-        });
+        }.runTaskTimer(Adapt.instance, 0L, 1L);
         vfxLevelUp(p);
         sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);
         J.s(() -> {
@@ -231,6 +249,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Craft a gate item to teleport to a marked location.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

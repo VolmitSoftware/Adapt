@@ -23,6 +23,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -94,6 +95,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Collecting Experience Orbs adds XP to random skills.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

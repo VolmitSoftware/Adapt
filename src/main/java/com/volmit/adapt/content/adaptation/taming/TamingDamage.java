@@ -21,6 +21,7 @@ package com.volmit.adapt.content.adaptation.taming;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import com.volmit.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -62,18 +63,13 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
     @Override
     public void onTick() {
-        for (World i : Bukkit.getServer().getWorlds()) {
-            J.s(() -> {
-                Collection<Tameable> gl = i.getEntitiesByClass(Tameable.class);
-
-                J.a(() -> {
-                    for (Tameable j : gl) {
-                        if (j.isTamed() && j.getOwner() instanceof Player p) {
-                            update(j, getLevel(p));
-                        }
-                    }
-                });
-            });
+        for (World world : Bukkit.getServer().getWorlds()) {
+            Collection<Tameable> tameables = world.getEntitiesByClass(Tameable.class);
+            for (Tameable tameable : tameables) {
+                if (tameable.isTamed() && tameable.getOwner() instanceof Player p) {
+                    update(tameable, getLevel(p));
+                }
+            }
         }
     }
 
@@ -98,6 +94,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Increase your tamed animal damage dealt.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

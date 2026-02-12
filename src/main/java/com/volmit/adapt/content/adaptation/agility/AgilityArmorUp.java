@@ -23,6 +23,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Attributes;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -140,6 +141,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
 
     @NoArgsConstructor
+    @ConfigDescription("Gain more armor the longer you sprint.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

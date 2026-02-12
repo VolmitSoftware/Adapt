@@ -30,9 +30,13 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 public class SkillsGui {
+    private static final int PAGE_JUMP = 5;
+
     public static void open(Player player) {
         open(player, 0);
     }
@@ -70,6 +74,8 @@ public class SkillsGui {
 
             entries.add(new SkillPageEntry(skill, line, adaptationLevel));
         }
+
+        entries.sort(Comparator.comparing(entry -> normalizeSortKey(entry.skill().getDisplayName())));
 
         boolean reserveNavigation = false;
         GuiLayout.PagePlan plan = GuiLayout.plan(entries.size(), reserveNavigation);
@@ -115,18 +121,8 @@ public class SkillsGui {
 
         if (plan.hasNavigationRow()) {
             int navRow = plan.rows() - 1;
-            if (currentPage > 0) {
-                w.setElement(-4, navRow, new UIElement("skills-prev")
-                        .setMaterial(new MaterialBlock(Material.ARROW))
-                        .setName(C.WHITE + "Previous")
-                        .onLeftClick((e) -> open(player, currentPage - 1)));
-            }
-            if (currentPage < plan.pageCount() - 1) {
-                w.setElement(4, navRow, new UIElement("skills-next")
-                        .setMaterial(new MaterialBlock(Material.ARROW))
-                        .setName(C.WHITE + "Next")
-                        .onLeftClick((e) -> open(player, currentPage + 1)));
-            }
+            applyPageControls(w, player, navRow, currentPage, plan.pageCount(), entries.size(), start, end);
+
         }
 
         String pageSuffix = plan.pageCount() > 1 ? " [" + (currentPage + 1) + "/" + plan.pageCount() + "]" : "";
@@ -137,5 +133,66 @@ public class SkillsGui {
     }
 
     private record SkillPageEntry(Skill<?> skill, PlayerSkillLine line, int adaptationLevel) {
+    }
+
+    private static String normalizeSortKey(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        String normalized = C.stripColor(value).toLowerCase(Locale.ROOT).trim();
+        return normalized.replaceFirst("^[^\\p{L}\\p{N}]+", "");
+    }
+
+    private static void applyPageControls(
+            Window window,
+            Player player,
+            int navRow,
+            int currentPage,
+            int pageCount,
+            int totalEntries,
+            int start,
+            int end
+    ) {
+        if (pageCount <= 1) {
+            return;
+        }
+
+        int jumpBack = Math.max(0, currentPage - PAGE_JUMP);
+        int jumpForward = Math.min(pageCount - 1, currentPage + PAGE_JUMP);
+
+        if (currentPage > 0) {
+            window.setElement(-4, navRow, new UIElement("skills-prev")
+                    .setMaterial(new MaterialBlock(Material.ARROW))
+                    .setName(C.WHITE + "Previous")
+                    .addLore(C.GRAY + "Right click: jump -" + PAGE_JUMP + " pages")
+                    .onLeftClick((e) -> open(player, currentPage - 1))
+                    .onRightClick((e) -> open(player, jumpBack)));
+            window.setElement(-3, navRow, new UIElement("skills-first")
+                    .setMaterial(new MaterialBlock(Material.LECTERN))
+                    .setName(C.GRAY + "First")
+                    .onLeftClick((e) -> open(player, 0)));
+        }
+
+        if (currentPage < pageCount - 1) {
+            window.setElement(4, navRow, new UIElement("skills-next")
+                    .setMaterial(new MaterialBlock(Material.ARROW))
+                    .setName(C.WHITE + "Next")
+                    .addLore(C.GRAY + "Right click: jump +" + PAGE_JUMP + " pages")
+                    .onLeftClick((e) -> open(player, currentPage + 1))
+                    .onRightClick((e) -> open(player, jumpForward)));
+            window.setElement(3, navRow, new UIElement("skills-last")
+                    .setMaterial(new MaterialBlock(Material.LECTERN))
+                    .setName(C.GRAY + "Last")
+                    .onLeftClick((e) -> open(player, pageCount - 1)));
+        }
+
+        int from = totalEntries <= 0 ? 0 : (start + 1);
+        int to = totalEntries <= 0 ? 0 : end;
+        window.setElement(-1, navRow, new UIElement("skills-page-info")
+                .setMaterial(new MaterialBlock(Material.PAPER))
+                .setName(C.AQUA + "Page " + (currentPage + 1) + "/" + pageCount)
+                .addLore(C.GRAY + "Showing " + from + "-" + to + " of " + totalEntries)
+                .setProgress(1D));
     }
 }

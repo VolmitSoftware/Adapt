@@ -18,12 +18,8 @@
 
 package com.volmit.adapt.api.tick;
 
-import com.volmit.adapt.util.BurstExecutor;
 import com.volmit.adapt.util.J;
-import com.volmit.adapt.util.MultiBurst;
 import com.volmit.adapt.util.collection.KList;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Ticker {
     private final KList<Ticked> ticklist;
@@ -36,11 +32,11 @@ public class Ticker {
         this.newTicks = new KList<>(128);
         this.removeTicks = new KList<>(128);
         ticking = false;
-        J.ar(() -> {
+        J.sr(() -> {
             if (!ticking) {
                 tick();
             }
-        }, 0);
+        }, 1);
     }
 
     public void register(Ticked ticked) {
@@ -70,39 +66,25 @@ public class Ticker {
 
     private void tick() {
         ticking = true;
-//        int ix = 0;
-        AtomicInteger tc = new AtomicInteger(0);
-        BurstExecutor e = MultiBurst.burst.burst(ticklist.size());
         for (int i = 0; i < ticklist.size(); i++) {
-            int ii = i;
-//            ix++;
-            e.queue(() -> {
-                Ticked t = ticklist.get(ii);
-
-                if (t != null && t.shouldTick()) {
-                    tc.incrementAndGet();
-                    try {
-                        t.tick();
-                    } catch (Throwable exxx) {
-                        exxx.printStackTrace();
-                    }
+            Ticked t = ticklist.get(i);
+            if (t != null && t.shouldTick()) {
+                try {
+                    t.tick();
+                } catch (Throwable exxx) {
+                    exxx.printStackTrace();
                 }
-            });
+            }
         }
-
-        e.complete();
-//        Adapt.info(ix + "");
 
         synchronized (newTicks) {
             while (newTicks.isNotEmpty()) {
-                tc.incrementAndGet();
                 ticklist.add(newTicks.popRandom());
             }
         }
 
         synchronized (removeTicks) {
             while (removeTicks.isNotEmpty()) {
-                tc.incrementAndGet();
                 String id = removeTicks.popRandom();
 
                 for (int i = 0; i < ticklist.size(); i++) {
@@ -115,6 +97,5 @@ public class Ticker {
         }
 
         ticking = false;
-        tc.get();
     }
 }

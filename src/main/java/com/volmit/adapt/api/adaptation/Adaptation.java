@@ -41,8 +41,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Recipe;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public interface Adaptation<T> extends Ticked, Component {
+    Map<String, Long> PERMANENT_LEARN_CONFIRMATIONS = new ConcurrentHashMap<>();
+    long PERMANENT_LEARN_CONFIRM_WINDOW_MS = 6_000L;
+
     int getMaxLevel();
 
     default void xp(Player p, double amount) {
@@ -73,6 +77,11 @@ public interface Adaptation<T> extends Ticked, Component {
         if (line == null) return false;
         PlayerAdaptation adaptation = line.getAdaptation(getName());
         if (adaptation == null) return false;
+        if (value == null) {
+            adaptation.getStorage().remove(key);
+            return true;
+        }
+
         adaptation.getStorage().put(key, value);
         return true;
     }
@@ -506,6 +515,7 @@ public interface Adaptation<T> extends Ticked, Component {
                 int c = getCostFor(lvl, mylevel);
                 int rc = getRefundCostFor(lvl - 1, mylevel);
                 int pc = getPowerCostFor(lvl, mylevel);
+                boolean pendingPermanentConfirm = isPermanentLearnConfirmationPending(player, lvl);
                 Element de = new UIElement("lp-" + lvl + "g")
                         .setMaterial(new MaterialBlock(getIcon()))
                         .setModel(getModel(lvl))
@@ -517,6 +527,11 @@ public interface Adaptation<T> extends Ticked, Component {
                         .addLore(mylevel >= lvl ? AdaptConfig.get().isHardcoreNoRefunds() ? (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.DARK_RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.no_refunds")) : (isPermanent() ? "" : (C.GREEN + Localizer.dLocalize("snippets.adapt_menu.already_learned") + " " + C.GRAY + Localizer.dLocalize("snippets.adapt_menu.unlearn_refund") + " " + C.GREEN + rc + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_cost"))) : (k >= c ? (C.BLUE + Localizer.dLocalize("snippets.adapt_menu.click_learn") + " " + getDisplayName(lvl)) : (k == 0 ? (C.RED + Localizer.dLocalize("snippets.adapt_menu.no_knowledge")) : (C.RED + "(" + Localizer.dLocalize("snippets.adapt_menu.you_only_have") + " " + C.WHITE + k + C.RED + " " + Localizer.dLocalize("snippets.adapt_menu.knowledge_available") + ")"))))
                         .addLore(mylevel < lvl && getPlayer(player).getData().hasPowerAvailable(pc) ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets.adapt_menu.power_drain") : mylevel >= lvl ? C.GREEN + "" + lvl + " " + Localizer.dLocalize("snippets.adapt_menu.power_drain") : C.RED + Localizer.dLocalize("snippets.adapt_menu.not_enough_power") + "\n" + C.RED + Localizer.dLocalize("snippets.adapt_menu.how_to_level_up"))
                         .addLore((isPermanent() ? C.RED + "" + C.BOLD + Localizer.dLocalize("snippets.adapt_menu.may_not_unlearn") : ""))
+                        .addLore(isPermanent() && mylevel < lvl
+                                ? (pendingPermanentConfirm
+                                ? C.GOLD + "" + C.BOLD + "Click again now to confirm permanent learn."
+                                : C.YELLOW + "Double-click required to confirm permanent learn.")
+                                : "")
                         .onLeftClick((e) -> {
                             if (mylevel >= lvl) {
                                 unlearn(player, lvl, false);
@@ -536,6 +551,13 @@ public interface Adaptation<T> extends Ticked, Component {
                             }
 
                             if (k >= c && getPlayer(player).getData().hasPowerAvailable(pc)) {
+                                if (isPermanent() && !consumePermanentLearnConfirmation(player, lvl)) {
+                                    spw.play(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.85f);
+                                    player.sendTitle(" ", C.GOLD + "" + C.BOLD + "Click again to confirm permanent learn", 1, 16, 8);
+                                    J.s(() -> openGui(player, currentPage), 1);
+                                    return;
+                                }
+
                                 if (getPlayer(player).getData().getSkillLine(getSkill().getName()).spendKnowledge(c)) {
                                     getPlayer(player).getData().getSkillLine(getSkill().getName()).setAdaptation(this, lvl);
                                     spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
@@ -567,24 +589,49 @@ public interface Adaptation<T> extends Ticked, Component {
 
         if (plan.hasNavigationRow()) {
             int navRow = plan.rows() - 1;
+            int jumpPages = 5;
+            int jumpBack = Math.max(0, currentPage - jumpPages);
+            int jumpForward = Math.min(plan.pageCount() - 1, currentPage + jumpPages);
             if (currentPage > 0) {
                 w.setElement(-4, navRow, new UIElement("adapt-prev")
                         .setMaterial(new MaterialBlock(Material.ARROW))
                         .setName(C.WHITE + "Previous")
-                        .onLeftClick((e) -> openGui(player, currentPage - 1)));
+                        .addLore(C.GRAY + "Right click: jump -" + jumpPages + " pages")
+                        .onLeftClick((e) -> openGui(player, currentPage - 1))
+                        .onRightClick((e) -> openGui(player, jumpBack)));
+                w.setElement(-3, navRow, new UIElement("adapt-first")
+                        .setMaterial(new MaterialBlock(Material.LECTERN))
+                        .setName(C.GRAY + "First")
+                        .onLeftClick((e) -> openGui(player, 0)));
             }
             if (currentPage < plan.pageCount() - 1) {
                 w.setElement(4, navRow, new UIElement("adapt-next")
                         .setMaterial(new MaterialBlock(Material.ARROW))
                         .setName(C.WHITE + "Next")
-                        .onLeftClick((e) -> openGui(player, currentPage + 1)));
+                        .addLore(C.GRAY + "Right click: jump +" + jumpPages + " pages")
+                        .onLeftClick((e) -> openGui(player, currentPage + 1))
+                        .onRightClick((e) -> openGui(player, jumpForward)));
+                w.setElement(3, navRow, new UIElement("adapt-last")
+                        .setMaterial(new MaterialBlock(Material.LECTERN))
+                        .setName(C.GRAY + "Last")
+                        .onLeftClick((e) -> openGui(player, plan.pageCount() - 1)));
             }
+
+            int from = getMaxLevel() <= 0 ? 0 : (start + 1);
+            int to = getMaxLevel() <= 0 ? 0 : end;
+            w.setElement(-1, navRow, new UIElement("adapt-page-info")
+                    .setMaterial(new MaterialBlock(Material.PAPER))
+                    .setName(C.AQUA + "Page " + (currentPage + 1) + "/" + plan.pageCount())
+                    .addLore(C.GRAY + "Showing " + from + "-" + to + " of " + getMaxLevel())
+                    .setProgress(1D));
+
             if (AdaptConfig.get().isGuiBackButton()) {
                 w.setElement(0, navRow, new UIElement("back")
                         .setMaterial(new MaterialBlock(Material.ARROW))
                         .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
                         .onLeftClick((e) -> onGuiClose(player, true)));
             }
+
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
@@ -605,6 +652,48 @@ public interface Adaptation<T> extends Ticked, Component {
         } else {
             Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString());
         }
+    }
+
+    private static String permanentConfirmPrefix(Player player, Adaptation<?> adaptation) {
+        return player.getUniqueId() + "|" + adaptation.getName() + "|";
+    }
+
+    private static String permanentConfirmKey(Player player, Adaptation<?> adaptation, int level) {
+        return permanentConfirmPrefix(player, adaptation) + level;
+    }
+
+    private static boolean isPermanentLearnConfirmationPending(Player player, Adaptation<?> adaptation, int level) {
+        if (player == null || adaptation == null) {
+            return false;
+        }
+
+        Long until = PERMANENT_LEARN_CONFIRMATIONS.get(permanentConfirmKey(player, adaptation, level));
+        return until != null && until >= M.ms();
+    }
+
+    default boolean isPermanentLearnConfirmationPending(Player player, int level) {
+        return isPermanentLearnConfirmationPending(player, this, level);
+    }
+
+    default boolean consumePermanentLearnConfirmation(Player player, int level) {
+        if (player == null) {
+            return false;
+        }
+
+        long now = M.ms();
+        PERMANENT_LEARN_CONFIRMATIONS.entrySet().removeIf(e -> e.getValue() < now);
+
+        String key = permanentConfirmKey(player, this, level);
+        Long until = PERMANENT_LEARN_CONFIRMATIONS.get(key);
+        if (until != null && until >= now) {
+            PERMANENT_LEARN_CONFIRMATIONS.remove(key);
+            return true;
+        }
+
+        String prefix = permanentConfirmPrefix(player, this);
+        PERMANENT_LEARN_CONFIRMATIONS.keySet().removeIf(existing -> existing.startsWith(prefix));
+        PERMANENT_LEARN_CONFIRMATIONS.put(key, now + PERMANENT_LEARN_CONFIRM_WINDOW_MS);
+        return false;
     }
 
     default void unlearn(Player player, int lvl, boolean force) {

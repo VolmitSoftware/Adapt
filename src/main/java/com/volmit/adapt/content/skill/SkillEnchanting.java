@@ -25,6 +25,10 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingLapisReturn;
+import com.volmit.adapt.content.adaptation.enchanting.EnchantingAnvilSavant;
+import com.volmit.adapt.content.adaptation.enchanting.EnchantingBookshelfAttunement;
+import com.volmit.adapt.content.adaptation.enchanting.EnchantingGrindstoneRecovery;
+import com.volmit.adapt.content.adaptation.enchanting.EnchantingOfferReroll;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingQuickEnchant;
 import com.volmit.adapt.content.adaptation.enchanting.EnchantingXPReturn;
 import com.volmit.adapt.util.C;
@@ -56,6 +60,10 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         registerAdaptation(new EnchantingQuickEnchant());
         registerAdaptation(new EnchantingLapisReturn());
         registerAdaptation(new EnchantingXPReturn()); //
+        registerAdaptation(new EnchantingAnvilSavant());
+        registerAdaptation(new EnchantingOfferReroll());
+        registerAdaptation(new EnchantingBookshelfAttunement());
+        registerAdaptation(new EnchantingGrindstoneRecovery());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.CRAFTING_TABLE).key("challenge_enchant_1k")
                 .title(Localizer.dLocalize("advancement.challenge_enchant_1k.title"))

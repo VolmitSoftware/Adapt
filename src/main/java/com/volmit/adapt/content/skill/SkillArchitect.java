@@ -28,7 +28,6 @@ import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.architect.*;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
-import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Localizer;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
@@ -186,6 +185,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
         registerAdaptation(new ArchitectPlacement());
         registerAdaptation(new ArchitectWirelessRedstone());
         registerAdaptation(new ArchitectElevator());
+        registerAdaptation(new ArchitectSmartShape());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -206,7 +206,7 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
                 handleBlockCooldown(p, () -> {
                     try {
-                        J.a(() -> xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v)));
+                        xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), getConfig().xpBase + v));
                     } catch (Exception ignored) {
                         Adapt.verbose("Failed to give XP to " + p.getName() + " for placing " + e.getBlock().getType().name());
                     }

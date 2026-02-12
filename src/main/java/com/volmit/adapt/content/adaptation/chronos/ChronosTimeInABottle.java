@@ -24,6 +24,7 @@ import com.volmit.adapt.content.item.ChronoTimeBottle;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Keyed;
 import org.bukkit.Material;
@@ -646,6 +647,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Carry a temporal bottle that stores time to accelerate timed blocks and baby animals.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

@@ -59,6 +59,8 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         registerAdaptation(new StealthGhostArmor());
         registerAdaptation(new StealthSight());
         registerAdaptation(new StealthEnderVeil());
+        registerAdaptation(new StealthSilentStep());
+        registerAdaptation(new StealthShadowDecoy());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LEATHER_LEGGINGS)
                 .key("challenge_sneak_1k")

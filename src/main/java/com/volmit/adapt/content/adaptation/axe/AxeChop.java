@@ -21,6 +21,7 @@ package com.volmit.adapt.content.adaptation.axe;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -139,6 +140,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Chop down trees by right-clicking the base log.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

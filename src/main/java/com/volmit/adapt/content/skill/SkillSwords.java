@@ -25,8 +25,12 @@ import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptPlayer;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.sword.SwordsBloodyBlade;
+import com.volmit.adapt.content.adaptation.sword.SwordsDualWield;
+import com.volmit.adapt.content.adaptation.sword.SwordsCrimsonCyclone;
+import com.volmit.adapt.content.adaptation.sword.SwordsExecutionersEdge;
 import com.volmit.adapt.content.adaptation.sword.SwordsMachete;
 import com.volmit.adapt.content.adaptation.sword.SwordsPoisonedBlade;
+import com.volmit.adapt.content.adaptation.sword.SwordsRiposteWindow;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Localizer;
@@ -58,6 +62,10 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         registerAdaptation(new SwordsMachete());
         registerAdaptation(new SwordsPoisonedBlade());
         registerAdaptation(new SwordsBloodyBlade());
+        registerAdaptation(new SwordsDualWield());
+        registerAdaptation(new SwordsExecutionersEdge());
+        registerAdaptation(new SwordsRiposteWindow());
+        registerAdaptation(new SwordsCrimsonCyclone());
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WOODEN_SWORD)
                 .key("challenge_sword_100")

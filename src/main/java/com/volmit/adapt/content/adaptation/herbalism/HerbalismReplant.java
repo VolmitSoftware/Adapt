@@ -24,6 +24,7 @@ import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.skill.SkillHerbalism;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -182,6 +183,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Right-click a crop with a hoe to harvest and replant it.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

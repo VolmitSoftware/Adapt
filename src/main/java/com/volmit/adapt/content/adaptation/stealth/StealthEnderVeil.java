@@ -4,6 +4,7 @@ import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import com.volmit.adapt.util.reflect.events.api.ReflectiveHandler;
 import com.volmit.adapt.util.reflect.events.api.entity.EndermanAttackPlayerEvent;
 import lombok.NoArgsConstructor;
@@ -78,6 +79,7 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Prevent Enderman aggression without wearing a pumpkin.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;

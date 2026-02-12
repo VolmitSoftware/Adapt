@@ -203,16 +203,14 @@ public class AdaptServer extends TickedObject {
             spatialTickets.removeIf(ticket -> M.ms() > ticket.getMs());
         }
 
-        J.a(() -> {
-            if (!clearLock.tryLock())
-                return;
+        if (!clearLock.tryLock())
+            return;
 
-            try {
-                players.values().removeIf(AdaptPlayer::shouldUnload);
-            } finally {
-                clearLock.unlock();
-            }
-        });
+        try {
+            players.values().removeIf(AdaptPlayer::shouldUnload);
+        } finally {
+            clearLock.unlock();
+        }
     }
 
     public PlayerData peekData(UUID player) {

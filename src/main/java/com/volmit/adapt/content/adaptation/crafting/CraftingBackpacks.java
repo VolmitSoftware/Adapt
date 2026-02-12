@@ -24,6 +24,7 @@ import com.volmit.adapt.api.recipe.MaterialChar;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
+import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -82,6 +83,7 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
     }
 
     @NoArgsConstructor
+    @ConfigDescription("Craft Bundles for portable item storage.")
     protected static class Config {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = true;
