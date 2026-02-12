@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.taming;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -51,6 +55,24 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2200);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LEAD)
+                .key("challenge_taming_recall_100")
+                .title(Localizer.dLocalize("advancement.challenge_taming_recall_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_taming_recall_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENDER_PEARL)
+                        .key("challenge_taming_recall_1k")
+                        .title(Localizer.dLocalize("advancement.challenge_taming_recall_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_taming_recall_1k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_recall_100").goal(100).stat("taming.beast-recall.recalls").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_recall_1k").goal(1000).stat("taming.beast-recall.recalls").reward(1000).build());
     }
 
     @Override
@@ -95,6 +117,7 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
         sp.play(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f, 1.45f);
         sp.play(safe, Sound.ITEM_LEAD_BREAK, 0.6f, 1.2f);
         xp(p, getConfig().xpOnRecall);
+        getPlayer(p).getData().addStat("taming.beast-recall.recalls", 1);
     }
 
     private Tameable findNearestOwnedTameable(Player p, double radius) {

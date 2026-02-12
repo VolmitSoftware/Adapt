@@ -18,6 +18,10 @@ package com.volmit.adapt.content.adaptation.tragoul;/*--------------------------
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -51,6 +55,24 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         cooldowns = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_SWORD)
+                .key("challenge_tragoul_lance_200")
+                .title(Localizer.dLocalize("advancement.challenge_tragoul_lance_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_tragoul_lance_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DIAMOND_SWORD)
+                .key("challenge_tragoul_lance_kills_100")
+                .title(Localizer.dLocalize("advancement.challenge_tragoul_lance_kills_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_tragoul_lance_kills_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_lance_200").goal(200).stat("tragoul.lance.lances-spawned").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_lance_kills_100").goal(100).stat("tragoul.lance.lance-kills").reward(1000).build());
     }
 
 
@@ -69,6 +91,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
                 double seekerDamage = getConfig().seekerDamageMultiplier * damageDealt;
 
                 triggerSeeker(p, event.getEntity(), seekerDamage, level, baseSeekerRange);
+                getPlayer(p).getData().addStat("tragoul.lance.lance-kills", 1);
             }
         }
     }
@@ -92,6 +115,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         }
 
         if (nearest != null) {
+            getPlayer(p).getData().addStat("tragoul.lance.lances-spawned", 1);
             vfxMovingSphere(origin.getLocation(), nearest.getLocation(), getConfig().seekerDelay, Color.MAROON, 0.25, 4);
             double seekerDamage = getConfig().seekerDamageMultiplier * damage;
             double selfDamage = getConfig().selfDamageMultiplier * seekerDamage;

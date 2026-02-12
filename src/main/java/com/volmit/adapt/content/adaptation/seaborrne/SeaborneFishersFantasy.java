@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -48,6 +52,24 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
         setInterval(8080);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.FISHING_ROD)
+                .key("challenge_seaborne_fish_500")
+                .title(Localizer.dLocalize("advancement.challenge_seaborne_fish_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_seaborne_fish_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.TROPICAL_FISH)
+                        .key("challenge_seaborne_fish_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_seaborne_fish_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_seaborne_fish_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_fish_500").goal(500).stat("seaborne.fishers-fantasy.fish-caught").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_fish_5k").goal(5000).stat("seaborne.fishers-fantasy.fish-caught").reward(1000).build());
     }
 
     @Override
@@ -65,6 +87,7 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
             return;
         }
         if (e.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
+            getPlayer(p).getData().addStat("seaborne.fishers-fantasy.fish-caught", 1);
             Random random = new Random();
             for (int i = 0; i < getLevel(p); i++) {
                 ItemStack item = new ItemStack(ItemListings.getFishingDrops().getRandom(), 1);

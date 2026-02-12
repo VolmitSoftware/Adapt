@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -62,6 +66,20 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2100);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BROWN_MUSHROOM)
+                .key("challenge_herbalism_spore_500")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_spore_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_spore_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_spore_500")
+                .goal(500)
+                .stat("herbalism.spore-bloom.blocks-spread")
+                .reward(300)
+                .build());
     }
 
     @Override
@@ -149,6 +167,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
 
                 if (cursor >= path.size()) {
                     if (totalChanged > 0) {
+                        getPlayer(player).getData().addStat("herbalism.spore-bloom.blocks-spread", totalChanged);
                         xp(player, totalChanged * getConfig().xpPerMushroomPlaced);
                     }
                     cancel();

@@ -18,6 +18,10 @@
 package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.Data;
@@ -44,6 +48,24 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(4333);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.FIRE_CHARGE)
+                .key("challenge_nether_fire_200")
+                .title(Localizer.dLocalize("advancement.challenge_nether_fire_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_nether_fire_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.MAGMA_CREAM)
+                        .key("challenge_nether_fire_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_nether_fire_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_nether_fire_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_fire_200").goal(200).stat("nether.fire-resist.negated").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_fire_5k").goal(5000).stat("nether.fire-resist.negated").reward(1000).build());
     }
 
     @Override
@@ -72,6 +94,7 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
 
         if (random.nextDouble() < getFireResist(getLevel(p))) {
             e.setCancelled(true);
+            getPlayer(p).getData().addStat("nether.fire-resist.negated", 1);
         }
     }
 

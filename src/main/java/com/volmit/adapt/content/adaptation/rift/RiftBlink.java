@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.event.AdaptAdaptationTeleportEvent;
@@ -72,6 +76,24 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(9288);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_PEARL)
+                .key("challenge_rift_blink_500")
+                .title(Localizer.dLocalize("advancement.challenge_rift_blink_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_rift_blink_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENDER_EYE)
+                        .key("challenge_rift_blink_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_rift_blink_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_rift_blink_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_blink_500").goal(500).stat("rift.blink.blinks").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_blink_5k").goal(5000).stat("rift.blink.distance-blinked").reward(1500).build());
     }
 
     private double getBlinkDistance(int level) {
@@ -368,6 +390,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         }));
 
         getPlayer(p).getData().addStat("rift.teleports", 1);
+        getPlayer(p).getData().addStat("rift.blink.blinks", 1);
+        getPlayer(p).getData().addStat("rift.blink.distance-blinked", (int) locOG.distance(destinationGround));
         lastBlink.put(id, M.ms());
         spw.play(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.50f, 1.0f);
         vfxLevelUp(p);

@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -59,6 +63,34 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(600);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.COMPOSTER)
+                .key("challenge_herbalism_compost_1k")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_compost_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_compost_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BONE_MEAL)
+                        .key("challenge_herbalism_compost_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_herbalism_compost_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_herbalism_compost_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_compost_1k")
+                .goal(1000)
+                .stat("herbalism.compost-cascade.items-composted")
+                .reward(300)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_compost_25k")
+                .goal(25000)
+                .stat("herbalism.compost-cascade.items-composted")
+                .reward(1000)
+                .build());
     }
 
     @Override
@@ -118,6 +150,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         e.setCancelled(true);
 
         getPlayer(p).getData().addStat("harvest.composted", state.consumed);
+        getPlayer(p).getData().addStat("herbalism.compost-cascade.items-composted", state.consumed);
         xp(p, center, (state.consumed * getConfig().xpPerItemConsumed) + (state.levelGains * getConfig().xpPerLevelGain));
 
         SoundPlayer sp = SoundPlayer.of(world);

@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -87,6 +91,24 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
         setCostFactor(getConfig().costFactor);
         setInterval(1200);
         targetKey = new NamespacedKey(Adapt.instance, "rift_taglock_target_uuid");
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_PEARL)
+                .key("challenge_rift_taglock_100")
+                .title(Localizer.dLocalize("advancement.challenge_rift_taglock_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_rift_taglock_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENDER_EYE)
+                        .key("challenge_rift_taglock_500")
+                        .title(Localizer.dLocalize("advancement.challenge_rift_taglock_500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_rift_taglock_500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_taglock_100").goal(100).stat("rift.ender-taglock.entities-tagged").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_taglock_500").goal(500).stat("rift.ender-taglock.taglocked-teleports").reward(1000).build());
     }
 
     @Override
@@ -138,6 +160,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
         tagIntoPearl(p, hand, target);
         SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.55f, 1.4f);
         p.getWorld().spawnParticle(Particle.PORTAL, target.getLocation().add(0, 1, 0), 14, 0.25, 0.4, 0.25, 0.04);
+        getPlayer(p).getData().addStat("rift.ender-taglock.entities-tagged", 1);
         xp(p, getConfig().xpOnTag);
     }
 
@@ -241,6 +264,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
         if (target instanceof Player victim) {
             victim.playSound(victim.getLocation(), Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.75f, 1.9f);
         }
+        getPlayer(p).getData().addStat("rift.ender-taglock.taglocked-teleports", 1);
         xp(p, getConfig().xpOnTeleport);
         J.s(() -> suppressPearlTeleportUntil.remove(p.getUniqueId()), 2);
     }

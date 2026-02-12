@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.excavation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -50,7 +54,15 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(11777);
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CHEST)
+                .key("challenge_excavation_dti_10k")
+                .title(Localizer.dLocalize("advancement.challenge_excavation_dti_10k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_excavation_dti_10k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_dti_10k").goal(10000).stat("excavation.drop-to-inv.items-caught").reward(500).build());
     }
 
     @Override
@@ -88,6 +100,7 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
             for (Item i : items) {
                 sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
                 xp(p, 2);
+                getPlayer(p).getData().addStat("excavation.drop-to-inv.items-caught", 1);
                 if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
                     p.getWorld().dropItem(p.getLocation(), i.getItemStack());
                 }

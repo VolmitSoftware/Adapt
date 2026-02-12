@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.taming;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -46,6 +50,24 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1700);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SHIELD)
+                .key("challenge_taming_shared_500")
+                .title(Localizer.dLocalize("advancement.challenge_taming_shared_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_taming_shared_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.TOTEM_OF_UNDYING)
+                        .key("challenge_taming_shared_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_taming_shared_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_taming_shared_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_shared_500").goal(500).stat("taming.shared-pain.damage-taken").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_shared_5k").goal(5000).stat("taming.shared-pain.damage-taken").reward(1500).build());
     }
 
     @Override
@@ -83,6 +105,7 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
         }
 
         owner.damage(redirect);
+        getPlayer(owner).getData().addStat("taming.shared-pain.damage-taken", redirect);
         SoundPlayer sp = SoundPlayer.of(owner.getWorld());
         sp.play(owner.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_HIT, 0.65f, 0.7f);
         sp.play(tameable.getLocation(), Sound.ENTITY_WOLF_WHINE, 0.55f, 1.2f);

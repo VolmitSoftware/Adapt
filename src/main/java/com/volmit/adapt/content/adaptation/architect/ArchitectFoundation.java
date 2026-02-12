@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import com.volmit.adapt.util.config.ConfigDescription;
@@ -69,6 +73,24 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         cooldowns = new HashMap<>();
         active = new HashSet<>();
         activeBlocks = new HashSet<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SCAFFOLDING)
+                .key("challenge_architect_foundation_1k")
+                .title(Localizer.dLocalize("advancement.challenge_architect_foundation_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_architect_foundation_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.SCAFFOLDING)
+                        .key("challenge_architect_foundation_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_architect_foundation_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_architect_foundation_10k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_foundation_1k").goal(1000).stat("architect.foundation.blocks-placed").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_foundation_10k").goal(10000).stat("architect.foundation.blocks-placed").reward(1000).build());
     }
 
     @Override
@@ -116,6 +138,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         for (Block b : locs) {
             if (addFoundation(b)) {
                 power--;
+                getPlayer(p).getData().addStat("architect.foundation.blocks-placed", 1);
             }
 
             if (power <= 0) {

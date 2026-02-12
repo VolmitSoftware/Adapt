@@ -19,8 +19,12 @@
 package com.volmit.adapt.content.adaptation.discovery;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.version.IAttribute;
 import com.volmit.adapt.api.version.Version;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KMap;
 import com.volmit.adapt.util.reflect.registries.Attributes;
@@ -60,6 +64,34 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_CHESTPLATE)
+                .key("challenge_discovery_armor_1hr")
+                .title(Localizer.dLocalize("advancement.challenge_discovery_armor_1hr.title"))
+                .description(Localizer.dLocalize("advancement.challenge_discovery_armor_1hr.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_CHESTPLATE)
+                        .key("challenge_discovery_armor_24hr")
+                        .title(Localizer.dLocalize("advancement.challenge_discovery_armor_24hr.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_discovery_armor_24hr.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_armor_1hr")
+                .goal(72000)
+                .stat("discovery.armor.ticks-with-bonus")
+                .reward(400)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_armor_24hr")
+                .goal(1728000)
+                .stat("discovery.armor.ticks-with-bonus")
+                .reward(2000)
+                .build());
     }
 
     @Override
@@ -142,6 +174,9 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
                 double lArmor = M.lerp(oldArmor, armor, 0.3);
                 lArmor = Double.isNaN(lArmor) ? 0 : lArmor;
                 attribute.setModifier(MODIFIER, MODIFIER_KEY, lArmor, AttributeModifier.Operation.ADD_NUMBER);
+                if (lArmor > 0) {
+                    getPlayer(p).getData().addStat("discovery.armor.ticks-with-bonus", 1);
+                }
             }
         }
     }

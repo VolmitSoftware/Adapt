@@ -19,8 +19,12 @@
 package com.volmit.adapt.content.adaptation.stealth;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.version.IAttribute;
 import com.volmit.adapt.api.version.Version;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import com.volmit.adapt.util.reflect.registries.Attributes;
@@ -51,6 +55,24 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LEATHER_CHESTPLATE)
+                .key("challenge_stealth_ghost_100")
+                .title(Localizer.dLocalize("advancement.challenge_stealth_ghost_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_stealth_ghost_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.CHAINMAIL_CHESTPLATE)
+                        .key("challenge_stealth_ghost_500")
+                        .title(Localizer.dLocalize("advancement.challenge_stealth_ghost_500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_stealth_ghost_500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_ghost_100").goal(100).stat("stealth.ghost-armor.armor-consumed").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_ghost_500").goal(500).stat("stealth.ghost-armor.armor-consumed").reward(1000).build());
     }
 
     @Override
@@ -102,6 +124,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
             // Check if 2.5 * e.getDamage() is greater than 10 if so just set it to 10 otherwise use the value of 2.5 * e.getDamage()
             int damageXP = (int) Math.min(10, 2.5 * e.getDamage());
             xp(p,damageXP );
+            getPlayer(p).getData().addStat("stealth.ghost-armor.armor-consumed", 1);
             J.s(() -> {
                 var attribute = Version.get().getAttribute(p, Attributes.GENERIC_ARMOR);
                 if (attribute == null) return;

@@ -20,7 +20,11 @@ package com.volmit.adapt.content.adaptation.agility;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.version.Version;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Attributes;
 import com.volmit.adapt.util.config.ConfigDescription;
@@ -55,6 +59,34 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
         setInitialCost(getConfig().initialCost);
         setInterval(350);
         ticksRunning = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_CHESTPLATE)
+                .key("challenge_agility_armor_up_30min")
+                .title(Localizer.dLocalize("advancement.challenge_agility_armor_up_30min.title"))
+                .description(Localizer.dLocalize("advancement.challenge_agility_armor_up_30min.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_CHESTPLATE)
+                        .key("challenge_agility_armor_up_5hr")
+                        .title(Localizer.dLocalize("advancement.challenge_agility_armor_up_5hr.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_agility_armor_up_5hr.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_agility_armor_up_30min")
+                .goal(36000)
+                .stat("agility.armor-up.ticks-armored")
+                .reward(500)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_agility_armor_up_5hr")
+                .goal(360000)
+                .stat("agility.armor-up.ticks-armored")
+                .reward(1500)
+                .build());
     }
 
     @Override
@@ -123,6 +155,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
                     }
                 }
                 attribute.setModifier(MODIFIER, MODIFIER_KEY, armorInc * 10, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+                getPlayer(p).getData().addStat("agility.armor-up.ticks-armored", 1);
             } else {
                 ticksRunning.remove(p);
             }

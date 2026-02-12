@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.enchanting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -48,6 +52,15 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
         setInterval(13001);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.EXPERIENCE_BOTTLE)
+                .key("challenge_enchanting_xp_100")
+                .title(Localizer.dLocalize("advancement.challenge_enchanting_xp_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_enchanting_xp_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_xp_100").goal(100).stat("enchanting.xp-return.levels-saved").reward(400).build());
     }
 
     @Override
@@ -80,8 +93,9 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
             return;
         }
         cooldown.put(p, System.currentTimeMillis());
-        p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(getConfig().xpReturn * (level * level));
-
+        int xpAmount = getConfig().xpReturn * (level * level);
+        p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(xpAmount);
+        getPlayer(p).getData().addStat("enchanting.xp-return.levels-saved", xpAmount);
     }
 
     @Override

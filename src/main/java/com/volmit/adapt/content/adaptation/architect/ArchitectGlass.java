@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -44,6 +48,24 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GLASS)
+                .key("challenge_architect_glass_200")
+                .title(Localizer.dLocalize("advancement.challenge_architect_glass_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_architect_glass_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.GLASS)
+                        .key("challenge_architect_glass_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_architect_glass_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_architect_glass_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_glass_200").goal(200).stat("architect.glass.blocks-recovered").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_glass_5k").goal(5000).stat("architect.glass.blocks-recovered").reward(1000).build());
     }
 
     @Override
@@ -72,6 +94,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
                     vfxCuboidOutline(e.getBlock(), Particle.REVERSE_PORTAL);
                 }
                 e.getBlock().breakNaturally();
+                getPlayer(p).getData().addStat("architect.glass.blocks-recovered", 1);
             }
         }
     }

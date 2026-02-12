@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.sword;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.sword.effects.DamagingBleedEffect;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
@@ -36,12 +40,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config> {
     private final Map<Player, Long> cooldowns;
+    private final Set<UUID> bleedingEntities = new HashSet<>();
+    private final Map<UUID, Player> bleedSource = new HashMap<>();
 
     public SwordsBloodyBlade() {
         super("sword-bloody-blade");
@@ -55,6 +65,24 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         cooldowns = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_SWORD)
+                .key("challenge_swords_bloody_500")
+                .title(Localizer.dLocalize("advancement.challenge_swords_bloody_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swords_bloody_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_bloody_500").goal(500).stat("swords.bloody-blade.bleed-damage").reward(400).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DIAMOND_SWORD)
+                .key("challenge_swords_bloody_kills_100")
+                .title(Localizer.dLocalize("advancement.challenge_swords_bloody_kills_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swords_bloody_kills_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_bloody_kills_100").goal(100).stat("swords.bloody-blade.bleed-kills").reward(1000).build());
     }
 
     @Override
@@ -112,7 +140,21 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
                 blood.hurt = false;
                 blood.start();
             }
+            bleedingEntities.add(victim.getUniqueId());
+            bleedSource.put(victim.getUniqueId(), p);
+            getPlayer(p).getData().addStat("swords.bloody-blade.bleed-damage", 1);
 
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(EntityDeathEvent e) {
+        UUID victimId = e.getEntity().getUniqueId();
+        if (bleedingEntities.remove(victimId)) {
+            Player source = bleedSource.remove(victimId);
+            if (source != null && source.isOnline()) {
+                getPlayer(source).getData().addStat("swords.bloody-blade.bleed-kills", 1);
+            }
         }
     }
 

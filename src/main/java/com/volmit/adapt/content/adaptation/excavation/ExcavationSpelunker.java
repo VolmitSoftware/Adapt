@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.excavation;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
@@ -58,7 +62,24 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         cooldowns = new HashMap<>();
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SPYGLASS)
+                .key("challenge_excavation_spelunker_1k")
+                .title(Localizer.dLocalize("advancement.challenge_excavation_spelunker_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_excavation_spelunker_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_ORE)
+                        .key("challenge_excavation_spelunker_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_excavation_spelunker_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_excavation_spelunker_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_spelunker_1k").goal(1000).stat("excavation.spelunker.ores-revealed").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_spelunker_25k").goal(25000).stat("excavation.spelunker.ores-revealed").reward(1500).build());
     }
 
     @Override
@@ -117,6 +138,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
                         GlowingEntities glowingEntities = Adapt.instance.getGlowingEntities();
 
                         if (block.getType() == targetOre) {
+                            getPlayer(p).getData().addStat("excavation.spelunker.ores-revealed", 1);
                             // Raytrace particles from player to the found ore
                             Vector vector = blockLocation.clone().subtract(playerLocation).toVector().normalize().multiply(0.5);
                             Location particleLocation = playerLocation.clone();

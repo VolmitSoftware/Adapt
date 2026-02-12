@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -50,6 +54,34 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(6920);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WHEAT_SEEDS)
+                .key("challenge_herbalism_seed_1k")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_seed_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_seed_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.FARMLAND)
+                        .key("challenge_herbalism_seed_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_herbalism_seed_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_herbalism_seed_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_seed_1k")
+                .goal(1000)
+                .stat("herbalism.seed-sower.seeds-planted")
+                .reward(300)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_seed_25k")
+                .goal(25000)
+                .stat("herbalism.seed-sower.seeds-planted")
+                .reward(1000)
+                .build());
     }
 
     @Override
@@ -94,6 +126,7 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
         e.setCancelled(true);
         p.setCooldown(seedType, getCooldownTicks(getLevelPercent(p)));
         getPlayer(p).getData().addStat("harvest.planted", planted);
+        getPlayer(p).getData().addStat("herbalism.seed-sower.seeds-planted", planted);
         xp(p, planted * getConfig().xpPerCrop);
 
         SoundPlayer sp = SoundPlayer.of(p.getWorld());

@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.enchanting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -50,6 +54,24 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1800);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENCHANTING_TABLE)
+                .key("challenge_enchanting_reroll_100")
+                .title(Localizer.dLocalize("advancement.challenge_enchanting_reroll_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_enchanting_reroll_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENCHANTING_TABLE)
+                        .key("challenge_enchanting_reroll_1k")
+                        .title(Localizer.dLocalize("advancement.challenge_enchanting_reroll_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_enchanting_reroll_1k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_reroll_100").goal(100).stat("enchanting.offer-reroll.rerolls").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_reroll_1k").goal(1000).stat("enchanting.offer-reroll.rerolls").reward(1000).build());
     }
 
     @Override
@@ -91,6 +113,7 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
         sp.play(p.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.2f);
         sp.play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5f, 0.85f);
         xp(p, getConfig().xpGainOnReroll);
+        getPlayer(p).getData().addStat("enchanting.offer-reroll.rerolls", 1);
     }
 
     private boolean consumeLapis(Player p, int amount) {

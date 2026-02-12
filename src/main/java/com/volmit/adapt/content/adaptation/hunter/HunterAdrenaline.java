@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.hunter;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -42,7 +46,24 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1911);
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_SWORD)
+                .key("challenge_hunter_adrenaline_100")
+                .title(Localizer.dLocalize("advancement.challenge_hunter_adrenaline_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_hunter_adrenaline_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_SWORD)
+                        .key("challenge_hunter_adrenaline_2500")
+                        .title(Localizer.dLocalize("advancement.challenge_hunter_adrenaline_2500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_hunter_adrenaline_2500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_adrenaline_100").goal(100).stat("hunter.adrenaline.low-health-kills").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_adrenaline_2500").goal(2500).stat("hunter.adrenaline.low-health-kills").reward(1500).build());
     }
 
     @Override
@@ -69,6 +90,7 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
 
             damageMax *= (1D - hpp);
             e.setDamage(e.getDamage() * (damageMax + 1D));
+            getPlayer(p).getData().addStat("hunter.adrenaline.low-health-kills", 1);
         }
     }
 

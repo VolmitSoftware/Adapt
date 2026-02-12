@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -47,6 +51,34 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
         setInterval(8121);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.RABBIT_FOOT)
+                .key("challenge_herbalism_luck_100")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_luck_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_luck_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.EMERALD)
+                        .key("challenge_herbalism_luck_2500")
+                        .title(Localizer.dLocalize("advancement.challenge_herbalism_luck_2500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_herbalism_luck_2500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_luck_100")
+                .goal(100)
+                .stat("herbalism.luck.lucky-drops")
+                .reward(300)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_luck_2500")
+                .goal(2500)
+                .stat("herbalism.luck.lucky-drops")
+                .reward(1000)
+                .build());
     }
 
     @Override
@@ -76,6 +108,7 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
             Material m = ItemListings.getHerbalLuckSeeds().getRandom();
             if (d < getEffectiveness(getLevel(p))) {
                 xp(p, 100);
+                getPlayer(p).getData().addStat("herbalism.luck.lucky-drops", 1);
                 ItemStack luckDrop = new ItemStack(m, 1);
                 e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), luckDrop);
             }
@@ -86,6 +119,7 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
             Material m = ItemListings.getHerbalLuckFood().getRandom();
             if (d < getEffectiveness(getLevel(p))) {
                 xp(p, 100);
+                getPlayer(p).getData().addStat("herbalism.luck.lucky-drops", 1);
                 ItemStack luckDrop = new ItemStack(m, 1);
                 e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), luckDrop);
             }

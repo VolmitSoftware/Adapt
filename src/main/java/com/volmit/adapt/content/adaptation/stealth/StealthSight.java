@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.stealth;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -49,7 +53,15 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         sneaking = new ArrayList<>();
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_EYE)
+                .key("challenge_stealth_sight_72k")
+                .title(Localizer.dLocalize("advancement.challenge_stealth_sight_72k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_stealth_sight_72k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_sight_72k").goal(72000).stat("stealth.sight.time-in-darkness").reward(400).build());
     }
 
     @Override
@@ -71,6 +83,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         if (!p.isSneaking()) {
             sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
             p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 1000, 0, false, false));
+            getPlayer(p).getData().addStat("stealth.sight.time-in-darkness", 1);
         } else {
             p.removePotionEffect(PotionEffectType.NIGHT_VISION);
         }

@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.discovery;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -50,6 +54,34 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2400);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ANVIL)
+                .key("challenge_discovery_mending_10k")
+                .title(Localizer.dLocalize("advancement.challenge_discovery_mending_10k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_discovery_mending_10k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENCHANTED_GOLDEN_APPLE)
+                        .key("challenge_discovery_mending_100k")
+                        .title(Localizer.dLocalize("advancement.challenge_discovery_mending_100k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_discovery_mending_100k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_mending_10k")
+                .goal(10000)
+                .stat("discovery.better-mending.durability-restored")
+                .reward(400)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_mending_100k")
+                .goal(100000)
+                .stat("discovery.better-mending.durability-restored")
+                .reward(1500)
+                .build());
     }
 
     @Override
@@ -117,6 +149,7 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
         }
 
         xp(p, Math.max(1D, (currentDamage - newDamage) * getConfig().skillXpPerDurability));
+        getPlayer(p).getData().addStat("discovery.better-mending.durability-restored", repaired);
     }
 
     private boolean canMend(ItemStack hand) {

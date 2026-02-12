@@ -19,7 +19,12 @@
 package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.util.*;
@@ -54,7 +59,23 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(5849);
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.OAK_LOG)
+                .key("challenge_axe_wood_vein_2500")
+                .title(Localizer.dLocalize("advancement.challenge_axe_wood_vein_2500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_axe_wood_vein_2500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DIAMOND_AXE)
+                .key("challenge_axe_wood_vein_cascade")
+                .title(Localizer.dLocalize("advancement.challenge_axe_wood_vein_cascade.title"))
+                .description(Localizer.dLocalize("advancement.challenge_axe_wood_vein_cascade.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_wood_vein_2500").goal(2500).stat("axe.wood-veinminer.logs-veinmined").reward(500).build());
     }
 
     @Override
@@ -130,6 +151,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
             }
         }
 
+        int logsVeinmined = blockMap.size();
         J.s(() -> {
             for (Block blocks : blockMap) {
                 PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("axes");
@@ -157,6 +179,12 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
             }
             VEIN_MINED.remove(block);
         });
+        if (logsVeinmined > 0) {
+            getPlayer(p).getData().addStat("axe.wood-veinminer.logs-veinmined", logsVeinmined);
+            if (logsVeinmined >= 15 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_axe_wood_vein_cascade")) {
+                getPlayer(p).getAdvancementHandler().grant("challenge_axe_wood_vein_cascade");
+            }
+        }
     }
 
 

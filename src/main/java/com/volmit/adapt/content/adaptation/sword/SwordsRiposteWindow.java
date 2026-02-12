@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.sword;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -54,6 +59,32 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2100);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_SWORD)
+                .key("challenge_swords_riposte_200")
+                .title(Localizer.dLocalize("advancement.challenge_swords_riposte_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swords_riposte_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_SWORD)
+                        .key("challenge_swords_riposte_2500")
+                        .title(Localizer.dLocalize("advancement.challenge_swords_riposte_2500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_swords_riposte_2500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_riposte_200").goal(200).stat("swords.riposte.ripostes-landed").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_riposte_2500").goal(2500).stat("swords.riposte.ripostes-landed").reward(1500).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SHIELD)
+                .key("challenge_swords_riposte_3in5")
+                .title(Localizer.dLocalize("advancement.challenge_swords_riposte_3in5.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swords_riposte_3in5.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
     }
 
     @Override
@@ -102,6 +133,22 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
         sp.play(attacker.getLocation(), Sound.ITEM_SHIELD_BLOCK, 0.7f, 1.6f);
         sp.play(attacker.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.8f, 1.2f);
         xp(attacker, e.getDamage() * getConfig().xpPerBuffedDamage);
+        getPlayer(attacker).getData().addStat("swords.riposte.ripostes-landed", 1);
+
+        // Special achievement: 3 ripostes within 5 seconds
+        long riposteWindowStart = getStorageLong(attacker, "riposteWindowStart", 0L);
+        int riposteWindowCount = getStorageInt(attacker, "riposteWindowCount", 0);
+        if (now - riposteWindowStart > 5000L) {
+            riposteWindowStart = now;
+            riposteWindowCount = 1;
+        } else {
+            riposteWindowCount++;
+        }
+        setStorage(attacker, "riposteWindowStart", riposteWindowStart);
+        setStorage(attacker, "riposteWindowCount", riposteWindowCount);
+        if (riposteWindowCount >= 3 && AdaptConfig.get().isAdvancements() && !getPlayer(attacker).getData().isGranted("challenge_swords_riposte_3in5")) {
+            getPlayer(attacker).getAdvancementHandler().grant("challenge_swords_riposte_3in5");
+        }
     }
 
     private void armRiposte(Player defender) {

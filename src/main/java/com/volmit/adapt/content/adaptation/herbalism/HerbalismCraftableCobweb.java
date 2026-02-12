@@ -19,14 +19,22 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -53,7 +61,20 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
                         "III"))
                 .result(new ItemStack(Material.COBWEB, 1))
                 .build());
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.COBWEB)
+                .key("challenge_herbalism_cobweb_100")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_cobweb_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_cobweb_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_cobweb_100")
+                .goal(100)
+                .stat("herbalism.cobweb.cobwebs-crafted")
+                .reward(300)
+                .build());
     }
 
     @Override
@@ -61,6 +82,19 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
         v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism.cobweb.lore1"));
     }
 
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(CraftItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!(e.getWhoClicked() instanceof Player p) || !hasAdaptation(p)) {
+            return;
+        }
+        if (e.getRecipe() instanceof org.bukkit.inventory.ShapedRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && recipe.getKey().getKey().equals("herbalism-cobwebBlock")) {
+            getPlayer(p).getData().addStat("herbalism.cobweb.cobwebs-crafted", 1);
+        }
+    }
 
     @Override
     public void onTick() {

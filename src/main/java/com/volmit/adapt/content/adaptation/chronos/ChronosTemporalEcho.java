@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.chronos;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -61,6 +65,20 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1600);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SPECTRAL_ARROW)
+                .key("challenge_chronos_echo_200")
+                .title(Localizer.dLocalize("advancement.challenge_chronos_echo_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_chronos_echo_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_chronos_echo_200")
+                .goal(200)
+                .stat("chronos.temporal-echo.echo-hits")
+                .reward(400)
+                .build());
     }
 
     @Override
@@ -110,6 +128,7 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
         echo.setVelocity(velocity.multiply(getEchoVelocityFactor(level)));
         echo.setMetadata(ECHO_META, new FixedMetadataValue(Adapt.instance, true));
         SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.75f, 1.35f);
+        getPlayer(p).getData().addStat("chronos.temporal-echo.echo-hits", 1);
         xp(p, getConfig().xpPerEcho);
     }
 

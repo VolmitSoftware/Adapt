@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.pickaxe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.item.ItemListings;
@@ -56,6 +60,24 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(7444);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.FURNACE)
+                .key("challenge_pickaxe_autosmelt_1k")
+                .title(Localizer.dLocalize("advancement.challenge_pickaxe_autosmelt_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pickaxe_autosmelt_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BLAST_FURNACE)
+                        .key("challenge_pickaxe_autosmelt_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_pickaxe_autosmelt_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_pickaxe_autosmelt_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_autosmelt_1k").goal(1000).stat("pickaxe.autosmelt.ores-smelted").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_autosmelt_25k").goal(25000).stat("pickaxe.autosmelt.ores-smelted").reward(1500).build());
     }
 
     static void autosmeltBlockDTI(Block b, Player p) {
@@ -184,6 +206,7 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         } else {
             autosmeltBlock(e.getBlock(), p);
         }
+        getPlayer(p).getData().addStat("pickaxe.autosmelt.ores-smelted", 1);
     }
 
 

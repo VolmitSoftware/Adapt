@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -47,6 +51,20 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
         setInterval(8111);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GOLDEN_APPLE)
+                .key("challenge_herbalism_hippo_500")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_hippo_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_hippo_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_hippo_500")
+                .goal(500)
+                .stat("herbalism.hungry-hippo.bonus-saturation")
+                .reward(400)
+                .build());
     }
 
     @Override
@@ -68,6 +86,7 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
             p.setFoodLevel(p.getFoodLevel() + 2 + getLevel(p));
             sp.play(p.getLocation(), Sound.BLOCK_POINTED_DRIPSTONE_LAND, 1, 0.25f);
             vfxFastRing(p.getLocation().add(0, 0.25, 0), 2, Color.GREEN);
+            getPlayer(p).getData().addStat("herbalism.hungry-hippo.bonus-saturation", 2 + getLevel(p));
             xp(p, 5);
         }
     }

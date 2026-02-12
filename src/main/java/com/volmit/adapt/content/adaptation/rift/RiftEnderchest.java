@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.util.C;
@@ -48,6 +52,15 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
         setInitialCost(10);
         setInterval(9248);
         registerConfiguration(Config.class);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_CHEST)
+                .key("challenge_rift_enderchest_200")
+                .title(Localizer.dLocalize("advancement.challenge_rift_enderchest_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_rift_enderchest_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_enderchest_200").goal(200).stat("rift.enderchest.opens").reward(300).build());
     }
 
     @Override
@@ -79,6 +92,7 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
                 sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
                 sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                 p.openInventory(p.getEnderChest());
+                getPlayer(p).getData().addStat("rift.enderchest.opens", 1);
             }
         }
     }

@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.agility;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -56,6 +61,42 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1200);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.HAY_BLOCK)
+                .key("challenge_agility_roll_100")
+                .title(Localizer.dLocalize("advancement.challenge_agility_roll_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_agility_roll_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.SLIME_BLOCK)
+                        .key("challenge_agility_roll_1000")
+                        .title(Localizer.dLocalize("advancement.challenge_agility_roll_1000.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_agility_roll_1000.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ELYTRA)
+                .key("challenge_agility_fearless")
+                .title(Localizer.dLocalize("advancement.challenge_agility_fearless.title"))
+                .description(Localizer.dLocalize("advancement.challenge_agility_fearless.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.HIDDEN)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_agility_roll_100")
+                .goal(100)
+                .stat("agility.roll-landing.damage-prevented")
+                .reward(300)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_agility_roll_1000")
+                .goal(1000)
+                .stat("agility.roll-landing.damage-prevented")
+                .reward(1000)
+                .build());
     }
 
     @Override
@@ -124,6 +165,10 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
         SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ENTITY_PLAYER_SMALL_FALL, 0.8f, 0.7f);
         SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_LEATHER, 1.0f, 0.89f);
         SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_WOOL_BREAK, 0.55f, 0.9f);
+        getPlayer(p).getData().addStat("agility.roll-landing.damage-prevented", absorbed);
+        if (p.getFallDistance() >= 30 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_agility_fearless")) {
+            getPlayer(p).getAdvancementHandler().grant("challenge_agility_fearless");
+        }
         xp(p, absorbed * getConfig().xpPerDamagePrevented);
     }
 

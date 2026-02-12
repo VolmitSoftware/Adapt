@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -44,6 +48,34 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
         setInterval(875);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BREAD)
+                .key("challenge_herbalism_shield_500")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_shield_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_shield_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.GOLDEN_APPLE)
+                        .key("challenge_herbalism_shield_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_herbalism_shield_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_herbalism_shield_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_shield_500")
+                .goal(500)
+                .stat("herbalism.hungry-shield.damage-absorbed")
+                .reward(400)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_shield_5k")
+                .goal(5000)
+                .stat("herbalism.hungry-shield.damage-absorbed")
+                .reward(1500)
+                .build());
     }
 
     @Override
@@ -75,6 +107,7 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
             if (getPlayer(p).consumeFood(h, 6)) {
                 d += h;
                 e.setDamage(d);
+                getPlayer(p).getData().addStat("herbalism.hungry-shield.damage-absorbed", (int) Math.ceil(h));
                 xp(p, d);
             }
         }

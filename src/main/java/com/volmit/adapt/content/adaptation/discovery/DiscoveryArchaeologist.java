@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.discovery;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -58,6 +62,34 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2300);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BRUSH)
+                .key("challenge_discovery_archaeologist_50")
+                .title(Localizer.dLocalize("advancement.challenge_discovery_archaeologist_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_discovery_archaeologist_50.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DECORATED_POT)
+                        .key("challenge_discovery_archaeologist_500")
+                        .title(Localizer.dLocalize("advancement.challenge_discovery_archaeologist_500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_discovery_archaeologist_500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_archaeologist_50")
+                .goal(50)
+                .stat("discovery.archaeologist.bonus-finds")
+                .reward(300)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_archaeologist_500")
+                .goal(500)
+                .stat("discovery.archaeologist.bonus-finds")
+                .reward(1000)
+                .build());
     }
 
     @Override
@@ -119,6 +151,7 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
         sp.play(block.getLocation().add(0.5, 0.5, 0.5), Sound.ITEM_BRUSH_BRUSHING_SAND_COMPLETE, 1f, 1.15f);
         sp.play(block.getLocation().add(0.5, 0.5, 0.5), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.7f, 1.55f);
         xp(p, getConfig().xpPerReward + (getValue(reward.getType()) * getConfig().rewardValueXpMultiplier));
+        getPlayer(p).getData().addStat("discovery.archaeologist.bonus-finds", 1);
     }
 
     private ItemStack rollReward(int level) {

@@ -18,13 +18,20 @@
 
 package com.volmit.adapt.content.adaptation.axe;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -47,6 +54,23 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(4333);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_AXE)
+                .key("challenge_axe_ground_smash_500")
+                .title(Localizer.dLocalize("advancement.challenge_axe_ground_smash_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_axe_ground_smash_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.NETHERITE_AXE)
+                .key("challenge_axe_ground_smash_5")
+                .title(Localizer.dLocalize("advancement.challenge_axe_ground_smash_5.title"))
+                .description(Localizer.dLocalize("advancement.challenge_axe_ground_smash_5.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_ground_smash_500").goal(500).stat("axe.ground-smash.mobs-hit").reward(500).build());
     }
 
     @Override
@@ -75,10 +99,23 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
             }
 
             p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(f));
-            new Impulse(getRadius(f))
+            double radius = getRadius(f);
+            new Impulse(radius)
                     .damage(getDamage(f), getFalloffDamage(f))
                     .force(getForce(f))
                     .punch(e.getEntity().getLocation());
+            int mobsHit = 0;
+            for (Entity nearby : e.getEntity().getWorld().getNearbyEntities(e.getEntity().getLocation(), radius, radius, radius)) {
+                if (nearby instanceof LivingEntity && nearby != p) {
+                    mobsHit++;
+                }
+            }
+            if (mobsHit > 0) {
+                getPlayer(p).getData().addStat("axe.ground-smash.mobs-hit", mobsHit);
+                if (mobsHit >= 5 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_axe_ground_smash_5")) {
+                    getPlayer(p).getAdvancementHandler().grant("challenge_axe_ground_smash_5");
+                }
+            }
             SoundPlayer spw = SoundPlayer.of(e.getEntity().getWorld());
             spw.play(e.getEntity().getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.HOSTILE, 0.6f, 0.4f);
             spw.play(e.getEntity().getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, SoundCategory.HOSTILE, 0.5f, 0.1f);

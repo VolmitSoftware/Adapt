@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -43,6 +47,15 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
         setInterval(3000);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.TURTLE_HELMET)
+                .key("challenge_seaborne_vision_72k")
+                .title(Localizer.dLocalize("advancement.challenge_seaborne_vision_72k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_seaborne_vision_72k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_vision_72k").goal(72000).stat("seaborne.turtles-vision.time-underwater").reward(400).build());
     }
 
     @Override
@@ -57,6 +70,7 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
             if (player.isInWater() && hasAdaptation(player)) {
                 if (player.getLocation().getBlock().isLiquid()) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 62, 0, false, false));
+                    getPlayer(player).getData().addStat("seaborne.turtles-vision.time-underwater", 1);
                 }
             }
         }

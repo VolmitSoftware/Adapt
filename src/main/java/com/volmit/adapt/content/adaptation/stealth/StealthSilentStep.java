@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.stealth;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -41,12 +46,15 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config> {
     private final Map<UUID, Boolean> dimmed = new HashMap<>();
+    private final Map<UUID, List<Long>> recentBackstabs = new HashMap<>();
 
     public StealthSilentStep() {
         super("stealth-silent-step");
@@ -59,6 +67,23 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(10);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_SWORD)
+                .key("challenge_stealth_silent_200")
+                .title(Localizer.dLocalize("advancement.challenge_stealth_silent_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_stealth_silent_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DIAMOND_SWORD)
+                .key("challenge_stealth_silent_5in10")
+                .title(Localizer.dLocalize("advancement.challenge_stealth_silent_5in10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_stealth_silent_5in10.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_silent_200").goal(200).stat("stealth.silent-step.backstabs").reward(400).build());
     }
 
     @Override
@@ -71,6 +96,7 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
         clearDimming(e.getPlayer());
+        recentBackstabs.remove(e.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -137,6 +163,17 @@ public class StealthSilentStep extends SimpleAdaptation<StealthSilentStep.Config
         double multiplier = (target instanceof Player) ? getPlayerBackstabMultiplier(level) : getMobBackstabMultiplier(level);
         e.setDamage(e.getDamage() * multiplier);
         xp(attacker, e.getDamage() * getConfig().xpPerBonusDamage);
+        getPlayer(attacker).getData().addStat("stealth.silent-step.backstabs", 1);
+
+        long now = System.currentTimeMillis();
+        UUID uid = attacker.getUniqueId();
+        recentBackstabs.computeIfAbsent(uid, k -> new ArrayList<>()).add(now);
+        recentBackstabs.get(uid).removeIf(t -> now - t > 10000);
+        if (recentBackstabs.get(uid).size() >= 5
+                && AdaptConfig.get().isAdvancements()
+                && !getPlayer(attacker).getData().isGranted("challenge_stealth_silent_5in10")) {
+            getPlayer(attacker).getAdvancementHandler().grant("challenge_stealth_silent_5in10");
+        }
     }
 
     @Override

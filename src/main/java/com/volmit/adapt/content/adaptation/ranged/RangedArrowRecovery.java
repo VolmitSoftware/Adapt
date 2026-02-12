@@ -2,6 +2,10 @@ package com.volmit.adapt.content.adaptation.ranged;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -35,6 +39,24 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         shotArrows = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ARROW)
+                .key("challenge_ranged_arrow_500")
+                .title(Localizer.dLocalize("advancement.challenge_ranged_arrow_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_ranged_arrow_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.SPECTRAL_ARROW)
+                        .key("challenge_ranged_arrow_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_ranged_arrow_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_ranged_arrow_10k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_arrow_500").goal(500).stat("ranged.arrow-recovery.arrows-recovered").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_arrow_10k").goal(10000).stat("ranged.arrow-recovery.arrows-recovered").reward(1000).build());
     }
 
     @EventHandler
@@ -58,6 +80,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
                 if (RANDOM.nextDouble() < chance) {
                     ItemStack arrowStack = new ItemStack(Material.ARROW, 1);
                     shooter.getInventory().addItem(arrowStack);
+                    getPlayer(shooter).getData().addStat("ranged.arrow-recovery.arrows-recovered", 1);
                     Adapt.info("Arrow added to inventory.");
                 }
             }

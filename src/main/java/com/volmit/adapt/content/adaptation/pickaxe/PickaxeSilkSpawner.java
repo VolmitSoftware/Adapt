@@ -1,6 +1,10 @@
 package com.volmit.adapt.content.adaptation.pickaxe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -33,6 +37,24 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(8444);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SPAWNER)
+                .key("challenge_pickaxe_spawner_10")
+                .title(Localizer.dLocalize("advancement.challenge_pickaxe_spawner_10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pickaxe_spawner_10.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.SPAWNER)
+                        .key("challenge_pickaxe_spawner_50")
+                        .title(Localizer.dLocalize("advancement.challenge_pickaxe_spawner_50.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_pickaxe_spawner_50.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_spawner_10").goal(10).stat("pickaxe.silk-spawner.spawners-collected").reward(500).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_spawner_50").goal(50).stat("pickaxe.silk-spawner.spawners-collected").reward(2000).build());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -75,6 +97,7 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
             for (Item i : dropEvent.getItems()) {
                 if (!i.isValid()) block.getWorld().addEntity(i);
             }
+            getPlayer(player).getData().addStat("pickaxe.silk-spawner.spawners-collected", 1);
         }
     }
 

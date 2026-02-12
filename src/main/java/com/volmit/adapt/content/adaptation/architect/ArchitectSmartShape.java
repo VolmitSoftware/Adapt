@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -79,6 +83,24 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(800);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.QUARTZ_STAIRS)
+                .key("challenge_architect_smart_shape_200")
+                .title(Localizer.dLocalize("advancement.challenge_architect_smart_shape_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_architect_smart_shape_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.QUARTZ_STAIRS)
+                        .key("challenge_architect_smart_shape_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_architect_smart_shape_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_architect_smart_shape_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_smart_shape_200").goal(200).stat("architect.smart-shape.rotations").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_smart_shape_5k").goal(5000).stat("architect.smart-shape.rotations").reward(1000).build());
     }
 
     @Override
@@ -122,6 +144,7 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
         e.setCancelled(true);
         SoundPlayer.of(p.getWorld()).play(target.getLocation(), Sound.ITEM_AXE_STRIP, 0.45f, 1.8f);
         xp(p, Math.max(getConfig().minXpPerRotate, options * getConfig().xpPerOrientationOption));
+        getPlayer(p).getData().addStat("architect.smart-shape.rotations", 1);
     }
 
     private int rotateData(BlockData data) {

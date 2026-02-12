@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.excavation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -44,6 +48,24 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_SHOVEL)
+                .key("challenge_excavation_haste_5k")
+                .title(Localizer.dLocalize("advancement.challenge_excavation_haste_5k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_excavation_haste_5k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_SHOVEL)
+                        .key("challenge_excavation_haste_50k")
+                        .title(Localizer.dLocalize("advancement.challenge_excavation_haste_50k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_excavation_haste_50k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_haste_5k").goal(5000).stat("excavation.haste.blocks-while-hasted").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_haste_50k").goal(50000).stat("excavation.haste.blocks-while-hasted").reward(1500).build());
     }
 
     @Override
@@ -65,6 +87,7 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
             return;
         }
         p.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, 15, getLevel(p), false, false, true));
+        getPlayer(p).getData().addStat("excavation.haste.blocks-while-hasted", 1);
     }
 
 

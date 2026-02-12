@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.sword;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import com.volmit.adapt.util.reflect.registries.Materials;
@@ -53,6 +57,24 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
         setInterval(5234);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_SWORD)
+                .key("challenge_swords_machete_2500")
+                .title(Localizer.dLocalize("advancement.challenge_swords_machete_2500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swords_machete_2500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_SWORD)
+                        .key("challenge_swords_machete_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_swords_machete_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_swords_machete_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_machete_2500").goal(2500).stat("swords.machete.foliage-cut").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_machete_25k").goal(25000).stat("swords.machete.foliage-cut").reward(1000).build());
     }
 
     @Override
@@ -158,6 +180,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
                         spw.play(p.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (Math.random() / 2) + 0.65f);
                         damageHand(p, dmg * getDamagePerBlock(getLevelPercent(lvl)));
                         getSkill().xp(p, dmg * 11.25);
+                        getPlayer(p).getData().addStat("swords.machete.foliage-cut", dmg);
                     }
                 }
             }

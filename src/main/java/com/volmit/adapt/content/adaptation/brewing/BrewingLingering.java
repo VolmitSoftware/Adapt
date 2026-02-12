@@ -20,7 +20,11 @@ package com.volmit.adapt.content.adaptation.brewing;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.data.WorldData;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.matter.BrewingStandOwner;
@@ -71,6 +75,24 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(4788);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LINGERING_POTION)
+                .key("challenge_brewing_lingering_200")
+                .title(Localizer.dLocalize("advancement.challenge_brewing_lingering_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_brewing_lingering_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DRAGON_BREATH)
+                        .key("challenge_brewing_lingering_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_brewing_lingering_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_brewing_lingering_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_lingering_200").goal(200).stat("brewing.lingering.potions-extended").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_lingering_5k").goal(5000).stat("brewing.lingering.potions-extended").reward(1000).build());
     }
 
     @Override
@@ -118,7 +140,11 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
                 if (a.getLevel() > 0) {
                     double factor = getLevelPercent(a.getLevel());
-                    ef = enhance(factor, is, p) || ef;
+                    boolean enhanced = enhance(factor, is, p);
+                    if (enhanced) {
+                        data.addStat("brewing.lingering.potions-extended", 1);
+                    }
+                    ef = enhanced || ef;
                     results.set(i, is);
                 }
             }

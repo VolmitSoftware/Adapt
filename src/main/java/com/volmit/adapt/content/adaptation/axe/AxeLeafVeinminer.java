@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.util.*;
@@ -52,7 +56,15 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(5849);
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.OAK_LEAVES)
+                .key("challenge_axe_leaf_5k")
+                .title(Localizer.dLocalize("advancement.challenge_axe_leaf_5k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_axe_leaf_5k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_leaf_5k").goal(5000).stat("axe.leaf-veinminer.leaves-broken").reward(400).build());
     }
 
     @Override
@@ -128,6 +140,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
             }
         }
 
+        int leavesBroken = blockMap.size();
         J.s(() -> {
             for (Location l : blockMap.keySet()) {
                 Block b = block.getWorld().getBlockAt(l);
@@ -160,6 +173,9 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
             }
             VEIN_MINED.remove(block);
         });
+        if (leavesBroken > 0) {
+            getPlayer(p).getData().addStat("axe.leaf-veinminer.leaves-broken", leavesBroken);
+        }
     }
 
 

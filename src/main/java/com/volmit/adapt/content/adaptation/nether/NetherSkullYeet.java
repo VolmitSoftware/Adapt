@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.nether;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.Data;
@@ -27,11 +32,14 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -55,6 +63,32 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(2314);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WITHER_SKELETON_SKULL)
+                .key("challenge_nether_skull_100")
+                .title(Localizer.dLocalize("advancement.challenge_nether_skull_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_nether_skull_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WITHER_SKELETON_SKULL)
+                .key("challenge_nether_skull_kills_50")
+                .title(Localizer.dLocalize("advancement.challenge_nether_skull_kills_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_nether_skull_kills_50.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WITHER_SKELETON_SKULL)
+                .key("challenge_nether_skull_long_bomb")
+                .title(Localizer.dLocalize("advancement.challenge_nether_skull_long_bomb.title"))
+                .description(Localizer.dLocalize("advancement.challenge_nether_skull_long_bomb.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.HIDDEN)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_skull_100").goal(100).stat("nether.skull-yeet.skulls-thrown").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_skull_kills_50").goal(50).stat("nether.skull-yeet.skull-kills").reward(500).build());
     }
 
     @Override
@@ -127,6 +161,23 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
             entity.setShooter(p);
             xp(p, 100);
         });
+        getPlayer(p).getData().addStat("nether.skull-yeet.skulls-thrown", 1);
+    }
+
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent e) {
+        LivingEntity dead = e.getEntity();
+        if (dead.getLastDamageCause() instanceof EntityDamageByEntityEvent dbe
+                && dbe.getDamager() instanceof WitherSkull skull
+                && skull.getShooter() instanceof Player p
+                && hasAdaptation(p)) {
+            getPlayer(p).getData().addStat("nether.skull-yeet.skull-kills", 1);
+
+            double distance = p.getLocation().distance(dead.getLocation());
+            if (distance >= 40 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_nether_skull_long_bomb")) {
+                getPlayer(p).getAdvancementHandler().grant("challenge_nether_skull_long_bomb");
+            }
+        }
     }
 
     @Override

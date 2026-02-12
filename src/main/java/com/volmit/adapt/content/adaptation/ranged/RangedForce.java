@@ -23,6 +23,7 @@ import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -56,6 +57,15 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SPECTRAL_ARROW)
+                .key("challenge_ranged_force_500")
+                .title(Localizer.dLocalize("advancement.challenge_ranged_force_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_ranged_force_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_force_500").goal(500).stat("ranged.force.long-range-hits").reward(500).build());
     }
 
     @Override
@@ -72,16 +82,21 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         if (e.isCancelled()) {
             return;
         }
-        if (e.getDamager() instanceof Projectile r && r.getShooter() instanceof Player p && hasAdaptation(p) && !getPlayer(p).getData().isGranted("challenge_force_30")) {
+        if (e.getDamager() instanceof Projectile r && r.getShooter() instanceof Player p && hasAdaptation(p)) {
             Location a = e.getEntity().getLocation().clone();
             Location b = p.getLocation().clone();
             a.setY(0);
             b.setY(0);
             xp(p, 5);
+            double distSq = a.distanceSquared(b);
 
-            if (a.distanceSquared(b) > 10 && AdaptConfig.get().isAdvancements()) {
+            if (distSq > 10 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_force_30")) {
                 getPlayer(p).getAdvancementHandler().grant("challenge_force_30");
                 getSkill().xp(p, getConfig().challengeRewardLongShotReward);
+            }
+
+            if (distSq > 900) {
+                getPlayer(p).getData().addStat("ranged.force.long-range-hits", 1);
             }
         }
     }

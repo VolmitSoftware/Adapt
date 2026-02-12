@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.agility;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -56,6 +60,20 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(10);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.RABBIT_FOOT)
+                .key("challenge_agility_parkour_500")
+                .title(Localizer.dLocalize("advancement.challenge_agility_parkour_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_agility_parkour_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_agility_parkour_500")
+                .goal(500)
+                .stat("agility.parkour-momentum.ledge-landings")
+                .reward(400)
+                .build());
     }
 
     @Override
@@ -93,6 +111,7 @@ public class AgilityParkourMomentum extends SimpleAdaptation<AgilityParkourMomen
         if (!onGroundBefore && onGroundNow) {
             if (isMomentumLanding(p) && isOnLedge(p)) {
                 current += getConfig().landingGain;
+                getPlayer(p).getData().addStat("agility.parkour-momentum.ledge-landings", 1);
             } else {
                 current -= getConfig().failedLandingPenalty;
             }

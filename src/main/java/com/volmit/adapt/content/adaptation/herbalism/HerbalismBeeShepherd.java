@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -57,6 +61,20 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(10);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.HONEYCOMB)
+                .key("challenge_herbalism_bee_100")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_bee_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_bee_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_bee_100")
+                .goal(100)
+                .stat("herbalism.bee-shepherd.bees-attracted")
+                .reward(300)
+                .build());
     }
 
     @Override
@@ -85,8 +103,11 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
             }
 
             int grown = pulseGrowth(p, level);
-            pullNearbyBees(p, level);
+            int attracted = pullNearbyBees(p, level);
             lastPulse.put(p.getUniqueId(), now);
+            if (attracted > 0) {
+                getPlayer(p).getData().addStat("herbalism.bee-shepherd.bees-attracted", attracted);
+            }
             if (grown <= 0) {
                 continue;
             }
@@ -124,8 +145,9 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
         return grown;
     }
 
-    private void pullNearbyBees(Player p, int level) {
+    private int pullNearbyBees(Player p, int level) {
         double radius = getRadius(level);
+        int count = 0;
         for (Entity entity : p.getWorld().getNearbyEntities(p.getLocation(), radius, radius, radius)) {
             if (!(entity instanceof Bee bee)) {
                 continue;
@@ -139,7 +161,9 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
             toward.normalize().multiply(getBeePullStrength(level));
             bee.setVelocity(bee.getVelocity().multiply(0.6).add(toward));
             bee.setTarget(null);
+            count++;
         }
+        return count;
     }
 
     private boolean isHoldingFlower(Player p) {

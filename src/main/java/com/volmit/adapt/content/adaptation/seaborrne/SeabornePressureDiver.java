@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -54,6 +58,15 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(20);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_PICKAXE)
+                .key("challenge_seaborne_pressure_1k")
+                .title(Localizer.dLocalize("advancement.challenge_seaborne_pressure_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_seaborne_pressure_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_pressure_1k").goal(1000).stat("seaborne.pressure-diver.deep-blocks-mined").reward(400).build());
     }
 
     @Override
@@ -97,6 +110,7 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
 
             applyDepthBuffs(p, level);
             awardDepthXp(p, now);
+            getPlayer(p).getData().addStat("seaborne.pressure-diver.deep-blocks-mined", 1);
         }
     }
 

@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.stealth;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -52,6 +56,24 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         holds = new ArrayList<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CHEST)
+                .key("challenge_stealth_snatch_2500")
+                .title(Localizer.dLocalize("advancement.challenge_stealth_snatch_2500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_stealth_snatch_2500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.HOPPER)
+                        .key("challenge_stealth_snatch_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_stealth_snatch_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_stealth_snatch_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_snatch_2500").goal(2500).stat("stealth.snatch.items-snatched").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_snatch_25k").goal(25000).stat("stealth.snatch.items-snatched").reward(1500).build());
     }
 
     @Override
@@ -105,6 +127,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
                         SoundPlayer spw = SoundPlayer.of(player.getWorld());
                         spw.play(player.getLocation(), Sound.BLOCK_LAVA_POP, 1f, (float) (1.0 + (Math.random() / 3)));
                         safeGiveItem(player, droppedItemEntity, is);
+                        getPlayer(player).getData().addStat("stealth.snatch.items-snatched", 1);
                         //sendCollected(player, droppedItemEntity);
                         int id = droppedItemEntity.getEntityId();
                         J.s(() -> holds.remove(Integer.valueOf(id)));

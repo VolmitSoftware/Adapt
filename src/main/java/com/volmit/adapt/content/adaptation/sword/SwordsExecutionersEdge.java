@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.sword;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -46,6 +51,32 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1900);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_SWORD)
+                .key("challenge_swords_execute_200")
+                .title(Localizer.dLocalize("advancement.challenge_swords_execute_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swords_execute_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHERITE_SWORD)
+                        .key("challenge_swords_execute_2500")
+                        .title(Localizer.dLocalize("advancement.challenge_swords_execute_2500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_swords_execute_2500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_execute_200").goal(200).stat("swords.executioners-edge.executions").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_execute_2500").goal(2500).stat("swords.executioners-edge.executions").reward(1500).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.NETHERITE_AXE)
+                .key("challenge_swords_execute_5in10")
+                .title(Localizer.dLocalize("advancement.challenge_swords_execute_5in10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swords_execute_5in10.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
     }
 
     @Override
@@ -82,6 +113,23 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
         double multiplier = 1D + getBonusDamage(getLevel(p));
         e.setDamage(e.getDamage() * multiplier);
         xp(p, e.getDamage() * getConfig().xpPerBuffedDamage);
+        getPlayer(p).getData().addStat("swords.executioners-edge.executions", 1);
+
+        // Special achievement: execute 5 in 10 seconds
+        long now = System.currentTimeMillis();
+        long windowStart = getStorageLong(p, "executeWindowStart", 0L);
+        int windowCount = getStorageInt(p, "executeWindowCount", 0);
+        if (now - windowStart > 10000L) {
+            windowStart = now;
+            windowCount = 1;
+        } else {
+            windowCount++;
+        }
+        setStorage(p, "executeWindowStart", windowStart);
+        setStorage(p, "executeWindowCount", windowCount);
+        if (windowCount >= 5 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_swords_execute_5in10")) {
+            getPlayer(p).getAdvancementHandler().grant("challenge_swords_execute_5in10");
+        }
     }
 
     private double getMaxHealth(LivingEntity entity) {

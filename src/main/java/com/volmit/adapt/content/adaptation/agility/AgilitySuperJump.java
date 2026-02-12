@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.agility;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import com.volmit.adapt.util.reflect.registries.PotionEffectTypes;
@@ -54,6 +58,34 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
         setInitialCost(getConfig().initialCost);
         setInterval(9999);
         lastJump = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LEATHER_BOOTS)
+                .key("challenge_agility_super_jump_100")
+                .title(Localizer.dLocalize("advancement.challenge_agility_super_jump_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_agility_super_jump_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.GOLDEN_BOOTS)
+                        .key("challenge_agility_super_jump_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_agility_super_jump_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_agility_super_jump_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_agility_super_jump_100")
+                .goal(100)
+                .stat("agility.super-jump.jumps")
+                .reward(300)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_agility_super_jump_5k")
+                .goal(5000)
+                .stat("agility.super-jump.jumps")
+                .reward(1500)
+                .build());
     }
 
     private double getJumpHeight(int level) {
@@ -124,6 +156,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
                     }
                     p.setVelocity(p.getVelocity().setY(getJumpHeight(getLevel(p))));
                     lastJump.put(p, M.ms());
+                    getPlayer(p).getData().addStat("agility.super-jump.jumps", 1);
                 }
             }
         }

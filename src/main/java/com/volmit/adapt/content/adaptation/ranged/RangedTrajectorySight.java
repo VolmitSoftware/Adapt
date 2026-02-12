@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.ranged;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -31,8 +35,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -58,6 +65,15 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(4);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SPYGLASS)
+                .key("challenge_ranged_trajectory_100")
+                .title(Localizer.dLocalize("advancement.challenge_ranged_trajectory_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_ranged_trajectory_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_trajectory_100").goal(100).stat("ranged.trajectory-sight.kills-while-aiming").reward(400).build());
     }
 
     @Override
@@ -98,6 +114,17 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     public void on(EntityShootBowEvent e) {
         if (e.getEntity() instanceof Player p) {
             drawStartedMillis.remove(p.getUniqueId());
+        }
+    }
+
+    @EventHandler
+    public void on(EntityDeathEvent e) {
+        if (e.getEntity().getKiller() instanceof Player p && hasAdaptation(p)) {
+            if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
+                    && dmg.getDamager() instanceof Projectile projectile
+                    && projectile.getShooter() instanceof Player) {
+                getPlayer(p).getData().addStat("ranged.trajectory-sight.kills-while-aiming", 1);
+            }
         }
     }
 

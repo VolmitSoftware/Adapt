@@ -19,7 +19,11 @@
 package com.volmit.adapt.content.adaptation.brewing;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.data.WorldData;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.api.world.PlayerSkillLine;
@@ -61,6 +65,24 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(253);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BLAZE_POWDER)
+                .key("challenge_brewing_super_heated_100")
+                .title(Localizer.dLocalize("advancement.challenge_brewing_super_heated_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_brewing_super_heated_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.MAGMA_CREAM)
+                        .key("challenge_brewing_super_heated_2500")
+                        .title(Localizer.dLocalize("advancement.challenge_brewing_super_heated_2500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_brewing_super_heated_2500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_super_heated_100").goal(100).stat("brewing.super-heated.brews-accelerated").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_super_heated_2500").goal(2500).stat("brewing.super-heated.brews-accelerated").reward(1000).build());
     }
 
     @Override
@@ -93,6 +115,12 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
     public void on(BrewEvent e) {
         if (e.isCancelled()) {
             return;
+        }
+        if (activeStands.containsKey(e.getBlock())) {
+            BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
+            if (owner != null) {
+                getServer().peekData(owner.getOwner()).addStat("brewing.super-heated.brews-accelerated", 1);
+            }
         }
         J.s(() -> {
             if (((BrewingStand) e.getBlock().getState()).getBrewingTime() > 0) {

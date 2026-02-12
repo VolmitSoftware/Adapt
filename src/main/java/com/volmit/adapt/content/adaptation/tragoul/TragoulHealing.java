@@ -20,7 +20,11 @@ package com.volmit.adapt.content.adaptation.tragoul;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.version.Version;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -55,6 +59,24 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
         setCostFactor(getConfig().costFactor);
         cooldowns = new HashMap<>();
         healingWindow = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.REDSTONE)
+                .key("challenge_tragoul_healing_500")
+                .title(Localizer.dLocalize("advancement.challenge_tragoul_healing_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_tragoul_healing_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.RED_DYE)
+                        .key("challenge_tragoul_healing_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_tragoul_healing_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_tragoul_healing_10k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_healing_500").goal(500).stat("tragoul.healing.health-stolen").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_healing_10k").goal(10000).stat("tragoul.healing.health-stolen").reward(1500).build());
     }
 
     @Override
@@ -85,6 +107,7 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
             Adapt.verbose("Healing " + p.getName() + " for " + healAmount + " (" + healPercentage * 100 + "% of " + e.getDamage() + " damage)");
             var attribute = Version.get().getAttribute(p, Attributes.GENERIC_MAX_HEALTH);
             p.setHealth(Math.min(attribute == null ? p.getHealth() : attribute.getValue(), p.getHealth() + healAmount));
+            getPlayer(p).getData().addStat("tragoul.healing.health-stolen", (int) healAmount);
 
         }
     }

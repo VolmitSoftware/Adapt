@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.blocking;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.content.item.multiItems.MultiArmor;
 import com.volmit.adapt.util.*;
@@ -61,6 +65,34 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         cooldowns = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ELYTRA)
+                .key("challenge_blocking_multi_200")
+                .title(Localizer.dLocalize("advancement.challenge_blocking_multi_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_blocking_multi_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHERITE_CHESTPLATE)
+                        .key("challenge_blocking_multi_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_blocking_multi_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_blocking_multi_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_blocking_multi_200")
+                .goal(200)
+                .stat("blocking.multi-armor.swaps")
+                .reward(400)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_blocking_multi_5k")
+                .goal(5000)
+                .stat("blocking.multi-armor.swaps")
+                .reward(1500)
+                .build());
     }
 
     @Override
@@ -106,6 +138,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                 cooldowns.put(p, System.currentTimeMillis());
                 spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 spw.play(p.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 0.5f, 0.77f);
+                getPlayer(p).getData().addStat("blocking.multi-armor.swaps", 1);
 
             } else if (p.getFallDistance() > 4) {
                 if (isElytra(chest)) {
@@ -115,6 +148,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
                 cooldowns.put(p, System.currentTimeMillis());
                 spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
                 spw.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.5f, 0.77f);
+                getPlayer(p).getData().addStat("blocking.multi-armor.swaps", 1);
             }
         }
     }

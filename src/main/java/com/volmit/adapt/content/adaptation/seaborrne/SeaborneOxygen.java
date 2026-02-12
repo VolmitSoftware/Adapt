@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -41,6 +45,15 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
         setInterval(3750);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.TURTLE_HELMET)
+                .key("challenge_seaborne_oxygen_12k")
+                .title(Localizer.dLocalize("advancement.challenge_seaborne_oxygen_12k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_seaborne_oxygen_12k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_oxygen_12k").goal(12000).stat("seaborne.oxygen.bonus-air-ticks").reward(300).build());
     }
 
     @Override
@@ -56,7 +69,9 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     public void onTick() {
         for (Player i : Bukkit.getOnlinePlayers()) {
             if (i.getLocation().getBlock().getType() == Material.WATER && hasAdaptation(i)) {
-                i.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, getLevel(i) * getConfig().airPerLevelTics, getLevel(i)));
+                int airTicks = getLevel(i) * getConfig().airPerLevelTics;
+                i.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, airTicks, getLevel(i)));
+                getPlayer(i).getData().addStat("seaborne.oxygen.bonus-air-ticks", airTicks);
             }
         }
     }

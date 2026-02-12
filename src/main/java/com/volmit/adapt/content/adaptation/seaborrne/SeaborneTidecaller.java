@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -48,6 +52,24 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1600);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.TRIDENT)
+                .key("challenge_seaborne_tidecaller_200")
+                .title(Localizer.dLocalize("advancement.challenge_seaborne_tidecaller_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_seaborne_tidecaller_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.HEART_OF_THE_SEA)
+                        .key("challenge_seaborne_tidecaller_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_seaborne_tidecaller_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_seaborne_tidecaller_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_tidecaller_200").goal(200).stat("seaborne.tidecaller.dashes").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_tidecaller_5k").goal(5000).stat("seaborne.tidecaller.dashes").reward(1000).build());
     }
 
     @Override
@@ -78,6 +100,7 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
         sp.play(target, Sound.ENTITY_DOLPHIN_SPLASH, 0.65f, 1.15f);
         p.setCooldown(Material.HEART_OF_THE_SEA, getCooldownTicks(level));
         xp(p, getConfig().xpPerBurst);
+        getPlayer(p).getData().addStat("seaborne.tidecaller.dashes", 1);
     }
 
     private boolean isRainingAt(Player p) {

@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.discovery;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -58,6 +62,34 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2000);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.COMPASS)
+                .key("challenge_discovery_cartographer_100")
+                .title(Localizer.dLocalize("advancement.challenge_discovery_cartographer_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_discovery_cartographer_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.FILLED_MAP)
+                        .key("challenge_discovery_cartographer_1k")
+                        .title(Localizer.dLocalize("advancement.challenge_discovery_cartographer_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_discovery_cartographer_1k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_cartographer_100")
+                .goal(100)
+                .stat("discovery.cartographer-pulse.pulses")
+                .reward(300)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_cartographer_1k")
+                .goal(1000)
+                .stat("discovery.cartographer-pulse.pulses")
+                .reward(1000)
+                .build());
     }
 
     @Override
@@ -98,6 +130,7 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
         cooldowns.put(p.getUniqueId(), now + getCooldownMillis(level));
         SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.ITEM_LODESTONE_COMPASS_LOCK, 0.8f, 1.3f);
         xp(p, getConfig().xpPerPulse);
+        getPlayer(p).getData().addStat("discovery.cartographer-pulse.pulses", 1);
     }
 
     private Location locateNearestStructureFallback(World world, Location from, int range) {

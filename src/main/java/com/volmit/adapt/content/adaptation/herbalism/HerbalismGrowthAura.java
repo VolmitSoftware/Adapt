@@ -19,7 +19,11 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import com.volmit.adapt.util.config.ConfigDescription;
@@ -51,6 +55,34 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         setInterval(850);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WHEAT)
+                .key("challenge_herbalism_growth_1k")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_growth_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_growth_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.HAY_BLOCK)
+                        .key("challenge_herbalism_growth_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_herbalism_growth_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_herbalism_growth_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_growth_1k")
+                .goal(1000)
+                .stat("herbalism.growth-aura.blocks-grown")
+                .reward(300)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_growth_25k")
+                .goal(25000)
+                .stat("herbalism.growth-aura.blocks-grown")
+                .reward(1000)
+                .build());
     }
 
     @Override
@@ -113,6 +145,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
                                             aab.setAge(aab.getAge() + 1);
                                             a.setBlockData(aab, true);
+                                            getPlayer(p).getData().addStat("herbalism.growth-aura.blocks-grown", 1);
                                             spw.play(a.getLocation(), Sound.BLOCK_CHORUS_FLOWER_DEATH, 0.25f, RNG.r.f(0.3f, 0.7f));
                                             if (getConfig().showParticles) {
                                                 p.spawnParticle(Particles.VILLAGER_HAPPY, a.getLocation().clone().add(0.5, 0.5, 0.5), 3, 0.3, 0.3, 0.3, 0.9);

@@ -19,7 +19,12 @@
 package com.volmit.adapt.content.adaptation.chronos;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ChronoTimeBombItem;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -93,6 +98,42 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
         recallXpStamps = new HashMap<>();
         jumpArmUntil = new HashMap<>();
         lastOnGround = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CLOCK)
+                .key("challenge_chronos_recall_50")
+                .title(Localizer.dLocalize("advancement.challenge_chronos_recall_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_chronos_recall_50.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.RECOVERY_COMPASS)
+                        .key("challenge_chronos_recall_1k")
+                        .title(Localizer.dLocalize("advancement.challenge_chronos_recall_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_chronos_recall_1k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.RECOVERY_COMPASS)
+                .key("challenge_chronos_recall_cheat_death")
+                .title(Localizer.dLocalize("advancement.challenge_chronos_recall_cheat_death.title"))
+                .description(Localizer.dLocalize("advancement.challenge_chronos_recall_cheat_death.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_chronos_recall_50")
+                .goal(50)
+                .stat("chronos.instant-recall.recalls")
+                .reward(300)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_chronos_recall_1k")
+                .goal(1000)
+                .stat("chronos.instant-recall.recalls")
+                .reward(1500)
+                .build());
     }
 
     @Override
@@ -554,6 +595,8 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
 
         List<Snapshot> path = buildRewindPath(p, rewindMillis, anchor);
         RecallXPContext xpContext = buildRecallXPContext(path.get(0), anchor);
+        double healthBeforeRecall = p.getHealth();
+        double healthAfterRecall = anchor.health();
         int animationTicks = Math.max(1, getConfig().rewindAnimationTicks);
         long castAt = M.ms();
 
@@ -607,6 +650,12 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
                         ChronosSoundFX.playRewindFinish(p);
                     }
                     rewinding.remove(id);
+                    getPlayer(p).getData().addStat("chronos.instant-recall.recalls", 1);
+                    if (healthBeforeRecall <= 4 && healthAfterRecall >= 16
+                            && AdaptConfig.get().isAdvancements()
+                            && !getPlayer(p).getData().isGranted("challenge_chronos_recall_cheat_death")) {
+                        getPlayer(p).getAdvancementHandler().grant("challenge_chronos_recall_cheat_death");
+                    }
                     long awardAt = M.ms();
                     double xpGain = computeRecallXPGain(id, level, xpContext, awardAt);
                     if (xpGain > 0D) {

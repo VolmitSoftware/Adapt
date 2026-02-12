@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.enchanting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -54,6 +58,24 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1700);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GRINDSTONE)
+                .key("challenge_enchanting_grindstone_50")
+                .title(Localizer.dLocalize("advancement.challenge_enchanting_grindstone_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_enchanting_grindstone_50.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.GRINDSTONE)
+                        .key("challenge_enchanting_grindstone_500")
+                        .title(Localizer.dLocalize("advancement.challenge_enchanting_grindstone_500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_enchanting_grindstone_500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_grindstone_50").goal(50).stat("enchanting.grindstone-recovery.enchants-recovered").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_grindstone_500").goal(500).stat("enchanting.grindstone-recovery.enchants-recovered").reward(1000).build());
     }
 
     @Override
@@ -100,6 +122,7 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
         sp.play(p.getLocation(), Sound.BLOCK_GRINDSTONE_USE, 0.95f, 1.15f);
         sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.45f);
         xp(p, getConfig().skillXpOnRecovery);
+        getPlayer(p).getData().addStat("enchanting.grindstone-recovery.enchants-recovered", 1);
     }
 
     private ItemStack getEnchantedSource(ItemStack a, ItemStack b) {

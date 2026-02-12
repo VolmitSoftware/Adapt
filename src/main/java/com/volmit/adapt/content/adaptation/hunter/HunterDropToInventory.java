@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.hunter;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -53,7 +57,15 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(18440);
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CHEST)
+                .key("challenge_hunter_dti_10k")
+                .title(Localizer.dLocalize("advancement.challenge_hunter_dti_10k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_hunter_dti_10k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_dti_10k").goal(10000).stat("hunter.drop-to-inv.items-caught").reward(500).build());
     }
 
     @Override
@@ -93,6 +105,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
                     p.getWorld().dropItem(p.getLocation(), i.getItemStack());
                 }
             }
+            getPlayer(p).getData().addStat("hunter.drop-to-inv.items-caught", items.size());
         }
     }
 
@@ -112,12 +125,14 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
             SoundPlayer sp = SoundPlayer.of(p);
             sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
+            int itemCount = e.getDrops().size();
             e.getDrops().forEach(i -> {
                 if (!p.getInventory().addItem(i).isEmpty()) {
                     p.getWorld().dropItem(p.getLocation(), i);
                 }
             });
             e.getDrops().clear();
+            getPlayer(p).getData().addStat("hunter.drop-to-inv.items-caught", itemCount);
         }
     }
 

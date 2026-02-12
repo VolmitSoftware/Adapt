@@ -22,6 +22,7 @@ import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.Component;
 import com.volmit.adapt.api.adaptation.Adaptation;
+import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.advancement.AdaptAdvancement;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.Ticked;
@@ -86,6 +87,17 @@ public interface Skill<T> extends Ticked, Component {
             if (!d.isGranted(i.getAdvancement()) && d.getStat(i.getStat()) >= i.getGoal()) {
                 player.getAdvancementHandler().grant(i.getAdvancement());
                 xp(player.getPlayer(), i.getReward());
+            }
+        }
+
+        for (Adaptation<?> adaptation : getAdaptations()) {
+            if (!(adaptation instanceof SimpleAdaptation<?> sa)) continue;
+            if (!adaptation.isEnabled()) continue;
+            for (AdaptStatTracker tracker : sa.getStatTrackers()) {
+                if (!d.isGranted(tracker.getAdvancement()) && d.getStat(tracker.getStat()) >= tracker.getGoal()) {
+                    player.getAdvancementHandler().grant(tracker.getAdvancement());
+                    xp(player.getPlayer(), tracker.getReward());
+                }
             }
         }
     }

@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.agility;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Particles;
 import com.volmit.adapt.util.config.ConfigDescription;
@@ -56,6 +61,28 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
         airjumps = new HashMap<>();
         horizontalIntent = new HashMap<>();
         horizontalIntentTime = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LADDER)
+                .key("challenge_agility_wall_jump_500")
+                .title(Localizer.dLocalize("advancement.challenge_agility_wall_jump_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_agility_wall_jump_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.FEATHER)
+                .key("challenge_agility_parkour_master")
+                .title(Localizer.dLocalize("advancement.challenge_agility_parkour_master.title"))
+                .description(Localizer.dLocalize("advancement.challenge_agility_parkour_master.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.HIDDEN)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_agility_wall_jump_500")
+                .goal(500)
+                .stat("agility.wall-jump.air-jumps")
+                .reward(500)
+                .build());
     }
 
     @Override
@@ -157,6 +184,10 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
                         p.setVelocity(launch);
                         if (getConfig().showParticles) {
                             p.getWorld().spawnParticle(Particles.BLOCK_CRACK, p.getLocation().clone().add(0, 0.3, 0), 15, 0.1, 0.8, 0.1, 0.1, stickBlock.getBlockData());
+                        }
+                        getPlayer(p).getData().addStat("agility.wall-jump.air-jumps", 1);
+                        if (j >= 5 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_agility_parkour_master")) {
+                            getPlayer(p).getAdvancementHandler().grant("challenge_agility_parkour_master");
                         }
                     }
                     airjumps.put(p, j);

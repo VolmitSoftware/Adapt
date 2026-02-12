@@ -19,7 +19,12 @@
 package com.volmit.adapt.content.adaptation.sword;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.sword.effects.DamagingBleedEffect;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -53,6 +58,32 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2400);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_SWORD)
+                .key("challenge_swords_cyclone_500")
+                .title(Localizer.dLocalize("advancement.challenge_swords_cyclone_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swords_cyclone_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHERITE_SWORD)
+                        .key("challenge_swords_cyclone_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_swords_cyclone_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_swords_cyclone_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_cyclone_500").goal(500).stat("swords.crimson-cyclone.mobs-hit").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_cyclone_5k").goal(5000).stat("swords.crimson-cyclone.mobs-hit").reward(1500).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.NETHERITE_SWORD)
+                .key("challenge_swords_cyclone_6")
+                .title(Localizer.dLocalize("advancement.challenge_swords_cyclone_6.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swords_cyclone_6.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
     }
 
     @Override
@@ -139,6 +170,12 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
         sp.play(primaryTarget.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.7f);
         sp.play(primaryTarget.getLocation(), Sound.ENTITY_WITHER_HURT, 0.65f, 1.45f);
         xp(p, hits * getConfig().xpPerTargetHit);
+        getPlayer(p).getData().addStat("swords.crimson-cyclone.mobs-hit", hits);
+
+        // Special achievement: hit 6+ mobs with one activation
+        if (hits >= 6 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_swords_cyclone_6")) {
+            getPlayer(p).getAdvancementHandler().grant("challenge_swords_cyclone_6");
+        }
     }
 
     private boolean isCritTrigger(Player p) {

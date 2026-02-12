@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -49,6 +53,24 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(9283);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WITHER_ROSE)
+                .key("challenge_nether_wither_100")
+                .title(Localizer.dLocalize("advancement.challenge_nether_wither_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_nether_wither_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHER_STAR)
+                        .key("challenge_nether_wither_1k")
+                        .title(Localizer.dLocalize("advancement.challenge_nether_wither_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_nether_wither_1k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_wither_100").goal(100).stat("nether.wither-resist.negated").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_wither_1k").goal(1000).stat("nether.wither-resist.negated").reward(1000).build());
     }
 
     @Override
@@ -67,8 +89,10 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
             if (!hasAdaptation(p))
                 return;
             double chance = getTotalChange(p);
-            if (RANDOM.nextInt(0, 101) <= chance)
+            if (RANDOM.nextInt(0, 101) <= chance) {
                 e.setCancelled(true);
+                getPlayer(p).getData().addStat("nether.wither-resist.negated", 1);
+            }
         }
     }
 

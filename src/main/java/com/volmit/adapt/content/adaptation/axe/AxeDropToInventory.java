@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -50,7 +54,15 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(8800);
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CHEST)
+                .key("challenge_axe_dti_5k")
+                .title(Localizer.dLocalize("advancement.challenge_axe_dti_5k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_axe_dti_5k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_dti_5k").goal(5000).stat("axe.drop-to-inv.items-caught").reward(500).build());
     }
 
     @Override
@@ -81,11 +93,16 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
         if (ItemListings.toolAxes.contains(p.getInventory().getItemInMainHand().getType())) {
             List<Item> items = new KList<>(e.getItems());
             e.getItems().clear();
+            int caught = 0;
             for (Item i : items) {
                 sp.play(p.getLocation(), Sound.BLOCK_CALCITE_HIT, 0.05f, 0.01f);
                 if (!p.getInventory().addItem(i.getItemStack()).isEmpty()) {
                     p.getWorld().dropItem(p.getLocation(), i.getItemStack());
                 }
+                caught++;
+            }
+            if (caught > 0) {
+                getPlayer(p).getData().addStat("axe.drop-to-inv.items-caught", caught);
             }
         }
     }

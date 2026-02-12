@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.stealth;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -86,6 +90,24 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(5);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ARMOR_STAND)
+                .key("challenge_stealth_decoy_100")
+                .title(Localizer.dLocalize("advancement.challenge_stealth_decoy_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_stealth_decoy_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ARMOR_STAND)
+                .key("challenge_stealth_decoy_distract_500")
+                .title(Localizer.dLocalize("advancement.challenge_stealth_decoy_distract_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_stealth_decoy_distract_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_decoy_100").goal(100).stat("stealth.shadow-decoy.decoys-spawned").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_decoy_distract_500").goal(500).stat("stealth.shadow-decoy.mobs-distracted").reward(1000).build());
     }
 
     @Override
@@ -197,6 +219,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         spawnDecoy(p, level);
         cooldowns.put(p.getUniqueId(), now + getCooldownMillis(level));
         xp(p, getConfig().xpOnDecoy);
+        getPlayer(p).getData().addStat("stealth.shadow-decoy.decoys-spawned", 1);
     }
 
     private void spawnDecoy(Player owner, int level) {
@@ -268,6 +291,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
             if (mob.getTarget() == owner || mob.hasLineOfSight(owner)) {
                 mob.setTarget(target);
+                getPlayer(owner).getData().addStat("stealth.shadow-decoy.mobs-distracted", 1);
             }
         }
     }

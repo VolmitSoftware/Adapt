@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.enchanting;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -58,6 +62,24 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         setInterval(15100);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENCHANTED_BOOK)
+                .key("challenge_enchanting_quick_100")
+                .title(Localizer.dLocalize("advancement.challenge_enchanting_quick_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_enchanting_quick_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BOOKSHELF)
+                        .key("challenge_enchanting_quick_1k")
+                        .title(Localizer.dLocalize("advancement.challenge_enchanting_quick_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_enchanting_quick_1k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_quick_100").goal(100).stat("enchanting.quick-enchant.books-applied").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_quick_1k").goal(1000).stat("enchanting.quick-enchant.books-applied").reward(1000).build());
     }
 
     private int getTotalLevelCount(int level) {
@@ -140,6 +162,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
                 item.setItemMeta(im);
                 e.setCurrentItem(item);
                 e.setCancelled(true);
+                getPlayer(p).getData().addStat("enchanting.quick-enchant.books-applied", 1);
                 sp.play(p.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.7f);
                 sp.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_TILES_BREAK, 0.5f, 0.7f);
                 getSkill().xp(p, 320 * addEnchants.values().stream().mapToInt((i) -> i).sum());

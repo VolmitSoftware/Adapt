@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -43,6 +47,24 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
         setInterval(3000);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_PICKAXE)
+                .key("challenge_seaborne_mining_2500")
+                .title(Localizer.dLocalize("advancement.challenge_seaborne_mining_2500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_seaborne_mining_2500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_PICKAXE)
+                        .key("challenge_seaborne_mining_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_seaborne_mining_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_seaborne_mining_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_mining_2500").goal(2500).stat("seaborne.turtles-mining.blocks-underwater").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_mining_25k").goal(25000).stat("seaborne.turtles-mining.blocks-underwater").reward(1000).build());
     }
 
     @Override
@@ -57,6 +79,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
             if (player.isInWater() && hasAdaptation(player)) {
                 if (player.getLocation().getBlock().isLiquid()) {
                     player.addPotionEffect(new PotionEffect(PotionEffectTypes.FAST_DIGGING, 62, 1, false, false));
+                    getPlayer(player).getData().addStat("seaborne.turtles-mining.blocks-underwater", 1);
                 }
             }
         }

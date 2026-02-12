@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.stealth;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -48,7 +52,15 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         sneaking = new ArrayList<>();
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LEATHER_BOOTS)
+                .key("challenge_stealth_speed_5k")
+                .title(Localizer.dLocalize("advancement.challenge_stealth_speed_5k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_stealth_speed_5k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_speed_5k").goal(5000).stat("stealth.speed.blocks-sneak-sprinted").reward(400).build());
     }
 
     @Override
@@ -76,6 +88,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         if (!p.isSneaking()) {
             sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 1, 0.99f);
             p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 1000, getLevel(p), false, false));
+            getPlayer(p).getData().addStat("stealth.speed.blocks-sneak-sprinted", 1);
         } else {
             p.removePotionEffect(PotionEffectType.SPEED);
         }

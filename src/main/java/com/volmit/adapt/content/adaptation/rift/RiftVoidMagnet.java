@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -49,6 +53,24 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(20);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_PEARL)
+                .key("challenge_rift_void_magnet_5k")
+                .title(Localizer.dLocalize("advancement.challenge_rift_void_magnet_5k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_rift_void_magnet_5k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENDER_EYE)
+                        .key("challenge_rift_void_magnet_50k")
+                        .title(Localizer.dLocalize("advancement.challenge_rift_void_magnet_50k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_rift_void_magnet_50k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_void_magnet_5k").goal(5000).stat("rift.void-magnet.items-pulled").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_void_magnet_50k").goal(50000).stat("rift.void-magnet.items-pulled").reward(1500).build());
     }
 
     @Override
@@ -73,6 +95,7 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
 
             p.spawnParticle(Particle.PORTAL, p.getLocation().add(0, 1, 0), 8, 0.3, 0.5, 0.3, 0.05);
             SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 0.45f, 1.6f);
+            getPlayer(p).getData().addStat("rift.void-magnet.items-pulled", moved);
             xp(p, moved * getConfig().xpPerMovedItem);
         }
     }

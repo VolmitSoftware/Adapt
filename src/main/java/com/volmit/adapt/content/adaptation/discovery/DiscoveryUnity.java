@@ -20,7 +20,11 @@ package com.volmit.adapt.content.adaptation.discovery;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
@@ -48,6 +52,34 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         setInterval(666);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.EXPERIENCE_BOTTLE)
+                .key("challenge_discovery_unity_5k")
+                .title(Localizer.dLocalize("advancement.challenge_discovery_unity_5k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_discovery_unity_5k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENCHANTING_TABLE)
+                        .key("challenge_discovery_unity_50k")
+                        .title(Localizer.dLocalize("advancement.challenge_discovery_unity_50k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_discovery_unity_50k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_unity_5k")
+                .goal(5000)
+                .stat("discovery.unity.orbs-distributed")
+                .reward(400)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_unity_50k")
+                .goal(50000)
+                .stat("discovery.unity.orbs-distributed")
+                .reward(1500)
+                .build());
     }
 
     @Override
@@ -70,6 +102,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
                 PlayerSkillLine skill = skills.get(RANDOM.nextInt(skills.size()));
                 //give them a random amount of XP in that skill
                 skill.giveXPFresh(Adapt.instance.getAdaptServer().getPlayer(p).getNot(), getXPGained(getLevelPercent(getLevel(p)), RANDOM.nextInt(3) + 1));
+                getPlayer(p).getData().addStat("discovery.unity.orbs-distributed", 1);
             }
 
         }

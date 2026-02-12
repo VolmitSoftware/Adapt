@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.excavation;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.content.item.multiItems.OmniTool;
 import com.volmit.adapt.util.*;
@@ -63,6 +67,24 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_PICKAXE)
+                .key("challenge_excavation_omni_1k")
+                .title(Localizer.dLocalize("advancement.challenge_excavation_omni_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_excavation_omni_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHERITE_PICKAXE)
+                        .key("challenge_excavation_omni_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_excavation_omni_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_excavation_omni_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_omni_1k").goal(1000).stat("excavation.omni-tool.auto-swaps").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_omni_25k").goal(25000).stat("excavation.omni-tool.auto-swaps").reward(1500).build());
     }
 
     @Override
@@ -324,6 +346,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     private void itemDelegate(BlockDamageEvent e, ItemStack hand, Damageable imHand) {
         Player p = e.getPlayer();
+        getPlayer(p).getData().addStat("excavation.omni-tool.auto-swaps", 1);
         SoundPlayer sp = SoundPlayer.of(p);
         SoundPlayer spw = SoundPlayer.of(p.getWorld());
         spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);

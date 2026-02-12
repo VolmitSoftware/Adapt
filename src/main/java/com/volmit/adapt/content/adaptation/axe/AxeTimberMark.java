@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.axe;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -56,6 +61,23 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1000);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.OAK_LOG)
+                .key("challenge_axe_timber_200")
+                .title(Localizer.dLocalize("advancement.challenge_axe_timber_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_axe_timber_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DIAMOND_AXE)
+                .key("challenge_axe_timber_40")
+                .title(Localizer.dLocalize("advancement.challenge_axe_timber_40.title"))
+                .description(Localizer.dLocalize("advancement.challenge_axe_timber_40.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_timber_200").goal(200).stat("axe.timber-mark.marks-felled").reward(400).build());
     }
 
     @Override
@@ -124,6 +146,7 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
         Material type = e.getBlock().getType();
         int maxBlocks = getMaxBlocks(getLevel(p));
         Set<Block> connected = floodLogs(e.getBlock(), type, maxBlocks);
+        int logsFelled = 0;
         for (Block b : connected) {
             if (b.equals(e.getBlock())) {
                 continue;
@@ -135,6 +158,7 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
 
             b.breakNaturally(p.getInventory().getItemInMainHand());
             xp(p, getConfig().xpPerExtraLog);
+            logsFelled++;
         }
 
         int level = getLevel(p);
@@ -151,6 +175,10 @@ public class AxeTimberMark extends SimpleAdaptation<AxeTimberMark.Config> {
         SoundPlayer.of(p.getWorld()).play(e.getBlock().getLocation(), Sound.BLOCK_WOOD_BREAK, 0.6f, 0.8f);
         setStorage(p, "timberMarkUntil", 0L);
         setStorage(p, "timberMarkBlock", "");
+        getPlayer(p).getData().addStat("axe.timber-mark.marks-felled", 1);
+        if (logsFelled >= 40 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_axe_timber_40")) {
+            getPlayer(p).getAdvancementHandler().grant("challenge_axe_timber_40");
+        }
     }
 
     private Set<Block> floodLogs(Block start, Material type, int maxBlocks) {

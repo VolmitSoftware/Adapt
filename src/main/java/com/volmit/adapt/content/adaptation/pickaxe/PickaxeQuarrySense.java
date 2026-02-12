@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.pickaxe;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -67,6 +71,15 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1200);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SPYGLASS)
+                .key("challenge_pickaxe_quarry_200")
+                .title(Localizer.dLocalize("advancement.challenge_pickaxe_quarry_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pickaxe_quarry_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_quarry_200").goal(200).stat("pickaxe.quarry-sense.scans").reward(300).build());
     }
 
     @Override
@@ -129,6 +142,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         p.spawnParticle(Particle.GLOW, p.getEyeLocation(), 8, 0.15, 0.15, 0.15, 0.01);
         SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.9f, 1.6f);
         xp(p, ores.size() * getConfig().xpPerFoundOre);
+        getPlayer(p).getData().addStat("pickaxe.quarry-sense.scans", 1);
         e.setCancelled(true);
     }
 

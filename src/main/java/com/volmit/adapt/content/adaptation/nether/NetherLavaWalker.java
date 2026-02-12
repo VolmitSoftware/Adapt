@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -47,6 +51,24 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1000);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.MAGMA_BLOCK)
+                .key("challenge_nether_lava_1k")
+                .title(Localizer.dLocalize("advancement.challenge_nether_lava_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_nether_lava_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.NETHERITE_INGOT)
+                        .key("challenge_nether_lava_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_nether_lava_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_nether_lava_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_lava_1k").goal(1000).stat("nether.lava-walker.blocks-walked").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_lava_25k").goal(25000).stat("nether.lava-walker.blocks-walked").reward(1000).build());
     }
 
     @Override
@@ -88,6 +110,7 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
         p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
         setStorage(p, "lavaWalkerCooldown", System.currentTimeMillis() + getCooldownMillis(level));
         xp(p, getConfig().xpPerStride);
+        getPlayer(p).getData().addStat("nether.lava-walker.blocks-walked", 1);
     }
 
     private boolean isLava(Block b) {

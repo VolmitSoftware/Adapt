@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.enchanting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -49,6 +53,24 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         setInterval(20999);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LAPIS_LAZULI)
+                .key("challenge_enchanting_lapis_100")
+                .title(Localizer.dLocalize("advancement.challenge_enchanting_lapis_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_enchanting_lapis_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.LAPIS_BLOCK)
+                        .key("challenge_enchanting_lapis_2500")
+                        .title(Localizer.dLocalize("advancement.challenge_enchanting_lapis_2500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_enchanting_lapis_2500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_lapis_100").goal(100).stat("enchanting.lapis-return.lapis-saved").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_lapis_2500").goal(2500).stat("enchanting.lapis-return.lapis-saved").reward(1000).build());
     }
 
     @Override
@@ -83,6 +105,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
             }
             cooldown.put(p, System.currentTimeMillis());
             p.getWorld().dropItemNaturally(p.getLocation(), new ItemStack(Material.LAPIS_LAZULI, getLevel(p)));
+            getPlayer(p).getData().addStat("enchanting.lapis-return.lapis-saved", getLevel(p));
         }
     }
 

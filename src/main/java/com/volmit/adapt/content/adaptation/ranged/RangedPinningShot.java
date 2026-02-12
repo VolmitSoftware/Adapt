@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.ranged;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -58,6 +62,15 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2200);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ARROW)
+                .key("challenge_ranged_pinning_300")
+                .title(Localizer.dLocalize("advancement.challenge_ranged_pinning_300.title"))
+                .description(Localizer.dLocalize("advancement.challenge_ranged_pinning_300.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_pinning_300").goal(300).stat("ranged.pinning-shot.targets-pinned").reward(400).build());
     }
 
     @Override
@@ -96,6 +109,7 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
 
         targetProcTimes.put(target.getUniqueId(), now);
         target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, getDurationTicks(level), getAmplifier(level), true, true, true), true);
+        getPlayer(p).getData().addStat("ranged.pinning-shot.targets-pinned", 1);
 
         if (getConfig().dampenVelocityOnProc) {
             Vector v = target.getVelocity();

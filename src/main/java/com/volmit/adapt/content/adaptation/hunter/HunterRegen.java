@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.hunter;
 
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -43,6 +47,15 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(9744);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GOLDEN_APPLE)
+                .key("challenge_hunter_regen_500")
+                .title(Localizer.dLocalize("advancement.challenge_hunter_regen_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_hunter_regen_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_regen_500").goal(500).stat("hunter.regen.health-regened").reward(400).build());
     }
 
     @Override
@@ -76,6 +89,7 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
                 } else {
                     addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
                     addPotionStacks(p, PotionEffectType.REGENERATION, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+                    getPlayer(p).getData().addStat("hunter.regen.health-regened", 1);
                 }
             } else {
                 if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
@@ -83,6 +97,7 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
                     if (mat != null && p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));
                         addPotionStacks(p, PotionEffectType.REGENERATION, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+                        getPlayer(p).getData().addStat("hunter.regen.health-regened", 1);
                     } else {
                         if (getConfig().poisonPenalty) {
                             addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);

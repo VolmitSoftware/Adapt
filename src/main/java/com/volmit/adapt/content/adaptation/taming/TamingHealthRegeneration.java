@@ -20,7 +20,11 @@ package com.volmit.adapt.content.adaptation.taming;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.version.Version;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import com.volmit.adapt.util.reflect.registries.Attributes;
@@ -54,6 +58,15 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
         setInitialCost(getConfig().initialCost);
         setInterval(1033);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GLISTERING_MELON_SLICE)
+                .key("challenge_taming_regen_1k")
+                .title(Localizer.dLocalize("advancement.challenge_taming_regen_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_taming_regen_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_regen_1k").goal(1000).stat("taming.health-regen.health-regened").reward(400).build());
     }
 
     @Override
@@ -81,6 +94,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
                 if (level > 0) {
                     Adapt.verbose("[PRE] Current Health: " + tam.getHealth() + " Max Health: " + mh);
                     tam.addPotionEffect(PotionEffectType.REGENERATION.createEffect(25 * getLevel(p), 3));
+                    getPlayer(p).getData().addStat("taming.health-regen.health-regened", 1);
 
                     if (getConfig().showParticles) {
                         Adapt.verbose("Healing tamed entity " + tam.getUniqueId() + " with particles");

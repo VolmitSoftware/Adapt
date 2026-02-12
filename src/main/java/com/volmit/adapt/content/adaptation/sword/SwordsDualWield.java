@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.sword;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -44,6 +48,24 @@ public class SwordsDualWield extends SimpleAdaptation<SwordsDualWield.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1800);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_SWORD)
+                .key("challenge_swords_dual_1k")
+                .title(Localizer.dLocalize("advancement.challenge_swords_dual_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swords_dual_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_SWORD)
+                        .key("challenge_swords_dual_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_swords_dual_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_swords_dual_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_dual_1k").goal(1000).stat("swords.dual-wield.bonus-damage").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_dual_25k").goal(25000).stat("swords.dual-wield.bonus-damage").reward(1500).build());
     }
 
     @Override
@@ -66,8 +88,11 @@ public class SwordsDualWield extends SimpleAdaptation<SwordsDualWield.Config> {
 
         boolean sameWeapon = main.getType() == off.getType();
         double multiplier = sameWeapon ? getSameMultiplier(getLevel(p)) : getMixedMultiplier(getLevel(p));
-        e.setDamage(e.getDamage() * multiplier);
+        double originalDamage = e.getDamage();
+        e.setDamage(originalDamage * multiplier);
+        double bonusDamage = e.getDamage() - originalDamage;
         xp(p, e.getDamage() * getConfig().xpPerDamage);
+        getPlayer(p).getData().addStat("swords.dual-wield.bonus-damage", bonusDamage);
     }
 
     private double getSameMultiplier(int level) {

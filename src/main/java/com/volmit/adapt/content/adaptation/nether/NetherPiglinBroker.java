@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -50,6 +54,24 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2300);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GOLD_INGOT)
+                .key("challenge_nether_piglin_100")
+                .title(Localizer.dLocalize("advancement.challenge_nether_piglin_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_nether_piglin_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.GOLD_BLOCK)
+                        .key("challenge_nether_piglin_2500")
+                        .title(Localizer.dLocalize("advancement.challenge_nether_piglin_2500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_nether_piglin_2500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_piglin_100").goal(100).stat("nether.piglin-broker.improved-barters").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_piglin_2500").goal(2500).stat("nether.piglin-broker.improved-barters").reward(1000).build());
     }
 
     @Override
@@ -93,6 +115,7 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
 
         SoundPlayer.of(broker.getWorld()).play(broker.getLocation(), Sound.ENTITY_PIGLIN_ADMIRING_ITEM, 0.9f, 1.25f);
         xp(broker, getConfig().xpOnBoostedBarter);
+        getPlayer(broker).getData().addStat("nether.piglin-broker.improved-barters", 1);
     }
 
     private Player findBroker(Piglin piglin, double range) {

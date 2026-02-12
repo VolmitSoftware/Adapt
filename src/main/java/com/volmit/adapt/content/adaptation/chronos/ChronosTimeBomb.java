@@ -18,8 +18,13 @@
 
 package com.volmit.adapt.content.adaptation.chronos;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ChronoTimeBombItem;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -37,6 +42,7 @@ import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -94,6 +100,28 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         frozenEntities = new HashMap<>();
         frozenPlayers = new HashMap<>();
         syncTickQueued = new AtomicBoolean(false);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ICE)
+                .key("challenge_chronos_bomb_freeze_50")
+                .title(Localizer.dLocalize("advancement.challenge_chronos_bomb_freeze_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_chronos_bomb_freeze_50.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ICE)
+                .key("challenge_chronos_bomb_crowd_8")
+                .title(Localizer.dLocalize("advancement.challenge_chronos_bomb_crowd_8.title"))
+                .description(Localizer.dLocalize("advancement.challenge_chronos_bomb_crowd_8.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_chronos_bomb_freeze_50")
+                .goal(50)
+                .stat("chronos.time-bomb.projectiles-frozen")
+                .reward(500)
+                .build());
     }
 
     @Override
@@ -369,13 +397,22 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         Player owner = Bukkit.getPlayer(field.owner());
 
         Collection<Entity> nearby = field.center().getWorld().getNearbyEntities(field.center(), field.radius(), field.radius(), field.radius());
+        int entitiesSlowed = 0;
         for (Entity entity : nearby) {
             if (entity.getLocation().distanceSquared(field.center()) > field.radius() * field.radius()) {
                 continue;
             }
 
             if (!(entity instanceof Player)) {
+                boolean wasNew = !frozenEntities.containsKey(entity.getUniqueId());
                 freezeEntity(entity);
+                if (wasNew && owner != null) {
+                    entitiesSlowed++;
+                    if (entity instanceof Projectile) {
+                        getPlayer(owner).getData().addStat("chronos.time-bomb.projectiles-frozen", 1);
+                    }
+                    getPlayer(owner).getData().addStat("chronos.time-bomb.entities-slowed", 1);
+                }
                 continue;
             }
 
@@ -403,6 +440,13 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
             living.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, getConfig().effectRefreshTicks, getConfig().fatigueAmplifier, true, false, false), true);
             freezePlayer((Player) living);
             living.setVelocity(new Vector());
+            entitiesSlowed++;
+        }
+
+        if (entitiesSlowed >= 8 && owner != null
+                && AdaptConfig.get().isAdvancements()
+                && !getPlayer(owner).getData().isGranted("challenge_chronos_bomb_crowd_8")) {
+            getPlayer(owner).getAdvancementHandler().grant("challenge_chronos_bomb_crowd_8");
         }
 
         if (getConfig().showParticles) {

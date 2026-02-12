@@ -1,6 +1,10 @@
 package com.volmit.adapt.content.adaptation.stealth;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -28,6 +32,15 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         setInterval(9182);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_EYE)
+                .key("challenge_stealth_ender_veil_200")
+                .title(Localizer.dLocalize("advancement.challenge_stealth_ender_veil_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_stealth_ender_veil_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_stealth_ender_veil_200").goal(200).stat("stealth.ender-veil.stares-survived").reward(300).build());
     }
 
     @Override
@@ -63,6 +76,7 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
 
         if (getLevel(player) > 1 || player.isSneaking()) {
             event.setCancelled(true);
+            getPlayer(player).getData().addStat("stealth.ender-veil.stares-survived", 1);
         }
     }
 
@@ -75,6 +89,7 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
 
         if (getLevel(player) > 1 || player.isSneaking()) {
             event.setCancelled(true);
+            getPlayer(player).getData().addStat("stealth.ender-veil.stares-survived", 1);
         }
     }
 

@@ -2599,3 +2599,1187 @@
     lore2 = "Damage Per Stack"
     lore3 = "Combo Window"
     lore = ["Max Combo Stacks", "Damage Per Stack", "Combo Window"]
+
+# ============================================================
+# Adaptation-Level Achievements
+# ============================================================
+
+# --- AGILITY ---
+
+[advancement.challenge_agility_armor_up_30min]
+    title = "Iron Jogger"
+    description = "Sprint with armor bonus for 30 cumulative minutes"
+
+[advancement.challenge_agility_armor_up_5hr]
+    title = "Marathon Knight"
+    description = "Sprint with armor bonus for 5 cumulative hours"
+
+[advancement.challenge_agility_ladder_500]
+    title = "Elevator Operator"
+    description = "Climb 500 ladder blocks"
+
+[advancement.challenge_agility_ladder_10k]
+    title = "Vertical Expressway"
+    description = "Climb 10,000 ladder blocks"
+
+[advancement.challenge_agility_super_jump_100]
+    title = "Leap of Faith"
+    description = "Perform 100 super jumps"
+
+[advancement.challenge_agility_super_jump_5k]
+    title = "Frog God"
+    description = "Perform 5,000 super jumps"
+
+[advancement.challenge_agility_wall_jump_500]
+    title = "Spider-Player"
+    description = "Perform 500 wall jumps"
+
+[advancement.challenge_agility_parkour_master]
+    title = "Parkour Master"
+    description = "Chain 5+ wall jumps without touching the ground"
+
+[advancement.challenge_agility_wind_up_10min]
+    title = "Second Wind"
+    description = "Spend 10 cumulative minutes at max sprint speed"
+
+[advancement.challenge_agility_wind_up_2hr]
+    title = "Sonic Boom"
+    description = "Spend 2 cumulative hours at max sprint speed"
+
+[advancement.challenge_agility_parkour_500]
+    title = "Freerunner"
+    description = "Land 500 ledge jumps"
+
+[advancement.challenge_agility_roll_100]
+    title = "Tuck and Roll"
+    description = "Prevent 100 hearts of fall damage"
+
+[advancement.challenge_agility_roll_1000]
+    title = "Stuntman"
+    description = "Prevent 1,000 hearts of fall damage"
+
+[advancement.challenge_agility_fearless]
+    title = "Fearless"
+    description = "Roll-land from a 30+ block fall"
+
+# --- ARCHITECT ---
+
+[advancement.challenge_architect_elevator_100]
+    title = "Going Up"
+    description = "Use elevators 100 times"
+
+[advancement.challenge_architect_elevator_penthouse]
+    title = "Penthouse Express"
+    description = "Take a single elevator trip of 50+ blocks"
+
+[advancement.challenge_architect_foundation_1k]
+    title = "Scaffold Master"
+    description = "Place 1,000 foundation blocks"
+
+[advancement.challenge_architect_foundation_10k]
+    title = "Walking on Air"
+    description = "Place 10,000 foundation blocks"
+
+[advancement.challenge_architect_glass_200]
+    title = "Glazier"
+    description = "Recover 200 glass blocks"
+
+[advancement.challenge_architect_glass_5k]
+    title = "Crystal Clear"
+    description = "Recover 5,000 glass blocks"
+
+[advancement.challenge_architect_wireless_100]
+    title = "Remote Control"
+    description = "Send 100 wireless redstone pulses"
+
+[advancement.challenge_architect_wireless_5k]
+    title = "Nikola"
+    description = "Send 5,000 wireless redstone pulses"
+
+[advancement.challenge_architect_placement_1k]
+    title = "Speed Builder"
+    description = "Place 1,000 blocks via multi-placement"
+
+[advancement.challenge_architect_placement_25k]
+    title = "Architect's Touch"
+    description = "Place 25,000 blocks via multi-placement"
+
+[advancement.challenge_architect_smart_shape_200]
+    title = "Fine Tuning"
+    description = "Rotate 200 blocks"
+
+[advancement.challenge_architect_smart_shape_5k]
+    title = "Perfectionist"
+    description = "Rotate 5,000 blocks"
+
+# --- AXE ---
+
+[advancement.challenge_axe_chop_100]
+    title = "Lumberjack"
+    description = "Fell 100 trees"
+
+[advancement.challenge_axe_chop_2500]
+    title = "Deforestation"
+    description = "Fell 2,500 trees"
+
+[advancement.challenge_axe_chop_one_swing]
+    title = "One Swing Wonder"
+    description = "Fell a tree yielding 30+ logs in one chop"
+
+[advancement.challenge_axe_log_swap_500]
+    title = "Log Alchemist"
+    description = "Convert 500 logs"
+
+[advancement.challenge_axe_dti_5k]
+    title = "Clean Logger"
+    description = "Catch 5,000 items to inventory"
+
+[advancement.challenge_axe_ground_smash_500]
+    title = "Quake"
+    description = "Hit 500 enemies with ground smash"
+
+[advancement.challenge_axe_ground_smash_5]
+    title = "Seismic Slam"
+    description = "Hit 5+ enemies in a single ground smash"
+
+[advancement.challenge_axe_leaf_5k]
+    title = "Autumn Breeze"
+    description = "Veinmine 5,000 leaves"
+
+[advancement.challenge_axe_wood_vein_2500]
+    title = "Chain Reaction"
+    description = "Veinmine 2,500 logs"
+
+[advancement.challenge_axe_wood_vein_cascade]
+    title = "Cascade Logger"
+    description = "Veinmine 15+ logs in a single activation"
+
+[advancement.challenge_axe_timber_200]
+    title = "Mark of the Woodsman"
+    description = "Fell 200 marked trees"
+
+[advancement.challenge_axe_timber_40]
+    title = "Marked for Removal"
+    description = "Fell a marked tree yielding 40+ logs"
+
+# --- BLOCKING ---
+
+[advancement.challenge_blocking_chain_25]
+    title = "Medieval Smith"
+    description = "Craft 25 chainmail pieces"
+
+[advancement.challenge_blocking_horse_armor_10]
+    title = "Equine Outfitter"
+    description = "Craft 10 horse armors"
+
+[advancement.challenge_blocking_saddle_25]
+    title = "Saddler"
+    description = "Craft 25 saddles"
+
+[advancement.challenge_blocking_multi_200]
+    title = "Hybrid Warrior"
+    description = "Perform 200 elytra-armor auto-swaps"
+
+[advancement.challenge_blocking_multi_5k]
+    title = "Ironbird"
+    description = "Perform 5,000 elytra-armor auto-swaps"
+
+[advancement.challenge_blocking_counter_500]
+    title = "Payback"
+    description = "Reflect 500 total damage via counter guard"
+
+[advancement.challenge_blocking_counter_max]
+    title = "Full Counter"
+    description = "Reach maximum counter stacks and release"
+
+[advancement.challenge_blocking_bastion_500]
+    title = "Immovable Object"
+    description = "Soften 500 projectiles while bracing"
+
+[advancement.challenge_blocking_bastion_10]
+    title = "Arrow Sponge"
+    description = "Soften 10 projectiles in a single bracing session"
+
+[advancement.challenge_blocking_mirror_100]
+    title = "Return to Sender"
+    description = "Reflect 100 projectiles"
+
+[advancement.challenge_blocking_mirror_3in5]
+    title = "Bullet Time"
+    description = "Reflect 3 projectiles within 5 seconds"
+
+[advancement.challenge_blocking_bulwark_500]
+    title = "Shield Charge"
+    description = "Bash 500 enemies"
+
+[advancement.challenge_blocking_bulwark_4]
+    title = "Bowling Strike"
+    description = "Hit 4+ enemies in a single bash"
+
+# --- BREWING ---
+
+[advancement.challenge_brewing_lingering_200]
+    title = "Slow Sipper"
+    description = "Benefit from 200 extended potions"
+
+[advancement.challenge_brewing_lingering_5k]
+    title = "Everlasting Elixir"
+    description = "Benefit from 5,000 extended potions"
+
+[advancement.challenge_brewing_super_heated_100]
+    title = "Volcanic Brewer"
+    description = "Complete 100 superheated brews"
+
+[advancement.challenge_brewing_super_heated_2500]
+    title = "Hell's Kitchen"
+    description = "Complete 2,500 superheated brews"
+
+[advancement.challenge_brewing_darkness_25]
+    title = "Lights Out"
+    description = "Brew 25 darkness potions"
+
+[advancement.challenge_brewing_haste_25]
+    title = "Hyperactive"
+    description = "Brew 25 haste potions"
+
+[advancement.challenge_brewing_absorption_25]
+    title = "Extra Padding"
+    description = "Brew 25 absorption potions"
+
+[advancement.challenge_brewing_fatigue_25]
+    title = "Exhaustion Expert"
+    description = "Brew 25 fatigue potions"
+
+[advancement.challenge_brewing_hunger_25]
+    title = "Famished"
+    description = "Brew 25 hunger potions"
+
+[advancement.challenge_brewing_nausea_25]
+    title = "Dizzy Concoction"
+    description = "Brew 25 nausea potions"
+
+[advancement.challenge_brewing_blindness_25]
+    title = "Lights Off"
+    description = "Brew 25 blindness potions"
+
+[advancement.challenge_brewing_resistance_25]
+    title = "Ironbrew"
+    description = "Brew 25 resistance potions"
+
+[advancement.challenge_brewing_health_boost_25]
+    title = "Vitality Vial"
+    description = "Brew 25 health boost potions"
+
+[advancement.challenge_brewing_decay_25]
+    title = "Necrotoxin"
+    description = "Brew 25 decay potions"
+
+[advancement.challenge_brewing_saturation_25]
+    title = "Feast in a Bottle"
+    description = "Brew 25 saturation potions"
+
+# --- CHRONOS ---
+
+[advancement.challenge_chronos_bottle_1k]
+    title = "Chronomancer"
+    description = "Spend 1,000 time charges"
+
+[advancement.challenge_chronos_bottle_25k]
+    title = "Time Lord"
+    description = "Spend 25,000 time charges"
+
+[advancement.challenge_chronos_aberrant_500]
+    title = "Temporal Drain"
+    description = "Apply 500 slowness stacks"
+
+[advancement.challenge_chronos_aberrant_frozen]
+    title = "Frozen in Time"
+    description = "Apply 5+ slowness stacks to a single target"
+
+[advancement.challenge_chronos_recall_50]
+    title = "Second Chance"
+    description = "Recall 50 times"
+
+[advancement.challenge_chronos_recall_1k]
+    title = "Groundhog Day"
+    description = "Recall 1,000 times"
+
+[advancement.challenge_chronos_recall_cheat_death]
+    title = "Cheating Death"
+    description = "Recall when below 2 hearts, restoring to above 8"
+
+[advancement.challenge_chronos_bomb_freeze_50]
+    title = "Time Stop"
+    description = "Freeze 50 projectiles"
+
+[advancement.challenge_chronos_bomb_crowd_8]
+    title = "Crowd Control"
+    description = "Slow 8+ entities with one time bomb"
+
+[advancement.challenge_chronos_echo_200]
+    title = "Double Tap"
+    description = "Land 200 echo hits"
+
+# --- CRAFTING ---
+
+[advancement.challenge_crafting_decon_200]
+    title = "Salvager"
+    description = "Deconstruct 200 items"
+
+[advancement.challenge_crafting_decon_5k]
+    title = "Recycling Plant"
+    description = "Deconstruct 5,000 items"
+
+[advancement.challenge_crafting_xp_1k]
+    title = "Artisan"
+    description = "Craft 1,000 items"
+
+[advancement.challenge_crafting_xp_25k]
+    title = "Master Crafter"
+    description = "Craft 25,000 items"
+
+[advancement.challenge_crafting_recon_100]
+    title = "Reverse Engineering"
+    description = "Reconstruct 100 ores"
+
+[advancement.challenge_crafting_leather_100]
+    title = "Tanner"
+    description = "Craft 100 leather from rotten flesh"
+
+[advancement.challenge_crafting_backpack_25]
+    title = "Pack Rat"
+    description = "Craft 25 bundles"
+
+[advancement.challenge_crafting_stations_200]
+    title = "On the Go"
+    description = "Use portable stations 200 times"
+
+[advancement.challenge_crafting_stations_5k]
+    title = "Mobile Workshop"
+    description = "Use portable stations 5,000 times"
+
+[advancement.challenge_crafting_skulls_10]
+    title = "Skull Collector"
+    description = "Craft 10 mob skulls"
+
+[advancement.challenge_crafting_skulls_100]
+    title = "Headhunter"
+    description = "Craft 100 mob skulls"
+
+# --- DISCOVERY ---
+
+[advancement.challenge_discovery_unity_5k]
+    title = "Renaissance Player"
+    description = "Distribute 5,000 XP orbs to random skills"
+
+[advancement.challenge_discovery_unity_50k]
+    title = "Jack of All Trades"
+    description = "Distribute 50,000 XP orbs"
+
+[advancement.challenge_discovery_xp_resist_25]
+    title = "Emergency Reserves"
+    description = "Mitigate lethal damage 25 times using XP"
+
+[advancement.challenge_discovery_xp_resist_250]
+    title = "XP Shield"
+    description = "Mitigate lethal damage 250 times"
+
+[advancement.challenge_discovery_xp_resist_clutch]
+    title = "Clutch"
+    description = "Survive a hit that would have dealt 15+ hearts"
+
+[advancement.challenge_discovery_villager_100]
+    title = "Silver Tongue"
+    description = "Complete 100 improved villager trades"
+
+[advancement.challenge_discovery_villager_2500]
+    title = "Master Negotiator"
+    description = "Complete 2,500 improved trades"
+
+[advancement.challenge_discovery_armor_1hr]
+    title = "One with the Earth"
+    description = "Have environmental armor for 1 cumulative hour"
+
+[advancement.challenge_discovery_armor_24hr]
+    title = "Stone Skin"
+    description = "Have environmental armor for 24 cumulative hours"
+
+[advancement.challenge_discovery_mending_10k]
+    title = "Master Mender"
+    description = "Restore 10,000 durability via direct mending"
+
+[advancement.challenge_discovery_mending_100k]
+    title = "Good as New"
+    description = "Restore 100,000 durability"
+
+[advancement.challenge_discovery_archaeologist_50]
+    title = "Relic Hunter"
+    description = "Find 50 bonus archaeology items"
+
+[advancement.challenge_discovery_archaeologist_500]
+    title = "Indiana Jones"
+    description = "Find 500 bonus items"
+
+[advancement.challenge_discovery_cartographer_100]
+    title = "Wayfinder"
+    description = "Pulse toward 100 structures"
+
+[advancement.challenge_discovery_cartographer_1k]
+    title = "Explorer Extraordinaire"
+    description = "Pulse toward 1,000 structures"
+
+# --- ENCHANTING ---
+
+[advancement.challenge_enchanting_lapis_100]
+    title = "Penny Pincher"
+    description = "Save 100 lapis from enchanting"
+
+[advancement.challenge_enchanting_lapis_2500]
+    title = "Blue Miser"
+    description = "Save 2,500 lapis"
+
+[advancement.challenge_enchanting_quick_100]
+    title = "Bookworm"
+    description = "Apply 100 books directly"
+
+[advancement.challenge_enchanting_quick_1k]
+    title = "Walking Enchant Table"
+    description = "Apply 1,000 books directly"
+
+[advancement.challenge_enchanting_xp_100]
+    title = "Thrifty Enchanter"
+    description = "Save 100 XP levels from enchanting"
+
+[advancement.challenge_enchanting_anvil_200]
+    title = "Anvil Whisperer"
+    description = "Save 200 levels at anvil"
+
+[advancement.challenge_enchanting_anvil_5k]
+    title = "Blacksmith Prodigy"
+    description = "Save 5,000 levels at anvil"
+
+[advancement.challenge_enchanting_reroll_100]
+    title = "Picky Enchanter"
+    description = "Reroll enchantment offers 100 times"
+
+[advancement.challenge_enchanting_reroll_1k]
+    title = "Never Satisfied"
+    description = "Reroll enchantment offers 1,000 times"
+
+[advancement.challenge_enchanting_bookshelf_100]
+    title = "Library Card"
+    description = "Enchant 100 items with virtual bookshelf bonus"
+
+[advancement.challenge_enchanting_grindstone_50]
+    title = "Salvage Specialist"
+    description = "Recover 50 enchantments at the grindstone"
+
+[advancement.challenge_enchanting_grindstone_500]
+    title = "Nothing Wasted"
+    description = "Recover 500 enchantments"
+
+# --- EXCAVATION ---
+
+[advancement.challenge_excavation_haste_5k]
+    title = "Dig Faster"
+    description = "Break 5,000 blocks while hasted"
+
+[advancement.challenge_excavation_haste_50k]
+    title = "Tunneling Machine"
+    description = "Break 50,000 blocks while hasted"
+
+[advancement.challenge_excavation_spelunker_1k]
+    title = "X-Ray Vision"
+    description = "Reveal 1,000 ores"
+
+[advancement.challenge_excavation_spelunker_25k]
+    title = "All-Seeing Eye"
+    description = "Reveal 25,000 ores"
+
+[advancement.challenge_excavation_dti_10k]
+    title = "Clean Digger"
+    description = "Catch 10,000 items to inventory"
+
+[advancement.challenge_excavation_omni_1k]
+    title = "Swiss Army Miner"
+    description = "Perform 1,000 auto-tool-swaps"
+
+[advancement.challenge_excavation_omni_25k]
+    title = "Tool Belt Master"
+    description = "Perform 25,000 auto-tool-swaps"
+
+[advancement.challenge_excavation_seismic_200]
+    title = "Echolocation"
+    description = "Trigger 200 seismic pings"
+
+# --- HERBALISM ---
+
+[advancement.challenge_herbalism_growth_1k]
+    title = "Green Thumb"
+    description = "Grow 1,000 blocks via growth aura"
+
+[advancement.challenge_herbalism_growth_25k]
+    title = "Nature's Blessing"
+    description = "Grow 25,000 blocks"
+
+[advancement.challenge_herbalism_hippo_500]
+    title = "Glutton"
+    description = "Gain 500 bonus saturation"
+
+[advancement.challenge_herbalism_myconid_100]
+    title = "Fungus Among Us"
+    description = "Craft 100 mycelium"
+
+[advancement.challenge_herbalism_terralid_200]
+    title = "Landscaper"
+    description = "Craft 200 grass blocks"
+
+[advancement.challenge_herbalism_cobweb_100]
+    title = "Silk Weaver"
+    description = "Craft 100 cobwebs"
+
+[advancement.challenge_herbalism_mushroom_100]
+    title = "Mooshroom Builder"
+    description = "Craft 100 mushroom blocks"
+
+[advancement.challenge_herbalism_dti_10k]
+    title = "Clean Harvest"
+    description = "Catch 10,000 items to inventory"
+
+[advancement.challenge_herbalism_shield_500]
+    title = "Thick Skin"
+    description = "Absorb 500 damage via hunger"
+
+[advancement.challenge_herbalism_shield_5k]
+    title = "Insatiable Tank"
+    description = "Absorb 5,000 damage via hunger"
+
+[advancement.challenge_herbalism_luck_100]
+    title = "Lucky Find"
+    description = "Get 100 lucky drops"
+
+[advancement.challenge_herbalism_luck_2500]
+    title = "Four Leaf Clover"
+    description = "Get 2,500 lucky drops"
+
+[advancement.challenge_herbalism_replant_500]
+    title = "Sustainable Farmer"
+    description = "Replant 500 crops"
+
+[advancement.challenge_herbalism_replant_25k]
+    title = "Industrial Agriculture"
+    description = "Replant 25,000 crops"
+
+[advancement.challenge_herbalism_seed_1k]
+    title = "Johnny Appleseed"
+    description = "Plant 1,000 seeds via AOE"
+
+[advancement.challenge_herbalism_seed_25k]
+    title = "Field of Dreams"
+    description = "Plant 25,000 seeds via AOE"
+
+[advancement.challenge_herbalism_rooted_500]
+    title = "Gentle Step"
+    description = "Protect 500 farmland blocks"
+
+[advancement.challenge_herbalism_compost_1k]
+    title = "Composting Champion"
+    description = "Compost 1,000 items"
+
+[advancement.challenge_herbalism_compost_25k]
+    title = "Zero Waste"
+    description = "Compost 25,000 items"
+
+[advancement.challenge_herbalism_bee_100]
+    title = "Queen Bee"
+    description = "Attract 100 bees"
+
+[advancement.challenge_herbalism_spore_500]
+    title = "Spore Carrier"
+    description = "Spread 500 blocks via spore bloom"
+
+# --- HUNTER ---
+
+[advancement.challenge_hunter_adrenaline_100]
+    title = "Cornered Beast"
+    description = "Kill 100 mobs below 30% health"
+
+[advancement.challenge_hunter_adrenaline_2500]
+    title = "Berserker"
+    description = "Kill 2,500 mobs in adrenaline"
+
+[advancement.challenge_hunter_dti_10k]
+    title = "Clean Kill"
+    description = "Catch 10,000 items to inventory"
+
+[advancement.challenge_hunter_invis_200]
+    title = "Ghost Protocol"
+    description = "Trigger invisibility 200 times from kills"
+
+[advancement.challenge_hunter_jump_200]
+    title = "Spring Loaded"
+    description = "Trigger jump boost 200 times from kills"
+
+[advancement.challenge_hunter_luck_200]
+    title = "Lucky Shot"
+    description = "Trigger luck 200 times from kills"
+
+[advancement.challenge_hunter_regen_500]
+    title = "Wolverine"
+    description = "Regenerate 500 hearts from kill regen"
+
+[advancement.challenge_hunter_resistance_500]
+    title = "Thick Hide"
+    description = "Trigger resistance 500 times from kills"
+
+[advancement.challenge_hunter_speed_200]
+    title = "Fight or Flight"
+    description = "Trigger speed 200 times from kills"
+
+[advancement.challenge_hunter_strength_200]
+    title = "Rage"
+    description = "Trigger strength 200 times from kills"
+
+[advancement.challenge_hunter_trophy_50]
+    title = "Taxidermist"
+    description = "Collect 50 trophy drops"
+
+[advancement.challenge_hunter_trophy_heads_100]
+    title = "Trophy Room"
+    description = "Collect 100 mob heads"
+
+# --- NETHER ---
+
+[advancement.challenge_nether_wither_100]
+    title = "Wither-Proof"
+    description = "Negate 100 wither effects"
+
+[advancement.challenge_nether_wither_1k]
+    title = "Death Defiant"
+    description = "Negate 1,000 wither effects"
+
+[advancement.challenge_nether_fire_200]
+    title = "Firewalker"
+    description = "Negate 200 fire damage instances"
+
+[advancement.challenge_nether_fire_5k]
+    title = "Salamander"
+    description = "Negate 5,000 fire damage instances"
+
+[advancement.challenge_nether_skull_100]
+    title = "Skull Chucker"
+    description = "Throw 100 wither skulls"
+
+[advancement.challenge_nether_skull_kills_50]
+    title = "Wither Lord"
+    description = "Kill 50 mobs with wither skulls"
+
+[advancement.challenge_nether_skull_long_bomb]
+    title = "Long Bomb"
+    description = "Hit a target 40+ blocks away with a skull"
+
+[advancement.challenge_nether_lava_1k]
+    title = "Strider"
+    description = "Walk 1,000 blocks on lava"
+
+[advancement.challenge_nether_lava_25k]
+    title = "Lava Surfer"
+    description = "Walk 25,000 blocks on lava"
+
+[advancement.challenge_nether_ghast_500]
+    title = "Nether Veteran"
+    description = "Mitigate 500 nether mob damage"
+
+[advancement.challenge_nether_blaze_200]
+    title = "Pyrophyte"
+    description = "Gain 200 hearts from fire damage"
+
+[advancement.challenge_nether_blaze_2500]
+    title = "Flame Eater"
+    description = "Gain 2,500 hearts from fire damage"
+
+[advancement.challenge_nether_piglin_100]
+    title = "Gold Broker"
+    description = "Complete 100 improved piglin barters"
+
+[advancement.challenge_nether_piglin_2500]
+    title = "Piglin Mogul"
+    description = "Complete 2,500 improved barters"
+
+# --- PICKAXE ---
+
+[advancement.challenge_pickaxe_autosmelt_1k]
+    title = "Walking Furnace"
+    description = "Auto-smelt 1,000 ores"
+
+[advancement.challenge_pickaxe_autosmelt_25k]
+    title = "Smelter Supreme"
+    description = "Auto-smelt 25,000 ores"
+
+[advancement.challenge_pickaxe_chisel_500]
+    title = "Precision Miner"
+    description = "Chisel 500 extra ore drops"
+
+[advancement.challenge_pickaxe_dti_25k]
+    title = "Clean Miner"
+    description = "Catch 25,000 items to inventory"
+
+[advancement.challenge_pickaxe_spawner_10]
+    title = "Spawner Thief"
+    description = "Collect 10 spawners with silk touch"
+
+[advancement.challenge_pickaxe_spawner_50]
+    title = "Zoo Keeper"
+    description = "Collect 50 spawners"
+
+[advancement.challenge_pickaxe_veinminer_2500]
+    title = "Vein Ripper"
+    description = "Veinmine 2,500 ores"
+
+[advancement.challenge_pickaxe_veinminer_20]
+    title = "Mother Lode"
+    description = "Veinmine 20+ ores in a single go"
+
+[advancement.challenge_pickaxe_quarry_200]
+    title = "Prospector"
+    description = "Perform 200 ore scans"
+
+# --- RANGED ---
+
+[advancement.challenge_ranged_arrow_500]
+    title = "Frugal Fletcher"
+    description = "Recover 500 arrows"
+
+[advancement.challenge_ranged_arrow_10k]
+    title = "Infinite Quiver"
+    description = "Recover 10,000 arrows"
+
+[advancement.challenge_ranged_web_200]
+    title = "Web Slinger"
+    description = "Trap 200 mobs with web bombs"
+
+[advancement.challenge_ranged_force_500]
+    title = "Sniper"
+    description = "Land 500 long-range hits (30+ blocks)"
+
+[advancement.challenge_ranged_lunge_200]
+    title = "Air Support"
+    description = "Perform 200 aerial lunges"
+
+[advancement.challenge_ranged_lunge_2500]
+    title = "Rocket Jump"
+    description = "Perform 2,500 aerial lunges"
+
+[advancement.challenge_ranged_piercing_500]
+    title = "Shish Kebab"
+    description = "Pierce 500 extra targets"
+
+[advancement.challenge_ranged_piercing_4]
+    title = "Collateral"
+    description = "Hit 4+ enemies with a single arrow"
+
+[advancement.challenge_ranged_floaters_200]
+    title = "Up You Go"
+    description = "Levitate 200 targets"
+
+[advancement.challenge_ranged_pinning_300]
+    title = "Nailed Down"
+    description = "Pin 300 targets"
+
+[advancement.challenge_ranged_trajectory_100]
+    title = "Calculated"
+    description = "Kill 100 mobs while trajectory preview is active"
+
+[advancement.challenge_ranged_ricochet_kills_50]
+    title = "Trick Shot"
+    description = "Kill 50 mobs with ricocheted arrows"
+
+[advancement.challenge_ranged_ricochet_kills_500]
+    title = "Pinball Wizard"
+    description = "Kill 500 mobs with ricocheted arrows"
+
+# --- RIFT ---
+
+[advancement.challenge_rift_blink_500]
+    title = "Phase Shift"
+    description = "Blink 500 times"
+
+[advancement.challenge_rift_blink_5k]
+    title = "Rift Walker"
+    description = "Blink 5,000 total blocks of distance"
+
+[advancement.challenge_rift_enderchest_200]
+    title = "Pocket Dimension"
+    description = "Open your ender chest remotely 200 times"
+
+[advancement.challenge_rift_descent_100]
+    title = "Grounded"
+    description = "Cancel 100 levitation effects"
+
+[advancement.challenge_rift_descent_1k]
+    title = "Anti-Gravity"
+    description = "Cancel 1,000 levitation effects"
+
+[advancement.challenge_rift_gate_100]
+    title = "Gatekeeper"
+    description = "Teleport via rift gates 100 times"
+
+[advancement.challenge_rift_gate_50k_dist]
+    title = "Rift Network"
+    description = "Teleport 50,000 cumulative blocks via rift gates"
+
+[advancement.challenge_rift_resist_200]
+    title = "Void-Touched"
+    description = "Trigger rift resistance 200 times"
+
+[advancement.challenge_rift_visage_100]
+    title = "Eye Contact"
+    description = "Survive 100 enderman stares"
+
+[advancement.challenge_rift_visage_1k]
+    title = "Enderman Whisperer"
+    description = "Survive 1,000 enderman stares"
+
+[advancement.challenge_rift_access_100]
+    title = "Dimensional Pocket"
+    description = "Open containers remotely 100 times"
+
+[advancement.challenge_rift_access_2500]
+    title = "Astral Reach"
+    description = "Open containers remotely 2,500 times"
+
+[advancement.challenge_rift_void_magnet_5k]
+    title = "Vacuum Cleaner"
+    description = "Pull 5,000 items from range"
+
+[advancement.challenge_rift_void_magnet_50k]
+    title = "Black Hole"
+    description = "Pull 50,000 items from range"
+
+[advancement.challenge_rift_taglock_100]
+    title = "Voodoo Doll"
+    description = "Tag 100 entities into ender pearls"
+
+[advancement.challenge_rift_taglock_500]
+    title = "Puppet Master"
+    description = "Successfully taglock-teleport 500 entities"
+
+[advancement.challenge_rift_pocket_5k]
+    title = "Bottomless Pockets"
+    description = "Pull 5,000 items from ender chest during building"
+
+[advancement.challenge_rift_pocket_store_10k]
+    title = "Ender Hoarder"
+    description = "Store 10,000 items into ender chest via sneak-drop"
+
+# --- SEABORNE ---
+
+[advancement.challenge_seaborne_fish_500]
+    title = "Master Angler"
+    description = "Catch 500 bonus fish"
+
+[advancement.challenge_seaborne_fish_5k]
+    title = "Old Man and the Sea"
+    description = "Catch 5,000 bonus fish"
+
+[advancement.challenge_seaborne_speed_10k]
+    title = "Dolphin"
+    description = "Swim 10,000 blocks"
+
+[advancement.challenge_seaborne_speed_100k]
+    title = "Aquaman"
+    description = "Swim 100,000 blocks"
+
+[advancement.challenge_seaborne_vision_72k]
+    title = "Deep Sea Explorer"
+    description = "Spend 1 cumulative hour underwater with vision"
+
+[advancement.challenge_seaborne_mining_2500]
+    title = "Submarine Miner"
+    description = "Mine 2,500 blocks underwater"
+
+[advancement.challenge_seaborne_mining_25k]
+    title = "Atlantean Engineer"
+    description = "Mine 25,000 blocks underwater"
+
+[advancement.challenge_seaborne_oxygen_12k]
+    title = "Iron Lungs"
+    description = "Gain 10 cumulative minutes of bonus air"
+
+[advancement.challenge_seaborne_tidecaller_200]
+    title = "Tidal Force"
+    description = "Perform 200 tide dashes"
+
+[advancement.challenge_seaborne_tidecaller_5k]
+    title = "Poseidon's Sprint"
+    description = "Perform 5,000 tide dashes"
+
+[advancement.challenge_seaborne_pressure_1k]
+    title = "Deep Diver"
+    description = "Mine 1,000 blocks below sea level"
+
+# --- STEALTH ---
+
+[advancement.challenge_stealth_ghost_100]
+    title = "Phantom Shield"
+    description = "Build max ghost armor 100 times"
+
+[advancement.challenge_stealth_ghost_500]
+    title = "Glass Cannon Reversed"
+    description = "Absorb 500 hits with ghost armor"
+
+[advancement.challenge_stealth_sight_72k]
+    title = "Creature of the Night"
+    description = "Spend 1 hour sneaking with night vision"
+
+[advancement.challenge_stealth_snatch_2500]
+    title = "Sticky Fingers"
+    description = "Snatch 2,500 items from mobs"
+
+[advancement.challenge_stealth_snatch_25k]
+    title = "Pickpocket"
+    description = "Snatch 25,000 items from mobs"
+
+[advancement.challenge_stealth_speed_5k]
+    title = "Swift Shadow"
+    description = "Traverse 5,000 blocks while speed-sneaking"
+
+[advancement.challenge_stealth_ender_veil_200]
+    title = "Invisible to the Void"
+    description = "Avoid 200 enderman aggro triggers"
+
+[advancement.challenge_stealth_silent_200]
+    title = "Assassin"
+    description = "Land 200 backstabs"
+
+[advancement.challenge_stealth_silent_5in10]
+    title = "Unseen Blade"
+    description = "Land 5 backstabs within 10 seconds"
+
+[advancement.challenge_stealth_decoy_100]
+    title = "Body Double"
+    description = "Spawn 100 shadow decoys"
+
+[advancement.challenge_stealth_decoy_distract_500]
+    title = "Master of Misdirection"
+    description = "Distract 500 mobs with decoys"
+
+# --- SWORDS ---
+
+[advancement.challenge_swords_machete_2500]
+    title = "Jungle Explorer"
+    description = "Cut 2,500 foliage blocks"
+
+[advancement.challenge_swords_machete_25k]
+    title = "Trailblazer"
+    description = "Cut 25,000 foliage blocks"
+
+[advancement.challenge_swords_bloody_500]
+    title = "Bloodletter"
+    description = "Deal 500 hearts of bleed damage"
+
+[advancement.challenge_swords_bloody_kills_100]
+    title = "Death by a Thousand Cuts"
+    description = "Kill 100 mobs with bleed alone"
+
+[advancement.challenge_swords_poison_500]
+    title = "Venomous"
+    description = "Apply poison 500 times"
+
+[advancement.challenge_swords_poison_kills_50]
+    title = "Toxic Blade"
+    description = "Kill 50 mobs with poison"
+
+[advancement.challenge_swords_execute_200]
+    title = "Executioner"
+    description = "Execute 200 low-health mobs"
+
+[advancement.challenge_swords_execute_2500]
+    title = "Judge, Jury, Executioner"
+    description = "Execute 2,500 mobs"
+
+[advancement.challenge_swords_execute_5in10]
+    title = "Mercy is Weakness"
+    description = "Execute 5 mobs in 10 seconds"
+
+[advancement.challenge_swords_dual_1k]
+    title = "Ambidextrous"
+    description = "Deal 1,000 bonus dual-wield damage"
+
+[advancement.challenge_swords_dual_25k]
+    title = "Twin Fangs"
+    description = "Deal 25,000 bonus dual-wield damage"
+
+[advancement.challenge_swords_riposte_200]
+    title = "En Garde"
+    description = "Land 200 ripostes"
+
+[advancement.challenge_swords_riposte_2500]
+    title = "Fencer"
+    description = "Land 2,500 ripostes"
+
+[advancement.challenge_swords_riposte_3in5]
+    title = "Parry King"
+    description = "Land 3 ripostes within 5 seconds"
+
+[advancement.challenge_swords_cyclone_500]
+    title = "Whirlwind"
+    description = "Hit 500 mobs with crimson cyclone"
+
+[advancement.challenge_swords_cyclone_5k]
+    title = "Storm of Blades"
+    description = "Hit 5,000 mobs with crimson cyclone"
+
+[advancement.challenge_swords_cyclone_6]
+    title = "Blender"
+    description = "Hit 6+ mobs with a single cyclone activation"
+
+# --- TAMING ---
+
+[advancement.challenge_taming_damage_500]
+    title = "Alpha Trainer"
+    description = "Your pets kill 500 mobs"
+
+[advancement.challenge_taming_damage_5k]
+    title = "Beast Master"
+    description = "Your pets kill 5,000 mobs"
+
+[advancement.challenge_taming_health_boost_1728k]
+    title = "Guardian of Beasts"
+    description = "Keep pets health-boosted for 24 cumulative hours"
+
+[advancement.challenge_taming_regen_1k]
+    title = "Healing Touch"
+    description = "Pets regenerate 1,000 hearts"
+
+[advancement.challenge_taming_recall_100]
+    title = "Come Here Boy"
+    description = "Recall pets 100 times"
+
+[advancement.challenge_taming_recall_1k]
+    title = "Teleporting Kennel"
+    description = "Recall pets 1,000 times"
+
+[advancement.challenge_taming_pack_72k]
+    title = "Pack Leader"
+    description = "Keep pack leader aura active for 1 cumulative hour"
+
+[advancement.challenge_taming_shared_500]
+    title = "Loyal Shield"
+    description = "Take 500 hearts of damage for your pets"
+
+[advancement.challenge_taming_shared_5k]
+    title = "Sacrifice"
+    description = "Take 5,000 hearts of damage for your pets"
+
+[advancement.challenge_taming_mounted_200]
+    title = "Cavalry"
+    description = "Kill 200 mobs while mounted"
+
+[advancement.challenge_taming_mounted_50k]
+    title = "Knight Errant"
+    description = "Travel 50,000 blocks while mounted"
+
+# --- TRAG'OUL ---
+
+[advancement.challenge_tragoul_thorns_500]
+    title = "Living Cactus"
+    description = "Reflect 500 damage via blood thorns"
+
+[advancement.challenge_tragoul_thorns_5k]
+    title = "Iron Maiden"
+    description = "Reflect 5,000 damage"
+
+[advancement.challenge_tragoul_thorns_kill]
+    title = "Don't Touch Me"
+    description = "Kill a mob purely from reflected damage"
+
+[advancement.challenge_tragoul_globe_1k]
+    title = "Equal Opportunity"
+    description = "Spread damage to 1,000 mobs via globe"
+
+[advancement.challenge_tragoul_globe_5]
+    title = "Pain Dividend"
+    description = "Spread damage to 5+ mobs in one hit"
+
+[advancement.challenge_tragoul_healing_500]
+    title = "Vampire"
+    description = "Steal 500 hearts via life leech"
+
+[advancement.challenge_tragoul_healing_10k]
+    title = "Blood Drinker"
+    description = "Steal 10,000 hearts"
+
+[advancement.challenge_tragoul_lance_200]
+    title = "Impaler"
+    description = "Spawn 200 blood lances"
+
+[advancement.challenge_tragoul_lance_kills_100]
+    title = "Chain Killer"
+    description = "Kill 100 mobs with blood lances"
+
+[advancement.challenge_tragoul_pact_200]
+    title = "Blood Price"
+    description = "Sacrifice 200 hearts for power"
+
+[advancement.challenge_tragoul_pact_kills_500]
+    title = "Pact Keeper"
+    description = "Kill 500 mobs while blood-empowered"
+
+[advancement.challenge_tragoul_pact_all_in]
+    title = "All In"
+    description = "Activate blood pact below 3 hearts and kill"
+
+[advancement.challenge_tragoul_bone_500]
+    title = "Bone Collector"
+    description = "Collect 500 bone orbs"
+
+[advancement.challenge_tragoul_bone_5k]
+    title = "Harvester"
+    description = "Collect 5,000 bone orbs"
+
+# --- UNARMED ---
+
+[advancement.challenge_unarmed_glass_100]
+    title = "Birthday Suit Brawler"
+    description = "Kill 100 mobs with no armor"
+
+[advancement.challenge_unarmed_glass_500]
+    title = "True Glass Cannon"
+    description = "Kill 500 mobs with no armor"
+
+[advancement.challenge_unarmed_power_500]
+    title = "Bare Knuckle"
+    description = "Kill 500 mobs with bare fists"
+
+[advancement.challenge_unarmed_power_5k]
+    title = "One Punch"
+    description = "Kill 5,000 mobs with bare fists"
+
+[advancement.challenge_unarmed_sucker_500]
+    title = "Sucker Punch"
+    description = "Land 500 sprint punches"
+
+[advancement.challenge_unarmed_knockout]
+    title = "Knockout Artist"
+    description = "One-shot kill 50 mobs with a sucker punch"
+
+[advancement.challenge_unarmed_combo_5k]
+    title = "Street Fighter"
+    description = "Land 5,000 total combo hits"
+
+[advancement.challenge_unarmed_combo_10]
+    title = "Combo Breaker"
+    description = "Reach a 10-hit combo"
+
+[advancement.challenge_unarmed_combo_25]
+    title = "Infinite Combo"
+    description = "Reach a 25-hit combo"
+
+[advancement.challenge_unarmed_charge_300]
+    title = "Battering Ram"
+    description = "Charge into 300 enemies"
+
+[advancement.challenge_unarmed_charge_kills_100]
+    title = "Unstoppable Force"
+    description = "Kill 100 mobs with battering charge"

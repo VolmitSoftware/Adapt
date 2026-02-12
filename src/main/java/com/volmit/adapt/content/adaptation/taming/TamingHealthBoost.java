@@ -19,7 +19,11 @@
 package com.volmit.adapt.content.adaptation.taming;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.version.Version;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import com.volmit.adapt.util.reflect.registries.Attributes;
@@ -50,6 +54,15 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
         setInitialCost(getConfig().initialCost);
         setInterval(4753);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GOLDEN_APPLE)
+                .key("challenge_taming_health_boost_1728k")
+                .title(Localizer.dLocalize("advancement.challenge_taming_health_boost_1728k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_taming_health_boost_1728k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_health_boost_1728k").goal(1728000).stat("taming.health-boost.ticks-active").reward(400).build());
     }
 
     @Override
@@ -67,7 +80,11 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
             Collection<Tameable> tameables = world.getEntitiesByClass(Tameable.class);
             for (Tameable tameable : tameables) {
                 if (tameable.isTamed() && tameable.getOwner() instanceof Player p) {
-                    update(tameable, getLevel(p));
+                    int level = getLevel(p);
+                    update(tameable, level);
+                    if (level > 0) {
+                        getPlayer(p).getData().addStat("taming.health-boost.ticks-active", 1);
+                    }
                 }
             }
         }

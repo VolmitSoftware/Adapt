@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.tragoul;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -73,6 +77,24 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2000);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BONE)
+                .key("challenge_tragoul_bone_500")
+                .title(Localizer.dLocalize("advancement.challenge_tragoul_bone_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_tragoul_bone_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BONE_BLOCK)
+                        .key("challenge_tragoul_bone_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_tragoul_bone_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_tragoul_bone_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_bone_500").goal(500).stat("tragoul.bone-harvest.orbs-collected").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_bone_5k").goal(5000).stat("tragoul.bone-harvest.orbs-collected").reward(1000).build());
     }
 
     @Override
@@ -115,6 +137,7 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
         bloodGlobes.remove(id);
         boneGlobes.remove(id);
         applyBuff(p, blood, getLevel(p));
+        getPlayer(p).getData().addStat("tragoul.bone-harvest.orbs-collected", 1);
     }
 
     private void spawnGlobe(Player owner, EntityDeathEvent e, boolean blood, int level) {

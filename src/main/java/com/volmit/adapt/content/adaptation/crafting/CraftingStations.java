@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -49,6 +53,24 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(9248);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CRAFTING_TABLE)
+                .key("challenge_crafting_stations_200")
+                .title(Localizer.dLocalize("advancement.challenge_crafting_stations_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_crafting_stations_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.SMITHING_TABLE)
+                        .key("challenge_crafting_stations_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_crafting_stations_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_crafting_stations_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_stations_200").goal(200).stat("crafting.stations.portable-opens").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_stations_5k").goal(5000).stat("crafting.stations.portable-opens").reward(1000).build());
     }
 
     @Override
@@ -80,6 +102,7 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
                     sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
                     sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     p.openWorkbench(null, true);
+                    getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
                 }
                 case GRINDSTONE -> {
                     p.setCooldown(hand.getType(), 1000);
@@ -87,6 +110,7 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
                     sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.GRINDSTONE);
                     p.openInventory(inv);
+                    getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
                 }
                 case ANVIL -> {
                     p.setCooldown(hand.getType(), 1000);
@@ -94,6 +118,7 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
                     sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.ANVIL);
                     p.openInventory(inv);
+                    getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
                 }
                 case STONECUTTER -> {
                     p.setCooldown(hand.getType(), 1000);
@@ -101,6 +126,7 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
                     sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.STONECUTTER);
                     p.openInventory(inv);
+                    getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
                 }
                 case CARTOGRAPHY_TABLE -> {
                     p.setCooldown(hand.getType(), 1000);
@@ -108,6 +134,7 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
                     sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.CARTOGRAPHY);
                     p.openInventory(inv);
+                    getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
                 }
                 case LOOM -> {
                     p.setCooldown(hand.getType(), 1000);
@@ -115,6 +142,7 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
                     sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
                     Inventory inv = Bukkit.createInventory(p, InventoryType.LOOM);
                     p.openInventory(inv);
+                    getPlayer(p).getData().addStat("crafting.stations.portable-opens", 1);
                 }
             }
         }

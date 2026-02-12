@@ -19,7 +19,11 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.world.AdaptPlayer;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -50,6 +54,15 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(10288);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_PEARL)
+                .key("challenge_rift_resist_200")
+                .title(Localizer.dLocalize("advancement.challenge_rift_resist_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_rift_resist_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_resist_200").goal(200).stat("rift.resist.activations").reward(300).build());
     }
 
     static void riftResistStackAdd(Player p, int duration, int amplifier) {
@@ -86,6 +99,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
                 case ENDER_EYE, ENDER_PEARL -> {
                     xp(p, 3);
                     riftResistStackAdd(p, getConfig().duration, getConfig().amplitude);
+                    getPlayer(p).getData().addStat("rift.resist.activations", 1);
                 }
             }
         }

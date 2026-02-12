@@ -19,14 +19,21 @@
 package com.volmit.adapt.content.adaptation.blocking;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -84,6 +91,30 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
                         "III"))
                 .result(new ItemStack(Material.DIAMOND_HORSE_ARMOR, 1))
                 .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_HORSE_ARMOR)
+                .key("challenge_blocking_horse_armor_10")
+                .title(Localizer.dLocalize("advancement.challenge_blocking_horse_armor_10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_blocking_horse_armor_10.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_blocking_horse_armor_10")
+                .goal(10)
+                .stat("blocking.horse-armorer.armor-crafted")
+                .reward(400)
+                .build());
+    }
+
+    @EventHandler
+    public void on(CraftItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (e.getWhoClicked() instanceof Player p && hasAdaptation(p) && isAdaptationRecipe(e.getRecipe())) {
+            getPlayer(p).getData().addStat("blocking.horse-armorer.armor-crafted", 1);
+        }
     }
 
     @Override

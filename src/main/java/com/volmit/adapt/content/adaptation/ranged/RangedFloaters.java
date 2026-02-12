@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.ranged;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -52,6 +56,15 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2400);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SHULKER_SHELL)
+                .key("challenge_ranged_floaters_200")
+                .title(Localizer.dLocalize("advancement.challenge_ranged_floaters_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_ranged_floaters_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_floaters_200").goal(200).stat("ranged.floaters.targets-levitated").reward(300).build());
     }
 
     @Override
@@ -92,6 +105,7 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
                 true,
                 true
         ), true);
+        getPlayer(p).getData().addStat("ranged.floaters.targets-levitated", 1);
 
         if (getConfig().showParticles) {
             target.getWorld().spawnParticle(Particle.END_ROD, target.getLocation().add(0, 1, 0), 10, 0.2, 0.5, 0.2, 0.02);

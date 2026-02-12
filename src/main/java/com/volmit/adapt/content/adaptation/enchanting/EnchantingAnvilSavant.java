@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.enchanting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -44,6 +48,24 @@ public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavan
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2200);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ANVIL)
+                .key("challenge_enchanting_anvil_200")
+                .title(Localizer.dLocalize("advancement.challenge_enchanting_anvil_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_enchanting_anvil_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ANVIL)
+                        .key("challenge_enchanting_anvil_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_enchanting_anvil_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_enchanting_anvil_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_anvil_200").goal(200).stat("enchanting.anvil-savant.levels-saved").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_anvil_5k").goal(5000).stat("enchanting.anvil-savant.levels-saved").reward(1500).build());
     }
 
     @Override
@@ -68,6 +90,10 @@ public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavan
 
         int reduced = Math.max(getConfig().minimumCost, (int) Math.ceil(current * (1D - getCostReduction(getLevel(p)))));
         writeRepairCost(inventory, reduced);
+        int saved = current - reduced;
+        if (saved > 0) {
+            getPlayer(p).getData().addStat("enchanting.anvil-savant.levels-saved", saved);
+        }
     }
 
     private Integer readRepairCost(AnvilInventory inventory) {

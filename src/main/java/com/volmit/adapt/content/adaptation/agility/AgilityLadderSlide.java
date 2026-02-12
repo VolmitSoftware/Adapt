@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.agility;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -55,6 +59,34 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
         setInitialCost(getConfig().initialCost);
         setInterval(50);
         upwardStates = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LADDER)
+                .key("challenge_agility_ladder_500")
+                .title(Localizer.dLocalize("advancement.challenge_agility_ladder_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_agility_ladder_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.IRON_CHAIN)
+                        .key("challenge_agility_ladder_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_agility_ladder_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_agility_ladder_10k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_agility_ladder_500")
+                .goal(500)
+                .stat("agility.ladder-slide.blocks-climbed")
+                .reward(300)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_agility_ladder_10k")
+                .goal(10000)
+                .stat("agility.ladder-slide.blocks-climbed")
+                .reward(1000)
+                .build());
     }
 
     @Override
@@ -112,6 +144,7 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
         double targetUp = isNearLadderEnd(activeLadder, true) ? baseUp : getUpwardSpeed();
         applySmoothUpwardVelocity(p, velocity, baseUp, targetUp);
         p.setFallDistance(0);
+        getPlayer(p).getData().addStat("agility.ladder-slide.blocks-climbed", 1);
     }
 
     @EventHandler

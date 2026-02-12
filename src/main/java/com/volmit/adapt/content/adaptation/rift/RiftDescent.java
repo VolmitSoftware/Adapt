@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -48,6 +52,24 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
         setCostFactor(getConfig().costFactor);
         setInitialCost(getConfig().initialCost);
         setInterval(9544);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_PEARL)
+                .key("challenge_rift_descent_100")
+                .title(Localizer.dLocalize("advancement.challenge_rift_descent_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_rift_descent_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.SHULKER_SHELL)
+                        .key("challenge_rift_descent_1k")
+                        .title(Localizer.dLocalize("advancement.challenge_rift_descent_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_rift_descent_1k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_descent_100").goal(100).stat("rift.descent.levitation-cancelled").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_descent_1k").goal(1000).stat("rift.descent.levitation-cancelled").reward(1000).build());
     }
 
     @Override
@@ -74,6 +96,7 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
 
         if (!e.isSneaking() && (levi != null)) {
             p.removePotionEffect(PotionEffectType.LEVITATION);
+            getPlayer(p).getData().addStat("rift.descent.levitation-cancelled", 1);
             cooldown.add(p);
             J.s(() -> {
                 sp.play(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);

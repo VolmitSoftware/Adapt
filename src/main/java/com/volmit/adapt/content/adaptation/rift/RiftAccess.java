@@ -21,7 +21,11 @@ package com.volmit.adapt.content.adaptation.rift;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.BoundEnderPearl;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
@@ -72,6 +76,24 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
                 .ingredient(Material.COMPASS)
                 .result(BoundEnderPearl.io.withData(new BoundEnderPearl.Data(null)))
                 .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CHEST)
+                .key("challenge_rift_access_100")
+                .title(Localizer.dLocalize("advancement.challenge_rift_access_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_rift_access_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENDER_CHEST)
+                        .key("challenge_rift_access_2500")
+                        .title(Localizer.dLocalize("advancement.challenge_rift_access_2500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_rift_access_2500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_access_100").goal(100).stat("rift.access.remote-opens").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_access_2500").goal(2500).stat("rift.access.remote-opens").reward(1000).build());
     }
 
     @Override
@@ -177,6 +199,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
             }
             sp.play(p.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.10f);
             sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 1f, 0.10f);
+            getPlayer(p).getData().addStat("rift.access.remote-opens", 1);
         });
     }
 

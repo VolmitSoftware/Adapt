@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.sword;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.adaptation.sword.effects.DamagingBleedEffect;
 import com.volmit.adapt.content.item.ItemListings;
 import com.volmit.adapt.util.C;
@@ -36,13 +40,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Config> {
     private final Map<Player, Long> cooldowns;
+    private final Set<UUID> poisonedEntities = new HashSet<>();
+    private final Map<UUID, Player> poisonSource = new HashMap<>();
 
     public SwordsPoisonedBlade() {
         super("sword-poison-blade");
@@ -56,6 +66,24 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         cooldowns = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SPIDER_EYE)
+                .key("challenge_swords_poison_500")
+                .title(Localizer.dLocalize("advancement.challenge_swords_poison_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swords_poison_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_poison_500").goal(500).stat("swords.poisoned-blade.poison-applied").reward(400).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.FERMENTED_SPIDER_EYE)
+                .key("challenge_swords_poison_kills_50")
+                .title(Localizer.dLocalize("advancement.challenge_swords_poison_kills_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_swords_poison_kills_50.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_swords_poison_kills_50").goal(50).stat("swords.poisoned-blade.poison-kills").reward(1000).build());
     }
 
     @Override
@@ -106,7 +134,21 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
                 blood.hurt = false;
                 blood.start();
             }
+            poisonedEntities.add(victim.getUniqueId());
+            poisonSource.put(victim.getUniqueId(), p);
+            getPlayer(p).getData().addStat("swords.poisoned-blade.poison-applied", 1);
 
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(EntityDeathEvent e) {
+        UUID victimId = e.getEntity().getUniqueId();
+        if (poisonedEntities.remove(victimId)) {
+            Player source = poisonSource.remove(victimId);
+            if (source != null && source.isOnline()) {
+                getPlayer(source).getData().addStat("swords.poisoned-blade.poison-kills", 1);
+            }
         }
     }
 

@@ -19,7 +19,12 @@
 package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -47,6 +52,32 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setInterval(6911);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_AXE)
+                .key("challenge_axe_chop_100")
+                .title(Localizer.dLocalize("advancement.challenge_axe_chop_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_axe_chop_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_AXE)
+                        .key("challenge_axe_chop_2500")
+                        .title(Localizer.dLocalize("advancement.challenge_axe_chop_2500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_axe_chop_2500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.NETHERITE_AXE)
+                .key("challenge_axe_chop_one_swing")
+                .title(Localizer.dLocalize("advancement.challenge_axe_chop_one_swing.title"))
+                .description(Localizer.dLocalize("advancement.challenge_axe_chop_one_swing.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_chop_100").goal(100).stat("axe.chop.trees-felled").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_chop_2500").goal(2500).stat("axe.chop.trees-felled").reward(1500).build());
     }
 
     @Override
@@ -72,10 +103,18 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
                 e.setCancelled(true);
                 SoundPlayer spw = SoundPlayer.of(p.getWorld());
                 spw.play(p.getLocation(), Sound.ITEM_AXE_STRIP, 1.25f, 0.6f);
+                int logsChopped = 0;
                 for (int i = 0; i < getLevel(p); i++) {
                     if (breakStuff(e.getClickedBlock(), getRange(getLevel(p)), p)) {
+                        logsChopped++;
                         p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));
                         damageHand(p, getDamagePerBlock(getLevelPercent(p)));
+                    }
+                }
+                if (logsChopped > 0) {
+                    getPlayer(p).getData().addStat("axe.chop.trees-felled", 1);
+                    if (logsChopped >= 30 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_axe_chop_one_swing")) {
+                        getPlayer(p).getAdvancementHandler().grant("challenge_axe_chop_one_swing");
                     }
                 }
             }

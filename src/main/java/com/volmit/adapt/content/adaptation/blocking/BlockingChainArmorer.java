@@ -19,14 +19,21 @@
 package com.volmit.adapt.content.adaptation.blocking;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -78,6 +85,30 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
                         "I I"))
                 .result(new ItemStack(Material.CHAINMAIL_HELMET, 1))
                 .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CHAINMAIL_CHESTPLATE)
+                .key("challenge_blocking_chain_25")
+                .title(Localizer.dLocalize("advancement.challenge_blocking_chain_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_blocking_chain_25.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_blocking_chain_25")
+                .goal(25)
+                .stat("blocking.chain-armorer.pieces-crafted")
+                .reward(400)
+                .build());
+    }
+
+    @EventHandler
+    public void on(CraftItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (e.getWhoClicked() instanceof Player p && hasAdaptation(p) && isAdaptationRecipe(e.getRecipe())) {
+            getPlayer(p).getData().addStat("blocking.chain-armorer.pieces-crafted", 1);
+        }
     }
 
     @Override

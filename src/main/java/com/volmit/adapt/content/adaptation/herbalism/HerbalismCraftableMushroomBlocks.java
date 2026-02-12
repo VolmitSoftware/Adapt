@@ -19,14 +19,22 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -70,7 +78,20 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
                 .ingredient(Material.BROWN_MUSHROOM_BLOCK)
                 .result(new ItemStack(Material.MUSHROOM_STEM, 1))
                 .build());
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.RED_MUSHROOM_BLOCK)
+                .key("challenge_herbalism_mushroom_100")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_mushroom_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_mushroom_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_mushroom_100")
+                .goal(100)
+                .stat("herbalism.mushroom-blocks.crafted")
+                .reward(300)
+                .build());
     }
 
     @Override
@@ -78,6 +99,19 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
         v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism.mushroom_blocks.lore1"));
     }
 
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(CraftItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!(e.getWhoClicked() instanceof Player p) || !hasAdaptation(p)) {
+            return;
+        }
+        if (e.getRecipe() instanceof org.bukkit.inventory.ShapedRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && (recipe.getKey().getKey().equals("herbalism-redmushblock") || recipe.getKey().getKey().equals("herbalism-brownmushblock"))) {
+            getPlayer(p).getData().addStat("herbalism.mushroom-blocks.crafted", 1);
+        }
+    }
 
     @Override
     public void onTick() {

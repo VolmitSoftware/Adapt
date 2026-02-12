@@ -1,6 +1,10 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -26,6 +30,24 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
     setMaxLevel(getConfig().maxLevel);
     setInitialCost(getConfig().initialCost);
     setInterval(1000);
+    registerAdvancement(AdaptAdvancement.builder()
+            .icon(Material.ENDER_EYE)
+            .key("challenge_rift_visage_100")
+            .title(Localizer.dLocalize("advancement.challenge_rift_visage_100.title"))
+            .description(Localizer.dLocalize("advancement.challenge_rift_visage_100.description"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .child(AdaptAdvancement.builder()
+                    .icon(Material.DRAGON_HEAD)
+                    .key("challenge_rift_visage_1k")
+                    .title(Localizer.dLocalize("advancement.challenge_rift_visage_1k.title"))
+                    .description(Localizer.dLocalize("advancement.challenge_rift_visage_1k.description"))
+                    .frame(AdaptAdvancementFrame.CHALLENGE)
+                    .visibility(AdvancementVisibility.PARENT_GRANTED)
+                    .build())
+            .build());
+    registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_visage_100").goal(100).stat("rift.visage.stares-survived").reward(300).build());
+    registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_visage_1k").goal(1000).stat("rift.visage.stares-survived").reward(1000).build());
   }
 
   @Override
@@ -40,6 +62,7 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
       if (event.getTarget() instanceof Player player) {
         if (hasAdaptation(player) && hasEnderPearl(player)) {
           event.setCancelled(true);
+          getPlayer(player).getData().addStat("rift.visage.stares-survived", 1);
         }
       }
     }

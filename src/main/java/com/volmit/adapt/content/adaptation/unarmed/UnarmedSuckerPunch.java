@@ -19,15 +19,22 @@
 package com.volmit.adapt.content.adaptation.unarmed;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 
 public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Config> {
     public UnarmedSuckerPunch() {
@@ -40,6 +47,24 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(4944);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_INGOT)
+                .key("challenge_unarmed_sucker_500")
+                .title(Localizer.dLocalize("advancement.challenge_unarmed_sucker_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_unarmed_sucker_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_sucker_500").goal(500).stat("unarmed.sucker-punch.sucker-punches").reward(400).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DIAMOND)
+                .key("challenge_unarmed_knockout")
+                .title(Localizer.dLocalize("advancement.challenge_unarmed_knockout.title"))
+                .description(Localizer.dLocalize("advancement.challenge_unarmed_knockout.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_knockout").goal(50).stat("unarmed.sucker-punch.one-punch-kills").reward(1000).build());
     }
 
 
@@ -87,11 +112,30 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
             spw.play(e.getEntity().getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.8f);
             spw.play(e.getEntity().getLocation(), Sound.BLOCK_BASALT_BREAK, 1f, 0.6f);
             getSkill().xp(p, 6.221 * e.getDamage());
+            getPlayer(p).getData().addStat("unarmed.sucker-punch.sucker-punches", 1);
             if (e.getDamage() > 5) {
                 getSkill().xp(p, 0.42 * e.getDamage());
                 if (getConfig().showParticles) {
                     e.getEntity().getWorld().spawnParticle(Particle.FLASH, e.getEntity().getLocation(), 1);
                 }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(EntityDeathEvent e) {
+        if (!(e.getEntity() instanceof LivingEntity victim)) {
+            return;
+        }
+        if (victim.getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
+                && dmg.getDamager() instanceof Player p
+                && hasAdaptation(p)
+                && p.isSprinting()
+                && !isTool(p.getInventory().getItemInMainHand())
+                && !isTool(p.getInventory().getItemInOffHand())) {
+            // One-punch kill: entity was at full health before the killing blow
+            if (victim.getMaxHealth() <= dmg.getFinalDamage()) {
+                getPlayer(p).getData().addStat("unarmed.sucker-punch.one-punch-kills", 1);
             }
         }
     }

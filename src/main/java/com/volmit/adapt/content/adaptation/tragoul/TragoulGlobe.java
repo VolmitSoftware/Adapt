@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.tragoul;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
@@ -52,6 +57,23 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         cooldowns = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GLASS)
+                .key("challenge_tragoul_globe_1k")
+                .title(Localizer.dLocalize("advancement.challenge_tragoul_globe_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_tragoul_globe_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_globe_1k").goal(1000).stat("tragoul.globe.mobs-shared-with").reward(400).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GLASS)
+                .key("challenge_tragoul_globe_5")
+                .title(Localizer.dLocalize("advancement.challenge_tragoul_globe_5.title"))
+                .description(Localizer.dLocalize("advancement.challenge_tragoul_globe_5.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
     }
 
     @Override
@@ -89,10 +111,17 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
         double damagePerEntity = e.getDamage() / entitiesCount + (getConfig().bonusDamagePerLevel * getLevel(p));
         e.setDamage(damagePerEntity);
 
+        int mobsSharedWith = 0;
         for (Entity entity : p.getNearbyEntities(range, range, range)) {
             if (entity instanceof LivingEntity && !entity.equals(p)) {
                 ((LivingEntity) entity).damage(damagePerEntity, p);
+                mobsSharedWith++;
             }
+        }
+
+        getPlayer(p).getData().addStat("tragoul.globe.mobs-shared-with", mobsSharedWith);
+        if (mobsSharedWith >= 5 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_globe_5")) {
+            getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_globe_5");
         }
 
         if (getConfig().showParticles) {

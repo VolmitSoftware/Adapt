@@ -19,8 +19,14 @@
 package com.volmit.adapt.content.adaptation.brewing;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.data.WorldData;
 import com.volmit.adapt.api.potion.BrewingRecipe;
 import com.volmit.adapt.api.potion.PotionBuilder;
+import com.volmit.adapt.api.world.AdaptStatTracker;
+import com.volmit.adapt.content.matter.BrewingStandOwner;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -29,6 +35,9 @@ import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.potion.PotionType;
 
 
@@ -68,6 +77,15 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
                         .addEffect(PotionEffectTypes.SLOW_DIGGING, 600, 2, true, true, true)
                         .build())
                 .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BREWING_STAND)
+                .key("challenge_brewing_fatigue_25")
+                .title(Localizer.dLocalize("advancement.challenge_brewing_fatigue_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_brewing_fatigue_25.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_brewing_fatigue_25").goal(25).stat("brewing.fatigue.potions-brewed").reward(300).build());
     }
 
     @Override
@@ -76,6 +94,16 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
         v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.fatigue.lore2"));
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(BrewEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        BrewingStandOwner owner = WorldData.of(e.getBlock().getWorld()).get(e.getBlock(), BrewingStandOwner.class);
+        if (owner != null) {
+            getServer().peekData(owner.getOwner()).addStat("brewing.fatigue.potions-brewed", 1);
+        }
+    }
 
     @Override
     public void onTick() {

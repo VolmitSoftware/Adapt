@@ -19,7 +19,12 @@
 package com.volmit.adapt.content.adaptation.blocking;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -57,6 +62,28 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1200);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SHIELD)
+                .key("challenge_blocking_mirror_100")
+                .title(Localizer.dLocalize("advancement.challenge_blocking_mirror_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_blocking_mirror_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_blocking_mirror_100")
+                .goal(100)
+                .stat("blocking.mirror-block.projectiles-reflected")
+                .reward(500)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SHIELD)
+                .key("challenge_blocking_mirror_3in5")
+                .title(Localizer.dLocalize("advancement.challenge_blocking_mirror_3in5.title"))
+                .description(Localizer.dLocalize("advancement.challenge_blocking_mirror_3in5.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
     }
 
     @Override
@@ -98,6 +125,22 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
         sp.play(defender.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.8f, 0.8f);
         defender.spawnParticle(Particle.CRIT, defender.getLocation().add(0, 1, 0), 20, 0.35, 0.3, 0.35, 0.08);
         xp(defender, getConfig().xpOnReflect);
+        getPlayer(defender).getData().addStat("blocking.mirror-block.projectiles-reflected", 1);
+
+        // Special achievement: reflect 3 projectiles within 5 seconds
+        long windowStart = getStorageLong(defender, "mirrorWindowStart", 0L);
+        int windowCount = getStorageInt(defender, "mirrorWindowCount", 0);
+        if (now - windowStart > 5000L) {
+            windowStart = now;
+            windowCount = 1;
+        } else {
+            windowCount++;
+        }
+        setStorage(defender, "mirrorWindowStart", windowStart);
+        setStorage(defender, "mirrorWindowCount", windowCount);
+        if (windowCount >= 3 && AdaptConfig.get().isAdvancements() && !getPlayer(defender).getData().isGranted("challenge_blocking_mirror_3in5")) {
+            getPlayer(defender).getAdvancementHandler().grant("challenge_blocking_mirror_3in5");
+        }
     }
 
     private void applyReflectedDamageModifier(EntityDamageByEntityEvent e, Projectile projectile) {

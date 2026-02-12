@@ -19,7 +19,12 @@
 package com.volmit.adapt.content.adaptation.pickaxe;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.item.ItemListings;
@@ -53,6 +58,23 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(8484);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DIAMOND_PICKAXE)
+                .key("challenge_pickaxe_veinminer_2500")
+                .title(Localizer.dLocalize("advancement.challenge_pickaxe_veinminer_2500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pickaxe_veinminer_2500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DIAMOND_PICKAXE)
+                .key("challenge_pickaxe_veinminer_20")
+                .title(Localizer.dLocalize("advancement.challenge_pickaxe_veinminer_20.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pickaxe_veinminer_20.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_veinminer_2500").goal(2500).stat("pickaxe.veinminer.ores-veinmined").reward(500).build());
     }
 
     public void addStats(int level, Element v) {
@@ -108,6 +130,12 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
                     }
                 }
             }
+        }
+
+        int veinSize = blockMap.size();
+        getPlayer(p).getData().addStat("pickaxe.veinminer.ores-veinmined", veinSize);
+        if (veinSize >= 20 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_pickaxe_veinminer_20")) {
+            getPlayer(p).getAdvancementHandler().grant("challenge_pickaxe_veinminer_20");
         }
 
         J.s(() -> {

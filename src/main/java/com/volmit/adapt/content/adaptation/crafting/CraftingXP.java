@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -50,6 +54,24 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CRAFTING_TABLE)
+                .key("challenge_crafting_xp_1k")
+                .title(Localizer.dLocalize("advancement.challenge_crafting_xp_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_crafting_xp_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.EXPERIENCE_BOTTLE)
+                        .key("challenge_crafting_xp_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_crafting_xp_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_crafting_xp_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_xp_1k").goal(1000).stat("crafting.xp.items-crafted").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_xp_25k").goal(25000).stat("crafting.xp.items-crafted").reward(1500).build());
     }
 
     @Override
@@ -81,6 +103,7 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
                     }
                     cooldown.put(p, System.currentTimeMillis());
                     p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(getLevel(p) * 2);
+                    getPlayer(p).getData().addStat("crafting.xp.items-crafted", 1);
                 }
             }
         }

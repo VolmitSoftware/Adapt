@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -55,6 +59,24 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
         setInterval(5590);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SHEARS)
+                .key("challenge_crafting_decon_200")
+                .title(Localizer.dLocalize("advancement.challenge_crafting_decon_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_crafting_decon_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.IRON_INGOT)
+                        .key("challenge_crafting_decon_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_crafting_decon_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_crafting_decon_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_decon_200").goal(200).stat("crafting.deconstruction.items-deconstructed").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_decon_5k").goal(5000).stat("crafting.deconstruction.items-deconstructed").reward(1000).build());
     }
 
     @Override
@@ -153,6 +175,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
             spw.play(itemEntity.getLocation(), Sound.BLOCK_BASALT_BREAK, 1F, 0.2f);
             spw.play(itemEntity.getLocation(), Sound.BLOCK_BEEHIVE_SHEAR, 1F, 0.7f);
             getSkill().xp(player, getValue(offering));
+            getPlayer(player).getData().addStat("crafting.deconstruction.items-deconstructed", 1);
 
             // Damage the shears
             Damageable damageable = (Damageable) mainHandItem.getItemMeta();

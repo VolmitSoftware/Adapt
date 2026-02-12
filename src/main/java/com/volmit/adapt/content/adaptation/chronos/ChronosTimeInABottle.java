@@ -19,7 +19,11 @@
 package com.volmit.adapt.content.adaptation.chronos;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ChronoTimeBottle;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
@@ -74,6 +78,34 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
                 .ingredient(Material.POTION)
                 .ingredient(Material.GLASS_BOTTLE)
                 .result(ChronoTimeBottle.withStoredSeconds(0))
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CLOCK)
+                .key("challenge_chronos_bottle_1k")
+                .title(Localizer.dLocalize("advancement.challenge_chronos_bottle_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_chronos_bottle_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.RECOVERY_COMPASS)
+                        .key("challenge_chronos_bottle_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_chronos_bottle_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_chronos_bottle_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_chronos_bottle_1k")
+                .goal(1000)
+                .stat("chronos.time-bottle.charges-spent")
+                .reward(500)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_chronos_bottle_25k")
+                .goal(25000)
+                .stat("chronos.time-bottle.charges-spent")
+                .reward(2000)
                 .build());
     }
 
@@ -340,6 +372,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
         e.setCancelled(true);
         ChronoTimeBottle.setStoredSeconds(hand, Math.max(0, storedSeconds - result.spentSeconds()));
+        getPlayer(p).getData().addStat("chronos.time-bottle.charges-spent", 1);
 
         if (getConfig().playClockSounds) {
             ChronosSoundFX.playBottleUse(p, clicked.getLocation().add(0.5, 1.0, 0.5), result.effectTicks());
@@ -390,6 +423,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
         e.setCancelled(true);
         ChronoTimeBottle.setStoredSeconds(hand, Math.max(0, storedSeconds - result.spentSeconds()));
+        getPlayer(p).getData().addStat("chronos.time-bottle.charges-spent", 1);
 
         if (getConfig().playClockSounds) {
             ChronosSoundFX.playBottleUse(p, ageable.getLocation().add(0, 1.0, 0), result.effectTicks());

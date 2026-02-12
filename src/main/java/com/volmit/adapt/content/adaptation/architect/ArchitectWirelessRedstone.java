@@ -23,7 +23,11 @@ import static com.volmit.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.BoundRedstoneTorch;
 import com.volmit.adapt.util.*;
 
@@ -72,6 +76,24 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                 .result(BoundRedstoneTorch.io.withData(new BoundRedstoneTorch.Data(null)))
                 .build());
         cooldowns = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.REDSTONE)
+                .key("challenge_architect_wireless_100")
+                .title(Localizer.dLocalize("advancement.challenge_architect_wireless_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_architect_wireless_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.REDSTONE)
+                        .key("challenge_architect_wireless_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_architect_wireless_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_architect_wireless_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_wireless_100").goal(100).stat("architect.wireless-redstone.pulses").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_wireless_5k").goal(5000).stat("architect.wireless-redstone.pulses").reward(1000).build());
     }
 
     @Override
@@ -225,6 +247,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                     redBlock.setPower(15);
                     vfxCuboidOutline(l.getBlock(), l.getBlock(), Color.RED, 1);
                     b.setBlockData(redBlock);
+                    getPlayer(p).getData().addStat("architect.wireless-redstone.pulses", 1);
                     J.s(() -> {
                         redBlock.setPower(0);
                         b.setBlockData(redBlock);

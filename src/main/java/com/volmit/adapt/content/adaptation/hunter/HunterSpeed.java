@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.hunter;
 
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -43,6 +47,15 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(9844);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SUGAR)
+                .key("challenge_hunter_speed_200")
+                .title(Localizer.dLocalize("advancement.challenge_hunter_speed_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_hunter_speed_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_speed_200").goal(200).stat("hunter.speed.activations").reward(300).build());
     }
 
     @Override
@@ -76,6 +89,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
                 } else {
                     addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
                     addPotionStacks(p, PotionEffectType.SPEED, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+                    getPlayer(p).getData().addStat("hunter.speed.activations", 1);
                 }
             } else {
                 if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
@@ -83,6 +97,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
                     if (mat != null && p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));
                         addPotionStacks(p, PotionEffectType.SPEED, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+                        getPlayer(p).getData().addStat("hunter.speed.activations", 1);
                     } else {
                         if (getConfig().poisonPenalty) {
                             addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);

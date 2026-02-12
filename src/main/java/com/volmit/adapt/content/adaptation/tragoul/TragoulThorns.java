@@ -19,7 +19,12 @@
 package com.volmit.adapt.content.adaptation.tragoul;
 
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -52,7 +57,32 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         cooldowns = new HashMap<>();
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CACTUS)
+                .key("challenge_tragoul_thorns_500")
+                .title(Localizer.dLocalize("advancement.challenge_tragoul_thorns_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_tragoul_thorns_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.IRON_CHESTPLATE)
+                        .key("challenge_tragoul_thorns_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_tragoul_thorns_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_tragoul_thorns_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_thorns_500").goal(500).stat("tragoul.thorns.damage-reflected").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_thorns_5k").goal(5000).stat("tragoul.thorns.damage-reflected").reward(1500).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CACTUS)
+                .key("challenge_tragoul_thorns_kill")
+                .title(Localizer.dLocalize("advancement.challenge_tragoul_thorns_kill.title"))
+                .description(Localizer.dLocalize("advancement.challenge_tragoul_thorns_kill.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
     }
 
     @Override
@@ -90,7 +120,13 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
                     blood.iterations = 1;
                     blood.start();
                 }
-                le.damage(getConfig().damageMultiplierPerLevel * getLevel(p), p);
+                double reflectedDamage = getConfig().damageMultiplierPerLevel * getLevel(p);
+                double healthBefore = le.getHealth();
+                le.damage(reflectedDamage, p);
+                getPlayer(p).getData().addStat("tragoul.thorns.damage-reflected", (int) reflectedDamage);
+                if (healthBefore <= reflectedDamage && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_thorns_kill")) {
+                    getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_thorns_kill");
+                }
             }
         }
     }

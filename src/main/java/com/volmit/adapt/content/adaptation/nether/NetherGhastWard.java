@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -48,6 +52,15 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2000);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GHAST_TEAR)
+                .key("challenge_nether_ghast_500")
+                .title(Localizer.dLocalize("advancement.challenge_nether_ghast_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_nether_ghast_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_ghast_500").goal(500).stat("nether.ghast-ward.damage-reduced").reward(400).build());
     }
 
     @Override
@@ -65,15 +78,25 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
 
         int level = getLevel(p);
         if (e.getDamager() instanceof Fireball fireball && fireball.getShooter() instanceof Ghast) {
+            double before = e.getDamage();
             e.setDamage(Math.max(0, e.getDamage() * (1D - getGhastProjectileReduction(level))));
             p.setFireTicks(Math.min(p.getFireTicks(), getMaxFireTicks(level)));
             xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
+            int reduced = (int) Math.round(before - e.getDamage());
+            if (reduced > 0) {
+                getPlayer(p).getData().addStat("nether.ghast-ward.damage-reduced", reduced);
+            }
             return;
         }
 
         if (e.getDamager() instanceof AbstractArrow arrow && arrow.getShooter() instanceof WitherSkeleton) {
+            double before = e.getDamage();
             e.setDamage(Math.max(0, e.getDamage() * (1D - getWitherSkeletonReduction(level))));
             xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
+            int reduced = (int) Math.round(before - e.getDamage());
+            if (reduced > 0) {
+                getPlayer(p).getData().addStat("nether.ghast-ward.damage-reduced", reduced);
+            }
         }
     }
 
@@ -87,8 +110,13 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
             return;
         }
 
+        double before = e.getDamage();
         e.setDamage(Math.max(0, e.getDamage() * (1D - getExplosionReduction(getLevel(p)))));
         xp(p, e.getDamage() * getConfig().xpPerMitigatedDamage);
+        int reduced = (int) Math.round(before - e.getDamage());
+        if (reduced > 0) {
+            getPlayer(p).getData().addStat("nether.ghast-ward.damage-reduced", reduced);
+        }
     }
 
     private boolean isNether(Player p) {

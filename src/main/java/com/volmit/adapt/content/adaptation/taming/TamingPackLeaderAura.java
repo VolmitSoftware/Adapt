@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.taming;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -48,6 +52,15 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(30);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BONE)
+                .key("challenge_taming_pack_72k")
+                .title(Localizer.dLocalize("advancement.challenge_taming_pack_72k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_taming_pack_72k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_pack_72k").goal(72000).stat("taming.pack-leader.buffed-ticks").reward(400).build());
     }
 
     @Override
@@ -91,6 +104,7 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
                 int amplifier = getAmplifier(level);
                 tameable.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, getConfig().effectTicks, amplifier, false, false));
                 tameable.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, getConfig().effectTicks, amplifier, false, false));
+                getPlayer(owner).getData().addStat("taming.pack-leader.buffed-ticks", 1);
             }
         }
     }

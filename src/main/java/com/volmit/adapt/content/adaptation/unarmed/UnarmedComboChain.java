@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.unarmed;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -56,6 +61,31 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1800);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_INGOT)
+                .key("challenge_unarmed_combo_5k")
+                .title(Localizer.dLocalize("advancement.challenge_unarmed_combo_5k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_unarmed_combo_5k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_combo_5k").goal(5000).stat("unarmed.combo-chain.total-combo-hits").reward(400).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BLAZE_POWDER)
+                .key("challenge_unarmed_combo_10")
+                .title(Localizer.dLocalize("advancement.challenge_unarmed_combo_10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_unarmed_combo_10.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BLAZE_ROD)
+                .key("challenge_unarmed_combo_25")
+                .title(Localizer.dLocalize("advancement.challenge_unarmed_combo_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_unarmed_combo_25.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
     }
 
     @Override
@@ -92,6 +122,15 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
         e.setDamage(e.getDamage() + bonus);
         playComboFeedback(p, e.getEntity().getLocation(), state.stacks, getMaxStacks(level));
         xp(p, bonus * getConfig().xpPerBonusDamage);
+        getPlayer(p).getData().addStat("unarmed.combo-chain.total-combo-hits", 1);
+
+        // Special achievements: reach a 10-hit or 25-hit combo
+        if (state.stacks >= 10 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_unarmed_combo_10")) {
+            getPlayer(p).getAdvancementHandler().grant("challenge_unarmed_combo_10");
+        }
+        if (state.stacks >= 25 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_unarmed_combo_25")) {
+            getPlayer(p).getAdvancementHandler().grant("challenge_unarmed_combo_25");
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

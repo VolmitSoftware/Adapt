@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.chronos;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -55,6 +60,28 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
         setInterval(1000);
         cooldowns = new HashMap<>();
         targetStacks = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CLOCK)
+                .key("challenge_chronos_aberrant_500")
+                .title(Localizer.dLocalize("advancement.challenge_chronos_aberrant_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_chronos_aberrant_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.CLOCK)
+                .key("challenge_chronos_aberrant_frozen")
+                .title(Localizer.dLocalize("advancement.challenge_chronos_aberrant_frozen.title"))
+                .description(Localizer.dLocalize("advancement.challenge_chronos_aberrant_frozen.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_chronos_aberrant_500")
+                .goal(500)
+                .stat("chronos.aberrant-touch.slowness-stacks-applied")
+                .reward(400)
+                .build());
     }
 
     @Override
@@ -119,6 +146,7 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
         int newDuration = Math.min(durationCap, currentDuration + getDurationAddedTicks(level));
 
         target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, Math.max(20, newDuration), Math.max(0, newAmplifier), true, true, true), true);
+        getPlayer(attacker).getData().addStat("chronos.aberrant-touch.slowness-stacks-applied", 1);
 
         StackState state = targetStacks.getOrDefault(target.getUniqueId(), new StackState(0, 0L));
         int stacks = (now - state.lastHitMillis() > getConfig().stackResetMillis) ? 1 : state.stacks() + 1;
@@ -126,6 +154,9 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
             target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, getConfig().rootDurationTicks, getConfig().rootAmplifier, true, true, true), true);
             target.setVelocity(new Vector());
             stacks = 0;
+            if (AdaptConfig.get().isAdvancements() && !getPlayer(attacker).getData().isGranted("challenge_chronos_aberrant_frozen")) {
+                getPlayer(attacker).getAdvancementHandler().grant("challenge_chronos_aberrant_frozen");
+            }
         }
         targetStacks.put(target.getUniqueId(), new StackState(stacks, now));
 

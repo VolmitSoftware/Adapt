@@ -19,7 +19,11 @@
 package com.volmit.adapt.content.adaptation.taming;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.version.Version;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import com.volmit.adapt.util.reflect.registries.Attributes;
@@ -31,6 +35,10 @@ import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -50,6 +58,24 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
         setInitialCost(getConfig().initialCost);
         setInterval(6119);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BONE)
+                .key("challenge_taming_damage_500")
+                .title(Localizer.dLocalize("advancement.challenge_taming_damage_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_taming_damage_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.DIAMOND_SWORD)
+                        .key("challenge_taming_damage_5k")
+                        .title(Localizer.dLocalize("advancement.challenge_taming_damage_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_taming_damage_5k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_damage_500").goal(500).stat("taming.damage.pet-kills").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_damage_5k").goal(5000).stat("taming.damage.pet-kills").reward(1500).build());
     }
 
     @Override
@@ -70,6 +96,17 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
                     update(tameable, getLevel(p));
                 }
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(EntityDeathEvent e) {
+        if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmgEvent
+                && dmgEvent.getDamager() instanceof Tameable tam
+                && tam.isTamed()
+                && tam.getOwner() instanceof Player p
+                && hasAdaptation(p)) {
+            getPlayer(p).getData().addStat("taming.damage.pet-kills", 1);
         }
     }
 

@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.unarmed;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -31,10 +35,12 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -57,6 +63,24 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(8);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_INGOT)
+                .key("challenge_unarmed_charge_300")
+                .title(Localizer.dLocalize("advancement.challenge_unarmed_charge_300.title"))
+                .description(Localizer.dLocalize("advancement.challenge_unarmed_charge_300.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_charge_300").goal(300).stat("unarmed.battering-charge.charges").reward(400).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DIAMOND)
+                .key("challenge_unarmed_charge_kills_100")
+                .title(Localizer.dLocalize("advancement.challenge_unarmed_charge_kills_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_unarmed_charge_kills_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_unarmed_charge_kills_100").goal(100).stat("unarmed.battering-charge.charge-kills").reward(1000).build());
     }
 
     @Override
@@ -102,6 +126,20 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
         target.getWorld().spawnParticle(Particle.CLOUD, target.getLocation().add(0, 0.6, 0), 14, 0.25, 0.25, 0.25, 0.05);
         primedState.put(p.getUniqueId(), false);
         xp(p, e.getDamage() * getConfig().xpPerDamage);
+        getPlayer(p).getData().addStat("unarmed.battering-charge.charges", 1);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(EntityDeathEvent e) {
+        if (!(e.getEntity() instanceof LivingEntity victim)) {
+            return;
+        }
+        if (victim.getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
+                && dmg.getDamager() instanceof Player p
+                && hasAdaptation(p)
+                && isChargeLoadout(p)) {
+            getPlayer(p).getData().addStat("unarmed.battering-charge.charge-kills", 1);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

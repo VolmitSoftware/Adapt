@@ -22,9 +22,14 @@ import com.jeff_media.customblockdata.CustomBlockData;
 import com.jeff_media.customblockdata.events.CustomBlockDataMoveEvent;
 import com.jeff_media.customblockdata.events.CustomBlockDataRemoveEvent;
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.CustomModel;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -89,6 +94,23 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
                 .ingredient(new MaterialChar('Y', Material.ENDER_PEARL))
                 .result(getElevatorItem())
                 .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WHITE_WOOL)
+                .key("challenge_architect_elevator_100")
+                .title(Localizer.dLocalize("advancement.challenge_architect_elevator_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_architect_elevator_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.WHITE_WOOL)
+                        .key("challenge_architect_elevator_penthouse")
+                        .title(Localizer.dLocalize("advancement.challenge_architect_elevator_penthouse.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_architect_elevator_penthouse.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_elevator_100").goal(100).stat("architect.elevator.trips").reward(300).build());
     }
 
     @Override
@@ -322,6 +344,10 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
             return;
 
         teleportPlayer(player, loc);
+        getPlayer(player).getData().addStat("architect.elevator.trips", 1);
+        if (distance >= 50 && AdaptConfig.get().isAdvancements() && !getPlayer(player).getData().isGranted("challenge_architect_elevator_penthouse")) {
+            getPlayer(player).getAdvancementHandler().grant("challenge_architect_elevator_penthouse");
+        }
     }
 
     private static boolean isElevator(Block b) {

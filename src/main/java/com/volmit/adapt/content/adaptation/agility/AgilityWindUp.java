@@ -20,7 +20,11 @@ package com.volmit.adapt.content.adaptation.agility;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.version.Version;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.reflect.registries.Attributes;
 import com.volmit.adapt.util.reflect.events.api.ReflectiveHandler;
@@ -59,6 +63,34 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         setInitialCost(getConfig().initialCost);
         setInterval(120);
         ticksRunning = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.POWERED_RAIL)
+                .key("challenge_agility_wind_up_10min")
+                .title(Localizer.dLocalize("advancement.challenge_agility_wind_up_10min.title"))
+                .description(Localizer.dLocalize("advancement.challenge_agility_wind_up_10min.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ACTIVATOR_RAIL)
+                        .key("challenge_agility_wind_up_2hr")
+                        .title(Localizer.dLocalize("advancement.challenge_agility_wind_up_2hr.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_agility_wind_up_2hr.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_agility_wind_up_10min")
+                .goal(12000)
+                .stat("agility.wind-up.max-speed-ticks")
+                .reward(400)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_agility_wind_up_2hr")
+                .goal(144000)
+                .stat("agility.wind-up.max-speed-ticks")
+                .reward(1500)
+                .build());
     }
 
     @Override
@@ -137,6 +169,9 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
                     }
                 }
                 attribute.setModifier(MODIFIER, MODIFIER_KEY, speedIncrease, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+                if (progress >= 1.0) {
+                    getPlayer(p).getData().addStat("agility.wind-up.max-speed-ticks", 1);
+                }
             } else {
                 ticksRunning.remove(p);
             }

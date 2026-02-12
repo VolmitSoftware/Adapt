@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.architect;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KMap;
 import com.volmit.adapt.util.config.ConfigDescription;
@@ -56,6 +60,24 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         setMaxLevel(getConfig().maxLevel);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BRICKS)
+                .key("challenge_architect_placement_1k")
+                .title(Localizer.dLocalize("advancement.challenge_architect_placement_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_architect_placement_1k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BRICKS)
+                        .key("challenge_architect_placement_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_architect_placement_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_architect_placement_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_placement_1k").goal(1000).stat("architect.placement.blocks-placed").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_architect_placement_25k").goal(25000).stat("architect.placement.blocks-placed").reward(1500).build());
     }
 
     @Override
@@ -118,6 +140,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
             relative.setBlockData(b.getBlockData());
             getPlayer(p).getData().addStat("blocks.placed", 1);
             getPlayer(p).getData().addStat("blocks.placed.value", v);
+            getPlayer(p).getData().addStat("architect.placement.blocks-placed", 1);
             sp.play(b.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
             xp(p, 2);
 
@@ -128,6 +151,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
             e.getBlock().setBlockData(ignored.getBlockData());
             getPlayer(p).getData().addStat("blocks.placed", 1);
             getPlayer(p).getData().addStat("blocks.placed.value", v);
+            getPlayer(p).getData().addStat("architect.placement.blocks-placed", 1);
             sp.play(ignored.getLocation(), Sound.BLOCK_AZALEA_BREAK, 0.4f, 0.25f);
             xp(p, 2);
 

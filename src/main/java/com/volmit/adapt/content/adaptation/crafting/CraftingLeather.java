@@ -19,7 +19,11 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -50,7 +54,15 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
                 .experience(1)
                 .result(new ItemStack(Material.LEATHER, 1))
                 .build());
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.LEATHER)
+                .key("challenge_crafting_leather_100")
+                .title(Localizer.dLocalize("advancement.challenge_crafting_leather_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_crafting_leather_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_leather_100").goal(100).stat("crafting.leather.leather-crafted").reward(300).build());
     }
 
     @Override
@@ -63,6 +75,8 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
         if (e.getItem() != null && e.getItem().getType() == Material.ROTTEN_FLESH && e.getClickedBlock() != null && e.getClickedBlock().getType() == Material.CAMPFIRE) {
             if (!hasAdaptation(e.getPlayer())) {
                 e.setCancelled(true);
+            } else {
+                getPlayer(e.getPlayer()).getData().addStat("crafting.leather.leather-crafted", 1);
             }
         }
     }

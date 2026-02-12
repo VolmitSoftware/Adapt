@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.hunter;
 
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -43,7 +47,15 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(9444);
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GLASS)
+                .key("challenge_hunter_invis_200")
+                .title(Localizer.dLocalize("advancement.challenge_hunter_invis_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_hunter_invis_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_invis_200").goal(200).stat("hunter.invis.activations").reward(300).build());
     }
 
     @Override
@@ -76,6 +88,7 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
                 } else {
                     addPotionStacks(p, PotionEffectType.HUNGER, getConfig().baseHungerFromLevel - getLevel(p), getConfig().baseHungerDuration * getLevel(p), getConfig().stackHungerPenalty);
                     addPotionStacks(p, PotionEffectType.INVISIBILITY, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+                    getPlayer(p).getData().addStat("hunter.invis.activations", 1);
                 }
             } else {
                 if (getConfig().consumable != null && Material.getMaterial(getConfig().consumable) != null) {
@@ -83,6 +96,7 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
                     if (mat != null && p.getInventory().contains(mat)) {
                         p.getInventory().removeItem(new ItemStack(mat, 1));
                         addPotionStacks(p, PotionEffectType.INVISIBILITY, getLevel(p), getConfig().baseEffectbyLevel * getLevel(p), getConfig().stackBuff);
+                        getPlayer(p).getData().addStat("hunter.invis.activations", 1);
                     } else {
                         if (getConfig().poisonPenalty) {
                             addPotionStacks(p, PotionEffectType.POISON, getConfig().basePoisonFromLevel - getLevel(p), getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);

@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.ranged;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -48,6 +52,24 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
         setInterval(4859);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ARROW)
+                .key("challenge_ranged_lunge_200")
+                .title(Localizer.dLocalize("advancement.challenge_ranged_lunge_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_ranged_lunge_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.FEATHER)
+                        .key("challenge_ranged_lunge_2500")
+                        .title(Localizer.dLocalize("advancement.challenge_ranged_lunge_2500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_ranged_lunge_2500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_lunge_200").goal(200).stat("ranged.lunge-shot.lunges").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_lunge_2500").goal(2500).stat("ranged.lunge-shot.lunges").reward(1000).build());
     }
 
     private double getSpeed(double factor) {
@@ -70,6 +92,7 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
                     if (!p.isOnGround()) {
                         Vector velocity = p.getPlayer().getLocation().getDirection().normalize().multiply(getSpeed(getLevelPercent(p)));
                         p.setVelocity(p.getVelocity().subtract(velocity));
+                        getPlayer(p).getData().addStat("ranged.lunge-shot.lunges", 1);
                         SoundPlayer spw = SoundPlayer.of(p.getWorld());
                         spw.play(p.getLocation(), Sound.ITEM_ARMOR_EQUIP_TURTLE, 1f, 0.75f);
                         spw.play(p.getLocation(), Sound.ITEM_CROSSBOW_SHOOT, 1f, 1.95f);

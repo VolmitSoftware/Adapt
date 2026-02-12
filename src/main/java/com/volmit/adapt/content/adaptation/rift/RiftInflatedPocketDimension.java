@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.J;
@@ -52,6 +56,24 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(600);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_CHEST)
+                .key("challenge_rift_pocket_5k")
+                .title(Localizer.dLocalize("advancement.challenge_rift_pocket_5k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_rift_pocket_5k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENDER_CHEST)
+                        .key("challenge_rift_pocket_store_10k")
+                        .title(Localizer.dLocalize("advancement.challenge_rift_pocket_store_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_rift_pocket_store_10k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_pocket_5k").goal(5000).stat("rift.inflated-pocket.items-pulled").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_pocket_store_10k").goal(10000).stat("rift.inflated-pocket.items-stored").reward(1000).build());
     }
 
     @Override
@@ -93,6 +115,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
 
         e.setCancelled(true);
         SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 0.4f, 1.7f);
+        getPlayer(p).getData().addStat("rift.inflated-pocket.items-pulled", moved);
         xp(p, moved * getConfig().xpPerTransferredItem);
     }
 
@@ -127,6 +150,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
             }
 
             SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 0.3f, 1.9f);
+            getPlayer(p).getData().addStat("rift.inflated-pocket.items-pulled", moved);
             xp(p, moved * getConfig().xpPerTransferredItem);
         }, 1);
     }
@@ -148,6 +172,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
         }
 
         SoundPlayer.of(p).play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 1.4f);
+        getPlayer(p).getData().addStat("rift.inflated-pocket.items-stored", Math.max(1, dropped.getAmount()));
         xp(p, Math.max(1, dropped.getAmount()) * getConfig().xpPerTransferredItem);
     }
 

@@ -19,14 +19,22 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -53,7 +61,20 @@ public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config
                         "DDD"))
                 .result(new ItemStack(Material.GRASS_BLOCK, 3))
                 .build());
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.GRASS_BLOCK)
+                .key("challenge_herbalism_terralid_200")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_terralid_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_terralid_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_terralid_200")
+                .goal(200)
+                .stat("herbalism.terralid.grass-crafted")
+                .reward(300)
+                .build());
     }
 
     @Override
@@ -61,6 +82,19 @@ public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config
         v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism.terralid.lore1"));
     }
 
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(CraftItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!(e.getWhoClicked() instanceof Player p) || !hasAdaptation(p)) {
+            return;
+        }
+        if (e.getRecipe() instanceof org.bukkit.inventory.ShapedRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && recipe.getKey().getKey().equals("herbalism-dirt-terralid")) {
+            getPlayer(p).getData().addStat("herbalism.terralid.grass-crafted", 1);
+        }
+    }
 
     @Override
     public void onTick() {

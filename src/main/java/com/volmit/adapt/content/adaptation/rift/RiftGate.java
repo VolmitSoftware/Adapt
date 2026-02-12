@@ -20,7 +20,11 @@ package com.volmit.adapt.content.adaptation.rift;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.event.AdaptAdaptationTeleportEvent;
 import com.volmit.adapt.content.item.BoundEyeOfEnder;
 import com.volmit.adapt.util.*;
@@ -58,6 +62,24 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
                 .ingredient(Material.EMERALD)
                 .result(BoundEyeOfEnder.io.withData(new BoundEyeOfEnder.Data(null)))
                 .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.ENDER_PEARL)
+                .key("challenge_rift_gate_100")
+                .title(Localizer.dLocalize("advancement.challenge_rift_gate_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_rift_gate_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENDER_EYE)
+                        .key("challenge_rift_gate_50k_dist")
+                        .title(Localizer.dLocalize("advancement.challenge_rift_gate_50k_dist.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_rift_gate_50k_dist.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_gate_100").goal(100).stat("rift.gate.teleports").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_rift_gate_50k_dist").goal(50000).stat("rift.gate.total-distance").reward(1500).build());
     }
 
     @Override
@@ -227,6 +249,8 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
             }
 
             getPlayer(p).getData().addStat("rift.teleports", 1);
+            getPlayer(p).getData().addStat("rift.gate.teleports", 1);
+            getPlayer(p).getData().addStat("rift.gate.total-distance", (int) p.getLocation().distance(l));
             p.teleport(l, PlayerTeleportEvent.TeleportCause.PLUGIN);
             vfxLevelUp(p);
             sp.play(p.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 5.35f, 0.1f);

@@ -19,13 +19,21 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> {
@@ -48,7 +56,20 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
                 .ingredient(Material.BROWN_MUSHROOM)
                 .result(new ItemStack(Material.MYCELIUM, 1))
                 .build());
-
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.MYCELIUM)
+                .key("challenge_herbalism_myconid_100")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_myconid_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_myconid_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_myconid_100")
+                .goal(100)
+                .stat("herbalism.myconid.mycelium-crafted")
+                .reward(300)
+                .build());
     }
 
     @Override
@@ -56,6 +77,19 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
         v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism.myconid.lore1"));
     }
 
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(CraftItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!(e.getWhoClicked() instanceof Player p) || !hasAdaptation(p)) {
+            return;
+        }
+        if (e.getRecipe() instanceof org.bukkit.inventory.ShapelessRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && recipe.getKey().getKey().equals("herbalism-dirt-myconid")) {
+            getPlayer(p).getData().addStat("herbalism.myconid.mycelium-crafted", 1);
+        }
+    }
 
     @Override
     public void onTick() {

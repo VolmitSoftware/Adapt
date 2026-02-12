@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.api.world.PlayerAdaptation;
 import com.volmit.adapt.api.world.PlayerSkillLine;
 import com.volmit.adapt.content.skill.SkillHerbalism;
@@ -52,6 +56,34 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
         setInterval(6090);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.WHEAT_SEEDS)
+                .key("challenge_herbalism_replant_500")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_replant_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_replant_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.COMPOSTER)
+                        .key("challenge_herbalism_replant_25k")
+                        .title(Localizer.dLocalize("advancement.challenge_herbalism_replant_25k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_herbalism_replant_25k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_replant_500")
+                .goal(500)
+                .stat("herbalism.replant.crops-replanted")
+                .reward(300)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_replant_25k")
+                .goal(25000)
+                .stat("herbalism.replant.crops-replanted")
+                .reward(1000)
+                .build());
     }
 
     @Override
@@ -158,6 +190,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
 
             getPlayer(p).getData().addStat("harvest.blocks", 1);
             getPlayer(p).getData().addStat("harvest.planted", 1);
+            getPlayer(p).getData().addStat("herbalism.replant.crops-replanted", 1);
 
             if (M.r(1D / (double) getLevel(p))) {
                 SoundPlayer spw = SoundPlayer.of(p.getWorld());

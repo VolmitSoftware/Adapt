@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.seaborrne;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -44,6 +48,24 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
         setInterval(1020);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.HEART_OF_THE_SEA)
+                .key("challenge_seaborne_speed_10k")
+                .title(Localizer.dLocalize("advancement.challenge_seaborne_speed_10k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_seaborne_speed_10k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.TRIDENT)
+                        .key("challenge_seaborne_speed_100k")
+                        .title(Localizer.dLocalize("advancement.challenge_seaborne_speed_100k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_seaborne_speed_100k.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_speed_10k").goal(10000).stat("seaborne.speed.blocks-swum").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_seaborne_speed_100k").goal(100000).stat("seaborne.speed.blocks-swum").reward(1500).build());
     }
 
     @Override
@@ -61,6 +83,7 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
                         continue;
                     } else {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 62, getLevel(player)));
+                        getPlayer(player).getData().addStat("seaborne.speed.blocks-swum", 1);
                     }
                 }
             }

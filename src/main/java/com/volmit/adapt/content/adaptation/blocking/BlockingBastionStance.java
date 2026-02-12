@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.blocking;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -28,6 +33,7 @@ import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -51,6 +57,28 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2000);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SHIELD)
+                .key("challenge_blocking_bastion_500")
+                .title(Localizer.dLocalize("advancement.challenge_blocking_bastion_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_blocking_bastion_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_blocking_bastion_500")
+                .goal(500)
+                .stat("blocking.bastion-stance.projectiles-softened")
+                .reward(500)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SHIELD)
+                .key("challenge_blocking_bastion_10")
+                .title(Localizer.dLocalize("advancement.challenge_blocking_bastion_10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_blocking_bastion_10.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
     }
 
     @Override
@@ -71,16 +99,26 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
         }
 
         int level = getLevel(defender);
+
+        // Track session counter for special achievement
+        int sessionCount = getStorageInt(defender, "bastionSessionCount", 0) + 1;
+        setStorage(defender, "bastionSessionCount", sessionCount);
+        if (sessionCount >= 10 && AdaptConfig.get().isAdvancements() && !getPlayer(defender).getData().isGranted("challenge_blocking_bastion_10")) {
+            getPlayer(defender).getAdvancementHandler().grant("challenge_blocking_bastion_10");
+        }
+
         if (ThreadLocalRandom.current().nextDouble() <= getProjectileNegateChance(level)) {
             e.setCancelled(true);
             SoundPlayer.of(defender.getWorld()).play(defender.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 0.9f);
             xp(defender, getConfig().xpOnNegate);
+            getPlayer(defender).getData().addStat("blocking.bastion-stance.projectiles-softened", 1);
             return;
         }
 
         e.setDamage(Math.max(0, e.getDamage() * (1D - getProjectileReduction(level))));
         SoundPlayer.of(defender.getWorld()).play(defender.getLocation(), Sound.ITEM_SHIELD_BLOCK, 0.75f, 0.75f);
         xp(defender, e.getDamage() * getConfig().xpPerMitigatedDamage);
+        getPlayer(defender).getData().addStat("blocking.bastion-stance.projectiles-softened", 1);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -119,7 +157,11 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
 
     @Override
     public void onTick() {
-
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (hasAdaptation(p) && !isBastionStance(p)) {
+                setStorage(p, "bastionSessionCount", 0);
+            }
+        }
     }
 
     @Override

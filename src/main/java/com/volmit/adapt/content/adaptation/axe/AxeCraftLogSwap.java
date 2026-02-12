@@ -19,13 +19,21 @@
 package com.volmit.adapt.content.adaptation.axe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
 import com.volmit.adapt.util.reflect.registries.Materials;
 
@@ -1006,6 +1014,15 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
                         .build());
             }
         }
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.OAK_SAPLING)
+                .key("challenge_axe_log_swap_500")
+                .title(Localizer.dLocalize("advancement.challenge_axe_log_swap_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_axe_log_swap_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_axe_log_swap_500").goal(500).stat("axe.log-swap.conversions").reward(400).build());
     }
 
     @Override
@@ -1013,6 +1030,18 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
         v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("axe.log_swap.lore1"));
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(CraftItemEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (!(e.getWhoClicked() instanceof Player p) || !hasAdaptation(p)) {
+            return;
+        }
+        if (e.getRecipe() instanceof org.bukkit.inventory.ShapelessRecipe recipe && recipe.getKey().getNamespace().equals("adapt") && recipe.getKey().getKey().startsWith("axe-swap")) {
+            getPlayer(p).getData().addStat("axe.log-swap.conversions", 1);
+        }
+    }
 
     @Override
     public void onTick() {

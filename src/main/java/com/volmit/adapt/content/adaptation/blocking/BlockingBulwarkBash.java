@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.blocking;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -58,6 +63,28 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2000);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SHIELD)
+                .key("challenge_blocking_bulwark_500")
+                .title(Localizer.dLocalize("advancement.challenge_blocking_bulwark_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_blocking_bulwark_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_blocking_bulwark_500")
+                .goal(500)
+                .stat("blocking.bulwark-bash.mobs-bashed")
+                .reward(500)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SHIELD)
+                .key("challenge_blocking_bulwark_4")
+                .title(Localizer.dLocalize("advancement.challenge_blocking_bulwark_4.title"))
+                .description(Localizer.dLocalize("advancement.challenge_blocking_bulwark_4.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
     }
 
     @Override
@@ -133,6 +160,12 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
         sp.play(p.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 0.85f);
         sp.play(p.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.9f, 0.7f);
         xp(p, getConfig().xpPerTargetHit * affected);
+        getPlayer(p).getData().addStat("blocking.bulwark-bash.mobs-bashed", affected);
+
+        // Special achievement: hit 4+ enemies in single bash
+        if (affected >= 4 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_blocking_bulwark_4")) {
+            getPlayer(p).getAdvancementHandler().grant("challenge_blocking_bulwark_4");
+        }
     }
 
     private void applyImpact(Player p, LivingEntity target, int level) {

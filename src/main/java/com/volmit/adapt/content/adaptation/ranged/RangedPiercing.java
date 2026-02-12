@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.ranged;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -27,14 +32,20 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
     private final List<Integer> holds = new ArrayList<>();
+    private final Map<UUID, Integer> arrowHitCounts = new HashMap<>();
 
     public RangedPiercing() {
         super("ranged-piercing");
@@ -47,6 +58,23 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
         setInterval(4791);
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SPECTRAL_ARROW)
+                .key("challenge_ranged_piercing_500")
+                .title(Localizer.dLocalize("advancement.challenge_ranged_piercing_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_ranged_piercing_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SPECTRAL_ARROW)
+                .key("challenge_ranged_piercing_4")
+                .title(Localizer.dLocalize("advancement.challenge_ranged_piercing_4.title"))
+                .description(Localizer.dLocalize("advancement.challenge_ranged_piercing_4.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_piercing_500").goal(500).stat("ranged.piercing.extra-hits").reward(400).build());
     }
 
     @Override
@@ -64,6 +92,26 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
                 xp(p, 5);
                 if (hasAdaptation(p)) {
                     a.setPierceLevel(((AbstractArrow) e.getEntity()).getPierceLevel() + getLevel(p));
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void on(EntityDamageByEntityEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        if (e.getDamager() instanceof Projectile projectile && projectile instanceof AbstractArrow arrow && arrow.getShooter() instanceof Player p && hasAdaptation(p)) {
+            if (arrow.getPierceLevel() > 0) {
+                UUID arrowId = arrow.getUniqueId();
+                int hits = arrowHitCounts.getOrDefault(arrowId, 0) + 1;
+                arrowHitCounts.put(arrowId, hits);
+                if (hits > 1) {
+                    getPlayer(p).getData().addStat("ranged.piercing.extra-hits", 1);
+                }
+                if (hits >= 4 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_ranged_piercing_4")) {
+                    getPlayer(p).getAdvancementHandler().grant("challenge_ranged_piercing_4");
                 }
             }
         }

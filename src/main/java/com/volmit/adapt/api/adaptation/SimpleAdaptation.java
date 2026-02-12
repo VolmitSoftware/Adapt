@@ -32,6 +32,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
 
+import com.volmit.adapt.api.world.AdaptStatTracker;
+import com.volmit.adapt.util.collection.KList;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -54,6 +57,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     private List<AdaptAdvancement> cachedAdvancements;
     private List<AdaptRecipe> recipes;
     private List<BrewingRecipe> brewingRecipes;
+    private KList<AdaptStatTracker> statTrackers;
     private Class<T> configType;
     private T config;
 
@@ -62,6 +66,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         cachedAdvancements = new ArrayList<>();
         recipes = new ArrayList<>();
         brewingRecipes = new ArrayList<>();
+        statTrackers = new KList<>();
         setMaxLevel(5);
         setCostFactor(0.45);
         setBaseCost(4);
@@ -219,6 +224,14 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
             Adapt.verbose("Failed to get display name for " + getName());
             return null;
         }
+    }
+
+    public void registerStatTracker(AdaptStatTracker tracker) {
+        statTrackers.add(tracker);
+    }
+
+    public KList<AdaptStatTracker> getStatTrackers() {
+        return statTrackers;
     }
 
     public void registerAdvancement(AdaptAdvancement a) {

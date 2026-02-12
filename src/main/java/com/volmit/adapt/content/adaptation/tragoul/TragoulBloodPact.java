@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.tragoul;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -32,7 +37,9 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -57,6 +64,7 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     };
 
     private final Map<UUID, Long> procCooldowns = new HashMap<>();
+    private final Map<UUID, Boolean> lowHealthProcs = new HashMap<>();
 
     public TragoulBloodPact() {
         super("tragoul-blood-pact");
@@ -69,6 +77,32 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(20);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.REDSTONE)
+                .key("challenge_tragoul_pact_200")
+                .title(Localizer.dLocalize("advancement.challenge_tragoul_pact_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_tragoul_pact_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.NETHERITE_SWORD)
+                .key("challenge_tragoul_pact_kills_500")
+                .title(Localizer.dLocalize("advancement.challenge_tragoul_pact_kills_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_tragoul_pact_kills_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_pact_200").goal(200).stat("tragoul.blood-pact.health-sacrificed").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_tragoul_pact_kills_500").goal(500).stat("tragoul.blood-pact.empowered-kills").reward(1000).build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.REDSTONE)
+                .key("challenge_tragoul_pact_all_in")
+                .title(Localizer.dLocalize("advancement.challenge_tragoul_pact_all_in.title"))
+                .description(Localizer.dLocalize("advancement.challenge_tragoul_pact_all_in.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
     }
 
     @Override
@@ -81,6 +115,7 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(PlayerQuitEvent e) {
         procCooldowns.remove(e.getPlayer().getUniqueId());
+        lowHealthProcs.remove(e.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -105,10 +140,28 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
         }
 
         procCooldowns.put(p.getUniqueId(), now + getProcCooldownMillis(level));
+        getPlayer(p).getData().addStat("tragoul.blood-pact.health-sacrificed", (int) e.getFinalDamage());
+        if (p.getHealth() - e.getFinalDamage() <= 6.0) {
+            lowHealthProcs.put(p.getUniqueId(), true);
+        }
         applyRandomBuffs(p, level, e.getFinalDamage());
         p.getWorld().spawnParticle(Particle.CRIMSON_SPORE, p.getLocation().add(0, 1.0, 0), 22, 0.28, 0.42, 0.28, 0.02);
         SoundPlayer.of(p.getWorld()).play(p.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.62f, 1.25f);
         xp(p, getConfig().xpPerProc);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(EntityDeathEvent e) {
+        if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmgEvent) {
+            if (dmgEvent.getDamager() instanceof Player p && hasAdaptation(p)) {
+                if (p.hasPotionEffect(PotionEffectType.ABSORPTION) || p.hasPotionEffect(PotionEffectType.RESISTANCE)) {
+                    getPlayer(p).getData().addStat("tragoul.blood-pact.empowered-kills", 1);
+                    if (lowHealthProcs.getOrDefault(p.getUniqueId(), false) && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_tragoul_pact_all_in")) {
+                        getPlayer(p).getAdvancementHandler().grant("challenge_tragoul_pact_all_in");
+                    }
+                }
+            }
+        }
     }
 
     private void applyRandomBuffs(Player p, int level, double takenDamage) {

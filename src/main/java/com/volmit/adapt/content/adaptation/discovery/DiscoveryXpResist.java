@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.discovery;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
@@ -50,6 +55,42 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
         cooldowns = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.TOTEM_OF_UNDYING)
+                .key("challenge_discovery_xp_resist_25")
+                .title(Localizer.dLocalize("advancement.challenge_discovery_xp_resist_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_discovery_xp_resist_25.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ENCHANTED_GOLDEN_APPLE)
+                        .key("challenge_discovery_xp_resist_250")
+                        .title(Localizer.dLocalize("advancement.challenge_discovery_xp_resist_250.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_discovery_xp_resist_250.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.TOTEM_OF_UNDYING)
+                .key("challenge_discovery_xp_resist_clutch")
+                .title(Localizer.dLocalize("advancement.challenge_discovery_xp_resist_clutch.title"))
+                .description(Localizer.dLocalize("advancement.challenge_discovery_xp_resist_clutch.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_xp_resist_25")
+                .goal(25)
+                .stat("discovery.xp-resist.saves")
+                .reward(500)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_xp_resist_250")
+                .goal(250)
+                .stat("discovery.xp-resist.saves")
+                .reward(2000)
+                .build());
     }
 
 
@@ -91,6 +132,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
         Long cooldown = cooldowns.get(id);
         if (cooldown == null || M.ms() - cooldown > COOLDOWN_MILLIS) {
             double effectiveness = getEffectiveness(getLevelPercent(level));
+            double originalDamage = e.getDamage();
             e.setDamage(Math.max(0D, e.getDamage() * (1D - effectiveness)));
             xp(p, 5);
             cooldowns.put(id, M.ms());
@@ -98,6 +140,10 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
             vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.LIME);
             sp.play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 3, 0.01f);
             sp.play(p.getLocation(), Sound.BLOCK_SHROOMLIGHT_HIT, 15, 0.01f);
+            getPlayer(p).getData().addStat("discovery.xp-resist.saves", 1);
+            if (originalDamage >= 30.0 && AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_discovery_xp_resist_clutch")) {
+                getPlayer(p).getAdvancementHandler().grant("challenge_discovery_xp_resist_clutch");
+            }
         } else {
             vfxFastRing(p.getLocation().add(0, 0.05, 0), 1, Color.RED);
             sp.play(p.getLocation(), Sound.BLOCK_FUNGUS_BREAK, 15, 0.01f);

@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.taming;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -26,6 +30,7 @@ import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Entity;
@@ -35,11 +40,18 @@ import org.bukkit.entity.Strider;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.Config> {
+    private final Map<UUID, Location> lastMountedLocation = new HashMap<>();
+
     public TamingMountedTactics() {
         super("tame-mounted-tactics");
         registerConfiguration(Config.class);
@@ -51,6 +63,24 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(10);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SADDLE)
+                .key("challenge_taming_mounted_200")
+                .title(Localizer.dLocalize("advancement.challenge_taming_mounted_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_taming_mounted_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.DIAMOND_HORSE_ARMOR)
+                .key("challenge_taming_mounted_50k")
+                .title(Localizer.dLocalize("advancement.challenge_taming_mounted_50k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_taming_mounted_50k.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_mounted_200").goal(200).stat("taming.mounted-tactics.mounted-kills").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_taming_mounted_50k").goal(50000).stat("taming.mounted-tactics.distance").reward(1000).build());
     }
 
     @Override
@@ -68,6 +98,19 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
             int level = getLevel(p);
             Entity vehicle = p.getVehicle();
+            if (vehicle != null) {
+                Location last = lastMountedLocation.get(p.getUniqueId());
+                Location current = p.getLocation();
+                if (last != null && last.getWorld() == current.getWorld()) {
+                    double dist = last.distance(current);
+                    if (dist > 0.1 && dist < 100) {
+                        getPlayer(p).getData().addStat("taming.mounted-tactics.distance", dist);
+                    }
+                }
+                lastMountedLocation.put(p.getUniqueId(), current);
+            } else {
+                lastMountedLocation.remove(p.getUniqueId());
+            }
             if (vehicle instanceof AbstractHorse horse) {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 30, getHorseSpeedAmplifier(level), false, false, true), true);
                 if (p.isSprinting()) {
@@ -87,6 +130,15 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
                     pig.setVelocity(pig.getVelocity().multiply(0.7).add(forward));
                 }
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(EntityDeathEvent e) {
+        if (e.getEntity().getKiller() instanceof Player p
+                && p.getVehicle() != null
+                && hasAdaptation(p)) {
+            getPlayer(p).getData().addStat("taming.mounted-tactics.mounted-kills", 1);
         }
     }
 

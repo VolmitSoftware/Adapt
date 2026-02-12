@@ -19,14 +19,21 @@
 package com.volmit.adapt.content.adaptation.crafting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.config.ConfigDescription;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -56,6 +63,15 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
                         "ICI"))
                 .result(new ItemStack(Material.BUNDLE, 1))
                 .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BUNDLE)
+                .key("challenge_crafting_backpack_25")
+                .title(Localizer.dLocalize("advancement.challenge_crafting_backpack_25.title"))
+                .description(Localizer.dLocalize("advancement.challenge_crafting_backpack_25.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_crafting_backpack_25").goal(25).stat("crafting.backpacks.bundles-crafted").reward(300).build());
     }
 
     @Override
@@ -67,6 +83,16 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
 
     }
 
+
+    @EventHandler
+    public void on(CraftItemEvent e) {
+        if (e.isCancelled()) return;
+        Player p = (Player) e.getWhoClicked();
+        if (!hasAdaptation(p)) return;
+        if (e.getRecipe() != null && e.getRecipe().getResult().getType() == Material.BUNDLE) {
+            getPlayer(p).getData().addStat("crafting.backpacks.bundles-crafted", 1);
+        }
+    }
 
     @Override
     public void onTick() {

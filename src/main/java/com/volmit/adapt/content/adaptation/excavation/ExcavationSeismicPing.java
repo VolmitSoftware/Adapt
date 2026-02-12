@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.excavation;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -60,6 +64,15 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2200);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BELL)
+                .key("challenge_excavation_seismic_200")
+                .title(Localizer.dLocalize("advancement.challenge_excavation_seismic_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_excavation_seismic_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_excavation_seismic_200").goal(200).stat("excavation.seismic-ping.pings-triggered").reward(400).build());
     }
 
     @Override
@@ -111,6 +124,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
 
         renderDirectionHint(p, origin, direction.normalize(), getHintSegments(level));
         playPingSound(p, origin.distance(targetCenter), getScanRange(level));
+        getPlayer(p).getData().addStat("excavation.seismic-ping.pings-triggered", 1);
         xp(p, getConfig().xpPerPing + (getValue(target.getType()) * getConfig().targetValueXpMultiplier));
     }
 

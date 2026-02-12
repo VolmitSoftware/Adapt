@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.discovery;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KMap;
 import de.slikey.effectlib.effect.BleedEffect;
@@ -56,6 +60,34 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setMaxLevel(getConfig().maxLevel);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.EMERALD)
+                .key("challenge_discovery_villager_100")
+                .title(Localizer.dLocalize("advancement.challenge_discovery_villager_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_discovery_villager_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.EMERALD_BLOCK)
+                        .key("challenge_discovery_villager_2500")
+                        .title(Localizer.dLocalize("advancement.challenge_discovery_villager_2500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_discovery_villager_2500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_villager_100")
+                .goal(100)
+                .stat("discovery.villager-att.improved-trades")
+                .reward(300)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_discovery_villager_2500")
+                .goal(2500)
+                .stat("discovery.villager-att.improved-trades")
+                .reward(1000)
+                .build());
     }
 
 
@@ -95,6 +127,7 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
                     int level = getLevel(p);
                     active.put(p.getUniqueId(), level);
                     p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 60, level, true, true));
+                    getPlayer(p).getData().addStat("discovery.villager-att.improved-trades", 1);
                 } else {
                     BleedEffect blood = new BleedEffect(Adapt.instance.adaptEffectManager);  // Enemy gets blood
                     blood.material = Material.STONE;

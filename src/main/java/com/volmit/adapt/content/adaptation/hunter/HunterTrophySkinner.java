@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.hunter;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -51,6 +55,24 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2000);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SKELETON_SKULL)
+                .key("challenge_hunter_trophy_50")
+                .title(Localizer.dLocalize("advancement.challenge_hunter_trophy_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_hunter_trophy_50.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.ZOMBIE_HEAD)
+                        .key("challenge_hunter_trophy_heads_100")
+                        .title(Localizer.dLocalize("advancement.challenge_hunter_trophy_heads_100.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_hunter_trophy_heads_100.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_trophy_50").goal(50).stat("hunter.trophy-skinner.trophies-collected").reward(400).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_hunter_trophy_heads_100").goal(100).stat("hunter.trophy-skinner.heads-collected").reward(1000).build());
     }
 
     @Override
@@ -80,12 +102,14 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
         ItemStack trophy = buildTrophyDrop(e.getEntityType(), level, precision.projectileKill());
         if (trophy != null) {
             e.getDrops().add(trophy);
+            getPlayer(killer).getData().addStat("hunter.trophy-skinner.trophies-collected", 1);
         }
 
         if (ThreadLocalRandom.current().nextDouble() <= getHeadChance(level)) {
             ItemStack head = buildHeadDrop(e.getEntityType());
             if (head != null) {
                 e.getDrops().add(head);
+                getPlayer(killer).getData().addStat("hunter.trophy-skinner.heads-collected", 1);
             }
         }
 

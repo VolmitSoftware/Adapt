@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.herbalism;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -46,6 +50,20 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(2050);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.FARMLAND)
+                .key("challenge_herbalism_rooted_500")
+                .title(Localizer.dLocalize("advancement.challenge_herbalism_rooted_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_herbalism_rooted_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_herbalism_rooted_500")
+                .goal(500)
+                .stat("herbalism.rooted-footing.farmland-saved")
+                .reward(300)
+                .build());
     }
 
     @Override
@@ -72,6 +90,7 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
 
         if (e.getClickedBlock().getType() == Material.FARMLAND) {
             e.setCancelled(true);
+            getPlayer(p).getData().addStat("herbalism.rooted-footing.farmland-saved", 1);
         }
     }
 

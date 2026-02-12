@@ -18,7 +18,12 @@
 
 package com.volmit.adapt.content.adaptation.blocking;
 
+import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -48,6 +53,28 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1000);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SHIELD)
+                .key("challenge_blocking_counter_500")
+                .title(Localizer.dLocalize("advancement.challenge_blocking_counter_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_blocking_counter_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder()
+                .advancement("challenge_blocking_counter_500")
+                .goal(500)
+                .stat("blocking.counter-guard.damage-reflected")
+                .reward(500)
+                .build());
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SHIELD)
+                .key("challenge_blocking_counter_max")
+                .title(Localizer.dLocalize("advancement.challenge_blocking_counter_max.title"))
+                .description(Localizer.dLocalize("advancement.challenge_blocking_counter_max.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
     }
 
     @Override
@@ -96,10 +123,16 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
             return;
         }
 
+        // Special achievement: reach max stacks and release
+        if (stacks >= getMaxStacks(level) && AdaptConfig.get().isAdvancements() && !getPlayer(defender).getData().isGranted("challenge_blocking_counter_max")) {
+            getPlayer(defender).getAdvancementHandler().grant("challenge_blocking_counter_max");
+        }
+
         double reflected = getReflectDamage(level) + (stacks * getConfig().damagePerStack);
         attacker.damage(reflected, defender);
         setStorage(defender, "counterStacks", Math.max(0, stacks - getConfig().stackCostOnReflect));
         xp(defender, reflected * getConfig().xpPerReflectedDamage);
+        getPlayer(defender).getData().addStat("blocking.counter-guard.damage-reflected", reflected);
     }
 
     private boolean hasShield(Player p) {

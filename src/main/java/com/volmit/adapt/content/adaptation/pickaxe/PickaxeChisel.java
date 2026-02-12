@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.pickaxe;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
 import com.volmit.adapt.util.reflect.registries.Particles;
@@ -46,6 +50,15 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
         setInitialCost(getConfig().initialCost);
         setInterval(7433);
         setCostFactor(getConfig().costFactor);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.IRON_PICKAXE)
+                .key("challenge_pickaxe_chisel_500")
+                .title(Localizer.dLocalize("advancement.challenge_pickaxe_chisel_500.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pickaxe_chisel_500.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_pickaxe_chisel_500").goal(500).stat("pickaxe.chisel.extra-ores").reward(400).build());
     }
 
     @Override
@@ -104,6 +117,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
                     spw.play(p.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.25f, 0.787f);
                     spw.play(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_PLACE, 0.55f, 1.89f);
                     e.getClickedBlock().getWorld().dropItemNaturally(c.clone().subtract(p.getLocation().getDirection().clone().multiply(0.1)), is);
+                    getPlayer(p).getData().addStat("pickaxe.chisel.extra-ores", 1);
                 } else {
                     if (getConfig().showParticles) {
                         e.getClickedBlock().getWorld().spawnParticle(Particles.ITEM_CRACK, c, 3, 0.01, 0.01, 0.01, 0.1, is);

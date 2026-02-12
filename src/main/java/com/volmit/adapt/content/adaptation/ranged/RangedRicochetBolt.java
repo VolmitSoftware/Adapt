@@ -20,6 +20,10 @@ package com.volmit.adapt.content.adaptation.ranged;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -40,6 +44,7 @@ import org.bukkit.entity.SpectralArrow;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -61,6 +66,24 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1400);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.SPECTRAL_ARROW)
+                .key("challenge_ranged_ricochet_kills_50")
+                .title(Localizer.dLocalize("advancement.challenge_ranged_ricochet_kills_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_ranged_ricochet_kills_50.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.SPECTRAL_ARROW)
+                        .key("challenge_ranged_ricochet_kills_500")
+                        .title(Localizer.dLocalize("advancement.challenge_ranged_ricochet_kills_500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_ranged_ricochet_kills_500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_ricochet_kills_50").goal(50).stat("ranged.ricochet-bolt.ricochet-kills").reward(500).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_ricochet_kills_500").goal(500).stat("ranged.ricochet-bolt.ricochet-kills").reward(2000).build());
     }
 
     @Override
@@ -133,6 +156,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         sp.play(fx, Sound.BLOCK_ANVIL_HIT, 0.85f, (float) Math.max(0.4, getConfig().bouncePitchBase - (nextRicochetCount * getConfig().bouncePitchDropPerRicochet)));
         sp.play(fx, Sound.BLOCK_AMETHYST_BLOCK_HIT, 0.9f, (float) Math.min(2.0, getConfig().sparkPitchBase + (nextRicochetCount * getConfig().sparkPitchRaisePerRicochet)));
         xp(p, getConfig().xpPerRicochet + (nextRicochetCount * getConfig().xpPerRicochetStep));
+        getPlayer(p).getData().addStat("ranged.ricochet-bolt.total-ricochets", 1);
         arrow.remove();
     }
 
@@ -153,6 +177,18 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         double bonusDamage = getMetadataDouble(projectile, BONUS_DAMAGE_META, 0D);
         if (bonusDamage > 0) {
             e.setDamage(e.getDamage() + bonusDamage);
+        }
+    }
+
+    @EventHandler
+    public void on(EntityDeathEvent e) {
+        if (e.getEntity().getKiller() instanceof Player p && hasAdaptation(p)) {
+            if (e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent dmg
+                    && dmg.getDamager() instanceof Projectile projectile
+                    && projectile.hasMetadata(RICOCHET_COUNT_META)
+                    && projectile.getShooter() instanceof Player) {
+                getPlayer(p).getData().addStat("ranged.ricochet-bolt.ricochet-kills", 1);
+            }
         }
     }
 

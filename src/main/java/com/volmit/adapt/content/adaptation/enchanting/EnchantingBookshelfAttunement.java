@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.enchanting;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Localizer;
@@ -43,6 +47,15 @@ public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBo
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(1400);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BOOKSHELF)
+                .key("challenge_enchanting_bookshelf_100")
+                .title(Localizer.dLocalize("advancement.challenge_enchanting_bookshelf_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_enchanting_bookshelf_100.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_enchanting_bookshelf_100").goal(100).stat("enchanting.bookshelf-attunement.enchants-boosted").reward(400).build());
     }
 
     @Override
@@ -63,6 +76,7 @@ public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBo
             return;
         }
 
+        boolean boosted = false;
         for (EnchantmentOffer offer : offers) {
             if (offer == null) {
                 continue;
@@ -72,6 +86,10 @@ public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBo
             int newLevel = Math.min(offer.getEnchantment().getMaxLevel(), offer.getEnchantmentLevel() + Math.max(0, power / 3));
             offer.setCost(newCost);
             offer.setEnchantmentLevel(Math.max(1, newLevel));
+            boosted = true;
+        }
+        if (boosted) {
+            getPlayer(p).getData().addStat("enchanting.bookshelf-attunement.enchants-boosted", 1);
         }
     }
 

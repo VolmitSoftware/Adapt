@@ -20,8 +20,12 @@ package com.volmit.adapt.content.adaptation.ranged;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
 import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.recipe.MaterialChar;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.BoundSnowBall;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.config.ConfigDescription;
@@ -77,6 +81,15 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
                 .build());
         activeBlocks = new HashSet<>();
         activeSnowballs = new HashMap<>();
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.COBWEB)
+                .key("challenge_ranged_web_200")
+                .title(Localizer.dLocalize("advancement.challenge_ranged_web_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_ranged_web_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_ranged_web_200").goal(200).stat("ranged.web-bomb.mobs-trapped").reward(300).build());
     }
 
     @Override
@@ -106,6 +119,9 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
             Adapt.verbose("Snowball Got: " + snowball.getEntityId() + " " + snowball.getUniqueId());
             if (activeSnowballs.containsKey(Bukkit.getEntity(snowball.getUniqueId()))) {
                 Adapt.verbose("Detected snowball hit");
+                if (e.getHitEntity() != null) {
+                    getPlayer(p).getData().addStat("ranged.web-bomb.mobs-trapped", 1);
+                }
                 activeSnowballs.remove(snowball);
                 snowball.remove();
                 Set<Block> locs = new HashSet<>();

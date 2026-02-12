@@ -19,6 +19,10 @@
 package com.volmit.adapt.content.adaptation.nether;
 
 import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.advancement.AdaptAdvancement;
+import com.volmit.adapt.api.advancement.AdaptAdvancementFrame;
+import com.volmit.adapt.api.advancement.AdvancementVisibility;
+import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.util.C;
 import com.volmit.adapt.util.Element;
 import com.volmit.adapt.util.Form;
@@ -51,6 +55,24 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
         setInitialCost(getConfig().initialCost);
         setCostFactor(getConfig().costFactor);
         setInterval(900);
+        registerAdvancement(AdaptAdvancement.builder()
+                .icon(Material.BLAZE_ROD)
+                .key("challenge_nether_blaze_200")
+                .title(Localizer.dLocalize("advancement.challenge_nether_blaze_200.title"))
+                .description(Localizer.dLocalize("advancement.challenge_nether_blaze_200.description"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.PARENT_GRANTED)
+                .child(AdaptAdvancement.builder()
+                        .icon(Material.BLAZE_POWDER)
+                        .key("challenge_nether_blaze_2500")
+                        .title(Localizer.dLocalize("advancement.challenge_nether_blaze_2500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_nether_blaze_2500.description"))
+                        .frame(AdaptAdvancementFrame.CHALLENGE)
+                        .visibility(AdvancementVisibility.PARENT_GRANTED)
+                        .build())
+                .build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_blaze_200").goal(200).stat("nether.blaze-leech.health-from-fire").reward(300).build());
+        registerStatTracker(AdaptStatTracker.builder().advancement("challenge_nether_blaze_2500").goal(2500).stat("nether.blaze-leech.health-from-fire").reward(1000).build());
     }
 
     @Override
@@ -132,6 +154,7 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
         SoundPlayer sp = SoundPlayer.of(p.getWorld());
         sp.play(p.getLocation(), Sound.ENTITY_BLAZE_AMBIENT, 0.45f, defensive ? 1.4f : 1.7f);
         xp(p, defensive ? getConfig().xpOnDefensiveProc : getConfig().xpOnOffensiveProc);
+        getPlayer(p).getData().addStat("nether.blaze-leech.health-from-fire", 1);
     }
 
     private double getTriggerChance(int level) {
