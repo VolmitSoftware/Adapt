@@ -153,18 +153,31 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Pickaxe Chisel adaptation.", impact = "True enables this behavior and false disables it.")
         boolean showParticles = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
         int baseCost = 6;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 7;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
         double costFactor = 0.4;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Time for the Pickaxe Chisel adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int cooldownTime = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Drop Chance Base for the Pickaxe Chisel adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double dropChanceBase = 0.07;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Drop Chance Factor for the Pickaxe Chisel adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double dropChanceFactor = 0.22;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Break Chance for the Pickaxe Chisel adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double breakChance = 0.25;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Damage Per Block Base for the Pickaxe Chisel adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double damagePerBlockBase = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Damage Factor Inverse Multiplier for the Pickaxe Chisel adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double damageFactorInverseMultiplier = 2;
     }
 }

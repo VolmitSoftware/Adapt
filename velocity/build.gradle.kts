@@ -10,6 +10,7 @@ dependencies {
 
     compileOnly(slimjarHelper("velocity"))
     compileOnly(libs.lettuce)
+    compileOnly(libs.toml4j)
     compileOnly(libs.fastutil)
 }
 

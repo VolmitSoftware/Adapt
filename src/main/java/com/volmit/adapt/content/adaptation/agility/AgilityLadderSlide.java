@@ -205,21 +205,37 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
         int baseCost = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
         double costFactor = 0.12;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Multiplier applied to baseUpwardLadderSpeed to compute the target climb speed.", impact = "Higher values increase final ladder climb speed after the ramp-up phase.")
         double speedMultiplier = 2.0;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Velocity difference threshold used to skip tiny Y-velocity adjustments.", impact = "Lower values apply more frequent micro-updates; higher values reduce minor velocity writes.")
         double velocityEpsilon = 0.003;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Baseline climb speed used before the speed multiplier is applied.", impact = "Higher values raise the base climb profile and increase total ladder ascent speed.")
         double baseUpwardLadderSpeed = 0.12;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Vanilla-like upward speed used near ladder endpoints to avoid overshooting.", impact = "Higher values make endpoint climbing snappier; lower values keep transitions conservative.")
         double normalUpwardLadderSpeed = 0.2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Minimum positive Y movement treated as intentional upward ladder motion.", impact = "Lower values are more sensitive to slight upward input; higher values require clearer upward movement.")
         double movementDirectionEpsilonUpward = 0.0004;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Smoothing factor for blending current upward velocity toward target ladder speed.", impact = "Values near 1.0 ramp quickly; lower values create a slower curve-like acceleration profile.")
         double upwardAccelerationSmoothing = 0.28;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "How long to retain previous upward speed state between ladder movement samples.", impact = "Lower values reset ramp-up sooner; higher values preserve momentum between short interruptions.")
         long upwardStateResetMs = 200;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Minimum upward look angle required to activate upward ladder acceleration.", impact = "Larger values require players to look farther upward before acceleration engages.")
         double lookUpPitchThreshold = 15;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Distance from ladder top where motion reverts toward normal upward speed.", impact = "Higher values begin fallback earlier near ladder ends; lower values keep boosted speed longer.")
         int revertDistanceBlocks = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum blocks scanned to detect ladder continuity when checking ladder endpoints.", impact = "Higher values support taller ladders at slightly higher per-check cost.")
         int maxLadderScanDistance = 64;
     }
 

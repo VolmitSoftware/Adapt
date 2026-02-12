@@ -19,10 +19,8 @@
 package com.volmit.adapt;
 
 import com.volmit.adapt.api.xp.Curves;
-import com.volmit.adapt.util.ConfigRewriteReporter;
-import com.volmit.adapt.util.IO;
-import com.volmit.adapt.util.Json;
 import com.volmit.adapt.util.redis.RedisConfig;
+import com.volmit.adapt.util.config.ConfigFileSupport;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -115,40 +113,17 @@ public class AdaptConfig {
     }
 
     private static AdaptConfig loadConfig(AdaptConfig fallback, boolean overwriteOnFailure) throws IOException {
-        File file = Adapt.instance.getDataFile("adapt", "adapt.json");
-        if (!file.exists()) {
-            IO.writeAll(file, Json.toJson(fallback, true));
-            Adapt.info("Created missing config [adapt/adapt.json] from defaults.");
-            return fallback;
-        }
-
-        try {
-            String raw = IO.readAll(file);
-            AdaptConfig loaded = Json.fromJson(raw, AdaptConfig.class);
-            if (loaded == null) {
-                throw new IOException("Config parser returned null.");
-            }
-
-            String canonical = Json.toJson(loaded, true);
-            if (!normalizeJson(canonical).equals(normalizeJson(raw))) {
-                ConfigRewriteReporter.reportRewrite(file, "core-config", raw, canonical);
-                IO.writeAll(file, canonical);
-            }
-
-            return loaded;
-        } catch (Throwable e) {
-            if (overwriteOnFailure) {
-                ConfigRewriteReporter.reportFallbackRewrite(file, "core-config", "invalid json");
-                IO.writeAll(file, Json.toJson(fallback, true));
-                return fallback;
-            }
-
-            throw new IOException("Invalid json", e);
-        }
-    }
-
-    private static String normalizeJson(String json) {
-        return json.replace("\r\n", "\n").stripTrailing();
+        File canonicalFile = Adapt.instance.getDataFile("adapt", "adapt.toml");
+        File legacyFile = Adapt.instance.getDataFile("adapt", "adapt.json");
+        return ConfigFileSupport.load(
+                canonicalFile,
+                legacyFile,
+                AdaptConfig.class,
+                fallback,
+                overwriteOnFailure,
+                "core-config",
+                "Created missing config [adapt/adapt.toml] from defaults."
+        );
     }
 
     @Getter

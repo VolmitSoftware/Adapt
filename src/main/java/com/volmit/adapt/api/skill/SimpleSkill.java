@@ -27,8 +27,8 @@ import com.volmit.adapt.api.recipe.AdaptRecipe;
 import com.volmit.adapt.api.tick.TickedObject;
 import com.volmit.adapt.api.world.AdaptStatTracker;
 import com.volmit.adapt.content.item.ItemListings;
-import com.volmit.adapt.util.ConfigRewriteReporter;
 import com.volmit.adapt.util.*;
+import com.volmit.adapt.util.config.ConfigFileSupport;
 import com.volmit.adapt.util.collection.KList;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -94,6 +94,10 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     protected File getConfigFile() {
+        return Adapt.instance.getDataFile("adapt", "skills", getName() + ".toml");
+    }
+
+    protected File getLegacyConfigFile() {
         return Adapt.instance.getDataFile("adapt", "skills", getName() + ".json");
     }
 
@@ -127,39 +131,15 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
 
     private T loadConfig(File file, T fallback, boolean overwriteOnReadFailure) throws IOException {
-        if (!file.exists()) {
-            IO.writeAll(file, Json.toJson(fallback, true));
-            Adapt.info("Created missing skill config [adapt/skills/" + getName() + ".json] from defaults.");
-            return fallback;
-        }
-
-        try {
-            String raw = IO.readAll(file);
-            T loaded = Json.fromJson(raw, getConfigurationClass());
-            if (loaded == null) {
-                throw new IOException("Config parser returned null.");
-            }
-
-            String canonical = Json.toJson(loaded, true);
-            if (!normalizeJson(canonical).equals(normalizeJson(raw))) {
-                ConfigRewriteReporter.reportRewrite(file, "skill:" + getName(), raw, canonical);
-                IO.writeAll(file, canonical);
-            }
-
-            return loaded;
-        } catch (Throwable e) {
-            if (overwriteOnReadFailure) {
-                ConfigRewriteReporter.reportFallbackRewrite(file, "skill:" + getName(), "invalid json");
-                IO.writeAll(file, Json.toJson(fallback, true));
-                return fallback;
-            }
-
-            throw new IOException("Invalid json", e);
-        }
-    }
-
-    private String normalizeJson(String json) {
-        return json.replace("\r\n", "\n").stripTrailing();
+        return ConfigFileSupport.load(
+                file,
+                getLegacyConfigFile(),
+                getConfigurationClass(),
+                fallback,
+                overwriteOnReadFailure,
+                "skill:" + getName(),
+                "Created missing skill config [adapt/skills/" + getName() + ".toml] from defaults."
+        );
     }
 
     protected void onConfigReload(T previousConfig, T newConfig) {

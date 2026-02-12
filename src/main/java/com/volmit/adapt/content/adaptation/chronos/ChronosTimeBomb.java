@@ -536,40 +536,75 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Chronos Time Bomb adaptation.", impact = "True enables this behavior and false disables it.")
         boolean showParticles = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Time Bomb adaptation.", impact = "True enables this behavior and false disables it.")
         boolean playClockSounds = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
         int baseCost = 8;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 7;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
         double costFactor = 0.42;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Radius for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double baseRadius = 6;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Radius Per Level for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double radiusPerLevel = 1.5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Duration Ticks for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int baseDurationTicks = 60;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Duration Per Level Ticks for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int durationPerLevelTicks = 25;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Millis for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownMillis = 15000;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Target Deploy Range for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double targetDeployRange = 64;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Field Center YOffset for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double fieldCenterYOffset = 1.25;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Slowness Amplifier for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int slownessAmplifier = 2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Caster Slowness Amplifier for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int casterSlownessAmplifier = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Fatigue Amplifier for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int fatigueAmplifier = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Freeze Players In Air for the Chronos Time Bomb adaptation.", impact = "True enables this behavior and false disables it.")
         boolean freezePlayersInAir = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Accumulate Frozen Impulse for the Chronos Time Bomb adaptation.", impact = "True enables this behavior and false disables it.")
         boolean accumulateFrozenImpulse = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Frozen Impulse Min Magnitude for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double frozenImpulseMinMagnitude = 0.03;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Frozen Impulse Sample Cap for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double frozenImpulseSampleCap = 2.8;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Frozen Impulse Release Cap for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double frozenImpulseReleaseCap = 7.5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Effect Refresh Ticks for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int effectRefreshTicks = 24;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Field Sphere for the Chronos Time Bomb adaptation.", impact = "True enables this behavior and false disables it.")
         boolean showFieldSphere = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Field Sphere Particle Count for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int fieldSphereParticleCount = 280;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Field Sphere Refresh Millis for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long fieldSphereRefreshMillis = 100;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Field Tick Sound Interval Millis for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int fieldTickSoundIntervalMillis = 325;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Field Tick Min Interval Millis for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int fieldTickMinIntervalMillis = 70;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Field Tick Pitch Start for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double fieldTickPitchStart = 0.42;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Field Tick Pitch End for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double fieldTickPitchEnd = 1.96;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Field Tick Pitch Curve Exponent for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double fieldTickPitchCurveExponent = 3.75;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Field Tick Acceleration Factor for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double fieldTickAccelerationFactor = 0.82;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp On Cast for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpOnCast = 28;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Level for the Chronos Time Bomb adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerLevel = 3;
     }
 

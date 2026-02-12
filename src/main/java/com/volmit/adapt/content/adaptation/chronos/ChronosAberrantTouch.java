@@ -154,28 +154,51 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Aberrant Touch adaptation.", impact = "True enables this behavior and false disables it.")
         boolean playClockSounds = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
         int baseCost = 7;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 6;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
         double costFactor = 0.38;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Duration Add Ticks for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int durationAddTicks = 30;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Duration Per Level Ticks for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int durationPerLevelTicks = 6;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Player Duration Cap Ticks for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int playerDurationCapTicks = 80;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Player Amplifier Cap for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int playerAmplifierCap = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Entity Duration Cap Ticks for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int entityDurationCapTicks = 120;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Entity Duration Cap Per Level Ticks for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int entityDurationCapPerLevelTicks = 10;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Entity Amplifier Cap for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int entityAmplifierCap = 4;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Hunger Cost for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double hungerCost = 1.0;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Minimum Food Level for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int minimumFoodLevel = 4;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Root At Stacks for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int rootAtStacks = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Root Duration Ticks for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int rootDurationTicks = 20;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Root Amplifier for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int rootAmplifier = 10;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Stack Reset Millis for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long stackResetMillis = 2500;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Millis for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownMillis = 250;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Proc for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerProc = 4;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Level for the Chronos Aberrant Touch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerLevel = 1.25;
     }
 

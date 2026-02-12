@@ -274,22 +274,39 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Discovery skill.", impact = "True enables this behavior and false disables it.")
         boolean showParticles = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Biome XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverBiomeXP = 15;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Potion XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverPotionXP = 36;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Entity Type XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverEntityTypeXP = 125;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Food Type XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverFoodTypeXP = 75;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Player XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverPlayerXP = 125;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Environment XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverEnvironmentXP = 750;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover World XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverWorldXP = 750;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Enchant Max XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverEnchantMaxXP = 250;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Enchant Level XPMultiplier for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverEnchantLevelXPMultiplier = 52;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Enchant Base XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverEnchantBaseXP = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Item Base XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverItemBaseXP = 10;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Recipe Base XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverRecipeBaseXP = 15;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Item Value XPMultiplier for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverItemValueXPMultiplier = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Block Base XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverBlockBaseXP = 3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Discover Block Value XPMultiplier for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double discoverBlockValueXPMultiplier = 0.333;
     }
 }

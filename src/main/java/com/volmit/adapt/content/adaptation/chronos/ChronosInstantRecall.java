@@ -533,36 +533,67 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Instant Recall adaptation.", impact = "True enables this behavior and false disables it.")
         boolean playClockSounds = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Rewind Trace Particles for the Chronos Instant Recall adaptation.", impact = "True enables this behavior and false disables it.")
         boolean showRewindTraceParticles = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Rewind Trace Points for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int rewindTracePoints = 18;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Rewind Animation Ticks for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int rewindAnimationTicks = 10;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
         int baseCost = 3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
         double costFactor = 0.45;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Rewind Seconds for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double baseRewindSeconds = 3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Rewind Seconds Per Level for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double rewindSecondsPerLevel = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Padding Seconds for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int cooldownPaddingSeconds = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Snapshot Interval Millis for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int snapshotIntervalMillis = 50;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls History Padding Seconds for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int historyPaddingSeconds = 2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Rewind Protection Ticks for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int rewindProtectionTicks = 25;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Distance Block for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerDistanceBlock = 0.35;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Health Point for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerHealthPoint = 0.85;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Hunger Point for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerHungerPoint = 0.7;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Saturation Point for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerSaturationPoint = 0.18;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Level Multiplier Per Level for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpLevelMultiplierPerLevel = 0.08;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Min Raw Reward for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpMinRawReward = 1.35;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Min Award for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpMinAward = 0.5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Max Award for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpMaxAward = 36;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Cross World Distance Credit for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpCrossWorldDistanceCredit = 16;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Diminish Window Millis for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long xpDiminishWindowMillis = 45000;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Diminish Min Multiplier for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpDiminishMinMultiplier = 0.18;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Repeat Window Millis for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long xpRepeatWindowMillis = 180000;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Repeat Source Radius for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpRepeatSourceRadius = 3.5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Repeat Target Radius for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpRepeatTargetRadius = 3.5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Repeat Penalty Multiplier for the Chronos Instant Recall adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpRepeatPenaltyMultiplier = 0.2;
     }
 

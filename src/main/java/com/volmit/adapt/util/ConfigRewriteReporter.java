@@ -3,6 +3,7 @@ package com.volmit.adapt.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.volmit.adapt.Adapt;
+import com.volmit.adapt.util.config.ConfigFileSupport;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -107,7 +108,7 @@ public class ConfigRewriteReporter {
     }
 
     private static Map<String, String> flattenForDiff(String raw) {
-        JsonElement element = parseJson(raw);
+        JsonElement element = parseStructured(raw);
         if (element == null) {
             Map<String, String> fallback = new HashMap<>();
             if (raw != null && !raw.isBlank()) {
@@ -155,16 +156,12 @@ public class ConfigRewriteReporter {
         }
     }
 
-    private static JsonElement parseJson(String raw) {
+    private static JsonElement parseStructured(String raw) {
         if (raw == null || raw.isBlank()) {
             return null;
         }
 
-        try {
-            return Json.fromJson(raw, JsonElement.class);
-        } catch (Throwable e) {
-            return null;
-        }
+        return ConfigFileSupport.parseToJsonElement(raw, null);
     }
 
     private static String summarizeKeys(List<String> keys) {
@@ -192,7 +189,7 @@ public class ConfigRewriteReporter {
         if (json == null) {
             return null;
         }
-        return json.replace("\r\n", "\n").stripTrailing();
+        return ConfigFileSupport.normalize(json);
     }
 
     private static String relativize(File file) {

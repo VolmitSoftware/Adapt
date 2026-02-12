@@ -252,18 +252,31 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
     @NoArgsConstructor
     public static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         public boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Harvest Xp Cooldown for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double harvestXpCooldown = 5000;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Food Consume XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double foodConsumeXP = 25;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Shear XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double shearXP = 25;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Harvest Per Age XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double harvestPerAgeXP = 2.5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Plant Crop Seeds XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double plantCropSeedsXP = 2.5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Composter Base XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double composterBaseXP = 2.5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Composter Level XPMultiplier for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double composterLevelXPMultiplier = 1.25;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Composter Non Zero Level Bonus for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double composterNonZeroLevelBonus = 25;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Eat100Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double challengeEat100Reward = 1250;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Eat1k Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double challengeEat1kReward = 6250;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Harvest100Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double challengeHarvest100Reward = 1250;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Harvest1k Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double challengeHarvest1kReward = 6250;
     }
 }

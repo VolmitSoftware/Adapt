@@ -647,76 +647,147 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Chronos Time In ABottle adaptation.", impact = "True enables this behavior and false disables it.")
         boolean showParticles = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Time In ABottle adaptation.", impact = "True enables this behavior and false disables it.")
         boolean playClockSounds = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
         int baseCost = 6;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 6;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
         double costFactor = 0.35;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Stored Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double maxStoredSeconds = 900;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Charge Per Second for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double chargePerSecond = 0.1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Charge Per Second Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double chargePerSecondPerLevel = 0.02;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Cook Ticks Per Stored Second for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double baseCookTicksPerStoredSecond = 20;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cook Ticks Per Second Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double cookTicksPerSecondPerLevel = 3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Cook Ticks Per Use for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxCookTicksPerUse = 140;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Cook Ticks Per Use Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxCookTicksPerUsePerLevel = 35;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Furnace Spend Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double furnaceSpendMultiplier = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Brewing Ticks Per Stored Second for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double baseBrewingTicksPerStoredSecond = 20;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Brewing Ticks Per Second Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double brewingTicksPerSecondPerLevel = 3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Brewing Ticks Per Use for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxBrewingTicksPerUse = 140;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Brewing Ticks Per Use Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxBrewingTicksPerUsePerLevel = 35;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Brewing Spend Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double brewingSpendMultiplier = 1.05;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Campfire Ticks Per Stored Second for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double baseCampfireTicksPerStoredSecond = 20;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Campfire Ticks Per Second Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double campfireTicksPerSecondPerLevel = 3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Campfire Ticks Per Use for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxCampfireTicksPerUse = 160;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Campfire Ticks Per Use Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxCampfireTicksPerUsePerLevel = 40;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Campfire Spend Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double campfireSpendMultiplier = 0.9;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Entity Age Ticks Per Stored Second for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double baseEntityAgeTicksPerStoredSecond = 20;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Entity Age Ticks Per Second Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double entityAgeTicksPerSecondPerLevel = 4;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Entity Age Ticks Per Use for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxEntityAgeTicksPerUse = 180;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Entity Age Ticks Per Use Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxEntityAgeTicksPerUsePerLevel = 55;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Entity Spend Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double entitySpendMultiplier = 1.35;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Growth Steps Per Use for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxGrowthStepsPerUse = 6;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Growth Steps Per Use Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxGrowthStepsPerUsePerLevel = 2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Allow Sapling Tree Generation for the Chronos Time In ABottle adaptation.", impact = "True enables this behavior and false disables it.")
         boolean allowSaplingTreeGeneration = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Sapling Grow Chance Base for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double saplingGrowChanceBase = 0.18;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Sapling Grow Chance Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double saplingGrowChancePerLevel = 0.04;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Growth Cost Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double growthCostMultiplier = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Growth Cost Reduction Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double growthCostReductionPerLevel = 0.05;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Min Growth Cost Level Scale for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double minGrowthCostLevelScale = 0.45;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Min Growth Step Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double minGrowthStepSeconds = 0.06;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Sapling Growth Steps for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int saplingGrowthSteps = 2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Stem Growth Steps for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int stemGrowthSteps = 7;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Berry Growth Steps for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int berryGrowthSteps = 3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Vine Growth Steps for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int vineGrowthSteps = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cave Vine Growth Steps for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int caveVineGrowthSteps = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Kelp Growth Steps for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int kelpGrowthSteps = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Default Growth Steps for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int defaultGrowthSteps = 4;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Crop Natural Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double cropNaturalSeconds = 300;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Nether Wart Natural Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double netherWartNaturalSeconds = 420;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Sapling Natural Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double saplingNaturalSeconds = 900;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Stem Natural Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double stemNaturalSeconds = 660;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Berry Bush Natural Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double berryBushNaturalSeconds = 260;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Vine Natural Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double vineNaturalSeconds = 300;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cave Vine Natural Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double caveVineNaturalSeconds = 280;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Kelp Natural Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double kelpNaturalSeconds = 240;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Default Growable Natural Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double defaultGrowableNaturalSeconds = 420;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Crop Cost Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double cropCostMultiplier = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Nether Wart Cost Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double netherWartCostMultiplier = 1.2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Sapling Cost Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double saplingCostMultiplier = 2.2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Stem Cost Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double stemCostMultiplier = 1.4;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Berry Bush Cost Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double berryBushCostMultiplier = 0.8;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Vine Cost Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double vineCostMultiplier = 0.85;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cave Vine Cost Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double caveVineCostMultiplier = 0.9;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Kelp Cost Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double kelpCostMultiplier = 0.75;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Default Growable Cost Multiplier for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double defaultGrowableCostMultiplier = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Cook Tick for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerCookTick = 0.08;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Brew Tick for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerBrewTick = 0.08;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Campfire Tick for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerCampfireTick = 0.08;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Entity Age Tick for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerEntityAgeTick = 0.06;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Per Growth Step for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpPerGrowthStep = 2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max XPPer Use for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double maxXPPerUse = 55;
     }
 }

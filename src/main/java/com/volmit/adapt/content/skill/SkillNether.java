@@ -168,13 +168,21 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     @Data
     @NoArgsConstructor
     public static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         private boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Wither Damage Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private double witherDamageXp = 26.0;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Wither Attack Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private double witherAttackXp = 15;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Wither Skeleton Kill Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private double witherSkeletonKillXp = 325;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Wither Kill Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private double witherKillXp = 1250;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Wither Rose Break Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private double witherRoseBreakXp = 125;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Wither Rose Break Cooldown for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private int witherRoseBreakCooldown = 60 * 20;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Nether Reward for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private double challengeNetherReward = 500;
     }
 }

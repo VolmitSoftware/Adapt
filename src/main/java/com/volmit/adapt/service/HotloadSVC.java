@@ -20,6 +20,7 @@ import com.volmit.adapt.util.J;
 import com.volmit.adapt.util.Json;
 import com.volmit.adapt.util.Localizer;
 import com.volmit.adapt.util.Window;
+import com.volmit.adapt.util.config.ConfigFileSupport;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -49,7 +50,9 @@ public class HotloadSVC implements AdaptService {
     private TickedObject configTicker;
     private File adaptFolder;
     private File adaptConfigFile;
+    private File adaptConfigLegacyFile;
     private File modelsFile;
+    private File modelsLegacyFile;
     private File skillsFolder;
     private File adaptationsFolder;
     private final Map<String, String> knownSignatures = new HashMap<>();
@@ -58,14 +61,16 @@ public class HotloadSVC implements AdaptService {
     @Override
     public void onEnable() {
         adaptFolder = Adapt.instance.getDataFolder("adapt");
-        adaptConfigFile = Adapt.instance.getDataFile("adapt", "adapt.json");
-        modelsFile = Adapt.instance.getDataFile("adapt", "models.json");
+        adaptConfigFile = Adapt.instance.getDataFile("adapt", "adapt.toml");
+        adaptConfigLegacyFile = Adapt.instance.getDataFile("adapt", "adapt.json");
+        modelsFile = Adapt.instance.getDataFile("adapt", "models.toml");
+        modelsLegacyFile = Adapt.instance.getDataFile("adapt", "models.json");
         skillsFolder = Adapt.instance.getDataFolder("adapt", "skills");
         adaptationsFolder = Adapt.instance.getDataFolder("adapt", "adaptations");
         configWatcher = new FolderWatcher(adaptFolder);
         configWatcher.checkModified();
         primeKnownSnapshots();
-        Adapt.info("Config hotload watcher enabled for all /adapt/*.json files.");
+        Adapt.info("Config hotload watcher enabled for all /adapt/*.json and /adapt/*.toml files.");
 
         configTicker = new TickedObject("config", "config-hotload-service", WATCHER_POLL_MS) {
             @Override
@@ -104,11 +109,11 @@ public class HotloadSVC implements AdaptService {
 
         boolean refreshedSomething = false;
         for (File file : touched) {
-            if (file == null || !isJson(file)) {
+            if (file == null || !ConfigFileSupport.isSupportedConfigFile(file)) {
                 continue;
             }
 
-            refreshedSomething = processJsonChange(file) || refreshedSomething;
+            refreshedSomething = processConfigChange(file) || refreshedSomething;
         }
 
         if (refreshedSomething) {
@@ -116,11 +121,11 @@ public class HotloadSVC implements AdaptService {
         }
     }
 
-    private boolean processJsonChange(File file) {
+    private boolean processConfigChange(File file) {
         String path = file.getAbsolutePath();
         String before = knownContents.get(path);
         String nowRaw = readFileContent(file);
-        String now = normalizeJson(nowRaw);
+        String now = normalizeContent(nowRaw);
 
         if (Objects.equals(before, now)) {
             updateKnownSnapshot(file, now);
@@ -128,7 +133,7 @@ public class HotloadSVC implements AdaptService {
         }
 
         boolean applied = applyConfigChange(file);
-        String after = normalizeJson(readFileContent(file));
+        String after = normalizeContent(readFileContent(file));
         updateKnownSnapshot(file, after);
         if (!applied) {
             return false;
@@ -140,6 +145,11 @@ public class HotloadSVC implements AdaptService {
 
     private boolean applyConfigChange(File file) {
         try {
+            if (isShadowedLegacyJson(file)) {
+                Adapt.verbose("Ignoring legacy json hotload because canonical toml exists: " + file.getPath());
+                return false;
+            }
+
             if (isAdaptConfigFile(file)) {
                 boolean ok = AdaptConfig.reload();
                 if (ok) {
@@ -162,7 +172,7 @@ public class HotloadSVC implements AdaptService {
                 return reloadModelsConfig(file);
             }
 
-            return validateAndCanonicalizeJson(file);
+            return validateAndCanonicalizeConfig(file);
         } catch (Throwable e) {
             Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
             return false;
@@ -212,7 +222,7 @@ public class HotloadSVC implements AdaptService {
             }
         }
 
-        return validateAndCanonicalizeJson(file);
+        return validateAndCanonicalizeConfig(file);
     }
 
     private boolean reloadModelsConfig(File file) {
@@ -222,7 +232,7 @@ public class HotloadSVC implements AdaptService {
             return false;
         }
 
-        return validateAndCanonicalizeJson(file);
+        return validateAndCanonicalizeConfig(file);
     }
 
     private void refreshGlobalRuntimeSettings() {
@@ -238,20 +248,24 @@ public class HotloadSVC implements AdaptService {
         }
     }
 
-    private boolean validateAndCanonicalizeJson(File file) {
+    private boolean validateAndCanonicalizeConfig(File file) {
         if (file == null || !file.exists() || !file.isFile()) {
             return true;
         }
 
         try {
             String raw = readFileContent(file);
-            JsonElement parsed = parseJson(raw);
+            JsonElement parsed = parseStructured(raw, file);
             if (parsed == null) {
                 return false;
             }
 
+            if (ConfigFileSupport.isTomlFile(file)) {
+                return true;
+            }
+
             String canonical = Json.toJson(parsed, true);
-            if (!normalizeJson(raw).equals(normalizeJson(canonical))) {
+            if (!normalizeContent(raw).equals(normalizeContent(canonical))) {
                 ConfigRewriteReporter.reportRewrite(file, "hotload", raw, canonical);
                 IO.writeAll(file, canonical);
             }
@@ -262,19 +276,19 @@ public class HotloadSVC implements AdaptService {
     }
 
     private boolean isAdaptConfigFile(File file) {
-        return sameFile(file, adaptConfigFile);
+        return sameFile(file, adaptConfigFile) || sameFile(file, adaptConfigLegacyFile);
     }
 
     private boolean isModelsConfigFile(File file) {
-        return sameFile(file, modelsFile);
+        return sameFile(file, modelsFile) || sameFile(file, modelsLegacyFile);
     }
 
     private boolean isSkillConfigFile(File file) {
-        return isDirectChild(skillsFolder, file);
+        return isDirectChild(skillsFolder, file) && ConfigFileSupport.isSupportedConfigFile(file);
     }
 
     private boolean isAdaptationConfigFile(File file) {
-        return isDirectChild(adaptationsFolder, file);
+        return isDirectChild(adaptationsFolder, file) && ConfigFileSupport.isSupportedConfigFile(file);
     }
 
     private boolean isDirectChild(File parent, File child) {
@@ -290,23 +304,33 @@ public class HotloadSVC implements AdaptService {
         return a != null && b != null && a.getAbsoluteFile().equals(b.getAbsoluteFile());
     }
 
-    private boolean isJson(File file) {
-        return file.getName().toLowerCase(Locale.ROOT).endsWith(".json");
+    private boolean isShadowedLegacyJson(File file) {
+        if (file == null || !file.getName().toLowerCase(Locale.ROOT).endsWith(".json")) {
+            return false;
+        }
+
+        if (sameFile(file, adaptConfigLegacyFile) && adaptConfigFile != null && adaptConfigFile.exists()) {
+            return true;
+        }
+        if (sameFile(file, modelsLegacyFile) && modelsFile != null && modelsFile.exists()) {
+            return true;
+        }
+        if ((isSkillConfigFile(file) || isAdaptationConfigFile(file)) && ConfigFileSupport.toTomlFile(file).exists()) {
+            return true;
+        }
+
+        return false;
     }
 
     private String toConfigName(String fileName) {
-        if (fileName == null || !fileName.toLowerCase(Locale.ROOT).endsWith(".json")) {
-            return null;
-        }
-
-        return fileName.substring(0, fileName.length() - 5).toLowerCase(Locale.ROOT);
+        return ConfigFileSupport.configNameFromFileName(fileName);
     }
 
     private void primeKnownSnapshots() {
         knownSignatures.clear();
         knownContents.clear();
         for (File file : listKnownConfigFiles()) {
-            updateKnownSnapshot(file, normalizeJson(readFileContent(file)));
+            updateKnownSnapshot(file, normalizeContent(readFileContent(file)));
         }
     }
 
@@ -341,8 +365,10 @@ public class HotloadSVC implements AdaptService {
         List<File> files = new ArrayList<>();
         Set<String> added = new HashSet<>();
 
-        addIfJson(files, added, adaptConfigFile);
-        addIfJson(files, added, modelsFile);
+        addIfConfig(files, added, adaptConfigFile);
+        addIfConfig(files, added, adaptConfigLegacyFile);
+        addIfConfig(files, added, modelsFile);
+        addIfConfig(files, added, modelsLegacyFile);
 
         if (adaptFolder == null || !adaptFolder.exists() || !adaptFolder.isDirectory()) {
             return files;
@@ -367,15 +393,15 @@ public class HotloadSVC implements AdaptService {
                     continue;
                 }
 
-                addIfJson(files, added, child);
+                addIfConfig(files, added, child);
             }
         }
 
         return files;
     }
 
-    private void addIfJson(List<File> out, Set<String> added, File file) {
-        if (file == null || !isJson(file)) {
+    private void addIfConfig(List<File> out, Set<String> added, File file) {
+        if (file == null || !ConfigFileSupport.isSupportedConfigFile(file)) {
             return;
         }
 
@@ -421,23 +447,19 @@ public class HotloadSVC implements AdaptService {
         }
     }
 
-    private String normalizeJson(String json) {
-        if (json == null) {
+    private String normalizeContent(String text) {
+        if (text == null) {
             return null;
         }
-        return json.replace("\r\n", "\n").stripTrailing();
+        return ConfigFileSupport.normalize(text);
     }
 
-    private JsonElement parseJson(String raw) {
+    private JsonElement parseStructured(String raw, File file) {
         if (raw == null || raw.isBlank()) {
             return null;
         }
 
-        try {
-            return Json.fromJson(raw, JsonElement.class);
-        } catch (Throwable e) {
-            return null;
-        }
+        return ConfigFileSupport.parseToJsonElement(raw, file);
     }
 
     private void notifyOps(File file, String before, String after) {
@@ -496,7 +518,7 @@ public class HotloadSVC implements AdaptService {
     }
 
     private Map<String, String> flattenForDiff(String raw) {
-        JsonElement element = parseJson(raw);
+        JsonElement element = parseStructured(raw, null);
         if (element == null) {
             Map<String, String> fallback = new HashMap<>();
             if (raw != null && !raw.isBlank()) {

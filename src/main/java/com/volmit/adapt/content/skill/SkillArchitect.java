@@ -163,10 +163,15 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Place1k Reward for the Architect skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengePlace1kReward = 1750;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Value Multiplier for the Architect skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpValueMultiplier = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Architect skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownDelay = 1250;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Xp Base for the Architect skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double xpBase = 1;
     }
 }

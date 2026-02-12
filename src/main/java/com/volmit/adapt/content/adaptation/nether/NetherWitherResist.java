@@ -101,13 +101,21 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     @Data
     @NoArgsConstructor
     public static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         public boolean permanent = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         private boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
         private int baseCost = 3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
         private double costFactor = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         private int maxLevel = 3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         private int initialCost = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Piece Chance for the Nether Wither Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private double basePieceChance = 10;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Chance Addition for the Nether Wither Resist adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private double chanceAddition = 5;
     }
 }

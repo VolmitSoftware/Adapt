@@ -232,9 +232,13 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Consume On Use for the Rift Gate adaptation.", impact = "True enables this behavior and false disables it.")
         boolean consumeOnUse = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Rift Gate adaptation.", impact = "True enables this behavior and false disables it.")
         boolean showParticles = true;
     }
 }

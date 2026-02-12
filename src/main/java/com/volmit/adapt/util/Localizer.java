@@ -18,9 +18,11 @@
 
 package com.volmit.adapt.util;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
+import com.volmit.adapt.util.config.ConfigFileSupport;
 import lombok.SneakyThrows;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -35,80 +37,65 @@ public class Localizer {
     @SneakyThrows
     public static void updateLanguageFile() {
         if (AdaptConfig.get().isAutoUpdateLanguage()) {
-
             Adapt.verbose("Attempting to update Language File");
             File langFolder = new File(Adapt.instance.getDataFolder() + "/languages");
             if (!langFolder.exists()) {
-                langFolder.mkdir();
+                langFolder.mkdirs();
             }
 
-            File langFile = new File(langFolder, AdaptConfig.get().getLanguage() + ".json");
             Adapt.verbose("Updating Primary Language File: " + AdaptConfig.get().getLanguage());
-            InputStream in = Adapt.instance.getResource(AdaptConfig.get().getLanguage() + ".json");
-            Files.deleteIfExists(langFile.toPath());
-            Files.copy(in, langFile.toPath());
+            syncLanguageResource(langFolder, AdaptConfig.get().getLanguage());
             Adapt.verbose("Loaded Primary Language: " + AdaptConfig.get().getLanguage());
 
             if (!Objects.equals(AdaptConfig.get().getLanguage(), AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing())) {
                 Adapt.verbose("Updating Fallback Language File: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
-                File langFileFallback = new File(langFolder, AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
-                InputStream inFB = Adapt.instance.getResource(AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
-                Files.deleteIfExists(langFileFallback.toPath());
-                Files.copy(inFB, langFileFallback.toPath());
+                syncLanguageResource(langFolder, AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
                 Adapt.verbose("Loaded Fallback: " + AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
             }
+
+            migrateExistingLanguageFilesToToml();
         } else {
             Adapt.error("Auto Update Language is disabled, Expect Errors.");
             Adapt.error("Do not disable this unless you know what you are doing, and dont expect support.");
+            migrateExistingLanguageFilesToToml();
         }
     }
 
 
     @SneakyThrows
     public static String dLocalize(String s1, String s2, String s3) {
-        if (!Adapt.wordKey.containsKey(s1 + s2 + s3)) { // Not in cache or Not in file
+        String cacheKey = s1 + s2 + s3;
+        if (!Adapt.wordKey.containsKey(cacheKey)) {
+            String key = s1 + "." + s2 + "." + s3;
+            File langFolder = new File(Adapt.instance.getDataFolder(), "languages");
+            File primaryFile = resolveLanguageFile(langFolder, AdaptConfig.get().getLanguage());
+            String resolved = readLocalizedValue(primaryFile, s1, s2, s3);
 
-            File langFile = new File(Adapt.instance.getDataFolder() + "/languages", AdaptConfig.get().getLanguage() + ".json");
-            String jsonFromFile = Files.readString(langFile.toPath());
-            JsonObject jsonObj = Json.fromJson(jsonFromFile, JsonObject.class);
-
-            if (jsonObj.get(s1) == null
-                    || jsonObj.get(s1).getAsJsonObject().get(s2) == null
-                    || jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3) == null
-                    || jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString() == null) {
-
+            if (resolved == null) {
                 updateLanguageFile();
-                if (jsonObj.get(s1) == null
-                        || jsonObj.get(s1).getAsJsonObject().get(s2) == null
-                        || jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3) == null
-                        || jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString() == null) {
+                primaryFile = resolveLanguageFile(langFolder, AdaptConfig.get().getLanguage());
+                resolved = readLocalizedValue(primaryFile, s1, s2, s3);
+            }
 
-                    String key = s1 + "." + s2 + "." + s3;
-                    Adapt.verbose("Your Language File is missing the following key: " + key);
-                    Adapt.verbose("Loading English Language File FallBack");
+            if (resolved == null) {
+                Adapt.verbose("Your Language File is missing the following key: " + key);
+                Adapt.verbose("Loading English Language File FallBack");
 
-                    File langFileFallback = new File(Adapt.instance.getDataFolder() + "/languages", AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing() + ".json");
-                    String jsonFromFileFallback = Files.readString(langFileFallback.toPath());
-                    JsonObject jsonObjFallback = Json.fromJson(jsonFromFileFallback, JsonObject.class);
+                File fallbackFile = resolveLanguageFile(langFolder, AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
+                resolved = readLocalizedValue(fallbackFile, s1, s2, s3);
+            }
 
-                    if (jsonObjFallback.get(s1) == null
-                            || jsonObjFallback.get(s1).getAsJsonObject().get(s2) == null
-                            || jsonObjFallback.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3) == null
-                            || jsonObjFallback.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString() == null) {
-                        Adapt.wordKey.put(s1 + s2 + s3, key);
-                        Adapt.error("Your Fallback Language File is missing the following key: " + key);
-                        Adapt.verbose("New Assignement: " + key);
-                        Adapt.error("Please report this to the developer!");
-                    } else {
-                        Adapt.wordKey.put(s1 + s2 + s3, jsonObjFallback.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
-                        Adapt.verbose("Loaded Fallback: " + jsonObjFallback.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString() + " for key: " + s1 + "." + s2 + "." + s3);
-                    }
-                }
+            if (resolved == null) {
+                Adapt.wordKey.put(cacheKey, key);
+                Adapt.error("Your Fallback Language File is missing the following key: " + key);
+                Adapt.verbose("New Assignement: " + key);
+                Adapt.error("Please report this to the developer!");
             } else {
-                Adapt.wordKey.put(s1 + s2 + s3, jsonObj.get(s1).getAsJsonObject().get(s2).getAsJsonObject().get(s3).getAsString());
+                Adapt.wordKey.put(cacheKey, resolved);
+                Adapt.verbose("Loaded Localization: " + resolved + " for key: " + key);
             }
         }
-        var s = Adapt.wordKey.get(s1 + s2 + s3);
+        var s = Adapt.wordKey.get(cacheKey);
         if (AdaptConfig.get().isAutomaticGradients()) {
             s = C.translateAlternateColorCodes('&', s);
             s = C.aura(s, -20, 7, 8, 0.36);
@@ -116,5 +103,111 @@ public class Localizer {
 
         return LegacyComponentSerializer.legacySection()
                 .serialize(MiniMessage.miniMessage().deserialize(s));
+    }
+
+    private static void syncLanguageResource(File langFolder, String languageCode) throws Exception {
+        if (languageCode == null || languageCode.isBlank()) {
+            return;
+        }
+
+        String resourcePath = languageCode + ".json";
+        try (InputStream in = Adapt.instance.getResource(resourcePath)) {
+            if (in == null) {
+                Adapt.warn("Missing bundled language resource: " + resourcePath);
+                return;
+            }
+
+            String rawJson = IO.readAll(in);
+            JsonElement parsed = ConfigFileSupport.parseToJsonElement(rawJson, new File(resourcePath));
+            if (parsed == null) {
+                Adapt.warn("Failed to parse bundled language resource: " + resourcePath);
+                return;
+            }
+
+            File tomlTarget = new File(langFolder, languageCode + ".toml");
+            Files.deleteIfExists(tomlTarget.toPath());
+            Files.writeString(tomlTarget.toPath(), ConfigFileSupport.serializeJsonElementToToml(parsed));
+
+            File legacyJsonTarget = new File(langFolder, resourcePath);
+            Files.deleteIfExists(legacyJsonTarget.toPath());
+        }
+    }
+
+    private static File resolveLanguageFile(File languageFolder, String languageCode) {
+        File toml = new File(languageFolder, languageCode + ".toml");
+        if (toml.exists()) {
+            return toml;
+        }
+
+        return new File(languageFolder, languageCode + ".json");
+    }
+
+    private static String readLocalizedValue(File file, String s1, String s2, String s3) {
+        try {
+            if (file == null || !file.exists() || !file.isFile()) {
+                return null;
+            }
+
+            String raw = Files.readString(file.toPath());
+            JsonElement root = ConfigFileSupport.parseToJsonElement(raw, file);
+            if (root == null || !root.isJsonObject()) {
+                return null;
+            }
+
+            JsonObject l1 = root.getAsJsonObject();
+            if (!l1.has(s1) || !l1.get(s1).isJsonObject()) {
+                return null;
+            }
+            JsonObject l2 = l1.getAsJsonObject(s1);
+            if (!l2.has(s2) || !l2.get(s2).isJsonObject()) {
+                return null;
+            }
+            JsonObject l3 = l2.getAsJsonObject(s2);
+            if (!l3.has(s3) || l3.get(s3).isJsonNull()) {
+                return null;
+            }
+
+            return l3.get(s3).getAsString();
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    private static void migrateExistingLanguageFilesToToml() {
+        try {
+            File languageFolder = new File(Adapt.instance.getDataFolder(), "languages");
+            if (!languageFolder.exists() || !languageFolder.isDirectory()) {
+                return;
+            }
+
+            File[] files = languageFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".json"));
+            if (files == null || files.length == 0) {
+                return;
+            }
+
+            for (File jsonFile : files) {
+                if (jsonFile == null || !jsonFile.exists() || !jsonFile.isFile()) {
+                    continue;
+                }
+
+                File tomlFile = ConfigFileSupport.toTomlFile(jsonFile);
+                if (tomlFile.exists() && tomlFile.isFile()) {
+                    Files.deleteIfExists(jsonFile.toPath());
+                    continue;
+                }
+
+                String raw = Files.readString(jsonFile.toPath());
+                JsonElement parsed = ConfigFileSupport.parseToJsonElement(raw, jsonFile);
+                if (parsed == null) {
+                    continue;
+                }
+
+                Files.writeString(tomlFile.toPath(), ConfigFileSupport.serializeJsonElementToToml(parsed));
+                Adapt.info("Migrated legacy language file [" + jsonFile.getName() + "] -> [" + tomlFile.getName() + "].");
+                Files.deleteIfExists(jsonFile.toPath());
+            }
+        } catch (Throwable e) {
+            Adapt.warn("Failed to migrate legacy language json files: " + e.getMessage());
+        }
     }
 }

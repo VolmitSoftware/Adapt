@@ -179,13 +179,21 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Get Xp For Attacking With Tools for the Excavation skill.", impact = "True enables this behavior and false disables it.")
         boolean getXpForAttackingWithTools = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Hardness Bonus for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double maxHardnessBonus = 9;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Blast Resistance Bonus for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double maxBlastResistanceBonus = 10;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Excavation Reward for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeExcavationReward = 1200;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Value XPMultiplier for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double valueXPMultiplier = 0.825;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownDelay = 1250;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Axe Damage XPMultiplier for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double axeDamageXPMultiplier = 6.5;
     }
 }

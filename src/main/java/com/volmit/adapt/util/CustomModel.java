@@ -1,18 +1,17 @@
 package com.volmit.adapt.util;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.AdaptConfig;
 import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.util.collection.KMap;
+import com.volmit.adapt.util.config.ConfigFileSupport;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 
 import static com.volmit.adapt.Adapt.instance;
@@ -20,10 +19,6 @@ import static com.volmit.adapt.Adapt.instance;
 public record CustomModel(Material material, int model, NamespacedKey modelKey) {
     public static final NamespacedKey EMPTY_KEY = NamespacedKey.minecraft("empty");
     private static UpdateChecker updateChecker = null;
-    private static final Gson GSON = new GsonBuilder()
-            .disableHtmlEscaping()
-            .setPrettyPrinting()
-            .create();
 
     public ItemStack toItemStack() {
         return toItemStack(new ItemStack(material));
@@ -64,16 +59,18 @@ public record CustomModel(Material material, int model, NamespacedKey modelKey) 
     private static class UpdateChecker {
         private final Object lock = new Object();
         private final File modelsFile;
+        private final File legacyModelsFile;
         private final KMap<String, CustomModel> cache = new KMap<>();
         private JsonObject json = new JsonObject();
 
         public UpdateChecker() {
-            modelsFile = instance.getDataFile("adapt", "models.json");
+            modelsFile = instance.getDataFile("adapt", "models.toml");
+            legacyModelsFile = instance.getDataFile("adapt", "models.json");
 
             try {
                 readFile();
             } catch (IOException e) {
-                Adapt.error("Failed to read models.json");
+                Adapt.error("Failed to read models.toml");
                 e.printStackTrace();
             }
         }
@@ -85,7 +82,7 @@ public record CustomModel(Material material, int model, NamespacedKey modelKey) 
                     cache.clear();
                     return true;
                 } catch (IOException e) {
-                    Adapt.error("Failed to read models.json");
+                    Adapt.error("Failed to read models.toml");
                     e.printStackTrace();
                     return false;
                 }
@@ -130,12 +127,12 @@ public record CustomModel(Material material, int model, NamespacedKey modelKey) 
 
             json.addProperty("material", data.material.name());
             json.addProperty("model", data.model);
-            json.addProperty("modelKey", data.modelKey.toString());
+            json.addProperty("modelKey", (data.modelKey == null ? EMPTY_KEY : data.modelKey).toString());
 
             try {
                 writeFile();
             } catch (IOException e) {
-                Adapt.error("Failed to write models.json");
+                Adapt.error("Failed to write models.toml");
                 e.printStackTrace();
             }
             return data;
@@ -143,20 +140,45 @@ public record CustomModel(Material material, int model, NamespacedKey modelKey) 
 
         public void readFile() throws IOException {
             synchronized (lock) {
-                if (!modelsFile.exists()) {
-                    json = new JsonObject();
+                if (modelsFile.exists()) {
+                    String raw = IO.readAll(modelsFile);
+                    JsonElement parsed = ConfigFileSupport.parseToJsonElement(raw, modelsFile);
+                    if (parsed == null || !parsed.isJsonObject()) {
+                        throw new IOException("Invalid models.toml");
+                    }
+
+                    json = parsed.getAsJsonObject();
+                    String canonical = ConfigFileSupport.serializeJsonElementToToml(parsed);
+                    if (!ConfigFileSupport.normalize(raw).equals(ConfigFileSupport.normalize(canonical))) {
+                        ConfigRewriteReporter.reportRewrite(modelsFile, "models-config", raw, canonical);
+                        IO.writeAll(modelsFile, canonical);
+                    }
+                    ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
                     return;
                 }
-                try (FileReader reader = new FileReader(modelsFile)) {
-                    json = GSON.fromJson(reader, JsonObject.class);
+
+                if (legacyModelsFile.exists()) {
+                    String legacyRaw = IO.readAll(legacyModelsFile);
+                    JsonObject legacy = Json.fromJson(legacyRaw, JsonObject.class);
+                    if (legacy == null) {
+                        throw new IOException("Invalid models.json");
+                    }
+                    json = legacy;
+                    IO.writeAll(modelsFile, ConfigFileSupport.serializeJsonElementToToml(legacy));
+                    Adapt.info("Migrated legacy config [adapt/models.json] -> [adapt/models.toml].");
+                    ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
+                    return;
                 }
+
+                json = new JsonObject();
+                IO.writeAll(modelsFile, ConfigFileSupport.serializeJsonElementToToml(json));
+                Adapt.info("Created missing models config [adapt/models.toml] from defaults.");
             }
         }
 
         public void writeFile() throws IOException {
             synchronized (lock) {
-                var s = GSON.toJson(json);
-                IO.writeAll(modelsFile, s);
+                IO.writeAll(modelsFile, ConfigFileSupport.serializeJsonElementToToml(json));
             }
         }
     }

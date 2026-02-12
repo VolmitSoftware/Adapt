@@ -251,12 +251,19 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Get Xp For Attacking With Tools for the Hunter skill.", impact = "True enables this behavior and false disables it.")
         boolean getXpForAttackingWithTools = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Turtle Egg Kill XP for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double turtleEggKillXP = 100;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Creeper Kill Multiplier for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double creeperKillMultiplier = 2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Kill Max Health XPMultiplier for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double killMaxHealthXPMultiplier = 4;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownDelay = 1000;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Spawner Mob Reduction Xp Multiplier for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double spawnerMobReductionXpMultiplier = 0.5;
     }
 }

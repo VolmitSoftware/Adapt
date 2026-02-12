@@ -2,14 +2,17 @@ package com.volmit.adapt.command;
 
 import com.volmit.adapt.Adapt;
 import com.volmit.adapt.api.adaptation.Adaptation;
+import com.volmit.adapt.api.adaptation.SimpleAdaptation;
 import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.api.skill.SkillRegistry;
+import com.volmit.adapt.api.skill.SimpleSkill;
 import com.volmit.adapt.api.world.AdaptServer;
 import com.volmit.adapt.api.world.PlayerData;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.item.ExperienceOrb;
 import com.volmit.adapt.content.item.KnowledgeOrb;
 import com.volmit.adapt.util.command.FConst;
+import com.volmit.adapt.util.config.ConfigMigrationManager;
 import com.volmit.adapt.util.decree.DecreeExecutor;
 import com.volmit.adapt.util.decree.annotations.Decree;
 import com.volmit.adapt.util.decree.annotations.Param;
@@ -276,6 +279,40 @@ public class CommandAdapt implements DecreeExecutor {
                 return;
             }
         }
+    }
+
+    @Decree(name = "migrate-configs", description = "Force migrate and rewrite all skill/adaptation configs to canonical TOML with comments.")
+    public void migrateConfigs() {
+        if (!sender().hasPermission("adapt.debug")) {
+            FConst.error("You lack the Permission 'adapt.debug'").send(sender());
+            return;
+        }
+
+        if (Adapt.instance.getAdaptServer() == null || Adapt.instance.getAdaptServer().getSkillRegistry() == null) {
+            FConst.error("Adapt server is not ready yet. Try again in a few seconds.").send(sender());
+            return;
+        }
+
+        int migratedSkills = 0;
+        int migratedAdaptations = 0;
+        for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getSkills()) {
+            if (skill instanceof SimpleSkill<?> simpleSkill) {
+                if (simpleSkill.reloadConfigFromDisk(false)) {
+                    migratedSkills++;
+                }
+            }
+
+            for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                if (adaptation instanceof SimpleAdaptation<?> simpleAdaptation) {
+                    if (simpleAdaptation.reloadConfigFromDisk(false)) {
+                        migratedAdaptations++;
+                    }
+                }
+            }
+        }
+
+        int deletedLegacyJson = ConfigMigrationManager.deleteMigratedLegacyJsonFiles();
+        FConst.success("Canonicalized TOML configs. skills=" + migratedSkills + ", adaptations=" + migratedAdaptations + ", deletedLegacyJson=" + deletedLegacyJson).send(sender());
     }
 
 }

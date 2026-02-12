@@ -27,11 +27,16 @@ import com.volmit.adapt.api.tick.Ticker;
 import com.volmit.adapt.api.value.MaterialValue;
 import com.volmit.adapt.api.version.Version;
 import com.volmit.adapt.api.world.AdaptServer;
+import com.volmit.adapt.api.adaptation.Adaptation;
+import com.volmit.adapt.api.adaptation.SimpleAdaptation;
+import com.volmit.adapt.api.skill.SimpleSkill;
+import com.volmit.adapt.api.skill.Skill;
 import com.volmit.adapt.content.gui.SkillsGui;
 import com.volmit.adapt.content.protector.*;
 import com.volmit.adapt.util.*;
 import com.volmit.adapt.util.collection.KList;
 import com.volmit.adapt.util.collection.KMap;
+import com.volmit.adapt.util.config.ConfigMigrationManager;
 import com.volmit.adapt.util.redis.RedisSync;
 import com.volmit.adapt.util.secret.SecretSplash;
 import de.crazydev22.platformutils.AudienceProvider;
@@ -111,12 +116,19 @@ public class Adapt extends VolmitPlugin {
 
     @Override
     public void start() {
+        ConfigMigrationManager.backupLegacyJsonConfigsOnce();
         platform = PlatformUtils.createPlatform(this);
         audiences = platform.getAudienceProvider();
         services = new KMap<>();
         initialize("com.volmit.adapt.service").forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i));
 
         Localizer.updateLanguageFile();
+        if (!CustomModel.reloadFromDisk()) {
+            Adapt.warn("Failed to load models config during startup migration.");
+        }
+        if (!AdaptConfig.get().isCustomModels()) {
+            CustomModel.clear();
+        }
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PapiExpansion().register();
         }
@@ -127,6 +139,7 @@ public class Adapt extends VolmitPlugin {
         }
         redisSync = new RedisSync();
         startSim();
+        migrateAllSkillAndAdaptationConfigs();
         CustomBlockData.registerListener(this);
         registerListener(new BrewingManager());
         registerListener(Version.get());
@@ -161,6 +174,33 @@ public class Adapt extends VolmitPlugin {
         initializeAdaptationListings();
         services.values().forEach(AdaptService::onEnable);
         services.values().forEach(this::registerListener);
+    }
+
+    private void migrateAllSkillAndAdaptationConfigs() {
+        if (adaptServer == null || adaptServer.getSkillRegistry() == null) {
+            return;
+        }
+
+        int migratedSkills = 0;
+        int migratedAdaptations = 0;
+        for (Skill<?> skill : adaptServer.getSkillRegistry().getSkills()) {
+            if (skill instanceof SimpleSkill<?> simpleSkill) {
+                if (simpleSkill.reloadConfigFromDisk(false)) {
+                    migratedSkills++;
+                }
+            }
+
+            for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                if (adaptation instanceof SimpleAdaptation<?> simpleAdaptation) {
+                    if (simpleAdaptation.reloadConfigFromDisk(false)) {
+                        migratedAdaptations++;
+                    }
+                }
+            }
+        }
+
+        int deletedLegacyJson = ConfigMigrationManager.deleteMigratedLegacyJsonFiles();
+        Adapt.info("Canonicalized skill/adaptation configs to TOML (skills=" + migratedSkills + ", adaptations=" + migratedAdaptations + ", deletedLegacyJson=" + deletedLegacyJson + ").");
     }
 
 

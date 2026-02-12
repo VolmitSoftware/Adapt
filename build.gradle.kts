@@ -163,6 +163,7 @@ dependencies {
     slimApi(libs.lang3)
     slimApi(libs.effectLib)
     slimApi(libs.gson)
+    slimApi(libs.toml4j)
     slimApi(libs.fastutil)
     slimApi(libs.glowingentities)
     slimApi(libs.caffeine)

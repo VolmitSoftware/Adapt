@@ -250,16 +250,27 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Keeps this adaptation permanently active once learned.", impact = "True removes the normal learn/unlearn flow and treats it as always learned.")
         boolean permanent = false;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Rift Blink adaptation.", impact = "True enables this behavior and false disables it.")
         boolean showParticles = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Base knowledge cost used when learning this adaptation.", impact = "Higher values make each level cost more knowledge.")
         int baseCost = 7;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Scaling factor applied to higher adaptation levels.", impact = "Higher values increase level-to-level cost growth.")
         double costFactor = 0.12;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Maximum level a player can reach for this adaptation.", impact = "Higher values allow more levels; lower values cap progression sooner.")
         int maxLevel = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
         int initialCost = 1;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Base Distance for the Rift Blink adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double baseDistance = 6;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Distance Factor for the Rift Blink adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double distanceFactor = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Vertical Adjustment for the Rift Blink adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int maxVerticalAdjustment = 4;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Distance Search Step for the Rift Blink adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double distanceSearchStep = 0.5;
     }
 }

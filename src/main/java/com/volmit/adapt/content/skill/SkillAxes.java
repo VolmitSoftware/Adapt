@@ -189,16 +189,26 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
     @NoArgsConstructor
     protected static class Config {
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Get Xp For Attacking With Tools for the Axes skill.", impact = "True enables this behavior and false disables it.")
         boolean getXpForAttackingWithTools = true;
 
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Hardness Bonus for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double maxHardnessBonus = 9;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Max Blast Resistance Bonus for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double maxBlastResistanceBonus = 10;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Chop Reward for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeChopReward = 1750;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Log Or Wood XPMultiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double logOrWoodXPMultiplier = 2.67;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Leaves Multiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double leavesMultiplier = 1.11;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownDelay = 2250;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Value XPMultiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double valueXPMultiplier = 0.225;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Axe Damage XPMultiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double axeDamageXPMultiplier = 13.26;
     }
 }

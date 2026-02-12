@@ -451,51 +451,81 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     @NoArgsConstructor
     protected static class Config {
         // Existing
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Tick interval used by this logic.", impact = "Lower values run logic more often; higher values run it less often.")
         long setInterval = 5050;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Minimum Movement For Active Check for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double minimumMovementForActiveCheck = 0.35;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Distance Per Bonus XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double distancePerBonusXP = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Active Movement XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double activeMovementXP = 6;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Active Movement XPCap Per Tick for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double activeMovementXPCapPerTick = 22;
 
         // Anti-AFK
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Position History Size for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int positionHistorySize = 12;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Afk Variance Threshold for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double afkVarianceThreshold = 2.0;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Afk Min Action Types for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int afkMinActionTypes = 3;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Afk Penalty Multiplier for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double afkPenaltyMultiplier = 0.1;
 
         // Passive active XP
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Passive Active XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double passiveActiveXP = 2.5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Activity Window for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long activityWindow = 15000;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Activity Types For Bonus for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int activityTypesForBonus = 4;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Activity Bonus Multiplier for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double activityBonusMultiplier = 1.5;
 
         // Night bonus
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Night Activity Multiplier for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double nightActivityMultiplier = 1.3;
 
         // Sleep
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Sleep Skip XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double sleepSkipXP = 150;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Sleep Attempt XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double sleepAttemptXP = 25;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Sleep Cooldown for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long sleepCooldown = 30000;
 
         // Speed potion
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Speed Potion Base XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double speedPotionBaseXP = 45;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Speed Potion Level Multiplier for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double speedPotionLevelMultiplier = 1.5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Speed Potion Diminishing Decay for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double speedPotionDiminishingDecay = 0.15;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Speed Potion Diminishing Floor for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double speedPotionDiminishingFloor = 0.25;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Speed Potion Reset Window for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long speedPotionResetWindow = 300000;
 
         // Ender pearl
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Ender Pearl Throw XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double enderPearlThrowXP = 35;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Ender Pearl Teleport XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double enderPearlTeleportXP = 15;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Ender Pearl Cooldown for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long enderPearlCooldown = 10000;
 
         // Survival streak
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Survival XPPer Minute for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double survivalXPPerMinute = 5;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Survival Streak Bonus Per Hour for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double survivalStreakBonusPerHour = 0.2;
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Survival Streak Hour Cap for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         int survivalStreakHourCap = 5;
 
         // Challenge rewards
+        @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Chronos Reward for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeChronosReward = 500;
     }
 }
