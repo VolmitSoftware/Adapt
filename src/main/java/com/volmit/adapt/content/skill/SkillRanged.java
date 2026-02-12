@@ -47,10 +47,10 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillRanged() {
-        super("ranged", Localizer.dLocalize("skill", "ranged", "icon"));
+        super("ranged", Localizer.dLocalize("skill.ranged.icon"));
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("skill", "ranged", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "ranged", "name"));
+        setDescription(Localizer.dLocalize("skill.ranged.description"));
+        setDisplayName(Localizer.dLocalize("skill.ranged.name"));
         setColor(C.DARK_GREEN);
         setInterval(3044);
         registerAdaptation(new RangedForce());
@@ -63,24 +63,24 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.ARROW)
                 .key("challenge_ranged_100")
-                .title(Localizer.dLocalize("advancement", "challenge_ranged_100", "title"))
-                .description(Localizer.dLocalize("advancement", "challenge_ranged_100", "description"))
+                .title(Localizer.dLocalize("advancement.challenge_ranged_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_ranged_100.description"))
                 .model(CustomModel.get(Material.ARROW, "advancement", "ranged", "challenge_ranged_100"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.SPECTRAL_ARROW)
                         .key("challenge_ranged_1k")
-                        .title(Localizer.dLocalize("advancement", "challenge_ranged_1k", "title"))
-                        .description(Localizer.dLocalize("advancement", "challenge_ranged_1k", "description"))
+                        .title(Localizer.dLocalize("advancement.challenge_ranged_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_ranged_1k.description"))
                         .model(CustomModel.get(Material.SPECTRAL_ARROW, "advancement", "ranged", "challenge_ranged_1k"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.CROSSBOW)
                                 .key("challenge_ranged_10k")
-                                .title(Localizer.dLocalize("advancement", "challenge_ranged_10k", "title"))
-                                .description(Localizer.dLocalize("advancement", "challenge_ranged_10k", "description"))
+                                .title(Localizer.dLocalize("advancement.challenge_ranged_10k.title"))
+                                .description(Localizer.dLocalize("advancement.challenge_ranged_10k.description"))
                                 .model(CustomModel.get(Material.CROSSBOW, "advancement", "ranged", "challenge_ranged_10k"))
                                 .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)

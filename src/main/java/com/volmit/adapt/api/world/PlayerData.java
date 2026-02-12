@@ -190,13 +190,13 @@ public class PlayerData {
                             .out(2250)
                             .group("lvl")
                             .title("")
-                            .subtitle(C.GOLD + Localizer.dLocalize("snippets", "gui", "level") +" " + level)// I'm sorry I missed this!
+                            .subtitle(C.GOLD + Localizer.dLocalize("snippets.gui.level") +" " + level)// I'm sorry I missed this!
                             .build());
             p.getActionBarNotifier().queue(
                     ActionBarNotification.builder()
                             .duration(450)
                             .group("power")
-                            .title(C.GOLD + "" + Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY + " " + Localizer.dLocalize("snippets", "gui", "maxabilitypower")) // I'm sorry I missed this!
+                            .title(C.GOLD + "" + Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY + " " + Localizer.dLocalize("snippets.gui.max_ability_power")) // I'm sorry I missed this!
                             .build());
 
         }

@@ -42,8 +42,8 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     public TragoulLance() {
         super("tragoul-lance");
         registerConfiguration(TragoulLance.Config.class);
-        setDescription(Localizer.dLocalize("tragoul", "lance", "description"));
-        setDisplayName(Localizer.dLocalize("tragoul", "lance", "name"));
+        setDescription(Localizer.dLocalize("tragoul.lance.description"));
+        setDisplayName(Localizer.dLocalize("tragoul.lance.name"));
         setIcon(Material.TRIDENT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -127,9 +127,9 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("tragoul", "lance", "lore1"));
-        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "lance", "lore2") );
-        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "lance", "lore3") + level);
+        v.addLore(C.GREEN + Localizer.dLocalize("tragoul.lance.lore1"));
+        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.lance.lore2") );
+        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.lance.lore3") + level);
     }
 
     @NoArgsConstructor

@@ -34,8 +34,8 @@ public class CraftingReconstruction extends SimpleAdaptation<CraftingReconstruct
     public CraftingReconstruction() {
         super("crafting-reconstruction");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("crafting", "reconstruction", "description"));
-        setDisplayName(Localizer.dLocalize("crafting", "reconstruction", "name"));
+        setDescription(Localizer.dLocalize("crafting.reconstruction.description"));
+        setDisplayName(Localizer.dLocalize("crafting.reconstruction.name"));
         setIcon(Material.COAL_ORE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -297,10 +297,10 @@ public class CraftingReconstruction extends SimpleAdaptation<CraftingReconstruct
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("crafting", "reconstruction", "lore1"));
-        v.addLore(C.UNDERLINE + Localizer.dLocalize("crafting", "reconstruction", "lore2"));
-        v.addLore(C.YELLOW + Localizer.dLocalize("crafting", "reconstruction", "lore3"));
-        v.addLore(C.YELLOW + Localizer.dLocalize("crafting", "reconstruction", "lore4"));
+        v.addLore(C.GREEN + Localizer.dLocalize("crafting.reconstruction.lore1"));
+        v.addLore(C.UNDERLINE + Localizer.dLocalize("crafting.reconstruction.lore2"));
+        v.addLore(C.YELLOW + Localizer.dLocalize("crafting.reconstruction.lore3"));
+        v.addLore(C.YELLOW + Localizer.dLocalize("crafting.reconstruction.lore4"));
     }
 
     @EventHandler

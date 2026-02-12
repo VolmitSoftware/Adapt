@@ -54,8 +54,8 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     public ExcavationOmniTool() {
         super("excavation-omnitool");
         registerConfiguration(ExcavationOmniTool.Config.class);
-        setDisplayName(Localizer.dLocalize("excavation", "omnitool", "name"));
-        setDescription(Localizer.dLocalize("excavation", "omnitool", "description"));
+        setDisplayName(Localizer.dLocalize("excavation.omni_tool.name"));
+        setDescription(Localizer.dLocalize("excavation.omni_tool.description"));
         setIcon(Material.DISC_FRAGMENT_5);
         setInterval(20202);
         setBaseCost(getConfig().baseCost);
@@ -66,13 +66,13 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("excavation", "omnitool", "lore1"));
-        v.addLore(C.GRAY + Localizer.dLocalize("excavation", "omnitool", "lore2"));
-        v.addLore(C.GREEN + Localizer.dLocalize("excavation", "omnitool", "lore3"));
-        v.addLore(C.RED + Localizer.dLocalize("excavation", "omnitool", "lore4"));
-        v.addLore(C.GRAY + Localizer.dLocalize("excavation", "omnitool", "lore5"));
-        v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + " " + Localizer.dLocalize("excavation", "omnitool", "lore6"));
-        v.addLore(C.UNDERLINE + Localizer.dLocalize("excavation", "omnitool", "lore7"));
+        v.addLore(C.GRAY + Localizer.dLocalize("excavation.omni_tool.lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("excavation.omni_tool.lore2"));
+        v.addLore(C.GREEN + Localizer.dLocalize("excavation.omni_tool.lore3"));
+        v.addLore(C.RED + Localizer.dLocalize("excavation.omni_tool.lore4"));
+        v.addLore(C.GRAY + Localizer.dLocalize("excavation.omni_tool.lore5"));
+        v.addLore(C.GREEN + "" + (level + getConfig().startingSlots) + C.GRAY + " " + Localizer.dLocalize("excavation.omni_tool.lore6"));
+        v.addLore(C.UNDERLINE + Localizer.dLocalize("excavation.omni_tool.lore7"));
 
 
     }

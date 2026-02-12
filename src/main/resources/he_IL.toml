@@ -1,0 +1,1501 @@
+# advancement
+[advancement]
+
+[advancement.challenge_move_1k]
+    title = "חייב לזוז!"
+    description = "ללכת יותר מקילומטר אחד (1,000 בלוקים)"
+
+[advancement.challenge_sprint_5k]
+    title = "ספרינט 5K!"
+    description = "ללכת יותר מ-5 קילומטרים (5,000 בלוקים)"
+
+[advancement.challenge_sprint_50k]
+    title = "זום של 50K!"
+    description = "ללכת יותר מ-50 קילומטרים (50,000 בלוקים)"
+
+[advancement.challenge_sprint_500k]
+    title = "לחצות את היקום!!"
+    description = "ללכת יותר מ-500 קילומטרים (500,000 בלוקים)"
+
+[advancement.challenge_sprint_marathon]
+    title = "ספרינט מרתון (תרתי משמע)!"
+    description = "לרוץ מעל 42,195 בלוקים!"
+
+[advancement.challenge_place_1k]
+    title = "בונה מתחיל!"
+    description = "הנח 1,000 בלוקים"
+
+[advancement.challenge_place_5k]
+    title = "בונה בינוני!"
+    description = "הנח 5,000 בלוקים"
+
+[advancement.challenge_place_50k]
+    title = "בונה מתקדם!"
+    description = "הנח 50,000 בלוקים"
+
+[advancement.challenge_place_500k]
+    title = "בונה מאסטר!"
+    description = "הנח 500,000 בלוקים"
+
+[advancement.challenge_place_5m]
+    title = "תלמיד הסימטריה!"
+    description = "המציאות היא מגרש המשחקים שלך! (5 מיליון בלוקים)"
+
+[advancement.challenge_chop_1k]
+    title = "חוטב עצים מתחיל!"
+    description = "חטוב 1,000 בלוקים"
+
+[advancement.challenge_chop_5k]
+    title = "חוטב עצים בינוני!"
+    description = "חטוב 5,000 בלוקים"
+
+[advancement.challenge_chop_50k]
+    title = "חוטב עצים מתקדם!"
+    description = "חטוב 50,000 בלוקים"
+
+[advancement.challenge_chop_500k]
+    title = "חוטב עצים מאסטר!"
+    description = "חטוב 500,000 בלוקים"
+
+[advancement.challenge_chop_5m]
+    title = "ג'קסון הכלב"
+    description = "הילד הכי טוב שיש! (5 מיליון בלוקים)"
+
+[advancement.challenge_block_1k]
+    title = "בקושי חוסם!"
+    description = "חסום 1000 מכות"
+
+[advancement.challenge_block_5k]
+    title = "חסימה זה כיף!"
+    description = "חסום 5000 מכות"
+
+[advancement.challenge_block_50k]
+    title = "חסימה זה החיים שלי!"
+    description = "חסום 50,000 מכות"
+
+[advancement.challenge_block_500k]
+    title = "חסימה היא הייעוד שלי!"
+    description = "חסום 500,000 מכות"
+
+[advancement.challenge_block_5m]
+    title = "היד הכואבת"
+    description = "חסום 5,000,000 מכות"
+
+[advancement.challenge_brew_1k]
+    title = "אלכימאי מתחיל!"
+    description = "צרוך 1000 שיקויים"
+
+[advancement.challenge_brew_5k]
+    title = "אלכימאי בינוני!"
+    description = "צרוך 5000 שיקויים"
+
+[advancement.challenge_brew_50k]
+    title = "אלכימאי מתקדם!"
+    description = "צרוך 50,000 שיקויים"
+
+[advancement.challenge_brew_500k]
+    title = "אלכימאי מאסטר!"
+    description = "צרוך 500,000 שיקויים"
+
+[advancement.challenge_brew_5m]
+    title = "האלכימאי"
+    description = "צרוך 5,000,000 שיקויים"
+
+[advancement.challenge_brewsplash_1k]
+    title = "מתיז שיקויים מתחיל!"
+    description = "התז 1000 שיקויים"
+
+[advancement.challenge_brewsplash_5k]
+    title = "מתיז שיקויים בינוני!"
+    description = "התז 5000 שיקויים"
+
+[advancement.challenge_brewsplash_50k]
+    title = "מתיז שיקויים מתקדם!"
+    description = "התז 50,000 שיקויים"
+
+[advancement.challenge_brewsplash_500k]
+    title = "מתיז שיקויים מאסטר!"
+    description = "התז 500,000 שיקויים"
+
+[advancement.challenge_brewsplash_5m]
+    title = "מייסטר ההתזה"
+    description = "התז 5,000,000 שיקויים"
+
+[advancement.challenge_craft_1k]
+    title = "יוצר מלאכתי!"
+    description = "צור 1000 פריטים"
+
+[advancement.challenge_craft_5k]
+    title = "יוצר עקשן!"
+    description = "צור 5000 פריטים"
+
+[advancement.challenge_craft_50k]
+    title = "יוצר מסור!"
+    description = "צור 50,000 פריטים"
+
+[advancement.challenge_craft_500k]
+    title = "יוצר רועש!"
+    description = "צור 500,000 פריטים"
+
+[advancement.challenge_craft_5m]
+    title = "מיסטר יוצר-פנים"
+    description = "צור 5,000,000 פריטים"
+
+[advancement.challenge_enchant_1k]
+    title = "קוסם מתחיל!"
+    description = "כשף 1000 פריטים"
+
+[advancement.challenge_enchant_5k]
+    title = "קוסם בינוני!"
+    description = "כשף 5000 פריטים"
+
+[advancement.challenge_enchant_50k]
+    title = "קוסם מתקדם!"
+    description = "כשף 50,000 פריטים"
+
+[advancement.challenge_enchant_500k]
+    title = "קוסם מאסטר!"
+    description = "כשף 500,000 פריטים"
+
+[advancement.challenge_enchant_5m]
+    title = "הקוסם החידתי"
+    description = "כשף 5,000,000 פריטים"
+
+[advancement.challenge_excavate_1k]
+    title = "חופר נלהב!"
+    description = "חפור 1000 בלוקים"
+
+[advancement.challenge_excavate_5k]
+    title = "חופר בינוני!"
+    description = "חפור 5000 בלוקים"
+
+[advancement.challenge_excavate_50k]
+    title = "חופר מתקדם!"
+    description = "חפור 50,000 בלוקים"
+
+[advancement.challenge_excavate_500k]
+    title = "חופר מאסטר!"
+    description = "חפור 500,000 בלוקים"
+
+[advancement.challenge_excavate_5m]
+    title = "החופר החידתי"
+    description = "חפור 5,000,000 בלוקים"
+
+[advancement.horrible_person]
+    title = "אתה אדם נורא"
+    description = "בלתי נתפס, באמת"
+
+[advancement.challenge_turtle_egg_smasher]
+    title = "מרסק ביצי צבים!"
+    description = "שבור 100 ביצי צבים"
+
+[advancement.challenge_turtle_egg_annihilator]
+    title = "משמיד ביצי צבים!"
+    description = "שבור 500 ביצי צבים"
+
+[advancement.challenge_novice_hunter]
+    title = "צייד מתחיל!"
+    description = "הרוג 100 ישויות"
+
+[advancement.challenge_intermediate_hunter]
+    title = "צייד בינוני!"
+    description = "הרוג 500 ישויות"
+
+[advancement.challenge_advanced_hunter]
+    title = "צייד מתקדם!"
+    description = "הרוג 5000 ישויות"
+
+[advancement.challenge_creeper_conqueror]
+    title = "כובש קריפרים!"
+    description = "הרוג 50 קריפרים"
+
+[advancement.challenge_creeper_annihilator]
+    title = "משמיד קריפרים!"
+    description = "הרוג 200 קריפרים"
+
+[advancement.challenge_pickaxe_1k]
+    title = "כורה מתחיל"
+    description = "שבור 1000 בלוקים"
+
+[advancement.challenge_pickaxe_5k]
+    title = "כורה מיומן"
+    description = "שבור 5000 בלוקים"
+
+[advancement.challenge_pickaxe_50k]
+    title = "כורה מומחה"
+    description = "שבור 50,000 בלוקים"
+
+[advancement.challenge_pickaxe_500k]
+    title = "כורה מאסטר"
+    description = "שבור 500,000 בלוקים"
+
+[advancement.challenge_pickaxe_5m]
+    title = "כורה אגדי"
+    description = "שבור 5,000,000 בלוקים"
+
+[advancement.challenge_eat_100]
+    title = "כל כך הרבה לאכול!"
+    description = "אכול מעל 100 פריטים!"
+
+[advancement.challenge_eat_1000]
+    title = "רעב בלתי ניתן לריווי!"
+    description = "אכול מעל 1,000 פריטים!"
+
+[advancement.challenge_eat_10000]
+    title = "רעב נצחי!"
+    description = "אכול מעל 10,000 פריטים!"
+
+[advancement.challenge_harvest_100]
+    title = "קציר מלא"
+    description = "קצור מעל 100 יבולים!"
+
+[advancement.challenge_harvest_1000]
+    title = "קציר גדול"
+    description = "קצור מעל 1,000 יבולים!"
+
+[advancement.challenge_swim_1nm]
+    title = "צוללת אנושית!"
+    description = "שחה מייל ימי אחד (1,852 בלוקים)"
+
+[advancement.challenge_sneak_1k]
+    title = "כאב ברכיים"
+    description = "התגנב מעל קילומטר (1,000 בלוקים)"
+
+[advancement.challenge_sneak_5k]
+    title = "הולך הצללים"
+    description = "התגנב מעל 5,000 בלוקים"
+
+[advancement.challenge_sneak_20k]
+    title = "רוח רפאים"
+    description = "התגנב מעל 20,000 בלוקים"
+
+[advancement.challenge_swim_5k]
+    title = "צולל מעמקים"
+    description = "שחה מעל 5,000 בלוקים"
+
+[advancement.challenge_swim_20k]
+    title = "בחיר פוסידון"
+    description = "שחה מעל 20,000 בלוקים"
+
+[advancement.challenge_sword_100]
+    title = "דם ראשון"
+    description = "פגע 100 פעמים בחרב"
+
+[advancement.challenge_sword_1k]
+    title = "רוקד החרבות"
+    description = "פגע 1,000 פעמים בחרב"
+
+[advancement.challenge_sword_10k]
+    title = "אלף חתכים"
+    description = "פגע 10,000 פעמים בחרב"
+
+[advancement.challenge_unarmed_100]
+    title = "קטטן בר"
+    description = "פגע 100 פעמים בידיים חשופות"
+
+[advancement.challenge_unarmed_1k]
+    title = "אגרופי ברזל"
+    description = "פגע 1,000 פעמים בידיים חשופות"
+
+[advancement.challenge_unarmed_10k]
+    title = "אגרוף אחד"
+    description = "פגע 10,000 פעמים בידיים חשופות"
+
+[advancement.challenge_trag_1k]
+    title = "מחיר הדם"
+    description = "קבל 1,000 נזק"
+
+[advancement.challenge_trag_10k]
+    title = "גאות ארגמן"
+    description = "קבל 10,000 נזק"
+
+[advancement.challenge_trag_100k]
+    title = "אווטאר הסבל"
+    description = "קבל 100,000 נזק"
+
+[advancement.challenge_ranged_100]
+    title = "תרגול מטרות"
+    description = "ירה 100 קליעים"
+
+[advancement.challenge_ranged_1k]
+    title = "עין הנץ"
+    description = "ירה 1,000 קליעים"
+
+[advancement.challenge_ranged_10k]
+    title = "סערת חיצים"
+    description = "ירה 10,000 קליעים"
+
+[advancement.challenge_chronos_1h]
+    title = "טיק טוק"
+    description = "בלה שעה אחת מחובר"
+
+[advancement.challenge_chronos_24h]
+    title = "חולות הזמן"
+    description = "בלה 24 שעות מחובר"
+
+[advancement.challenge_chronos_168h]
+    title = "נצחי"
+    description = "בלה 168 שעות (שבוע) מחובר"
+
+[advancement.challenge_nether_50]
+    title = "שומר שערי הגיהנום"
+    description = "הרוג 50 יצורי נתר"
+
+[advancement.challenge_nether_500]
+    title = "שומר התהום"
+    description = "הרוג 500 יצורי נתר"
+
+[advancement.challenge_nether_5k]
+    title = "אדון הנתר"
+    description = "הרוג 5,000 יצורי נתר"
+
+[advancement.challenge_rift_50]
+    title = "חריגה מרחבית"
+    description = "השתגר 50 פעמים"
+
+[advancement.challenge_rift_500]
+    title = "הולך הריק"
+    description = "השתגר 500 פעמים"
+
+[advancement.challenge_rift_5k]
+    title = "בין העולמות"
+    description = "השתגר 5,000 פעמים"
+
+[advancement.challenge_taming_10]
+    title = "לוחש לחיות"
+    description = "הרבה 10 חיות"
+
+[advancement.challenge_taming_50]
+    title = "מנהיג הלהקה"
+    description = "הרבה 50 חיות"
+
+[advancement.challenge_taming_500]
+    title = "אדון החיות"
+    description = "הרבה 500 חיות"
+
+# items
+[items]
+
+[items.bound_ender_peral]
+    name = "מפתח שער רליקוויה"
+    usage1 = "Shift + לחיצה שמאלית כדי לאגד"
+    usage2 = "לחיצה ימנית כדי לגשת למלאי המאוגד"
+
+[items.bound_eye_of_ender]
+    name = "עוגן עיני"
+    usage1 = "לחיצה ימנית כדי לצרוך ולהשתגר למיקום המאוגד"
+    usage2 = "Shift + לחיצה שמאלית כדי לאגד לבלוק"
+
+[items.bound_redstone_torch]
+    name = "שלט רדסטון"
+    usage1 = "לחיצה ימנית כדי ליצור פולס רדסטון של טיק אחד"
+    usage2 = "Shift + לחיצה שמאלית על בלוק 'מטרה' כדי לאגד"
+
+[items.bound_snowball]
+    name = "מלכודת קורים!"
+    usage1 = "זרוק כדי ליצור מלכודת קורים זמנית במיקום"
+
+[items.chrono_time_bottle]
+    name = "זמן בבקבוק"
+    usage1 = "אוגר זמן באופן פסיבי כשהוא במלאי שלך"
+    usage2 = "לחיצה ימנית על בלוקים מתוזמנים או חיות תינוק כדי לבזבז זמן אגור"
+    stored = "זמן אגור"
+
+[items.chrono_time_bomb]
+    name = "פצצת זמן"
+    usage1 = "לחיצה ימנית כדי לשגר בליסטיקת כרונו שיוצרת שדה טמפורלי"
+
+[items.elevator_block]
+    name = "בלוק מעלית"
+    usage1 = "קפוץ כדי להשתגר למעלה"
+    usage2 = "התכופף כדי להשתגר למטה"
+    usage3 = "מינימום 2 בלוקי אוויר בין המעליות"
+
+# snippets
+[snippets]
+
+[snippets.gui]
+    level = "רמה"
+    knowledge = "ידע"
+    power_used = "כוח בשימוש"
+    not_learned = "לא נלמד"
+    xp = "XP עד"
+    welcome = "ברוך הבא!"
+    welcome_back = "ברוך שובך!"
+    xp_bonus_for_time = "XP עבור"
+    max_ability_power = "כוח יכולת מרבי"
+    unlock_this_by_clicking = "שחרר את הנעילה על ידי לחיצה ימנית: "
+    back = "חזור"
+    unlearn_all = "שכח הכל"
+    unlearned_all = "נשכח הכל"
+
+[snippets.adapt_menu]
+    may_not_unlearn = "אסור לשכוח"
+    may_unlearn = "ניתן ללמוד/לשכוח"
+    knowledge_cost = "עלות ידע"
+    knowledge_available = "ידע זמין"
+    already_learned = "כבר נלמד"
+    unlearn_refund = "לחץ כדי לשכוח ולקבל החזר"
+    no_refunds = "הארדקור, החזרים מושבתים"
+    knowledge = "ידע"
+    click_learn = "לחץ כדי ללמוד"
+    no_knowledge = "(אין לך ידע)"
+    you_only_have = "יש לך רק"
+    how_to_level_up = "עלה ברמת מיומנויות כדי להגדיל את הכוח המרבי שלך."
+    not_enough_power = "אין מספיק כוח! כל רמת יכולת עולה 1 כוח."
+    power = "כוח"
+    power_drain = "ניקוז כוח"
+    learned = "נלמד "
+    unlearned = "נשכח "
+    activator_block = "מדף ספרים"
+
+[snippets.knowledge_orb]
+    contains = "מכיל"
+    knowledge = "ידע"
+    rightclick = "לחיצה ימנית"
+    togainknowledge = "כדי לקבל את הידע הזה"
+    knowledge_orb = "כדור ידע"
+
+[snippets.experience_orb]
+    contains = "מכיל"
+    xp = "ניסיון"
+    rightclick = "לחיצה ימנית"
+    togainxp = "כדי לקבל את הניסיון הזה"
+    xporb = "כדור ניסיון"
+
+# skill
+[skill]
+
+[skill.agility]
+    name = "זריזות"
+    icon = "⇉"
+    description = "זריזות היא היכולת לנוע במהירות ובגמישות מול מכשולים."
+
+[skill.architect]
+    name = "אדריכלות"
+    icon = "⬧"
+    description = "מבנים הם אבני הבניין של העולם. המציאות בידיים שלך, שלך לשלוט."
+
+[skill.axes]
+    name = "גרזנים"
+    icon = "🪓"
+    description1 = "למה לחטוב עצים, כשאפשר לחטוב "
+    description2 = "דברים"
+    description3 = "במקום, אותה תוצאה סופית!"
+
+[skill.brewing]
+    name = "בישול שיקויים"
+    icon = "❦"
+    description = "בועה כפולה, בועה משולשת, בועה מרובעת- אני עדיין לא מצליח להכניס את השיקוי הזה לקדרה"
+
+[skill.blocking]
+    name = "חסימה"
+    icon = "🛡"
+    description = "מקלות ואבנים לא ישברו לך עצמות, אבל מגן כן."
+
+[skill.crafting]
+    name = "יצירה"
+    icon = "⌂"
+    description = "בלי שנותרו עוד חלקים למקם, למה לא ליצור עוד?"
+
+[skill.discovery]
+    name = "גילוי"
+    icon = "⚛"
+    description = "ככל שהתפיסה שלך מתרחבת, מוחך נפתח לגלות את מה שלא ידעת."
+
+[skill.enchanting]
+    name = "כישוף"
+    icon = "♰"
+    description = "על מה אתה מדבר? נבואות, חזיונות, שטויות אמונה טפלה?"
+
+[skill.excavation]
+    name = "חפירה"
+    icon = "ᛳ"
+    description = "חפירה חפירה חור..."
+
+[skill.herbalism]
+    name = "צמחי מרפא"
+    icon = "⚘"
+    description = "אני לא מוצא צמחים, אבל אני מוצא כמה זרעים ו- זה... עשב?"
+
+[skill.hunter]
+    name = "צייד"
+    icon = "☠"
+    description = "ציד זה המסע ולא התוצאה."
+
+[skill.nether]
+    name = "נתר"
+    icon = "₪"
+    description = "ממעמקי הנתר עצמו."
+
+[skill.pickaxe]
+    name = "מכוש"
+    icon = "⛏"
+    description = "גמדים הם הכורים, אבל למדתי דבר או שניים בזמני. אני שוודי!"
+
+[skill.ranged]
+    name = "טווח"
+    icon = "🏹"
+    description = "מרחק הוא המפתח לניצחון, והמפתח להישרדות."
+
+[skill.rift]
+    name = "קרע"
+    icon = "❍"
+    description = "הקרע הוא רתמה צורבת, אבל רתמת את הרתמה."
+
+[skill.seaborne]
+    name = "ימי"
+    icon = "🎣"
+    description = "עם מיומנות זו, תוכל לשלוט בפלאות המים."
+
+[skill.stealth]
+    name = "התגנבות"
+    icon = "☯"
+    description = "אומנות הבלתי נראה. ללכת בצללים."
+
+[skill.swords]
+    name = "חרבות"
+    icon = "⚔"
+    description = "בכוחו של גריי-סטון!"
+
+[skill.taming]
+    name = "אילוף"
+    icon = "♥"
+    description = "התוכים והדבורים... ואתה?"
+
+[skill.tragoul]
+    name = "טראגול"
+    icon = "🗡"
+    description = "הדם זורם בעורקי היקום. מכווץ בידיים שלך."
+
+[skill.chronos]
+    name = "כרונוס"
+    icon = "🕒"
+    description = "כוון את שעון היקום, חווה את הזרימה. שבור את השעון, הפוך אליו."
+
+[skill.unarmed]
+    name = "לא חמוש"
+    icon = "»"
+    description = "בלי נשק לא אומר בלי כוח."
+
+# agility
+[agility]
+
+[agility.armor_up]
+    name = "שריון-אפ"
+    description = "קבל יותר שריון ככל שאתה רץ יותר זמן!"
+    lore1 = "שריון מרבי"
+    lore2 = "זמן שריון-אפ"
+    lore = ["שריון מרבי", "זמן שריון-אפ"]
+
+[agility.ladder_slide]
+    name = "החלקת סולם"
+    description = "טפס והחלק על סולמות הרבה יותר מהר בשני הכיוונים."
+    lore1 = "מכפיל מהירות סולם"
+    lore2 = "מהירות ירידה מהירה"
+    lore = ["מכפיל מהירות סולם", "מהירות ירידה מהירה"]
+
+[agility.super_jump]
+    name = "סופר קפיצה"
+    description = "יתרון גובה יוצא דופן."
+    lore1 = "גובה קפיצה מרבי"
+    lore2 = "התכופף + קפוץ לסופר קפיצה!"
+    lore = ["גובה קפיצה מרבי", "התכופף + קפוץ לסופר קפיצה!"]
+
+[agility.wall_jump]
+    name = "קפיצת קיר"
+    description = "החזק shift באוויר ליד קיר כדי להיתלות ולקפוץ!"
+    lore1 = "מספר קפיצות מרבי"
+    lore2 = "גובה קפיצה"
+    lore = ["מספר קפיצות מרבי", "גובה קפיצה"]
+
+[agility.wind_up]
+    name = "תאוצה"
+    description = "הפוך מהיר יותר ככל שאתה רץ זמן רב יותר!"
+    lore1 = "מהירות מרבית"
+    lore2 = "זמן תאוצה"
+    lore = ["מהירות מרבית", "זמן תאוצה"]
+
+# architect
+[architect]
+
+[architect.elevator]
+    name = "מעלית"
+    description = "זה מאפשר לך לבנות מעלית לשיגור אנכי מהיר!"
+    lore1 = "פותח מתכון מעלית: X=צמר, Y=פנינת אנדר"
+    lore2 = "XXX"
+    lore3 = "XYX"
+    lore4 = "XXX"
+    lore = ["פותח מתכון מעלית: X=צמר, Y=פנינת אנדר", "XXX", "XYX", "XXX"]
+
+[architect.foundation]
+    name = "יסוד קסום"
+    description = "מאפשר לך להתכופף ולהניח יסוד זמני מתחתיך!"
+    lore1 = "צור בקסם: "
+    lore2 = "בלוקים מתחתיך!"
+    lore = ["צור בקסם: ", "בלוקים מתחתיך!"]
+
+[architect.glass]
+    name = "זכוכית מגע-משי"
+    description = "מאפשר לך למנוע אובדן בלוקי זכוכית כשאתה שובר אותם ביד ריקה!"
+    lore1 = "הידיים שלך מקבלות מגע-משי לזכוכית"
+    lore = ["הידיים שלך מקבלות מגע-משי לזכוכית"]
+
+[architect.wireless_redstone]
+    name = "שלט רדסטון"
+    description = "מאפשר לך להשתמש בלפיד רדסטון כדי להפעיל רדסטון מרחוק!"
+    lore1 = "מטרה + לפיד רדסטון + פנינת אנדר = שלט רדסטון אחד"
+    lore = ["מטרה + לפיד רדסטון + פנינת אנדר = שלט רדסטון אחד"]
+
+[architect.placement]
+    name = "שרביט בנאים"
+    description = "מאפשר לך להניח מספר בלוקים בבת אחת! התכופף, והחזק בלוק שמתאים לבלוק שאתה מסתכל עליו והנח! שים לב, ייתכן שתצטרך לזוז מעט כדי לסמן את התיבות!"
+    lore1 = "אתה צריך"
+    lore2 = "בלוקים ביד כדי להניח את זה"
+    lore3 = "שרביט בנאים מחומר"
+    lore = ["אתה צריך", "בלוקים ביד כדי להניח את זה", "שרביט בנאים מחומר"]
+
+# axe
+[axe]
+
+[axe.chop]
+    name = "חיתוך גרזן"
+    description = "חטוב עצים על ידי לחיצה ימנית על בול הבסיס!"
+    lore1 = "בלוקים לכל חיתוך"
+    lore2 = "זמן קירור חיתוך"
+    lore3 = "בלאי כלי"
+    lore = ["בלוקים לכל חיתוך", "זמן קירור חיתוך", "בלאי כלי"]
+
+[axe.log_swap]
+    name = "מחליף הבולים של לוסי"
+    description = "שנה את סוג הבולים בשולחן יצירה!"
+    lore1 = "8 בולים מכל סוג + 1 שתיל = 8 בולים מסוג השתיל"
+    lore = ["8 בולים מכל סוג + 1 שתיל = 8 בולים מסוג השתיל"]
+
+[axe.drop_to_inventory]
+    name = "גרזן-ישר-למלאי"
+
+[axe.ground_smash]
+    name = "מעיכת קרקע בגרזן"
+    description = "קפוץ, ואז התכופף ומעך את כל האויבים הקרובים."
+    lore1 = "נזק"
+    lore2 = "רדיוס בלוקים"
+    lore3 = "כוח"
+    lore4 = "זמן קירור מעיכה"
+    lore = ["נזק", "רדיוס בלוקים", "כוח", "זמן קירור מעיכה"]
+
+[axe.leaf_miner]
+    name = "כורה עלים"
+    description = "מאפשר לך לשבור עלים בכמות בבת אחת!"
+    lore1 = "התכופף, וכרה עלים"
+    lore2 = "טווח כריית עלים"
+    lore3 = "לא תקבל את הדרופים מהעלים (מניעת ניצול)"
+    lore = ["התכופף, וכרה עלים", "טווח כריית עלים", "לא תקבל את הדרופים מהעלים (מניעת ניצול)"]
+
+[axe.wood_miner]
+    name = "כורה עץ"
+    description = "מאפשר לך לשבור עץ בכמות בבת אחת!"
+    lore1 = "התכופף, וכרה עץ/בולים (לא קרשים)"
+    lore2 = "טווח כריית עץ"
+    lore3 = "עובד עם ישר-למלאי"
+    lore = ["התכופף, וכרה עץ/בולים (לא קרשים)", "טווח כריית עץ", "עובד עם ישר-למלאי"]
+
+# brewing
+[brewing]
+
+[brewing.lingering]
+    name = "שיקוי מתמשך"
+    description = "שיקויים מבושלים נמשכים זמן רב יותר!"
+    lore1 = "משך"
+    lore2 = "משך"
+    lore = ["משך", "משך"]
+
+[brewing.super_heated]
+    name = "בישול סופר-חם"
+    description = "דוכני בישול עובדים מהר יותר ככל שהם חמים יותר."
+    lore1 = "לכל בלוק אש נוגע"
+    lore2 = "לכל בלוק לבה נוגע"
+    lore = ["לכל בלוק אש נוגע", "לכל בלוק לבה נוגע"]
+
+[brewing.darkness]
+    name = "חושך בבקבוק"
+    description = "לא בטוח למה אתה צריך את זה, אבל הנה לך!"
+    lore1 = "שיקוי ראיית לילה + בטון שחור = שיקוי חושך (30 שניות)"
+    lore2 = "שים לב שזה מונע מהמשתמש לרוץ!"
+    lore = ["שיקוי ראיית לילה + בטון שחור = שיקוי חושך (30 שניות)", "שים לב שזה מונע מהמשתמש לרוץ!"]
+
+[brewing.haste]
+    name = "חיפזון בבקבוק"
+    description = "כשיעילות לא מספיקה"
+    lore1 = "שיקוי מהירות + רסיס אמטיסט = שיקוי חיפזון (60 שניות)"
+    lore2 = "שיקוי מהירות + בלוק אמטיסט = שיקוי חיפזון-2 (30 שניות)"
+    lore = ["שיקוי מהירות + רסיס אמטיסט = שיקוי חיפזון (60 שניות)", "שיקוי מהירות + בלוק אמטיסט = שיקוי חיפזון-2 (30 שניות)"]
+
+[brewing.absorption]
+    name = "ספיגה בבקבוק"
+    description = "חזק את הגוף!"
+    lore1 = "ריפוי מיידי + קוורץ = שיקוי ספיגה (60 שניות)"
+    lore2 = "ריפוי מיידי + בלוק קוורץ = שיקוי ספיגה-2 (30 שניות)"
+    lore = ["ריפוי מיידי + קוורץ = שיקוי ספיגה (60 שניות)", "ריפוי מיידי + בלוק קוורץ = שיקוי ספיגה-2 (30 שניות)"]
+
+[brewing.fatigue]
+    name = "עייפות בבקבוק"
+    description = "החלש את הגוף!"
+    lore1 = "שיקוי חולשה + כדור רפש = שיקוי עייפות (30 שניות)"
+    lore2 = "שיקוי חולשה + בלוק רפש = שיקוי עייפות-2 (15 שניות)"
+    lore = ["שיקוי חולשה + כדור רפש = שיקוי עייפות (30 שניות)", "שיקוי חולשה + בלוק רפש = שיקוי עייפות-2 (15 שניות)"]
+
+[brewing.hunger]
+    name = "רעב בבקבוק"
+    description = "האכל את הבלתי שביע!"
+    lore1 = "שיקוי מוזר + בשר רקוב = שיקוי רעב (30 שניות)"
+    lore2 = "שיקוי חולשה + בשר רקוב = שיקוי רעב-3 (15 שניות)"
+    lore = ["שיקוי מוזר + בשר רקוב = שיקוי רעב (30 שניות)", "שיקוי חולשה + בשר רקוב = שיקוי רעב-3 (15 שניות)"]
+
+[brewing.nausea]
+    name = "בחילה בבקבוק"
+    description = "אתה מחליא אותי!"
+    lore1 = "שיקוי מוזר + פטריה חומה = שיקוי בחילה (16 שניות)"
+    lore2 = "שיקוי מוזר + פטריית ארגמן = שיקוי בחילה-2 (8 שניות)"
+    lore = ["שיקוי מוזר + פטריה חומה = שיקוי בחילה (16 שניות)", "שיקוי מוזר + פטריית ארגמן = שיקוי בחילה-2 (8 שניות)"]
+
+[brewing.blindness]
+    name = "עיוורון בבקבוק"
+    description = "אתה אדם נורא..."
+    lore1 = "שיקוי מוזר + שק דיו = שיקוי עיוורון (30 שניות)"
+    lore2 = "שיקוי מוזר + שק דיו זוהר = שיקוי עיוורון-2 (15 שניות)"
+    lore = ["שיקוי מוזר + שק דיו = שיקוי עיוורון (30 שניות)", "שיקוי מוזר + שק דיו זוהר = שיקוי עיוורון-2 (15 שניות)"]
+
+[brewing.resistance]
+    name = "התנגדות בבקבוק"
+    description = "ביצור במיטבו!"
+    lore1 = "שיקוי מוזר + מטיל ברזל = שיקוי התנגדות (60 שניות)"
+    lore2 = "שיקוי מוזר + בלוק ברזל = שיקוי התנגדות-2 (30 שניות)"
+    lore = ["שיקוי מוזר + מטיל ברזל = שיקוי התנגדות (60 שניות)", "שיקוי מוזר + בלוק ברזל = שיקוי התנגדות-2 (30 שניות)"]
+
+[brewing.health_boost]
+    name = "חיים בבקבוק"
+    description = "כשבריאות מרבית לא מספיקה..."
+    lore1 = "שיקוי ריפוי מיידי + תפוח זהב = שיקוי חיזוק בריאות (120 שניות)"
+    lore2 = "שיקוי ריפוי מיידי + תפוח זהב קסום = שיקוי חיזוק בריאות-2 (120 שניות)"
+    lore = ["שיקוי ריפוי מיידי + תפוח זהב = שיקוי חיזוק בריאות (120 שניות)", "שיקוי ריפוי מיידי + תפוח זהב קסום = שיקוי חיזוק בריאות-2 (120 שניות)"]
+
+[brewing.decay]
+    name = "ריקבון בבקבוק"
+    description = "מי ידע שפסולת תהיה כל כך שימושית?"
+    lore1 = "שיקוי חולשה + תפוח אדמה רעיל = שיקוי כמילה (16 שניות)"
+    lore2 = "שיקוי חולשה + שורשי ארגמן = שיקוי כמילה-2 (8 שניות)"
+    lore = ["שיקוי חולשה + תפוח אדמה רעיל = שיקוי כמילה (16 שניות)", "שיקוי חולשה + שורשי ארגמן = שיקוי כמילה-2 (8 שניות)"]
+
+[brewing.saturation]
+    name = "רוויה בבקבוק"
+    description = "אתה יודע... אני אפילו לא רעב..."
+    lore1 = "שיקוי התחדשות + תפוח אדמה אפוי = שיקוי רוויה"
+    lore2 = "שיקוי התחדשות + חבילת חציר = שיקוי רוויה-2"
+    lore = ["שיקוי התחדשות + תפוח אדמה אפוי = שיקוי רוויה", "שיקוי התחדשות + חבילת חציר = שיקוי רוויה-2"]
+
+# blocking
+[blocking]
+
+[blocking.chain_armorer]
+    name = "שרשראות מפיסטופלס"
+    description = "מאפשר לך ליצור שריון שרשרת"
+    lore1 = "מתכון היצירה זהה לכל שריון אחר, אבל עם גושי ברזל קטנים במקום"
+    lore = ["מתכון היצירה זהה לכל שריון אחר, אבל עם גושי ברזל קטנים במקום"]
+
+[blocking.horse_armorer]
+    name = "שריון סוס בר-יצירה"
+    description = "מאפשר לך ליצור שריון סוס"
+    lore1 = "הקף אוכף עם החומר שבו תרצה להשתמש ליצירת השריון"
+    lore = ["הקף אוכף עם החומר שבו תרצה להשתמש ליצירת השריון"]
+
+[blocking.saddle_crafter]
+    name = "אוכף בר-יצירה"
+    description = "צור אוכף עם עור"
+    lore1 = "מתכון: 5 עורות:"
+    lore = ["מתכון: 5 עורות:"]
+
+[blocking.multi_armor]
+    name = "רב-שריון"
+    description = "אגד אליטרות לשריון"
+    lore1 = "זוהי מיומנות מדהימה לנסיעות."
+    lore2 = "מזג ושנה שריון/אליטרה באופן דינמי תוך כדי תנועה!"
+    lore3 = "למיזוג, לחץ shift על פריט מעל אחר במלאי שלך."
+    lore4 = "לשחרור שריון, התכופף-והפל את הפריט, והוא יתפרק."
+    lore5 = "אם הרב-שריון שלך נהרס, תאבד את כל הפריטים שבו."
+    lore6 = "אני לא צריך שריון, זה מאכזב אותי..."
+    lore = ["זוהי מיומנות מדהימה לנסיעות.", "מזג ושנה שריון/אליטרה באופן דינמי תוך כדי תנועה!", "למיזוג, לחץ shift על פריט מעל אחר במלאי שלך.", "לשחרור שריון, התכופף-והפל את הפריט, והוא יתפרק.", "אם הרב-שריון שלך נהרס, תאבד את כל הפריטים שבו.", "אני לא צריך שריון, זה מאכזב אותי..."]
+
+# crafting
+[crafting]
+
+[crafting.deconstruction]
+    name = "פירוק"
+    description = "פרק בלוקים ופריטים לרכיבי בסיס שניתן להציל!"
+    lore1 = "הפל פריט כלשהו לרצפה."
+    lore2 = "אז, התכופף ולחץ לחיצה ימנית עם מספריים"
+    lore = ["הפל פריט כלשהו לרצפה.", "אז, התכופף ולחץ לחיצה ימנית עם מספריים"]
+
+[crafting.xp]
+    name = "ניסיון יצירה"
+    description = "קבל ניסיון פסיבי בעת יצירה"
+    lore1 = "קבל ניסיון בעת יצירה"
+    lore = ["קבל ניסיון בעת יצירה"]
+
+[crafting.reconstruction]
+    name = "שחזור עפרות"
+    description = "צור מחדש עפרות מרכיבי הבסיס שלהם!"
+    lore1 = "8 מהדרופים ו-1 מארח = 1 עפרה (ללא צורה)"
+    lore2 = "הדרופים חייבים להיות מותכים (אם רלוונטי)"
+    lore3 = "לא כולל: גרוטאות, קוורץ, ואזמרגדים וכו'..."
+    lore4 = "מארח = עטיפה. כלומר: אבן, נתראק, צפחה עמוקה"
+    lore = ["8 מהדרופים ו-1 מארח = 1 עפרה (ללא צורה)", "הדרופים חייבים להיות מותכים (אם רלוונטי)", "לא כולל: גרוטאות, קוורץ, ואזמרגדים וכו'...", "מארח = עטיפה. כלומר: אבן, נתראק, צפחה עמוקה"]
+
+[crafting.leather]
+    name = "עור בר-יצירה"
+    description = "צור עור מבשר רקוב"
+    lore1 = "פשוט זרוק אותו (בשר רקוב) על המדורה!"
+    lore = ["פשוט זרוק אותו (בשר רקוב) על המדורה!"]
+
+[crafting.backpacks]
+    name = "התרמילים של בוטילייה!"
+    description = "זה פשוט מביא את צרור מוג'אנג למשחק!"
+    lore1 = "אתה צריך להיות במצב הישרדות כדי להשתמש בזה"
+    lore2 = "XLX : עור, רצועה, עור"
+    lore3 = "XSX : עור, קופסת חבית, עור"
+    lore4 = "XCX : עור, ארגז, עור"
+    lore = ["אתה צריך להיות במצב הישרדות כדי להשתמש בזה", "XLX : עור, רצועה, עור", "XSX : עור, קופסת חבית, עור", "XCX : עור, ארגז, עור"]
+
+[crafting.stations]
+    name = "שולחנות ניידים!"
+    description = "השתמש בשולחן מכף ידך!"
+    lore2 = "כל פריט שתשכח בשולחן כשהוא נסגר אבוד לנצח!"
+    lore3 = "שולחנות תקפים: סדן, יצירה, אבן השחזה, קרטוגרפיה, חותך אבן, נול"
+    lore = ["כל פריט שתשכח בשולחן כשהוא נסגר אבוד לנצח!", "שולחנות תקפים: סדן, יצירה, אבן השחזה, קרטוגרפיה, חותך אבן, נול"]
+
+[crafting.skulls]
+    name = "גולגולות בנות-יצירה!"
+    description = "באמצעות חומרים תוכל ליצור גולגולות מפלצות!"
+    lore1 = "הקף בלוק עצם עם הדברים הבאים כדי לקבל גולגולת:"
+    lore2 = "זומבי: בשר רקוב"
+    lore3 = "שלד: עצם"
+    lore4 = "קריפר: אבק שריפה"
+    lore5 = "וויתר: לבנת נתר"
+    lore6 = "דרקון: נשימת דרקון"
+    lore = ["הקף בלוק עצם עם הדברים הבאים כדי לקבל גולגולת:", "זומבי: בשר רקוב", "שלד: עצם", "קריפר: אבק שריפה", "וויתר: לבנת נתר", "דרקון: נשימת דרקון"]
+
+# chronos
+[chronos]
+
+[chronos.time_in_a_bottle]
+    name = "זמן בבקבוק"
+    description = "נשא בקבוק טמפורלי שאוגר זמן והוצא אותו כדי להאיץ בלוקים מתוזמנים, גידולים, וישויות בעלות גיל כמו חיות תינוק. מתכון (ללא צורה): שיקוי מהירות + שעון + בקבוק זכוכית."
+    lore1 = "שניות נטענות כל טיק"
+    lore2 = "האצת זמן לכל שנייה אגורה"
+    lore3 = "מתכון (ללא צורה): שיקוי מהירות + שעון + בקבוק זכוכית"
+    lore = ["שניות נטענות כל טיק", "האצת זמן לכל שנייה אגורה", "מתכון (ללא צורה): שיקוי מהירות + שעון + בקבוק זכוכית"]
+
+[chronos.aberrant_touch]
+    name = "מגע סוטה"
+    description = "מכות קרב מחילות האטה מצטברת על חשבון רעב, עם מגבלות PvP קפדניות, ומשרשות מטרות ב-5 ערימות."
+    lore1 = "מכות קרב מחילות האטה מצטברת"
+    lore2 = "מגבלת משך האטה ב-PvE"
+    lore3 = "מגבלת עוצמת האטה ב-PvP"
+    lore = ["מכות קרב מחילות האטה מצטברת", "מגבלת משך האטה ב-PvE", "מגבלת עוצמת האטה ב-PvP"]
+
+[chronos.instant_recall]
+    name = "ריקול מיידי"
+    description = "לחץ שמאל או ימין עם שעון ביד כדי להריץ אחורה לתמונת מצב אחרונה עם שחזור בריאות ורעב."
+    lore1 = "משך הרצה לאחור"
+    lore2 = "זמן קירור"
+    lore3 = "ללא שחזור מלאי"
+    lore = ["משך הרצה לאחור", "זמן קירור", "ללא שחזור מלאי"]
+
+[chronos.time_bomb]
+    name = "פצצת זמן"
+    description = "זרוק פצצת כרונו מעוצבת שיוצרת שדה טמפורלי, מאטה ישויות, ומקפיאה קליעים."
+    lore1 = "רדיוס שדה טמפורלי"
+    lore2 = "משך שדה טמפורלי"
+    lore3 = "זמן קירור פצצה"
+    lore4 = "מתכון (ללא צורה): שעון + כדור שלג + יהלום + חול"
+    lore = ["רדיוס שדה טמפורלי", "משך שדה טמפורלי", "זמן קירור פצצה", "מתכון (ללא צורה): שעון + כדור שלג + יהלום + חול"]
+
+# discovery
+[discovery]
+
+[discovery.armor]
+    name = "שריון עולמי"
+    description = "שריון פסיבי בהתאם לקשיות הבלוקים הסמוכים."
+    lore1 = "שריון פסיבי"
+    lore2 = "מבוסס על קשיות בלוקים סמוכים"
+    lore3 = "עוצמת שריון:"
+    lore = ["שריון פסיבי", "מבוסס על קשיות בלוקים סמוכים", "עוצמת שריון:"]
+
+[discovery.unity]
+    name = "אחדות ניסיונית"
+    description = "איסוף כדורי ניסיון מוסיף XP למיומנויות אקראיות."
+    lore1 = "XP "
+    lore2 = "לכל כדור"
+    lore = ["XP ", "לכל כדור"]
+
+[discovery.resist]
+    name = "התנגדות ניסיונית"
+    description = "צרוך ניסיון כדי להקטין נזק רק כשמכה עלולה להפיל אותך מתחת ל-5 לבבות או להרוג אותך."
+    lore0 = "מופעל רק בבריאות קריטית (<= 5 לבבות) פעם ב-15 שניות"
+    lore1 = " נזק מופחת"
+    lore2 = "ניסיון מנוקז"
+    lore = ["מופעל רק בבריאות קריטית (<= 5 לבבות) פעם ב-15 שניות", " נזק מופחת", "ניסיון מנוקז"]
+
+[discovery.villager]
+    name = "משיכת כפריים"
+    description = "מאפשר לך לקבל עסקאות טובות יותר עם כפריים!"
+    lore1 = "צורך XP לכל אינטראקציה עם כפריים"
+    lore2 = "סיכוי לכל אינטראקציה לצרוך XP ולשפר עסקאות"
+    lore3 = "ניקוז XP נדרש לכל אינטראקציה"
+    lore = ["צורך XP לכל אינטראקציה עם כפריים", "סיכוי לכל אינטראקציה לצרוך XP ולשפר עסקאות", "ניקוז XP נדרש לכל אינטראקציה"]
+
+# enchanting
+[enchanting]
+
+[enchanting.lapis_return]
+    name = "החזר לאפיס"
+    description = "במחיר רמה אחת נוספת של XP, ויש סיכוי לקבל לאפיס חינם בתמורה"
+    lore1 = "לכל רמה, מגדיל את עלות הכישוף ב-1, אבל יכול להחזיר עד 3 לאפיס"
+    lore = ["לכל רמה, מגדיל את עלות הכישוף ב-1, אבל יכול להחזיר עד 3 לאפיס"]
+
+[enchanting.quick_enchant]
+    name = "כישוף בלחיצה מהירה"
+    description = "כשף פריטים על ידי לחיצה על ספרי כישוף ישירות עליהם."
+    lore1 = "רמות משולבות מרביות"
+    lore2 = "לא ניתן לכשף פריט עם יותר מ-"
+    lore3 = "כוח"
+    lore = ["רמות משולבות מרביות", "לא ניתן לכשף פריט עם יותר מ-", "כוח"]
+
+[enchanting.return]
+    name = "החזר XP"
+    description = "ניסיון כישוף מוחזר אליך כשאתה מכשף פריט."
+    lore1 = "לניסיון שהוצאת יש סיכוי להיות מוחזר כשאתה מכשף פריט"
+    lore2 = "ניסיון לכל כישוף"
+    lore = ["לניסיון שהוצאת יש סיכוי להיות מוחזר כשאתה מכשף פריט", "ניסיון לכל כישוף"]
+
+# excavation
+[excavation]
+
+[excavation.haste]
+    name = "חופר חפוז"
+    description = "זה יאיץ את תהליך החפירה, עם חיפזון!"
+    lore1 = "קבל חיפזון בזמן חפירה"
+    lore2 = "x רמות חיפזון כשאתה מתחיל לכרות כל בלוק."
+    lore = ["קבל חיפזון בזמן חפירה", "x רמות חיפזון כשאתה מתחיל לכרות כל בלוק."]
+
+[excavation.spelunker]
+    name = "חוקר מערות על-חושי!"
+    description = "ראה עפרות בעיניך, דרך האדמה!"
+    lore1 = "עפרה ביד השנייה, גרגרי זוהר ביד הראשית, והתכופף!"
+    lore2 = "טווח בלוקים: "
+    lore3 = "צורך גרגר זוהר בשימוש"
+    lore = ["עפרה ביד השנייה, גרגרי זוהר ביד הראשית, והתכופף!", "טווח בלוקים: ", "צורך גרגר זוהר בשימוש"]
+
+[excavation.drop_to_inventory]
+    name = "את-ישר-למלאי"
+
+[excavation.omni_tool]
+    name = "OMNI - T.O.O.L."
+    description = "הלדרמן המפואר המעוצב-יתר של טאקל"
+    lore1 = "כנראה החזק מבין רבים מאפשר לך"
+    lore2 = "למזג ולשנות כלים באופן דינמי, בהתאם לצרכים שלך."
+    lore3 = "למיזוג, לחץ shift על פריט מעל אחר במלאי שלך."
+    lore4 = "לשחרור כלים, התכופף-והפל את הפריט, והוא יתפרק."
+    lore5 = "אי אפשר לשבור כלים בלדרמן הזה אבל אי אפשר להשתמש בכלים שבורים"
+    lore6 = "פריטים מרביים הניתנים למיזוג."
+    lore7 = "אפשר להשתמש בחמישה או שישה כלים, או רק אחד!"
+    lore = ["כנראה החזק מבין רבים מאפשר לך", "למזג ולשנות כלים באופן דינמי, בהתאם לצרכים שלך.", "למיזוג, לחץ shift על פריט מעל אחר במלאי שלך.", "לשחרור כלים, התכופף-והפל את הפריט, והוא יתפרק.", "אי אפשר לשבור כלים בלדרמן הזה אבל אי אפשר להשתמש בכלים שבורים", "פריטים מרביים הניתנים למיזוג.", "אפשר להשתמש בחמישה או שישה כלים, או רק אחד!"]
+
+# herbalism
+[herbalism]
+
+[herbalism.growth_aura]
+    name = "הילת צמיחה"
+    description = "גדל טבע סביבך בהילה"
+    lore1 = "רדיוס בלוקים"
+    lore2 = "עוצמת הילת צמיחה"
+    lore3 = "עלות אוכל"
+    lore = ["רדיוס בלוקים", "עוצמת הילת צמיחה", "עלות אוכל"]
+
+[herbalism.hippo]
+    name = "היפו של הצמחאי"
+    description = "צריכת אוכל נותנת לך יותר רוויה"
+    lore1 = "אוכל) נקודות רוויה נוספות בצריכה"
+    lore = ["אוכל) נקודות רוויה נוספות בצריכה"]
+
+[herbalism.myconid]
+    name = "מיקוניד של הצמחאי"
+    description = "נותן לך את היכולת ליצור מיצליום"
+    lore1 = "כל אדמה, ופטריה חומה ואדומה ייצרו מיצליום."
+    lore = ["כל אדמה, ופטריה חומה ואדומה ייצרו מיצליום."]
+
+[herbalism.terralid]
+    name = "טראליד של הצמחאי"
+    description = "נותן לך את היכולת ליצור בלוקי דשא"
+    lore1 = "שלושה זרעים, מעל 3 אדמה, ייצרו 3 בלוקי דשא."
+    lore = ["שלושה זרעים, מעל 3 אדמה, ייצרו 3 בלוקי דשא."]
+
+[herbalism.cobweb]
+    name = "יוצר קורים"
+    description = "נותן לך את היכולת ליצור קורי עכביש בשולחן יצירה"
+    lore1 = "תשעה חוטים ייצרו קור עכביש."
+    lore = ["תשעה חוטים ייצרו קור עכביש."]
+
+[herbalism.mushroom_blocks]
+    name = "יוצר פטריות"
+    description = "נותן לך את היכולת ליצור בלוקי פטריות בשולחן יצירה"
+    lore1 = "ארבע פטריות ליצירת בלוק, או בלוק ליצירת גזע."
+    lore = ["ארבע פטריות ליצירת בלוק, או בלוק ליצירת גזע."]
+
+[herbalism.drop_to_inventory]
+    name = "מעדר-ישר-למלאי"
+
+[herbalism.hungry_shield]
+    name = "מגן רעב"
+    description = "קבל נזק לרעב שלך לפני הבריאות."
+    lore1 = "מופחת על ידי רעב"
+    lore = ["מופחת על ידי רעב"]
+
+[herbalism.luck]
+    name = "מזל הצמחאי"
+    description = "כשאתה שובר דשא/פרחים, יש סיכוי לקבל פריט אקראי"
+    lore0 = "פרחים = אוכל, ודשא = זרעים"
+    lore1 = "סיכוי לקבל פריט משבירת פרחים"
+    lore2 = "סיכוי לקבל פריט משבירת דשא"
+    lore = ["פרחים = אוכל, ודשא = זרעים", "סיכוי לקבל פריט משבירת פרחים", "סיכוי לקבל פריט משבירת דשא"]
+
+[herbalism.replant]
+    name = "קציר ושתילה מחדש"
+    description = "לחץ ימני על יבול עם מעדר כדי לקצור ולשתול מחדש."
+    lore1 = "רדיוס שתילה מחדש של בלוקים"
+    lore = ["רדיוס שתילה מחדש של בלוקים"]
+
+# hunter
+[hunter]
+
+[hunter.adrenaline]
+    name = "אדרנלין"
+    description = "גרום יותר נזק ככל שהבריאות שלך נמוכה יותר (קרב קרוב)"
+    lore1 = "נזק מרבי"
+    lore = ["נזק מרבי"]
+
+[hunter.penalty]
+    name = ""
+    description = ""
+    lore1 = "תקבל ערימות רעל אם נגמר לך הרעב"
+    lore = ["תקבל ערימות רעל אם נגמר לך הרעב"]
+
+[hunter.drop_to_inventory]
+    name = "פריטים-ישר-למלאי"
+    description = "כשאתה הורג משהו / שובר בלוק עם חרב, הדרופים משתגרים למלאי שלך"
+    lore1 = "בכל פעם שנופל פריט ממפלצת/בלוק שאתה שובר, הוא נכנס למלאי שלך אם אפשר."
+    lore = ["בכל פעם שנופל פריט ממפלצת/בלוק שאתה שובר, הוא נכנס למלאי שלך אם אפשר."]
+
+[hunter.invisibility]
+    name = "צעד נעלם"
+    description = "כשנפגע אתה מקבל אי-נראות, על חשבון רעב"
+    lore1 = "קבל אי-נראות פסיבית כשנפגע"
+    lore2 = "x ערימות אי-נראות למשך 3 שניות בפגיעה"
+    lore3 = "x רעב מצטבר"
+    lore4 = "משך ומכפיל ערימות רעב."
+    lore5 = "משך אי-נראות"
+    lore = ["קבל אי-נראות פסיבית כשנפגע", "x ערימות אי-נראות למשך 3 שניות בפגיעה", "x רעב מצטבר", "משך ומכפיל ערימות רעב.", "משך אי-נראות"]
+
+[hunter.jump_boost]
+    name = "גבהים של הצייד"
+    description = "כשנפגע אתה מקבל חיזוק קפיצה, על חשבון רעב"
+    lore1 = "קבל חיזוק קפיצה פסיבי כשנפגע"
+    lore2 = "x ערימות חיזוק קפיצה למשך 3 שניות בפגיעה"
+    lore3 = "x רעב מצטבר"
+    lore4 = "משך ומכפיל ערימות רעב."
+    lore5 = "מכפיל ערימות חיזוק קפיצה, לא משך."
+    lore = ["קבל חיזוק קפיצה פסיבי כשנפגע", "x ערימות חיזוק קפיצה למשך 3 שניות בפגיעה", "x רעב מצטבר", "משך ומכפיל ערימות רעב.", "מכפיל ערימות חיזוק קפיצה, לא משך."]
+
+[hunter.luck]
+    name = "מזל הצייד"
+    description = "כשנפגע אתה מקבל מזל, על חשבון רעב"
+    lore1 = "קבל מזל פסיבי כשנפגע"
+    lore2 = "x ערימות מזל למשך 3 שניות בפגיעה"
+    lore3 = "x רעב מצטבר"
+    lore4 = "משך ומכפיל ערימות רעב."
+    lore5 = "מכפיל ערימות מזל, לא משך."
+    lore = ["קבל מזל פסיבי כשנפגע", "x ערימות מזל למשך 3 שניות בפגיעה", "x רעב מצטבר", "משך ומכפיל ערימות רעב.", "מכפיל ערימות מזל, לא משך."]
+
+[hunter.regen]
+    name = "התחדשות הצייד"
+    description = "כשנפגע אתה מקבל התחדשות, על חשבון רעב"
+    lore1 = "קבל התחדשות פסיבית כשנפגע"
+    lore2 = "x ערימות התחדשות למשך 3 שניות בפגיעה"
+    lore3 = "x רעב מצטבר"
+    lore4 = "משך ומכפיל ערימות רעב."
+    lore5 = "מכפיל ערימות התחדשות, לא משך."
+    lore = ["קבל התחדשות פסיבית כשנפגע", "x ערימות התחדשות למשך 3 שניות בפגיעה", "x רעב מצטבר", "משך ומכפיל ערימות רעב.", "מכפיל ערימות התחדשות, לא משך."]
+
+[hunter.resistance]
+    name = "התנגדות הצייד"
+    description = "כשנפגע אתה מקבל התנגדות, על חשבון רעב"
+    lore1 = "קבל התנגדות פסיבית כשנפגע"
+    lore2 = "x ערימות התנגדות למשך 3 שניות בפגיעה"
+    lore3 = "x רעב מצטבר"
+    lore4 = "משך ומכפיל ערימות רעב."
+    lore5 = "מכפיל ערימות התנגדות, לא משך."
+    lore = ["קבל התנגדות פסיבית כשנפגע", "x ערימות התנגדות למשך 3 שניות בפגיעה", "x רעב מצטבר", "משך ומכפיל ערימות רעב.", "מכפיל ערימות התנגדות, לא משך."]
+
+[hunter.speed]
+    name = "מהירות הצייד"
+    description = "כשנפגע אתה מקבל מהירות, על חשבון רעב"
+    lore1 = "קבל מהירות פסיבית כשנפגע"
+    lore2 = "x ערימות מהירות למשך 3 שניות בפגיעה"
+    lore3 = "x רעב מצטבר"
+    lore4 = "משך ומכפיל ערימות רעב."
+    lore5 = "מכפיל ערימות מהירות, לא משך."
+    lore = ["קבל מהירות פסיבית כשנפגע", "x ערימות מהירות למשך 3 שניות בפגיעה", "x רעב מצטבר", "משך ומכפיל ערימות רעב.", "מכפיל ערימות מהירות, לא משך."]
+
+[hunter.strength]
+    name = "עוצמת הצייד"
+    description = "כשנפגע אתה מקבל עוצמה, על חשבון רעב"
+    lore1 = "קבל עוצמה פסיבית כשנפגע"
+    lore2 = "x ערימות עוצמה למשך 3 שניות בפגיעה"
+    lore3 = "x רעב מצטבר"
+    lore4 = "משך ומכפיל ערימות רעב."
+    lore5 = "מכפיל ערימות עוצמה, לא משך."
+    lore = ["קבל עוצמה פסיבית כשנפגע", "x ערימות עוצמה למשך 3 שניות בפגיעה", "x רעב מצטבר", "משך ומכפיל ערימות רעב.", "מכפיל ערימות עוצמה, לא משך."]
+
+# nether
+[nether]
+
+[nether.skull_toss]
+    name = "זריקת גולגולת וויתר"
+    description1 = "שחרר את הוויתר הפנימי שלך על ידי שימוש"
+    description2 = "במישהו"
+    description3 = "ראש."
+    lore1 = "שניות קירור בין זריקות גולגולת."
+    lore2 = "שימוש בגולגולת וויתר: זרוק "
+    lore3 = "גולגולת וויתר"
+    lore4 = "שמתפוצצת בפגיעה."
+    lore = ["שניות קירור בין זריקות גולגולת.", "שימוש בגולגולת וויתר: זרוק ", "גולגולת וויתר", "שמתפוצצת בפגיעה."]
+
+[nether.wither_resist]
+    name = "התנגדות לכמילה"
+    description = "מתנגד לכמילה דרך כוחו של נתרייט."
+    lore1 = "סיכוי לבטל כמילה (לכל חלק)."
+    lore2 = "פסיבי: לבישת שריון נתרייט מעניקה סיכוי לבטל "
+    lore3 = "כמילה."
+    lore = ["סיכוי לבטל כמילה (לכל חלק).", "פסיבי: לבישת שריון נתרייט מעניקה סיכוי לבטל ", "כמילה."]
+
+[nether.fire_resist]
+    name = "התנגדות לאש"
+    description = "מתנגד לאש על ידי הקשחת העור."
+    lore1 = "סיכוי לבטל את אפקט הבעירה!"
+    lore = ["סיכוי לבטל את אפקט הבעירה!"]
+
+# pickaxe
+[pickaxe]
+
+[pickaxe.auto_smelt]
+    name = "התכה אוטומטית"
+    description = "מאפשר לך להתיך עפרות וניל שנכרו"
+    lore1 = "עפרות הניתנות להתכה מותכות אוטומטית"
+    lore2 = "% סיכוי לתוספת"
+    lore = ["עפרות הניתנות להתכה מותכות אוטומטית", "% סיכוי לתוספת"]
+
+[pickaxe.chisel]
+    name = "אזמל עפרות"
+    description = "לחץ ימני על עפרות כדי לאזמל עוד עפרה מהן, בעלות עמידות חמורה."
+    lore1 = "סיכוי להפלה"
+    lore2 = "בלאי כלי"
+    lore = ["סיכוי להפלה", "בלאי כלי"]
+
+[pickaxe.drop_to_inventory]
+    name = "מכוש-ישר-למלאי"
+    description = "כשאתה שובר בלוק, הפריט משתגר למלאי שלך"
+    lore1 = "בכל פעם שנופל פריט מבלוק שאתה שובר, הוא נכנס למלאי שלך אם אפשר."
+    lore = ["בכל פעם שנופל פריט מבלוק שאתה שובר, הוא נכנס למלאי שלך אם אפשר."]
+
+[pickaxe.silk_spawner]
+    name = "מכוש משי-יוצר-מפלצות"
+    description = "גורם ליוצרי מפלצות ליפול כשנשברים"
+    lore1 = "הופך יוצרי מפלצות לשבירים עם מגע-משי."
+    lore2 = "הופך יוצרי מפלצות לשבירים תוך כדי התכופפות."
+    lore = ["הופך יוצרי מפלצות לשבירים עם מגע-משי.", "הופך יוצרי מפלצות לשבירים תוך כדי התכופפות."]
+
+[pickaxe.vein_miner]
+    name = "כורה ורידים"
+    description = "מאפשר לך לשבור בלוקים בוריד/אשכול של עפרות וניל"
+    lore1 = "התכופף, וכרה עפרות"
+    lore2 = "טווח כריית ורידים"
+    lore3 = "מיומנות זו לא מקבצת את כל הדרופים יחד!"
+    lore = ["התכופף, וכרה עפרות", "טווח כריית ורידים", "מיומנות זו לא מקבצת את כל הדרופים יחד!"]
+
+# ranged
+[ranged]
+
+[ranged.arrow_recovery]
+    name = "שחזור חצים"
+    description = "שחזר חצים אחרי שהרגת אויב."
+    lore1 = "סיכוי לשחזר חצים בפגיעה/הריגה"
+    lore2 = "סיכוי: "
+    lore = ["סיכוי לשחזר חצים בפגיעה/הריגה", "סיכוי: "]
+
+[ranged.web_shot]
+    name = "מלכודת קורים"
+    description = "הקף את המטרה שלך בקורי עכביש כשאתה פוגע בה!"
+    lore1 = "8 קורי עכביש סביב כדור שלג, וזרוק!"
+    lore2 = "שניות של כלוב, בערך."
+    lore = ["8 קורי עכביש סביב כדור שלג, וזרוק!", "שניות של כלוב, בערך."]
+
+[ranged.force_shot]
+    name = "יריית כוח"
+    description = "ירה קליעים רחוק ומהר יותר!"
+    advancementname = "יריה ארוכה"
+    advancementlore = "נחת יריה ממרחק של מעל 30 בלוקים!"
+    lore1 = "מהירות קליע"
+    lore = ["מהירות קליע"]
+
+[ranged.lunge_shot]
+    name = "יריית זינוק"
+    description = "בזמן נפילה החצים שלך זורקים אותך לכיוון אקראי"
+    lore1 = "מהירות פרץ אקראית"
+    lore = ["מהירות פרץ אקראית"]
+
+[ranged.arrow_piercing]
+    name = "חץ חודר"
+    description = "מוסיף חדירה לקליעים! ירה דרך דברים!"
+    lore1 = "מטרות חדירה"
+    lore = ["מטרות חדירה"]
+
+# rift
+[rift]
+
+[rift.remote_access]
+    name = "גישה מרחוק"
+    description = "שלוף מהריק, והיכנס למכולה מסומנת."
+    lore1 = "פנינת אנדר + מצפן = מפתח שער רליקוויה"
+    lore2 = "פריט זה מאפשר לך לגשת למכולות מרחוק"
+    lore3 = "אחרי היצירה הסתכל על הפריט לראות שימוש"
+    notcontainer = "זה לא מכולה"
+    lore = ["פנינת אנדר + מצפן = מפתח שער רליקוויה", "פריט זה מאפשר לך לגשת למכולות מרחוק", "אחרי היצירה הסתכל על הפריט לראות שימוש"]
+
+[rift.blink]
+    name = "הבזק קרע"
+    description = "שיגור מיידי לטווח קצר, רק הבזק!"
+    lore1 = "בלוקים בהבזק (2x אנכי)"
+    lore2 = "בזמן ריצה: הקש כפול על קפיצה כדי "
+    lore3 = "להבזק"
+    lore = ["בלוקים בהבזק (2x אנכי)", "בזמן ריצה: הקש כפול על קפיצה כדי ", "להבזק"]
+
+[rift.chest]
+    name = "ארגז אנדר קל"
+    description = "פתח ארגז אנדר על ידי לחיצה שמאלית עליו ביד."
+    lore1 = "לחץ על ארגז אנדר ביד כדי לפתוח (פשוט אל תניח אותו)"
+    lore = ["לחץ על ארגז אנדר ביד כדי לפתוח (פשוט אל תניח אותו)"]
+
+[rift.descent]
+    name = "נגד-ריחוף"
+    description = "נמאס לך להיתקע באוויר? זו המיומנות בשבילך!"
+    lore1 = "פשוט התכופף כדי לרדת, ותיפול בקצב איטי מהרגיל!"
+    lore2 = "זמן קירור:"
+    lore = ["פשוט התכופף כדי לרדת, ותיפול בקצב איטי מהרגיל!", "זמן קירור:"]
+
+[rift.gate]
+    name = "שער קרע"
+    description = "השתגר למיקום מסומן."
+    lore1 = "יצירה: אזמרגד + רסיס אמטיסט + פנינת אנדר"
+    lore2 = "קרא לפני השימוש!"
+    lore3 = "השהיה של 5 שניות, "
+    lore4 = "אתה יכול למות בזמן האנימציה הזו"
+    lore = ["יצירה: אזמרגד + רסיס אמטיסט + פנינת אנדר", "קרא לפני השימוש!", "השהיה של 5 שניות, ", "אתה יכול למות בזמן האנימציה הזו"]
+
+[rift.resist]
+    name = "התנגדות קרע"
+    description = "קבל התנגדות בעת שימוש בפריטי ויכולות אנדר"
+    lore1 = "+ פסיבי: מעניק התנגדות כשאתה משתמש ביכולות קרע, או פריטי אנדר"
+    lore2 = "לא כולל ארגז אנדר נייד, רק דברים שאתה יכול לצרוך"
+    lore = ["+ פסיבי: מעניק התנגדות כשאתה משתמש ביכולות קרע, או פריטי אנדר", "לא כולל ארגז אנדר נייד, רק דברים שאתה יכול לצרוך"]
+
+[rift.visage]
+    name = "מסווה קרע"
+    description = "מונע מאנדרמנים להפוך לעוינים אם יש לך פניני אנדר במלאי."
+    lore1 = "אנדרמנים לא יהפכו לעוינים אם יש לך פניני אנדר במלאי."
+    lore = ["אנדרמנים לא יהפכו לעוינים אם יש לך פניני אנדר במלאי."]
+
+# seaborn
+[seaborn]
+
+[seaborn.oxygen]
+    name = "מיכל חמצן אורגני"
+    description = "החזק יותר חמצן בריאות הזעירות שלך!"
+    lore1 = "הגדלת קיבולת חמצן"
+    lore = ["הגדלת קיבולת חמצן"]
+
+[seaborn.fishers_fantasy]
+    name = "פנטזיית הדייג"
+    description = "הרווח יותר XP מדיג, וקבל יותר דגים!"
+    lore1 = "לכל רמה יש סיכוי לקבל יותר XP ודגים!"
+    lore = ["לכל רמה יש סיכוי לקבל יותר XP ודגים!"]
+
+[seaborn.haste]
+    name = "כורה צבים"
+    description = "בזמן כרייה מתחת למים אתה מקבל חיפזון!"
+    lore1 = "חיפזון 3 מופעל מתחת למים בזמן כרייה (מצטבר עם זיקת מים) אחרי שאפקט נשימת המים שלך נגמר!"
+    lore = ["חיפזון 3 מופעל מתחת למים בזמן כרייה (מצטבר עם זיקת מים) אחרי שאפקט נשימת המים שלך נגמר!"]
+
+[seaborn.night_vision]
+    name = "חזון הצב"
+    description = "בזמן שאתה מתחת למים, אתה מקבל ראיית לילה"
+    lore1 = "פשוט קבל ראיית לילה מתחת למים אחרי שאפקט נשימת המים שלך נגמר!"
+    lore = ["פשוט קבל ראיית לילה מתחת למים אחרי שאפקט נשימת המים שלך נגמר!"]
+
+[seaborn.dolphin_grace]
+    name = "חסד הדולפין"
+    description = "שחה כמו דולפין, בלי הדולפינים"
+    lore1 = "+ פסיבי: קבל "
+    lore2 = "x מהירות (חסד דולפין)"
+    lore3 = "הנדסה גרמנית מדויק- רגע זה לא נכון... לא תואם עם צעד עמוק"
+    lore = ["+ פסיבי: קבל ", "x מהירות (חסד דולפין)", "הנדסה גרמנית מדויק- רגע זה לא נכון... לא תואם עם צעד עמוק"]
+
+# stealth
+[stealth]
+
+[stealth.ghost_armor]
+    name = "שריון הרוח"
+    description = "שריון שנבנה לאט כשלא נפגע, מחזיק מכה אחת"
+    lore1 = "שריון מרבי"
+    lore2 = "מהירות"
+    lore = ["שריון מרבי", "מהירות"]
+
+[stealth.night_vision]
+    name = "ראיית התגנבות"
+    description = "קבל ראיית לילה תוך כדי התגנבות"
+    lore1 = "קבל פרץ של "
+    lore2 = "ראיית לילה"
+    lore3 = "תוך כדי התגנבות"
+    lore = ["קבל פרץ של ", "ראיית לילה", "תוך כדי התגנבות"]
+
+[stealth.snatch]
+    name = "חטיפת פריטים"
+    description = "חטוף פריטים שנפלו מיד תוך כדי התגנבות!"
+    lore1 = "רדיוס חטיפה"
+    lore = ["רדיוס חטיפה"]
+
+[stealth.speed]
+    name = "מהירות התגנבות"
+    description = "קבל מהירות תוך כדי התגנבות"
+    lore1 = "מהירות התגנבות"
+    lore = ["מהירות התגנבות"]
+
+[stealth.ender_veil]
+    name = "צעיף אנדר"
+    description = "לא עוד דלעות כדי למנוע התקפות אנדרמנים"
+    lore1 = "מנע התקפות אנדרמנים תוך כדי התגנבות"
+    lore2 = "מנע את כל התקפות האנדרמנים"
+    lore = ["מנע התקפות אנדרמנים תוך כדי התגנבות", "מנע את כל התקפות האנדרמנים"]
+
+# sword
+[sword]
+
+[sword.machete]
+    name = "מצ'טה"
+    description = "חתוך דרך שיחים בקלות!"
+    lore1 = "רדיוס חיתוך"
+    lore2 = "זמן קירור חיתוך"
+    lore3 = "בלאי כלי"
+    lore = ["רדיוס חיתוך", "זמן קירור חיתוך", "בלאי כלי"]
+
+[sword.bloody_blade]
+    name = "להב מדמם"
+    description = "מכות עם החרב שלך גורמות לדימום!"
+    lore1 = "פגיעה בישות חיה עם החרב שלך גורמת לדימום"
+    lore2 = "משך דימום"
+    lore3 = "זמן קירור דימום"
+    lore = ["פגיעה בישות חיה עם החרב שלך גורמת לדימום", "משך דימום", "זמן קירור דימום"]
+
+[sword.poisoned_blade]
+    name = "להב מורעל"
+    description = "מכות עם החרב שלך גורמות להרעלה!"
+    lore1 = "פגיעה בישות חיה עם החרב שלך גורמת להרעלה"
+    lore2 = "משך הרעלה"
+    lore3 = "זמן קירור הרעלה"
+    lore = ["פגיעה בישות חיה עם החרב שלך גורמת להרעלה", "משך הרעלה", "זמן קירור הרעלה"]
+
+# taming
+[taming]
+
+[taming.damage]
+    name = "נזק מאולף"
+    description = "הגדל את הנזק שחיות מאולפות שלך גורמות."
+    lore1 = "נזק מוגבר"
+    lore = ["נזק מוגבר"]
+
+[taming.health]
+    name = "בריאות מאולף"
+    description = "הגדל את הבריאות של חיות מאולפות שלך."
+    lore1 = "בריאות מוגברת"
+    lore = ["בריאות מוגברת"]
+
+[taming.regeneration]
+    name = "התחדשות מאולף"
+    description = "הגדל את ההתחדשות של חיות מאולפות שלך."
+    lore1 = "HP/s"
+    lore = ["HP/s"]
+
+# tragoul
+[tragoul]
+
+[tragoul.thorns]
+    name = "קוצים"
+    description = "החזר נזק לתוקף שלך!"
+    lore1 = "נזק מוחזר כשנפגע"
+    lore = ["נזק מוחזר כשנפגע"]
+
+[tragoul.globe]
+    name = "כדור הכאב"
+    description = "חלק את הנזק שאתה גורם בהתאם למספר האויבים סביבך!"
+    lore1 = "ככל שיותר אויבים סביבך, כך פחות נזק אתה גורם לכל אחד"
+    lore2 = "טווח: "
+    lore3 = "נזק נוסף לכל הישויות: "
+    lore = ["ככל שיותר אויבים סביבך, כך פחות נזק אתה גורם לכל אחד", "טווח: ", "נזק נוסף לכל הישויות: "]
+
+[tragoul.healing]
+    name = "רצון הכאב"
+    description = "שחזר בריאות בהתאם לנזק שאתה גורם!"
+    lore1 = "לפגוע בדברים מעולם לא הרגיש כל כך טוב! התרפא מנזק שגרמת"
+    lore2 = "יש חלון נזק של 3 שניות, לריפוי וזמן קירור של שנייה "
+    lore3 = "ריפוי לכל אחוז נזק: "
+    lore = ["לפגוע בדברים מעולם לא הרגיש כל כך טוב! התרפא מנזק שגרמת", "יש חלון נזק של 3 שניות, לריפוי וזמן קירור של שנייה ", "ריפוי לכל אחוז נזק: "]
+
+[tragoul.lance]
+    name = "חניתות גופות"
+    description = "הריגת אויב או הריגה על ידי יכולת יוצרת חנית שפוגעת באויב קרוב!"
+    lore1 = "חניתות ישוגרו מכל דבר שאתה הורג, וגם אם יכולת זו הורגת אויב."
+    lore2 = "הקרב חלק מהחיים שלך כדי ליצור חניתות (זה יכול להרוג אותך)"
+    lore3 = "חניתות מרביות: 1 + "
+    lore = ["חניתות ישוגרו מכל דבר שאתה הורג, וגם אם יכולת זו הורגת אויב.", "הקרב חלק מהחיים שלך כדי ליצור חניתות (זה יכול להרוג אותך)", "חניתות מרביות: 1 + "]
+
+# unarmed
+[unarmed]
+
+[unarmed.glass_cannon]
+    name = "תותח זכוכית"
+    description = "נזק בונוס לא חמוש ככל שערך השריון שלך נמוך יותר"
+    lore1 = "x נזק ב-0 שריון"
+    lore2 = "נזק בונוס לכל רמה"
+    lore = ["x נזק ב-0 שריון", "נזק בונוס לכל רמה"]
+
+[unarmed.power]
+    name = "כוח לא חמוש"
+    description = "נזק לא חמוש משופר"
+    lore1 = "נזק"
+    lore = ["נזק"]
+
+[unarmed.sucker_punch]
+    name = "אגרוף מתגנב"
+    description = "אגרופי ספרינט, אבל קטלניים יותר."
+    lore1 = "נזק"
+    lore2 = "הנזק גדל עם המהירות שלך בזמן האגרוף"
+    lore = ["נזק", "הנזק גדל עם המהירות שלך בזמן האגרוף"]

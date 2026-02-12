@@ -35,8 +35,8 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
     public BrewingDarkness() {
         super("brewing-darkness");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "darkness", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "darkness", "name"));
+        setDescription(Localizer.dLocalize("brewing.darkness.description"));
+        setDisplayName(Localizer.dLocalize("brewing.darkness.name"));
         setIcon(Material.BLACK_CONCRETE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -59,8 +59,8 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "darkness", "lore1"));
-        v.addLore(C.GRAY + "- " + Localizer.dLocalize("brewing", "darkness", "lore2"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.darkness.lore1"));
+        v.addLore(C.GRAY + "- " + Localizer.dLocalize("brewing.darkness.lore2"));
     }
 
 

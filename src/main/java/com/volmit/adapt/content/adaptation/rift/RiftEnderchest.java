@@ -38,8 +38,8 @@ import org.bukkit.inventory.ItemStack;
 public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
     public RiftEnderchest() {
         super("rift-enderchest");
-        setDescription(Localizer.dLocalize("rift", "chest", "description"));
-        setDisplayName(Localizer.dLocalize("rift", "chest", "name"));
+        setDescription(Localizer.dLocalize("rift.chest.description"));
+        setDisplayName(Localizer.dLocalize("rift.chest.name"));
         setIcon(Material.ENDER_CHEST);
         setBaseCost(0);
         setCostFactor(0);
@@ -51,7 +51,7 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "chest", "lore1"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("rift.chest.lore1"));
     }
 
     @EventHandler

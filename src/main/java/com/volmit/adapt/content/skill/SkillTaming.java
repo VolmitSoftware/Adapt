@@ -46,10 +46,10 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillTaming() {
-        super("taming", Localizer.dLocalize("skill", "taming", "icon"));
+        super("taming", Localizer.dLocalize("skill.taming.icon"));
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("skill", "taming", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "taming", "name"));
+        setDescription(Localizer.dLocalize("skill.taming.description"));
+        setDisplayName(Localizer.dLocalize("skill.taming.name"));
         setColor(C.GOLD);
         setInterval(3480);
         setIcon(Material.LEAD);
@@ -60,24 +60,24 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LEAD)
                 .key("challenge_taming_10")
-                .title(Localizer.dLocalize("advancement", "challenge_taming_10", "title"))
-                .description(Localizer.dLocalize("advancement", "challenge_taming_10", "description"))
+                .title(Localizer.dLocalize("advancement.challenge_taming_10.title"))
+                .description(Localizer.dLocalize("advancement.challenge_taming_10.description"))
                 .model(CustomModel.get(Material.LEAD, "advancement", "taming", "challenge_taming_10"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.NAME_TAG)
                         .key("challenge_taming_50")
-                        .title(Localizer.dLocalize("advancement", "challenge_taming_50", "title"))
-                        .description(Localizer.dLocalize("advancement", "challenge_taming_50", "description"))
+                        .title(Localizer.dLocalize("advancement.challenge_taming_50.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_taming_50.description"))
                         .model(CustomModel.get(Material.NAME_TAG, "advancement", "taming", "challenge_taming_50"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.GOLDEN_APPLE)
                                 .key("challenge_taming_500")
-                                .title(Localizer.dLocalize("advancement", "challenge_taming_500", "title"))
-                                .description(Localizer.dLocalize("advancement", "challenge_taming_500", "description"))
+                                .title(Localizer.dLocalize("advancement.challenge_taming_500.title"))
+                                .description(Localizer.dLocalize("advancement.challenge_taming_500.description"))
                                 .model(CustomModel.get(Material.GOLDEN_APPLE, "advancement", "taming", "challenge_taming_500"))
                                 .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)

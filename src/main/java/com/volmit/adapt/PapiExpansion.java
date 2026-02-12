@@ -30,7 +30,7 @@ public class PapiExpansion extends PlaceholderExpansion {
         skillMap.put("xp", skill -> String.format("%.2f", skill.getXp()).equals("-5000.00") ? "0" : String.format("%.2f", skill.getXp()));
         skillMap.put("freshness", skill -> String.valueOf(skill.getFreshness()).equals("-5000") ? "0" : String.valueOf(skill.getFreshness()));
         skillMap.put("multiplier", skill -> String.valueOf(skill.getMultiplier()).equals("-5000") ? "0" : String.valueOf(skill.getMultiplier()));
-        skillMap.put("name", skill -> Localizer.dLocalize("skill", skill.getLine(), "name"));
+        skillMap.put("name", skill -> Localizer.dLocalize("skill." + skill.getLine() + ".name"));
 
         // this should be %adapt_player_level%, %adapt_player_multiplier%, %adapt_player_availablepower%, %adapt_player_maxpower%, %adapt_player_usedpower%, %adapt_player_wisdom%, %adapt_player_masterxp%, %adapt_player_seenthings%
         // the player is provided by the ingame context
@@ -78,7 +78,7 @@ public class PapiExpansion extends PlaceholderExpansion {
             List<Adaptation<?>> adaptations = skill.getAdaptations();
             for (Adaptation<?> a : adaptations) {
                 if (a.equals(adaptation)) {
-                    return Localizer.dLocalize(skill.getId(), adaptation.getDisplayName(), "name");
+                    return Localizer.dLocalize(skill.getId() + "." + adaptation.getDisplayName() + ".name");
                 }
             }
         }
@@ -160,4 +160,3 @@ public class PapiExpansion extends PlaceholderExpansion {
         return null;
     }
 }
-

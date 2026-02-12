@@ -32,8 +32,8 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     public UnarmedSuckerPunch() {
         super("unarmed-sucker-punch");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("unarmed", "suckerpunch", "description"));
-        setDisplayName(Localizer.dLocalize("unarmed", "suckerpunch", "name"));
+        setDescription(Localizer.dLocalize("unarmed.sucker_punch.description"));
+        setDisplayName(Localizer.dLocalize("unarmed.sucker_punch.name"));
         setIcon(Material.OBSIDIAN);
         setBaseCost(getConfig().baseCost);
         setInitialCost(getConfig().initialCost);
@@ -46,8 +46,8 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     public void addStats(int level, Element v) {
         double f = getLevelPercent(level);
         double d = getDamage(f);
-        v.addLore(C.GREEN + "+ " + Form.pc(d, 0) + C.GRAY + " " + Localizer.dLocalize("unarmed", "suckerpunch", "lore1"));
-        v.addLore(C.GRAY + Localizer.dLocalize("unarmed", "suckerpunch", "lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(d, 0) + C.GRAY + " " + Localizer.dLocalize("unarmed.sucker_punch.lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("unarmed.sucker_punch.lore2"));
     }
 
     private double getDamage(double f) {

@@ -35,8 +35,8 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
     public BrewingNausea() {
         super("brewing-nausea");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "nausea", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "nausea", "name"));
+        setDescription(Localizer.dLocalize("brewing.nausea.description"));
+        setDisplayName(Localizer.dLocalize("brewing.nausea.name"));
         setIcon(Material.CRIMSON_FUNGUS);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -71,8 +71,8 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "nausea", "lore1"));
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "nausea", "lore2"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.nausea.lore1"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.nausea.lore2"));
     }
 
 

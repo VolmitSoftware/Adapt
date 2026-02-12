@@ -41,8 +41,8 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
     public AxeDropToInventory() {
         super("axe-drop-to-inventory");
         registerConfiguration(AxeDropToInventory.Config.class);
-        setDescription(Localizer.dLocalize("pickaxe", "droptoinventory", "description"));
-        setDisplayName(Localizer.dLocalize("axe", "droptoinventory", "name"));
+        setDescription(Localizer.dLocalize("pickaxe.drop_to_inventory.description"));
+        setDisplayName(Localizer.dLocalize("axe.drop_to_inventory.name"));
         setIcon(Material.DIRT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -58,7 +58,7 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("pickaxe", "droptoinventory", "lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("pickaxe.drop_to_inventory.lore1"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

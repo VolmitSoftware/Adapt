@@ -47,10 +47,10 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     private int witherRoseCooldown;
 
     public SkillNether() {
-        super("nether", Localizer.dLocalize("skill", "nether", "icon"));
+        super("nether", Localizer.dLocalize("skill.nether.icon"));
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("skill", "nether", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "nether", "name"));
+        setDescription(Localizer.dLocalize("skill.nether.description"));
+        setDisplayName(Localizer.dLocalize("skill.nether.name"));
         setInterval(7425);
         setColor(C.DARK_GRAY);
         setIcon(Material.NETHER_STAR);
@@ -60,24 +60,24 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WITHER_SKELETON_SKULL)
                 .key("challenge_nether_50")
-                .title(Localizer.dLocalize("advancement", "challenge_nether_50", "title"))
-                .description(Localizer.dLocalize("advancement", "challenge_nether_50", "description"))
+                .title(Localizer.dLocalize("advancement.challenge_nether_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_nether_50.description"))
                 .model(CustomModel.get(Material.WITHER_SKELETON_SKULL, "advancement", "nether", "challenge_nether_50"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.NETHER_STAR)
                         .key("challenge_nether_500")
-                        .title(Localizer.dLocalize("advancement", "challenge_nether_500", "title"))
-                        .description(Localizer.dLocalize("advancement", "challenge_nether_500", "description"))
+                        .title(Localizer.dLocalize("advancement.challenge_nether_500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_nether_500.description"))
                         .model(CustomModel.get(Material.NETHER_STAR, "advancement", "nether", "challenge_nether_500"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.BEACON)
                                 .key("challenge_nether_5k")
-                                .title(Localizer.dLocalize("advancement", "challenge_nether_5k", "title"))
-                                .description(Localizer.dLocalize("advancement", "challenge_nether_5k", "description"))
+                                .title(Localizer.dLocalize("advancement.challenge_nether_5k.title"))
+                                .description(Localizer.dLocalize("advancement.challenge_nether_5k.description"))
                                 .model(CustomModel.get(Material.BEACON, "advancement", "nether", "challenge_nether_5k"))
                                 .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)

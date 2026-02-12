@@ -45,8 +45,8 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     public AgilityLadderSlide() {
         super("agility-ladder-slide");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("agility", "ladderslide", "description"));
-        setDisplayName(Localizer.dLocalize("agility", "ladderslide", "name"));
+        setDescription(Localizer.dLocalize("agility.ladder_slide.description"));
+        setDisplayName(Localizer.dLocalize("agility.ladder_slide.name"));
         setIcon(Material.LADDER);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -58,7 +58,7 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getConfig().speedMultiplier, 1) + "x " + C.GRAY + Localizer.dLocalize("agility", "ladderslide", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getConfig().speedMultiplier, 1) + "x " + C.GRAY + Localizer.dLocalize("agility.ladder_slide.lore1"));
         v.addLore(C.YELLOW + "Downward speed boost coming in a future update.");
     }
 

@@ -35,8 +35,8 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
     public BlockingSaddlecrafter() {
         super("blocking-saddlecrafter");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("blocking", "saddlecrafter", "description"));
-        setDisplayName(Localizer.dLocalize("blocking", "saddlecrafter", "name"));
+        setDescription(Localizer.dLocalize("blocking.saddle_crafter.description"));
+        setDisplayName(Localizer.dLocalize("blocking.saddle_crafter.name"));
         setIcon(Material.SADDLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -56,7 +56,7 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("blocking", "saddlecrafter", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("blocking.saddle_crafter.lore1"));
         v.addLore("X-X");
         v.addLore("XXX");
     }

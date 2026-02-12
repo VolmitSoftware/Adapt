@@ -46,11 +46,11 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillSwords() {
-        super("swords", Localizer.dLocalize("skill", "swords", "icon"));
+        super("swords", Localizer.dLocalize("skill.swords.icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription(Localizer.dLocalize("skill", "swords", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "swords", "name"));
+        setDescription(Localizer.dLocalize("skill.swords.description"));
+        setDisplayName(Localizer.dLocalize("skill.swords.name"));
         setInterval(2150);
         setIcon(Material.DIAMOND_SWORD);
         cooldowns = new HashMap<>();
@@ -60,24 +60,24 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WOODEN_SWORD)
                 .key("challenge_sword_100")
-                .title(Localizer.dLocalize("advancement", "challenge_sword_100", "title"))
-                .description(Localizer.dLocalize("advancement", "challenge_sword_100", "description"))
+                .title(Localizer.dLocalize("advancement.challenge_sword_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_sword_100.description"))
                 .model(CustomModel.get(Material.WOODEN_SWORD, "advancement", "swords", "challenge_sword_100"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.IRON_SWORD)
                         .key("challenge_sword_1k")
-                        .title(Localizer.dLocalize("advancement", "challenge_sword_1k", "title"))
-                        .description(Localizer.dLocalize("advancement", "challenge_sword_1k", "description"))
+                        .title(Localizer.dLocalize("advancement.challenge_sword_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_sword_1k.description"))
                         .model(CustomModel.get(Material.IRON_SWORD, "advancement", "swords", "challenge_sword_1k"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.DIAMOND_SWORD)
                                 .key("challenge_sword_10k")
-                                .title(Localizer.dLocalize("advancement", "challenge_sword_10k", "title"))
-                                .description(Localizer.dLocalize("advancement", "challenge_sword_10k", "description"))
+                                .title(Localizer.dLocalize("advancement.challenge_sword_10k.title"))
+                                .description(Localizer.dLocalize("advancement.challenge_sword_10k.description"))
                                 .model(CustomModel.get(Material.DIAMOND_SWORD, "advancement", "swords", "challenge_sword_10k"))
                                 .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)

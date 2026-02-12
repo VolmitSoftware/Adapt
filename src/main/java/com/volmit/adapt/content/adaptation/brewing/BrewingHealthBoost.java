@@ -35,8 +35,8 @@ public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Conf
     public BrewingHealthBoost() {
         super("brewing-healthboost");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "healthboost", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "healthboost", "name"));
+        setDescription(Localizer.dLocalize("brewing.health_boost.description"));
+        setDisplayName(Localizer.dLocalize("brewing.health_boost.name"));
         setIcon(Material.ENCHANTED_GOLDEN_APPLE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -71,8 +71,8 @@ public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "healthboost", "lore1"));
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "healthboost", "lore2"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.health_boost.lore1"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.health_boost.lore2"));
     }
 
 

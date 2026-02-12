@@ -39,8 +39,8 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
     public RangedForce() {
         super("ranged-force");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("ranged", "forceshot", "description"));
-        setDisplayName(Localizer.dLocalize("ranged", "forceshot", "name"));
+        setDescription(Localizer.dLocalize("ranged.force_shot.description"));
+        setDisplayName(Localizer.dLocalize("ranged.force_shot.name"));
         setIcon(Material.ARROW);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -50,8 +50,8 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.SPECTRAL_ARROW)
                 .key("challenge_force_30")
-                .title(Localizer.dLocalize("ranged", "forceshot", "advancementname"))
-                .description(Localizer.dLocalize("ranged", "forceshot", "advancementlore"))
+                .title(Localizer.dLocalize("ranged.force_shot.advancementname"))
+                .description(Localizer.dLocalize("ranged.force_shot.advancementlore"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .build());
@@ -59,7 +59,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("ranged", "forceshot", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getSpeed(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("ranged.force_shot.lore1"));
     }
 
     private double getSpeed(double factor) {

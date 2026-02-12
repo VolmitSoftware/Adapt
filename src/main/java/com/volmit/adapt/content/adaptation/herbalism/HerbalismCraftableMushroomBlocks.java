@@ -35,8 +35,8 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
     public HerbalismCraftableMushroomBlocks() {
         super("herbalism-mushroom-blocks");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("herbalism", "mushroomblocks", "description"));
-        setDisplayName(Localizer.dLocalize("herbalism", "mushroomblocks", "name"));
+        setDescription(Localizer.dLocalize("herbalism.mushroom_blocks.description"));
+        setDisplayName(Localizer.dLocalize("herbalism.mushroom_blocks.name"));
         setIcon(Material.CRIMSON_FUNGUS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -74,7 +74,7 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism", "mushroomblocks", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism.mushroom_blocks.lore1"));
     }
 
 

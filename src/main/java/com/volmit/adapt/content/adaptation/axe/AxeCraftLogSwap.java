@@ -33,8 +33,8 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
     public AxeCraftLogSwap() {
         super("axe-logswap");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("axe", "logswap", "description"));
-        setDisplayName(Localizer.dLocalize("axe", "logswap", "name"));
+        setDescription(Localizer.dLocalize("axe.log_swap.description"));
+        setDisplayName(Localizer.dLocalize("axe.log_swap.name"));
         setIcon(Material.MUDDY_MANGROVE_ROOTS);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -1009,7 +1009,7 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("axe", "logswap", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("axe.log_swap.lore1"));
     }
 
 

@@ -69,8 +69,8 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     public ChronosTimeBomb() {
         super("chronos-time-bomb");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("chronos", "timebomb", "description"));
-        setDisplayName(Localizer.dLocalize("chronos", "timebomb", "name"));
+        setDescription(Localizer.dLocalize("chronos.time_bomb.description"));
+        setDisplayName(Localizer.dLocalize("chronos.time_bomb.name"));
         setIcon(Material.CLOCK);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -97,10 +97,10 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getRadius(level) + " " + Localizer.dLocalize("chronos", "timebomb", "lore1"));
-        v.addLore(C.YELLOW + "+ " + (getDurationTicks(level) / 20D) + "s " + Localizer.dLocalize("chronos", "timebomb", "lore2"));
-        v.addLore(C.RED + "* " + (getCooldownMillis() / 1000D) + "s " + Localizer.dLocalize("chronos", "timebomb", "lore3"));
-        v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos", "timebomb", "lore4"));
+        v.addLore(C.GREEN + "+ " + getRadius(level) + " " + Localizer.dLocalize("chronos.time_bomb.lore1"));
+        v.addLore(C.YELLOW + "+ " + (getDurationTicks(level) / 20D) + "s " + Localizer.dLocalize("chronos.time_bomb.lore2"));
+        v.addLore(C.RED + "* " + (getCooldownMillis() / 1000D) + "s " + Localizer.dLocalize("chronos.time_bomb.lore3"));
+        v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.time_bomb.lore4"));
     }
 
     private double getRadius(int level) {

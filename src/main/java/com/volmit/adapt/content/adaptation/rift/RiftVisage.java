@@ -17,8 +17,8 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
   public RiftVisage() {
     super("rift-visage");
     registerConfiguration(Config.class);
-    setDescription(Localizer.dLocalize("rift", "visage", "description"));
-    setDisplayName(Localizer.dLocalize("rift", "visage", "name"));
+    setDescription(Localizer.dLocalize("rift.visage.description"));
+    setDisplayName(Localizer.dLocalize("rift.visage.name"));
     setIcon(Material.POPPED_CHORUS_FRUIT);
     setBaseCost(getConfig().baseCost);
     setCostFactor(getConfig().costFactor);
@@ -29,7 +29,7 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
 
   @Override
   public void addStats(int level, Element v) {
-    v.addLore(C.ITALIC + Localizer.dLocalize("rift", "visage", "lore1"));
+    v.addLore(C.ITALIC + Localizer.dLocalize("rift.visage.lore1"));
   }
 
   @EventHandler

@@ -42,8 +42,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     public StealthGhostArmor() {
         super("stealth-ghost-armor");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("stealth", "ghostarmor", "description"));
-        setDisplayName(Localizer.dLocalize("stealth", "ghostarmor", "name"));
+        setDescription(Localizer.dLocalize("stealth.ghost_armor.description"));
+        setDisplayName(Localizer.dLocalize("stealth.ghost_armor.name"));
         setIcon(Material.NETHERITE_CHESTPLATE);
         setInterval(5353);
         setBaseCost(getConfig().baseCost);
@@ -54,8 +54,8 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("stealth", "ghostarmor", "lore1"));
-        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + " " + Localizer.dLocalize("stealth", "ghostarmor", "lore2"));
+        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPoints(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("stealth.ghost_armor.lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1) + C.GRAY + " " + Localizer.dLocalize("stealth.ghost_armor.lore2"));
     }
 
     public double getMaxArmorPoints(double factor) {

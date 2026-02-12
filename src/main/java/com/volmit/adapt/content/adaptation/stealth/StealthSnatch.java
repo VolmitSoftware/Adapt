@@ -42,8 +42,8 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     public StealthSnatch() {
         super("stealth-snatch");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("stealth", "snatch", "description"));
-        setDisplayName(Localizer.dLocalize("stealth", "snatch", "name"));
+        setDescription(Localizer.dLocalize("stealth.snatch.description"));
+        setDisplayName(Localizer.dLocalize("stealth.snatch.name"));
         setIcon(Material.CHEST_MINECART);
         setBaseCost(getConfig().baseCost);
         setInterval(getConfig().snatchRate);
@@ -55,7 +55,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.f(getRange(getLevelPercent(level)), 1) + C.GRAY + " " + Localizer.dLocalize("stealth", "snatch", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.f(getRange(getLevelPercent(level)), 1) + C.GRAY + " " + Localizer.dLocalize("stealth.snatch.lore1"));
     }
 
     @EventHandler

@@ -51,8 +51,8 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
     public BlockingMultiArmor() {
         super("blocking-multiarmor");
         registerConfiguration(BlockingMultiArmor.Config.class);
-        setDisplayName(Localizer.dLocalize("blocking", "multiarmor", "name"));
-        setDescription(Localizer.dLocalize("blocking", "multiarmor", "description"));
+        setDisplayName(Localizer.dLocalize("blocking.multi_armor.name"));
+        setDescription(Localizer.dLocalize("blocking.multi_armor.description"));
         setIcon(Material.ELYTRA);
         setInterval(20202);
         setBaseCost(getConfig().baseCost);
@@ -64,12 +64,12 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("blocking", "multiarmor", "lore1"));
-        v.addLore(C.GRAY + "" + C.GRAY + Localizer.dLocalize("blocking", "multiarmor", "lore2"));
-        v.addLore(C.GREEN + Localizer.dLocalize("blocking", "multiarmor", "lore3"));
-        v.addLore(C.RED + Localizer.dLocalize("blocking", "multiarmor", "lore4"));
-        v.addLore(C.GRAY + Localizer.dLocalize("blocking", "multiarmor", "lore5"));
-        v.addLore(C.UNDERLINE + Localizer.dLocalize("blocking", "multiarmor", "lore6"));
+        v.addLore(C.GRAY + Localizer.dLocalize("blocking.multi_armor.lore1"));
+        v.addLore(C.GRAY + "" + C.GRAY + Localizer.dLocalize("blocking.multi_armor.lore2"));
+        v.addLore(C.GREEN + Localizer.dLocalize("blocking.multi_armor.lore3"));
+        v.addLore(C.RED + Localizer.dLocalize("blocking.multi_armor.lore4"));
+        v.addLore(C.GRAY + Localizer.dLocalize("blocking.multi_armor.lore5"));
+        v.addLore(C.UNDERLINE + Localizer.dLocalize("blocking.multi_armor.lore6"));
     }
 
     @Override

@@ -35,8 +35,8 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
     public BlockingHorseArmorer() {
         super("blocking-horsearmorer");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("blocking", "horsearmorer", "description"));
-        setDisplayName(Localizer.dLocalize("blocking", "horsearmorer", "name"));
+        setDescription(Localizer.dLocalize("blocking.horse_armorer.description"));
+        setDisplayName(Localizer.dLocalize("blocking.horse_armorer.name"));
         setIcon(Material.GOLDEN_HORSE_ARMOR);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -87,7 +87,7 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("blocking", "horsearmorer", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("blocking.horse_armorer.lore1"));
         v.addLore("XXX");
         v.addLore("XSX");
         v.addLore("XXX");

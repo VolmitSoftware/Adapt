@@ -1,0 +1,1501 @@
+# advancement
+[advancement]
+
+[advancement.challenge_move_1k]
+    title = "Phải Di Chuyển!"
+    description = "Đi bộ hơn 1 Km (1.000 khối)"
+
+[advancement.challenge_sprint_5k]
+    title = "Chạy Nước Rút 5K!"
+    description = "Đi bộ hơn 5 Km (5.000 khối)"
+
+[advancement.challenge_sprint_50k]
+    title = "Phóng Nhanh 50K!"
+    description = "Đi bộ hơn 50 Km (50.000 khối)"
+
+[advancement.challenge_sprint_500k]
+    title = "Xuyên Qua Vũ Trụ!!"
+    description = "Đi bộ hơn 500 Km (500.000 khối)"
+
+[advancement.challenge_sprint_marathon]
+    title = "Chạy Marathon (theo nghĩa đen)!"
+    description = "Chạy nước rút hơn 42.195 Khối!"
+
+[advancement.challenge_place_1k]
+    title = "Thợ Xây Tập Sự!"
+    description = "Đặt 1.000 Khối"
+
+[advancement.challenge_place_5k]
+    title = "Thợ Xây Trung Cấp!"
+    description = "Đặt 5.000 Khối"
+
+[advancement.challenge_place_50k]
+    title = "Thợ Xây Cao Cấp!"
+    description = "Đặt 50.000 Khối"
+
+[advancement.challenge_place_500k]
+    title = "Bậc Thầy Xây Dựng!"
+    description = "Đặt 500.000 Khối"
+
+[advancement.challenge_place_5m]
+    title = "Tín Đồ Của Đối Xứng!"
+    description = "THỰC TẠI LÀ SÂN CHƠI CỦA BẠN! (5 Triệu Khối)"
+
+[advancement.challenge_chop_1k]
+    title = "Tiều Phu Tập Sự!"
+    description = "Chặt 1.000 Khối"
+
+[advancement.challenge_chop_5k]
+    title = "Tiều Phu Trung Cấp!"
+    description = "Chặt 5.000 Khối"
+
+[advancement.challenge_chop_50k]
+    title = "Tiều Phu Cao Cấp!"
+    description = "Chặt 50.000 Khối"
+
+[advancement.challenge_chop_500k]
+    title = "Bậc Thầy Tiều Phu!"
+    description = "Chặt 500.000 Khối"
+
+[advancement.challenge_chop_5m]
+    title = "Chú Chó Jackson"
+    description = "Cậu bé ngoan nhất quả đất! (5 Triệu Khối)"
+
+[advancement.challenge_block_1k]
+    title = "Mới Tập Đỡ Đòn!"
+    description = "Đỡ 1000 Đòn Đánh"
+
+[advancement.challenge_block_5k]
+    title = "Đỡ Đòn Thật Vui!"
+    description = "Đỡ 5000 Đòn Đánh"
+
+[advancement.challenge_block_50k]
+    title = "Đỡ Đòn Là Cuộc Đời Tôi!"
+    description = "Đỡ 50.000 Đòn Đánh"
+
+[advancement.challenge_block_500k]
+    title = "Đỡ Đòn Là Sứ Mệnh Của Tôi!"
+    description = "Đỡ 500.000 Đòn Đánh"
+
+[advancement.challenge_block_5m]
+    title = "Die Hand Die Verletzt"
+    description = "Đỡ 5.000.000 Đòn Đánh"
+
+[advancement.challenge_brew_1k]
+    title = "Nhà Giả Kim Tập Sự!"
+    description = "Uống 1000 Bình Thuốc"
+
+[advancement.challenge_brew_5k]
+    title = "Nhà Giả Kim Trung Cấp!"
+    description = "Uống 5000 Bình Thuốc"
+
+[advancement.challenge_brew_50k]
+    title = "Nhà Giả Kim Cao Cấp!"
+    description = "Uống 50.000 Bình Thuốc"
+
+[advancement.challenge_brew_500k]
+    title = "Bậc Thầy Giả Kim!"
+    description = "Uống 500.000 Bình Thuốc"
+
+[advancement.challenge_brew_5m]
+    title = "Nhà Giả Kim Thuật"
+    description = "Uống 5.000.000 Bình Thuốc"
+
+[advancement.challenge_brewsplash_1k]
+    title = "Người Tạt Thuốc Tập Sự!"
+    description = "Tạt 1000 Bình Thuốc"
+
+[advancement.challenge_brewsplash_5k]
+    title = "Người Tạt Thuốc Trung Cấp!"
+    description = "Tạt 5000 Bình Thuốc"
+
+[advancement.challenge_brewsplash_50k]
+    title = "Người Tạt Thuốc Cao Cấp!"
+    description = "Tạt 50.000 Bình Thuốc"
+
+[advancement.challenge_brewsplash_500k]
+    title = "Bậc Thầy Tạt Thuốc!"
+    description = "Tạt 500.000 Bình Thuốc"
+
+[advancement.challenge_brewsplash_5m]
+    title = "Bậc Thầy Tạt Nước"
+    description = "Tạt 5.000.000 Bình Thuốc"
+
+[advancement.challenge_craft_1k]
+    title = "Thợ Thủ Công Khéo Tay!"
+    description = "Chế tạo 1000 Vật Phẩm"
+
+[advancement.challenge_craft_5k]
+    title = "Thợ Thủ Công Gắt Gỏng!"
+    description = "Chế tạo 5000 Vật Phẩm"
+
+[advancement.challenge_craft_50k]
+    title = "Thợ Thủ Công Cần Mẫn!"
+    description = "Chế tạo 50.000 Vật Phẩm"
+
+[advancement.challenge_craft_500k]
+    title = "Thợ Thủ Công Ầm Ĩ!"
+    description = "Chế tạo 500.000 Vật Phẩm"
+
+[advancement.challenge_craft_5m]
+    title = "McCraftface Tai Họa"
+    description = "Chế tạo 5.000.000 Vật Phẩm"
+
+[advancement.challenge_enchant_1k]
+    title = "Phù Phép Sư Tập Sự!"
+    description = "Phù phép 1000 Vật Phẩm"
+
+[advancement.challenge_enchant_5k]
+    title = "Phù Phép Sư Trung Cấp!"
+    description = "Phù phép 5000 Vật Phẩm"
+
+[advancement.challenge_enchant_50k]
+    title = "Phù Phép Sư Cao Cấp!"
+    description = "Phù phép 50.000 Vật Phẩm"
+
+[advancement.challenge_enchant_500k]
+    title = "Bậc Thầy Phù Phép!"
+    description = "Phù phép 500.000 Vật Phẩm"
+
+[advancement.challenge_enchant_5m]
+    title = "Phù Phép Sư Bí Ẩn"
+    description = "Phù phép 5.000.000 Vật Phẩm"
+
+[advancement.challenge_excavate_1k]
+    title = "Thợ Đào Hào Hứng!"
+    description = "Đào 1000 Khối"
+
+[advancement.challenge_excavate_5k]
+    title = "Thợ Đào Trung Cấp!"
+    description = "Đào 5000 Khối"
+
+[advancement.challenge_excavate_50k]
+    title = "Thợ Đào Cao Cấp!"
+    description = "Đào 50.000 Khối"
+
+[advancement.challenge_excavate_500k]
+    title = "Bậc Thầy Đào Bới!"
+    description = "Đào 500.000 Khối"
+
+[advancement.challenge_excavate_5m]
+    title = "Thợ Đào Bí Ẩn"
+    description = "Đào 5.000.000 Khối"
+
+[advancement.horrible_person]
+    title = "Bạn Là Người Tệ Hại"
+    description = "Thật không thể tưởng tượng nổi"
+
+[advancement.challenge_turtle_egg_smasher]
+    title = "Kẻ Đập Trứng Rùa!"
+    description = "Đập vỡ 100 quả trứng rùa"
+
+[advancement.challenge_turtle_egg_annihilator]
+    title = "Kẻ Hủy Diệt Trứng Rùa!"
+    description = "Đập vỡ 500 quả trứng rùa"
+
+[advancement.challenge_novice_hunter]
+    title = "Thợ Săn Tập Sự!"
+    description = "Tiêu diệt 100 thực thể"
+
+[advancement.challenge_intermediate_hunter]
+    title = "Thợ Săn Trung Cấp!"
+    description = "Tiêu diệt 500 thực thể"
+
+[advancement.challenge_advanced_hunter]
+    title = "Thợ Săn Cao Cấp!"
+    description = "Tiêu diệt 5000 thực thể"
+
+[advancement.challenge_creeper_conqueror]
+    title = "Kẻ Chinh Phục Creeper!"
+    description = "Tiêu diệt 50 Creeper"
+
+[advancement.challenge_creeper_annihilator]
+    title = "Kẻ Hủy Diệt Creeper!"
+    description = "Tiêu diệt 200 Creeper"
+
+[advancement.challenge_pickaxe_1k]
+    title = "Thợ Mỏ Tập Sự"
+    description = "Phá 1000 Khối"
+
+[advancement.challenge_pickaxe_5k]
+    title = "Thợ Mỏ Lành Nghề"
+    description = "Phá 5000 Khối"
+
+[advancement.challenge_pickaxe_50k]
+    title = "Thợ Mỏ Chuyên Gia"
+    description = "Phá 50.000 Khối"
+
+[advancement.challenge_pickaxe_500k]
+    title = "Bậc Thầy Thợ Mỏ"
+    description = "Phá 500.000 Khối"
+
+[advancement.challenge_pickaxe_5m]
+    title = "Thợ Mỏ Huyền Thoại"
+    description = "Phá 5.000.000 Khối"
+
+[advancement.challenge_eat_100]
+    title = "Bao Nhiêu Thứ Để Ăn!"
+    description = "Ăn hơn 100 Vật Phẩm!"
+
+[advancement.challenge_eat_1000]
+    title = "Cơn Đói Không Thể Dập Tắt!"
+    description = "Ăn hơn 1.000 Vật Phẩm!"
+
+[advancement.challenge_eat_10000]
+    title = "CƠN ĐÓI VĨNH CỬU!"
+    description = "Ăn hơn 10.000 Vật Phẩm!"
+
+[advancement.challenge_harvest_100]
+    title = "Mùa Thu Hoạch Đầy Đủ"
+    description = "Thu hoạch hơn 100 cây trồng!"
+
+[advancement.challenge_harvest_1000]
+    title = "Mùa Thu Hoạch Vĩ Đại"
+    description = "Thu hoạch hơn 1.000 cây trồng!"
+
+[advancement.challenge_swim_1nm]
+    title = "Tàu Ngầm Người!"
+    description = "Bơi 1 Hải Lý (1.852 khối)"
+
+[advancement.challenge_sneak_1k]
+    title = "Đau Đầu Gối"
+    description = "Rón rén hơn một km (1.000 khối)"
+
+[advancement.challenge_sneak_5k]
+    title = "Kẻ Đi Trong Bóng Tối"
+    description = "Rón rén hơn 5.000 khối"
+
+[advancement.challenge_sneak_20k]
+    title = "Bóng Ma"
+    description = "Rón rén hơn 20.000 khối"
+
+[advancement.challenge_swim_5k]
+    title = "Thợ Lặn Sâu"
+    description = "Bơi hơn 5.000 khối"
+
+[advancement.challenge_swim_20k]
+    title = "Người Được Poseidon Chọn"
+    description = "Bơi hơn 20.000 khối"
+
+[advancement.challenge_sword_100]
+    title = "Giọt Máu Đầu Tiên"
+    description = "Chém 100 nhát bằng kiếm"
+
+[advancement.challenge_sword_1k]
+    title = "Vũ Công Lưỡi Kiếm"
+    description = "Chém 1.000 nhát bằng kiếm"
+
+[advancement.challenge_sword_10k]
+    title = "Ngàn Nhát Chém"
+    description = "Chém 10.000 nhát bằng kiếm"
+
+[advancement.challenge_unarmed_100]
+    title = "Tay Đấm Quán Rượu"
+    description = "Đấm 100 cú tay không"
+
+[advancement.challenge_unarmed_1k]
+    title = "Nắm Đấm Thép"
+    description = "Đấm 1.000 cú tay không"
+
+[advancement.challenge_unarmed_10k]
+    title = "Một Cú Đấm"
+    description = "Đấm 10.000 cú tay không"
+
+[advancement.challenge_trag_1k]
+    title = "Giá Máu"
+    description = "Nhận 1.000 sát thương"
+
+[advancement.challenge_trag_10k]
+    title = "Thủy Triều Đỏ"
+    description = "Nhận 10.000 sát thương"
+
+[advancement.challenge_trag_100k]
+    title = "Hóa Thân Của Đau Khổ"
+    description = "Nhận 100.000 sát thương"
+
+[advancement.challenge_ranged_100]
+    title = "Tập Bắn"
+    description = "Bắn 100 đạn"
+
+[advancement.challenge_ranged_1k]
+    title = "Mắt Đại Bàng"
+    description = "Bắn 1.000 đạn"
+
+[advancement.challenge_ranged_10k]
+    title = "Bão Tên"
+    description = "Bắn 10.000 đạn"
+
+[advancement.challenge_chronos_1h]
+    title = "Tích Tắc"
+    description = "Chơi trực tuyến 1 giờ"
+
+[advancement.challenge_chronos_24h]
+    title = "Cát Thời Gian"
+    description = "Chơi trực tuyến 24 giờ"
+
+[advancement.challenge_chronos_168h]
+    title = "Vượt Thời Gian"
+    description = "Chơi trực tuyến 168 giờ (1 tuần)"
+
+[advancement.challenge_nether_50]
+    title = "Người Gác Cổng Địa Ngục"
+    description = "Giết 50 sinh vật Nether"
+
+[advancement.challenge_nether_500]
+    title = "Lính Canh Vực Thẳm"
+    description = "Giết 500 sinh vật Nether"
+
+[advancement.challenge_nether_5k]
+    title = "Chúa Tể Nether"
+    description = "Giết 5.000 sinh vật Nether"
+
+[advancement.challenge_rift_50]
+    title = "Dị Thường Không Gian"
+    description = "Dịch chuyển 50 lần"
+
+[advancement.challenge_rift_500]
+    title = "Kẻ Đi Trong Hư Không"
+    description = "Dịch chuyển 500 lần"
+
+[advancement.challenge_rift_5k]
+    title = "Giữa Các Thế Giới"
+    description = "Dịch chuyển 5.000 lần"
+
+[advancement.challenge_taming_10]
+    title = "Người Thì Thầm Với Thú"
+    description = "Nhân giống 10 động vật"
+
+[advancement.challenge_taming_50]
+    title = "Thủ Lĩnh Bầy"
+    description = "Nhân giống 50 động vật"
+
+[advancement.challenge_taming_500]
+    title = "Chúa Tể Muông Thú"
+    description = "Nhân giống 500 động vật"
+
+# items
+[items]
+
+[items.bound_ender_peral]
+    name = "Chìa Khóa Thánh Tích"
+    usage1 = "Shift + Chuột Trái để liên kết"
+    usage2 = "Chuột Phải để truy cập Kho Đồ đã liên kết"
+
+[items.bound_eye_of_ender]
+    name = "Neo Thị Giác"
+    usage1 = "Chuột Phải để tiêu thụ và dịch chuyển đến vị trí đã liên kết"
+    usage2 = "Shift + Chuột Trái để liên kết với một khối"
+
+[items.bound_redstone_torch]
+    name = "Điều Khiển Redstone Từ Xa"
+    usage1 = "Chuột Phải để tạo xung Redstone 1-Tick"
+    usage2 = "Shift + Chuột Trái vào Khối 'Mục Tiêu' để liên kết"
+
+[items.bound_snowball]
+    name = "Bẫy Mạng Nhện!"
+    usage1 = "Ném để tạo bẫy mạng nhện tạm thời tại vị trí đó"
+
+[items.chrono_time_bottle]
+    name = "Thời Gian Trong Chai"
+    usage1 = "Tự động tích trữ thời gian khi nằm trong túi đồ"
+    usage2 = "Chuột phải vào khối có bộ hẹn giờ hoặc động vật con để tiêu thụ thời gian đã lưu"
+    stored = "Thời Gian Tích Trữ"
+
+[items.chrono_time_bomb]
+    name = "Bom Thời Gian"
+    usage1 = "Chuột phải để phóng tia thời gian tạo ra trường thời không"
+
+[items.elevator_block]
+    name = "Khối Thang Máy"
+    usage1 = "Nhảy để dịch chuyển lên"
+    usage2 = "Ngồi để dịch chuyển xuống"
+    usage3 = "Tối thiểu 2 khối trống giữa các thang máy"
+
+# snippets
+[snippets]
+
+[snippets.gui]
+    level = "Cấp Độ"
+    knowledge = "kiến thức"
+    power_used = "Năng Lượng Đã Dùng"
+    not_learned = "Chưa Học"
+    xp = "XP đến"
+    welcome = "Chào mừng!"
+    welcome_back = "Chào mừng trở lại!"
+    xp_bonus_for_time = "XP cho"
+    max_ability_power = "Năng Lượng Kỹ Năng Tối Đa"
+    unlock_this_by_clicking = "Mở khóa bằng cách Chuột Phải: "
+    back = "Quay Lại"
+    unlearn_all = "Quên tất cả"
+    unlearned_all = "Đã quên tất cả"
+
+[snippets.adapt_menu]
+    may_not_unlearn = "BẠN KHÔNG THỂ QUÊN"
+    may_unlearn = "BẠN CÓ THỂ HỌC/QUÊN"
+    knowledge_cost = "Chi Phí Kiến Thức"
+    knowledge_available = "Kiến Thức Khả Dụng"
+    already_learned = "Đã Học Rồi"
+    unlearn_refund = "Bấm để Quên & Hoàn Lại"
+    no_refunds = "CHẾ ĐỘ KHÓ, KHÔNG HOÀN LẠI"
+    knowledge = "kiến thức"
+    click_learn = "Bấm để Học"
+    no_knowledge = "(Bạn chưa có Kiến Thức nào)"
+    you_only_have = "Bạn chỉ có"
+    how_to_level_up = "Nâng cấp kỹ năng để tăng năng lượng tối đa."
+    not_enough_power = "Không đủ năng lượng! Mỗi Cấp Độ Kỹ Năng tốn 1 năng lượng."
+    power = "năng lượng"
+    power_drain = "Tiêu Hao Năng Lượng"
+    learned = "Đã Học "
+    unlearned = "Đã Quên "
+    activator_block = "Giá Sách"
+
+[snippets.knowledge_orb]
+    contains = "chứa"
+    knowledge = "kiến thức"
+    rightclick = "Chuột Phải"
+    togainknowledge = "để nhận kiến thức này"
+    knowledge_orb = "Quả Cầu Kiến Thức"
+
+[snippets.experience_orb]
+    contains = "chứa"
+    xp = "Kinh Nghiệm"
+    rightclick = "Chuột Phải"
+    togainxp = "để nhận kinh nghiệm này"
+    xporb = "Quả Cầu Kinh Nghiệm"
+
+# skill
+[skill]
+
+[skill.agility]
+    name = "Nhanh Nhẹn"
+    icon = "⇉"
+    description = "Nhanh nhẹn là khả năng di chuyển nhanh và linh hoạt trước mọi chướng ngại vật."
+
+[skill.architect]
+    name = "Kiến Trúc Sư"
+    icon = "⬧"
+    description = "Công trình là nền tảng của thế giới. Thực tại nằm trong tay bạn, do bạn điều khiển."
+
+[skill.axes]
+    name = "Rìu"
+    icon = "🪓"
+    description1 = "Sao phải chặt cây, khi bạn có thể chặt "
+    description2 = "mọi thứ"
+    description3 = "thay vào đó, cũng cùng kết quả thôi!"
+
+[skill.brewing]
+    name = "Pha Chế"
+    icon = "❦"
+    description = "Bọt Đôi, Bọt Ba, Bọt Bốn- Tôi vẫn không thể đổ thuốc này vào vạc được"
+
+[skill.blocking]
+    name = "Phòng Thủ"
+    icon = "🛡"
+    description = "Gậy và đá không thể bẻ gãy xương bạn, Nhưng một chiếc khiên thì có thể."
+
+[skill.crafting]
+    name = "Chế Tạo"
+    icon = "⌂"
+    description = "Không còn mảnh nào để đặt, sao không tạo thêm một cái nữa?"
+
+[skill.discovery]
+    name = "Khám Phá"
+    icon = "⚛"
+    description = "Khi nhận thức mở rộng, tâm trí bạn sẽ hé lộ những điều bạn chưa từng biết."
+
+[skill.enchanting]
+    name = "Phù Phép"
+    icon = "♰"
+    description = "Bạn đang nói gì vậy? Lời tiên tri, ảo giác, mấy thứ mê tín nhảm nhí?"
+
+[skill.excavation]
+    name = "Khai Quật"
+    icon = "ᛳ"
+    description = "Đào đào cái hố..."
+
+[skill.herbalism]
+    name = "Thảo Dược Học"
+    icon = "⚘"
+    description = "Tôi không tìm thấy cây nào, nhưng tôi tìm được vài hạt giống và- đó có phải là... Cỏ dại không?"
+
+[skill.hunter]
+    name = "Thợ Săn"
+    icon = "☠"
+    description = "Săn bắn là về hành trình chứ không phải kết quả."
+
+[skill.nether]
+    name = "Địa Ngục"
+    icon = "₪"
+    description = "Từ tận sâu thẳm của Địa Ngục."
+
+[skill.pickaxe]
+    name = "Cuốc Chim"
+    icon = "⛏"
+    description = "Người lùn mới là thợ mỏ, nhưng tôi cũng học được đôi điều. TÔI LÀ NGƯỜI THỤY ĐIỂN"
+
+[skill.ranged]
+    name = "Tầm Xa"
+    icon = "🏹"
+    description = "Khoảng cách là chìa khóa chiến thắng, và là chìa khóa sinh tồn."
+
+[skill.rift]
+    name = "Khe Nứt"
+    icon = "❍"
+    description = "Khe Nứt là một sức mạnh khắc nghiệt, nhưng bạn đã thuần phục được nó."
+
+[skill.seaborne]
+    name = "Hải Sinh"
+    icon = "🎣"
+    description = "Với kỹ năng này, bạn có thể điều khiển những điều kỳ diệu của đại dương."
+
+[skill.stealth]
+    name = "Tàng Hình"
+    icon = "☯"
+    description = "Nghệ thuật của sự vô hình. Bước đi trong bóng tối."
+
+[skill.swords]
+    name = "Kiếm"
+    icon = "⚔"
+    description = "Bằng sức mạnh của GreyStone!"
+
+[skill.taming]
+    name = "Thuần Hóa"
+    icon = "♥"
+    description = "Những con vẹt và đàn ong... còn bạn thì sao?"
+
+[skill.tragoul]
+    name = "TragOul"
+    icon = "🗡"
+    description = "Máu chảy trong huyết quản của vũ trụ. Bị siết chặt bởi đôi tay bạn."
+
+[skill.chronos]
+    name = "Chronos"
+    icon = "🕒"
+    description = "Vặn Đồng Hồ của vũ trụ, trải nghiệm dòng chảy. Đập vỡ đồng hồ, trở thành nó."
+
+[skill.unarmed]
+    name = "Tay Không"
+    icon = "»"
+    description = "Không vũ khí không có nghĩa là không có sức mạnh."
+
+# agility
+[agility]
+
+[agility.armor_up]
+    name = "Tăng Giáp"
+    description = "Nhận thêm giáp khi bạn chạy nước rút càng lâu!"
+    lore1 = "Giáp Tối Đa"
+    lore2 = "Thời Gian Tăng Giáp"
+    lore = ["Giáp Tối Đa", "Thời Gian Tăng Giáp"]
+
+[agility.ladder_slide]
+    name = "Trượt Thang"
+    description = "Leo và trượt thang nhanh hơn nhiều theo cả hai hướng."
+    lore1 = "Hệ số tốc độ leo thang"
+    lore2 = "Tốc độ trượt xuống nhanh"
+    lore = ["Hệ số tốc độ leo thang", "Tốc độ trượt xuống nhanh"]
+
+[agility.super_jump]
+    name = "Siêu Nhảy"
+    description = "Lợi Thế Chiều Cao Vượt Trội."
+    lore1 = "Chiều Cao Nhảy Tối Đa"
+    lore2 = "Ngồi + Nhảy để Siêu Nhảy!"
+    lore = ["Chiều Cao Nhảy Tối Đa", "Ngồi + Nhảy để Siêu Nhảy!"]
+
+[agility.wall_jump]
+    name = "Nhảy Tường"
+    description = "Giữ shift khi đang lơ lửng sát tường để bám tường & nhảy!"
+    lore1 = "Số Lần Nhảy Tối Đa"
+    lore2 = "Chiều Cao Nhảy"
+    lore = ["Số Lần Nhảy Tối Đa", "Chiều Cao Nhảy"]
+
+[agility.wind_up]
+    name = "Tăng Tốc"
+    description = "Chạy nhanh hơn khi bạn chạy nước rút càng lâu!"
+    lore1 = "Tốc Độ Tối Đa"
+    lore2 = "Thời Gian Tăng Tốc"
+    lore = ["Tốc Độ Tối Đa", "Thời Gian Tăng Tốc"]
+
+# architect
+[architect]
+
+[architect.elevator]
+    name = "Thang Máy"
+    description = "Cho phép bạn xây thang máy để dịch chuyển theo chiều dọc nhanh chóng!"
+    lore1 = "Mở khóa công thức thang máy: X=LEN, Y=NGỌC TRAI ENDER"
+    lore2 = "XXX"
+    lore3 = "XYX"
+    lore4 = "XXX"
+    lore = ["Mở khóa công thức thang máy: X=LEN, Y=NGỌC TRAI ENDER", "XXX", "XYX", "XXX"]
+
+[architect.foundation]
+    name = "Nền Tảng Ma Thuật"
+    description = "Cho phép bạn ngồi và đặt một nền tảng tạm thời bên dưới bạn!"
+    lore1 = "Tạo ra một cách kỳ diệu: "
+    lore2 = "Khối bên dưới bạn!"
+    lore = ["Tạo ra một cách kỳ diệu: ", "Khối bên dưới bạn!"]
+
+[architect.glass]
+    name = "Cảm Ứng Lụa Kính"
+    description = "Cho phép bạn ngăn mất khối kính khi bạn đập chúng bằng tay không!"
+    lore1 = "Tay bạn có được cảm ứng lụa cho Kính"
+    lore = ["Tay bạn có được cảm ứng lụa cho Kính"]
+
+[architect.wireless_redstone]
+    name = "Điều Khiển Redstone Từ Xa"
+    description = "Cho phép bạn dùng đuốc redstone để bật/tắt redstone từ xa!"
+    lore1 = "Mục Tiêu + Đuốc Redstone + Ngọc Trai Ender = 1 Điều Khiển Redstone Từ Xa"
+    lore = ["Mục Tiêu + Đuốc Redstone + Ngọc Trai Ender = 1 Điều Khiển Redstone Từ Xa"]
+
+[architect.placement]
+    name = "Gậy Xây Dựng"
+    description = "Cho phép bạn đặt nhiều khối cùng lúc - ngồi, cầm khối trùng với khối bạn đang nhìn và đặt! Lưu ý, bạn có thể cần di chuyển chút ít để kích hoạt vùng giới hạn!"
+    lore1 = "Bạn cần"
+    lore2 = "khối trong tay để đặt"
+    lore3 = "Gậy Xây Dựng Vật Liệu"
+    lore = ["Bạn cần", "khối trong tay để đặt", "Gậy Xây Dựng Vật Liệu"]
+
+# axe
+[axe]
+
+[axe.chop]
+    name = "Chặt Rìu"
+    description = "Chặt cây bằng cách chuột phải vào khúc gỗ gốc!"
+    lore1 = "Khối Mỗi Lần Chặt"
+    lore2 = "Thời Gian Hồi Chặt"
+    lore3 = "Hao Mòn Công Cụ"
+    lore = ["Khối Mỗi Lần Chặt", "Thời Gian Hồi Chặt", "Hao Mòn Công Cụ"]
+
+[axe.log_swap]
+    name = "Đổi Gỗ Của Lucy"
+    description = "Đổi loại gỗ trong Bàn Chế Tạo!"
+    lore1 = "8 Gỗ bất kỳ + 1 cây non = 8 gỗ cùng loại cây non"
+    lore = ["8 Gỗ bất kỳ + 1 cây non = 8 gỗ cùng loại cây non"]
+
+[axe.drop_to_inventory]
+    name = "Rìu Nhặt Vào Túi Đồ"
+
+[axe.ground_smash]
+    name = "Rìu Đập Đất"
+    description = "Nhảy, rồi ngồi và đập tan tất cả kẻ thù gần đó."
+    lore1 = "Sát Thương"
+    lore2 = "Bán Kính Khối"
+    lore3 = "Lực Đẩy"
+    lore4 = "Thời Gian Hồi Đập"
+    lore = ["Sát Thương", "Bán Kính Khối", "Lực Đẩy", "Thời Gian Hồi Đập"]
+
+[axe.leaf_miner]
+    name = "Phá Lá Hàng Loạt"
+    description = "Cho phép bạn phá lá cây hàng loạt cùng lúc!"
+    lore1 = "Ngồi, và đào LÁ"
+    lore2 = "phạm vi phá lá"
+    lore3 = "Bạn sẽ không nhận được vật phẩm rơi từ lá (Chống Lợi Dụng)"
+    lore = ["Ngồi, và đào LÁ", "phạm vi phá lá", "Bạn sẽ không nhận được vật phẩm rơi từ lá (Chống Lợi Dụng)"]
+
+[axe.wood_miner]
+    name = "Phá Gỗ Hàng Loạt"
+    description = "Cho phép bạn phá gỗ hàng loạt cùng lúc!"
+    lore1 = "Ngồi, và đào GỖ/THÂN CÂY (Không phải Ván)"
+    lore2 = "phạm vi phá gỗ"
+    lore3 = "Hoạt động với Nhặt Vào Túi Đồ"
+    lore = ["Ngồi, và đào GỖ/THÂN CÂY (Không phải Ván)", "phạm vi phá gỗ", "Hoạt động với Nhặt Vào Túi Đồ"]
+
+# brewing
+[brewing]
+
+[brewing.lingering]
+    name = "Thuốc Kéo Dài"
+    description = "Thuốc pha chế có tác dụng lâu hơn!"
+    lore1 = "Thời Lượng"
+    lore2 = "Thời Lượng"
+    lore = ["Thời Lượng", "Thời Lượng"]
+
+[brewing.super_heated]
+    name = "Thuốc Siêu Nóng"
+    description = "Giá pha chế hoạt động nhanh hơn khi càng nóng."
+    lore1 = "Mỗi Khối Lửa Chạm Vào"
+    lore2 = "Mỗi Khối Dung Nham Chạm Vào"
+    lore = ["Mỗi Khối Lửa Chạm Vào", "Mỗi Khối Dung Nham Chạm Vào"]
+
+[brewing.darkness]
+    name = "Bóng Tối Đóng Chai"
+    description = "Không chắc sao bạn cần cái này, nhưng đây nè!"
+    lore1 = "Thuốc Nhìn Đêm + Bê Tông Đen = Thuốc Bóng Tối (30 giây)"
+    lore2 = "Lưu ý rằng thuốc này ngăn người dùng chạy nước rút!"
+    lore = ["Thuốc Nhìn Đêm + Bê Tông Đen = Thuốc Bóng Tối (30 giây)", "Lưu ý rằng thuốc này ngăn người dùng chạy nước rút!"]
+
+[brewing.haste]
+    name = "Tốc Độ Đóng Chai"
+    description = "Khi Hiệu Suất là chưa đủ"
+    lore1 = "Thuốc Tốc Độ + Mảnh Thạch Anh Tím = Thuốc Haste (60 giây)"
+    lore2 = "Thuốc Tốc Độ + Khối Thạch Anh Tím = Thuốc Haste-2 (30 giây)"
+    lore = ["Thuốc Tốc Độ + Mảnh Thạch Anh Tím = Thuốc Haste (60 giây)", "Thuốc Tốc Độ + Khối Thạch Anh Tím = Thuốc Haste-2 (30 giây)"]
+
+[brewing.absorption]
+    name = "Hấp Thụ Đóng Chai"
+    description = "Làm cứng cơ thể!"
+    lore1 = "Hồi Máu Tức Thì + Thạch Anh = Thuốc Hấp Thụ (60 giây)"
+    lore2 = "Hồi Máu Tức Thì + Khối Thạch Anh = Thuốc Hấp Thụ-2 (30 giây)"
+    lore = ["Hồi Máu Tức Thì + Thạch Anh = Thuốc Hấp Thụ (60 giây)", "Hồi Máu Tức Thì + Khối Thạch Anh = Thuốc Hấp Thụ-2 (30 giây)"]
+
+[brewing.fatigue]
+    name = "Mệt Mỏi Đóng Chai"
+    description = "Làm suy yếu cơ thể!"
+    lore1 = "Thuốc Yếu Đuối + Bóng Slime = Thuốc Mệt Mỏi (30 giây)"
+    lore2 = "Thuốc Yếu Đuối + Khối Slime = Thuốc Mệt Mỏi-2 (15 giây)"
+    lore = ["Thuốc Yếu Đuối + Bóng Slime = Thuốc Mệt Mỏi (30 giây)", "Thuốc Yếu Đuối + Khối Slime = Thuốc Mệt Mỏi-2 (15 giây)"]
+
+[brewing.hunger]
+    name = "Đói Đóng Chai"
+    description = "Cho kẻ ăn không biết no!"
+    lore1 = "Thuốc Vụng Về + Thịt Thối = Thuốc Đói (30 giây)"
+    lore2 = "Thuốc Yếu Đuối + Thịt Thối = Thuốc Đói-3 (15 giây)"
+    lore = ["Thuốc Vụng Về + Thịt Thối = Thuốc Đói (30 giây)", "Thuốc Yếu Đuối + Thịt Thối = Thuốc Đói-3 (15 giây)"]
+
+[brewing.nausea]
+    name = "Buồn Nôn Đóng Chai"
+    description = "Bạn làm tôi phát ốm!"
+    lore1 = "Thuốc Vụng Về + Nấm Nâu = Thuốc Buồn Nôn (16 giây)"
+    lore2 = "Thuốc Vụng Về + Nấm Đỏ Thẫm = Thuốc Buồn Nôn-2 (8 giây)"
+    lore = ["Thuốc Vụng Về + Nấm Nâu = Thuốc Buồn Nôn (16 giây)", "Thuốc Vụng Về + Nấm Đỏ Thẫm = Thuốc Buồn Nôn-2 (8 giây)"]
+
+[brewing.blindness]
+    name = "Mù Lòa Đóng Chai"
+    description = "Bạn là một người tệ hại..."
+    lore1 = "Thuốc Vụng Về + Túi Mực = Thuốc Mù Lòa (30 giây)"
+    lore2 = "Thuốc Vụng Về + Túi Mực Phát Sáng = Thuốc Mù Lòa-2 (15 giây)"
+    lore = ["Thuốc Vụng Về + Túi Mực = Thuốc Mù Lòa (30 giây)", "Thuốc Vụng Về + Túi Mực Phát Sáng = Thuốc Mù Lòa-2 (15 giây)"]
+
+[brewing.resistance]
+    name = "Kháng Cự Đóng Chai"
+    description = "Phòng thủ ở đỉnh cao!"
+    lore1 = "Thuốc Vụng Về + Thỏi Sắt = Thuốc Kháng Cự (60 giây)"
+    lore2 = "Thuốc Vụng Về + Khối Sắt = Thuốc Kháng Cự-2 (30 giây)"
+    lore = ["Thuốc Vụng Về + Thỏi Sắt = Thuốc Kháng Cự (60 giây)", "Thuốc Vụng Về + Khối Sắt = Thuốc Kháng Cự-2 (30 giây)"]
+
+[brewing.health_boost]
+    name = "Sinh Mệnh Đóng Chai"
+    description = "Khi máu tối đa là chưa đủ..."
+    lore1 = "Thuốc Hồi Máu Tức Thì + Táo Vàng = Thuốc Tăng Máu (120 giây)"
+    lore2 = "Thuốc Hồi Máu Tức Thì + Táo Vàng Phù Phép = Thuốc Tăng Máu-2 (120 giây)"
+    lore = ["Thuốc Hồi Máu Tức Thì + Táo Vàng = Thuốc Tăng Máu (120 giây)", "Thuốc Hồi Máu Tức Thì + Táo Vàng Phù Phép = Thuốc Tăng Máu-2 (120 giây)"]
+
+[brewing.decay]
+    name = "Phân Hủy Đóng Chai"
+    description = "Ai biết rác rưởi lại hữu ích đến vậy?"
+    lore1 = "Thuốc Yếu Đuối + Khoai Tây Độc = Thuốc Héo Úa (16 giây)"
+    lore2 = "Thuốc Yếu Đuối + Rễ Đỏ Thẫm = Thuốc Héo Úa-2 (8 giây)"
+    lore = ["Thuốc Yếu Đuối + Khoai Tây Độc = Thuốc Héo Úa (16 giây)", "Thuốc Yếu Đuối + Rễ Đỏ Thẫm = Thuốc Héo Úa-2 (8 giây)"]
+
+[brewing.saturation]
+    name = "Bão Hòa Đóng Chai"
+    description = "Biết không... Tôi thậm chí còn không đói..."
+    lore1 = "Thuốc Hồi Sinh + Khoai Tây Nướng = Thuốc Bão Hòa"
+    lore2 = "Thuốc Hồi Sinh + Bó Cỏ Khô = Thuốc Bão Hòa-2"
+    lore = ["Thuốc Hồi Sinh + Khoai Tây Nướng = Thuốc Bão Hòa", "Thuốc Hồi Sinh + Bó Cỏ Khô = Thuốc Bão Hòa-2"]
+
+# blocking
+[blocking]
+
+[blocking.chain_armorer]
+    name = "Xích Của Mephistopheles"
+    description = "Cho phép bạn chế tạo Giáp Xích"
+    lore1 = "Công thức chế tạo giống các giáp khác, nhưng dùng cốm sắt thay thế"
+    lore = ["Công thức chế tạo giống các giáp khác, nhưng dùng cốm sắt thay thế"]
+
+[blocking.horse_armorer]
+    name = "Giáp Ngựa Chế Tạo Được"
+    description = "Cho phép bạn chế tạo Giáp Ngựa"
+    lore1 = "Bao quanh yên ngựa bằng vật liệu bạn muốn dùng để chế tạo giáp"
+    lore = ["Bao quanh yên ngựa bằng vật liệu bạn muốn dùng để chế tạo giáp"]
+
+[blocking.saddle_crafter]
+    name = "Yên Ngựa Chế Tạo Được"
+    description = "Chế tạo Yên Ngựa bằng Da"
+    lore1 = "Công thức: 5 Da:"
+    lore = ["Công thức: 5 Da:"]
+
+[blocking.multi_armor]
+    name = "Đa Giáp"
+    description = "Gắn Elytra vào Giáp"
+    lore1 = "Đây là kỹ năng tuyệt vời để di chuyển."
+    lore2 = "Kết hợp và thay đổi Giáp/Elytra linh hoạt khi đang bay!"
+    lore3 = "Để kết hợp, shift + chuột vào vật phẩm trong túi đồ."
+    lore4 = "Để tháo Giáp, Ngồi + Thả vật phẩm, nó sẽ tự tháo rời."
+    lore5 = "Nếu Đa Giáp bị phá hủy, bạn sẽ mất tất cả vật phẩm trong đó."
+    lore6 = "Tôi không cần giáp, Nó làm tôi thất vọng..."
+    lore = ["Đây là kỹ năng tuyệt vời để di chuyển.", "Kết hợp và thay đổi Giáp/Elytra linh hoạt khi đang bay!", "Để kết hợp, shift + chuột vào vật phẩm trong túi đồ.", "Để tháo Giáp, Ngồi + Thả vật phẩm, nó sẽ tự tháo rời.", "Nếu Đa Giáp bị phá hủy, bạn sẽ mất tất cả vật phẩm trong đó.", "Tôi không cần giáp, Nó làm tôi thất vọng..."]
+
+# crafting
+[crafting]
+
+[crafting.deconstruction]
+    name = "Tháo Dỡ"
+    description = "Tháo dỡ khối & vật phẩm thành nguyên liệu cơ bản có thể tái sử dụng!"
+    lore1 = "Thả bất kỳ vật phẩm nào xuống đất."
+    lore2 = "Sau đó, Ngồi và Chuột Phải bằng Kéo"
+    lore = ["Thả bất kỳ vật phẩm nào xuống đất.", "Sau đó, Ngồi và Chuột Phải bằng Kéo"]
+
+[crafting.xp]
+    name = "XP Chế Tạo"
+    description = "Nhận XP thụ động khi chế tạo"
+    lore1 = "Nhận XP khi chế tạo"
+    lore = ["Nhận XP khi chế tạo"]
+
+[crafting.reconstruction]
+    name = "Tái Tạo Quặng"
+    description = "Chế tạo lại quặng từ nguyên liệu cơ bản!"
+    lore1 = "8 Vật Phẩm Rơi và 1 Vật Chủ = 1 Quặng (không định hình)"
+    lore2 = "Vật phẩm rơi phải được nung (nếu áp dụng)"
+    lore3 = "Không bao gồm: Mảnh Vụn, Thạch Anh, và Ngọc Lục Bảo v.v..."
+    lore4 = "Vật Chủ = Lớp Bọc. vd: Đá, Đá Địa Ngục, Đá Sâu"
+    lore = ["8 Vật Phẩm Rơi và 1 Vật Chủ = 1 Quặng (không định hình)", "Vật phẩm rơi phải được nung (nếu áp dụng)", "Không bao gồm: Mảnh Vụn, Thạch Anh, và Ngọc Lục Bảo v.v...", "Vật Chủ = Lớp Bọc. vd: Đá, Đá Địa Ngục, Đá Sâu"]
+
+[crafting.leather]
+    name = "Da Chế Tạo Được"
+    description = "Chế tạo Da từ Thịt Thối"
+    lore1 = "Chỉ cần ném (thịt thối) lên lửa trại!"
+    lore = ["Chỉ cần ném (thịt thối) lên lửa trại!"]
+
+[crafting.backpacks]
+    name = "Ba Lô Của Boutilier!"
+    description = "Mang tính năng Bó Đồ của Mojang vào trò chơi!"
+    lore1 = "Bạn cần ở chế độ Sinh Tồn để sử dụng"
+    lore2 = "XLX : Da, Dây Dắt, Da"
+    lore3 = "XSX : Da, Thùng, Da"
+    lore4 = "XCX : Da, Rương, Da"
+    lore = ["Bạn cần ở chế độ Sinh Tồn để sử dụng", "XLX : Da, Dây Dắt, Da", "XSX : Da, Thùng, Da", "XCX : Da, Rương, Da"]
+
+[crafting.stations]
+    name = "Bàn Di Động!"
+    description = "Sử dụng bàn chế tạo ngay trong lòng bàn tay!"
+    lore2 = "MỌI VẬT PHẨM BẠN QUÊN TRONG BÀN KHI ĐÓNG SẼ MẤT VĨNH VIỄN!"
+    lore3 = "Bàn hợp lệ: Đe, Chế Tạo, Đá Mài, Bản Đồ Học, Máy Cắt Đá, Máy Dệt"
+    lore = ["MỌI VẬT PHẨM BẠN QUÊN TRONG BÀN KHI ĐÓNG SẼ MẤT VĨNH VIỄN!", "Bàn hợp lệ: Đe, Chế Tạo, Đá Mài, Bản Đồ Học, Máy Cắt Đá, Máy Dệt"]
+
+[crafting.skulls]
+    name = "Đầu Lâu Chế Tạo Được!"
+    description = "Dùng Nguyên Liệu để Chế Tạo Đầu Lâu Quái Vật!"
+    lore1 = "Bao quanh Khối Xương bằng các vật liệu sau để nhận đầu lâu:"
+    lore2 = "Zombie: Thịt Thối"
+    lore3 = "Skeleton: Xương"
+    lore4 = "Creeper: Thuốc Súng"
+    lore5 = "Wither: Gạch Địa Ngục"
+    lore6 = "Rồng: Hơi Thở Rồng"
+    lore = ["Bao quanh Khối Xương bằng các vật liệu sau để nhận đầu lâu:", "Zombie: Thịt Thối", "Skeleton: Xương", "Creeper: Thuốc Súng", "Wither: Gạch Địa Ngục", "Rồng: Hơi Thở Rồng"]
+
+# chronos
+[chronos]
+
+[chronos.time_in_a_bottle]
+    name = "Thời Gian Trong Chai"
+    description = "Mang theo một chai thời gian tích trữ thời gian và tiêu thụ để tăng tốc khối có bộ hẹn giờ, cây trồng, và thực thể có tuổi như động vật con. Công thức (Không Định Hình): Thuốc Tốc Độ + Đồng Hồ + Chai Thủy Tinh."
+    lore1 = "Số giây tích trữ mỗi tick"
+    lore2 = "Tăng tốc thời gian mỗi giây tích trữ"
+    lore3 = "Công thức (Không Định Hình): Thuốc Tốc Độ + Đồng Hồ + Chai Thủy Tinh"
+    lore = ["Số giây tích trữ mỗi tick", "Tăng tốc thời gian mỗi giây tích trữ", "Công thức (Không Định Hình): Thuốc Tốc Độ + Đồng Hồ + Chai Thủy Tinh"]
+
+[chronos.aberrant_touch]
+    name = "Chạm Dị Thường"
+    description = "Đòn cận chiến áp dụng chậm cộng dồn với cái giá là đói, với giới hạn PvP nghiêm ngặt, và ghim mục tiêu tại 5 cộng dồn."
+    lore1 = "Đòn cận chiến áp dụng chậm cộng dồn"
+    lore2 = "Giới hạn thời lượng chậm PvE"
+    lore3 = "Giới hạn cường độ chậm PvP"
+    lore = ["Đòn cận chiến áp dụng chậm cộng dồn", "Giới hạn thời lượng chậm PvE", "Giới hạn cường độ chậm PvP"]
+
+[chronos.instant_recall]
+    name = "Triệu Hồi Tức Thì"
+    description = "Chuột trái hoặc phải với đồng hồ trong tay để tua lại đến ảnh chụp gần đây với máu và đói được phục hồi."
+    lore1 = "Thời lượng tua lại"
+    lore2 = "Thời gian hồi"
+    lore3 = "Không hoàn lại túi đồ"
+    lore = ["Thời lượng tua lại", "Thời gian hồi", "Không hoàn lại túi đồ"]
+
+[chronos.time_bomb]
+    name = "Bom Thời Gian"
+    description = "Ném một quả bom thời gian đã chế tạo tạo ra trường thời không, làm chậm thực thể, và đóng băng đạn đạo."
+    lore1 = "Bán kính trường thời không"
+    lore2 = "Thời lượng trường thời không"
+    lore3 = "Thời gian hồi bom"
+    lore4 = "Công thức (Không Định Hình): Đồng Hồ + Cầu Tuyết + Kim Cương + Cát"
+    lore = ["Bán kính trường thời không", "Thời lượng trường thời không", "Thời gian hồi bom", "Công thức (Không Định Hình): Đồng Hồ + Cầu Tuyết + Kim Cương + Cát"]
+
+# discovery
+[discovery]
+
+[discovery.armor]
+    name = "Giáp Thế Giới"
+    description = "Giáp thụ động dựa trên độ cứng khối gần đó."
+    lore1 = "Giáp Thụ Động"
+    lore2 = "Dựa trên độ cứng khối gần đó"
+    lore3 = "Sức Mạnh Giáp:"
+    lore = ["Giáp Thụ Động", "Dựa trên độ cứng khối gần đó", "Sức Mạnh Giáp:"]
+
+[discovery.unity]
+    name = "Thống Nhất Thực Nghiệm"
+    description = "Thu thập Quả Cầu Kinh Nghiệm sẽ thêm XP vào kỹ năng ngẫu nhiên."
+    lore1 = "XP "
+    lore2 = "Mỗi Quả Cầu"
+    lore = ["XP ", "Mỗi Quả Cầu"]
+
+[discovery.resist]
+    name = "Kháng Cự Thực Nghiệm"
+    description = "Tiêu thụ kinh nghiệm để giảm sát thương chỉ khi một đòn đánh sẽ hạ bạn xuống dưới 5 trái tim hoặc giết bạn."
+    lore0 = "Chỉ kích hoạt khi máu nguy hiểm (<= 5 trái tim) mỗi 15 giây"
+    lore1 = " Giảm Sát Thương"
+    lore2 = "kinh nghiệm bị tiêu hao"
+    lore = ["Chỉ kích hoạt khi máu nguy hiểm (<= 5 trái tim) mỗi 15 giây", " Giảm Sát Thương", "kinh nghiệm bị tiêu hao"]
+
+[discovery.villager]
+    name = "Thu Hút Dân Làng"
+    description = "Cho phép bạn có giao dịch tốt hơn với dân làng!"
+    lore1 = "Tiêu tốn XP mỗi lần tương tác với Dân Làng"
+    lore2 = "Cơ hội mỗi lần tương tác để tiêu XP và nâng cấp giao dịch"
+    lore3 = "XP cần tiêu hao mỗi Lần Tương Tác"
+    lore = ["Tiêu tốn XP mỗi lần tương tác với Dân Làng", "Cơ hội mỗi lần tương tác để tiêu XP và nâng cấp giao dịch", "XP cần tiêu hao mỗi Lần Tương Tác"]
+
+# enchanting
+[enchanting]
+
+[enchanting.lapis_return]
+    name = "Hoàn Lapis"
+    description = "Với cái giá tăng thêm 1 cấp XP, và có cơ hội nhận lại lapis miễn phí"
+    lore1 = "Mỗi cấp độ tăng chi phí phù phép thêm 1, nhưng có thể trả lại tối đa 3 Lapis"
+    lore = ["Mỗi cấp độ tăng chi phí phù phép thêm 1, nhưng có thể trả lại tối đa 3 Lapis"]
+
+[enchanting.quick_enchant]
+    name = "Phù Phép Nhanh"
+    description = "Phù phép vật phẩm bằng cách bấm sách phù phép trực tiếp lên chúng."
+    lore1 = "Cấp Kết Hợp Tối Đa"
+    lore2 = "Không thể phù phép vật phẩm có nhiều hơn "
+    lore3 = "năng lượng"
+    lore = ["Cấp Kết Hợp Tối Đa", "Không thể phù phép vật phẩm có nhiều hơn ", "năng lượng"]
+
+[enchanting.return]
+    name = "Hoàn XP"
+    description = "XP phù phép được trả lại khi bạn phù phép vật phẩm."
+    lore1 = "Kinh nghiệm đã tiêu có cơ hội được hoàn lại khi phù phép"
+    lore2 = "Kinh Nghiệm mỗi Lần Phù Phép"
+    lore = ["Kinh nghiệm đã tiêu có cơ hội được hoàn lại khi phù phép", "Kinh Nghiệm mỗi Lần Phù Phép"]
+
+# excavation
+[excavation]
+
+[excavation.haste]
+    name = "Đào Nhanh"
+    description = "Tăng tốc quá trình khai quật với HASTE!"
+    lore1 = "Nhận Haste khi đang khai quật"
+    lore2 = "x Cấp Haste khi bạn bắt đầu đào BẤT KỲ khối nào."
+    lore = ["Nhận Haste khi đang khai quật", "x Cấp Haste khi bạn bắt đầu đào BẤT KỲ khối nào."]
+
+[excavation.spelunker]
+    name = "Thám Hiểm Hang Siêu Nhìn!"
+    description = "Nhìn thấy Quặng bằng mắt xuyên qua đất!"
+    lore1 = "Quặng ở tay phụ, Glowberry ở tay chính, và Ngồi!"
+    lore2 = "Phạm Vi Khối: "
+    lore3 = "Tiêu thụ Glowberry khi sử dụng"
+    lore = ["Quặng ở tay phụ, Glowberry ở tay chính, và Ngồi!", "Phạm Vi Khối: ", "Tiêu thụ Glowberry khi sử dụng"]
+
+[excavation.drop_to_inventory]
+    name = "Xẻng Nhặt Vào Túi Đồ"
+
+[excavation.omni_tool]
+    name = "DỤNG CỤ TOÀN NĂNG"
+    description = "Chiếc dao đa năng thiết kế cầu kỳ của Tackle"
+    lore1 = "Có lẽ mạnh nhất trong tất cả, cho phép bạn"
+    lore2 = "linh hoạt kết hợp và thay đổi công cụ khi đang dùng, tùy nhu cầu."
+    lore3 = "Để kết hợp, shift + chuột vào vật phẩm trong túi đồ."
+    lore4 = "Để tháo công cụ, Ngồi + Thả vật phẩm, nó sẽ tự tháo rời."
+    lore5 = "Bạn không thể phá hủy công cụ trong dụng cụ toàn năng nhưng không thể dùng công cụ hỏng"
+    lore6 = "tổng vật phẩm có thể kết hợp."
+    lore7 = "Bạn có thể dùng năm sáu công cụ, hoặc chỉ một!"
+    lore = ["Có lẽ mạnh nhất trong tất cả, cho phép bạn", "linh hoạt kết hợp và thay đổi công cụ khi đang dùng, tùy nhu cầu.", "Để kết hợp, shift + chuột vào vật phẩm trong túi đồ.", "Để tháo công cụ, Ngồi + Thả vật phẩm, nó sẽ tự tháo rời.", "Bạn không thể phá hủy công cụ trong dụng cụ toàn năng nhưng không thể dùng công cụ hỏng", "tổng vật phẩm có thể kết hợp.", "Bạn có thể dùng năm sáu công cụ, hoặc chỉ một!"]
+
+# herbalism
+[herbalism]
+
+[herbalism.growth_aura]
+    name = "Hào Quang Tăng Trưởng"
+    description = "Phát triển thiên nhiên xung quanh bạn trong một hào quang"
+    lore1 = "Bán Kính Khối"
+    lore2 = "Sức Mạnh Hào Quang Tăng Trưởng"
+    lore3 = "Chi Phí Thức Ăn"
+    lore = ["Bán Kính Khối", "Sức Mạnh Hào Quang Tăng Trưởng", "Chi Phí Thức Ăn"]
+
+[herbalism.hippo]
+    name = "Hà Mã Thảo Dược"
+    description = "Ăn thức ăn cho bạn thêm độ no"
+    lore1 = "Thức ăn) điểm bão hòa thêm khi ăn"
+    lore = ["Thức ăn) điểm bão hòa thêm khi ăn"]
+
+[herbalism.myconid]
+    name = "Nấm Sợi Thảo Dược"
+    description = "Cho bạn khả năng chế tạo Sợi Nấm"
+    lore1 = "Bất kỳ Đất nào, và một Nấm Nâu & Đỏ sẽ tạo ra Sợi Nấm."
+    lore = ["Bất kỳ Đất nào, và một Nấm Nâu & Đỏ sẽ tạo ra Sợi Nấm."]
+
+[herbalism.terralid]
+    name = "Khối Cỏ Thảo Dược"
+    description = "Cho bạn khả năng chế tạo Khối Cỏ"
+    lore1 = "Ba Hạt Giống, trên 3 Đất, sẽ tạo ra 3 Khối Cỏ."
+    lore = ["Ba Hạt Giống, trên 3 Đất, sẽ tạo ra 3 Khối Cỏ."]
+
+[herbalism.cobweb]
+    name = "Thợ Dệt Mạng"
+    description = "Cho bạn khả năng chế tạo Mạng Nhện trong Bàn Chế Tạo"
+    lore1 = "Chín Sợi Dây sẽ tạo ra một Mạng Nhện."
+    lore = ["Chín Sợi Dây sẽ tạo ra một Mạng Nhện."]
+
+[herbalism.mushroom_blocks]
+    name = "Chế Tạo Khối Nấm"
+    description = "Cho bạn khả năng chế tạo Khối Nấm trong Bàn Chế Tạo"
+    lore1 = "Bốn Nấm để tạo khối, hoặc một khối để tạo thân cây."
+    lore = ["Bốn Nấm để tạo khối, hoặc một khối để tạo thân cây."]
+
+[herbalism.drop_to_inventory]
+    name = "Cuốc Nhặt Vào Túi Đồ"
+
+[herbalism.hungry_shield]
+    name = "Khiên Đói"
+    description = "Nhận sát thương vào thanh đói trước thanh máu."
+    lore1 = "Kháng Bằng Đói"
+    lore = ["Kháng Bằng Đói"]
+
+[herbalism.luck]
+    name = "May Mắn Thảo Dược"
+    description = "Khi phá Cỏ/Hoa, bạn có cơ hội nhận vật phẩm ngẫu nhiên"
+    lore0 = "Hoa = Thức Ăn, và Cỏ = Hạt Giống"
+    lore1 = "Cơ hội nhận vật phẩm từ phá Hoa"
+    lore2 = "Cơ hội nhận vật phẩm từ phá Cỏ"
+    lore = ["Hoa = Thức Ăn, và Cỏ = Hạt Giống", "Cơ hội nhận vật phẩm từ phá Hoa", "Cơ hội nhận vật phẩm từ phá Cỏ"]
+
+[herbalism.replant]
+    name = "Thu Hoạch & Trồng Lại"
+    description = "Chuột phải vào cây trồng bằng cuốc để thu hoạch & trồng lại."
+    lore1 = "Bán Kính Trồng Lại"
+    lore = ["Bán Kính Trồng Lại"]
+
+# hunter
+[hunter]
+
+[hunter.adrenaline]
+    name = "Adrenaline"
+    description = "Gây thêm sát thương khi máu bạn càng thấp (Cận Chiến)"
+    lore1 = "Sát Thương Tối Đa"
+    lore = ["Sát Thương Tối Đa"]
+
+[hunter.penalty]
+    name = ""
+    description = ""
+    lore1 = "Bạn sẽ bị Độc nếu hết thanh đói"
+    lore = ["Bạn sẽ bị Độc nếu hết thanh đói"]
+
+[hunter.drop_to_inventory]
+    name = "Vật Phẩm Nhặt Vào Túi Đồ"
+    description = "Khi bạn giết thứ gì đó / Phá khối bằng kiếm, vật phẩm rơi sẽ dịch chuyển vào túi đồ"
+    lore1 = "Bất cứ khi nào vật phẩm rơi từ quái/khối bạn phá, nó sẽ vào túi đồ nếu có chỗ."
+    lore = ["Bất cứ khi nào vật phẩm rơi từ quái/khối bạn phá, nó sẽ vào túi đồ nếu có chỗ."]
+
+[hunter.invisibility]
+    name = "Bước Biến Mất"
+    description = "Khi bị đánh, bạn nhận được tàng hình, với cái giá là đói"
+    lore1 = "Nhận tàng hình thụ động khi bị đánh"
+    lore2 = "x Cộng dồn tàng hình trong 3 giây mỗi đòn"
+    lore3 = "x Cộng dồn đói"
+    lore4 = "Thời lượng và hệ số cộng dồn đói."
+    lore5 = "Thời lượng tàng hình"
+    lore = ["Nhận tàng hình thụ động khi bị đánh", "x Cộng dồn tàng hình trong 3 giây mỗi đòn", "x Cộng dồn đói", "Thời lượng và hệ số cộng dồn đói.", "Thời lượng tàng hình"]
+
+[hunter.jump_boost]
+    name = "Đỉnh Cao Thợ Săn"
+    description = "Khi bị đánh, bạn nhận được tăng nhảy, với cái giá là đói"
+    lore1 = "Nhận tăng nhảy thụ động khi bị đánh"
+    lore2 = "x Cộng dồn tăng nhảy trong 3 giây mỗi đòn"
+    lore3 = "x Cộng dồn đói"
+    lore4 = "Thời lượng và hệ số cộng dồn đói."
+    lore5 = "Hệ số cộng dồn tăng nhảy, không phải thời lượng."
+    lore = ["Nhận tăng nhảy thụ động khi bị đánh", "x Cộng dồn tăng nhảy trong 3 giây mỗi đòn", "x Cộng dồn đói", "Thời lượng và hệ số cộng dồn đói.", "Hệ số cộng dồn tăng nhảy, không phải thời lượng."]
+
+[hunter.luck]
+    name = "May Mắn Thợ Săn"
+    description = "Khi bị đánh, bạn nhận được may mắn, với cái giá là đói"
+    lore1 = "Nhận may mắn thụ động khi bị đánh"
+    lore2 = "x Cộng dồn may mắn trong 3 giây mỗi đòn"
+    lore3 = "x Cộng dồn đói"
+    lore4 = "Thời lượng và hệ số cộng dồn đói."
+    lore5 = "Hệ số cộng dồn may mắn, không phải thời lượng."
+    lore = ["Nhận may mắn thụ động khi bị đánh", "x Cộng dồn may mắn trong 3 giây mỗi đòn", "x Cộng dồn đói", "Thời lượng và hệ số cộng dồn đói.", "Hệ số cộng dồn may mắn, không phải thời lượng."]
+
+[hunter.regen]
+    name = "Hồi Phục Thợ Săn"
+    description = "Khi bị đánh, bạn nhận được hồi phục, với cái giá là đói"
+    lore1 = "Nhận hồi phục thụ động khi bị đánh"
+    lore2 = "x Cộng dồn hồi phục trong 3 giây mỗi đòn"
+    lore3 = "x Cộng dồn đói"
+    lore4 = "Thời lượng và hệ số cộng dồn đói."
+    lore5 = "Hệ số cộng dồn hồi phục, không phải thời lượng."
+    lore = ["Nhận hồi phục thụ động khi bị đánh", "x Cộng dồn hồi phục trong 3 giây mỗi đòn", "x Cộng dồn đói", "Thời lượng và hệ số cộng dồn đói.", "Hệ số cộng dồn hồi phục, không phải thời lượng."]
+
+[hunter.resistance]
+    name = "Kháng Cự Thợ Săn"
+    description = "Khi bị đánh, bạn nhận được kháng cự, với cái giá là đói"
+    lore1 = "Nhận kháng cự thụ động khi bị đánh"
+    lore2 = "x Cộng dồn kháng cự trong 3 giây mỗi đòn"
+    lore3 = "x Cộng dồn đói"
+    lore4 = "Thời lượng và hệ số cộng dồn đói."
+    lore5 = "Hệ số cộng dồn kháng cự, không phải thời lượng."
+    lore = ["Nhận kháng cự thụ động khi bị đánh", "x Cộng dồn kháng cự trong 3 giây mỗi đòn", "x Cộng dồn đói", "Thời lượng và hệ số cộng dồn đói.", "Hệ số cộng dồn kháng cự, không phải thời lượng."]
+
+[hunter.speed]
+    name = "Tốc Độ Thợ Săn"
+    description = "Khi bị đánh, bạn nhận được tốc độ, với cái giá là đói"
+    lore1 = "Nhận tốc độ thụ động khi bị đánh"
+    lore2 = "x Cộng dồn tốc độ trong 3 giây mỗi đòn"
+    lore3 = "x Cộng dồn đói"
+    lore4 = "Thời lượng và hệ số cộng dồn đói."
+    lore5 = "Hệ số cộng dồn tốc độ, không phải thời lượng."
+    lore = ["Nhận tốc độ thụ động khi bị đánh", "x Cộng dồn tốc độ trong 3 giây mỗi đòn", "x Cộng dồn đói", "Thời lượng và hệ số cộng dồn đói.", "Hệ số cộng dồn tốc độ, không phải thời lượng."]
+
+[hunter.strength]
+    name = "Sức Mạnh Thợ Săn"
+    description = "Khi bị đánh, bạn nhận được sức mạnh, với cái giá là đói"
+    lore1 = "Nhận sức mạnh thụ động khi bị đánh"
+    lore2 = "x Cộng dồn sức mạnh trong 3 giây mỗi đòn"
+    lore3 = "x Cộng dồn đói"
+    lore4 = "Thời lượng và hệ số cộng dồn đói."
+    lore5 = "Hệ số cộng dồn sức mạnh, không phải thời lượng."
+    lore = ["Nhận sức mạnh thụ động khi bị đánh", "x Cộng dồn sức mạnh trong 3 giây mỗi đòn", "x Cộng dồn đói", "Thời lượng và hệ số cộng dồn đói.", "Hệ số cộng dồn sức mạnh, không phải thời lượng."]
+
+# nether
+[nether]
+
+[nether.skull_toss]
+    name = "Ném Đầu Lâu Wither"
+    description1 = "Giải phóng Wither bên trong bạn bằng cách dùng"
+    description2 = "đầu"
+    description3 = "của ai đó."
+    lore1 = "Giây hồi giữa các lần ném đầu lâu."
+    lore2 = "Dùng Đầu Lâu Wither: Ném một "
+    lore3 = "Đầu Lâu Wither"
+    lore4 = "nổ khi va chạm."
+    lore = ["Giây hồi giữa các lần ném đầu lâu.", "Dùng Đầu Lâu Wither: Ném một ", "Đầu Lâu Wither", "nổ khi va chạm."]
+
+[nether.wither_resist]
+    name = "Kháng Wither"
+    description = "Kháng hiệu ứng héo úa nhờ sức mạnh của Netherite."
+    lore1 = "cơ hội vô hiệu hóa héo úa (mỗi mảnh giáp)."
+    lore2 = "Thụ động: Mặc Giáp Netherite có cơ hội vô hiệu hóa "
+    lore3 = "hiệu ứng héo úa."
+    lore = ["cơ hội vô hiệu hóa héo úa (mỗi mảnh giáp).", "Thụ động: Mặc Giáp Netherite có cơ hội vô hiệu hóa ", "hiệu ứng héo úa."]
+
+[nether.fire_resist]
+    name = "Kháng Lửa"
+    description = "Kháng lửa bằng cách làm cứng da."
+    lore1 = "cơ hội vô hiệu hóa hiệu ứng cháy!"
+    lore = ["cơ hội vô hiệu hóa hiệu ứng cháy!"]
+
+# pickaxe
+[pickaxe]
+
+[pickaxe.auto_smelt]
+    name = "Tự Động Nung"
+    description = "Cho phép bạn nung quặng Vanilla khi khai thác"
+    lore1 = "Quặng có thể nung sẽ được nung tự động"
+    lore2 = "% cơ hội nhận thêm"
+    lore = ["Quặng có thể nung sẽ được nung tự động", "% cơ hội nhận thêm"]
+
+[pickaxe.chisel]
+    name = "Đục Quặng"
+    description = "Chuột Phải vào Quặng để Đục thêm quặng, với cái giá hao mòn độ bền cao."
+    lore1 = "Cơ Hội Rơi"
+    lore2 = "Hao Mòn Công Cụ"
+    lore = ["Cơ Hội Rơi", "Hao Mòn Công Cụ"]
+
+[pickaxe.drop_to_inventory]
+    name = "Cuốc Chim Nhặt Vào Túi Đồ"
+    description = "Khi bạn phá khối, vật phẩm dịch chuyển vào túi đồ"
+    lore1 = "Bất cứ khi nào vật phẩm rơi từ khối bạn phá, nó sẽ vào túi đồ nếu có chỗ."
+    lore = ["Bất cứ khi nào vật phẩm rơi từ khối bạn phá, nó sẽ vào túi đồ nếu có chỗ."]
+
+[pickaxe.silk_spawner]
+    name = "Cuốc Chim Lấy Spawner"
+    description = "Spawner sẽ rơi ra khi bị phá"
+    lore1 = "Spawner có thể phá bằng Cảm Ứng Lụa."
+    lore2 = "Spawner có thể phá khi đang ngồi."
+    lore = ["Spawner có thể phá bằng Cảm Ứng Lụa.", "Spawner có thể phá khi đang ngồi."]
+
+[pickaxe.vein_miner]
+    name = "Đào Mạch Quặng"
+    description = "Cho phép bạn phá khối theo Mạch/Cụm quặng Vanilla"
+    lore1 = "Ngồi, và đào QUẶNG"
+    lore2 = "phạm vi đào mạch quặng"
+    lore3 = "Kỹ năng này KHÔNG gom tất cả vật phẩm rơi lại!"
+    lore = ["Ngồi, và đào QUẶNG", "phạm vi đào mạch quặng", "Kỹ năng này KHÔNG gom tất cả vật phẩm rơi lại!"]
+
+# ranged
+[ranged]
+
+[ranged.arrow_recovery]
+    name = "Thu Hồi Mũi Tên"
+    description = "Thu hồi Mũi Tên sau khi bạn tiêu diệt kẻ thù."
+    lore1 = "Cơ hội Thu Hồi Mũi Tên khi Trúng/Hạ Gục"
+    lore2 = "Cơ hội: "
+    lore = ["Cơ hội Thu Hồi Mũi Tên khi Trúng/Hạ Gục", "Cơ hội: "]
+
+[ranged.web_shot]
+    name = "Bẫy Mạng Nhện"
+    description = "Bao quanh mục tiêu bằng mạng nhện khi bạn bắn trúng!"
+    lore1 = "8 Mạng Nhện quanh Cầu Tuyết, và ném!"
+    lore2 = "giây bẫy lồng, xấp xỉ."
+    lore = ["8 Mạng Nhện quanh Cầu Tuyết, và ném!", "giây bẫy lồng, xấp xỉ."]
+
+[ranged.force_shot]
+    name = "Phát Bắn Mạnh"
+    description = "Bắn đạn xa hơn, nhanh hơn!"
+    advancementname = "Phát Bắn Xa"
+    advancementlore = "Bắn trúng mục tiêu từ hơn 30 khối!"
+    lore1 = "Tốc Độ Đạn"
+    lore = ["Tốc Độ Đạn"]
+
+[ranged.lunge_shot]
+    name = "Phát Bắn Lao"
+    description = "Khi đang rơi, mũi tên đẩy bạn theo hướng ngẫu nhiên"
+    lore1 = "Tốc Độ Bùng Nổ Ngẫu Nhiên"
+    lore = ["Tốc Độ Bùng Nổ Ngẫu Nhiên"]
+
+[ranged.arrow_piercing]
+    name = "Mũi Tên Xuyên Thấu"
+    description = "Thêm Xuyên Thấu cho đạn! Bắn xuyên qua mọi thứ!"
+    lore1 = "Mục Tiêu Xuyên Qua"
+    lore = ["Mục Tiêu Xuyên Qua"]
+
+# rift
+[rift]
+
+[rift.remote_access]
+    name = "Truy Cập Từ Xa"
+    description = "Kéo từ hư không và truy cập thùng chứa đã đánh dấu."
+    lore1 = "Ngọc Trai Ender + La Bàn = Chìa Khóa Thánh Tích"
+    lore2 = "Vật phẩm này cho phép bạn truy cập thùng chứa từ xa"
+    lore3 = "Sau khi chế tạo, nhìn vào vật phẩm để xem cách dùng"
+    notcontainer = "Đó không phải thùng chứa"
+    lore = ["Ngọc Trai Ender + La Bàn = Chìa Khóa Thánh Tích", "Vật phẩm này cho phép bạn truy cập thùng chứa từ xa", "Sau khi chế tạo, nhìn vào vật phẩm để xem cách dùng"]
+
+[rift.blink]
+    name = "Chớp Nhoáng"
+    description = "Dịch chuyển tức thì tầm ngắn, Chỉ trong chớp mắt!"
+    lore1 = "Khối khi chớp (2x theo chiều dọc)"
+    lore2 = "Khi đang chạy nước rút: Nhấn đúp Nhảy để "
+    lore3 = "Chớp Nhoáng"
+    lore = ["Khối khi chớp (2x theo chiều dọc)", "Khi đang chạy nước rút: Nhấn đúp Nhảy để ", "Chớp Nhoáng"]
+
+[rift.chest]
+    name = "Rương Ender Dễ Dàng"
+    description = "Mở rương ender bằng cách Chuột Trái vào nó trong tay."
+    lore1 = "Bấm vào Rương Ender trong tay để mở (Đừng đặt nó xuống)"
+    lore = ["Bấm vào Rương Ender trong tay để mở (Đừng đặt nó xuống)"]
+
+[rift.descent]
+    name = "Chống Bay Lên"
+    description = "Bạn chán bị mắc kẹt trên không? Đây là kỹ năng dành cho bạn!"
+    lore1 = "Chỉ cần Ngồi để hạ xuống, bạn sẽ rơi chậm hơn bình thường!"
+    lore2 = "Thời Gian Hồi:"
+    lore = ["Chỉ cần Ngồi để hạ xuống, bạn sẽ rơi chậm hơn bình thường!", "Thời Gian Hồi:"]
+
+[rift.gate]
+    name = "Cổng Khe Nứt"
+    description = "Dịch chuyển đến vị trí đã đánh dấu."
+    lore1 = "CHẾ TẠO: Ngọc Lục Bảo + Mảnh Thạch Anh Tím + Ngọc Trai Ender"
+    lore2 = "Đọc trước khi dùng!"
+    lore3 = "Trì hoãn 5 giây, "
+    lore4 = "bạn có thể chết trong lúc thực hiện"
+    lore = ["CHẾ TẠO: Ngọc Lục Bảo + Mảnh Thạch Anh Tím + Ngọc Trai Ender", "Đọc trước khi dùng!", "Trì hoãn 5 giây, ", "bạn có thể chết trong lúc thực hiện"]
+
+[rift.resist]
+    name = "Kháng Khe Nứt"
+    description = "Nhận Kháng Cự khi sử dụng Vật Phẩm & Kỹ Năng Ender"
+    lore1 = "+ Thụ động: Cung cấp kháng cự khi bạn dùng kỹ năng khe nứt, hoặc Vật Phẩm Ender"
+    lore2 = "KHÔNG bao gồm Rương Ender Di Động, chỉ những thứ bạn có thể tiêu thụ"
+    lore = ["+ Thụ động: Cung cấp kháng cự khi bạn dùng kỹ năng khe nứt, hoặc Vật Phẩm Ender", "KHÔNG bao gồm Rương Ender Di Động, chỉ những thứ bạn có thể tiêu thụ"]
+
+[rift.visage]
+    name = "Diện Mạo Khe Nứt"
+    description = "Ngăn Endermen trở nên hung hãn nếu bạn có Ngọc Trai Ender trong túi đồ."
+    lore1 = "Endermen sẽ không trở nên hung hãn nếu bạn có Ngọc Trai Ender trong túi đồ."
+    lore = ["Endermen sẽ không trở nên hung hãn nếu bạn có Ngọc Trai Ender trong túi đồ."]
+
+# seaborn
+[seaborn]
+
+[seaborn.oxygen]
+    name = "Bình Oxy Hữu Cơ"
+    description = "Chứa thêm oxy trong lá phổi nhỏ bé của bạn!"
+    lore1 = "Tăng Dung Tích Oxy"
+    lore = ["Tăng Dung Tích Oxy"]
+
+[seaborn.fishers_fantasy]
+    name = "Giấc Mơ Ngư Phủ"
+    description = "Kiếm thêm XP từ câu cá, và nhận nhiều cá hơn!"
+    lore1 = "Mỗi cấp độ có cơ hội nhận thêm XP và Cá!"
+    lore = ["Mỗi cấp độ có cơ hội nhận thêm XP và Cá!"]
+
+[seaborn.haste]
+    name = "Thợ Mỏ Rùa"
+    description = "Khi đào dưới nước, bạn nhận được tốc độ đào!"
+    lore1 = "Haste 3 áp dụng dưới nước khi đào (cộng dồn AquaAffinity) sau khi hiệu ứng thở dưới nước hết!"
+    lore = ["Haste 3 áp dụng dưới nước khi đào (cộng dồn AquaAffinity) sau khi hiệu ứng thở dưới nước hết!"]
+
+[seaborn.night_vision]
+    name = "Tầm Nhìn Rùa"
+    description = "Khi ở dưới nước, bạn nhận được Nhìn Đêm"
+    lore1 = "Đơn giản nhận Nhìn Đêm khi ở dưới nước sau khi hiệu ứng thở dưới nước hết!"
+    lore = ["Đơn giản nhận Nhìn Đêm khi ở dưới nước sau khi hiệu ứng thở dưới nước hết!"]
+
+[seaborn.dolphin_grace]
+    name = "Ân Sủng Cá Heo"
+    description = "Bơi như cá heo, không cần cá heo"
+    lore1 = "+ Thụ động: nhận "
+    lore2 = "x tốc độ (ân sủng cá heo)"
+    lore3 = "kỹ thuật chính xác kiểu Đức- khoan, không đúng... Không tương thích với Depth Strider"
+    lore = ["+ Thụ động: nhận ", "x tốc độ (ân sủng cá heo)", "kỹ thuật chính xác kiểu Đức- khoan, không đúng... Không tương thích với Depth Strider"]
+
+# stealth
+[stealth]
+
+[stealth.ghost_armor]
+    name = "Giáp Ma"
+    description = "Giáp tăng dần khi không nhận sát thương, chỉ chịu được 1 đòn"
+    lore1 = "Giáp Tối Đa"
+    lore2 = "Tốc Độ"
+    lore = ["Giáp Tối Đa", "Tốc Độ"]
+
+[stealth.night_vision]
+    name = "Nhìn Đêm Tàng Hình"
+    description = "Nhận nhìn đêm khi ngồi"
+    lore1 = "Nhận một đợt "
+    lore2 = "nhìn đêm"
+    lore3 = "khi đang ngồi"
+    lore = ["Nhận một đợt ", "nhìn đêm", "khi đang ngồi"]
+
+[stealth.snatch]
+    name = "Cướp Vật Phẩm"
+    description = "Cướp vật phẩm rơi tức thì khi đang ngồi!"
+    lore1 = "Bán Kính Cướp"
+    lore = ["Bán Kính Cướp"]
+
+[stealth.speed]
+    name = "Tốc Độ Rón Rén"
+    description = "Nhận tốc độ khi đang ngồi"
+    lore1 = "Tốc Độ Rón Rén"
+    lore = ["Tốc Độ Rón Rén"]
+
+[stealth.ender_veil]
+    name = "Màn Che Ender"
+    description = "Không cần Bí Ngô để tránh Enderman tấn công nữa"
+    lore1 = "Ngăn Enderman tấn công khi đang ngồi"
+    lore2 = "Ngăn tất cả Enderman tấn công"
+    lore = ["Ngăn Enderman tấn công khi đang ngồi", "Ngăn tất cả Enderman tấn công"]
+
+# sword
+[sword]
+
+[sword.machete]
+    name = "Dao Rựa"
+    description = "Cắt qua tán lá dễ dàng!"
+    lore1 = "Bán Kính Chém"
+    lore2 = "Thời Gian Hồi Chặt"
+    lore3 = "Hao Mòn Công Cụ"
+    lore = ["Bán Kính Chém", "Thời Gian Hồi Chặt", "Hao Mòn Công Cụ"]
+
+[sword.bloody_blade]
+    name = "Lưỡi Kiếm Đẫm Máu"
+    description = "Đòn kiếm gây ra Chảy Máu!"
+    lore1 = "Tấn công thực thể sống bằng Kiếm gây Chảy Máu"
+    lore2 = "Thời Lượng Chảy Máu"
+    lore3 = "Thời Gian Hồi Chảy Máu"
+    lore = ["Tấn công thực thể sống bằng Kiếm gây Chảy Máu", "Thời Lượng Chảy Máu", "Thời Gian Hồi Chảy Máu"]
+
+[sword.poisoned_blade]
+    name = "Lưỡi Kiếm Tẩm Độc"
+    description = "Đòn kiếm gây ra Ngộ Độc!"
+    lore1 = "Tấn công thực thể sống bằng Kiếm gây Ngộ Độc"
+    lore2 = "Thời Lượng Ngộ Độc"
+    lore3 = "Thời Gian Hồi Ngộ Độc"
+    lore = ["Tấn công thực thể sống bằng Kiếm gây Ngộ Độc", "Thời Lượng Ngộ Độc", "Thời Gian Hồi Ngộ Độc"]
+
+# taming
+[taming]
+
+[taming.damage]
+    name = "Sát Thương Thú Nuôi"
+    description = "Tăng sát thương thú nuôi đã thuần hóa."
+    lore1 = "Tăng Sát Thương"
+    lore = ["Tăng Sát Thương"]
+
+[taming.health]
+    name = "Máu Thú Nuôi"
+    description = "Tăng máu thú nuôi đã thuần hóa."
+    lore1 = "Tăng Máu"
+    lore = ["Tăng Máu"]
+
+[taming.regeneration]
+    name = "Hồi Phục Thú Nuôi"
+    description = "Tăng tốc độ hồi phục thú nuôi đã thuần hóa."
+    lore1 = "HP/giây"
+    lore = ["HP/giây"]
+
+# tragoul
+[tragoul]
+
+[tragoul.thorns]
+    name = "Gai Nhọn"
+    description = "Phản sát thương lại kẻ tấn công!"
+    lore1 = "Sát thương phản đòn khi bị đánh"
+    lore = ["Sát thương phản đòn khi bị đánh"]
+
+[tragoul.globe]
+    name = "Cầu Đau Đớn"
+    description = "Chia sát thương bạn gây ra dựa trên số kẻ thù xung quanh!"
+    lore1 = "Càng nhiều kẻ thù xung quanh, sát thương cho mỗi kẻ càng giảm"
+    lore2 = "Phạm Vi: "
+    lore3 = "Sát Thương Thêm cho tất cả Thực Thể: "
+    lore = ["Càng nhiều kẻ thù xung quanh, sát thương cho mỗi kẻ càng giảm", "Phạm Vi: ", "Sát Thương Thêm cho tất cả Thực Thể: "]
+
+[tragoul.healing]
+    name = "Ý Chí Đau Đớn"
+    description = "Hồi máu dựa trên sát thương bạn gây ra!"
+    lore1 = "Gây đau cho kẻ khác chưa bao giờ dễ chịu đến thế! Hồi máu từ Sát Thương Gây Ra"
+    lore2 = "Có khoảng thời gian sát thương 3 Giây để hồi máu và 1 Giây thời gian hồi "
+    lore3 = "Phần Trăm Hồi Máu Mỗi Sát Thương: "
+    lore = ["Gây đau cho kẻ khác chưa bao giờ dễ chịu đến thế! Hồi máu từ Sát Thương Gây Ra", "Có khoảng thời gian sát thương 3 Giây để hồi máu và 1 Giây thời gian hồi ", "Phần Trăm Hồi Máu Mỗi Sát Thương: "]
+
+[tragoul.lance]
+    name = "Thương Xác Chết"
+    description = "Giết kẻ thù hoặc kỹ năng giết kẻ thù sẽ tạo ra thương gây sát thương cho kẻ thù gần đó!"
+    lore1 = "Thương sẽ phóng từ bất cứ thứ gì bạn giết, VÀ nếu Kỹ Năng này giết kẻ thù."
+    lore2 = "Hy sinh một phần sinh mệnh để tạo thương (có thể giết bạn)"
+    lore3 = "Số Thương Tối Đa: 1 + "
+    lore = ["Thương sẽ phóng từ bất cứ thứ gì bạn giết, VÀ nếu Kỹ Năng này giết kẻ thù.", "Hy sinh một phần sinh mệnh để tạo thương (có thể giết bạn)", "Số Thương Tối Đa: 1 + "]
+
+# unarmed
+[unarmed]
+
+[unarmed.glass_cannon]
+    name = "Đại Bác Thủy Tinh"
+    description = "Sát thương Tay Không tăng thêm khi giá trị giáp càng thấp"
+    lore1 = "x Sát thương ở 0 giáp"
+    lore2 = "Sát Thương Thêm Mỗi Cấp"
+    lore = ["x Sát thương ở 0 giáp", "Sát Thương Thêm Mỗi Cấp"]
+
+[unarmed.power]
+    name = "Sức Mạnh Tay Không"
+    description = "Tăng Sát Thương Tay Không"
+    lore1 = "Sát Thương"
+    lore = ["Sát Thương"]
+
+[unarmed.sucker_punch]
+    name = "Cú Đấm Bất Ngờ"
+    description = "Cú đấm khi chạy nước rút, nhưng chết chóc hơn."
+    lore1 = "Sát Thương"
+    lore2 = "Sát thương tăng theo tốc độ khi đấm"
+    lore = ["Sát Thương", "Sát thương tăng theo tốc độ khi đấm"]

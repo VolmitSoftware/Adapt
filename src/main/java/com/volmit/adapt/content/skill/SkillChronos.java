@@ -72,12 +72,12 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     private final Map<UUID, Long> lastSurvivalCheck;
 
     public SkillChronos() {
-        super("chronos", Localizer.dLocalize("skill", "chronos", "icon"));
+        super("chronos", Localizer.dLocalize("skill.chronos.icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
         setInterval(600000);
-        setDescription(Localizer.dLocalize("skill", "chronos", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "chronos", "name"));
+        setDescription(Localizer.dLocalize("skill.chronos.description"));
+        setDisplayName(Localizer.dLocalize("skill.chronos.name"));
         setInterval(getConfig().setInterval);
         setIcon(Material.CLOCK);
         registerAdaptation(new ChronosTimeInABottle());
@@ -98,24 +98,24 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.CLOCK)
                 .key("challenge_chronos_1h")
-                .title(Localizer.dLocalize("advancement", "challenge_chronos_1h", "title"))
-                .description(Localizer.dLocalize("advancement", "challenge_chronos_1h", "description"))
+                .title(Localizer.dLocalize("advancement.challenge_chronos_1h.title"))
+                .description(Localizer.dLocalize("advancement.challenge_chronos_1h.description"))
                 .model(CustomModel.get(Material.CLOCK, "advancement", "chronos", "challenge_chronos_1h"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.COMPASS)
                         .key("challenge_chronos_24h")
-                        .title(Localizer.dLocalize("advancement", "challenge_chronos_24h", "title"))
-                        .description(Localizer.dLocalize("advancement", "challenge_chronos_24h", "description"))
+                        .title(Localizer.dLocalize("advancement.challenge_chronos_24h.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_chronos_24h.description"))
                         .model(CustomModel.get(Material.COMPASS, "advancement", "chronos", "challenge_chronos_24h"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.RECOVERY_COMPASS)
                                 .key("challenge_chronos_168h")
-                                .title(Localizer.dLocalize("advancement", "challenge_chronos_168h", "title"))
-                                .description(Localizer.dLocalize("advancement", "challenge_chronos_168h", "description"))
+                                .title(Localizer.dLocalize("advancement.challenge_chronos_168h.title"))
+                                .description(Localizer.dLocalize("advancement.challenge_chronos_168h.description"))
                                 .model(CustomModel.get(Material.RECOVERY_COMPASS, "advancement", "chronos", "challenge_chronos_168h"))
                                 .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)

@@ -47,10 +47,10 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillPickaxes() {
-        super("pickaxe", Localizer.dLocalize("skill", "pickaxe", "icon"));
+        super("pickaxe", Localizer.dLocalize("skill.pickaxe.icon"));
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("skill", "pickaxe", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "pickaxe", "name"));
+        setDescription(Localizer.dLocalize("skill.pickaxe.description"));
+        setDisplayName(Localizer.dLocalize("skill.pickaxe.name"));
         setColor(C.GOLD);
         setInterval(2750);
         setIcon(Material.NETHERITE_PICKAXE);
@@ -63,40 +63,40 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.WOODEN_PICKAXE)
                 .key("challenge_pickaxe_1k")
-                .title(Localizer.dLocalize("advancement", "challenge_pickaxe_1k", "title"))
-                .description(Localizer.dLocalize("advancement", "challenge_pickaxe_1k", "description"))
+                .title(Localizer.dLocalize("advancement.challenge_pickaxe_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_pickaxe_1k.description"))
                 .model(CustomModel.get(Material.WOODEN_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_1k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.STONE_PICKAXE)
                         .key("challenge_pickaxe_5k")
-                        .title(Localizer.dLocalize("advancement", "challenge_pickaxe_5k", "title"))
-                        .description(Localizer.dLocalize("advancement", "challenge_pickaxe_5k", "description"))
+                        .title(Localizer.dLocalize("advancement.challenge_pickaxe_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_pickaxe_5k.description"))
                         .model(CustomModel.get(Material.STONE_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_5k"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.IRON_PICKAXE)
                                 .key("challenge_pickaxe_50k")
-                                .title(Localizer.dLocalize("advancement", "challenge_pickaxe_50k", "title"))
-                                .description(Localizer.dLocalize("advancement", "challenge_pickaxe_50k", "description"))
+                                .title(Localizer.dLocalize("advancement.challenge_pickaxe_50k.title"))
+                                .description(Localizer.dLocalize("advancement.challenge_pickaxe_50k.description"))
                                 .model(CustomModel.get(Material.IRON_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_50k"))
                                 .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                                 .child(AdaptAdvancement.builder()
                                         .icon(Material.DIAMOND_PICKAXE)
                                         .key("challenge_pickaxe_500k")
-                                        .title(Localizer.dLocalize("advancement", "challenge_pickaxe_500k", "title"))
-                                        .description(Localizer.dLocalize("advancement", "challenge_pickaxe_500k", "description"))
+                                        .title(Localizer.dLocalize("advancement.challenge_pickaxe_500k.title"))
+                                        .description(Localizer.dLocalize("advancement.challenge_pickaxe_500k.description"))
                                         .model(CustomModel.get(Material.DIAMOND_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_500k"))
                                         .frame(AdaptAdvancementFrame.CHALLENGE)
                                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                                         .child(AdaptAdvancement.builder()
                                                 .icon(Material.NETHERITE_PICKAXE)
                                                 .key("challenge_pickaxe_5m")
-                                                .title(Localizer.dLocalize("advancement", "challenge_pickaxe_5m", "title"))
-                                                .description(Localizer.dLocalize("advancement", "challenge_pickaxe_5m", "description"))
+                                                .title(Localizer.dLocalize("advancement.challenge_pickaxe_5m.title"))
+                                                .description(Localizer.dLocalize("advancement.challenge_pickaxe_5m.description"))
                                                 .model(CustomModel.get(Material.NETHERITE_PICKAXE, "advancement", "pickaxe", "challenge_pickaxe_5m"))
                                                 .frame(AdaptAdvancementFrame.CHALLENGE)
                                                 .visibility(AdvancementVisibility.PARENT_GRANTED)

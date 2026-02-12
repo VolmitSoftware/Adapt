@@ -87,16 +87,16 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
         for (Map.Entry<String, Integer> entry : data.getKnowledgeMap().entrySet()) {
             String skill = entry.getKey();
             int knowledge = entry.getValue();
-            lore.add(C.WHITE + Localizer.dLocalize("snippets", "knowledgeorb", "contains") + " " + C.UNDERLINE + C.WHITE + "" + knowledge + " " + Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + " " + Localizer.dLocalize("snippets", "knowledgeorb", "knowledge"));
+            lore.add(C.WHITE + Localizer.dLocalize("snippets.knowledge_orb.contains") + " " + C.UNDERLINE + C.WHITE + "" + knowledge + " " + Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + " " + Localizer.dLocalize("snippets.knowledge_orb.knowledge"));
         }
-        lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("snippets", "knowledgeorb", "rightclick") + " " + C.GRAY + Localizer.dLocalize("snippets", "knowledgeorb", "togainknowledge"));
+        lore.add(C.LIGHT_PURPLE + Localizer.dLocalize("snippets.knowledge_orb.rightclick") + " " + C.GRAY + Localizer.dLocalize("snippets.knowledge_orb.togainknowledge"));
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Localizer.dLocalize("snippets", "knowledgeorb", "knowledgeorb"));
+        meta.setDisplayName(Localizer.dLocalize("snippets.knowledge_orb.knowledge_orb"));
     }
 
     @AllArgsConstructor

@@ -49,8 +49,8 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
     public EnchantingQuickEnchant() {
         super("enchanting-quick-enchant");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("enchanting", "quickenchant", "description"));
-        setDisplayName(Localizer.dLocalize("enchanting", "quickenchant", "name"));
+        setDescription(Localizer.dLocalize("enchanting.quick_enchant.description"));
+        setDisplayName(Localizer.dLocalize("enchanting.quick_enchant.name"));
         setIcon(Material.WRITABLE_BOOK);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -65,7 +65,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + getTotalLevelCount(level) + C.GRAY + " " + Localizer.dLocalize("enchanting", "quickenchant", "lore1"));
+        v.addLore(C.GREEN + "+ " + getTotalLevelCount(level) + C.GRAY + " " + Localizer.dLocalize("enchanting.quick_enchant.lore1"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -117,7 +117,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
 
             SoundPlayer sp = SoundPlayer.of(p);
             if (power > getTotalLevelCount(getLevel(p))) {
-                Adapt.actionbar(p, C.RED + Localizer.dLocalize("enchanting", "quickenchant", "lore2") + getTotalLevelCount(getLevel(p)) + " " + Localizer.dLocalize("enchanting", "quickenchant", "lore3"));
+                Adapt.actionbar(p, C.RED + Localizer.dLocalize("enchanting.quick_enchant.lore2") + getTotalLevelCount(getLevel(p)) + " " + Localizer.dLocalize("enchanting.quick_enchant.lore3"));
                 sp.play(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.7f);
                 return;
             }

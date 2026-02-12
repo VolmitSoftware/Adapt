@@ -39,8 +39,8 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
     public RiftDescent() {
         super("rift-descent");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("rift", "descent", "description"));
-        setDisplayName(Localizer.dLocalize("rift", "descent", "name"));
+        setDescription(Localizer.dLocalize("rift.descent.description"));
+        setDisplayName(Localizer.dLocalize("rift.descent.name"));
         setMaxLevel(1);
         setIcon(Material.SHULKER_BOX);
         setBaseCost(getConfig().baseCost);
@@ -51,8 +51,8 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.YELLOW + Localizer.dLocalize("rift", "descent", "lore1"));
-        v.addLore(C.GREEN + Localizer.dLocalize("rift", "descent", "lore2") + " " + C.WHITE + getConfig().cooldown + "s");
+        v.addLore(C.YELLOW + Localizer.dLocalize("rift.descent.lore1"));
+        v.addLore(C.GREEN + Localizer.dLocalize("rift.descent.lore2") + " " + C.WHITE + getConfig().cooldown + "s");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

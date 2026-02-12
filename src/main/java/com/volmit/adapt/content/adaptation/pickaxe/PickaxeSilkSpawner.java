@@ -24,8 +24,8 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
     public PickaxeSilkSpawner() {
         super("pickaxe-silk-spawner");
         registerConfiguration(PickaxeSilkSpawner.Config.class);
-        setDescription(Localizer.dLocalize("pickaxe", "silkspawner", "description"));
-        setDisplayName(Localizer.dLocalize("pickaxe", "silkspawner", "name"));
+        setDescription(Localizer.dLocalize("pickaxe.silk_spawner.description"));
+        setDisplayName(Localizer.dLocalize("pickaxe.silk_spawner.name"));
         setIcon(Material.SPAWNER);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -84,7 +84,7 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("pickaxe", "silkspawner", "lore" + (level < 2 ? 1 : 2)));
+        v.addLore(C.GREEN + Localizer.dLocalize("pickaxe.silk_spawner.lore" + (level < 2 ? 1 : 2)));
     }
 
     @Override

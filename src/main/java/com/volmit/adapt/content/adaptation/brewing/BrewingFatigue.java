@@ -35,8 +35,8 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
     public BrewingFatigue() {
         super("brewing-fatigue");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "fatigue", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "fatigue", "name"));
+        setDescription(Localizer.dLocalize("brewing.fatigue.description"));
+        setDisplayName(Localizer.dLocalize("brewing.fatigue.name"));
         setIcon(Material.SLIME_BALL);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -71,8 +71,8 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "fatigue", "lore1"));
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "fatigue", "lore2"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.fatigue.lore1"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.fatigue.lore2"));
     }
 
 

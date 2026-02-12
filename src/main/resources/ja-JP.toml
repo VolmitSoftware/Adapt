@@ -1,0 +1,1501 @@
+# advancement
+[advancement]
+
+[advancement.challenge_move_1k]
+    title = "動かなきゃ！"
+    description = "1キロメートル（1,000ブロック）以上歩く"
+
+[advancement.challenge_sprint_5k]
+    title = "5Kを全力疾走！"
+    description = "5キロメートル（5,000ブロック）以上歩く"
+
+[advancement.challenge_sprint_50k]
+    title = "50Kをズーム！"
+    description = "50キロメートル（50,000ブロック）以上歩く"
+
+[advancement.challenge_sprint_500k]
+    title = "宇宙を横断せよ!!"
+    description = "500キロメートル（500,000ブロック）以上歩く"
+
+[advancement.challenge_sprint_marathon]
+    title = "（文字通りの）マラソンを全力疾走！"
+    description = "42,195ブロックを全力疾走！"
+
+[advancement.challenge_place_1k]
+    title = "初心者ビルダー！"
+    description = "1,000個のブロックを設置する"
+
+[advancement.challenge_place_5k]
+    title = "中級ビルダー！"
+    description = "5,000個のブロックを設置する"
+
+[advancement.challenge_place_50k]
+    title = "上級ビルダー！"
+    description = "50,000個のブロックを設置する"
+
+[advancement.challenge_place_500k]
+    title = "マスタービルダー！"
+    description = "500,000個のブロックを設置する"
+
+[advancement.challenge_place_5m]
+    title = "シンメトリーの侍者！"
+    description = "現実はあなたの遊び場だ！（500万ブロック）"
+
+[advancement.challenge_chop_1k]
+    title = "新米きこり！"
+    description = "1,000ブロックを伐採する"
+
+[advancement.challenge_chop_5k]
+    title = "中級きこり！"
+    description = "5,000ブロックを伐採する"
+
+[advancement.challenge_chop_50k]
+    title = "上級きこり！"
+    description = "50,000ブロックを伐採する"
+
+[advancement.challenge_chop_500k]
+    title = "きこりの達人！"
+    description = "500,000ブロックを伐採する"
+
+[advancement.challenge_chop_5m]
+    title = "犬のジャクソン"
+    description = "最高のいい子！（500万ブロック）"
+
+[advancement.challenge_block_1k]
+    title = "かろうじて防御！"
+    description = "1000回の攻撃をブロックする"
+
+[advancement.challenge_block_5k]
+    title = "防御は楽しい！"
+    description = "5000回の攻撃をブロックする"
+
+[advancement.challenge_block_50k]
+    title = "防御こそ我が人生！"
+    description = "50,000回の攻撃をブロックする"
+
+[advancement.challenge_block_500k]
+    title = "防御こそ我が使命！"
+    description = "500,000回の攻撃をブロックする"
+
+[advancement.challenge_block_5m]
+    title = "傷つける手"
+    description = "5,000,000回の攻撃をブロックする"
+
+[advancement.challenge_brew_1k]
+    title = "新米錬金術師！"
+    description = "ポーションを1000個消費する"
+
+[advancement.challenge_brew_5k]
+    title = "中級錬金術師！"
+    description = "ポーションを5000個消費する"
+
+[advancement.challenge_brew_50k]
+    title = "上級錬金術師！"
+    description = "ポーションを50,000個消費する"
+
+[advancement.challenge_brew_500k]
+    title = "錬金術の達人！"
+    description = "ポーションを500,000個消費する"
+
+[advancement.challenge_brew_5m]
+    title = "錬金術師"
+    description = "ポーションを5,000,000個消費する"
+
+[advancement.challenge_brewsplash_1k]
+    title = "初心者スプラッシュ師！"
+    description = "1000個のスプラッシュポーションを投げる"
+
+[advancement.challenge_brewsplash_5k]
+    title = "中級スプラッシュ師！"
+    description = "5000個のスプラッシュポーションを投げる"
+
+[advancement.challenge_brewsplash_50k]
+    title = "上級スプラッシュ師！"
+    description = "50,000個のスプラッシュポーションを投げる"
+
+[advancement.challenge_brewsplash_500k]
+    title = "マスタースプラッシュ師！"
+    description = "500,000個のスプラッシュポーションを投げる"
+
+[advancement.challenge_brewsplash_5m]
+    title = "スプラッシュマイスター"
+    description = "5,000,000個のスプラッシュポーションを投げる"
+
+[advancement.challenge_craft_1k]
+    title = "器用なクラフター！"
+    description = "1000個のアイテムを作成する"
+
+[advancement.challenge_craft_5k]
+    title = "気難しいクラフター！"
+    description = "5000個のアイテムを作成する"
+
+[advancement.challenge_craft_50k]
+    title = "献身的なクラフター！"
+    description = "50,000個のアイテムを作成する"
+
+[advancement.challenge_craft_500k]
+    title = "騒々しいクラフター！"
+    description = "500,000個のアイテムを作成する"
+
+[advancement.challenge_craft_5m]
+    title = "災厄のマックラフト"
+    description = "5,000,000個のアイテムを作成する"
+
+[advancement.challenge_enchant_1k]
+    title = "初心者エンチャンター！"
+    description = "1000個のアイテムをエンチャントする"
+
+[advancement.challenge_enchant_5k]
+    title = "中級エンチャンター！"
+    description = "5000個のアイテムをエンチャントする"
+
+[advancement.challenge_enchant_50k]
+    title = "上級エンチャンター！"
+    description = "50,000個のアイテムをエンチャントする"
+
+[advancement.challenge_enchant_500k]
+    title = "マスターエンチャンター！"
+    description = "500,000個のアイテムをエンチャントする"
+
+[advancement.challenge_enchant_5m]
+    title = "謎めくエンチャンター"
+    description = "5,000,000個のアイテムをエンチャントする"
+
+[advancement.challenge_excavate_1k]
+    title = "魅せられた発掘者！"
+    description = "1000ブロックを発掘する"
+
+[advancement.challenge_excavate_5k]
+    title = "中級発掘者！"
+    description = "5000ブロックを発掘する"
+
+[advancement.challenge_excavate_50k]
+    title = "上級発掘者！"
+    description = "50,000ブロックを発掘する"
+
+[advancement.challenge_excavate_500k]
+    title = "発掘の達人！"
+    description = "500,000ブロックを発掘する"
+
+[advancement.challenge_excavate_5m]
+    title = "謎めく発掘者"
+    description = "5,000,000ブロックを発掘する"
+
+[advancement.horrible_person]
+    title = "あなたはひどい人だ"
+    description = "本当に計り知れない"
+
+[advancement.challenge_turtle_egg_smasher]
+    title = "カメの卵クラッシャー！"
+    description = "カメの卵を100個割る"
+
+[advancement.challenge_turtle_egg_annihilator]
+    title = "カメの卵殲滅者！"
+    description = "カメの卵を500個割る"
+
+[advancement.challenge_novice_hunter]
+    title = "初心者ハンター！"
+    description = "100体のエンティティを倒す"
+
+[advancement.challenge_intermediate_hunter]
+    title = "中級ハンター！"
+    description = "500体のエンティティを倒す"
+
+[advancement.challenge_advanced_hunter]
+    title = "上級ハンター！"
+    description = "5000体のエンティティを倒す"
+
+[advancement.challenge_creeper_conqueror]
+    title = "クリーパー征服者！"
+    description = "クリーパーを50体倒す"
+
+[advancement.challenge_creeper_annihilator]
+    title = "クリーパー殲滅者！"
+    description = "クリーパーを200体倒す"
+
+[advancement.challenge_pickaxe_1k]
+    title = "初心者マイナー"
+    description = "1000個のブロックを壊す"
+
+[advancement.challenge_pickaxe_5k]
+    title = "熟練マイナー"
+    description = "5000個のブロックを壊す"
+
+[advancement.challenge_pickaxe_50k]
+    title = "エキスパートマイナー"
+    description = "50,000個のブロックを壊す"
+
+[advancement.challenge_pickaxe_500k]
+    title = "マスターマイナー"
+    description = "500,000個のブロックを壊す"
+
+[advancement.challenge_pickaxe_5m]
+    title = "伝説のマイナー"
+    description = "5,000,000個のブロックを壊す"
+
+[advancement.challenge_eat_100]
+    title = "食べるものがいっぱい！"
+    description = "100個以上のアイテムを食べよう！"
+
+[advancement.challenge_eat_1000]
+    title = "止められない空腹！"
+    description = "1,000個以上のアイテムを食べよう！"
+
+[advancement.challenge_eat_10000]
+    title = "永遠の飢餓！"
+    description = "10,000個以上のアイテムを食べよう！"
+
+[advancement.challenge_harvest_100]
+    title = "豊穣の収穫"
+    description = "100個以上の作物を収穫しよう！"
+
+[advancement.challenge_harvest_1000]
+    title = "大豊穣の収穫"
+    description = "1,000個以上の作物を収穫しよう！"
+
+[advancement.challenge_swim_1nm]
+    title = "人間潜水艦！"
+    description = "1海里（1,852ブロック）泳ぐ"
+
+[advancement.challenge_sneak_1k]
+    title = "膝の痛み"
+    description = "1キロメートル（1,000ブロック）以上こっそり進む"
+
+[advancement.challenge_sneak_5k]
+    title = "影の歩行者"
+    description = "5,000ブロック以上こっそり進む"
+
+[advancement.challenge_sneak_20k]
+    title = "幽霊"
+    description = "20,000ブロック以上こっそり進む"
+
+[advancement.challenge_swim_5k]
+    title = "深海ダイバー"
+    description = "5,000ブロック以上泳ぐ"
+
+[advancement.challenge_swim_20k]
+    title = "ポセイドンの選ばれし者"
+    description = "20,000ブロック以上泳ぐ"
+
+[advancement.challenge_sword_100]
+    title = "初めての血"
+    description = "剣で100回攻撃する"
+
+[advancement.challenge_sword_1k]
+    title = "剣舞"
+    description = "剣で1,000回攻撃する"
+
+[advancement.challenge_sword_10k]
+    title = "千の斬撃"
+    description = "剣で10,000回攻撃する"
+
+[advancement.challenge_unarmed_100]
+    title = "酒場の喧嘩屋"
+    description = "素手で100回攻撃する"
+
+[advancement.challenge_unarmed_1k]
+    title = "鉄の拳"
+    description = "素手で1,000回攻撃する"
+
+[advancement.challenge_unarmed_10k]
+    title = "ワンパンチ"
+    description = "素手で10,000回攻撃する"
+
+[advancement.challenge_trag_1k]
+    title = "血の代償"
+    description = "1,000ダメージを受ける"
+
+[advancement.challenge_trag_10k]
+    title = "紅の潮流"
+    description = "10,000ダメージを受ける"
+
+[advancement.challenge_trag_100k]
+    title = "苦痛の化身"
+    description = "100,000ダメージを受ける"
+
+[advancement.challenge_ranged_100]
+    title = "射撃練習"
+    description = "100発の飛び道具を発射する"
+
+[advancement.challenge_ranged_1k]
+    title = "ホークアイ"
+    description = "1,000発の飛び道具を発射する"
+
+[advancement.challenge_ranged_10k]
+    title = "矢の嵐"
+    description = "10,000発の飛び道具を発射する"
+
+[advancement.challenge_chronos_1h]
+    title = "チクタク"
+    description = "1時間オンラインで過ごす"
+
+[advancement.challenge_chronos_24h]
+    title = "時の砂"
+    description = "24時間オンラインで過ごす"
+
+[advancement.challenge_chronos_168h]
+    title = "時を超えし者"
+    description = "168時間（1週間）オンラインで過ごす"
+
+[advancement.challenge_nether_50]
+    title = "地獄の門番"
+    description = "ネザーの生物を50体倒す"
+
+[advancement.challenge_nether_500]
+    title = "深淵の番人"
+    description = "ネザーの生物を500体倒す"
+
+[advancement.challenge_nether_5k]
+    title = "ネザーの支配者"
+    description = "ネザーの生物を5,000体倒す"
+
+[advancement.challenge_rift_50]
+    title = "空間の歪み"
+    description = "50回テレポートする"
+
+[advancement.challenge_rift_500]
+    title = "虚空の歩行者"
+    description = "500回テレポートする"
+
+[advancement.challenge_rift_5k]
+    title = "世界の狭間"
+    description = "5,000回テレポートする"
+
+[advancement.challenge_taming_10]
+    title = "動物のささやき手"
+    description = "10匹の動物を繁殖させる"
+
+[advancement.challenge_taming_50]
+    title = "群れのリーダー"
+    description = "50匹の動物を繁殖させる"
+
+[advancement.challenge_taming_500]
+    title = "猛獣使い"
+    description = "500匹の動物を繁殖させる"
+
+# items
+[items]
+
+[items.bound_ender_peral]
+    name = "聖遺物ポートキー"
+    usage1 = "Shift + 左クリックでバインド"
+    usage2 = "右クリックでバインドされたインベントリにアクセス"
+
+[items.bound_eye_of_ender]
+    name = "眼球アンカー"
+    usage1 = "右クリックで消費し、バインドされた場所にテレポート"
+    usage2 = "Shift + 左クリックでブロックにバインド"
+
+[items.bound_redstone_torch]
+    name = "レッドストーンリモコン"
+    usage1 = "右クリックで1ティックのレッドストーンパルスを作成"
+    usage2 = "Shift + 左クリックで「ターゲット」ブロックにバインド"
+
+[items.bound_snowball]
+    name = "ウェブスネア！"
+    usage1 = "投げるとその場所に一時的なクモの巣の罠が作成される"
+
+[items.chrono_time_bottle]
+    name = "時のボトル"
+    usage1 = "インベントリにある間、受動的に時間を蓄える"
+    usage2 = "時間経過するブロックや子どもの動物を右クリックして蓄えた時間を消費"
+    stored = "蓄えた時間"
+
+[items.chrono_time_bomb]
+    name = "タイムボム"
+    usage1 = "右クリックで時空の場を生成するクロノボルトを発射"
+
+[items.elevator_block]
+    name = "エレベーターブロック"
+    usage1 = "ジャンプで上にテレポート"
+    usage2 = "シフトで下にテレポート"
+    usage3 = "エレベーター間には最低2ブロックの空間が必要"
+
+# snippets
+[snippets]
+
+[snippets.gui]
+    level = "レベル"
+    knowledge = "知識"
+    power_used = "使用パワー"
+    not_learned = "未習得"
+    xp = "XPまで"
+    welcome = "ようこそ！"
+    welcome_back = "おかえりなさい！"
+    xp_bonus_for_time = "XP対象"
+    max_ability_power = "最大アビリティパワー"
+    unlock_this_by_clicking = "右クリックでアンロック："
+    back = "戻る"
+    unlearn_all = "すべて忘れる"
+    unlearned_all = "すべて忘却した"
+
+[snippets.adapt_menu]
+    may_not_unlearn = "忘却不可"
+    may_unlearn = "習得/忘却可能"
+    knowledge_cost = "知識コスト"
+    knowledge_available = "利用可能な知識"
+    already_learned = "習得済み"
+    unlearn_refund = "クリックして忘却し返金する"
+    no_refunds = "ハードコア：返金無効"
+    knowledge = "知識"
+    click_learn = "クリックして習得"
+    no_knowledge = "（知識がありません）"
+    you_only_have = "所持しているのは"
+    how_to_level_up = "スキルをレベルアップして最大パワーを上げましょう。"
+    not_enough_power = "パワーが足りません！各アビリティレベルには1パワー必要です。"
+    power = "パワー"
+    power_drain = "パワー消費"
+    learned = "習得した "
+    unlearned = "忘却した "
+    activator_block = "本棚"
+
+[snippets.knowledge_orb]
+    contains = "含む"
+    knowledge = "知識"
+    rightclick = "右クリック"
+    togainknowledge = "でこの知識を得る"
+    knowledge_orb = "知識のオーブ"
+
+[snippets.experience_orb]
+    contains = "含む"
+    xp = "経験値"
+    rightclick = "右クリック"
+    togainxp = "でこの経験値を得る"
+    xporb = "経験値オーブ"
+
+# skill
+[skill]
+
+[skill.agility]
+    name = "敏捷性"
+    icon = "⇉"
+    description = "敏捷性とは、障害物に直面しても素早くしなやかに動く能力である。"
+
+[skill.architect]
+    name = "建築家"
+    icon = "⬧"
+    description = "構造は世界の基盤である。現実はあなたの手の中にあり、あなたがコントロールする。"
+
+[skill.axes]
+    name = "斧"
+    icon = "🪓"
+    description1 = "なぜ木を切り倒すのか、"
+    description2 = "モノ"
+    description3 = "を切った方が結果は同じだろう！"
+
+[skill.brewing]
+    name = "醸造"
+    icon = "❦"
+    description = "ダブルバブル、トリプルバブル、クアドラプルバブル――まだこのポーションを大釜に入れられない"
+
+[skill.blocking]
+    name = "防御"
+    icon = "🛡"
+    description = "棒や石では骨は折れない、だが盾なら折れる。"
+
+[skill.crafting]
+    name = "クラフト"
+    icon = "⌂"
+    description = "置くピースがもう無いなら、新しく作ればいいじゃない？"
+
+[skill.discovery]
+    name = "発見"
+    icon = "⚛"
+    description = "知覚が広がるにつれ、あなたの心は解き放たれ、見えなかったものが見えてくる。"
+
+[skill.enchanting]
+    name = "エンチャント"
+    icon = "♰"
+    description = "何を言っているんだ？予言、幻視、迷信的なたわ言？"
+
+[skill.excavation]
+    name = "発掘"
+    icon = "ᛳ"
+    description = "掘って掘って穴を掘る…"
+
+[skill.herbalism]
+    name = "薬草学"
+    icon = "⚘"
+    description = "植物が見つからないが、種なら見つかる…これはもしかして、雑草？"
+
+[skill.hunter]
+    name = "ハンター"
+    icon = "☠"
+    description = "狩りとは結果ではなく、その道のりにある。"
+
+[skill.nether]
+    name = "ネザー"
+    icon = "₪"
+    description = "ネザーの深淵そのものより。"
+
+[skill.pickaxe]
+    name = "つるはし"
+    icon = "⛏"
+    description = "ドワーフが鉱夫だが、俺も多少は学んだ。俺はスウェーデン人だ！"
+
+[skill.ranged]
+    name = "遠距離"
+    icon = "🏹"
+    description = "距離こそが勝利の鍵であり、生存の鍵である。"
+
+[skill.rift]
+    name = "リフト"
+    icon = "❍"
+    description = "リフトは危険な力だが、あなたはその力を手懐けた。"
+
+[skill.seaborne]
+    name = "海の民"
+    icon = "🎣"
+    description = "このスキルで、水の奇跡を自在に操ることができる。"
+
+[skill.stealth]
+    name = "隠密"
+    icon = "☯"
+    description = "見えざる者の技。影の中を歩け。"
+
+[skill.swords]
+    name = "剣術"
+    icon = "⚔"
+    description = "グレイストーンの力をもって！"
+
+[skill.taming]
+    name = "飼育"
+    icon = "♥"
+    description = "オウムとミツバチ…それと、あなたは？"
+
+[skill.tragoul]
+    name = "トラゴウル"
+    icon = "🗡"
+    description = "血は宇宙の血管を流れる。あなたの手で締め付けられながら。"
+
+[skill.chronos]
+    name = "クロノス"
+    icon = "🕒"
+    description = "宇宙の時計を巻き、流れを体験せよ。時計を壊し、時計そのものになれ。"
+
+[skill.unarmed]
+    name = "素手"
+    icon = "»"
+    description = "武器が無くとも、力が無いわけではない。"
+
+# agility
+[agility]
+
+[agility.armor_up]
+    name = "アーマーアップ"
+    description = "ダッシュし続けるほど防具が強化される！"
+    lore1 = "最大防具値"
+    lore2 = "防具強化時間"
+    lore = ["最大防具値", "防具強化時間"]
+
+[agility.ladder_slide]
+    name = "ハシゴスライド"
+    description = "ハシゴの上り下りがどちらも大幅に速くなる。"
+    lore1 = "ハシゴ速度倍率"
+    lore2 = "高速下降速度"
+    lore = ["ハシゴ速度倍率", "高速下降速度"]
+
+[agility.super_jump]
+    name = "スーパージャンプ"
+    description = "圧倒的な高さのアドバンテージ。"
+    lore1 = "最大ジャンプ高度"
+    lore2 = "スニーク + ジャンプでスーパージャンプ！"
+    lore = ["最大ジャンプ高度", "スニーク + ジャンプでスーパージャンプ！"]
+
+[agility.wall_jump]
+    name = "壁ジャンプ"
+    description = "空中で壁に向かってシフトを押し続けると壁に張り付いてジャンプ！"
+    lore1 = "最大ジャンプ回数"
+    lore2 = "ジャンプの高さ"
+    lore = ["最大ジャンプ回数", "ジャンプの高さ"]
+
+[agility.wind_up]
+    name = "ウィンドアップ"
+    description = "ダッシュし続けるほど加速する！"
+    lore1 = "最高速度"
+    lore2 = "加速時間"
+    lore = ["最高速度", "加速時間"]
+
+# architect
+[architect]
+
+[architect.elevator]
+    name = "エレベーター"
+    description = "垂直方向に高速テレポートするエレベーターを建設できる！"
+    lore1 = "エレベーターのレシピを解放：X=羊毛、Y=エンダーパール"
+    lore2 = "XXX"
+    lore3 = "XYX"
+    lore4 = "XXX"
+    lore = ["エレベーターのレシピを解放：X=羊毛、Y=エンダーパール", "XXX", "XYX", "XXX"]
+
+[architect.foundation]
+    name = "魔法の足場"
+    description = "スニークして自分の足元に仮の足場を生成できる！"
+    lore1 = "魔法で生成："
+    lore2 = "足元にブロック！"
+    lore = ["魔法で生成：", "足元にブロック！"]
+
+[architect.glass]
+    name = "シルクタッチガラス"
+    description = "素手でガラスブロックを壊してもガラスが失われなくなる！"
+    lore1 = "素手にガラスへのシルクタッチ効果を付与"
+    lore = ["素手にガラスへのシルクタッチ効果を付与"]
+
+[architect.wireless_redstone]
+    name = "レッドストーンリモコン"
+    description = "レッドストーンのたいまつを使って遠隔でレッドストーンを切り替えられる！"
+    lore1 = "ターゲット + レッドストーンのたいまつ + エンダーパール = レッドストーンリモコン1個"
+    lore = ["ターゲット + レッドストーンのたいまつ + エンダーパール = レッドストーンリモコン1個"]
+
+[architect.placement]
+    name = "ビルダーワンド"
+    description = "複数のブロックを一度に設置可能！スニークして、見ているブロックと同じブロックを手に持って設置しよう。範囲をトリガーするには少し動く必要がある場合もある！"
+    lore1 = "必要数"
+    lore2 = "ブロックを手に持って設置する"
+    lore3 = "素材ビルダーワンド"
+    lore = ["必要数", "ブロックを手に持って設置する", "素材ビルダーワンド"]
+
+# axe
+[axe]
+
+[axe.chop]
+    name = "斧で伐採"
+    description = "木の根元を右クリックして一気に伐採！"
+    lore1 = "1回の伐採ブロック数"
+    lore2 = "伐採クールダウン"
+    lore3 = "ツール消耗"
+    lore = ["1回の伐採ブロック数", "伐採クールダウン", "ツール消耗"]
+
+[axe.log_swap]
+    name = "ルーシーの丸太交換"
+    description = "作業台で丸太の種類を変えよう！"
+    lore1 = "任意の丸太8本 + 苗木1本 = 苗木の種類の丸太8本"
+    lore = ["任意の丸太8本 + 苗木1本 = 苗木の種類の丸太8本"]
+
+[axe.drop_to_inventory]
+    name = "斧ドロップ→インベントリ"
+
+[axe.ground_smash]
+    name = "斧グラウンドスマッシュ"
+    description = "ジャンプしてからスニークで周囲の敵を叩き潰す。"
+    lore1 = "ダメージ"
+    lore2 = "ブロック半径"
+    lore3 = "吹き飛ばし力"
+    lore4 = "スマッシュクールダウン"
+    lore = ["ダメージ", "ブロック半径", "吹き飛ばし力", "スマッシュクールダウン"]
+
+[axe.leaf_miner]
+    name = "リーフマイナー"
+    description = "大量の葉を一度に破壊できる！"
+    lore1 = "スニークして葉を採掘"
+    lore2 = "リーフマイニング範囲"
+    lore3 = "葉からのドロップは取得不可（悪用防止）"
+    lore = ["スニークして葉を採掘", "リーフマイニング範囲", "葉からのドロップは取得不可（悪用防止）"]
+
+[axe.wood_miner]
+    name = "ウッドマイナー"
+    description = "大量の木材を一度に破壊できる！"
+    lore1 = "スニークして木材/原木を採掘（板材は対象外）"
+    lore2 = "ウッドマイニング範囲"
+    lore3 = "ドロップ→インベントリ対応"
+    lore = ["スニークして木材/原木を採掘（板材は対象外）", "ウッドマイニング範囲", "ドロップ→インベントリ対応"]
+
+# brewing
+[brewing]
+
+[brewing.lingering]
+    name = "残留醸造"
+    description = "醸造したポーションの効果が長持ちする！"
+    lore1 = "持続時間"
+    lore2 = "持続時間"
+    lore = ["持続時間", "持続時間"]
+
+[brewing.super_heated]
+    name = "超加熱醸造"
+    description = "醸造台は熱いほど速く動作する。"
+    lore1 = "接触する火ブロック1つにつき"
+    lore2 = "接触する溶岩ブロック1つにつき"
+    lore = ["接触する火ブロック1つにつき", "接触する溶岩ブロック1つにつき"]
+
+[brewing.darkness]
+    name = "瓶詰めの暗闇"
+    description = "なぜこれが必要かは分からないけど、はいどうぞ！"
+    lore1 = "暗視ポーション + 黒コンクリート = 暗闇のポーション（30秒）"
+    lore2 = "注意：このポーションを使うとダッシュできなくなる！"
+    lore = ["暗視ポーション + 黒コンクリート = 暗闇のポーション（30秒）", "注意：このポーションを使うとダッシュできなくなる！"]
+
+[brewing.haste]
+    name = "瓶詰めの採掘速度上昇"
+    description = "効率強化では足りない時に"
+    lore1 = "俊敏のポーション + アメジストの欠片 = 採掘速度上昇のポーション（60秒）"
+    lore2 = "俊敏のポーション + アメジストブロック = 採掘速度上昇IIのポーション（30秒）"
+    lore = ["俊敏のポーション + アメジストの欠片 = 採掘速度上昇のポーション（60秒）", "俊敏のポーション + アメジストブロック = 採掘速度上昇IIのポーション（30秒）"]
+
+[brewing.absorption]
+    name = "瓶詰めの衝撃吸収"
+    description = "体を硬くしろ！"
+    lore1 = "即時回復 + クォーツ = 衝撃吸収のポーション（60秒）"
+    lore2 = "即時回復 + クォーツブロック = 衝撃吸収IIのポーション（30秒）"
+    lore = ["即時回復 + クォーツ = 衝撃吸収のポーション（60秒）", "即時回復 + クォーツブロック = 衝撃吸収IIのポーション（30秒）"]
+
+[brewing.fatigue]
+    name = "瓶詰めの採掘疲労"
+    description = "体を弱体化させろ！"
+    lore1 = "弱体化のポーション + スライムボール = 採掘疲労のポーション（30秒）"
+    lore2 = "弱体化のポーション + スライムブロック = 採掘疲労IIのポーション（15秒）"
+    lore = ["弱体化のポーション + スライムボール = 採掘疲労のポーション（30秒）", "弱体化のポーション + スライムブロック = 採掘疲労IIのポーション（15秒）"]
+
+[brewing.hunger]
+    name = "瓶詰めの空腹"
+    description = "飽くなき食欲に！"
+    lore1 = "奇妙なポーション + 腐った肉 = 空腹のポーション（30秒）"
+    lore2 = "弱体化のポーション + 腐った肉 = 空腹IIIのポーション（15秒）"
+    lore = ["奇妙なポーション + 腐った肉 = 空腹のポーション（30秒）", "弱体化のポーション + 腐った肉 = 空腹IIIのポーション（15秒）"]
+
+[brewing.nausea]
+    name = "瓶詰めの吐き気"
+    description = "気分が悪くなるぞ！"
+    lore1 = "奇妙なポーション + 茶色キノコ = 吐き気のポーション（16秒）"
+    lore2 = "奇妙なポーション + 真紅のキノコ = 吐き気IIのポーション（8秒）"
+    lore = ["奇妙なポーション + 茶色キノコ = 吐き気のポーション（16秒）", "奇妙なポーション + 真紅のキノコ = 吐き気IIのポーション（8秒）"]
+
+[brewing.blindness]
+    name = "瓶詰めの盲目"
+    description = "あなたはひどい人だ…"
+    lore1 = "奇妙なポーション + イカスミ = 盲目のポーション（30秒）"
+    lore2 = "奇妙なポーション + 輝くイカスミ = 盲目IIのポーション（15秒）"
+    lore = ["奇妙なポーション + イカスミ = 盲目のポーション（30秒）", "奇妙なポーション + 輝くイカスミ = 盲目IIのポーション（15秒）"]
+
+[brewing.resistance]
+    name = "瓶詰めの耐性"
+    description = "究極の防御！"
+    lore1 = "奇妙なポーション + 鉄インゴット = 耐性のポーション（60秒）"
+    lore2 = "奇妙なポーション + 鉄ブロック = 耐性IIのポーション（30秒）"
+    lore = ["奇妙なポーション + 鉄インゴット = 耐性のポーション（60秒）", "奇妙なポーション + 鉄ブロック = 耐性IIのポーション（30秒）"]
+
+[brewing.health_boost]
+    name = "瓶詰めの生命力"
+    description = "最大体力では足りない時に…"
+    lore1 = "即時回復ポーション + 金のリンゴ = 体力増強のポーション（120秒）"
+    lore2 = "即時回復ポーション + エンチャント金のリンゴ = 体力増強IIのポーション（120秒）"
+    lore = ["即時回復ポーション + 金のリンゴ = 体力増強のポーション（120秒）", "即時回復ポーション + エンチャント金のリンゴ = 体力増強IIのポーション（120秒）"]
+
+[brewing.decay]
+    name = "瓶詰めの衰退"
+    description = "腐敗物がこんなに役立つとは！"
+    lore1 = "弱体化のポーション + 毒のジャガイモ = ウィザーのポーション（16秒）"
+    lore2 = "弱体化のポーション + 真紅の根 = ウィザーIIのポーション（8秒）"
+    lore = ["弱体化のポーション + 毒のジャガイモ = ウィザーのポーション（16秒）", "弱体化のポーション + 真紅の根 = ウィザーIIのポーション（8秒）"]
+
+[brewing.saturation]
+    name = "瓶詰めの満腹"
+    description = "なあ…もうお腹いっぱいなんだけど…"
+    lore1 = "再生のポーション + ベイクドポテト = 満腹のポーション"
+    lore2 = "再生のポーション + 干し草の俵 = 満腹IIのポーション"
+    lore = ["再生のポーション + ベイクドポテト = 満腹のポーション", "再生のポーション + 干し草の俵 = 満腹IIのポーション"]
+
+# blocking
+[blocking]
+
+[blocking.chain_armorer]
+    name = "メフィストフェレスの鎖"
+    description = "チェーン装備をクラフトできるようになる"
+    lore1 = "クラフトレシピは通常の防具と同じだが、鉄塊を使用する"
+    lore = ["クラフトレシピは通常の防具と同じだが、鉄塊を使用する"]
+
+[blocking.horse_armorer]
+    name = "クラフト可能な馬鎧"
+    description = "馬の鎧をクラフトできるようになる"
+    lore1 = "サドルを使用したい素材で囲んでクラフト"
+    lore = ["サドルを使用したい素材で囲んでクラフト"]
+
+[blocking.saddle_crafter]
+    name = "クラフト可能なサドル"
+    description = "革でサドルをクラフトする"
+    lore1 = "レシピ：革5個："
+    lore = ["レシピ：革5個："]
+
+[blocking.multi_armor]
+    name = "マルチアーマー"
+    description = "エリトラを防具に装着する"
+    lore1 = "移動に最適な素晴らしいスキル。"
+    lore2 = "防具とエリトラを動的に合体・変更可能！"
+    lore3 = "合体するには、インベントリ内でアイテムをシフトクリック。"
+    lore4 = "防具を分離するには、スニークしながらドロップで分解。"
+    lore5 = "マルチアーマーが破壊されると、中のアイテムはすべて失われる。"
+    lore6 = "防具なんて要らない、がっかりだ…"
+    lore = ["移動に最適な素晴らしいスキル。", "防具とエリトラを動的に合体・変更可能！", "合体するには、インベントリ内でアイテムをシフトクリック。", "防具を分離するには、スニークしながらドロップで分解。", "マルチアーマーが破壊されると、中のアイテムはすべて失われる。", "防具なんて要らない、がっかりだ…"]
+
+# crafting
+[crafting]
+
+[crafting.deconstruction]
+    name = "分解"
+    description = "ブロックやアイテムを再利用可能な基本素材に分解！"
+    lore1 = "任意のアイテムを地面にドロップ。"
+    lore2 = "その後、スニークしながらハサミで右クリック"
+    lore = ["任意のアイテムを地面にドロップ。", "その後、スニークしながらハサミで右クリック"]
+
+[crafting.xp]
+    name = "クラフトXP"
+    description = "クラフト時にパッシブXPを獲得"
+    lore1 = "クラフト時にXPを獲得"
+    lore = ["クラフト時にXPを獲得"]
+
+[crafting.reconstruction]
+    name = "鉱石再構築"
+    description = "基本素材から鉱石を再クラフト！"
+    lore1 = "ドロップ8個 + ホスト1個 = 鉱石1個（不定形）"
+    lore2 = "ドロップは製錬済みである必要あり（該当する場合）"
+    lore3 = "スクラップ、ネザークォーツ、エメラルドなどは対象外"
+    lore4 = "ホスト = 外殻。例：石、ネザーラック、深層岩"
+    lore = ["ドロップ8個 + ホスト1個 = 鉱石1個（不定形）", "ドロップは製錬済みである必要あり（該当する場合）", "スクラップ、ネザークォーツ、エメラルドなどは対象外", "ホスト = 外殻。例：石、ネザーラック、深層岩"]
+
+[crafting.leather]
+    name = "クラフト可能な革"
+    description = "腐った肉から革をクラフト"
+    lore1 = "腐った肉を焚き火に乗せるだけ！"
+    lore = ["腐った肉を焚き火に乗せるだけ！"]
+
+[crafting.backpacks]
+    name = "ブティリエのバックパック！"
+    description = "Mojangのバンドルをゲームに導入！"
+    lore1 = "サバイバルモードでのみ使用可能"
+    lore2 = "XLX：革、リード、革"
+    lore3 = "XSX：革、樽、革"
+    lore4 = "XCX：革、チェスト、革"
+    lore = ["サバイバルモードでのみ使用可能", "XLX：革、リード、革", "XSX：革、樽、革", "XCX：革、チェスト、革"]
+
+[crafting.stations]
+    name = "ポータブルテーブル！"
+    description = "手のひらでテーブルを使おう！"
+    lore2 = "テーブルを閉じた時に残したアイテムは永遠に失われます！"
+    lore3 = "対応テーブル：金床、作業台、砥石、製図台、石切り台、織機"
+    lore = ["テーブルを閉じた時に残したアイテムは永遠に失われます！", "対応テーブル：金床、作業台、砥石、製図台、石切り台、織機"]
+
+[crafting.skulls]
+    name = "クラフト可能な頭蓋骨！"
+    description = "素材を使ってモブの頭蓋骨をクラフト！"
+    lore1 = "骨ブロックを以下の素材で囲んで頭蓋骨を作成："
+    lore2 = "ゾンビ：腐った肉"
+    lore3 = "スケルトン：骨"
+    lore4 = "クリーパー：火薬"
+    lore5 = "ウィザー：ネザーレンガ"
+    lore6 = "ドラゴン：ドラゴンブレス"
+    lore = ["骨ブロックを以下の素材で囲んで頭蓋骨を作成：", "ゾンビ：腐った肉", "スケルトン：骨", "クリーパー：火薬", "ウィザー：ネザーレンガ", "ドラゴン：ドラゴンブレス"]
+
+# chronos
+[chronos]
+
+[chronos.time_in_a_bottle]
+    name = "時のボトル"
+    description = "時間を蓄える時空のボトルを持ち歩き、蓄えた時間を消費して時間経過ブロック、成長可能ブロック、子どもの動物などのエイジャブルエンティティを加速させる。レシピ（不定形）：俊敏のポーション + 時計 + ガラス瓶。"
+    lore1 = "ティックごとの蓄積秒数"
+    lore2 = "蓄えた1秒あたりの時間加速"
+    lore3 = "レシピ（不定形）：俊敏のポーション + 時計 + ガラス瓶"
+    lore = ["ティックごとの蓄積秒数", "蓄えた1秒あたりの時間加速", "レシピ（不定形）：俊敏のポーション + 時計 + ガラス瓶"]
+
+[chronos.aberrant_touch]
+    name = "異常な触れ"
+    description = "近接攻撃が空腹を消費して鈍化をスタックさせ、厳格なPvP制限付きで5スタック時にターゲットを拘束する。"
+    lore1 = "近接攻撃で鈍化をスタック"
+    lore2 = "PvE鈍化持続時間上限"
+    lore3 = "PvP鈍化増幅上限"
+    lore = ["近接攻撃で鈍化をスタック", "PvE鈍化持続時間上限", "PvP鈍化増幅上限"]
+
+[chronos.instant_recall]
+    name = "インスタントリコール"
+    description = "時計を手に持って左または右クリックすると、体力と空腹が回復された状態で最近のスナップショットに巻き戻す。"
+    lore1 = "巻き戻し時間"
+    lore2 = "クールダウン"
+    lore3 = "インベントリは巻き戻されない"
+    lore = ["巻き戻し時間", "クールダウン", "インベントリは巻き戻されない"]
+
+[chronos.time_bomb]
+    name = "タイムボム"
+    description = "クラフトしたクロノボムを投げて時空の場を生成し、エンティティを減速させ、飛び道具を凍結させる。"
+    lore1 = "時空フィールド半径"
+    lore2 = "時空フィールド持続時間"
+    lore3 = "ボムクールダウン"
+    lore4 = "レシピ（不定形）：時計 + 雪玉 + ダイヤモンド + 砂"
+    lore = ["時空フィールド半径", "時空フィールド持続時間", "ボムクールダウン", "レシピ（不定形）：時計 + 雪玉 + ダイヤモンド + 砂"]
+
+# discovery
+[discovery]
+
+[discovery.armor]
+    name = "ワールドアーマー"
+    description = "周囲のブロック硬度に応じたパッシブ防具。"
+    lore1 = "パッシブ防具"
+    lore2 = "周囲のブロック硬度に基づく"
+    lore3 = "防具強度："
+    lore = ["パッシブ防具", "周囲のブロック硬度に基づく", "防具強度："]
+
+[discovery.unity]
+    name = "実験的ユニティ"
+    description = "経験値オーブを回収するとランダムなスキルにXPが追加される。"
+    lore1 = "XP "
+    lore2 = "オーブごと"
+    lore = ["XP ", "オーブごと"]
+
+[discovery.resist]
+    name = "実験的レジスタンス"
+    description = "体力が5ハート以下に落ちるか致命的なダメージを受けた時のみ、経験値を消費してダメージを軽減する。"
+    lore0 = "クリティカルヘルス時（5ハート以下）にのみ15秒に1回発動"
+    lore1 = " 軽減ダメージ"
+    lore2 = "消費経験値"
+    lore = ["クリティカルヘルス時（5ハート以下）にのみ15秒に1回発動", " 軽減ダメージ", "消費経験値"]
+
+[discovery.villager]
+    name = "村人の魅了"
+    description = "村人とのより良い取引が可能になる！"
+    lore1 = "村人との取引ごとにXPを消費"
+    lore2 = "取引ごとにXPを消費して取引を強化するチャンス"
+    lore3 = "取引ごとの必要XP消費量"
+    lore = ["村人との取引ごとにXPを消費", "取引ごとにXPを消費して取引を強化するチャンス", "取引ごとの必要XP消費量"]
+
+# enchanting
+[enchanting]
+
+[enchanting.lapis_return]
+    name = "ラピスリターン"
+    description = "1レベル分追加のXPを消費する代わりに、ラピスラズリが無料で返ってくるチャンスがある"
+    lore1 = "レベルごとにエンチャント費用が1増加するが、最大3個のラピスを返却する可能性がある"
+    lore = ["レベルごとにエンチャント費用が1増加するが、最大3個のラピスを返却する可能性がある"]
+
+[enchanting.quick_enchant]
+    name = "クイッククリックエンチャント"
+    description = "エンチャントの本をアイテムに直接クリックしてエンチャント。"
+    lore1 = "最大合成レベル"
+    lore2 = "アイテムにエンチャントできる最大値は"
+    lore3 = "パワー"
+    lore = ["最大合成レベル", "アイテムにエンチャントできる最大値は", "パワー"]
+
+[enchanting.return]
+    name = "XPリターン"
+    description = "エンチャント時に使用したXPが返還される。"
+    lore1 = "エンチャント時に消費した経験値が返還されるチャンスがある"
+    lore2 = "エンチャントごとの経験値"
+    lore = ["エンチャント時に消費した経験値が返還されるチャンスがある", "エンチャントごとの経験値"]
+
+# excavation
+[excavation]
+
+[excavation.haste]
+    name = "急速発掘者"
+    description = "採掘速度上昇で発掘が加速する！"
+    lore1 = "発掘中に採掘速度上昇を獲得"
+    lore2 = "任意のブロック採掘開始時にxレベルの採掘速度上昇"
+    lore = ["発掘中に採掘速度上昇を獲得", "任意のブロック採掘開始時にxレベルの採掘速度上昇"]
+
+[excavation.spelunker]
+    name = "超視力スペランカー！"
+    description = "地面越しに鉱石が見える！"
+    lore1 = "オフハンドに鉱石、メインハンドにグロウベリーを持ってスニーク！"
+    lore2 = "ブロック範囲："
+    lore3 = "使用時にグロウベリーを消費"
+    lore = ["オフハンドに鉱石、メインハンドにグロウベリーを持ってスニーク！", "ブロック範囲：", "使用時にグロウベリーを消費"]
+
+[excavation.drop_to_inventory]
+    name = "シャベルドロップ→インベントリ"
+
+[excavation.omni_tool]
+    name = "OMNI - T.O.O.L."
+    description = "タックルの過剰設計な豪華レザーマン"
+    lore1 = "おそらく最も強力なツール、"
+    lore2 = "必要に応じてツールを動的に合体・変更できる。"
+    lore3 = "合体するには、インベントリ内でアイテムをシフトクリック。"
+    lore4 = "ツールを分離するには、スニークしながらドロップで分解。"
+    lore5 = "このレザーマンのツールは壊れないが、壊れたツールは使用不可"
+    lore6 = "合体可能なアイテム総数。"
+    lore7 = "5つや6つのツールを使うか、たった1つで済ませるか！"
+    lore = ["おそらく最も強力なツール、", "必要に応じてツールを動的に合体・変更できる。", "合体するには、インベントリ内でアイテムをシフトクリック。", "ツールを分離するには、スニークしながらドロップで分解。", "このレザーマンのツールは壊れないが、壊れたツールは使用不可", "合体可能なアイテム総数。", "5つや6つのツールを使うか、たった1つで済ませるか！"]
+
+# herbalism
+[herbalism]
+
+[herbalism.growth_aura]
+    name = "成長のオーラ"
+    description = "周囲の自然をオーラで成長させる"
+    lore1 = "ブロック半径"
+    lore2 = "成長オーラの強さ"
+    lore3 = "食料コスト"
+    lore = ["ブロック半径", "成長オーラの強さ", "食料コスト"]
+
+[herbalism.hippo]
+    name = "薬草師のカバ"
+    description = "食べ物を消費すると満腹度が追加回復する"
+    lore1 = "食べ物消費時に追加の満腹度ポイント"
+    lore = ["食べ物消費時に追加の満腹度ポイント"]
+
+[herbalism.myconid]
+    name = "薬草師のマイコニッド"
+    description = "菌糸ブロックをクラフトする能力を得る"
+    lore1 = "任意の土と茶色&赤キノコで菌糸をクラフトできる。"
+    lore = ["任意の土と茶色&赤キノコで菌糸をクラフトできる。"]
+
+[herbalism.terralid]
+    name = "薬草師のテラリッド"
+    description = "草ブロックをクラフトする能力を得る"
+    lore1 = "3つの種を3つの土の上に配置すると、草ブロック3個をクラフトできる。"
+    lore = ["3つの種を3つの土の上に配置すると、草ブロック3個をクラフトできる。"]
+
+[herbalism.cobweb]
+    name = "クモの巣クリエイター"
+    description = "作業台でクモの巣をクラフトする能力を得る"
+    lore1 = "糸9個でクモの巣をクラフトできる。"
+    lore = ["糸9個でクモの巣をクラフトできる。"]
+
+[herbalism.mushroom_blocks]
+    name = "キノコメイカー"
+    description = "作業台でキノコブロックをクラフトする能力を得る"
+    lore1 = "キノコ4個でブロックを作成、またはブロックから茎を作成。"
+    lore = ["キノコ4個でブロックを作成、またはブロックから茎を作成。"]
+
+[herbalism.drop_to_inventory]
+    name = "クワドロップ→インベントリ"
+
+[herbalism.hungry_shield]
+    name = "ハングリーシールド"
+    description = "体力の前に空腹でダメージを受ける。"
+    lore1 = "空腹による軽減"
+    lore = ["空腹による軽減"]
+
+[herbalism.luck]
+    name = "薬草師の幸運"
+    description = "草や花を壊すとランダムなアイテムを得るチャンスがある"
+    lore0 = "花=食べ物、草=種"
+    lore1 = "花を壊した時のアイテム獲得チャンス"
+    lore2 = "草を壊した時のアイテム獲得チャンス"
+    lore = ["花=食べ物、草=種", "花を壊した時のアイテム獲得チャンス", "草を壊した時のアイテム獲得チャンス"]
+
+[herbalism.replant]
+    name = "収穫&再植え"
+    description = "クワで作物を右クリックすると収穫して再植えする。"
+    lore1 = "ブロック再植え半径"
+    lore = ["ブロック再植え半径"]
+
+# hunter
+[hunter]
+
+[hunter.adrenaline]
+    name = "アドレナリン"
+    description = "体力が低いほど近接ダメージが増加する"
+    lore1 = "最大ダメージ"
+    lore = ["最大ダメージ"]
+
+[hunter.penalty]
+    name = ""
+    description = ""
+    lore1 = "空腹が尽きると毒スタックが付与される"
+    lore = ["空腹が尽きると毒スタックが付与される"]
+
+[hunter.drop_to_inventory]
+    name = "アイテムドロップ→インベントリ"
+    description = "何かを倒したり剣でブロックを壊すとドロップがインベントリに転送される"
+    lore1 = "モブやブロックからのドロップアイテムが可能な限りインベントリに入る。"
+    lore = ["モブやブロックからのドロップアイテムが可能な限りインベントリに入る。"]
+
+[hunter.invisibility]
+    name = "消失の一歩"
+    description = "攻撃を受けると空腹を代償に透明化を得る"
+    lore1 = "攻撃を受けるとパッシブ透明化を獲得"
+    lore2 = "攻撃を受けてx回3秒間透明化がスタック"
+    lore3 = "x空腹がスタック"
+    lore4 = "空腹スタックの持続時間と倍率。"
+    lore5 = "透明化の持続時間"
+    lore = ["攻撃を受けるとパッシブ透明化を獲得", "攻撃を受けてx回3秒間透明化がスタック", "x空腹がスタック", "空腹スタックの持続時間と倍率。", "透明化の持続時間"]
+
+[hunter.jump_boost]
+    name = "ハンターの高み"
+    description = "攻撃を受けると空腹を代償にジャンプ力上昇を得る"
+    lore1 = "攻撃を受けるとパッシブジャンプ力上昇を獲得"
+    lore2 = "攻撃を受けてx回3秒間ジャンプ力上昇がスタック"
+    lore3 = "x空腹がスタック"
+    lore4 = "空腹スタックの持続時間と倍率。"
+    lore5 = "ジャンプ力上昇の倍率（持続時間ではない）。"
+    lore = ["攻撃を受けるとパッシブジャンプ力上昇を獲得", "攻撃を受けてx回3秒間ジャンプ力上昇がスタック", "x空腹がスタック", "空腹スタックの持続時間と倍率。", "ジャンプ力上昇の倍率（持続時間ではない）。"]
+
+[hunter.luck]
+    name = "ハンターの幸運"
+    description = "攻撃を受けると空腹を代償に幸運を得る"
+    lore1 = "攻撃を受けるとパッシブ幸運を獲得"
+    lore2 = "攻撃を受けてx回3秒間幸運がスタック"
+    lore3 = "x空腹がスタック"
+    lore4 = "空腹スタックの持続時間と倍率。"
+    lore5 = "幸運の倍率（持続時間ではない）。"
+    lore = ["攻撃を受けるとパッシブ幸運を獲得", "攻撃を受けてx回3秒間幸運がスタック", "x空腹がスタック", "空腹スタックの持続時間と倍率。", "幸運の倍率（持続時間ではない）。"]
+
+[hunter.regen]
+    name = "ハンターの再生"
+    description = "攻撃を受けると空腹を代償に再生を得る"
+    lore1 = "攻撃を受けるとパッシブ再生を獲得"
+    lore2 = "攻撃を受けてx回3秒間再生がスタック"
+    lore3 = "x空腹がスタック"
+    lore4 = "空腹スタックの持続時間と倍率。"
+    lore5 = "再生の倍率（持続時間ではない）。"
+    lore = ["攻撃を受けるとパッシブ再生を獲得", "攻撃を受けてx回3秒間再生がスタック", "x空腹がスタック", "空腹スタックの持続時間と倍率。", "再生の倍率（持続時間ではない）。"]
+
+[hunter.resistance]
+    name = "ハンターの耐性"
+    description = "攻撃を受けると空腹を代償に耐性を得る"
+    lore1 = "攻撃を受けるとパッシブ耐性を獲得"
+    lore2 = "攻撃を受けてx回3秒間耐性がスタック"
+    lore3 = "x空腹がスタック"
+    lore4 = "空腹スタックの持続時間と倍率。"
+    lore5 = "耐性の倍率（持続時間ではない）。"
+    lore = ["攻撃を受けるとパッシブ耐性を獲得", "攻撃を受けてx回3秒間耐性がスタック", "x空腹がスタック", "空腹スタックの持続時間と倍率。", "耐性の倍率（持続時間ではない）。"]
+
+[hunter.speed]
+    name = "ハンターの俊足"
+    description = "攻撃を受けると空腹を代償にスピードを得る"
+    lore1 = "攻撃を受けるとパッシブスピードを獲得"
+    lore2 = "攻撃を受けてx回3秒間スピードがスタック"
+    lore3 = "x空腹がスタック"
+    lore4 = "空腹スタックの持続時間と倍率。"
+    lore5 = "スピードの倍率（持続時間ではない）。"
+    lore = ["攻撃を受けるとパッシブスピードを獲得", "攻撃を受けてx回3秒間スピードがスタック", "x空腹がスタック", "空腹スタックの持続時間と倍率。", "スピードの倍率（持続時間ではない）。"]
+
+[hunter.strength]
+    name = "ハンターの剛力"
+    description = "攻撃を受けると空腹を代償に攻撃力を得る"
+    lore1 = "攻撃を受けるとパッシブ攻撃力を獲得"
+    lore2 = "攻撃を受けてx回3秒間攻撃力がスタック"
+    lore3 = "x空腹がスタック"
+    lore4 = "空腹スタックの持続時間と倍率。"
+    lore5 = "攻撃力の倍率（持続時間ではない）。"
+    lore = ["攻撃を受けるとパッシブ攻撃力を獲得", "攻撃を受けてx回3秒間攻撃力がスタック", "x空腹がスタック", "空腹スタックの持続時間と倍率。", "攻撃力の倍率（持続時間ではない）。"]
+
+# nether
+[nether]
+
+[nether.skull_toss]
+    name = "ウィザースカル投擲"
+    description1 = "内なるウィザーを解き放て、"
+    description2 = "誰かの"
+    description3 = "頭を使って。"
+    lore1 = "スカル投擲間のクールダウン秒数。"
+    lore2 = "ウィザースカル使用：投げる "
+    lore3 = "ウィザースカル"
+    lore4 = "着弾時に爆発。"
+    lore = ["スカル投擲間のクールダウン秒数。", "ウィザースカル使用：投げる ", "ウィザースカル", "着弾時に爆発。"]
+
+[nether.wither_resist]
+    name = "ウィザー耐性"
+    description = "ネザライトの力でウィザー効果に抵抗する。"
+    lore1 = "ウィザー効果を無効化する確率（部位ごと）。"
+    lore2 = "パッシブ：ネザライト防具装備時にウィザー効果を"
+    lore3 = "無効化する場合がある。"
+    lore = ["ウィザー効果を無効化する確率（部位ごと）。", "パッシブ：ネザライト防具装備時にウィザー効果を", "無効化する場合がある。"]
+
+[nether.fire_resist]
+    name = "火炎耐性"
+    description = "肌を硬化させて火に抵抗する。"
+    lore1 = "炎上効果を無効化する確率！"
+    lore = ["炎上効果を無効化する確率！"]
+
+# pickaxe
+[pickaxe]
+
+[pickaxe.auto_smelt]
+    name = "自動精錬"
+    description = "採掘したバニラ鉱石を自動で精錬する"
+    lore1 = "精錬可能な鉱石は自動で精錬される"
+    lore2 = "%の確率で追加ドロップ"
+    lore = ["精錬可能な鉱石は自動で精錬される", "%の確率で追加ドロップ"]
+
+[pickaxe.chisel]
+    name = "鉱石チゼル"
+    description = "鉱石を右クリックして追加の鉱石を掘り出す。耐久値を大きく消耗する。"
+    lore1 = "ドロップ確率"
+    lore2 = "ツール消耗"
+    lore = ["ドロップ確率", "ツール消耗"]
+
+[pickaxe.drop_to_inventory]
+    name = "つるはしドロップ→インベントリ"
+    description = "ブロックを壊すとアイテムがインベントリに直接入る"
+    lore1 = "ブロックからのドロップアイテムが可能な限りインベントリに入る。"
+    lore = ["ブロックからのドロップアイテムが可能な限りインベントリに入る。"]
+
+[pickaxe.silk_spawner]
+    name = "つるはしシルクスポナー"
+    description = "スポナーが破壊時にドロップするようになる"
+    lore1 = "シルクタッチでスポナーを破壊可能にする。"
+    lore2 = "スニーク中にスポナーを破壊可能にする。"
+    lore = ["シルクタッチでスポナーを破壊可能にする。", "スニーク中にスポナーを破壊可能にする。"]
+
+[pickaxe.vein_miner]
+    name = "ヴェインマイナー"
+    description = "バニラ鉱石の鉱脈/クラスターを一度に破壊できる"
+    lore1 = "スニークして鉱石を採掘"
+    lore2 = "ヴェインマイニング範囲"
+    lore3 = "このスキルはドロップをまとめません！"
+    lore = ["スニークして鉱石を採掘", "ヴェインマイニング範囲", "このスキルはドロップをまとめません！"]
+
+# ranged
+[ranged]
+
+[ranged.arrow_recovery]
+    name = "矢の回収"
+    description = "敵を倒した後に矢を回収する。"
+    lore1 = "ヒット/キル時の矢回収確率"
+    lore2 = "確率："
+    lore = ["ヒット/キル時の矢回収確率", "確率："]
+
+[ranged.web_shot]
+    name = "ウェブスネア"
+    description = "ターゲットに命中時、周囲にクモの巣を展開する！"
+    lore1 = "雪玉を8個のクモの巣で囲んで投げろ！"
+    lore2 = "約数秒間の檻効果。"
+    lore = ["雪玉を8個のクモの巣で囲んで投げろ！", "約数秒間の檻効果。"]
+
+[ranged.force_shot]
+    name = "フォースショット"
+    description = "射出物をより速く、より遠くへ飛ばす！"
+    advancementname = "ロングショット"
+    advancementlore = "30ブロック以上離れた場所から命中させろ！"
+    lore1 = "射出速度"
+    lore = ["射出速度"]
+
+[ranged.lunge_shot]
+    name = "ランジショット"
+    description = "落下中に矢がランダムな方向に吹き飛ばす"
+    lore1 = "ランダムバースト速度"
+    lore = ["ランダムバースト速度"]
+
+[ranged.arrow_piercing]
+    name = "矢の貫通"
+    description = "射出物に貫通を付与！対象を貫通して射撃！"
+    lore1 = "貫通対象数"
+    lore = ["貫通対象数"]
+
+# rift
+[rift]
+
+[rift.remote_access]
+    name = "リモートアクセス"
+    description = "虚空から引き寄せ、マークしたコンテナにアクセスする。"
+    lore1 = "エンダーパール + コンパス = 聖遺物ポートキー"
+    lore2 = "このアイテムでコンテナに遠隔アクセスできる"
+    lore3 = "クラフト後、アイテムの説明で使い方を確認"
+    notcontainer = "それはコンテナではありません"
+    lore = ["エンダーパール + コンパス = 聖遺物ポートキー", "このアイテムでコンテナに遠隔アクセスできる", "クラフト後、アイテムの説明で使い方を確認"]
+
+[rift.blink]
+    name = "リフトブリンク"
+    description = "短距離瞬間移動、瞬きひとつで！"
+    lore1 = "ブリンク時のブロック数（垂直2倍）"
+    lore2 = "ダッシュ中：ジャンプを2回押して"
+    lore3 = "ブリンク"
+    lore = ["ブリンク時のブロック数（垂直2倍）", "ダッシュ中：ジャンプを2回押して", "ブリンク"]
+
+[rift.chest]
+    name = "簡易エンダーチェスト"
+    description = "手に持ったエンダーチェストを左クリックで開く。"
+    lore1 = "手に持ったエンダーチェストをクリックで開く（設置しないこと）"
+    lore = ["手に持ったエンダーチェストをクリックで開く（設置しないこと）"]
+
+[rift.descent]
+    name = "浮遊無効化"
+    description = "空中に浮かされるのが嫌？このスキルで解決！"
+    lore1 = "スニークで降下すると、通常より緩やかに落下する！"
+    lore2 = "クールダウン："
+    lore = ["スニークで降下すると、通常より緩やかに落下する！", "クールダウン："]
+
+[rift.gate]
+    name = "リフトゲート"
+    description = "マークした場所にテレポートする。"
+    lore1 = "クラフト：エメラルド + アメジストの欠片 + エンダーパール"
+    lore2 = "使用前に必読！"
+    lore3 = "5秒の遅延、"
+    lore4 = "この演出中に死亡する可能性あり"
+    lore = ["クラフト：エメラルド + アメジストの欠片 + エンダーパール", "使用前に必読！", "5秒の遅延、", "この演出中に死亡する可能性あり"]
+
+[rift.resist]
+    name = "リフト耐性"
+    description = "エンダーアイテムやアビリティ使用時に耐性を獲得"
+    lore1 = "+ パッシブ：リフトアビリティやエンダーアイテム使用時に耐性を付与"
+    lore2 = "ポータブルエンダーチェストは対象外、消費可能なアイテムのみ"
+    lore = ["+ パッシブ：リフトアビリティやエンダーアイテム使用時に耐性を付与", "ポータブルエンダーチェストは対象外、消費可能なアイテムのみ"]
+
+[rift.visage]
+    name = "リフトヴィサージュ"
+    description = "インベントリにエンダーパールがあるとエンダーマンが敵対しなくなる。"
+    lore1 = "エンダーパールを所持しているとエンダーマンが敵対しなくなる。"
+    lore = ["エンダーパールを所持しているとエンダーマンが敵対しなくなる。"]
+
+# seaborn
+[seaborn]
+
+[seaborn.oxygen]
+    name = "有機酸素タンク"
+    description = "小さな肺でもっと多くの酸素を蓄えろ！"
+    lore1 = "酸素容量増加"
+    lore = ["酸素容量増加"]
+
+[seaborn.fishers_fantasy]
+    name = "釣り人の幻想"
+    description = "釣りでより多くのXPと魚を獲得！"
+    lore1 = "レベルごとにXPと魚の追加獲得チャンスが増加！"
+    lore = ["レベルごとにXPと魚の追加獲得チャンスが増加！"]
+
+[seaborn.haste]
+    name = "タートルマイナー"
+    description = "水中で採掘すると採掘速度上昇を得る！"
+    lore1 = "水中呼吸の効果が切れた後、水中で採掘すると採掘速度上昇IIIが適用される（水中採掘と重複可能）！"
+    lore = ["水中呼吸の効果が切れた後、水中で採掘すると採掘速度上昇IIIが適用される（水中採掘と重複可能）！"]
+
+[seaborn.night_vision]
+    name = "タートルビジョン"
+    description = "水中で暗視を得る"
+    lore1 = "水中呼吸の効果が切れた後、水中で暗視を獲得！"
+    lore = ["水中呼吸の効果が切れた後、水中で暗視を獲得！"]
+
+[seaborn.dolphin_grace]
+    name = "イルカの加護"
+    description = "イルカなしでイルカのように泳ぐ"
+    lore1 = "+ パッシブ："
+    lore2 = "xスピード（イルカの加護）を獲得"
+    lore3 = "精密なドイツのエンジニアリ…いや違った…水中歩行とは併用不可"
+    lore = ["+ パッシブ：", "xスピード（イルカの加護）を獲得", "精密なドイツのエンジニアリ…いや違った…水中歩行とは併用不可"]
+
+# stealth
+[stealth]
+
+[stealth.ghost_armor]
+    name = "ゴーストアーマー"
+    description = "ダメージを受けていない間徐々に防具が蓄積し、1回の攻撃で消滅する"
+    lore1 = "最大防具値"
+    lore2 = "蓄積速度"
+    lore = ["最大防具値", "蓄積速度"]
+
+[stealth.night_vision]
+    name = "ステルスビジョン"
+    description = "スニーク中に暗視を獲得する"
+    lore1 = "一瞬で"
+    lore2 = "暗視"
+    lore3 = "をスニーク中に獲得"
+    lore = ["一瞬で", "暗視", "をスニーク中に獲得"]
+
+[stealth.snatch]
+    name = "アイテムスナッチ"
+    description = "スニーク中にドロップアイテムを瞬時に回収！"
+    lore1 = "スナッチ半径"
+    lore = ["スナッチ半径"]
+
+[stealth.speed]
+    name = "スニーク速度"
+    description = "スニーク中にスピードを得る"
+    lore1 = "スニーク速度"
+    lore = ["スニーク速度"]
+
+[stealth.ender_veil]
+    name = "エンダーヴェール"
+    description = "カボチャ無しでエンダーマンの敵対を防ぐ"
+    lore1 = "スニーク中にエンダーマンの攻撃を防ぐ"
+    lore2 = "エンダーマンの攻撃をすべて防ぐ"
+    lore = ["スニーク中にエンダーマンの攻撃を防ぐ", "エンダーマンの攻撃をすべて防ぐ"]
+
+# sword
+[sword]
+
+[sword.machete]
+    name = "マチェーテ"
+    description = "草木を容易く切り払え！"
+    lore1 = "斬撃半径"
+    lore2 = "斬撃クールダウン"
+    lore3 = "ツール消耗"
+    lore = ["斬撃半径", "斬撃クールダウン", "ツール消耗"]
+
+[sword.bloody_blade]
+    name = "血塗れの刃"
+    description = "剣での攻撃が出血を引き起こす！"
+    lore1 = "剣で生物を攻撃すると出血を引き起こす"
+    lore2 = "出血持続時間"
+    lore3 = "出血クールダウン"
+    lore = ["剣で生物を攻撃すると出血を引き起こす", "出血持続時間", "出血クールダウン"]
+
+[sword.poisoned_blade]
+    name = "毒の刃"
+    description = "剣での攻撃が毒を引き起こす！"
+    lore1 = "剣で生物を攻撃すると毒を引き起こす"
+    lore2 = "毒の持続時間"
+    lore3 = "毒クールダウン"
+    lore = ["剣で生物を攻撃すると毒を引き起こす", "毒の持続時間", "毒クールダウン"]
+
+# taming
+[taming]
+
+[taming.damage]
+    name = "飼育ダメージ"
+    description = "飼いならした動物の攻撃力を増加させる。"
+    lore1 = "ダメージ増加"
+    lore = ["ダメージ増加"]
+
+[taming.health]
+    name = "飼育体力"
+    description = "飼いならした動物の体力を増加させる。"
+    lore1 = "体力増加"
+    lore = ["体力増加"]
+
+[taming.regeneration]
+    name = "飼育再生"
+    description = "飼いならした動物の再生力を増加させる。"
+    lore1 = "HP/秒"
+    lore = ["HP/秒"]
+
+# tragoul
+[tragoul]
+
+[tragoul.thorns]
+    name = "棘"
+    description = "受けたダメージを攻撃者に反射する！"
+    lore1 = "被弾時の反射ダメージ"
+    lore = ["被弾時の反射ダメージ"]
+
+[tragoul.globe]
+    name = "苦痛の球"
+    description = "周囲の敵の数に応じて与えるダメージを分散する！"
+    lore1 = "周囲に敵が多いほど、それぞれに与えるダメージは減少する"
+    lore2 = "範囲："
+    lore3 = "全エンティティへの追加ダメージ："
+    lore = ["周囲に敵が多いほど、それぞれに与えるダメージは減少する", "範囲：", "全エンティティへの追加ダメージ："]
+
+[tragoul.healing]
+    name = "苦痛の意志"
+    description = "与えたダメージに応じて体力が回復する！"
+    lore1 = "傷つけることがこんなに気持ちいいとは！与ダメージから回復"
+    lore2 = "3秒間のダメージ判定期間があり、回復と1秒間のクールダウンがある"
+    lore3 = "ダメージあたりの回復率："
+    lore = ["傷つけることがこんなに気持ちいいとは！与ダメージから回復", "3秒間のダメージ判定期間があり、回復と1秒間のクールダウンがある", "ダメージあたりの回復率："]
+
+[tragoul.lance]
+    name = "屍槍"
+    description = "敵を倒すかアビリティで敵を倒すと、近くの敵にダメージを与える槍が出現する！"
+    lore1 = "槍は倒した全ての対象から飛び出し、このアビリティで敵を倒した場合も発動する。"
+    lore2 = "槍を生成するために自分の体力を犠牲にする（これで死ぬこともある）"
+    lore3 = "最大槍数：1 + "
+    lore = ["槍は倒した全ての対象から飛び出し、このアビリティで敵を倒した場合も発動する。", "槍を生成するために自分の体力を犠牲にする（これで死ぬこともある）", "最大槍数：1 + "]
+
+# unarmed
+[unarmed]
+
+[unarmed.glass_cannon]
+    name = "ガラスの大砲"
+    description = "防具値が低いほど素手ダメージにボーナスが付く"
+    lore1 = "x 防具値0時のダメージ"
+    lore2 = "レベルごとのボーナスダメージ"
+    lore = ["x 防具値0時のダメージ", "レベルごとのボーナスダメージ"]
+
+[unarmed.power]
+    name = "素手の力"
+    description = "素手ダメージが向上する"
+    lore1 = "ダメージ"
+    lore = ["ダメージ"]
+
+[unarmed.sucker_punch]
+    name = "不意打ち"
+    description = "ダッシュパンチがさらに致命的になる。"
+    lore1 = "ダメージ"
+    lore2 = "パンチ中の移動速度に応じてダメージが増加する"
+    lore = ["ダメージ", "パンチ中の移動速度に応じてダメージが増加する"]

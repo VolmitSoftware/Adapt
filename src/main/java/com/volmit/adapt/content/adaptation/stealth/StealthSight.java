@@ -39,8 +39,8 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
     public StealthSight() {
         super("stealth-vision");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("stealth", "nightvision", "description"));
-        setDisplayName(Localizer.dLocalize("stealth", "nightvision", "name"));
+        setDescription(Localizer.dLocalize("stealth.night_vision.description"));
+        setDisplayName(Localizer.dLocalize("stealth.night_vision.name"));
         setIcon(Material.POTION);
         setBaseCost(getConfig().baseCost);
         setInterval(1500);
@@ -53,7 +53,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("stealth", "nightvision", "lore1") + C.GREEN + Localizer.dLocalize("stealth", "nightvision", "lore2") + C.GRAY + Localizer.dLocalize("stealth", "nightvision", "lore3"));
+        v.addLore(C.GRAY + Localizer.dLocalize("stealth.night_vision.lore1") + C.GREEN + Localizer.dLocalize("stealth.night_vision.lore2") + C.GRAY + Localizer.dLocalize("stealth.night_vision.lore3"));
     }
 
     @EventHandler

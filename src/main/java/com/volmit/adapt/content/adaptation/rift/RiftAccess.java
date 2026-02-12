@@ -57,8 +57,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     public RiftAccess() {
         super("rift-access");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("rift", "remoteaccess", "description"));
-        setDisplayName(Localizer.dLocalize("rift", "remoteaccess", "name"));
+        setDescription(Localizer.dLocalize("rift.remote_access.description"));
+        setDisplayName(Localizer.dLocalize("rift.remote_access.name"));
         setMaxLevel(1);
         setIcon(Material.NETHER_STAR);
         setBaseCost(getConfig().baseCost);
@@ -75,9 +75,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "remoteaccess", "lore1"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "remoteaccess", "lore2"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("rift", "remoteaccess", "lore3"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("rift.remote_access.lore1"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("rift.remote_access.lore2"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("rift.remote_access.lore3"));
     }
 
 

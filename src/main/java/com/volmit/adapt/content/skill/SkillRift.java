@@ -48,10 +48,10 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     private final KMap<Player, Long> lasttp;
 
     public SkillRift() {
-        super("rift", Localizer.dLocalize("skill", "rift", "icon"));
+        super("rift", Localizer.dLocalize("skill.rift.icon"));
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("skill", "rift", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "rift", "name"));
+        setDescription(Localizer.dLocalize("skill.rift.description"));
+        setDisplayName(Localizer.dLocalize("skill.rift.name"));
         setColor(C.DARK_PURPLE);
         setInterval(1154);
         setIcon(Material.ENDER_EYE);
@@ -66,24 +66,24 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.ENDER_PEARL)
                 .key("challenge_rift_50")
-                .title(Localizer.dLocalize("advancement", "challenge_rift_50", "title"))
-                .description(Localizer.dLocalize("advancement", "challenge_rift_50", "description"))
+                .title(Localizer.dLocalize("advancement.challenge_rift_50.title"))
+                .description(Localizer.dLocalize("advancement.challenge_rift_50.description"))
                 .model(CustomModel.get(Material.ENDER_PEARL, "advancement", "rift", "challenge_rift_50"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.ENDER_EYE)
                         .key("challenge_rift_500")
-                        .title(Localizer.dLocalize("advancement", "challenge_rift_500", "title"))
-                        .description(Localizer.dLocalize("advancement", "challenge_rift_500", "description"))
+                        .title(Localizer.dLocalize("advancement.challenge_rift_500.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_rift_500.description"))
                         .model(CustomModel.get(Material.ENDER_EYE, "advancement", "rift", "challenge_rift_500"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.END_CRYSTAL)
                                 .key("challenge_rift_5k")
-                                .title(Localizer.dLocalize("advancement", "challenge_rift_5k", "title"))
-                                .description(Localizer.dLocalize("advancement", "challenge_rift_5k", "description"))
+                                .title(Localizer.dLocalize("advancement.challenge_rift_5k.title"))
+                                .description(Localizer.dLocalize("advancement.challenge_rift_5k.description"))
                                 .model(CustomModel.get(Material.END_CRYSTAL, "advancement", "rift", "challenge_rift_5k"))
                                 .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)

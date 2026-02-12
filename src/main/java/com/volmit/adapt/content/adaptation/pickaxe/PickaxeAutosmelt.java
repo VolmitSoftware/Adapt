@@ -47,8 +47,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     public PickaxeAutosmelt() {
         super("pickaxe-autosmelt");
         registerConfiguration(PickaxeAutosmelt.Config.class);
-        setDescription(Localizer.dLocalize("pickaxe", "autosmelt", "description"));
-        setDisplayName(Localizer.dLocalize("pickaxe", "autosmelt", "name"));
+        setDescription(Localizer.dLocalize("pickaxe.auto_smelt.description"));
+        setDisplayName(Localizer.dLocalize("pickaxe.auto_smelt.name"));
         setIcon(Material.RAW_GOLD);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -156,8 +156,8 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("pickaxe", "autosmelt", "lore1"));
-        v.addLore(C.GREEN + "" + (level * 1.25) + C.GRAY + Localizer.dLocalize("pickaxe", "autosmelt", "lore2"));
+        v.addLore(C.GREEN + Localizer.dLocalize("pickaxe.auto_smelt.lore1"));
+        v.addLore(C.GREEN + "" + (level * 1.25) + C.GRAY + Localizer.dLocalize("pickaxe.auto_smelt.lore2"));
     }
 
     @EventHandler(priority = EventPriority.HIGH)

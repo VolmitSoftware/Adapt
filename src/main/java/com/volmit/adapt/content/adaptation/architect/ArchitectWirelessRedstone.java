@@ -55,8 +55,8 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     public ArchitectWirelessRedstone() {
         super("architect-wireless-redstone");
         registerConfiguration(ArchitectWirelessRedstone.Config.class);
-        setDescription(Localizer.dLocalize("architect", "wirelessredstone", "description"));
-        setDisplayName(Localizer.dLocalize("architect", "wirelessredstone", "name"));
+        setDescription(Localizer.dLocalize("architect.wireless_redstone.description"));
+        setDisplayName(Localizer.dLocalize("architect.wireless_redstone.name"));
         setIcon(Material.REDSTONE_TORCH);
         setInterval(100);
         setBaseCost(getConfig().baseCost);
@@ -75,7 +75,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("architect", "wirelessredstone", "lore1"));
+        v.addLore(C.GREEN + Localizer.dLocalize("architect.wireless_redstone.lore1"));
     }
 
 

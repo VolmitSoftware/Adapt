@@ -35,8 +35,8 @@ public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> 
     public BrewingBlindness() {
         super("brewing-blindness");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "blindness", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "blindness", "name"));
+        setDescription(Localizer.dLocalize("brewing.blindness.description"));
+        setDisplayName(Localizer.dLocalize("brewing.blindness.name"));
         setIcon(Material.INK_SAC);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -71,8 +71,8 @@ public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "blindness", "lore1"));
-//        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "blindness", "lore2"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.blindness.lore1"));
+//        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.blindness.lore2"));
     }
 
 

@@ -42,8 +42,8 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
     public TragoulThorns() {
         super("tragoul-thorns");
         registerConfiguration(TragoulThorns.Config.class);
-        setDescription(Localizer.dLocalize("tragoul", "thorns", "description"));
-        setDisplayName(Localizer.dLocalize("tragoul", "thorns", "name"));
+        setDescription(Localizer.dLocalize("tragoul.thorns.description"));
+        setDisplayName(Localizer.dLocalize("tragoul.thorns.name"));
         setIcon(Material.ECHO_SHARD);
         setInterval(25000);
         setBaseCost(getConfig().baseCost);
@@ -56,7 +56,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "" + getConfig().damageMultiplierPerLevel * level + "x " + Localizer.dLocalize("tragoul", "thorns", "lore1"));
+        v.addLore(C.GREEN + "" + getConfig().damageMultiplierPerLevel * level + "x " + Localizer.dLocalize("tragoul.thorns.lore1"));
     }
 
 

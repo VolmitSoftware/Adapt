@@ -35,8 +35,8 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
     public HunterResistance() {
         super("hunter-resistance");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("hunter", "resistance", "description"));
-        setDisplayName(Localizer.dLocalize("hunter", "resistance", "name"));
+        setDescription(Localizer.dLocalize("hunter.resistance.description"));
+        setDisplayName(Localizer.dLocalize("hunter.resistance.name"));
         setIcon(Material.POWDER_SNOW_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -47,12 +47,12 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("hunter", "resistance", "lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter", "resistance", "lore2"));
-        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter", "resistance", "lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "resistance", "lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "resistance", "lore5"));
-        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter", "penalty", "lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("hunter.resistance.lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter.resistance.lore2"));
+        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter.resistance.lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.resistance.lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.resistance.lore5"));
+        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter.penalty.lore1"));
 
     }
 

@@ -35,8 +35,8 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
     public BrewingHaste() {
         super("brewing-haste");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "haste", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "haste", "name"));
+        setDescription(Localizer.dLocalize("brewing.haste.description"));
+        setDisplayName(Localizer.dLocalize("brewing.haste.name"));
         setIcon(Material.AMETHYST_SHARD);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -71,8 +71,8 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "haste", "lore1"));
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "haste", "lore2"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.haste.lore1"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.haste.lore2"));
     }
 
 

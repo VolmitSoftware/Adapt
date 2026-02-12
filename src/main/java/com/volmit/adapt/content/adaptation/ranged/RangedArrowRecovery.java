@@ -26,8 +26,8 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     public RangedArrowRecovery() {
         super("ranged-recovery");
         registerConfiguration(RangedArrowRecovery.Config.class);
-        setDescription(Localizer.dLocalize("ranged", "arrowrecovery", "description"));
-        setDisplayName(Localizer.dLocalize("ranged", "arrowrecovery", "name"));
+        setDescription(Localizer.dLocalize("ranged.arrow_recovery.description"));
+        setDisplayName(Localizer.dLocalize("ranged.arrow_recovery.name"));
         setIcon(Material.ARROW);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -84,8 +84,8 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("ranged", "arrowrecovery", "lore1"));
-        v.addLore(C.GREEN + Localizer.dLocalize("ranged", "arrowrecovery", "lore2") + chancePerLevel(level));
+        v.addLore(C.GREEN + Localizer.dLocalize("ranged.arrow_recovery.lore1"));
+        v.addLore(C.GREEN + Localizer.dLocalize("ranged.arrow_recovery.lore2") + chancePerLevel(level));
     }
 
     @NoArgsConstructor

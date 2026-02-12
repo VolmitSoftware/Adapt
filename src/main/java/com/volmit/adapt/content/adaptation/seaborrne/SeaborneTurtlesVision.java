@@ -35,8 +35,8 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
     public SeaborneTurtlesVision() {
         super("seaborne-turtles-vision");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("seaborn", "nightvision", "description"));
-        setDisplayName(Localizer.dLocalize("seaborn", "nightvision", "name"));
+        setDescription(Localizer.dLocalize("seaborn.night_vision.description"));
+        setDisplayName(Localizer.dLocalize("seaborn.night_vision.name"));
         setIcon(Material.DIAMOND_HORSE_ARMOR);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -47,7 +47,7 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("seaborn", "nightvision", "lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("seaborn.night_vision.lore1"));
     }
 
 

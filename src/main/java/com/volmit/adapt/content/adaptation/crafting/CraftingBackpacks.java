@@ -35,8 +35,8 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
     public CraftingBackpacks() {
         super("crafting-backpacks");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("crafting", "backpacks", "description"));
-        setDisplayName(Localizer.dLocalize("crafting", "backpacks", "name"));
+        setDescription(Localizer.dLocalize("crafting.backpacks.description"));
+        setDisplayName(Localizer.dLocalize("crafting.backpacks.name"));
         setIcon(Material.BUNDLE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -59,10 +59,10 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting", "backpacks", "lore1"));
-        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting", "backpacks", "lore2"));
-        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting", "backpacks", "lore3"));
-        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting", "backpacks", "lore4"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore1"));
+        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore2"));
+        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore3"));
+        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.backpacks.lore4"));
 
     }
 

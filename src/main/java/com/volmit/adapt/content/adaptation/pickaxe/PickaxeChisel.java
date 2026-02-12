@@ -37,8 +37,8 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     public PickaxeChisel() {
         super("pickaxe-chisel");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("pickaxe", "chisel", "description"));
-        setDisplayName(Localizer.dLocalize("pickaxe", "chisel", "name"));
+        setDescription(Localizer.dLocalize("pickaxe.chisel.description"));
+        setDisplayName(Localizer.dLocalize("pickaxe.chisel.name"));
         setIcon(Material.IRON_NUGGET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -49,8 +49,8 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDropChance(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("pickaxe", "chisel", "lore1"));
-        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Localizer.dLocalize("pickaxe", "chisel", "lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getDropChance(getLevelPercent(level)), 0) + C.GRAY + " " + Localizer.dLocalize("pickaxe.chisel.lore1"));
+        v.addLore(C.RED + "- " + getDamagePerBlock(getLevelPercent(level)) + C.GRAY + " " + Localizer.dLocalize("pickaxe.chisel.lore2"));
     }
 
     private int getCooldownTime(double levelPercent) {

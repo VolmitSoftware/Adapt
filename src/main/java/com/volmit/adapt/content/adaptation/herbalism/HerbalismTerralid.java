@@ -35,8 +35,8 @@ public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config
     public HerbalismTerralid() {
         super("herbalism-terralid");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("herbalism", "terralid", "description"));
-        setDisplayName(Localizer.dLocalize("herbalism", "terralid", "name"));
+        setDescription(Localizer.dLocalize("herbalism.terralid.description"));
+        setDisplayName(Localizer.dLocalize("herbalism.terralid.name"));
         setIcon(Material.GRASS_BLOCK);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -57,7 +57,7 @@ public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism", "terralid", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism.terralid.lore1"));
     }
 
 

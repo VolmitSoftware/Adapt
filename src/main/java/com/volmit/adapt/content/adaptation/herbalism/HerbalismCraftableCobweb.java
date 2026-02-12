@@ -35,8 +35,8 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
     public HerbalismCraftableCobweb() {
         super("herbalism-cobweb");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("herbalism", "cobweb", "description"));
-        setDisplayName(Localizer.dLocalize("herbalism", "cobweb", "name"));
+        setDescription(Localizer.dLocalize("herbalism.cobweb.description"));
+        setDisplayName(Localizer.dLocalize("herbalism.cobweb.name"));
         setIcon(Material.COBWEB);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -57,7 +57,7 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism", "cobweb", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("herbalism.cobweb.lore1"));
     }
 
 

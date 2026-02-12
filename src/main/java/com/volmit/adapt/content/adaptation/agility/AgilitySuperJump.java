@@ -44,8 +44,8 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     public AgilitySuperJump() {
         super("agility-super-jump");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("agility", "superjump", "description"));
-        setDisplayName(Localizer.dLocalize("agility", "superjump", "name"));
+        setDescription(Localizer.dLocalize("agility.super_jump.description"));
+        setDisplayName(Localizer.dLocalize("agility.super_jump.name"));
         setIcon(Material.LEATHER_BOOTS);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -61,8 +61,8 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + " " + Localizer.dLocalize("agility", "superjump", "lore1"));
-        v.addLore(C.LIGHT_PURPLE + " " + Localizer.dLocalize("agility", "superjump", "lore2"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getJumpHeight(level), 0) + C.GRAY + " " + Localizer.dLocalize("agility.super_jump.lore1"));
+        v.addLore(C.LIGHT_PURPLE + " " + Localizer.dLocalize("agility.super_jump.lore2"));
 
     }
 

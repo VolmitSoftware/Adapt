@@ -56,15 +56,15 @@ public class ChronoTimeBombItem implements DataItem<ChronoTimeBombItem.Data> {
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Localizer.dLocalize("items", "chronotimebomb", "name"));
-        lore.add(C.GRAY + Localizer.dLocalize("items", "chronotimebomb", "usage1"));
+        lore.add(C.WHITE + Localizer.dLocalize("items.chrono_time_bomb.name"));
+        lore.add(C.GRAY + Localizer.dLocalize("items.chrono_time_bomb.usage1"));
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Localizer.dLocalize("items", "chronotimebomb", "name"));
+        meta.setDisplayName(Localizer.dLocalize("items.chrono_time_bomb.name"));
     }
 
     @AllArgsConstructor

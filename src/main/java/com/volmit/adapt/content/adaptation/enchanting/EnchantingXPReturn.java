@@ -39,8 +39,8 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
     public EnchantingXPReturn() {
         super("enchanting-xp-return");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("enchanting", "return", "description"));
-        setDisplayName(Localizer.dLocalize("enchanting", "return", "name"));
+        setDescription(Localizer.dLocalize("enchanting.return.description"));
+        setDisplayName(Localizer.dLocalize("enchanting.return.name"));
         setIcon(Material.EXPERIENCE_BOTTLE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -51,8 +51,8 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("enchanting", "return", "lore1"));
-        v.addLore(C.GREEN + "" + getConfig().xpReturn * (level * level) + Localizer.dLocalize("enchanting", "return", "lore2"));
+        v.addLore(C.GRAY + Localizer.dLocalize("enchanting.return.lore1"));
+        v.addLore(C.GREEN + "" + getConfig().xpReturn * (level * level) + Localizer.dLocalize("enchanting.return.lore2"));
     }
 
     @EventHandler

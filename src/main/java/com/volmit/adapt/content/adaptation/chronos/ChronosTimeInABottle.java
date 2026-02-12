@@ -58,8 +58,8 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     public ChronosTimeInABottle() {
         super("chronos-time-bottle");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("chronos", "timeinabottle", "description"));
-        setDisplayName(Localizer.dLocalize("chronos", "timeinabottle", "name"));
+        setDescription(Localizer.dLocalize("chronos.time_in_a_bottle.description"));
+        setDisplayName(Localizer.dLocalize("chronos.time_in_a_bottle.name"));
         setIcon(Material.CLOCK);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -103,9 +103,9 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + (getConfig().chargePerSecond + (level * getConfig().chargePerSecondPerLevel)) + " " + Localizer.dLocalize("chronos", "timeinabottle", "lore1"));
-        v.addLore(C.YELLOW + "+ " + Math.round(getCookTicksPerStoredSecond(level)) + " " + Localizer.dLocalize("chronos", "timeinabottle", "lore2"));
-        v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos", "timeinabottle", "lore3"));
+        v.addLore(C.GREEN + "+ " + (getConfig().chargePerSecond + (level * getConfig().chargePerSecondPerLevel)) + " " + Localizer.dLocalize("chronos.time_in_a_bottle.lore1"));
+        v.addLore(C.YELLOW + "+ " + Math.round(getCookTicksPerStoredSecond(level)) + " " + Localizer.dLocalize("chronos.time_in_a_bottle.lore2"));
+        v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.time_in_a_bottle.lore3"));
     }
 
     private double getCookTicksPerStoredSecond(int level) {

@@ -44,8 +44,8 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     public ChronosAberrantTouch() {
         super("chronos-aberrant-touch");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("chronos", "aberranttouch", "description"));
-        setDisplayName(Localizer.dLocalize("chronos", "aberranttouch", "name"));
+        setDescription(Localizer.dLocalize("chronos.aberrant_touch.description"));
+        setDisplayName(Localizer.dLocalize("chronos.aberrant_touch.name"));
         setIcon(Material.SPIDER_EYE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -58,9 +58,9 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("chronos", "aberranttouch", "lore1"));
-        v.addLore(C.YELLOW + "+ " + getPvEDurationCapTicks(level) / 20D + "s " + Localizer.dLocalize("chronos", "aberranttouch", "lore2"));
-        v.addLore(C.RED + "* " + getConfig().playerAmplifierCap + " " + Localizer.dLocalize("chronos", "aberranttouch", "lore3"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("chronos.aberrant_touch.lore1"));
+        v.addLore(C.YELLOW + "+ " + getPvEDurationCapTicks(level) / 20D + "s " + Localizer.dLocalize("chronos.aberrant_touch.lore2"));
+        v.addLore(C.RED + "* " + getConfig().playerAmplifierCap + " " + Localizer.dLocalize("chronos.aberrant_touch.lore3"));
         v.addLore(C.AQUA + "* " + getConfig().rootAtStacks + " stacks roots for " + (getConfig().rootDurationTicks / 20D) + "s");
     }
 

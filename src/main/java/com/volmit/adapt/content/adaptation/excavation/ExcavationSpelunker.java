@@ -48,8 +48,8 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     public ExcavationSpelunker() {
         super("excavation-spelunker");
         registerConfiguration(ExcavationSpelunker.Config.class);
-        setDisplayName(Localizer.dLocalize("excavation", "spelunker", "name"));
-        setDescription(Localizer.dLocalize("excavation", "spelunker", "description"));
+        setDisplayName(Localizer.dLocalize("excavation.spelunker.name"));
+        setDescription(Localizer.dLocalize("excavation.spelunker.description"));
         setIcon(Material.GOLDEN_HELMET);
         setInterval(20388);
         setBaseCost(getConfig().baseCost);
@@ -62,9 +62,9 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("excavation", "spelunker", "lore1"));
-        v.addLore(C.YELLOW + Localizer.dLocalize("excavation", "spelunker", "lore2") + getConfig().rangeMultiplier * level);
-        v.addLore(C.YELLOW + Localizer.dLocalize("excavation", "spelunker", "lore3"));
+        v.addLore(C.GREEN + Localizer.dLocalize("excavation.spelunker.lore1"));
+        v.addLore(C.YELLOW + Localizer.dLocalize("excavation.spelunker.lore2") + getConfig().rangeMultiplier * level);
+        v.addLore(C.YELLOW + Localizer.dLocalize("excavation.spelunker.lore3"));
     }
 
     @EventHandler(priority = EventPriority.HIGH)

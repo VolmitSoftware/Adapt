@@ -70,10 +70,10 @@ public class ChronoTimeBottle implements DataItem<ChronoTimeBottle.Data> {
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Localizer.dLocalize("items", "chronotimebottle", "name"));
-        lore.add(C.GRAY + Localizer.dLocalize("items", "chronotimebottle", "usage1"));
-        lore.add(C.GRAY + Localizer.dLocalize("items", "chronotimebottle", "usage2"));
-        lore.add(C.AQUA + Localizer.dLocalize("items", "chronotimebottle", "stored") + ": " + C.WHITE + Form.duration((long) (Math.max(0, data.getStoredSeconds()) * 1000D), 1));
+        lore.add(C.WHITE + Localizer.dLocalize("items.chrono_time_bottle.name"));
+        lore.add(C.GRAY + Localizer.dLocalize("items.chrono_time_bottle.usage1"));
+        lore.add(C.GRAY + Localizer.dLocalize("items.chrono_time_bottle.usage2"));
+        lore.add(C.AQUA + Localizer.dLocalize("items.chrono_time_bottle.stored") + ": " + C.WHITE + Form.duration((long) (Math.max(0, data.getStoredSeconds()) * 1000D), 1));
     }
 
     @Override
@@ -86,7 +86,7 @@ public class ChronoTimeBottle implements DataItem<ChronoTimeBottle.Data> {
 
         meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlags.HIDE_POTION_EFFECTS);
-        meta.setDisplayName(Localizer.dLocalize("items", "chronotimebottle", "name"));
+        meta.setDisplayName(Localizer.dLocalize("items.chrono_time_bottle.name"));
     }
 
     @AllArgsConstructor

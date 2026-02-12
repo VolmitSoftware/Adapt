@@ -35,8 +35,8 @@ public class BrewingDecay extends SimpleAdaptation<BrewingDecay.Config> {
     public BrewingDecay() {
         super("brewing-decay");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "decay", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "decay", "name"));
+        setDescription(Localizer.dLocalize("brewing.decay.description"));
+        setDisplayName(Localizer.dLocalize("brewing.decay.name"));
         setIcon(Material.WITHER_ROSE);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -71,8 +71,8 @@ public class BrewingDecay extends SimpleAdaptation<BrewingDecay.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "decay", "lore1"));
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "decay", "lore2"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.decay.lore1"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.decay.lore2"));
     }
 
 

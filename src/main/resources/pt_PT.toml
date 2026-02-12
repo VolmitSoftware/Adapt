@@ -1,0 +1,1501 @@
+# advancement
+[advancement]
+
+[advancement.challenge_move_1k]
+    title = "Tem que se mexer!"
+    description = "Caminhe mais de 1 quilometro (1.000 blocos)"
+
+[advancement.challenge_sprint_5k]
+    title = "Corra 5K!"
+    description = "Caminhe mais de 5 quilometros (5.000 blocos)"
+
+[advancement.challenge_sprint_50k]
+    title = "Zoom de 50K!"
+    description = "Caminhe mais de 50 quilometros (50.000 blocos)"
+
+[advancement.challenge_sprint_500k]
+    title = "Atravesse o Universo!!"
+    description = "Caminhe mais de 500 quilometros (500.000 blocos)"
+
+[advancement.challenge_sprint_marathon]
+    title = "Corra uma maratona (literal)!"
+    description = "Corra mais de 42.195 blocos!"
+
+[advancement.challenge_place_1k]
+    title = "Construtor Iniciante!"
+    description = "Coloque 1.000 Blocos"
+
+[advancement.challenge_place_5k]
+    title = "Construtor Intermediario!"
+    description = "Coloque 5.000 Blocos"
+
+[advancement.challenge_place_50k]
+    title = "Construtor Avancado!"
+    description = "Coloque 50.000 Blocos"
+
+[advancement.challenge_place_500k]
+    title = "Mestre Construtor!"
+    description = "Coloque 500.000 Blocos"
+
+[advancement.challenge_place_5m]
+    title = "Acolito da Simetria!"
+    description = "A REALIDADE E O SEU PARQUE! (5 Milhoes de Blocos)"
+
+[advancement.challenge_chop_1k]
+    title = "Lenhador Iniciante!"
+    description = "Corte 1.000 Blocos"
+
+[advancement.challenge_chop_5k]
+    title = "Lenhador Intermediario!"
+    description = "Corte 5.000 Blocos"
+
+[advancement.challenge_chop_50k]
+    title = "Lenhador Avancado!"
+    description = "Corte 50.000 Blocos"
+
+[advancement.challenge_chop_500k]
+    title = "Mestre Lenhador!"
+    description = "Corte 500.000 Blocos"
+
+[advancement.challenge_chop_5m]
+    title = "Jackson, o Cao"
+    description = "O melhor bom menino! (5 Milhoes de Blocos)"
+
+[advancement.challenge_block_1k]
+    title = "Mal Bloqueando!"
+    description = "Bloqueie 1000 Golpes"
+
+[advancement.challenge_block_5k]
+    title = "Bloquear e Divertido!"
+    description = "Bloqueie 5000 Golpes"
+
+[advancement.challenge_block_50k]
+    title = "Bloquear e a minha vida!"
+    description = "Bloqueie 50.000 Golpes"
+
+[advancement.challenge_block_500k]
+    title = "Bloquear e o meu Proposito!"
+    description = "Bloqueie 500.000 Golpes"
+
+[advancement.challenge_block_5m]
+    title = "Die Hand Die Verletzt"
+    description = "Bloqueie 5.000.000 Golpes"
+
+[advancement.challenge_brew_1k]
+    title = "Alquimista Iniciante!"
+    description = "Consuma 1000 Pocoes"
+
+[advancement.challenge_brew_5k]
+    title = "Alquimista Intermediario!"
+    description = "Consuma 5000 Pocoes"
+
+[advancement.challenge_brew_50k]
+    title = "Alquimista Avancado!"
+    description = "Consuma 50.000 Pocoes"
+
+[advancement.challenge_brew_500k]
+    title = "Mestre Alquimista!"
+    description = "Consuma 500.000 Pocoes"
+
+[advancement.challenge_brew_5m]
+    title = "O Alquimista"
+    description = "Consuma 5.000.000 Pocoes"
+
+[advancement.challenge_brewsplash_1k]
+    title = "Lancador de Pocoes Iniciante!"
+    description = "Lance 1000 Pocoes"
+
+[advancement.challenge_brewsplash_5k]
+    title = "Lancador de Pocoes Intermediario!"
+    description = "Lance 5000 Pocoes"
+
+[advancement.challenge_brewsplash_50k]
+    title = "Lancador de Pocoes Avancado!"
+    description = "Lance 50.000 Pocoes"
+
+[advancement.challenge_brewsplash_500k]
+    title = "Mestre Lancador de Pocoes!"
+    description = "Lance 500.000 Pocoes"
+
+[advancement.challenge_brewsplash_5m]
+    title = "O Mestre do Respingo"
+    description = "Lance 5.000.000 Pocoes"
+
+[advancement.challenge_craft_1k]
+    title = "Artesao Astuto!"
+    description = "Fabrique 1000 Itens"
+
+[advancement.challenge_craft_5k]
+    title = "Artesao Rabugento!"
+    description = "Fabrique 5000 Itens"
+
+[advancement.challenge_craft_50k]
+    title = "Artesao Servil!"
+    description = "Fabrique 50.000 Itens"
+
+[advancement.challenge_craft_500k]
+    title = "Artesao Cacofonico!"
+    description = "Fabrique 500.000 Itens"
+
+[advancement.challenge_craft_5m]
+    title = "Calamitoso McCraftface"
+    description = "Fabrique 5.000.000 Itens"
+
+[advancement.challenge_enchant_1k]
+    title = "Encantador Iniciante!"
+    description = "Encante 1000 Itens"
+
+[advancement.challenge_enchant_5k]
+    title = "Encantador Intermediario!"
+    description = "Encante 5000 Itens"
+
+[advancement.challenge_enchant_50k]
+    title = "Encantador Avancado!"
+    description = "Encante 50.000 Itens"
+
+[advancement.challenge_enchant_500k]
+    title = "Mestre Encantador!"
+    description = "Encante 500.000 Itens"
+
+[advancement.challenge_enchant_5m]
+    title = "Encantador Enigmatico"
+    description = "Encante 5.000.000 Itens"
+
+[advancement.challenge_excavate_1k]
+    title = "Escavador Entusiasmado!"
+    description = "Escave 1000 Blocos"
+
+[advancement.challenge_excavate_5k]
+    title = "Escavador Intermediario!"
+    description = "Escave 5000 Blocos"
+
+[advancement.challenge_excavate_50k]
+    title = "Escavador Avancado!"
+    description = "Escave 50.000 Blocos"
+
+[advancement.challenge_excavate_500k]
+    title = "Mestre Escavador!"
+    description = "Escave 500.000 Blocos"
+
+[advancement.challenge_excavate_5m]
+    title = "Escavador Enigmatico"
+    description = "Escave 5.000.000 Blocos"
+
+[advancement.horrible_person]
+    title = "Voce e uma Pessoa Horrivel"
+    description = "Insondavel, realmente"
+
+[advancement.challenge_turtle_egg_smasher]
+    title = "Esmagador de Ovos de Tartaruga!"
+    description = "Quebre 100 ovos de tartaruga"
+
+[advancement.challenge_turtle_egg_annihilator]
+    title = "Aniquilador de Ovos de Tartaruga!"
+    description = "Quebre 500 ovos de tartaruga"
+
+[advancement.challenge_novice_hunter]
+    title = "Cacador Iniciante!"
+    description = "Mate 100 entidades"
+
+[advancement.challenge_intermediate_hunter]
+    title = "Cacador Intermediario!"
+    description = "Mate 500 entidades"
+
+[advancement.challenge_advanced_hunter]
+    title = "Cacador Avancado!"
+    description = "Mate 5000 entidades"
+
+[advancement.challenge_creeper_conqueror]
+    title = "Conquistador de Creepers!"
+    description = "Mate 50 creepers"
+
+[advancement.challenge_creeper_annihilator]
+    title = "Aniquilador de Creepers!"
+    description = "Mate 200 creepers"
+
+[advancement.challenge_pickaxe_1k]
+    title = "Mineiro Iniciante"
+    description = "Quebre 1000 Blocos"
+
+[advancement.challenge_pickaxe_5k]
+    title = "Mineiro Habilidoso"
+    description = "Quebre 5000 Blocos"
+
+[advancement.challenge_pickaxe_50k]
+    title = "Mineiro Especialista"
+    description = "Quebre 50.000 Blocos"
+
+[advancement.challenge_pickaxe_500k]
+    title = "Mestre Mineiro"
+    description = "Quebre 500.000 Blocos"
+
+[advancement.challenge_pickaxe_5m]
+    title = "Mineiro Lendario"
+    description = "Quebre 5.000.000 Blocos"
+
+[advancement.challenge_eat_100]
+    title = "Tanta coisa para comer!"
+    description = "Coma mais de 100 Itens!"
+
+[advancement.challenge_eat_1000]
+    title = "Fome Insaciavel!"
+    description = "Coma mais de 1.000 Itens!"
+
+[advancement.challenge_eat_10000]
+    title = "FOME ETERNA!"
+    description = "Coma mais de 10.000 Itens!"
+
+[advancement.challenge_harvest_100]
+    title = "Colheita Completa"
+    description = "Colha mais de 100 cultivos!"
+
+[advancement.challenge_harvest_1000]
+    title = "Grande Colheita"
+    description = "Colha mais de 1.000 cultivos!"
+
+[advancement.challenge_swim_1nm]
+    title = "Submarino Humano!"
+    description = "Nade 1 Milha Nautica (1.852 blocos)"
+
+[advancement.challenge_sneak_1k]
+    title = "Dor nos Joelhos"
+    description = "Agache-se por mais de um quilometro (1.000 blocos)"
+
+[advancement.challenge_sneak_5k]
+    title = "Caminhante das Sombras"
+    description = "Agache-se por mais de 5.000 blocos"
+
+[advancement.challenge_sneak_20k]
+    title = "Fantasma"
+    description = "Agache-se por mais de 20.000 blocos"
+
+[advancement.challenge_swim_5k]
+    title = "Mergulhador Profundo"
+    description = "Nade mais de 5.000 blocos"
+
+[advancement.challenge_swim_20k]
+    title = "Escolhido de Poseidon"
+    description = "Nade mais de 20.000 blocos"
+
+[advancement.challenge_sword_100]
+    title = "Primeiro Sangue"
+    description = "Acerte 100 golpes com uma espada"
+
+[advancement.challenge_sword_1k]
+    title = "Dancarina das Laminas"
+    description = "Acerte 1.000 golpes com uma espada"
+
+[advancement.challenge_sword_10k]
+    title = "Mil Cortes"
+    description = "Acerte 10.000 golpes com uma espada"
+
+[advancement.challenge_unarmed_100]
+    title = "Brigao de Bar"
+    description = "Acerte 100 golpes desarmado"
+
+[advancement.challenge_unarmed_1k]
+    title = "Punhos de Ferro"
+    description = "Acerte 1.000 golpes desarmado"
+
+[advancement.challenge_unarmed_10k]
+    title = "Um Soco"
+    description = "Acerte 10.000 golpes desarmado"
+
+[advancement.challenge_trag_1k]
+    title = "Preco de Sangue"
+    description = "Receba 1.000 de dano"
+
+[advancement.challenge_trag_10k]
+    title = "Mare Vermelha"
+    description = "Receba 10.000 de dano"
+
+[advancement.challenge_trag_100k]
+    title = "Avatar do Sofrimento"
+    description = "Receba 100.000 de dano"
+
+[advancement.challenge_ranged_100]
+    title = "Pratica de Tiro"
+    description = "Dispare 100 projeteis"
+
+[advancement.challenge_ranged_1k]
+    title = "Olho de Falcao"
+    description = "Dispare 1.000 projeteis"
+
+[advancement.challenge_ranged_10k]
+    title = "Tempestade de Flechas"
+    description = "Dispare 10.000 projeteis"
+
+[advancement.challenge_chronos_1h]
+    title = "Tic-Tac"
+    description = "Passe 1 hora online"
+
+[advancement.challenge_chronos_24h]
+    title = "Areias do Tempo"
+    description = "Passe 24 horas online"
+
+[advancement.challenge_chronos_168h]
+    title = "Eterno"
+    description = "Passe 168 horas (1 semana) online"
+
+[advancement.challenge_nether_50]
+    title = "Guardiao do Inferno"
+    description = "Mate 50 criaturas do Nether"
+
+[advancement.challenge_nether_500]
+    title = "Sentinela Abissal"
+    description = "Mate 500 criaturas do Nether"
+
+[advancement.challenge_nether_5k]
+    title = "Senhor do Nether"
+    description = "Mate 5.000 criaturas do Nether"
+
+[advancement.challenge_rift_50]
+    title = "Anomalia Espacial"
+    description = "Teleporte-se 50 vezes"
+
+[advancement.challenge_rift_500]
+    title = "Caminhante do Vazio"
+    description = "Teleporte-se 500 vezes"
+
+[advancement.challenge_rift_5k]
+    title = "Entre Mundos"
+    description = "Teleporte-se 5.000 vezes"
+
+[advancement.challenge_taming_10]
+    title = "Encantador de Animais"
+    description = "Crie 10 animais"
+
+[advancement.challenge_taming_50]
+    title = "Lider da Matilha"
+    description = "Crie 50 animais"
+
+[advancement.challenge_taming_500]
+    title = "Mestre das Feras"
+    description = "Crie 500 animais"
+
+# items
+[items]
+
+[items.bound_ender_peral]
+    name = "Chave Portal do Relicario"
+    usage1 = "Shift + Clique Esquerdo para vincular"
+    usage2 = "Clique Direito para aceder ao Inventario vinculado"
+
+[items.bound_eye_of_ender]
+    name = "Ancora Ocular"
+    usage1 = "Clique Direito para consumir e teletransportar para o local vinculado"
+    usage2 = "Shift + Clique Esquerdo para vincular a um bloco"
+
+[items.bound_redstone_torch]
+    name = "Controlo Remoto de Redstone"
+    usage1 = "Clique Direito para criar um pulso Redstone de 1 Tick"
+    usage2 = "Shift + Clique Esquerdo num bloco 'Alvo' para vincular"
+
+[items.bound_snowball]
+    name = "Armadilha de Teia!"
+    usage1 = "Atire para criar uma armadilha de teia temporaria no local"
+
+[items.chrono_time_bottle]
+    name = "Tempo Numa Garrafa"
+    usage1 = "Armazena tempo passivamente enquanto esta no seu inventario"
+    usage2 = "Clique direito em blocos temporais ou animais bebes para gastar tempo armazenado"
+    stored = "Tempo Armazenado"
+
+[items.chrono_time_bomb]
+    name = "Bomba Temporal"
+    usage1 = "Clique direito para lancar um projetil crono que cria um campo temporal"
+
+[items.elevator_block]
+    name = "Bloco Elevador"
+    usage1 = "Salte para teletransportar para cima"
+    usage2 = "Agache para teletransportar para baixo"
+    usage3 = "Minimo de 2 blocos de ar entre os elevadores"
+
+# snippets
+[snippets]
+
+[snippets.gui]
+    level = "Nivel"
+    knowledge = "conhecimento"
+    power_used = "Energia Utilizada"
+    not_learned = "Nao Aprendido"
+    xp = "XP para"
+    welcome = "Bem-vindo!"
+    welcome_back = "Bem-vindo de volta!"
+    xp_bonus_for_time = "XP para"
+    max_ability_power = "Poder Maximo de Habilidade"
+    unlock_this_by_clicking = "Desbloqueie isto com Clique Direito: "
+    back = "Voltar"
+    unlearn_all = "Desaprender tudo"
+    unlearned_all = "Tudo desaprendido"
+
+[snippets.adapt_menu]
+    may_not_unlearn = "NAO PODE DESAPRENDER"
+    may_unlearn = "PODE APRENDER/DESAPRENDER"
+    knowledge_cost = "Custo de Conhecimento"
+    knowledge_available = "Conhecimento Disponivel"
+    already_learned = "Ja Aprendido"
+    unlearn_refund = "Clique para Desaprender e Reembolsar"
+    no_refunds = "HARDCORE, REEMBOLSOS DESATIVADOS"
+    knowledge = "conhecimento"
+    click_learn = "Clique para Aprender"
+    no_knowledge = "(Nao tens nenhum Conhecimento)"
+    you_only_have = "So tens"
+    how_to_level_up = "Sobe o nivel das habilidades para aumentar o teu poder maximo."
+    not_enough_power = "Poder insuficiente! Cada Nivel de Habilidade custa 1 poder."
+    power = "poder"
+    power_drain = "Consumo de Poder"
+    learned = "Aprendido "
+    unlearned = "Desaprendido "
+    activator_block = "Estante de Livros"
+
+[snippets.knowledge_orb]
+    contains = "contem"
+    knowledge = "conhecimento"
+    rightclick = "Clique Direito"
+    togainknowledge = "para obter este conhecimento"
+    knowledge_orb = "Orbe de Conhecimento"
+
+[snippets.experience_orb]
+    contains = "contem"
+    xp = "Experiencia"
+    rightclick = "Clique Direito"
+    togainxp = "para ganhar esta experiencia"
+    xporb = "Orbe de Experiencia"
+
+# skill
+[skill]
+
+[skill.agility]
+    name = "Agilidade"
+    icon = "⇉"
+    description = "Agilidade e a capacidade de se mover rapida e fluidamente perante obstaculos."
+
+[skill.architect]
+    name = "Arquiteto"
+    icon = "⬧"
+    description = "As estruturas sao os blocos de construcao do mundo. A realidade esta nas tuas maos, tua para controlar."
+
+[skill.axes]
+    name = "Machados"
+    icon = "🪓"
+    description1 = "Porque cortar arvores, quando podes cortar "
+    description2 = "coisas"
+    description3 = "em vez disso, o mesmo resultado final!"
+
+[skill.brewing]
+    name = "Alquimia"
+    icon = "❦"
+    description = "Bolha Dupla, Bolha Tripla, Bolha Quadrupla - ainda nao consigo colocar esta pocao num caldeirao"
+
+[skill.blocking]
+    name = "Bloqueio"
+    icon = "🛡"
+    description = "Paus e pedras nao vao partir os teus ossos, mas um escudo sim."
+
+[skill.crafting]
+    name = "Fabrico"
+    icon = "⌂"
+    description = "Sem mais pecas para colocar, porque nao fazer outra?"
+
+[skill.discovery]
+    name = "Descoberta"
+    icon = "⚛"
+    description = "A medida que a tua percepcao se expande, a tua mente desvenda aquilo que nao conhecias."
+
+[skill.enchanting]
+    name = "Encantamento"
+    icon = "✠"
+    description = "De que estas a falar? Profecias, visoes, tretas supersticiosas?"
+
+[skill.excavation]
+    name = "Escavacao"
+    icon = "ᛳ"
+    description = "Cava, cava o buraco..."
+
+[skill.herbalism]
+    name = "Herbalismo"
+    icon = "⚘"
+    description = "Nao encontro plantas nenhumas, mas encontro sementes e - isso e... Erva?"
+
+[skill.hunter]
+    name = "Cacador"
+    icon = "☠"
+    description = "A caca e sobre a jornada, nao o resultado."
+
+[skill.nether]
+    name = "Nether"
+    icon = "₪"
+    description = "Das profundezas do proprio Nether."
+
+[skill.pickaxe]
+    name = "Picareta"
+    icon = "⛏"
+    description = "Os anoes sao os mineiros, mas aprendi uma coisa ou duas no meu tempo. SOU SUECO"
+
+[skill.ranged]
+    name = "Distancia"
+    icon = "🏹"
+    description = "A distancia e a chave para a vitoria, e a chave para a sobrevivencia."
+
+[skill.rift]
+    name = "Fenda"
+    icon = "❍"
+    description = "A Fenda e um arnes caustico, mas tu dominaste o arnes."
+
+[skill.seaborne]
+    name = "Maritimo"
+    icon = "🎣"
+    description = "Com esta habilidade, podes dominar as maravilhas da agua."
+
+[skill.stealth]
+    name = "Furtividade"
+    icon = "☯"
+    description = "A arte do invisivel. Caminha nas sombras."
+
+[skill.swords]
+    name = "Espadas"
+    icon = "⚔"
+    description = "Pelo poder de GreyStone!"
+
+[skill.taming]
+    name = "Domesticacao"
+    icon = "♥"
+    description = "Os papagaios e as abelhas... e tu?"
+
+[skill.tragoul]
+    name = "TragOul"
+    icon = "🗡"
+    description = "O sangue flui pelas veias do universo. Constrangido pelas tuas maos."
+
+[skill.chronos]
+    name = "Cronos"
+    icon = "🕒"
+    description = "Da corda ao Relogio do universo, experimenta o fluxo. Parte o relogio, torna-te nele."
+
+[skill.unarmed]
+    name = "Desarmado"
+    icon = "»"
+    description = "Sem arma nao significa sem forca."
+
+# agility
+[agility]
+
+[agility.armor_up]
+    name = "Armadura Crescente"
+    description = "Ganha mais armadura quanto mais tempo correres!"
+    lore1 = "Armadura Maxima"
+    lore2 = "Tempo de Armadura"
+    lore = ["Armadura Maxima", "Tempo de Armadura"]
+
+[agility.ladder_slide]
+    name = "Deslizar na Escada"
+    description = "Sobe e desce escadas muito mais rapido em ambas as direcoes."
+    lore1 = "Multiplicador de velocidade na escada"
+    lore2 = "Velocidade de descida rapida"
+    lore = ["Multiplicador de velocidade na escada", "Velocidade de descida rapida"]
+
+[agility.super_jump]
+    name = "Super Salto"
+    description = "Vantagem de Altura Excecional."
+    lore1 = "Altura Maxima de Salto"
+    lore2 = "Agachar + Saltar para Super Salto!"
+    lore = ["Altura Maxima de Salto", "Agachar + Saltar para Super Salto!"]
+
+[agility.wall_jump]
+    name = "Salto na Parede"
+    description = "Segura shift enquanto no ar junto a uma parede para te agarrares e saltares!"
+    lore1 = "Saltos Maximos"
+    lore2 = "Altura do Salto"
+    lore = ["Saltos Maximos", "Altura do Salto"]
+
+[agility.wind_up]
+    name = "Aceleracao"
+    description = "Fica mais rapido quanto mais tempo correres!"
+    lore1 = "Velocidade Maxima"
+    lore2 = "Tempo de Aceleracao"
+    lore = ["Velocidade Maxima", "Tempo de Aceleracao"]
+
+# architect
+[architect]
+
+[architect.elevator]
+    name = "Elevador"
+    description = "Permite-te construir um elevador para teletransportar verticalmente com rapidez!"
+    lore1 = "Desbloqueia receita do elevador: X=LA, Y=PEROLA DO ENDER"
+    lore2 = "XXX"
+    lore3 = "XYX"
+    lore4 = "XXX"
+    lore = ["Desbloqueia receita do elevador: X=LA, Y=PEROLA DO ENDER", "XXX", "XYX", "XXX"]
+
+[architect.foundation]
+    name = "Fundacao Magica"
+    description = "Permite-te agachar e colocar uma fundacao temporaria debaixo de ti!"
+    lore1 = "Cria magicamente: "
+    lore2 = "Blocos debaixo de ti!"
+    lore = ["Cria magicamente: ", "Blocos debaixo de ti!"]
+
+[architect.glass]
+    name = "Vidro com Toque de Seda"
+    description = "Permite-te essencialmente evitar a perda de blocos de vidro quando os partes com a mao vazia!"
+    lore1 = "As tuas maos ganham toque de seda para Vidro"
+    lore = ["As tuas maos ganham toque de seda para Vidro"]
+
+[architect.wireless_redstone]
+    name = "Controlo Remoto de Redstone"
+    description = "Permite-te usar uma tocha de redstone para alternar redstone, remotamente!"
+    lore1 = "Alvo + Tocha de Redstone + Perola do Ender = 1 Controlo Remoto de Redstone"
+    lore = ["Alvo + Tocha de Redstone + Perola do Ender = 1 Controlo Remoto de Redstone"]
+
+[architect.placement]
+    name = "Varinha de Construtor"
+    description = "Permite-te colocar multiplos blocos de uma vez. Para ativar, agacha-te e segura um bloco que corresponda ao bloco para o qual estas a olhar e coloca! Tem em conta que podes precisar de te mover um pouco para acionar a delimitacao!"
+    lore1 = "Precisas de"
+    lore2 = "blocos na tua mao para colocar isto"
+    lore3 = "Uma Varinha de Construtor de Material"
+    lore = ["Precisas de", "blocos na tua mao para colocar isto", "Uma Varinha de Construtor de Material"]
+
+# axe
+[axe]
+
+[axe.chop]
+    name = "Corte de Machado"
+    description = "Corta arvores clicando com o botao direito no tronco base!"
+    lore1 = "Blocos Por Corte"
+    lore2 = "Tempo de Espera do Corte"
+    lore3 = "Desgaste da Ferramenta"
+    lore = ["Blocos Por Corte", "Tempo de Espera do Corte", "Desgaste da Ferramenta"]
+
+[axe.log_swap]
+    name = "Troca de Troncos da Lucy"
+    description = "Muda o tipo de troncos numa Mesa de Fabrico!"
+    lore1 = "8 Troncos de qualquer tipo + 1 muda = 8 troncos do tipo da muda"
+    lore = ["8 Troncos de qualquer tipo + 1 muda = 8 troncos do tipo da muda"]
+
+[axe.drop_to_inventory]
+    name = "Machado Direto-Para-Inventario"
+
+[axe.ground_smash]
+    name = "Esmagar o Chao com Machado"
+    description = "Salta, depois agacha-te e esmaga todos os inimigos proximos."
+    lore1 = "Dano"
+    lore2 = "Raio de Blocos"
+    lore3 = "Forca"
+    lore4 = "Tempo de Espera do Esmagar"
+    lore = ["Dano", "Raio de Blocos", "Forca", "Tempo de Espera do Esmagar"]
+
+[axe.leaf_miner]
+    name = "Mineiro de Folhas"
+    description = "Permite-te partir folhas em massa de uma so vez!"
+    lore1 = "Agacha e minera FOLHAS"
+    lore2 = "alcance da mineracao de folhas"
+    lore3 = "Nao recebes os drops das folhas (Prevencao de Exploits)"
+    lore = ["Agacha e minera FOLHAS", "alcance da mineracao de folhas", "Nao recebes os drops das folhas (Prevencao de Exploits)"]
+
+[axe.wood_miner]
+    name = "Mineiro de Madeira"
+    description = "Permite-te partir madeira em massa de uma so vez!"
+    lore1 = "Agacha e minera MADEIRA/TRONCOS (Nao Tabuas)"
+    lore2 = "alcance da mineracao de madeira"
+    lore3 = "Funciona com Direto-Para-Inventario"
+    lore = ["Agacha e minera MADEIRA/TRONCOS (Nao Tabuas)", "alcance da mineracao de madeira", "Funciona com Direto-Para-Inventario"]
+
+# brewing
+[brewing]
+
+[brewing.lingering]
+    name = "Pocao Prolongada"
+    description = "Pocoes fabricadas duram mais tempo!"
+    lore1 = "Duracao"
+    lore2 = "Duracao"
+    lore = ["Duracao", "Duracao"]
+
+[brewing.super_heated]
+    name = "Pocao Super Aquecida"
+    description = "Suportes de pocoes funcionam mais rapido quanto mais quentes estiverem."
+    lore1 = "Por Bloco de Fogo a Tocar"
+    lore2 = "Por Bloco de Lava a Tocar"
+    lore = ["Por Bloco de Fogo a Tocar", "Por Bloco de Lava a Tocar"]
+
+[brewing.darkness]
+    name = "Escuridao Engarrafada"
+    description = "Nao sei porque precisas disto, mas aqui tens!"
+    lore1 = "Pocao de Visao Noturna + Betao Preto = Pocao de Escuridao (30 segundos)"
+    lore2 = "Nota que isto impede o utilizador de correr!"
+    lore = ["Pocao de Visao Noturna + Betao Preto = Pocao de Escuridao (30 segundos)", "Nota que isto impede o utilizador de correr!"]
+
+[brewing.haste]
+    name = "Pressa Engarrafada"
+    description = "Quando a Eficiencia nao e suficiente"
+    lore1 = "Pocao de Velocidade + Fragmento de Ametista = Pocao de Pressa (60 segundos)"
+    lore2 = "Pocao de Velocidade + Bloco de Ametista = Pocao de Pressa-2 (30 segundos)"
+    lore = ["Pocao de Velocidade + Fragmento de Ametista = Pocao de Pressa (60 segundos)", "Pocao de Velocidade + Bloco de Ametista = Pocao de Pressa-2 (30 segundos)"]
+
+[brewing.absorption]
+    name = "Absorcao Engarrafada"
+    description = "Endurece o corpo!"
+    lore1 = "Cura Instantanea + Quartzo = Pocao de Absorcao (60 segundos)"
+    lore2 = "Cura Instantanea + Bloco de Quartzo = Pocao de Absorcao-2 (30 segundos)"
+    lore = ["Cura Instantanea + Quartzo = Pocao de Absorcao (60 segundos)", "Cura Instantanea + Bloco de Quartzo = Pocao de Absorcao-2 (30 segundos)"]
+
+[brewing.fatigue]
+    name = "Fadiga Engarrafada"
+    description = "Enfraquece o corpo!"
+    lore1 = "Pocao de Fraqueza + Bola de Slime = Pocao de Fadiga (30 segundos)"
+    lore2 = "Pocao de Fraqueza + Bloco de Slime = Pocao de Fadiga-2 (15 segundos)"
+    lore = ["Pocao de Fraqueza + Bola de Slime = Pocao de Fadiga (30 segundos)", "Pocao de Fraqueza + Bloco de Slime = Pocao de Fadiga-2 (15 segundos)"]
+
+[brewing.hunger]
+    name = "Fome Engarrafada"
+    description = "Alimenta o Insaciavel!"
+    lore1 = "Pocao Estranha + Carne Podre = Pocao de Fome (30 segundos)"
+    lore2 = "Pocao de Fraqueza + Carne Podre = Pocao de Fome-3 (15 segundos)"
+    lore = ["Pocao Estranha + Carne Podre = Pocao de Fome (30 segundos)", "Pocao de Fraqueza + Carne Podre = Pocao de Fome-3 (15 segundos)"]
+
+[brewing.nausea]
+    name = "Nausea Engarrafada"
+    description = "Voce me da enjoo!"
+    lore1 = "Pocao Estranha + Cogumelo Castanho = Pocao de Nausea (16 segundos)"
+    lore2 = "Pocao Estranha + Fungo Carmesim = Pocao de Nausea-2 (8 segundos)"
+    lore = ["Pocao Estranha + Cogumelo Castanho = Pocao de Nausea (16 segundos)", "Pocao Estranha + Fungo Carmesim = Pocao de Nausea-2 (8 segundos)"]
+
+[brewing.blindness]
+    name = "Cegueira Engarrafada"
+    description = "Es uma pessoa horrivel..."
+    lore1 = "Pocao Estranha + Saco de Tinta = Pocao de Cegueira (30 segundos)"
+    lore2 = "Pocao Estranha + Saco de Tinta Brilhante = Pocao de Cegueira-2 (15 segundos)"
+    lore = ["Pocao Estranha + Saco de Tinta = Pocao de Cegueira (30 segundos)", "Pocao Estranha + Saco de Tinta Brilhante = Pocao de Cegueira-2 (15 segundos)"]
+
+[brewing.resistance]
+    name = "Resistencia Engarrafada"
+    description = "Fortificacao no seu melhor!"
+    lore1 = "Pocao Estranha + Lingote de Ferro = Pocao de Resistencia (60 segundos)"
+    lore2 = "Pocao Estranha + Bloco de Ferro = Pocao de Resistencia-2 (30 segundos)"
+    lore = ["Pocao Estranha + Lingote de Ferro = Pocao de Resistencia (60 segundos)", "Pocao Estranha + Bloco de Ferro = Pocao de Resistencia-2 (30 segundos)"]
+
+[brewing.health_boost]
+    name = "Vida Engarrafada"
+    description = "Quando a saude maxima nao e suficiente..."
+    lore1 = "Pocao de Cura Instantanea + Maca Dourada = Pocao de Aumento de Saude (120 segundos)"
+    lore2 = "Pocao de Cura Instantanea + Maca Dourada Encantada = Pocao de Aumento de Saude-2 (120 segundos)"
+    lore = ["Pocao de Cura Instantanea + Maca Dourada = Pocao de Aumento de Saude (120 segundos)", "Pocao de Cura Instantanea + Maca Dourada Encantada = Pocao de Aumento de Saude-2 (120 segundos)"]
+
+[brewing.decay]
+    name = "Decomposicao Engarrafada"
+    description = "Quem diria que detritos seriam tao uteis?"
+    lore1 = "Pocao de Fraqueza + Batata Venenosa = Pocao de Wither (16 segundos)"
+    lore2 = "Pocao de Fraqueza + Raizes Carmesim = Pocao de Wither-2 (8 segundos)"
+    lore = ["Pocao de Fraqueza + Batata Venenosa = Pocao de Wither (16 segundos)", "Pocao de Fraqueza + Raizes Carmesim = Pocao de Wither-2 (8 segundos)"]
+
+[brewing.saturation]
+    name = "Saturacao Engarrafada"
+    description = "Sabes que... Nem estou com fome..."
+    lore1 = "Pocao de Regeneracao + Batata Assada = Pocao de Saturacao"
+    lore2 = "Pocao de Regeneracao + Fardo de Feno = Pocao de Saturacao-2"
+    lore = ["Pocao de Regeneracao + Batata Assada = Pocao de Saturacao", "Pocao de Regeneracao + Fardo de Feno = Pocao de Saturacao-2"]
+
+# blocking
+[blocking]
+
+[blocking.chain_armorer]
+    name = "Correntes de Mefistofeles"
+    description = "Permite-te fabricar Armadura de Malha"
+    lore1 = "A receita de fabrico e igual a qualquer outra, mas com pepitas de ferro em vez disso"
+    lore = ["A receita de fabrico e igual a qualquer outra, mas com pepitas de ferro em vez disso"]
+
+[blocking.horse_armorer]
+    name = "Armadura de Cavalo Fabricavel"
+    description = "Permite-te fabricar Armadura de Cavalo"
+    lore1 = "Rodeia uma sela com o material que queres usar para fabricar a armadura"
+    lore = ["Rodeia uma sela com o material que queres usar para fabricar a armadura"]
+
+[blocking.saddle_crafter]
+    name = "Sela Fabricavel"
+    description = "Fabrica uma Sela com Couro"
+    lore1 = "Receita: 5 Couro:"
+    lore = ["Receita: 5 Couro:"]
+
+[blocking.multi_armor]
+    name = "Multi-Armadura"
+    description = "Liga Elytras a Armadura"
+    lore1 = "Esta e uma habilidade incrivel para viajar."
+    lore2 = "Funde e altera dinamicamente Armadura/Elytra em tempo real!"
+    lore3 = "Para fundir, clica com shift num item sobre outro no teu inventario."
+    lore4 = "Para desvincular Armadura, larga o item agachado e ele sera desmontado."
+    lore5 = "Se a tua MultiArmadura for destruida, perdes todos os itens nela."
+    lore6 = "Nao preciso de armadura, isso decepciona-me..."
+    lore = ["Esta e uma habilidade incrivel para viajar.", "Funde e altera dinamicamente Armadura/Elytra em tempo real!", "Para fundir, clica com shift num item sobre outro no teu inventario.", "Para desvincular Armadura, larga o item agachado e ele sera desmontado.", "Se a tua MultiArmadura for destruida, perdes todos os itens nela.", "Nao preciso de armadura, isso decepciona-me..."]
+
+# crafting
+[crafting]
+
+[crafting.deconstruction]
+    name = "Desconstrucao"
+    description = "Desconstroi blocos e itens em componentes base recuperaveis!"
+    lore1 = "Larga qualquer item no chao."
+    lore2 = "Depois, agacha-te e clica direito com Tesouras"
+    lore = ["Larga qualquer item no chao.", "Depois, agacha-te e clica direito com Tesouras"]
+
+[crafting.xp]
+    name = "XP de Fabrico"
+    description = "Ganha XP passivo ao fabricar"
+    lore1 = "Ganha XP ao fabricar"
+    lore = ["Ganha XP ao fabricar"]
+
+[crafting.reconstruction]
+    name = "Reconstrucao de Minerio"
+    description = "Refabrica minerios a partir dos seus componentes base!"
+    lore1 = "8 dos Drops e 1 Hospedeiro = 1 Minerio (sem forma)"
+    lore2 = "Os drops devem ser fundidos (se aplicavel)"
+    lore3 = "Nao inclui: Sucatas, Quartzo, e Esmeraldas etc..."
+    lore4 = "Hospedeiro = Revestimento. ex: Pedra, Netherrack, Ardosia Profunda"
+    lore = ["8 dos Drops e 1 Hospedeiro = 1 Minerio (sem forma)", "Os drops devem ser fundidos (se aplicavel)", "Nao inclui: Sucatas, Quartzo, e Esmeraldas etc...", "Hospedeiro = Revestimento. ex: Pedra, Netherrack, Ardosia Profunda"]
+
+[crafting.leather]
+    name = "Couro Fabricavel"
+    description = "Fabrica Couro a partir de Carne Podre"
+    lore1 = "Basta atirar (carne podre) para a fogueira!"
+    lore = ["Basta atirar (carne podre) para a fogueira!"]
+
+[crafting.backpacks]
+    name = "Mochilas de Boutilier!"
+    description = "Isto simplesmente traz o Pacote do Mojang para o jogo!"
+    lore1 = "Precisas de estar em Sobrevivencia para usar isto"
+    lore2 = "XLX : Couro, Trela, Couro"
+    lore3 = "XSX : Couro, Caixa de Barril, Couro"
+    lore4 = "XCX : Couro, Bau, Couro"
+    lore = ["Precisas de estar em Sobrevivencia para usar isto", "XLX : Couro, Trela, Couro", "XSX : Couro, Caixa de Barril, Couro", "XCX : Couro, Bau, Couro"]
+
+[crafting.stations]
+    name = "Bancadas Portateis!"
+    description = "Usa uma bancada na palma da tua mao!"
+    lore2 = "QUAISQUER ITENS QUE ESQUECAS NA BANCADA AO FECHAR SAO PERDIDOS PARA SEMPRE!"
+    lore3 = "Bancadas validas: Bigorna, Fabrico, Rebolo, Cartografia, Corta-Pedras, Tear"
+    lore = ["QUAISQUER ITENS QUE ESQUECAS NA BANCADA AO FECHAR SAO PERDIDOS PARA SEMPRE!", "Bancadas validas: Bigorna, Fabrico, Rebolo, Cartografia, Corta-Pedras, Tear"]
+
+[crafting.skulls]
+    name = "Cranios Fabricaveis!"
+    description = "Usando Materiais podes Fabricar Cranios de Mobs!"
+    lore1 = "Rodeia um Bloco de Osso com o seguinte para obter um cranio:"
+    lore2 = "Zombie: Carne Podre"
+    lore3 = "Esqueleto: Osso"
+    lore4 = "Creeper: Polvora"
+    lore5 = "Wither: Tijolo do Nether"
+    lore6 = "Dragao: Sopro do Dragao"
+    lore = ["Rodeia um Bloco de Osso com o seguinte para obter um cranio:", "Zombie: Carne Podre", "Esqueleto: Osso", "Creeper: Polvora", "Wither: Tijolo do Nether", "Dragao: Sopro do Dragao"]
+
+# chronos
+[chronos]
+
+[chronos.time_in_a_bottle]
+    name = "Tempo Numa Garrafa"
+    description = "Carrega uma garrafa temporal que armazena tempo e gasta-o para acelerar blocos temporizados, cultivos e entidades envelheciveis como animais bebes. Receita (Sem Forma): Pocao de Rapidez + Relogio + Garrafa de Vidro."
+    lore1 = "Segundos armazenados carregados por tick"
+    lore2 = "Aceleracao temporal por segundo armazenado"
+    lore3 = "Receita (Sem Forma): Pocao de Rapidez + Relogio + Garrafa de Vidro"
+    lore = ["Segundos armazenados carregados por tick", "Aceleracao temporal por segundo armazenado", "Receita (Sem Forma): Pocao de Rapidez + Relogio + Garrafa de Vidro"]
+
+[chronos.aberrant_touch]
+    name = "Toque Aberrante"
+    description = "Ataques corpo a corpo aplicam lentidao acumulativa a custo de fome, com limites estritos em PvP, e enraizam alvos a 5 acumulacoes."
+    lore1 = "Ataques corpo a corpo aplicam lentidao acumulativa"
+    lore2 = "Limite de duracao de lentidao em PvE"
+    lore3 = "Limite de amplificador de lentidao em PvP"
+    lore = ["Ataques corpo a corpo aplicam lentidao acumulativa", "Limite de duracao de lentidao em PvE", "Limite de amplificador de lentidao em PvP"]
+
+[chronos.instant_recall]
+    name = "Retorno Instantaneo"
+    description = "Clica esquerdo ou direito com um relogio na mao para retroceder a um registo recente com saude e fome restauradas."
+    lore1 = "Duracao do retrocesso"
+    lore2 = "Tempo de espera"
+    lore3 = "Sem reversao de inventario"
+    lore = ["Duracao do retrocesso", "Tempo de espera", "Sem reversao de inventario"]
+
+[chronos.time_bomb]
+    name = "Bomba Temporal"
+    description = "Lanca uma bomba crono fabricada que cria um campo temporal, abranda entidades e congela projeteis."
+    lore1 = "Raio do campo temporal"
+    lore2 = "Duracao do campo temporal"
+    lore3 = "Tempo de espera da bomba"
+    lore4 = "Receita (Sem Forma): Relogio + Bola de Neve + Diamante + Areia"
+    lore = ["Raio do campo temporal", "Duracao do campo temporal", "Tempo de espera da bomba", "Receita (Sem Forma): Relogio + Bola de Neve + Diamante + Areia"]
+
+# discovery
+[discovery]
+
+[discovery.armor]
+    name = "Armadura do Mundo"
+    description = "Armadura passiva dependendo da dureza dos blocos proximos."
+    lore1 = "Armadura Passiva"
+    lore2 = "Baseada na dureza dos blocos proximos"
+    lore3 = "Forca da Armadura:"
+    lore = ["Armadura Passiva", "Baseada na dureza dos blocos proximos", "Forca da Armadura:"]
+
+[discovery.unity]
+    name = "Unidade Experimental"
+    description = "Recolher Orbes de Experiencia adiciona XP a habilidades aleatorias."
+    lore1 = "XP "
+    lore2 = "Por Orbe"
+    lore = ["XP ", "Por Orbe"]
+
+[discovery.resist]
+    name = "Resistencia Experimental"
+    description = "Consome experiencia para mitigar dano apenas quando um golpe te deixaria abaixo de 5 coracoes ou te mataria."
+    lore0 = "Ativa apenas em saude critica (<= 5 coracoes) uma vez a cada 15 segundos"
+    lore1 = " Dano Reduzido"
+    lore2 = "experiencia drenada"
+    lore = ["Ativa apenas em saude critica (<= 5 coracoes) uma vez a cada 15 segundos", " Dano Reduzido", "experiencia drenada"]
+
+[discovery.villager]
+    name = "Atracao de Aldeao"
+    description = "Permite-te obter melhores trocas com aldeoes!"
+    lore1 = "Isto consome XP por interacao com Aldeoes"
+    lore2 = "Chance por interacao de consumir XP e melhorar trocas"
+    lore3 = "drenagem de XP necessaria por Interacao"
+    lore = ["Isto consome XP por interacao com Aldeoes", "Chance por interacao de consumir XP e melhorar trocas", "drenagem de XP necessaria por Interacao"]
+
+# enchanting
+[enchanting]
+
+[enchanting.lapis_return]
+    name = "Retorno de Lapis"
+    description = "Ao custo de mais 1 nivel de XP, tem chance de te dar lapis gratis em troca"
+    lore1 = "Por cada nivel, aumenta o custo de encantamento em 1, mas pode devolver ate 3 Lapis"
+    lore = ["Por cada nivel, aumenta o custo de encantamento em 1, mas pode devolver ate 3 Lapis"]
+
+[enchanting.quick_enchant]
+    name = "Encantamento Rapido"
+    description = "Encanta itens clicando livros de encantamento diretamente neles."
+    lore1 = "Niveis Maximos Combinados"
+    lore2 = "Nao e possivel encantar um item com mais de "
+    lore3 = "potencia"
+    lore = ["Niveis Maximos Combinados", "Nao e possivel encantar um item com mais de ", "potencia"]
+
+[enchanting.return]
+    name = "Retorno de XP"
+    description = "XP de encantamento e devolvido quando encantas um item."
+    lore1 = "Experiencia gasta tem chance de ser reembolsada quando encantas um item"
+    lore2 = "Experiencia por Encantamento"
+    lore = ["Experiencia gasta tem chance de ser reembolsada quando encantas um item", "Experiencia por Encantamento"]
+
+# excavation
+[excavation]
+
+[excavation.haste]
+    name = "Escavador Apressado"
+    description = "Isto acelera o processo de escavacao, com PRESSA!"
+    lore1 = "Ganha Pressa durante a escavacao"
+    lore2 = "x Niveis de pressa quando comecas a minerar QUALQUER bloco."
+    lore = ["Ganha Pressa durante a escavacao", "x Niveis de pressa quando comecas a minerar QUALQUER bloco."]
+
+[excavation.spelunker]
+    name = "Espeleologista Supervidente!"
+    description = "Ve Minerios com os teus olhos, mas atraves do chao!"
+    lore1 = "Minerio na mao secundaria, Bagas Luminosas na mao principal, e Agacha!"
+    lore2 = "Alcance de Blocos: "
+    lore3 = "Consome Baga Luminosa ao usar"
+    lore = ["Minerio na mao secundaria, Bagas Luminosas na mao principal, e Agacha!", "Alcance de Blocos: ", "Consome Baga Luminosa ao usar"]
+
+[excavation.drop_to_inventory]
+    name = "Pa Direto-Para-Inventario"
+
+[excavation.omni_tool]
+    name = "OMNI - T.O.O.L."
+    description = "O opulento canivete suico de Tackle"
+    lore1 = "Provavelmente a mais poderosa de muitas permite-te"
+    lore2 = "fundir e trocar ferramentas dinamicamente em tempo real, com base nas tuas necessidades."
+    lore3 = "Para fundir, clica com shift num item sobre outro no teu inventario."
+    lore4 = "Para desvincular ferramentas, larga o item agachado e ele sera desmontado."
+    lore5 = "Nao podes partir ferramentas neste canivete mas nao podes usar ferramentas partidas"
+    lore6 = "total de itens fundiveis."
+    lore7 = "Podes usar cinco ou seis ferramentas, ou apenas uma!"
+    lore = ["Provavelmente a mais poderosa de muitas permite-te", "fundir e trocar ferramentas dinamicamente em tempo real, com base nas tuas necessidades.", "Para fundir, clica com shift num item sobre outro no teu inventario.", "Para desvincular ferramentas, larga o item agachado e ele sera desmontado.", "Nao podes partir ferramentas neste canivete mas nao podes usar ferramentas partidas", "total de itens fundiveis.", "Podes usar cinco ou seis ferramentas, ou apenas uma!"]
+
+# herbalism
+[herbalism]
+
+[herbalism.growth_aura]
+    name = "Aura de Crescimento"
+    description = "Faz crescer a natureza a tua volta numa aura"
+    lore1 = "Raio de Blocos"
+    lore2 = "Forca da Aura de Crescimento"
+    lore3 = "Custo de Comida"
+    lore = ["Raio de Blocos", "Forca da Aura de Crescimento", "Custo de Comida"]
+
+[herbalism.hippo]
+    name = "Hipopotamo do Herbalista"
+    description = "Consumir comida da-te mais saturacao"
+    lore1 = "Comida) pontos de saturacao adicionais ao consumir"
+    lore = ["Comida) pontos de saturacao adicionais ao consumir"]
+
+[herbalism.myconid]
+    name = "Miconide do Herbalista"
+    description = "Da-te a capacidade de fabricar Micelio"
+    lore1 = "Qualquer Terra e um Cogumelo Castanho e Vermelho fabricam Micelio."
+    lore = ["Qualquer Terra e um Cogumelo Castanho e Vermelho fabricam Micelio."]
+
+[herbalism.terralid]
+    name = "Terralide do Herbalista"
+    description = "Da-te a capacidade de fabricar Blocos de Relva"
+    lore1 = "Tres Sementes, sobre 3 Terra, fabricam 3 Blocos de Relva."
+    lore = ["Tres Sementes, sobre 3 Terra, fabricam 3 Blocos de Relva."]
+
+[herbalism.cobweb]
+    name = "Criador de Teias"
+    description = "Da-te a capacidade de fabricar Teias de Aranha numa Mesa de Fabrico"
+    lore1 = "Nove Fios fabricam uma Teia de Aranha."
+    lore = ["Nove Fios fabricam uma Teia de Aranha."]
+
+[herbalism.mushroom_blocks]
+    name = "Fabricante de Cogumelos"
+    description = "Da-te a capacidade de fabricar Blocos de Cogumelo numa Mesa de Fabrico"
+    lore1 = "Quatro Cogumelos para fazer um bloco, ou um bloco para fazer um caule."
+    lore = ["Quatro Cogumelos para fazer um bloco, ou um bloco para fazer um caule."]
+
+[herbalism.drop_to_inventory]
+    name = "Enxada Direto-Para-Inventario"
+
+[herbalism.hungry_shield]
+    name = "Escudo Faminto"
+    description = "Recebe dano na fome antes da saude."
+    lore1 = "Resistido pela Fome"
+    lore = ["Resistido pela Fome"]
+
+[herbalism.luck]
+    name = "Sorte do Herbalista"
+    description = "Ao partires Relva/Flores, tens chance de obter um item aleatorio"
+    lore0 = "Flores = Comida, e Relva = Sementes"
+    lore1 = "Chance de obter um item ao partir Flores"
+    lore2 = "Chance de obter um item ao partir Relva"
+    lore = ["Flores = Comida, e Relva = Sementes", "Chance de obter um item ao partir Flores", "Chance de obter um item ao partir Relva"]
+
+[herbalism.replant]
+    name = "Colheita e Replantacao"
+    description = "Clica direito numa colheita com uma enxada para colher e replantar."
+    lore1 = "Raio de Blocos de Replantacao"
+    lore = ["Raio de Blocos de Replantacao"]
+
+# hunter
+[hunter]
+
+[hunter.adrenaline]
+    name = "Adrenalina"
+    description = "Causa mais dano quanto menos saude tiveres (Corpo a corpo)"
+    lore1 = "Dano Maximo"
+    lore = ["Dano Maximo"]
+
+[hunter.penalty]
+    name = ""
+    description = ""
+    lore1 = "Ganhas acumulacoes de Veneno se ficares sem fome"
+    lore = ["Ganhas acumulacoes de Veneno se ficares sem fome"]
+
+[hunter.drop_to_inventory]
+    name = "Itens Direto-Para-Inventario"
+    description = "Quando matas algo / Partes um bloco com uma espada teleporta os drops para o teu inventario"
+    lore1 = "Sempre que um item cai de um mob/bloco que partes, vai para o teu inventario se possivel."
+    lore = ["Sempre que um item cai de um mob/bloco que partes, vai para o teu inventario se possivel."]
+
+[hunter.invisibility]
+    name = "Passo Fantasma"
+    description = "Quando es atingido ganhas invisibilidade, a custo de fome"
+    lore1 = "Ganha invisibilidade passiva ao ser atingido"
+    lore2 = "x Acumulacoes de Invisibilidade por 3 segundos ao ser atingido"
+    lore3 = "x Fome acumulativa"
+    lore4 = "Duracao e multiplicador da fome acumulativa."
+    lore5 = "Duracao da invisibilidade"
+    lore = ["Ganha invisibilidade passiva ao ser atingido", "x Acumulacoes de Invisibilidade por 3 segundos ao ser atingido", "x Fome acumulativa", "Duracao e multiplicador da fome acumulativa.", "Duracao da invisibilidade"]
+
+[hunter.jump_boost]
+    name = "Alturas do Cacador"
+    description = "Quando es atingido ganhas impulso de salto, a custo de fome"
+    lore1 = "Ganha impulso de salto passivo ao ser atingido"
+    lore2 = "x Acumulacoes de Impulso de Salto por 3 segundos ao ser atingido"
+    lore3 = "x Fome acumulativa"
+    lore4 = "Duracao e multiplicador da fome acumulativa."
+    lore5 = "Multiplicador de acumulacoes de Impulso de Salto, nao duracao."
+    lore = ["Ganha impulso de salto passivo ao ser atingido", "x Acumulacoes de Impulso de Salto por 3 segundos ao ser atingido", "x Fome acumulativa", "Duracao e multiplicador da fome acumulativa.", "Multiplicador de acumulacoes de Impulso de Salto, nao duracao."]
+
+[hunter.luck]
+    name = "Sorte do Cacador"
+    description = "Quando es atingido ganhas sorte, a custo de fome"
+    lore1 = "Ganha sorte passiva ao ser atingido"
+    lore2 = "x Acumulacoes de Sorte por 3 segundos ao ser atingido"
+    lore3 = "x Fome acumulativa"
+    lore4 = "Duracao e multiplicador da fome acumulativa."
+    lore5 = "Multiplicador de acumulacoes de Sorte, nao duracao."
+    lore = ["Ganha sorte passiva ao ser atingido", "x Acumulacoes de Sorte por 3 segundos ao ser atingido", "x Fome acumulativa", "Duracao e multiplicador da fome acumulativa.", "Multiplicador de acumulacoes de Sorte, nao duracao."]
+
+[hunter.regen]
+    name = "Regeneracao do Cacador"
+    description = "Quando es atingido ganhas regeneracao, a custo de fome"
+    lore1 = "Ganha regeneracao passiva ao ser atingido"
+    lore2 = "x Acumulacoes de Regeneracao por 3 segundos ao ser atingido"
+    lore3 = "x Fome acumulativa"
+    lore4 = "Duracao e multiplicador da fome acumulativa."
+    lore5 = "Multiplicador de acumulacoes de Regeneracao, nao duracao."
+    lore = ["Ganha regeneracao passiva ao ser atingido", "x Acumulacoes de Regeneracao por 3 segundos ao ser atingido", "x Fome acumulativa", "Duracao e multiplicador da fome acumulativa.", "Multiplicador de acumulacoes de Regeneracao, nao duracao."]
+
+[hunter.resistance]
+    name = "Resistencia do Cacador"
+    description = "Quando es atingido ganhas resistencia, a custo de fome"
+    lore1 = "Ganha resistencia passiva ao ser atingido"
+    lore2 = "x Acumulacoes de Resistencia por 3 segundos ao ser atingido"
+    lore3 = "x Fome acumulativa"
+    lore4 = "Duracao e multiplicador da fome acumulativa."
+    lore5 = "Multiplicador de acumulacoes de Resistencia, nao duracao."
+    lore = ["Ganha resistencia passiva ao ser atingido", "x Acumulacoes de Resistencia por 3 segundos ao ser atingido", "x Fome acumulativa", "Duracao e multiplicador da fome acumulativa.", "Multiplicador de acumulacoes de Resistencia, nao duracao."]
+
+[hunter.speed]
+    name = "Velocidade do Cacador"
+    description = "Quando es atingido ganhas velocidade, a custo de fome"
+    lore1 = "Ganha velocidade passiva ao ser atingido"
+    lore2 = "x Acumulacoes de Velocidade por 3 segundos ao ser atingido"
+    lore3 = "x Fome acumulativa"
+    lore4 = "Duracao e multiplicador da fome acumulativa."
+    lore5 = "Multiplicador de acumulacoes de Velocidade, nao duracao."
+    lore = ["Ganha velocidade passiva ao ser atingido", "x Acumulacoes de Velocidade por 3 segundos ao ser atingido", "x Fome acumulativa", "Duracao e multiplicador da fome acumulativa.", "Multiplicador de acumulacoes de Velocidade, nao duracao."]
+
+[hunter.strength]
+    name = "Forca do Cacador"
+    description = "Quando es atingido ganhas forca, a custo de fome"
+    lore1 = "Ganha forca passiva ao ser atingido"
+    lore2 = "x Acumulacoes de Forca por 3 segundos ao ser atingido"
+    lore3 = "x Fome acumulativa"
+    lore4 = "Duracao e multiplicador da fome acumulativa."
+    lore5 = "Multiplicador de acumulacoes de Forca, nao duracao."
+    lore = ["Ganha forca passiva ao ser atingido", "x Acumulacoes de Forca por 3 segundos ao ser atingido", "x Fome acumulativa", "Duracao e multiplicador da fome acumulativa.", "Multiplicador de acumulacoes de Forca, nao duracao."]
+
+# nether
+[nether]
+
+[nether.skull_toss]
+    name = "Arremesso de Cranio Wither"
+    description1 = "Liberta o teu Wither interior usando"
+    description2 = "a cabeca de"
+    description3 = "alguem."
+    lore1 = "Segundos de tempo de espera entre arremessos de cranio."
+    lore2 = "Usando Cranio Wither: Lanca um "
+    lore3 = "Cranio Wither"
+    lore4 = "que explode ao impacto."
+    lore = ["Segundos de tempo de espera entre arremessos de cranio.", "Usando Cranio Wither: Lanca um ", "Cranio Wither", "que explode ao impacto."]
+
+[nether.wither_resist]
+    name = "Resistencia ao Wither"
+    description = "Resiste ao wither atraves do poder da Netherite."
+    lore1 = "chance de negar o wither (por peca)."
+    lore2 = "Passivo: Usar Armadura de Netherite tem chance de negar "
+    lore3 = "o wither."
+    lore = ["chance de negar o wither (por peca).", "Passivo: Usar Armadura de Netherite tem chance de negar ", "o wither."]
+
+[nether.fire_resist]
+    name = "Resistencia ao Fogo"
+    description = "Resiste ao fogo endurecendo a tua pele."
+    lore1 = "chance de negar o efeito de queimadura!"
+    lore = ["chance de negar o efeito de queimadura!"]
+
+# pickaxe
+[pickaxe]
+
+[pickaxe.auto_smelt]
+    name = "Fundicao Automatica"
+    description = "Permite-te fundir minerios Vanilla extraidos"
+    lore1 = "Minerios que podem ser fundidos sao fundidos automaticamente"
+    lore2 = "% de chance de um extra"
+    lore = ["Minerios que podem ser fundidos sao fundidos automaticamente", "% de chance de um extra"]
+
+[pickaxe.chisel]
+    name = "Cinzel de Minerio"
+    description = "Clica direito em Minerios para Cinzelar mais minerio deles, a um custo severo de durabilidade."
+    lore1 = "Chance de Drop"
+    lore2 = "Desgaste da Ferramenta"
+    lore = ["Chance de Drop", "Desgaste da Ferramenta"]
+
+[pickaxe.drop_to_inventory]
+    name = "Picareta Direto-Para-Inventario"
+    description = "Quando partes um bloco, teleporta o item para o teu inventario"
+    lore1 = "Sempre que um item cai de um bloco que partes, vai para o teu inventario se possivel."
+    lore = ["Sempre que um item cai de um bloco que partes, vai para o teu inventario se possivel."]
+
+[pickaxe.silk_spawner]
+    name = "Picareta Silk-Spawner"
+    description = "Faz Spawners caírem quando partidos"
+    lore1 = "Torna Spawners quebraveis com toque de seda."
+    lore2 = "Torna Spawners quebraveis enquanto agachado."
+    lore = ["Torna Spawners quebraveis com toque de seda.", "Torna Spawners quebraveis enquanto agachado."]
+
+[pickaxe.vein_miner]
+    name = "Mineiro de Veios"
+    description = "Permite-te partir blocos num Veio/Grupo de minerios Vanilla"
+    lore1 = "Agacha e minera MINERIOS"
+    lore2 = "alcance da mineracao de veios"
+    lore3 = "Esta habilidade NAO agrupa todos os drops juntos!"
+    lore = ["Agacha e minera MINERIOS", "alcance da mineracao de veios", "Esta habilidade NAO agrupa todos os drops juntos!"]
+
+# ranged
+[ranged]
+
+[ranged.arrow_recovery]
+    name = "Recuperacao de Flechas"
+    description = "Recupera Flechas depois de matares um inimigo."
+    lore1 = "Chance de Recuperar Flechas ao Acertar/Matar"
+    lore2 = "Chance: "
+    lore = ["Chance de Recuperar Flechas ao Acertar/Matar", "Chance: "]
+
+[ranged.web_shot]
+    name = "Armadilha de Teia"
+    description = "Rodeia o teu alvo com teias de aranha quando o acertas!"
+    lore1 = "8 Teias de Aranha a volta de uma Bola de Neve, e atira!"
+    lore2 = "segundos de gaiola, aproximadamente."
+    lore = ["8 Teias de Aranha a volta de uma Bola de Neve, e atira!", "segundos de gaiola, aproximadamente."]
+
+[ranged.force_shot]
+    name = "Tiro Forcado"
+    description = "Dispara projeteis mais longe, mais rapido!"
+    advancementname = "Tiro Longo"
+    advancementlore = "Acerta um tiro a mais de 30 blocos de distancia!"
+    lore1 = "Velocidade do Projetil"
+    lore = ["Velocidade do Projetil"]
+
+[ranged.lunge_shot]
+    name = "Tiro de Estocada"
+    description = "Enquanto cais, as tuas flechas lancam-te numa direcao aleatoria"
+    lore1 = "Velocidade de Rajada Aleatoria"
+    lore = ["Velocidade de Rajada Aleatoria"]
+
+[ranged.arrow_piercing]
+    name = "Perfuracao de Flechas"
+    description = "Adiciona Perfuracao a projeteis! Dispara atraves de coisas!"
+    lore1 = "Alvos Perfurados"
+    lore = ["Alvos Perfurados"]
+
+# rift
+[rift]
+
+[rift.remote_access]
+    name = "Acesso Remoto"
+    description = "Puxa do vazio e acede a um contentor marcado."
+    lore1 = "Perola do Ender + Bussola = Chave Portal do Relicario"
+    lore2 = "Este item permite-te aceder a contentores remotamente"
+    lore3 = "Depois de fabricar, olha para o item para ver como usar"
+    notcontainer = "Isso nao e um contentor"
+    lore = ["Perola do Ender + Bussola = Chave Portal do Relicario", "Este item permite-te aceder a contentores remotamente", "Depois de fabricar, olha para o item para ver como usar"]
+
+[rift.blink]
+    name = "Piscar da Fenda"
+    description = "Teletransporte instantaneo de curto alcance, apenas um piscar de olhos!"
+    lore1 = "Blocos no piscar (2x Vertical)"
+    lore2 = "Enquanto a Correr: Toca duas vezes em Saltar para "
+    lore3 = "Piscar"
+    lore = ["Blocos no piscar (2x Vertical)", "Enquanto a Correr: Toca duas vezes em Saltar para ", "Piscar"]
+
+[rift.chest]
+    name = "Bau do Ender Facil"
+    description = "Abre um bau do ender clicando nele com o botao esquerdo na tua mao."
+    lore1 = "Clica num Bau do Ender na tua mao para abrir (Nao o coloques)"
+    lore = ["Clica num Bau do Ender na tua mao para abrir (Nao o coloques)"]
+
+[rift.descent]
+    name = "Anti-Levitacao"
+    description = "Estas cansado de ficar preso no ar? Esta e a habilidade para ti!"
+    lore1 = "Basta agachares para descer, e vais cair a uma velocidade menor que o normal!"
+    lore2 = "Tempo de espera:"
+    lore = ["Basta agachares para descer, e vais cair a uma velocidade menor que o normal!", "Tempo de espera:"]
+
+[rift.gate]
+    name = "Portal da Fenda"
+    description = "Teletransporta para um local marcado."
+    lore1 = "FABRICO: Esmeralda + Fragmento de Ametista + Perola do Ender"
+    lore2 = "Le antes de usar!"
+    lore3 = "5s de atraso, "
+    lore4 = "podes morrer enquanto estiveres nesta animacao"
+    lore = ["FABRICO: Esmeralda + Fragmento de Ametista + Perola do Ender", "Le antes de usar!", "5s de atraso, ", "podes morrer enquanto estiveres nesta animacao"]
+
+[rift.resist]
+    name = "Resistencia da Fenda"
+    description = "Ganha Resistencia ao usar Itens e Habilidades do Ender"
+    lore1 = "+ Passivo: Fornece resistencia quando usas habilidades da fenda, ou Itens do Ender"
+    lore2 = "NAO incluindo Bau do Ender Portatil, apenas coisas que podes Consumir"
+    lore = ["+ Passivo: Fornece resistencia quando usas habilidades da fenda, ou Itens do Ender", "NAO incluindo Bau do Ender Portatil, apenas coisas que podes Consumir"]
+
+[rift.visage]
+    name = "Visagem da Fenda"
+    description = "Impede Endermen de ficarem agressivos se tiveres Perolas do Ender no teu inventario."
+    lore1 = "Endermen nao ficam agressivos se tiveres Perolas do Ender no teu inventario."
+    lore = ["Endermen nao ficam agressivos se tiveres Perolas do Ender no teu inventario."]
+
+# seaborn
+[seaborn]
+
+[seaborn.oxygen]
+    name = "Tanque de Oxigenio Organico"
+    description = "Mantem mais oxigenio nos teus pequenos pulmoes!"
+    lore1 = "Aumento da Capacidade de Oxigenio"
+    lore = ["Aumento da Capacidade de Oxigenio"]
+
+[seaborn.fishers_fantasy]
+    name = "Fantasia do Pescador"
+    description = "Ganha mais XP ao pescar e apanha mais peixe!"
+    lore1 = "Por cada nivel ha uma chance de obter mais XP e Peixe!"
+    lore = ["Por cada nivel ha uma chance de obter mais XP e Peixe!"]
+
+[seaborn.haste]
+    name = "Tartaruga Mineira"
+    description = "Ao minerar debaixo de agua ganhas pressa!"
+    lore1 = "Pressa 3 e aplicada debaixo de agua enquanto mineras (acumula com AquaAffinity) depois do efeito de respiracao aquatica acabar!"
+    lore = ["Pressa 3 e aplicada debaixo de agua enquanto mineras (acumula com AquaAffinity) depois do efeito de respiracao aquatica acabar!"]
+
+[seaborn.night_vision]
+    name = "Visao da Tartaruga"
+    description = "Enquanto debaixo de agua, ganhas Visao Noturna"
+    lore1 = "Simplesmente ganha Visao Noturna enquanto debaixo de agua depois do efeito de respiracao aquatica acabar!"
+    lore = ["Simplesmente ganha Visao Noturna enquanto debaixo de agua depois do efeito de respiracao aquatica acabar!"]
+
+[seaborn.dolphin_grace]
+    name = "Graca do Golfinho"
+    description = "Nada como um golfinho, sem os golfinhos"
+    lore1 = "+ Passivo: ganha "
+    lore2 = "x velocidade (graca do golfinho)"
+    lore3 = "engenharia alema de precisao- espera, isso nao esta certo... Nao Compativel com Profundidade"
+    lore = ["+ Passivo: ganha ", "x velocidade (graca do golfinho)", "engenharia alema de precisao- espera, isso nao esta certo... Nao Compativel com Profundidade"]
+
+# stealth
+[stealth]
+
+[stealth.ghost_armor]
+    name = "Armadura Fantasma"
+    description = "Armadura que se constroi lentamente quando nao recebes dano, dura 1 golpe"
+    lore1 = "Armadura Maxima"
+    lore2 = "Velocidade"
+    lore = ["Armadura Maxima", "Velocidade"]
+
+[stealth.night_vision]
+    name = "Visao Furtiva"
+    description = "Ganha visao noturna enquanto agachado"
+    lore1 = "Ganha um surto de "
+    lore2 = "visao noturna"
+    lore3 = "enquanto agachado"
+    lore = ["Ganha um surto de ", "visao noturna", "enquanto agachado"]
+
+[stealth.snatch]
+    name = "Apanhar Itens"
+    description = "Apanha itens largados instantaneamente enquanto agachado!"
+    lore1 = "Raio de Apanhar"
+    lore = ["Raio de Apanhar"]
+
+[stealth.speed]
+    name = "Velocidade Furtiva"
+    description = "Ganha velocidade enquanto agachado"
+    lore1 = "Velocidade ao Agachar"
+    lore = ["Velocidade ao Agachar"]
+
+[stealth.ender_veil]
+    name = "Veu do Ender"
+    description = "Sem mais Aboboras para prevenir ataques de Endermen"
+    lore1 = "Previne ataques de endermen enquanto agachado"
+    lore2 = "Previne todos os ataques de endermen"
+    lore = ["Previne ataques de endermen enquanto agachado", "Previne todos os ataques de endermen"]
+
+# sword
+[sword]
+
+[sword.machete]
+    name = "Machete"
+    description = "Corta folhagem com facilidade!"
+    lore1 = "Raio de Corte"
+    lore2 = "Tempo de Espera do Corte"
+    lore3 = "Desgaste da Ferramenta"
+    lore = ["Raio de Corte", "Tempo de Espera do Corte", "Desgaste da Ferramenta"]
+
+[sword.bloody_blade]
+    name = "Lamina Sangrenta"
+    description = "Golpes com a tua espada causam Sangramento!"
+    lore1 = "Atingir uma entidade viva com a tua Espada causa Sangramento"
+    lore2 = "Duracao do Sangramento"
+    lore3 = "Tempo de Espera do Sangramento"
+    lore = ["Atingir uma entidade viva com a tua Espada causa Sangramento", "Duracao do Sangramento", "Tempo de Espera do Sangramento"]
+
+[sword.poisoned_blade]
+    name = "Lamina Envenenada"
+    description = "Golpes com a tua espada causam Veneno!"
+    lore1 = "Atingir uma entidade viva com a tua Espada causa Veneno"
+    lore2 = "Duracao do Veneno"
+    lore3 = "Tempo de Espera do Veneno"
+    lore = ["Atingir uma entidade viva com a tua Espada causa Veneno", "Duracao do Veneno", "Tempo de Espera do Veneno"]
+
+# taming
+[taming]
+
+[taming.damage]
+    name = "Dano de Domesticado"
+    description = "Aumenta o dano causado pelo teu animal domesticado."
+    lore1 = "Dano Aumentado"
+    lore = ["Dano Aumentado"]
+
+[taming.health]
+    name = "Saude de Domesticado"
+    description = "Aumenta a saude do teu animal domesticado."
+    lore1 = "Saude Aumentada"
+    lore = ["Saude Aumentada"]
+
+[taming.regeneration]
+    name = "Regeneracao de Domesticado"
+    description = "Aumenta a regeneracao do teu animal domesticado."
+    lore1 = "HP/s"
+    lore = ["HP/s"]
+
+# tragoul
+[tragoul]
+
+[tragoul.thorns]
+    name = "Espinhos"
+    description = "Reflete dano de volta ao teu atacante!"
+    lore1 = "Dano retaliado quando atingido"
+    lore = ["Dano retaliado quando atingido"]
+
+[tragoul.globe]
+    name = "Globo de Dor"
+    description = "Divide o Dano que causas baseado no numero de inimigos a tua volta!"
+    lore1 = "Quanto mais inimigos a tua volta, menos dano causas a cada um"
+    lore2 = "Alcance: "
+    lore3 = "Dano Adicionado a todas as Entidades: "
+    lore = ["Quanto mais inimigos a tua volta, menos dano causas a cada um", "Alcance: ", "Dano Adicionado a todas as Entidades: "]
+
+[tragoul.healing]
+    name = "Vontade da Dor"
+    description = "Recupera saude baseado no dano que causas!"
+    lore1 = "Magoar coisas nunca soube tao bem! Cura com o Dano Causado"
+    lore2 = "Ha uma janela de dano de 3 Segundos, para cura e um Tempo de Espera de 1 Segundo "
+    lore3 = "Cura Por Percentagem de Dano: "
+    lore = ["Magoar coisas nunca soube tao bem! Cura com o Dano Causado", "Ha uma janela de dano de 3 Segundos, para cura e um Tempo de Espera de 1 Segundo ", "Cura Por Percentagem de Dano: "]
+
+[tragoul.lance]
+    name = "Lancas Cadavericas"
+    description = "Matar um inimigo ou uma habilidade matar um inimigo gera uma lanca que causa dano a um inimigo proximo!"
+    lore1 = "As Lancas procuram a partir de tudo o que matas, E se esta habilidade matar um inimigo."
+    lore2 = "Sacrifica uma porcao da tua vida para criar as lancas (isto pode matar-te)"
+    lore3 = "Lancas Maximas: 1 + "
+    lore = ["As Lancas procuram a partir de tudo o que matas, E se esta habilidade matar um inimigo.", "Sacrifica uma porcao da tua vida para criar as lancas (isto pode matar-te)", "Lancas Maximas: 1 + "]
+
+# unarmed
+[unarmed]
+
+[unarmed.glass_cannon]
+    name = "Canhao de Vidro"
+    description = "Bonus de Dano Desarmado quanto menor for o teu valor de armadura"
+    lore1 = "x Dano com 0 de armadura"
+    lore2 = "Dano Bonus PorNivel"
+    lore = ["x Dano com 0 de armadura", "Dano Bonus PorNivel"]
+
+[unarmed.power]
+    name = "Poder Desarmado"
+    description = "Dano Desarmado Melhorado"
+    lore1 = "Dano"
+    lore = ["Dano"]
+
+[unarmed.sucker_punch]
+    name = "Soco Surpresa"
+    description = "Socos a correr, mas mais mortiferos."
+    lore1 = "Dano"
+    lore2 = "O dano aumenta com a tua velocidade enquanto socas"
+    lore = ["Dano", "O dano aumenta com a tua velocidade enquanto socas"]

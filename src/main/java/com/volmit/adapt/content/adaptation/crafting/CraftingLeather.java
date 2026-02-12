@@ -34,8 +34,8 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
     public CraftingLeather() {
         super("crafting-leather");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("crafting", "leather", "description"));
-        setDisplayName(Localizer.dLocalize("crafting", "leather", "name"));
+        setDescription(Localizer.dLocalize("crafting.leather.description"));
+        setDisplayName(Localizer.dLocalize("crafting.leather.name"));
         setIcon(Material.LEATHER);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -54,7 +54,7 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting", "leather", "lore1"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting.leather.lore1"));
     }
 
     @EventHandler

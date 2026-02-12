@@ -45,8 +45,8 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     public AxeWoodVeinminer() {
         super("axe-wood-veinminer");
         registerConfiguration(AxeWoodVeinminer.Config.class);
-        setDescription(Localizer.dLocalize("axe", "woodminer", "description"));
-        setDisplayName(Localizer.dLocalize("axe", "woodminer", "name"));
+        setDescription(Localizer.dLocalize("axe.wood_miner.description"));
+        setDisplayName(Localizer.dLocalize("axe.wood_miner.name"));
         setIcon(Material.DIAMOND_AXE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -62,9 +62,9 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("axe", "woodminer", "lore1"));
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Localizer.dLocalize("axe", "woodminer", "lore2"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("axe", "woodminer", "lore3"));
+        v.addLore(C.GREEN + Localizer.dLocalize("axe.wood_miner.lore1"));
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Localizer.dLocalize("axe.wood_miner.lore2"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("axe.wood_miner.lore3"));
     }
 
     private int getRadius(int lvl) {

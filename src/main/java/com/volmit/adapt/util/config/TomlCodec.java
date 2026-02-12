@@ -222,10 +222,11 @@ public final class TomlCodec {
 
     private static final class GenericTomlWriter {
         private final StringBuilder out = new StringBuilder();
+        private String lastTopLevelSection;
 
         private String write(Object root) {
             if (root instanceof Map<?, ?> map) {
-                writeMapSection("", map);
+                writeMapSection("", map, 0);
                 return normalize(out.toString());
             }
 
@@ -233,15 +234,13 @@ public final class TomlCodec {
             return normalize(out.toString());
         }
 
-        private void writeMapSection(String path, Map<?, ?> map) {
+        private void writeMapSection(String path, Map<?, ?> map, int depth) {
             if (!path.isBlank()) {
-                if (!out.isEmpty()) {
-                    out.append('\n');
-                }
-                out.append('[').append(renderPath(path)).append(']').append('\n');
+                writeSectionHeader(path, depth);
             }
 
             List<Map.Entry<?, ?>> deferred = new ArrayList<>();
+            String valueIndent = "  ".repeat(Math.max(0, depth));
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                     continue;
@@ -249,7 +248,8 @@ public final class TomlCodec {
 
                 Object value = entry.getValue();
                 if (isInlineValue(value)) {
-                    out.append(formatKey(String.valueOf(entry.getKey())))
+                    out.append(valueIndent)
+                            .append(formatKey(String.valueOf(entry.getKey())))
                             .append(" = ")
                             .append(formatInlineValue(value))
                             .append('\n');
@@ -262,13 +262,40 @@ public final class TomlCodec {
                 String childPath = joinPath(path, String.valueOf(entry.getKey()));
                 Object value = entry.getValue();
                 if (value instanceof Map<?, ?> nested) {
-                    writeMapSection(childPath, nested);
+                    writeMapSection(childPath, nested, depth + 1);
                 } else {
                     Map<String, Object> wrapper = new LinkedHashMap<>();
                     wrapper.put("value", value);
-                    writeMapSection(childPath, wrapper);
+                    writeMapSection(childPath, wrapper, depth + 1);
                 }
             }
+        }
+
+        private void writeSectionHeader(String path, int depth) {
+            String topLevel = topLevelSegment(path);
+            if (depth == 1 && (lastTopLevelSection == null || !lastTopLevelSection.equals(topLevel))) {
+                if (!out.isEmpty()) {
+                    out.append('\n');
+                }
+                out.append("# ").append(topLevel).append('\n');
+                lastTopLevelSection = topLevel;
+            } else if (!out.isEmpty()) {
+                out.append('\n');
+            }
+
+            out.append('[').append(renderPath(path)).append(']').append('\n');
+        }
+
+        private String topLevelSegment(String path) {
+            if (path == null || path.isBlank()) {
+                return "";
+            }
+
+            int dot = path.indexOf('.');
+            if (dot == -1) {
+                return path;
+            }
+            return path.substring(0, dot);
         }
     }
 

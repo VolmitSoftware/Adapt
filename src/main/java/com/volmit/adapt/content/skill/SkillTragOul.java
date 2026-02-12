@@ -56,11 +56,11 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillTragOul() {
-        super("tragoul", Localizer.dLocalize("skill", "tragoul", "icon"));
+        super("tragoul", Localizer.dLocalize("skill.tragoul.icon"));
         registerConfiguration(Config.class);
         setColor(C.AQUA);
-        setDescription(Localizer.dLocalize("skill", "tragoul", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "tragoul", "name"));
+        setDescription(Localizer.dLocalize("skill.tragoul.description"));
+        setDisplayName(Localizer.dLocalize("skill.tragoul.name"));
         setInterval(2755);
         setIcon(Material.CRIMSON_ROOTS);
         cooldowns = new HashMap<>();
@@ -71,24 +71,24 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.CRIMSON_ROOTS)
                 .key("challenge_trag_1k")
-                .title(Localizer.dLocalize("advancement", "challenge_trag_1k", "title"))
-                .description(Localizer.dLocalize("advancement", "challenge_trag_1k", "description"))
+                .title(Localizer.dLocalize("advancement.challenge_trag_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_trag_1k.description"))
                 .model(CustomModel.get(Material.CRIMSON_ROOTS, "advancement", "tragoul", "challenge_trag_1k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.CRIMSON_STEM)
                         .key("challenge_trag_10k")
-                        .title(Localizer.dLocalize("advancement", "challenge_trag_10k", "title"))
-                        .description(Localizer.dLocalize("advancement", "challenge_trag_10k", "description"))
+                        .title(Localizer.dLocalize("advancement.challenge_trag_10k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_trag_10k.description"))
                         .model(CustomModel.get(Material.CRIMSON_STEM, "advancement", "tragoul", "challenge_trag_10k"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.NETHER_STAR)
                                 .key("challenge_trag_100k")
-                                .title(Localizer.dLocalize("advancement", "challenge_trag_100k", "title"))
-                                .description(Localizer.dLocalize("advancement", "challenge_trag_100k", "description"))
+                                .title(Localizer.dLocalize("advancement.challenge_trag_100k.title"))
+                                .description(Localizer.dLocalize("advancement.challenge_trag_100k.description"))
                                 .model(CustomModel.get(Material.NETHER_STAR, "advancement", "tragoul", "challenge_trag_100k"))
                                 .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)

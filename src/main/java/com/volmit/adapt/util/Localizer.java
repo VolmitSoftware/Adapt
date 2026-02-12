@@ -64,17 +64,21 @@ public class Localizer {
 
     @SneakyThrows
     public static String dLocalize(String s1, String s2, String s3) {
-        String cacheKey = s1 + s2 + s3;
+        return dLocalize(s1 + "." + s2 + "." + s3);
+    }
+
+    @SneakyThrows
+    public static String dLocalize(String key, Object... params) {
+        String cacheKey = key;
         if (!Adapt.wordKey.containsKey(cacheKey)) {
-            String key = s1 + "." + s2 + "." + s3;
             File langFolder = new File(Adapt.instance.getDataFolder(), "languages");
             File primaryFile = resolveLanguageFile(langFolder, AdaptConfig.get().getLanguage());
-            String resolved = readLocalizedValue(primaryFile, s1, s2, s3);
+            String resolved = readLocalizedValue(primaryFile, key);
 
             if (resolved == null) {
                 updateLanguageFile();
                 primaryFile = resolveLanguageFile(langFolder, AdaptConfig.get().getLanguage());
-                resolved = readLocalizedValue(primaryFile, s1, s2, s3);
+                resolved = readLocalizedValue(primaryFile, key);
             }
 
             if (resolved == null) {
@@ -82,7 +86,7 @@ public class Localizer {
                 Adapt.verbose("Loading English Language File FallBack");
 
                 File fallbackFile = resolveLanguageFile(langFolder, AdaptConfig.get().getFallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing());
-                resolved = readLocalizedValue(fallbackFile, s1, s2, s3);
+                resolved = readLocalizedValue(fallbackFile, key);
             }
 
             if (resolved == null) {
@@ -95,7 +99,7 @@ public class Localizer {
                 Adapt.verbose("Loaded Localization: " + resolved + " for key: " + key);
             }
         }
-        var s = Adapt.wordKey.get(cacheKey);
+        var s = applyParameters(Adapt.wordKey.get(cacheKey), params);
         if (AdaptConfig.get().isAutomaticGradients()) {
             s = C.translateAlternateColorCodes('&', s);
             s = C.aura(s, -20, 7, 8, 0.36);
@@ -110,15 +114,24 @@ public class Localizer {
             return;
         }
 
-        String resourcePath = languageCode + ".json";
-        try (InputStream in = Adapt.instance.getResource(resourcePath)) {
-            if (in == null) {
-                Adapt.warn("Missing bundled language resource: " + resourcePath);
-                return;
-            }
+        String tomlResourcePath = languageCode + ".toml";
+        String jsonResourcePath = languageCode + ".json";
 
-            String rawJson = IO.readAll(in);
-            JsonElement parsed = ConfigFileSupport.parseToJsonElement(rawJson, new File(resourcePath));
+        String resourcePath = tomlResourcePath;
+        InputStream in = Adapt.instance.getResource(tomlResourcePath);
+        if (in == null) {
+            resourcePath = jsonResourcePath;
+            in = Adapt.instance.getResource(jsonResourcePath);
+        }
+
+        if (in == null) {
+            Adapt.warn("Missing bundled language resource: " + tomlResourcePath + " (and fallback " + jsonResourcePath + ")");
+            return;
+        }
+
+        try (InputStream stream = in) {
+            String raw = IO.readAll(stream);
+            JsonElement parsed = ConfigFileSupport.parseToJsonElement(raw, new File(resourcePath));
             if (parsed == null) {
                 Adapt.warn("Failed to parse bundled language resource: " + resourcePath);
                 return;
@@ -128,7 +141,7 @@ public class Localizer {
             Files.deleteIfExists(tomlTarget.toPath());
             Files.writeString(tomlTarget.toPath(), ConfigFileSupport.serializeJsonElementToToml(parsed));
 
-            File legacyJsonTarget = new File(langFolder, resourcePath);
+            File legacyJsonTarget = new File(langFolder, jsonResourcePath);
             Files.deleteIfExists(legacyJsonTarget.toPath());
         }
     }
@@ -142,7 +155,7 @@ public class Localizer {
         return new File(languageFolder, languageCode + ".json");
     }
 
-    private static String readLocalizedValue(File file, String s1, String s2, String s3) {
+    private static String readLocalizedValue(File file, String key) {
         try {
             if (file == null || !file.exists() || !file.isFile()) {
                 return null;
@@ -154,23 +167,76 @@ public class Localizer {
                 return null;
             }
 
-            JsonObject l1 = root.getAsJsonObject();
-            if (!l1.has(s1) || !l1.get(s1).isJsonObject()) {
-                return null;
-            }
-            JsonObject l2 = l1.getAsJsonObject(s1);
-            if (!l2.has(s2) || !l2.get(s2).isJsonObject()) {
-                return null;
-            }
-            JsonObject l3 = l2.getAsJsonObject(s2);
-            if (!l3.has(s3) || l3.get(s3).isJsonNull()) {
-                return null;
-            }
-
-            return l3.get(s3).getAsString();
+            return resolveLocalizedElementValue(resolveLocalizedElement(root.getAsJsonObject(), key));
         } catch (Throwable ignored) {
             return null;
         }
+    }
+
+    private static JsonElement resolveLocalizedElement(JsonObject root, String key) {
+        JsonObject current = root;
+        JsonElement element = null;
+
+        for (String path : key.split("\\.")) {
+            if (current == null || !current.has(path)) {
+                return null;
+            }
+
+            element = current.get(path);
+            if (element == null || element.isJsonNull()) {
+                return null;
+            }
+
+            if (element.isJsonObject()) {
+                current = element.getAsJsonObject();
+            } else {
+                current = null;
+            }
+        }
+
+        return element;
+    }
+
+    private static String resolveLocalizedElementValue(JsonElement element) {
+        if (element == null || element.isJsonNull()) {
+            return null;
+        }
+
+        if (element.isJsonPrimitive()) {
+            return element.getAsString();
+        }
+
+        if (element.isJsonArray()) {
+            StringBuilder result = new StringBuilder();
+            for (JsonElement value : element.getAsJsonArray()) {
+                if (!value.isJsonPrimitive()) {
+                    continue;
+                }
+
+                if (result.length() > 0) {
+                    result.append('\n');
+                }
+
+                result.append(value.getAsString());
+            }
+
+            return result.toString();
+        }
+
+        return null;
+    }
+
+    private static String applyParameters(String value, Object... params) {
+        if (value == null || params == null || params.length == 0) {
+            return value;
+        }
+
+        String result = value;
+        for (int i = 0; i < params.length; i++) {
+            result = result.replace("{" + i + "}", String.valueOf(params[i]));
+        }
+
+        return result;
     }
 
     private static void migrateExistingLanguageFilesToToml() {

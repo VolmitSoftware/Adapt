@@ -254,7 +254,7 @@ public interface Skill<T> extends Ticked, Component {
                     .setModel(i.getModel())
                     .setName(i.getDisplayName(lvl))
                     .addLore(Form.wrapWordsPrefixed(i.getDescription(), "" + C.GRAY, 45)) // Set to the actual Description
-                    .addLore(lvl == 0 ? (C.DARK_GRAY + Localizer.dLocalize("snippets", "gui", "notlearned")) : (C.GRAY + Localizer.dLocalize("snippets", "gui", "level") + " " + C.WHITE + Form.toRoman(lvl)))
+                    .addLore(lvl == 0 ? (C.DARK_GRAY + Localizer.dLocalize("snippets.gui.not_learned")) : (C.GRAY + Localizer.dLocalize("snippets.gui.level") + " " + C.WHITE + Form.toRoman(lvl)))
                     .setProgress(1D)
                     .onLeftClick((e) -> i.openGui(player)));
             ind++;
@@ -267,12 +267,12 @@ public interface Skill<T> extends Ticked, Component {
             w.setElement(backPos, backRow, new UIElement("back")
                     .setMaterial(new MaterialBlock(Material.RED_BED))
                     .setModel(CustomModel.get(Material.RED_BED, "snippets", "gui", "back"))
-                    .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets", "gui", "back"))
+                    .setName("" + C.RESET + C.GRAY + Localizer.dLocalize("snippets.gui.back"))
                     .onLeftClick((e) -> onGuiClose(player, true)));
         }
 
         AdaptPlayer a = Adapt.instance.getAdaptServer().getPlayer(player);
-        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Localizer.dLocalize("snippets", "gui", "xp") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")");
+        w.setTitle(getDisplayName(a.getSkillLine(getName()).getLevel()) + " " + Form.pc(XP.getLevelProgress(a.getSkillLine(getName()).getXp())) + " (" + Form.f((int) XP.getXpUntilLevelUp(a.getSkillLine(getName()).getXp())) + Localizer.dLocalize("snippets.gui.xp") + " " + (a.getSkillLine(getName()).getLevel() + 1) + ")");
         w.onClosed((vv) -> J.s(() -> onGuiClose(player, !AdaptConfig.get().isEscClosesAllGuis())));
         w.open();
         Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);

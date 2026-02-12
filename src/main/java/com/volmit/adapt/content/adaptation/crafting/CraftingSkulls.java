@@ -35,8 +35,8 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
     public CraftingSkulls() {
         super("crafting-skulls");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("crafting", "skulls", "description"));
-        setDisplayName(Localizer.dLocalize("crafting", "skulls", "name"));
+        setDescription(Localizer.dLocalize("crafting.skulls.description"));
+        setDisplayName(Localizer.dLocalize("crafting.skulls.name"));
         setIcon(Material.WITHER_SKELETON_SKULL);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -97,12 +97,12 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting", "skulls", "lore1"));
-        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting", "skulls", "lore2"));
-        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting", "skulls", "lore3"));
-        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting", "skulls", "lore4"));
-        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting", "skulls", "lore5"));
-        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting", "skulls", "lore6"));
+        v.addLore(C.GREEN + "+ " + C.GRAY + Localizer.dLocalize("crafting.skulls.lore1"));
+        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.skulls.lore2"));
+        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.skulls.lore3"));
+        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.skulls.lore4"));
+        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.skulls.lore5"));
+        v.addLore(C.YELLOW + "- " + C.GRAY + Localizer.dLocalize("crafting.skulls.lore6"));
     }
 
 

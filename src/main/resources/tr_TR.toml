@@ -1,0 +1,1501 @@
+# advancement
+[advancement]
+
+[advancement.challenge_move_1k]
+    title = "Hareket Etmeliyim!"
+    description = "1 Kilometre yuru (1.000 blok)"
+
+[advancement.challenge_sprint_5k]
+    title = "5K Kosu Yap!"
+    description = "5 Kilometre yuru (5.000 blok)"
+
+[advancement.challenge_sprint_50k]
+    title = "Ucarcasina 50K!"
+    description = "50 Kilometre yuru (50.000 blok)"
+
+[advancement.challenge_sprint_500k]
+    title = "Evreni Dolas!!"
+    description = "500 Kilometre yuru (500.000 blok)"
+
+[advancement.challenge_sprint_marathon]
+    title = "Gercek Bir Maraton Kos!"
+    description = "42.195 Blok kosar adim at!"
+
+[advancement.challenge_place_1k]
+    title = "Acemi Insaatci!"
+    description = "1.000 Blok Yerlestir"
+
+[advancement.challenge_place_5k]
+    title = "Orta Duzey Insaatci!"
+    description = "5.000 Blok Yerlestir"
+
+[advancement.challenge_place_50k]
+    title = "Ileri Duzey Insaatci!"
+    description = "50.000 Blok Yerlestir"
+
+[advancement.challenge_place_500k]
+    title = "Usta Insaatci!"
+    description = "500.000 Blok Yerlestir"
+
+[advancement.challenge_place_5m]
+    title = "Simetrinin Ciragi!"
+    description = "GERCEKLIK SENIN OYUN ALANIN! (5 Milyon Blok)"
+
+[advancement.challenge_chop_1k]
+    title = "Acemi Oduncu!"
+    description = "1.000 Blok Kes"
+
+[advancement.challenge_chop_5k]
+    title = "Orta Duzey Oduncu!"
+    description = "5.000 Blok Kes"
+
+[advancement.challenge_chop_50k]
+    title = "Ileri Duzey Oduncu!"
+    description = "50.000 Blok Kes"
+
+[advancement.challenge_chop_500k]
+    title = "Usta Oduncu!"
+    description = "500.000 Blok Kes"
+
+[advancement.challenge_chop_5m]
+    title = "Kopek Jackson"
+    description = "En iyi uslu cocuk! (5 Milyon Blok)"
+
+[advancement.challenge_block_1k]
+    title = "Zorlukla Engelleme!"
+    description = "1000 Vurusu Engelle"
+
+[advancement.challenge_block_5k]
+    title = "Engellemek Eglencelidir!"
+    description = "5000 Vurusu Engelle"
+
+[advancement.challenge_block_50k]
+    title = "Engellemek benim Hayatim!"
+    description = "50.000 Vurusu Engelle"
+
+[advancement.challenge_block_500k]
+    title = "Engellemek benim Amacim!"
+    description = "500.000 Vurusu Engelle"
+
+[advancement.challenge_block_5m]
+    title = "Die Hand Die Verletzt"
+    description = "5.000.000 Vurusu Engelle"
+
+[advancement.challenge_brew_1k]
+    title = "Acemi Simyaci!"
+    description = "1000 Iksir Tuket"
+
+[advancement.challenge_brew_5k]
+    title = "Orta Duzey Simyaci!"
+    description = "5000 Iksir Tuket"
+
+[advancement.challenge_brew_50k]
+    title = "Ileri Duzey Simyaci!"
+    description = "50.000 Iksir Tuket"
+
+[advancement.challenge_brew_500k]
+    title = "Usta Simyaci!"
+    description = "500.000 Iksir Tuket"
+
+[advancement.challenge_brew_5m]
+    title = "Essiz Simyaci"
+    description = "5.000.000 Iksir Tuket"
+
+[advancement.challenge_brewsplash_1k]
+    title = "Acemi Iksir-Patlatici!"
+    description = "1000 Iksir Patlat"
+
+[advancement.challenge_brewsplash_5k]
+    title = "Orta Duzey Iksir-Patlatici!"
+    description = "5000 Iksir Patlat"
+
+[advancement.challenge_brewsplash_50k]
+    title = "Ileri Duzey Iksir-Patlatici!"
+    description = "50.000 Iksir Patlat"
+
+[advancement.challenge_brewsplash_500k]
+    title = "Usta Iksir-Patlatici!"
+    description = "500.000 Iksir Patlat"
+
+[advancement.challenge_brewsplash_5m]
+    title = "Iksir Patlatma Ustadi"
+    description = "5.000.000 Iksir Patlat"
+
+[advancement.challenge_craft_1k]
+    title = "Kurnaz Zanaatkar!"
+    description = "1000 Esya Uret"
+
+[advancement.challenge_craft_5k]
+    title = "Huysuz Zanaatkar!"
+    description = "5000 Esya Uret"
+
+[advancement.challenge_craft_50k]
+    title = "Calisan Zanaatkar!"
+    description = "50.000 Esya Uret"
+
+[advancement.challenge_craft_500k]
+    title = "Kakofonik Zanaatkar!"
+    description = "500.000 Esya Uret"
+
+[advancement.challenge_craft_5m]
+    title = "Felaketzede Ureticiyuz"
+    description = "5.000.000 Esya Uret"
+
+[advancement.challenge_enchant_1k]
+    title = "Acemi Buyucu!"
+    description = "1000 Esya Buyule"
+
+[advancement.challenge_enchant_5k]
+    title = "Orta Duzey Buyucu!"
+    description = "5000 Esya Buyule"
+
+[advancement.challenge_enchant_50k]
+    title = "Ileri Duzey Buyucu!"
+    description = "50.000 Esya Buyule"
+
+[advancement.challenge_enchant_500k]
+    title = "Usta Buyucu!"
+    description = "500.000 Esya Buyule"
+
+[advancement.challenge_enchant_5m]
+    title = "Esrarengiz Buyucu"
+    description = "5.000.000 Esya Buyule"
+
+[advancement.challenge_excavate_1k]
+    title = "Hevesli Kazici!"
+    description = "1000 Blok Kaz"
+
+[advancement.challenge_excavate_5k]
+    title = "Orta Duzey Kazici!"
+    description = "5000 Blok Kaz"
+
+[advancement.challenge_excavate_50k]
+    title = "Ileri Duzey Kazici!"
+    description = "50.000 Blok Kaz"
+
+[advancement.challenge_excavate_500k]
+    title = "Usta Kazici!"
+    description = "500.000 Blok Kaz"
+
+[advancement.challenge_excavate_5m]
+    title = "Esrarengiz Kazici"
+    description = "5.000.000 Blok Kaz"
+
+[advancement.horrible_person]
+    title = "Sen Korkunc bir Insansin"
+    description = "Akilalmaz, gercekten"
+
+[advancement.challenge_turtle_egg_smasher]
+    title = "Kaplumbaga Yumurtasi Ezici!"
+    description = "100 kaplumbaga yumurtasi kir"
+
+[advancement.challenge_turtle_egg_annihilator]
+    title = "Kaplumbaga Yumurtasi Yok Edici!"
+    description = "500 kaplumbaga yumurtasi kir"
+
+[advancement.challenge_novice_hunter]
+    title = "Acemi Avci!"
+    description = "100 varlik oldur"
+
+[advancement.challenge_intermediate_hunter]
+    title = "Orta Duzey Avci!"
+    description = "500 varlik oldur"
+
+[advancement.challenge_advanced_hunter]
+    title = "Ileri Duzey Avci!"
+    description = "5000 varlik oldur"
+
+[advancement.challenge_creeper_conqueror]
+    title = "Creeper Fatihi!"
+    description = "50 creeper oldur"
+
+[advancement.challenge_creeper_annihilator]
+    title = "Creeper Yok Edici!"
+    description = "200 creeper oldur"
+
+[advancement.challenge_pickaxe_1k]
+    title = "Acemi Madenci"
+    description = "1000 Blok Kir"
+
+[advancement.challenge_pickaxe_5k]
+    title = "Yetenekli Madenci"
+    description = "5000 Blok Kir"
+
+[advancement.challenge_pickaxe_50k]
+    title = "Uzman Madenci"
+    description = "50.000 Blok Kir"
+
+[advancement.challenge_pickaxe_500k]
+    title = "Usta Madenci"
+    description = "500.000 Blok Kir"
+
+[advancement.challenge_pickaxe_5m]
+    title = "Efsanevi Madenci"
+    description = "5.000.000 Blok Kir"
+
+[advancement.challenge_eat_100]
+    title = "Ne cok yiyecek!"
+    description = "100'den fazla Esya Ye!"
+
+[advancement.challenge_eat_1000]
+    title = "Doyurulamaz Aclik!"
+    description = "1.000'den fazla Esya Ye!"
+
+[advancement.challenge_eat_10000]
+    title = "SONSUZ ACLIK!"
+    description = "10.000'den fazla Esya Ye!"
+
+[advancement.challenge_harvest_100]
+    title = "Dolu Hasat"
+    description = "100'den fazla ekin has!"
+
+[advancement.challenge_harvest_1000]
+    title = "Buyuk Hasat"
+    description = "1.000'den fazla ekin has!"
+
+[advancement.challenge_swim_1nm]
+    title = "Insan Denizaltisi!"
+    description = "1 Deniz Mili yuz (1.852 blok)"
+
+[advancement.challenge_sneak_1k]
+    title = "Diz Agrisi"
+    description = "Bir kilometreden fazla gizlen (1.000 blok)"
+
+[advancement.challenge_sneak_5k]
+    title = "Golge Yolcusu"
+    description = "5.000 bloktan fazla gizlen"
+
+[advancement.challenge_sneak_20k]
+    title = "Hayalet"
+    description = "20.000 bloktan fazla gizlen"
+
+[advancement.challenge_swim_5k]
+    title = "Derin Dalgic"
+    description = "5.000 bloktan fazla yuz"
+
+[advancement.challenge_swim_20k]
+    title = "Poseidon'un Secilmisi"
+    description = "20.000 bloktan fazla yuz"
+
+[advancement.challenge_sword_100]
+    title = "Ilk Kan"
+    description = "Kilicla 100 vurus yap"
+
+[advancement.challenge_sword_1k]
+    title = "Kilic Dansisi"
+    description = "Kilicla 1.000 vurus yap"
+
+[advancement.challenge_sword_10k]
+    title = "Bin Kesik"
+    description = "Kilicla 10.000 vurus yap"
+
+[advancement.challenge_unarmed_100]
+    title = "Bar Kavgacisi"
+    description = "Silahsiz 100 vurus yap"
+
+[advancement.challenge_unarmed_1k]
+    title = "Demir Yumruklar"
+    description = "Silahsiz 1.000 vurus yap"
+
+[advancement.challenge_unarmed_10k]
+    title = "Tek Yumruk"
+    description = "Silahsiz 10.000 vurus yap"
+
+[advancement.challenge_trag_1k]
+    title = "Kan Bedeli"
+    description = "1.000 hasar al"
+
+[advancement.challenge_trag_10k]
+    title = "Kizil Dalga"
+    description = "10.000 hasar al"
+
+[advancement.challenge_trag_100k]
+    title = "Acinin Avatari"
+    description = "100.000 hasar al"
+
+[advancement.challenge_ranged_100]
+    title = "Hedef Talimi"
+    description = "100 mermi firla"
+
+[advancement.challenge_ranged_1k]
+    title = "Sahin Gozu"
+    description = "1.000 mermi firla"
+
+[advancement.challenge_ranged_10k]
+    title = "Ok Firtinasi"
+    description = "10.000 mermi firla"
+
+[advancement.challenge_chronos_1h]
+    title = "Tik Tak"
+    description = "1 saat cevrimici ol"
+
+[advancement.challenge_chronos_24h]
+    title = "Zamanin Kumlari"
+    description = "24 saat cevrimici ol"
+
+[advancement.challenge_chronos_168h]
+    title = "Zamansiz"
+    description = "168 saat (1 hafta) cevrimici ol"
+
+[advancement.challenge_nether_50]
+    title = "Cehennem Kapicisi"
+    description = "50 nether yaratigi oldur"
+
+[advancement.challenge_nether_500]
+    title = "Ucurum Muhafizi"
+    description = "500 nether yaratigi oldur"
+
+[advancement.challenge_nether_5k]
+    title = "Nether'in Efendisi"
+    description = "5.000 nether yaratigi oldur"
+
+[advancement.challenge_rift_50]
+    title = "Uzaysal Anomali"
+    description = "50 kez isinlan"
+
+[advancement.challenge_rift_500]
+    title = "Bosluk Gezgini"
+    description = "500 kez isinlan"
+
+[advancement.challenge_rift_5k]
+    title = "Dusler Arasi"
+    description = "5.000 kez isinlan"
+
+[advancement.challenge_taming_10]
+    title = "Hayvan Fisildacisi"
+    description = "10 hayvan cogalt"
+
+[advancement.challenge_taming_50]
+    title = "Suru Lideri"
+    description = "50 hayvan cogalt"
+
+[advancement.challenge_taming_500]
+    title = "Canavar Ustasi"
+    description = "500 hayvan cogalt"
+
+# items
+[items]
+
+[items.bound_ender_peral]
+    name = "Emanet Anahtari"
+    usage1 = "Baglamak icin Shift + Sol Tiklama"
+    usage2 = "Bagli Envantere erismek icin Sag Tiklayin"
+
+[items.bound_eye_of_ender]
+    name = "Okuler Capa"
+    usage1 = "Tuketmek ve bagli konuma isinlanmak icin Sag Tiklayin"
+    usage2 = "Bir bloga baglamak icin Shift + Sol Tiklama"
+
+[items.bound_redstone_torch]
+    name = "Redstone Kumandasi"
+    usage1 = "1-Tick Redstone darbesi olusturmak icin Sag Tiklayin"
+    usage2 = "Baglamak icin bir 'Hedef' Blok uzerinde Shift + Sol Tiklama"
+
+[items.bound_snowball]
+    name = "Ag Tuzagi!"
+    usage1 = "Konumda gecici bir ag tuzagi olusturmak icin atin"
+
+[items.chrono_time_bottle]
+    name = "Sisedeki Zaman"
+    usage1 = "Envanterinizdeyken pasif olarak zaman depolar"
+    usage2 = "Zamanli bloklara veya yavru hayvanlara sag tiklayarak depolanan zamani harcar"
+    stored = "Depolanmis Zaman"
+
+[items.chrono_time_bomb]
+    name = "Zaman Bombasi"
+    usage1 = "Zamansal bir alan yaratan krono mermisi firlatmak icin sag tiklayin"
+
+[items.elevator_block]
+    name = "Asansor Blogu"
+    usage1 = "Yukari isinlanmak icin ziplayin"
+    usage2 = "Asagi isinlanmak icin egilin"
+    usage3 = "Asansorler arasinda en az 2 hava blogu olmalidir"
+
+# snippets
+[snippets]
+
+[snippets.gui]
+    level = "Seviye"
+    knowledge = "bilgi"
+    power_used = "Kullanilan Guc"
+    not_learned = "Ogrenilmedi"
+    xp = "XP'ye"
+    welcome = "Hos geldin!"
+    welcome_back = "Tekrar hosgeldiniz!"
+    xp_bonus_for_time = "XP icin"
+    max_ability_power = "Maksimum Yetenek Gucu"
+    unlock_this_by_clicking = "Sag Tiklayarak bunun kilidini acin: "
+    back = "Geri"
+    unlearn_all = "Tumunu unuttur"
+    unlearned_all = "Hepsi unutturuldu"
+
+[snippets.adapt_menu]
+    may_not_unlearn = "OGRENMEYI GERI ALAMAZSINIZ"
+    may_unlearn = "OGRENEBiLiR/UNUTTURABILIRSINIZ"
+    knowledge_cost = "Bilgi Maliyeti"
+    knowledge_available = "Mevcut Bilgi"
+    already_learned = "Zaten Ogrenildi"
+    unlearn_refund = "Unutturmak ve Geri Almak Icin Tiklayin"
+    no_refunds = "HARDCORE, GERI ODEME ENGELLI"
+    knowledge = "bilgi"
+    click_learn = "Ogrenmek icin tiklayin"
+    no_knowledge = "(Hic bilginiz yok)"
+    you_only_have = "Sadece sahipsiniz"
+    how_to_level_up = "Maksimum gucunuzu artirmak icin becerilerinizi yukseltin."
+    not_enough_power = "Yetersiz guc! Her Yetenek Seviyesi 1 guce mal olur."
+    power = "guc"
+    power_drain = "Guc Tukenmesi"
+    learned = "Ogrenildi "
+    unlearned = "Unutturuldu "
+    activator_block = "Kitaplik"
+
+[snippets.knowledge_orb]
+    contains = "icerir"
+    knowledge = "bilgi"
+    rightclick = "Sag Tik"
+    togainknowledge = "bu bilgiyi kazanmak icin"
+    knowledge_orb = "Bilgi Kuresi"
+
+[snippets.experience_orb]
+    contains = "icerir"
+    xp = "Deneyim"
+    rightclick = "Sag Tik"
+    togainxp = "bu deneyimi kazanmak icin"
+    xporb = "Deneyim Kuresi"
+
+# skill
+[skill]
+
+[skill.agility]
+    name = "Ceviklik"
+    icon = "⇉"
+    description = "Ceviklik, engeller karsisinda hizli ve akici hareket etme yetenegidir."
+
+[skill.architect]
+    name = "Mimar"
+    icon = "⬧"
+    description = "Yapilar dunyanin yapi taslaridir. Gerceklik sizin elinizde, kontrol etmek sizin elinizde."
+
+[skill.axes]
+    name = "Baltalar"
+    icon = "🪓"
+    description1 = "Agaclari kesmek varken neden "
+    description2 = "seyleri"
+    description3 = "kesesin ki, ayni sonuc!"
+
+[skill.brewing]
+    name = "Demleme"
+    icon = "❦"
+    description = "Cift Balon, Uclu Balon, Dortlu Balon- Bu iksiri hala bir kazana koyamiyorum"
+
+[skill.blocking]
+    name = "Engelleme"
+    icon = "🛡"
+    description = "Sopalar ve taslar kemiklerini kirmaz, Ama bir kalkan kirar."
+
+[skill.crafting]
+    name = "Uretim"
+    icon = "⌂"
+    description = "Yerlestirilecek parca kalmayinca, neden bir tane daha yapmayasiniz?"
+
+[skill.discovery]
+    name = "Kesif"
+    icon = "⚛"
+    description = "Alginiz genisledikce, zihniniz kesfetmediginizi kesfetmek icin cozulur."
+
+[skill.enchanting]
+    name = "Buyuleme"
+    icon = "✠"
+    description = "Neden bahsediyorsun? Kehanetler, vizyonlar, batil inancli gevezelik mi?"
+
+[skill.excavation]
+    name = "Kazi"
+    icon = "ᛳ"
+    description = "Kaz Kaz Cukur..."
+
+[skill.herbalism]
+    name = "Bitkicilik"
+    icon = "⚘"
+    description = "Bitki bulamiyorum ama biraz tohum bulabiliyorum ve- bu... Ot mu?"
+
+[skill.hunter]
+    name = "Avci"
+    icon = "☠"
+    description = "Avcilik sonucla degil yolculukla ilgilidir."
+
+[skill.nether]
+    name = "Nether"
+    icon = "₪"
+    description = "Nether'in derinliklerinden."
+
+[skill.pickaxe]
+    name = "Kazma"
+    icon = "⛏"
+    description = "Cuceler madencidir ama ben de zamanimda bir iki sey ogrendim. BEN ISVECLIYIM"
+
+[skill.ranged]
+    name = "Menzilli"
+    icon = "🏹"
+    description = "Mesafe zaferin anahtaridir ve hayatta kalmanin anahtaridir."
+
+[skill.rift]
+    name = "Yarik"
+    icon = "❍"
+    description = "Yarik, yakici bir kosumdir ama siz kosumu kullanmayi basardiniz."
+
+[skill.seaborne]
+    name = "Denizci"
+    icon = "🎣"
+    description = "Bu beceri ile suyun harikalarini yonetebilirsiniz."
+
+[skill.stealth]
+    name = "Gizlilik"
+    icon = "☯"
+    description = "Gorunmezlik sanati. Golgelerde yuru."
+
+[skill.swords]
+    name = "Kiliclar"
+    icon = "⚔"
+    description = "GreyStone'un gucu adina!"
+
+[skill.taming]
+    name = "Evcillestirme"
+    icon = "♥"
+    description = "Papganlar ve arilar... ya sen?"
+
+[skill.tragoul]
+    name = "TragOul"
+    icon = "🗡"
+    description = "Kan evrenin damarlarinda akar. Ellerinle kisitlanmis."
+
+[skill.chronos]
+    name = "Chronos"
+    icon = "🕒"
+    description = "Evrenin Saatini kur, akisi deneyimle. Saati kir, saat ol."
+
+[skill.unarmed]
+    name = "Silahsiz"
+    icon = "»"
+    description = "Silahsiz olmak gucsuz olmak degildir."
+
+# agility
+[agility]
+
+[agility.armor_up]
+    name = "Zirhlan"
+    description = "Ne kadar uzun sure kosarsan o kadar cok zirh al!"
+    lore1 = "Maksimum Zirh"
+    lore2 = "Zirhlanma Suresi"
+    lore = ["Maksimum Zirh", "Zirhlanma Suresi"]
+
+[agility.ladder_slide]
+    name = "Merdiven Kayisi"
+    description = "Merdivenleri her iki yonde de cok daha hizli tirmanin ve kayarak inin."
+    lore1 = "Merdiven hiz carpani"
+    lore2 = "Hizli inis hizi"
+    lore = ["Merdiven hiz carpani", "Hizli inis hizi"]
+
+[agility.super_jump]
+    name = "Super Ziplama"
+    description = "Olaganustu Yukseklik Avantaji."
+    lore1 = "Maksimum Atlama Yuksekligi"
+    lore2 = "Egilme + Ziplama ile Super Zipla!"
+    lore = ["Maksimum Atlama Yuksekligi", "Egilme + Ziplama ile Super Zipla!"]
+
+[agility.wall_jump]
+    name = "Duvar Atlayisi"
+    description = "Havadayken bir duvara karsi shift basili tutarak duvara tutun ve ziplayin!"
+    lore1 = "Maksimum Atlama"
+    lore2 = "Atlama Yuksekligi"
+    lore = ["Maksimum Atlama", "Atlama Yuksekligi"]
+
+[agility.wind_up]
+    name = "Hizlanma"
+    description = "Ne kadar uzun kosarsan o kadar hizli ol!"
+    lore1 = "Maksimum Hiz"
+    lore2 = "Hizlanma Suresi"
+    lore = ["Maksimum Hiz", "Hizlanma Suresi"]
+
+# architect
+[architect]
+
+[architect.elevator]
+    name = "Asansor"
+    description = "Dikey olarak hizla isinlanmak icin bir asansor insa etmenizi saglar!"
+    lore1 = "Asansor tarifi: X=YUN, Y=ENDER INCISI"
+    lore2 = "XXX"
+    lore3 = "XYX"
+    lore4 = "XXX"
+    lore = ["Asansor tarifi: X=YUN, Y=ENDER INCISI", "XXX", "XYX", "XXX"]
+
+[architect.foundation]
+    name = "Sihirli Temel"
+    description = "Egilip altiniza gecici bir temel olusturmanizi saglar!"
+    lore1 = "Sihirli bir sekilde olusturun: "
+    lore2 = "Altinizdaki bloklar!"
+    lore = ["Sihirli bir sekilde olusturun: ", "Altinizdaki bloklar!"]
+
+[architect.glass]
+    name = "Ipek Dokunuslu Cam"
+    description = "Cam bloklari bos elinizle kirdiginizda kaybolmasini onlemenizi saglar!"
+    lore1 = "Elleriniz Cam icin ipek dokunusu kazanir"
+    lore = ["Elleriniz Cam icin ipek dokunusu kazanir"]
+
+[architect.wireless_redstone]
+    name = "Redstone Kumandasi"
+    description = "Redstone'u uzaktan degistirmek icin bir redstone mesalesi kullanmanizi saglar!"
+    lore1 = "Hedef + Redstone Mesalesi + Ender Incisi = 1 Redstone Kumandasi"
+    lore = ["Hedef + Redstone Mesalesi + Ender Incisi = 1 Redstone Kumandasi"]
+
+[architect.placement]
+    name = "Insaatci Asasi"
+    description = "Egilme modunda ayni anda birden fazla blok yerlestirmenizi saglar. Baktiginiz blokla esesen bir blok tutun ve yerlestirin! Kutulari sinirlamak icin biraz hareket etmeniz gerekebilir!"
+    lore1 = "Ihtiyaciniz var"
+    lore2 = "bunu yerlestirmek icin elinizde bloklar"
+    lore3 = "Malzeme Insaatci Asasi"
+    lore = ["Ihtiyaciniz var", "bunu yerlestirmek icin elinizde bloklar", "Malzeme Insaatci Asasi"]
+
+# axe
+[axe]
+
+[axe.chop]
+    name = "Balta Kesimi"
+    description = "Taban kutugune sag tiklayarak agaclari kesin!"
+    lore1 = "Kesim Basina Blok"
+    lore2 = "Kesim Bekleme Suresi"
+    lore3 = "Alet Asinmasi"
+    lore = ["Kesim Basina Blok", "Kesim Bekleme Suresi", "Alet Asinmasi"]
+
+[axe.log_swap]
+    name = "Lucy'nin Kutuk Degistiricisi"
+    description = "Uretim Masasinda kutuklerin turunu degistirin!"
+    lore1 = "8 herhangi turde kutuk + 1 fidan = 8 fidan turunde kutuk"
+    lore = ["8 herhangi turde kutuk + 1 fidan = 8 fidan turunde kutuk"]
+
+[axe.drop_to_inventory]
+    name = "Balta Envantere Dusurme"
+
+[axe.ground_smash]
+    name = "Balta Yer Ezmesi"
+    description = "Ziplayin, sonra egilin ve yakindaki tum dusmanlari parcalayin."
+    lore1 = "Hasar"
+    lore2 = "Blok Yaricapi"
+    lore3 = "Kuvvet"
+    lore4 = "Ezme Bekleme Suresi"
+    lore = ["Hasar", "Blok Yaricapi", "Kuvvet", "Ezme Bekleme Suresi"]
+
+[axe.leaf_miner]
+    name = "Yaprak Madencisi"
+    description = "Toplu yapraklari bir seferde kirmanizi saglar!"
+    lore1 = "Egilin ve YAPRAK kazin"
+    lore2 = "yaprak madenciligi menzili"
+    lore3 = "Yapraklardan dusme elde edemeyeceksiniz (Istismar Onleme)"
+    lore = ["Egilin ve YAPRAK kazin", "yaprak madenciligi menzili", "Yapraklardan dusme elde edemeyeceksiniz (Istismar Onleme)"]
+
+[axe.wood_miner]
+    name = "Odun Madencisi"
+    description = "Toplu ahsabi bir seferde kirmanizi saglar!"
+    lore1 = "Egilin ve AHSAP/KUTUK (Tahta Degil) kazin"
+    lore2 = "odun madenciligi menzili"
+    lore3 = "Envantere dusurme ile calisir"
+    lore = ["Egilin ve AHSAP/KUTUK (Tahta Degil) kazin", "odun madenciligi menzili", "Envantere dusurme ile calisir"]
+
+# brewing
+[brewing]
+
+[brewing.lingering]
+    name = "Kalici Demleme"
+    description = "Demlenmis iksirler daha uzun surer!"
+    lore1 = "Sure"
+    lore2 = "Sure"
+    lore = ["Sure", "Sure"]
+
+[brewing.super_heated]
+    name = "Super Isitilmis Demleme"
+    description = "Demleme tezgahlari ne kadar sicaksa o kadar hizli calisir."
+    lore1 = "Dokunan Ates Blogu Basina"
+    lore2 = "Dokunan Lav Blogu Basina"
+    lore = ["Dokunan Ates Blogu Basina", "Dokunan Lav Blogu Basina"]
+
+[brewing.darkness]
+    name = "Siselenmiş Karanlik"
+    description = "Buna neden ihtiyacin oldugundan emin degilim ama buyur!"
+    lore1 = "Gece Gorusu Iksiri + Siyah Beton = Karanlik Iksiri (30 saniye)"
+    lore2 = "Kullanicinin kosamayacagini unutmayin!"
+    lore = ["Gece Gorusu Iksiri + Siyah Beton = Karanlik Iksiri (30 saniye)", "Kullanicinin kosamayacagini unutmayin!"]
+
+[brewing.haste]
+    name = "Siselenmiş Acele"
+    description = "Verimlilik yeterli olmadiginda"
+    lore1 = "Hiz Iksiri + Ametist Parcasi = Acele Iksiri (60 saniye)"
+    lore2 = "Hiz Iksiri + Ametist Bloku = Acele Iksiri-2 (30 saniye)"
+    lore = ["Hiz Iksiri + Ametist Parcasi = Acele Iksiri (60 saniye)", "Hiz Iksiri + Ametist Bloku = Acele Iksiri-2 (30 saniye)"]
+
+[brewing.absorption]
+    name = "Siselenmiş Emilim"
+    description = "Vuçudu sertlestirin!"
+    lore1 = "Aninda Iyilesme + Kuvars = Emilim Iksiri (60 saniye)"
+    lore2 = "Aninda Iyilesme + Kuvars Bloku = Emilim Iksiri-2 (30 saniye)"
+    lore = ["Aninda Iyilesme + Kuvars = Emilim Iksiri (60 saniye)", "Aninda Iyilesme + Kuvars Bloku = Emilim Iksiri-2 (30 saniye)"]
+
+[brewing.fatigue]
+    name = "Siselenmiş Yorgunluk"
+    description = "Vuçudu zayiflatin!"
+    lore1 = "Zayiflik Iksiri + Balcik Topu = Yorgunluk Iksiri (30 saniye)"
+    lore2 = "Zayiflik Iksiri + Balcik Bloku = Yorgunluk Iksiri-2 (15 saniye)"
+    lore = ["Zayiflik Iksiri + Balcik Topu = Yorgunluk Iksiri (30 saniye)", "Zayiflik Iksiri + Balcik Bloku = Yorgunluk Iksiri-2 (15 saniye)"]
+
+[brewing.hunger]
+    name = "Siselenmiş Aclik"
+    description = "Doyumsuzlari besleyin!"
+    lore1 = "Garip Iksir + Curuk Et = Aclik Iksiri (30 saniye)"
+    lore2 = "Zayiflik Iksiri + Curuk Et = Aclik Iksiri-3 (15 saniye)"
+    lore = ["Garip Iksir + Curuk Et = Aclik Iksiri (30 saniye)", "Zayiflik Iksiri + Curuk Et = Aclik Iksiri-3 (15 saniye)"]
+
+[brewing.nausea]
+    name = "Siselenmiş Bulanti"
+    description = "Midem bulaniyor senden!"
+    lore1 = "Garip Iksir + Kahverengi Mantar = Bulanti Iksiri (16 saniye)"
+    lore2 = "Garip Iksir + Kizil Mantar = Bulanti Iksiri-2 (8 saniye)"
+    lore = ["Garip Iksir + Kahverengi Mantar = Bulanti Iksiri (16 saniye)", "Garip Iksir + Kizil Mantar = Bulanti Iksiri-2 (8 saniye)"]
+
+[brewing.blindness]
+    name = "Siselenmiş Korluk"
+    description = "Korkunc bir insansin..."
+    lore1 = "Garip Iksir + Murekkep Kesesi = Korluk Iksiri (30 saniye)"
+    lore2 = "Garip Iksir + Parlayan Murekkep Kesesi = Korluk Iksiri-2 (15 saniye)"
+    lore = ["Garip Iksir + Murekkep Kesesi = Korluk Iksiri (30 saniye)", "Garip Iksir + Parlayan Murekkep Kesesi = Korluk Iksiri-2 (15 saniye)"]
+
+[brewing.resistance]
+    name = "Siselenmiş Direnc"
+    description = "En iyi sekilde guclendirme!"
+    lore1 = "Garip Iksir + Demir Kulce = Direnc Iksiri (60 saniye)"
+    lore2 = "Garip Iksir + Demir Blok = Direnc Iksiri-2 (30 saniye)"
+    lore = ["Garip Iksir + Demir Kulce = Direnc Iksiri (60 saniye)", "Garip Iksir + Demir Blok = Direnc Iksiri-2 (30 saniye)"]
+
+[brewing.health_boost]
+    name = "Siselenmiş Yasam"
+    description = "Maksimum saglik yeterli olmadiginda..."
+    lore1 = "Aninda-Iyilestirme Iksiri + Altin Elma = Saglik Artisi Iksiri (120 saniye)"
+    lore2 = "Aninda-Iyilestirme Iksiri + Buyulu Altin Elma = Saglik Artisi Iksiri-2 (120 saniye)"
+    lore = ["Aninda-Iyilestirme Iksiri + Altin Elma = Saglik Artisi Iksiri (120 saniye)", "Aninda-Iyilestirme Iksiri + Buyulu Altin Elma = Saglik Artisi Iksiri-2 (120 saniye)"]
+
+[brewing.decay]
+    name = "Siselenmiş Curume"
+    description = "Curumenin bu kadar faydali olacagini kim bilebilirdi?"
+    lore1 = "Zayiflik Iksiri + Zehirli Patates = Solma Iksiri (16 saniye)"
+    lore2 = "Zayiflik Iksiri + Kizil Kokler = Solma Iksiri-2 (8 saniye)"
+    lore = ["Zayiflik Iksiri + Zehirli Patates = Solma Iksiri (16 saniye)", "Zayiflik Iksiri + Kizil Kokler = Solma Iksiri-2 (8 saniye)"]
+
+[brewing.saturation]
+    name = "Siselenmiş Doygunluk"
+    description = "Biliyor musun... Ac bile degilim..."
+    lore1 = "Yenilenme Iksiri + Firinda Patates = Doygunluk Iksiri"
+    lore2 = "Yenilenme Iksiri + Saman Balyasi = Doygunluk Iksiri-2"
+    lore = ["Yenilenme Iksiri + Firinda Patates = Doygunluk Iksiri", "Yenilenme Iksiri + Saman Balyasi = Doygunluk Iksiri-2"]
+
+# blocking
+[blocking]
+
+[blocking.chain_armorer]
+    name = "Mephistopheles Zincirleri"
+    description = "Zincir Zirh uretmenizi saglar"
+    lore1 = "Uretim tarifi digerlerinin aynisidir, ancak demir kulce yerine demir parcasi kullanilir"
+    lore = ["Uretim tarifi digerlerinin aynisidir, ancak demir kulce yerine demir parcasi kullanilir"]
+
+[blocking.horse_armorer]
+    name = "Uretilebilir At Zirhi"
+    description = "At Zirhi uretmenizi saglar"
+    lore1 = "Zirhi uretmek istediginiz malzemeyle bir eyeri cevreleyin"
+    lore = ["Zirhi uretmek istediginiz malzemeyle bir eyeri cevreleyin"]
+
+[blocking.saddle_crafter]
+    name = "Uretilebilir Eyer"
+    description = "Deri ile Eyer Uret"
+    lore1 = "Tarif: 5 Deri:"
+    lore = ["Tarif: 5 Deri:"]
+
+[blocking.multi_armor]
+    name = "Coklu Zirh"
+    description = "Elytra'lari Zirha Baglayin"
+    lore1 = "Seyahat icin muhtesem bir beceri."
+    lore2 = "Zirh/Elytra'yi aninda dinamik olarak birlestirin ve degistirin!"
+    lore3 = "Birlestirmek icin envanterinizde bir esyayi digerinin uzerine shift tiklayarak koyun."
+    lore4 = "Zirhi cozmek icin esyayi Egilip-Birakin, parcalanacaktir."
+    lore5 = "Coklu Zirhiniz yok edilirse, icindeki tum esyalari kaybedersiniz."
+    lore6 = "Zirha ihtiyacim yok, beni hayal kirikligina ugratiyor..."
+    lore = ["Seyahat icin muhtesem bir beceri.", "Zirh/Elytra'yi aninda dinamik olarak birlestirin ve degistirin!", "Birlestirmek icin envanterinizde bir esyayi digerinin uzerine shift tiklayarak koyun.", "Zirhi cozmek icin esyayi Egilip-Birakin, parcalanacaktir.", "Coklu Zirhiniz yok edilirse, icindeki tum esyalari kaybedersiniz.", "Zirha ihtiyacim yok, beni hayal kirikligina ugratiyor..."]
+
+# crafting
+[crafting]
+
+[crafting.deconstruction]
+    name = "Yapi Sokum"
+    description = "Bloklari ve esyalari kurtarilabilir temel bilesenlere donusturun!"
+    lore1 = "Herhangi bir esyayi yere birakin."
+    lore2 = "Sonra, Egilip Makasla Sag Tiklayin"
+    lore = ["Herhangi bir esyayi yere birakin.", "Sonra, Egilip Makasla Sag Tiklayin"]
+
+[crafting.xp]
+    name = "Uretim XP'si"
+    description = "Uretirken pasif XP kazanin"
+    lore1 = "Uretirken XP kazanin"
+    lore = ["Uretirken XP kazanin"]
+
+[crafting.reconstruction]
+    name = "Cevher Yeniden Insasi"
+    description = "Cevherleri temel bilesenlerinden yeniden uretin!"
+    lore1 = "8 Dusme ve 1 Ana Bilgisayar = 1 Cevher (sekillsiz)"
+    lore2 = "Dusmeler eritilmelidir (varsa)"
+    lore3 = "Dahil degil: Hurdalar, Kuvarslar ve Zumurutler vb..."
+    lore4 = "Ana Bilgisayar = Kaplama. orn: Tas, Netherrack, Deepslate"
+    lore = ["8 Dusme ve 1 Ana Bilgisayar = 1 Cevher (sekillsiz)", "Dusmeler eritilmelidir (varsa)", "Dahil degil: Hurdalar, Kuvarslar ve Zumurutler vb...", "Ana Bilgisayar = Kaplama. orn: Tas, Netherrack, Deepslate"]
+
+[crafting.leather]
+    name = "Uretilebilir Deri"
+    description = "Curuk Etten Deri Uret"
+    lore1 = "Sadece onu (curuk eti) kamp atesine atin!"
+    lore = ["Sadece onu (curuk eti) kamp atesine atin!"]
+
+[crafting.backpacks]
+    name = "Boutilier'in Sirt Cantalari!"
+    description = "Bu sadece Mojang Paketini oyuna getiriyor!"
+    lore1 = "Bunu kullanmak icin Hayatta Kalma modunda olmalisiniz"
+    lore2 = "XLX : Deri, Tasma, Deri"
+    lore3 = "XSX : Deri, Fici, Deri"
+    lore4 = "XCX : Deri, Sandik, Deri"
+    lore = ["Bunu kullanmak icin Hayatta Kalma modunda olmalisiniz", "XLX : Deri, Tasma, Deri", "XSX : Deri, Fici, Deri", "XCX : Deri, Sandik, Deri"]
+
+[crafting.stations]
+    name = "Portatif Masalar!"
+    description = "Avucunuzun icinde bir masa kullanin!"
+    lore2 = "KAPATTIGINIZDA MASA ICINDE UNUTTUGUNUZ ESYALAR SONSUZA KADAR KAYBOLUR!"
+    lore3 = "Gecerli masalar: Ors, Uretim, Bileme Tasi, Haritacilik, Tas Kesici, Dokuma Tezgahi"
+    lore = ["KAPATTIGINIZDA MASA ICINDE UNUTTUGUNUZ ESYALAR SONSUZA KADAR KAYBOLUR!", "Gecerli masalar: Ors, Uretim, Bileme Tasi, Haritacilik, Tas Kesici, Dokuma Tezgahi"]
+
+[crafting.skulls]
+    name = "Uretilebilir Kafataslari!"
+    description = "Malzemeler kullanarak Yaratik Kafataslari Uretebilirsiniz!"
+    lore1 = "Bir kafatasi elde etmek icin bir Kemik Blogunu asagidakilerle cevreleyin:"
+    lore2 = "Zombi: Curuk Et"
+    lore3 = "Iskelet: Kemik"
+    lore4 = "Creeper: Barut"
+    lore5 = "Wither: Nether Tuglasi"
+    lore6 = "Ejderha: Ejderha Nefesi"
+    lore = ["Bir kafatasi elde etmek icin bir Kemik Blogunu asagidakilerle cevreleyin:", "Zombi: Curuk Et", "Iskelet: Kemik", "Creeper: Barut", "Wither: Nether Tuglasi", "Ejderha: Ejderha Nefesi"]
+
+# chronos
+[chronos]
+
+[chronos.time_in_a_bottle]
+    name = "Sisedeki Zaman"
+    description = "Zaman depolayan ve zamanli bloklari, buyuyebilir bitkileri ve yavru hayvanlar gibi Yaslanabilir varliklari hizlandirmak icin harcayabileceginiz zamansal bir sise tasiyin. Tarif (Sekillsiz): Hizlilik Iksiri + Saat + Cam Sise."
+    lore1 = "Her tikte sarj edilen saniye"
+    lore2 = "Depolanan saniye basina zaman hizlandirmasi"
+    lore3 = "Tarif (Sekillsiz): Hizlilik Iksiri + Saat + Cam Sise"
+    lore = ["Her tikte sarj edilen saniye", "Depolanan saniye basina zaman hizlandirmasi", "Tarif (Sekillsiz): Hizlilik Iksiri + Saat + Cam Sise"]
+
+[chronos.aberrant_touch]
+    name = "Sapkin Dokunuş"
+    description = "Yakin dövüs saldiriları, açlik pahasina yigilan yavaslatma uygular, sıki PvP sinirlariyla ve 5 yiginlamada hedefleri kökler."
+    lore1 = "Yakin dovus saldirilari yigilan yavaslatma uygular"
+    lore2 = "PvE yavaslatma suresi siniri"
+    lore3 = "PvP yavaslatma guclendirici siniri"
+    lore = ["Yakin dovus saldirilari yigilan yavaslatma uygular", "PvE yavaslatma suresi siniri", "PvP yavaslatma guclendirici siniri"]
+
+[chronos.instant_recall]
+    name = "Aninda Geri Cagirma"
+    description = "Elde saat tutarken sol veya sag tiklayarak saglik ve aclik geri yuklenmis sekilde yakin bir ana geri sarın."
+    lore1 = "Geri sarim suresi"
+    lore2 = "Bekleme suresi"
+    lore3 = "Envanter geri alinmaz"
+    lore = ["Geri sarim suresi", "Bekleme suresi", "Envanter geri alinmaz"]
+
+[chronos.time_bomb]
+    name = "Zaman Bombasi"
+    description = "Zamansal bir alan yaratan, varliklari yavalatan ve mermileleri donduran üretilmiş bir krono bombasi firlatın."
+    lore1 = "Zamansal alan yaricapi"
+    lore2 = "Zamansal alan suresi"
+    lore3 = "Bomba bekleme suresi"
+    lore4 = "Tarif (Sekillsiz): Saat + Kartopu + Elmas + Kum"
+    lore = ["Zamansal alan yaricapi", "Zamansal alan suresi", "Bomba bekleme suresi", "Tarif (Sekillsiz): Saat + Kartopu + Elmas + Kum"]
+
+# discovery
+[discovery]
+
+[discovery.armor]
+    name = "Dunya Zirhi"
+    description = "Yakindaki blok sertligine bagli olarak pasif zirh."
+    lore1 = "Pasif Zirh"
+    lore2 = "Yakindaki blok sertligine gore"
+    lore3 = "Zirh Gucu:"
+    lore = ["Pasif Zirh", "Yakindaki blok sertligine gore", "Zirh Gucu:"]
+
+[discovery.unity]
+    name = "Deneysel Birlik"
+    description = "Deneyim Kureleri toplamak rastgele becerilere XP ekler."
+    lore1 = "XP "
+    lore2 = "Kure Basina"
+    lore = ["XP ", "Kure Basina"]
+
+[discovery.resist]
+    name = "Deneysel Direnc"
+    description = "Bir vurus sizi 5 kalbin altina dusurduğünde veya öldüreceğinde hasari azaltmak icin deneyim tuketin."
+    lore0 = "Yalnizca kritik saglikta (<= 5 kalp) 15 saniyede bir tetiklenir"
+    lore1 = " Azaltilmis Hasar"
+    lore2 = "deneyim tukendi"
+    lore = ["Yalnizca kritik saglikta (<= 5 kalp) 15 saniyede bir tetiklenir", " Azaltilmis Hasar", "deneyim tukendi"]
+
+[discovery.villager]
+    name = "Koylu Cazibesi"
+    description = "Koylülerle daha iyi ticaret yapmanizi saglar!"
+    lore1 = "Bu, Koylülerle etkilesim basina XP tuketir"
+    lore2 = "XP tuketmek ve takasi gelistirmek icin etkilesim basina sans"
+    lore3 = "Etkilesim basina gereken XP tukenmesi"
+    lore = ["Bu, Koylülerle etkilesim basina XP tuketir", "XP tuketmek ve takasi gelistirmek icin etkilesim basina sans", "Etkilesim basina gereken XP tukenmesi"]
+
+# enchanting
+[enchanting]
+
+[enchanting.lapis_return]
+    name = "Lapis Iadesi"
+    description = "1 XP seviyesi daha fazla maliyetine, karsiliginda ucretsiz lapis verme sansi var"
+    lore1 = "Her seviye, buyuleme maliyetini 1 arttirir ama 3 Lapis'e kadar iade edebilir"
+    lore = ["Her seviye, buyuleme maliyetini 1 arttirir ama 3 Lapis'e kadar iade edebilir"]
+
+[enchanting.quick_enchant]
+    name = "Hizli Tikla Buyule"
+    description = "Esyalari dogrudan uzerlerindeki buyulu kitaplara tiklayarak buyuleyin."
+    lore1 = "Maksimum Birlesik Seviye"
+    lore2 = "Bir esyayi birden fazla buyuleyemezsiniz "
+    lore3 = "guc"
+    lore = ["Maksimum Birlesik Seviye", "Bir esyayi birden fazla buyuleyemezsiniz ", "guc"]
+
+[enchanting.return]
+    name = "XP Iadesi"
+    description = "Bir esyayi buyulediginizde Buyuleme XP'si size iade edilir."
+    lore1 = "Bir esyayi buyulediginizde harcanan deneyimin iade edilme sansi vardir"
+    lore2 = "Buyuleme Basina Deneyim"
+    lore = ["Bir esyayi buyulediginizde harcanan deneyimin iade edilme sansi vardir", "Buyuleme Basina Deneyim"]
+
+# excavation
+[excavation]
+
+[excavation.haste]
+    name = "Aceleci Kazici"
+    description = "Kazi islemini ACELE ile hizlandirir!"
+    lore1 = "Kazi yaparken Acele kazanin"
+    lore2 = "x herhangi bir blok kazmaya basladiginizda Acele seviyeleri."
+    lore = ["Kazi yaparken Acele kazanin", "x herhangi bir blok kazmaya basladiginizda Acele seviyeleri."]
+
+[excavation.spelunker]
+    name = "Super Goren Magara Kásifi!"
+    description = "Cevherleri gozlerinizle gorun, ama yerin altindan!"
+    lore1 = "Yan elinizde cevher, ana elinizde Parlakmeyveler ve Egilin!"
+    lore2 = "Blok Menzili: "
+    lore3 = "Kullanimda Parlakmeyve tuketir"
+    lore = ["Yan elinizde cevher, ana elinizde Parlakmeyveler ve Egilin!", "Blok Menzili: ", "Kullanimda Parlakmeyve tuketir"]
+
+[excavation.drop_to_inventory]
+    name = "Kurek Envantere Dusurme"
+
+[excavation.omni_tool]
+    name = "OMNI - T.O.O.L."
+    description = "Tackle'in asiri tasarlanmis gosterisli Leatherman'i"
+    lore1 = "Muhtemelen en guclulerinden biri,"
+    lore2 = "ihtiyaclariniza gore aletleri aninda dinamik olarak birlestirin ve degistirin."
+    lore3 = "Birlestirmek icin envanterinizde bir esyayi digerinin uzerine shift tiklayin."
+    lore4 = "Aletleri cozmek icin esyayi Egilip-Birakin, parcalanacaktir."
+    lore5 = "Bu leatherman'de aletleri kiramazsiniz ama kirik aletleri kullanamazsiniz"
+    lore6 = "toplam birlestirilebilir esya."
+    lore7 = "Bes veya alti alet kullanabilirsin ya da sadece bir tane!"
+    lore = ["Muhtemelen en guclulerinden biri,", "ihtiyaclariniza gore aletleri aninda dinamik olarak birlestirin ve degistirin.", "Birlestirmek icin envanterinizde bir esyayi digerinin uzerine shift tiklayin.", "Aletleri cozmek icin esyayi Egilip-Birakin, parcalanacaktir.", "Bu leatherman'de aletleri kiramazsiniz ama kirik aletleri kullanamazsiniz", "toplam birlestirilebilir esya.", "Bes veya alti alet kullanabilirsin ya da sadece bir tane!"]
+
+# herbalism
+[herbalism]
+
+[herbalism.growth_aura]
+    name = "Buyume Aurasi"
+    description = "Cevrenizdeki dogayi bir aura icinde buyutun"
+    lore1 = "Blok Yaricapi"
+    lore2 = "Buyume Aurasi Gucu"
+    lore3 = "Yiyecek Maliyeti"
+    lore = ["Blok Yaricapi", "Buyume Aurasi Gucu", "Yiyecek Maliyeti"]
+
+[herbalism.hippo]
+    name = "Bitkicinin Su Aygiri"
+    description = "Yiyecek tuketmek size daha fazla doygunluk saglar"
+    lore1 = "Yiyecek) tuketimde ek doygunluk puanlari"
+    lore = ["Yiyecek) tuketimde ek doygunluk puanlari"]
+
+[herbalism.myconid]
+    name = "Bitkicinin Myconid'i"
+    description = "Size Miselyum yapma yetenegi verir"
+    lore1 = "Herhangi bir Toprak ve bir Kahverengi & Kirmizi Mantar, Miselyum uretecektir."
+    lore = ["Herhangi bir Toprak ve bir Kahverengi & Kirmizi Mantar, Miselyum uretecektir."]
+
+[herbalism.terralid]
+    name = "Bitkicinin Terralid'i"
+    description = "Size Cimenli Blok yapma yetenegi verir"
+    lore1 = "3 Toprak uzerinde Uc Tohum, 3 Cimenli Blok uretecektir."
+    lore = ["3 Toprak uzerinde Uc Tohum, 3 Cimenli Blok uretecektir."]
+
+[herbalism.cobweb]
+    name = "Ag Oluşturucu"
+    description = "Uretim Masasinda Orumcek Agi yapma yetenegi verir"
+    lore1 = "Dokuz Iplik, bir Orumcek Agi yapacaktir."
+    lore = ["Dokuz Iplik, bir Orumcek Agi yapacaktir."]
+
+[herbalism.mushroom_blocks]
+    name = "Mantar Yapici"
+    description = "Uretim Masasinda Mantar Bloklari yapma yetenegi verir"
+    lore1 = "Bir blok yapmak icin dort Mantar veya bir govde yapmak icin bir blok."
+    lore = ["Bir blok yapmak icin dort Mantar veya bir govde yapmak icin bir blok."]
+
+[herbalism.drop_to_inventory]
+    name = "Copa Envantere Dusurme"
+
+[herbalism.hungry_shield]
+    name = "Ac Kalkan"
+    description = "Sagliginizdan once acliginiza hasar verin."
+    lore1 = "Aclik tarafindan direncli"
+    lore = ["Aclik tarafindan direncli"]
+
+[herbalism.luck]
+    name = "Bitkicinin Sansi"
+    description = "Cim/Cicek kirdiginizda rastgele bir esya alma sansiniz olur"
+    lore0 = "Cicekler = Yiyecek ve Cim = Tohumlar"
+    lore1 = "Cicek kirarak esya kazanma sansi"
+    lore2 = "Cim kirarak esya kazanma sansi"
+    lore = ["Cicekler = Yiyecek ve Cim = Tohumlar", "Cicek kirarak esya kazanma sansi", "Cim kirarak esya kazanma sansi"]
+
+[herbalism.replant]
+    name = "Hasat ve Tekrar Dikim"
+    description = "Copa ile bir ekine sag tiklayarak hasat edin ve yeniden dikin."
+    lore1 = "Blok Yeniden Dikim Yaricapi"
+    lore = ["Blok Yeniden Dikim Yaricapi"]
+
+# hunter
+[hunter]
+
+[hunter.adrenaline]
+    name = "Adrenalin"
+    description = "Caniniz azaldikca daha fazla hasar verin (Yakin Dovus)"
+    lore1 = "Maksimum Hasar"
+    lore = ["Maksimum Hasar"]
+
+[hunter.penalty]
+    name = ""
+    description = ""
+    lore1 = "Acliginiz biterse Zehir yiginlari kazanacaksiniz"
+    lore = ["Acliginiz biterse Zehir yiginlari kazanacaksiniz"]
+
+[hunter.drop_to_inventory]
+    name = "Esya Envantere Dusurme"
+    description = "Bir seyi oldurdugunuzde / Kilicla bir blok kirdiginizda dusmeleri envanterinize isinlar"
+    lore1 = "Bir yaratik/bloktan bir esya dustugunde, mumkunse envanterinize girer."
+    lore = ["Bir yaratik/bloktan bir esya dustugunde, mumkunse envanterinize girer."]
+
+[hunter.invisibility]
+    name = "Kaybolan Adim"
+    description = "Vuruldugunuzda aclik pahasina gorunmezlik kazanirsiniz"
+    lore1 = "Vuruldugunuzda pasif gorunmezlik kazanin"
+    lore2 = "x Gorunmezlik vurusda 3 saniye boyunca birikir"
+    lore3 = "x Biriken aclik"
+    lore4 = "Aclik yiginlari suresi ve carpani."
+    lore5 = "Gorunmezlik suresi"
+    lore = ["Vuruldugunuzda pasif gorunmezlik kazanin", "x Gorunmezlik vurusda 3 saniye boyunca birikir", "x Biriken aclik", "Aclik yiginlari suresi ve carpani.", "Gorunmezlik suresi"]
+
+[hunter.jump_boost]
+    name = "Avcinin Yukseklikleri"
+    description = "Vuruldugunuzda aclik pahasina ziplama gucu kazanirsiniz"
+    lore1 = "Vuruldugunuzda pasif ziplama gucu kazanin"
+    lore2 = "x Vurusda 3 saniye boyunca Ziplama Gucu birikir"
+    lore3 = "x Biriken aclik"
+    lore4 = "Aclik yiginlari suresi ve carpani."
+    lore5 = "Ziplama Gucu yiginlari carpani, sureyi degil."
+    lore = ["Vuruldugunuzda pasif ziplama gucu kazanin", "x Vurusda 3 saniye boyunca Ziplama Gucu birikir", "x Biriken aclik", "Aclik yiginlari suresi ve carpani.", "Ziplama Gucu yiginlari carpani, sureyi degil."]
+
+[hunter.luck]
+    name = "Avcinin Sansi"
+    description = "Vuruldugunuzda aclik pahasina sans kazanirsiniz"
+    lore1 = "Vuruldugunuzda pasif sans kazanin"
+    lore2 = "x Sans vurusda 3 saniye boyunca birikir"
+    lore3 = "x Biriken aclik"
+    lore4 = "Aclik yiginlari suresi ve carpani."
+    lore5 = "Sans yiginlari carpani, sureyi degil."
+    lore = ["Vuruldugunuzda pasif sans kazanin", "x Sans vurusda 3 saniye boyunca birikir", "x Biriken aclik", "Aclik yiginlari suresi ve carpani.", "Sans yiginlari carpani, sureyi degil."]
+
+[hunter.regen]
+    name = "Avcinin Yenilenmesi"
+    description = "Vuruldugunuzda aclik pahasina yenilenme kazanirsiniz"
+    lore1 = "Vuruldugunuzda pasif yenilenme kazanin"
+    lore2 = "x Yenilenme vurusda 3 saniye boyunca birikir"
+    lore3 = "x Biriken aclik"
+    lore4 = "Aclik yiginlari suresi ve carpani."
+    lore5 = "Yenilenme yiginlari carpani, sureyi degil."
+    lore = ["Vuruldugunuzda pasif yenilenme kazanin", "x Yenilenme vurusda 3 saniye boyunca birikir", "x Biriken aclik", "Aclik yiginlari suresi ve carpani.", "Yenilenme yiginlari carpani, sureyi degil."]
+
+[hunter.resistance]
+    name = "Avcinin Direnci"
+    description = "Vuruldugunuzda aclik pahasina direnc kazanirsiniz"
+    lore1 = "Vuruldugunuzda pasif direnc kazanin"
+    lore2 = "x Direnc vurusda 3 saniye boyunca birikir"
+    lore3 = "x Biriken aclik"
+    lore4 = "Aclik yiginlari suresi ve carpani."
+    lore5 = "Direnc yiginlari carpani, sureyi degil."
+    lore = ["Vuruldugunuzda pasif direnc kazanin", "x Direnc vurusda 3 saniye boyunca birikir", "x Biriken aclik", "Aclik yiginlari suresi ve carpani.", "Direnc yiginlari carpani, sureyi degil."]
+
+[hunter.speed]
+    name = "Avcinin Hizi"
+    description = "Vuruldugunuzda aclik pahasina hiz kazanirsiniz"
+    lore1 = "Vuruldugunuzda pasif hiz kazanin"
+    lore2 = "x Hiz vurusda 3 saniye boyunca birikir"
+    lore3 = "x Biriken aclik"
+    lore4 = "Aclik yiginlari suresi ve carpani."
+    lore5 = "Hiz yiginlari carpani, sureyi degil."
+    lore = ["Vuruldugunuzda pasif hiz kazanin", "x Hiz vurusda 3 saniye boyunca birikir", "x Biriken aclik", "Aclik yiginlari suresi ve carpani.", "Hiz yiginlari carpani, sureyi degil."]
+
+[hunter.strength]
+    name = "Avcinin Gucu"
+    description = "Vuruldugunuzda aclik pahasina guc kazanirsiniz"
+    lore1 = "Vuruldugunuzda pasif guc kazanin"
+    lore2 = "x Guc vurusda 3 saniye boyunca birikir"
+    lore3 = "x Biriken aclik"
+    lore4 = "Aclik yiginlari suresi ve carpani."
+    lore5 = "Guc yiginlari carpani, sureyi degil."
+    lore = ["Vuruldugunuzda pasif guc kazanin", "x Guc vurusda 3 saniye boyunca birikir", "x Biriken aclik", "Aclik yiginlari suresi ve carpani.", "Guc yiginlari carpani, sureyi degil."]
+
+# nether
+[nether]
+
+[nether.skull_toss]
+    name = "Wither Kafatasi Firlatma"
+    description1 = "Kullanarak icinizdeki Wither'i aciga cikarin"
+    description2 = "birinin"
+    description3 = "kafasini."
+    lore1 = "Kafatasi firlatlari arasinda saniye bekleme suresi."
+    lore2 = "Wither Kafatasi Kullanarak: Bir "
+    lore3 = "Wither Kafatasi"
+    lore4 = "carpma aninda patlayarak firlatin."
+    lore = ["Kafatasi firlatlari arasinda saniye bekleme suresi.", "Wither Kafatasi Kullanarak: Bir ", "Wither Kafatasi", "carpma aninda patlayarak firlatin."]
+
+[nether.wither_resist]
+    name = "Wither Direnci"
+    description = "Netherite'in gucu ile solmaya karsi direnir."
+    lore1 = "solmayi engeleme sansi (parca basina)."
+    lore2 = "Pasif: Netherite Zirhi giymek solmayi engelleme"
+    lore3 = "sansina sahiptir."
+    lore = ["solmayi engeleme sansi (parca basina).", "Pasif: Netherite Zirhi giymek solmayi engelleme", "sansina sahiptir."]
+
+[nether.fire_resist]
+    name = "Ates Direnci"
+    description = "Cildinizi sertlestirerek atese karsi direnir."
+    lore1 = "yanma etkisini ortadan kaldirma sansi!"
+    lore = ["yanma etkisini ortadan kaldirma sansi!"]
+
+# pickaxe
+[pickaxe]
+
+[pickaxe.auto_smelt]
+    name = "Otomatik Eritme"
+    description = "Kaziilan Vanilya cevherlerini eritmenizi saglar"
+    lore1 = "Eritilebilen cevherler otomatik olarak eritilir"
+    lore2 = "% ekstra sans"
+    lore = ["Eritilebilen cevherler otomatik olarak eritilir", "% ekstra sans"]
+
+[pickaxe.chisel]
+    name = "Cevher Keskisi"
+    description = "Cevherlerden daha fazla cevher cikarmak icin Sag Tiklayin, ciddi bir dayaniklilik maliyetiyle."
+    lore1 = "Dusme Sansi"
+    lore2 = "Alet Asinmasi"
+    lore = ["Dusme Sansi", "Alet Asinmasi"]
+
+[pickaxe.drop_to_inventory]
+    name = "Kazma Envantere Dusurme"
+    description = "Bir blogu kirdiginizda esya envanterinize isinlanir"
+    lore1 = "Kirdiginiz bir bloktan dusen bir esya mumkunse envanterinize girer."
+    lore = ["Kirdiginiz bir bloktan dusen bir esya mumkunse envanterinize girer."]
+
+[pickaxe.silk_spawner]
+    name = "Kazma Ipek-Yaratici"
+    description = "Spawner'larin kirildiginda dusmesini saglar"
+    lore1 = "Spawner'lari ipek dokunusuyla kiriabilir hale getirir."
+    lore2 = "Spawner'lari egilirken kiriabilir hale getirir."
+    lore = ["Spawner'lari ipek dokunusuyla kiriabilir hale getirir.", "Spawner'lari egilirken kiriabilir hale getirir."]
+
+[pickaxe.vein_miner]
+    name = "Damar Madencisi"
+    description = "Vanilya cevheri Damarinda/Kumesinde bloklari kirmanizi saglar"
+    lore1 = "Egilin ve CEVHER kazin"
+    lore2 = "damar madenciligi menzili"
+    lore3 = "Bu beceri tum dusmeleri bir araya gruplandirmaz!"
+    lore = ["Egilin ve CEVHER kazin", "damar madenciligi menzili", "Bu beceri tum dusmeleri bir araya gruplandirmaz!"]
+
+# ranged
+[ranged]
+
+[ranged.arrow_recovery]
+    name = "Ok Kurtarma"
+    description = "Bir dusmani oldurdukten sonra oklari kurtarin."
+    lore1 = "Vurus/Oldurme'de Ok Kurtarma Sansi"
+    lore2 = "Sans: "
+    lore = ["Vurus/Oldurme'de Ok Kurtarma Sansi", "Sans: "]
+
+[ranged.web_shot]
+    name = "Ag Tuzagi"
+    description = "Vurdugunuzda hedefinizin etrafini orumcek aglariyla cevreleyin!"
+    lore1 = "Bir Kartopunun etrafinda 8 Orumcek Agi ve firlatın!"
+    lore2 = "saniye kadar bir kafes, yaklasik olarak."
+    lore = ["Bir Kartopunun etrafinda 8 Orumcek Agi ve firlatın!", "saniye kadar bir kafes, yaklasik olarak."]
+
+[ranged.force_shot]
+    name = "Guclu Atis"
+    description = "Mermileleri daha uzaga, daha hizli atin!"
+    advancementname = "Uzun Atis"
+    advancementlore = "30 blok oteden bir atis yapin!"
+    lore1 = "Mermilerin Hizi"
+    lore = ["Mermilerin Hizi"]
+
+[ranged.lunge_shot]
+    name = "Hamle Atisi"
+    description = "Duserken oklariniz sizi rastgele bir yone firlatir"
+    lore1 = "Rastgele Patlama Hizi"
+    lore = ["Rastgele Patlama Hizi"]
+
+[ranged.arrow_piercing]
+    name = "Ok Delicisi"
+    description = "Mermilere Delicilik ekler! Seylerin icinden atin!"
+    lore1 = "Delebilecegi Hedef"
+    lore = ["Delebilecegi Hedef"]
+
+# rift
+[rift]
+
+[rift.remote_access]
+    name = "Uzaktan Erisim"
+    description = "Bosluktan cekin ve isaretli bir konteynere erisin."
+    lore1 = "Ender Incisi + Pusula = Emanet Anahtari"
+    lore2 = "Bu esya konteynerlere uzaktan erismenizi saglar"
+    lore3 = "Uretildikten sonra kullanimi gormek icin esyaya bakin"
+    notcontainer = "Bu bir konteyner degil"
+    lore = ["Ender Incisi + Pusula = Emanet Anahtari", "Bu esya konteynerlere uzaktan erismenizi saglar", "Uretildikten sonra kullanimi gormek icin esyaya bakin"]
+
+[rift.blink]
+    name = "Yarik Gozu Kirpma"
+    description = "Kisa menzilli aninda isinlanma, Sadece bir goz kirpimi uzaklikta!"
+    lore1 = "Goz kirpmada blok (2x Dikey)"
+    lore2 = "Kosarken: Ziplama'ya cift basin "
+    lore3 = "Goz Kirp"
+    lore = ["Goz kirpmada blok (2x Dikey)", "Kosarken: Ziplama'ya cift basin ", "Goz Kirp"]
+
+[rift.chest]
+    name = "Kolay Ender Sandigi"
+    description = "Elinizde Sol tiklayarak bir ender sandigi acin."
+    lore1 = "Acmak icin elinizdeki Ender Sandigina tiklayin (Sadece yerlestirmeyin)"
+    lore = ["Acmak icin elinizdeki Ender Sandigina tiklayin (Sadece yerlestirmeyin)"]
+
+[rift.descent]
+    name = "Anti-Havaya Kalkma"
+    description = "Havada kalmaktan biktiniz mi? Bu sizin icin olan beceri!"
+    lore1 = "Inmek icin egilmeniz yeterli, normalden daha yavas duseceksiniz!"
+    lore2 = "Bekleme suresi:"
+    lore = ["Inmek icin egilmeniz yeterli, normalden daha yavas duseceksiniz!", "Bekleme suresi:"]
+
+[rift.gate]
+    name = "Yarik Kapisi"
+    description = "Isaretli bir konuma isinlanin."
+    lore1 = "URETIM: Zumrut + Ametist parcasi + Ender Incisi"
+    lore2 = "Kullanmadan once okuyun!"
+    lore3 = "5sn gecikme, "
+    lore4 = "bu animasyondayken olebilirsiniz"
+    lore = ["URETIM: Zumrut + Ametist parcasi + Ender Incisi", "Kullanmadan once okuyun!", "5sn gecikme, ", "bu animasyondayken olebilirsiniz"]
+
+[rift.resist]
+    name = "Yarik Direnci"
+    description = "Ender Esyalari ve Yeteneklerini kullanirken Direnc kazanin"
+    lore1 = "+ Pasif: Yarik yeteneklerini veya Ender Esyalarini kullandiginizda direnc saglar"
+    lore2 = "Portatif Ender Sandigi DAHiL DEGiLDiR, yalnizca tuketebileceginiz seyler"
+    lore = ["+ Pasif: Yarik yeteneklerini veya Ender Esyalarini kullandiginizda direnc saglar", "Portatif Ender Sandigi DAHiL DEGiLDiR, yalnizca tuketebileceginiz seyler"]
+
+[rift.visage]
+    name = "Yarik Gorunumu"
+    description = "Envanterinizde Ender Incisi varsa Endermen'lerin saldirganlasmasini engeller."
+    lore1 = "Envanterinizde Ender Incisi varsa Endermen'ler saldirgan olmaz."
+    lore = ["Envanterinizde Ender Incisi varsa Endermen'ler saldirgan olmaz."]
+
+# seaborn
+[seaborn]
+
+[seaborn.oxygen]
+    name = "Organik Oksijen Tanki"
+    description = "Minik cigerlerinizde daha fazla oksijen tutun!"
+    lore1 = "Oksijen Kapasitesi Artisi"
+    lore = ["Oksijen Kapasitesi Artisi"]
+
+[seaborn.fishers_fantasy]
+    name = "Balcinin Hayali"
+    description = "Balikciliktan daha fazla XP kazanin ve daha fazla balik alin!"
+    lore1 = "Her seviye icin daha fazla XP ve Balik kazanma sansi var!"
+    lore = ["Her seviye icin daha fazla XP ve Balik kazanma sansi var!"]
+
+[seaborn.haste]
+    name = "Kaplumbaga Madencisi"
+    description = "Su altinda madencilik yaparken acele kazanirsiniz!"
+    lore1 = "Su soluma etkiniz bittikten sonra su altinda madencilik yaparken Acele 3 uygulanir (AquaAffinity ile birikir)!"
+    lore = ["Su soluma etkiniz bittikten sonra su altinda madencilik yaparken Acele 3 uygulanir (AquaAffinity ile birikir)!"]
+
+[seaborn.night_vision]
+    name = "Kaplumbaganin Gorusu"
+    description = "Su altindayken Gece Gorusu kazanirsiniz"
+    lore1 = "Su soluma etkiniz bittikten sonra su altindayken Gece Gorusu kazanin!"
+    lore = ["Su soluma etkiniz bittikten sonra su altindayken Gece Gorusu kazanin!"]
+
+[seaborn.dolphin_grace]
+    name = "Yunusun Zarfeti"
+    description = "Yunuslar olmadan bir yunus gibi yuzun"
+    lore1 = "+ Pasif: kazan "
+    lore2 = "x hiz (yunus zarafeti)"
+    lore3 = "hassas Alman muhendisligi- dur bu dogru degil... Derinlik Kosucusu ile uyumlu degil"
+    lore = ["+ Pasif: kazan ", "x hiz (yunus zarafeti)", "hassas Alman muhendisligi- dur bu dogru degil... Derinlik Kosucusu ile uyumlu degil"]
+
+# stealth
+[stealth]
+
+[stealth.ghost_armor]
+    name = "Hayaletin Zirhi"
+    description = "Hasar almadiginizda yavas yavas zirh birikir, 1 vurus surer"
+    lore1 = "Maksimum Zirh"
+    lore2 = "Hiz"
+    lore = ["Maksimum Zirh", "Hiz"]
+
+[stealth.night_vision]
+    name = "Gizlilik Gorusu"
+    description = "Egilirken gece gorusu kazanin"
+    lore1 = "Bir patlama kazanin "
+    lore2 = "gece gorusu"
+    lore3 = "egilirken"
+    lore = ["Bir patlama kazanin ", "gece gorusu", "egilirken"]
+
+[stealth.snatch]
+    name = "Esya Kapma"
+    description = "Egilirken aninda dusen esyalari kapin!"
+    lore1 = "Kapma Yaricapi"
+    lore = ["Kapma Yaricapi"]
+
+[stealth.speed]
+    name = "Gizli Hiz"
+    description = "Egilirken hiz kazanin"
+    lore1 = "Egilme Hizi"
+    lore = ["Egilme Hizi"]
+
+[stealth.ender_veil]
+    name = "Ender Ortüsü"
+    description = "Enderman saldirilarina karsi artik Balkabagi takmak yok"
+    lore1 = "Egilirken enderman saldirilarini onleyin"
+    lore2 = "Tum enderman saldirilarini onleyin"
+    lore = ["Egilirken enderman saldirilarini onleyin", "Tum enderman saldirilarini onleyin"]
+
+# sword
+[sword]
+
+[sword.machete]
+    name = "Pala"
+    description = "Bitki ortusunu kolayca kesin!"
+    lore1 = "Kesme Yaricapi"
+    lore2 = "Kesme Bekleme Suresi"
+    lore3 = "Alet Asinmasi"
+    lore = ["Kesme Yaricapi", "Kesme Bekleme Suresi", "Alet Asinmasi"]
+
+[sword.bloody_blade]
+    name = "Kanli Bicak"
+    description = "Kilic darbeleri Kanamaya neden olur!"
+    lore1 = "Kilicinizla canli bir varlga vurmak Kanamaya neden olur"
+    lore2 = "Kanama Suresi"
+    lore3 = "Kanama Bekleme Suresi"
+    lore = ["Kilicinizla canli bir varlga vurmak Kanamaya neden olur", "Kanama Suresi", "Kanama Bekleme Suresi"]
+
+[sword.poisoned_blade]
+    name = "Zehirli Bicak"
+    description = "Kilic darbeleri Zehire neden olur!"
+    lore1 = "Kilicinizla canli bir varliga vurmak Zehire neden olur"
+    lore2 = "Zehir Suresi"
+    lore3 = "Zehir Bekleme Suresi"
+    lore = ["Kilicinizla canli bir varliga vurmak Zehire neden olur", "Zehir Suresi", "Zehir Bekleme Suresi"]
+
+# taming
+[taming]
+
+[taming.damage]
+    name = "Evcil Hasar"
+    description = "Evcillestirilmis hayvaninizin verdigi hasari artirin."
+    lore1 = "Arttirilmis Hasar"
+    lore = ["Arttirilmis Hasar"]
+
+[taming.health]
+    name = "Evcil Saglik"
+    description = "Evcillestirilmis hayvaninizin sagligini artirin."
+    lore1 = "Arttirilmis Saglik"
+    lore = ["Arttirilmis Saglik"]
+
+[taming.regeneration]
+    name = "Evcil Yenilenme"
+    description = "Evcillestirilmis hayvaninizin yenilenmesini artirin."
+    lore1 = "HP/s"
+    lore = ["HP/s"]
+
+# tragoul
+[tragoul]
+
+[tragoul.thorns]
+    name = "Dikenler"
+    description = "Hasari saldirganiniza geri yansitin!"
+    lore1 = "Vuruldugunuzda misilleme edilen hasar"
+    lore = ["Vuruldugunuzda misilleme edilen hasar"]
+
+[tragoul.globe]
+    name = "Aci Kuresi"
+    description = "Verdiginiz Hasari cevrenizdeki dusman sayisina gore bolun!"
+    lore1 = "Cevrenizdeki dusman sayisi arttikca her birine verdiginiz hasar azalir"
+    lore2 = "Menzil: "
+    lore3 = "Tum Varliklara Eklenen Hasar: "
+    lore = ["Cevrenizdeki dusman sayisi arttikca her birine verdiginiz hasar azalir", "Menzil: ", "Tum Varliklara Eklenen Hasar: "]
+
+[tragoul.healing]
+    name = "Acinin Iradesi"
+    description = "Verdiginiz hasara gore saglik geri kazanin!"
+    lore1 = "Bir seylere zarar vermek hic bu kadar iyi hissettirmemisti! Verilen Hasardan Iyilesme"
+    lore2 = "Iyilestirme icin 3 Saniyelik bir hasar penceresi ve 1 Saniyelik bekleme suresi vardir "
+    lore3 = "Hasar Yuzdesine Gore Iyilestirme: "
+    lore = ["Bir seylere zarar vermek hic bu kadar iyi hissettirmemisti! Verilen Hasardan Iyilesme", "Iyilestirme icin 3 Saniyelik bir hasar penceresi ve 1 Saniyelik bekleme suresi vardir ", "Hasar Yuzdesine Gore Iyilestirme: "]
+
+[tragoul.lance]
+    name = "Ceset Mizraklari"
+    description = "Bir dusmani oldurmek veya bir yetenegin bir dusmani oldulmesi, yakindaki bir dusmana hasar veren bir mizrak olusturur!"
+    lore1 = "Mizraklar oldedugunuz her seyden VE bu yetenek bir dusmani oldurse cikacaktir."
+    lore2 = "Mizraklari yaratmak icin hayatinizin bir kismini feda edin (bu sizi oldurebilir)"
+    lore3 = "Maksimum Mizrak: 1 + "
+    lore = ["Mizraklar oldedugunuz her seyden VE bu yetenek bir dusmani oldurse cikacaktir.", "Mizraklari yaratmak icin hayatinizin bir kismini feda edin (bu sizi oldurebilir)", "Maksimum Mizrak: 1 + "]
+
+# unarmed
+[unarmed]
+
+[unarmed.glass_cannon]
+    name = "Cam Top"
+    description = "Zirh degeriniz ne kadar dusukse o kadar fazla bonus Silahsiz Hasar"
+    lore1 = "x 0 zirhta hasar"
+    lore2 = "Seviye Basina Bonus Hasar"
+    lore = ["x 0 zirhta hasar", "Seviye Basina Bonus Hasar"]
+
+[unarmed.power]
+    name = "Silahsiz Guc"
+    description = "Gelistirilmis Silahsiz Hasar"
+    lore1 = "Hasar"
+    lore = ["Hasar"]
+
+[unarmed.sucker_punch]
+    name = "Sinsi Yumruk"
+    description = "Sprint yumruklari, ama daha olumcul."
+    lore1 = "Hasar"
+    lore2 = "Yumruk atarken hizinizla birlikte hasar artar"
+    lore = ["Hasar", "Yumruk atarken hizinizla birlikte hasar artar"]

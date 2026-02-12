@@ -72,8 +72,8 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
     public ChronosInstantRecall() {
         super("chronos-instant-recall");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("chronos", "instantrecall", "description"));
-        setDisplayName(Localizer.dLocalize("chronos", "instantrecall", "name"));
+        setDescription(Localizer.dLocalize("chronos.instant_recall.description"));
+        setDisplayName(Localizer.dLocalize("chronos.instant_recall.name"));
         setIcon(Material.RECOVERY_COMPASS);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -91,9 +91,9 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecall.
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.duration(getRewindDurationMillis(level), 1) + " " + Localizer.dLocalize("chronos", "instantrecall", "lore1"));
-        v.addLore(C.RED + "* " + Form.duration(getCooldownMillis(level), 1) + " " + Localizer.dLocalize("chronos", "instantrecall", "lore2"));
-        v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos", "instantrecall", "lore3"));
+        v.addLore(C.GREEN + "+ " + Form.duration(getRewindDurationMillis(level), 1) + " " + Localizer.dLocalize("chronos.instant_recall.lore1"));
+        v.addLore(C.RED + "* " + Form.duration(getCooldownMillis(level), 1) + " " + Localizer.dLocalize("chronos.instant_recall.lore2"));
+        v.addLore(C.GRAY + "* " + Localizer.dLocalize("chronos.instant_recall.lore3"));
     }
 
     private long getRewindDurationMillis(int level) {

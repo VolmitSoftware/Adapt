@@ -1,0 +1,1501 @@
+# advancement
+[advancement]
+
+[advancement.challenge_move_1k]
+    title = "Täytyy liikkua!"
+    description = "Kävele yli 1 kilometri (1 000 lohkoa)"
+
+[advancement.challenge_sprint_5k]
+    title = "Juokse 5K!"
+    description = "Kävele yli 5 kilometriä (5 000 lohkoa)"
+
+[advancement.challenge_sprint_50k]
+    title = "Zoomaa 50K!"
+    description = "Kävele yli 50 kilometriä (50 000 lohkoa)"
+
+[advancement.challenge_sprint_500k]
+    title = "Halki maailmankaikkeuden!!"
+    description = "Kävele yli 500 kilometriä (500 000 lohkoa)"
+
+[advancement.challenge_sprint_marathon]
+    title = "Juokse (kirjaimellinen) maraton!"
+    description = "Juokse yli 42 195 lohkoa!"
+
+[advancement.challenge_place_1k]
+    title = "Aloitteleva rakentaja!"
+    description = "Aseta 1 000 lohkoa"
+
+[advancement.challenge_place_5k]
+    title = "Keskitason rakentaja!"
+    description = "Aseta 5 000 lohkoa"
+
+[advancement.challenge_place_50k]
+    title = "Edistynyt rakentaja!"
+    description = "Aseta 50 000 lohkoa"
+
+[advancement.challenge_place_500k]
+    title = "Rakennusmestari!"
+    description = "Aseta 500 000 lohkoa"
+
+[advancement.challenge_place_5m]
+    title = "Symmetrian akolyytti!"
+    description = "TODELLISUUS ON LEIKKIKENTTÄSI! (5 miljoonaa lohkoa)"
+
+[advancement.challenge_chop_1k]
+    title = "Aloitteleva metsuri!"
+    description = "Kaada 1 000 lohkoa"
+
+[advancement.challenge_chop_5k]
+    title = "Keskitason metsuri!"
+    description = "Kaada 5 000 lohkoa"
+
+[advancement.challenge_chop_50k]
+    title = "Edistynyt metsuri!"
+    description = "Kaada 50 000 lohkoa"
+
+[advancement.challenge_chop_500k]
+    title = "Mestarimetsuri!"
+    description = "Kaada 500 000 lohkoa"
+
+[advancement.challenge_chop_5m]
+    title = "Jackson-koira"
+    description = "Maailman paras poika! (5 miljoonaa lohkoa)"
+
+[advancement.challenge_block_1k]
+    title = "Tuskin torjuttu!"
+    description = "Torju 1000 osumaa"
+
+[advancement.challenge_block_5k]
+    title = "Torjuminen on hauskaa!"
+    description = "Torju 5000 osumaa"
+
+[advancement.challenge_block_50k]
+    title = "Torjuminen on elämäni!"
+    description = "Torju 50 000 osumaa"
+
+[advancement.challenge_block_500k]
+    title = "Torjuminen on tarkoitukseni!"
+    description = "Torju 500 000 osumaa"
+
+[advancement.challenge_block_5m]
+    title = "Die Hand Die Verletzt"
+    description = "Torju 5 000 000 osumaa"
+
+[advancement.challenge_brew_1k]
+    title = "Aloitteleva alkemisti!"
+    description = "Juo 1000 taikajuomaa"
+
+[advancement.challenge_brew_5k]
+    title = "Keskitason alkemisti!"
+    description = "Juo 5000 taikajuomaa"
+
+[advancement.challenge_brew_50k]
+    title = "Edistynyt alkemisti!"
+    description = "Juo 50 000 taikajuomaa"
+
+[advancement.challenge_brew_500k]
+    title = "Mestarialkemisti!"
+    description = "Juo 500 000 taikajuomaa"
+
+[advancement.challenge_brew_5m]
+    title = "Alkemisti"
+    description = "Juo 5 000 000 taikajuomaa"
+
+[advancement.challenge_brewsplash_1k]
+    title = "Aloitteleva roiskuttaja!"
+    description = "Roiskuta 1000 taikajuomaa"
+
+[advancement.challenge_brewsplash_5k]
+    title = "Keskitason roiskuttaja!"
+    description = "Roiskuta 5000 taikajuomaa"
+
+[advancement.challenge_brewsplash_50k]
+    title = "Edistynyt roiskuttaja!"
+    description = "Roiskuta 50 000 taikajuomaa"
+
+[advancement.challenge_brewsplash_500k]
+    title = "Mestarioiskuttaja!"
+    description = "Roiskuta 500 000 taikajuomaa"
+
+[advancement.challenge_brewsplash_5m]
+    title = "Roiskumestari"
+    description = "Roiskuta 5 000 000 taikajuomaa"
+
+[advancement.challenge_craft_1k]
+    title = "Taitava nikkaroija!"
+    description = "Valmista 1000 esinettä"
+
+[advancement.challenge_craft_5k]
+    title = "Äkäinen nikkaroija!"
+    description = "Valmista 5000 esinettä"
+
+[advancement.challenge_craft_50k]
+    title = "Uuttera nikkaroija!"
+    description = "Valmista 50 000 esinettä"
+
+[advancement.challenge_craft_500k]
+    title = "Korviahuumaava nikkaroija!"
+    description = "Valmista 500 000 esinettä"
+
+[advancement.challenge_craft_5m]
+    title = "Tuhoisa McNikkaroija"
+    description = "Valmista 5 000 000 esinettä"
+
+[advancement.challenge_enchant_1k]
+    title = "Aloitteleva lumooja!"
+    description = "Lumoa 1000 esinettä"
+
+[advancement.challenge_enchant_5k]
+    title = "Keskitason lumooja!"
+    description = "Lumoa 5000 esinettä"
+
+[advancement.challenge_enchant_50k]
+    title = "Edistynyt lumooja!"
+    description = "Lumoa 50 000 esinettä"
+
+[advancement.challenge_enchant_500k]
+    title = "Mestarilumooja!"
+    description = "Lumoa 500 000 esinettä"
+
+[advancement.challenge_enchant_5m]
+    title = "Arvoituksellinen lumooja"
+    description = "Lumoa 5 000 000 esinettä"
+
+[advancement.challenge_excavate_1k]
+    title = "Innokas kaivaja!"
+    description = "Kaiva 1000 lohkoa"
+
+[advancement.challenge_excavate_5k]
+    title = "Keskitason kaivaja!"
+    description = "Kaiva 5000 lohkoa"
+
+[advancement.challenge_excavate_50k]
+    title = "Edistynyt kaivaja!"
+    description = "Kaiva 50 000 lohkoa"
+
+[advancement.challenge_excavate_500k]
+    title = "Mestarikaivaja!"
+    description = "Kaiva 500 000 lohkoa"
+
+[advancement.challenge_excavate_5m]
+    title = "Arvoituksellinen kaivaja"
+    description = "Kaiva 5 000 000 lohkoa"
+
+[advancement.horrible_person]
+    title = "Olet kauhea ihminen"
+    description = "Aivan käsittämätöntä, todella"
+
+[advancement.challenge_turtle_egg_smasher]
+    title = "Kilpikonnanmunien murskaja!"
+    description = "Riko 100 kilpikonnan munaa"
+
+[advancement.challenge_turtle_egg_annihilator]
+    title = "Kilpikonnanmunien tuhoaja!"
+    description = "Riko 500 kilpikonnan munaa"
+
+[advancement.challenge_novice_hunter]
+    title = "Aloitteleva metsästäjä!"
+    description = "Tapa 100 olentoa"
+
+[advancement.challenge_intermediate_hunter]
+    title = "Keskitason metsästäjä!"
+    description = "Tapa 500 olentoa"
+
+[advancement.challenge_advanced_hunter]
+    title = "Edistynyt metsästäjä!"
+    description = "Tapa 5000 olentoa"
+
+[advancement.challenge_creeper_conqueror]
+    title = "Creeperien valloittaja!"
+    description = "Tapa 50 creeperiä"
+
+[advancement.challenge_creeper_annihilator]
+    title = "Creeperien tuhoaja!"
+    description = "Tapa 200 creeperiä"
+
+[advancement.challenge_pickaxe_1k]
+    title = "Aloitteleva kaivosmies"
+    description = "Riko 1000 lohkoa"
+
+[advancement.challenge_pickaxe_5k]
+    title = "Taitava kaivosmies"
+    description = "Riko 5000 lohkoa"
+
+[advancement.challenge_pickaxe_50k]
+    title = "Asiantunteva kaivosmies"
+    description = "Riko 50 000 lohkoa"
+
+[advancement.challenge_pickaxe_500k]
+    title = "Mestarikaivosmies"
+    description = "Riko 500 000 lohkoa"
+
+[advancement.challenge_pickaxe_5m]
+    title = "Legendaarinen kaivosmies"
+    description = "Riko 5 000 000 lohkoa"
+
+[advancement.challenge_eat_100]
+    title = "Niin paljon syötävää!"
+    description = "Syö yli 100 esinettä!"
+
+[advancement.challenge_eat_1000]
+    title = "Sammumaton nälkä!"
+    description = "Syö yli 1 000 esinettä!"
+
+[advancement.challenge_eat_10000]
+    title = "IKUINEN NÄLKÄ!"
+    description = "Syö yli 10 000 esinettä!"
+
+[advancement.challenge_harvest_100]
+    title = "Täysi sato"
+    description = "Korjaa yli 100 satoa!"
+
+[advancement.challenge_harvest_1000]
+    title = "Suursato"
+    description = "Korjaa yli 1 000 satoa!"
+
+[advancement.challenge_swim_1nm]
+    title = "Ihmissukellusvene!"
+    description = "Ui 1 meripeninkulmaa (1 852 lohkoa)"
+
+[advancement.challenge_sneak_1k]
+    title = "Polvikipu"
+    description = "Hiivi yli kilometri (1 000 lohkoa)"
+
+[advancement.challenge_sneak_5k]
+    title = "Varjokulkija"
+    description = "Hiivi yli 5 000 lohkoa"
+
+[advancement.challenge_sneak_20k]
+    title = "Haamu"
+    description = "Hiivi yli 20 000 lohkoa"
+
+[advancement.challenge_swim_5k]
+    title = "Syvasukeltaja"
+    description = "Ui yli 5 000 lohkoa"
+
+[advancement.challenge_swim_20k]
+    title = "Poseidonin Valittu"
+    description = "Ui yli 20 000 lohkoa"
+
+[advancement.challenge_sword_100]
+    title = "Ensiveri"
+    description = "Iske 100 kertaa miekalla"
+
+[advancement.challenge_sword_1k]
+    title = "Miekkatanssija"
+    description = "Iske 1 000 kertaa miekalla"
+
+[advancement.challenge_sword_10k]
+    title = "Tuhat Viiltoa"
+    description = "Iske 10 000 kertaa miekalla"
+
+[advancement.challenge_unarmed_100]
+    title = "Baari-tappelija"
+    description = "Iske 100 kertaa paljain kasin"
+
+[advancement.challenge_unarmed_1k]
+    title = "Rautanyrkit"
+    description = "Iske 1 000 kertaa paljain kasin"
+
+[advancement.challenge_unarmed_10k]
+    title = "Yksi Isku"
+    description = "Iske 10 000 kertaa paljain kasin"
+
+[advancement.challenge_trag_1k]
+    title = "Veren Hinta"
+    description = "Ota vastaan 1 000 vahinkoa"
+
+[advancement.challenge_trag_10k]
+    title = "Purppuravyory"
+    description = "Ota vastaan 10 000 vahinkoa"
+
+[advancement.challenge_trag_100k]
+    title = "Karsimyksen Avatar"
+    description = "Ota vastaan 100 000 vahinkoa"
+
+[advancement.challenge_ranged_100]
+    title = "Tauluharjoitus"
+    description = "Ammu 100 ammusta"
+
+[advancement.challenge_ranged_1k]
+    title = "Haukansilma"
+    description = "Ammu 1 000 ammusta"
+
+[advancement.challenge_ranged_10k]
+    title = "Nuolimyrsky"
+    description = "Ammu 10 000 ammusta"
+
+[advancement.challenge_chronos_1h]
+    title = "Tik Tak"
+    description = "Vieta 1 tunti verkossa"
+
+[advancement.challenge_chronos_24h]
+    title = "Ajan Hiekat"
+    description = "Vieta 24 tuntia verkossa"
+
+[advancement.challenge_chronos_168h]
+    title = "Ajaton"
+    description = "Vieta 168 tuntia (1 viikko) verkossa"
+
+[advancement.challenge_nether_50]
+    title = "Helvetin Portinvartija"
+    description = "Tapa 50 nether-olentoa"
+
+[advancement.challenge_nether_500]
+    title = "Syvyyksien Vartija"
+    description = "Tapa 500 nether-olentoa"
+
+[advancement.challenge_nether_5k]
+    title = "Netherin Herra"
+    description = "Tapa 5 000 nether-olentoa"
+
+[advancement.challenge_rift_50]
+    title = "Avaruusanomalia"
+    description = "Teleporttaa 50 kertaa"
+
+[advancement.challenge_rift_500]
+    title = "Tyhjon Kulkija"
+    description = "Teleporttaa 500 kertaa"
+
+[advancement.challenge_rift_5k]
+    title = "Maailmojen Valilla"
+    description = "Teleporttaa 5 000 kertaa"
+
+[advancement.challenge_taming_10]
+    title = "Elainten Kuiskaaja"
+    description = "Jalosta 10 elaintta"
+
+[advancement.challenge_taming_50]
+    title = "Lauman Johtaja"
+    description = "Jalosta 50 elaintta"
+
+[advancement.challenge_taming_500]
+    title = "Petojen Herra"
+    description = "Jalosta 500 elaintta"
+
+# items
+[items]
+
+[items.bound_ender_peral]
+    name = "Reliikki-avainportti"
+    usage1 = "Shift + Vasen klikkaus sitomiseen"
+    usage2 = "Oikea klikkaus päästäksesi sidottuun varastoon"
+
+[items.bound_eye_of_ender]
+    name = "Silmäankkuri"
+    usage1 = "Oikea klikkaus kuluttaaksesi ja teleportataksesi sidottuun sijaintiin"
+    usage2 = "Shift + Vasen klikkaus sitoaksesi lohkoon"
+
+[items.bound_redstone_torch]
+    name = "Redstonekaukosäädin"
+    usage1 = "Oikea klikkaus lähettääksesi 1 tikin redstone-pulssin"
+    usage2 = "Shift + Vasen klikkaus 'Kohde'-lohkoon sitoaksesi"
+
+[items.bound_snowball]
+    name = "Seittiansa!"
+    usage1 = "Heitä luodaksesi väliaikainen seittiansa kohteeseen"
+
+[items.chrono_time_bottle]
+    name = "Aikaa pullossa"
+    usage1 = "Kerää passiivisesti aikaa ollessaan varastossasi"
+    usage2 = "Oikea-klikkaa ajastettuja lohkoja tai eläinten poikasia käyttääksesi varastoitua aikaa"
+    stored = "Varastoitu aika"
+
+[items.chrono_time_bomb]
+    name = "Aikapommi"
+    usage1 = "Oikea-klikkaa laukaistaksesi aikasalama, joka luo ajallisen kentän"
+
+[items.elevator_block]
+    name = "Hissilohko"
+    usage1 = "Hyppää teleportataksesi ylös"
+    usage2 = "Kyykisty teleportataksesi alas"
+    usage3 = "Vähintään 2 ilmalohkoa hissien välillä"
+
+# snippets
+[snippets]
+
+[snippets.gui]
+    level = "Taso"
+    knowledge = "tietämys"
+    power_used = "Voimaa käytetty"
+    not_learned = "Ei opittu"
+    xp = "XP:tä"
+    welcome = "Tervetuloa!"
+    welcome_back = "Tervetuloa takaisin!"
+    xp_bonus_for_time = "XP:tä"
+    max_ability_power = "Kykytehon enimmäismäärä"
+    unlock_this_by_clicking = "Avaa tämä oikea-klikkaamalla: "
+    back = "Takaisin"
+    unlearn_all = "Unohda kaikki"
+    unlearned_all = "Kaikki unohdettu"
+
+[snippets.adapt_menu]
+    may_not_unlearn = "ET VOI UNOHTAA"
+    may_unlearn = "VOIT OPPIA/UNOHTAA"
+    knowledge_cost = "Tietämyksen hinta"
+    knowledge_available = "Tietämystä saatavilla"
+    already_learned = "Jo opittu"
+    unlearn_refund = "Klikkaa unohtaaksesi ja saadaksesi hyvityksen"
+    no_refunds = "HARDCORE, HYVITYKSET POIS KÄYTÖSTÄ"
+    knowledge = "tietämys"
+    click_learn = "Klikkaa oppiaksesi"
+    no_knowledge = "(Sinulla ei ole tietämystä)"
+    you_only_have = "Sinulla on vain"
+    how_to_level_up = "Nosta taitotasoja kasvattaaksesi maksimitehoa."
+    not_enough_power = "Tehoa ei ole tarpeeksi! Jokainen kykytaso maksaa 1 tehon."
+    power = "teho"
+    power_drain = "Tehon kulutus"
+    learned = "Opittu "
+    unlearned = "Unohdettu "
+    activator_block = "Kirjahylly"
+
+[snippets.knowledge_orb]
+    contains = "sisältää"
+    knowledge = "tietämys"
+    rightclick = "Oikea-klikkaa"
+    togainknowledge = "saadaksesi tämän tietämyksen"
+    knowledge_orb = "Tietämyspallo"
+
+[snippets.experience_orb]
+    contains = "sisältää"
+    xp = "Kokemus"
+    rightclick = "Oikea-klikkaa"
+    togainxp = "saadaksesi tämän kokemuksen"
+    xporb = "Kokemuspallo"
+
+# skill
+[skill]
+
+[skill.agility]
+    name = "Ketteryys"
+    icon = "⇉"
+    description = "Ketteryys on kykyä liikkua nopeasti ja sujuvasti esteiden edessä."
+
+[skill.architect]
+    name = "Arkkitehti"
+    icon = "⬧"
+    description = "Rakenteet ovat maailman rakennuspalikoita. Todellisuus on käsissäsi, sinun hallittavanasi."
+
+[skill.axes]
+    name = "Kirveet"
+    icon = "🪓"
+    description1 = "Miksi kaataa puita, kun voit kaataa "
+    description2 = "asioita"
+    description3 = "sen sijaan, sama lopputulos!"
+
+[skill.brewing]
+    name = "Panimotaito"
+    icon = "❦"
+    description = "Tuplakupla, triplakupla, nelinkertainen kupla - en silti saa tätä taikajuomaa kattilaan"
+
+[skill.blocking]
+    name = "Torjunta"
+    icon = "🛡"
+    description = "Kepit ja kivet eivät murskaa luitasi, mutta kilpi kyllä."
+
+[skill.crafting]
+    name = "Valmistus"
+    icon = "⌂"
+    description = "Kun palasia ei ole enää jäljellä, miksi et tekisi lisää?"
+
+[skill.discovery]
+    name = "Löytöretki"
+    icon = "⚛"
+    description = "Kun havaintokykysi laajenee, mielesi avautuu löytämään sen, mitä et ennen huomannut."
+
+[skill.enchanting]
+    name = "Lumoaminen"
+    icon = "♰"
+    description = "Mistä sinä oikein puhut? Ennustukset, näyt, taikauskoinen höpötys?"
+
+[skill.excavation]
+    name = "Kaivaminen"
+    icon = "ᛳ"
+    description = "Kaiva kaiva koloa..."
+
+[skill.herbalism]
+    name = "Yrttitaito"
+    icon = "⚘"
+    description = "En löydä kasveja, mutta löydän siemeniä ja - onko tuo... rikkaruohoa?"
+
+[skill.hunter]
+    name = "Metsästäjä"
+    icon = "☠"
+    description = "Metsästyksessä on kyse matkasta, ei lopputuloksesta."
+
+[skill.nether]
+    name = "Nether"
+    icon = "₪"
+    description = "Netherin syvyyksistä itsestään."
+
+[skill.pickaxe]
+    name = "Hakku"
+    icon = "⛏"
+    description = "Kääpiöt ovat kaivosmiehiä, mutta olen oppinut pari juttua aikanani. OLEN RUOTSALAINEN"
+
+[skill.ranged]
+    name = "Kantama"
+    icon = "🏹"
+    description = "Etäisyys on avain voittoon ja avain selviytymiseen."
+
+[skill.rift]
+    name = "Repeämä"
+    icon = "❍"
+    description = "Repeämä on syövyttävä valjastus, mutta sinä olet valjastanut valjastuksen."
+
+[skill.seaborne]
+    name = "Merenkulkija"
+    icon = "🎣"
+    description = "Tällä taidolla voit hallita veden ihmeitä."
+
+[skill.stealth]
+    name = "Hiipimistaito"
+    icon = "☯"
+    description = "Näkymättömyyden taide. Kulje varjoissa."
+
+[skill.swords]
+    name = "Miekat"
+    icon = "⚔"
+    description = "Harmaakiven voimalla!"
+
+[skill.taming]
+    name = "Kesyttäminen"
+    icon = "♥"
+    description = "Papukaijat ja mehiläiset... entä sinä?"
+
+[skill.tragoul]
+    name = "TragOul"
+    icon = "🗡"
+    description = "Veri virtaa maailmankaikkeuden suonissa. Käsiesi puristuksessa."
+
+[skill.chronos]
+    name = "Chronos"
+    icon = "🕒"
+    description = "Vedä maailmankaikkeuden kelloa, koe virtaus. Riko kello, tule kelloksi."
+
+[skill.unarmed]
+    name = "Aseeton"
+    icon = "»"
+    description = "Ilman asetta ei tarkoita ilman voimaa."
+
+# agility
+[agility]
+
+[agility.armor_up]
+    name = "Panssarointi"
+    description = "Saat enemmän panssaria mitä pidempään juokset!"
+    lore1 = "Maksimipanssari"
+    lore2 = "Panssaroinnin kertymisaika"
+    lore = ["Maksimipanssari", "Panssaroinnin kertymisaika"]
+
+[agility.ladder_slide]
+    name = "Tikasliuku"
+    description = "Kiipeä ja liu'u tikkailla paljon nopeammin molempiin suuntiin."
+    lore1 = "Tikasnopeuskerroin"
+    lore2 = "Nopea laskeutumisnopeus"
+    lore = ["Tikasnopeuskerroin", "Nopea laskeutumisnopeus"]
+
+[agility.super_jump]
+    name = "Superhyppy"
+    description = "Poikkeuksellinen korkeusetu."
+    lore1 = "Maksimihyppykorkeus"
+    lore2 = "Kyykky + Hyppy tehdäksesi Superhypyn!"
+    lore = ["Maksimihyppykorkeus", "Kyykky + Hyppy tehdäksesi Superhypyn!"]
+
+[agility.wall_jump]
+    name = "Seinähyppy"
+    description = "Pidä kyykkyä painettuna ilmassa seinää vasten tarttuaksesi ja hypätäksesi!"
+    lore1 = "Maksimihypyt"
+    lore2 = "Hyppykorkeus"
+    lore = ["Maksimihypyt", "Hyppykorkeus"]
+
+[agility.wind_up]
+    name = "Kiihdytys"
+    description = "Nopeudu mitä pidempään juokset!"
+    lore1 = "Maksiminopeus"
+    lore2 = "Kiihdytysaika"
+    lore = ["Maksiminopeus", "Kiihdytysaika"]
+
+# architect
+[architect]
+
+[architect.elevator]
+    name = "Hissi"
+    description = "Tämä mahdollistaa hissin rakentamisen pystysuuntaiseen nopeaan teleporttaukseen!"
+    lore1 = "Avaa hissiresepti: X=VILLA, Y=ENDERHELMI"
+    lore2 = "XXX"
+    lore3 = "XYX"
+    lore4 = "XXX"
+    lore = ["Avaa hissiresepti: X=VILLA, Y=ENDERHELMI", "XXX", "XYX", "XXX"]
+
+[architect.foundation]
+    name = "Maaginen perusta"
+    description = "Tämä mahdollistaa kyykistymisen ja väliaikaisen perustan luomisen allesi!"
+    lore1 = "Luo maagisesti: "
+    lore2 = "lohkoa allesi!"
+    lore = ["Luo maagisesti: ", "lohkoa allesi!"]
+
+[architect.glass]
+    name = "Silkkikosketus-lasi"
+    description = "Tämä estää lasilohkojen häviämisen, kun rikot ne tyhjällä kädellä!"
+    lore1 = "Kätesi saavat silkkikosketuksen lasille"
+    lore = ["Kätesi saavat silkkikosketuksen lasille"]
+
+[architect.wireless_redstone]
+    name = "Redstonekaukosäädin"
+    description = "Tämä mahdollistaa redstone-soihdun käytön redstonen kytkemiseen etänä!"
+    lore1 = "Kohde + Redstone-soihtu + Enderhelmi = 1 Redstonekaukosäädin"
+    lore = ["Kohde + Redstone-soihtu + Enderhelmi = 1 Redstonekaukosäädin"]
+
+[architect.placement]
+    name = "Rakentajan sauva"
+    description = "Mahdollistaa useiden lohkojen asettamisen kerralla! Aktivoi kyykistymällä ja pidä kädessäsi lohkoa, joka vastaa katsomasi lohkoa, ja aseta! Muista, saatat joutua liikkumaan hieman rajauksen käynnistämiseksi!"
+    lore1 = "Tarvitset"
+    lore2 = "lohkoa kädessäsi tämän asettamiseen"
+    lore3 = "Materiaalinen rakentajan sauva"
+    lore = ["Tarvitset", "lohkoa kädessäsi tämän asettamiseen", "Materiaalinen rakentajan sauva"]
+
+# axe
+[axe]
+
+[axe.chop]
+    name = "Kirveenhakkuu"
+    description = "Kaada puita oikea-klikkaamalla alinta tukkia!"
+    lore1 = "Lohkoja per hakkuu"
+    lore2 = "Hakkuun jäähtymisaika"
+    lore3 = "Työkalun kuluminen"
+    lore = ["Lohkoja per hakkuu", "Hakkuun jäähtymisaika", "Työkalun kuluminen"]
+
+[axe.log_swap]
+    name = "Lucyn tukkinvaihtaja"
+    description = "Vaihda tukkien lajia valmistuspöydässä!"
+    lore1 = "8 tukkia mitä tahansa + 1 taimi = 8 tukkia taimen lajia"
+    lore = ["8 tukkia mitä tahansa + 1 taimi = 8 tukkia taimen lajia"]
+
+[axe.drop_to_inventory]
+    name = "Kirves: pudota varastoon"
+
+[axe.ground_smash]
+    name = "Kirveenmurskaus"
+    description = "Hyppää, kyykisty ja murskaa kaikki läheiset viholliset."
+    lore1 = "Vahinko"
+    lore2 = "Lohkon säde"
+    lore3 = "Voima"
+    lore4 = "Murskauksen jäähtymisaika"
+    lore = ["Vahinko", "Lohkon säde", "Voima", "Murskauksen jäähtymisaika"]
+
+[axe.leaf_miner]
+    name = "Lehtilouhija"
+    description = "Mahdollistaa useiden lehtien rikkomisen kerralla!"
+    lore1 = "Kyykisty ja louhi LEHTIÄ"
+    lore2 = "lehtilouhinnan kantama"
+    lore3 = "Et saa pudotuksia lehdistä (huijauksenesto)"
+    lore = ["Kyykisty ja louhi LEHTIÄ", "lehtilouhinnan kantama", "Et saa pudotuksia lehdistä (huijauksenesto)"]
+
+[axe.wood_miner]
+    name = "Puulouhija"
+    description = "Mahdollistaa useiden puulohkojen rikkomisen kerralla!"
+    lore1 = "Kyykisty ja louhi PUITA/TUKKEJA (ei lankkuja)"
+    lore2 = "puulouhinnan kantama"
+    lore3 = "Toimii pudota varastoon -toiminnon kanssa"
+    lore = ["Kyykisty ja louhi PUITA/TUKKEJA (ei lankkuja)", "puulouhinnan kantama", "Toimii pudota varastoon -toiminnon kanssa"]
+
+# brewing
+[brewing]
+
+[brewing.lingering]
+    name = "Viipyvä panimo"
+    description = "Pannut taikajuomat kestävät pidempään!"
+    lore1 = "Kesto"
+    lore2 = "Kesto"
+    lore = ["Kesto", "Kesto"]
+
+[brewing.super_heated]
+    name = "Ylikuumennettu panimo"
+    description = "Panimojalat toimivat sitä nopeammin mitä kuumempia ne ovat."
+    lore1 = "Koskettavaa tulilohkoa kohden"
+    lore2 = "Koskettavaa laavalohkoa kohden"
+    lore = ["Koskettavaa tulilohkoa kohden", "Koskettavaa laavalohkoa kohden"]
+
+[brewing.darkness]
+    name = "Pullotettu pimeys"
+    description = "Miksi tarvitset tätä, mutta ole hyvä!"
+    lore1 = "Yönäkötaikajuoma + musta betoni = Pimeyden taikajuoma (30 sekuntia)"
+    lore2 = "Huomaa, että tämä estää käyttäjää juoksemasta!"
+    lore = ["Yönäkötaikajuoma + musta betoni = Pimeyden taikajuoma (30 sekuntia)", "Huomaa, että tämä estää käyttäjää juoksemasta!"]
+
+[brewing.haste]
+    name = "Pullotettu kiire"
+    description = "Kun tehokkuus ei riitä"
+    lore1 = "Nopeustaikajuoma + ametistinsiru = Kiireen taikajuoma (60 sekuntia)"
+    lore2 = "Nopeustaikajuoma + ametistilohko = Kiireen taikajuoma-2 (30 sekuntia)"
+    lore = ["Nopeustaikajuoma + ametistinsiru = Kiireen taikajuoma (60 sekuntia)", "Nopeustaikajuoma + ametistilohko = Kiireen taikajuoma-2 (30 sekuntia)"]
+
+[brewing.absorption]
+    name = "Pullotettu imeytyminen"
+    description = "Koveta keho!"
+    lore1 = "Pikaparannus + kvartsi = Imeytymisen taikajuoma (60 sekuntia)"
+    lore2 = "Pikaparannus + kvartsilohko = Imeytymisen taikajuoma-2 (30 sekuntia)"
+    lore = ["Pikaparannus + kvartsi = Imeytymisen taikajuoma (60 sekuntia)", "Pikaparannus + kvartsilohko = Imeytymisen taikajuoma-2 (30 sekuntia)"]
+
+[brewing.fatigue]
+    name = "Pullotettu väsymys"
+    description = "Heikennä kehoa!"
+    lore1 = "Heikkoustaikajuoma + limapallo = Väsymyksen taikajuoma (30 sekuntia)"
+    lore2 = "Heikkoustaikajuoma + limalohko = Väsymyksen taikajuoma-2 (15 sekuntia)"
+    lore = ["Heikkoustaikajuoma + limapallo = Väsymyksen taikajuoma (30 sekuntia)", "Heikkoustaikajuoma + limalohko = Väsymyksen taikajuoma-2 (15 sekuntia)"]
+
+[brewing.hunger]
+    name = "Pullotettu nälkä"
+    description = "Ruoki kyltymätöntä!"
+    lore1 = "Hankala taikajuoma + mätäliha = Nälän taikajuoma (30 sekuntia)"
+    lore2 = "Heikkoustaikajuoma + mätäliha = Nälän taikajuoma-3 (15 sekuntia)"
+    lore = ["Hankala taikajuoma + mätäliha = Nälän taikajuoma (30 sekuntia)", "Heikkoustaikajuoma + mätäliha = Nälän taikajuoma-3 (15 sekuntia)"]
+
+[brewing.nausea]
+    name = "Pullotettu pahoinvointi"
+    description = "Teet minut kipeäksi!"
+    lore1 = "Hankala taikajuoma + ruskea sieni = Pahoinvoinnin taikajuoma (16 sekuntia)"
+    lore2 = "Hankala taikajuoma + karmiinisieni = Pahoinvoinnin taikajuoma-2 (8 sekuntia)"
+    lore = ["Hankala taikajuoma + ruskea sieni = Pahoinvoinnin taikajuoma (16 sekuntia)", "Hankala taikajuoma + karmiinisieni = Pahoinvoinnin taikajuoma-2 (8 sekuntia)"]
+
+[brewing.blindness]
+    name = "Pullotettu sokeus"
+    description = "Olet kauhea ihminen..."
+    lore1 = "Hankala taikajuoma + mustekassipussi = Sokeuden taikajuoma (30 sekuntia)"
+    lore2 = "Hankala taikajuoma + hehkuva mustekassipussi = Sokeuden taikajuoma-2 (15 sekuntia)"
+    lore = ["Hankala taikajuoma + mustekassipussi = Sokeuden taikajuoma (30 sekuntia)", "Hankala taikajuoma + hehkuva mustekassipussi = Sokeuden taikajuoma-2 (15 sekuntia)"]
+
+[brewing.resistance]
+    name = "Pullotettu vastustuskyky"
+    description = "Linnoitusta parhaimmillaan!"
+    lore1 = "Hankala taikajuoma + rautaharkko = Vastustuksen taikajuoma (60 sekuntia)"
+    lore2 = "Hankala taikajuoma + rautalohko = Vastustuksen taikajuoma-2 (30 sekuntia)"
+    lore = ["Hankala taikajuoma + rautaharkko = Vastustuksen taikajuoma (60 sekuntia)", "Hankala taikajuoma + rautalohko = Vastustuksen taikajuoma-2 (30 sekuntia)"]
+
+[brewing.health_boost]
+    name = "Pullotettu elämä"
+    description = "Kun maksimiterveys ei riitä..."
+    lore1 = "Pikaparannus-taikajuoma + kultaomena = Terveyslisän taikajuoma (120 sekuntia)"
+    lore2 = "Pikaparannus-taikajuoma + lumottu kultaomena = Terveyslisän taikajuoma-2 (120 sekuntia)"
+    lore = ["Pikaparannus-taikajuoma + kultaomena = Terveyslisän taikajuoma (120 sekuntia)", "Pikaparannus-taikajuoma + lumottu kultaomena = Terveyslisän taikajuoma-2 (120 sekuntia)"]
+
+[brewing.decay]
+    name = "Pullotettu rappeutuminen"
+    description = "Kuka tiesi, että jäte olisi niin hyödyllistä?"
+    lore1 = "Heikkoustaikajuoma + myrkkyperuna = Witherin taikajuoma (16 sekuntia)"
+    lore2 = "Heikkoustaikajuoma + karmiinijuuret = Witherin taikajuoma-2 (8 sekuntia)"
+    lore = ["Heikkoustaikajuoma + myrkkyperuna = Witherin taikajuoma (16 sekuntia)", "Heikkoustaikajuoma + karmiinijuuret = Witherin taikajuoma-2 (8 sekuntia)"]
+
+[brewing.saturation]
+    name = "Pullotettu kylläisyys"
+    description = "Tiedätkö mitä... Minulla ei ole edes nälkä..."
+    lore1 = "Uudistumistaikajuoma + uuniperuna = Kylläisyyden taikajuoma"
+    lore2 = "Uudistumistaikajuoma + heinäpaali = Kylläisyyden taikajuoma-2"
+    lore = ["Uudistumistaikajuoma + uuniperuna = Kylläisyyden taikajuoma", "Uudistumistaikajuoma + heinäpaali = Kylläisyyden taikajuoma-2"]
+
+# blocking
+[blocking]
+
+[blocking.chain_armorer]
+    name = "Mefistofeleen ketjut"
+    description = "Mahdollistaa rengaspanssarin valmistamisen"
+    lore1 = "Valmistusresepti on sama kuin muillakin, mutta rautahipuilla"
+    lore = ["Valmistusresepti on sama kuin muillakin, mutta rautahipuilla"]
+
+[blocking.horse_armorer]
+    name = "Valmistettava hevosenhaarniska"
+    description = "Mahdollistaa hevosenhaarniskan valmistamisen"
+    lore1 = "Ympäröi satula haluamallasi materiaalilla haarniskan valmistamiseen"
+    lore = ["Ympäröi satula haluamallasi materiaalilla haarniskan valmistamiseen"]
+
+[blocking.saddle_crafter]
+    name = "Valmistettava satula"
+    description = "Valmista satula nahasta"
+    lore1 = "Resepti: 5 nahkaa:"
+    lore = ["Resepti: 5 nahkaa:"]
+
+[blocking.multi_armor]
+    name = "Monipanssari"
+    description = "Sido Elytrat panssariin"
+    lore1 = "Tämä on uskomaton taito matkustamiseen."
+    lore2 = "Yhdistä ja vaihda panssaria/Elytraa dynaamisesti lennossa!"
+    lore3 = "Yhdistääksesi, shift-klikkaa esine toisen päälle varastossasi."
+    lore4 = "Irrottaaksesi panssarin, kyykky-pudota esine niin se puretaan."
+    lore5 = "Jos monipanssarisi tuhoutuu, menetät kaikki siinä olevat esineet."
+    lore6 = "En tarvitse panssaria, se on pettymys..."
+    lore = ["Tämä on uskomaton taito matkustamiseen.", "Yhdistä ja vaihda panssaria/Elytraa dynaamisesti lennossa!", "Yhdistääksesi, shift-klikkaa esine toisen päälle varastossasi.", "Irrottaaksesi panssarin, kyykky-pudota esine niin se puretaan.", "Jos monipanssarisi tuhoutuu, menetät kaikki siinä olevat esineet.", "En tarvitse panssaria, se on pettymys..."]
+
+# crafting
+[crafting]
+
+[crafting.deconstruction]
+    name = "Purkaminen"
+    description = "Pura lohkot ja esineet pelastettaviksi perusosiksi!"
+    lore1 = "Pudota mikä tahansa esine maahan."
+    lore2 = "Sitten kyykisty ja oikea-klikkaa saksilla"
+    lore = ["Pudota mikä tahansa esine maahan.", "Sitten kyykisty ja oikea-klikkaa saksilla"]
+
+[crafting.xp]
+    name = "Valmistus-XP"
+    description = "Saat passiivista XP:tä valmistaessasi"
+    lore1 = "Saat XP:tä valmistaessasi"
+    lore = ["Saat XP:tä valmistaessasi"]
+
+[crafting.reconstruction]
+    name = "Malmin jälleenrakennus"
+    description = "Valmista malmeja uudelleen niiden perusosista!"
+    lore1 = "8 pudotusta ja 1 isäntä = 1 malmi (muodoton)"
+    lore2 = "Pudotukset on sulatettava (jos sovellettavissa)"
+    lore3 = "Ei sisällä: romua, kvartsia, smaragdeja jne..."
+    lore4 = "Isäntä = kotelo, esim.: kivi, netherrack, syvälupaus"
+    lore = ["8 pudotusta ja 1 isäntä = 1 malmi (muodoton)", "Pudotukset on sulatettava (jos sovellettavissa)", "Ei sisällä: romua, kvartsia, smaragdeja jne...", "Isäntä = kotelo, esim.: kivi, netherrack, syvälupaus"]
+
+[crafting.leather]
+    name = "Valmistettava nahka"
+    description = "Valmista nahkaa mätälihasta"
+    lore1 = "Heitä se (mätäliha) nuotiolle!"
+    lore = ["Heitä se (mätäliha) nuotiolle!"]
+
+[crafting.backpacks]
+    name = "Boutilierin reput!"
+    description = "Tämä tuo Mojangin nipun peliin!"
+    lore1 = "Sinun on oltava selviytymistilassa käyttääksesi tätä"
+    lore2 = "XLX : Nahka, talutushihna, nahka"
+    lore3 = "XSX : Nahka, tynnyri, nahka"
+    lore4 = "XCX : Nahka, arkku, nahka"
+    lore = ["Sinun on oltava selviytymistilassa käyttääksesi tätä", "XLX : Nahka, talutushihna, nahka", "XSX : Nahka, tynnyri, nahka", "XCX : Nahka, arkku, nahka"]
+
+[crafting.stations]
+    name = "Kannettavat pöydät!"
+    description = "Käytä pöytää kämmenelläsi!"
+    lore2 = "KAIKKI ESINEET, JOTKA UNOHDAT PÖYTÄÄN SEN SULKEUTUESSA, KATOAVAT IKUISESTI!"
+    lore3 = "Kelvolliset pöydät: alasin, valmistuspöytä, hiomakivi, kartanpiirtäjänpöytä, kivenleikkuri, kangaspuut"
+    lore = ["KAIKKI ESINEET, JOTKA UNOHDAT PÖYTÄÄN SEN SULKEUTUESSA, KATOAVAT IKUISESTI!", "Kelvolliset pöydät: alasin, valmistuspöytä, hiomakivi, kartanpiirtäjänpöytä, kivenleikkuri, kangaspuut"]
+
+[crafting.skulls]
+    name = "Valmistettavat kallot!"
+    description = "Materiaalien avulla voit valmistaa hirviöiden kalloja!"
+    lore1 = "Ympäröi luulohko seuraavilla saadaksesi kallon:"
+    lore2 = "Zombi: mätäliha"
+    lore3 = "Luuranko: luu"
+    lore4 = "Creeper: ruuti"
+    lore5 = "Wither: nether-tiili"
+    lore6 = "Lohikäärme: lohikäärmeen henkäys"
+    lore = ["Ympäröi luulohko seuraavilla saadaksesi kallon:", "Zombi: mätäliha", "Luuranko: luu", "Creeper: ruuti", "Wither: nether-tiili", "Lohikäärme: lohikäärmeen henkäys"]
+
+# chronos
+[chronos]
+
+[chronos.time_in_a_bottle]
+    name = "Aikaa pullossa"
+    description = "Kanna ajallista pulloa, joka varastoi aikaa ja kuluta sitä nopeuttaaksesi ajastettuja lohkoja, kasvavia ja ikääntyviä olentoja kuten eläinten poikasia. Resepti (muodoton): nopeustaikajuoma + kello + lasipullo."
+    lore1 = "Varastoidut sekunnit ladattu per tikki"
+    lore2 = "Ajan kiihdytys per varastoitu sekunti"
+    lore3 = "Resepti (muodoton): nopeustaikajuoma + kello + lasipullo"
+    lore = ["Varastoidut sekunnit ladattu per tikki", "Ajan kiihdytys per varastoitu sekunti", "Resepti (muodoton): nopeustaikajuoma + kello + lasipullo"]
+
+[chronos.aberrant_touch]
+    name = "Poikkeava kosketus"
+    description = "Lähitaisteluiskut lisäävät pinoutuvaa hitautta nälän kustannuksella, tiukoilla PvP-rajoituksilla, ja juurruttavat kohteet 5 pinolla."
+    lore1 = "Lähitaisteluiskut lisäävät pinoutuvaa hitautta"
+    lore2 = "PvE-hitauden keston enimmäisraja"
+    lore3 = "PvP-hitauden vahvuuden enimmäisraja"
+    lore = ["Lähitaisteluiskut lisäävät pinoutuvaa hitautta", "PvE-hitauden keston enimmäisraja", "PvP-hitauden vahvuuden enimmäisraja"]
+
+[chronos.instant_recall]
+    name = "Pikakelaus"
+    description = "Vasen tai oikea klikkaus kellolla kädessä kelataksesi takaisin äskettäiseen tilanteeseen terveys ja nälkä palautettuna."
+    lore1 = "Kelauksen kesto"
+    lore2 = "Jäähtymisaika"
+    lore3 = "Ei varaston palautusta"
+    lore = ["Kelauksen kesto", "Jäähtymisaika", "Ei varaston palautusta"]
+
+[chronos.time_bomb]
+    name = "Aikapommi"
+    description = "Heitä valmistettu aikapommi, joka luo ajallisen kentän, hidastaa olentoja ja jäädyttää ammuksia."
+    lore1 = "Ajallisen kentän säde"
+    lore2 = "Ajallisen kentän kesto"
+    lore3 = "Pommin jäähtymisaika"
+    lore4 = "Resepti (muodoton): kello + lumipallo + timantti + hiekka"
+    lore = ["Ajallisen kentän säde", "Ajallisen kentän kesto", "Pommin jäähtymisaika", "Resepti (muodoton): kello + lumipallo + timantti + hiekka"]
+
+# discovery
+[discovery]
+
+[discovery.armor]
+    name = "Maailmanpanssari"
+    description = "Passiivinen panssari riippuen läheisten lohkojen kovuudesta."
+    lore1 = "Passiivinen panssari"
+    lore2 = "Perustuu läheisten lohkojen kovuuteen"
+    lore3 = "Panssarin vahvuus:"
+    lore = ["Passiivinen panssari", "Perustuu läheisten lohkojen kovuuteen", "Panssarin vahvuus:"]
+
+[discovery.unity]
+    name = "Kokeellinen yhtenäisyys"
+    description = "Kokemuspallojen kerääminen lisää XP:tä satunnaisiin taitoihin."
+    lore1 = "XP "
+    lore2 = "per pallo"
+    lore = ["XP ", "per pallo"]
+
+[discovery.resist]
+    name = "Kokeellinen vastustuskyky"
+    description = "Kuluta kokemusta lievittääksesi vahinkoa vain kun isku pudottaisi sinut alle 5 sydämen tai tappaisi sinut."
+    lore0 = "Aktivoituu vain kriittisellä terveydellä (<= 5 sydäntä) kerran 15 sekunnissa"
+    lore1 = " Vähennetty vahinko"
+    lore2 = "kokemusta kulutettu"
+    lore = ["Aktivoituu vain kriittisellä terveydellä (<= 5 sydäntä) kerran 15 sekunnissa", " Vähennetty vahinko", "kokemusta kulutettu"]
+
+[discovery.villager]
+    name = "Kyläläisten vetovoima"
+    description = "Mahdollistaa paremmat kaupat kyläläisten kanssa!"
+    lore1 = "Tämä kuluttaa XP:tä per vuorovaikutus kyläläisten kanssa"
+    lore2 = "Mahdollisuus per vuorovaikutus kuluttaa XP:tä ja parantaa kauppoja"
+    lore3 = "vaadittu XP:n kulutus per vuorovaikutus"
+    lore = ["Tämä kuluttaa XP:tä per vuorovaikutus kyläläisten kanssa", "Mahdollisuus per vuorovaikutus kuluttaa XP:tä ja parantaa kauppoja", "vaadittu XP:n kulutus per vuorovaikutus"]
+
+# enchanting
+[enchanting]
+
+[enchanting.lapis_return]
+    name = "Lapislazulin palautus"
+    description = "Yhden ylimääräisen XP-tason hinnalla, sinulla on mahdollisuus saada ilmaista lapislazulia takaisin"
+    lore1 = "Jokaista tasoa kohden lumoamisen hinta nousee yhdellä, mutta voi palauttaa jopa 3 lapislazulia"
+    lore = ["Jokaista tasoa kohden lumoamisen hinta nousee yhdellä, mutta voi palauttaa jopa 3 lapislazulia"]
+
+[enchanting.quick_enchant]
+    name = "Pikaklikkaus-lumoaminen"
+    description = "Lumoa esineitä klikkaamalla lumouskirjoja suoraan niiden päälle."
+    lore1 = "Yhdistettyjen tasojen enimmäismäärä"
+    lore2 = "Esinettä ei voi luomita enempää kuin "
+    lore3 = "tehoa"
+    lore = ["Yhdistettyjen tasojen enimmäismäärä", "Esinettä ei voi luomita enempää kuin ", "tehoa"]
+
+[enchanting.return]
+    name = "XP:n palautus"
+    description = "Luomis-XP palautetaan sinulle kun luomat esineen."
+    lore1 = "Käytetyllä kokemuksella on mahdollisuus palautua kun luomat esineen"
+    lore2 = "Kokemusta per luomus"
+    lore = ["Käytetyllä kokemuksella on mahdollisuus palautua kun luomat esineen", "Kokemusta per luomus"]
+
+# excavation
+[excavation]
+
+[excavation.haste]
+    name = "Kiireinen kaivaja"
+    description = "Tämä nopeuttaa kaivamista KIIREellä!"
+    lore1 = "Saat kiire-efektin kaivaessasi"
+    lore2 = "x tasoa kiire-efektiä kun alat louhia MITÄ TAHANSA lohkoa."
+    lore = ["Saat kiire-efektin kaivaessasi", "x tasoa kiire-efektiä kun alat louhia MITÄ TAHANSA lohkoa."]
+
+[excavation.spelunker]
+    name = "Supernäköinen luolastotutkija!"
+    description = "Näe malmit silmilläsi, maan läpi!"
+    lore1 = "Malmi sivukädessäsi, hehkumarjat pääkädessäsi ja kyykisty!"
+    lore2 = "Lohkojen kantama: "
+    lore3 = "Kuluttaa hehkumarjan käytettäessä"
+    lore = ["Malmi sivukädessäsi, hehkumarjat pääkädessäsi ja kyykisty!", "Lohkojen kantama: ", "Kuluttaa hehkumarjan käytettäessä"]
+
+[excavation.drop_to_inventory]
+    name = "Lapio: pudota varastoon"
+
+[excavation.omni_tool]
+    name = "OMNI-T.Y.Ö.K.A.L.U."
+    description = "Tacklen ylisuunniteltu ylellinen monitoimityökalu"
+    lore1 = "Luultavasti tehokkain monista, antaa sinun"
+    lore2 = "dynaamisesti yhdistää ja vaihtaa työkaluja lennossa tarpeidesi mukaan."
+    lore3 = "Yhdistääksesi, shift-klikkaa esine toisen päälle varastossasi."
+    lore4 = "Irrottaaksesi työkalut, kyykky-pudota esine niin se puretaan."
+    lore5 = "Et voi rikkoa työkaluja tässä monitoimityökalussa, mutta et voi käyttää rikkinäisiä työkaluja"
+    lore6 = "yhdistettäviä esineitä yhteensä."
+    lore7 = "Voisit käyttää viittä tai kuutta työkalua, tai vain yhtä!"
+    lore = ["Luultavasti tehokkain monista, antaa sinun", "dynaamisesti yhdistää ja vaihtaa työkaluja lennossa tarpeidesi mukaan.", "Yhdistääksesi, shift-klikkaa esine toisen päälle varastossasi.", "Irrottaaksesi työkalut, kyykky-pudota esine niin se puretaan.", "Et voi rikkoa työkaluja tässä monitoimityökalussa, mutta et voi käyttää rikkinäisiä työkaluja", "yhdistettäviä esineitä yhteensä.", "Voisit käyttää viittä tai kuutta työkalua, tai vain yhtä!"]
+
+# herbalism
+[herbalism]
+
+[herbalism.growth_aura]
+    name = "Kasvuaura"
+    description = "Kasvata luontoa ympärilläsi auralla"
+    lore1 = "Lohkon säde"
+    lore2 = "Kasvuauran vahvuus"
+    lore3 = "Ruokakustannus"
+    lore = ["Lohkon säde", "Kasvuauran vahvuus", "Ruokakustannus"]
+
+[herbalism.hippo]
+    name = "Yrttiläisen virtahepo"
+    description = "Ruoan syöminen antaa sinulle enemmän kylläisyyttä"
+    lore1 = "Ruoka) lisäkylläisyyspisteitä kulutuksessa"
+    lore = ["Ruoka) lisäkylläisyyspisteitä kulutuksessa"]
+
+[herbalism.myconid]
+    name = "Yrttiläisen mykonidi"
+    description = "Antaa sinulle kyvyn valmistaa myseliumia"
+    lore1 = "Mikä tahansa multa ja ruskea & punainen sieni valmistaa myseliumia."
+    lore = ["Mikä tahansa multa ja ruskea & punainen sieni valmistaa myseliumia."]
+
+[herbalism.terralid]
+    name = "Yrttiläisen terralidi"
+    description = "Antaa sinulle kyvyn valmistaa ruoholohkoja"
+    lore1 = "Kolme siementä 3 mullan päällä valmistaa 3 ruoholohkoa."
+    lore = ["Kolme siementä 3 mullan päällä valmistaa 3 ruoholohkoa."]
+
+[herbalism.cobweb]
+    name = "Seitinkutoja"
+    description = "Antaa sinulle kyvyn valmistaa hämähäkinseittejä valmistuspöydässä"
+    lore1 = "Yhdeksän lankaa valmistaa hämähäkinseitin."
+    lore = ["Yhdeksän lankaa valmistaa hämähäkinseitin."]
+
+[herbalism.mushroom_blocks]
+    name = "Sienentekijä"
+    description = "Antaa sinulle kyvyn valmistaa sienilohkoja valmistuspöydässä"
+    lore1 = "Neljä sientä lohkon tekemiseen, tai lohko varren tekemiseen."
+    lore = ["Neljä sientä lohkon tekemiseen, tai lohko varren tekemiseen."]
+
+[herbalism.drop_to_inventory]
+    name = "Kuokka: pudota varastoon"
+
+[herbalism.hungry_shield]
+    name = "Nälkäkilpi"
+    description = "Ota vahinkoa nälkääsi ennen terveyttäsi."
+    lore1 = "Nälän vastustama"
+    lore = ["Nälän vastustama"]
+
+[herbalism.luck]
+    name = "Yrttiläisen onni"
+    description = "Kun rikot ruohoa/kukkia, sinulla on mahdollisuus saada satunnainen esine"
+    lore0 = "Kukat = ruokaa, ja ruoho = siemeniä"
+    lore1 = "Mahdollisuus saada esine kukkien rikkomisesta"
+    lore2 = "Mahdollisuus saada esine ruohon rikkomisesta"
+    lore = ["Kukat = ruokaa, ja ruoho = siemeniä", "Mahdollisuus saada esine kukkien rikkomisesta", "Mahdollisuus saada esine ruohon rikkomisesta"]
+
+[herbalism.replant]
+    name = "Korjaa ja istuta uudelleen"
+    description = "Oikea-klikkaa satoa kuokalla korjataksesi ja istuttaaksesi se uudelleen."
+    lore1 = "Uudelleenistutuksen lohkosäde"
+    lore = ["Uudelleenistutuksen lohkosäde"]
+
+# hunter
+[hunter]
+
+[hunter.adrenaline]
+    name = "Adrenaliini"
+    description = "Tee enemmän vahinkoa mitä vähemmän terveyttä sinulla on (lähitaistelu)"
+    lore1 = "Maksimivahinko"
+    lore = ["Maksimivahinko"]
+
+[hunter.penalty]
+    name = ""
+    description = ""
+    lore1 = "Saat myrkkykertymiä, jos nälkäsi loppuu"
+    lore = ["Saat myrkkykertymiä, jos nälkäsi loppuu"]
+
+[hunter.drop_to_inventory]
+    name = "Esineet: pudota varastoon"
+    description = "Kun tapat jotain / rikot lohkon miekalla, pudotukset teleporttaavat varastoosi"
+    lore1 = "Aina kun esine putoaa hirviöstä/rikkomastasi lohkosta, se menee varastoosi jos mahdollista."
+    lore = ["Aina kun esine putoaa hirviöstä/rikkomastasi lohkosta, se menee varastoosi jos mahdollista."]
+
+[hunter.invisibility]
+    name = "Katoava askel"
+    description = "Kun sinua lyödään, saat näkymättömyyttä nälän kustannuksella"
+    lore1 = "Saat passiivista näkymättömyyttä iskusta"
+    lore2 = "x näkymättömyyskertymää 3 sekuntia iskun jälkeen"
+    lore3 = "x kertyvä nälkä"
+    lore4 = "Nälkäkertymien kesto ja kerroin."
+    lore5 = "Näkymättömyyden kesto"
+    lore = ["Saat passiivista näkymättömyyttä iskusta", "x näkymättömyyskertymää 3 sekuntia iskun jälkeen", "x kertyvä nälkä", "Nälkäkertymien kesto ja kerroin.", "Näkymättömyyden kesto"]
+
+[hunter.jump_boost]
+    name = "Metsästäjän korkeudet"
+    description = "Kun sinua lyödään, saat hyppytehostusta nälän kustannuksella"
+    lore1 = "Saat passiivista hyppytehostusta iskusta"
+    lore2 = "x hyppytehostuskertymää 3 sekuntia iskun jälkeen"
+    lore3 = "x kertyvä nälkä"
+    lore4 = "Nälkäkertymien kesto ja kerroin."
+    lore5 = "Hyppytehostuksen kertymäkerroin, ei kesto."
+    lore = ["Saat passiivista hyppytehostusta iskusta", "x hyppytehostuskertymää 3 sekuntia iskun jälkeen", "x kertyvä nälkä", "Nälkäkertymien kesto ja kerroin.", "Hyppytehostuksen kertymäkerroin, ei kesto."]
+
+[hunter.luck]
+    name = "Metsästäjän tuuri"
+    description = "Kun sinua lyödään, saat onnea nälän kustannuksella"
+    lore1 = "Saat passiivista onnea iskusta"
+    lore2 = "x onnenkertymää 3 sekuntia iskun jälkeen"
+    lore3 = "x kertyvä nälkä"
+    lore4 = "Nälkäkertymien kesto ja kerroin."
+    lore5 = "Onnenkertymien kerroin, ei kesto."
+    lore = ["Saat passiivista onnea iskusta", "x onnenkertymää 3 sekuntia iskun jälkeen", "x kertyvä nälkä", "Nälkäkertymien kesto ja kerroin.", "Onnenkertymien kerroin, ei kesto."]
+
+[hunter.regen]
+    name = "Metsästäjän uudistuminen"
+    description = "Kun sinua lyödään, saat uudistumista nälän kustannuksella"
+    lore1 = "Saat passiivista uudistumista iskusta"
+    lore2 = "x uudistumiskertymää 3 sekuntia iskun jälkeen"
+    lore3 = "x kertyvä nälkä"
+    lore4 = "Nälkäkertymien kesto ja kerroin."
+    lore5 = "Uudistumiskertymien kerroin, ei kesto."
+    lore = ["Saat passiivista uudistumista iskusta", "x uudistumiskertymää 3 sekuntia iskun jälkeen", "x kertyvä nälkä", "Nälkäkertymien kesto ja kerroin.", "Uudistumiskertymien kerroin, ei kesto."]
+
+[hunter.resistance]
+    name = "Metsästäjän vastustuskyky"
+    description = "Kun sinua lyödään, saat vastustuskykyä nälän kustannuksella"
+    lore1 = "Saat passiivista vastustuskykyä iskusta"
+    lore2 = "x vastustuskykykertymää 3 sekuntia iskun jälkeen"
+    lore3 = "x kertyvä nälkä"
+    lore4 = "Nälkäkertymien kesto ja kerroin."
+    lore5 = "Vastustuskykykertymien kerroin, ei kesto."
+    lore = ["Saat passiivista vastustuskykyä iskusta", "x vastustuskykykertymää 3 sekuntia iskun jälkeen", "x kertyvä nälkä", "Nälkäkertymien kesto ja kerroin.", "Vastustuskykykertymien kerroin, ei kesto."]
+
+[hunter.speed]
+    name = "Metsästäjän nopeus"
+    description = "Kun sinua lyödään, saat nopeutta nälän kustannuksella"
+    lore1 = "Saat passiivista nopeutta iskusta"
+    lore2 = "x nopeuskertymää 3 sekuntia iskun jälkeen"
+    lore3 = "x kertyvä nälkä"
+    lore4 = "Nälkäkertymien kesto ja kerroin."
+    lore5 = "Nopeuskertymien kerroin, ei kesto."
+    lore = ["Saat passiivista nopeutta iskusta", "x nopeuskertymää 3 sekuntia iskun jälkeen", "x kertyvä nälkä", "Nälkäkertymien kesto ja kerroin.", "Nopeuskertymien kerroin, ei kesto."]
+
+[hunter.strength]
+    name = "Metsästäjän voima"
+    description = "Kun sinua lyödään, saat voimaa nälän kustannuksella"
+    lore1 = "Saat passiivista voimaa iskusta"
+    lore2 = "x voimakertymää 3 sekuntia iskun jälkeen"
+    lore3 = "x kertyvä nälkä"
+    lore4 = "Nälkäkertymien kesto ja kerroin."
+    lore5 = "Voimakertymien kerroin, ei kesto."
+    lore = ["Saat passiivista voimaa iskusta", "x voimakertymää 3 sekuntia iskun jälkeen", "x kertyvä nälkä", "Nälkäkertymien kesto ja kerroin.", "Voimakertymien kerroin, ei kesto."]
+
+# nether
+[nether]
+
+[nether.skull_toss]
+    name = "Wither-kallon heitto"
+    description1 = "Vapauta sisäinen Witherisi käyttämällä"
+    description2 = "jonkun"
+    description3 = "päätä."
+    lore1 = "Sekuntia jäähtymisaikaa kallon heittojen välillä."
+    lore2 = "Wither-kallon käyttö: Heitä "
+    lore3 = "Wither-kallo"
+    lore4 = "räjähtää osuessaan."
+    lore = ["Sekuntia jäähtymisaikaa kallon heittojen välillä.", "Wither-kallon käyttö: Heitä ", "Wither-kallo", "räjähtää osuessaan."]
+
+[nether.wither_resist]
+    name = "Wither-vastustus"
+    description = "Vastustaa witheriä netheriittipanssarin voimalla."
+    lore1 = "mahdollisuus estää witheri (per osa)."
+    lore2 = "Passiivinen: netheriittipanssarin käyttö antaa mahdollisuuden estää "
+    lore3 = "witheri."
+    lore = ["mahdollisuus estää witheri (per osa).", "Passiivinen: netheriittipanssarin käyttö antaa mahdollisuuden estää ", "witheri."]
+
+[nether.fire_resist]
+    name = "Tulenkestävyys"
+    description = "Vastustaa tulta kovettamalla ihosi."
+    lore1 = "mahdollisuus estää palaminen!"
+    lore = ["mahdollisuus estää palaminen!"]
+
+# pickaxe
+[pickaxe]
+
+[pickaxe.auto_smelt]
+    name = "Automaattisulatus"
+    description = "Mahdollistaa louhittujen perusmalmien sulattamisen"
+    lore1 = "Sulatettavat malmit sulatetaan automaattisesti"
+    lore2 = "% mahdollisuus ylimääräiseen"
+    lore = ["Sulatettavat malmit sulatetaan automaattisesti", "% mahdollisuus ylimääräiseen"]
+
+[pickaxe.chisel]
+    name = "Malmitaltta"
+    description = "Oikea-klikkaa malmeja talttataksesi niistä lisää malmia, kovilla kestävyyskustannuksilla."
+    lore1 = "Mahdollisuus pudottaa"
+    lore2 = "Työkalun kuluminen"
+    lore = ["Mahdollisuus pudottaa", "Työkalun kuluminen"]
+
+[pickaxe.drop_to_inventory]
+    name = "Hakku: pudota varastoon"
+    description = "Kun rikot lohkon, se teleporttaa esineen varastoosi"
+    lore1 = "Aina kun esine putoaa rikkomastasi lohkosta, se menee varastoosi jos mahdollista."
+    lore = ["Aina kun esine putoaa rikkomastasi lohkosta, se menee varastoosi jos mahdollista."]
+
+[pickaxe.silk_spawner]
+    name = "Hakun silkkispawneri"
+    description = "Spawnerit putoavat rikkoutuessaan"
+    lore1 = "Spawnerit voi rikkoa silkkikosketuksella."
+    lore2 = "Spawnerit voi rikkoa kyykistymällä."
+    lore = ["Spawnerit voi rikkoa silkkikosketuksella.", "Spawnerit voi rikkoa kyykistymällä."]
+
+[pickaxe.vein_miner]
+    name = "Suonilouhija"
+    description = "Mahdollistaa lohkojen rikkomisen malmisuonesta/ryhmästä"
+    lore1 = "Kyykisty ja louhi MALMEJA"
+    lore2 = "suonilouhinnan kantama"
+    lore3 = "Tämä taito EI ryhmitä kaikkia pudotuksia yhteen!"
+    lore = ["Kyykisty ja louhi MALMEJA", "suonilouhinnan kantama", "Tämä taito EI ryhmitä kaikkia pudotuksia yhteen!"]
+
+# ranged
+[ranged]
+
+[ranged.arrow_recovery]
+    name = "Nuolen palautus"
+    description = "Palauta nuolet vihollisen tappamisen jälkeen."
+    lore1 = "Mahdollisuus palauttaa nuolia osumasta/taposta"
+    lore2 = "Mahdollisuus: "
+    lore = ["Mahdollisuus palauttaa nuolia osumasta/taposta", "Mahdollisuus: "]
+
+[ranged.web_shot]
+    name = "Seittiansa"
+    description = "Ympäröi kohde hämähäkinseiteillä osuessasi!"
+    lore1 = "8 hämähäkinseittiä lumipallon ympärille ja heitä!"
+    lore2 = "sekuntia häkkiä, suunnilleen."
+    lore = ["8 hämähäkinseittiä lumipallon ympärille ja heitä!", "sekuntia häkkiä, suunnilleen."]
+
+[ranged.force_shot]
+    name = "Voimalaukaus"
+    description = "Ammu ammuksia pidemmälle, nopeammin!"
+    advancementname = "Pitkä laukaus"
+    advancementlore = "Osu yli 30 lohkon päästä!"
+    lore1 = "Ammuksen nopeus"
+    lore = ["Ammuksen nopeus"]
+
+[ranged.lunge_shot]
+    name = "Syöksylaukaus"
+    description = "Pudotessasi nuolesi heittävät sinua satunnaiseen suuntaan"
+    lore1 = "Satunnainen purskausnopeus"
+    lore = ["Satunnainen purskausnopeus"]
+
+[ranged.arrow_piercing]
+    name = "Nuolen lävistys"
+    description = "Lisää lävistys ammuksiin! Ammu asioiden läpi!"
+    lore1 = "Lävistyskohteet"
+    lore = ["Lävistyskohteet"]
+
+# rift
+[rift]
+
+[rift.remote_access]
+    name = "Etäkäyttö"
+    description = "Vedä tyhjyydestä ja pääse merkittyyn säiliöön."
+    lore1 = "Enderhelmi + kompassi = Reliikkiavainportti"
+    lore2 = "Tämä esine mahdollistaa säiliöiden etäkäytön"
+    lore3 = "Valmistuksen jälkeen katso esinettä nähdäksesi käyttöohjeet"
+    notcontainer = "Tuo ei ole säiliö"
+    lore = ["Enderhelmi + kompassi = Reliikkiavainportti", "Tämä esine mahdollistaa säiliöiden etäkäytön", "Valmistuksen jälkeen katso esinettä nähdäksesi käyttöohjeet"]
+
+[rift.blink]
+    name = "Repeämävälähdys"
+    description = "Lyhyen kantaman välitön teleporttaus, vain silmänräpäys!"
+    lore1 = "Lohkoja per välähdys (2x pystysuunnassa)"
+    lore2 = "Juostessa: Kaksoisnapauta hyppyä "
+    lore3 = "välähtääksesi"
+    lore = ["Lohkoja per välähdys (2x pystysuunnassa)", "Juostessa: Kaksoisnapauta hyppyä ", "välähtääksesi"]
+
+[rift.chest]
+    name = "Helppo enderarkku"
+    description = "Avaa enderarkku vasemmalla klikkauksella sitä kädessäsi."
+    lore1 = "Klikkaa enderarkkua kädessäsi avataksesi (älä vain aseta sitä)"
+    lore = ["Klikkaa enderarkkua kädessäsi avataksesi (älä vain aseta sitä)"]
+
+[rift.descent]
+    name = "Leijumisenvastaisuus"
+    description = "Oletko kyllästynyt olemaan jumissa ilmassa? Tämä taito on sinua varten!"
+    lore1 = "Kyykisty vain laskeutaaksesi, ja putoat normaalia hitaammin!"
+    lore2 = "Jäähtymisaika:"
+    lore = ["Kyykisty vain laskeutaaksesi, ja putoat normaalia hitaammin!", "Jäähtymisaika:"]
+
+[rift.gate]
+    name = "Repeämäportti"
+    description = "Teleporttaa merkittyyn sijaintiin."
+    lore1 = "VALMISTUS: Smaragdi + ametistinsiru + enderhelmi"
+    lore2 = "Lue ennen käyttöä!"
+    lore3 = "5 sekunnin viive, "
+    lore4 = "voit kuolla tämän animaation aikana"
+    lore = ["VALMISTUS: Smaragdi + ametistinsiru + enderhelmi", "Lue ennen käyttöä!", "5 sekunnin viive, ", "voit kuolla tämän animaation aikana"]
+
+[rift.resist]
+    name = "Repeämävastustus"
+    description = "Saat vastustuskykyä käyttäessäsi ender-esineitä ja -kykyjä"
+    lore1 = "+ Passiivinen: Antaa vastustuskykyä kun käytät repeämäkykyjä tai ender-esineitä"
+    lore2 = "EI sisällä kannettavaa enderarkkua, vain kulutettavia esineitä"
+    lore = ["+ Passiivinen: Antaa vastustuskykyä kun käytät repeämäkykyjä tai ender-esineitä", "EI sisällä kannettavaa enderarkkua, vain kulutettavia esineitä"]
+
+[rift.visage]
+    name = "Repeämänaamio"
+    description = "Estää endermiehiä muuttumasta aggressiivisiksi, jos sinulla on enderhelmiä varastossasi."
+    lore1 = "Endermiehet eivät muutu aggressiivisiksi, jos sinulla on enderhelmiä varastossasi."
+    lore = ["Endermiehet eivät muutu aggressiivisiksi, jos sinulla on enderhelmiä varastossasi."]
+
+# seaborn
+[seaborn]
+
+[seaborn.oxygen]
+    name = "Orgaaninen happitankki"
+    description = "Pidä enemmän happea pienissä keuhkoissasi!"
+    lore1 = "Happikapasiteetin lisäys"
+    lore = ["Happikapasiteetin lisäys"]
+
+[seaborn.fishers_fantasy]
+    name = "Kalastajan fantasia"
+    description = "Ansaitse enemmän XP:tä kalastuksesta ja saa enemmän kalaa!"
+    lore1 = "Jokaisella tasolla on mahdollisuus saada lisää XP:tä ja kalaa!"
+    lore = ["Jokaisella tasolla on mahdollisuus saada lisää XP:tä ja kalaa!"]
+
+[seaborn.haste]
+    name = "Kilpikonnakaivaja"
+    description = "Veden alla louhiessasi saat kiire-efektin!"
+    lore1 = "Kiire 3 aktivoituu veden alla louhittaessa (pinoutuu vesitehon kanssa) vedenhengitysefektin päätyttyä!"
+    lore = ["Kiire 3 aktivoituu veden alla louhittaessa (pinoutuu vesitehon kanssa) vedenhengitysefektin päätyttyä!"]
+
+[seaborn.night_vision]
+    name = "Kilpikonnan näkö"
+    description = "Veden alla saat yönäön"
+    lore1 = "Saat yönäön veden alla vedenhengitysefektin päätyttyä!"
+    lore = ["Saat yönäön veden alla vedenhengitysefektin päätyttyä!"]
+
+[seaborn.dolphin_grace]
+    name = "Delfiinin sulous"
+    description = "Ui kuin delfiini, ilman delfiinejä"
+    lore1 = "+ Passiivinen: saat "
+    lore2 = "x nopeutta (delfiinin sulous)"
+    lore3 = "tarkkaa saksalaista insinööritaitoa- hetkinen, tuo ei ole oikein... Ei yhteensopiva syvyyden kulkijan kanssa"
+    lore = ["+ Passiivinen: saat ", "x nopeutta (delfiinin sulous)", "tarkkaa saksalaista insinööritaitoa- hetkinen, tuo ei ole oikein... Ei yhteensopiva syvyyden kulkijan kanssa"]
+
+# stealth
+[stealth]
+
+[stealth.ghost_armor]
+    name = "Haamupanssari"
+    description = "Hitaasti kertyvä panssari kun et ota vahinkoa, kestää 1 iskun"
+    lore1 = "Maksimipanssari"
+    lore2 = "Nopeus"
+    lore = ["Maksimipanssari", "Nopeus"]
+
+[stealth.night_vision]
+    name = "Hiipimisen yönäkö"
+    description = "Saat yönäön hiipimisen aikana"
+    lore1 = "Saat purskauksen "
+    lore2 = "yönäköä"
+    lore3 = "hiipimisen aikana"
+    lore = ["Saat purskauksen ", "yönäköä", "hiipimisen aikana"]
+
+[stealth.snatch]
+    name = "Esinenappaus"
+    description = "Nappaa pudonneet esineet heti hiipimisen aikana!"
+    lore1 = "Nappaussäde"
+    lore = ["Nappaussäde"]
+
+[stealth.speed]
+    name = "Hiipimisnopeus"
+    description = "Saat nopeutta hiipimisen aikana"
+    lore1 = "Hiipimisnopeus"
+    lore = ["Hiipimisnopeus"]
+
+[stealth.ender_veil]
+    name = "Enderverhoa"
+    description = "Ei enää kurpitsoja endermiesiskujen estämiseen"
+    lore1 = "Estä endermiesiskut hiipimisen aikana"
+    lore2 = "Estä kaikki endermiesiskut"
+    lore = ["Estä endermiesiskut hiipimisen aikana", "Estä kaikki endermiesiskut"]
+
+# sword
+[sword]
+
+[sword.machete]
+    name = "Viidakkoveitsi"
+    description = "Leikkaa kasvillisuuden läpi helposti!"
+    lore1 = "Viiltosäde"
+    lore2 = "Hakkuun jäähtymisaika"
+    lore3 = "Työkalun kuluminen"
+    lore = ["Viiltosäde", "Hakkuun jäähtymisaika", "Työkalun kuluminen"]
+
+[sword.bloody_blade]
+    name = "Verinen terä"
+    description = "Iskut miekallasi aiheuttavat verenvuotoa!"
+    lore1 = "Elävän olennon lyöminen miekallasi aiheuttaa verenvuotoa"
+    lore2 = "Verenvuodon kesto"
+    lore3 = "Verenvuodon jäähtymisaika"
+    lore = ["Elävän olennon lyöminen miekallasi aiheuttaa verenvuotoa", "Verenvuodon kesto", "Verenvuodon jäähtymisaika"]
+
+[sword.poisoned_blade]
+    name = "Myrkytetty terä"
+    description = "Iskut miekallasi aiheuttavat myrkytyksen!"
+    lore1 = "Elävän olennon lyöminen miekallasi aiheuttaa myrkytyksen"
+    lore2 = "Myrkytyksen kesto"
+    lore3 = "Myrkytyksen jäähtymisaika"
+    lore = ["Elävän olennon lyöminen miekallasi aiheuttaa myrkytyksen", "Myrkytyksen kesto", "Myrkytyksen jäähtymisaika"]
+
+# taming
+[taming]
+
+[taming.damage]
+    name = "Kesyn vahinko"
+    description = "Kasvata kesytettyjen eläintesi aiheuttamaa vahinkoa."
+    lore1 = "Kasvanut vahinko"
+    lore = ["Kasvanut vahinko"]
+
+[taming.health]
+    name = "Kesyn terveys"
+    description = "Kasvata kesytettyjen eläintesi terveyttä."
+    lore1 = "Kasvanut terveys"
+    lore = ["Kasvanut terveys"]
+
+[taming.regeneration]
+    name = "Kesyn uudistuminen"
+    description = "Kasvata kesytettyjen eläintesi uudistumista."
+    lore1 = "HP/s"
+    lore = ["HP/s"]
+
+# tragoul
+[tragoul]
+
+[tragoul.thorns]
+    name = "Piikit"
+    description = "Heijasta vahinko takaisin hyökkääjääsi!"
+    lore1 = "Vahinko palautettu iskusta"
+    lore = ["Vahinko palautettu iskusta"]
+
+[tragoul.globe]
+    name = "Tuskien pallo"
+    description = "Jaa aiheuttamasi vahinko ympärilläsi olevien vihollisten määrän perusteella!"
+    lore1 = "Mitä enemmän vihollisia ympärilläsi, sitä vähemmän vahinkoa kukin saa"
+    lore2 = "Kantama: "
+    lore3 = "Lisävahinko kaikille olennoille: "
+    lore = ["Mitä enemmän vihollisia ympärilläsi, sitä vähemmän vahinkoa kukin saa", "Kantama: ", "Lisävahinko kaikille olennoille: "]
+
+[tragoul.healing]
+    name = "Tuskan tahto"
+    description = "Saat terveyttä takaisin aiheuttamasi vahingon perusteella!"
+    lore1 = "Vahingoittaminen ei ole koskaan tuntunut näin hyvältä! Parannu aiheuttamastasi vahingosta"
+    lore2 = "3 sekunnin vahinkoikkuna parantumiselle ja 1 sekunnin jäähtymisaika "
+    lore3 = "Parantuminen per vahinkoprosentti: "
+    lore = ["Vahingoittaminen ei ole koskaan tuntunut näin hyvältä! Parannu aiheuttamastasi vahingosta", "3 sekunnin vahinkoikkuna parantumiselle ja 1 sekunnin jäähtymisaika ", "Parantuminen per vahinkoprosentti: "]
+
+[tragoul.lance]
+    name = "Ruumiskeihäät"
+    description = "Vihollisen tappaminen tai kyvyn tappaessa vihollisen synnyttää keihään, joka vahingoittaa läheistä vihollista!"
+    lore1 = "Keihäät etsivät kohteen kaikesta tappamastasi, JA jos tämä kyky tappaa vihollisen."
+    lore2 = "Uhraa osa elämästäsi keihäiden luomiseen (tämä voi tappaa sinut)"
+    lore3 = "Maksimikeihäät: 1 + "
+    lore = ["Keihäät etsivät kohteen kaikesta tappamastasi, JA jos tämä kyky tappaa vihollisen.", "Uhraa osa elämästäsi keihäiden luomiseen (tämä voi tappaa sinut)", "Maksimikeihäät: 1 + "]
+
+# unarmed
+[unarmed]
+
+[unarmed.glass_cannon]
+    name = "Lasitykki"
+    description = "Bonusvahinko aseettomana mitä pienempi panssariarvosi on"
+    lore1 = "x vahinko 0 panssarilla"
+    lore2 = "Tasokohtainen bonusvahinko"
+    lore = ["x vahinko 0 panssarilla", "Tasokohtainen bonusvahinko"]
+
+[unarmed.power]
+    name = "Aseettoman voima"
+    description = "Parannettu aseeton vahinko"
+    lore1 = "Vahinko"
+    lore = ["Vahinko"]
+
+[unarmed.sucker_punch]
+    name = "Yllätysisku"
+    description = "Juoksulyönnit, mutta tappavampia."
+    lore1 = "Vahinko"
+    lore2 = "Vahinko kasvaa nopeuden mukaan lyönnin aikana"
+    lore = ["Vahinko", "Vahinko kasvaa nopeuden mukaan lyönnin aikana"]

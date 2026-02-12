@@ -41,8 +41,8 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     public TamingDamage() {
         super("tame-damage");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("taming", "damage", "description"));
-        setDisplayName(Localizer.dLocalize("taming", "damage", "name"));
+        setDescription(Localizer.dLocalize("taming.damage.description"));
+        setDisplayName(Localizer.dLocalize("taming.damage.name"));
         setIcon(Material.FLINT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -53,7 +53,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getDamageBoost(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming", "damage", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getDamageBoost(level), 0) + C.GRAY + " " + Localizer.dLocalize("taming.damage.lore1"));
     }
 
     private double getDamageBoost(int level) {

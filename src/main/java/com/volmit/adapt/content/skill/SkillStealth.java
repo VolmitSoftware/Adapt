@@ -40,14 +40,14 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     private final Map<Player, Long> cooldowns;
 
     public SkillStealth() {
-        super("stealth", Localizer.dLocalize("skill", "stealth", "icon"));
+        super("stealth", Localizer.dLocalize("skill.stealth.icon"));
         registerConfiguration(Config.class);
         setColor(C.DARK_GRAY);
         setInterval(1412);
         setIcon(Material.WITHER_ROSE);
         cooldowns = new HashMap<>();
-        setDescription(Localizer.dLocalize("skill", "stealth", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "stealth", "name"));
+        setDescription(Localizer.dLocalize("skill.stealth.description"));
+        setDisplayName(Localizer.dLocalize("skill.stealth.name"));
         registerAdaptation(new StealthSpeed());
         registerAdaptation(new StealthSnatch());
         registerAdaptation(new StealthGhostArmor());
@@ -56,24 +56,24 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.LEATHER_LEGGINGS)
                 .key("challenge_sneak_1k")
-                .title(Localizer.dLocalize("advancement", "challenge_sneak_1k", "title"))
-                .description(Localizer.dLocalize("advancement", "challenge_sneak_1k", "description"))
+                .title(Localizer.dLocalize("advancement.challenge_sneak_1k.title"))
+                .description(Localizer.dLocalize("advancement.challenge_sneak_1k.description"))
                 .model(CustomModel.get(Material.LEATHER_LEGGINGS, "advancement", "stealth", "challenge_sneak_1k"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.CHAINMAIL_LEGGINGS)
                         .key("challenge_sneak_5k")
-                        .title(Localizer.dLocalize("advancement", "challenge_sneak_5k", "title"))
-                        .description(Localizer.dLocalize("advancement", "challenge_sneak_5k", "description"))
+                        .title(Localizer.dLocalize("advancement.challenge_sneak_5k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_sneak_5k.description"))
                         .model(CustomModel.get(Material.CHAINMAIL_LEGGINGS, "advancement", "stealth", "challenge_sneak_5k"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.NETHERITE_LEGGINGS)
                                 .key("challenge_sneak_20k")
-                                .title(Localizer.dLocalize("advancement", "challenge_sneak_20k", "title"))
-                                .description(Localizer.dLocalize("advancement", "challenge_sneak_20k", "description"))
+                                .title(Localizer.dLocalize("advancement.challenge_sneak_20k.title"))
+                                .description(Localizer.dLocalize("advancement.challenge_sneak_20k.description"))
                                 .model(CustomModel.get(Material.NETHERITE_LEGGINGS, "advancement", "stealth", "challenge_sneak_20k"))
                                 .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)

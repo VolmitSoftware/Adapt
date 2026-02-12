@@ -57,7 +57,7 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
     public static boolean isBindableItem(ItemStack t) {
         if (t.getType().equals(Material.ENDER_PEARL)) {
             if (t.getItemMeta() != null && t.getItemMeta().getLore() != null) {
-                if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items", "boundenderperal", "name"))) {
+                if (t.getItemMeta().getLore().get(0).contains(Localizer.dLocalize("items.bound_ender_peral.name"))) {
                     Adapt.verbose("Enderpearl is bindable: " + t.getType().name());
                     return true;
                 }
@@ -78,16 +78,16 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
 
     @Override
     public void applyLore(Data data, List<String> lore) {
-        lore.add(C.WHITE + Localizer.dLocalize("items", "boundenderperal", "name"));
-        lore.add(C.GRAY + Localizer.dLocalize("items", "boundenderperal", "usage1"));
-        lore.add(C.GRAY + Localizer.dLocalize("items", "boundenderperal", "usage2"));
+        lore.add(C.WHITE + Localizer.dLocalize("items.bound_ender_peral.name"));
+        lore.add(C.GRAY + Localizer.dLocalize("items.bound_ender_peral.usage1"));
+        lore.add(C.GRAY + Localizer.dLocalize("items.bound_ender_peral.usage2"));
     }
 
     @Override
     public void applyMeta(Data data, ItemMeta meta) {
         meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(Localizer.dLocalize("items", "boundenderperal", "name"));
+        meta.setDisplayName(Localizer.dLocalize("items.bound_ender_peral.name"));
 
     }
 

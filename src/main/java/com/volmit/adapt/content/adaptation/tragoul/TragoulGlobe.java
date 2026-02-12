@@ -42,8 +42,8 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
     public TragoulGlobe() {
         super("tragoul-globe");
         registerConfiguration(TragoulGlobe.Config.class);
-        setDescription(Localizer.dLocalize("tragoul", "globe", "description"));
-        setDisplayName(Localizer.dLocalize("tragoul", "globe", "name"));
+        setDescription(Localizer.dLocalize("tragoul.globe.description"));
+        setDisplayName(Localizer.dLocalize("tragoul.globe.name"));
         setIcon(Material.ENDER_PEARL);
         setInterval(25000);
         setBaseCost(getConfig().baseCost);
@@ -55,9 +55,9 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("tragoul", "globe", "lore1"));
-        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "globe", "lore2") + ((getConfig().rangePerLevel * level) + getConfig().initalRange));
-        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "globe", "lore3") + (getConfig().bonusDamagePerLevel * level));
+        v.addLore(C.GREEN + Localizer.dLocalize("tragoul.globe.lore1"));
+        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.globe.lore2") + ((getConfig().rangePerLevel * level) + getConfig().initalRange));
+        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.globe.lore3") + (getConfig().bonusDamagePerLevel * level));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

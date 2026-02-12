@@ -35,8 +35,8 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
     public HunterJumpBoost() {
         super("hunter-jumpboost");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("hunter", "jumpboost", "description"));
-        setDisplayName(Localizer.dLocalize("hunter", "jumpboost", "name"));
+        setDescription(Localizer.dLocalize("hunter.jump_boost.description"));
+        setDisplayName(Localizer.dLocalize("hunter.jump_boost.name"));
         setIcon(Material.PUFFERFISH_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -47,12 +47,12 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("hunter", "jumpboost", "lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter", "jumpboost", "lore2"));
-        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter", "jumpboost", "lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "jumpboost", "lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "jumpboost", "lore5"));
-        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter", "penalty", "lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("hunter.jump_boost.lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter.jump_boost.lore2"));
+        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter.jump_boost.lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.jump_boost.lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.jump_boost.lore5"));
+        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter.penalty.lore1"));
 
     }
 

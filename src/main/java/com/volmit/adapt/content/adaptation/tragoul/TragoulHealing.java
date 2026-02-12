@@ -44,8 +44,8 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
     public TragoulHealing() {
         super("tragoul-healing");
         registerConfiguration(TragoulHealing.Config.class);
-        setDescription(Localizer.dLocalize("tragoul", "healing", "description"));
-        setDisplayName(Localizer.dLocalize("tragoul", "healing", "name"));
+        setDescription(Localizer.dLocalize("tragoul.healing.description"));
+        setDisplayName(Localizer.dLocalize("tragoul.healing.name"));
         setIcon(Material.REDSTONE);
         setInterval(25000);
         setBaseCost(getConfig().baseCost);
@@ -58,9 +58,9 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("tragoul", "healing", "lore1"));
-        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "healing", "lore2"));
-        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul", "healing", "lore3") + (getConfig().minHealPercent + (getConfig().maxHealPercent - getConfig().minHealPercent) * (level - 1) / (getConfig().maxLevel - 1)) + "%");
+        v.addLore(C.GREEN + Localizer.dLocalize("tragoul.healing.lore1"));
+        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.healing.lore2"));
+        v.addLore(C.YELLOW + Localizer.dLocalize("tragoul.healing.lore3") + (getConfig().minHealPercent + (getConfig().maxHealPercent - getConfig().minHealPercent) * (level - 1) / (getConfig().maxLevel - 1)) + "%");
     }
 
     @EventHandler

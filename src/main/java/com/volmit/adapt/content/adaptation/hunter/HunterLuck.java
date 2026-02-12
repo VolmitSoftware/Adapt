@@ -34,8 +34,8 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
     public HunterLuck() {
         super("hunter-luck");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("hunter", "luck", "description"));
-        setDisplayName(Localizer.dLocalize("hunter", "luck", "name"));
+        setDescription(Localizer.dLocalize("hunter.luck.description"));
+        setDisplayName(Localizer.dLocalize("hunter.luck.name"));
         setIcon(Material.TADPOLE_BUCKET);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -46,12 +46,12 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("hunter", "luck", "lore1"));
-        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter", "luck", "lore2"));
-        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter", "luck", "lore3"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "luck", "lore4"));
-        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter", "luck", "lore5"));
-        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter", "penalty", "lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("hunter.luck.lore1"));
+        v.addLore(C.GREEN + "+ " + level + C.GRAY + Localizer.dLocalize("hunter.luck.lore2"));
+        v.addLore(C.RED + "- " + (5 + level) + C.GRAY + Localizer.dLocalize("hunter.luck.lore3"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.luck.lore4"));
+        v.addLore(C.GRAY + "* " + level + C.GRAY + " " + Localizer.dLocalize("hunter.luck.lore5"));
+        v.addLore(C.GRAY + "- " + level + C.RED + " " + Localizer.dLocalize("hunter.penalty.lore1"));
 
     }
 

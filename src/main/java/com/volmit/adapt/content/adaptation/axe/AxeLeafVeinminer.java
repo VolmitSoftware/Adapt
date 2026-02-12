@@ -43,8 +43,8 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     public AxeLeafVeinminer() {
         super("axe-leaf-veinminer");
         registerConfiguration(AxeLeafVeinminer.Config.class);
-        setDescription(Localizer.dLocalize("axe", "leafminer", "description"));
-        setDisplayName(Localizer.dLocalize("axe", "leafminer", "name"));
+        setDescription(Localizer.dLocalize("axe.leaf_miner.description"));
+        setDisplayName(Localizer.dLocalize("axe.leaf_miner.name"));
         setIcon(Material.BIRCH_LEAVES);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -60,9 +60,9 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + Localizer.dLocalize("axe", "leafminer", "lore1"));
-        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Localizer.dLocalize("axe", "leafminer", "lore2"));
-        v.addLore(C.ITALIC + Localizer.dLocalize("axe", "leafminer", "lore3"));
+        v.addLore(C.GREEN + Localizer.dLocalize("axe.leaf_miner.lore1"));
+        v.addLore(C.GREEN + "" + (level + getConfig().baseRange) + C.GRAY + " " + Localizer.dLocalize("axe.leaf_miner.lore2"));
+        v.addLore(C.ITALIC + Localizer.dLocalize("axe.leaf_miner.lore3"));
     }
 
     private int getRadius(int lvl) {

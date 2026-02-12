@@ -35,8 +35,8 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
     public BrewingResistance() {
         super("brewing-resistance");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("brewing", "resistance", "description"));
-        setDisplayName(Localizer.dLocalize("brewing", "resistance", "name"));
+        setDescription(Localizer.dLocalize("brewing.resistance.description"));
+        setDisplayName(Localizer.dLocalize("brewing.resistance.name"));
         setIcon(Material.IRON_BLOCK);
         setBaseCost(getConfig().baseCost);
         setCostFactor(getConfig().costFactor);
@@ -71,8 +71,8 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "resistance", "lore1"));
-        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing", "resistance", "lore2"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.resistance.lore1"));
+        v.addLore(C.GREEN + "+ " + Localizer.dLocalize("brewing.resistance.lore2"));
     }
 
 

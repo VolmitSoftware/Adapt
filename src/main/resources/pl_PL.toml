@@ -1,0 +1,1501 @@
+# advancement
+[advancement]
+
+[advancement.challenge_move_1k]
+    title = "Ruszaj sie!"
+    description = "Przejdz ponad 1 kilometr (1000 blokow)"
+
+[advancement.challenge_sprint_5k]
+    title = "Przebieg 5K!"
+    description = "Przejdz ponad 5 kilometrow (5000 blokow)"
+
+[advancement.challenge_sprint_50k]
+    title = "Przesmiglaj 50K!"
+    description = "Przejdz ponad 50 kilometrow (50 000 blokow)"
+
+[advancement.challenge_sprint_500k]
+    title = "Przemierz Wszechswiat!!"
+    description = "Przejdz ponad 500 kilometrow (500 000 blokow)"
+
+[advancement.challenge_sprint_marathon]
+    title = "Przebieg (doslownego) Maratonu!"
+    description = "Przebiegnij ponad 42 195 blokow!"
+
+[advancement.challenge_place_1k]
+    title = "Poczatkujacy Budowniczy!"
+    description = "Umiesc 1000 blokow"
+
+[advancement.challenge_place_5k]
+    title = "Sredniozaawansowany Budowniczy!"
+    description = "Umiesc 5000 blokow"
+
+[advancement.challenge_place_50k]
+    title = "Zaawansowany Budowniczy!"
+    description = "Umiesc 50 000 blokow"
+
+[advancement.challenge_place_500k]
+    title = "Mistrz Budowniczy!"
+    description = "Umiesc 500 000 blokow"
+
+[advancement.challenge_place_5m]
+    title = "Akolita Symetrii!"
+    description = "RZECZYWISTOSC TO TWOJ PLAC ZABAW! (5 milionow blokow)"
+
+[advancement.challenge_chop_1k]
+    title = "Poczatkujacy Drwal!"
+    description = "Wytnij 1000 blokow"
+
+[advancement.challenge_chop_5k]
+    title = "Sredniozaawansowany Drwal!"
+    description = "Wytnij 5000 blokow"
+
+[advancement.challenge_chop_50k]
+    title = "Zaawansowany Drwal!"
+    description = "Wytnij 50 000 blokow"
+
+[advancement.challenge_chop_500k]
+    title = "Mistrz Drwal!"
+    description = "Wytnij 500 000 blokow"
+
+[advancement.challenge_chop_5m]
+    title = "Jackson Piesek"
+    description = "Najlepszy dobry chlopak! (5 milionow blokow)"
+
+[advancement.challenge_block_1k]
+    title = "Ledwo Blokujesz!"
+    description = "Zablokuj 1000 trafien"
+
+[advancement.challenge_block_5k]
+    title = "Blokowanie jest Fajne!"
+    description = "Zablokuj 5000 trafien"
+
+[advancement.challenge_block_50k]
+    title = "Blokowanie to moje zycie!"
+    description = "Zablokuj 50 000 trafien"
+
+[advancement.challenge_block_500k]
+    title = "Blokowanie to moje Powolanie!"
+    description = "Zablokuj 500 000 trafien"
+
+[advancement.challenge_block_5m]
+    title = "Die Hand Die Verletzt"
+    description = "Zablokuj 5 000 000 trafien"
+
+[advancement.challenge_brew_1k]
+    title = "Poczatkujacy Alchemik!"
+    description = "Wypij 1000 mikstur"
+
+[advancement.challenge_brew_5k]
+    title = "Sredniozaawansowany Alchemik!"
+    description = "Wypij 5000 mikstur"
+
+[advancement.challenge_brew_50k]
+    title = "Zaawansowany Alchemik!"
+    description = "Wypij 50 000 mikstur"
+
+[advancement.challenge_brew_500k]
+    title = "Mistrz Alchemik!"
+    description = "Wypij 500 000 mikstur"
+
+[advancement.challenge_brew_5m]
+    title = "Alchemik"
+    description = "Wypij 5 000 000 mikstur"
+
+[advancement.challenge_brewsplash_1k]
+    title = "Poczatkujacy Rozpryskiwacz Mikstur!"
+    description = "Rozpryskaj 1000 mikstur"
+
+[advancement.challenge_brewsplash_5k]
+    title = "Sredniozaawansowany Rozpryskiwacz Mikstur!"
+    description = "Rozpryskaj 5000 mikstur"
+
+[advancement.challenge_brewsplash_50k]
+    title = "Zaawansowany Rozpryskiwacz Mikstur!"
+    description = "Rozpryskaj 50 000 mikstur"
+
+[advancement.challenge_brewsplash_500k]
+    title = "Mistrz Rozpryskiwania Mikstur!"
+    description = "Rozpryskaj 500 000 mikstur"
+
+[advancement.challenge_brewsplash_5m]
+    title = "Mistrz Splasha"
+    description = "Rozpryskaj 5 000 000 mikstur"
+
+[advancement.challenge_craft_1k]
+    title = "Sprytny Rzemieslnik!"
+    description = "Wytworz 1000 przedmiotow"
+
+[advancement.challenge_craft_5k]
+    title = "Zrzedliwy Rzemieslnik!"
+    description = "Wytworz 5000 przedmiotow"
+
+[advancement.challenge_craft_50k]
+    title = "Pokorny Rzemieslnik!"
+    description = "Wytworz 50 000 przedmiotow"
+
+[advancement.challenge_craft_500k]
+    title = "Kakofoniczny Rzemieslnik!"
+    description = "Wytworz 500 000 przedmiotow"
+
+[advancement.challenge_craft_5m]
+    title = "Kleskowy McCraftface"
+    description = "Wytworz 5 000 000 przedmiotow"
+
+[advancement.challenge_enchant_1k]
+    title = "Poczatkujacy Zaklinacz!"
+    description = "Zaczaruj 1000 przedmiotow"
+
+[advancement.challenge_enchant_5k]
+    title = "Sredniozaawansowany Zaklinacz!"
+    description = "Zaczaruj 5000 przedmiotow"
+
+[advancement.challenge_enchant_50k]
+    title = "Zaawansowany Zaklinacz!"
+    description = "Zaczaruj 50 000 przedmiotow"
+
+[advancement.challenge_enchant_500k]
+    title = "Mistrz Zaklinacz!"
+    description = "Zaczaruj 500 000 przedmiotow"
+
+[advancement.challenge_enchant_5m]
+    title = "Enigmatyczny Zaklinacz"
+    description = "Zaczaruj 5 000 000 przedmiotow"
+
+[advancement.challenge_excavate_1k]
+    title = "Poczatkujacy Kopacz!"
+    description = "Wykop 1000 blokow"
+
+[advancement.challenge_excavate_5k]
+    title = "Sredniozaawansowany Kopacz!"
+    description = "Wykop 5000 blokow"
+
+[advancement.challenge_excavate_50k]
+    title = "Zaawansowany Kopacz!"
+    description = "Wykop 50 000 blokow"
+
+[advancement.challenge_excavate_500k]
+    title = "Mistrz Kopacz!"
+    description = "Wykop 500 000 blokow"
+
+[advancement.challenge_excavate_5m]
+    title = "Enigmatyczny Kopacz"
+    description = "Wykop 5 000 000 blokow"
+
+[advancement.horrible_person]
+    title = "Jestes okropna osoba"
+    description = "Niepojete, naprawde"
+
+[advancement.challenge_turtle_egg_smasher]
+    title = "Rozbijacz Jaj Zolwi!"
+    description = "Zniszcz 100 jaj zolwia"
+
+[advancement.challenge_turtle_egg_annihilator]
+    title = "Anihilator Jaj Zolwi!"
+    description = "Zniszcz 500 jaj zolwia"
+
+[advancement.challenge_novice_hunter]
+    title = "Poczatkujacy Lowca!"
+    description = "Zabij 100 istot"
+
+[advancement.challenge_intermediate_hunter]
+    title = "Sredniozaawansowany Lowca!"
+    description = "Zabij 500 istot"
+
+[advancement.challenge_advanced_hunter]
+    title = "Zaawansowany Lowca!"
+    description = "Zabij 5000 istot"
+
+[advancement.challenge_creeper_conqueror]
+    title = "Pogromca Creeperow!"
+    description = "Zabij 50 creeperow"
+
+[advancement.challenge_creeper_annihilator]
+    title = "Anihilator Creeperow!"
+    description = "Zabij 200 creeperow"
+
+[advancement.challenge_pickaxe_1k]
+    title = "Poczatkujacy Gornik"
+    description = "Zniszcz 1000 blokow"
+
+[advancement.challenge_pickaxe_5k]
+    title = "Wykwalifikowany Gornik"
+    description = "Zniszcz 5000 blokow"
+
+[advancement.challenge_pickaxe_50k]
+    title = "Ekspert Gornik"
+    description = "Zniszcz 50 000 blokow"
+
+[advancement.challenge_pickaxe_500k]
+    title = "Mistrz Gornik"
+    description = "Zniszcz 500 000 blokow"
+
+[advancement.challenge_pickaxe_5m]
+    title = "Legendarny Gornik"
+    description = "Zniszcz 5 000 000 blokow"
+
+[advancement.challenge_eat_100]
+    title = "Tyle do jedzenia!"
+    description = "Zjedz ponad 100 przedmiotow!"
+
+[advancement.challenge_eat_1000]
+    title = "Nienasycony Glod!"
+    description = "Zjedz ponad 1000 przedmiotow!"
+
+[advancement.challenge_eat_10000]
+    title = "WIECZNY GLOD!"
+    description = "Zjedz ponad 10 000 przedmiotow!"
+
+[advancement.challenge_harvest_100]
+    title = "Pelne Zniwa"
+    description = "Zbierz ponad 100 upraw!"
+
+[advancement.challenge_harvest_1000]
+    title = "Wielkie Zniwa"
+    description = "Zbierz ponad 1000 upraw!"
+
+[advancement.challenge_swim_1nm]
+    title = "Ludzki Okret Podwodny!"
+    description = "Preplyn 1 Mile Morska (1852 bloki)"
+
+[advancement.challenge_sneak_1k]
+    title = "Bol Kolan"
+    description = "Skradaj sie ponad kilometr (1000 blokow)"
+
+[advancement.challenge_sneak_5k]
+    title = "Wedrowiec Cieni"
+    description = "Skradaj sie ponad 5000 blokow"
+
+[advancement.challenge_sneak_20k]
+    title = "Duch"
+    description = "Skradaj sie ponad 20 000 blokow"
+
+[advancement.challenge_swim_5k]
+    title = "Gleboki Nurek"
+    description = "Preplyn ponad 5000 blokow"
+
+[advancement.challenge_swim_20k]
+    title = "Wybranik Posejdona"
+    description = "Preplyn ponad 20 000 blokow"
+
+[advancement.challenge_sword_100]
+    title = "Pierwsza Krew"
+    description = "Zadaj 100 ciosow mieczem"
+
+[advancement.challenge_sword_1k]
+    title = "Taniec Ostrzy"
+    description = "Zadaj 1000 ciosow mieczem"
+
+[advancement.challenge_sword_10k]
+    title = "Tysiac Ciec"
+    description = "Zadaj 10 000 ciosow mieczem"
+
+[advancement.challenge_unarmed_100]
+    title = "Barowy Zawadiaka"
+    description = "Zadaj 100 ciosow golymi rekami"
+
+[advancement.challenge_unarmed_1k]
+    title = "Zelazne Piesci"
+    description = "Zadaj 1000 ciosow golymi rekami"
+
+[advancement.challenge_unarmed_10k]
+    title = "Jeden Cios"
+    description = "Zadaj 10 000 ciosow golymi rekami"
+
+[advancement.challenge_trag_1k]
+    title = "Cena Krwi"
+    description = "Otrzymaj 1000 obrazen"
+
+[advancement.challenge_trag_10k]
+    title = "Szkarlatna Fala"
+    description = "Otrzymaj 10 000 obrazen"
+
+[advancement.challenge_trag_100k]
+    title = "Awatar Cierpienia"
+    description = "Otrzymaj 100 000 obrazen"
+
+[advancement.challenge_ranged_100]
+    title = "Strzelnica"
+    description = "Wystrzel 100 pociskow"
+
+[advancement.challenge_ranged_1k]
+    title = "Sokole Oko"
+    description = "Wystrzel 1000 pociskow"
+
+[advancement.challenge_ranged_10k]
+    title = "Burza Strzal"
+    description = "Wystrzel 10 000 pociskow"
+
+[advancement.challenge_chronos_1h]
+    title = "Tik Tak"
+    description = "Spedz 1 godzine online"
+
+[advancement.challenge_chronos_24h]
+    title = "Piaski Czasu"
+    description = "Spedz 24 godziny online"
+
+[advancement.challenge_chronos_168h]
+    title = "Ponadczasowy"
+    description = "Spedz 168 godzin (1 tydzien) online"
+
+[advancement.challenge_nether_50]
+    title = "Straznik Piekiel"
+    description = "Zabij 50 stworzen z Netheru"
+
+[advancement.challenge_nether_500]
+    title = "Straznik Otchlani"
+    description = "Zabij 500 stworzen z Netheru"
+
+[advancement.challenge_nether_5k]
+    title = "Wladca Netheru"
+    description = "Zabij 5000 stworzen z Netheru"
+
+[advancement.challenge_rift_50]
+    title = "Anomalia Przestrzenna"
+    description = "Teleportuj sie 50 razy"
+
+[advancement.challenge_rift_500]
+    title = "Wedrowiec Pustki"
+    description = "Teleportuj sie 500 razy"
+
+[advancement.challenge_rift_5k]
+    title = "Miedzy Swiatami"
+    description = "Teleportuj sie 5000 razy"
+
+[advancement.challenge_taming_10]
+    title = "Zaklinacz Zwierzat"
+    description = "Rozmnoz 10 zwierzat"
+
+[advancement.challenge_taming_50]
+    title = "Przywodca Stada"
+    description = "Rozmnoz 50 zwierzat"
+
+[advancement.challenge_taming_500]
+    title = "Wladca Bestii"
+    description = "Rozmnoz 500 zwierzat"
+
+# items
+[items]
+
+[items.bound_ender_peral]
+    name = "Relikwiarzowy Switoklin"
+    usage1 = "Shift + Lewy Przycisk Myszy aby przywiazac"
+    usage2 = "Prawy Przycisk Myszy aby uzyskac dostep do przywiazanego ekwipunku"
+
+[items.bound_eye_of_ender]
+    name = "Kotwica Okularowa"
+    usage1 = "Prawy Przycisk Myszy aby zuzyc i teleportowac sie do przywiazanej lokalizacji"
+    usage2 = "Shift + Lewy Przycisk Myszy aby przywiazac do bloku"
+
+[items.bound_redstone_torch]
+    name = "Pilot Redstone"
+    usage1 = "Prawy Przycisk Myszy aby wytworzyc impuls Redstone 1-Tick"
+    usage2 = "Shift + Lewy Przycisk Myszy na bloku 'Cel' aby przywiazac"
+
+[items.bound_snowball]
+    name = "Pajeczyna Pulapka!"
+    usage1 = "Rzuc aby stworzyc tymczasowa pulapke z pajeczyn w danym miejscu"
+
+[items.chrono_time_bottle]
+    name = "Czas w Butelce"
+    usage1 = "Pasywnie gromadzi czas bedac w ekwipunku"
+    usage2 = "Kliknij prawym przyciskiem myszy na bloki czasowe lub mlode zwierzeta aby wydac zgromadzony czas"
+    stored = "Zgromadzony Czas"
+
+[items.chrono_time_bomb]
+    name = "Bomba Czasowa"
+    usage1 = "Kliknij prawym przyciskiem myszy aby wystrzelec bolid chrono tworzacy pole temporalne"
+
+[items.elevator_block]
+    name = "Blok Windy"
+    usage1 = "Skocz aby teleportowac sie w gore"
+    usage2 = "Kucnij aby teleportowac sie w dol"
+    usage3 = "Minimum 2 bloki powietrza miedzy windami"
+
+# snippets
+[snippets]
+
+[snippets.gui]
+    level = "Poziom"
+    knowledge = "wiedza"
+    power_used = "Uzyta Moc"
+    not_learned = "Nie Nauczone"
+    xp = "PD do"
+    welcome = "Witaj!"
+    welcome_back = "Witaj ponownie!"
+    xp_bonus_for_time = "PD za"
+    max_ability_power = "Maksymalna Moc Umiejetnosci"
+    unlock_this_by_clicking = "Odblokuj to klikajac Prawym Przyciskiem Myszy: "
+    back = "Wstecz"
+    unlearn_all = "Oducz sie wszystkiego"
+    unlearned_all = "Wszystko oduczone"
+
+[snippets.adapt_menu]
+    may_not_unlearn = "NIE MOZESZ SIE ODUCZYC"
+    may_unlearn = "MOZESZ SIE UCZYC/ODUCZYC"
+    knowledge_cost = "Koszt Wiedzy"
+    knowledge_available = "Dostepna Wiedza"
+    already_learned = "Juz Nauczone"
+    unlearn_refund = "Kliknij aby Oduczyc sie i Odzyskac"
+    no_refunds = "HARDCORE, ZWROTY WYLACZONE"
+    knowledge = "wiedza"
+    click_learn = "Kliknij aby sie Nauczyc"
+    no_knowledge = "(Nie masz zadnej Wiedzy)"
+    you_only_have = "Masz tylko"
+    how_to_level_up = "Rozwijaj umiejetnosci, aby zwiekszyc maksymalna moc."
+    not_enough_power = "Za malo mocy! Kazdy Poziom Umiejetnosci kosztuje 1 moc."
+    power = "moc"
+    power_drain = "Zuzycie Mocy"
+    learned = "Nauczone "
+    unlearned = "Oduczone "
+    activator_block = "Polka na ksiazki"
+
+[snippets.knowledge_orb]
+    contains = "zawiera"
+    knowledge = "wiedzy"
+    rightclick = "Kliknij Prawym Przyciskiem"
+    togainknowledge = "aby zdobyc te wiedze"
+    knowledge_orb = "Kula Wiedzy"
+
+[snippets.experience_orb]
+    contains = "zawiera"
+    xp = "Doswiadczenia"
+    rightclick = "Kliknij Prawym Przyciskiem"
+    togainxp = "aby zdobyc to doswiadczenie"
+    xporb = "Kula Doswiadczenia"
+
+# skill
+[skill]
+
+[skill.agility]
+    name = "Zwinnosc"
+    icon = "⇉"
+    description = "Zwinnosc to umiejetnosc szybkiego i plynnego poruszania sie w obliczu przeszkod."
+
+[skill.architect]
+    name = "Architekt"
+    icon = "⬧"
+    description = "Struktury sa budulcem swiata. Rzeczywistosc jest w Twoich rekach i pod Twoja kontrola."
+
+[skill.axes]
+    name = "Siekiery"
+    icon = "🪓"
+    description1 = "Po co scinac drzewa, skoro mozna rabac "
+    description2 = "rzeczy"
+    description3 = "zamiast tego, ten sam efekt koncowy!"
+
+[skill.brewing]
+    name = "Browarnictwo"
+    icon = "❦"
+    description = "Podwojny Babelek, Potrojny Babelek, Poczworny Babelek- Nadal nie moge wlac tej mikstury do kotla"
+
+[skill.blocking]
+    name = "Blokowanie"
+    icon = "🛡"
+    description = "Kije i kamienie nie zlamia Ci kosci, ale tarcza owszem."
+
+[skill.crafting]
+    name = "Rzemioslo"
+    icon = "⌂"
+    description = "Skoro nie ma juz czesci do ulozenia, czemu nie zrobic kolejnej?"
+
+[skill.discovery]
+    name = "Odkrycie"
+    icon = "⚛"
+    description = "Gdy twoja percepcja sie rozszerza, twoj umysl rozplatuje sie, by odkryc to, czego nie odkryles."
+
+[skill.enchanting]
+    name = "Zaklecia"
+    icon = "✠"
+    description = "O czym ty mowisz? Proroctwa, wizje, przesadny belkot?"
+
+[skill.excavation]
+    name = "Wykopywanie"
+    icon = "ᛳ"
+    description = "Kopie kopie doleczek..."
+
+[skill.herbalism]
+    name = "Zielarstwo"
+    icon = "⚘"
+    description = "Nie moge znalezc zadnych roslin, ale moge znalezc nasiona i- czy to... Ziele?"
+
+[skill.hunter]
+    name = "Lowca"
+    icon = "☠"
+    description = "W polowaniu liczy sie podroz, nie wynik."
+
+[skill.nether]
+    name = "Nether"
+    icon = "₪"
+    description = "Z glebin samego Netheru."
+
+[skill.pickaxe]
+    name = "Kilof"
+    icon = "⛏"
+    description = "Krasnoludy sa gornikami, ale ja tez sie czegos nauczylem. JESTEM SZWEDEM"
+
+[skill.ranged]
+    name = "Dystansowy"
+    icon = "🏹"
+    description = "Dystans to klucz do zwyciestwa i klucz do przetrwania."
+
+[skill.rift]
+    name = "Szczelina"
+    icon = "❍"
+    description = "Szczelina to zraca uprza, ale ty ja opanowalec."
+
+[skill.seaborne]
+    name = "Morski"
+    icon = "🎣"
+    description = "Dzieki tej umiejetnosci mozesz obudzic cuda wody."
+
+[skill.stealth]
+    name = "Skradanie"
+    icon = "☯"
+    description = "Sztuka niewidzialnosci. Krocz w cieniach."
+
+[skill.swords]
+    name = "Miecze"
+    icon = "⚔"
+    description = "Moca Szarego Kamienia!"
+
+[skill.taming]
+    name = "Oswajanie"
+    icon = "♥"
+    description = "Papugi i pszczoly... a ty?"
+
+[skill.tragoul]
+    name = "TragOul"
+    icon = "🗡"
+    description = "Krew plynie zylami wszechswiata. Scisnieta przez twoje dlonie."
+
+[skill.chronos]
+    name = "Chronos"
+    icon = "🕒"
+    description = "Nakrec Zegar wszechswiata, poczuj przeplyw. Zlam zegar, stac sie nim."
+
+[skill.unarmed]
+    name = "Walka Wreczna"
+    icon = "»"
+    description = "Bez broni nie znaczy bez sily."
+
+# agility
+[agility]
+
+[agility.armor_up]
+    name = "Pancerz-Up"
+    description = "Zdobywaj wiecej pancerza im dluzej sprintujesz!"
+    lore1 = "Maksymalny Pancerz"
+    lore2 = "Czas Narastania Pancerza"
+    lore = ["Maksymalny Pancerz", "Czas Narastania Pancerza"]
+
+[agility.ladder_slide]
+    name = "Zjazd po Drabinie"
+    description = "Wspinaj sie i zesliguj po drabinach znacznie szybciej w obu kierunkach."
+    lore1 = "Mnoznik predkosci na drabinie"
+    lore2 = "Predkosc szybkiego zjazdu"
+    lore = ["Mnoznik predkosci na drabinie", "Predkosc szybkiego zjazdu"]
+
+[agility.super_jump]
+    name = "Super Skok"
+    description = "Wyjatkowa Przewaga Wysokosci."
+    lore1 = "Maksymalna Wysokosc Skoku"
+    lore2 = "Kucnij + Skok aby wykonac Super Skok!"
+    lore = ["Maksymalna Wysokosc Skoku", "Kucnij + Skok aby wykonac Super Skok!"]
+
+[agility.wall_jump]
+    name = "Skok od Sciany"
+    description = "Przytrzymaj Shift w powietrzu przy scianie aby sie przyczepic i odskoczycz!"
+    lore1 = "Maksymalna Ilosc Skokow"
+    lore2 = "Wysokosc Skoku"
+    lore = ["Maksymalna Ilosc Skokow", "Wysokosc Skoku"]
+
+[agility.wind_up]
+    name = "Rozkrecanie"
+    description = "Nabieraj predkosci im dluzej biegniesz!"
+    lore1 = "Maksymalna Predkosc"
+    lore2 = "Czas Rozkrecania"
+    lore = ["Maksymalna Predkosc", "Czas Rozkrecania"]
+
+# architect
+[architect]
+
+[architect.elevator]
+    name = "Winda"
+    description = "Pozwala zbudowac winde do szybkiego teleportowania sie w pionie!"
+    lore1 = "Odblokowuje przepis na winde: X=WELNA, Y=PERLA ENDERA"
+    lore2 = "XXX"
+    lore3 = "XYX"
+    lore4 = "XXX"
+    lore = ["Odblokowuje przepis na winde: X=WELNA, Y=PERLA ENDERA", "XXX", "XYX", "XXX"]
+
+[architect.foundation]
+    name = "Magiczny Fundament"
+    description = "Pozwala na kucniecie i umieszczenie tymczasowego fundamentu pod soba!"
+    lore1 = "Magicznie stworz: "
+    lore2 = "Blokow pod soba!"
+    lore = ["Magicznie stworz: ", "Blokow pod soba!"]
+
+[architect.glass]
+    name = "Jedwabny Dotyk Szkla"
+    description = "Zapobiega utracie blokow szklanych kiedy rozbijasz je gola reka!"
+    lore1 = "Twoje rece zyskuja Jedwabny Dotyk dla Szkla"
+    lore = ["Twoje rece zyskuja Jedwabny Dotyk dla Szkla"]
+
+[architect.wireless_redstone]
+    name = "Pilot Redstone"
+    description = "Pozwala uzyc pochodni z redstone do zdalnego przelaczania redstone!"
+    lore1 = "Cel + Pochodnia Redstone + Perla Endera = 1 Pilot Redstone"
+    lore = ["Cel + Pochodnia Redstone + Perla Endera = 1 Pilot Redstone"]
+
+[architect.placement]
+    name = "Rozdzka Budowniczego"
+    description = "Pozwala umieszczac wiele blokow naraz. Aby aktywowac: kucnij i trzymaj blok pasujacy do bloku na ktory patrzysz, nastepnie postaw! Pamietaj, moze byc konieczne lekkie przesuniecie sie!"
+    lore1 = "Potrzebujesz"
+    lore2 = "blokow w rece aby to postawic"
+    lore3 = "Materialowa Rozdzka Budowniczego"
+    lore = ["Potrzebujesz", "blokow w rece aby to postawic", "Materialowa Rozdzka Budowniczego"]
+
+# axe
+[axe]
+
+[axe.chop]
+    name = "Ciecie Siekiera"
+    description = "Scinaj drzewa klikajac prawym przyciskiem myszy na dolny klode!"
+    lore1 = "Blokow na Ciecie"
+    lore2 = "Czas Odnowienia Ciecia"
+    lore3 = "Zuzycie Narzedzia"
+    lore = ["Blokow na Ciecie", "Czas Odnowienia Ciecia", "Zuzycie Narzedzia"]
+
+[axe.log_swap]
+    name = "Wymiennik Klod Lucy"
+    description = "Zmien rodzaj klod na Stole Rzemicslniczym!"
+    lore1 = "8 Klod dowolnego rodzaju + 1 sadzonka = 8 klod typu sadzonki"
+    lore = ["8 Klod dowolnego rodzaju + 1 sadzonka = 8 klod typu sadzonki"]
+
+[axe.drop_to_inventory]
+    name = "Siekiera Zrzut-Do-Ekwipunku"
+
+[axe.ground_smash]
+    name = "Uderzenie w Ziemie Siekiera"
+    description = "Skocz, a potem kucnij i zmiazdzh wszystkich poblizskich wrogow."
+    lore1 = "Obrazenia"
+    lore2 = "Zasieg Blokow"
+    lore3 = "Sila"
+    lore4 = "Czas Odnowienia Uderzenia"
+    lore = ["Obrazenia", "Zasieg Blokow", "Sila", "Czas Odnowienia Uderzenia"]
+
+[axe.leaf_miner]
+    name = "Gornik Lisci"
+    description = "Pozwala niszczyc duze ilosci lisci naraz!"
+    lore1 = "Kucnij i niszcz LISCIE"
+    lore2 = "zasieg niszczenia lisci"
+    lore3 = "Nie otrzymasz dropu z lisci (Zapobieganie Naduzywaniu)"
+    lore = ["Kucnij i niszcz LISCIE", "zasieg niszczenia lisci", "Nie otrzymasz dropu z lisci (Zapobieganie Naduzywaniu)"]
+
+[axe.wood_miner]
+    name = "Gornik Drewna"
+    description = "Pozwala niszczyc duze ilosci drewna naraz!"
+    lore1 = "Kucnij i niszcz DREWNO/KLODY (Nie Deski)"
+    lore2 = "zasieg niszczenia drewna"
+    lore3 = "Dziala ze Zrzutem do Ekwipunku"
+    lore = ["Kucnij i niszcz DREWNO/KLODY (Nie Deski)", "zasieg niszczenia drewna", "Dziala ze Zrzutem do Ekwipunku"]
+
+# brewing
+[brewing]
+
+[brewing.lingering]
+    name = "Dlugotrwaly Napar"
+    description = "Uwarzone mikstury trwaja dluzej!"
+    lore1 = "Czas Trwania"
+    lore2 = "Czas Trwania"
+    lore = ["Czas Trwania", "Czas Trwania"]
+
+[brewing.super_heated]
+    name = "Super Podgrzany Napar"
+    description = "Stojaki alchemiczne dzialaja szybciej im sa goretsze."
+    lore1 = "Za Dotykajacy Blok Ognia"
+    lore2 = "Za Dotykajacy Blok Lawy"
+    lore = ["Za Dotykajacy Blok Ognia", "Za Dotykajacy Blok Lawy"]
+
+[brewing.darkness]
+    name = "Ciemnosc w Butelce"
+    description = "Nie wiem po co ci to, ale prosze bardzo!"
+    lore1 = "Mikstura Noktowizji + Czarny Beton = Mikstura Ciemnosci (30 sekund)"
+    lore2 = "Nalezy zauwazyc, ze uniemozliwia to sprintowanie!"
+    lore = ["Mikstura Noktowizji + Czarny Beton = Mikstura Ciemnosci (30 sekund)", "Nalezy zauwazyc, ze uniemozliwia to sprintowanie!"]
+
+[brewing.haste]
+    name = "Pospiech w Butelce"
+    description = "Kiedy Wydajnosc to za malo"
+    lore1 = "Mikstura Szybkosci + Odlamek Ametystu = Mikstura Pospiechu (60 sekund)"
+    lore2 = "Mikstura Szybkosci + Blok Ametystu = Mikstura Pospiechu-2 (30 sekund)"
+    lore = ["Mikstura Szybkosci + Odlamek Ametystu = Mikstura Pospiechu (60 sekund)", "Mikstura Szybkosci + Blok Ametystu = Mikstura Pospiechu-2 (30 sekund)"]
+
+[brewing.absorption]
+    name = "Absorpcja w Butelce"
+    description = "Wzmocnij cialo!"
+    lore1 = "Natychmiastowe Leczenie + Kwarc = Mikstura Absorpcji (60 sekund)"
+    lore2 = "Natychmiastowe Leczenie + Blok Kwarcu = Mikstura Absorpcji-2 (30 sekund)"
+    lore = ["Natychmiastowe Leczenie + Kwarc = Mikstura Absorpcji (60 sekund)", "Natychmiastowe Leczenie + Blok Kwarcu = Mikstura Absorpcji-2 (30 sekund)"]
+
+[brewing.fatigue]
+    name = "Zmeczenie w Butelce"
+    description = "Oslab cialo!"
+    lore1 = "Mikstura Slabosci + Kula Sluzu = Mikstura Zmeczenia (30 sekund)"
+    lore2 = "Mikstura Slabosci + Blok Sluzu = Mikstura Zmeczenia-2 (15 sekund)"
+    lore = ["Mikstura Slabosci + Kula Sluzu = Mikstura Zmeczenia (30 sekund)", "Mikstura Slabosci + Blok Sluzu = Mikstura Zmeczenia-2 (15 sekund)"]
+
+[brewing.hunger]
+    name = "Glod w Butelce"
+    description = "Nakarm Nienasyconego!"
+    lore1 = "Niezreczna Mikstura + Zgnile Mieso = Mikstura Glodu (30 sekund)"
+    lore2 = "Mikstura Slabosci + Zgnile Mieso = Mikstura Glodu-3 (15 sekund)"
+    lore = ["Niezreczna Mikstura + Zgnile Mieso = Mikstura Glodu (30 sekund)", "Mikstura Slabosci + Zgnile Mieso = Mikstura Glodu-3 (15 sekund)"]
+
+[brewing.nausea]
+    name = "Mdlosci w Butelce"
+    description = "Robi mi sie od ciebie niedobrze!"
+    lore1 = "Niezreczna Mikstura + Brazowy Grzyb = Mikstura Mdlosci (16 sekund)"
+    lore2 = "Niezreczna Mikstura + Szkarlatny Grzyb = Mikstura Mdlosci-2 (8 sekund)"
+    lore = ["Niezreczna Mikstura + Brazowy Grzyb = Mikstura Mdlosci (16 sekund)", "Niezreczna Mikstura + Szkarlatny Grzyb = Mikstura Mdlosci-2 (8 sekund)"]
+
+[brewing.blindness]
+    name = "Slepota w Butelce"
+    description = "Jestes okropna osoba..."
+    lore1 = "Niezreczna Mikstura + Worek z Atramentem = Mikstura Slepoty (30 sekund)"
+    lore2 = "Niezreczna Mikstura + Swiecacy Worek z Atramentem = Mikstura Slepoty-2 (15 sekund)"
+    lore = ["Niezreczna Mikstura + Worek z Atramentem = Mikstura Slepoty (30 sekund)", "Niezreczna Mikstura + Swiecacy Worek z Atramentem = Mikstura Slepoty-2 (15 sekund)"]
+
+[brewing.resistance]
+    name = "Odpornosc w Butelce"
+    description = "Fortyfikacja w najlepszym wydaniu!"
+    lore1 = "Niezreczna Mikstura + Sztabka Zelaza = Mikstura Odpornosci (60 sekund)"
+    lore2 = "Niezreczna Mikstura + Blok Zelaza = Mikstura Odpornosci-2 (30 sekund)"
+    lore = ["Niezreczna Mikstura + Sztabka Zelaza = Mikstura Odpornosci (60 sekund)", "Niezreczna Mikstura + Blok Zelaza = Mikstura Odpornosci-2 (30 sekund)"]
+
+[brewing.health_boost]
+    name = "Zycie w Butelce"
+    description = "Kiedy maksymalne zdrowie to za malo..."
+    lore1 = "Mikstura Natychmiastowego Leczenia + Zlote Jablko = Mikstura Wzmocnienia Zdrowia (120 sekund)"
+    lore2 = "Mikstura Natychmiastowego Leczenia + Zaczarowane Zlote Jablko = Mikstura Wzmocnienia Zdrowia-2 (120 sekund)"
+    lore = ["Mikstura Natychmiastowego Leczenia + Zlote Jablko = Mikstura Wzmocnienia Zdrowia (120 sekund)", "Mikstura Natychmiastowego Leczenia + Zaczarowane Zlote Jablko = Mikstura Wzmocnienia Zdrowia-2 (120 sekund)"]
+
+[brewing.decay]
+    name = "Rozklad w Butelce"
+    description = "Kto by pomyslal, ze Detrytus bedzie tak przydatny?"
+    lore1 = "Mikstura Slabosci + Trujacy Ziemniak = Mikstura Wiecenia (16 sekund)"
+    lore2 = "Mikstura Slabosci + Szkarlatne Korzenie = Mikstura Wiecenia-2 (8 sekund)"
+    lore = ["Mikstura Slabosci + Trujacy Ziemniak = Mikstura Wiecenia (16 sekund)", "Mikstura Slabosci + Szkarlatne Korzenie = Mikstura Wiecenia-2 (8 sekund)"]
+
+[brewing.saturation]
+    name = "Nasycenie w Butelce"
+    description = "Wiesz co... nawet nie jestem glodny..."
+    lore1 = "Mikstura Regeneracji + Pieczony Ziemniak = Mikstura Nasycenia"
+    lore2 = "Mikstura Regeneracji + Bela Siana = Mikstura Nasycenia-2"
+    lore = ["Mikstura Regeneracji + Pieczony Ziemniak = Mikstura Nasycenia", "Mikstura Regeneracji + Bela Siana = Mikstura Nasycenia-2"]
+
+# blocking
+[blocking]
+
+[blocking.chain_armorer]
+    name = "Lancuchy Mefistofelesa"
+    description = "Pozwala tworzyc zbroje kolczuga"
+    lore1 = "Przepis jest taki sam jak na kazda inna zbroje, ale z brylek zelaza"
+    lore = ["Przepis jest taki sam jak na kazda inna zbroje, ale z brylek zelaza"]
+
+[blocking.horse_armorer]
+    name = "Wytwarzalna Zbroja Konia"
+    description = "Pozwala tworzyc zbroje konia"
+    lore1 = "Otocz siodlo materialem, ktorego chcesz uzyc do wytworzenia zbroi"
+    lore = ["Otocz siodlo materialem, ktorego chcesz uzyc do wytworzenia zbroi"]
+
+[blocking.saddle_crafter]
+    name = "Wytwarzalne Siodlo"
+    description = "Wytworz siodlo ze skory"
+    lore1 = "Przepis: 5 Skora:"
+    lore = ["Przepis: 5 Skora:"]
+
+[blocking.multi_armor]
+    name = "Multi-Pancerz"
+    description = "Wiaz Elytry ze zbroja"
+    lore1 = "To niesamowita umiejetnosc do podrozowania."
+    lore2 = "Dynamicznie lacz i zmieniaj Zbroje/Elytry w locie!"
+    lore3 = "Aby polaczyc, kliknij z Shiftem na przedmiot nad innym w ekwipunku."
+    lore4 = "Aby rozdzielic zbroje, upusc przedmiot z Shiftem, a rozlozy sie."
+    lore5 = "Jesli twoj Multi-Pancerz zostanie zniszczony, stracisz wszystkie przedmioty w nim."
+    lore6 = "Nie potrzebuje zbroi, to mnie rozczarowuje..."
+    lore = ["To niesamowita umiejetnosc do podrozowania.", "Dynamicznie lacz i zmieniaj Zbroje/Elytry w locie!", "Aby polaczyc, kliknij z Shiftem na przedmiot nad innym w ekwipunku.", "Aby rozdzielic zbroje, upusc przedmiot z Shiftem, a rozlozy sie.", "Jesli twoj Multi-Pancerz zostanie zniszczony, stracisz wszystkie przedmioty w nim.", "Nie potrzebuje zbroi, to mnie rozczarowuje..."]
+
+# crafting
+[crafting]
+
+[crafting.deconstruction]
+    name = "Dekonstrukcja"
+    description = "Rozloz bloki i przedmioty na odzyskiwalne elementy bazowe!"
+    lore1 = "Upusc dowolny przedmiot na ziemie."
+    lore2 = "Nastepnie kucnij i kliknij prawym przyciskiem nozycami"
+    lore = ["Upusc dowolny przedmiot na ziemie.", "Nastepnie kucnij i kliknij prawym przyciskiem nozycami"]
+
+[crafting.xp]
+    name = "PD z Rzemiosla"
+    description = "Zdobywaj pasywne PD podczas wytwarzania"
+    lore1 = "Zdobywaj PD podczas wytwarzania"
+    lore = ["Zdobywaj PD podczas wytwarzania"]
+
+[crafting.reconstruction]
+    name = "Rekonstrukcja Rud"
+    description = "Przerabiaj rudy z ich podstawowych skladnikow!"
+    lore1 = "8 Dropu i 1 Nosnik = 1 Ruda (bezformowe)"
+    lore2 = "Dropy musza byc przetopione (jesli dotyczy)"
+    lore3 = "Nie obejmuje: Zlomu, Kwarcu, Szmaragdow itp..."
+    lore4 = "Nosnik = Otoczenie. np.: Kamien, Netherrack, Lupek"
+    lore = ["8 Dropu i 1 Nosnik = 1 Ruda (bezformowe)", "Dropy musza byc przetopione (jesli dotyczy)", "Nie obejmuje: Zlomu, Kwarcu, Szmaragdow itp...", "Nosnik = Otoczenie. np.: Kamien, Netherrack, Lupek"]
+
+[crafting.leather]
+    name = "Wytwarzalna Skora"
+    description = "Wytworz Skore ze Zgnilego Miesa"
+    lore1 = "Po prostu wrzuc to (zgnile mieso) na ognisko!"
+    lore = ["Po prostu wrzuc to (zgnile mieso) na ognisko!"]
+
+[crafting.backpacks]
+    name = "Plecaki Boutiliera!"
+    description = "Wprowadza do gry pakiet Mojang!"
+    lore1 = "Musisz byc w trybie Przetrwania aby tego uzywac"
+    lore2 = "XLX : Skora, Smycz, Skora"
+    lore3 = "XSX : Skora, Skrzynka Barrelowa, Skora"
+    lore4 = "XCX : Skora, Skrzynia, Skora"
+    lore = ["Musisz byc w trybie Przetrwania aby tego uzywac", "XLX : Skora, Smycz, Skora", "XSX : Skora, Skrzynka Barrelowa, Skora", "XCX : Skora, Skrzynia, Skora"]
+
+[crafting.stations]
+    name = "Przenosne Stoly!"
+    description = "Uzyj stolu prosto z dloni!"
+    lore2 = "WSZELKIE PRZEDMIOTY ZAPOMNIANE W STOLE PO ZAMKNIECIU SA STRACONE NA ZAWSZE!"
+    lore3 = "Prawidlowe stoly: Kowadlo, Stol Rzemicslniczy, Szlifierka, Kartografia, Kamieniarka, Krosno"
+    lore = ["WSZELKIE PRZEDMIOTY ZAPOMNIANE W STOLE PO ZAMKNIECIU SA STRACONE NA ZAWSZE!", "Prawidlowe stoly: Kowadlo, Stol Rzemicslniczy, Szlifierka, Kartografia, Kamieniarka, Krosno"]
+
+[crafting.skulls]
+    name = "Wytwarzalne Czaszki!"
+    description = "Uzywajac materialow mozesz tworzyc czaszki mobow!"
+    lore1 = "Otocz Blok Kosci nastepujacymi aby uzyskac czaszke:"
+    lore2 = "Zombie: Zgnile Mieso"
+    lore3 = "Szkielet: Kosc"
+    lore4 = "Creeper: Proch"
+    lore5 = "Wither: Cegla Netheru"
+    lore6 = "Smok: Oddech Smoka"
+    lore = ["Otocz Blok Kosci nastepujacymi aby uzyskac czaszke:", "Zombie: Zgnile Mieso", "Szkielet: Kosc", "Creeper: Proch", "Wither: Cegla Netheru", "Smok: Oddech Smoka"]
+
+# chronos
+[chronos]
+
+[chronos.time_in_a_bottle]
+    name = "Czas w Butelce"
+    description = "Nos butelke temporalna, ktora gromadzi czas i wydawaj go na przyspieszanie blokow czasowych, upraw i dorastajaych istot, takich jak mlode zwierzeta. Przepis (Bezformowy): Mikstura Szybkosci + Zegar + Szklana Butelka."
+    lore1 = "Zgromadzone sekundy ladowane co tick"
+    lore2 = "Przyspieszenie czasu na zgromadzona sekunde"
+    lore3 = "Przepis (Bezformowy): Mikstura Szybkosci + Zegar + Szklana Butelka"
+    lore = ["Zgromadzone sekundy ladowane co tick", "Przyspieszenie czasu na zgromadzona sekunde", "Przepis (Bezformowy): Mikstura Szybkosci + Zegar + Szklana Butelka"]
+
+[chronos.aberrant_touch]
+    name = "Aberracyjny Dotyk"
+    description = "Ataki w zwarciu nakladaja kumulujace spowolnienie kosztem glodu, z ograniczeniami PvP, i unieruchamiaja cele przy 5 kumulacjach."
+    lore1 = "Ataki w zwarciu nakladaja kumulujace spowolnienie"
+    lore2 = "Limit czasu trwania spowolnienia PvE"
+    lore3 = "Limit poziomu spowolnienia PvP"
+    lore = ["Ataki w zwarciu nakladaja kumulujace spowolnienie", "Limit czasu trwania spowolnienia PvE", "Limit poziomu spowolnienia PvP"]
+
+[chronos.instant_recall]
+    name = "Natychmiastowe Przywolanie"
+    description = "Kliknij lewym lub prawym przyciskiem z zegarem w rece aby cofnac sie do niedawnego stanu ze przywroconym zdrowiem i glodem."
+    lore1 = "Czas cofniecia"
+    lore2 = "Czas odnowienia"
+    lore3 = "Brak cofania ekwipunku"
+    lore = ["Czas cofniecia", "Czas odnowienia", "Brak cofania ekwipunku"]
+
+[chronos.time_bomb]
+    name = "Bomba Czasowa"
+    description = "Rzuc wytworzona bombe chrono, ktora tworzy pole temporalne, spowalnia istoty i zamraza pociski."
+    lore1 = "Zasieg pola temporalnego"
+    lore2 = "Czas trwania pola temporalnego"
+    lore3 = "Czas odnowienia bomby"
+    lore4 = "Przepis (Bezformowy): Zegar + Sniezka + Diament + Piasek"
+    lore = ["Zasieg pola temporalnego", "Czas trwania pola temporalnego", "Czas odnowienia bomby", "Przepis (Bezformowy): Zegar + Sniezka + Diament + Piasek"]
+
+# discovery
+[discovery]
+
+[discovery.armor]
+    name = "Pancerz Swiata"
+    description = "Pasywny pancerz zalezny od twardosci poblizskich blokow."
+    lore1 = "Pasywny Pancerz"
+    lore2 = "Na podstawie twardosci poblizskich blokow"
+    lore3 = "Sila Pancerza:"
+    lore = ["Pasywny Pancerz", "Na podstawie twardosci poblizskich blokow", "Sila Pancerza:"]
+
+[discovery.unity]
+    name = "Eksperymentalna Jednosc"
+    description = "Zbieranie Kul Doswiadczenia dodaje PD do losowych umiejetnosci."
+    lore1 = "PD "
+    lore2 = "Za Kule"
+    lore = ["PD ", "Za Kule"]
+
+[discovery.resist]
+    name = "Eksperymentalna Odpornosc"
+    description = "Zuzyj doswiadczenie aby zlagodzic obrazenia, ale tylko gdy trafienie zrzuciloby cie ponizej 5 serc lub by cie zabilo."
+    lore0 = "Aktywuje sie tylko przy krytycznym zdrowiu (<= 5 serc) raz na 15 sekund"
+    lore1 = " Zmniejszone Obrazenia"
+    lore2 = "wyczerpane doswiadczenie"
+    lore = ["Aktywuje sie tylko przy krytycznym zdrowiu (<= 5 serc) raz na 15 sekund", " Zmniejszone Obrazenia", "wyczerpane doswiadczenie"]
+
+[discovery.villager]
+    name = "Atrakcja Osadnikow"
+    description = "Pozwala na uzyskanie lepszych transakcji z mieszkancami wioski!"
+    lore1 = "Zuzywa PD za kazda interakcje z osadnikami"
+    lore2 = "Szansa na zuzycie PD i ulepszenie handlu za interakcje"
+    lore3 = "wymagane zuzycie PD za interakcje"
+    lore = ["Zuzywa PD za kazda interakcje z osadnikami", "Szansa na zuzycie PD i ulepszenie handlu za interakcje", "wymagane zuzycie PD za interakcje"]
+
+# enchanting
+[enchanting]
+
+[enchanting.lapis_return]
+    name = "Zwrot Lazurytu"
+    description = "Kosztem 1 dodatkowego poziomu PD, masz szanse na darmowy lazuryt w zamian"
+    lore1 = "Za kazdy poziom zwieksza koszt zaklecia o 1, ale moze zwrocic do 3 Lazurytu"
+    lore = ["Za kazdy poziom zwieksza koszt zaklecia o 1, ale moze zwrocic do 3 Lazurytu"]
+
+[enchanting.quick_enchant]
+    name = "Szybkie Zaklecie Kliknieciem"
+    description = "Zaklinaj przedmioty klikajac ksiazkami zaklec bezposrednio na nich."
+    lore1 = "Maks. Polaczone Poziomy"
+    lore2 = "Nie mozna zaklinac przedmiotu z wiecej niz "
+    lore3 = "mocy"
+    lore = ["Maks. Polaczone Poziomy", "Nie mozna zaklinac przedmiotu z wiecej niz ", "mocy"]
+
+[enchanting.return]
+    name = "Zwrot PD"
+    description = "PD z zaklec jest ci zwracane gdy zaklinasz przedmiot."
+    lore1 = "Wydane doswiadczenie ma szanse zostac zwrocone gdy zaklinasz przedmiot"
+    lore2 = "Doswiadczenie za Zaklecie"
+    lore = ["Wydane doswiadczenie ma szanse zostac zwrocone gdy zaklinasz przedmiot", "Doswiadczenie za Zaklecie"]
+
+# excavation
+[excavation]
+
+[excavation.haste]
+    name = "Pospieszny Kopacz"
+    description = "Przyspiesza kopanie dzieki POSPIECOWI!"
+    lore1 = "Zyskaj pospiech podczas kopania"
+    lore2 = "x Poziomow pospiechu gdy zaczniesz niszczyc DOWOLNY blok."
+    lore = ["Zyskaj pospiech podczas kopania", "x Poziomow pospiechu gdy zaczniesz niszczyc DOWOLNY blok."]
+
+[excavation.spelunker]
+    name = "Super-Widzacy Grotolaz!"
+    description = "Zobacz rudy na wlasne oczy, ale przez ziemie!"
+    lore1 = "Ruda w drugiej rece, Swiecace Jagody w glownej rece i Kucnij!"
+    lore2 = "Zasieg Blokow: "
+    lore3 = "Zuzywa Swiecace Jagody przy uzyciu"
+    lore = ["Ruda w drugiej rece, Swiecace Jagody w glownej rece i Kucnij!", "Zasieg Blokow: ", "Zuzywa Swiecace Jagody przy uzyciu"]
+
+[excavation.drop_to_inventory]
+    name = "Lopata Zrzut-Do-Ekwipunku"
+
+[excavation.omni_tool]
+    name = "OMNI - N.A.R.Z."
+    description = "Przesadnie zaprojektowany bogaty Multitool Tackle'a"
+    lore1 = "Prawdopodobnie najpotezniejszy z wielu, pozwala ci"
+    lore2 = "dynamicznie laczyc i zmieniac narzedzia w locie, wedlug potrzeb."
+    lore3 = "Aby polaczyc, kliknij z Shiftem na przedmiot nad innym w ekwipunku."
+    lore4 = "Aby rozdzielic narzedzia, upusc przedmiot z Shiftem, a zostanie zdemontowany."
+    lore5 = "Nie mozesz zniszczyc narzedzi w tym multitoolu ale nie mozesz uzywac zepsutych narzedzi"
+    lore6 = "laczna ilosc przedmiotow do polaczenia."
+    lore7 = "Mozesz uzyc pieciu albo szesciu narzedzi, albo tylko jednego!"
+    lore = ["Prawdopodobnie najpotezniejszy z wielu, pozwala ci", "dynamicznie laczyc i zmieniac narzedzia w locie, wedlug potrzeb.", "Aby polaczyc, kliknij z Shiftem na przedmiot nad innym w ekwipunku.", "Aby rozdzielic narzedzia, upusc przedmiot z Shiftem, a zostanie zdemontowany.", "Nie mozesz zniszczyc narzedzi w tym multitoolu ale nie mozesz uzywac zepsutych narzedzi", "laczna ilosc przedmiotow do polaczenia.", "Mozesz uzyc pieciu albo szesciu narzedzi, albo tylko jednego!"]
+
+# herbalism
+[herbalism]
+
+[herbalism.growth_aura]
+    name = "Aura Wzrostu"
+    description = "Rozwijaj nature wokol siebie w aurze"
+    lore1 = "Zasieg Blokow"
+    lore2 = "Sila Aury Wzrostu"
+    lore3 = "Koszt Jedzenia"
+    lore = ["Zasieg Blokow", "Sila Aury Wzrostu", "Koszt Jedzenia"]
+
+[herbalism.hippo]
+    name = "Hipopotam Zielarza"
+    description = "Spozywanie jedzenia daje wiecej nasycenia"
+    lore1 = "Jedzenie) dodatkowe punkty nasycenia przy spozyciu"
+    lore = ["Jedzenie) dodatkowe punkty nasycenia przy spozyciu"]
+
+[herbalism.myconid]
+    name = "Mykonid Zielarza"
+    description = "Daje mozliwosc wytwarzania Grzybni"
+    lore1 = "Dowolna Ziemia + Brazowy i Czerwony Grzyb wytworzya Grzybnie."
+    lore = ["Dowolna Ziemia + Brazowy i Czerwony Grzyb wytworzya Grzybnie."]
+
+[herbalism.terralid]
+    name = "Terralid Zielarza"
+    description = "Daje mozliwosc wytwarzania Blokow Trawy"
+    lore1 = "Trzy Nasiona nad 3 Ziemia wytworzya 3 Bloki Trawy."
+    lore = ["Trzy Nasiona nad 3 Ziemia wytworzya 3 Bloki Trawy."]
+
+[herbalism.cobweb]
+    name = "Tworca Pajeczyn"
+    description = "Daje mozliwosc wytwarzania Pajeczyn na Stole Rzemicslniczym"
+    lore1 = "Dziewiec Nitek wytworzy Pajeczyne."
+    lore = ["Dziewiec Nitek wytworzy Pajeczyne."]
+
+[herbalism.mushroom_blocks]
+    name = "Grzybiarz"
+    description = "Daje mozliwosc wytwarzania Blokow Grzybowych na Stole Rzemicslniczym"
+    lore1 = "Cztery Grzyby zrobia blok, albo blok zrobi lodyge."
+    lore = ["Cztery Grzyby zrobia blok, albo blok zrobi lodyge."]
+
+[herbalism.drop_to_inventory]
+    name = "Motyka Zrzut-Do-Ekwipunku"
+
+[herbalism.hungry_shield]
+    name = "Glodna Tarcza"
+    description = "Obrazenia odejmuja sie od glodu zanim od zdrowia."
+    lore1 = "Odparte przez Glod"
+    lore = ["Odparte przez Glod"]
+
+[herbalism.luck]
+    name = "Szczescie Zielarza"
+    description = "Gdy niszczysz Trawe/Kwiaty, masz szanse na losowy przedmiot"
+    lore0 = "Kwiaty = Jedzenie, a Trawa = Nasiona"
+    lore1 = "Szansa na zdobycie przedmiotu z niszczenia Kwiatow"
+    lore2 = "Szansa na zdobycie przedmiotu z niszczenia Trawy"
+    lore = ["Kwiaty = Jedzenie, a Trawa = Nasiona", "Szansa na zdobycie przedmiotu z niszczenia Kwiatow", "Szansa na zdobycie przedmiotu z niszczenia Trawy"]
+
+[herbalism.replant]
+    name = "Zbior i Przesadzanie"
+    description = "Kliknij prawym przyciskiem na uprawe z motyka aby zebrac i przesadzic."
+    lore1 = "Zasieg Przesadzania Blokow"
+    lore = ["Zasieg Przesadzania Blokow"]
+
+# hunter
+[hunter]
+
+[hunter.adrenaline]
+    name = "Adrenalina"
+    description = "Zadawaj wiecej obrazen im mniej masz zdrowia (Walka Wreczna)"
+    lore1 = "Maksymalne Obrazenia"
+    lore = ["Maksymalne Obrazenia"]
+
+[hunter.penalty]
+    name = ""
+    description = ""
+    lore1 = "Otrzymasz kumulacje Trucizny jesli zabraknie ci glodu"
+    lore = ["Otrzymasz kumulacje Trucizny jesli zabraknie ci glodu"]
+
+[hunter.drop_to_inventory]
+    name = "Przedmioty Zrzut-Do-Ekwipunku"
+    description = "Gdy cos zabijesz / zniszczysz blok mieczem, drop teleportuje sie do twojego ekwipunku"
+    lore1 = "Za kazdym razem gdy przedmiot wypada z moba/bloku ktory niszczysz, trafia do twojego ekwipunku jesli to mozliwe."
+    lore = ["Za kazdym razem gdy przedmiot wypada z moba/bloku ktory niszczysz, trafia do twojego ekwipunku jesli to mozliwe."]
+
+[hunter.invisibility]
+    name = "Znikajacy Krok"
+    description = "Gdy zostaniesz trafiony zyskujesz niewidzialnosc, kosztem glodu"
+    lore1 = "Zyskaj pasywna niewidzialnosc po trafieniu"
+    lore2 = "x Kumulacje Niewidzialnosci na 3 sekundy po trafieniu"
+    lore3 = "x Kumulowany glod"
+    lore4 = "Czas trwania i mnoznik kumulacji glodu."
+    lore5 = "Czas trwania niewidzialnosci"
+    lore = ["Zyskaj pasywna niewidzialnosc po trafieniu", "x Kumulacje Niewidzialnosci na 3 sekundy po trafieniu", "x Kumulowany glod", "Czas trwania i mnoznik kumulacji glodu.", "Czas trwania niewidzialnosci"]
+
+[hunter.jump_boost]
+    name = "Wyskoki Lowcy"
+    description = "Gdy zostaniesz trafiony zyskujesz wzmocnienie skoku, kosztem glodu"
+    lore1 = "Zyskaj pasywne wzmocnienie skoku po trafieniu"
+    lore2 = "x Kumulacje Wzmocnienia Skoku na 3 sekundy po trafieniu"
+    lore3 = "x Kumulowany glod"
+    lore4 = "Czas trwania i mnoznik kumulacji glodu."
+    lore5 = "Mnoznik kumulacji Wzmocnienia Skoku, nie czas trwania."
+    lore = ["Zyskaj pasywne wzmocnienie skoku po trafieniu", "x Kumulacje Wzmocnienia Skoku na 3 sekundy po trafieniu", "x Kumulowany glod", "Czas trwania i mnoznik kumulacji glodu.", "Mnoznik kumulacji Wzmocnienia Skoku, nie czas trwania."]
+
+[hunter.luck]
+    name = "Szczescie Lowcy"
+    description = "Gdy zostaniesz trafiony zyskujesz szczescie, kosztem glodu"
+    lore1 = "Zyskaj pasywne szczescie po trafieniu"
+    lore2 = "x Kumulacje Szczescia na 3 sekundy po trafieniu"
+    lore3 = "x Kumulowany glod"
+    lore4 = "Czas trwania i mnoznik kumulacji glodu."
+    lore5 = "Mnoznik kumulacji szczescia, nie czas trwania."
+    lore = ["Zyskaj pasywne szczescie po trafieniu", "x Kumulacje Szczescia na 3 sekundy po trafieniu", "x Kumulowany glod", "Czas trwania i mnoznik kumulacji glodu.", "Mnoznik kumulacji szczescia, nie czas trwania."]
+
+[hunter.regen]
+    name = "Regeneracja Lowcy"
+    description = "Gdy zostaniesz trafiony zyskujesz regeneracje, kosztem glodu"
+    lore1 = "Zyskaj pasywna regeneracje po trafieniu"
+    lore2 = "x Kumulacje Regeneracji na 3 sekundy po trafieniu"
+    lore3 = "x Kumulowany glod"
+    lore4 = "Czas trwania i mnoznik kumulacji glodu."
+    lore5 = "Mnoznik kumulacji regeneracji, nie czas trwania."
+    lore = ["Zyskaj pasywna regeneracje po trafieniu", "x Kumulacje Regeneracji na 3 sekundy po trafieniu", "x Kumulowany glod", "Czas trwania i mnoznik kumulacji glodu.", "Mnoznik kumulacji regeneracji, nie czas trwania."]
+
+[hunter.resistance]
+    name = "Odpornosc Lowcy"
+    description = "Gdy zostaniesz trafiony zyskujesz odpornosc, kosztem glodu"
+    lore1 = "Zyskaj pasywna odpornosc po trafieniu"
+    lore2 = "x Kumulacje Odpornosci na 3 sekundy po trafieniu"
+    lore3 = "x Kumulowany glod"
+    lore4 = "Czas trwania i mnoznik kumulacji glodu."
+    lore5 = "Mnoznik kumulacji odpornosci, nie czas trwania."
+    lore = ["Zyskaj pasywna odpornosc po trafieniu", "x Kumulacje Odpornosci na 3 sekundy po trafieniu", "x Kumulowany glod", "Czas trwania i mnoznik kumulacji glodu.", "Mnoznik kumulacji odpornosci, nie czas trwania."]
+
+[hunter.speed]
+    name = "Szybkosc Lowcy"
+    description = "Gdy zostaniesz trafiony zyskujesz szybkosc, kosztem glodu"
+    lore1 = "Zyskaj pasywna szybkosc po trafieniu"
+    lore2 = "x Kumulacje Szybkosci na 3 sekundy po trafieniu"
+    lore3 = "x Kumulowany glod"
+    lore4 = "Czas trwania i mnoznik kumulacji glodu."
+    lore5 = "Mnoznik kumulacji szybkosci, nie czas trwania."
+    lore = ["Zyskaj pasywna szybkosc po trafieniu", "x Kumulacje Szybkosci na 3 sekundy po trafieniu", "x Kumulowany glod", "Czas trwania i mnoznik kumulacji glodu.", "Mnoznik kumulacji szybkosci, nie czas trwania."]
+
+[hunter.strength]
+    name = "Sila Lowcy"
+    description = "Gdy zostaniesz trafiony zyskujesz sile, kosztem glodu"
+    lore1 = "Zyskaj pasywna sile po trafieniu"
+    lore2 = "x Kumulacje Sily na 3 sekundy po trafieniu"
+    lore3 = "x Kumulowany glod"
+    lore4 = "Czas trwania i mnoznik kumulacji glodu."
+    lore5 = "Mnoznik kumulacji sily, nie czas trwania."
+    lore = ["Zyskaj pasywna sile po trafieniu", "x Kumulacje Sily na 3 sekundy po trafieniu", "x Kumulowany glod", "Czas trwania i mnoznik kumulacji glodu.", "Mnoznik kumulacji sily, nie czas trwania."]
+
+# nether
+[nether]
+
+[nether.skull_toss]
+    name = "Rzut Czaszka Withera"
+    description1 = "Uwolnij swego wewnetrznego Withera uzywajac"
+    description2 = "czyjejs"
+    description3 = "glowy."
+    lore1 = "Sekundy odnowienia miedzy rzutami czaszka."
+    lore2 = "Uzywajac Czaszki Withera: Rzuc "
+    lore3 = "Czaszke Withera"
+    lore4 = "eksplodujaca przy uderzeniu."
+    lore = ["Sekundy odnowienia miedzy rzutami czaszka.", "Uzywajac Czaszki Withera: Rzuc ", "Czaszke Withera", "eksplodujaca przy uderzeniu."]
+
+[nether.wither_resist]
+    name = "Odpornosc na Wiecenie"
+    description = "Odpiera wiecenie dzieki mocy Netheritu."
+    lore1 = "szansa na zanegowanie wiecenia (za czesc)."
+    lore2 = "Pasywne: Noszenie Zbroi z Netheritu ma szanse zanegowac "
+    lore3 = "wiecenie."
+    lore = ["szansa na zanegowanie wiecenia (za czesc).", "Pasywne: Noszenie Zbroi z Netheritu ma szanse zanegowac ", "wiecenie."]
+
+[nether.fire_resist]
+    name = "Odpornosc na Ogien"
+    description = "Odpiera ogien utwardzajac twoja skore."
+    lore1 = "szansa na zanegowanie efektu palenia!"
+    lore = ["szansa na zanegowanie efektu palenia!"]
+
+# pickaxe
+[pickaxe]
+
+[pickaxe.auto_smelt]
+    name = "Autotopienie"
+    description = "Pozwala automatycznie wytapiac wydobywane standardowe rudy"
+    lore1 = "Rudy ktore mozna przetopic sa przetapiane automatycznie"
+    lore2 = "% szansy na dodatkowy"
+    lore = ["Rudy ktore mozna przetopic sa przetapiane automatycznie", "% szansy na dodatkowy"]
+
+[pickaxe.chisel]
+    name = "Dluto do Rud"
+    description = "Kliknij prawym przyciskiem na rudy aby wydlutac z nich wiecej, kosztem duzej wytrzymalosci."
+    lore1 = "Szansa na Drop"
+    lore2 = "Zuzycie Narzedzia"
+    lore = ["Szansa na Drop", "Zuzycie Narzedzia"]
+
+[pickaxe.drop_to_inventory]
+    name = "Kilof Zrzut-Do-Ekwipunku"
+    description = "Gdy zniszczysz blok, przedmiot teleportuje sie do twojego ekwipunku"
+    lore1 = "Za kazdym razem gdy przedmiot wypada z bloku ktory niszczysz, trafia do twojego ekwipunku jesli to mozliwe."
+    lore = ["Za kazdym razem gdy przedmiot wypada z bloku ktory niszczysz, trafia do twojego ekwipunku jesli to mozliwe."]
+
+[pickaxe.silk_spawner]
+    name = "Kilof Jedwabny-Spawner"
+    description = "Spawnery wypadaja gdy sa niszczone"
+    lore1 = "Spawnery mozna niszczyc z Jedwabnym Dotykiem."
+    lore2 = "Spawnery mozna niszczyc podczas kucania."
+    lore = ["Spawnery mozna niszczyc z Jedwabnym Dotykiem.", "Spawnery mozna niszczyc podczas kucania."]
+
+[pickaxe.vein_miner]
+    name = "Gornik Zyl"
+    description = "Pozwala niszczyc bloki w Zyle/Skupisku standardowych rud"
+    lore1 = "Kucnij i niszcz RUDY"
+    lore2 = "zasieg wydobycia zylowego"
+    lore3 = "Ta umiejetnosc NIE grupuje wszystkich dropow razem!"
+    lore = ["Kucnij i niszcz RUDY", "zasieg wydobycia zylowego", "Ta umiejetnosc NIE grupuje wszystkich dropow razem!"]
+
+# ranged
+[ranged]
+
+[ranged.arrow_recovery]
+    name = "Odzyskiwanie Strzal"
+    description = "Odzyskuj strzaly po zabiciu wroga."
+    lore1 = "Szansa na odzyskanie strzal po trafieniu/zabiciu"
+    lore2 = "Szansa: "
+    lore = ["Szansa na odzyskanie strzal po trafieniu/zabiciu", "Szansa: "]
+
+[ranged.web_shot]
+    name = "Pajeczyna Pulapka"
+    description = "Otocz cel pajeczyna gdy go trafisz!"
+    lore1 = "8 Pajeczyn wokol Sniezki i rzuc!"
+    lore2 = "sekundy klatki, mniej wiecej."
+    lore = ["8 Pajeczyn wokol Sniezki i rzuc!", "sekundy klatki, mniej wiecej."]
+
+[ranged.force_shot]
+    name = "Silowy Strzal"
+    description = "Strzelaj pociskami dalej i szybciej!"
+    advancementname = "Dlugi Strzal"
+    advancementlore = "Traf strzalem z ponad 30 blokow!"
+    lore1 = "Predkosc Pocisku"
+    lore = ["Predkosc Pocisku"]
+
+[ranged.lunge_shot]
+    name = "Strzal z Wyskoku"
+    description = "Podczas spadania strzaly rzucaja cie w losowym kierunku"
+    lore1 = "Losowa Predkosc Zrywu"
+    lore = ["Losowa Predkosc Zrywu"]
+
+[ranged.arrow_piercing]
+    name = "Przeszywanie Strzalami"
+    description = "Dodaje przeszywanie do pociskow! Strzelaj przez przeszkody!"
+    lore1 = "Przeszyte Cele"
+    lore = ["Przeszyte Cele"]
+
+# rift
+[rift]
+
+[rift.remote_access]
+    name = "Zdalny Dostep"
+    description = "Siegnij przez pustke i dostac sie do oznaczonego pojemnika."
+    lore1 = "Perla Endera + Kompas = Relikwiarzowy Switoklin"
+    lore2 = "Ten przedmiot pozwala na zdalny dostep do pojemnikow"
+    lore3 = "Po wytworzeniu spjorz na przedmiot aby zobaczyc uzycie"
+    notcontainer = "To nie jest pojemnik"
+    lore = ["Perla Endera + Kompas = Relikwiarzowy Switoklin", "Ten przedmiot pozwala na zdalny dostep do pojemnikow", "Po wytworzeniu spjorz na przedmiot aby zobaczyc uzycie"]
+
+[rift.blink]
+    name = "Mrgniecie Szczeliny"
+    description = "Natychmiastowa teleportacja krotkiego zasiegu, jedno mrgniecie!"
+    lore1 = "Blokow na mrgniecie (2x w pionie)"
+    lore2 = "Podczas Sprintowania: Podwojnie wcisnij Skok aby "
+    lore3 = "Mrgnac"
+    lore = ["Blokow na mrgniecie (2x w pionie)", "Podczas Sprintowania: Podwojnie wcisnij Skok aby ", "Mrgnac"]
+
+[rift.chest]
+    name = "Latwa Enderchest"
+    description = "Otworz enderchest klikajac na nia lewym przyciskiem w rece."
+    lore1 = "Kliknij Enderchest w rece aby otworzyc (Tylko jej nie stawiaj)"
+    lore = ["Kliknij Enderchest w rece aby otworzyc (Tylko jej nie stawiaj)"]
+
+[rift.descent]
+    name = "Anty-Lewitacja"
+    description = "Masz dosc utknieccia w powietrzu? Ta umiejetnosc jest dla ciebie!"
+    lore1 = "Po prostu kucnij aby opadac, a bedziesz spadac wolniej niz normalnie!"
+    lore2 = "Czas odnowienia:"
+    lore = ["Po prostu kucnij aby opadac, a bedziesz spadac wolniej niz normalnie!", "Czas odnowienia:"]
+
+[rift.gate]
+    name = "Brama Szczeliny"
+    description = "Teleportuj sie do oznaczonej lokalizacji."
+    lore1 = "WYTWARZANIE: Szmaragd + Odlamek Ametystu + Perla Endera"
+    lore2 = "Przeczytaj przed uzyciem!"
+    lore3 = "5 sek. opoznienia, "
+    lore4 = "mozesz umrzec podczas tej animacji"
+    lore = ["WYTWARZANIE: Szmaragd + Odlamek Ametystu + Perla Endera", "Przeczytaj przed uzyciem!", "5 sek. opoznienia, ", "mozesz umrzec podczas tej animacji"]
+
+[rift.resist]
+    name = "Odpornosc Szczeliny"
+    description = "Zyskaj Odpornosc gdy uzywasz przedmiotow i zdolnosci Endera"
+    lore1 = "+ Pasywne: Zapewnia odpornosc gdy uzywasz zdolnosci Szczeliny lub Przedmiotow Endera"
+    lore2 = "NIE wliczajac przenosnej Enderchest, tylko rzeczy ktore mozesz zuzyc"
+    lore = ["+ Pasywne: Zapewnia odpornosc gdy uzywasz zdolnosci Szczeliny lub Przedmiotow Endera", "NIE wliczajac przenosnej Enderchest, tylko rzeczy ktore mozesz zuzyc"]
+
+[rift.visage]
+    name = "Oblicze Szczeliny"
+    description = "Zapobiega agresji Endermanow jesli masz Perly Endera w ekwipunku."
+    lore1 = "Endermany nie stana sie agresywne jesli masz Perly Endera w ekwipunku."
+    lore = ["Endermany nie stana sie agresywne jesli masz Perly Endera w ekwipunku."]
+
+# seaborn
+[seaborn]
+
+[seaborn.oxygen]
+    name = "Organiczny Zbiornik Tlenu"
+    description = "Przechowuj wiecej tlenu w swoich malych plucach!"
+    lore1 = "Zwiekszenie Pojemnosci Tlenowej"
+    lore = ["Zwiekszenie Pojemnosci Tlenowej"]
+
+[seaborn.fishers_fantasy]
+    name = "Fantazja Rybaka"
+    description = "Zdobywaj wiecej PD z lowienia i lapaj wiecej ryb!"
+    lore1 = "Za kazdy poziom jest szansa na wiecej PD i wiecej Ryb!"
+    lore = ["Za kazdy poziom jest szansa na wiecej PD i wiecej Ryb!"]
+
+[seaborn.haste]
+    name = "Zolwi Gornik"
+    description = "Podczas kopania pod woda zyskujesz pospiech!"
+    lore1 = "Pospiech 3 jest nakladany pod woda podczas kopania (kumuluje sie z AquaAffinity) po zakonczeniu efektu oddychania pod woda!"
+    lore = ["Pospiech 3 jest nakladany pod woda podczas kopania (kumuluje sie z AquaAffinity) po zakonczeniu efektu oddychania pod woda!"]
+
+[seaborn.night_vision]
+    name = "Wizja Zolwia"
+    description = "Pod woda zyskujesz Noktowizje"
+    lore1 = "Po prostu zyskaj Noktowizje pod woda po zakonczeniu efektu oddychania pod woda!"
+    lore = ["Po prostu zyskaj Noktowizje pod woda po zakonczeniu efektu oddychania pod woda!"]
+
+[seaborn.dolphin_grace]
+    name = "Laska Delfina"
+    description = "Plywaj jak delfin, bez delfinow"
+    lore1 = "+ Pasywne: zyskaj "
+    lore2 = "x predkosc (laska delfina)"
+    lore3 = "precyzyjna niemiecka inzynier- czekaj, to nie tak... Nie kompatybilne z Glebinowym Krokiem"
+    lore = ["+ Pasywne: zyskaj ", "x predkosc (laska delfina)", "precyzyjna niemiecka inzynier- czekaj, to nie tak... Nie kompatybilne z Glebinowym Krokiem"]
+
+# stealth
+[stealth]
+
+[stealth.ghost_armor]
+    name = "Zbroja Ducha"
+    description = "Wolno narastajacy pancerz gdy nie otrzymujesz obrazen, wytrzymuje 1 trafienie"
+    lore1 = "Maksymalny Pancerz"
+    lore2 = "Szybkosc"
+    lore = ["Maksymalny Pancerz", "Szybkosc"]
+
+[stealth.night_vision]
+    name = "Wizja Skradania"
+    description = "Zyskaj noktowizje podczas kucania"
+    lore1 = "Zyskaj porcje "
+    lore2 = "noktowizji"
+    lore3 = "podczas kucania"
+    lore = ["Zyskaj porcje ", "noktowizji", "podczas kucania"]
+
+[stealth.snatch]
+    name = "Chwytanie Przedmiotow"
+    description = "Chwytaj Upuszczone Przedmioty natychmiast podczas kucania!"
+    lore1 = "Zasieg Chwytania"
+    lore = ["Zasieg Chwytania"]
+
+[stealth.speed]
+    name = "Szybkosc Skradania"
+    description = "Zyskaj szybkosc podczas kucania"
+    lore1 = "Szybkosc Kucania"
+    lore = ["Szybkosc Kucania"]
+
+[stealth.ender_veil]
+    name = "Zaslona Endera"
+    description = "Koniec z dyniami aby zapobiec atakom Endermanow"
+    lore1 = "Zapobiega atakom Endermanow podczas kucania"
+    lore2 = "Zapobiega wszystkim atakom Endermanow"
+    lore = ["Zapobiega atakom Endermanow podczas kucania", "Zapobiega wszystkim atakom Endermanow"]
+
+# sword
+[sword]
+
+[sword.machete]
+    name = "Maczeta"
+    description = "Przedzieraj sie przez roslinnosc z latwoscia!"
+    lore1 = "Zasieg Ciecia"
+    lore2 = "Czas Odnowienia Ciecia"
+    lore3 = "Zuzycie Narzedzia"
+    lore = ["Zasieg Ciecia", "Czas Odnowienia Ciecia", "Zuzycie Narzedzia"]
+
+[sword.bloody_blade]
+    name = "Krwawe Ostrze"
+    description = "Uderzenia mieczem powoduja Krwawienie!"
+    lore1 = "Trafienie zywej istoty mieczem powoduje Krwawienie"
+    lore2 = "Czas Trwania Krwawienia"
+    lore3 = "Czas Odnowienia Krwawienia"
+    lore = ["Trafienie zywej istoty mieczem powoduje Krwawienie", "Czas Trwania Krwawienia", "Czas Odnowienia Krwawienia"]
+
+[sword.poisoned_blade]
+    name = "Zatrute Ostrze"
+    description = "Uderzenia mieczem powoduja Truizne!"
+    lore1 = "Trafienie zywej istoty mieczem powoduje Truizne"
+    lore2 = "Czas Trwania Trucizny"
+    lore3 = "Czas Odnowienia Trucizny"
+    lore = ["Trafienie zywej istoty mieczem powoduje Truizne", "Czas Trwania Trucizny", "Czas Odnowienia Trucizny"]
+
+# taming
+[taming]
+
+[taming.damage]
+    name = "Obrazenia Oswojonych"
+    description = "Zwieksz obrazenia zadawane przez oswojone zwierzeta."
+    lore1 = "Zwiekszone Obrazenia"
+    lore = ["Zwiekszone Obrazenia"]
+
+[taming.health]
+    name = "Zdrowie Oswojonych"
+    description = "Zwieksz zdrowie swoich oswojonych zwierzat."
+    lore1 = "Zwiekszone Zdrowie"
+    lore = ["Zwiekszone Zdrowie"]
+
+[taming.regeneration]
+    name = "Regeneracja Oswojonych"
+    description = "Zwieksz regeneracje swoich oswojonych zwierzat."
+    lore1 = "PZ/s"
+    lore = ["PZ/s"]
+
+# tragoul
+[tragoul]
+
+[tragoul.thorns]
+    name = "Ciernie"
+    description = "Odbij obrazenia z powrotem na atakujacego!"
+    lore1 = "Obrazenia odwetowe po trafieniu"
+    lore = ["Obrazenia odwetowe po trafieniu"]
+
+[tragoul.globe]
+    name = "Kula Bolu"
+    description = "Podziel zadawane obrazenia na podstawie liczby wrogow wokol ciebie!"
+    lore1 = "Im wiecej wrogow wokol ciebie, tym mniej obrazen zadasz kazdemu"
+    lore2 = "Zasieg: "
+    lore3 = "Dodane Obrazenia dla wszystkich Istot: "
+    lore = ["Im wiecej wrogow wokol ciebie, tym mniej obrazen zadasz kazdemu", "Zasieg: ", "Dodane Obrazenia dla wszystkich Istot: "]
+
+[tragoul.healing]
+    name = "Wola Bolu"
+    description = "Odzyskaj zdrowie na podstawie zadawanych obrazen!"
+    lore1 = "Krzywdzenie jeszcze nigdy nie bylo tak przyjemne! Lecz sie z Zadanych Obrazen"
+    lore2 = "Jest 3-sekundowe okno obrazen na leczenie i 1-sekundowy czas odnowienia "
+    lore3 = "Procent Leczenia za Obrazenia: "
+    lore = ["Krzywdzenie jeszcze nigdy nie bylo tak przyjemne! Lecz sie z Zadanych Obrazen", "Jest 3-sekundowe okno obrazen na leczenie i 1-sekundowy czas odnowienia ", "Procent Leczenia za Obrazenia: "]
+
+[tragoul.lance]
+    name = "Lance Trupow"
+    description = "Zabicie wroga lub zabojstwo przez umiejetnosc tworzy lance zadajaca obrazenia pobliskiemu wrogowi!"
+    lore1 = "Lance beda szukac ze wszystkiego co zabijesz ORAZ jesli ta umiejetnosc zabije wroga."
+    lore2 = "Poswiec czesc swojego zycia aby stworzyc lance (to moze cie zabic)"
+    lore3 = "Maks. Lanc: 1 + "
+    lore = ["Lance beda szukac ze wszystkiego co zabijesz ORAZ jesli ta umiejetnosc zabije wroga.", "Poswiec czesc swojego zycia aby stworzyc lance (to moze cie zabic)", "Maks. Lanc: 1 + "]
+
+# unarmed
+[unarmed]
+
+[unarmed.glass_cannon]
+    name = "Szklane Dzialo"
+    description = "Dodatkowe obrazenia wreczna im nizsza wartosc twojego pancerza"
+    lore1 = "x Obrazenia przy 0 pancerza"
+    lore2 = "Dodatkowe Obrazenia za Poziom"
+    lore = ["x Obrazenia przy 0 pancerza", "Dodatkowe Obrazenia za Poziom"]
+
+[unarmed.power]
+    name = "Moc Walki Wreczna"
+    description = "Ulepszone obrazenia wreczna"
+    lore1 = "Obrazenia"
+    lore = ["Obrazenia"]
+
+[unarmed.sucker_punch]
+    name = "Cios z Zaskoczenia"
+    description = "Sprintowe ciosy, ale bardziej smiercionosne."
+    lore1 = "Obrazenia"
+    lore2 = "Obrazenia rosna wraz z szybkoscia podczas ciosow"
+    lore = ["Obrazenia", "Obrazenia rosna wraz z szybkoscia podczas ciosow"]

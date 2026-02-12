@@ -41,11 +41,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     public SkillUnarmed() {
-        super("unarmed", Localizer.dLocalize("skill", "unarmed", "icon"));
+        super("unarmed", Localizer.dLocalize("skill.unarmed.icon"));
         registerConfiguration(Config.class);
         setColor(C.YELLOW);
-        setDescription(Localizer.dLocalize("skill", "unarmed", "description"));
-        setDisplayName(Localizer.dLocalize("skill", "unarmed", "name"));
+        setDescription(Localizer.dLocalize("skill.unarmed.description"));
+        setDisplayName(Localizer.dLocalize("skill.unarmed.name"));
         setInterval(2579);
         registerAdaptation(new UnarmedSuckerPunch());
         registerAdaptation(new UnarmedPower());
@@ -54,24 +54,24 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
         registerAdvancement(AdaptAdvancement.builder()
                 .icon(Material.FIRE_CHARGE)
                 .key("challenge_unarmed_100")
-                .title(Localizer.dLocalize("advancement", "challenge_unarmed_100", "title"))
-                .description(Localizer.dLocalize("advancement", "challenge_unarmed_100", "description"))
+                .title(Localizer.dLocalize("advancement.challenge_unarmed_100.title"))
+                .description(Localizer.dLocalize("advancement.challenge_unarmed_100.description"))
                 .model(CustomModel.get(Material.FIRE_CHARGE, "advancement", "unarmed", "challenge_unarmed_100"))
                 .frame(AdaptAdvancementFrame.CHALLENGE)
                 .visibility(AdvancementVisibility.PARENT_GRANTED)
                 .child(AdaptAdvancement.builder()
                         .icon(Material.BLAZE_POWDER)
                         .key("challenge_unarmed_1k")
-                        .title(Localizer.dLocalize("advancement", "challenge_unarmed_1k", "title"))
-                        .description(Localizer.dLocalize("advancement", "challenge_unarmed_1k", "description"))
+                        .title(Localizer.dLocalize("advancement.challenge_unarmed_1k.title"))
+                        .description(Localizer.dLocalize("advancement.challenge_unarmed_1k.description"))
                         .model(CustomModel.get(Material.BLAZE_POWDER, "advancement", "unarmed", "challenge_unarmed_1k"))
                         .frame(AdaptAdvancementFrame.CHALLENGE)
                         .visibility(AdvancementVisibility.PARENT_GRANTED)
                         .child(AdaptAdvancement.builder()
                                 .icon(Material.NETHER_STAR)
                                 .key("challenge_unarmed_10k")
-                                .title(Localizer.dLocalize("advancement", "challenge_unarmed_10k", "title"))
-                                .description(Localizer.dLocalize("advancement", "challenge_unarmed_10k", "description"))
+                                .title(Localizer.dLocalize("advancement.challenge_unarmed_10k.title"))
+                                .description(Localizer.dLocalize("advancement.challenge_unarmed_10k.description"))
                                 .model(CustomModel.get(Material.NETHER_STAR, "advancement", "unarmed", "challenge_unarmed_10k"))
                                 .frame(AdaptAdvancementFrame.CHALLENGE)
                                 .visibility(AdvancementVisibility.PARENT_GRANTED)

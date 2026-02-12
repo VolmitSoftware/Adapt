@@ -32,8 +32,8 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     public SeaborneOxygen() {
         super("seaborne-oxygen");
         registerConfiguration(Config.class);
-        setDescription(Localizer.dLocalize("seaborn", "oxygen", "description"));
-        setDisplayName(Localizer.dLocalize("seaborn", "oxygen", "name"));
+        setDescription(Localizer.dLocalize("seaborn.oxygen.description"));
+        setDisplayName(Localizer.dLocalize("seaborn.oxygen.name"));
         setIcon(Material.GLASS_PANE);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -44,7 +44,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
 
     @Override
     public void addStats(int level, Element v) {
-        v.addLore(C.GREEN + "+ " + Form.pc(getAirBoost(level), 0) + C.GRAY + Localizer.dLocalize("seaborn", "oxygen", "lore1"));
+        v.addLore(C.GREEN + "+ " + Form.pc(getAirBoost(level), 0) + C.GRAY + Localizer.dLocalize("seaborn.oxygen.lore1"));
     }
 
     public double getAirBoost(int level) {

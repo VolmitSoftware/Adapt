@@ -41,8 +41,8 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
     public ExcavationDropToInventory() {
         super("excavation-drop-to-inventory");
         registerConfiguration(ExcavationDropToInventory.Config.class);
-        setDescription(Localizer.dLocalize("pickaxe", "droptoinventory", "description"));
-        setDisplayName(Localizer.dLocalize("excavation", "droptoinventory", "name"));
+        setDescription(Localizer.dLocalize("pickaxe.drop_to_inventory.description"));
+        setDisplayName(Localizer.dLocalize("excavation.drop_to_inventory.name"));
         setIcon(Material.DIRT);
         setBaseCost(getConfig().baseCost);
         setMaxLevel(getConfig().maxLevel);
@@ -58,7 +58,7 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
     }
 
     public void addStats(int level, Element v) {
-        v.addLore(C.GRAY + Localizer.dLocalize("pickaxe", "droptoinventory", "lore1"));
+        v.addLore(C.GRAY + Localizer.dLocalize("pickaxe.drop_to_inventory.lore1"));
     }
 
 
