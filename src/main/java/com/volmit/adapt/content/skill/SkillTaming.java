@@ -265,7 +265,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownDelay = 2250;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Tame Damage XPMultiplier for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double tameDamageXPMultiplier = 7.85;
+        double tameDamageXPMultiplier = 5.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Taming Reward for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeTamingReward = 500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Pet Damage Reward for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

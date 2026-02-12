@@ -281,10 +281,10 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Excavation Reward for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeExcavationReward = 1200;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Value XPMultiplier for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double valueXPMultiplier = 0.825;
+        double valueXPMultiplier = 0.6;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownDelay = 1250;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Axe Damage XPMultiplier for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double axeDamageXPMultiplier = 6.5;
+        double axeDamageXPMultiplier = 4.0;
     }
 }

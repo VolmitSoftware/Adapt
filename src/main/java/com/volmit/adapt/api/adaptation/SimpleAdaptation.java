@@ -63,10 +63,10 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         recipes = new ArrayList<>();
         brewingRecipes = new ArrayList<>();
         setMaxLevel(5);
-        setCostFactor(0.35);
-        setBaseCost(3);
+        setCostFactor(0.45);
+        setBaseCost(4);
         setIcon(Material.PAPER);
-        setInitialCost(1);
+        setInitialCost(2);
         setDescription("No Description Provided");
         this.name = name;
     }

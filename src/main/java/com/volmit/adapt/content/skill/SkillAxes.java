@@ -289,14 +289,14 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Chop Reward for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeChopReward = 1750;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Log Or Wood XPMultiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double logOrWoodXPMultiplier = 2.67;
+        double logOrWoodXPMultiplier = 2.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Leaves Multiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double leavesMultiplier = 1.11;
+        double leavesMultiplier = 0.75;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownDelay = 2250;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Value XPMultiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double valueXPMultiplier = 0.225;
+        double valueXPMultiplier = 0.175;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Axe Damage XPMultiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double axeDamageXPMultiplier = 13.26;
+        double axeDamageXPMultiplier = 7.0;
     }
 }

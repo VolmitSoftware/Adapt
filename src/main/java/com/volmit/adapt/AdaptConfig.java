@@ -51,10 +51,10 @@ public class AdaptConfig {
     private boolean metrics = true;
     private String language = "en_US";
     private String fallbackLanguageDontChangeUnlessYouKnowWhatYouAreDoing = "en_US";
-    private Curves xpCurve = Curves.XL3L7;
+    private Curves xpCurve = Curves.ADAPT_BALANCED;
     private double playerXpPerSkillLevelUpBase = 489;
     private double playerXpPerSkillLevelUpLevelMultiplier = 44;
-    private double powerPerLevel = 0.73;
+    private double powerPerLevel = 0.65;
     private boolean hardcoreResetOnPlayerDeath = false;
     private boolean hardcoreNoRefunds = false;
     private boolean loginBonus = true;

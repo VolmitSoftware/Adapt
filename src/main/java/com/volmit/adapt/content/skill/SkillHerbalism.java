@@ -334,13 +334,13 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         public boolean enabled = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Harvest Xp Cooldown for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public double harvestXpCooldown = 5000;
+        public double harvestXpCooldown = 3500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Food Consume XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public double foodConsumeXP = 25;
+        public double foodConsumeXP = 20;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Shear XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double shearXP = 25;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Harvest Per Age XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        public double harvestPerAgeXP = 2.5;
+        public double harvestPerAgeXP = 3.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Plant Crop Seeds XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         public double plantCropSeedsXP = 2.5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Composter Base XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

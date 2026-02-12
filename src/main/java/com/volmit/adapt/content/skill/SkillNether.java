@@ -259,9 +259,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Wither Attack Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private double witherAttackXp = 15;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Wither Skeleton Kill Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        private double witherSkeletonKillXp = 325;
+        private double witherSkeletonKillXp = 225;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Wither Kill Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        private double witherKillXp = 1250;
+        private double witherKillXp = 900;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Wither Rose Break Xp for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         private double witherRoseBreakXp = 125;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Wither Rose Break Cooldown for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

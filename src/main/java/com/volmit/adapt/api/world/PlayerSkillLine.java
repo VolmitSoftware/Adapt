@@ -47,6 +47,9 @@ public class PlayerSkillLine {
     private double rfreshness = 1D;
     private int lastLevel = 0;
     private long last = M.ms();
+    private int monotonyCounter = 0;
+    private long lastXpTimestamp = 0;
+    private double monotonyMultiplier = 1.0;
     private final KMap<String, Object> storage = new KMap<>();
     private final KMap<String, PlayerAdaptation> adaptations = new KMap<>();
     private final KList<XPMultiplier> multipliers = new KList<>();
@@ -87,7 +90,7 @@ public class PlayerSkillLine {
     private void updateFreshness() {
         double max = 1D + (getLevel() * 0.004);
 
-        freshness += (0.1 * freshness) + 0.00124;
+        freshness += (0.08 * freshness) + 0.003;
         if (freshness > max) freshness = max;
         if (freshness < 0.01) freshness = 0.01;
         if (freshness < rfreshness) rfreshness -= ((rfreshness - freshness) * 0.003);
@@ -124,9 +127,22 @@ public class PlayerSkillLine {
     }
 
     public void giveXP(Notifier p, double xp) {
-//        freshness -= xp * 0.005; // Increased from 0.001
-        freshness -= Math.pow(xp, 2) * 0.0001; // Exponential decrease, attempt
-        xp = multiplier * xp;
+        freshness -= 0.012 + (xp * 0.00025);
+
+        long now = System.currentTimeMillis();
+        if (now - lastXpTimestamp > 300000) {
+            monotonyCounter = 0;
+        }
+        lastXpTimestamp = now;
+        monotonyCounter++;
+
+        if (monotonyCounter > 200) {
+            monotonyMultiplier = Math.max(0.25, 1.0 - ((monotonyCounter - 200) * 0.003));
+        } else {
+            monotonyMultiplier = 1.0;
+        }
+
+        xp = multiplier * monotonyMultiplier * xp;
         this.xp += xp;
 
         if (p != null) {
@@ -134,7 +150,6 @@ public class PlayerSkillLine {
             if (AdaptConfig.get().isActionbarNotifyXp()) {
                 p.notifyXP(line, xp);
             }
-
         }
     }
 

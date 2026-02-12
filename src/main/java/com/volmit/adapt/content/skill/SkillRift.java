@@ -294,7 +294,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
         boolean enabled = true;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Destroy End Crystal XP for the Rift skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double destroyEndCrystalXP = 350;
+        double destroyEndCrystalXP = 250;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Damage End Crystal XP for the Rift skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double damageEndCrystalXP = 110;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Damage Enderman XPMultiplier for the Rift skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -304,9 +304,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Damage Enderdragon XPMultiplier for the Rift skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double damageEnderdragonXPMultiplier = 8;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Throw Enderpearl XP for the Rift skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double throwEnderpearlXP = 105;
+        double throwEnderpearlXP = 65;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Throw Ender Eye XP for the Rift skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double throwEnderEyeXP = 45;
+        double throwEnderEyeXP = 30;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Teleport XP for the Rift skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double teleportXP = 15;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Teleport XPCooldown for the Rift skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

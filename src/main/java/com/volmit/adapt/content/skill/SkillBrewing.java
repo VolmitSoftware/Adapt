@@ -347,7 +347,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Brew Splash1k for the Brewing skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeBrewSplash1k = 1000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Splash XP for the Brewing skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double splashXP = 100;
+        double splashXP = 65;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Brewing skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownDelay = 3250;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Splash Multiplier for the Brewing skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

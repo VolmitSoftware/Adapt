@@ -208,7 +208,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         shouldReturnForPlayer(e.getPlayer(), e, () -> {
             if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH)) {
                 getPlayer(p).getData().addStat("seaborne.fish.caught", 1);
-                xp(p, 300);
+                xp(p, 200);
             } else if (e.getState().equals(PlayerFishEvent.State.CAUGHT_ENTITY)) {
                 xp(p, 10);
             }
@@ -302,6 +302,6 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Swim20k Reward for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeSwim20kReward = 3750;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Swim XP for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double swimXP = 28.7;
+        double swimXP = 5.0;
     }
 }

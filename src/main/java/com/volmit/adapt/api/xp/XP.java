@@ -35,6 +35,7 @@ public class XP {
     public static void xp(AdaptPlayer p, Skill skill, double xp) {
         PlayerSkillLine skillLine = p.getSkillLine(skill.getName());
         if (skillLine != null) {
+            p.getData().resetMonotonyForOtherSkills(skill.getName());
             skillLine.giveXP(p.getNot(), xp);
         }
     }
@@ -45,6 +46,7 @@ public class XP {
 
     public static void xpSilent(AdaptPlayer p, Skill skill, double xp) {
         if (p.getSkillLine(skill.getName()) != null) {
+            p.getData().resetMonotonyForOtherSkills(skill.getName());
             p.getSkillLine(skill.getName()).giveXP(null, xp);
         }
     }

@@ -254,6 +254,14 @@ public class PlayerData {
         return skillLines.get(skillLine);
     }
 
+    public void resetMonotonyForOtherSkills(String currentSkill) {
+        for (PlayerSkillLine line : skillLines.values()) {
+            if (!line.getLine().equals(currentSkill)) {
+                line.setMonotonyCounter(0);
+            }
+        }
+    }
+
     public void addWisdom() {
         wisdom++;
     }

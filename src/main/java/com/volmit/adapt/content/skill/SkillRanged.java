@@ -275,9 +275,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Ranged skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownDelay = 1250;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Hit Damage XPMultiplier for the Ranged skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double hitDamageXPMultiplier = 2.125;
+        double hitDamageXPMultiplier = 1.75;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Hit Distance XPMultiplier for the Ranged skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double hitDistanceXPMultiplier = 1.7;
+        double hitDistanceXPMultiplier = 1.2;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Ranged Reward for the Ranged skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeRangedReward = 500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Ranged Damage Reward for the Ranged skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

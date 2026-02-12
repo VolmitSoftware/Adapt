@@ -252,7 +252,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Sneak20k Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeSneak20kReward = 8750;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Sneak XP for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double sneakXP = 10.5;
+        double sneakXP = 3.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Dmg 500 Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeStealthDmg500Reward = 1500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Dmg 5k Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

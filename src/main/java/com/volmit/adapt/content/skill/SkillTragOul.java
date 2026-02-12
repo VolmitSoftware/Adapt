@@ -317,7 +317,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Trag Oul skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownDelay = 1000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Damage Received Xp Multiplier for the Trag Oul skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double damageReceivedXpMultiplier = 2.26;
+        double damageReceivedXpMultiplier = 1.75;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Challenge Trag Reward for the Trag Oul skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double challengeTragReward = 500;
     }

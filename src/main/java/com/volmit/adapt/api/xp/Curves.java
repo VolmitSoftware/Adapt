@@ -65,6 +65,12 @@ public enum Curves {
     XL80L7(level -> ((80337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137),
     XL160L7(level -> ((160337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137),
     XL100L7(level -> ((1000337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137),
+    ADAPT_BALANCED(resolved(
+            level -> 1200 * level + 100 * Math.pow(level, 2),
+            xp -> (-1200 + Math.sqrt(1440000 + 400 * xp)) / 200,
+            0.001
+    )),
+
     LINEAR_EXPONENTIAL_1(resolved(level -> 1000 * level + 100 * Math.pow(level, 2), xp -> {
         double a = 1000;
         double b = 100;

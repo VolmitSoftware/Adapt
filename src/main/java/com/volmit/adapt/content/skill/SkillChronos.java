@@ -553,7 +553,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Distance Per Bonus XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double distancePerBonusXP = 5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Active Movement XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double activeMovementXP = 6;
+        double activeMovementXP = 3.5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Active Movement XPCap Per Tick for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double activeMovementXPCapPerTick = 22;
 
@@ -569,7 +569,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
         // Passive active XP
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Passive Active XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double passiveActiveXP = 2.5;
+        double passiveActiveXP = 1.5;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Activity Window for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long activityWindow = 15000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Activity Types For Bonus for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -611,7 +611,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
         // Survival streak
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Survival XPPer Minute for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double survivalXPPerMinute = 5;
+        double survivalXPPerMinute = 3;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Survival Streak Bonus Per Hour for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double survivalStreakBonusPerHour = 0.2;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Survival Streak Hour Cap for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

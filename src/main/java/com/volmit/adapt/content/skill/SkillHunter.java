@@ -311,11 +311,11 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Creeper Kill Multiplier for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double creeperKillMultiplier = 2;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Kill Max Health XPMultiplier for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double killMaxHealthXPMultiplier = 4;
+        double killMaxHealthXPMultiplier = 3.0;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         long cooldownDelay = 1000;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Spawner Mob Reduction Xp Multiplier for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-        double spawnerMobReductionXpMultiplier = 0.5;
+        double spawnerMobReductionXpMultiplier = 0.3;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Kills Challenge Reward for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
         double killsChallengeReward = 500;
         @com.volmit.adapt.util.config.ConfigDoc(value = "Controls Boss Kill Reward for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
